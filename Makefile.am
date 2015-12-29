@@ -14,10 +14,15 @@ libthuem_a_SOURCES = src/Complex.cpp
 libthuem_a_SOURCES += src/Functions/Functions.cpp \
 					  src/Functions/Interpolation.cpp
 
-libthuem_a_SOURCES += src/Image/ImageBase.cpp
+libthuem_a_SOURCES += src/Image/ImageBase.cpp \
+					  src/Image/BMP.cpp \
+					  src/Image/Image.cpp
 
-nobase_pkginclude_HEADERS = include/Complex.h \
-							include/ImageBase.h
+nobase_pkginclude_HEADERS = include/Complex.h
 
 nobase_pkginclude_HEADERS += include/Functions.h \
 							 include/Interpolation.h
+
+nobase_pkginclude_HEADERS += include/ImageBase.h \
+							 include/BMP.h \
+							 include/Image.h
