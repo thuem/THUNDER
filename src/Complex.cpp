@@ -41,4 +41,9 @@ Complex operator*(Complex a, double x)
     return gsl_complex_mul_real(a, x);
 }
 
+Complex operator*(double x, Complex a)
+{
+    return a * x;
+}
+
 void operator*=(Complex a, double x) { a = a * x; }

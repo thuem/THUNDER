@@ -59,7 +59,7 @@ class Image : public ImageBase
         /* Save _data to a bmp file. If the file does not exist, create it. */
 
         void saveFTToBMP(const char* filename,
-                         const float c) const;
+                         const double c) const;
         /* Save _dataFT to a bmp file. If the file does not exist, create it.
          * log(1 + mod(x) * c) */
 

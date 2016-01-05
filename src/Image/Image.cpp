@@ -33,8 +33,8 @@ Image& Image::operator=(const Image& that)
 {
     ImageBase::operator=(that);
 
-    _nCol = that.nCol();
-    _nRow = that.nRow();
+    _nCol = that.nColRL();
+    _nRow = that.nRowRL();
 
     return *this;
 }
@@ -61,7 +61,7 @@ void Image::alloc(const int nCol,
     }
     else if (space == fourierSpace)
     {
-        clearFT():
+        clearFT();
         _sizeFT = (nCol / 2 + 1) * nRow;
         _dataFT = new Complex[_sizeFT];
         if (_dataFT == NULL)
@@ -79,27 +79,32 @@ int Image::nRowFT() const { return _nRow; }
 
 void Image::saveRLToBMP(const char* filename) const
 {
+    float* image = new float[_sizeRL];
+
+    for (size_t i = 0; i < _sizeRL; i++)
+        image[i] = (float)_dataRL[i];
+
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
         REPORT_ERROR("Fail to open bitcamp file.");
 
-    if (bmp.createBMP(_data, _nCol, _nRow) == false)
+    if (bmp.createBMP(image, _nCol, _nRow) == false)
         REPORT_ERROR("Fail to create BMP image.");
 
     bmp.close();
+
+    delete[] image;
 }
 
 void Image::saveFTToBMP(const char* filename, double c) const
 {
-    float* image = new float[sizeRL()];
-    if (image == NULL)
-        REPORT_ERROR("Fail to allocate memory for image.");
+    float* image = new float[_sizeRL];
 
-    for (int i = 0; i < nRowFT; i++)
-        for (int j = 0; j < nColFT; j++)
+    for (int i = 0; i < _nRow; i++)
+        for (int j = 0; j <= _nCol / 2; j++)
         {
-            double value = gsl_complex_abs2(_dataFT[nColFT * i + j]);
+            double value = gsl_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
             value = log(1 + value * c);
                 
             int iImage = (i + _nRow / 2 ) % _nRow;
@@ -136,7 +141,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
 double Image::getRL(const int iCol,
                     const int iRow) const
 {
-    coordinatesInBoundary(iCol, iRow);
+    coordinatesInBoundaryRL(iCol, iRow);
     return _dataRL[iRow * _nCol + iCol];
 }
 
@@ -144,7 +149,7 @@ void Image::setRL(const double value,
                   const int iCol,
                   const int iRow)
 {
-    coordinatesInBoundary(iCol, iRow);
+    coordinatesInBoundaryRL(iCol, iRow);
     _dataRL[iRow * _nCol + iCol] = value;
 }
 
@@ -176,13 +181,13 @@ double Image::getBiLinearRL(const double iCol,
     int x0, y0;
     biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
 
-    coordinatesInBoundary(x0, y0);
-    coordinatesInBoundary(x0 + 1, y0 + 1);
+    coordinatesInBoundaryRL(x0, y0);
+    coordinatesInBoundaryRL(x0 + 1, y0 + 1);
 
-    return w00 * get(x0, y0)
-         + w01 * get(x0, y0 + 1)
-         + w10 * get(x0 + 1, y0)
-         + w11 * get(x0 + 1, y0 + 1);
+    return w00 * getRL(x0, y0)
+         + w01 * getRL(x0, y0 + 1)
+         + w10 * getRL(x0 + 1, y0)
+         + w11 * getRL(x0 + 1, y0 + 1);
 }
 
 Complex Image::getBiLinearFT(const double iCol,
@@ -201,8 +206,8 @@ Complex Image::getBiLinearFT(const double iCol,
          + w11 * getFT(x0 + 1, y0 + 1);
 }
 
-void Image::coordinatesInBoundary(const int iCol,
-                                  const int iRow) const
+void Image::coordinatesInBoundaryRL(const int iCol,
+                                    const int iRow) const
 {
     if ((iCol < 0) || (iCol >= _nCol) ||
         (iRow < 0) || (iRow >= _nRow))

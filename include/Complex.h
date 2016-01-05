@@ -34,6 +34,8 @@ void operator/=(Complex a, Complex b);
 
 Complex operator*(Complex a, double x);
 
+Complex operator*(double x, Complex a);
+
 void operator*=(Complex a, double x);
 
 #endif // COMPLEX_H
