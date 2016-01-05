@@ -10,31 +10,18 @@
 
 #include "Transformation.h"
 
-void homogenize(Matrix<double>& mat)
+void alignZ(mat33& dst,
+            const vec3& vec)
 {
-    Matrix<double> temp = mat;
-
-    mat.resize(4, 4);
-    mat.zeros();
-    
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
-            mat.set(temp.get(i, j), i, j);
-
-    mat.set(1, 3, 3);
-}
-
-void alignZ(Matrix<double>& dst,
-            const Vector<double>& vec)
-{
-    double x = vec.get(0);
-    double y = vec.get(1);
-    double z = vec.get(2);
+    double x = vec(0);
+    double y = vec(1);
+    double z = vec(2);
 
     // compute the length of projection of YZ plane
-    double pYZ = sqrt(pow(y, 2) + pow(z, 2));
+    double pYZ = norm(vec.head(2));
+    // double pYZ = sqrt(pow(y, 2) + pow(z, 2));
     // compute the length of this vector
-    double p = vec.modulus();
+    double p = norm(vec);
 
     if ((pYZ / p) > EQUAL_ACCURACY)
     {
@@ -46,12 +33,22 @@ void alignZ(Matrix<double>& dst,
         dst(1, 1) = z / pYZ;
         dst(1, 2) = -y / pYZ;
 
+        /***
         dst(2, 0) = x / p;
         dst(2, 1) = y / p;
         dst(2, 2) = z / p;
+        ***/
+
+        dst.row(2) = vec / p;
     }
     else
     {
+        dst.zeros();
+        dst(0, 2) = -1;
+        dst(1, 1) = 1;
+        dst(2, 0) = 1;
+
+        /***
         dst(0, 0) = 0;
         dst(0, 1) = 0;
         dst(0, 2) = -1;
@@ -63,10 +60,11 @@ void alignZ(Matrix<double>& dst,
         dst(2, 0) = 1;
         dst(2, 1) = 0;
         dst(2, 2) = 0;
+        ***/
     }
 }
 
-void rotate3D(Matrix<double>& dst,
+void rotate3D(mat33& dst,
               const double phi,
               const char axis)
 {
@@ -83,54 +81,55 @@ void rotate3D(Matrix<double>& dst,
     }
 }
 
-void rotate3D(Matrix<double>& dst,
+void rotate3D(mat33& dst,
               const double phi,
-              const Vector<double>& axis)
+              const vec3& axis)
 {
-    Matrix<double> A(3, 3);
+    mat33 A, R;
+
     alignZ(A, axis);
 
-    Matrix<double> R(3, 3);
     rotate3DZ(R, phi);
 
-    dst = A.transpose() * R * A;
+    dst = A.t() * R * A;
 }
 
-void reflect3D(Matrix<double>& dst,
-               const Vector<double>& plane)
+void reflect3D(mat33& dst,
+               const vec3& plane)
 {
-    Matrix<double> A(3, 3);
+    mat33 A, M;
+
     alignZ(A, plane);
 
-    Matrix<double> M(3, 3);
-    M.zeros();
+    M.eye();
     M(2, 2) = -1;
 
-    dst = A.transpose() * M * A;
+    dst = A.t() * M * A;
 }
 
-void translate3D(Matrix<double>& dst,
-                 const Vector<double>& vec)
+void translate3D(mat44& dst,
+                 const vec3& vec)
 {
+    dst.eye();
+    dst.col(3).head(3) = vec;
+
+    /***
     dst.identity();
 
     dst.set(vec.get(0), 0, 3);
     dst.set(vec.get(1), 1, 3);
     dst.set(vec.get(2), 2, 3);
-
-    /*********************
-     * [ 1  0  0  vec[0] ]
-     * [ 0  1  0  vec[1] ]
-     * [ 0  0  1  vec[2] ]
-     * [ 0  0  0   1     ]
-     * ******************/
+    ***/
 }
 
-void scale3D(Matrix<double>& dst,
-             const Vector<double>& vec)
+void scale3D(mat33& dst,
+             const vec3& vec)
 {
     dst.zeros();
+    dst.diag() = vec;
 
+    /***
     for (int i = 0; i < 3; i++)
         dst.set(vec.get(i), i, i);
+    ***/
 }

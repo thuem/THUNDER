@@ -10,7 +10,7 @@
 
 #include "Euler.h"
 
-void rotate2D(Matrix<double>& dst, const double phi)
+void rotate2D(mat22& dst, const double phi)
 {
     double sine = sin(phi);
     double cosine = cos(phi);
@@ -21,7 +21,7 @@ void rotate2D(Matrix<double>& dst, const double phi)
     dst(1, 1) = cosine;
 }
 
-void normalVector(Vector<double>& dst,
+void normalVector(vec3& dst,
                   const double phi,
                   const double theta)
 {
@@ -35,7 +35,7 @@ void normalVector(Vector<double>& dst,
     dst(2) = cosTheta;
 }
 
-void rotate3D(Matrix<double>& dst,
+void rotate3D(mat33& dst,
               const double phi,
               const double theta,
               const double psi)
@@ -58,7 +58,7 @@ void rotate3D(Matrix<double>& dst,
     dst(2, 2) = cosTheta;
 } 
 
-void rotate3DX(Matrix<double>& dst, const double phi)
+void rotate3DX(mat33& dst, const double phi)
 {
     double sine = sin(phi);
     double cosine = cos(phi);
@@ -74,7 +74,7 @@ void rotate3DX(Matrix<double>& dst, const double phi)
     dst(2, 2) = cosine;
 }
 
-void rotate3DY(Matrix<double>& dst, const double phi)
+void rotate3DY(mat33& dst, const double phi)
 {
     double sine = sin(phi);
     double cosine = cos(phi);
@@ -90,7 +90,7 @@ void rotate3DY(Matrix<double>& dst, const double phi)
     dst(2, 2) = cosine;
 }
 
-void rotate3DZ(Matrix<double>& dst, const double phi)
+void rotate3DZ(mat33& dst, const double phi)
 {
     double sine = sin(phi);
     double cosine = cos(phi);
