@@ -117,8 +117,8 @@ Complex Volume::getFT(int iCol,
                       const ConjugateFlag cf) const
 {
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
-    size_t index;
-    bool flag = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
+    bool flag;
+    size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
     /***
     switch (cf)
     {
@@ -146,8 +146,8 @@ void Volume::setFT(const Complex value,
                    const ConjugateFlag cf)
 {
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
-    size_t index;
-    bool flag = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
+    bool flag;
+    size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
     _dataFT[index] = flag ? CONJUGATE(value) : value;
 }
 
@@ -159,8 +159,8 @@ void Volume::addFT(const Complex value,
                    const ConjugateFlag cf)
 {
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
-    size_t index;
-    bool flag = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
+    bool flag;
+    size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
     _dataFT[index] += flag ? CONJUGATE(value) : value;
 }
 
@@ -213,7 +213,7 @@ void Volume::addByInterpolationFT(const Complex value,
                                   double iCol,
                                   double iRow,
                                   double iSlc,
-                                  const double* weight,
+                                  double* weight,
                                   const Interpolation3DStyle style)
 {
     bool cf = VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc);
@@ -296,21 +296,27 @@ void Volume::addFT(const Complex value,
                    const double w100, const double w101,
                    const double w110, const double w111,
                    const ConjugateFlag conjugateFlag,
-                   const double* weight)
+                   double* weight)
 {
-    /***
-    addFT(x0, y0, z0, value * w000, conjugateFlag);
-    addFT(x0, y0, z0 + 1, value * w001, conjugateFlag);
-    addFT(x0, y0 + 1, z0, value * w010, conjugateFlag);
-    addFT(x0, y0 + 1, z0 + 1, value * w011, conjugateFlag);
-    addFT(x0 + 1, y0, z0, value * w100, conjugateFlag);
-    addFT(x0 + 1, y0, z0 + 1, value * w101, conjugateFlag);
-    addFT(x0 + 1, y0 + 1, z0, value * w110, conjugateFlag);
-    addFT(x0 + 1, y0 + 1, z0 + 1, value * w111, conjugateFlag);
-    ***/
+    addFT(value * w000, x0, y0, z0, conjugateFlag);
+    addFT(value * w001, x0, y0, z0 + 1, conjugateFlag);
+    addFT(value * w010, x0, y0 + 1, z0, conjugateFlag);
+    addFT(value * w011, x0, y0 + 1, z0 + 1, conjugateFlag);
+    addFT(value * w100, x0 + 1, y0, z0, conjugateFlag);
+    addFT(value * w101, x0 + 1, y0, z0 + 1, conjugateFlag);
+    addFT(value * w110, x0 + 1, y0 + 1, z0, conjugateFlag);
+    addFT(value * w111, x0 + 1, y0 + 1, z0 + 1, conjugateFlag);
 
     if (weight != NULL)
     {
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0, z0))] += w000;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0, z0 + 1))] += w001;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0 + 1, z0))] += w010;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0 + 1, z0 + 1))] += w011;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0, z0))] += w100;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0, z0 + 1))] += w101;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0 + 1, z0))] += w110;
+        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0 + 1, z0 + 1))] += w111;
         /***
         weight[getIndexFT(x0, y0, z0)] += w000;
         weight[getIndexFT(x0, y0, z0 + 1)] += w001; 

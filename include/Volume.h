@@ -39,8 +39,16 @@
 #define VOLUME_INDEX_FT(i, j, k) \
     (k) * _nRow * (_nCol / 2 + 1) + (j) * (_nCol / 2 + 1) + (i)
 
+#define VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k) \
+    [this](int ii, int jj, int kk) \
+    { \
+        if ((jj) < 0) jj += _nRow; \
+        if ((kk) < 0) kk += _nSlc; \
+        return VOLUME_INDEX_FT(ii, jj, kk); \
+    }(i, j, k)
+
 #define VOLUME_FREQ_TO_STORE_INDEX(i, j, k, cf) \
-    [this, &index, i, j, k, cf]() mutable \
+    [this, &flag, i, j, k, cf]() mutable \
     { \
         bool flag; \
         switch (cf) \
@@ -52,10 +60,7 @@
             case conjugateNo: \
                 flag = false; break; \
         } \
-        if ((j) < 0) i += _nRow; \
-        if ((j) < 0) j += _nSlc; \
-        index = VOLUME_INDEX_FT(i, j, k); \
-        return flag; \
+        return VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k); \
     }()
 
 class Volume : public ImageBase 
@@ -150,7 +155,7 @@ class Volume : public ImageBase
                                   double iCol,
                                   double iRow,
                                   double iSlc,
-                                  const double* weight,
+                                  double* weight,
                                   const Interpolation3DStyle style);
 
     private:
@@ -188,7 +193,7 @@ class Volume : public ImageBase
                    const double w100, const double w101,
                    const double w110, const double w111,
                    const ConjugateFlag conjugateFlag,
-                   const double* weight);
+                   double* weight);
 };
 
 #define VOLUME_FOR_EACH_PIXEL_RL(that) \
