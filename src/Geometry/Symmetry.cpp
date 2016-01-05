@@ -35,6 +35,11 @@ Symmetry::Symmetry(const Symmetry& that)
     *this = that;
 }
 
+Symmetry::~Symmetry()
+{
+    clear();
+}
+
 Symmetry& Symmetry::operator=(const Symmetry& that)
 {
     clear();

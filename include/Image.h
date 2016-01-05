@@ -23,6 +23,29 @@
 #include "BMP.h"
 #include "Interpolation.h"
 
+#define IMAGE_CONJUGATE_HALF(iCol, iRow) \
+    (((iCol) < 0) ? 0 : [&iCol, &iRow]() \
+                        { \
+                            iCol *= -1; \
+                            iRow *= -1; \
+                            return 1; \
+                        }())
+
+#define IMAGE_INDEX(i, j) \
+    (j) * _nCol + (i)
+
+#define IMAGE_INDEX_FT(i, j) \
+    (j) * (_nCol / 2 + 1) + (i)
+
+#define IMAGE_FREQ_TO_STORE_INDEX(i, j) \
+    [this, &index, i, j]() mutable \
+    { \
+        bool flag = IMAGE_CONJUGATE_HALF(i, j); \
+        if ((j) < 0) j += _nRow; \
+        index = IMAGE_INDEX_FT(i, j); \
+        return flag; \
+    }()
+
 class Image : public ImageBase
 {
     protected:
@@ -52,6 +75,7 @@ class Image : public ImageBase
 
         int nColRL() const;
         int nRowRL() const;
+
         int nColFT() const;
         int nRowFT() const;
 
@@ -96,14 +120,6 @@ class Image : public ImageBase
         // Fourier image.
         // if not, throw out an Error
 };
-
-#define CONJUGATE_HALF(iCol, iRow) \
-    (((iCol) < 0) ? 0 : [&iCol, &iRow]() \
-                        { \
-                            iCol *= -1; \
-                            iRow *= -1; \
-                            return 1; \
-                        }())
 
 #define IMAGE_FOR_EACH_PIXEL_RL(that) \
     for (int j = 0; j < that.nRowRL(); j++) \

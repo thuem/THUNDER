@@ -52,6 +52,8 @@ class Symmetry
 
         Symmetry(const Symmetry& that);
 
+        ~Symmetry();
+
         Symmetry& operator=(const Symmetry& that);
 
         void get(mat33& L,
