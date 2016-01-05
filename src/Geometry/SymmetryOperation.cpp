@@ -17,20 +17,29 @@ RotationSO::RotationSO(const int fold,
 {
     this->fold = fold;
 
-    axis.resize(3);
+    axis(0) = x;
+    axis(1) = y;
+    axis(2) = z;
+    /***
     axis.set(x, 0);
     axis.set(y, 1);
     axis.set(z, 2);
+    ***/
 }
 
 ReflexionSO::ReflexionSO(const double x,
                          const double y,
                          const double z)
 {
+    plane(0) = x;
+    plane(1) = y;
+    plane(2) = z;
+    /***
     plane.resize(3);
     plane.set(x, 0);
     plane.set(y, 1);
     plane.set(z, 2);
+    ***/
 }
 
 InversionSO::InversionSO()
@@ -65,16 +74,16 @@ void display(const SymmetryOperation so)
         case 0:
             printf("Rotation: fold = %2d, axis = %12.6f %12.6f %12.6f\n",
                    so.fold,
-                   so.axisPlane.get(0),
-                   so.axisPlane.get(1),
-                   so.axisPlane.get(2));
+                   so.axisPlane(0),
+                   so.axisPlane(1),
+                   so.axisPlane(2));
             break;
 
         case 1:
             printf("Reflexion:   mirror plane = %12.6f %12.6f %12.6f\n",
-                   so.axisPlane.get(0),
-                   so.axisPlane.get(1),
-                   so.axisPlane.get(2));
+                   so.axisPlane(0),
+                   so.axisPlane(1),
+                   so.axisPlane(2));
             break;
 
         case 2:

@@ -19,7 +19,9 @@ libthuem_a_SOURCES += src/Image/ImageBase.cpp \
 					  src/Image/Image.cpp
 
 libthuem_a_SOURCES += src/Geometry/Euler.cpp \
-					  src/Geometry/Transformation.cpp
+					  src/Geometry/Transformation.cpp \
+					  src/Geometry/SymmetryOperation.cpp \
+					  src/Geometry/SymmetryFunctions.cpp
 
 nobase_pkginclude_HEADERS = include/Complex.h
 
@@ -31,4 +33,6 @@ nobase_pkginclude_HEADERS += include/ImageBase.h \
 							 include/Image.h
 
 nobase_pkginclude_HEADERS += include/Euler.h \
-							 include/Transformation.h
+							 include/Transformation.h \
+							 include/SymmetryOperation.h \
+							 include/SymmetryFunctions.h
