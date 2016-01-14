@@ -3,7 +3,7 @@
  * Dependency: 
  * Test:
  * Execution:
- * Description: an error reporting class
+ * Description:
  *
  * Manual:
  * ****************************************************************************/

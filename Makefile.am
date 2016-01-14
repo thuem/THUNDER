@@ -3,6 +3,9 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CXXFLAGS = -std=c++11
 
 AM_CXXFLAGS += -I${top_srcdir}/include \
+			   -I${top_srcdir}/include/Geometry \
+			   -I${top_srcdir}/include/Functions \
+			   -I${top_srcdir}/include/Image \
                -I${top_srcdir}/external/HEALPix/include
 
 AM_CXXFLAGS += -lfftw3f -lgsl
@@ -27,16 +30,16 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 
 nobase_pkginclude_HEADERS = include/Complex.h
 
-nobase_pkginclude_HEADERS += include/Functions.h \
-							 include/Interpolation.h
+nobase_pkginclude_HEADERS += include/Functions/Functions.h \
+							 include/Functions/Interpolation.h
 
-nobase_pkginclude_HEADERS += include/ImageBase.h \
-							 include/BMP.h \
-							 include/Image.h \
-							 include/Volume.h
+nobase_pkginclude_HEADERS += include/Image/ImageBase.h \
+							 include/Image/BMP.h \
+							 include/Image/Image.h \
+							 include/Image/Volume.h
 
-nobase_pkginclude_HEADERS += include/Euler.h \
-							 include/Transformation.h \
-							 include/SymmetryOperation.h \
-							 include/SymmetryFunctions.h \
-							 include/Symmetry.h
+nobase_pkginclude_HEADERS += include/Geometry/Euler.h \
+							 include/Geometry/Transformation.h \
+							 include/Geometry/SymmetryOperation.h \
+							 include/Geometry/SymmetryFunctions.h \
+							 include/Geometry/Symmetry.h
