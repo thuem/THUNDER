@@ -44,17 +44,51 @@ struct ImageMetaData
 #include "Volume.h"
 #include "BMP.h"
 
+#define BYTE_MODE(mode) \
+    [&mode]() \
+    { \
+        switch (mode) \
+        { \
+            case 0: return 1; \
+            case 1: return 2; \
+            case 2: return 4; \
+            case 3: return 4; \
+            case 4: return 8; \
+            case 6: return 2; \
+            default: return -1; \
+        } \
+    }()
+
+#define READ_CAST(dst, type) \
+    [this, &dst]() \
+    { \
+        type* unCast = new type[dst.sizeRL()]; \
+        if (fread(unCast, 1, dst.sizeRL() * sizeof(type), _file) == 0) \
+            REPORT_ERROR("Fail to read in an image."); \
+        for (size_t i = 0; i < dst.sizeRL(); i++) \
+            dst(i) = (double)unCast[i]; \
+        delete[] unCast; \
+    }()
+
+#define SKIP_HEAD(i) \
+    if (fseek(_file, 1024 + symmetryDataSize() + i, 0) != 0) \
+        REPORT_ERROR("Fail to read in an image.");
+
+#define CHECK_FILE_VALID \
+    if (_file == NULL) \
+        REPORT_ERROR("Image file does not exist.");
+
 class ImageFile
 {
     private:
 
-        FILE* _file = NULL:
+        FILE* _file = NULL;
 
         ImageMetaData _metaData;
 
         char* _symmetryData = NULL;
 
-        MRCHeader* _MRCHeader = NULL;
+        MRCHeader _MRCHeader;
 
     public:
 
@@ -96,8 +130,8 @@ class ImageFile
         void readVolume(Volume& dst,
                         const char* fileType = "MRC");
 
-        void writeImage(const ImageBase& src,
-                        const char* filename);
+        void writeImage(const char * dst,
+                        const ImageBase& src);
 
         void clear();
 
@@ -107,15 +141,15 @@ class ImageFile
 
         void readSymmetryData();
 
-        void readImageMRC(Image& src,
+        void readImageMRC(Image& dst,
                           const int iSlc = 0);
 
-        void readImageBMP(Image& src);
+        void readImageBMP(Image& dst);
 
-        void readVolumeMRC(Volume& src);
+        void readVolumeMRC(Volume& dst);
 
-        void writeImageMRC(const ImageBase& dst,
-                           const char* filename);
+        void writeImageMRC(const char* dst,
+                           const ImageBase& src);
 };
 
 #endif // IMAGE_FILE_H

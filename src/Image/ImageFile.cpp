@@ -31,27 +31,24 @@ void ImageFile::display() const
     printf("Mode:                         %6d\n", mode());
     printf("Symmetry Data Size:           %6d\n", symmetryDataSize());
 
-    if (_MRCHeader != NULL)
-    {
-        printf("\n");
-        printf("MRC Header Size:              %6d\n", sizeof(MRCHeader));
-        printf("Num of Intervals along Column:%6d\n", _MRCHeader->mx);
-        printf("Num of Intervals along Row:   %6d\n", _MRCHeader->my);
-        printf("Num of Intervals along Slice: %6d\n", _MRCHeader->mz);
-        printf("Cell Dimension (AA, Column):  %6.3f\n", _MRCHeader->cella[0]);
-        printf("Cell Dimension (AA, Row):     %6.3f\n", _MRCHeader->cella[1]);
-        printf("Cell Dimension (AA, Slice):   %6.3f\n", _MRCHeader->cella[2]);
-        printf("Cell Angle (AA, Column):      %6.3f\n", _MRCHeader->cellb[0]);
-        printf("Cell Angle (AA, Row):         %6.3f\n", _MRCHeader->cellb[1]);
-        printf("Cell Angle (AA, Slice):       %6.3f\n", _MRCHeader->cellb[2]);
-        printf("Axis along Column:            %6d\n", _MRCHeader->mapc);
-        printf("Axis along Row:               %6d\n", _MRCHeader->mapr);
-        printf("Axis along Slice:             %6d\n", _MRCHeader->maps);
-        printf("Space Group:                  %6d\n", _MRCHeader->ispg);
-        printf("Orgin (AA, Column):           %6.3f\n", _MRCHeader->origin[0]);
-        printf("Orgin (AA, Row):              %6.3f\n", _MRCHeader->origin[1]);
-        printf("Orgin (AA, Slice):            %6.3f\n", _MRCHeader->origin[2]);
-    }
+    printf("\n");
+    printf("MRC Header Size:              %6d\n", sizeof(MRCHeader));
+    printf("Num of Intervals along Column:%6d\n", _MRCHeader.mx);
+    printf("Num of Intervals along Row:   %6d\n", _MRCHeader.my);
+    printf("Num of Intervals along Slice: %6d\n", _MRCHeader.mz);
+    printf("Cell Dimension (AA, Column):  %6.3f\n", _MRCHeader.cella[0]);
+    printf("Cell Dimension (AA, Row):     %6.3f\n", _MRCHeader.cella[1]);
+    printf("Cell Dimension (AA, Slice):   %6.3f\n", _MRCHeader.cella[2]);
+    printf("Cell Angle (AA, Column):      %6.3f\n", _MRCHeader.cellb[0]);
+    printf("Cell Angle (AA, Row):         %6.3f\n", _MRCHeader.cellb[1]);
+    printf("Cell Angle (AA, Slice):       %6.3f\n", _MRCHeader.cellb[2]);
+    printf("Axis along Column:            %6d\n", _MRCHeader.mapc);
+    printf("Axis along Row:               %6d\n", _MRCHeader.mapr);
+    printf("Axis along Slice:             %6d\n", _MRCHeader.maps);
+    printf("Space Group:                  %6d\n", _MRCHeader.ispg);
+    printf("Orgin (AA, Column):           %6.3f\n", _MRCHeader.origin[0]);
+    printf("Orgin (AA, Row):              %6.3f\n", _MRCHeader.origin[1]);
+    printf("Orgin (AA, Slice):            %6.3f\n", _MRCHeader.origin[2]);
 }
 
 int ImageFile::mode() const {return _metaData.mode;}
@@ -83,7 +80,7 @@ void ImageFile::setSize(const int nCol,
 
 void ImageFile::readMetaData()
 {
-    readInMetaDataMRC();
+    readMetaDataMRC();
 }
 
 void ImageFile::readMetaData(const Image& src)
@@ -112,7 +109,7 @@ void ImageFile::readImage(Image& dst,
     {
         if (iSlc != 0)
             REPORT_ERROR("When read in a BMP file, iSlc must be 0.");
-        readInImageBMP(dst);
+        readImageBMP(dst);
     }
     else
         REPORT_ERROR("File type can not be recognized");
@@ -124,10 +121,10 @@ void ImageFile::readVolume(Volume& dst,
     readVolumeMRC(dst);
 }
 
-void ImageFile::writeImage(const ImageBase& src,
-                           const char* filename)
+void ImageFile::writeImage(const char* dst,
+                           const ImageBase& src)
 {
-    writeImageMRC(src, filename);
+    writeImageMRC(dst, src);
 }
 
 void ImageFile::clear()
@@ -143,17 +140,27 @@ void ImageFile::clear()
         delete[] _symmetryData;
         _symmetryData = NULL;
     }
-
-    if (_MRCHeader != NULL)
-    {
-        delete _MRCHeader;
-        _MRCHeader = NULL;
-    }
-
-    reset();
 }
 
-void ImageFile::readInSymmetryData()
+void ImageFile::readMetaDataMRC()
+{
+    CHECK_FILE_VALID;
+
+    rewind(_file);
+
+    if (fread(&_MRCHeader, 1, 1024, _file) != 1024)
+        REPORT_ERROR("Fail to read in mrc header file.");
+
+    _metaData.mode = _MRCHeader.mode;
+        
+    _metaData.nCol = _MRCHeader.nx;
+    _metaData.nRow = _MRCHeader.ny;
+    _metaData.nSlc = _MRCHeader.nz;
+
+    _metaData.symmetryDataSize = _MRCHeader.nsymbt;
+}
+
+void ImageFile::readSymmetryData()
 {
     if (symmetryDataSize() != 0)
     {
@@ -167,190 +174,64 @@ void ImageFile::readInSymmetryData()
     }
 }
 
-void ImageFile::readInImageMRC(Image& image, int iSlc)
+void ImageFile::readImageMRC(Image& dst,
+                             const int iSlc)
 {
-    readInSymmetryData();
+    readSymmetryData();
 
-    image.clear();
-	image.setSize(nCol(), nRow());
-    size_t imageSize = image.totalSize();
+	dst.alloc(nCol(), nRow(), realSpace);
 
-    // from the beginning the this file, search for the start of
-    // actual image data; and check whether an error occurs or not 
-    if (fseek(_file, 1024 + symmetryDataSize() + imageSize * iSlc, 0) != 0)
-        REPORT_ERROR("Fail to read in an image.");
+    size_t size = dst.sizeRL();
+
+    SKIP_HEAD(size * iSlc);
 	
     switch (mode())
     {
-        case 0:
-        {
-            char* unCast= new char[imageSize];
-			if (fread(unCast, 1,
-                        imageSize * transformModeToByte(mode()), _file) == 0)
-                REPORT_ERROR("Fail to read in an image.");
-            for (size_t i = 0; i < imageSize; i++)
-            {
-                image.getData()[i] = (float)unCast[i];
-            }
-            delete[] unCast;
-            break;
-        }
-        case 1:
-        {
-            short* unCast = new short[imageSize];
-			if (fread(unCast, 1,
-                        imageSize * transformModeToByte(mode()), _file) == 0)
-                REPORT_ERROR("Fail to read in an image.");
-            for (size_t i = 0; i < imageSize; i++)
-            {
-                image.getData()[i] = (float)unCast[i];
-            }
-            delete[] unCast;
-            break;
-        }
-        case 2:
-        {
-            if (fread(image.getData(), 1,
-                        imageSize * transformModeToByte(mode()), _file) == 0)
-                REPORT_ERROR("Fail to read in an image");
-            break;
-        }
+        case 0: READ_CAST(dst, char); break;
+        case 1: READ_CAST(dst, short); break;
+        case 2: READ_CAST(dst, float); break;
     }
 }
 
-void ImageFile::readInImageBMP(Image& image)
+void ImageFile::readImageBMP(Image& dst)
 {
-    try
-    {
-        BMP bmp;
-        bmp.open(_file);
-        bmp.readInHeader();
+    CHECK_FILE_VALID(_file);
+
+    BMP bmp;
+    bmp.open(_file);
+    bmp.readInHeader();
+
+    dst.alloc(bmp.getWidth(), bmp.getHeight(), realSpace);
         
-        std::cout << "Width = " << bmp.getWidth() << std::endl;
-        std::cout << "Height = " << bmp.getHeight() << std::endl;
-        std::cout << "BitCount = " << bmp.getBitCount() << std::endl;
-        std::cout << "HeaderSize = " << bmp.getHeaderSize() << std::endl;
-        std::cout << "DataSize = " << bmp.getDataSize() << std::endl;
-    
-        image.clear();
-        image.setSize(bmp.getWidth(), bmp.getHeight());
+    rewind(_file);
+    fseek(_file, bmp.getHeaderSize(), 0);
 
-        rewind(_file);
-        fseek(_file, bmp.getHeaderSize(), 0);
-        if (bmp.getBitCount() == 8)
-        {
-            unsigned char* bmpData = new unsigned char[bmp.getDataSize()];
-            if (fread(bmpData, 1, bmp.getDataSize(), _file)
-                    < bmp.getDataSize())
-                REPORT_ERROR("Fail to read in an BMP file.");
-            for (int i = 0; i < bmp.getDataSize(); i++)
-                image.getData()[i] = (float)bmpData[i];
-            delete[] bmpData; // release the allocated memory
-        }
-        else
-            REPORT_ERROR("Unsupported BMP coding mode.");
-    }
-    catch (Error& error)
-    {
-        std::cout << error;
-    }
+    if (bmp.getBitCount() == 8)
+        READ_CAST(dst, unsigned char);
+    else
+        REPORT_ERROR("Unsupported BMP coding mode.");
 }
 
-void ImageFile::readInVolumeMRC(Volume& volume)
+void ImageFile::readVolumeMRC(Volume& dst)
 {
-    readInSymmetryData();
+    readSymmetryData();
 
-    volume.clear();
-	volume.setSize(nCol(), nRow(), nSlc());
-    size_t size = volume.totalSize();
+	dst.alloc(nCol(), nRow(), nSlc(), realSpace);
 
-    // from the beginning the this file, search for the start of
-    // actual image data; and check whether an error occurs or not 
-    if (fseek(_file, 1024 + symmetryDataSize(), 0) != 0)
-        REPORT_ERROR("Fail to read in an volume.");
+    SKIP_HEAD(0);
 	
     switch (mode())
     {
-        case 0:
-        {
-            char* unCast= new char[size];
-			if (fread(unCast, 1,
-                      size * transformModeToByte(mode()), _file) == 0)
-                REPORT_ERROR("Fail to read in an image.");
-            for (size_t i = 0; i < size; i++)
-            {
-                volume.getData()[i] = (float)unCast[i];
-            }
-            delete[] unCast;
-            break;
-        }
-        case 1:
-        {
-            short* unCast = new short[size];
-			if (fread(unCast, 1,
-                      size * transformModeToByte(mode()), _file) == 0)
-                REPORT_ERROR("Fail to read in an image.");
-            for (size_t i = 0; i < size; i++)
-            {
-                volume.getData()[i] = (float)unCast[i];
-            }
-            delete[] unCast;
-            break;
-        }
-        case 2:
-        {
-            if (fread(volume.getData(), 1,
-                      size * transformModeToByte(mode()), _file) == 0)
-                REPORT_ERROR("Fail to read in an image");
-            break;
-        }
+        case 0: READ_CAST(dst, char); break;
+        case 1: READ_CAST(dst, short); break;
+        case 2: READ_CAST(dst, float); break;
     }
 }
 
-void ImageFile::readInMetaDataMRC()
+void ImageFile::writeImageMRC(const char* dst,
+                              const ImageBase& src)
 {
-    try
-    {
-        if (_file == 0) // the file point should not be null
-            REPORT_ERROR("Can not read in a file which does not exist.");
-    
-        rewind(_file);
-        // reset the location where the file pointer points to
-        // to the head of this file
-
-        // allocate _MRCHeader
-        _MRCHeader = new MRCHeader;
-
-        // read MRCHeader into _MRCHeader
-        int headSize = fread(_MRCHeader, 1, 1024, _file);
-        if (headSize != 1024)
-            REPORT_ERROR("Fail to read in mrc header file.");
-
-        // set mode (what data type the image is)
-        _metaData.mode = _MRCHeader->mode;
-        
-        if ((_metaData.mode < 0) ||
-            (_metaData.mode > 6))
-        {
-            WARNING("Invalid Mode. Set to default value 2.");
-            _metaData.mode = 2;
-        }
-
-        _metaData.nCol = _MRCHeader->nx;
-        _metaData.nRow = _MRCHeader->ny;
-        _metaData.nSlc = _MRCHeader->nz;
-
-        _metaData.symmetryDataSize = _MRCHeader->nsymbt;
-    }
-    catch (Error& error)
-    {
-        std::cout << error;
-    }
-}
-
-void ImageFile::writeOutImageMRC(ImageBase& image, const char* filename)
-{
-    FILE* file = fopen(filename, "w");
+    FILE* file = fopen(dst, "w");
 
     MRCHeader header;
     header.mode = _metaData.mode;
@@ -367,14 +248,12 @@ void ImageFile::writeOutImageMRC(ImageBase& image, const char* filename)
     header.cellb[1] = 90;
     header.cellb[2] = 90;
     header.nsymbt = _metaData.symmetryDataSize;
-    header.dmin = image.min();
-    header.dmax = image.max();
-    header.dmean = image.mean();
 
     rewind(file);
-    if (fwrite(&header, 1, 1024, file) == 0 || (symmetryDataSize() != 0 &&
-        fwrite(_symmetryData, 1, symmetryDataSize(), file) == 0) ||
-        fwrite(image.getData(), 1, image.totalSize() * 4, file) == 0)
+    if (fwrite(&header, 1, 1024, file) == 0 ||
+        (symmetryDataSize() != 0 &&
+         fwrite(_symmetryData, 1, symmetryDataSize(), file) == 0) ||
+        fwrite(&src.getRL(), 1, src.sizeRL() * sizeof(double), file) == 0)
         REPORT_ERROR("Fail to write out an image.");
 
     fclose(file);

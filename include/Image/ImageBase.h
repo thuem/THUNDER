@@ -71,10 +71,6 @@ class ImageBase
 
         void clearFT();
         // free the memory storing Fourier Transform image
-        
-    public:
-
-        virtual void isSameSize(ImageBase& that) {};
 };
 
 void normalise(ImageBase& image);
