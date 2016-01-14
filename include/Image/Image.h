@@ -19,9 +19,10 @@
 #include "Error.h"
 #include "Complex.h"
 
+#include "Interpolation.h"
+
 #include "ImageBase.h"
 #include "BMP.h"
-#include "Interpolation.h"
 
 #define IMAGE_CONJUGATE_HALF(iCol, iRow) \
     (((iCol) < 0) ? 0 : [&iCol, &iRow]() \
@@ -45,6 +46,14 @@
         index = IMAGE_INDEX_FT(i, j); \
         return flag; \
     }()
+
+#define IMAGE_FOR_EACH_PIXEL_RL(that) \
+    for (int j = 0; j < that.nRowRL(); j++) \
+        for (int i = 0; i < that.nColRL(); i++)
+
+#define IMAGE_FOR_EACH_PIXEL_FT(that) \
+    for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+        for (int i = 0; i <= that.nColRL() / 2; i++)
 
 class Image : public ImageBase
 {
@@ -120,13 +129,5 @@ class Image : public ImageBase
         // Fourier image.
         // if not, throw out an Error
 };
-
-#define IMAGE_FOR_EACH_PIXEL_RL(that) \
-    for (int j = 0; j < that.nRowRL(); j++) \
-        for (int i = 0; i < that.nColRL(); i++)
-
-#define IMAGE_FOR_EACH_PIXEL_FT(that) \
-    for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-        for (int i = 0; i <= that.nColRL() / 2; i++)
 
 #endif // IMAGE_H

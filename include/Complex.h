@@ -16,6 +16,10 @@
 
 #define CONJUGATE(a) gsl_complex_conjugate(a)
 
+#define COMPLEX(a, b) gsl_complex_rect(a, b)
+
+Complex operator-(Complex a);
+
 Complex operator+(Complex a, Complex b);
 
 Complex operator-(Complex a, Complex b);
