@@ -8,6 +8,11 @@
 
 #include "Complex.h"
 
+Complex operator-(Complex a)
+{
+    return COMPLEX(-GSL_REAL(a), -GSL_IMAG(a));
+}
+
 Complex operator+(Complex a, Complex b)
 {
     return gsl_complex_add(a, b);
