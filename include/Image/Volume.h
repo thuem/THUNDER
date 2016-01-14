@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Author: Mingxu Hu
- * Dependency: Error.h BMP.h
+ * Dependency:
  * Test:
  * Execution:
- * Description: header file of a volume class
+ * Description:
  *
  * Manual:
  * ****************************************************************************/
@@ -62,6 +62,16 @@
         } \
         return VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k); \
     }()
+
+#define VOLUME_FOR_EACH_PIXEL_RL(that) \
+    for (int k = 0; k < that.nSlcRL(); k++) \
+        for (int j = 0; j < that.nRowRL(); j++) \
+            for (int i = 0; i < that.nColRL(); i++)
+
+#define VOLUME_FOR_EACH_PIXEL_FT(that) \
+    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
+        for (int j = -that.nRowRL() / 2; j < that.nSlcRL() / 2; j++) \
+            for (int i = 0; i <= that.nColRL() / 2; i++)
 
 class Volume : public ImageBase 
 {
@@ -195,15 +205,5 @@ class Volume : public ImageBase
                    const ConjugateFlag conjugateFlag,
                    double* weight);
 };
-
-#define VOLUME_FOR_EACH_PIXEL_RL(that) \
-    for (int k = 0; k < that.nSlcRL(); k++) \
-        for (int j = 0; j < that.nRowRL(); j++) \
-            for (int i = 0; i < that.nColRL(); i++)
-
-#define VOLUME_FOR_EACH_PIXEL_FT(that) \
-    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
-        for (int j = -that.nRowRL() / 2; j < that.nSlcRL() / 2; j++) \
-            for (int i = 0; i <= that.nColRL() / 2; i++)
 
 #endif // VOLUME_H 

@@ -23,6 +23,13 @@
 #include "Typedef.h"
 #include "Functions.h"
 
+#define FOR_EACH_PIXEL_RL(base) \
+    for (size_t i = 0; i < base.sizeRL(); i++)
+
+#define FOR_EACH_PIXEL_FT(base) \
+    for (size_t i = 0; i < base.sizeFT(); i++)
+
+
 class ImageBase
 {
     protected:
@@ -74,11 +81,5 @@ class ImageBase
 };
 
 void normalise(ImageBase& image);
-
-#define FOR_EACH_PIXEL_RL(base) \
-    for (size_t i = 0; i < base.sizeRL(); i++)
-
-#define FOR_EACH_PIXEL_FT(base) \
-    for (size_t i = 0; i < base.sizeFT(); i++)
 
 #endif // IMAGE_BASE 

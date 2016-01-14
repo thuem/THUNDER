@@ -3,7 +3,7 @@
  * Dependency:
  * Test:
  * Execution:
- * Description: a image file class
+ * Description:
  *
  * Manual:
  * ****************************************************************************/
@@ -51,13 +51,13 @@ void ImageFile::display() const
     printf("Orgin (AA, Slice):            %6.3f\n", _MRCHeader.origin[2]);
 }
 
-int ImageFile::mode() const {return _metaData.mode;}
+int ImageFile::mode() const { return _metaData.mode; }
 
-int ImageFile::nCol() const {return _metaData.nCol;}
+int ImageFile::nCol() const { return _metaData.nCol; }
 
-int ImageFile::nRow() const {return _metaData.nRow;}
+int ImageFile::nRow() const { return _metaData.nRow; }
 
-int ImageFile::nSlc() const {return _metaData.nSlc;}
+int ImageFile::nSlc() const { return _metaData.nSlc; }
 
 int ImageFile::size() const
 {
