@@ -24,9 +24,9 @@ void translate(Image& dst,
                const double nTransRow);
 
 void meshReverse(Image& img);
-// In fourier space, if columnIdx + rowIdx is odd, reverse it.
+// In fourier space, if iCol + iRow is odd, reverse it.
 
 void meshReverse(Volume& vol);
-// In fourier space, if columnIdx + rowIdx + sliceIdx is odd, reverse it.
+// In fourier space, if iCol + iRow + iSlc is odd, reverse it.
 
 #endif // IMAGE_FUNCTIONS_H
