@@ -25,7 +25,7 @@
 #include "BMP.h"
 
 #define IMAGE_CONJUGATE_HALF(iCol, iRow) \
-    (((iCol) < 0) ? 0 : [&iCol, &iRow]() \
+    (((iCol) > 0) ? 0 : [&iCol, &iRow]() \
                         { \
                             iCol *= -1; \
                             iRow *= -1; \

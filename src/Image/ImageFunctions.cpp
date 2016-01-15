@@ -20,8 +20,8 @@ void translate(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        double phase= gsl_pow_2(M_PI) * (i * rCol + j * rRow);
-        dst.setFT(src.getFT(i, j) * COMPLEX(cos(phase), -sin(phase)), i, j);
+        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        dst.setFT(src.getFT(i, j) * gsl_complex_polar(1, -phase), i, j);
     }
 }
 

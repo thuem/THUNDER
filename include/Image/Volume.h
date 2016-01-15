@@ -25,7 +25,7 @@
 #include "Interpolation.h"
 
 #define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
-    (((iCol) < 0) ? 0 : [&iCol, &iRow, &iSlc]() \
+    (((iCol) > 0) ? 0 : [&iCol, &iRow, &iSlc]() \
                         { \
                             iCol *= -1; \
                             iRow *= -1; \

@@ -24,7 +24,8 @@ libthuem_a_SOURCES += src/Image/ImageBase.cpp \
 					  src/Image/BMP.cpp \
 					  src/Image/Image.cpp \
 					  src/Image/Volume.cpp \
-					  src/Image/ImageFile.cpp
+					  src/Image/ImageFile.cpp \
+					  src/Image/ImageFunctions.cpp
 
 libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 					  src/Geometry/Transformation.cpp \
@@ -44,7 +45,8 @@ nobase_pkginclude_HEADERS += include/Image/ImageBase.h \
 							 include/Image/BMP.h \
 							 include/Image/Image.h \
 							 include/Image/Volume.h \
-							 include/Image/ImageFile.h
+							 include/Image/ImageFile.h \
+							 include/Image/ImageFunctions.h
 
 nobase_pkginclude_HEADERS += include/Geometry/Euler.h \
 							 include/Geometry/Transformation.h \
