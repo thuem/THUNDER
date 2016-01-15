@@ -28,7 +28,7 @@
 }
 
 #define FW_EXTRACT_P(obj) \
-    [this]() \
+    [this, &obj]() \
     { \
         obj.alloc(fourierSpace); \
         _dstC = (fftw_complex*)&obj[0]; \
@@ -37,7 +37,7 @@
     }()
 
 #define BW_EXTRACT_P(obj) \
-    [this]() \
+    [this, &obj]() \
     { \
         obj.alloc(realSpace); \
         _dstR = &obj(0); \
@@ -59,6 +59,56 @@
     _srcC = NULL; \
     obj.clearFT(); \
 }
+
+#define R2C_RL(obj, function) \
+    [&]() mutable \
+    { \
+        function; \
+        FFT fft; \
+        fft.fw(obj); \
+    }()
+
+#define C2R_RL(obj, function) \
+    [&]() mutable \
+    { \
+        FFT fft; \
+        fft.bw(obj); \
+        function; \
+    }()
+
+#define C2C_RL(obj, function) \
+    [&]() mutable \
+    { \
+        FFT fft; \
+        fft.bw(obj); \
+        function; \
+        fft.fw(obj); \
+    }()
+
+#define R2R_FT(obj, function) \
+    [&]() mutable \
+    { \
+        FFT fft; \
+        fft.fw(obj); \
+        function; \
+        fft.bw(obj); \
+    }()
+
+#define R2C_FT(obj, function) \
+    [&]() mutable \
+    { \
+        FFT fft; \
+        fft.fw(obj); \
+        function; \
+    }()
+
+#define C2R_FT(obj, function) \
+    [&]() mutable \
+    { \
+        function; \
+        FFT fft; \
+        fft.bw(obj); \
+    }()
 
 class FFT
 {

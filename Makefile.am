@@ -1,5 +1,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
+SUBDIRS = . unittest
+
 AM_CXXFLAGS = -std=c++11
 
 AM_CXXFLAGS += -I${top_srcdir}/include \
@@ -8,12 +10,12 @@ AM_CXXFLAGS += -I${top_srcdir}/include \
 			   -I${top_srcdir}/include/Image \
                -I${top_srcdir}/external/HEALPix/include
 
-AM_CXXFLAGS += -lfftw3f -lgsl
-
 pkglib_LIBRARIES = libthuem.a
 
-libthuem_a_SOURCES = src/Complex.cpp \
-					 src/Coordinate5D.cpp
+libthuem_a_SOURCES = src/Error.cpp \
+					 src/Complex.cpp \
+					 src/Coordinate5D.cpp \
+					 src/FFT.cpp
 
 libthuem_a_SOURCES += src/Functions/Functions.cpp \
 					  src/Functions/Interpolation.cpp
@@ -30,8 +32,10 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 					  src/Geometry/SymmetryFunctions.cpp \
 					  src/Geometry/Symmetry.cpp
 
-nobase_pkginclude_HEADERS = include/Complex.h \
-							include/Coordinate5D.h
+nobase_pkginclude_HEADERS = include/Error.h \
+							include/Complex.h \
+							include/Coordinate5D.h \
+							include/FFT.h
 
 nobase_pkginclude_HEADERS += include/Functions/Functions.h \
 							 include/Functions/Interpolation.h

@@ -29,6 +29,7 @@ AC_TYPE_SIZE_T
 AC_CHECK_FUNCS([floor memset pow sqrt])
 
 AC_CONFIG_SUBDIRS([gpu])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+                 unittest/Makefile])
 
 AC_OUTPUT
