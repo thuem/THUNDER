@@ -25,21 +25,24 @@ void translate(Image& dst,
     }
 }
 
+/***
 void meshReverse(Image& img)
 {
     IMAGE_FOR_EACH_PIXEL_FT(img)
         if ((i + j) % 2 == 1)
             img.setFT(-img.getFT(i, j), i, j);
 }
+***/
 
+/***
 void meshReverse(Volume& vol)
 {
     VOLUME_FOR_EACH_PIXEL_FT(vol)
         if ((i + j + k) % 2 == 1)
             vol.setFT(-vol.getFT(i, j, k), i, j, k);
 }
+***/
 
-/***
 void meshReverse(Image& img)
 {
     for (int j = 0; j < img.nRowFT(); j++)
@@ -58,4 +61,3 @@ void meshReverse(Volume& vol)
                       + j * vol.nColFT()
                       + i] *= -1;
 }
-***/

@@ -58,7 +58,10 @@ void Volume::alloc(const int nCol,
     if (space == realSpace)
     {
         clearRL();
+
         _sizeRL = nCol * nRow * nSlc;
+        _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
+
         _dataRL = new double[_sizeRL];
         if (_dataRL == NULL)
             REPORT_ERROR("Fail to allocate memory for storing volume");
@@ -66,7 +69,10 @@ void Volume::alloc(const int nCol,
     else if (space == fourierSpace)
     {
         clearFT();
+
+        _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
+
         _dataFT = new Complex[_sizeFT];
         if (_dataFT == NULL)
             REPORT_ERROR("Fail to allocate memory for storing Fourier volume");
@@ -119,23 +125,6 @@ Complex Volume::getFT(int iCol,
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
-    /***
-    switch (cf)
-    {
-        case conjugateUnknown:
-            flag = VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc); break;
-
-        case conjugateYes:
-            flag = true; break;
-
-        case conjugateNo:
-            flag = false; break;
-    }
-
-    if (iRow < 0) iRow += _nRow;
-    if (iSlc < 0) iSlc += _nSlc;
-    ***/
-    // printf("index = %ld\n", index);
     return flag ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 

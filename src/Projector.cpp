@@ -67,15 +67,8 @@ void Projector::setProjectee(const Volume& src)
 {
     _projectee = src;
 
-    // meshReverse(_projectee);
+    meshReverse(_projectee);
 
-    /***
-    VOLUME_FOR_EACH_PIXEL_FT(_projectee)
-        printf("%f %f\n", REAL(_projectee.getFT(i, j, k)),
-                          IMAG(_projectee.getFT(i, j, k)));
-    ***/
-
-    // set _maxRadius
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),
                              _projectee.nSlcRL()) / 2 - 1);
@@ -86,48 +79,25 @@ void Projector::project(Image& dst,
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        /***
-        size_t index;
-        if (j < 0)
-            index = (j + dst.nRow()) * (dst.nColumn() / 2 + 1) + i;
-        else
-            index = j * (dst.nColumn() / 2 + 1) + i;
-
-        // set a vector points to the point on the image
-        ***/
         vec3 newCor = {i, j, 0};
         // std::cout << newCor << std::endl;
         vec3 oldCor = mat * newCor;
         // std::cout << oldCor << std::endl;
-        /***
-        Vector<double> newCor(3);
-        newCor(0) = i;
-        newCor(1) = j;
-        newCor(2) = 0;
-        ***/
-
-        // Vector<double> oldCor = rotateMatrix * newCor;
 
         if (norm(oldCor) < _maxRadius)
         {
-            // dst.setFT(COMPLEX(0, 0), i, j);
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
                                                       oldCor(1),
                                                       oldCor(2),
                                                       _interpolation),
                       i,
                       j);
-            /***
-            printf("%f %f\n",
-                   REAL(dst.getFT(i, j)),
-                   IMAG(dst.getFT(i, j)));
-            ***/
         }
         else
             dst.setFT(COMPLEX(0, 0), i, j);
     }
 
-    // meshReverse(dst);
+    meshReverse(dst);
 }
 
 void Projector::project(Image& dst,
