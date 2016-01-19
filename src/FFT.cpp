@@ -55,6 +55,8 @@ void FFT::fw(Volume& vol)
                                   _dstC,
                                   FFTW_ESTIMATE);
 
+    fftw_execute(fwPlan);
+
     FW_CLEAN_UP;
 }
 

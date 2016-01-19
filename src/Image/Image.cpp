@@ -51,10 +51,12 @@ void Image::alloc(const int nCol,
     _nCol = nCol;
     _nRow = nRow;
 
+    _sizeRL = nCol * nRow;
+    _sizeFT = (nCol / 2 + 1) * nRow;
+
     if (space == realSpace)
     {
         clearRL();
-        _sizeRL = nCol * nRow;
         _dataRL = new double[_sizeRL];
         if (_dataRL == NULL)
             REPORT_ERROR("Fail to allocate memory for storing image");
@@ -62,7 +64,6 @@ void Image::alloc(const int nCol,
     else if (space == fourierSpace)
     {
         clearFT();
-        _sizeFT = (nCol / 2 + 1) * nRow;
         _dataFT = new Complex[_sizeFT];
         if (_dataFT == NULL)
             REPORT_ERROR("Fail to allocate memory for storing Fourier image");
@@ -159,11 +160,6 @@ Complex Image::getFT(int iCol,
     coordinatesInBoundaryFT(iCol, iRow);
     size_t index;
     bool cf = IMAGE_FREQ_TO_STORE_INDEX(iCol, iRow);
-    /***
-    bool cf = IMAGE_CONJUGATE_HALF(iCol, iRow);
-    if (iRow < 0) iRow += _nRow;
-    size_t i = IMAGE_INDEX_FT(iCol, iRow);
-    ***/
     return cf ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
@@ -174,11 +170,6 @@ void Image::setFT(const Complex value,
     coordinatesInBoundaryFT(iCol, iRow);
     size_t index;
     bool cf = IMAGE_FREQ_TO_STORE_INDEX(iCol, iRow);
-    /***
-    bool cf = IMAGE_CONJUGATE_HALF(iCol, iRow);
-    if (iRow < 0) iRow += _nRow;
-    size_t i = IMAGE_INDEX_FT(iCol, iRow);
-    ***/
     _dataFT[index] = cf ? CONJUGATE(value) : value;
 }
 

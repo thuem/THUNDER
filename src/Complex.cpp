@@ -33,13 +33,13 @@ Complex operator/(Complex a, Complex b)
     return gsl_complex_div(a, b);
 }
 
-void operator+=(Complex a, Complex b) { a = a + b; }
+void operator+=(Complex& a, Complex b) { a = a + b; }
 
-void operator-=(Complex a, Complex b) { a = a - b; }
+void operator-=(Complex& a, Complex b) { a = a - b; }
 
-void operator*=(Complex a, Complex b) { a = a * b; }
+void operator*=(Complex& a, Complex b) { a = a * b; }
 
-void operator/=(Complex a, Complex b) { a = a / b; }
+void operator/=(Complex& a, Complex b) { a = a / b; }
 
 Complex operator*(Complex a, double x)
 {
@@ -51,4 +51,4 @@ Complex operator*(double x, Complex a)
     return a * x;
 }
 
-void operator*=(Complex a, double x) { a = a * x; }
+void operator*=(Complex& a, double x) { a = a * x; }

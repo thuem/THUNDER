@@ -21,7 +21,7 @@ void translate(Image& dst,
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         double phase = 2 * M_PI * (i * rCol + j * rRow);
-        dst.setFT(src.getFT(i, j) * gsl_complex_polar(1, -phase), i, j);
+        dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
     }
 }
 
@@ -38,3 +38,24 @@ void meshReverse(Volume& vol)
         if ((i + j + k) % 2 == 1)
             vol.setFT(-vol.getFT(i, j, k), i, j, k);
 }
+
+/***
+void meshReverse(Image& img)
+{
+    for (int j = 0; j < img.nRowFT(); j++)
+        for (int i = 0; i < img.nColFT(); i++)
+            if ((i + j) % 2 == 1)
+                img[j * img.nColFT() + i] *= -1;
+}
+
+void meshReverse(Volume& vol)
+{
+    for (int k = 0; k < vol.nSlcFT(); k++)
+        for (int j = 0; j < vol.nRowFT(); j++)
+            for (int i = 0; i < vol.nColFT(); i++)
+                if ((i + j + k) % 2 == 1)
+                    vol[k * vol.nColFT() * vol.nRowFT()
+                      + j * vol.nColFT()
+                      + i] *= -1;
+}
+***/

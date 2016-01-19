@@ -15,7 +15,8 @@ pkglib_LIBRARIES = libthuem.a
 libthuem_a_SOURCES = src/Error.cpp \
 					 src/Complex.cpp \
 					 src/Coordinate5D.cpp \
-					 src/FFT.cpp
+					 src/FFT.cpp \
+					 src/Projector.cpp
 
 libthuem_a_SOURCES += src/Functions/Functions.cpp \
 					  src/Functions/Interpolation.cpp
@@ -36,7 +37,8 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 nobase_pkginclude_HEADERS = include/Error.h \
 							include/Complex.h \
 							include/Coordinate5D.h \
-							include/FFT.h
+							include/FFT.h \
+							include/Projector.h
 
 nobase_pkginclude_HEADERS += include/Functions/Functions.h \
 							 include/Functions/Interpolation.h

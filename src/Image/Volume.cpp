@@ -135,6 +135,7 @@ Complex Volume::getFT(int iCol,
     if (iRow < 0) iRow += _nRow;
     if (iSlc < 0) iSlc += _nSlc;
     ***/
+    // printf("index = %ld\n", index);
     return flag ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
@@ -200,6 +201,19 @@ Complex Volume::getByInterpolationFT(double iCol,
                               x0, y0, z0,
                               iCol, iRow, iSlc, style);
 
+    /***
+    printf("x0 = %d\n", x0);
+    printf("y0 = %d\n", y0);
+    printf("z0 = %d\n", z0);
+    printf("w000 = %f\n", w000);
+    printf("w001 = %f\n", w001);
+    printf("w010 = %f\n", w010);
+    printf("w011 = %f\n", w011);
+    printf("w100 = %f\n", w100);
+    printf("w101 = %f\n", w101);
+    printf("w110 = %f\n", w110);
+    printf("w111 = %f\n", w111);
+    ***/
     // get value from Fourier space by weights
     // getFT method inclues boundary check.
     Complex result = getFT(x0, y0, z0,
@@ -248,6 +262,11 @@ void Volume::coordinatesInBoundaryFT(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
 {
+    /***
+    printf("x0 = %d\n", iCol);
+    printf("y0 = %d\n", iRow);
+    printf("z0 = %d\n", iSlc);
+    ***/
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
@@ -277,6 +296,11 @@ Complex Volume::getFT(const int x0, const int y0, const int z0,
                       const double w110, const double w111,
                       const ConjugateFlag conjugateFlag) const
 {
+    /***
+    printf("x0 = %d\n", x0);
+    printf("y0 = %d\n", y0);
+    printf("z0 = %d\n", z0);
+    ***/
     Complex result = getFT(x0, y0, z0, conjugateFlag) * w000;
     result += getFT(x0, y0, z0 + 1, conjugateFlag) * w001;
     result += getFT(x0, y0 + 1, z0, conjugateFlag) * w010; 

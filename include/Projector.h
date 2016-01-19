@@ -24,6 +24,8 @@
 
 #include "Coordinate5D.h"
 
+#include "ImageFunctions.h"
+
 using namespace arma;
 
 class Projector
@@ -80,8 +82,8 @@ class Projector
                      const double phi,
                      const double theta,
                      const double psi,
-                     const float x,
-                     const float y) const;
+                     const double x,
+                     const double y) const;
 
         void project(Image& dst,
                      const Coordinate5D& coordinate5D) const;

@@ -67,12 +67,18 @@ void Projector::setProjectee(const Volume& src)
 {
     _projectee = src;
 
-    meshReverse(_projectee);
+    // meshReverse(_projectee);
+
+    /***
+    VOLUME_FOR_EACH_PIXEL_FT(_projectee)
+        printf("%f %f\n", REAL(_projectee.getFT(i, j, k)),
+                          IMAG(_projectee.getFT(i, j, k)));
+    ***/
 
     // set _maxRadius
-    _maxRadius = floor(min(_projectee.nColumn(),
-                           _projectee.nRow(),
-                           _projectee.nSlice()) / 2);
+    _maxRadius = floor(MIN_3(_projectee.nColRL(),
+                             _projectee.nRowRL(),
+                             _projectee.nSlcRL()) / 2 - 1);
 }
 
 void Projector::project(Image& dst,
@@ -80,6 +86,7 @@ void Projector::project(Image& dst,
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
+        /***
         size_t index;
         if (j < 0)
             index = (j + dst.nRow()) * (dst.nColumn() / 2 + 1) + i;
@@ -87,8 +94,11 @@ void Projector::project(Image& dst,
             index = j * (dst.nColumn() / 2 + 1) + i;
 
         // set a vector points to the point on the image
+        ***/
         vec3 newCor = {i, j, 0};
+        // std::cout << newCor << std::endl;
         vec3 oldCor = mat * newCor;
+        // std::cout << oldCor << std::endl;
         /***
         Vector<double> newCor(3);
         newCor(0) = i;
@@ -98,16 +108,26 @@ void Projector::project(Image& dst,
 
         // Vector<double> oldCor = rotateMatrix * newCor;
 
-        if (oldCor.modulusSquare() < _maxRadius * _maxRadius)
-            dst[index] = _projectee.getByInterpolationFT(oldCor(0),
-                                                         oldCor(1),
-                                                         oldCor(2),
-                                                         _interpolation);
+        if (norm(oldCor) < _maxRadius)
+        {
+            // dst.setFT(COMPLEX(0, 0), i, j);
+            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
+                                                      oldCor(1),
+                                                      oldCor(2),
+                                                      _interpolation),
+                      i,
+                      j);
+            /***
+            printf("%f %f\n",
+                   REAL(dst.getFT(i, j)),
+                   IMAG(dst.getFT(i, j)));
+            ***/
+        }
         else
-            dst[index] = 0;
+            dst.setFT(COMPLEX(0, 0), i, j);
     }
 
-    meshReverse(dst);
+    // meshReverse(dst);
 }
 
 void Projector::project(Image& dst,
@@ -116,8 +136,6 @@ void Projector::project(Image& dst,
                         const double psi) const
 {
     mat33 mat;
-    // Matrix<double> rotateMatrix(3, 3);
-
     rotate3D(mat, phi, theta, psi);
 
     project(dst, mat);
@@ -127,19 +145,11 @@ void Projector::project(Image& dst,
                         const double phi,
                         const double theta,
                         const double psi,
-                        const float x,
-                        const float y) const
+                        const double x,
+                        const double y) const
 {
     project(dst, phi, theta, psi);
-
-    /***
-    shift(dst.getDataFT(),
-          dst.getDataFT(),
-          x,
-          y,
-          dst.nColumn(),
-          dst.nRow());
-    ***/
+    translate(dst, dst, x, y);
 }
 
 void Projector::project(Image& dst,
@@ -164,7 +174,7 @@ void Projector::gridCorrection()
     {
         if ((i != 0) || (j != 0) || (k != 0))
         {
-            float u = sinc(M_PI * sqrt(i * i + j * j + k * k)
+            double u = sinc(M_PI * sqrt(i * i + j * j + k * k)
                          / _projectee.nColumn());
 
             // when sinc3D, no correction needed
