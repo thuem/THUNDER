@@ -76,22 +76,22 @@
         function; \
     }()
 
-#define C2C_RL(obj, function) \
+#define C2C_RL(dst, src, function) \
     [&]() mutable \
     { \
         FFT fft; \
-        fft.bw(obj); \
+        fft.bw(src); \
         function; \
-        fft.fw(obj); \
+        fft.fw(dst); \
     }()
 
-#define R2R_FT(obj, function) \
+#define R2R_FT(dst, src, function) \
     [&]() mutable \
     { \
         FFT fft; \
-        fft.fw(obj); \
+        fft.fw(src); \
         function; \
-        fft.bw(obj); \
+        fft.bw(dst); \
     }()
 
 #define R2C_FT(obj, function) \

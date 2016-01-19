@@ -81,7 +81,7 @@ int main(int argc, const char* argv[])
                 /***
                 R2R_FT(image, sin(2));
                 ***/
-                R2R_FT(image, projector.project(image,
+                R2R_FT(image, image, projector.project(image,
                                                 2 * M_PI * i / M,
                                                 M_PI * j / M,
                                                 2 * M_PI * k / M));

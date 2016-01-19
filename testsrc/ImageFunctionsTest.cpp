@@ -30,12 +30,12 @@ int main(int argc, const char* argv[])
 
     image.saveRLToBMP("ori.bmp");
 
-    R2R_FT(image, translate(image, image, 0, 0));
+    R2R_FT(image, image, translate(image, image, 0, 0));
     image.saveRLToBMP("trans0.bmp");
 
-    R2R_FT(image, translate(image, image, N / 8, N / 8));
+    R2R_FT(image, image, translate(image, image, N / 8, N / 8));
     image.saveRLToBMP("trans1.bmp");
 
-    R2R_FT(image, translate(image, image, N / 4, N / 4));
+    R2R_FT(image, image, translate(image, image, N / 4, N / 4));
     image.saveRLToBMP("trans2.bmp");
 }
