@@ -32,3 +32,24 @@ double MKB_FT(const double r,
          * gsl_sf_bessel_In(2, alpha * sqrt(1 - gsl_pow_2(u)))
          / gsl_sf_bessel_In(2, alpha);
 }
+
+double MKB_RL(const double r,
+              const double a,
+              const double alpha)
+{
+    double u = 2 * M_PI * a * r;
+
+    double v = (u <= alpha) ? sqrt(gsl_pow_2(alpha) - gsl_pow_2(u))
+                            : sqrt(gsl_pow_2(u) - gsl_pow_2(alpha));
+
+    double w = pow(2 * M_PI, 1.5)
+             * gsl_pow_3(a)
+             * gsl_pow_2(alpha)
+             / gsl_sf_bessel_In(2, alpha)
+             / pow(v, 3.5);
+
+    if (u <= alpha)
+        return w * gsl_sf_bessel_Inu(3.5, v);
+    else
+        return w * gsl_sf_bessel_Jnu(3.5, v);
+}
