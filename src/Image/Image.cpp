@@ -177,33 +177,55 @@ void Image::setFT(const Complex value,
 double Image::getBiLinearRL(const double iCol,
                             const double iRow) const
 {
+    double w[2][2];
+    int x0[2];
+    /***
     double w00, w01, w10, w11;
     int x0, y0;
-    biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
+    ***/
+    double x[2] = {iCol, iRow};
+    WG_BI_LINEAR(w, x0, x);
+    // biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
 
-    coordinatesInBoundaryRL(x0, y0);
-    coordinatesInBoundaryRL(x0 + 1, y0 + 1);
+    coordinatesInBoundaryRL(x0[0], x0[1]);
+    coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
 
+    double result = 0;
+    FOR_CELL_DIM_3 result += w[i][j] * getRL(x0[0] + i, x0[1] + j);
+    return result;
+    /***
     return w00 * getRL(x0, y0)
          + w01 * getRL(x0, y0 + 1)
          + w10 * getRL(x0 + 1, y0)
          + w11 * getRL(x0 + 1, y0 + 1);
+         ***/
 }
 
 Complex Image::getBiLinearFT(const double iCol,
                              const double iRow) const
 {
+    double w[2][2];
+    int x0[2];
+    /***
     double w00, w01, w10, w11;
     int x0, y0;
-    biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
+    ***/
+    double x[2] = {iCol, iRow};
+    WG_BI_LINEAR(w, x0, x);
+    // biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
 
-    coordinatesInBoundaryFT(x0, y0);
-    coordinatesInBoundaryFT(x0 + 1, y0 + 1);
+    coordinatesInBoundaryFT(x0[0], x0[1]);
+    coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);
 
+    Complex result = COMPLEX(0, 0);
+    FOR_CELL_DIM_2 result += w[i][j] * getFT(x0[0] + i , x0[1] + j);
+    return result;
+    /***
     return w00 * getFT(x0, y0)
          + w01 * getFT(x0, y0 + 1)
          + w10 * getFT(x0 + 1, y0)
          + w11 * getFT(x0 + 1, y0 + 1);
+    ***/
 }
 
 void Image::coordinatesInBoundaryRL(const int iCol,

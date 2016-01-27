@@ -40,15 +40,13 @@ class Projector
         // _maxRadius will be automatically set to the properly value when
         // projectee is set.
 
-        Interpolation3DStyle _interpolation = linear3D;
+        int _interp = LINEAR_INTERP;
         
         Volume _projectee;
 
     public:
 
         Projector();
-
-        Projector(const Interpolation3DStyle interpolation);
 
         Projector(const Projector& that);
 
@@ -62,9 +60,9 @@ class Projector
 
         void setMaxRadius(const int maxRadius); 
 
-        Interpolation3DStyle interpolation() const;
+        int interp() const;
 
-        void setInterpolation(const Interpolation3DStyle interpolation);
+        void setInterp(const int interp);
 
         const Volume& projectee() const;
 

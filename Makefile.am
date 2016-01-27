@@ -18,8 +18,7 @@ libthuem_a_SOURCES = src/Error.cpp \
 					 src/FFT.cpp \
 					 src/Projector.cpp
 
-libthuem_a_SOURCES += src/Functions/Functions.cpp \
-					  src/Functions/Interpolation.cpp
+libthuem_a_SOURCES += src/Functions/Functions.cpp
 
 libthuem_a_SOURCES += src/Image/ImageBase.cpp \
 					  src/Image/BMP.cpp \
@@ -40,8 +39,7 @@ nobase_pkginclude_HEADERS = include/Error.h \
 							include/FFT.h \
 							include/Projector.h
 
-nobase_pkginclude_HEADERS += include/Functions/Functions.h \
-							 include/Functions/Interpolation.h
+nobase_pkginclude_HEADERS += include/Functions/Functions.h
 
 nobase_pkginclude_HEADERS += include/Image/ImageBase.h \
 							 include/Image/BMP.h \

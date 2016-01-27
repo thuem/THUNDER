@@ -1,9 +1,9 @@
 /*******************************************************************************
  * Author: Mingxu Hu
- * Dependency: VolumeBase.h
+ * Dependency: 
  * Test:
  * Execution:
- * Description: a volume class
+ * Description:
  *
  * Manual:
  * ****************************************************************************/
@@ -157,92 +157,46 @@ void Volume::addFT(const Complex value,
 double Volume::getByInterpolationRL(const double iCol,
                                     const double iRow, 
                                     const double iSlc,
-                                    const Interpolation3DStyle style) const
+                                    const int interp) const
 {
-    // calculate grids and weights
-    int x0, y0, z0;
-    double w000, w001, w010, w011, w100, w101, w110, w111; 
-    interpolationWeight3DGrid(w000, w001, w010, w011,
-                              w100, w101, w110, w111,
-                              x0, y0, z0,
-                              iCol, iRow, iSlc, style);
+    double w[2][2][2];
+    int x0[3];
+    double x[3] = {iCol, iRow, iSlc};
+    switch (interp)
+    {
+        case NEAREST_INTERP: WG_TRI_NEAREST(w, x0, x); break;
+        case LINEAR_INTERP: WG_TRI_LINEAR(w, x0, x); break;
+        case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
+    }
 
-    // get value by weights
-    // get method inclues boundary check.
-    return getRL(x0, y0, z0,
-                 w000, w001, w010, w011,
-                 w100, w101, w110, w111);
+    return getRL(w, x0);
 }
 
 Complex Volume::getByInterpolationFT(double iCol,
                                      double iRow,
                                      double iSlc,
-                                     const Interpolation3DStyle style) const
+                                     const int interp) const
 {
     bool cf = VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc);
-    // ConjugateFlag conjugateFlag = conjugate(iCol, iRow, iSlc);
 
-    // calculate grids and weights
-    int x0, y0, z0;
-    double w000, w001, w010, w011, w100, w101, w110, w111; 
-    interpolationWeight3DGrid(w000, w001, w010, w011,
-                              w100, w101, w110, w111,
-                              x0, y0, z0,
-                              iCol, iRow, iSlc, style);
+    double w[2][2][2];
+    int x0[3];
+    double x[3] = {iCol, iRow, iSlc};
+    switch (interp)
+    {
+        case NEAREST_INTERP: WG_TRI_NEAREST(w, x0, x); break;
+        case LINEAR_INTERP: WG_TRI_LINEAR(w, x0, x); break;
+        case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
+    }
 
-    /***
-    printf("x0 = %d\n", x0);
-    printf("y0 = %d\n", y0);
-    printf("z0 = %d\n", z0);
-    printf("w000 = %f\n", w000);
-    printf("w001 = %f\n", w001);
-    printf("w010 = %f\n", w010);
-    printf("w011 = %f\n", w011);
-    printf("w100 = %f\n", w100);
-    printf("w101 = %f\n", w101);
-    printf("w110 = %f\n", w110);
-    printf("w111 = %f\n", w111);
-    ***/
-    // get value from Fourier space by weights
-    // getFT method inclues boundary check.
-    Complex result = getFT(x0, y0, z0,
-                           w000, w001, w010, w011,
-                           w100, w101, w110, w111, conjugateNo);
-
+    Complex result = getFT(w, x0, conjugateNo);
     return cf ? CONJUGATE(result) : result;
 }
 
-/***
-void Volume::addByInterpolationFT(const Complex value,
-                                  double iCol,
-                                  double iRow,
-                                  double iSlc,
-                                  double* weight,
-                                  const Interpolation3DStyle style)
-{
-    bool cf = VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc);
-
-    // calculate grids and weights
-    int x0, y0, z0;
-    double w000, w001, w010, w011, w100, w101, w110, w111; 
-    interpolationWeight3DGrid(w000, w001, w010, w011,
-                              w100, w101, w110, w111,
-                              x0, y0, z0,
-                              iCol, iRow, iSlc, style);
-  
-    // add into the volume
-    // addFT method includes boundary check.
-    addFT(cf ? CONJUGATE(value) : value,
-          x0, y0, z0,
-          w000, w001, w010, w011,
-          w100, w101, w110, w111, conjugateNo, weight);
-}
-***/
-
 void Volume::addFT(const Complex value,
-                   double iCol,
-                   double iRow,
-                   double iSlc,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
                    const double a,
                    const double alpha)
 {
@@ -275,94 +229,30 @@ void Volume::coordinatesInBoundaryFT(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
 {
-    /***
-    printf("x0 = %d\n", iCol);
-    printf("y0 = %d\n", iRow);
-    printf("z0 = %d\n", iSlc);
-    ***/
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
         REPORT_ERROR("Try to get value out of the boundary");
 }
 
-double Volume::getRL(const int x0, const int y0, const int z0,
-                     const double w000, const double w001,
-                     const double w010, const double w011,
-                     const double w100, const double w101,
-                     const double w110, const double w111) const
+double Volume::getRL(const double w[2][2][2],
+                     const int x0[3]) const
 {
-    return getRL(x0, y0, z0) * w000
-         + getRL(x0, y0, z0 + 1) * w001
-         + getRL(x0, y0 + 1, z0) * w010
-         + getRL(x0, y0 + 1, z0 + 1) * w011
-         + getRL(x0 + 1, y0, z0) * w100
-         + getRL(x0 + 1, y0, z0 + 1) * w101
-         + getRL(x0 + 1, y0 + 1, z0) * w110
-         + getRL(x0 + 1, y0 + 1, z0 + 1) * w111;
-}
-
-Complex Volume::getFT(const int x0, const int y0, const int z0,
-                      const double w000, const double w001,
-                      const double w010, const double w011,
-                      const double w100, const double w101,
-                      const double w110, const double w111,
-                      const ConjugateFlag conjugateFlag) const
-{
-    /***
-    printf("x0 = %d\n", x0);
-    printf("y0 = %d\n", y0);
-    printf("z0 = %d\n", z0);
-    ***/
-    Complex result = getFT(x0, y0, z0, conjugateFlag) * w000;
-    result += getFT(x0, y0, z0 + 1, conjugateFlag) * w001;
-    result += getFT(x0, y0 + 1, z0, conjugateFlag) * w010; 
-    result += getFT(x0, y0 + 1, z0 + 1, conjugateFlag) * w011; 
-    result += getFT(x0 + 1, y0, z0, conjugateFlag) * w100;
-    result += getFT(x0 + 1, y0, z0 + 1, conjugateFlag) * w101; 
-    result += getFT(x0 + 1, y0 + 1, z0, conjugateFlag) * w110; 
-    result += getFT(x0 + 1, y0 + 1, z0 + 1, conjugateFlag) * w111; 
-
+    double result = 0;
+    FOR_CELL_DIM_3 result += getRL(x0[0] + i, x0[1] + j, x0[2] + k)
+                           * w[i][j][k];
     return result;
 }
 
-/***
-void Volume::addFT(const Complex value,
-                   const int x0, const int y0, const int z0,
-                   const double w000, const double w001,
-                   const double w010, const double w011,
-                   const double w100, const double w101,
-                   const double w110, const double w111,
-                   const ConjugateFlag conjugateFlag,
-                   double* weight)
+Complex Volume::getFT(const double w[2][2][2],
+                      const int x0[3],
+                      const ConjugateFlag conjugateFlag) const
 {
-    addFT(value * w000, x0, y0, z0, conjugateFlag);
-    addFT(value * w001, x0, y0, z0 + 1, conjugateFlag);
-    addFT(value * w010, x0, y0 + 1, z0, conjugateFlag);
-    addFT(value * w011, x0, y0 + 1, z0 + 1, conjugateFlag);
-    addFT(value * w100, x0 + 1, y0, z0, conjugateFlag);
-    addFT(value * w101, x0 + 1, y0, z0 + 1, conjugateFlag);
-    addFT(value * w110, x0 + 1, y0 + 1, z0, conjugateFlag);
-    addFT(value * w111, x0 + 1, y0 + 1, z0 + 1, conjugateFlag);
-
-    if (weight != NULL)
-    {
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0, z0))] += w000;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0, z0 + 1))] += w001;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0 + 1, z0))] += w010;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0, y0 + 1, z0 + 1))] += w011;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0, z0))] += w100;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0, z0 + 1))] += w101;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0 + 1, z0))] += w110;
-        weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0 + 1, z0 + 1))] += w111;
-        weight[getIndexFT(x0, y0, z0)] += w000;
-        weight[getIndexFT(x0, y0, z0 + 1)] += w001; 
-        weight[getIndexFT(x0, y0 + 1, z0)] += w010; 
-        weight[getIndexFT(x0, y0 + 1, z0 + 1)] += w011; 
-        weight[getIndexFT(x0 + 1, y0, z0)] += w100;
-        weight[getIndexFT(x0 + 1, y0, z0 + 1)] += w101; 
-        weight[getIndexFT(x0 + 1, y0 + 1, z0)] += w110; 
-        weight[getIndexFT(x0 + 1, y0 + 1, z0 + 1)] += w111; 
-    }
+    Complex result = COMPLEX(0, 0);
+    FOR_CELL_DIM_3 result += getFT(x0[0] + i,
+                                   x0[1] + j,
+                                   x0[2] + k,
+                                   conjugateFlag)
+                           * w[i][j][k];
+    return result;
 }
-***/

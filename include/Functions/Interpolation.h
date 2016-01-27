@@ -11,242 +11,136 @@
 #ifndef INTERPOLATION_H
 #define INTERPOLATION_H
 
-#include <cmath>
-
 #include <gsl/gsl_sf_trig.h>
 
-#include "Complex.h"
-#include "Functions.h"
-#include "Enum.h"
+#include <cstdlib>
+#include <cmath>
 
-void floor(int& x0, int& y0,
-           const double x, const double y);
-// calculate the floor values
+#define NEAREST_INTERP 0
 
-void floor(int& x0, int& y0, int& z0,
-           const double x, const double y, const double z);
-// calculate the floor values
+#define LINEAR_INTERP 1
 
-void floorDiff(int& x0,
-               double& xd,
-               const double x);
+#define SINC_INTERP 2
 
-void floorDiff(int& x0, int& y0,
-               double& xd, double& yd,
-               const double x, const double y);
-// calculate the floor values and the differences between floors values and
-// input values
+#define FOR_CELL_DIM_2 \
+    for (int i = 0; i < 2; i++) \
+        for (int j = 0; j < 2; j++)
 
-void floorDiff(int& x0, int& y0, int& z0,
-               double& xd, double& yd, double& zd,
-               const double x, const double y, const double z);
-// calculate the floor values and the differences between floors values and
-// input values
+#define FOR_CELL_DIM_3 \
+    for (int i = 0; i < 2; i++) \
+        for (int j = 0; j < 2; j++) \
+            for (int k = 0; k < 2; k++)
 
-Complex linear(const Complex v0,
-               const Complex v1,
-               const double xd);
-// calculate the linear interpolation
+#define LINEAR(v, xd) (v[0] * (1 - (xd)) + v[1] * (xd))
+/* v[2], xd */
 
-double linear(const double v0,
-              const double v1,
-              const double xd);
-// calculate the linear interpolation
+#define BI_LINEAR(v, xd) (LINEAR(v[0], xd[0]) * (1 - (xd[1])) \
+                        + LINEAR(v[1], xd[0]) * (xd[1]))
+/* v[2][2], xd[2] */
 
-Complex biLinear(const Complex v00, const Complex v01,
-                 const Complex v10, const Complex v11,
-                 const double xd,
-                 const double zd);
-// calculate the bilinear interpolation
+#define TRI_LINEAR(v, xd) (BI_LINEAR(v[0], xd) * (1 - (xd[2])) \
+                         + BI_LINEAR(v[1], xd) * (xd[2]))
+/* v[2][2][2], xd[2][2] */
 
-double biLinear(const double v00, const double v01,
-                const double v10, const double v11,
-                const double xd,
-                const double zd);
-// calculate the bilinear interpolation
+/* W_ -> Weight, WG_ -> Weight & Grid */
 
-Complex triLinear(const Complex v000, const Complex v001,
-                  const Complex v010, const Complex v011,
-                  const Complex v100, const Complex v101,
-                  const Complex v110, const Complex v111,
-                  const double xd,
-                  const double yd,
-                  const double zd);
-// calculate the trilinear interpolation
+#define W_NEAREST(w, xd) \
+    [](double _w[2], const double _xd) \
+    { \
+        _w[0] = 0; \
+        _w[1] = 0; \
+        (_xd < 0.5) ? _w[0]++ : _w[1]++; \
+    }(w, xd)
 
-double triLinear(const double v000, const double v001,
-                 const double v010, const double v011,
-                 const double v100, const double v101,
-                 const double v110, const double v111,
-                 const double xd,
-                 const double yd,
-                 const double zd);
-// calculate the trilinear interpolation
+#define W_LINEAR(w, xd) \
+    [](double _w[2], const double _xd) \
+    { \
+        _w[0] = 1 - _xd; \
+        _w[1] = _xd; \
+    }(w, xd)
 
-void nearestWeight(double& w0,
-                   double& w1,
-                   const double xd);
+#define W_SINC(w, xd) \
+    [](double _w[2], const double _xd) \
+    { \
+        _w[0] = gsl_sf_sinc(_xd); \
+        _w[1] = gsl_sf_sinc(1 - _xd); \
+    }(w, xd)
 
-void nearestWeightGrid(double& w0,
-                       double& w1,
-                       int& x0,
-                       const double x);
+#define WG_INTERP(INTERP, w, x0, x) \
+    [](double _w[2], int& _x0, const double _x) \
+    { \
+        _x0 = floor(_x); \
+        W_##INTERP(_w, _x - _x0); \
+    }(w, x0, x)
 
-void biNearestWeight(double& w00, double& w01,
-                     double& w10, double& w11,
-                     const double xd,
-                     const double yd);
+#define WG_NEAREST(w, x0, x) WG_INTERP(NEAREST, w, x0, x)
 
-void biNearestWeightGrid(double& w00, double& w01,
-                         double& w10, double& w11,
-                         int& x0,
-                         int& y0,
-                         const double x,
-                         const double y);
+#define WG_LINEAR(w, x0, x) WG_INTERP(LINEAR, w, x0, x)
 
-void triNearestWeight(double& w000, double& w001,
-                      double& w010, double& w011,
-                      double& w100, double& w101,
-                      double& w110, double& w111,
-                      const double xd,
-                      const double yd,
-                      const double zd);
+#define WG_SINC(w, x0, x) WG_INTERP(SINC, w, x0, x)
 
-void triNearestWeightGrid(double& w000, double& w001,
-                          double& w010, double& w011,
-                          double& w100, double& w101,
-                          double& w110, double& w111,
-                          int& x0,
-                          int& y0,
-                          int& z0,
-                          const double x,
-                          const double y,
-                          const double z);
+#define W_BI_INTERP(INTERP, w, xd) \
+    [](double _w[2][2], const double _xd[2]) \
+    { \
+        double v[2][2]; \
+        for (int i = 0; i < 2; i++) W_##INTERP(v[i], _xd[i]); \
+        FOR_CELL_DIM_2 _w[i][j] = v[0][i] * v[1][j]; \
+    }(w, xd)
 
-void linearWeight(double& w0,
-                  double& w1,
-                  const double xd);
-// calculate the weights of linear interpolation
+#define W_BI_NEAREST(w, xd) W_BI_INTERP(NEAREST, w, xd)
 
-void linearWeightGrid(double& w0,
-                      double& w1,
-                      const int& x0,
-                      const double x);
-// calculate the weights of linear interpolation
+#define W_BI_LINEAR(w, xd) W_BI_INTERP(LINEAR, w, xd)
 
-void biLinearWeight(double& w00, double& w01,
-                    double& w10, double& w11,
-                    const double xd,
-                    const double yd);
-// calculate the weights of bilinear interpolation
+#define W_BI_SINC(w, xd) W_BI_INTERP(SINC, w, xd)
 
-void biLinearWeightGrid(double& w00, double& w01,
-                        double& w10, double& w11,
-                        int& x0,
-                        int& y0,
-                        const double x,
-                        const double y);
-// calculate the weights of bilinear interpolation
+#define WG_BI_INTERP(INTERP, w, x0, x) \
+    [](double _w[2][2], int _x0[2], const double _x[2]) \
+    { \
+        double xd[2]; \
+        for (int i = 0; i < 2; i++) \
+        { \
+            _x0[i] = floor(_x[i]); \
+            xd[i] = _x[i] - _x0[i]; \
+        } \
+        W_BI_##INTERP(_w, xd); \
+    }(w, x0, x)
 
-void triLinearWeight(double& w000, double& w001,
-                     double& w010, double& w011,
-                     double& w100, double& w101,
-                     double& w110, double& w111,
-                     const double xd,
-                     const double yd,
-                     const double zd);
-// calculate the weights of trilinear interpolation
+#define WG_BI_NEAREST(w, x0, x) WG_BI_INTERP(NEAREST, w, x0, x)
 
-void triLinearWeightGrid(double& w000, double& w001,
-                         double& w010, double& w011,
-                         double& w100, double& w101,
-                         double& w110, double& w111,
-                         int& x0,
-                         int& y0,
-                         int& z0,
-                         const double x,
-                         const double y,
-                         const double z);
-// calculate the weights of trilinear interpolation
+#define WG_BI_LINEAR(w, x0, x) WG_BI_INTERP(LINEAR, w, x0, x)
 
-void sincWeight(double& w0,
-                double& w1,
-                const double xd);
-// calculate the weights of sinc interpolation
+#define WG_BI_SINC(w, x0, x) WG_BI_INTERP(SINC, w, x0, x)
 
-void sincWeightGrid(double& w0,
-                    double& w1,
-                    int& x0,
-                    const double x);
-// calculate the weights of sinc interpolation
+#define W_TRI_INTERP(INTERP, w, xd) \
+    [](double _w[2][2][2], const double _xd[3]) \
+    { \
+        double v[3][2]; \
+        for (int i = 0; i < 3; i++) W_##INTERP(v[i], _xd[i]); \
+        FOR_CELL_DIM_3 _w[i][j][k] = v[0][i] * v[1][j] * v[2][k]; \
+    }(w, xd)
 
-void biSincWeight(double& w00, double& w01,
-                  double& w10, double& w11,
-                  const double xd,
-                  const double yd);
-// calculate the weights of 2D sinc interpolation
+#define W_TRI_NEAREST(w, xd) W_TRI_INTERP(NEAREST, w, xd)
 
-void biSincWeightGrid(double& w00, double& w01,
-                      double& w10, double& w11,
-                      int& x0,
-                      int& y0,
-                      const double x,
-                      const double y);
-// calculate the weights of 2D sinc interpolation
+#define W_TRI_LINEAR(w, xd) W_TRI_INTERP(LINEAR, w, xd)
 
-void triSincWeight(double& w000, double& w001,
-                   double& w010, double& w011,
-                   double& w100, double& w101,
-                   double& w110, double& w111,
-                   const double xd,
-                   const double yd,
-                   const double zd);
-// calculate the weights of 3D sinc interpolation
+#define W_TRI_SINC(w, xd) W_TRI_INTERP(SINC, w, xd)
 
-void triSincWeightGrid(double& w000, double& w001,
-                       double& w010, double& w011,
-                       double& w100, double& w101,
-                       double& w110, double& w111,
-                       int& x0,
-                       int& y0,
-                       int& z0,
-                       const double x,
-                       const double y,
-                       const double z);
-// calculate the weights of 3D sinc interpolation
+#define WG_TRI_INTERP(INTERP, w, x0, x) \
+    [](double _w[2][2][2], int _x0[3], const double _x[3]) \
+    { \
+        double xd[3]; \
+        for (int i = 0; i < 3; i++) \
+        { \
+            _x0[i] = floor(_x[i]); \
+            xd[i] = _x[i] - _x0[i]; \
+        } \
+        W_TRI_##INTERP(_w, xd); \
+    }(w, x0, x)
 
-void interpolationWeight2D(double& w00, double& w01,
-                           double& w10, double& w11,
-                           const double xd,
-                           const double yd,
-                           const Interpolation2DStyle style = linear2D);
+#define WG_TRI_NEAREST(w, x0, x) WG_TRI_INTERP(NEAREST, w, x0, x)
 
-void interpolationWeight2DGrid(double& w00, double& w01,
-                               double& w10, double& w11,
-                               int& x0,
-                               int& y0,
-                               const double x,
-                               const double y,
-                               const Interpolation2DStyle style = linear2D);
+#define WG_TRI_LINEAR(w, x0, x) WG_TRI_INTERP(LINEAR, w, x0, x)
 
-void interpolationWeight3D(double& w000, double& w001,
-                           double& w010, double& w011,
-                           double& w100, double& w101,
-                           double& w110, double& w111,
-                           const double xd, 
-                           const double yd,
-                           const double zd,
-                           const Interpolation3DStyle style = linear3D);
+#define WG_TRI_SINC(w, x0, x) WG_TRI_INTERP(SINC, w, x0, x)
 
-void interpolationWeight3DGrid(double& w000, double& w001,
-                               double& w010, double& w011,
-                               double& w100, double& w101,
-                               double& w110, double& w111,
-                               int& x0,
-                               int& y0,
-                               int& z0,
-                               const double x,
-                               const double y,
-                               const double z,
-                               const Interpolation3DStyle style = linear3D);
 #endif // INTERPOLATION_H

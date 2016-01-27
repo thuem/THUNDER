@@ -12,11 +12,6 @@
 
 Projector::Projector() {}
 
-Projector::Projector(const Interpolation3DStyle interpolation)
-{
-    _interpolation = interpolation;
-}
-
 Projector::Projector(const Projector& that)
 {
     *this = that;
@@ -27,7 +22,7 @@ Projector::~Projector() {}
 Projector& Projector::operator=(const Projector& that)
 {
     _maxRadius = that.maxRadius();
-    _interpolation = that.interpolation();
+    _interp = that.interp();
     _projectee = that.projectee();
 
     return *this;
@@ -48,14 +43,14 @@ void Projector::setMaxRadius(const int maxRadius)
     _maxRadius = maxRadius;
 }
 
-Interpolation3DStyle Projector::interpolation() const
+int Projector::interp() const
 {
-    return _interpolation;
+    return _interp;
 }
 
-void Projector::setInterpolation(const Interpolation3DStyle interpolation)
+void Projector::setInterp(const int interp)
 {
-    _interpolation = interpolation;
+    _interp= interp;
 }
 
 const Volume& Projector::projectee() const
@@ -89,7 +84,7 @@ void Projector::project(Image& dst,
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
                                                       oldCor(1),
                                                       oldCor(2),
-                                                      _interpolation),
+                                                      _interp),
                       i,
                       j);
         }

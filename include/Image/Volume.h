@@ -155,26 +155,17 @@ class Volume : public ImageBase
         double getByInterpolationRL(const double iCol,
                                     const double iRow,
                                     const double iSlc,
-                                    const Interpolation3DStyle style) const;
+                                    const int interp) const;
 
         Complex getByInterpolationFT(double iCol,
                                      double iRow,
                                      double iSlc,
-                                     const Interpolation3DStyle style) const;
-
-        /***
-        void addByInterpolationFT(const Complex value,
-                                  double iCol,
-                                  double iRow,
-                                  double iSlc,
-                                  double* weight,
-                                  const Interpolation3DStyle style);
-        ***/
+                                     const int interp) const;
 
         void addFT(const Complex value,
-                   double iCol,
-                   double iRow,
-                   double iSlc,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
                    const double a,
                    const double alpha);
         /* add by a kernel of Mofidied Kaiser Bessel Function */
@@ -194,29 +185,12 @@ class Volume : public ImageBase
         // volume
         // If not, throw out an Error
 
-        double getRL(const int x0, const int y0, const int z0,
-                     const double w000, const double w001,
-                     const double w010, const double w011,
-                     const double w100, const double w101,
-                     const double w110, const double w111) const;
+        double getRL(const double w[2][2][2],
+                     const int x0[3]) const;
 
-        Complex getFT(const int x0, const int y0, const int z0,
-                      const double w000, const double w001,
-                      const double w010, const double w011,
-                      const double w100, const double w101,
-                      const double w110, const double w111,
+        Complex getFT(const double w[2][2][2],
+                      const int x0[3],
                       const ConjugateFlag conjugateFlag) const;
-
-        /***
-        void addFT(const Complex value,
-                   const int x0, const int y0, const int z0,
-                   const double w000, const double w001,
-                   const double w010, const double w011,
-                   const double w100, const double w101,
-                   const double w110, const double w111,
-                   const ConjugateFlag conjugateFlag,
-                   double* weight);
-        ***/
 };
 
 #endif // VOLUME_H 

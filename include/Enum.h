@@ -24,6 +24,7 @@ enum Space
     fourierSpace
 };
 
+/***
 enum Interpolation2DStyle
 {
     nearest2D = 0,
@@ -37,6 +38,7 @@ enum Interpolation3DStyle
     linear3D,
     sinc3D
 };
+***/
 
 enum VerboseFlag
 {
