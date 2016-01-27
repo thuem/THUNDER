@@ -23,6 +23,7 @@
 #include "BMP.h"
 #include "Image.h"
 #include "Interpolation.h"
+#include "Functions.h"
 
 #define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
     (((iCol) > 0) ? 0 : [&iCol, &iRow, &iSlc]() \
@@ -161,12 +162,22 @@ class Volume : public ImageBase
                                      double iSlc,
                                      const Interpolation3DStyle style) const;
 
+        /***
         void addByInterpolationFT(const Complex value,
                                   double iCol,
                                   double iRow,
                                   double iSlc,
                                   double* weight,
                                   const Interpolation3DStyle style);
+        ***/
+
+        void addFT(const Complex value,
+                   double iCol,
+                   double iRow,
+                   double iSlc,
+                   const double a,
+                   const double alpha);
+        /* add by a kernel of Mofidied Kaiser Bessel Function */
 
     private:
 
@@ -196,6 +207,7 @@ class Volume : public ImageBase
                       const double w110, const double w111,
                       const ConjugateFlag conjugateFlag) const;
 
+        /***
         void addFT(const Complex value,
                    const int x0, const int y0, const int z0,
                    const double w000, const double w001,
@@ -204,6 +216,7 @@ class Volume : public ImageBase
                    const double w110, const double w111,
                    const ConjugateFlag conjugateFlag,
                    double* weight);
+        ***/
 };
 
 #endif // VOLUME_H 

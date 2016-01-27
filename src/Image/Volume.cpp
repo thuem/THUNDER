@@ -212,6 +212,7 @@ Complex Volume::getByInterpolationFT(double iCol,
     return cf ? CONJUGATE(result) : result;
 }
 
+/***
 void Volume::addByInterpolationFT(const Complex value,
                                   double iCol,
                                   double iRow,
@@ -235,6 +236,29 @@ void Volume::addByInterpolationFT(const Complex value,
           x0, y0, z0,
           w000, w001, w010, w011,
           w100, w101, w110, w111, conjugateNo, weight);
+}
+***/
+
+void Volume::addFT(const Complex value,
+                   double iCol,
+                   double iRow,
+                   double iSlc,
+                   const double a,
+                   const double alpha)
+{
+    for (int k = MAX(-_nSlc / 2, floor(iSlc - a));
+             k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a));
+             k++)
+        for (int j = MAX(-_nRow / 2, floor(iRow - a));
+                 j <= MIN(_nRow / 2 - 1, ceil(iRow + a));
+                 j++)
+            for (int i = MAX(-_nCol / 2, floor(iCol - a));
+                     i <= MIN(_nCol / 2, ceil(iCol + a));
+                     i++)
+            {
+                double r = NORM(iCol - i, iRow - j, iSlc - k);
+                if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+            }
 }
 
 void Volume::coordinatesInBoundaryRL(const int iCol,
@@ -302,6 +326,7 @@ Complex Volume::getFT(const int x0, const int y0, const int z0,
     return result;
 }
 
+/***
 void Volume::addFT(const Complex value,
                    const int x0, const int y0, const int z0,
                    const double w000, const double w001,
@@ -330,7 +355,6 @@ void Volume::addFT(const Complex value,
         weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0, z0 + 1))] += w101;
         weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0 + 1, z0))] += w110;
         weight[(VOLUME_FREQ_TO_STORE_INDEX_HALF(x0 + 1, y0 + 1, z0 + 1))] += w111;
-        /***
         weight[getIndexFT(x0, y0, z0)] += w000;
         weight[getIndexFT(x0, y0, z0 + 1)] += w001; 
         weight[getIndexFT(x0, y0 + 1, z0)] += w010; 
@@ -339,6 +363,6 @@ void Volume::addFT(const Complex value,
         weight[getIndexFT(x0 + 1, y0, z0 + 1)] += w101; 
         weight[getIndexFT(x0 + 1, y0 + 1, z0)] += w110; 
         weight[getIndexFT(x0 + 1, y0 + 1, z0 + 1)] += w111; 
-        ***/
     }
 }
+***/
