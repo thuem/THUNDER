@@ -114,7 +114,7 @@ void Volume::addRL(const double value,
                    const int iSlc)
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)];
+    _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
 }
 
 Complex Volume::getFT(int iCol,
@@ -142,7 +142,6 @@ void Volume::setFT(const Complex value,
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
     _dataFT[index] = flag ? CONJUGATE(value) : value;
 }
-
 
 void Volume::addFT(const Complex value,
                    int iCol,

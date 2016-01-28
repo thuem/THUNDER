@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Authors Mingxu Hu
+ * Author: Mingxu Hu
  * Dependency:
  * Test:
  * Execution:
