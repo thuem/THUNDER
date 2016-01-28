@@ -5,18 +5,22 @@ SUBDIRS = . unittest
 AM_CXXFLAGS = -std=c++11
 
 AM_CXXFLAGS += -I${top_srcdir}/include \
-			   -I${top_srcdir}/include/Geometry \
+			   -I${top_srcdir}/include/Error \
 			   -I${top_srcdir}/include/Functions \
 			   -I${top_srcdir}/include/Image \
+			   -I${top_srcdir}/include/Geometry \
                -I${top_srcdir}/external/HEALPix/include
 
 pkglib_LIBRARIES = libthuem.a
 
-libthuem_a_SOURCES = src/Error.cpp \
-					 src/Complex.cpp \
+libthuem_a_SOURCES = src/Complex.cpp \
 					 src/Coordinate5D.cpp \
 					 src/FFT.cpp \
-					 src/Projector.cpp
+					 src/Projector.cpp \
+					 src/Database.cpp
+
+libthuem_a_SOURCES += src/Error/Error.cpp \
+					  src/Error/Sqlite3Error.cpp
 
 libthuem_a_SOURCES += src/Functions/Functions.cpp
 
@@ -33,11 +37,14 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 					  src/Geometry/SymmetryFunctions.cpp \
 					  src/Geometry/Symmetry.cpp
 
-nobase_pkginclude_HEADERS = include/Error.h \
-							include/Complex.h \
+nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Coordinate5D.h \
 							include/FFT.h \
-							include/Projector.h
+							include/Projector.h \
+							include/Database.h
+
+nobase_pkginclude_HEADERS += include/Error/Error.h \
+							 include/Error/Sqlite3Error.h
 
 nobase_pkginclude_HEADERS += include/Functions/Functions.h
 
