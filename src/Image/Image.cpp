@@ -160,7 +160,8 @@ Complex Image::getFT(int iCol,
 {
     coordinatesInBoundaryFT(iCol, iRow);
     size_t index;
-    bool cf = IMAGE_FREQ_TO_STORE_INDEX(iCol, iRow);
+    bool cf;
+    IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
     return cf ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
@@ -170,7 +171,8 @@ void Image::setFT(const Complex value,
 {
     coordinatesInBoundaryFT(iCol, iRow);
     size_t index;
-    bool cf = IMAGE_FREQ_TO_STORE_INDEX(iCol, iRow);
+    bool cf;
+    IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
     _dataFT[index] = cf ? CONJUGATE(value) : value;
 }
 

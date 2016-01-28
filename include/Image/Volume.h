@@ -48,10 +48,9 @@
         return VOLUME_INDEX_FT(ii, jj, kk); \
     }(i, j, k)
 
-#define VOLUME_FREQ_TO_STORE_INDEX(i, j, k, cf) \
-    [this, &flag, i, j, k, cf]() mutable \
+#define VOLUME_FREQ_TO_STORE_INDEX(index, flag, i, j, k, cf) \
+    [this, &index, &flag, i, j, k, cf]() mutable \
     { \
-        bool flag; \
         switch (cf) \
         { \
             case conjugateUnknown: \
@@ -61,7 +60,7 @@
             case conjugateNo: \
                 flag = false; break; \
         } \
-        return VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k); \
+        index = VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k); \
     }()
 
 #define VOLUME_FOR_EACH_PIXEL_RL(that) \

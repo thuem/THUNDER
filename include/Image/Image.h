@@ -38,13 +38,12 @@
 #define IMAGE_INDEX_FT(i, j) \
     (j) * (_nCol / 2 + 1) + (i)
 
-#define IMAGE_FREQ_TO_STORE_INDEX(i, j) \
-    [this, &index, i, j]() mutable \
+#define IMAGE_FREQ_TO_STORE_INDEX(index, flag, i, j) \
+    [this, &index, &flag, i, j]() mutable \
     { \
-        bool flag = IMAGE_CONJUGATE_HALF(i, j); \
+        flag = IMAGE_CONJUGATE_HALF(i, j); \
         if ((j) < 0) j += _nRow; \
         index = IMAGE_INDEX_FT(i, j); \
-        return flag; \
     }()
 
 #define IMAGE_FOR_EACH_PIXEL_RL(that) \

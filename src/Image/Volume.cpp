@@ -124,7 +124,8 @@ Complex Volume::getFT(int iCol,
 {
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
-    size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
+    size_t index;
+    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
     return flag ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
@@ -137,7 +138,8 @@ void Volume::setFT(const Complex value,
 {
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
-    size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
+    size_t index;
+    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
     _dataFT[index] = flag ? CONJUGATE(value) : value;
 }
 
@@ -150,7 +152,8 @@ void Volume::addFT(const Complex value,
 {
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
-    size_t index = VOLUME_FREQ_TO_STORE_INDEX(iCol, iRow, iSlc, cf);
+    size_t index;
+    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
     _dataFT[index] += flag ? CONJUGATE(value) : value;
 }
 
