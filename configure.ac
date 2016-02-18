@@ -17,8 +17,8 @@ AC_PROG_RANLIB
 
 # Checks for libraries.
 AC_CHECK_LIB([fftw3], main)
+AC_CHECK_LIB([gslcblas], main)
 AC_CHECK_LIB([gsl], main)
-AC_CHECK_LIB([cblas], main)
 AC_CHECK_LIB([armadillo], main)
 
 # Checks for header files.
