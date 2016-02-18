@@ -16,7 +16,10 @@ AM_PROG_AR
 AC_PROG_RANLIB
 
 # Checks for libraries.
-AC_CHECK_LIB([fftw3f], main)
+AC_CHECK_LIB([fftw3], main)
+AC_CHECK_LIB([gsl], main)
+AC_CHECK_LIB([cblas], main)
+AC_CHECK_LIB([armadillo], main)
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])

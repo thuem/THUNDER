@@ -9,8 +9,6 @@ AM_CXXFLAGS = -I${top_srcdir}/include \
 
 AM_CXXFLAGS += -fPIC -std=c++11
 
-AM_CXXFLAGS += -lfftw3 -lgsl -lcblas -larmadillo
-
 noistdir = .
 
 noist_PROGRAMS = FunctionsTest \
