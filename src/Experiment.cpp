@@ -8,24 +8,16 @@
 
 #include "Experiment.h"
 
-Experiment::Experiment() : Database()
-{
-}
+Experiment::Experiment() : Database() {}
 
-Experiment::Experiment(const char database[]) : Database(database)
-{
-}
+Experiment::Experiment(const char database[]) : Database(database) {}
 
 void Experiment::addColumnXOff()
 {
-    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
-                                      "alter table particles add column XOff integer;",
-                                      NULL, NULL, NULL));
+    ADD_COLUMN(particles, XOff, integer);
 }
 
 void Experiment::addColumnYOff()
 {
-    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
-                                      "alter table particles add column YOff integer;",
-                                      NULL, NULL, NULL));
+    ADD_COLUMN(particles, YOff, integer);
 }
