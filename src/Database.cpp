@@ -206,11 +206,11 @@ void Database::appendGroup(const char name[],
 }
 
 void Database::appendMicrograph(const char name[],
-                                const float voltage,
-                                const float defocusU,
-                                const float defocusV,
-                                const float defocusAngle,
-                                const float CA,
+                                const double voltage,
+                                const double defocusU,
+                                const double defocusV,
+                                const double defocusAngle,
+                                const double CA,
                                 const int id)
 {
     if (id != -1)
