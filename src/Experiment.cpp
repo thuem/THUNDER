@@ -12,6 +12,13 @@ Experiment::Experiment() : Database() {}
 
 Experiment::Experiment(const char database[]) : Database(database) {}
 
+void Experiment::callback(const char sql[],
+                          int(*func)(void*, int, char**, char**),
+                          void* data)
+{
+    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql, func, data, NULL));
+}
+
 void Experiment::addColumnXOff()
 {
     ADD_COLUMN(particles, XOff, integer);

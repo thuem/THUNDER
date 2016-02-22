@@ -10,6 +10,7 @@
 #define Experiment_H
 
 #include <vector>
+#include <functional>
 
 #include "Database.h"
 
@@ -60,6 +61,10 @@ class Experiment : public Database
         Experiment();
 
         Experiment(const char database[]);
+
+        void callback(const char sql[],
+                      int(*func)(void*, int, char**, char**),
+                      void* data);
 
         void addColumnXOff();
 
