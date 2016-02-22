@@ -13,7 +13,8 @@ noistdir = .
 
 noist_PROGRAMS = FunctionsTest \
 				 ImageFunctionsTest \
-				 ProjectorTest
+				 ProjectorTest \
+				 ExperimentTest
 
 THUEMLIBS = ../libthuem.a
 
@@ -25,3 +26,6 @@ ImageFunctionsTest_LDADD = ${THUEMLIBS}
 
 ProjectorTest_SOURCES = ../testsrc/ProjectorTest.cpp
 ProjectorTest_LDADD = ${THUEMLIBS}
+
+ExperimentTest_SOURCES = ../testsrc/ExperimentTest.cpp
+ExperimentTest_LDADD = ${THUEMLIBS}
