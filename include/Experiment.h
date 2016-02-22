@@ -51,6 +51,10 @@ using namespace std;
 
 class Experiment : public Database
 {
+    private:
+
+        sqlite3_stmt* _stmtAppendParticle = NULL;
+
     public:
 
         Experiment();
@@ -70,6 +74,13 @@ class Experiment : public Database
         void particleIDsGroup(vector<int>& dst,
                               const int groupID);
         /* return IDs of particles belonging to a certain group*/
+
+        /***
+        void appendParticle(const int groupID,
+                            const int micrographID,
+                            const int XOff,
+                            const int YOff);
+                            ***/
 };
 
 #endif // Experiment_H

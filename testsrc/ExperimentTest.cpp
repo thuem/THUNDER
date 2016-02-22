@@ -32,4 +32,7 @@ int main(int argc, const char* argv[])
     exp.particleIDsMicrograph(partIDs, 0);
     for (int i = 0; i < partIDs.size(); i++)
         cout << partIDs[i] << endl;
+    exp.particleIDsGroup(partIDs, 0);
+    for (int i = 0; i < partIDs.size(); i++)
+        cout << partIDs[i] << endl;
 }
