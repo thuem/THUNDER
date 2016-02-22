@@ -115,8 +115,7 @@ class Database
                               const double CA,
                               const int id = -1);
 
-        void appendParticle(const char name[],
-                            const int groupID,
+        void appendParticle(const int groupID,
                             const int micrographID);
 
         void update(const char database[],

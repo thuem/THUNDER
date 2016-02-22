@@ -21,3 +21,32 @@ void Experiment::addColumnYOff()
 {
     ADD_COLUMN(particles, YOff, integer);
 }
+
+void Experiment::addColumnParticleName()
+{
+    ADD_COLUMN(particles, Name, text);
+}
+
+void Experiment::particleIDsMicrograph(vector<int>& dst,
+                                       const int micrographID)
+{
+    dst.clear();
+
+    GET_ID(dst, particles, MicrographID, micrographID);
+    /***
+    char sql[128];
+    sprintf(sql,
+            "select ID from particles where MicrographID = %d;",
+            micrographID);
+
+    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
+                                      sql,
+                                      SQLITE3_CALLBACK
+                                      {
+                                          ((vector<int>*)data)->push_back(atoi(values[0]));
+                                          return 0;
+                                      },
+                                      &dst,
+                                      NULL));
+                                      ***/
+} 
