@@ -6,9 +6,11 @@ Reconstructor::Reconstructor(const int nCol,
                              const int nRow,
                              const int nSlc,
                              const double a,
-                             const double alpha) 
+                             const double alpha,
+                             const int imCol,
+                             const int imRow) 
 {
-    initial(nCol, nRow, nSlc, a, alpha);
+    initial(nCol, nRow, nSlc, a, alpha, imCol, imRow);
 }
 
 Reconstructor::Reconstructor(const Reconstructor& that)
@@ -30,17 +32,27 @@ void Reconstructor::initial(const int nCol,
                             const int nRow,
                             const int nSlc,
                             const double a,
-                            const double alpha)
+                            const double alpha,
+                            const int imCol,
+                            const int imRow)
 {
     _nCol = nCol;
     _nRow = nRow;
     _nSlc = nSlc;
     _a = a;
     _alpha = alpha;
+    _imCol = imCol;
+    _imRow = imRow;
 
     _F.alloc(_nCol, _nRow, _nSlc, fourierSpace);
     _W.alloc(_nCol, _nRow, _nSlc, fourierSpace);
     _C.alloc(_nCol, _nRow, _nSlc, fourierSpace);
+
+    VOLUME_FOR_EACH_PIXEL_FT(_W)
+    {
+        _W.setFT(COMPLEX(1, 0), i, j, k, conjugateNo);
+        _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+    }
 
 }
 
@@ -81,14 +93,14 @@ void Reconstructor::insert(const Image& src,
     {
         vec3 newCor = {i, j, 0};
         vec3 oldCor = mat * newCor;
-
-        // _W.addFT(COMPLEX(1, 0), oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
-        _F.addFT(transSrc.getFT(i, j), oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
+        
+        //_W.addFT(COMPLEX(1, 0), oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
+        _F.addFT(transSrc.getFT(i, j) * u * v, oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
     }
 }
 
 
-void Reconstructor::reduceAllWeight_master()
+void Reconstructor::reduceWM()
 {
     if (_commRank != 0) return;
 
@@ -96,28 +108,57 @@ void Reconstructor::reduceAllWeight_master()
     
 
 }
+void Reconstructor::reduceWS() 
+{
+    if (_commRank == 0) return;
 
-void Reconstructor::reduceAllWeight_slave() {
+    for (vector<corWeight>::iterator itera = _coordWeight.begin(); itera != _coordWeight.end(); ++itera)
+    {
+        Coordinate5D coord;
+        double wGetPC;
+
+        coord = (*itera).first;
+        wGetPC = (*itera).second;
+        
+        mat33 mat;
+        rotate3D(mat, -coord.phi, -coord.theta, -coord.psi);
+        
+        for (int j = -_imRow / 2; j < _imRow / 2; j++)
+        {
+            for (int i = 0; i <= _imCol / 2; i++)
+            {
+                vec3 newCor = {i, j, 0};
+                vec3 oldCor = mat * newCor;
+                Complex wGetByIntpola = _W.getByInterpolationFT(oldCor(0), oldCor(1), oldCor(2), LINEAR_INTERP);
+                _C.addFT(wGetByIntpola * wGetPC, oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
+            }
+        }
+    }
+
+
+
 
 
 }
 
-void Reconstructor::scatterAllWeight_master() {
+void Reconstructor::broadcastWM() 
+{
 
 
 }
-void Reconstructor::scatterAllWeight_slave() {
-
-
-}
-
-
-void Reconstructor::reduceAllFTImage_master() {
+void Reconstructor::broadcastWS() 
+{
 
 
 }
 
-void Reconstructor::reduceAllFTImage_slave() {
+
+void Reconstructor::reduceFM() {
+
+
+}
+
+void Reconstructor::reduceFS() {
 
 
 }

@@ -1,13 +1,10 @@
 
-
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
-
 
 #include <armadillo>
 #include <utility>
 #include <vector>
-
 
 #include "Volume.h"
 #include "Coordinate5D.h"
@@ -17,16 +14,14 @@
 #include "Image.h"
 #include "ImageFunctions.h"
 
-
 using namespace arma;
 
 using namespace std;
 
+typedef pair<Coordinate5D, double> corWeight;
 
 class Reconstructor
 {
-
-    
     private:
         int _nCol;
         int _nRow;
@@ -42,7 +37,9 @@ class Reconstructor
         Volume _W;
         Volume _C;
 
-        vector<pair<Coordinate5D, double>> _coordWeight;
+        vector<corWeight> _coordWeight;
+        int _imCol;
+        int _imRow;
 
     public:
         Reconstructor();
@@ -51,7 +48,9 @@ class Reconstructor
                       const int nRow,
                       const int nSlc,
                       const double a,
-                      const double alpha);
+                      const double alpha,
+                      const int imCol,
+                      const int imRow);
 
         Reconstructor(const Reconstructor& that);
 
@@ -64,7 +63,9 @@ class Reconstructor
                      const int nRow,
                      const int nSlc,
                      const double a,
-                     const double alpha);
+                     const double alpha,
+                     const int imCol,
+                     const int imRow);
 
         void setCommRank(int commRank);
         void setCommSize(int commSize);
