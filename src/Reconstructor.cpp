@@ -69,24 +69,22 @@ void Reconstructor::insert(const Image& src,
                            const double u,
                            const double v)
 {
-    _coordWeight.push_back(make_pair(coord, v));
+    _coordWeight.push_back(make_pair(coord, u * v));
 
     Image transSrc(src.nColRL(), src.nRowRL(), fourierSpace);
-    translate(transSrc, src, coord.x, coord.y);
-    
+    translate(transSrc, src, -coord.x, -coord.y);
 
     mat33 mat;
-    rotate3D(mat, coord.phi, coord.theta, coord.psi);
+    rotate3D(mat, -coord.phi, -coord.theta, -coord.psi);
 
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        vec3 imgCor = {i, j, 0};
-        vec3 oriCor = mat * imgCor;
+        vec3 newCor = {i, j, 0};
+        vec3 oldCor = mat * newCor;
 
-        _W.addFT(COMPLEX(1, 0), oriCor(0), oriCor(1), oriCor(2), _a, _alpha);
-        _F.addFT(transSrc.getFT(i, j), oriCor(0), oriCor(1), oriCor(2), _a, _alpha);
+        // _W.addFT(COMPLEX(1, 0), oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
+        _F.addFT(transSrc.getFT(i, j), oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
     }
-
 }
 
 

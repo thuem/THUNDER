@@ -65,27 +65,27 @@ class Reconstructor
                      const int nSlc,
                      const double a,
                      const double alpha);
+
         void setCommRank(int commRank);
         void setCommSize(int commSize);
 
 
-        void insert(const Image& im,
+        void insert(const Image& src,
                     const Coordinate5D coord,
                     const double u,
                     const double v);
 
-        void reduceAllWeight_master();
+        void reduceWM();
 
-        void reduceAllWeight_slave();
+        void reduceWS();
         
-        void scatterAllWeight_master();
+        void broadcastWM();
         
-        void scatterAllWeight_slave();
+        void broadcastWS();
         
-        void reduceAllFTImage_master();
+        void reduceFM();
         
-        void reduceAllFTImage_slave();
-
+        void reduceFS();
 
 
 };
