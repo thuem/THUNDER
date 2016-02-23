@@ -54,17 +54,15 @@ class Experiment : public Database
 {
     private:
 
-        sqlite3_stmt* _stmtAppendParticle = NULL;
-
     public:
 
         Experiment();
 
         Experiment(const char database[]);
 
-        void callback(const char sql[],
-                      int(*func)(void*, int, char**, char**),
-                      void* data);
+        void execute(const char sql[],
+                     int(*func)(void*, int, char**, char**),
+                     void* data);
 
         void addColumnXOff();
 
