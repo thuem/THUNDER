@@ -17,6 +17,10 @@
 
 int main(int argc, const char* argv[])
 {
+    MPI_INIT(argc, argv);
+    int rank;
+    int size;
+
     std::cout << "Define a head." << std::endl;
 
     Volume head(N, N, N, realSpace);
@@ -56,23 +60,26 @@ int main(int argc, const char* argv[])
     char name[256];
     int counter = 0;
 
-    // Image image(N, N, fourierSpace);
-    Image image(N, N, realSpace);
+    Image image(N, N, fourierSpace);
+    // Image image(N, N, realSpace);
+    
+    Reconstructor reconstructor;
 
     try
     {
-    for (int k = 0; k < M; k++)
+    for (int k = M / size * rank; k < M / size * (rank + 1); k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
             {
                 printf("%02d %02d %02d\n", i, j, k);
                 sprintf(name, "%02d%02d%02d.bmp", i, j, k);
-                /***
-                projector.project(image,
-                                                2 * M_PI * i / M,
-                                                M_PI * j / M,
-                                                2 * M_PI * k / M);
-                                          ***/
+                Coordinate5D coord(2 * M_PI * i / M,
+                                   M_PI * j / M,
+                                   2 * M_PI * k / M,
+                                   0,
+                                   0);
+                projector.project(image, coord);
+                reconstructor.insert(image, coord);
                 /***
                 FFT fft;
                 fft.fw(image);
@@ -81,13 +88,16 @@ int main(int argc, const char* argv[])
                 /***
                 R2R_FT(image, sin(2));
                 ***/
+                /***
                 R2R_FT(image, image, projector.project(image,
                                                 2 * M_PI * i / M,
                                                 M_PI * j / M,
                                                 2 * M_PI * k / M));
+                                                ***/
 
-                image.saveRLToBMP(name);
+                // image.saveRLToBMP(name);
                 // image.saveFTToBMP(name, 0.1);
+                
             }
                 }
                 catch (Error& err)

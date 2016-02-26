@@ -5,12 +5,12 @@ Reconstructor::Reconstructor() {}
 Reconstructor::Reconstructor(const int nCol,
                              const int nRow,
                              const int nSlc,
+                             const int nColImg,
+                             const int nRowImg,
                              const double a,
-                             const double alpha,
-                             const int imCol,
-                             const int imRow) 
+                             const double alpha)
 {
-    initial(nCol, nRow, nSlc, a, alpha, imCol, imRow);
+    init(nCol, nRow, nSlc, nColImg, nRowImg, a, alpha);
 }
 
 Reconstructor::Reconstructor(const Reconstructor& that)
@@ -28,21 +28,21 @@ Reconstructor::~Reconstructor()
 //////////////////////////////////////////////////////////////////////////////
 
 
-void Reconstructor::initial(const int nCol,
-                            const int nRow,
-                            const int nSlc,
-                            const double a,
-                            const double alpha,
-                            const int imCol,
-                            const int imRow)
+void Reconstructor::init(const int nCol,
+                         const int nRow,
+                         const int nSlc,
+                         const int nColImg,
+                         const int nRowImg,
+                         const double a,
+                         const double alpha)
 {
     _nCol = nCol;
     _nRow = nRow;
     _nSlc = nSlc;
     _a = a;
     _alpha = alpha;
-    _imCol = imCol;
-    _imRow = imRow;
+    _nColImg = nColImg;
+    _nRowImg = nRowImg;
 
     _F.alloc(_nCol, _nRow, _nSlc, fourierSpace);
     _W.alloc(_nCol, _nRow, _nSlc, fourierSpace);
@@ -94,8 +94,12 @@ void Reconstructor::insert(const Image& src,
         vec3 newCor = {i, j, 0};
         vec3 oldCor = mat * newCor;
         
-        //_W.addFT(COMPLEX(1, 0), oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
-        _F.addFT(transSrc.getFT(i, j) * u * v, oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
+        _F.addFT(transSrc.getFT(i, j) * u * v, 
+                 oldCor(0), 
+                 oldCor(1), 
+                 oldCor(2), 
+                 _a, 
+                 _alpha);
     }
 }
 
@@ -112,28 +116,31 @@ void Reconstructor::reduceWS()
 {
     if (_commRank == 0) return;
 
-    for (vector<corWeight>::iterator itera = _coordWeight.begin(); itera != _coordWeight.end(); ++itera)
+    vector<corWeight>::iterator iter;
+    for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
-        Coordinate5D coord;
-        double wGetPC;
-
-        coord = (*itera).first;
-        wGetPC = (*itera).second;
         
         mat33 mat;
-        rotate3D(mat, -coord.phi, -coord.theta, -coord.psi);
+        rotate3D(mat, -iter->first.phi, -iter->first.theta, -iter->first.psi);
         
-        for (int j = -_imRow / 2; j < _imRow / 2; j++)
+        for (int j = -_nRowImg / 2; j < _nRowImg / 2; j++)
         {
-            for (int i = 0; i <= _imCol / 2; i++)
+            for (int i = 0; i <= _nColImg / 2; i++)
             {
                 vec3 newCor = {i, j, 0};
                 vec3 oldCor = mat * newCor;
-                Complex wGetByIntpola = _W.getByInterpolationFT(oldCor(0), oldCor(1), oldCor(2), LINEAR_INTERP);
-                _C.addFT(wGetByIntpola * wGetPC, oldCor(0), oldCor(1), oldCor(2), _a, _alpha);
+                _C.addFT(_W.getByInterpolationFT(oldCor(0),
+                                                 oldCor(1),
+                                                 oldCor(2),
+                                                 LINEAR_INTERP) * (iter->second),
+                         oldCor(0),
+                         oldCor(1),
+                         oldCor(2));
             }
         }
     }
+
+
 
 
 

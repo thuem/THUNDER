@@ -23,6 +23,7 @@ typedef pair<Coordinate5D, double> corWeight;
 class Reconstructor
 {
     private:
+
         int _nCol;
         int _nRow;
         int _nSlc;
@@ -38,8 +39,8 @@ class Reconstructor
         Volume _C;
 
         vector<corWeight> _coordWeight;
-        int _imCol;
-        int _imRow;
+        int _nColImg;
+        int _nRowImg;
 
     public:
         Reconstructor();
@@ -47,10 +48,10 @@ class Reconstructor
         Reconstructor(const int nCol,
                       const int nRow,
                       const int nSlc,
+                      const int nColImg,
+                      const int nRowImg,
                       const double a,
-                      const double alpha,
-                      const int imCol,
-                      const int imRow);
+                      const double alpha);
 
         Reconstructor(const Reconstructor& that);
 
@@ -59,13 +60,13 @@ class Reconstructor
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-        void initial(const int nCol,
-                     const int nRow,
-                     const int nSlc,
-                     const double a,
-                     const double alpha,
-                     const int imCol,
-                     const int imRow);
+        void init(const int nCol,
+                  const int nRow,
+                  const int nSlc,
+                  const int nColImg,
+                  const int nRowImg,
+                  const double a,
+                  const double alpha);
 
         void setCommRank(int commRank);
         void setCommSize(int commSize);
