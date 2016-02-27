@@ -212,7 +212,7 @@ void Volume::addFT(const Complex value,
                      i <= MIN(_nCol / 2, ceil(iCol + a));
                      i++)
             {
-                double r = NORM(iCol - i, iRow - j, iSlc - k);
+                double r = NORM_3(iCol - i, iRow - j, iSlc - k);
                 if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
             }
 }

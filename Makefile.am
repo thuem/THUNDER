@@ -48,7 +48,9 @@ nobase_pkginclude_HEADERS = include/Complex.h \
 nobase_pkginclude_HEADERS += include/Error/Error.h \
 							 include/Error/Sqlite3Error.h
 
-nobase_pkginclude_HEADERS += include/Functions/Functions.h
+nobase_pkginclude_HEADERS += include/Functions/Functions.h \
+							 include/Functions/Interpolation.h \
+							 include/Functions/Random.h
 
 nobase_pkginclude_HEADERS += include/Image/ImageBase.h \
 							 include/Image/BMP.h \
