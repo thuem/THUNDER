@@ -31,10 +31,10 @@ void translate(Image& dst,
                const double nTransRow);
 
 void meshReverse(Image& img);
-// In fourier space, if iCol + iRow is odd, reverse it.
+/* In fourier space, if iCol + iRow is odd, reverse it. */
 
 void meshReverse(Volume& vol);
-// In fourier space, if iCol + iRow + iSlc is odd, reverse it.
+/* In fourier space, if iCol + iRow + iSlc is odd, reverse it. */
 
 void bgMeanStddev(double& mean,
                   double& stddev,
@@ -57,5 +57,7 @@ void normalise(Image& img,
                const double wDust,
                const double bDust,
                const double r);
+/* normalise the image according to the mean and stddev of the background
+ * dust points are removed according to wDust and bDust */
 
 #endif // IMAGE_FUNCTIONS_H
