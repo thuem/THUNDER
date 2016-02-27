@@ -39,13 +39,10 @@ typedef  _IMAGE_COORDINATE  {
 }   IMAGE_COORDINATE;
 
 
-
-
-class Preprocess :
+typedef struct   _PPREPROCESS_PARA 
 {
 
-protected:
-		
+	
 	int verbose;   // Verbosity
 
     
@@ -91,6 +88,19 @@ protected:
 
 	char  micrographPath[MAX_FILE_NAME_LENGTH];
 	char  particlePath[MAX_FILE_NAME_LENGTH];
+
+
+}    PPREPROCESS_PARA;
+
+
+
+class Preprocess :
+{
+
+protected:
+		
+	PPREPROCESS_PARA  para;
+	
 
 
 public:
