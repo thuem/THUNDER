@@ -12,11 +12,18 @@
 #define IMAGE_FUNCTIONS_H
 
 #include <cmath>
+#include <vector>
 
 #include <gsl/gsl_math.h>
 
+#include <armadillo>
+
 #include "Image.h"
 #include "Volume.h"
+#include "Random.h"
+
+using namespace std;
+using namespace arma;
 
 void translate(Image& dst,
                const Image& src,
@@ -28,5 +35,27 @@ void meshReverse(Image& img);
 
 void meshReverse(Volume& vol);
 // In fourier space, if iCol + iRow + iSlc is odd, reverse it.
+
+void bgMeanStddev(double& mean,
+                  double& stddev,
+                  const Image& src,
+                  const double r);
+/* calculate the mean and standard deviation of the background */
+
+void removeDust(Image& img,
+                const double wDust,
+                const double bDust,
+                const double mean,
+                const double stddev);
+/* remove white and black dust
+ * value > mean + wDust * stddev will be replace by a draw of 
+ * Gaussian(mean, stddev)
+ * value < mean - kDust * stddev will be replace by a draw of 
+ * Gaussian(mean, stddev) */
+
+void normalise(Image& img,
+               const double wDust,
+               const double bDust,
+               const double r);
 
 #endif // IMAGE_FUNCTIONS_H

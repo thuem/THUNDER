@@ -80,6 +80,8 @@ class ImageBase
         // free the memory storing Fourier Transform image
 };
 
-void normalise(ImageBase& image);
+void normalise(ImageBase& base);
+
+void invertContrast(ImageBase& base);
 
 #endif // IMAGE_BASE 

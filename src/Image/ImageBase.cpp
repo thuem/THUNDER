@@ -105,3 +105,12 @@ void normalise(ImageBase& base)
 
     normalise(vec);
 }
+
+void invertContrast(ImageBase& base)
+{
+    gsl_vector vec;
+    vec.size = base.sizeRL();
+    vec.data = &base(0);
+
+    gsl_vector_scale(&vec, -1);
+}

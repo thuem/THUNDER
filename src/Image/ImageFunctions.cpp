@@ -61,3 +61,52 @@ void meshReverse(Volume& vol)
                       + j * vol.nColFT()
                       + i] *= -1;
 }
+
+void bgMeanStddev(double& mean,
+                  double& stddev,
+                  const Image& src,
+                  const double r)
+{
+    vector<double> bg;
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+        if (NORM(i, j) > r)
+            bg.push_back(src.getRL(i, j));
+
+    vec bv(bg);
+    mean = arma::mean(bv);
+    stddev = arma::stddev(bv);
+}
+
+void removeDust(Image& img,
+                const double wDust,
+                const double bDust,
+                const double mean,
+                const double stddev)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(img)
+        if ((img.getRL(i, j) > mean + wDust * stddev) ||
+            (img.getRL(i, j) < mean - bDust * stddev))
+            img.setRL(mean + gsl_ran_gaussian(RANDR, stddev), i, j);
+}
+
+void normalise(Image& img,
+               const double wDust,
+               const double bDust,
+               const double r)
+{
+    double mean;
+    double stddev;
+
+    bgMeanStddev(mean, stddev, img, r);
+
+    removeDust(img, wDust, bDust, mean, stddev);
+
+    bgMeanStddev(mean, stddev, img, r);
+
+    gsl_vector vec;
+    vec.size = img.sizeRL();
+    vec.data = &img(0);
+    
+    gsl_vector_add_constant(&vec, -mean);
+    gsl_vector_scale(&vec, 1.0 / stddev);
+}
