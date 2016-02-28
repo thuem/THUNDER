@@ -20,4 +20,7 @@
 
 #define EQUAL_ACCURACY 0.0001
 
+#define FILE_NAME_LENGTH 256
+#define SQL_COMMAND_LENGTH 256
+
 #endif // MACRO_H

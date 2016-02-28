@@ -60,4 +60,9 @@ void normalise(Image& img,
 /* normalise the image according to the mean and stddev of the background
  * dust points are removed according to wDust and bDust */
 
+void extract(Image& dst,
+             Image& src,
+             const int xOff,
+             const int yOff);
+
 #endif // IMAGE_FUNCTIONS_H
