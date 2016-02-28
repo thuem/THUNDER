@@ -110,3 +110,12 @@ void normalise(Image& img,
     gsl_vector_add_constant(&vec, -mean);
     gsl_vector_scale(&vec, 1.0 / stddev);
 }
+
+void extract(Image& dst,
+             const Image& src,
+             const int xOff,
+             const int yOff)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(dst)
+        dst.setRL(src.getRL(i + xOff, j + yOff), i, j);
+}
