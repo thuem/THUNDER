@@ -135,8 +135,8 @@ void Reconstructor::allReduceW(MPI_Comm workers)
         }
     }
 
-    MPI_Allreduce(&_C, 
-                  &_C, 
+    MPI_Allreduce(&_C[0], 
+                  &_C[0], 
                   _nCol * _nRow * _nSlc, 
                   MPI_C_COMPLEX, 
                   MPI_SUM, 
@@ -155,7 +155,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 
 
 
-void Reconstructor::reduceF(int root,
+void Reconstructor::reduceF(const int root,
                             MPI_Comm world) 
 {
     if (_commRank != 0) return;
@@ -170,8 +170,8 @@ void Reconstructor::reduceF(int root,
                  conjugateNo);
     }
 
-    MPI_Reduce(&_F,
-               &_F,
+    MPI_Reduce(&_F[0],
+               &_F[0],
                _nCol * _nRow * _nSlc,
                MPI_C_COMPLEX,
                MPI_SUM,
@@ -179,10 +179,10 @@ void Reconstructor::reduceF(int root,
                world);
 }
 
-void Reconstructor::constructor() {
-
-
-
+void Reconstructor::constructor(const char *dst) 
+{
+    ImageFile imf;    
+    imf.writeImage(dst, _F);
 }
 
 

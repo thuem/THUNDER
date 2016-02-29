@@ -14,6 +14,7 @@
 
 #include "Image.h"
 #include "ImageFunctions.h"
+#include "ImageFile.h"
 
 using namespace arma;
 
@@ -80,10 +81,10 @@ class Reconstructor
 
         void allReduceW(MPI_Comm workers);
         
-        void reduceF(int root,
+        void reduceF(const int root,
                      MPI_Comm world);
 
-        void constructor();
+        void constructor(const char *dstname);
 
 };
 
