@@ -104,18 +104,12 @@ void Reconstructor::insert(const Image& src,
 }
 
 
-void Reconstructor::reduceWM()
-{
-    if (_commRank != 0) return;
 
 
     
 
-}
-void Reconstructor::reduceWS() 
+void Reconstructor::allReduceW(MPI_Comm workers) 
 {
-    if (_commRank == 0) return;
-
     vector<corWeight>::iterator iter;
     for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
@@ -132,7 +126,8 @@ void Reconstructor::reduceWS()
                 _C.addFT(_W.getByInterpolationFT(oldCor(0),
                                                  oldCor(1),
                                                  oldCor(2),
-                                                 LINEAR_INTERP) * (iter->second),
+                                                 LINEAR_INTERP) 
+                         * (iter->second),
                          oldCor(0),
                          oldCor(1),
                          oldCor(2));
@@ -140,35 +135,54 @@ void Reconstructor::reduceWS()
         }
     }
 
+    MPI_Allreduce(&_C, 
+                  &_C, 
+                  _nCol * _nRow * _nSlc, 
+                  MPI_C_COMPLEX, 
+                  MPI_SUM, 
+                  workers);
 
-
-
-
-
-
+    VOLUME_FOR_EACH_PIXEL_FT(_W)
+    {
+        _W.setFT(_W.getFT(i, j, k, conjugateNo) /
+                 _C.getFT(i, j, k, conjugateNo),
+                 i,
+                 j,
+                 k,
+                 conjugateNo);
+    }
 }
 
-void Reconstructor::broadcastWM() 
+
+
+void Reconstructor::reduceF(int root,
+                            MPI_Comm world) 
 {
+    if (_commRank != 0) return;
+
+    VOLUME_FOR_EACH_PIXEL_FT(_F)
+    {
+        _F.setFT(_F.getFT(i, j, k, conjugateNo) *
+                 _W.getFT(i, j, k, conjugateNo),
+                 i,
+                 j,
+                 k,
+                 conjugateNo);
+    }
+
+    MPI_Reduce(&_F,
+               &_F,
+               _nCol * _nRow * _nSlc,
+               MPI_C_COMPLEX,
+               MPI_SUM,
+               root,
+               world);
+}
+
+void Reconstructor::constructor() {
+
 
 
 }
-void Reconstructor::broadcastWS() 
-{
-
-
-}
-
-
-void Reconstructor::reduceFM() {
-
-
-}
-
-void Reconstructor::reduceFS() {
-
-
-}
-
 
 

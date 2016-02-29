@@ -5,6 +5,7 @@
 #include <armadillo>
 #include <utility>
 #include <vector>
+#include <mpi.h>
 
 #include "Volume.h"
 #include "Coordinate5D.h"
@@ -77,18 +78,12 @@ class Reconstructor
                     const double u,
                     const double v);
 
-        void reduceWM();
+        void allReduceW(MPI_Comm workers);
+        
+        void reduceF(int root,
+                     MPI_Comm world);
 
-        void reduceWS();
-        
-        void broadcastWM();
-        
-        void broadcastWS();
-        
-        void reduceFM();
-        
-        void reduceFS();
-
+        void constructor();
 
 };
 

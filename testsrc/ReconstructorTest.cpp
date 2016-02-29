@@ -17,9 +17,20 @@
 
 int main(int argc, const char* argv[])
 {
-    MPI_INIT(argc, argv);
-    int rank;
-    int size;
+
+    int iter;
+    int numprocs, myid, server, workerid;
+    
+    MPI_Comm world, workers;
+    MPI_Group world_group, worker_group;
+
+    MPI_Init(&argc, &argv);
+    world = MPI_Comm_WORLD;
+    MPI_Comm_size(world, &numprocs);
+    MPI_Comm_rank(world, &myid);
+    server = 0;
+
+    MPI_Comm_group(world, &world_group)
 
     std::cout << "Define a head." << std::endl;
 
