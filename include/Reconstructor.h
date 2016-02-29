@@ -47,6 +47,7 @@ class Reconstructor
         int _maxRadius;
 
     public:
+
         Reconstructor();
 
         Reconstructor(const int nCol,
@@ -57,7 +58,7 @@ class Reconstructor
                       const double a,
                       const double alpha);
 
-        Reconstructor(const Reconstructor& that);
+        // Reconstructor(const Reconstructor& that);
 
         ~Reconstructor();
 
@@ -86,8 +87,7 @@ class Reconstructor
         void reduceF(const int root,
                      MPI_Comm world);
 
-        void constructor(const char *dstname);
-
+        // void constructor(const char *dstname);
 };
 
 #endif //RECONSTRUCTOR_H

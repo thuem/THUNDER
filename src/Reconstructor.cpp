@@ -13,10 +13,12 @@ Reconstructor::Reconstructor(const int nCol,
     init(nCol, nRow, nSlc, nColImg, nRowImg, a, alpha);
 }
 
+/***
 Reconstructor::Reconstructor(const Reconstructor& that)
 {
     *this = that;
 }
+***/
 
 Reconstructor::~Reconstructor()
 {
@@ -65,7 +67,6 @@ void Reconstructor::setCommRank(const int commRank)
 {
     _commRank = commRank;
 }
-
 
 
 /***
@@ -133,7 +134,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 
     MPI_Allreduce(&_C[0], 
                   &_C[0], 
-                  _nCol * _nRow * _nSlc, 
+                  _C.sizeFT(),
                   MPI_C_COMPLEX, 
                   MPI_SUM, 
                   workers);
@@ -159,6 +160,8 @@ void Reconstructor::reduceF(const int root,
 {
     if (_commRank != 0) return;
 
+    MUL_FT(_F, _W);
+    /***
     VOLUME_FOR_EACH_PIXEL_FT(_F)
     {
         _F.setFT(_F.getFT(i, j, k, conjugateNo) *
@@ -168,20 +171,21 @@ void Reconstructor::reduceF(const int root,
                  k,
                  conjugateNo);
     }
+    ***/
 
     MPI_Reduce(&_F[0],
                &_F[0],
-               _nCol * _nRow * _nSlc,
+               _F.sizeFT(),
                MPI_C_COMPLEX,
                MPI_SUM,
                root,
                world);
 }
 
+/***
 void Reconstructor::constructor(const char *dst) 
 {
     ImageFile imf;    
     imf.writeImage(dst, _F);
 }
-
-
+***/
