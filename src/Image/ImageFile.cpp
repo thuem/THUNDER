@@ -258,4 +258,5 @@ void ImageFile::writeImageMRC(const char* dst,
     WRITE_CAST(src, float);
 
     fclose(_file);
+    _file = NULL;
 }
