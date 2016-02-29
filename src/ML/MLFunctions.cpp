@@ -10,18 +10,17 @@
 
 #include "MLFunctions.h"
 
-double norm(const Image& src1,
-            const Image& src2,
-            const Image& invSigma)
-{
-    Image img = src1;
-    SUB_FT(img, src2);
-    MUL_FT(img, invSigma); 
-}
-
-double norm(const Projector& proj,
+double norm(const Image& src,
+            const Projector& proj,
             const Coordinate5D coord,
             const Image& ctf,
             const Image& invSigma)
 {
-    Image 
+    Image img(ctf.nColRL(), ctf.nRowRL(), fourierSpace);
+    proj.project(img, coord);
+
+    MUL_FT(img, ctf);
+    SUB_FT(img, src);
+    MUL_FT(img, invSigma);
+    return gsl_pow_2(norm(img)) / 2;
+}
