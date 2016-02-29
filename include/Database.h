@@ -108,15 +108,14 @@ class Database
                          const int id = -1);
 
         void appendMicrograph(const char name[],
-                              const float voltage,
-                              const float defocusU,
-                              const float defocusV,
-                              const float defocusAngle,
-                              const float CA,
+                              const double voltage,
+                              const double defocusU,
+                              const double defocusV,
+                              const double defocusAngle,
+                              const double CA,
                               const int id = -1);
 
-        void appendParticle(const char name[],
-                            const int groupID,
+        void appendParticle(const int groupID,
                             const int micrographID);
 
         void update(const char database[],
