@@ -29,25 +29,27 @@ int main(int argc, char* argv[])
     world = MPI_COMM_WORLD;
     MPI_Comm_size(world, &numprocs);
     MPI_Comm_rank(world, &myid);
-    
-   // server = 0;
-   // MPI_Comm_group(world, &world_group);
-   // serverid[0] = server;
-   // MPI_Group_excl(world_group, 1, serverid, &worker_group);
-   // MPI_Comm_create(world, worker_group, &workers);
-   // 
-   // MPI_Comm_rank(workers, &workerid);
-   // MPI_Comm_size(workers, & numworkers);
-    
-    if (myid == messageid) {
-        std::cout << "numprocs: " << numprocs << std::endl
-                  << "myid: " << myid << std::endl
-                  << "server is node " << server << std::endl
-                  << "numworkers: " << numworkers << std::endl
-                  << "workerid: " << workerid << std::endl;
+      
+    server = 0;
+    MPI_Comm_group(world, &world_group);
+    serverid[0] = server;
+    MPI_Group_excl(world_group, 1, serverid, &worker_group);
+    MPI_Comm_create(world, worker_group, &workers);
+
+    if (myid == server) {
+        std::cout << "1-Initial OK! , commited by server:" << server << std::endl;
+    } else {
+        MPI_Comm_rank(workers, &workerid);
+        MPI_Comm_size(workers, &numworkers);
+        std::cout << "1-Initial OK! , commited by worker:" << workerid << std::endl;
     }
-
-
+    if (myid == numprocs - 1) {
+        std::cout << "2-numprocs: " << numprocs << std::endl
+                  << "2-myid: " << myid << std::endl
+                  << "2-server is node " << server << std::endl
+                  << "2-numworkers: " << numworkers << std::endl
+                  << "2-workerid: " << workerid << std::endl;
+    }
 
     Volume head(N, N, N, realSpace);
     if (myid == messageid) {
@@ -94,6 +96,7 @@ int main(int argc, char* argv[])
     
     Reconstructor reconstructor;
 
+    if (myid != 0) {
     //try {
         for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)
             for (int j = 0; j < M; j++)
@@ -130,6 +133,12 @@ int main(int argc, char* argv[])
     //} catch (Error& err) {
     //   std::cout << err;
     //}
+    }
+
+    //MPI_Comm_free(&world);
+    //MPI_Comm_free(&workers);
+    //MPI_Group_free(&worker_group);
+    //MPI_Group_free(&world_group);
 
     MPI_Finalize();
     return 0;
