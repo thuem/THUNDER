@@ -94,10 +94,12 @@ int main(int argc, char* argv[])
     Image image(N, N, fourierSpace);
     // Image image(N, N, realSpace);
     
-    Reconstructor reconstructor;
+    Reconstructor reconstructor(N, N, N, N, N, 2, 3.6);
 
-    if (myid != 0) {
-    //try {
+    reconstructor.setCommRank(myid);
+    reconstructor.setCommSize(numprocs);
+
+    if (myid != server) {
         for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)
             for (int j = 0; j < M; j++)
                 for (int i = 0; i < M; i++)
@@ -110,7 +112,7 @@ int main(int argc, char* argv[])
                                        0,
                                        0);
                     projector.project(image, coord);
-                    //reconstructor.insert(image, coord);
+                    reconstructor.insert(image, coord, 1, 1);
                     /***
                     FFT fft;
                     fft.fw(image);
@@ -127,13 +129,15 @@ int main(int argc, char* argv[])
                                                     ***/
 
                     // image.saveRLToBMP(name);
-                    // image.saveFTToBMP(name, 0.1);
-                
+                    // image.saveFTToBMP(name, 0.1);    
             }
-    //} catch (Error& err) {
-    //   std::cout << err;
-    //}
+  
+    //    reconstructor.allReduceW(workers);
     }
+    //reconstructor.reduceF(0, world);
+    //if (myid == server) {
+    //    reconstructor.constructor("result.mrc");
+    //}
 
     //MPI_Comm_free(&world);
     //MPI_Comm_free(&workers);

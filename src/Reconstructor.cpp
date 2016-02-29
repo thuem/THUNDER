@@ -52,6 +52,7 @@ void Reconstructor::init(const int nCol,
     {
         _W.setFT(COMPLEX(1, 0), i, j, k, conjugateNo);
         _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+        _F.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
     }
 
 }
@@ -135,12 +136,15 @@ void Reconstructor::allReduceW(MPI_Comm workers)
         }
     }
 
+    MPI_Barrier(workers);
     MPI_Allreduce(&_C[0], 
                   &_C[0], 
                   _nCol * _nRow * _nSlc, 
                   MPI_C_COMPLEX, 
                   MPI_SUM, 
                   workers);
+
+    MPI_Barrier(workers);
 
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
@@ -158,7 +162,6 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 void Reconstructor::reduceF(const int root,
                             MPI_Comm world) 
 {
-    if (_commRank != 0) return;
 
     VOLUME_FOR_EACH_PIXEL_FT(_F)
     {
@@ -169,7 +172,7 @@ void Reconstructor::reduceF(const int root,
                  k,
                  conjugateNo);
     }
-
+    MPI_Barrier(world);
     MPI_Reduce(&_F[0],
                &_F[0],
                _nCol * _nRow * _nSlc,
@@ -177,6 +180,7 @@ void Reconstructor::reduceF(const int root,
                MPI_SUM,
                root,
                world);
+    MPI_Barrier(world);
 }
 
 void Reconstructor::constructor(const char *dst) 
