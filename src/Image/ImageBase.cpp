@@ -97,6 +97,14 @@ void ImageBase::clearFT()
     }
 }
 
+double norm(ImageBase& base)
+{
+    double sum = 0;
+    FOR_EACH_PIXEL_FT(base)
+        sum += ABS(base[i]);
+    return sqrt(sum);
+}
+
 void normalise(ImageBase& base)
 {
     gsl_vector vec;

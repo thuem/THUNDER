@@ -13,11 +13,11 @@
 
 struct ImageMetaData
 {
-    int nCol; // number of columns
-    int nRow; // number of rows 
-    int nSlc; // number of slices
+    int nCol = 0; // number of columns
+    int nRow = 0; // number of rows 
+    int nSlc = 0; // number of slices
 
-    int mode; // data type of this image
+    int mode = 2; // data type of this image
     // 0: image, signed 8-bit byte ranges from -128 to 127
     // 1: image, 16-bit
     // 2: image, 32-bit
@@ -25,7 +25,7 @@ struct ImageMetaData
     // 4: transform, complex, 32-bit reals
     // 6: image, unsigned 16-bit bytes, ranges from 0 to 65535
 
-    int symmetryDataSize; // number of bytes to store symmetry data
+    int symmetryDataSize = 0; // number of bytes to store symmetry data
 };
 
 #endif // IMAGE_META_DATA_H

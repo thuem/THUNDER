@@ -13,10 +13,12 @@ Reconstructor::Reconstructor(const int nCol,
     init(nCol, nRow, nSlc, nColImg, nRowImg, a, alpha);
 }
 
+/***
 Reconstructor::Reconstructor(const Reconstructor& that)
 {
     *this = that;
 }
+***/
 
 Reconstructor::~Reconstructor()
 {
@@ -44,15 +46,17 @@ void Reconstructor::init(const int nCol,
     _nColImg = nColImg;
     _nRowImg = nRowImg;
 
+    _maxRadius = floor(MIN_3(nCol, nRow, nSlc) / 2 - 1);
+
     _F.alloc(_nCol, _nRow, _nSlc, fourierSpace);
     _W.alloc(_nCol, _nRow, _nSlc, fourierSpace);
     _C.alloc(_nCol, _nRow, _nSlc, fourierSpace);
 
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
+        _F.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         _W.setFT(COMPLEX(1, 0), i, j, k, conjugateNo);
         _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
-        _F.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
     }
 
 }
@@ -66,7 +70,6 @@ void Reconstructor::setCommRank(const int commRank)
 {
     _commRank = commRank;
 }
-
 
 
 /***
@@ -95,26 +98,21 @@ void Reconstructor::insert(const Image& src,
         vec3 newCor = {i, j, 0};
         vec3 oldCor = mat * newCor;
         
-        _F.addFT(transSrc.getFT(i, j) * u * v, 
-                 oldCor(0), 
-                 oldCor(1), 
-                 oldCor(2), 
-                 _a, 
-                 _alpha);
+        if (norm(oldCor) < _maxRadius)
+            _F.addFT(transSrc.getFT(i, j) * u * v, 
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2), 
+                     _a, 
+                     _alpha);
     }
 }
-
-
-
-
-    
 
 void Reconstructor::allReduceW(MPI_Comm workers) 
 {
     vector<corWeight>::iterator iter;
     for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
-        
         mat33 mat;
         rotate3D(mat, -iter->first.phi, -iter->first.theta, -iter->first.psi);
         
@@ -124,28 +122,32 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             {
                 vec3 newCor = {i, j, 0};
                 vec3 oldCor = mat * newCor;
-                _C.addFT(_W.getByInterpolationFT(oldCor(0),
-                                                 oldCor(1),
-                                                 oldCor(2),
-                                                 LINEAR_INTERP) 
-                         * (iter->second),
-                         oldCor(0),
-                         oldCor(1),
-                         oldCor(2));
+
+                if (norm(oldCor) < _maxRadius)
+                    _C.addFT(_W.getByInterpolationFT(oldCor(0),
+                                                     oldCor(1),
+                                                     oldCor(2),
+                                                     LINEAR_INTERP) 
+                           * (iter->second),
+                             oldCor(0),
+                             oldCor(1),
+                             oldCor(2));
             }
         }
     }
 
     MPI_Barrier(workers);
-    MPI_Allreduce(&_C[0], 
-                  &_C[0], 
-                  _nCol * _nRow * _nSlc, 
-                  MPI_C_COMPLEX, 
+    MPI_Allreduce(MPI_IN_PLACE, 
+                  &_C[0],
+                  _C.sizeFT(),
+                  MPI_DOUBLE_COMPLEX, 
                   MPI_SUM, 
                   workers);
 
     MPI_Barrier(workers);
 
+
+    //some problems need to be improved: divede zero
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
         _W.setFT(_W.getFT(i, j, k, conjugateNo) /
@@ -159,7 +161,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 
 
 
-void Reconstructor::reduceF(const int root,
+void Reconstructor::reduceF(int root,
                             MPI_Comm world) 
 {
 
@@ -173,20 +175,40 @@ void Reconstructor::reduceF(const int root,
                  conjugateNo);
     }
     MPI_Barrier(world);
-    MPI_Reduce(&_F[0],
-               &_F[0],
-               _nCol * _nRow * _nSlc,
-               MPI_C_COMPLEX,
-               MPI_SUM,
-               root,
-               world);
+
+    if (_commRank == root)
+    {   
+        MPI_Reduce(MPI_IN_PLACE,
+                   &_F[0],
+                   _F.sizeFT(),
+                   MPI_DOUBLE_COMPLEX,
+                   MPI_SUM,
+                   root,
+                   world);
+    }
+    else
+    {
+        MPI_Reduce(&_F[0],
+                   &_F[0],
+                   _F.sizeFT(),
+                   MPI_DOUBLE_COMPLEX,
+                   MPI_SUM,
+                   root,
+                   world); 
+    }
+
     MPI_Barrier(world);
 }
 
+void Reconstructor::getF(Volume& dst)
+{
+    dst = _F;
+}
+
+/***
 void Reconstructor::constructor(const char *dst) 
 {
     ImageFile imf;    
     imf.writeImage(dst, _F);
 }
-
-
+***/

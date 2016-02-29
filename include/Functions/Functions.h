@@ -18,8 +18,6 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
 
-#include "Functions.h"
-
 #define MAX(a, b) GSL_MAX(a, b)
 
 #define MAX_3(a, b, c) MAX(MAX(a, b), c)
@@ -28,7 +26,9 @@
 
 #define MIN_3(a, b, c) MIN(MIN(a, b), c)
 
-#define NORM(a, b, c) sqrt(gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
+#define NORM(a, b) sqrt(gsl_pow_2(a) + gsl_pow_2(b))
+
+#define NORM_3(a, b, c) sqrt(gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
 
 void normalise(gsl_vector& vec);
 

@@ -9,12 +9,15 @@
 
 #include "Volume.h"
 #include "Coordinate5D.h"
+#include "Functions.h"
 
 #include "Euler.h"
 
 #include "Image.h"
 #include "ImageFunctions.h"
 #include "ImageFile.h"
+
+
 
 using namespace arma;
 
@@ -44,7 +47,10 @@ class Reconstructor
         int _nColImg;
         int _nRowImg;
 
+        int _maxRadius;
+
     public:
+
         Reconstructor();
 
         Reconstructor(const int nCol,
@@ -55,7 +61,7 @@ class Reconstructor
                       const double a,
                       const double alpha);
 
-        Reconstructor(const Reconstructor& that);
+        // Reconstructor(const Reconstructor& that);
 
         ~Reconstructor();
 
@@ -81,11 +87,10 @@ class Reconstructor
 
         void allReduceW(MPI_Comm workers);
         
-        void reduceF(const int root,
+        void reduceF(int root,
                      MPI_Comm world);
 
-        void constructor(const char *dstname);
-
+        void getF(Volume& dst);
 };
 
 #endif //RECONSTRUCTOR_H

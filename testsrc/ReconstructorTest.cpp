@@ -12,7 +12,7 @@
 #include "Reconstructor.h"
 #include "FFT.h"
 
-#define N 256
+#define N 64
 #define M 8
 
 int main(int argc, char* argv[])
@@ -132,12 +132,33 @@ int main(int argc, char* argv[])
                     // image.saveFTToBMP(name, 0.1);    
             }
   
-    //    reconstructor.allReduceW(workers);
+        reconstructor.allReduceW(workers);
     }
-    //reconstructor.reduceF(0, world);
-    //if (myid == server) {
-    //    reconstructor.constructor("result.mrc");
-    //}
+
+    if (myid != server) {
+        std::cout << "worker:" << workerid << "finised allreduce" << std::endl;
+    }
+
+
+    reconstructor.reduceF(0, world);
+
+    if (myid == server) {
+        std::cout << "server:" << myid << "finised reduce" << std::endl;
+    }
+
+
+    if (myid == server) {
+        Volume result;
+        std::cout << "output success!" << std::endl;
+        reconstructor.getF(result);
+        std::cout << "output success!" << std::endl;
+        fft.bw(result);
+        std::cout << "output success!" << std::endl;
+        ImageFile imf;
+        imf.readMetaData(result);
+        imf.writeImage("result.mrc", result);
+        std::cout << "output success!" << std::endl;
+    }
 
     //MPI_Comm_free(&world);
     //MPI_Comm_free(&workers);
