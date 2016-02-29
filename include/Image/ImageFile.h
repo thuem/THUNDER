@@ -70,6 +70,17 @@ struct ImageMetaData
         delete[] unCast; \
     }()
 
+#define WRITE_CAST(src, type) \
+    [this, &src]() \
+    { \
+        type* cast = new type[src.sizeRL()]; \
+        for (size_t i = 0; i < src.sizeRL(); i++) \
+            cast[i] = (type)src.getRL(i); \
+        if (fwrite(cast, 1, src.sizeRL() * sizeof(type), _file) == 0) \
+            REPORT_ERROR("Fail to write in an image."); \
+        delete[] cast; \
+    }()
+
 #define SKIP_HEAD(i) \
     if (fseek(_file, 1024 + symmetryDataSize() + i, 0) != 0) \
         REPORT_ERROR("Fail to read in an image.");

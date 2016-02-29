@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include "ImageFile.h"
+
 #include "Projector.h"
 #include "ImageFile.h"
 #include "FFT.h"
@@ -40,6 +42,10 @@ int main(int argc, const char* argv[])
                 else
                     head.setRL(0, x, y, z);
             }
+
+    ImageFile imf;
+    imf.readMetaData(head);
+    imf.writeImage("head.mrc", head);
     
     ImageFile imf;
     imf.readMetaData(head);

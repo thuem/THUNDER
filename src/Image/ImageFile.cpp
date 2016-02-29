@@ -231,7 +231,7 @@ void ImageFile::readVolumeMRC(Volume& dst)
 void ImageFile::writeImageMRC(const char* dst,
                               const ImageBase& src)
 {
-    FILE* file = fopen(dst, "w");
+    _file = fopen(dst, "w");
 
     MRCHeader header;
     header.mode = _metaData.mode;
@@ -249,12 +249,13 @@ void ImageFile::writeImageMRC(const char* dst,
     header.cellb[2] = 90;
     header.nsymbt = _metaData.symmetryDataSize;
 
-    rewind(file);
-    if (fwrite(&header, 1, 1024, file) == 0 ||
+    rewind(_file);
+    if (fwrite(&header, 1, 1024, _file) == 0 ||
         (symmetryDataSize() != 0 &&
-         fwrite(_symmetryData, 1, symmetryDataSize(), file) == 0) ||
-        fwrite(&src.getRL(), 1, src.sizeRL() * sizeof(double), file) == 0)
+         fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
-    fclose(file);
+    WRITE_CAST(src, float);
+
+    fclose(_file);
 }
