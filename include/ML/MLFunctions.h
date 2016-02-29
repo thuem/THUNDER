@@ -8,12 +8,12 @@
  * Manual:
  * ****************************************************************************/
 
-#ifndef TYPEDEF_H
-#define TYPEDEF_H
+#ifndef ML_FUNCTIONS_H
+#define ML_FUNCTIONS_H
 
 double norm(const Projector& proj,
             const Coordinate5D coord,
             const Image& ctf,
             const Image& invSigma);
 
-#endif // TYPEDEF_H
+#endif // ML_FUNCTIONS_H
