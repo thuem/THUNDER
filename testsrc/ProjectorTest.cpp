@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "Projector.h"
-
+#include "ImageFile.h"
 #include "FFT.h"
 
 #define N 256
@@ -40,6 +40,10 @@ int main(int argc, const char* argv[])
                 else
                     head.setRL(0, x, y, z);
             }
+    
+    ImageFile imf;
+    imf.readMetaData(head);
+    imf.writeImage("head.mrc", head);
     
     FFT fft;
     fft.fw(head);

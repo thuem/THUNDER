@@ -12,7 +12,7 @@
 #include "Reconstructor.h"
 #include "FFT.h"
 
-#define N 64
+#define N 256
 #define M 8
 
 int main(int argc, char* argv[])
@@ -76,6 +76,11 @@ int main(int argc, char* argv[])
                     head.setRL(0, x, y, z);
             }
     
+    if (myid == server) {
+        ImageFile imf;
+        imf.readMetaData(head);
+        imf.writeImage("head.mrc", head);
+    }
     FFT fft;
     fft.fw(head);
 
@@ -149,11 +154,8 @@ int main(int argc, char* argv[])
 
     if (myid == server) {
         Volume result;
-        std::cout << "output success!" << std::endl;
         reconstructor.getF(result);
-        std::cout << "output success!" << std::endl;
         fft.bw(result);
-        std::cout << "output success!" << std::endl;
         ImageFile imf;
         imf.readMetaData(result);
         imf.writeImage("result.mrc", result);
