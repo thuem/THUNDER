@@ -52,6 +52,7 @@ void Reconstructor::init(const int nCol,
 
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
+        _F.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         _W.setFT(COMPLEX(1, 0), i, j, k, conjugateNo);
         _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
     }
@@ -95,12 +96,13 @@ void Reconstructor::insert(const Image& src,
         vec3 newCor = {i, j, 0};
         vec3 oldCor = mat * newCor;
         
-        _F.addFT(transSrc.getFT(i, j) * u * v, 
-                 oldCor(0), 
-                 oldCor(1), 
-                 oldCor(2), 
-                 _a, 
-                 _alpha);
+        if (norm(oldCor) < _maxRadius)
+            _F.addFT(transSrc.getFT(i, j) * u * v, 
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2), 
+                     _a, 
+                     _alpha);
     }
 }
 
@@ -139,7 +141,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                   MPI_SUM, 
                   workers);
 
-    DIV_FT(_W, _C);
+    DIV_FT(_W, _C); // TODO: HANDLE DIVIDING ZEROS!
     /***
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
@@ -158,7 +160,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 void Reconstructor::reduceF(const int root,
                             MPI_Comm world) 
 {
-    if (_commRank != 0) return;
+    // if (_commRank != 0) return;
 
     MUL_FT(_F, _W);
     /***
