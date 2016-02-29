@@ -29,6 +29,25 @@
 #define FOR_EACH_PIXEL_FT(base) \
     for (size_t i = 0; i < base.sizeFT(); i++)
 
+#define NEG_RL(base) \
+    FOR_EACH_PIXEL_RL(base) \
+        base(i) *= -1;
+
+#define ADD_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] += b[i]
+
+#define SUB_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] -= b[i]
+
+#define MUL_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] *= b[i]
+
+#define DIV_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] /= b[i]
 
 class ImageBase
 {
@@ -82,6 +101,22 @@ class ImageBase
 
 void normalise(ImageBase& base);
 
-void invertContrast(ImageBase& base);
+void negRL(ImageBase& base);
+
+void addFT(ImageBase& dst,
+           const ImageBase& src1,
+           const ImageBase& src2);
+
+void subFT(ImageBase& dst,
+           const ImageBase& src1,
+           const ImageBase& src2);
+
+void mulFT(ImageBase& dst,
+           const ImageBase& src1,
+           const ImageBase& src2);
+
+void divFT(ImageBase& dst,
+           const ImageBase& src1,
+           const ImageBase& src2);
 
 #endif // IMAGE_BASE 

@@ -61,7 +61,7 @@ void normalise(Image& img,
  * dust points are removed according to wDust and bDust */
 
 void extract(Image& dst,
-             Image& src,
+             const Image& src,
              const int xOff,
              const int yOff);
 
