@@ -44,6 +44,8 @@ class Reconstructor
         int _nColImg;
         int _nRowImg;
 
+        int _maxRadius;
+
     public:
         Reconstructor();
 

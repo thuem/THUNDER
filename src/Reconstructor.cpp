@@ -103,17 +103,11 @@ void Reconstructor::insert(const Image& src,
     }
 }
 
-
-
-
-    
-
 void Reconstructor::allReduceW(MPI_Comm workers) 
 {
     vector<corWeight>::iterator iter;
     for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
-        
         mat33 mat;
         rotate3D(mat, -iter->first.phi, -iter->first.theta, -iter->first.psi);
         
@@ -123,14 +117,16 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             {
                 vec3 newCor = {i, j, 0};
                 vec3 oldCor = mat * newCor;
-                _C.addFT(_W.getByInterpolationFT(oldCor(0),
-                                                 oldCor(1),
-                                                 oldCor(2),
-                                                 LINEAR_INTERP) 
-                         * (iter->second),
-                         oldCor(0),
-                         oldCor(1),
-                         oldCor(2));
+
+                if (norm(oldCor) < _maxRadius)
+                    _C.addFT(_W.getByInterpolationFT(oldCor(0),
+                                                     oldCor(1),
+                                                     oldCor(2),
+                                                     LINEAR_INTERP) 
+                           * (iter->second),
+                             oldCor(0),
+                             oldCor(1),
+                             oldCor(2));
             }
         }
     }
@@ -142,6 +138,8 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                   MPI_SUM, 
                   workers);
 
+    DIV_FT(_W, _C);
+    /***
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
         _W.setFT(_W.getFT(i, j, k, conjugateNo) /
@@ -151,6 +149,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                  k,
                  conjugateNo);
     }
+    ***/
 }
 
 
