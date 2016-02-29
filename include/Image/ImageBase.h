@@ -99,24 +99,8 @@ class ImageBase
         // free the memory storing Fourier Transform image
 };
 
+double norm(ImageBase& base);
+
 void normalise(ImageBase& base);
-
-void negRL(ImageBase& base);
-
-void addFT(ImageBase& dst,
-           const ImageBase& src1,
-           const ImageBase& src2);
-
-void subFT(ImageBase& dst,
-           const ImageBase& src1,
-           const ImageBase& src2);
-
-void mulFT(ImageBase& dst,
-           const ImageBase& src1,
-           const ImageBase& src2);
-
-void divFT(ImageBase& dst,
-           const ImageBase& src1,
-           const ImageBase& src2);
 
 #endif // IMAGE_BASE 

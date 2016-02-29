@@ -14,19 +14,9 @@ double norm(const Image& src1,
             const Image& src2,
             const Image& invSigma)
 {
-    gsl_vector_complex vecSrc1, vecSrc2, vecInvSigma;
-
-    vecSrc1.size = src1.sizeFT();
-    vecSrc1.data = &src1[0];
-
-    vecSrc2.size = src2.sizeFT();
-    vecSrc2.data = &src2[0];
-
-    vecInvSigma.size = invSigma.sizeFT();
-    vecInvSimga.data = &invSigma[0];
-
-    gsl_vector_complex vec;
-    gsl_vector_complex_memcpy(vec, vecSrc1);
+    Image img = src1;
+    SUB_FT(img, src2);
+    MUL_FT(img, invSigma); 
 }
 
 double norm(const Projector& proj,
