@@ -30,8 +30,16 @@
     for (size_t i = 0; i < base.sizeFT(); i++)
 
 #define NEG_RL(base) \
-    FOR_EACH_PIXEL_RL(base) \
-        base(i) *= -1;
+    SCALE_RL(base, -1)
+
+#define SCALE_RL(base, x) \
+    [&base](const double _x) \
+    {\
+        gsl_vector vec; \
+        vec.size = base.sizeRL(); \
+        vec.data = &base(0); \
+        gsl_vector_scale(&vec, _x); \
+    }(x)
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \

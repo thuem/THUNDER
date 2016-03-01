@@ -231,7 +231,7 @@ void Reconstructor::getF(Volume& dst)
 }
 
 
-void Reconstructor::constructor(const char *dst) 
+void Reconstructor::constructor(const char dst[])
 {
     Volume result;
     result = _F;

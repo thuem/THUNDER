@@ -95,7 +95,7 @@ class Reconstructor
 
         void getF(Volume& dst);
 
-        void constructor(const char *dst);
+        void constructor(const char dst[]);
 
 };
 
