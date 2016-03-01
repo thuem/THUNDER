@@ -171,19 +171,38 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 
     MPI_Barrier(workers);
 
+    
+    
+    
+    ///////////////////////////////////////////////////////////
+    //to set no zero
+    //VOLUME_FOR_EACH_PIXEL_FT(_C)
+    //{
+    //    Complex c = _C.getFT(i, j, k, conjugateNo);
+    //    if (REAL(c) == 0) {
+    //        REAL(c) = DBL_MAX;
+    //        _C.setFT(c, i, j ,k, conjugateNo);
+    //    }
+    //}
 
     //some problems need to be improved: divede zero
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
-        _W.setFT(_W.getFT(i, j, k, conjugateNo) /
-                 _C.getFT(i, j, k, conjugateNo),
-                 i,
-                 j,
-                 k,
-                 conjugateNo);
+        vec3 cor = {i, j, k};
+        if (norm(cor) < _maxRadius)
+        {
+            Complex c = _C.getFT(i, j, k, conjugateNo);
+            Complex w = _W.getFT(i, j, k, conjugateNo); 
+            _W.setFT(REAL(c) == 0 ? COMPLEX(0, 0) : w / c,
+                     i,
+                     j,
+                     k,
+                     conjugateNo);
+            _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+        }
     }
-}
 
+}
 
 
 void Reconstructor::reduceF(int root,
@@ -231,7 +250,7 @@ void Reconstructor::getF(Volume& dst)
 }
 
 
-void Reconstructor::constructor(const char *dst) 
+void Reconstructor::constructor(const char dst[]) 
 {
     Volume result;
     result = _F;
@@ -239,19 +258,59 @@ void Reconstructor::constructor(const char *dst)
     FFT fft;
     fft.bw(result);
 
+#ifdef DEBUGCONSTRUCTOR
+    FILE *disfile = fopen("constructor", "w");
+#endif
+
     VOLUME_FOR_EACH_PIXEL_RL(result)
-    { 
+    {     
         double r = NORM_3(i, j, k);
+
+#ifdef DEBUGCONSTRUCTOR
+        double res = result.getRL(i , j , k);
+        double mkb = MKB_RL(r, _a, _alpha);
+        double tik = TIK_RL(r);
+        fprintf(disfile, "%5d : %5d : %5d\t %f\t   %f\t   %f\t\n",
+                i, j, k, res, mkb, tik);
+#endif
         if (r < _maxRadius) 
         {
             result.setRL((result.getRL(i, j, k) / MKB_RL(r, _a, _alpha))
                                                 / TIK_RL(r), i, j, k);
         }
     }
-    
+
+#ifdef DEBUGCONSTRUCTOR
+    fclose(disfile);
+#endif
 
     ImageFile imf;
     imf.readMetaData(result);
+    imf.display();
     imf.writeImage(dst, result);
 }
 
+
+
+void Reconstructor::display(const int rank, 
+                            const char name[])
+{
+    if (_commRank != rank)
+        return;
+
+    FILE *disfile = fopen(name, "w");
+    
+    VOLUME_FOR_EACH_PIXEL_FT(_W)
+    {
+        Complex f = _F.getFT(i , j , k, conjugateNo);
+        Complex w = _W.getFT(i , j , k, conjugateNo);
+        Complex c = _C.getFT(i , j , k, conjugateNo);
+        fprintf(disfile, "%5d : %5d : %5d\t %f,%f\t   %f,%f\t   %f,%f\t\n",
+                i, j, k,
+                REAL(f), IMAG(f),
+                REAL(w), IMAG(w),
+                REAL(c), IMAG(c));
+    }
+    fclose(disfile);
+
+}

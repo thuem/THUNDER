@@ -44,6 +44,8 @@ struct ImageMetaData
 #include "Volume.h"
 #include "BMP.h"
 
+#define DEBUGWRITEIMAGE
+
 #define BYTE_MODE(mode) \
     [&mode]() \
     { \

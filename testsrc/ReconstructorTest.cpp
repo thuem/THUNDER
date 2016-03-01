@@ -15,6 +15,23 @@
 #define N 256
 #define M 8
 
+
+#define DEBUGAFTERINSERT
+#define DEBUGAFTERALLREDUCE
+#define DEBUGAFTERREDUCEF
+
+#ifdef DEBUGAFTERINSERT
+    #define TESTNODE 1
+#endif
+
+#ifndef DEBUGAFTERINSERT
+    #ifdef DEBUGAFTERALLREDUCE
+        #define TESTNODE 1
+    #endif
+#endif
+
+
+
 int main(int argc, char* argv[])
 {
 
@@ -79,6 +96,7 @@ int main(int argc, char* argv[])
     if (myid == server) {
         ImageFile imf;
         imf.readMetaData(head);
+        imf.display();
         imf.writeImage("head.mrc", head);
     }
     FFT fft;
@@ -106,7 +124,9 @@ int main(int argc, char* argv[])
 
     if (myid != server) {
         for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)
+        {    
             for (int j = 0; j < M; j++)
+            {
                 for (int i = 0; i < M; i++)
                 {
                     printf("%02d %02d %02d\n", i, j, k);
@@ -135,24 +155,34 @@ int main(int argc, char* argv[])
 
                     // image.saveRLToBMP(name);
                     // image.saveFTToBMP(name, 0.1);    
+                }
             }
-  
+        }
+
+#ifdef DEBUGAFTERINSERT
+        reconstructor.display(TESTNODE, "testFWC-afterinsert");
+#endif
+
         for (int i = 0; i < 3; i++) {
             reconstructor.allReduceW(workers);
             std::cout << "Round-" << i << ":       worker-" << workerid << "    :finised allreduce" << std::endl;
+#ifdef DEBUGAFTERALLREDUCE
+            char name[256];
+            sprintf(name, "testFWC-afterallreduce%d", i);
+            reconstructor.display(TESTNODE, name);
+#endif
         }
+
+
     }
-
-
 
     reconstructor.reduceF(0, world);
-
+#ifdef DEBUGAFTERREDUCEF
+    reconstructor.display(server, "testFWC-afterreduceF");
+#endif
+ 
     if (myid == server) {
         std::cout << "server-" << myid << ":          finised reduce" << std::endl;
-    }
-
-
-    if (myid == server) {
         reconstructor.constructor("result.mrc");
         std::cout << "output success!" << std::endl;
     }

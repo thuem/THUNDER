@@ -2,6 +2,7 @@
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
+//#include <float.h>
 #include <armadillo>
 #include <utility>
 #include <vector>
@@ -19,7 +20,7 @@
 #include "ImageFile.h"
 #include "Volume.h"
 
-
+#define DEBUGCONSTRUCTOR
 
 using namespace arma;
 
@@ -89,14 +90,16 @@ class Reconstructor
                     const double v);
 
         void allReduceW(MPI_Comm workers);
-        
+
         void reduceF(int root,
                      MPI_Comm world);
 
         void getF(Volume& dst);
 
-        void constructor(const char *dst);
+        void constructor(const char dst[]);
 
+        void display(const int rank,
+                     const char name[]);
 };
 
 #endif //RECONSTRUCTOR_H

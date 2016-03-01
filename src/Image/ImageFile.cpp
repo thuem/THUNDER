@@ -255,6 +255,19 @@ void ImageFile::writeImageMRC(const char* dst,
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
+#ifdef DEBUGWRITEIMAGE
+    int counter = 0;
+    char name[256];
+    sprintf(name, "testfile-");
+    strcat(name, dst);
+    FILE *testfile = fopen(name, "w");
+    while (counter < 1000) {
+        fprintf(testfile, "%lf\n", src.getRL(counter));
+        counter++;
+    }
+    fclose(testfile);
+#endif
+
     WRITE_CAST(src, float);
 
     fclose(_file);
