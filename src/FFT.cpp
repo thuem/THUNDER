@@ -41,7 +41,6 @@ void FFT::bw(Image& img)
 
     fftw_execute(bwPlan);
 
-    // normalise
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
@@ -76,7 +75,6 @@ void FFT::bw(Volume& vol)
 
     fftw_execute(bwPlan);
 
-    // normalise
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);

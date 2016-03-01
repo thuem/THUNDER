@@ -32,14 +32,8 @@
 #define NEG_RL(base) \
     SCALE_RL(base, -1)
 
-#define SCALE_RL(base, x) \
-    [&base](const double _x) \
-    {\
-        gsl_vector vec; \
-        vec.size = base.sizeRL(); \
-        vec.data = &base(0); \
-        gsl_vector_scale(&vec, _x); \
-    }(x)
+#define SCALE_RL(base, a) \
+    cblas_dscal(base.sizeRL(), a, &base(0), 1)
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
