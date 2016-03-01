@@ -137,28 +137,23 @@ int main(int argc, char* argv[])
                     // image.saveFTToBMP(name, 0.1);    
             }
   
-        reconstructor.allReduceW(workers);
+        for (int i = 0; i < 3; i++) {
+            reconstructor.allReduceW(workers);
+            std::cout << "Round-" << i << ":       worker-" << workerid << "    :finised allreduce" << std::endl;
+        }
     }
 
-    if (myid != server) {
-        std::cout << "worker:" << workerid << "finised allreduce" << std::endl;
-    }
 
 
     reconstructor.reduceF(0, world);
 
     if (myid == server) {
-        std::cout << "server:" << myid << "finised reduce" << std::endl;
+        std::cout << "server-" << myid << ":          finised reduce" << std::endl;
     }
 
 
     if (myid == server) {
-        Volume result;
-        reconstructor.getF(result);
-        fft.bw(result);
-        ImageFile imf;
-        imf.readMetaData(result);
-        imf.writeImage("result.mrc", result);
+        reconstructor.constructor("result.mrc");
         std::cout << "output success!" << std::endl;
     }
 

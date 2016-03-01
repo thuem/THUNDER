@@ -44,4 +44,8 @@ double MKB_RL(const double r,
 /* Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3 */
 /* Typically, a = 2.0 and alpha = 3.6 */
 
+double TIK_RL(const double r);
+/* Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function */
+
+
 #endif // FUNCTIONS_H

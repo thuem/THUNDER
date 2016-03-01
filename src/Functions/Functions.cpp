@@ -53,3 +53,9 @@ double MKB_RL(const double r,
     else
         return w * gsl_sf_bessel_Jnu(3.5, v);
 }
+
+
+double TIK_RL(const double r)
+{
+    return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));
+}

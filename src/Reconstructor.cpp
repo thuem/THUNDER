@@ -27,6 +27,31 @@ Reconstructor::~Reconstructor()
     _C.clear();
 }
 
+Reconstructor& Reconstructor::operator=(const Reconstructor& that)
+{
+    _nCol = that._nCol;
+    _nRow = that._nRow;
+    _nSlc = that._nSlc;
+    
+    _a = that._a;
+    _alpha = that._alpha;
+        
+    _commRank = that._commRank;
+    _commSize = that._commSize;
+
+    _F = that._F;
+    _W = that._W;
+    _C = that._C;
+
+    _coordWeight = that._coordWeight;
+    
+    _nColImg = that._nColImg;
+    _nRowImg = that._nRowImg;
+
+    _maxRadius = that._maxRadius;
+
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -205,10 +230,28 @@ void Reconstructor::getF(Volume& dst)
     dst = _F;
 }
 
-/***
+
 void Reconstructor::constructor(const char *dst) 
 {
-    ImageFile imf;    
-    imf.writeImage(dst, _F);
+    Volume result;
+    result = _F;
+
+    FFT fft;
+    fft.bw(result);
+
+    VOLUME_FOR_EACH_PIXEL_RL(result)
+    { 
+        double r = NORM_3(i, j, k);
+        if (r < _maxRadius) 
+        {
+            result.setRL((result.getRL(i, j, k) / MKB_RL(r, _a, _alpha))
+                                                / TIK_RL(r), i, j, k);
+        }
+    }
+    
+
+    ImageFile imf;
+    imf.readMetaData(result);
+    imf.writeImage(dst, result);
 }
-***/
+

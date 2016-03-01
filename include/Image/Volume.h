@@ -168,6 +168,7 @@ class Volume : public ImageBase
                    const double a,
                    const double alpha);
         /* add by a kernel of Mofidied Kaiser Bessel Function */
+   
 
     private:
 

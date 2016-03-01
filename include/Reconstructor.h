@@ -7,15 +7,17 @@
 #include <vector>
 #include <mpi.h>
 
-#include "Volume.h"
 #include "Coordinate5D.h"
 #include "Functions.h"
 
 #include "Euler.h"
 
+#include "FFT.h"
+
 #include "Image.h"
 #include "ImageFunctions.h"
 #include "ImageFile.h"
+#include "Volume.h"
 
 
 
@@ -65,7 +67,8 @@ class Reconstructor
 
         ~Reconstructor();
 
-/////////////////////////////////////////////////////////////////////////////////////////
+        Reconstructor& operator=(const Reconstructor& that);
+////////////////////////////////////////////////////////////////////////////////////////
 
 
         void init(const int nCol,
@@ -91,6 +94,9 @@ class Reconstructor
                      MPI_Comm world);
 
         void getF(Volume& dst);
+
+        void constructor(const char *dst);
+
 };
 
 #endif //RECONSTRUCTOR_H
