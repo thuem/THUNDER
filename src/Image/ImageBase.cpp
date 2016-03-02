@@ -99,10 +99,7 @@ void ImageBase::clearFT()
 
 double norm(ImageBase& base)
 {
-    double sum = 0;
-    FOR_EACH_PIXEL_FT(base)
-        sum += ABS(base[i]);
-    return sqrt(sum);
+    return sqrt(cblas_dznrm2(base.sizeFT(), &base[0], 1));
 }
 
 void normalise(ImageBase& base)

@@ -12,13 +12,14 @@
 #include "Reconstructor.h"
 #include "FFT.h"
 
-#define N 256
+#define N 64
 #define M 8
 
 
 #define DEBUGAFTERINSERT
 #define DEBUGAFTERALLREDUCE
 #define DEBUGAFTERREDUCEF
+
 
 #ifdef DEBUGAFTERINSERT
     #define TESTNODE 1
@@ -60,18 +61,18 @@ int main(int argc, char* argv[])
         MPI_Comm_size(workers, &numworkers);
         std::cout << "1-Initial OK! , commited by worker:" << workerid << std::endl;
     }
-    if (myid == numprocs - 1) {
-        std::cout << "2-numprocs: " << numprocs << std::endl
-                  << "2-myid: " << myid << std::endl
-                  << "2-server is node " << server << std::endl
-                  << "2-numworkers: " << numworkers << std::endl
-                  << "2-workerid: " << workerid << std::endl;
-    }
+    //if (myid == numprocs - 1) {
+    //    std::cout << "2-numprocs: " << numprocs << std::endl
+    //              << "2-myid: " << myid << std::endl
+    //              << "2-server is node " << server << std::endl
+    //              << "2-numworkers: " << numworkers << std::endl
+    //              << "2-workerid: " << workerid << std::endl;
+    //}
 
     Volume head(N, N, N, realSpace);
-    if (myid == messageid) {
-        std::cout << "Define a head" << std::endl;
-    }
+    //if (myid == messageid) {
+    //    std::cout << "Define a head" << std::endl;
+    //}
     for (int z = 0; z < N; z++)
         for (int y = 0; y < N; y++)
             for (int x = 0; x < N; x++)
@@ -163,7 +164,7 @@ int main(int argc, char* argv[])
         reconstructor.display(TESTNODE, "testFWC-afterinsert");
 #endif
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 5; i++) {
             reconstructor.allReduceW(workers);
             std::cout << "Round-" << i << ":       worker-" << workerid << "    :finised allreduce" << std::endl;
 #ifdef DEBUGAFTERALLREDUCE

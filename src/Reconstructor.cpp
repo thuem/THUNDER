@@ -118,11 +118,14 @@ void Reconstructor::insert(const Image& src,
     mat33 mat;
     rotate3D(mat, -coord.phi, -coord.theta, -coord.psi);
 
+    meshReverse(transSrc);
+
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         vec3 newCor = {i, j, 0};
         vec3 oldCor = mat * newCor;
         
+        /***
         if (norm(oldCor) < _maxRadius)
             _F.addFT(transSrc.getFT(i, j) * u * v, 
                      oldCor(0), 
@@ -130,6 +133,13 @@ void Reconstructor::insert(const Image& src,
                      oldCor(2), 
                      _a, 
                      _alpha);
+                     ***/
+
+        if (norm(oldCor) < _maxRadius)
+            _F.addFT(transSrc.getFT(i, j) * u * v,
+                     (int)oldCor(0),
+                     (int)oldCor(1),
+                     (int)oldCor(2));
     }
 }
 
@@ -159,7 +169,9 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                            * (iter->second),
                              oldCor(0),
                              oldCor(1),
-                             oldCor(2));
+                             oldCor(2),
+                             _a,
+                             _alpha);
             }
         }
     }
@@ -191,8 +203,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
     //some problems need to be improved: divede zero
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
-        vec3 cor = {i, j, k};
-        if (norm(cor) < _maxRadius)
+        if (NORM_3(i, j, k) < _maxRadius)
         {
             Complex c = _C.getFT(i, j, k, conjugateNo);
             Complex w = _W.getFT(i, j, k, conjugateNo); 
@@ -202,6 +213,10 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                      k,
                      conjugateNo);
     //        _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+        }
+        else
+        {
+            _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         }
     }
 
@@ -219,16 +234,18 @@ void Reconstructor::initC()
 void Reconstructor::reduceF(int root,
                             MPI_Comm world) 
 {
+    //meshReverse(_F);
+   // VOLUME_FOR_EACH_PIXEL_FT(_F)
+   // {
+   //     _F.setFT(_F.getFT(i, j, k, conjugateNo) *
+   //              _W.getFT(i, j, k, conjugateNo),
+   //              i,
+   //              j,
+   //              k,
+   //              conjugateNo);
+   // }
 
-    VOLUME_FOR_EACH_PIXEL_FT(_F)
-    {
-        _F.setFT(_F.getFT(i, j, k, conjugateNo) *
-                 _W.getFT(i, j, k, conjugateNo),
-                 i,
-                 j,
-                 k,
-                 conjugateNo);
-    }
+    display(1, "testFWC-after_F*_W");
     MPI_Barrier(world);
 
     if (_commRank == root)
@@ -261,16 +278,19 @@ void Reconstructor::getF(Volume& dst)
 }
 
 
-void Reconstructor::constructor(const char dst[]) 
+void Reconstructor::constructor(const char dst[])
 {
     Volume result;
     result = _F;
+    
+    meshReverse(result);
 
     FFT fft;
     fft.bw(result);
 
 #ifdef DEBUGCONSTRUCTOR
-    FILE *disfile = fopen("constructor", "w");
+    FILE *disfile1 = fopen("constructor1", "w");
+    FILE *disfile2 = fopen("constructor2", "w");
 #endif
 
     VOLUME_FOR_EACH_PIXEL_RL(result)
@@ -278,21 +298,28 @@ void Reconstructor::constructor(const char dst[])
         double r = NORM_3(i, j, k);
 
 #ifdef DEBUGCONSTRUCTOR
-        double res = result.getRL(i , j , k);
+        double res1 = result.getRL(i , j , k);
         double mkb = MKB_RL(r / _nCol, _a, _alpha);
         double tik = TIK_RL(r / _nCol);
-        fprintf(disfile, "%5d : %5d : %5d\t %f\t   %f\t   %f\t\n",
-                i, j, k, res, mkb, tik);
+        fprintf(disfile1, "%5d : %5d : %5d\t %f\t   %f\t   %f\t\n",
+                i, j, k, res1, mkb, tik);
 #endif
+
         if (r < _maxRadius) 
         {
             result.setRL((result.getRL(i, j, k) / MKB_RL(r / _nCol, _a, _alpha))
                                                 / TIK_RL(r / _nCol), i, j, k);
         }
+#ifdef DEBUGCONSTRUCTOR
+        double res = result.getRL(i , j , k);
+        fprintf(disfile2, "%5d : %5d : %5d\t %f\n",
+                i, j, k, res);
+#endif
     }
 
 #ifdef DEBUGCONSTRUCTOR
-    fclose(disfile);
+    fclose(disfile1);
+    fclose(disfile2);
 #endif
 
     ImageFile imf;
@@ -316,7 +343,7 @@ void Reconstructor::display(const int rank,
         Complex f = _F.getFT(i , j , k, conjugateNo);
         Complex w = _W.getFT(i , j , k, conjugateNo);
         Complex c = _C.getFT(i , j , k, conjugateNo);
-        fprintf(disfile, "%5d : %5d : %5d\t %f,%f\t   %f,%f\t   %f,%f\t\n",
+        fprintf(disfile, "%5d : %5d : %5d\t %12f,%12f\t   %12f,%12f\t   %12f,%12f\t\n",
                 i, j, k,
                 REAL(f), IMAG(f),
                 REAL(w), IMAG(w),

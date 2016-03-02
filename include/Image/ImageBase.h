@@ -30,8 +30,10 @@
     for (size_t i = 0; i < base.sizeFT(); i++)
 
 #define NEG_RL(base) \
-    FOR_EACH_PIXEL_RL(base) \
-        base(i) *= -1;
+    SCALE_RL(base, -1)
+
+#define SCALE_RL(base, a) \
+    cblas_dscal(base.sizeRL(), a, &base(0), 1)
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
