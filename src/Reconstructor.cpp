@@ -7,10 +7,11 @@ Reconstructor::Reconstructor(const int nCol,
                              const int nSlc,
                              const int nColImg,
                              const int nRowImg,
+                             const int pf,
                              const double a,
                              const double alpha)
 {
-    init(nCol, nRow, nSlc, nColImg, nRowImg, a, alpha);
+    init(nCol, nRow, nSlc, nColImg, nRowImg, pf, a, alpha);
 }
 
 /***
@@ -60,27 +61,33 @@ void Reconstructor::init(const int nCol,
                          const int nSlc,
                          const int nColImg,
                          const int nRowImg,
+                         const int pf,
                          const double a,
                          const double alpha)
 {
     _nCol = nCol;
     _nRow = nRow;
     _nSlc = nSlc;
-    _a = a;
-    _alpha = alpha;
     _nColImg = nColImg;
     _nRowImg = nRowImg;
 
+    _a = a;
+    _alpha = alpha;
+
+    _pf = pf;
+
     _maxRadius = floor(MIN_3(nCol, nRow, nSlc) / 2 - 1);
 
-    _F.alloc(_nCol, _nRow, _nSlc, fourierSpace);
-    _W.alloc(_nCol, _nRow, _nSlc, fourierSpace);
-    _C.alloc(_nCol, _nRow, _nSlc, fourierSpace);
+    _F.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
+    _W.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
+    _WN.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
+    _C.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
 
     VOLUME_FOR_EACH_PIXEL_FT(_W)
     {
         _F.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         _W.setFT(COMPLEX(1, 0), i, j, k, conjugateNo);
+        _WN.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
     }
 
@@ -116,16 +123,15 @@ void Reconstructor::insert(const Image& src,
     translate(transSrc, src, -coord.x, -coord.y);
 
     mat33 mat;
-    rotate3D(mat, -coord.phi, -coord.theta, -coord.psi);
+    rotate3D(mat, coord.phi, coord.theta, coord.psi);
 
     meshReverse(transSrc);
 
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         vec3 newCor = {i, j, 0};
-        vec3 oldCor = mat * newCor;
+        vec3 oldCor = _pf * mat * newCor;
         
-        /***
         if (norm(oldCor) < _maxRadius)
             _F.addFT(transSrc.getFT(i, j) * u * v, 
                      oldCor(0), 
@@ -133,33 +139,40 @@ void Reconstructor::insert(const Image& src,
                      oldCor(2), 
                      _a, 
                      _alpha);
-                     ***/
 
         if (norm(oldCor) < _maxRadius)
+        {
+            /***
             _F.addFT(transSrc.getFT(i, j) * u * v,
-                     (int)oldCor(0),
-                     (int)oldCor(1),
-                     (int)oldCor(2));
+                     AROUND(oldCor(0)),
+                     AROUND(oldCor(1)),
+                     AROUND(oldCor(2)));
+                     ***/
+            _WN.addFT(COMPLEX(1, 0),
+                      AROUND(oldCor(0)),
+                      AROUND(oldCor(1)),
+                      AROUND(oldCor(2)));
+        }
     }
 }
 
 void Reconstructor::allReduceW(MPI_Comm workers) 
 {
-    
     initC();
     
+    /***
     vector<corWeight>::iterator iter;
     for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
         mat33 mat;
-        rotate3D(mat, -iter->first.phi, -iter->first.theta, -iter->first.psi);
+        rotate3D(mat, iter->first.phi, iter->first.theta, iter->first.psi);
         
         for (int j = -_nRowImg / 2; j < _nRowImg / 2; j++)
         {
             for (int i = 0; i <= _nColImg / 2; i++)
             {
                 vec3 newCor = {i, j, 0};
-                vec3 oldCor = mat * newCor;
+                vec3 oldCor = _pf * mat * newCor;
 
                 if (norm(oldCor) < _maxRadius)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
@@ -175,6 +188,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             }
         }
     }
+    ***/
 
     MPI_Barrier(workers);
     MPI_Allreduce(MPI_IN_PLACE, 
@@ -207,11 +221,14 @@ void Reconstructor::allReduceW(MPI_Comm workers)
         {
             Complex c = _C.getFT(i, j, k, conjugateNo);
             Complex w = _W.getFT(i, j, k, conjugateNo); 
-            _W.setFT(REAL(c) == 0 ? COMPLEX(0, 0) : w / c,
+            _W.setFT(w / c, i, j, k, conjugateNo);
+            /***
+            _W.setFT(REAL(c) < 0.0001 ? COMPLEX(0, 0) : w / c,
                      i,
                      j,
                      k,
                      conjugateNo);
+                     ***/
     //        _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         }
         else
@@ -234,16 +251,23 @@ void Reconstructor::initC()
 void Reconstructor::reduceF(int root,
                             MPI_Comm world) 
 {
-    //meshReverse(_F);
-   // VOLUME_FOR_EACH_PIXEL_FT(_F)
-   // {
-   //     _F.setFT(_F.getFT(i, j, k, conjugateNo) *
-   //              _W.getFT(i, j, k, conjugateNo),
-   //              i,
-   //              j,
-   //              k,
-   //              conjugateNo);
-   // }
+    VOLUME_FOR_EACH_PIXEL_FT(_WN)
+        if (REAL(_WN.getFT(i, j, k)) != 0)
+            _F.setFT(_F.getFT(i, j, k)
+                   * (1.0 / REAL(_WN.getFT(i, j, k))),
+                     i, j, k);
+   // meshReverse(_F);
+   /***
+   VOLUME_FOR_EACH_PIXEL_FT(_F)
+   {
+       _F.setFT(_F.getFT(i, j, k, conjugateNo) *
+                _W.getFT(i, j, k, conjugateNo),
+                i,
+                j,
+                k,
+               conjugateNo);
+   }
+   ***/
 
     display(1, "testFWC-after_F*_W");
     MPI_Barrier(world);
@@ -305,11 +329,13 @@ void Reconstructor::constructor(const char dst[])
                 i, j, k, res1, mkb, tik);
 #endif
 
+        /***
         if (r < _maxRadius) 
         {
             result.setRL((result.getRL(i, j, k) / MKB_RL(r / _nCol, _a, _alpha))
                                                 / TIK_RL(r / _nCol), i, j, k);
         }
+        ***/
 #ifdef DEBUGCONSTRUCTOR
         double res = result.getRL(i , j , k);
         fprintf(disfile2, "%5d : %5d : %5d\t %f\n",

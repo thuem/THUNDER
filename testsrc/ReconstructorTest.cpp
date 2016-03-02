@@ -12,9 +12,8 @@
 #include "Reconstructor.h"
 #include "FFT.h"
 
-#define N 64
-#define M 8
-
+#define N 32
+#define M 16
 
 #define DEBUGAFTERINSERT
 #define DEBUGAFTERALLREDUCE
@@ -118,7 +117,7 @@ int main(int argc, char* argv[])
     Image image(N, N, fourierSpace);
     // Image image(N, N, realSpace);
     
-    Reconstructor reconstructor(N, N, N, N, N, 2, 3.6);
+    Reconstructor reconstructor(N, N, N, N, N, 1, 1, 10);
 
     reconstructor.setCommRank(myid);
     reconstructor.setCommSize(numprocs);
@@ -126,14 +125,14 @@ int main(int argc, char* argv[])
     if (myid != server) {
         for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)
         {    
-            for (int j = 0; j < M; j++)
+            for (int j = 0; j < M / 2; j++)
             {
                 for (int i = 0; i < M; i++)
                 {
                     printf("%02d %02d %02d\n", i, j, k);
                     sprintf(name, "%02d%02d%02d.bmp", i, j, k);
                     Coordinate5D coord(2 * M_PI * i / M,
-                                       M_PI * j / M,
+                                       2 * M_PI * j / M,
                                        2 * M_PI * k / M,
                                        0,
                                        0);
@@ -164,7 +163,7 @@ int main(int argc, char* argv[])
         reconstructor.display(TESTNODE, "testFWC-afterinsert");
 #endif
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 3; i++) {
             reconstructor.allReduceW(workers);
             std::cout << "Round-" << i << ":       worker-" << workerid << "    :finised allreduce" << std::endl;
 #ifdef DEBUGAFTERALLREDUCE
@@ -183,6 +182,7 @@ int main(int argc, char* argv[])
 #endif
  
     if (myid == server) {
+    // if (myid == 1) {
         std::cout << "server-" << myid << ":          finised reduce" << std::endl;
         reconstructor.constructor("result.mrc");
         std::cout << "output success!" << std::endl;

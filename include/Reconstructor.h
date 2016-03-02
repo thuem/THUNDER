@@ -46,11 +46,15 @@ class Reconstructor
         Volume _W;
         Volume _C;
 
+        Volume _WN;
+
         vector<corWeight> _coordWeight;
         int _nColImg;
         int _nRowImg;
 
         int _maxRadius;
+
+        int _pf; // padding factor
 
     public:
 
@@ -61,6 +65,7 @@ class Reconstructor
                       const int nSlc,
                       const int nColImg,
                       const int nRowImg,
+                      const int pf,
                       const double a,
                       const double alpha);
 
@@ -77,6 +82,7 @@ class Reconstructor
                   const int nSlc,
                   const int nColImg,
                   const int nRowImg,
+                  const int pf,
                   const double a,
                   const double alpha);
 
