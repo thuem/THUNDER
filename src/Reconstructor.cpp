@@ -135,6 +135,9 @@ void Reconstructor::insert(const Image& src,
 
 void Reconstructor::allReduceW(MPI_Comm workers) 
 {
+    
+    initC();
+    
     vector<corWeight>::iterator iter;
     for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
@@ -198,10 +201,18 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                      j,
                      k,
                      conjugateNo);
-            _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+    //        _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
         }
     }
 
+}
+
+void Reconstructor::initC() 
+{
+    VOLUME_FOR_EACH_PIXEL_FT(_C)
+    {
+        _C.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+    }
 }
 
 
@@ -268,15 +279,15 @@ void Reconstructor::constructor(const char dst[])
 
 #ifdef DEBUGCONSTRUCTOR
         double res = result.getRL(i , j , k);
-        double mkb = MKB_RL(r, _a, _alpha);
-        double tik = TIK_RL(r);
+        double mkb = MKB_RL(r / _nCol, _a, _alpha);
+        double tik = TIK_RL(r / _nCol);
         fprintf(disfile, "%5d : %5d : %5d\t %f\t   %f\t   %f\t\n",
                 i, j, k, res, mkb, tik);
 #endif
         if (r < _maxRadius) 
         {
-            result.setRL((result.getRL(i, j, k) / MKB_RL(r, _a, _alpha))
-                                                / TIK_RL(r), i, j, k);
+            result.setRL((result.getRL(i, j, k) / MKB_RL(r / _nCol, _a, _alpha))
+                                                / TIK_RL(r / _nCol), i, j, k);
         }
     }
 
@@ -286,7 +297,7 @@ void Reconstructor::constructor(const char dst[])
 
     ImageFile imf;
     imf.readMetaData(result);
-    imf.display();
+    //imf.display();
     imf.writeImage(dst, result);
 }
 

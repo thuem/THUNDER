@@ -91,6 +91,8 @@ class Reconstructor
 
         void allReduceW(MPI_Comm workers);
 
+        void initC();
+
         void reduceF(int root,
                      MPI_Comm world);
 
