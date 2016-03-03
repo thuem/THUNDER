@@ -97,6 +97,14 @@ void ImageBase::clearFT()
     }
 }
 
+double norm(ImageBase& base)
+{
+    double sum = 0;
+    FOR_EACH_PIXEL_FT(base)
+        sum += ABS(base[i]);
+    return sqrt(sum);
+}
+
 void normalise(ImageBase& base)
 {
     gsl_vector vec;
@@ -104,13 +112,4 @@ void normalise(ImageBase& base)
     vec.data = &base(0);
 
     normalise(vec);
-}
-
-void invertContrast(ImageBase& base)
-{
-    gsl_vector vec;
-    vec.size = base.sizeRL();
-    vec.data = &base(0);
-
-    gsl_vector_scale(&vec, -1);
 }

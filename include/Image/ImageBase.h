@@ -29,6 +29,25 @@
 #define FOR_EACH_PIXEL_FT(base) \
     for (size_t i = 0; i < base.sizeFT(); i++)
 
+#define NEG_RL(base) \
+    FOR_EACH_PIXEL_RL(base) \
+        base(i) *= -1;
+
+#define ADD_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] += b[i]
+
+#define SUB_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] -= b[i]
+
+#define MUL_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] *= b[i]
+
+#define DIV_FT(a, b) \
+    FOR_EACH_PIXEL_FT(a) \
+        a[i] /= b[i]
 
 class ImageBase
 {
@@ -80,8 +99,8 @@ class ImageBase
         // free the memory storing Fourier Transform image
 };
 
-void normalise(ImageBase& base);
+double norm(ImageBase& base);
 
-void invertContrast(ImageBase& base);
+void normalise(ImageBase& base);
 
 #endif // IMAGE_BASE 
