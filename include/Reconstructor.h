@@ -36,8 +36,8 @@ class Reconstructor
         int _nRow;
         int _nSlc;
 
-        double _a = 2;
-        double _alpha = 3.6;
+        double _a = 1.9;
+        double _alpha = 15;
         
         int _commRank = 0;
         int _commSize = 1;
@@ -108,6 +108,9 @@ class Reconstructor
 
         void display(const int rank,
                      const char name[]);
+
+        double checkC() const;
+        /* calculate the distance between C and all 1 */
 };
 
 #endif //RECONSTRUCTOR_H

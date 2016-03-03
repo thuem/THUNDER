@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     Image image(N, N, fourierSpace);
     // Image image(N, N, realSpace);
     
-    Reconstructor reconstructor(N, N, N, N, N, 1, 1, 10);
+    Reconstructor reconstructor(N, N, N, N, N, 2, 1.9, 10);
 
     reconstructor.setCommRank(myid);
     reconstructor.setCommSize(numprocs);
@@ -171,6 +171,7 @@ int main(int argc, char* argv[])
             sprintf(name, "testFWC-afterallreduce%d", i);
             reconstructor.display(TESTNODE, name);
 #endif
+            std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
 
 

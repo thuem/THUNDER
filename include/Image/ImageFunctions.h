@@ -65,4 +65,8 @@ void extract(Image& dst,
              const int xOff,
              const int yOff);
 
+void slice(Image& dst,
+           const Volume& src,
+           const int iSlc);
+
 #endif // IMAGE_FUNCTIONS_H

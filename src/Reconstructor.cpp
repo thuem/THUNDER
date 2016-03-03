@@ -76,7 +76,7 @@ void Reconstructor::init(const int nCol,
 
     _pf = pf;
 
-    _maxRadius = floor(MIN_3(nCol, nRow, nSlc) / 2 - 1);
+    _maxRadius = floor(MIN_3(_pf * nCol, _pf * nRow, _pf * nSlc) / 2 - _pf * a);
 
     _F.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
     _W.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
@@ -137,7 +137,7 @@ void Reconstructor::insert(const Image& src,
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2), 
-                     _a, 
+                     _pf * _a, 
                      _alpha);
 
         if (norm(oldCor) < _maxRadius)
@@ -148,10 +148,12 @@ void Reconstructor::insert(const Image& src,
                      AROUND(oldCor(1)),
                      AROUND(oldCor(2)));
                      ***/
+            /***
             _WN.addFT(COMPLEX(1, 0),
                       AROUND(oldCor(0)),
                       AROUND(oldCor(1)),
                       AROUND(oldCor(2)));
+                      ***/
         }
     }
 }
@@ -160,7 +162,6 @@ void Reconstructor::allReduceW(MPI_Comm workers)
 {
     initC();
     
-    /***
     vector<corWeight>::iterator iter;
     for (iter = _coordWeight.begin(); iter != _coordWeight.end(); ++iter)
     {
@@ -183,12 +184,11 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                              oldCor(0),
                              oldCor(1),
                              oldCor(2),
-                             _a,
+                             _pf * _a,
                              _alpha);
             }
         }
     }
-    ***/
 
     MPI_Barrier(workers);
     MPI_Allreduce(MPI_IN_PLACE, 
@@ -251,13 +251,14 @@ void Reconstructor::initC()
 void Reconstructor::reduceF(int root,
                             MPI_Comm world) 
 {
+    /***
     VOLUME_FOR_EACH_PIXEL_FT(_WN)
         if (REAL(_WN.getFT(i, j, k)) != 0)
             _F.setFT(_F.getFT(i, j, k)
                    * (1.0 / REAL(_WN.getFT(i, j, k))),
                      i, j, k);
    // meshReverse(_F);
-   /***
+   // ***/
    VOLUME_FOR_EACH_PIXEL_FT(_F)
    {
        _F.setFT(_F.getFT(i, j, k, conjugateNo) *
@@ -267,7 +268,6 @@ void Reconstructor::reduceF(int root,
                 k,
                conjugateNo);
    }
-   ***/
 
     display(1, "testFWC-after_F*_W");
     MPI_Barrier(world);
@@ -319,23 +319,35 @@ void Reconstructor::constructor(const char dst[])
 
     VOLUME_FOR_EACH_PIXEL_RL(result)
     {     
-        double r = NORM_3(i, j, k);
+        double r = NORM_3(abs(i - _pf * _nCol / 2 + 0.5),
+                          abs(j - _pf * _nRow / 2 + 0.5),
+                          abs(k - _pf * _nSlc / 2 + 0.5))
+                 / (_pf * _nCol);
 
 #ifdef DEBUGCONSTRUCTOR
+        /***
         double res1 = result.getRL(i , j , k);
         double mkb = MKB_RL(r / _nCol, _a, _alpha);
         double tik = TIK_RL(r / _nCol);
         fprintf(disfile1, "%5d : %5d : %5d\t %f\t   %f\t   %f\t\n",
                 i, j, k, res1, mkb, tik);
+                ***/
 #endif
 
-        /***
-        if (r < _maxRadius) 
+        if (r < 0.5 / _pf)
         {
-            result.setRL((result.getRL(i, j, k) / MKB_RL(r / _nCol, _a, _alpha))
-                                                / TIK_RL(r / _nCol), i, j, k);
+            /***
+            result.setRL((result.getRL(i, j, k)
+                        / MKB_RL(r, _pf * _a, _alpha)
+                        / TIK_RL(r)),
+                         i,
+                         j,
+                         k);
+                         ***/
         }
-        ***/
+        else
+            result.setRL(0, i, j, k);
+
 #ifdef DEBUGCONSTRUCTOR
         double res = result.getRL(i , j , k);
         fprintf(disfile2, "%5d : %5d : %5d\t %f\n",
@@ -352,6 +364,10 @@ void Reconstructor::constructor(const char dst[])
     imf.readMetaData(result);
     //imf.display();
     imf.writeImage(dst, result);
+
+    Image img(_pf * _nCol, _pf * _nRow, realSpace);
+    slice(img, result, _pf * _nSlc / 2);
+    img.saveRLToBMP("slice.bmp");
 }
 
 
@@ -376,5 +392,17 @@ void Reconstructor::display(const int rank,
                 REAL(c), IMAG(c));
     }
     fclose(disfile);
+}
 
+double Reconstructor::checkC() const
+{
+    int counter = 0;
+    double diff = 0;
+    VOLUME_FOR_EACH_PIXEL_FT(_C)
+        if (NORM_3(i, j, k) < _maxRadius - _pf * _a)
+        {
+            counter += 1;
+            diff += abs(REAL(_C.getFT(i, j, k)) - 1);
+        }
+    return diff / counter;
 }
