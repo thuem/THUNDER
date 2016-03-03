@@ -76,7 +76,8 @@ void Reconstructor::init(const int nCol,
 
     _pf = pf;
 
-    _maxRadius = floor(MIN_3(_pf * nCol, _pf * nRow, _pf * nSlc) / 2 - _pf * a);
+    // _maxRadius = floor(MIN_3(_pf * nCol, _pf * nRow, _pf * nSlc) / 2 - _pf * a);
+    _maxRadius = floor(MIN_3(nCol, nRow, nSlc) / 2 - a);
 
     _F.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
     _W.alloc(_pf * _nCol, _pf * _nRow, _pf * _nSlc, fourierSpace);
@@ -130,14 +131,24 @@ void Reconstructor::insert(const Image& src,
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         vec3 newCor = {i, j, 0};
-        vec3 oldCor = _pf * mat * newCor;
+        // vec3 oldCor = _pf * mat * newCor;
+        vec3 oldCor = mat * newCor;
         
+        /***
         if (norm(oldCor) < _maxRadius)
             _F.addFT(transSrc.getFT(i, j) * u * v, 
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2), 
                      _pf * _a, 
+                     _alpha);
+                     ***/
+        if (norm(oldCor) < _maxRadius)
+            _F.addFT(transSrc.getFT(i, j) * u * v, 
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2), 
+                     _a, 
                      _alpha);
 
         if (norm(oldCor) < _maxRadius)
@@ -173,7 +184,8 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             for (int i = 0; i <= _nColImg / 2; i++)
             {
                 vec3 newCor = {i, j, 0};
-                vec3 oldCor = _pf * mat * newCor;
+                // vec3 oldCor = _pf * mat * newCor;
+                vec3 oldCor = mat * newCor;
 
                 if (norm(oldCor) < _maxRadius)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
@@ -184,7 +196,8 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                              oldCor(0),
                              oldCor(1),
                              oldCor(2),
-                             _pf * _a,
+                             // _pf * _a,
+                             _a,
                              _alpha);
             }
         }
@@ -266,7 +279,7 @@ void Reconstructor::reduceF(int root,
                 i,
                 j,
                 k,
-               conjugateNo);
+                conjugateNo);
    }
 
     display(1, "testFWC-after_F*_W");
@@ -319,9 +332,9 @@ void Reconstructor::constructor(const char dst[])
 
     VOLUME_FOR_EACH_PIXEL_RL(result)
     {     
-        double r = NORM_3(abs(i - _pf * _nCol / 2 + 0.5),
-                          abs(j - _pf * _nRow / 2 + 0.5),
-                          abs(k - _pf * _nSlc / 2 + 0.5))
+        double r = NORM_3(abs(i - _pf * _nCol / 2),
+                          abs(j - _pf * _nRow / 2),
+                          abs(k - _pf * _nSlc / 2))
                  / (_pf * _nCol);
 
 #ifdef DEBUGCONSTRUCTOR
@@ -336,14 +349,13 @@ void Reconstructor::constructor(const char dst[])
 
         if (r < 0.5 / _pf)
         {
-            /***
             result.setRL((result.getRL(i, j, k)
-                        / MKB_RL(r, _pf * _a, _alpha)
+                        // / MKB_RL(r, _pf * _a, _alpha)
+                        / MKB_RL(r, _a, _alpha)
                         / TIK_RL(r)),
                          i,
                          j,
                          k);
-                         ***/
         }
         else
             result.setRL(0, i, j, k);

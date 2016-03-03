@@ -60,19 +60,19 @@
     obj.clearFT(); \
 }
 
-#define R2C_RL(obj, function) \
+#define R2C_RL(dst, src, function) \
     [&]() mutable \
     { \
         function; \
         FFT fft; \
-        fft.fw(obj); \
+        fft.fw(dst); \
     }()
 
-#define C2R_RL(obj, function) \
+#define C2R_RL(dst, src, function) \
     [&]() mutable \
     { \
         FFT fft; \
-        fft.bw(obj); \
+        fft.bw(src); \
         function; \
     }()
 
@@ -94,20 +94,20 @@
         fft.bw(dst); \
     }()
 
-#define R2C_FT(obj, function) \
+#define R2C_FT(dst, src, function) \
     [&]() mutable \
     { \
         FFT fft; \
-        fft.fw(obj); \
+        fft.fw(src); \
         function; \
     }()
 
-#define C2R_FT(obj, function) \
+#define C2R_FT(dst, src, function) \
     [&]() mutable \
     { \
         function; \
         FFT fft; \
-        fft.bw(obj); \
+        fft.bw(dst); \
     }()
 
 class FFT

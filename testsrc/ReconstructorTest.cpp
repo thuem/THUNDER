@@ -11,9 +11,10 @@
 #include "Projector.h"
 #include "Reconstructor.h"
 #include "FFT.h"
+#include "Mask.h"
 
-#define N 32
-#define M 16
+#define N 64
+#define M 32
 
 #define DEBUGAFTERINSERT
 #define DEBUGAFTERALLREDUCE
@@ -137,6 +138,7 @@ int main(int argc, char* argv[])
                                        0,
                                        0);
                     projector.project(image, coord);
+                    // C2C_RL(image, image, softMask(image, N / 4, 2));
                     reconstructor.insert(image, coord, 1, 1);
                     /***
                     FFT fft;
