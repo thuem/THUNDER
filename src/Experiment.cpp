@@ -49,30 +49,3 @@ void Experiment::particleIDsGroup(vector<int>& dst,
 }
 
 
-void Experiment::getMicrographIDs(vector<int>& dst ,
-                                  const int  start,
-                                  const int  end)
-{
-    dst.clear();
-    GET_MIC_ID(dst,  start, end);  // ???
-    // 
-}
-
-void Experiment::getMicrographName(char  *micName, 
-                                    int  micrographID )
-{
-    
-    GET_MIC_NAME(micName, micrographID);  // ???
-    // 
-}
-
-
-void Experiment::getParticleInfo(const int  micrographID ,
-                                 const int  particleID ,
-                                 int  & x,
-                                 int  & y  )
-{
-    
-    GET_PARTICLE_INFO( micrographID, particleID, x, y);  // ???
-    // 
-}

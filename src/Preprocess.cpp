@@ -2,107 +2,202 @@
 #include "Experiment.h"
 
 /* TODO list: 
-
-  1  normalise() : how to fill the parameter?
-  2  GET_PARTICLE_INFO:  how to write Lambda function and where to get x, y?
   3  invert is not implemented yet
   4  OMP #pragma is not written yet
+
+
+  X1  normalise() : how to fill the parameter?
+  X2  GET_PARTICLE_INFO:  how to write Lambda function and where to get x, y?
 */
 
-Preprocess::Preprocess();
 
-Preprocess::Preprocess(const PREPROCESS_PARA& para,
-                                      Experiment* exp)
+Preprocess::Preprocess()
+{
+
+}
+
+Preprocess::Preprocess(PREPROCESS_PARA& para,
+                       Experiment* exp)
 {
     _para = para;
     _exp = exp;
 }
 
 
+PREPROCESS_PARA& Preprocess::getPara()  
+{
+    return  _para;  // protected?
+}
+
+void Preprocess::setPara(PREPROCESS_PARA& para)  
+{
+    _para = para;    
+}
+
+
+
 void Preprocess::extractParticles(const int micrographID)
 {
-	// x, y
-	// micrograph
-	// _exp
-	// save
+    // x, y
+    // micrograph
+    // _exp
+    // save
     
-    char    micName[FILE_NAME_LENGTH];
-    char    particleName[FILE_NAME_LENGTH];
-	
-	vector<int> particleIDs;
+    char micName[FILE_NAME_LENGTH];
+    char particleName[FILE_NAME_LENGTH];    
 
-    _exp->getMicrographName( micName, micrographID   );
-	if ( ! exists(micName) )
+    getMicrographName(micName, micrographID);
+    if ( 0 != ::access(micName, F_OK) )
     {
-    	char msg[256];
-    	sprintf("[Error] %s doesn't exists .\n",  micName);
-        REPORT_ERROR("");
-        
+        char msg[256];
+        sprintf(msg, "[Error] micrograph file %s doesn't exists .\n", micName);
+        REPORT_ERROR(msg);        
         return ;
     };
 
     // get all particleID;
-	_exp->particleIDsMicrograph(particleIDs,  micrographID );
-	if  (particleIDs.size() ==0 )
-	{
-		return ;
-	}
+    vector<int> particleIDs;
+    _exp->particleIDsMicrograph(particleIDs, micrographID);
+    if (particleIDs.size() == 0)
+    {
+        return ;
+    }
  
-    ImageFile micrographFile(fnMic, "rb");
-	Image micrograph;
+    ImageFile micrographFile(micName, "rb");
+    Image micrograph;
 
-	//  read micrograph image 
-	//  ???? what's slc meaning? how to determine its value ?		
-	micrographFile.readImageMRC(micrograph, 0);    
+    //  read micrograph image 
+    micrographFile.readImage(micrograph, 0);    
     
     ImageFile particleFile;
-    Image particle(para->nCol, para->nRow, realSpace);
+    Image particle(_para.nCol, _para.nRow, realSpace);
 
-	for (int i = 0; i < particleIDs.size(); i++)
-	{
-		int xOff, yOff;
+
+    #pragma omp parallel for
+    for (int i = 0; i < particleIDs.size(); i++)
+    {
+        int xOff, yOff;
 
         // extractPartcilesInMicrograph(micrographImage, particleIDs[i], particleImage  );
-		
-		_exp->getParticleInfo(micrographID, xOff, yOff);
+        getParticleXOffYOff(xOff, yOff, particleName, particleIDs[i]);
 
-		/***
-        x0= x-  (_para->nParticleSize /2);
-        y0= y-  (_para->nParticleSize /2);
-        x1= x0+_para->nParticleSize;
-        y1= y0+_para->nParticleSize;
-        ***/
+        extract(particle, micrograph, xOff, yOff);
 
-        extract(particle, micrograph, xOff, yOff)
+        if (_para.doNormalise)
+        {
+            normalise(particle,
+                      _para.wDust,
+                      _para.bDust,
+                      _para.r);  
+        }
 
-        // particleImage=  window(micrographImage, x0, y0, x1, y1);    
+        if (_para.doInvertConstrast )
+        {
+            invertContrast(particle);
+            //negView(particle);
+        }
 
-        normalise(particle,
-                  para->wDust,
-                  para->bDust,
-                  para->r);  // ???
+        particleFile.writeImage(particleName, particle);
 
-		// sprintf( particleName, "%s/%d.mrc", micName, i);
-		particleFile.writeImageMRC(particleName,  particleImage  );
+    }    
+}
 
-	}
 
+
+void Preprocess::getMicrographIDs(vector<int>& dst )
+{
+    dst.clear();
+    //GET_MIC_ID(dst,  start, end);  // ???
+
+    char sql[128]; 
+    sprintf(sql, "select ID from micrographs;"); 
+
+    _exp->execute(sql,
+                  SQLITE3_CALLBACK
+                  {
+                      ((vector<int>*)data)
+                      ->push_back(atoi(values[0]));
+                      return 0;
+                  },
+                  &dst); 
+     
+}
+
+
+
+void Preprocess::getMicrographName(char  micrographName[], 
+                                   const int  micrographID )
+{
+    
+    //GET_MIC_NAME(micName, micrographID);  // ???
+    char sql[128]; 
+
+    if (micrographName == NULL)
+    {
+        REPORT_ERROR("Micrograph name pointer is NULL!\n");
+        return ;
+    }
+
+    sprintf(sql, "select Name from micrographs where ID = %d;", micrographID); 
+
+    _exp->execute(sql,
+                  SQLITE3_CALLBACK
+                  {
+                      sprintf( (char *)data , "%s", values[0]); 
+                      return 0;
+                  },
+                  micrographName);
+    
+}
+
+
+void Preprocess::getParticleXOffYOff(int& xOff,
+                                     int& yOff,
+                                     char particleName[], 
+                                     const int particleID                                     
+                                     )
+{
+    
+   // GET_PARTICLE_INFO( micrographID, particleID, x, y);  // ???
+
+    PARTICLE_INFO info; 
+    char sql[128]; 
+    sprintf(sql, 
+            "select XOff, YOFF, particleName from particles "
+            "where ID = %d;", 
+            particleID); 
+
+    _exp->execute(sql,
+                  SQLITE3_CALLBACK
+                  {
+                      ((PARTICLE_INFO*)data)->x = atoi(values[0]);  
+                      ((PARTICLE_INFO*)data)->y = atoi(values[1]);  
+                      sprintf(  ((PARTICLE_INFO*)data)->particleName,"%s", values[2]);  
+                      return 0;
+                  },
+                  &info);
+
+    xOff = info.x;
+    yOff = info.y;
+    sprintf(particleName, "%s", info.particleName); 
     
 }
 
 
 
-void Preprocess::run(int start, 
-	                 int end )
+void Preprocess::run()
 {   
-	// get all micrographID;
-	vector<int> micrographIDs;
+    // get all micrographID;
+    //vector<int> micrographIDs;
 
-	_exp->getMicrographIDs(micrographIDs ,start, end  );
-	
-	for (int i = 0; i < micrographIDs.size(); i++)
-	{		
-		extractPartciles(micrographIDs[i]);		
-	}
-
+    getMicrographIDs(_micrographIDs);
+    
+    //#pragma omp parallel for
+    for (int i = 0; i < _micrographIDs.size(); i++)
+    {
+        extractParticles(_micrographIDs[i]);
+    }
 }
+
+
+
