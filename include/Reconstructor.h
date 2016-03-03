@@ -2,7 +2,6 @@
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
-//#include <float.h>
 #include <armadillo>
 #include <utility>
 #include <vector>
