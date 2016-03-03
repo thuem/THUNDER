@@ -17,16 +17,16 @@ double background(const Volume& vol,
     double weightSum = 0;
     double sum = 0;
 
-    VOLUME_FOR_EACH_PIXEL_RL(volume)
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
-        double u = NORM_3(abs(i - vol.nCol() / 2),
-                          abs(j - vol.nRow() / 2),
-                          abs(k - vol.nSlc() / 2));
+        double u = NORM_3(abs(i - vol.nColRL() / 2),
+                          abs(j - vol.nRowRL() / 2),
+                          abs(k - vol.nSlcRL() / 2));
 
         if (u > r + ew)
         {
             weightSum += 1;
-            sum += volume.getRL(i, j, k);
+            sum += vol.getRL(i, j, k);
         }
         else if (u >= r)
         {
@@ -39,17 +39,17 @@ double background(const Volume& vol,
     return sum / weightSum;
 }
 
-double background(const Volume& volume,
+double background(const Volume& vol,
                   const Volume& alpha)
 {
     double weightSum = 0;
     double sum = 0;
 
-    VOLUME_FOR_EACH_PIXEL_RL(volume)
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         double w = 1 - alpha.getRL(i, j, k);
         weightSum += w;
-        sum += volume.getRL(i, j, k) * w;
+        sum += vol.getRL(i, j, k) * w;
     }
 
     return sum / weightSum;
@@ -61,8 +61,8 @@ void softMask(Image& img,
 {
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
-        double u = NORM(abs(i - vol.nCol() / 2),
-                        abs(j - vol.nRow() / 2));
+        double u = NORM(abs(i - img.nColRL() / 2),
+                        abs(j - img.nRowRL() / 2));
         if (u > r + ew)
             img.setRL(0, i, j);
         else if (u >= r)
@@ -75,21 +75,23 @@ void softMask(Image& img,
 
 void softMask(Volume& dst,
               const Volume& src,
-              const double radius,
-              const double edgeWidth)
+              const double r,
+              const double ew)
 {
-    double bg = background(src, radius, edgeWidth);
+    double bg = background(src, r, ew);
 
-    VOLUME_FOR_EACH_PIXEL(src)
+    VOLUME_FOR_EACH_PIXEL_RL(src)
     {
-        double r = NORM_3(i, j, k);
+        double u = NORM_3(abs(i - src.nColRL() / 2),
+                          abs(j - src.nRowRL() / 2),
+                          abs(k - src.nSlcRL() / 2));
 
-        if (r >= radius + edgeWidth)
+        if (u > r + ew)
             dst.setRL(bg, i, j, k);
-        else if (r >= radius)
+        else if (u >= r)
         {
-            double w = 0.5 - 0.5 * cos((r - radius) / edgeWidth * M_PI);
-            dst.setRL(linear(bg, src.get(i, j, k), w), i, j, k);
+            double w = 0.5 - 0.5 * cos((r - r) / ew * M_PI);
+            dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
         }
     }
 }
@@ -100,18 +102,19 @@ void softMask(Volume& dst,
 {
     double bg = background(src, alpha);
 
-    VOLUME_FOR_EACH_PIXEL(src)
+    VOLUME_FOR_EACH_PIXEL_RL(src)
     {
-        double w = 1 - alpha.get(i, j, k);
-        dst.set(linear(bg, src.get(i, j, k), w), i, j, k);
+        double w = 1 - alpha.getRL(i, j, k);
+        dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
     }
 }
 
+/***
 void generateMask(Volume& dst,
                   const Volume& src,
                   const double densityThreshold)
 {
-    VOLUME_FOR_EACH_PIXEL(src)
+    VOLUME_FOR_EACH_PIXEL_RL(src)
         if (src.get(i, j, k) > densityThreshold)
             dst.set(1, i, j, k);
         else
@@ -136,7 +139,7 @@ void generateMask(Volume& dst,
                     for (int y = -ext; y < ext; y++)
                         for (int x = -ext; x < ext; x++)
                             if ((x * x + y * y + z * z) < extend * extend)
-                                dstTmp.set(1, i + x, j + y, k + z);
+                                dstTmp.setRL(1, i + x, j + y, k + z);
     else if (extend < 0)
         VOLUME_FOR_EACH_PIXEL(dst)
             if (dst.get(i, j, k) == 0)
@@ -144,7 +147,7 @@ void generateMask(Volume& dst,
                     for (int y = -ext; y < ext; y++)
                         for (int x = -ext; x < ext; x++)
                             if ((x * x + y * y + z * z) < extend * extend)
-                                dstTmp.set(0, i + x, j + y, k + z);
+                                dstTmp.setRL(0, i + x, j + y, k + z);
 
     dst = dstTmp;
 }
@@ -153,11 +156,11 @@ void generateMask(Volume& dst,
                   const Volume& src,
                   const double densityThreshold,
                   const double extend,
-                  const double edgeWidth)
+                  const double ew)
 {
     generateMask(dst, src, densityThreshold, extend);
 
-    int ew = ceil(edgeWidth);
+    int ew = ceil(ew);
 
     auto distance = [&dst, ew](const double i,
                                const double j,
@@ -178,7 +181,8 @@ void generateMask(Volume& dst,
     VOLUME_FOR_EACH_PIXEL(dst)
     {
         double d = distance(i, j, k);
-        if ((dst.get(i, j, k) != 1) && (d < edgeWidth))
-            dst.set(0.5 + 0.5 * cos(d / edgeWidth * M_PI), i, j, k);
+        if ((dst.get(i, j, k) != 1) && (d < ew))
+            dst.set(0.5 + 0.5 * cos(d / ew * M_PI), i, j, k);
     }
 }
+***/
