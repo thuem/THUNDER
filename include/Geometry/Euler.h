@@ -23,11 +23,17 @@ void rotate2D(mat22& dst, const double phi);
 // phi is radius, not degree.
 // dst should be 2x2 matrix.
 
-void normalVector(vec3& dst,
-                  const double phi,
-                  const double theta);
+void direction(vec3& dst,
+               const double phi,
+               const double theta);
 // Return the direction of (phi, theta)
 // dst should be a 3-vector.
+
+void angle(double& phi,
+           double& theta,
+           const vec3& src);
+/* Return phi and theta given the direction 
+ * src should be a 3-vector */
 
 void rotate3D(mat33& dst,
               const double phi,
