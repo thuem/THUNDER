@@ -104,9 +104,11 @@ double norm(ImageBase& base)
 
 void normalise(ImageBase& base)
 {
+    /***
     gsl_vector vec;
     vec.size = base.sizeRL();
     vec.data = &base(0);
 
     normalise(vec);
+    ***/
 }
