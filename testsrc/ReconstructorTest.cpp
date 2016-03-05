@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 
     }
 
-    reconstructor.reduceF(0, world);
+    reconstructor.allReduceF(world);
 #ifdef DEBUGAFTERREDUCEF
     reconstructor.display(server, "testFWC-afterreduceF");
 #endif

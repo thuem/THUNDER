@@ -24,8 +24,6 @@
 #include "ImageFunctions.h"
 #include "ImageFile.h"
 
-#define DEBUGCONSTRUCTOR
-
 using namespace std;
 using namespace arma;
 
@@ -34,12 +32,6 @@ class Reconstructor
     private:
 
         int _size;
-
-        /***
-        int _nCol;
-        int _nRow;
-        int _nSlc;
-        ***/
 
         double _a = 1.9;
         double _alpha = 15;
@@ -51,14 +43,7 @@ class Reconstructor
         Volume _W;
         Volume _C;
 
-        // Volume _WN;
-
         vector<Coordinate5D> _coord;
-
-        /***
-        int _nColImg;
-        int _nRowImg;
-        ***/
 
         int _maxRadius;
 
@@ -73,38 +58,12 @@ class Reconstructor
                       const double a = 1.9,
                       const double alpha = 15);
 
-        /***
-        Reconstructor(const int nCol,
-                      const int nRow,
-                      const int nSlc,
-                      const int nColImg,
-                      const int nRowImg,
-                      const int pf,
-                      const double a,
-                      const double alpha);
-                      ***/
-
-        // Reconstructor(const Reconstructor& that);
-
         ~Reconstructor();
-
-        // Reconstructor& operator=(const Reconstructor& that);
 
         void init(const int size,
                   const int pf,
                   const double a = 1.9,
                   const double alpha = 15);
-
-        /***
-        void init(const int nCol,
-                  const int nRow,
-                  const int nSlc,
-                  const int nColImg,
-                  const int nRowImg,
-                  const int pf,
-                  const double a,
-                  const double alpha);
-                  ***/
 
         void setCommRank(const int commRank);
         void setCommSize(const int commSize);
@@ -116,12 +75,7 @@ class Reconstructor
 
         void allReduceW(MPI_Comm workers);
 
-        // void initC();
-
-        void reduceF(int root,
-                     MPI_Comm world);
-
-        void getF(Volume& dst);
+        void allReduceF(MPI_Comm world);
 
         void constructor(const char dst[]);
 
@@ -129,7 +83,7 @@ class Reconstructor
                      const char name[]);
 
         double checkC() const;
-        /* calculate the distance between C and all 1 */
+        /* calculate the distance between C and 1 */
 };
 
 #endif //RECONSTRUCTOR_H
