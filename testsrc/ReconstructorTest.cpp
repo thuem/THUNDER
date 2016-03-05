@@ -161,18 +161,9 @@ int main(int argc, char* argv[])
             }
         }
 
-#ifdef DEBUGAFTERINSERT
-        reconstructor.display(TESTNODE, "testFWC-afterinsert");
-#endif
-
         for (int i = 0; i < 3; i++) {
             reconstructor.allReduceW(workers);
             std::cout << "Round-" << i << ":       worker-" << workerid << "    :finised allreduce" << std::endl;
-#ifdef DEBUGAFTERALLREDUCE
-            char name[256];
-            sprintf(name, "testFWC-afterallreduce%d", i);
-            reconstructor.display(TESTNODE, name);
-#endif
             std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
 
@@ -180,9 +171,6 @@ int main(int argc, char* argv[])
     }
 
     reconstructor.allReduceF(world);
-#ifdef DEBUGAFTERREDUCEF
-    reconstructor.display(server, "testFWC-afterreduceF");
-#endif
  
     if (myid == server) {
     // if (myid == 1) {
