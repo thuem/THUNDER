@@ -12,6 +12,7 @@
 #define TRANSFORMATION_H
 
 #include <cmath>
+#include <iostream>
 
 #include <armadillo>
 
@@ -28,25 +29,27 @@
 
 using namespace arma;
 
-#define VOL_TRANSFORM_RL(dst, src, mat, r) \
-[](Volume& _dst, const Volume& _src, const mat33 mat, const double _r)\
+#define VOL_TRANSFORM_RL(dst, src, MAT, MAT_GEN, r) \
+[](Volume& _dst, const Volume& _src, const double _r)\
 { \
-    VOLUME_FOR_EACH_PIXEL_RL(dst) \
+    mat33 MAT; \
+    MAT_GEN; \
+    VOLUME_FOR_EACH_PIXEL_RL(_dst) \
     { \
         vec3 newCor = {i, j, k}; \
-        vec3 oldCor = mat * newCor; \
-        if (norm(oldCor) < r) \
-            dst.setRL(src.getByInterpolationRL(oldCor(0), \
-                                               oldCor(1), \
-                                               oldCor(2), \
-                                               LINEAR_INTERP), \
+        vec3 oldCor = (MAT) * newCor; \
+        if (norm(oldCor) < _r) \
+            _dst.setRL(_src.getByInterpolationRL(oldCor(0), \
+                                                 oldCor(1), \
+                                                 oldCor(2), \
+                                                 LINEAR_INTERP), \
                       i, \
                       j, \
                       k); \
         else \
-            dst.setRL(0, i, j, k); \
+            _dst.setRL(0, i, j, k); \
     } \
-}(dst, src, mat, r)
+}(dst, src, r)
 
 void alignZ(mat33& dst,
             const vec3& vec);

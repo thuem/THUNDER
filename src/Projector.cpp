@@ -62,8 +62,6 @@ void Projector::setProjectee(const Volume& src)
 {
     _projectee = src;
 
-    // meshReverse(_projectee);
-
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),
                              _projectee.nSlcRL()) / 2 - 1);
@@ -89,8 +87,6 @@ void Projector::project(Image& dst,
         else
             dst.setFT(COMPLEX(0, 0), i, j);
     }
-
-    // meshReverse(dst);
 }
 
 void Projector::project(Image& dst,

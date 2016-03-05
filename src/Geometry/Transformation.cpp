@@ -33,12 +33,6 @@ void alignZ(mat33& dst,
         dst(1, 1) = z / pYZ;
         dst(1, 2) = -y / pYZ;
 
-        /***
-        dst(2, 0) = x / p;
-        dst(2, 1) = y / p;
-        dst(2, 2) = z / p;
-        ***/
-
         dst.row(2) = vec / p;
     }
     else
@@ -47,20 +41,6 @@ void alignZ(mat33& dst,
         dst(0, 2) = -1;
         dst(1, 1) = 1;
         dst(2, 0) = 1;
-
-        /***
-        dst(0, 0) = 0;
-        dst(0, 1) = 0;
-        dst(0, 2) = -1;
-
-        dst(1, 0) = 0;
-        dst(1, 1) = 1;
-        dst(1, 2) = 0;
-
-        dst(2, 0) = 1;
-        dst(2, 1) = 0;
-        dst(2, 2) = 0;
-        ***/
     }
 }
 
@@ -71,13 +51,13 @@ void rotate3D(mat33& dst,
     switch (axis)
     {
         case 'X':
-            rotate3DX(dst, phi);
+            rotate3DX(dst, phi); break;
         
         case 'Y':
-            rotate3DY(dst, phi);
+            rotate3DY(dst, phi); break;
         
         case 'Z':
-            rotate3DZ(dst, phi);
+            rotate3DZ(dst, phi); break;
     }
 }
 
@@ -112,14 +92,6 @@ void translate3D(mat44& dst,
 {
     dst.eye();
     dst.col(3).head(3) = vec;
-
-    /***
-    dst.identity();
-
-    dst.set(vec.get(0), 0, 3);
-    dst.set(vec.get(1), 1, 3);
-    dst.set(vec.get(2), 2, 3);
-    ***/
 }
 
 void scale3D(mat33& dst,
@@ -127,9 +99,4 @@ void scale3D(mat33& dst,
 {
     dst.zeros();
     dst.diag() = vec;
-
-    /***
-    for (int i = 0; i < 3; i++)
-        dst.set(vec.get(i), i, i);
-    ***/
 }

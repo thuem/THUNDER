@@ -12,6 +12,7 @@ AM_CXXFLAGS += -fPIC -std=c++11
 noistdir = .
 
 noist_PROGRAMS = FunctionsTest \
+				 TransformationTest \
 				 ImageFunctionsTest \
 				 ProjectorTest \
 				 ReconstructorTest \
@@ -21,6 +22,9 @@ THUEMLIBS = ../libthuem.a
 
 FunctionsTest_SOURCES = ../testsrc/FunctionsTest.cpp
 FunctionsTest_LDADD = ${THUEMLIBS}
+
+TransformationTest_SOURCES = ../testsrc/TransformationTest.cpp
+TransformationTest_LDADD = ${THUEMLIBS}
 
 ImageFunctionsTest_SOURCES = ../testsrc/ImageFunctionsTest.cpp
 ImageFunctionsTest_LDADD = ${THUEMLIBS}
