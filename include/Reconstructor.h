@@ -79,9 +79,6 @@ class Reconstructor
 
         void constructor(const char dst[]);
 
-        void display(const int rank,
-                     const char name[]);
-
         double checkC() const;
         /* calculate the distance between C and 1 */
 };

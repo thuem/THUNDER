@@ -135,7 +135,6 @@ void Reconstructor::allReduceF(MPI_Comm world)
 {
     MUL_FT(_F, _W);
 
-    // display(1, "testFWC-after_F*_W");
     MPI_Barrier(world);
 
     MPI_Allreduce(MPI_IN_PLACE, 
@@ -175,28 +174,6 @@ void Reconstructor::constructor(const char dst[])
     ImageFile imf;
     imf.readMetaData(result);
     imf.writeVolume(dst, result);
-}
-
-void Reconstructor::display(const int rank, 
-                            const char name[])
-{
-    if (_commRank != rank)
-        return;
-
-    FILE *disfile = fopen(name, "w");
-    
-    VOLUME_FOR_EACH_PIXEL_FT(_W)
-    {
-        Complex f = _F.getFT(i , j , k, conjugateNo);
-        Complex w = _W.getFT(i , j , k, conjugateNo);
-        Complex c = _C.getFT(i , j , k, conjugateNo);
-        fprintf(disfile, "%5d : %5d : %5d\t %12f,%12f\t   %12f,%12f\t   %12f,%12f\t\n",
-                i, j, k,
-                REAL(f), IMAG(f),
-                REAL(w), IMAG(w),
-                REAL(c), IMAG(c));
-    }
-    fclose(disfile);
 }
 
 double Reconstructor::checkC() const
