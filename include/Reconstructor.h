@@ -29,8 +29,6 @@
 using namespace std;
 using namespace arma;
 
-typedef pair<Coordinate5D, double> corWeight;
-
 class Reconstructor
 {
     private:
@@ -55,7 +53,7 @@ class Reconstructor
 
         // Volume _WN;
 
-        vector<corWeight> _coordWeight;
+        vector<Coordinate5D> _coord;
 
         /***
         int _nColImg;
@@ -118,7 +116,7 @@ class Reconstructor
 
         void allReduceW(MPI_Comm workers);
 
-        void initC();
+        // void initC();
 
         void reduceF(int root,
                      MPI_Comm world);
