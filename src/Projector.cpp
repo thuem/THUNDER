@@ -80,14 +80,12 @@ void Projector::project(Image& dst,
         // std::cout << oldCor << std::endl;
 
         if (norm(oldCor) < _maxRadius)
-        {
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
                                                       oldCor(1),
                                                       oldCor(2),
                                                       _interp),
                       i,
                       j);
-        }
         else
             dst.setFT(COMPLEX(0, 0), i, j);
     }

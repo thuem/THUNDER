@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Kongkun Yu, Mingxu Hu
  * Dependency:
  * Test:
  * Execution:
@@ -53,7 +53,6 @@ double MKB_RL(const double r,
     else
         return w * gsl_sf_bessel_Jnu(3.5, v);
 }
-
 
 double TIK_RL(const double r)
 {

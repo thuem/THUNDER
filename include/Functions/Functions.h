@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu
  * Dependency:
  * Test:
  * Execution:
@@ -38,16 +38,15 @@ double MKB_FT(const double r,
               const double a,
               const double alpha);
 /* Modified Kaiser Bessel Function, m = 2 */
-/* Typically, a = 2.0 and alpha = 3.6 */
+/* Typically, a = 1.9 and alpha = 10 */
 
 double MKB_RL(const double r,
               const double a,
               const double alpha);
 /* Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3 */
-/* Typically, a = 2.0 and alpha = 3.6 */
+/* Typically, a = 1.9 and alpha = 10 */
 
 double TIK_RL(const double r);
 /* Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function */
-
 
 #endif // FUNCTIONS_H
