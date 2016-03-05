@@ -61,23 +61,85 @@ struct ImageMetaData
         } \
     }()
 
-#define READ_CAST(dst, type) \
+#define IMAGE_INDEX(i, j, nCol) \
+    j * (nCol) + i
+
+#define VOLUME_INDEX(i, j, k, nCol, nRow) \
+    k * (nCol) * (nRow) + j * (nCol) + i
+
+#define MESH_IMAGE_INDEX(i, j, nCol, nRow) \
+    (j + (nRow) / 2) % (nRow) * (nCol) + (i + (nCol) / 2) % (nCol)
+
+#define MESH_VOLUME_INDEX(i, j, k, nCol, nRow, nSlc) \
+    (k + (nSlc) / 2) % (nSlc) * (nRow) * (nCol) \
+  + (j + (nRow) / 2) % (nRow) * (nCol) \
+  + (i + (nCol) / 2) % (nCol)
+
+#define IMAGE_READ_CAST(dst, type) \
     [this, &dst]() \
     { \
         type* unCast = new type[dst.sizeRL()]; \
         if (fread(unCast, 1, dst.sizeRL() * sizeof(type), _file) == 0) \
             REPORT_ERROR("Fail to read in an image."); \
-        for (size_t i = 0; i < dst.sizeRL(); i++) \
-            dst(i) = (double)unCast[i]; \
+        for (int j = 0; j < dst.nRowRL(); j++) \
+            for (int i = 0; i < dst.nColRL(); i++) \
+                dst(IMAGE_INDEX(i, j, dst.nColRL())) \
+              = (double)unCast[MESH_IMAGE_INDEX(i, \
+                                                j, \
+                                                dst.nColRL(), \
+                                                dst.nRowRL())]; \
         delete[] unCast; \
     }()
 
-#define WRITE_CAST(src, type) \
+#define VOLUME_READ_CAST(dst, type) \
+    [this, &dst]() \
+    { \
+        type* unCast = new type[dst.sizeRL()]; \
+        if (fread(unCast, 1, dst.sizeRL() * sizeof(type), _file) == 0) \
+            REPORT_ERROR("Fail to read in an image."); \
+        for (int k = 0; k < dst.nSlcRL(); k++) \
+            for (int j = 0; j < dst.nRowRL(); j++) \
+                for (int i = 0; i < dst.nColRL(); i++) \
+                    dst(VOLUME_INDEX(i, j, k, dst.nColRL(), dst.nRowRL())) \
+                  = (double)unCast[MESH_VOLUME_INDEX(i, \
+                                                     j, \
+                                                     k, \
+                                                     dst.nColRL(), \
+                                                     dst.nRowRL(), \
+                                                     dst.nSlcRL())];  \
+        delete[] unCast; \
+    }()
+
+#define IMAGE_WRITE_CAST(src, type) \
     [this, &src]() \
     { \
         type* cast = new type[src.sizeRL()]; \
-        for (size_t i = 0; i < src.sizeRL(); i++) \
-            cast[i] = (type)src.getRL(i); \
+        for (int j = 0; j < src.nRowRL(); j++) \
+            for (int i = 0; i < src.nColRL(); i++) \
+                cast[IMAGE_INDEX(i, j, src.nColRL())] \
+              = (type)src.iGetRL(MESH_IMAGE_INDEX(i, \
+                                                  j, \
+                                                  src.nColRL(), \
+                                                  src.nRowRL())); \
+        if (fwrite(cast, 1, src.sizeRL() * sizeof(type), _file) == 0) \
+            REPORT_ERROR("Fail to write in an image."); \
+        delete[] cast; \
+    }()
+
+#define VOLUME_WRITE_CAST(src, type) \
+    [this, &src]() \
+    { \
+        type* cast = new type[src.sizeRL()]; \
+        for (int k = 0; k < src.nSlcRL(); k++) \
+            for (int j = 0; j < src.nRowRL(); j++) \
+                for (int i = 0; i < src.nColRL(); i++) \
+                    cast[VOLUME_INDEX(i, j, k, src.nColRL(), src.nSlcRL())] \
+                  = (type)src.iGetRL(MESH_VOLUME_INDEX(i, \
+                                                       j, \
+                                                       k, \
+                                                       src.nColRL(), \
+                                                       src.nRowRL(), \
+                                                       src.nSlcRL())); \
         if (fwrite(cast, 1, src.sizeRL() * sizeof(type), _file) == 0) \
             REPORT_ERROR("Fail to write in an image."); \
         delete[] cast; \
@@ -143,12 +205,17 @@ class ImageFile
         void readVolume(Volume& dst,
                         const char* fileType = "MRC");
 
-        void writeImage(const char * dst,
-                        const ImageBase& src);
+        void writeImage(const char dst[],
+                        const Image& src);
+
+        void writeVolume(const char dst[],
+                         const Volume& src);
 
         void clear();
 
     private:
+
+        void fillMRCHeader(MRCHeader& header) const;
 
         void readMetaDataMRC();
 
@@ -161,8 +228,11 @@ class ImageFile
 
         void readVolumeMRC(Volume& dst);
 
-        void writeImageMRC(const char* dst,
-                           const ImageBase& src);
+        void writeImageMRC(const char dst[],
+                           const Image& src);
+
+        void writeVolumeMRC(const char dst[],
+                            const Volume& src);
 };
 
 #endif // IMAGE_FILE_H

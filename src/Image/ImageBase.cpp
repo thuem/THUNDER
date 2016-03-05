@@ -27,22 +27,22 @@ ImageBase& ImageBase::operator=(const ImageBase& that)
     if (!that.isEmptyRL())
     {
         _dataRL = new double [_sizeRL];
-        memcpy(_dataRL, &that.getRL(), sizeof(double) * _sizeRL);
+        memcpy(_dataRL, &that.iGetRL(), sizeof(double) * _sizeRL);
     }
 
     if (!that.isEmptyFT())
     {
         _dataFT = new Complex[_sizeFT];
-        memcpy(_dataFT, &that.getFT(), sizeof(Complex) * _sizeFT);
+        memcpy(_dataFT, &that.iGetFT(), sizeof(Complex) * _sizeFT);
     }
 }
 
-const double& ImageBase::getRL(size_t i) const
+const double& ImageBase::iGetRL(size_t i) const
 {
     return _dataRL[i];
 };
 
-const Complex& ImageBase::getFT(size_t i) const
+const Complex& ImageBase::iGetFT(size_t i) const
 {
     return _dataFT[i];
 };

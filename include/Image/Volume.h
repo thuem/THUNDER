@@ -34,7 +34,7 @@
                             return 1; \
                         }())
 
-#define VOLUME_INDEX(i, j, k) \
+#define VOLUME_INDEX_RL(i, j, k) \
     (k) * _nRow * _nCol + (j) * _nCol + (i)
 
 #define VOLUME_INDEX_FT(i, j, k) \
@@ -64,9 +64,9 @@
     }()
 
 #define VOLUME_FOR_EACH_PIXEL_RL(that) \
-    for (int k = 0; k < that.nSlcRL(); k++) \
-        for (int j = 0; j < that.nRowRL(); j++) \
-            for (int i = 0; i < that.nColRL(); i++)
+    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
+        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+            for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
 
 #define VOLUME_FOR_EACH_PIXEL_FT(that) \
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \

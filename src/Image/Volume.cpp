@@ -96,7 +96,9 @@ double Volume::getRL(const int iCol,
                      const int iSlc) const
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    return _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)];
+    return _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                                   (iRow >= 0) ? iRow : iRow + _nRow,
+                                   (iSlc >= 0) ? iSlc : iSlc + _nSlc)];
 }
 
 void Volume::setRL(const double value,
@@ -105,7 +107,10 @@ void Volume::setRL(const double value,
                    const int iSlc)
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] = value;
+    _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                            (iRow >= 0) ? iRow : iRow + _nRow,
+                            (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
+    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] = value;
 }
 
 void Volume::addRL(const double value,
@@ -114,7 +119,10 @@ void Volume::addRL(const double value,
                    const int iSlc)
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
+    _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                            (iRow >= 0) ? iRow : iRow + _nRow,
+                            (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
+    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
 }
 
 Complex Volume::getFT(int iCol,
@@ -217,15 +225,13 @@ void Volume::addFT(const Complex value,
             }
 }
 
-
-
 void Volume::coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
 {
-    if ((iCol < 0) || (iCol >= _nCol) ||
-        (iRow < 0) || (iRow >= _nRow) ||
-        (iSlc < 0) || (iSlc >= _nSlc))
+    if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
+        (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
+        (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
         REPORT_ERROR("Try to get value out of the boundary");
 }
 

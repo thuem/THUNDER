@@ -83,10 +83,10 @@ class ImageBase
 
         ImageBase& operator=(const ImageBase& that);
 
-        const double& getRL(size_t i = 0) const;
+        const double& iGetRL(size_t i = 0) const;
         // return a const pointer which points to the i-th element
 
-        const Complex& getFT(size_t i = 0) const;
+        const Complex& iGetFT(size_t i = 0) const;
         // return a const pointer which points to the i-th element
         
         double& operator()(const size_t i);

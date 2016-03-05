@@ -19,9 +19,7 @@ double background(const Volume& vol,
 
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
-        double u = NORM_3(abs(i - vol.nColRL() / 2),
-                          abs(j - vol.nRowRL() / 2),
-                          abs(k - vol.nSlcRL() / 2));
+        double u = NORM_3(i, j, k);
 
         if (u > r + ew)
         {
@@ -61,8 +59,8 @@ void softMask(Image& img,
 {
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
-        double u = NORM(abs(i - img.nColRL() / 2),
-                        abs(j - img.nRowRL() / 2));
+        double u = NORM(i, j);
+
         if (u > r + ew)
             img.setRL(0, i, j);
         else if (u >= r)
@@ -82,9 +80,7 @@ void softMask(Volume& dst,
 
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
-        double u = NORM_3(abs(i - src.nColRL() / 2),
-                          abs(j - src.nRowRL() / 2),
-                          abs(k - src.nSlcRL() / 2));
+        double u = NORM_3(i, j, k);
 
         if (u > r + ew)
             dst.setRL(bg, i, j, k);

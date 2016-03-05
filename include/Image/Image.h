@@ -32,7 +32,7 @@
                             return 1; \
                         }())
 
-#define IMAGE_INDEX(i, j) \
+#define IMAGE_INDEX_RL(i, j) \
     (j) * _nCol + (i)
 
 #define IMAGE_INDEX_FT(i, j) \
@@ -47,8 +47,14 @@
     }()
 
 #define IMAGE_FOR_EACH_PIXEL_RL(that) \
+    for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+        for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
+
+/***
+#define IMAGE_FOR_EACH_PIXEL_RL(that) \
     for (int j = 0; j < that.nRowRL(); j++) \
         for (int i = 0; i < that.nColRL(); i++)
+        ***/
 
 #define IMAGE_FOR_EACH_PIXEL_FT(that) \
     for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \

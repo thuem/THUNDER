@@ -43,6 +43,7 @@ void meshReverse(Volume& vol)
 }
 ***/
 
+/***
 void meshReverse(Image& img)
 {
     for (int j = 0; j < img.nRowFT(); j++)
@@ -61,6 +62,7 @@ void meshReverse(Volume& vol)
                       + j * vol.nColFT()
                       + i] *= -1;
 }
+***/
 
 void bgMeanStddev(double& mean,
                   double& stddev,

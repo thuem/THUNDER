@@ -37,15 +37,17 @@ int main(int argc, const char* argv[])
                     ((pow(x - N / 2, 2)
                     + pow(y - N / 2, 2) < pow(N / 16, 2)) &&
                      (z < 7 * N / 16) && (z > 5 * N / 16)))
-                    head.setRL(1, x, y, z);
+                    head.setRL(1, x - N / 2, y - N / 2, z - N / 2);
                 else
-                    head.setRL(0, x, y, z);
+                    head.setRL(0, x - N / 2, y - N / 2, z - N / 2);
             }
 
     
+    printf("Initialise Done");
+
     ImageFile imf;
     imf.readMetaData(head);
-    imf.writeImage("head.mrc", head);
+    imf.writeVolume("head.mrc", head);
     
     FFT fft;
     fft.fw(head);

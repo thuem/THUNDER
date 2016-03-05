@@ -64,8 +64,6 @@ void Reconstructor::insert(const Image& src,
     mat33 mat;
     rotate3D(mat, coord.phi, coord.theta, coord.psi);
 
-    meshReverse(transSrc);
-
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         vec3 newCor = {i, j, 0};
@@ -110,6 +108,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
     }
 
     MPI_Barrier(workers);
+
     MPI_Allreduce(MPI_IN_PLACE, 
                   &_C[0],
                   _C.sizeFT(),
@@ -136,7 +135,7 @@ void Reconstructor::allReduceF(MPI_Comm world)
 {
     MUL_FT(_F, _W);
 
-    display(1, "testFWC-after_F*_W");
+    // display(1, "testFWC-after_F*_W");
     MPI_Barrier(world);
 
     MPI_Allreduce(MPI_IN_PLACE, 
@@ -154,66 +153,28 @@ void Reconstructor::constructor(const char dst[])
     SET_0_FT(result);
     VOLUME_FOR_EACH_PIXEL_FT(_F)
         result.setFT(_F.getFT(i, j, k), i, j, k);
-    
-    meshReverse(result);
 
     FFT fft;
     fft.bw(result);
 
-#ifdef DEBUGCONSTRUCTOR
-    FILE *disfile1 = fopen("constructor1", "w");
-    FILE *disfile2 = fopen("constructor2", "w");
-#endif
-
     VOLUME_FOR_EACH_PIXEL_RL(result)
     {     
-        double r = NORM_3(abs(i - _pf * _size / 2),
-                          abs(j - _pf * _size / 2),
-                          abs(k - _pf * _size / 2))
-                 / (_pf * _size);
-
-#ifdef DEBUGCONSTRUCTOR
-        /***
-        double res1 = result.getRL(i , j , k);
-        double mkb = MKB_RL(r / _nCol, _a, _alpha);
-        double tik = TIK_RL(r / _nCol);
-        fprintf(disfile1, "%5d : %5d : %5d\t %f\t   %f\t   %f\t\n",
-                i, j, k, res1, mkb, tik);
-                ***/
-#endif
+        double r = NORM_3(i, j, k) / (_pf * _size);
 
         if (r < 0.5 / _pf)
-        {
             result.setRL((result.getRL(i, j, k)
                         / MKB_RL(r, _a, _alpha)
                         / TIK_RL(r)),
                          i,
                          j,
                          k);
-        }
         else
             result.setRL(0, i, j, k);
-
-#ifdef DEBUGCONSTRUCTOR
-        double res = result.getRL(i , j , k);
-        fprintf(disfile2, "%5d : %5d : %5d\t %f\n",
-                i, j, k, res);
-#endif
     }
-
-#ifdef DEBUGCONSTRUCTOR
-    fclose(disfile1);
-    fclose(disfile2);
-#endif
 
     ImageFile imf;
     imf.readMetaData(result);
-    //imf.display();
-    imf.writeImage(dst, result);
-
-    Image img(_pf * _size, _pf * _size, realSpace);
-    slice(img, result, _pf * _size / 2);
-    img.saveRLToBMP("slice.bmp");
+    imf.writeVolume(dst, result);
 }
 
 void Reconstructor::display(const int rank, 
