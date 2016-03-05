@@ -1,29 +1,33 @@
+/*******************************************************************************
+ * Author: Hongkun Yu, Mingxu Hu
+ * Dependecy:
+ * Test:
+ * Execution:
+ * Description:
+ * ****************************************************************************/
 
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
-#include <armadillo>
 #include <utility>
 #include <vector>
+
+#include <armadillo>
 #include <mpi.h>
 
 #include "Coordinate5D.h"
 #include "Functions.h"
-
 #include "Euler.h"
-
 #include "FFT.h"
-
 #include "Image.h"
+#include "Volume.h"
 #include "ImageFunctions.h"
 #include "ImageFile.h"
-#include "Volume.h"
 
 #define DEBUGCONSTRUCTOR
 
-using namespace arma;
-
 using namespace std;
+using namespace arma;
 
 typedef pair<Coordinate5D, double> corWeight;
 
@@ -31,9 +35,13 @@ class Reconstructor
 {
     private:
 
+        int _size;
+
+        /***
         int _nCol;
         int _nRow;
         int _nSlc;
+        ***/
 
         double _a = 1.9;
         double _alpha = 15;
@@ -45,11 +53,14 @@ class Reconstructor
         Volume _W;
         Volume _C;
 
-        Volume _WN;
+        // Volume _WN;
 
         vector<corWeight> _coordWeight;
+
+        /***
         int _nColImg;
         int _nRowImg;
+        ***/
 
         int _maxRadius;
 
@@ -59,6 +70,12 @@ class Reconstructor
 
         Reconstructor();
 
+        Reconstructor(const int size,
+                      const int pf,
+                      const double a = 1.9,
+                      const double alpha = 15);
+
+        /***
         Reconstructor(const int nCol,
                       const int nRow,
                       const int nSlc,
@@ -67,15 +84,20 @@ class Reconstructor
                       const int pf,
                       const double a,
                       const double alpha);
+                      ***/
 
         // Reconstructor(const Reconstructor& that);
 
         ~Reconstructor();
 
-        Reconstructor& operator=(const Reconstructor& that);
-////////////////////////////////////////////////////////////////////////////////////////
+        // Reconstructor& operator=(const Reconstructor& that);
 
+        void init(const int size,
+                  const int pf,
+                  const double a = 1.9,
+                  const double alpha = 15);
 
+        /***
         void init(const int nCol,
                   const int nRow,
                   const int nSlc,
@@ -84,10 +106,10 @@ class Reconstructor
                   const int pf,
                   const double a,
                   const double alpha);
+                  ***/
 
-        void setCommRank(int commRank);
-        void setCommSize(int commSize);
-
+        void setCommRank(const int commRank);
+        void setCommSize(const int commSize);
 
         void insert(const Image& src,
                     const Coordinate5D coord,

@@ -13,8 +13,8 @@
 #include "FFT.h"
 #include "Mask.h"
 
-#define N 64
-#define M 32
+#define N 32
+#define M 16
 
 #define DEBUGAFTERINSERT
 #define DEBUGAFTERALLREDUCE

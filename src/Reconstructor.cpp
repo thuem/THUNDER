@@ -2,6 +2,15 @@
 
 Reconstructor::Reconstructor() {}
 
+Reconstructor::Reconstructor(const int size,
+                             const int pf,
+                             const double a,
+                             const double alpha)
+{
+    init(size, pf, a, alpha);
+}
+
+/***
 Reconstructor::Reconstructor(const int nCol,
                              const int nRow,
                              const int nSlc,
@@ -13,6 +22,7 @@ Reconstructor::Reconstructor(const int nCol,
 {
     init(nCol, nRow, nSlc, nColImg, nRowImg, pf, a, alpha);
 }
+***/
 
 /***
 Reconstructor::Reconstructor(const Reconstructor& that)
@@ -21,13 +31,16 @@ Reconstructor::Reconstructor(const Reconstructor& that)
 }
 ***/
 
-Reconstructor::~Reconstructor()
+Reconstructor::~Reconstructor() {}
+/***
 {
     _F.clear();
     _W.clear();
     _C.clear();
 }
+***/
 
+/***
 Reconstructor& Reconstructor::operator=(const Reconstructor& that)
 {
     _nCol = that._nCol;
@@ -52,6 +65,7 @@ Reconstructor& Reconstructor::operator=(const Reconstructor& that)
     _maxRadius = that._maxRadius;
 
 }
+***/
 
 //////////////////////////////////////////////////////////////////////////////
 

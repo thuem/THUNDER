@@ -21,9 +21,9 @@ void rotate2D(mat22& dst, const double phi)
     dst(1, 1) = cosine;
 }
 
-void normalVector(vec3& dst,
-                  const double phi,
-                  const double theta)
+void direction(vec3& dst,
+               const double phi,
+               const double theta)
 {
     double sinPhi = sin(phi);
     double cosPhi = cos(phi);
@@ -33,6 +33,15 @@ void normalVector(vec3& dst,
     dst(0) = sinTheta * cosPhi;
     dst(1) = sinTheta * sinPhi;
     dst(2) = cosTheta;
+}
+
+void angle(double& phi,
+           double& theta,
+           const vec3& src)
+{
+    theta = acos(src(2));
+    phi = acos(src(0) / sin(theta));
+    (src(1) / sin(theta) > 0) ? : (phi = 2 * M_PI - phi);
 }
 
 void rotate3D(mat33& dst,
