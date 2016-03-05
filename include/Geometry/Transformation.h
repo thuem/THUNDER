@@ -30,8 +30,15 @@
 using namespace arma;
 
 #define VOL_TRANSFORM_RL(dst, src, MAT, MAT_GEN, r) \
+    VOL_TRANSFORM(RL, dst, src, MAT, MAT_GEN, r)
+
+#define VOL_TRANSFORM_FT(dst, src, MAT, MAT_GEN, r) \
+    VOL_TRANSFORM(FT, dst, src, MAT, MAT_GEN, r)
+
+#define VOL_TRANSFORM(SPACE, dst, src, MAT, MAT_GEN, r) \
 [](Volume& _dst, const Volume& _src, const double _r)\
 { \
+    SET_0_##SPACE(_dst); \
     mat33 MAT; \
     MAT_GEN; \
     VOLUME_FOR_EACH_PIXEL_RL(_dst) \
@@ -39,15 +46,13 @@ using namespace arma;
         vec3 newCor = {i, j, k}; \
         vec3 oldCor = (MAT) * newCor; \
         if (norm(oldCor) < _r) \
-            _dst.setRL(_src.getByInterpolationRL(oldCor(0), \
-                                                 oldCor(1), \
-                                                 oldCor(2), \
-                                                 LINEAR_INTERP), \
-                      i, \
-                      j, \
-                      k); \
-        else \
-            _dst.setRL(0, i, j, k); \
+            _dst.set##SPACE(_src.getByInterpolation##SPACE(oldCor(0), \
+                                                           oldCor(1), \
+                                                           oldCor(2), \
+                                                           LINEAR_INTERP), \
+                            i, \
+                            j, \
+                            k); \
     } \
 }(dst, src, r)
 
