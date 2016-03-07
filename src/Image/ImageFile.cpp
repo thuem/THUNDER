@@ -203,7 +203,7 @@ void ImageFile::readImageMRC(Image& dst,
 {
     readSymmetryData();
 
-	dst.alloc(nCol(), nRow(), realSpace);
+	dst.alloc(nCol(), nRow(), RL_SPACE);
 
     size_t size = dst.sizeRL();
 
@@ -225,7 +225,7 @@ void ImageFile::readImageBMP(Image& dst)
     bmp.open(_file);
     bmp.readInHeader();
 
-    dst.alloc(bmp.getWidth(), bmp.getHeight(), realSpace);
+    dst.alloc(bmp.getWidth(), bmp.getHeight(), RL_SPACE);
         
     rewind(_file);
     fseek(_file, bmp.getHeaderSize(), 0);
@@ -240,7 +240,7 @@ void ImageFile::readVolumeMRC(Volume& dst)
 {
     readSymmetryData();
 
-	dst.alloc(nCol(), nRow(), nSlc(), realSpace);
+	dst.alloc(nCol(), nRow(), nSlc(), RL_SPACE);
 
     SKIP_HEAD(0);
 	

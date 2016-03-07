@@ -73,7 +73,7 @@ class Image : public ImageBase
 
         Image(const int nCol,
               const int nRow,
-              const Space space);
+              const int space);
 
         Image(const Image& that);
 
@@ -81,11 +81,11 @@ class Image : public ImageBase
         
         Image& operator=(const Image& that);
 
-        void alloc(const Space space);
+        void alloc(const int space);
 
         void alloc(const int nCol,
                    const int nRow,
-                   const Space space);
+                   const int space);
 
         int nColRL() const;
         int nRowRL() const;

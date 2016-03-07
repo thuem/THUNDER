@@ -20,7 +20,7 @@ int main(int argc, const char* argv[])
 {
     std::cout << "Define a head." << std::endl;
 
-    Volume head(N, N, N, realSpace);
+    Volume head(N, N, N, RL_SPACE);
     for (int z = 0; z < N; z++)
         for (int y = 0; y < N; y++)
             for (int x = 0; x < N; x++)
@@ -65,7 +65,7 @@ int main(int argc, const char* argv[])
     int counter = 0;
 
     // Image image(N, N, fourierSpace);
-    Image image(N, N, realSpace);
+    Image image(N, N, RL_SPACE);
 
     try
     {

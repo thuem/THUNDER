@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
     //              << "2-workerid: " << workerid << std::endl;
     //}
 
-    Volume head(N, N, N, realSpace);
+    Volume head(N, N, N, RL_SPACE);
     //if (myid == messageid) {
     //    std::cout << "Define a head" << std::endl;
     //}
@@ -115,8 +115,8 @@ int main(int argc, char* argv[])
     char name[256];
     int counter = 0;
 
-    Image image(N, N, fourierSpace);
-    // Image image(N, N, realSpace);
+    Image image(N, N, FT_SPACE);
+    // Image image(N, N, RL_SPACE);
     
     Reconstructor reconstructor(N, 2);
 

@@ -18,11 +18,13 @@ enum ConjugateFlag
     conjugateNo
 };
 
+/***
 enum Space
 {
     realSpace = 0,
     fourierSpace
 };
+***/
 
 /***
 enum Interpolation2DStyle

@@ -30,7 +30,7 @@
 #define FW_EXTRACT_P(obj) \
     [this, &obj]() \
     { \
-        obj.alloc(fourierSpace); \
+        obj.alloc(FT_SPACE); \
         _dstC = (fftw_complex*)&obj[0]; \
         _srcR = &obj(0); \
         CHECK_SPACE_VALID(_dstC, _srcR); \
@@ -39,7 +39,7 @@
 #define BW_EXTRACT_P(obj) \
     [this, &obj]() \
     { \
-        obj.alloc(realSpace); \
+        obj.alloc(RL_SPACE); \
         _dstR = &obj(0); \
         _srcC = (fftw_complex*)&obj[0]; \
         CHECK_SPACE_VALID(_dstR, _srcC); \

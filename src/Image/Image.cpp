@@ -14,7 +14,7 @@ Image::Image() {}
 
 Image::Image(const int nCol,
              const int nRow,
-             const Space space)
+             const int space)
 {
     alloc(nCol, nRow, space);
 }
@@ -39,19 +39,19 @@ Image& Image::operator=(const Image& that)
     return *this;
 }
 
-void Image::alloc(const Space space)
+void Image::alloc(const int space)
 {
     alloc(_nCol, _nRow, space);
 }
 
 void Image::alloc(const int nCol,
                   const int nRow,
-                  const Space space)
+                  const int space)
 {
     _nCol = nCol;
     _nRow = nRow;
 
-    if (space == realSpace)
+    if (space == RL_SPACE)
     {
         clearRL();
         _sizeRL = nCol * nRow;
@@ -60,7 +60,7 @@ void Image::alloc(const int nCol,
         if (_dataRL == NULL)
             REPORT_ERROR("Fail to allocate memory for storing image");
     }
-    else if (space == fourierSpace)
+    else if (space == FT_SPACE)
     {
         clearFT();
         _sizeRL = nCol * nRow;
@@ -87,11 +87,6 @@ void Image::saveRLToBMP(const char* filename) const
         for (int j = 0; j < _nCol; j++)
             image[(i + _nRow / 2) % _nRow * _nCol
                  +(j + _nCol / 2) % _nCol] = _dataRL[i * _nCol + j];
-
-    /***
-    for (size_t i = 0; i < _sizeRL; i++)
-        image[i] = (float)_dataRL[i];
-        ***/
 
     BMP bmp;
 

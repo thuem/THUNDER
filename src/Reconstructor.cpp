@@ -32,9 +32,9 @@ void Reconstructor::init(const int size,
 
     _maxRadius = _size / 2 - a;
 
-    _F.alloc(_size, _size, _size, fourierSpace);
-    _W.alloc(_size, _size, _size, fourierSpace);
-    _C.alloc(_size, _size, _size, fourierSpace);
+    _F.alloc(_size, _size, _size, FT_SPACE);
+    _W.alloc(_size, _size, _size, FT_SPACE);
+    _C.alloc(_size, _size, _size, FT_SPACE);
 
     SET_0_FT(_F);
     SET_1_FT(_W);
@@ -58,7 +58,7 @@ void Reconstructor::insert(const Image& src,
 {
     _coord.push_back(coord);
 
-    Image transSrc(_size, _size, fourierSpace);
+    Image transSrc(_size, _size, FT_SPACE);
     translate(transSrc, src, -coord.x, -coord.y);
 
     mat33 mat;
@@ -148,7 +148,7 @@ void Reconstructor::allReduceF(MPI_Comm world)
 
 void Reconstructor::constructor(const char dst[])
 {
-    Volume result(_pf * _size, _pf * _size, _pf * _size, fourierSpace);
+    Volume result(_pf * _size, _pf * _size, _pf * _size, FT_SPACE);
     SET_0_FT(result);
     VOLUME_FOR_EACH_PIXEL_FT(_F)
         result.setFT(_F.getFT(i, j, k), i, j, k);

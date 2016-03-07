@@ -18,7 +18,7 @@ using namespace std;
 
 int main(int argc, const char* argv[])
 {
-    Image image(N, N, realSpace);
+    Image image(N, N, RL_SPACE);
 
     for (int i = 0; i < N; i++)
         for (int j = 0; j < N; j++)

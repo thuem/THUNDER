@@ -15,7 +15,7 @@ Volume::Volume() {}
 Volume::Volume(const int nCol,
                const int nRow,
                const int nSlc,
-               const Space space)
+               const int space)
 {
     alloc(nCol, nRow, nSlc, space);
 }
@@ -41,7 +41,7 @@ Volume& Volume::operator=(const Volume& that)
     return *this;
 }
 
-void Volume::alloc(Space space)
+void Volume::alloc(int space)
 {
     alloc(_nCol, _nRow, _nSlc, space);
 }
@@ -49,13 +49,13 @@ void Volume::alloc(Space space)
 void Volume::alloc(const int nCol,
                    const int nRow,
                    const int nSlc,
-                   const Space space)
+                   const int space)
 {
     _nCol = nCol;
     _nRow = nRow;
     _nSlc = nSlc;
 
-    if (space == realSpace)
+    if (space == RL_SPACE)
     {
         clearRL();
 
@@ -66,7 +66,7 @@ void Volume::alloc(const int nCol,
         if (_dataRL == NULL)
             REPORT_ERROR("Fail to allocate memory for storing volume");
     }
-    else if (space == fourierSpace)
+    else if (space == FT_SPACE)
     {
         clearFT();
 

@@ -88,7 +88,7 @@ class Volume : public ImageBase
         Volume(const int nCol,
                const int nRow,
                const int nSlc,
-               const Space space);
+               const int space);
 
         Volume(const Volume& that);
 
@@ -96,12 +96,12 @@ class Volume : public ImageBase
         
         Volume& operator=(const Volume& that);
 
-        void alloc(const Space space);
+        void alloc(const int space);
 
         void alloc(const int nCol,
                    const int nRow,
                    const int nSlc,
-                   const Space space);
+                   const int space);
 
         int nColRL() const;
         int nRowRL() const;

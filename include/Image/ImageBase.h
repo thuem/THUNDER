@@ -23,6 +23,9 @@
 #include "Typedef.h"
 #include "Functions.h"
 
+#define RL_SPACE 0
+#define FT_SPACE 1
+
 #define FOR_EACH_PIXEL_RL(base) \
     for (size_t i = 0; i < base.sizeRL(); i++)
 

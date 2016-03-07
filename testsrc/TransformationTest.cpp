@@ -21,7 +21,7 @@ int main(int argc, const char* argv[])
 {
     std::cout << "Define a head." << std::endl;
 
-    Volume head(N, N, N, realSpace);
+    Volume head(N, N, N, RL_SPACE);
     for (int z = 0; z < N; z++)
         for (int y = 0; y < N; y++)
             for (int x = 0; x < N; x++)
@@ -47,7 +47,7 @@ int main(int argc, const char* argv[])
     imf.readMetaData(head);
     imf.writeVolume("head.mrc", head);
 
-    Volume vol(N, N, N, realSpace);
+    Volume vol(N, N, N, RL_SPACE);
     VOL_TRANSFORM_RL(vol, head, mat, rotate3D(mat, M_PI / 8, 'Y'), N / 2 - 1);
     imf.readMetaData(vol);
     imf.writeVolume("rotate1.mrc", vol);

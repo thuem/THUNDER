@@ -18,7 +18,7 @@ void symmetryRL(Volume& dst,
     dst = src;
 
     mat33 L, R;
-    Volume se(src.nColRL(), src.nRowRL(), src.nSlcRL(), realSpace);
+    Volume se(src.nColRL(), src.nRowRL(), src.nSlcRL(), RL_SPACE);
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
         sym.get(L, R, i);
