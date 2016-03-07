@@ -36,15 +36,27 @@ using namespace arma;
     VOL_TRANSFORM(FT, dst, src, MAT, MAT_GEN, r)
 
 #define VOL_TRANSFORM(SPACE, dst, src, MAT, MAT_GEN, r) \
-[](Volume& _dst, const Volume& _src, const double _r)\
+[](Volume& _dst, const Volume& _src, const double _r) \
 { \
-    SET_0_##SPACE(_dst); \
     mat33 MAT; \
     MAT_GEN; \
+    VOL_TRANSFORM_MAT(SPACE, _dst, _src, MAT, _r); \
+}(dst, src, r)
+
+#define VOL_TRANSFORM_MAT_RL(dst, src, mat, r) \
+    VOL_TRANSFORM_MAT(RL, dst, src, mat, r)
+
+#define VOL_TRANSFORM_MAT_FT(dst, src, mat, r) \
+    VOL_TRANSFORM_MAT(FT, dst, src, mat, r)
+
+#define VOL_TRANSFORM_MAT(SPACE, dst, src, mat, r) \
+[](Volume& _dst, const Volume& _src, const mat33 _mat, const double _r)\
+{ \
+    SET_0_##SPACE(_dst); \
     VOLUME_FOR_EACH_PIXEL_RL(_dst) \
     { \
-        vec3 newCor = {i, j, k}; \
-        vec3 oldCor = (MAT) * newCor; \
+        vec3 newCor = {(double)i, (double)j, (double)k}; \
+        vec3 oldCor = _mat * newCor; \
         if (norm(oldCor) < _r) \
             _dst.set##SPACE(_src.getByInterpolation##SPACE(oldCor(0), \
                                                            oldCor(1), \
@@ -54,7 +66,7 @@ using namespace arma;
                             j, \
                             k); \
     } \
-}(dst, src, r)
+}(dst, src, mat, r)
 
 void alignZ(mat33& dst,
             const vec3& vec);
