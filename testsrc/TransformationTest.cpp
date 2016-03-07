@@ -52,5 +52,11 @@ int main(int argc, const char* argv[])
     imf.readMetaData(vol);
     imf.writeVolume("rotate1.mrc", vol);
 
+    Volume symVol;
+    Symmetry sym("C2");
+    symmetryRL(symVol, head, sym, N / 2 - 1);
+    imf.readMetaData(symVol);
+    imf.writeVolume("symVol.mrc", symVol);
+
     return 0;
 }
