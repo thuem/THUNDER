@@ -21,29 +21,19 @@ int main(int argc, const char* argv[])
     std::cout << "Define a head." << std::endl;
 
     Volume head(N, N, N, RL_SPACE);
-    for (int z = 0; z < N; z++)
-        for (int y = 0; y < N; y++)
-            for (int x = 0; x < N; x++)
-            {
-                if ((pow(x - N / 2, 2)
-                   + pow(y - N / 2, 2)
-                   + pow(z - N / 2, 2) < pow(N / 8, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 3 * N / 8, 2)
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 5 * N / 8, 2) 
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    ((pow(x - N / 2, 2)
-                    + pow(y - N / 2, 2) < pow(N / 16, 2)) &&
-                     (z < 7 * N / 16) && (z > 5 * N / 16)))
-                    head.setRL(1, x - N / 2, y - N / 2, z - N / 2);
-                else
-                    head.setRL(0, x - N / 2, y - N / 2, z - N / 2);
-            }
 
-    
-    printf("Initialise Done");
+    VOLUME_FOR_EACH_PIXEL_RL(head)
+    {
+        if ((NORM_3(i, j, k) < N / 8) ||
+            (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
+            (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
+            ((NORM(i, j) < N / 16) &&
+             (k + N / 16 < 0) &&
+             (k + 3 * N / 16 > 0)))
+            head.setRL(1, i, j, k);
+        else
+            head.setRL(0, i, j, k);
+    }
 
     ImageFile imf;
     imf.readMetaData(head);
@@ -67,8 +57,6 @@ int main(int argc, const char* argv[])
     // Image image(N, N, fourierSpace);
     Image image(N, N, RL_SPACE);
 
-    try
-    {
     for (int k = 0; k < M; k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
@@ -97,11 +85,6 @@ int main(int argc, const char* argv[])
                 image.saveRLToBMP(name);
                 // image.saveFTToBMP(name, 0.1);
             }
-                }
-                catch (Error& err)
-                {
-                    std::cout << err;
-                }
 
     return 0;
 }

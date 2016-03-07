@@ -70,9 +70,11 @@ void Projector::setProjectee(const Volume& src)
 void Projector::project(Image& dst,
                         const mat33& mat) const
 {
+    SET_0_FT(dst);
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        vec3 newCor = {i, j, 0};
+
+        vec3 newCor = {(double)i, (double)j, 0};
         // std::cout << newCor << std::endl;
         vec3 oldCor = mat * newCor;
         // std::cout << oldCor << std::endl;
@@ -84,8 +86,6 @@ void Projector::project(Image& dst,
                                                       _interp),
                       i,
                       j);
-        else
-            dst.setFT(COMPLEX(0, 0), i, j);
     }
 }
 
