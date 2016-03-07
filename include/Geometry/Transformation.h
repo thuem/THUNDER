@@ -81,6 +81,7 @@ using namespace arma;
 { \
     _dst = _src; \
     mat33 L, R; \
+    display(_sym); \
     Volume se(_src.nColRL(), _src.nRowRL(), _src.nSlcRL(), SP##_SPACE); \
     for (int i = 0; i < _sym.nSymmetryElement(); i++) \
     { \

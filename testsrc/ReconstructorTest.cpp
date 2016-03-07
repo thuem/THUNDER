@@ -73,26 +73,18 @@ int main(int argc, char* argv[])
     //if (myid == messageid) {
     //    std::cout << "Define a head" << std::endl;
     //}
-    for (int z = 0; z < N; z++)
-        for (int y = 0; y < N; y++)
-            for (int x = 0; x < N; x++)
-            {
-                if ((pow(x - N / 2, 2)
-                   + pow(y - N / 2, 2)
-                   + pow(z - N / 2, 2) < pow(N / 8, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 3 * N / 8, 2)
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 5 * N / 8, 2) 
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    ((pow(x - N / 2, 2)
-                    + pow(y - N / 2, 2) < pow(N / 16, 2)) &&
-                     (z < 7 * N / 16) && (z > 5 * N / 16)))
-                    head.setRL(1, x - N / 2, y - N / 2, z - N / 2);
-                else
-                    head.setRL(0, x - N / 2, y - N / 2, z - N / 2);
-            }
+    VOLUME_FOR_EACH_PIXEL_RL(head)
+    {
+        if ((NORM_3(i, j, k) < N / 8) ||
+            (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
+            (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
+            ((NORM(i, j) < N / 16) &&
+             (k + N / 16 < 0) &&
+             (k + 3 * N / 16 > 0)))
+            head.setRL(1, i, j, k);
+        else
+            head.setRL(0, i, j, k);
+    }
     
     if (myid == server) {
         ImageFile imf;

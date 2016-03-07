@@ -123,8 +123,7 @@ void alignZ(mat33& dst,
     double z = vec(2);
 
     // compute the length of projection of YZ plane
-    double pYZ = norm(vec.head(2));
-    // double pYZ = sqrt(pow(y, 2) + pow(z, 2));
+    double pYZ = norm(vec.tail(2));
     // compute the length of this vector
     double p = norm(vec);
 
@@ -138,7 +137,7 @@ void alignZ(mat33& dst,
         dst(1, 1) = z / pYZ;
         dst(1, 2) = -y / pYZ;
 
-        dst.row(2) = vec / p;
+        dst.row(2) = vec.t() / p;
     }
     else
     {

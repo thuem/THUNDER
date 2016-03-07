@@ -122,10 +122,16 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
 
         if (entry[i].id == 0)
         {
+            // printf("fold = %d\n", entry[i].fold);
             // rotation
             double angle = 2 * M_PI / entry[i].fold;
+            // printf("angle = %f\n", angle);
             for (int j = 1; j < entry[i].fold; j++)
             {
+                /***
+                printf("angle * j = %f\n", angle * j);
+                entry[i].axisPlane.print();
+                ***/
                 rotate3D(R, angle * j, entry[i].axisPlane);
                 append(L, R);
             }
