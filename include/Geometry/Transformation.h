@@ -70,6 +70,27 @@ using namespace arma;
     } \
 }(dst, src, mat, r)
 
+#define SYMMETRY_RL(dst, src, sym, r) \
+    SYMMETRY(RL, dst, src, sym, r)
+
+#define SYMMETRY_FT(dst, src, sym, r) \
+    SYMMETRY(FT, dst, src, sym, r)
+
+#define SYMMETRY(SP, dst, src, sym, r) \
+[](Volume& _dst, const Volume& _src, const Symmetry& _sym, const double _r) \
+{ \
+    _dst = _src; \
+    mat33 L, R; \
+    Volume se(_src.nColRL(), _src.nRowRL(), _src.nSlcRL(), SP##_SPACE); \
+    for (int i = 0; i < _sym.nSymmetryElement(); i++) \
+    { \
+        _sym.get(L, R, i); \
+        VOL_TRANSFORM_MAT_##SP(se, _src, R, _r); \
+        ADD_##SP(_dst, se); \
+    } \
+}(dst, src, sym, r)
+
+/***
 void symmetryRL(Volume& dst,
                 const Volume& src,
                 const Symmetry& sym,
@@ -79,5 +100,6 @@ void symmetryFT(Volume& dst,
                 const Volume& src,
                 const Symmetry& sym,
                 const double r);
+                ***/
 
 #endif // TRANSFORMATION_H

@@ -10,6 +10,7 @@
 
 #include "Transformation.h"
 
+/***
 void symmetryRL(Volume& dst,
                 const Volume& src,
                 const Symmetry& sym,
@@ -33,3 +34,4 @@ void symmetryFT(Volume& dst,
                 const double r)
 {
 }
+***/
