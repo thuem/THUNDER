@@ -110,17 +110,21 @@ int main(int argc, char* argv[])
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
     
-    Reconstructor reconstructor(N, 2);
+    Symmetry sym("C2");
+   
+    Reconstructor reconstructor(N, 2, &sym);
 
     reconstructor.setCommRank(myid);
     reconstructor.setCommSize(numprocs);
 
     if (myid != server) {
-        for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)
+        for (int k = M / 2 / numworkers * workerid;
+                 k < M / 2 / numworkers * (workerid + 1);
+                 k++)
         {    
             for (int j = 0; j < M / 2; j++)
             {
-                for (int i = 0; i < M; i++)
+                for (int i = 0; i < M / 2; i++)
                 {
                     printf("%02d %02d %02d\n", i, j, k);
                     sprintf(name, "%02d%02d%02d.bmp", i, j, k);
