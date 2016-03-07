@@ -29,7 +29,10 @@
 using namespace std;
 using namespace arma;
 
-#define SAME_MATRIX(A, B) all(all(A == B))
+#define SAME_MATRIX(A, B) (norm(A - B) < 1e12)
+/* double has an accuracy of 15-16 decimal numbers 
+ * As the mulplication here will not decrease the accuracy for 1e3 fold,
+ * choosing 1e12 as the accuracy limit is sufficient. */
 
 class Symmetry
 {

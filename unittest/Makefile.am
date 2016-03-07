@@ -16,7 +16,8 @@ noist_PROGRAMS = FunctionsTest \
 				 ImageFunctionsTest \
 				 ProjectorTest \
 				 ReconstructorTest \
-				 ExperimentTest
+				 ExperimentTest \
+				 SymmetryTest
 
 THUEMLIBS = ../libthuem.a
 
@@ -37,3 +38,6 @@ ReconstructorTest_LDADD = ${THUEMLIBS}
 
 ExperimentTest_SOURCES = ../testsrc/ExperimentTest.cpp
 ExperimentTest_LDADD = ${THUEMLIBS}
+
+SymmetryTest_SOURCES = ../testsrc/SymmetryTest.cpp
+SymmetryTest_LDADD = ${THUEMLIBS}

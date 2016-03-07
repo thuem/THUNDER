@@ -10,9 +10,7 @@
 
 #include "Symmetry.h"
 
-Symmetry::Symmetry()
-{
-}
+Symmetry::Symmetry() {}
 
 Symmetry::Symmetry(const char sym[])
 {
@@ -150,13 +148,6 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             L(2, 2) = -1;
             R.zeros();
             R.diag() = vec({-1, -1, -1});
-            /***
-            L.set(-1, 2, 2);
-            R.identity();
-            R.set(-1, 0, 0);
-            R.set(-1, 1, 1);
-            R.set(-1, 2, 2);
-            ***/
             append(L, R);
         }
     }
@@ -173,7 +164,7 @@ bool Symmetry::novo(const mat33& L,
     // check whether (L, R) exists in (_L, _R) or not
     for (int i = 0; i < _L.size(); i++)
         if (SAME_MATRIX(L, _L[i]) && SAME_MATRIX(R, _R[i]))
-            return false;
+                return false;
 
     return true;
 }
@@ -209,16 +200,6 @@ void Symmetry::completePointGroup()
             append(L, R);
             table.resize(table.n_rows + 1,
                          table.n_cols + 1);
-            /***
-            [&]
-            {
-                Matrix<int> tmp = table;
-                table.resize(table.nRow() + 1,
-                             table.nColumn() + 1);
-                table.zeros();
-                table.replace(tmp, 0, 0);
-            }();
-            ***/
         }
     }
 }
