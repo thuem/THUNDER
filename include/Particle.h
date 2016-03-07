@@ -5,7 +5,11 @@
 #define PARTICLE_H
 
 
-#include <armadillo>
+#include "Random.h"
+#include "Euler.h"
+
+
+
 
 
 
@@ -18,6 +22,8 @@ class Particle
     private:
 
         int _N;
+        double _maxX;
+        double _maxY;
 
         double* _ex = NULL;
         double* _ey = NULL;
@@ -34,12 +40,19 @@ class Particle
 
         Particle();
 
-        Particle(const int N);
+        Particle(const int N,
+                 const double maxX,
+                 const double maxY);
 
         ~Particle();
 
         void init();
 
+        void perturb();
+
+        void resample();
+
+        double neff();
 
 };
 
