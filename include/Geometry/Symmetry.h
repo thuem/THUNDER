@@ -28,10 +28,20 @@
 using namespace std;
 using namespace arma;
 
-#define SAME_MATRIX(A, B) (norm(A - B) < 1e12)
-/* double has an accuracy of 15-16 decimal numbers 
- * As the mulplication here will not decrease the accuracy for 1e3 fold,
- * choosing 1e12 as the accuracy limit is sufficient. */
+#define SAME_MATRIX(A, B) (norm(A - B) < 1e4)
+/* axis has an accuracy of 6-7 decimal numbers 
+ * As the mulplication here will not decrease the accuracy for 1e2 fold,
+ * choosing 1e4 as the accuracy limit is sufficient. */
+
+#define ASY(PG, phi, theta) \
+    [](const double _phi, const double _theta) \
+    { \
+        vec3 norm; \
+        direction(norm, _phi, _theta); \
+        return ((sum(norm % vec3(pg_##PG##_a1)) >= 0) && \
+                (sum(norm % vec3(pg_##PG##_a2)) >= 0) && \
+                (sum(norm % vec3(pg_##PG##_a3)) >= 0)); \
+    }(phi, theta)
 
 class Symmetry
 {
@@ -53,10 +63,6 @@ class Symmetry
 
         Symmetry(const int pgGroup,
                  const int pgOrder);
-
-        /***
-        Symmetry(const vector<SymmetryOperation>& entry);
-        ***/
 
         Symmetry(const Symmetry& that);
 
@@ -101,5 +107,14 @@ class Symmetry
 };
 
 void display(const Symmetry& sym);
+
+bool asymmetryUnit(const double phi,
+                   const double theta,
+                   const Symmetry& sym);
+
+bool asymmetryUnit(const double phi,
+                   const double theta,
+                   const int pgGroup,
+                   const int pgOrder);
 
 #endif // SYMMETRY_H
