@@ -72,10 +72,12 @@ using namespace arma;
 
 void symmetryRL(Volume& dst,
                 const Volume& src,
-                const Symmetry& sym);
+                const Symmetry& sym,
+                const double r);
 
 void symmetryFT(Volume& dst,
                 const Volume& src,
-                const Symmetry sym);
+                const Symmetry& sym,
+                const double r);
 
 #endif // TRANSFORMATION_H

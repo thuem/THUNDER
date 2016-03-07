@@ -20,7 +20,6 @@
 #include "Error.h"
 
 #include "Euler.h"
-#include "Transformation.h"
 #include "PointGroup.h"
 #include "SymmetryOperation.h"
 

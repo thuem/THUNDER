@@ -49,9 +49,15 @@
 #define SCALE_RL(base, a) \
     cblas_dscal(base.sizeRL(), a, &base(0), 1)
 
+#define ADD_RL(a, b) \
+    cblas_daxpy(a.sizeRL(), 1, &b(0), 1, &a(0), 1);
+
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
         a[i] += b[i]
+
+#define SUB_RL(a, b) \
+    cblas_daxpy(a.sizeRL(), -1, &b(0), 1, &a(0), 1);
 
 #define SUB_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
