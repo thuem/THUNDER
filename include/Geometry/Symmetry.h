@@ -37,6 +37,10 @@ class Symmetry
 {
     private:
 
+        int _pgGroup;
+
+        int _pgOrder;
+
         vector<mat33> _L;
 
         vector<mat33> _R;
@@ -50,7 +54,9 @@ class Symmetry
         Symmetry(const int pgGroup,
                  const int pgOrder);
 
+        /***
         Symmetry(const vector<SymmetryOperation>& entry);
+        ***/
 
         Symmetry(const Symmetry& that);
 
@@ -58,23 +64,24 @@ class Symmetry
 
         Symmetry& operator=(const Symmetry& that);
 
+        int pgGroup() const;
+
+        int pgOrder() const;
+
         void get(mat33& L,
                  mat33& R,
                  const int i) const;
         /* get the ith symmetry element */
-
-        void init(const char sym[]);
-
-        void init(const int pgGroup,
-                  const int pgOrder);
-
-        void init(const vector<SymmetryOperation>& entry);
 
         int nSymmetryElement() const;
 
         void clear();
 
     private:
+
+        void init();
+
+        void init(const vector<SymmetryOperation>& entry);
 
         void append(const mat33& L,
                     const mat33& R);

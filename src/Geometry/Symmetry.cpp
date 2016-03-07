@@ -14,19 +14,24 @@ Symmetry::Symmetry() {}
 
 Symmetry::Symmetry(const char sym[])
 {
-    init(sym);
+    symmetryGroup(_pgGroup, _pgOrder, sym);
+
+    init();
 }
 
 Symmetry::Symmetry(const int pgGroup,
                    const int pgOrder)
 {
-    init(pgGroup, pgOrder);
+    _pgGroup = pgGroup;
+    _pgOrder = pgOrder;
 }
 
+/***
 Symmetry::Symmetry(const vector<SymmetryOperation>& entry)
 {
     init(entry);
 }
+***/
 
 Symmetry::Symmetry(const Symmetry& that)
 {
@@ -42,6 +47,9 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
 {
     clear();
 
+    _pgGroup = that.pgGroup();
+    _pgOrder = that.pgOrder();
+
     mat33 L, R;
     for (size_t i = 0; i < that.nSymmetryElement(); i++)
     {
@@ -52,6 +60,16 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
     return *this;
 }
 
+int Symmetry::pgGroup() const
+{
+    return _pgGroup;
+}
+
+int Symmetry::pgOrder() const
+{
+    return _pgOrder;
+}
+
 void Symmetry::get(mat33& L,
                    mat33& R,
                    const int i) const
@@ -60,19 +78,23 @@ void Symmetry::get(mat33& L,
     R = _R[i];
 }
 
+/**8
 void Symmetry::init(const char sym[])
 {
     int pgGroup, pgOrder;
-    symmetryGroup(pgGroup, pgOrder, sym);
 
     init(pgGroup, pgOrder);
 }
+***/
 
+void Symmetry::init()
+    /***
 void Symmetry::init(const int pgGroup,
                     const int pgOrder)
+                    ***/
 {
     vector<SymmetryOperation> entry;
-    fillSymmetryEntry(entry, pgGroup, pgOrder);
+    fillSymmetryEntry(entry, _pgGroup, _pgOrder);
 
     init(entry);
 }
