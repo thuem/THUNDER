@@ -55,7 +55,7 @@ int main(int argc, const char* argv[])
     Volume symVol;
     Symmetry sym("C2");
     // symmetryRL(symVol, head, sym, N / 2 - 1);
-    SYMMETRY_RL(symVol, head, sym, N / 2 - 1);
+    SYMMETRIZE_RL(symVol, head, sym, N / 2 - 1);
     imf.readMetaData(symVol);
     imf.writeVolume("symVol.mrc", symVol);
 

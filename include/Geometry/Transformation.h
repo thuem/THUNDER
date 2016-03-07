@@ -70,13 +70,13 @@ using namespace arma;
     } \
 }(dst, src, mat, r)
 
-#define SYMMETRY_RL(dst, src, sym, r) \
-    SYMMETRY(RL, dst, src, sym, r)
+#define SYMMETRIZE_RL(dst, src, sym, r) \
+    SYMMETRIZE(RL, dst, src, sym, r)
 
-#define SYMMETRY_FT(dst, src, sym, r) \
-    SYMMETRY(FT, dst, src, sym, r)
+#define SYMMETRIZE_FT(dst, src, sym, r) \
+    SYMMETRIZE(FT, dst, src, sym, r)
 
-#define SYMMETRY(SP, dst, src, sym, r) \
+#define SYMMETRIZE(SP, dst, src, sym, r) \
 [](Volume& _dst, const Volume& _src, const Symmetry& _sym, const double _r) \
 { \
     _dst = _src; \

@@ -23,6 +23,8 @@
 #include "Volume.h"
 #include "ImageFunctions.h"
 #include "ImageFile.h"
+#include "Symmetry.h"
+#include "Transformation.h"
 
 using namespace std;
 using namespace arma;
@@ -49,12 +51,15 @@ class Reconstructor
 
         int _pf; // padding factor
 
+        const Symmetry* _sym;
+
     public:
 
         Reconstructor();
 
         Reconstructor(const int size,
                       const int pf,
+                      const Symmetry* sym = NULL,
                       const double a = 1.9,
                       const double alpha = 15);
 
@@ -62,8 +67,11 @@ class Reconstructor
 
         void init(const int size,
                   const int pf,
+                  const Symmetry* sym = NULL,
                   const double a = 1.9,
                   const double alpha = 15);
+
+        void setSymmetry(const Symmetry* sym);
 
         void setCommRank(const int commRank);
         void setCommSize(const int commSize);
@@ -81,6 +89,12 @@ class Reconstructor
 
         double checkC() const;
         /* calculate the distance between C and 1 */
+
+    private:
+
+        void symmetrizeF();
+
+        void symmetrizeC();
 };
 
 #endif //RECONSTRUCTOR_H

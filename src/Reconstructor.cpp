@@ -12,21 +12,24 @@ Reconstructor::Reconstructor() {}
 
 Reconstructor::Reconstructor(const int size,
                              const int pf,
+                             const Symmetry* sym,
                              const double a,
                              const double alpha)
 {
-    init(size, pf, a, alpha);
+    init(size, pf, sym, a, alpha);
 }
 
 Reconstructor::~Reconstructor() {}
 
 void Reconstructor::init(const int size,
                          const int pf,
+                         const Symmetry* sym,
                          const double a,
                          const double alpha)
 {
     _size = size;
     _pf = pf;
+    _sym = sym;
     _a = a;
     _alpha = alpha;
 
@@ -39,6 +42,11 @@ void Reconstructor::init(const int size,
     SET_0_FT(_F);
     SET_1_FT(_W);
     SET_0_FT(_C);
+}
+
+void Reconstructor::setSymmetry(const Symmetry* sym)
+{
+    _sym = sym;
 }
 
 void Reconstructor::setCommSize(const int commSize) 
@@ -66,7 +74,7 @@ void Reconstructor::insert(const Image& src,
 
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        vec3 newCor = {i, j, 0};
+        vec3 newCor = {(double)i, (double)j, 0};
         vec3 oldCor = mat * newCor;
         
         if (norm(oldCor) < _maxRadius)
@@ -91,7 +99,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
             {
-                vec3 newCor = {i, j, 0};
+                vec3 newCor = {(double)i, (double)j, 0};
                 vec3 oldCor = mat * newCor;
 
                 if (norm(oldCor) < _maxRadius)
@@ -117,6 +125,8 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                   workers);
 
     MPI_Barrier(workers);
+
+    symmetrizeC();
     
     //some problems need to be improved: divede zero
     VOLUME_FOR_EACH_PIXEL_FT(_W)
@@ -143,7 +153,10 @@ void Reconstructor::allReduceF(MPI_Comm world)
                   MPI_DOUBLE_COMPLEX, 
                   MPI_SUM, 
                   world);
+
     MPI_Barrier(world);
+
+    symmetrizeF();
 }
 
 void Reconstructor::constructor(const char dst[])
@@ -187,4 +200,22 @@ double Reconstructor::checkC() const
             diff += abs(REAL(_C.getFT(i, j, k)) - 1);
         }
     return diff / counter;
+}
+
+void Reconstructor::symmetrizeF()
+{
+    if (_sym == NULL) return;
+
+    Volume symF;
+    SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius);
+    _F = symF;
+}
+
+void Reconstructor::symmetrizeC()
+{
+    if (_sym == NULL) return;
+
+    Volume symC;
+    SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius);
+    _C = symC;
 }
