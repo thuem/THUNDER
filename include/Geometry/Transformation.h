@@ -27,6 +27,8 @@
 #include "Image.h"
 #include "Volume.h"
 
+#include "Symmetry.h"
+
 using namespace arma;
 
 #define VOL_TRANSFORM_RL(dst, src, MAT, MAT_GEN, r) \
@@ -67,5 +69,13 @@ using namespace arma;
                             k); \
     } \
 }(dst, src, mat, r)
+
+void symmetryRL(Volume& dst,
+                const Volume& src,
+                const Symmetry& sym);
+
+void symmetryFT(Volume& dst,
+                const Volume& src,
+                const Symmetry sym);
 
 #endif // TRANSFORMATION_H
