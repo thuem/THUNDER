@@ -39,7 +39,7 @@ void MLModel::setR(const int r)
 
 void MLModel::BCastFSC()
 {
-    for (int i = 0; i < K; i++)
+    for (int i = 0; i < K(); i++)
     {
         // if master
         {
@@ -56,6 +56,35 @@ void MLModel::BCastFSC()
     {
         // Broadcast FSC
     }
+}
+
+void MLModel::lowPassRef(const double thres,
+                         const double ew)
+{
+    for (int i = 0; i < K(); i++)
+        lowPassFilter(_ref[i], _ref[i], thres, ew);
+}
+
+void MLModel::refreshSNR()
+{
+    for (int i = 0; i < K(); i++)
+        _SNR(i) = _FSC(i) / (1 + _FSC(i));
+}
+
+int MLModel::resolution(const int i) const
+{
+    return uvec(find(_SNR(i) > 1, 1))(0);
+}
+
+int MLModel::resolution() const
+{
+    int result = 0;
+
+    for (int i = 0; i < K(); i++)
+        if (result < resolution(i))
+            result = resolution(i);
+
+    return result;
 }
 
 /***

@@ -47,6 +47,18 @@ class MLModel
         void setR(const int r);
 
         void BCastFSC();
+
+        void lowPassRef(const double thres,
+                        const double ew);
+        /* perform a low pass filtering on each reference */
+
+        void refreshSNR();
+
+        int resolution(const int i) const;
+        /* get the resolution of _ref[i] */
+
+        int resolution() const;
+        /* get the highest resolution among all references */
 };
 
 #endif // ML_MODEL_H
