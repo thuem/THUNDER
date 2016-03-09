@@ -44,6 +44,11 @@ void Reconstructor::init(const int size,
     SET_0_FT(_C);
 }
 
+void Reconstructor::setSymmetry(const Symmetry* sym)
+{
+    _sym = sym;
+}
+
 void Reconstructor::setCommSize(const int commSize) 
 {
     _commSize = commSize;

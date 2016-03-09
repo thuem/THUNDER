@@ -44,10 +44,17 @@ void Particle::init(const int N,
     
     _w   = new double[_N];
     
-    
-    for (int i = 0; i < _N; i++) 
+    int i = 0;
+    while (i < _N) 
     {
         gsl_ran_dir_3d(RANDR, &_ex[i], &_ey[i], &_ez[i]);
+     
+        vec3 src = {_ex[i], _ey[i], _ez[i]};
+        double phi, theta;
+        angle(phi, theta, src);
+
+        if (asymmetryUnit(phi, theta, *sym))
+            continue;
          
         _psi[i] = gsl_ran_flat(RANDR, 0, M_PI);
         
@@ -55,6 +62,8 @@ void Particle::init(const int N,
         _y[i] = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
         _w[i] = 1.0 / _N;
+
+        i++;
    }
 }
 

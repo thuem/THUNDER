@@ -71,6 +71,8 @@ class Reconstructor
                   const double a = 1.9,
                   const double alpha = 15);
 
+        void setSymmetry(const Symmetry* sym);
+
         void setCommRank(const int commRank);
         void setCommSize(const int commSize);
 
