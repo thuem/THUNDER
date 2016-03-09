@@ -42,6 +42,13 @@ class MLModel
         vector<Reconstructor> _reco;
 
         int _r;
+        /* radius of calculating FSC and SNR */
+
+        int _pf;
+        /* padding factor */
+
+        double _pixelSize;
+        /* pixel size of 2D images */
 
     public:
 
@@ -65,10 +72,16 @@ class MLModel
 
         void refreshSNR();
 
-        int resolution(const int i) const;
+        int resolutionP(const int i) const;
         /* get the resolution of _ref[i] */
 
-        int resolution() const;
+        int resolutionP() const;
+        /* get the highest resolution among all references */
+
+        double resolutionA(const int i) const;
+        /* get the resolution of _ref[i] */
+        
+        double resolutionA() const;
         /* get the highest resolution among all references */
 
         void refreshProjector();

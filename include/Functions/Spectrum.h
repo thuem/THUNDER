@@ -25,18 +25,16 @@ using namespace arma;
 double nyquist(const double pixelSize);
 /* Nyquist resolution limit in Angstrom(-1) */
 
-void resP2A(double& resA,
-            const double resP,
-            const int imageSize,
-            const double pixelSize);
+double resP2A(const double resP,
+              const int imageSize,
+              const double pixelSize);
 /* convert the resolution from pixel to 1/Angstrom
  * imageSize -> the size of image in pixles
  * pixelSize -> the size of one pixel in Angstrom */
 
-void resA2P(double& resP,
-            const double resA,
-            const int imageSize,
-            const double pixelSize);
+double resA2P(const double resA,
+              const int imageSize,
+              const double pixelSize);
 /* convert the resolution from 1/Angstrom to pixel */
 
 void resP2A(vec& res,

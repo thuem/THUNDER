@@ -71,12 +71,12 @@ void MLModel::refreshSNR()
         _SNR(i) = _FSC(i) / (1 + _FSC(i));
 }
 
-int MLModel::resolution(const int i) const
+int MLModel::resolutionP(const int i) const
 {
     return uvec(find(_SNR(i) > 1, 1))(0);
 }
 
-int MLModel::resolution() const
+int MLModel::resolutionP() const
 {
     int result = 0;
 
@@ -85,6 +85,18 @@ int MLModel::resolution() const
             result = resolution(i);
 
     return result;
+}
+
+double MLModel::resolutionA(const int i) const
+{
+    // TODO: considering padding factor
+    return resP2A(resolutionP(i), size(), _pixelSize);
+}
+
+double MLModel::resolutionA() const
+{
+    // TODO: considering padding factor
+    return resP2A(resolutionP(), size(), _pixelSize);
 }
 
 void MLModel::refreshProjector()
