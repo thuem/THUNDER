@@ -30,17 +30,23 @@ class MLModel
 
         vector<vec> _SNR;
 
+        int _r;
+
     public:
 
         MLModel();
+
+        void appendRef(const Volume& ref);
 
         int K(); const;
 
         int size() const;
 
-        void BCastFSC();
+        int r(); const;
 
-        void BCastSNR();
+        void setR(const int r);
+
+        void BCastFSC();
 };
 
 #endif // ML_MODEL_H
