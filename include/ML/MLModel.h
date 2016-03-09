@@ -13,11 +13,18 @@
 
 #include <armadillo>
 
+#include "Typedef.h"
+
 #include "Image.h"
 #include "Volume.h"
+#include "Projector.h"
+#include "Reconstructor.h"
 
 using namespace std;
 using namespace arma;
+
+#define FOR_EACH_CLASS \
+    for (int i = 0; i < size(); i++)
 
 class MLModel
 {
@@ -29,6 +36,10 @@ class MLModel
         vector<vec> _FSC;
 
         vector<vec> _SNR;
+
+        vector<Projector> _proj;
+
+        vector<Reconstructor> _reco;
 
         int _r;
 
@@ -59,6 +70,8 @@ class MLModel
 
         int resolution() const;
         /* get the highest resolution among all references */
+
+        void refreshProjector();
 };
 
 #endif // ML_MODEL_H

@@ -11,24 +11,26 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
+#include "Typedef.h"
+
 #include "Image.h"
 #include "Volume.h"
-#include "Projector.h"
+
+#include "MLModel.h"
 
 class MLOptimiser
 {
     private:
 
-        vector<Volume> _references;
-        /* references in Fourier space */
-
-        vector<Projector> _projectors;
+        MLModel _model;
 
     public:
 
         MLOptimiser();
 
-        initLowPassFilterReferences();
+    private:
+
+        resetProjectors();
 };
 
 #endif // ML_OPTIMSER_H

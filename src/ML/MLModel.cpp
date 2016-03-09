@@ -39,7 +39,7 @@ void MLModel::setR(const int r)
 
 void MLModel::BCastFSC()
 {
-    for (int i = 0; i < K(); i++)
+    FOR_EACH_CLASS
     {
         // if master
         {
@@ -52,7 +52,7 @@ void MLModel::BCastFSC()
         // if B[0]
         // other
     }
-    for (int i = 0; i < K; i++)
+    FOR_EACH_CLASS
     {
         // Broadcast FSC
     }
@@ -61,13 +61,13 @@ void MLModel::BCastFSC()
 void MLModel::lowPassRef(const double thres,
                          const double ew)
 {
-    for (int i = 0; i < K(); i++)
+    FOR_EACH_CLASS
         lowPassFilter(_ref[i], _ref[i], thres, ew);
 }
 
 void MLModel::refreshSNR()
 {
-    for (int i = 0; i < K(); i++)
+    FOR_EACH_CLASS
         _SNR(i) = _FSC(i) / (1 + _FSC(i));
 }
 
@@ -80,11 +80,17 @@ int MLModel::resolution() const
 {
     int result = 0;
 
-    for (int i = 0; i < K(); i++)
+    FOR_EACH_CLASS
         if (result < resolution(i))
             result = resolution(i);
 
     return result;
+}
+
+void MLModel::refreshProjector()
+{
+    FOR_EACH_CLASS
+        _proj[i].setProjectee(_ref[i]);
 }
 
 /***
