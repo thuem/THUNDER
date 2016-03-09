@@ -9,7 +9,7 @@ AM_CXXFLAGS += -I${top_srcdir}/include \
 			   -I${top_srcdir}/include/Functions \
 			   -I${top_srcdir}/include/Image \
 			   -I${top_srcdir}/include/Geometry \
-               -I${top_srcdir}/external/HEALPix/include
+			   -I${top_srcdir}/include/ML
 
 pkglib_LIBRARIES = libthuem.a
 
@@ -43,6 +43,8 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 					  src/Geometry/SymmetryFunctions.cpp \
 					  src/Geometry/Symmetry.cpp
 
+libthuem_a_SOURCES += src/ML/MLModel.cpp
+
 nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Coordinate5D.h \
 							include/FFT.h \
@@ -74,3 +76,5 @@ nobase_pkginclude_HEADERS += include/Geometry/Euler.h \
 							 include/Geometry/SymmetryOperation.h \
 							 include/Geometry/SymmetryFunctions.h \
 							 include/Geometry/Symmetry.h
+
+nobase_pkginclude_HEADERS += include/ML/MLModel.h

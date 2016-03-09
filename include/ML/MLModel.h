@@ -17,6 +17,8 @@
 
 #include "Image.h"
 #include "Volume.h"
+#include "Filter.h"
+#include "Spectrum.h"
 #include "Projector.h"
 #include "Reconstructor.h"
 
@@ -50,17 +52,21 @@ class MLModel
         double _pixelSize;
         /* pixel size of 2D images */
 
+        double _a;
+
+        double _alpha;
+
     public:
 
         MLModel();
 
         void appendRef(const Volume& ref);
 
-        int K(); const;
+        int K() const;
 
         int size() const;
 
-        int r(); const;
+        int r() const;
 
         void setR(const int r);
 
@@ -85,6 +91,9 @@ class MLModel
         /* get the highest resolution among all references */
 
         void refreshProjector();
+
+        void updateR();
+        /* increase _r according to wether FSC is high than 0.2 at current _r */
 };
 
 #endif // ML_MODEL_H

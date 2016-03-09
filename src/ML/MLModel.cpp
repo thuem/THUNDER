@@ -10,9 +10,9 @@
 
 #include "MLModel.h"
 
-MLModel::MLMode() {}
+MLModel::MLModel() {}
 
-MLModel::appendRef(const Volume& ref)
+void MLModel::appendRef(const Volume& ref)
 {
     _ref.push_back(ref);
 }
@@ -68,12 +68,12 @@ void MLModel::lowPassRef(const double thres,
 void MLModel::refreshSNR()
 {
     FOR_EACH_CLASS
-        _SNR(i) = _FSC(i) / (1 + _FSC(i));
+        _SNR[i] = _FSC[i] / (1 + _FSC[i]);
 }
 
 int MLModel::resolutionP(const int i) const
 {
-    return uvec(find(_SNR(i) > 1, 1))(0);
+    return uvec(find(_SNR[i] > 1, 1))(0);
 }
 
 int MLModel::resolutionP() const
@@ -81,8 +81,8 @@ int MLModel::resolutionP() const
     int result = 0;
 
     FOR_EACH_CLASS
-        if (result < resolution(i))
-            result = resolution(i);
+        if (result < resolutionP(i))
+            result = resolutionP(i);
 
     return result;
 }
@@ -102,7 +102,24 @@ double MLModel::resolutionA() const
 void MLModel::refreshProjector()
 {
     FOR_EACH_CLASS
+    {
         _proj[i].setProjectee(_ref[i]);
+        _proj[i].setMaxRadius(_r);
+    }
+}
+
+void MLModel::updateR()
+{
+    FOR_EACH_CLASS
+        if (_FSC[i](_r) > 0.2)
+        {
+            _r += AROUND(double(size()) / 8);
+            _r = MIN(_r, size() / 2 - _a);
+            return;
+        }
+
+    _r += 10;
+    _r = MIN(_r, size() / 2 - _a);
 }
 
 /***
