@@ -14,18 +14,16 @@ Symmetry::Symmetry() {}
 
 Symmetry::Symmetry(const char sym[])
 {
-    init(sym);
+    symmetryGroup(_pgGroup, _pgOrder, sym);
+
+    init();
 }
 
 Symmetry::Symmetry(const int pgGroup,
                    const int pgOrder)
 {
-    init(pgGroup, pgOrder);
-}
-
-Symmetry::Symmetry(const vector<SymmetryOperation>& entry)
-{
-    init(entry);
+    _pgGroup = pgGroup;
+    _pgOrder = pgOrder;
 }
 
 Symmetry::Symmetry(const Symmetry& that)
@@ -42,6 +40,9 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
 {
     clear();
 
+    _pgGroup = that.pgGroup();
+    _pgOrder = that.pgOrder();
+
     mat33 L, R;
     for (size_t i = 0; i < that.nSymmetryElement(); i++)
     {
@@ -52,38 +53,22 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
     return *this;
 }
 
+int Symmetry::pgGroup() const
+{
+    return _pgGroup;
+}
+
+int Symmetry::pgOrder() const
+{
+    return _pgOrder;
+}
+
 void Symmetry::get(mat33& L,
                    mat33& R,
                    const int i) const
 {
     L = _L[i];
     R = _R[i];
-}
-
-void Symmetry::init(const char sym[])
-{
-    int pgGroup, pgOrder;
-    symmetryGroup(pgGroup, pgOrder, sym);
-
-    init(pgGroup, pgOrder);
-}
-
-void Symmetry::init(const int pgGroup,
-                    const int pgOrder)
-{
-    vector<SymmetryOperation> entry;
-    fillSymmetryEntry(entry, pgGroup, pgOrder);
-
-    init(entry);
-}
-
-void Symmetry::init(const vector<SymmetryOperation>& entry)
-{
-    _L.clear();
-    _R.clear();
-    
-    fillLR(entry);
-    completePointGroup();
 }
 
 int Symmetry::nSymmetryElement() const
@@ -95,6 +80,23 @@ void Symmetry::clear()
 {
     _L.clear();
     _R.clear();
+}
+
+void Symmetry::init()
+{
+    vector<SymmetryOperation> entry;
+    fillSymmetryEntry(entry, _pgGroup, _pgOrder);
+
+    init(entry);
+}
+
+void Symmetry::init(const vector<SymmetryOperation>& entry)
+{
+    _L.clear();
+    _R.clear();
+    
+    fillLR(entry);
+    completePointGroup();
 }
 
 void Symmetry::append(const mat33& L,
@@ -122,16 +124,11 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
 
         if (entry[i].id == 0)
         {
-            // printf("fold = %d\n", entry[i].fold);
             // rotation
             double angle = 2 * M_PI / entry[i].fold;
             // printf("angle = %f\n", angle);
             for (int j = 1; j < entry[i].fold; j++)
             {
-                /***
-                printf("angle * j = %f\n", angle * j);
-                entry[i].axisPlane.print();
-                ***/
                 rotate3D(R, angle * j, entry[i].axisPlane);
                 append(L, R);
             }
@@ -222,5 +219,85 @@ void display(const Symmetry& sym)
 
         L.print("L matrix");
         R.print("R matrix");
+    }
+}
+
+bool asymmetryUnit(const double phi,
+                   const double theta,
+                   const Symmetry& sym)
+{
+    asymmetryUnit(phi, theta, sym.pgGroup(), sym.pgOrder());
+}
+
+bool asymmetryUnit(const double phi,
+                   const double theta,
+                   const int pgGroup,
+                   const int pgOrder)
+{
+    switch (pgGroup)
+    {
+        case PG_CN:
+            return (phi <= 2 * M_PI / pgOrder);
+        
+        case PG_CI:
+        case PG_CS:
+            return (theta <= M_PI / 2);
+
+        case PG_CNV:
+            return (phi <= M_PI / pgOrder);
+
+        case PG_CNH:
+            return ((phi <= 2 * M_PI / pgOrder) &&
+                    (theta <= M_PI / 2));
+        
+        case PG_SN:
+            return ((phi <= 4 * M_PI / pgOrder) &&
+                    (theta <= M_PI / 2));
+
+        case PG_DN:
+            return ((phi >= M_PI / 2) &&
+                    (phi <= 2 * M_PI / pgOrder + M_PI / 2) &&
+                    (theta <= M_PI / 2));
+
+        case PG_DNV:
+        case PG_DNH:
+            return ((phi >= M_PI / 2) &&
+                    (phi <= M_PI / pgOrder + M_PI / 2) &&
+                    (theta <= M_PI / 2));
+
+        case PG_T:
+            return ASY(T, phi, theta);
+
+        case PG_TD:
+            return ASY(TD, phi, theta);
+
+        case PG_TH:
+            return ASY(TH, phi, theta);
+
+        case PG_O:
+            return ((phi >= M_PI / 4) &&
+                    (phi <= 3 * M_PI / 4) &&
+                    (theta <= M_PI / 2) &&
+                    ASY(O, phi, theta));
+
+        case PG_OH:
+            return ((phi >= 3 * M_PI / 2) &&
+                    (phi <= 7 * M_PI / 4) &&
+                    (theta <= M_PI / 2) &&
+                    ASY(O, phi, theta));
+
+        case PG_I:
+        case PG_I2:
+        case PG_I1:
+        case PG_I3:
+        case PG_I4:
+        case PG_I5:
+        case PG_IH:
+        case PG_I2H:
+        case PG_I1H:
+        case PG_I3H:
+        case PG_I4H:
+        case PG_I5H:
+            REPORT_ERROR("Point Group has not been implemented.");
     }
 }
