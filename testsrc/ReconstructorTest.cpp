@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     
     Symmetry sym("C2");
    
-    Reconstructor reconstructor(N, 2, &sym);
+    Reconstructor reconstructor(N, 1, &sym);
 
     reconstructor.setCommRank(myid);
     reconstructor.setCommSize(numprocs);
