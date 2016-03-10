@@ -11,7 +11,7 @@
 #ifndef SYMMETRY_FUNCTIONS_H
 #define SYMMETRY_FUNCTIONS_H
 
-#include <regex>
+#include <boost/regex.hpp>
 #include <cstdlib>
 #include <vector>
 
@@ -23,7 +23,8 @@
 #include "PointGroup.h"
 #include "SymmetryOperation.h"
 
-using namespace std;
+//using namespace std;
+using namespace boost;
 
 void symmetryGroup(int& pgGroup,
                    int& pgOrder,
