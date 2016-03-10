@@ -222,6 +222,14 @@ void display(const Symmetry& sym)
     }
 }
 
+bool asymmetryUnit(const vec3 dir,
+                   const Symmetry& sym)
+{
+    double phi, theta;
+    angle(phi, theta, dir);
+    asymmetryUnit(phi, theta, sym);
+}
+
 bool asymmetryUnit(const double phi,
                    const double theta,
                    const Symmetry& sym)

@@ -12,17 +12,16 @@ Particle::Particle(const int N,
 
 Particle::~Particle() 
 {
-    delete[] _ex;
-    delete[] _ey;    
-    delete[] _ez;
+    SAVE_DELETE(_ex);
+    SAVE_DELETE(_ey);
+    SAVE_DELETE(_ez);
 
-    delete[] _psi;
-    delete[] _x;
-    delete[] _y;
+    SAVE_DELETE(_psi);
 
-    delete[] _w;
+    SAVE_DELETE(_x);
+    SAVE_DELETE(_y);
 
-
+    SAVE_DELETE(_w);
 }
 
 void Particle::init(const int N,
@@ -31,18 +30,22 @@ void Particle::init(const int N,
                     const Symmetry* sym)
 {
     _N = N;
+
     _maxX = maxX;
     _maxY = maxY;
+
     _sym = sym;
-    _ex  = new double[_N];
-    _ey  = new double[_N];
-    _ez  = new double[_N];
+
+    _ex = new double[_N];
+    _ey = new double[_N];
+    _ez = new double[_N];
     
     _psi = new double[_N];
-    _x   = new double[_N];
-    _y   = new double[_N];
+
+    _x = new double[_N];
+    _y = new double[_N];
     
-    _w   = new double[_N];
+    _w = new double[_N];
     
     int i = 0;
     while (i < _N) 
@@ -50,10 +53,12 @@ void Particle::init(const int N,
         gsl_ran_dir_3d(RANDR, &_ex[i], &_ey[i], &_ez[i]);
      
         vec3 src = {_ex[i], _ey[i], _ez[i]};
+        /***
         double phi, theta;
         angle(phi, theta, src);
+        ***/
 
-        if (asymmetryUnit(phi, theta, *sym))
+        if (!asymmetryUnit(src, *sym))
             continue;
          
         _psi[i] = gsl_ran_flat(RANDR, 0, M_PI);
@@ -67,22 +72,23 @@ void Particle::init(const int N,
    }
 }
 
+void Particle::setSymmetry(const Symmetry* sym)
+{
+    _sym = sym;
+}
 
 void Particle::perturb()
 {
 }
-
-
-
 
 void Particle::resample()
 {
     double* cdf = new double[_N];
     partial_sum(_w, _w + _N, cdf);
 
-    int i = 0;
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / _N);  
     
+    int i = 0;
     for (int j = 0; j < _N; j++)
     {
         double uj = u0 + j * 1.0 / _N;
@@ -100,20 +106,12 @@ void Particle::resample()
         _y[j] = _y[i];
 
         _w[j] = 1.0 / _N;
-
     }
 
     delete []cdf;
 }
 
-double Particle::neff() 
+double Particle::neff() const
 {
     return 1.0 / cblas_ddot(_N, _w, 1, _w, 1);
 }
-
-void Particle::symmetrize()
-{
-    if (_sym == NULL) return;
-
-}
-

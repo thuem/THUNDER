@@ -108,6 +108,9 @@ class Symmetry
 
 void display(const Symmetry& sym);
 
+bool asymmetryUnit(const vec3 dir,
+                   const Symmetry& sym);
+
 bool asymmetryUnit(const double phi,
                    const double theta,
                    const Symmetry& sym);
