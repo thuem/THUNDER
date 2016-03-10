@@ -12,6 +12,9 @@
 
 int main(int argc, const char* argv[])
 {
-    Symmetry sym("C7");
+    Symmetry sym("C5");
+
     Particle particle(6000, 30, 30, &sym);
+
+    display(particle);
 }

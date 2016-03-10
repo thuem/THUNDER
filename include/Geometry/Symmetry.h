@@ -120,4 +120,9 @@ bool asymmetryUnit(const double phi,
                    const int pgGroup,
                    const int pgOrder);
 
+void symmetryCounterpart(double& ex,
+                         double& ey,
+                         double& ez,
+                         const Symmetry& sym);
+
 #endif // SYMMETRY_H

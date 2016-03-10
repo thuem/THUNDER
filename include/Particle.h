@@ -73,6 +73,12 @@ class Particle
         void resample();
 
         double neff() const;
+    
+    private:
+
+        void symmetrise();
 };
+
+void display(const Particle& particle);
 
 #endif  //PARTICLE_H

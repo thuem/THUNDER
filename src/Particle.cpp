@@ -55,19 +55,14 @@ void Particle::init(const int N,
     
     _w = new double[_N];
     
-    int i = 0;
-    while (i < _N) 
+    for (int i = 0; i < _N; i++)
     {
         gsl_ran_dir_3d(RANDR, &_ex[i], &_ey[i], &_ez[i]);
      
-        // vec3 src = {_ex[i], _ey[i], _ez[i]};
         /***
-        double phi, theta;
-        angle(phi, theta, src);
-        ***/
-
         if (!asymmetryUnit(vec3({_ex[i], _ey[i], _ez[i]}), *sym))
             continue;
+            ***/
          
         _psi[i] = gsl_ran_flat(RANDR, 0, M_PI);
         
@@ -75,9 +70,9 @@ void Particle::init(const int N,
         _y[i] = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
         _w[i] = 1.0 / _N;
+    }
 
-        i++;
-   }
+    symmetrise();
 }
 
 int Particle::N() const
@@ -138,4 +133,22 @@ void Particle::resample()
 double Particle::neff() const
 {
     return 1.0 / cblas_ddot(_N, _w, 1, _w, 1);
+}
+
+void Particle::symmetrise()
+{
+    if (_sym == NULL) return;
+
+    for (int i = 0; i < _N; i++)
+        symmetryCounterpart(_ex[i], _ey[i], _ez[i], *_sym);
+}
+
+void display(const Particle& particle)
+{
+    Coordinate5D coord;
+    for (int i = 0; i < particle.N(); i++)
+    {
+        particle.coord(coord, i);
+        display(coord);
+    }
 }

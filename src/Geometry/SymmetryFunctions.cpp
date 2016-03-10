@@ -14,7 +14,8 @@ void symmetryGroup(int& pgGroup,
                    int& pgOrder,
                    const char sym[])
 {
-    if (regex_match(sym, regex("C[\\d]+", regex_constants::extended)))
+    if (regex_match(sym, regex("C[[:digit:]]+",
+                               regex_constants::extended)))
     {
         pgGroup = PG_CN;
         pgOrder = atoi(&sym[1]);
@@ -29,32 +30,38 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_CS;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("C[\\d]+H", regex_constants::extended)))
+    else if (regex_match(sym, regex("C[[:digit:]]+H",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_CNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("C[\\d]+V", regex_constants::extended)))
+    else if (regex_match(sym, regex("C[[:digit:]]+V",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_CNV;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("S[\\d]+", regex_constants::extended)))
+    else if (regex_match(sym, regex("S[[:digit:]]+",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_SN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[\\d]+", regex_constants::extended)))
+    else if (regex_match(sym, regex("D[[:digit:]]+",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_DN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[\\d]+H", regex_constants::extended)))
+    else if (regex_match(sym, regex("D[[:digit:]]+H",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_DNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[\\d]+V", regex_constants::extended)))
+    else if (regex_match(sym, regex("D[[:digit:]]+V",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_DNV;
         pgOrder = atoi(&sym[1]);

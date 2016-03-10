@@ -27,10 +27,18 @@ Coordinate5D::Coordinate5D(const double phi,
 
 void display(const Coordinate5D& coord)
 {
+    printf("%12f %12f %12f %12f %12f\n",
+           coord.phi,
+           coord.theta,
+           coord.psi,
+           coord.x,
+           coord.y);
+    /***
     printf("theta = %f, phi = %f, psi = %f, x = %f, y = %f\n",
            coord.theta,
            coord.phi,
            coord.psi,
            coord.x,
            coord.y);
+           ***/
 }

@@ -309,3 +309,26 @@ bool asymmetryUnit(const double phi,
             REPORT_ERROR("Point Group has not been implemented.");
     }
 }
+
+void symmetryCounterpart(double& ex,
+                         double& ey,
+                         double& ez,
+                         const Symmetry& sym)
+{
+    vec3 dir = {ex, ey, ez};
+    if (asymmetryUnit(dir, sym)) return;
+
+    mat33 L, R;
+    vec3 newDir;
+    for (int i = 0; i < sym.nSymmetryElement(); i++)
+    {
+        sym.get(L, R, i);
+        newDir = R * dir;
+        if (asymmetryUnit(newDir, sym))
+        {
+            ex = newDir(0);
+            ey = newDir(1);
+            ez = newDir(2);
+        }
+    }
+}
