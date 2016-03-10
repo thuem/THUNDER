@@ -4,8 +4,7 @@ AM_CXXFLAGS = -I${top_srcdir}/include \
 			  -I${top_srcdir}/include/Error \
 			  -I${top_srcdir}/include/Functions \
 			  -I${top_srcdir}/include/Image \
-			  -I${top_srcdir}/include/Geometry \
-			  -I${top_srcdir}/external/HEALPix/include
+			  -I${top_srcdir}/include/Geometry
 
 AM_CXXFLAGS += -fPIC -std=c++11
 
@@ -18,7 +17,8 @@ noist_PROGRAMS = FunctionsTest \
 				 ReconstructorTest \
 				 ExperimentTest \
 				 EulerTest \
-				 SymmetryTest
+				 SymmetryTest \
+				 ParticleTest
 
 THUEMLIBS = ../libthuem.a
 
@@ -45,3 +45,6 @@ EulerTest_LDADD = ${THUEMLIBS}
 
 SymmetryTest_SOURCES = ../testsrc/SymmetryTest.cpp
 SymmetryTest_LDADD = ${THUEMLIBS}
+
+ParticleTest_SOURCES = ../testsrc/ParticleTest.cpp
+ParticleTest_LDADD = ${THUEMLIBS}

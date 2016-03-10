@@ -15,6 +15,7 @@
 #include "Typedef.h"
 #include "Macro.h"
 
+#include "Coordinate5D.h"
 #include "Random.h"
 #include "Euler.h"
 #include "Symmetry.h"
@@ -58,6 +59,12 @@ class Particle
                   const double maxX,
                   const double maxY,
                   const Symmetry* sym = NULL);
+
+        int N() const;
+
+        void coord(Coordinate5D& dst,
+                   const int i) const;
+        /* return the coordinate of the ith particle */
 
         void setSymmetry(const Symmetry* sym);
 

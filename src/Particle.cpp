@@ -1,4 +1,12 @@
-#include <Particle.h>
+/*******************************************************************************
+ * Author: Hongkun Yu, Mingxu Hu
+ * Dependecy:
+ * Test:
+ * Execution:
+ * Description:
+ * ****************************************************************************/
+
+#include "Particle.h"
 
 Particle::Particle() {}
 
@@ -52,13 +60,13 @@ void Particle::init(const int N,
     {
         gsl_ran_dir_3d(RANDR, &_ex[i], &_ey[i], &_ez[i]);
      
-        vec3 src = {_ex[i], _ey[i], _ez[i]};
+        // vec3 src = {_ex[i], _ey[i], _ez[i]};
         /***
         double phi, theta;
         angle(phi, theta, src);
         ***/
 
-        if (!asymmetryUnit(src, *sym))
+        if (!asymmetryUnit(vec3({_ex[i], _ey[i], _ez[i]}), *sym))
             continue;
          
         _psi[i] = gsl_ran_flat(RANDR, 0, M_PI);
@@ -70,6 +78,22 @@ void Particle::init(const int N,
 
         i++;
    }
+}
+
+int Particle::N() const
+{
+    return _N;
+}
+
+void Particle::coord(Coordinate5D& dst,
+                     const int i) const
+{
+    // vec3 src = {_ex[i], _ey[i], _ez[i]};
+    angle(dst.phi, dst.theta, vec3({_ex[i], _ey[i], _ez[i]}));
+
+    dst.psi = _psi[i];
+    dst.x = _x[i];
+    dst.y = _y[i];
 }
 
 void Particle::setSymmetry(const Symmetry* sym)
@@ -108,7 +132,7 @@ void Particle::resample()
         _w[j] = 1.0 / _N;
     }
 
-    delete []cdf;
+    delete[] cdf;
 }
 
 double Particle::neff() const
