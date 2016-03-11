@@ -9,9 +9,10 @@
 #ifndef PARALLEL_H
 #define PARALLEL_H
 
+#include <cstdio>
 #include <mpi.h>
 
-#define SERVER_ID 0
+#define MASTER_ID 0
 
 class Parallel
 {
@@ -20,12 +21,6 @@ class Parallel
         int _commSize;
         int _commRank;
 
-        /***
-        MPI_Comm _world = MPI_COMM_WORLD;
-
-        MPI_Comm _partWorld;
-        ***/
-        
         MPI_Comm _hemi;
 
     public:
@@ -34,8 +29,7 @@ class Parallel
 
         ~Parallel();
 
-        void setMPIEnv(int argc,
-                       char* argv[]);
+        void setMPIEnv();
 
         void setMPIEnv(const int commSize,
                        const int commRank,
@@ -51,15 +45,11 @@ class Parallel
 
         void setCommRank(const int commRank);
 
+        MPI_Comm hemi() const;
+
         void setHemi(const MPI_Comm& hemi);
-
-        /***
-        Parallel(int argc,
-                 char* argv[]);
-
-        void init(int argc,
-                  char* argv[]);
-                  ***/
 };
+
+void display(const Parallel& parallel);
 
 #endif // PARALLEL_H

@@ -8,6 +8,13 @@
 
 #include "Parallel.h"
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
+    MPI_Init(&argc, &argv);
+
+    Parallel par;
+    par.setMPIEnv();
+    display(par);
+    
+    MPI_Finalize();
 }
