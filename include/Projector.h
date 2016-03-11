@@ -42,6 +42,8 @@ class Projector
 
         int _interp = LINEAR_INTERP;
         
+        int _pf = 2; // padding factor
+
         Volume _projectee;
 
     public:
@@ -63,6 +65,10 @@ class Projector
         int interp() const;
 
         void setInterp(const int interp);
+
+        int pf() const;
+
+        void setPf(const int pf);
 
         const Volume& projectee() const;
 

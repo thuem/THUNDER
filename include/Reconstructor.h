@@ -29,6 +29,8 @@
 using namespace std;
 using namespace arma;
 
+#define PAD_SIZE (_pf * _size)
+
 class Reconstructor
 {
     private:
@@ -36,7 +38,7 @@ class Reconstructor
         int _size;
 
         double _a = 1.9;
-        double _alpha = 15;
+        double _alpha = 10;
         
         int _commRank = 0;
         int _commSize = 1;
@@ -49,7 +51,7 @@ class Reconstructor
 
         int _maxRadius;
 
-        int _pf; // padding factor
+        int _pf = 2; // padding factor
 
         const Symmetry* _sym;
 
@@ -58,18 +60,18 @@ class Reconstructor
         Reconstructor();
 
         Reconstructor(const int size,
-                      const int pf,
+                      const int pf = 2,
                       const Symmetry* sym = NULL,
                       const double a = 1.9,
-                      const double alpha = 15);
+                      const double alpha = 10);
 
         ~Reconstructor();
 
         void init(const int size,
-                  const int pf,
+                  const int pf = 2,
                   const Symmetry* sym = NULL,
                   const double a = 1.9,
-                  const double alpha = 15);
+                  const double alpha = 10);
 
         void setSymmetry(const Symmetry* sym);
 

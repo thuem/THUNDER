@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-
 #include "Projector.h"
 #include "ImageFile.h"
 #include "FFT.h"
@@ -38,18 +37,19 @@ int main(int argc, const char* argv[])
     ImageFile imf;
     imf.readMetaData(head);
     imf.writeVolume("head.mrc", head);
+
+    Volume padHead;
+    VOL_PAD_RL(padHead, head, 2);
+    /***
+    imf.readMetaData(padHead);
+    imf.writeVolume("padHead.mrc", padHead);
+    ***/
     
     FFT fft;
-    fft.fw(head);
-
-    /***
-    VOLUME_FOR_EACH_PIXEL_FT(head)
-        printf("%f %f\n", REAL(head.getFT(i, j, k)),
-                          IMAG(head.getFT(i, j, k)));
-    ***/
+    fft.fw(padHead);
 
     Projector projector;
-    projector.setProjectee(head);
+    projector.setProjectee(padHead);
 
     char name[256];
     int counter = 0;
@@ -57,6 +57,8 @@ int main(int argc, const char* argv[])
     // Image image(N, N, fourierSpace);
     Image image(N, N, RL_SPACE);
 
+    try
+    {
     for (int k = 0; k < M; k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
@@ -85,6 +87,11 @@ int main(int argc, const char* argv[])
                 image.saveRLToBMP(name);
                 // image.saveFTToBMP(name, 0.1);
             }
+    }
+    catch (Error& err)
+    {
+        cout << err << endl;
+    }
 
     return 0;
 }

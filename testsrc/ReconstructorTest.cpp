@@ -92,8 +92,11 @@ int main(int argc, char* argv[])
         imf.display();
         imf.writeVolume("head.mrc", head);
     }
+
+    Volume padHead;
+    VOL_PAD_RL(padHead, head, 2);
     FFT fft;
-    fft.fw(head);
+    fft.fw(padHead);
 
     /***
     VOLUME_FOR_EACH_PIXEL_FT(head)
@@ -102,7 +105,7 @@ int main(int argc, char* argv[])
     ***/
 
     Projector projector;
-    projector.setProjectee(head);
+    projector.setProjectee(padHead);
 
     char name[256];
     int counter = 0;
@@ -112,7 +115,7 @@ int main(int argc, char* argv[])
     
     Symmetry sym("C2");
    
-    Reconstructor reconstructor(N, 1, &sym);
+    Reconstructor reconstructor(N, 2, &sym);
 
     reconstructor.setCommRank(myid);
     reconstructor.setCommSize(numprocs);

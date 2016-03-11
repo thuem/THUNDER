@@ -25,6 +25,24 @@
 using namespace std;
 using namespace arma;
 
+#define VOL_PAD_RL(dst, src, pf) \
+    VOL_PAD(RL, dst, src, pf)
+
+#define VOL_PAD_FT(dst, src, pf) \
+    VOL_PAD(FT, dst, src, pf)
+
+#define VOL_PAD(SP, dst, src, pf) \
+    [](Volume& _dst, const Volume& _src, const int _pf) \
+    { \
+        _dst.alloc(_pf * _src.nColRL(), \
+                   _pf * _src.nRowRL(), \
+                   _pf * _src.nSlcRL(), \
+                    SP##_SPACE); \
+        SET_0_##SP(_dst); \
+        VOLUME_FOR_EACH_PIXEL_##SP(_src) \
+            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
+    }(dst, src, pf)
+
 void translate(Image& dst,
                const Image& src,
                const double nTransCol,

@@ -33,11 +33,15 @@ void Reconstructor::init(const int size,
     _a = a;
     _alpha = alpha;
 
-    _maxRadius = _size / 2 - a;
+    _maxRadius = (_size / 2 - a) * _pf;
 
-    _F.alloc(_size, _size, _size, FT_SPACE);
+    _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    /***
     _W.alloc(_size, _size, _size, FT_SPACE);
     _C.alloc(_size, _size, _size, FT_SPACE);
+    ***/
 
     SET_0_FT(_F);
     SET_1_FT(_W);
@@ -75,14 +79,14 @@ void Reconstructor::insert(const Image& src,
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         vec3 newCor = {(double)i, (double)j, 0};
-        vec3 oldCor = mat * newCor;
+        vec3 oldCor = mat * newCor *_pf;
         
         if (norm(oldCor) < _maxRadius)
             _F.addFT(transSrc.getFT(i, j) * u * v, 
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2), 
-                     _a, 
+                     _pf * _a, 
                      _alpha);
     }
 }
@@ -100,7 +104,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             for (int i = -_size / 2; i <= _size / 2; i++)
             {
                 vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = mat * newCor;
+                vec3 oldCor = mat * newCor * _pf;
 
                 if (norm(oldCor) < _maxRadius)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
@@ -110,7 +114,7 @@ void Reconstructor::allReduceW(MPI_Comm workers)
                              oldCor(0),
                              oldCor(1),
                              oldCor(2),
-                             _a,
+                             _pf * _a,
                              _alpha);
             }
     }
@@ -161,21 +165,25 @@ void Reconstructor::allReduceF(MPI_Comm world)
 
 void Reconstructor::constructor(const char dst[])
 {
+    /***
     Volume result(_pf * _size, _pf * _size, _pf * _size, FT_SPACE);
     SET_0_FT(result);
     VOLUME_FOR_EACH_PIXEL_FT(_F)
         result.setFT(_F.getFT(i, j, k), i, j, k);
+        ***/
+
+    Volume result = _F;
 
     FFT fft;
     fft.bw(result);
 
     VOLUME_FOR_EACH_PIXEL_RL(result)
     {     
-        double r = NORM_3(i, j, k) / (_pf * _size);
+        double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        if (r < 0.5 / _pf)
+        if (r < 0.25 / _pf)
             result.setRL((result.getRL(i, j, k)
-                        / MKB_RL(r, _a, _alpha)
+                        / MKB_RL(r, _pf * _a, _alpha)
                         / TIK_RL(r)),
                          i,
                          j,

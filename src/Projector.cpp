@@ -53,6 +53,16 @@ void Projector::setInterp(const int interp)
     _interp= interp;
 }
 
+int Projector::pf() const
+{
+    return _pf;
+}
+
+void Projector::setPf(const int pf)
+{
+    _pf = pf;
+}
+
 const Volume& Projector::projectee() const
 {
     return _projectee;
@@ -76,7 +86,7 @@ void Projector::project(Image& dst,
 
         vec3 newCor = {(double)i, (double)j, 0};
         // std::cout << newCor << std::endl;
-        vec3 oldCor = mat * newCor;
+        vec3 oldCor = mat * newCor * _pf;
         // std::cout << oldCor << std::endl;
 
         if (norm(oldCor) < _maxRadius)
