@@ -13,16 +13,11 @@ class Parallel
         int _numProcs;
         int _myId;
 
-        int _serverId;
-        
-        int _numWorkers = -1;
-        int _workerId = -1;
-
+        const int _serverId = 0;
 
         MPI_Comm _world = MPI_COMM_WORLD;
 
         MPI_Comm _partWorld;
-        MPI_Comm _partWorldW;
 
 
     public:
