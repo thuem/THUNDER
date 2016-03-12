@@ -15,6 +15,7 @@
 #include <armadillo>
 #include <mpi.h>
 
+#include "Parallel.h"
 #include "Coordinate5D.h"
 #include "Functions.h"
 #include "Euler.h"
@@ -31,7 +32,7 @@ using namespace arma;
 
 #define PAD_SIZE (_pf * _size)
 
-class Reconstructor
+class Reconstructor : public Parallel
 {
     private:
 
@@ -40,8 +41,10 @@ class Reconstructor
         double _a = 1.9;
         double _alpha = 10;
         
+        /***
         int _commRank = 0;
         int _commSize = 1;
+        ***/
 
         Volume _F;
         Volume _W;
@@ -53,7 +56,7 @@ class Reconstructor
 
         int _pf = 2; // padding factor
 
-        const Symmetry* _sym;
+        const Symmetry* _sym = NULL;
 
     public:
 
@@ -75,17 +78,28 @@ class Reconstructor
 
         void setSymmetry(const Symmetry* sym);
 
+        /***
         void setCommRank(const int commRank);
         void setCommSize(const int commSize);
+        ***/
 
         void insert(const Image& src,
                     const Coordinate5D coord,
+                    const double w);
+        /***
                     const double u,
                     const double v);
+                    ***/
 
+        void allReduceW();
+
+        void allReduceF();
+
+        /***
         void allReduceW(MPI_Comm workers);
 
         void allReduceF(MPI_Comm world);
+        ***/
 
         void constructor(const char dst[]);
 
@@ -100,5 +114,3 @@ class Reconstructor
 };
 
 #endif //RECONSTRUCTOR_H
-
-

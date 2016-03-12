@@ -53,6 +53,7 @@ void Reconstructor::setSymmetry(const Symmetry* sym)
     _sym = sym;
 }
 
+/***
 void Reconstructor::setCommSize(const int commSize) 
 {
     _commSize = commSize;
@@ -62,11 +63,11 @@ void Reconstructor::setCommRank(const int commRank)
 {
     _commRank = commRank;
 }
+***/
 
 void Reconstructor::insert(const Image& src,
                            const Coordinate5D coord,
-                           const double u,
-                           const double v)
+                           const double w)
 {
     _coord.push_back(coord);
 
@@ -82,7 +83,7 @@ void Reconstructor::insert(const Image& src,
         vec3 oldCor = mat * newCor *_pf;
         
         if (norm(oldCor) < _maxRadius)
-            _F.addFT(transSrc.getFT(i, j) * u * v, 
+            _F.addFT(transSrc.getFT(i, j) * w, 
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2), 
@@ -91,8 +92,10 @@ void Reconstructor::insert(const Image& src,
     }
 }
 
-void Reconstructor::allReduceW(MPI_Comm workers) 
+void Reconstructor::allReduceW()
 {
+    if (_commRank == MASTER_ID) return;
+
     SET_0_FT(_C);
     
     for (int i = 0; i < _coord.size(); i++)
@@ -119,16 +122,19 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             }
     }
 
-    MPI_Barrier(workers);
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, 
                   &_C[0],
                   _C.sizeFT(),
                   MPI_DOUBLE_COMPLEX, 
                   MPI_SUM, 
+                  _hemi);
+    /***
                   workers);
+                  ***/
 
-    MPI_Barrier(workers);
+    MPI_Barrier(_hemi);
 
     symmetrizeC();
     
@@ -145,20 +151,20 @@ void Reconstructor::allReduceW(MPI_Comm workers)
             _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
 }
 
-void Reconstructor::allReduceF(MPI_Comm world) 
+void Reconstructor::allReduceF()
 {
     MUL_FT(_F, _W);
 
-    MPI_Barrier(world);
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, 
                   &_F[0],
                   _F.sizeFT(),
                   MPI_DOUBLE_COMPLEX, 
                   MPI_SUM, 
-                  world);
+                  _hemi);
 
-    MPI_Barrier(world);
+    MPI_Barrier(_hemi);
 
     symmetrizeF();
 }

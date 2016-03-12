@@ -35,16 +35,23 @@ void Parallel::setMPIEnv()
     MPI_Group_incl(wGroup, sizeA, a, &aGroup);
     MPI_Group_incl(wGroup, sizeB, b, &bGroup);
 
+    /* It should be noticed that the parameters of MPI_Comm_create should be
+     * exactly the same in all process. Otherwise, an error will happen. */
     MPI_Comm_create(MPI_COMM_WORLD, aGroup, &A);
-    MPI_Comm_create(MPI_COMM_WORLD, aGroup, &B);
+    MPI_Comm_create(MPI_COMM_WORLD, bGroup, &B);
 
+    if (A != MPI_COMM_NULL) { _hemi = A; };
+    if (B != MPI_COMM_NULL) { _hemi = B; };
+
+    /***
     if ((_commRank >= 1) && (_commRank < 1 + sizeA)) _hemi = A;
     else if (_commRank >= 1 + sizeA) _hemi = B;
+    ***/
 
     MPI_Group_free(&wGroup);
     MPI_Group_free(&aGroup);
     MPI_Group_free(&bGroup);
-
+    
     delete[] a;
     delete[] b;
 }
