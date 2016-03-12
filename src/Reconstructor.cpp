@@ -14,9 +14,10 @@ Reconstructor::Reconstructor(const int size,
                              const int pf,
                              const Symmetry* sym,
                              const double a,
-                             const double alpha)
+                             const double alpha,
+                             const double zeta)
 {
-    init(size, pf, sym, a, alpha);
+    init(size, pf, sym, a, alpha, zeta);
 }
 
 Reconstructor::~Reconstructor() {}
@@ -25,27 +26,28 @@ void Reconstructor::init(const int size,
                          const int pf,
                          const Symmetry* sym,
                          const double a,
-                         const double alpha)
+                         const double alpha,
+                         const double zeta)
 {
     _size = size;
     _pf = pf;
     _sym = sym;
     _a = a;
     _alpha = alpha;
+    _zeta = zeta;
 
     _maxRadius = (_size / 2 - a) * _pf;
 
-    _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    /***
-    _W.alloc(_size, _size, _size, FT_SPACE);
-    _C.alloc(_size, _size, _size, FT_SPACE);
-    ***/
+    if (_commRank != MASTER_ID)
+    {
+        _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
 
-    SET_0_FT(_F);
-    SET_1_FT(_W);
-    SET_0_FT(_C);
+        SET_0_FT(_F);
+        SET_1_FT(_W);
+        SET_0_FT(_C);
+    }
 }
 
 void Reconstructor::setSymmetry(const Symmetry* sym)
@@ -53,22 +55,12 @@ void Reconstructor::setSymmetry(const Symmetry* sym)
     _sym = sym;
 }
 
-/***
-void Reconstructor::setCommSize(const int commSize) 
-{
-    _commSize = commSize;
-}
-
-void Reconstructor::setCommRank(const int commRank)
-{
-    _commRank = commRank;
-}
-***/
-
 void Reconstructor::insert(const Image& src,
                            const Coordinate5D coord,
                            const double w)
 {
+    if (_commRank == MASTER_ID) return;
+
     _coord.push_back(coord);
 
     Image transSrc(_size, _size, FT_SPACE);
@@ -92,10 +84,44 @@ void Reconstructor::insert(const Image& src,
     }
 }
 
-void Reconstructor::allReduceW()
+void Reconstructor::reconstruct(Volume& dst)
 {
     if (_commRank == MASTER_ID) return;
 
+    double c;
+    do
+    {
+        allReduceW();
+        c = checkC();
+        printf("checkC = %12f\n", c);
+    }
+    while (c > _zeta);
+
+    allReduceF();
+
+    dst = _F;
+
+    FFT fft;
+    fft.bw(dst);
+
+    VOLUME_FOR_EACH_PIXEL_RL(dst)
+    {     
+        double r = NORM_3(i, j, k) / PAD_SIZE;
+
+        if (r < 0.25 / _pf)
+            dst.setRL(dst.getRL(i, j, k)
+                    / MKB_RL(r, _pf * _a, _alpha)
+                    / TIK_RL(r),
+                      i,
+                      j,
+                      k);
+        else
+            dst.setRL(0, i, j, k);
+    }
+}
+
+void Reconstructor::allReduceW()
+{
     SET_0_FT(_C);
     
     for (int i = 0; i < _coord.size(); i++)
@@ -130,9 +156,6 @@ void Reconstructor::allReduceW()
                   MPI_DOUBLE_COMPLEX, 
                   MPI_SUM, 
                   _hemi);
-    /***
-                  workers);
-                  ***/
 
     MPI_Barrier(_hemi);
 
@@ -167,40 +190,6 @@ void Reconstructor::allReduceF()
     MPI_Barrier(_hemi);
 
     symmetrizeF();
-}
-
-void Reconstructor::constructor(const char dst[])
-{
-    /***
-    Volume result(_pf * _size, _pf * _size, _pf * _size, FT_SPACE);
-    SET_0_FT(result);
-    VOLUME_FOR_EACH_PIXEL_FT(_F)
-        result.setFT(_F.getFT(i, j, k), i, j, k);
-        ***/
-
-    Volume result = _F;
-
-    FFT fft;
-    fft.bw(result);
-
-    VOLUME_FOR_EACH_PIXEL_RL(result)
-    {     
-        double r = NORM_3(i, j, k) / PAD_SIZE;
-
-        if (r < 0.25 / _pf)
-            result.setRL((result.getRL(i, j, k)
-                        / MKB_RL(r, _pf * _a, _alpha)
-                        / TIK_RL(r)),
-                         i,
-                         j,
-                         k);
-        else
-            result.setRL(0, i, j, k);
-    }
-
-    ImageFile imf;
-    imf.readMetaData(result);
-    imf.writeVolume(dst, result);
 }
 
 double Reconstructor::checkC() const

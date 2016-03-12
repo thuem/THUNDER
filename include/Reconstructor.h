@@ -23,7 +23,6 @@
 #include "Image.h"
 #include "Volume.h"
 #include "ImageFunctions.h"
-#include "ImageFile.h"
 #include "Symmetry.h"
 #include "Transformation.h"
 
@@ -38,14 +37,6 @@ class Reconstructor : public Parallel
 
         int _size;
 
-        double _a = 1.9;
-        double _alpha = 10;
-        
-        /***
-        int _commRank = 0;
-        int _commSize = 1;
-        ***/
-
         Volume _F;
         Volume _W;
         Volume _C;
@@ -58,6 +49,11 @@ class Reconstructor : public Parallel
 
         const Symmetry* _sym = NULL;
 
+        double _a = 1.9;
+        double _alpha = 10;
+        
+        double _zeta = 0.15;
+
     public:
 
         Reconstructor();
@@ -66,7 +62,8 @@ class Reconstructor : public Parallel
                       const int pf = 2,
                       const Symmetry* sym = NULL,
                       const double a = 1.9,
-                      const double alpha = 10);
+                      const double alpha = 10,
+                      const double zeta = 0.15);
 
         ~Reconstructor();
 
@@ -74,43 +71,29 @@ class Reconstructor : public Parallel
                   const int pf = 2,
                   const Symmetry* sym = NULL,
                   const double a = 1.9,
-                  const double alpha = 10);
+                  const double alpha = 10,
+                  const double zeta = 0.15);
 
         void setSymmetry(const Symmetry* sym);
-
-        /***
-        void setCommRank(const int commRank);
-        void setCommSize(const int commSize);
-        ***/
 
         void insert(const Image& src,
                     const Coordinate5D coord,
                     const double w);
-        /***
-                    const double u,
-                    const double v);
-                    ***/
+
+        void reconstruct(Volume& dst);
+
+    private:
 
         void allReduceW();
 
         void allReduceF();
 
-        /***
-        void allReduceW(MPI_Comm workers);
-
-        void allReduceF(MPI_Comm world);
-        ***/
-
-        void constructor(const char dst[]);
-
-        double checkC() const;
-        /* calculate the distance between C and 1 */
-
-    private:
-
         void symmetrizeF();
 
         void symmetrizeC();
+
+        double checkC() const;
+        /* calculate the distance between C and 1 */
 };
 
 #endif //RECONSTRUCTOR_H

@@ -13,7 +13,7 @@
 #include "FFT.h"
 #include "Mask.h"
 
-#define N 16 
+#define N 32
 #define M 16
 
 using namespace std;
@@ -123,16 +123,30 @@ int main(int argc, char* argv[])
                     // image.saveFTToBMP(name, 0.1);    
                 }
 
+        /***
         for (int i = 0; i < 3; i++) {
             reconstructor.allReduceW();
             std::cout << "Round-" << i << ":       worker-" << commRank - 1 << "    :finised allreduce" << std::endl;
             std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
+        ***/
     }
 
     /***
     reconstructor.allReduceF();
+    ***/
  
+    Volume result;
+    reconstructor.reconstruct(result);
+
+    if (commRank == 1)
+    {
+        ImageFile imf;
+        imf.readMetaData(result);
+        imf.writeVolume("result.mrc", result);
+    }
+
+    /***
     if (commRank == 1) {
     // if (myid == 1) {
         std::cout << "server-" << commRank << ":          finised reduce" << std::endl;
