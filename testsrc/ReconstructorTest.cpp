@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
     Image image(N, N, fourierSpace);
     // Image image(N, N, realSpace);
     
-    Reconstructor reconstructor;
+  //  Reconstructor reconstructor;
 
     //try {
         for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)

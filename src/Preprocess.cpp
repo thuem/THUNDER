@@ -93,8 +93,8 @@ void Preprocess::extractParticles(const int micrographID)
 
         if (_para.doInvertConstrast )
         {
-            invertContrast(particle);
-            //negView(particle);
+            //invertContrast(particle);
+            NEG_RL(particle);
         }
 
         particleFile.writeImage(particleName, particle);
@@ -193,9 +193,11 @@ void Preprocess::run()
     getMicrographIDs(_micrographIDs);
     
     //#pragma omp parallel for
+    printf("_micrographIDs.size()=%d \n ", _micrographIDs.size());
     for (int i = 0; i < _micrographIDs.size(); i++)
     {
-        extractParticles(_micrographIDs[i]);
+    	printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
+     //   extractParticles(_micrographIDs[i]);
     }
 }
 

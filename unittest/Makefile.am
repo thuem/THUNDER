@@ -15,8 +15,8 @@ noist_PROGRAMS = FunctionsTest \
 				 ImageFunctionsTest \
 				 ProjectorTest \
 				 ReconstructorTest \
-				 ExperimentTest
-
+				 ExperimentTest \
+				 PreprocessTest
 THUEMLIBS = ../libthuem.a
 
 FunctionsTest_SOURCES = ../testsrc/FunctionsTest.cpp
@@ -33,3 +33,7 @@ ReconstructorTest_LDADD = ${THUEMLIBS}
 
 ExperimentTest_SOURCES = ../testsrc/ExperimentTest.cpp
 ExperimentTest_LDADD = ${THUEMLIBS}
+
+
+PreprocessTest_SOURCES = ../testsrc/PreprocessTest.cpp
+PreprocessTest_LDADD = ${THUEMLIBS}

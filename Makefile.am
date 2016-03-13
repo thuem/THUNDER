@@ -18,13 +18,9 @@ libthuem_a_SOURCES = src/Complex.cpp \
 					 src/FFT.cpp \
 					 src/Projector.cpp \
 					 src/Database.cpp \
-<<<<<<< HEAD
 					 src/Experiment.cpp \
-                                         src/Preprocess.cpp
-=======
-					 src/Reconstructor.cpp \
-					 src/Experiment.cpp
->>>>>>> origin/master
+                     src/Preprocess.cpp
+					 src/Reconstructor.cpp
 
 libthuem_a_SOURCES += src/Error/Error.cpp \
 					  src/Error/Sqlite3Error.cpp
@@ -50,13 +46,9 @@ nobase_pkginclude_HEADERS = include/Complex.h \
 							include/FFT.h \
 							include/Projector.h \
 							include/Database.h \
-<<<<<<< HEAD
 							include/Experiment.h \
-                                                        include/Preprocess.h
-=======
-							include/Reconstructor.h \
-							include/Experiment.h
->>>>>>> origin/master
+                            include/Preprocess.h \
+							include/Reconstructor.h 
 
 nobase_pkginclude_HEADERS += include/Error/Error.h \
 							 include/Error/Sqlite3Error.h
