@@ -21,14 +21,24 @@ void Parallel::setMPIEnv()
     MPI_Comm_size(MPI_COMM_WORLD, &_commSize);
     MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
 
+    /***
     int sizeA = (_commSize - 1) / 2;
+    int sizeB = _commSize - 1 - sizeA;
+    ***/
+
+    int sizeA = _commSize / 2;
     int sizeB = _commSize - 1 - sizeA;
 
     int* a = new int[sizeA];
     int* b = new int[sizeB];
 
+    /***
     for (int i = 0; i < sizeA; i++) a[i] = i + 1;
     for (int i = 0; i < sizeB; i++) b[i] = i + 1 + sizeA;
+    ***/
+
+    for (int i = 0; i < sizeA; i++) a[i] = 2 * i + 1;
+    for (int i = 0; i < sizeB; i++) b[i] = 2 * i + 2;
 
     MPI_Comm_group(MPI_COMM_WORLD, &wGroup);
 

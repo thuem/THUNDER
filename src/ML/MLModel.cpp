@@ -37,25 +37,75 @@ void MLModel::setR(const int r)
     _r = r;
 }
 
-void MLModel::BCastFSC()
+Reconstructor& MLModel::reco(const int i)
 {
+    return _reco[i];
+}
+
+void MLModel::BcastFSC()
+{
+    MPI_Barrier(MPI_COMM_WORLD);
+
     FOR_EACH_CLASS
     {
-        // if master
+        if (_commRank == MASTER_ID)
         {
             Volume A(size(), size(), size(), FT_SPACE);
             Volume B(size(), size(), size(), FT_SPACE);
-            // get A and B
+            MPI_Recv(&A[0],
+                     A.sizeFT(),
+                     MPI_DOUBLE_COMPLEX,
+                     HEMI_A_LEAD,
+                     i,
+                     MPI_COMM_WORLD,
+                     NULL);
+            MPI_Recv(&B[0],
+                     B.sizeFT(),
+                     MPI_DOUBLE_COMPLEX,
+                     HEMI_B_LEAD,
+                     i,
+                     MPI_COMM_WORLD,
+                     NULL);
             FSC(_FSC[i], A, B, _r);
         }
-        // if A[0]
-        // if B[0]
-        // other
+        else if ((_commRank == HEMI_A_LEAD) ||
+                 (_commRank == HEMI_B_LEAD))
+        {
+            MPI_Ssend(&_ref[i],
+                      _ref[i].sizeFT(),
+                      MPI_DOUBLE_COMPLEX,
+                      MASTER_ID,
+                      i,
+                      MPI_COMM_WORLD);
+        }
     }
-    FOR_EACH_CLASS
-    {
-        // Broadcast FSC
-    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    double* FSC = new double[K() * _r];
+
+    if (_commRank == MASTER_ID)
+        FOR_EACH_CLASS
+            for (int j = 0; j < _r; j++)
+                FSC[i * _r + j] = _FSC[i](j);
+
+    MPI_Bcast(FSC,
+              K() * _r,
+              MPI_DOUBLE,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    if (_commRank != MASTER_ID)
+        FOR_EACH_CLASS
+        {
+            _FSC[i].resize(_r);
+            for (int j = 0; j < _r; j++)
+                _FSC[i](j) = FSC[i * _r + j];
+        }
+
+    delete[] FSC;
+
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void MLModel::lowPassRef(const double thres,
@@ -110,6 +160,7 @@ void MLModel::refreshProjector()
 
 void MLModel::updateR()
 {
+    // TODO: considering padding factor
     FOR_EACH_CLASS
         if (_FSC[i](_r) > 0.2)
         {

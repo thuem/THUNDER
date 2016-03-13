@@ -17,6 +17,7 @@
 
 #include "Image.h"
 #include "Volume.h"
+#include "Parallel.h"
 #include "Filter.h"
 #include "Spectrum.h"
 #include "Projector.h"
@@ -28,7 +29,7 @@ using namespace arma;
 #define FOR_EACH_CLASS \
     for (int i = 0; i < size(); i++)
 
-class MLModel
+class MLModel : public Parallel
 {
     private:
 
@@ -70,7 +71,9 @@ class MLModel
 
         void setR(const int r);
 
-        void BCastFSC();
+        Reconstructor& reco(const int i = 0);
+
+        void BcastFSC();
 
         void lowPassRef(const double thres,
                         const double ew);

@@ -12,6 +12,7 @@
 #include "Reconstructor.h"
 #include "FFT.h"
 #include "Mask.h"
+#include "ImageFile.h"
 
 #define N 32
 #define M 16
@@ -80,6 +81,8 @@ int main(int argc, char* argv[])
     // cout << "5: commRank = " << commRank << endl;
     // cout << (commRank != MASTER_ID) << endl;
 
+    try
+    {
     if (commRank != MASTER_ID)
     {
         printf("Projection and Insertion\n");
@@ -130,6 +133,11 @@ int main(int argc, char* argv[])
             std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
         ***/
+    }
+    }
+    catch (Error& err)
+    {
+        cout << err << endl;
     }
 
     /***

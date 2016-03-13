@@ -13,6 +13,8 @@
 #include <mpi.h>
 
 #define MASTER_ID 0
+#define HEMI_A_LEAD 1
+#define HEMI_B_LEAD 2
 
 class Parallel
 {

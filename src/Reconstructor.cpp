@@ -38,16 +38,13 @@ void Reconstructor::init(const int size,
 
     _maxRadius = (_size / 2 - a) * _pf;
 
-    if (_commRank != MASTER_ID)
-    {
-        _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
 
-        SET_0_FT(_F);
-        SET_1_FT(_W);
-        SET_0_FT(_C);
-    }
+    SET_0_FT(_F);
+    SET_1_FT(_W);
+    SET_0_FT(_C);
 }
 
 void Reconstructor::setSymmetry(const Symmetry* sym)
