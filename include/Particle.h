@@ -10,7 +10,7 @@
 #define PARTICLE_H
 
 #include <numeric>
-#include <gsl/gsl_cblas.h>
+#include <gsl/gsl_math.h>
 
 #include "Typedef.h"
 #include "Macro.h"
@@ -19,6 +19,18 @@
 #include "Random.h"
 #include "Euler.h"
 #include "Symmetry.h"
+
+
+#define _PARTICLEDIM 7
+#define _EX 0
+#define _EY 1
+#define _EZ 2
+#define _PSI 3
+#define _X 4
+#define _Y 5
+#define _W 6
+
+using namespace arma;
 
 using namespace std;
 
@@ -31,17 +43,8 @@ class Particle
         double _maxX;
         double _maxY;
 
-        double* _ex = NULL;
-        double* _ey = NULL;
-        double* _ez = NULL;
-
-        double* _psi = NULL;
-
-        double* _x = NULL;
-        double* _y = NULL;
-
-        double* _w = NULL;
-
+        mat _particles;
+        
         const Symmetry* _sym;
 
     public:
