@@ -13,9 +13,8 @@
 
 #include <sqlite3.h>
 
-#include <mpi.h>
-
 #include "Sqlite3Error.h"
+#include "Parallel.h"
 
 #define MAX_LENGTH (1024 * 1024 * 128)
 
@@ -63,7 +62,7 @@ enum Table
     Particles
 };
 
-class Database
+class Database : public Parallel
 {
     private:
 
@@ -75,9 +74,6 @@ class Database
 
         sqlite3* _db;
 
-        int _commRank = 0;
-        int _commSize = 1;
-
     public:
 
         Database();
@@ -86,9 +82,11 @@ class Database
 
         ~Database();
 
+        /***
         void setCommSize(int commSize);
 
         void setCommRank(int commRank);
+        ***/
 
         void openDatabase(const char database[]);
 

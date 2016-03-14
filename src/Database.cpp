@@ -29,6 +29,7 @@ Database::~Database()
     SQLITE3_HANDLE_ERROR(sqlite3_close(_db));
 }
 
+/***
 void Database::setCommSize(const int commSize)
 {
     _commSize = commSize;
@@ -38,6 +39,7 @@ void Database::setCommRank(const int commRank)
 {
     _commRank = commRank;
 }
+***/
 
 void Database::openDatabase(const char database[])
 {
