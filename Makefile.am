@@ -17,11 +17,11 @@ libthuem_a_SOURCES = src/Complex.cpp \
 					 src/Coordinate5D.cpp \
 					 src/FFT.cpp \
 					 src/Projector.cpp \
+					 src/Parallel.cpp \
 					 src/Database.cpp \
 					 src/Reconstructor.cpp \
 					 src/Experiment.cpp \
-					 src/Particle.cpp \
-					 src/Parallel.cpp
+					 src/Particle.cpp
 
 libthuem_a_SOURCES += src/Error/Error.cpp \
 					  src/Error/Sqlite3Error.cpp
@@ -50,11 +50,11 @@ nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Coordinate5D.h \
 							include/FFT.h \
 							include/Projector.h \
+							include/Parallel.h \
 							include/Database.h \
 							include/Reconstructor.h \
 							include/Experiment.h \
-							include/Particle.h \
-							include/Parallel.h
+							include/Particle.h
 
 nobase_pkginclude_HEADERS += include/Error/Error.h \
 							 include/Error/Sqlite3Error.h
