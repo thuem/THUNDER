@@ -10,6 +10,14 @@
 
 #include "Functions.h"
 
+int periodic(double& x,
+             const double p)
+{
+    int n = floor(x / p);
+    x -= n * p;
+    return n;
+}
+
 void normalise(gsl_vector& vec)
 {
     double mean = gsl_stats_mean(vec.data, 1, vec.size);

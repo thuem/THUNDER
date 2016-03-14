@@ -32,6 +32,9 @@
 
 #define NORM_3(a, b, c) sqrt(gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
 
+int periodic(double& x,
+             const double p);
+
 void normalise(gsl_vector& vec);
 
 double MKB_FT(const double r,

@@ -32,21 +32,22 @@ void Particle::init(const int N,
 
     _sym = sym;
 
-    _particles.set_size(N, _PARTICLEDIM);
+    _c.resize(_N, _DIM);
+    _w.resize(_N);
 
     for (int i = 0; i < _N; i++)
     {
         gsl_ran_dir_3d(RANDR, 
-                       &_particles(i, _EX), 
-                       &_particles(i, _EY), 
-                       &_particles(i, _EZ));
+                       &_c(i, _EX), 
+                       &_c(i, _EY), 
+                       &_c(i, _EZ));
         
-        _particles(i, _PSI) = gsl_ran_flat(RANDR, 0, M_PI);
+        _c(i, _PSI) = gsl_ran_flat(RANDR, 0, M_PI);
         
-        _particles(i, _X) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
-        _particles(i, _Y) = gsl_ran_flat(RANDR, -_maxY, _maxY);
+        _c(i, _X) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
+        _c(i, _Y) = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
-        _particles(i, _W) = 1.0 / _N;
+        _w(i) = 1.0 / _N;
     }
 
     symmetrise();
@@ -61,13 +62,13 @@ void Particle::coord(Coordinate5D& dst,
                      const int i) const
 {
     // vec3 src = {_ex[i], _ey[i], _ez[i]};
-    angle(dst.phi, dst.theta, vec3({_particles(i, _EX),
-                                    _particles(i, _EY),
-                                    _particles(i, _EZ)}));
+    angle(dst.phi, dst.theta, vec3({_c(i, _EX),
+                                    _c(i, _EY),
+                                    _c(i, _EZ)}));
 
-    dst.psi = _particles(i, _PSI);
-    dst.x = _particles(i, _X);
-    dst.y = _particles(i, _Y);
+    dst.psi = _c(i, _PSI);
+    dst.x = _c(i, _X);
+    dst.y = _c(i, _Y);
 }
 
 void Particle::setSymmetry(const Symmetry* sym)
@@ -77,21 +78,30 @@ void Particle::setSymmetry(const Symmetry* sym)
 
 void Particle::perturb()
 {
-    mat L = chol(cov(_particles.cols(0, _PARTICLEDIM - 1)), "lower");
+    cout << cov(_c) << endl;
+    mat L = chol(cov(_c), "lower");
 
-    mat delta(_N, _PARTICLEDIM - 1);
+    mat d(_N, _DIM);
+
+    for (int i = 0; i < _N; i++)
+        d.row(i) = (L * randu<vec>(_DIM)).t();
+
+    _c += d;
 
     for (int i = 0; i < _N; i++)
     {
-        delta.row(i) = (L * randu<vec>(_PARTICLEDIM - 1)).t();
-        _particles.cols(0, _PARTICLEDIM -1).row(i) += delta.row(i);
+        _c.row(i).head(3) /= sum(_c.row(i).head(3));
+        if (GSL_IS_ODD(periodic(_c.row(i)(_PSI), M_PI)))
+            _c.row(i).head(3) *= -1;
     }
 
+    symmetrise();
 }
 
 void Particle::resample()
 {
-    vec cdf = cumsum(_particles.col(_PARTICLEDIM - 1));
+    vec cdf = cumsum(_w);
+    // vec cdf = cumsum(_c.col(_PARTICLEDIM - 1));
 
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / _N);  
     
@@ -103,19 +113,22 @@ void Particle::resample()
         while (uj > cdf[i])
             i++;
         
-        _particles(j, _EX) = _particles(i, _EX);
-        _particles(j, _EY) = _particles(i, _EY);
-        _particles(j, _EZ) = _particles(i, _EZ);
-        _particles(j, _X) = _particles(i, _X);
-        _particles(j, _Y) = _particles(i, _Y); 
-        _particles(j, _W) = 1.0 / _N;
-    }
+        _c.row(j) = _c.row(i);
+        /***
+        _c(j, _EX) = _c(i, _EX);
+        _c(j, _EY) = _c(i, _EY);
+        _c(j, _EZ) = _c(i, _EZ);
+        _c(j, _X) = _c(i, _X);
+        _c(j, _Y) = _c(i, _Y); 
+        ***/
 
+        _w(j) = 1.0 / _N;
+    }
 }
 
 double Particle::neff() const
 {
-    return 1.0 / gsl_pow_2(norm(_particles.col(_PARTICLEDIM - 1), 2));
+    return 1.0 / gsl_pow_2(norm(_w, 2));
 }
 
 void Particle::symmetrise()
@@ -123,9 +136,9 @@ void Particle::symmetrise()
     if (_sym == NULL) return;
 
     for (int i = 0; i < _N; i++)
-        symmetryCounterpart(_particles(i, _EX), 
-                            _particles(i, _EY), 
-                            _particles(i, _EZ), 
+        symmetryCounterpart(_c(i, _EX), 
+                            _c(i, _EY), 
+                            _c(i, _EZ), 
                             *_sym);
 }
 

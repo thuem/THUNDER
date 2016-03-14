@@ -9,8 +9,11 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
+#include <iostream>
 #include <numeric>
+
 #include <gsl/gsl_math.h>
+#include <armadillo>
 
 #include "Typedef.h"
 #include "Macro.h"
@@ -18,17 +21,17 @@
 #include "Coordinate5D.h"
 #include "Random.h"
 #include "Euler.h"
+#include "Functions.h"
 #include "Symmetry.h"
 
+#define _DIM 6
 
-#define _PARTICLEDIM 7
 #define _EX 0
 #define _EY 1
 #define _EZ 2
 #define _PSI 3
 #define _X 4
 #define _Y 5
-#define _W 6
 
 using namespace arma;
 
@@ -43,7 +46,8 @@ class Particle
         double _maxX;
         double _maxY;
 
-        mat _particles;
+        mat _c;
+        mat _w;
         
         const Symmetry* _sym;
 
