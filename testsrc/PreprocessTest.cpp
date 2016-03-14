@@ -43,8 +43,13 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
     
     int len;
 
+    int  particleNumber;
+    int  micrographID;
+
+
     char buffer[1024*8];
     char sqlStatement[1024];
+    char particleName[1024];
 
     double CooridinateX,CooridinateY, AnglePsi, AutopickFigureOfMerit;
     int    ClassNumber;
@@ -75,43 +80,50 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
         }
     };  
 
-
-    while ( !feof(fdStar) )
-    {          
-         
-        fscanf(fdStar, "%f %f %f  %d  %f\n", &CooridinateX, &CooridinateY, 
-               &AnglePsi, &ClassNumber , &AutopickFigureOfMerit);
-        
-        printf(" %f %f %f  %d  %f \n", CooridinateX, CooridinateY, 
-               AnglePsi, ClassNumber , AutopickFigureOfMerit);
-
-        sprintf(sqlStatement, "insert into paritcles "\
-                              "{XOff, YOff, ParticleName, MicrographName,  } "\
-                              "VALUES (%f, %f,%s, %s, %f, %d, %f  ); ", 
-                              CooridinateX, CooridinateY, 
-                              micrographFileName, starFileName, AnglePsi, 
-                              ClassNumber, AutopickFigureOfMerit);
-
-        continue;
-        exp.execute(sqlStatement,
-                    SQLITE3_CALLBACK
-                    {                     
-                      return 0;
-                    }, 
-                    buffer);
-    }
-
     sprintf(sqlStatement, "insert into Micrographs "\
-                          "{ MicrographName  } "\
-                          "VALUES ( %s ); ",                         
+                          "( Name, Voltage, DefocusU, DefocusV, DefocusAngle, CA  ) "\
+                          "VALUES ( \"%s\", 1, 2, 3, 4, 5 ); ",                         
+                          micrographFileName);
+    
+    exp.execute(sqlStatement,
+                NULL, 
+                NULL);
+
+    sprintf(sqlStatement, "select ID from Micrographs "\
+                          "where Name== \"%s\" ;",        
                           micrographFileName);
 
     exp.execute(sqlStatement,
                   SQLITE3_CALLBACK
-                  {                     
+                  {
+                      *((int*)data) = atoi(values[0]);
                       return 0;
-                  }, 
-                  buffer );
+                  },
+                  &micrographID); 
+
+    printf(" micrographID = %d \n", micrographID);
+
+    particleNumber = 0;
+    while ( !feof(fdStar) )
+    {          
+         
+        fscanf(fdStar, "%lf %lf %lf  %d  %f\n", &CooridinateX, &CooridinateY, 
+               &AnglePsi, &ClassNumber , &AutopickFigureOfMerit);
+                   
+        sprintf(particleName , "%s/%s_%d.bmp",MICROGRAPH_PATH, micrographFileName , particleNumber );
+        sprintf(sqlStatement, "insert into particles "\
+                              "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
+                              "VALUES (%f, %f, \"%s\" ,0 ,%d  ); ", 
+                              CooridinateX, CooridinateY, 
+                              particleName,micrographID);
+
+        printf("%s\n", sqlStatement);
+       
+        exp.execute(sqlStatement,
+                    NULL, 
+                    NULL);
+        particleNumber++;
+    }
 
     fclose(fdStar);
     fclose(fdMicrograph);
@@ -131,12 +143,8 @@ void createDB(Experiment& exp)
     exp.addColumnXOff();
     exp.addColumnYOff();
     exp.addColumnParticleName();
-   // for (int i = 0; i < N; i++)
-   //     exp.appendParticle(i / 10, i / 10);
-
-  //  return;
   
-    for (i = 211; i <= 215 /*326*/; i++)
+    for (i = 211; i <= 326 ; i++)
     {
         sprintf(micrographFileName, "%s/stack_%04d_2x_SumCorr.mrc", MICROGRAPH_PATH , i);
         sprintf(starFileName, "%s/stack_%04d_2x_SumCorr_manual_checked.star", STAR_PATH, i);
@@ -177,15 +185,9 @@ int main(int argc, const char* argv[])
 
     */
 
-    printf("[1]-----------------");
+
     createDB(exp);
 
-  //  readStar();
-    
-    
-  printf("[2]-----------------");
- //   for (int i = 0; i < N; i++)
- //       exp.appendParticle(i / 10, i / 10);
 
     vector<int> partIDs;
 
@@ -200,7 +202,7 @@ int main(int argc, const char* argv[])
     for (int i = 0; i < partIDs.size(); i++)
         cout << partIDs[i] << endl;
     #endif
-    printf("\n\nPreprocessing....\n");
+
     PREPROCESS_PARA  para;    
     initPara(&para);
 

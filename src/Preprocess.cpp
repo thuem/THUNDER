@@ -188,7 +188,7 @@ void Preprocess::getParticleXOffYOff(int& xOff,
 void Preprocess::run()
 {   
     // get all micrographID;
-    //vector<int> micrographIDs;
+    //vector<int> micrographIDs;e
 
     getMicrographIDs(_micrographIDs);
     
@@ -196,8 +196,8 @@ void Preprocess::run()
     printf("_micrographIDs.size()=%d \n ", _micrographIDs.size());
     for (int i = 0; i < _micrographIDs.size(); i++)
     {
-    	printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
-     //   extractParticles(_micrographIDs[i]);
+    	//printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
+        extractParticles(_micrographIDs[i]);
     }
 }
 
