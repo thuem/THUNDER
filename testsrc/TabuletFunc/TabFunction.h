@@ -6,6 +6,10 @@
 
 #include <functional>
 
+using namespace std;
+
+using namespace placeholders;
+
 class TabFunction
 {
 	private:
@@ -17,7 +21,7 @@ class TabFunction
 		TabFunction() {}
 		~TabFunction() {}
 
-		TabFunction(double(*pFunc)(const double x),
+		TabFunction(function<double(const double)> foo,
 			        const double begin,
 			        const double end,
 			        const int N);

@@ -15,7 +15,7 @@
 // 		_table[i] = pFunc(var);
 // }
 
-TabFunction::TabFunction(std::function< double(double) >func,
+TabFunction::TabFunction(std::function<double(const double)>func,
 			        	 const double begin,
 			        	 const double end,
 			        	 const int N)
@@ -42,4 +42,14 @@ double TabFunction::operator()(double x)
 	int N = (n - a < b - n ? a : b);
 
 	return _table[N];
+}
+
+double func(const double x, const double y)
+{
+    return 0;
+};
+
+int main()
+{
+    std::function<double(double)> foo = bind(func, _1, 0);
 }
