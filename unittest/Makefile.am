@@ -19,7 +19,8 @@ noist_PROGRAMS = FunctionsTest \
 				 EulerTest \
 				 SymmetryTest \
 				 ParticleTest \
-				 ParallelTest
+				 ParallelTest \
+				 TabFunctionTest
 
 THUEMLIBS = ../libthuem.a
 
@@ -52,3 +53,6 @@ ParticleTest_LDADD = ${THUEMLIBS}
 
 ParallelTest_SOURCES = ../testsrc/ParallelTest.cpp
 ParallelTest_LDADD = ${THUEMLIBS}
+
+TabFunctionTest_SOURCES = ../testsrc/TabFunctionTest.cpp
+TabFunctionTest_LDADD = ${THUEMLIBS}
