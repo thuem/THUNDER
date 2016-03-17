@@ -17,8 +17,6 @@
 
 using namespace std;
 
-using namespace placeholders;
-
 class TabFunction
 {
 	private:

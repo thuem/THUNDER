@@ -12,6 +12,8 @@
 
 using namespace std;
 
+using namespace placeholders;
+
 int main(int argc, const char* argv[])
 {
     TabFunction tab(bind(MKB_FT, _1, 2, atoi(argv[1])), 0, 2.5, 100000);

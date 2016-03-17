@@ -10,6 +10,46 @@
 
 #include "Euler.h"
 
+void angle(double& phi,
+           double& theta,
+           const vec3& src)
+{
+    theta = acos(src(2));
+    phi = acos(src(0) / sin(theta));
+    (src(1) / sin(theta) > 0) ? : (phi = 2 * M_PI - phi);
+}
+
+void angle(double& phi,
+           double& theta,
+           double& psi,
+           const mat33& src)
+{
+    theta = acos(src(2, 2));
+    psi = acos(src(2, 1) / sin(theta));
+    (src(2, 0) / sin(theta) > 0) ? : (psi = 2 * M_PI - psi);
+    phi = acos(-src(1, 2) / sin(theta));
+    (src(0, 2) / sin(theta) > 0) ? : (phi = 2 * M_PI - phi);
+}
+
+void angle(double& phi,
+           double& theta,
+           double& psi,
+           const vec4& src)
+{
+    phi = atan2((src(1) * src(3) + src(0) * src(2)),
+                (src(0) * src(1) - src(2) * src(3)));
+    (phi >= 0) ? : phi += 2 * M_PI;
+
+    theta = acos(gsl_pow_2(src(0))
+               - gsl_pow_2(src(1))
+               - gsl_pow_2(src(2))
+               + gsl_pow_2(src(3)));
+
+    psi = atan2((src(1) * src(3) - src(0) * src(2)),
+                (src(0) * src(1) + src(2) * src(3)));
+    (psi >= 0) ? : psi += 2 * M_PI;
+}
+
 void rotate2D(mat22& dst, const double phi)
 {
     double sine = sin(phi);
@@ -35,15 +75,6 @@ void direction(vec3& dst,
     dst(2) = cosTheta;
 }
 
-void angle(double& phi,
-           double& theta,
-           const vec3& src)
-{
-    theta = acos(src(2));
-    phi = acos(src(0) / sin(theta));
-    (src(1) / sin(theta) > 0) ? : (phi = 2 * M_PI - phi);
-}
-
 void rotate3D(mat33& dst,
               const double phi,
               const double theta,
@@ -66,6 +97,15 @@ void rotate3D(mat33& dst,
     dst(2, 1) = sinTheta * cosPsi;
     dst(2, 2) = cosTheta;
 } 
+
+void rotate3D(mat33& dst,
+              const vec4& src)
+{
+    mat33 A = {{0, -src(3), src(2)},
+               {src(3), 0, -src(1)},
+               {-src(2), src(1), 0}};
+    dst = mat33(fill::eye) + 2 * src(0) * A + 2 * A * A;
+}
 
 void rotate3DX(mat33& dst, const double phi)
 {
