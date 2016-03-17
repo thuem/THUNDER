@@ -78,6 +78,8 @@ class Particle
         void setW(const double w,
                   const int i);
 
+        void normW();
+
         void coord(Coordinate5D& dst,
                    const int i) const;
         /* return the coordinate of the ith particle */
@@ -85,6 +87,9 @@ class Particle
         void rot(mat33& dst,
                  const int i) const;
         /* return the rotation matrix of the ith particle */
+
+        void quaternion(vec4& dst,
+                        const int i) const;
 
         void setSymmetry(const Symmetry* sym);
 

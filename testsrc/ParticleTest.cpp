@@ -9,7 +9,6 @@
 #include "Particle.h"
 
 #define N 10000
-#define K 50
 
 int main(int argc, const char* argv[])
 {
@@ -17,8 +16,31 @@ int main(int argc, const char* argv[])
 
     Particle particle(N, 30, 30, &sym);
 
-    for (int i = 0; i < K; i++)
-        particle.perturb();
+    vec4 u;
+    double v[4];
 
-    // display(particle);
+    double nt = N / 10;
+    bingham_t B;
+    bingham_new_S3(&B, e0, e1, e2, -30, -30, 0);
+    for (int i = 0; i < atoi(argv[1]); i++)
+    {
+        particle.normW();
+        // cout << "neff = " << particle.neff() << endl;
+        if (particle.neff() < nt)
+            particle.resample();
+        else particle.perturb();
+        for (int j = 0; j < N; j++)
+        {
+            particle.quaternion(u, j);
+            v[0] = u(0);
+            v[1] = u(1);
+            v[2] = u(2);
+            v[3] = u(3);
+            particle.setW(particle.w(j) * bingham_pdf(v, &B), j);
+        }
+    }
+
+    bingham_free(&B);
+
+    display(particle);
 }

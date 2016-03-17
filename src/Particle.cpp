@@ -57,6 +57,9 @@ void Particle::init(const int N,
     bingham_free(&B);
 
     symmetrise();
+
+    perturb();
+    /* perform a perturbation immediately */
 }
 
 int Particle::N() const { return _N; }
@@ -67,6 +70,11 @@ void Particle::setW(const double w,
                     const int i)
 {
     _w(i) = w;
+}
+
+void Particle::normW()
+{
+    _w /= sum(_w);
 }
 
 void Particle::coord(Coordinate5D& dst,
@@ -93,6 +101,15 @@ void Particle::rot(mat33& dst,
                         _r[i][3]}));
 }
 
+void Particle::quaternion(vec4& dst,
+                          const int i) const
+{
+    dst(0) = _r[i][0];
+    dst(1) = _r[i][1];
+    dst(2) = _r[i][2];
+    dst(3) = _r[i][3];
+}
+
 void Particle::setSymmetry(const Symmetry* sym)
 {
     _sym = sym;
@@ -113,10 +130,12 @@ void Particle::perturb()
     _k1 = B.Z[1];
     _k2 = B.Z[2];
 
+    /***
     printf("%f %f %f\n",
            B.Z[0],
            B.Z[1],
            B.Z[2]);
+           ***/
     bingham_free(&B);
 
     bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);
