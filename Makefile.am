@@ -23,7 +23,7 @@ libthuem_a_SOURCES = src/Complex.cpp \
 					 src/Reconstructor.cpp \
 					 src/Particle.cpp \
 					 src/TabFunction.cpp \
-                                         src/Preprocess.cpp
+					 src/Preprocess.cpp
 
 libthuem_a_SOURCES += src/Error/Error.cpp \
 					  src/Error/Sqlite3Error.cpp
@@ -49,7 +49,6 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 libthuem_a_SOURCES += src/ML/MLModel.cpp \
 					  src/ML/MLOptimiser.cpp
 
-
 nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Coordinate5D.h \
 							include/FFT.h \
@@ -60,7 +59,7 @@ nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Reconstructor.h \
 							include/Particle.h \
 							include/TabFunction.h \
-                                                        include/Preprocess.h
+                            include/Preprocess.h
 
 nobase_pkginclude_HEADERS += include/Error/Error.h \
 							 include/Error/Sqlite3Error.h
