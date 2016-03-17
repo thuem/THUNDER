@@ -38,6 +38,11 @@ void angle(double& phi,
            const vec4& src);
 // quaternion -> (phi, theta, psi)
 
+void quaternoin(vec4& dst,
+                const double phi,
+                const double theta,
+                const double psi);
+
 void rotate2D(mat22& dst, const double phi);
 // Return the rotating matrix for rotating for phi in 2D.
 // This matrix should be on the left when calculating cooridinate.

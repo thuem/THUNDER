@@ -30,7 +30,7 @@ int main(int argc, const char* argv[])
     double b = atof(argv[2]);
     double c = atof(argv[3]);
 
-    const vec4 u = {a, b, c, sqrt(1 - a * a - b * b - c * c)};
+    vec4 u = {a, b, c, sqrt(1 - a * a - b * b - c * c)};
 
     mat33 rot;
     rotate3D(rot, u);
@@ -57,6 +57,9 @@ int main(int argc, const char* argv[])
          << theta << endl
          << psi << endl
          << endl;
+
+    quaternoin(u, phi, theta, psi);
+    cout << u << endl;
 
     /***
     rotate3D(rot, phi, theta, psi);

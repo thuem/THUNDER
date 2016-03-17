@@ -50,6 +50,17 @@ void angle(double& phi,
     (psi >= 0) ? : psi += 2 * M_PI;
 }
 
+void quaternoin(vec4& dst,
+                const double phi,
+                const double theta,
+                const double psi)
+{
+    dst(0) = cos((phi + psi) / 2) * cos(theta / 2);
+    dst(1) = cos((phi - psi) / 2) * sin(theta / 2);
+    dst(2) = sin((phi - psi) / 2) * sin(theta / 2);
+    dst(3) = sin((phi + psi) / 2) * cos(theta / 2);
+}
+
 void rotate2D(mat22& dst, const double phi)
 {
     double sine = sin(phi);
