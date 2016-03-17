@@ -16,21 +16,41 @@
 #include "Image.h"
 #include "Volume.h"
 
+#include "Parallel.h"
+#include "Particle.h"
+
 #include "MLModel.h"
 
-class MLOptimiser
+class MLOptimiser : public Parallel
 {
     private:
 
         MLModel _model;
 
+        vector<Image> _img;
+        vector<Particle> _par;
+        vector<vec> _ctf;
+
+        vector<vec> _sig;
+
     public:
 
         MLOptimiser();
+        ~MLOptimiser();
+
+        void init();
+
+        //Yu Hongkun ,Wang Kunpeng
+        void expectation();
+
+        //Guo Heng, Li Bing
+        void maxmization();
+
+        void clear();
 
     private:
 
-        resetProjectors();
+        void resetProjectors();
 };
 
 #endif // ML_OPTIMSER_H
