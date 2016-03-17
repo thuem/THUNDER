@@ -18,6 +18,21 @@ int periodic(double& x,
     return n;
 }
 
+void quaternion_mul(double* dst,
+                    const double* a,
+                    const double* b)
+{
+    double w = a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3];
+    double x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
+    double y = a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1];
+    double z = a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0];
+
+    dst[0] = w;
+    dst[1] = x;
+    dst[2] = y;
+    dst[3] = z;
+}
+
 void normalise(gsl_vector& vec)
 {
     double mean = gsl_stats_mean(vec.data, 1, vec.size);

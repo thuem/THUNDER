@@ -41,11 +41,7 @@ void Particle::init(const int N,
     _w.resize(_N);
 
     bingham_t B;
-    double v0[4] = {0, 1, 0, 0};
-    double v1[4] = {0, 0, 1, 0};
-    double v2[4] = {0, 0, 0, 1};
-
-    bingham_new_S3(&B, v0, v1, v2, 0, 0, 0);
+    bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
     /* uniform bingham distribution */
     bingham_sample(_r, &B, _N);
     /* draw _N samples from it */
@@ -63,9 +59,14 @@ void Particle::init(const int N,
     symmetrise();
 }
 
-int Particle::N() const
+int Particle::N() const { return _N; }
+
+double Particle::w(const int i) const { return _w(i); }
+
+void Particle::setW(const double w,
+                    const int i)
 {
-    return _N;
+    _w(i) = w;
 }
 
 void Particle::coord(Coordinate5D& dst,
@@ -83,6 +84,15 @@ void Particle::coord(Coordinate5D& dst,
     dst.y = _t(i, 1);
 }
 
+void Particle::rot(mat33& dst,
+                   const int i) const
+{
+    rotate3D(dst, vec4({_r[i][0],
+                        _r[i][1],
+                        _r[i][2],
+                        _r[i][3]}));
+}
+
 void Particle::setSymmetry(const Symmetry* sym)
 {
     _sym = sym;
@@ -90,22 +100,34 @@ void Particle::setSymmetry(const Symmetry* sym)
 
 void Particle::perturb()
 {
-    // cout << cov(_t) << endl;
     // translation perturbation
     mat L = chol(cov(_t), "lower");
     for (int i = 0; i < _N; i++)
-        _t.row(i) += (L * randu<vec>(2)).t();
+        _t.row(i) += (L * randu<vec>(2)).t() / 3;
 
     // rotation perturbation
     bingham_t B;
     bingham_fit(&B, _r, _N, 4);
+
+    _k0 = B.Z[0];
+    _k1 = B.Z[1];
+    _k2 = B.Z[2];
+
     printf("%f %f %f\n",
            B.Z[0],
            B.Z[1],
            B.Z[2]);
-    // TODO: sample form B and perturb
+    bingham_free(&B);
+
+    bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);
+    double** d = new_matrix2(_N, 4);
+    bingham_sample(d, &B, _N);
+
+    for (int i = 0; i < _N; i++)
+        quaternion_mul(_r[i], _r[i], d[i]);
 
     bingham_free(&B);
+    free_matrix2(d);
 
     symmetrise();
 }

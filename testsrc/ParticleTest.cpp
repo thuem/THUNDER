@@ -8,7 +8,7 @@
 
 #include "Particle.h"
 
-#define N 10 
+#define N 10000
 #define K 50
 
 int main(int argc, const char* argv[])
@@ -20,5 +20,5 @@ int main(int argc, const char* argv[])
     for (int i = 0; i < K; i++)
         particle.perturb();
 
-    display(particle);
+    // display(particle);
 }

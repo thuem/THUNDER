@@ -29,6 +29,10 @@ using namespace arma;
 
 using namespace std;
 
+static double e0[4] = {0, 1, 0, 0};
+static double e1[4] = {0, 0, 1, 0};
+static double e2[4] = {0, 0, 0, 1};
+
 class Particle
 {
     private:
@@ -46,6 +50,10 @@ class Particle
         vec _w; // weight
         
         const Symmetry* _sym;
+
+        double _k0 = 0;
+        double _k1 = 0;
+        double _k2 = 0;
 
     public:
 
@@ -65,9 +73,18 @@ class Particle
 
         int N() const;
 
+        double w(const int i) const;
+
+        void setW(const double w,
+                  const int i);
+
         void coord(Coordinate5D& dst,
                    const int i) const;
         /* return the coordinate of the ith particle */
+
+        void rot(mat33& dst,
+                 const int i) const;
+        /* return the rotation matrix of the ith particle */
 
         void setSymmetry(const Symmetry* sym);
 

@@ -35,6 +35,10 @@
 int periodic(double& x,
              const double p);
 
+void quaternion_mul(double* dst,
+                    const double* a,
+                    const double* b);
+
 void normalise(gsl_vector& vec);
 
 double MKB_FT(const double r,
