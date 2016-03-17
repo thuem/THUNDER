@@ -29,6 +29,7 @@ using namespace std;
                                       NULL, NULL, NULL)); \
 }
 
+
 #define GET_ID(dst, TABLE, COLUMN, value)\
 [this](vector<int>& _dst, int _value) \
 { \
@@ -49,6 +50,11 @@ using namespace std;
                                       &_dst, \
                                       NULL)); \
 }(dst, value)
+
+
+
+
+
 
 class Experiment : public Database
 {
