@@ -8,14 +8,14 @@
 
 #include "Particle.h"
 
-#define N 6000
+#define N 10 
 #define K 50
 
 int main(int argc, const char* argv[])
 {
     Symmetry sym("C5");
 
-    Particle particle(6000, 30, 30, &sym);
+    Particle particle(N, 30, 30, &sym);
 
     for (int i = 0; i < K; i++)
         particle.perturb();

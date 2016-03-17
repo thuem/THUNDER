@@ -14,6 +14,7 @@
 
 #include <gsl/gsl_math.h>
 #include <armadillo>
+#include <bingham.h>
 
 #include "Typedef.h"
 #include "Macro.h"
@@ -23,15 +24,6 @@
 #include "Euler.h"
 #include "Functions.h"
 #include "Symmetry.h"
-
-#define _DIM 6
-
-#define _EX 0
-#define _EY 1
-#define _EZ 2
-#define _PSI 3
-#define _X 4
-#define _Y 5
 
 using namespace arma;
 
@@ -46,8 +38,12 @@ class Particle
         double _maxX;
         double _maxY;
 
-        mat _c;
-        mat _w;
+        double** _r = NULL;
+        /* rotation, quaternion */
+
+        mat _t; // translation
+
+        vec _w; // weight
         
         const Symmetry* _sym;
 

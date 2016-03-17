@@ -18,7 +18,11 @@ Particle::Particle(const int N,
     init(N, maxX, maxY, sym);
 }
 
-Particle::~Particle() {}
+Particle::~Particle()
+{
+    if (_r != NULL)
+        free_matrix2(_r);
+}
 
 void Particle::init(const int N,
                     const double maxX,
@@ -32,23 +36,29 @@ void Particle::init(const int N,
 
     _sym = sym;
 
-    _c.resize(_N, _DIM);
+    _r = new_matrix2(_N, 4);
+    _t.resize(_N, 2);
     _w.resize(_N);
+
+    bingham_t B;
+    double v0[4] = {0, 1, 0, 0};
+    double v1[4] = {0, 0, 1, 0};
+    double v2[4] = {0, 0, 0, 1};
+
+    bingham_new_S3(&B, v0, v1, v2, 0, 0, 0);
+    /* uniform bingham distribution */
+    bingham_sample(_r, &B, _N);
+    /* draw _N samples from it */
 
     for (int i = 0; i < _N; i++)
     {
-        gsl_ran_dir_3d(RANDR, 
-                       &_c(i, _EX), 
-                       &_c(i, _EY), 
-                       &_c(i, _EZ));
-        
-        _c(i, _PSI) = gsl_ran_flat(RANDR, 0, M_PI);
-        
-        _c(i, _X) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
-        _c(i, _Y) = gsl_ran_flat(RANDR, -_maxY, _maxY);
+        _t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
+        _t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
         _w(i) = 1.0 / _N;
     }
+
+    bingham_free(&B);
 
     symmetrise();
 }
@@ -61,14 +71,16 @@ int Particle::N() const
 void Particle::coord(Coordinate5D& dst,
                      const int i) const
 {
-    // vec3 src = {_ex[i], _ey[i], _ez[i]};
-    angle(dst.phi, dst.theta, vec3({_c(i, _EX),
-                                    _c(i, _EY),
-                                    _c(i, _EZ)}));
+    angle(dst.phi,
+          dst.theta,
+          dst.psi,
+          vec4({_r[i][0],
+                _r[i][1],
+                _r[i][2],
+                _r[i][3]}));
 
-    dst.psi = _c(i, _PSI);
-    dst.x = _c(i, _X);
-    dst.y = _c(i, _Y);
+    dst.x = _t(i, 0);
+    dst.y = _t(i, 1);
 }
 
 void Particle::setSymmetry(const Symmetry* sym)
@@ -78,22 +90,22 @@ void Particle::setSymmetry(const Symmetry* sym)
 
 void Particle::perturb()
 {
-    cout << cov(_c) << endl;
-    mat L = chol(cov(_c), "lower");
-
-    mat d(_N, _DIM);
-
+    // cout << cov(_t) << endl;
+    // translation perturbation
+    mat L = chol(cov(_t), "lower");
     for (int i = 0; i < _N; i++)
-        d.row(i) = (L * randu<vec>(_DIM)).t();
+        _t.row(i) += (L * randu<vec>(2)).t();
 
-    _c += d;
+    // rotation perturbation
+    bingham_t B;
+    bingham_fit(&B, _r, _N, 4);
+    printf("%f %f %f\n",
+           B.Z[0],
+           B.Z[1],
+           B.Z[2]);
+    // TODO: sample form B and perturb
 
-    for (int i = 0; i < _N; i++)
-    {
-        _c.row(i).head(3) /= sum(_c.row(i).head(3));
-        if (GSL_IS_ODD(periodic(_c.row(i)(_PSI), M_PI)))
-            _c.row(i).head(3) *= -1;
-    }
+    bingham_free(&B);
 
     symmetrise();
 }
@@ -101,10 +113,12 @@ void Particle::perturb()
 void Particle::resample()
 {
     vec cdf = cumsum(_w);
-    // vec cdf = cumsum(_c.col(_PARTICLEDIM - 1));
 
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / _N);  
     
+    double** r = new_matrix2(_N, 4);
+    mat t(_N, 2);
+
     int i = 0;
     for (int j = 0; j < _N; j++)
     {
@@ -113,17 +127,17 @@ void Particle::resample()
         while (uj > cdf[i])
             i++;
         
-        _c.row(j) = _c.row(i);
-        /***
-        _c(j, _EX) = _c(i, _EX);
-        _c(j, _EY) = _c(i, _EY);
-        _c(j, _EZ) = _c(i, _EZ);
-        _c(j, _X) = _c(i, _X);
-        _c(j, _Y) = _c(i, _Y); 
-        ***/
+        memcpy(r[j], _r[i], sizeof(double) * 4);
+        t.row(j) = _t.row(i);
 
         _w(j) = 1.0 / _N;
     }
+
+    _t = t;
+    for (int i = 0; i < _N; i++)
+        memcpy(_r[i], r[i], sizeof(double) * 4);
+
+    free_matrix2(r);
 }
 
 double Particle::neff() const
@@ -133,13 +147,31 @@ double Particle::neff() const
 
 void Particle::symmetrise()
 {
-    if (_sym == NULL) return;
-
+    double phi, theta, psi;
+    vec4 quat;
     for (int i = 0; i < _N; i++)
-        symmetryCounterpart(_c(i, _EX), 
-                            _c(i, _EY), 
-                            _c(i, _EZ), 
-                            *_sym);
+    {
+        angle(phi, theta, psi, vec4({_r[i][0],
+                                     _r[i][1],
+                                     _r[i][2],
+                                     _r[i][3]}));
+
+        // make psi in range [0, M_PI)
+        if (GSL_IS_ODD(periodic(psi, M_PI)))
+        {
+            phi *= -1;
+            theta *= -1;
+        }
+
+        // make phi and theta in the asymetric unit
+        symmetryCounterpart(phi, theta, *_sym);
+
+        quaternoin(quat, phi, theta, psi);
+        _r[i][0] = quat(0);
+        _r[i][1] = quat(1);
+        _r[i][2] = quat(2);
+        _r[i][3] = quat(3);
+    }
 }
 
 void display(const Particle& particle)

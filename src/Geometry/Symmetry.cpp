@@ -310,6 +310,16 @@ bool asymmetryUnit(const double phi,
     }
 }
 
+void symmetryCounterpart(double& phi,
+                         double& theta,
+                         const Symmetry& sym)
+{
+    vec3 dir;
+    direction(dir, phi, theta);
+    symmetryCounterpart(dir(0), dir(1), dir(2), sym);
+    angle(phi, theta, dir);
+}
+
 void symmetryCounterpart(double& ex,
                          double& ey,
                          double& ez,
