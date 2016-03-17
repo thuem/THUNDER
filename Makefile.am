@@ -45,7 +45,9 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 					  src/Geometry/SymmetryFunctions.cpp \
 					  src/Geometry/Symmetry.cpp
 
-libthuem_a_SOURCES += src/ML/MLModel.cpp
+libthuem_a_SOURCES += src/ML/MLModel.cpp \
+					  src/ML/MLOptimiser.cpp
+
 
 nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Coordinate5D.h \
@@ -81,4 +83,5 @@ nobase_pkginclude_HEADERS += include/Geometry/Euler.h \
 							 include/Geometry/SymmetryFunctions.h \
 							 include/Geometry/Symmetry.h
 
-nobase_pkginclude_HEADERS += include/ML/MLModel.h
+nobase_pkginclude_HEADERS += include/ML/MLModel.h \
+							 include/ML/MLOptimiser.h
