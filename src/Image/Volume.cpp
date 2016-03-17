@@ -210,20 +210,27 @@ void Volume::addFT(const Complex value,
                    const double a,
                    const double alpha)
 {
-    for (int k = MAX(-_nSlc / 2, floor(iSlc - a));
-             k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a));
-             k++)
-        for (int j = MAX(-_nRow / 2, floor(iRow - a));
-                 j <= MIN(_nRow / 2 - 1, ceil(iRow + a));
-                 j++)
-            for (int i = MAX(-_nCol / 2, floor(iCol - a));
-                     i <= MIN(_nCol / 2, ceil(iCol + a));
-                     i++)
-            {
-                double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-                if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
-            }
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+    }
 }
+
+void Volume::addFT(const Complex value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const TabFunction& kernel)
+{
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * kernel(r), i, j, k);
+    }
+}
+
 
 void Volume::coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,

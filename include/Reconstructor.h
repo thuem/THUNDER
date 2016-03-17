@@ -11,6 +11,7 @@
 
 #include <utility>
 #include <vector>
+#include <functional>
 
 #include <armadillo>
 #include <mpi.h>
@@ -25,9 +26,11 @@
 #include "ImageFunctions.h"
 #include "Symmetry.h"
 #include "Transformation.h"
+#include "TabFunction.h"
 
 using namespace std;
 using namespace arma;
+using namespace placeholders;
 
 #define PAD_SIZE (_pf * _size)
 
@@ -53,6 +56,8 @@ class Reconstructor : public Parallel
         double _alpha = 10;
         
         double _zeta = 0.15;
+
+        TabFunction _kernel;
 
     public:
 

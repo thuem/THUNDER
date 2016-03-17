@@ -18,7 +18,7 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
 
-#define AROUND(a) ((a - ceil(a) <= 0.5) ? ceil(a) : floor(a))
+#define AROUND(a) ((int)rint(a))
 
 #define MAX(a, b) GSL_MAX(a, b)
 

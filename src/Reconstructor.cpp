@@ -36,6 +36,11 @@ void Reconstructor::init(const int size,
     _alpha = alpha;
     _zeta = zeta;
 
+    _kernel.init(bind(MKB_FT, _1, _pf * _a, _alpha),
+                 0,
+                 _pf * _a,
+                 1e5);
+
     _maxRadius = (_size / 2 - a) * _pf;
 
     _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
@@ -77,7 +82,7 @@ void Reconstructor::insert(const Image& src,
                      oldCor(1), 
                      oldCor(2), 
                      _pf * _a, 
-                     _alpha);
+                     _kernel);
     }
 }
 
@@ -141,7 +146,7 @@ void Reconstructor::allReduceW()
                              oldCor(1),
                              oldCor(2),
                              _pf * _a,
-                             _alpha);
+                             _kernel);
             }
     }
 
