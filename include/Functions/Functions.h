@@ -39,8 +39,6 @@ void quaternion_mul(double* dst,
                     const double* a,
                     const double* b);
 
-void normalise(gsl_vector& vec);
-
 double MKB_FT(const double r,
               const double a,
               const double alpha);
