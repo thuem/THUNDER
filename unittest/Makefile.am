@@ -16,16 +16,13 @@ noist_PROGRAMS = FunctionsTest \
 				 ProjectorTest \
 				 ReconstructorTest \
 				 ExperimentTest \
-<<<<<<< HEAD
 				 EulerTest \
 				 SymmetryTest \
 				 ParticleTest \
 				 ParallelTest \
-				 TabFunctionTest
-
-=======
+				 TabFunctionTest \
 				 PreprocessTest
->>>>>>> ice
+
 THUEMLIBS = ../libthuem.a
 
 FunctionsTest_SOURCES = ../testsrc/FunctionsTest.cpp
@@ -46,7 +43,6 @@ ReconstructorTest_LDADD = ${THUEMLIBS}
 ExperimentTest_SOURCES = ../testsrc/ExperimentTest.cpp
 ExperimentTest_LDADD = ${THUEMLIBS}
 
-<<<<<<< HEAD
 EulerTest_SOURCES = ../testsrc/EulerTest.cpp
 EulerTest_LDADD = ${THUEMLIBS}
 
@@ -61,8 +57,6 @@ ParallelTest_LDADD = ${THUEMLIBS}
 
 TabFunctionTest_SOURCES = ../testsrc/TabFunctionTest.cpp
 TabFunctionTest_LDADD = ${THUEMLIBS}
-=======
 
 PreprocessTest_SOURCES = ../testsrc/PreprocessTest.cpp
 PreprocessTest_LDADD = ${THUEMLIBS}
->>>>>>> ice
