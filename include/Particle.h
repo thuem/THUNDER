@@ -78,6 +78,9 @@ class Particle
         void setW(const double w,
                   const int i);
 
+        void mulW(const double w,
+                  const int i);
+
         void normW();
 
         void coord(Coordinate5D& dst,

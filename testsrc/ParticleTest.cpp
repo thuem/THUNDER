@@ -19,7 +19,7 @@ int main(int argc, const char* argv[])
     vec4 u;
     double v[4];
 
-    double nt = N / 10;
+    double nt = N / 3;
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, -30, -30, 0);
     for (int i = 0; i < atoi(argv[1]); i++)
