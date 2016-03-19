@@ -31,7 +31,7 @@ using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
 {
-    int itermax;
+    int iterMax;
     // max number of iterations
 
     int pf;
