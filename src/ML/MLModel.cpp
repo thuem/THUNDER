@@ -12,6 +12,35 @@
 
 MLModel::MLModel() {}
 
+MLModel::~MLModel()
+{
+    clear();
+}
+
+void MLModel::init(const int r,
+                   const int pf,
+                   const double pixelSize,
+                   const double a,
+                   const double alpha)
+{
+    _r = r;
+    _pf = pf;
+    _pixelSize = pixelSize;
+    _a = a;
+    _alpha = alpha;
+}
+
+void MLModel::initProjReco()
+{
+    /* initialise Projector */
+    refreshProj();
+
+    /* TODO: initialise Reconstructor */
+
+    /* setMPIEnv of Reconstructor */
+    setMPIEnv(_commSize, _commRank, _hemi);
+}
+
 void MLModel::appendRef(const Volume& ref)
 {
     _ref.push_back(ref);
@@ -35,6 +64,11 @@ int MLModel::r() const
 void MLModel::setR(const int r)
 {
     _r = r;
+}
+
+Projector& MLModel::proj(const int i)
+{
+    return _proj[i];
 }
 
 Reconstructor& MLModel::reco(const int i)
@@ -149,13 +183,20 @@ double MLModel::resolutionA() const
     return resP2A(resolutionP(), size(), _pixelSize);
 }
 
-void MLModel::refreshProjector()
+void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
     {
         _proj[i].setProjectee(_ref[i]);
         _proj[i].setMaxRadius(_r);
+        _proj[i].setPf(_pf);
     }
+}
+
+void MLModel::refreshReco()
+{
+    /* TODO: reset paramaters of Reconstructor without re-allocating memory
+     * space */
 }
 
 void MLModel::updateR()
@@ -173,8 +214,11 @@ void MLModel::updateR()
     _r = MIN(_r, size() / 2 - _a);
 }
 
-/***
-void MLModel::BCastSNR()
+void MLModel::clear()
 {
+    _ref.clear();
+    _FSC.clear();
+    _SNR.clear();
+    _proj.clear();
+    _reco.clear();
 }
-***/

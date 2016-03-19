@@ -72,6 +72,12 @@ void Particle::setW(const double w,
     _w(i) = w;
 }
 
+void Particle::mulW(const double w,
+                    const int i)
+{
+    _w(i) *= w;
+}
+
 void Particle::normW()
 {
     _w /= sum(_w);
