@@ -31,7 +31,7 @@ void MLOptimiser::init()
     // genereate corresponding CTF
     
     // estimate initial sigma values
-    initSimga();
+    initSigma();
 }
 
 void MLOptimiser::expectation()
