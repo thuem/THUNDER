@@ -196,7 +196,7 @@ void Preprocess::run()
     printf("_micrographIDs.size()=%d \n ", _micrographIDs.size());
     for (int i = 0; i < _micrographIDs.size(); i++)
     {
-    	//printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
+    	printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
         extractParticles(_micrographIDs[i]);
     }
 }
