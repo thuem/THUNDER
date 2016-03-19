@@ -11,7 +11,8 @@ MLOptimiser::~MLOptimiser()
 
 void MLOptimiser::init()
 {
-
+    // set MPI environment of _model
+    _model.setMPIEnv(_commSize, _commRank, _hemi);
 }
 
 

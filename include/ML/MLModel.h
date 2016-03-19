@@ -69,6 +69,9 @@ class MLModel : public Parallel
                   const double a,
                   const double alpha);
 
+        void initProjReco();
+        /* initialise Projectors and Reconstructors */
+
         void appendRef(const Volume& ref);
 
         int K() const;
@@ -103,7 +106,9 @@ class MLModel : public Parallel
         double resolutionA() const;
         /* get the highest resolution among all references */
 
-        void refreshProjector();
+        void refreshProj();
+        
+        void refreshReco();
 
         void updateR();
         /* increase _r according to wether FSC is high than 0.2 at current _r */

@@ -29,10 +29,18 @@ using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
 {
-    int _pf; // pading factor
-    double a; // parameter of the kernel MKB_FT
-    double alpha; // parameter of the kernel MKB_FT
-    double pixelSize; // pixel size of 2D images
+    int _pf;
+    // pading factor
+    
+    double a;
+    // parameter of the kernel MKB_FT
+
+    double alpha;
+    // parameter of the kernel MKB_FT
+
+    double pixelSize;
+    // pixel size of 2D images
+
 } MLOptimiserPara;
 
 class MLOptimiser : public Parallel
