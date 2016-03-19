@@ -48,7 +48,6 @@ libthuem_a_SOURCES += src/Geometry/Euler.cpp \
 libthuem_a_SOURCES += src/ML/MLModel.cpp \
 					  src/ML/MLOptimiser.cpp
 
-
 nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Coordinate5D.h \
 							include/FFT.h \
