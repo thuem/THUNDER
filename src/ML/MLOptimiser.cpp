@@ -31,6 +31,7 @@ void MLOptimiser::init()
     // genereate corresponding CTF
     
     // estimate initial sigma values
+    initSigma();
 }
 
 void MLOptimiser::expectation()
@@ -61,7 +62,11 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    /* generate sigma for the next iteration */
+    allReduceSigma();
 
+    /* reconstruct references */
+    reconstructRef();
 }
 
 void MLOptimiser::run()
@@ -91,4 +96,18 @@ void MLOptimiser::clear()
     _img.clear();
     _par.clear();
     _ctf.clear();
+}
+
+void MLOptimiser::initSigma()
+{
+}
+
+void MLOptimiser::allReduceSigma()
+{
+    // TODO
+}
+
+void MLOptimiser::reconstructRef()
+{
+    // TODO
 }
