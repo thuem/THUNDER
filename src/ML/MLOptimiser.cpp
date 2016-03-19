@@ -35,6 +35,8 @@ void MLOptimiser::init()
 
 void MLOptimiser::expectation()
 {
+    
+
 
 }
 
@@ -51,10 +53,10 @@ void MLOptimiser::run()
     {
         expectation();
 
-        maxmimazation();
+        maximization();
 
         /* calculate FSC */
-        _model.BCastFSC();
+        _model.BcastFSC();
 
         /* record current resolution */
         _res = _model.resolutionP();
