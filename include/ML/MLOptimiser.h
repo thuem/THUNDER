@@ -18,7 +18,7 @@
 #include "Image.h"
 #include "Volume.h"
 #include "ImageFile.h"
-
+#include "Symmetry.h"
 #include "Parallel.h"
 
 #include "Experiment.h"
@@ -68,6 +68,8 @@ class MLOptimiser : public Parallel
 
         Experiment _exp;
         /* information of 2D images, groups and micrographs */
+
+        Symmetry _sym; 
 
         vector<Image> _img;
 

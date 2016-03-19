@@ -35,6 +35,25 @@ void MLOptimiser::init()
 
 void MLOptimiser::expectation()
 {
+
+    int N = 6000;
+    double maxX = 30;
+    double maxY = 30;
+
+    vector<Image>::iterator imgIter;
+
+    for (imgIter = _img.begin(); imgIter < _img.end(); imgIter++) 
+    {
+        Particle p(N, maxX, maxY, &_sym);
+
+       //handle one ref 
+        for (int i = 0; i < N; i++)
+        {
+
+        }
+
+
+    }
     
 
 
