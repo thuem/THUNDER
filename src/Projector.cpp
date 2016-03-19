@@ -53,6 +53,16 @@ void Projector::setInterp(const int interp)
     _interp= interp;
 }
 
+int Projector::pf() const
+{
+    return _pf;
+}
+
+void Projector::setPf(const int pf)
+{
+    _pf = pf;
+}
+
 const Volume& Projector::projectee() const
 {
     return _projectee;
@@ -62,8 +72,6 @@ void Projector::setProjectee(const Volume& src)
 {
     _projectee = src;
 
-    meshReverse(_projectee);
-
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),
                              _projectee.nSlcRL()) / 2 - 1);
@@ -72,27 +80,23 @@ void Projector::setProjectee(const Volume& src)
 void Projector::project(Image& dst,
                         const mat33& mat) const
 {
+    SET_0_FT(dst);
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        vec3 newCor = {i, j, 0};
+
+        vec3 newCor = {(double)i, (double)j, 0};
         // std::cout << newCor << std::endl;
-        vec3 oldCor = mat * newCor;
+        vec3 oldCor = mat * newCor * _pf;
         // std::cout << oldCor << std::endl;
 
         if (norm(oldCor) < _maxRadius)
-        {
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
                                                       oldCor(1),
                                                       oldCor(2),
                                                       _interp),
                       i,
                       j);
-        }
-        else
-            dst.setFT(COMPLEX(0, 0), i, j);
     }
-
-    meshReverse(dst);
 }
 
 void Projector::project(Image& dst,

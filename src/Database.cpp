@@ -29,6 +29,7 @@ Database::~Database()
     SQLITE3_HANDLE_ERROR(sqlite3_close(_db));
 }
 
+/***
 void Database::setCommSize(const int commSize)
 {
     _commSize = commSize;
@@ -38,6 +39,7 @@ void Database::setCommRank(const int commRank)
 {
     _commRank = commRank;
 }
+***/
 
 void Database::openDatabase(const char database[])
 {
@@ -481,7 +483,7 @@ void Database::masterSend(const int rank)
     char* buf = new char[MAX_LENGTH];
 
     int len = READ_FILE(database, buf);
-    MPI_Send(buf, len, MPI_BYTE, rank, 0, MPI_COMM_WORLD);
+    MPI_Ssend(buf, len, MPI_BYTE, rank, 0, MPI_COMM_WORLD);
    
     delete[] buf;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Kunpeng Wang, Mingxu Hu
  * Dependency:
  * Test:
  * Execution:
@@ -14,7 +14,8 @@ void symmetryGroup(int& pgGroup,
                    int& pgOrder,
                    const char sym[])
 {
-    if (regex_match(sym, regex("C[\\d]+")))
+    if (regex_match(sym, regex("C[[:digit:]]+",
+                               regex_constants::extended)))
     {
         pgGroup = PG_CN;
         pgOrder = atoi(&sym[1]);
@@ -29,32 +30,38 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_CS;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("C[\\d]+H")))
+    else if (regex_match(sym, regex("C[[:digit:]]+H",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_CNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("C[\\d]+V")))
+    else if (regex_match(sym, regex("C[[:digit:]]+V",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_CNV;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("S[\\d]+")))
+    else if (regex_match(sym, regex("S[[:digit:]]+",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_SN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[\\d]+")))
+    else if (regex_match(sym, regex("D[[:digit:]]+",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_DN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[\\d]+H")))
+    else if (regex_match(sym, regex("D[[:digit:]]+H",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_DNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[\\d]+V")))
+    else if (regex_match(sym, regex("D[[:digit:]]+V",
+                                    regex_constants::extended)))
     {
         pgGroup = PG_DNV;
         pgOrder = atoi(&sym[1]);
@@ -89,7 +96,7 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_I;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("I[12345]")))
+    else if (regex_match(sym, regex("I[12345]", regex_constants::extended)))
     {
         switch (sym[1])
         {
@@ -111,7 +118,7 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_IH;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("I[12345]H")))
+    else if (regex_match(sym, regex("I[12345]H", regex_constants::extended)))
     {
         switch (sym[1])
         {

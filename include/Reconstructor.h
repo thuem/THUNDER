@@ -1,95 +1,104 @@
+/*******************************************************************************
+ * Author: Hongkun Yu, Mingxu Hu
+ * Dependecy:
+ * Test:
+ * Execution:
+ * Description:
+ * ****************************************************************************/
 
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
-#include <armadillo>
 #include <utility>
 #include <vector>
+#include <functional>
+
+#include <armadillo>
 #include <mpi.h>
 
-#include "Volume.h"
+#include "Parallel.h"
 #include "Coordinate5D.h"
-
+#include "Functions.h"
 #include "Euler.h"
-
+#include "FFT.h"
 #include "Image.h"
+#include "Volume.h"
 #include "ImageFunctions.h"
-#include "ImageFile.h"
-
-using namespace arma;
+#include "Symmetry.h"
+#include "Transformation.h"
+#include "TabFunction.h"
 
 using namespace std;
+using namespace arma;
+using namespace placeholders;
 
-typedef pair<Coordinate5D, double> corWeight;
+#define PAD_SIZE (_pf * _size)
 
-class Reconstructor
+class Reconstructor : public Parallel
 {
     private:
 
-        int _nCol;
-        int _nRow;
-        int _nSlc;
-
-        double _a = 2;
-        double _alpha = 3.6;
-        
-        int _commRank = 0;
-        int _commSize = 1;
+        int _size;
 
         Volume _F;
         Volume _W;
         Volume _C;
 
-        vector<corWeight> _coordWeight;
-        int _nColImg;
-        int _nRowImg;
+        vector<Coordinate5D> _coord;
 
         int _maxRadius;
+
+        int _pf = 2; // padding factor
+
+        const Symmetry* _sym = NULL;
+
+        double _a = 1.9;
+        double _alpha = 10;
+        
+        double _zeta = 0.15;
+
+        TabFunction _kernel;
 
     public:
 
         Reconstructor();
 
-        Reconstructor(const int nCol,
-                      const int nRow,
-                      const int nSlc,
-                      const int nColImg,
-                      const int nRowImg,
-                      const double a,
-                      const double alpha);
-
-        // Reconstructor(const Reconstructor& that);
+        Reconstructor(const int size,
+                      const int pf = 2,
+                      const Symmetry* sym = NULL,
+                      const double a = 1.9,
+                      const double alpha = 10,
+                      const double zeta = 0.15);
 
         ~Reconstructor();
 
-/////////////////////////////////////////////////////////////////////////////////////////
+        void init(const int size,
+                  const int pf = 2,
+                  const Symmetry* sym = NULL,
+                  const double a = 1.9,
+                  const double alpha = 10,
+                  const double zeta = 0.15);
 
-
-        void init(const int nCol,
-                  const int nRow,
-                  const int nSlc,
-                  const int nColImg,
-                  const int nRowImg,
-                  const double a,
-                  const double alpha);
-
-        void setCommRank(int commRank);
-        void setCommSize(int commSize);
-
+        void setSymmetry(const Symmetry* sym);
 
         void insert(const Image& src,
                     const Coordinate5D coord,
-                    const double u,
-                    const double v);
+                    const double w);
 
-        void allReduceW(MPI_Comm workers);
-        
-        void reduceF(const int root,
-                     MPI_Comm world);
+        void reconstruct(Volume& dst);
 
-        // void constructor(const char *dstname);
+    private:
+
+        void allReduceW();
+
+        void allReduceF();
+
+        void symmetrizeF();
+
+        void symmetrizeC();
+
+        double checkC() const;
+        /* calculate the distance between C and 1 */
 };
 
 #endif //RECONSTRUCTOR_H
-
-

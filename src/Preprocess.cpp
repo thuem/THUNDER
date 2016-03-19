@@ -70,7 +70,7 @@ void Preprocess::extractParticles(const int micrographID)
     micrographFile.readImage(micrograph, 0);    
     
     ImageFile particleFile;
-    Image particle(_para.nCol, _para.nRow, realSpace);
+    Image particle(_para.nCol, _para.nRow, RL_SPACE);
 
 
     #pragma omp parallel for

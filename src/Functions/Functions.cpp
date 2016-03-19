@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Kongkun Yu, Mingxu Hu
  * Dependency:
  * Test:
  * Execution:
@@ -10,13 +10,27 @@
 
 #include "Functions.h"
 
-void normalise(gsl_vector& vec)
+int periodic(double& x,
+             const double p)
 {
-    double mean = gsl_stats_mean(vec.data, 1, vec.size);
-    double stddev = gsl_stats_variance_m(vec.data, 1, vec.size, mean);
+    int n = floor(x / p);
+    x -= n * p;
+    return n;
+}
 
-    gsl_vector_add_constant(&vec, -mean);
-    gsl_vector_scale(&vec, 1.0 / stddev);
+void quaternion_mul(double* dst,
+                    const double* a,
+                    const double* b)
+{
+    double w = a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3];
+    double x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
+    double y = a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1];
+    double z = a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0];
+
+    dst[0] = w;
+    dst[1] = x;
+    dst[2] = y;
+    dst[3] = z;
 }
 
 double MKB_FT(const double r,
@@ -52,4 +66,9 @@ double MKB_RL(const double r,
         return w * gsl_sf_bessel_Inu(3.5, v);
     else
         return w * gsl_sf_bessel_Jnu(3.5, v);
+}
+
+double TIK_RL(const double r)
+{
+    return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));
 }

@@ -15,7 +15,7 @@ Volume::Volume() {}
 Volume::Volume(const int nCol,
                const int nRow,
                const int nSlc,
-               const Space space)
+               const int space)
 {
     alloc(nCol, nRow, nSlc, space);
 }
@@ -41,7 +41,7 @@ Volume& Volume::operator=(const Volume& that)
     return *this;
 }
 
-void Volume::alloc(Space space)
+void Volume::alloc(int space)
 {
     alloc(_nCol, _nRow, _nSlc, space);
 }
@@ -49,13 +49,13 @@ void Volume::alloc(Space space)
 void Volume::alloc(const int nCol,
                    const int nRow,
                    const int nSlc,
-                   const Space space)
+                   const int space)
 {
     _nCol = nCol;
     _nRow = nRow;
     _nSlc = nSlc;
 
-    if (space == realSpace)
+    if (space == RL_SPACE)
     {
         clearRL();
 
@@ -66,7 +66,7 @@ void Volume::alloc(const int nCol,
         if (_dataRL == NULL)
             REPORT_ERROR("Fail to allocate memory for storing volume");
     }
-    else if (space == fourierSpace)
+    else if (space == FT_SPACE)
     {
         clearFT();
 
@@ -96,7 +96,9 @@ double Volume::getRL(const int iCol,
                      const int iSlc) const
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    return _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)];
+    return _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                                   (iRow >= 0) ? iRow : iRow + _nRow,
+                                   (iSlc >= 0) ? iSlc : iSlc + _nSlc)];
 }
 
 void Volume::setRL(const double value,
@@ -105,7 +107,10 @@ void Volume::setRL(const double value,
                    const int iSlc)
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] = value;
+    _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                            (iRow >= 0) ? iRow : iRow + _nRow,
+                            (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
+    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] = value;
 }
 
 void Volume::addRL(const double value,
@@ -114,7 +119,10 @@ void Volume::addRL(const double value,
                    const int iSlc)
 {
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
+    _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                            (iRow >= 0) ? iRow : iRow + _nRow,
+                            (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
+    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
 }
 
 Complex Volume::getFT(int iCol,
@@ -202,28 +210,35 @@ void Volume::addFT(const Complex value,
                    const double a,
                    const double alpha)
 {
-    for (int k = MAX(-_nSlc / 2, floor(iSlc - a));
-             k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a));
-             k++)
-        for (int j = MAX(-_nRow / 2, floor(iRow - a));
-                 j <= MIN(_nRow / 2 - 1, ceil(iRow + a));
-                 j++)
-            for (int i = MAX(-_nCol / 2, floor(iCol - a));
-                     i <= MIN(_nCol / 2, ceil(iCol + a));
-                     i++)
-            {
-                double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-                if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
-            }
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+    }
 }
+
+void Volume::addFT(const Complex value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const TabFunction& kernel)
+{
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * kernel(r), i, j, k);
+    }
+}
+
 
 void Volume::coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
 {
-    if ((iCol < 0) || (iCol >= _nCol) ||
-        (iRow < 0) || (iRow >= _nRow) ||
-        (iSlc < 0) || (iSlc >= _nSlc))
+    if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
+        (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
+        (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
         REPORT_ERROR("Try to get value out of the boundary");
 }
 

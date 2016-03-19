@@ -121,10 +121,16 @@ void ImageFile::readVolume(Volume& dst,
     readVolumeMRC(dst);
 }
 
-void ImageFile::writeImage(const char* dst,
-                           const ImageBase& src)
+void ImageFile::writeImage(const char dst[],
+                           const Image& src)
 {
     writeImageMRC(dst, src);
+}
+
+void ImageFile::writeVolume(const char dst[],
+                            const Volume& src)
+{
+    writeVolumeMRC(dst, src);
 }
 
 void ImageFile::clear()
@@ -140,6 +146,24 @@ void ImageFile::clear()
         delete[] _symmetryData;
         _symmetryData = NULL;
     }
+}
+
+void ImageFile::fillMRCHeader(MRCHeader& header) const
+{
+    header.mode = _metaData.mode;
+    header.nx = _metaData.nCol;
+    header.ny = _metaData.nRow;
+    header.nz = _metaData.nSlc;
+    header.mx = _metaData.nCol;
+    header.my = _metaData.nRow;
+    header.mz = _metaData.nSlc;
+    header.cella[0] = 1;
+    header.cella[1] = 1;
+    header.cella[2] = 1;
+    header.cellb[0] = 90;
+    header.cellb[1] = 90;
+    header.cellb[2] = 90;
+    header.nsymbt = _metaData.symmetryDataSize;
 }
 
 void ImageFile::readMetaDataMRC()
@@ -179,7 +203,7 @@ void ImageFile::readImageMRC(Image& dst,
 {
     readSymmetryData();
 
-	dst.alloc(nCol(), nRow(), realSpace);
+	dst.alloc(nCol(), nRow(), RL_SPACE);
 
     size_t size = dst.sizeRL();
 
@@ -187,9 +211,9 @@ void ImageFile::readImageMRC(Image& dst,
 	
     switch (mode())
     {
-        case 0: READ_CAST(dst, char); break;
-        case 1: READ_CAST(dst, short); break;
-        case 2: READ_CAST(dst, float); break;
+        case 0: IMAGE_READ_CAST(dst, char); break;
+        case 1: IMAGE_READ_CAST(dst, short); break;
+        case 2: IMAGE_READ_CAST(dst, float); break;
     }
 }
 
@@ -201,13 +225,13 @@ void ImageFile::readImageBMP(Image& dst)
     bmp.open(_file);
     bmp.readInHeader();
 
-    dst.alloc(bmp.getWidth(), bmp.getHeight(), realSpace);
+    dst.alloc(bmp.getWidth(), bmp.getHeight(), RL_SPACE);
         
     rewind(_file);
     fseek(_file, bmp.getHeaderSize(), 0);
 
     if (bmp.getBitCount() == 8)
-        READ_CAST(dst, unsigned char);
+        IMAGE_READ_CAST(dst, unsigned char);
     else
         REPORT_ERROR("Unsupported BMP coding mode.");
 }
@@ -216,38 +240,25 @@ void ImageFile::readVolumeMRC(Volume& dst)
 {
     readSymmetryData();
 
-	dst.alloc(nCol(), nRow(), nSlc(), realSpace);
+	dst.alloc(nCol(), nRow(), nSlc(), RL_SPACE);
 
     SKIP_HEAD(0);
 	
     switch (mode())
     {
-        case 0: READ_CAST(dst, char); break;
-        case 1: READ_CAST(dst, short); break;
-        case 2: READ_CAST(dst, float); break;
+        case 0: VOLUME_READ_CAST(dst, char); break;
+        case 1: VOLUME_READ_CAST(dst, short); break;
+        case 2: VOLUME_READ_CAST(dst, float); break;
     }
 }
 
-void ImageFile::writeImageMRC(const char* dst,
-                              const ImageBase& src)
+void ImageFile::writeImageMRC(const char dst[],
+                              const Image& src)
 {
     _file = fopen(dst, "w");
 
     MRCHeader header;
-    header.mode = _metaData.mode;
-    header.nx = _metaData.nCol;
-    header.ny = _metaData.nRow;
-    header.nz = _metaData.nSlc;
-    header.mx = _metaData.nCol;
-    header.my = _metaData.nRow;
-    header.mz = _metaData.nSlc;
-    header.cella[0] = 1;
-    header.cella[1] = 1;
-    header.cella[2] = 1;
-    header.cellb[0] = 90;
-    header.cellb[1] = 90;
-    header.cellb[2] = 90;
-    header.nsymbt = _metaData.symmetryDataSize;
+    fillMRCHeader(header);
 
     rewind(_file);
     if (fwrite(&header, 1, 1024, _file) == 0 ||
@@ -255,7 +266,28 @@ void ImageFile::writeImageMRC(const char* dst,
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
-    WRITE_CAST(src, float);
+    IMAGE_WRITE_CAST(src, float);
 
     fclose(_file);
+    _file = NULL;
+}
+
+void ImageFile::writeVolumeMRC(const char dst[],
+                               const Volume& src)
+{
+    _file = fopen(dst, "w");
+
+    MRCHeader header;
+    fillMRCHeader(header);
+
+    rewind(_file);
+    if (fwrite(&header, 1, 1024, _file) == 0 ||
+        (symmetryDataSize() != 0 &&
+         fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
+        REPORT_ERROR("Fail to write out an image.");
+
+    VOLUME_WRITE_CAST(src, float);
+
+    fclose(_file);
+    _file = NULL;
 }

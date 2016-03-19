@@ -23,4 +23,7 @@
 #define FILE_NAME_LENGTH 256
 #define SQL_COMMAND_LENGTH 256
 
+#define SAVE_DELETE(p) \
+    if (p != NULL) { delete[] p; p = NULL; }
+
 #endif // MACRO_H

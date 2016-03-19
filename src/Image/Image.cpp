@@ -14,7 +14,7 @@ Image::Image() {}
 
 Image::Image(const int nCol,
              const int nRow,
-             const Space space)
+             const int space)
 {
     alloc(nCol, nRow, space);
 }
@@ -39,19 +39,19 @@ Image& Image::operator=(const Image& that)
     return *this;
 }
 
-void Image::alloc(const Space space)
+void Image::alloc(const int space)
 {
     alloc(_nCol, _nRow, space);
 }
 
 void Image::alloc(const int nCol,
                   const int nRow,
-                  const Space space)
+                  const int space)
 {
     _nCol = nCol;
     _nRow = nRow;
 
-    if (space == realSpace)
+    if (space == RL_SPACE)
     {
         clearRL();
         _sizeRL = nCol * nRow;
@@ -60,7 +60,7 @@ void Image::alloc(const int nCol,
         if (_dataRL == NULL)
             REPORT_ERROR("Fail to allocate memory for storing image");
     }
-    else if (space == fourierSpace)
+    else if (space == FT_SPACE)
     {
         clearFT();
         _sizeRL = nCol * nRow;
@@ -83,8 +83,10 @@ void Image::saveRLToBMP(const char* filename) const
 {
     float* image = new float[_sizeRL];
 
-    for (size_t i = 0; i < _sizeRL; i++)
-        image[i] = (float)_dataRL[i];
+    for (int i = 0; i < _nRow; i++)
+        for (int j = 0; j < _nCol; j++)
+            image[(i + _nRow / 2) % _nRow * _nCol
+                 +(j + _nCol / 2) % _nCol] = _dataRL[i * _nCol + j];
 
     BMP bmp;
 
@@ -144,7 +146,8 @@ double Image::getRL(const int iCol,
                     const int iRow) const
 {
     coordinatesInBoundaryRL(iCol, iRow);
-    return _dataRL[IMAGE_INDEX(iCol, iRow)];
+    return _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                                  (iRow >= 0) ? iRow : iRow + _nRow)];
 }
 
 void Image::setRL(const double value,
@@ -152,7 +155,8 @@ void Image::setRL(const double value,
                   const int iRow)
 {
     coordinatesInBoundaryRL(iCol, iRow);
-    _dataRL[IMAGE_INDEX(iCol, iRow)] = value;
+    _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                           (iRow >= 0) ? iRow : iRow + _nRow)] = value;
 }
 
 Complex Image::getFT(int iCol,
@@ -181,13 +185,8 @@ double Image::getBiLinearRL(const double iCol,
 {
     double w[2][2];
     int x0[2];
-    /***
-    double w00, w01, w10, w11;
-    int x0, y0;
-    ***/
     double x[2] = {iCol, iRow};
     WG_BI_LINEAR(w, x0, x);
-    // biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
 
     coordinatesInBoundaryRL(x0[0], x0[1]);
     coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
@@ -195,12 +194,6 @@ double Image::getBiLinearRL(const double iCol,
     double result = 0;
     FOR_CELL_DIM_3 result += w[i][j] * getRL(x0[0] + i, x0[1] + j);
     return result;
-    /***
-    return w00 * getRL(x0, y0)
-         + w01 * getRL(x0, y0 + 1)
-         + w10 * getRL(x0 + 1, y0)
-         + w11 * getRL(x0 + 1, y0 + 1);
-         ***/
 }
 
 Complex Image::getBiLinearFT(const double iCol,
@@ -208,13 +201,8 @@ Complex Image::getBiLinearFT(const double iCol,
 {
     double w[2][2];
     int x0[2];
-    /***
-    double w00, w01, w10, w11;
-    int x0, y0;
-    ***/
     double x[2] = {iCol, iRow};
     WG_BI_LINEAR(w, x0, x);
-    // biLinearWeightGrid(w00, w01, w10, w11, x0, y0, iCol, iRow);
 
     coordinatesInBoundaryFT(x0[0], x0[1]);
     coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);
@@ -222,19 +210,13 @@ Complex Image::getBiLinearFT(const double iCol,
     Complex result = COMPLEX(0, 0);
     FOR_CELL_DIM_2 result += w[i][j] * getFT(x0[0] + i , x0[1] + j);
     return result;
-    /***
-    return w00 * getFT(x0, y0)
-         + w01 * getFT(x0, y0 + 1)
-         + w10 * getFT(x0 + 1, y0)
-         + w11 * getFT(x0 + 1, y0 + 1);
-    ***/
 }
 
 void Image::coordinatesInBoundaryRL(const int iCol,
                                     const int iRow) const
 {
-    if ((iCol < 0) || (iCol >= _nCol) ||
-        (iRow < 0) || (iRow >= _nRow))
+    if ((iCol < _nCol / 2) || (iCol >= _nCol / 2) ||
+        (iRow < _nRow / 2) || (iRow >= _nRow / 2))
         REPORT_ERROR("Try to get value out of the boundary");
 }
 

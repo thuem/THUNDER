@@ -5,7 +5,6 @@
 *.cpp.swp
 *.swp
 *.bmp
-*.zip
 *.a
 *.mrc
 *.txt
@@ -49,4 +48,5 @@ install-sh
 libtool
 missing
 stamp-h1
+tags
 

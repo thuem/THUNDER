@@ -8,10 +8,8 @@
 
 #include <iostream>
 
-#include "ImageFile.h"
-
 #include "Projector.h"
-
+#include "ImageFile.h"
 #include "FFT.h"
 
 #define N 256
@@ -21,49 +19,43 @@ int main(int argc, const char* argv[])
 {
     std::cout << "Define a head." << std::endl;
 
-    Volume head(N, N, N, realSpace);
-    for (int z = 0; z < N; z++)
-        for (int y = 0; y < N; y++)
-            for (int x = 0; x < N; x++)
-            {
-                if ((pow(x - N / 2, 2)
-                   + pow(y - N / 2, 2)
-                   + pow(z - N / 2, 2) < pow(N / 8, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 3 * N / 8, 2)
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 5 * N / 8, 2) 
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    ((pow(x - N / 2, 2)
-                    + pow(y - N / 2, 2) < pow(N / 16, 2)) &&
-                     (z < 7 * N / 16) && (z > 5 * N / 16)))
-                    head.setRL(1, x, y, z);
-                else
-                    head.setRL(0, x, y, z);
-            }
+    Volume head(N, N, N, RL_SPACE);
+
+    VOLUME_FOR_EACH_PIXEL_RL(head)
+    {
+        if ((NORM_3(i, j, k) < N / 8) ||
+            (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
+            (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
+            ((NORM(i, j) < N / 16) &&
+             (k + N / 16 < 0) &&
+             (k + 3 * N / 16 > 0)))
+            head.setRL(1, i, j, k);
+        else
+            head.setRL(0, i, j, k);
+    }
 
     ImageFile imf;
     imf.readMetaData(head);
-    imf.writeImage("head.mrc", head);
+    imf.writeVolume("head.mrc", head);
+
+    Volume padHead;
+    VOL_PAD_RL(padHead, head, 2);
+    /***
+    imf.readMetaData(padHead);
+    imf.writeVolume("padHead.mrc", padHead);
+    ***/
     
     FFT fft;
-    fft.fw(head);
-
-    /***
-    VOLUME_FOR_EACH_PIXEL_FT(head)
-        printf("%f %f\n", REAL(head.getFT(i, j, k)),
-                          IMAG(head.getFT(i, j, k)));
-    ***/
+    fft.fw(padHead);
 
     Projector projector;
-    projector.setProjectee(head);
+    projector.setProjectee(padHead);
 
     char name[256];
     int counter = 0;
 
     // Image image(N, N, fourierSpace);
-    Image image(N, N, realSpace);
+    Image image(N, N, RL_SPACE);
 
     try
     {
@@ -95,11 +87,11 @@ int main(int argc, const char* argv[])
                 image.saveRLToBMP(name);
                 // image.saveFTToBMP(name, 0.1);
             }
-                }
-                catch (Error& err)
-                {
-                    std::cout << err;
-                }
+    }
+    catch (Error& err)
+    {
+        cout << err << endl;
+    }
 
     return 0;
 }

@@ -11,103 +11,102 @@
 #include "Projector.h"
 #include "Reconstructor.h"
 #include "FFT.h"
+#include "Mask.h"
+#include "ImageFile.h"
 
-#define N 256
-#define M 8
+#define N 32
+#define M 16
+
+using namespace std;
 
 int main(int argc, char* argv[])
 {
-
-    int messageid = 2;
-    int numprocs, myid, server, serverid[1];
-    int numworkers, workerid;
-    
-    MPI_Comm world, workers;
-    MPI_Group world_group, worker_group;
-
     MPI_Init(&argc, &argv);
-    world = MPI_COMM_WORLD;
-    MPI_Comm_size(world, &numprocs);
-    MPI_Comm_rank(world, &myid);
-    
-   // server = 0;
-   // MPI_Comm_group(world, &world_group);
-   // serverid[0] = server;
-   // MPI_Group_excl(world_group, 1, serverid, &worker_group);
-   // MPI_Comm_create(world, worker_group, &workers);
-   // 
-   // MPI_Comm_rank(workers, &workerid);
-   // MPI_Comm_size(workers, & numworkers);
-    
-    if (myid == messageid) {
-        std::cout << "numprocs: " << numprocs << std::endl
-                  << "myid: " << myid << std::endl
-                  << "server is node " << server << std::endl
-                  << "numworkers: " << numworkers << std::endl
-                  << "workerid: " << workerid << std::endl;
+
+    int commSize, commRank;
+    MPI_Comm_size(MPI_COMM_WORLD, &commSize);
+    MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
+      
+    // cout << "0: commRank = " << commRank << endl;
+    Volume head(N, N, N, RL_SPACE);
+    VOLUME_FOR_EACH_PIXEL_RL(head)
+    {
+        if ((NORM_3(i, j, k) < N / 8) ||
+            (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
+            (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
+            ((NORM(i, j) < N / 16) &&
+             (k + N / 16 < 0) &&
+             (k + 3 * N / 16 > 0)))
+            head.setRL(1, i, j, k);
+        else
+            head.setRL(0, i, j, k);
     }
-
-
-
-    Volume head(N, N, N, realSpace);
-    if (myid == messageid) {
-        std::cout << "Define a head" << std::endl;
-    }
-    for (int z = 0; z < N; z++)
-        for (int y = 0; y < N; y++)
-            for (int x = 0; x < N; x++)
-            {
-                if ((pow(x - N / 2, 2)
-                   + pow(y - N / 2, 2)
-                   + pow(z - N / 2, 2) < pow(N / 8, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 3 * N / 8, 2)
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    (pow(x - N / 2, 2)
-                   + pow(y - 5 * N / 8, 2) 
-                   + pow(z - 5 * N / 8, 2) < pow(N / 16, 2)) ||
-                    ((pow(x - N / 2, 2)
-                    + pow(y - N / 2, 2) < pow(N / 16, 2)) &&
-                     (z < 7 * N / 16) && (z > 5 * N / 16)))
-                    head.setRL(1, x, y, z);
-                else
-                    head.setRL(0, x, y, z);
-            }
     
+    // cout << "1: commRank = " << commRank << endl;
+    if (commRank == MASTER_ID)
+    {
+        ImageFile imf;
+        imf.readMetaData(head);
+        imf.display();
+        imf.writeVolume("head.mrc", head);
+    }
+    // cout << "2: commRank = " << commRank << endl;
+
+    printf("head defined\n");
+
+    Volume padHead;
+    VOL_PAD_RL(padHead, head, 2);
     FFT fft;
-    fft.fw(head);
-
-    /***
-    VOLUME_FOR_EACH_PIXEL_FT(head)
-        printf("%f %f\n", REAL(head.getFT(i, j, k)),
-                          IMAG(head.getFT(i, j, k)));
-    ***/
+    fft.fw(padHead);
+    printf("FFT Done\n");
+    // cout << "3: commRank = " << commRank << endl;
 
     Projector projector;
-    projector.setProjectee(head);
+    projector.setProjectee(padHead);
 
     char name[256];
     int counter = 0;
 
-    Image image(N, N, fourierSpace);
-    // Image image(N, N, realSpace);
+    Image image(N, N, FT_SPACE);
+    // Image image(N, N, RL_SPACE);
     
-  //  Reconstructor reconstructor;
+    Symmetry sym("C2");
+   
+    // cout << "4: commRank = " << commRank << endl;
+    Reconstructor reconstructor(N, 2, &sym);
+    reconstructor.setMPIEnv();
 
-    //try {
-        for (int k = M / numworkers * workerid; k < M / numworkers * (workerid + 1); k++)
-            for (int j = 0; j < M; j++)
-                for (int i = 0; i < M; i++)
+    printf("Set Symmetry Done\n");
+
+    // cout << "5: commRank = " << commRank << endl;
+    // cout << (commRank != MASTER_ID) << endl;
+
+    try
+    {
+    if (commRank != MASTER_ID)
+    {
+        printf("Projection and Insertion\n");
+        /***
+        for (int k = M / 2 / numworkers * workerid;
+                 k < M / 2 / numworkers * (workerid + 1);
+                 k++)
+                 ***/
+        for (int k = M / (commSize - 1) * (commRank - 1);
+                 k < M / (commSize - 1) * commRank;
+                 k++)
+            for (int j = 0; j < M / 2; j++)
+                for (int i = 0; i < M / 2; i++)
                 {
                     printf("%02d %02d %02d\n", i, j, k);
                     sprintf(name, "%02d%02d%02d.bmp", i, j, k);
                     Coordinate5D coord(2 * M_PI * i / M,
-                                       M_PI * j / M,
+                                       2 * M_PI * j / M,
                                        2 * M_PI * k / M,
                                        0,
                                        0);
                     projector.project(image, coord);
-                    //reconstructor.insert(image, coord);
+                    // C2C_RL(image, image, softMask(image, N / 4, 2));
+                    reconstructor.insert(image, coord, 1);
                     /***
                     FFT fft;
                     fft.fw(image);
@@ -124,12 +123,50 @@ int main(int argc, char* argv[])
                                                     ***/
 
                     // image.saveRLToBMP(name);
-                    // image.saveFTToBMP(name, 0.1);
-                
-            }
-    //} catch (Error& err) {
-    //   std::cout << err;
-    //}
+                    // image.saveFTToBMP(name, 0.1);    
+                }
+
+        /***
+        for (int i = 0; i < 3; i++) {
+            reconstructor.allReduceW();
+            std::cout << "Round-" << i << ":       worker-" << commRank - 1 << "    :finised allreduce" << std::endl;
+            std::cout << "checkC = " << reconstructor.checkC() << std::endl;
+        }
+        ***/
+    }
+    }
+    catch (Error& err)
+    {
+        cout << err << endl;
+    }
+
+    /***
+    reconstructor.allReduceF();
+    ***/
+ 
+    Volume result;
+    reconstructor.reconstruct(result);
+
+    if (commRank == 1)
+    {
+        ImageFile imf;
+        imf.readMetaData(result);
+        imf.writeVolume("result.mrc", result);
+    }
+
+    /***
+    if (commRank == 1) {
+    // if (myid == 1) {
+        std::cout << "server-" << commRank << ":          finised reduce" << std::endl;
+        reconstructor.constructor("result.mrc");
+        std::cout << "output success!" << std::endl;
+    }
+    ***/
+
+    //MPI_Comm_free(&world);
+    //MPI_Comm_free(&workers);
+    //MPI_Group_free(&worker_group);
+    //MPI_Group_free(&world_group);
 
     MPI_Finalize();
     return 0;

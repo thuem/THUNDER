@@ -43,6 +43,7 @@ void meshReverse(Volume& vol)
 }
 ***/
 
+/***
 void meshReverse(Image& img)
 {
     for (int j = 0; j < img.nRowFT(); j++)
@@ -61,6 +62,7 @@ void meshReverse(Volume& vol)
                       + j * vol.nColFT()
                       + i] *= -1;
 }
+***/
 
 void bgMeanStddev(double& mean,
                   double& stddev,
@@ -118,4 +120,12 @@ void extract(Image& dst,
 {
     IMAGE_FOR_EACH_PIXEL_RL(dst)
         dst.setRL(src.getRL(i + xOff, j + yOff), i, j);
+}
+
+void slice(Image& dst,
+           const Volume& src,
+           const int iSlc)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(dst)
+        dst.setRL(src.getRL(i, j, iSlc), i, j);
 }

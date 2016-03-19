@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu
  * Dependency:
  * Test:
  * Execution:
@@ -18,6 +18,8 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
 
+#define AROUND(a) ((int)rint(a))
+
 #define MAX(a, b) GSL_MAX(a, b)
 
 #define MAX_3(a, b, c) MAX(MAX(a, b), c)
@@ -30,18 +32,26 @@
 
 #define NORM_3(a, b, c) sqrt(gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
 
-void normalise(gsl_vector& vec);
+int periodic(double& x,
+             const double p);
+
+void quaternion_mul(double* dst,
+                    const double* a,
+                    const double* b);
 
 double MKB_FT(const double r,
               const double a,
               const double alpha);
 /* Modified Kaiser Bessel Function, m = 2 */
-/* Typically, a = 2.0 and alpha = 3.6 */
+/* Typically, a = 1.9 and alpha = 10 */
 
 double MKB_RL(const double r,
               const double a,
               const double alpha);
 /* Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3 */
-/* Typically, a = 2.0 and alpha = 3.6 */
+/* Typically, a = 1.9 and alpha = 10 */
+
+double TIK_RL(const double r);
+/* Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function */
 
 #endif // FUNCTIONS_H

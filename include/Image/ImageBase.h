@@ -23,19 +23,44 @@
 #include "Typedef.h"
 #include "Functions.h"
 
+#define RL_SPACE 0
+#define FT_SPACE 1
+
 #define FOR_EACH_PIXEL_RL(base) \
     for (size_t i = 0; i < base.sizeRL(); i++)
 
 #define FOR_EACH_PIXEL_FT(base) \
     for (size_t i = 0; i < base.sizeFT(); i++)
 
-#define NEG_RL(base) \
+#define SET_0_RL(base) \
+    memset(&base(0), 0, sizeof(double) * base.sizeRL());
+
+#define SET_0_FT(base) \
+    memset(&base[0], 0, sizeof(Complex) * base.sizeFT());
+
+#define SET_1_RL(base) \
     FOR_EACH_PIXEL_RL(base) \
-        base(i) *= -1;
+        base(i) = 1
+
+#define SET_1_FT(base) \
+    FOR_EACH_PIXEL_FT(base) \
+        base[i] = COMPLEX(1, 0)
+
+#define NEG_RL(base) \
+    SCALE_RL(base, -1)
+
+#define SCALE_RL(base, a) \
+    cblas_dscal(base.sizeRL(), a, &base(0), 1)
+
+#define ADD_RL(a, b) \
+    cblas_daxpy(a.sizeRL(), 1, &b(0), 1, &a(0), 1);
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
         a[i] += b[i]
+
+#define SUB_RL(a, b) \
+    cblas_daxpy(a.sizeRL(), -1, &b(0), 1, &a(0), 1);
 
 #define SUB_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
@@ -67,10 +92,10 @@ class ImageBase
 
         ImageBase& operator=(const ImageBase& that);
 
-        const double& getRL(size_t i = 0) const;
+        const double& iGetRL(size_t i = 0) const;
         // return a const pointer which points to the i-th element
 
-        const Complex& getFT(size_t i = 0) const;
+        const Complex& iGetFT(size_t i = 0) const;
         // return a const pointer which points to the i-th element
         
         double& operator()(const size_t i);
