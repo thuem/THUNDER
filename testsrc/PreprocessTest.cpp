@@ -51,8 +51,11 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
     char sqlStatement[1024];
     char particleName[1024];
 
+
     double CooridinateX,CooridinateY, AnglePsi, AutopickFigureOfMerit;
     int    ClassNumber;
+
+
 
     fdMicrograph = fopen( micrographFileName, "r");
     if (NULL == fdMicrograph)
@@ -107,17 +110,26 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
     while ( !feof(fdStar) )
     {          
          
-        fscanf(fdStar, "%lf %lf %lf  %d  %f\n", &CooridinateX, &CooridinateY, 
+        fscanf(fdStar, "%lf %lf %lf  %d  %lf\n", &CooridinateX, &CooridinateY, 
                &AnglePsi, &ClassNumber , &AutopickFigureOfMerit);
                    
-        sprintf(particleName , "%s/%s_%d.bmp",MICROGRAPH_PATH, micrographFileName , particleNumber );
+        sprintf(particleName, "%s/%s", MICROGRAPH_PATH, micrographFileName, particleNumber);
+        len = strlen( particleName );
+        if ( strcmp( particleName+ len -4, ".mrc") == 0)
+        {
+          len -= 4;
+        };        
+        sprintf( particleName + len, "_%d.bmp", particleNumber);
+
+        printf(" particleName=%s \n", particleName);
+
         sprintf(sqlStatement, "insert into particles "\
                               "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
                               "VALUES (%f, %f, \"%s\" ,0 ,%d  ); ", 
                               CooridinateX, CooridinateY, 
                               particleName,micrographID);
 
-        printf("%s\n", sqlStatement);
+        //printf("%s\n", sqlStatement);
        
         exp.execute(sqlStatement,
                     NULL, 
