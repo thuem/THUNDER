@@ -40,7 +40,11 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    /* generate sigma for the next iteration */
+    allReduceSigma();
 
+    /* reconstruct references */
+    reconstructRef();
 }
 
 void MLOptimiser::run()
@@ -51,10 +55,10 @@ void MLOptimiser::run()
     {
         expectation();
 
-        maxmimazation();
+        maximization();
 
         /* calculate FSC */
-        _model.BCastFSC();
+        _model.BcastFSC();
 
         /* record current resolution */
         _res = _model.resolutionP();
@@ -70,4 +74,14 @@ void MLOptimiser::clear()
     _img.clear();
     _par.clear();
     _ctf.clear();
+}
+
+void MLOptimiser::allReduceSigma()
+{
+    // TODO
+}
+
+void MLOptimiser::reconstructRef()
+{
+    // TODO
 }

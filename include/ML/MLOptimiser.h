@@ -31,7 +31,7 @@ using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
 {
-    int itermax;
+    int iterMax;
     // max number of iterations
 
     int pf;
@@ -98,6 +98,12 @@ class MLOptimiser : public Parallel
         void run();
 
         void clear();
+
+    private:
+
+        void allReduceSigma();
+
+        void reconstructRef();
 };
 
 #endif // ML_OPTIMSER_H
