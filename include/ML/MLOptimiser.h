@@ -21,6 +21,8 @@
 
 #include "Parallel.h"
 
+#include "Experiment.h"
+
 #include "Particle.h"
 
 #include "MLModel.h"
@@ -29,7 +31,10 @@ using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
 {
-    int _pf;
+    int itermax;
+    // max number of iterations
+
+    int pf;
     // pading factor
     
     double a;
@@ -47,12 +52,22 @@ class MLOptimiser : public Parallel
 {
     private:
 
+        MLOptimiserPara _para;
+
         int _r;
         /* radius of calculating posterior possibility */
 
-        MLOptimiserPara _para;
+        int _iter;
+        /* number of iterations performed */
+
+        double _res;
+        /* current resolution in pixel */
 
         MLModel _model;
+        /* model, including references, projectors and reconstructors */
+
+        Experiment _exp;
+        /* information of 2D images, groups and micrographs */
 
         vector<Image> _img;
 
@@ -78,15 +93,11 @@ class MLOptimiser : public Parallel
         void expectation();
 
         //Guo Heng, Li Bing
-        void maxmization();
+        void maximization();
 
         void run();
 
         void clear();
-
-    private:
-
-        void resetProjectors();
 };
 
 #endif // ML_OPTIMSER_H
