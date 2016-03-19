@@ -31,6 +31,7 @@ void MLOptimiser::init()
     // genereate corresponding CTF
     
     // estimate initial sigma values
+    initSimga();
 }
 
 void MLOptimiser::expectation()
@@ -74,6 +75,10 @@ void MLOptimiser::clear()
     _img.clear();
     _par.clear();
     _ctf.clear();
+}
+
+void MLOptimiser::initSigma()
+{
 }
 
 void MLOptimiser::allReduceSigma()

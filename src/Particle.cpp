@@ -126,7 +126,7 @@ void Particle::perturb()
     // translation perturbation
     mat L = chol(cov(_t), "lower");
     for (int i = 0; i < _N; i++)
-        _t.row(i) += (L * randu<vec>(2)).t() / 3;
+        _t.row(i) += (L * randn<vec>(2)).t() / 3;
 
     // rotation perturbation
     bingham_t B;
@@ -136,12 +136,6 @@ void Particle::perturb()
     _k1 = B.Z[1];
     _k2 = B.Z[2];
 
-    /***
-    printf("%f %f %f\n",
-           B.Z[0],
-           B.Z[1],
-           B.Z[2]);
-           ***/
     bingham_free(&B);
 
     bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);

@@ -101,6 +101,8 @@ class MLOptimiser : public Parallel
 
     private:
 
+        void initSigma();
+
         void allReduceSigma();
 
         void reconstructRef();
