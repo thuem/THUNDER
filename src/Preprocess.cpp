@@ -56,7 +56,7 @@ void Preprocess::extractParticles(const int micrographID)
         return ;
     };
 
-    // get all particleID;
+    // get all particleID in micrographID;
     vector<int> particleIDs;
     _exp->particleIDsMicrograph(particleIDs, micrographID);
     if (particleIDs.size() == 0)
@@ -64,32 +64,36 @@ void Preprocess::extractParticles(const int micrographID)
         return ;
     }
  
-    
-
     ImageFile micrographFile(micName, "rb");
     Image micrograph;
-
-    printf("micrograph =%s \n", micName);
+    
     //  read micrograph image 
+    micrographFile.readMetaDataMRC();
     micrographFile.readImage(micrograph, 0, "MRC");    
-    micrographFile.display();
-    printf(" ????\n");
+    //micrographFile.display();
 
     ImageFile particleFile;
     Image particle(_para.nCol, _para.nRow, RL_SPACE);
 
-
-    printf("[x1]\n");
+   
+    printf("[x1]particleIDs.size() = %d nRow=%d  col=%d \n", particleIDs.size() , _para.nCol, _para.nRow );
 
     #pragma omp parallel for
     for (int i = 0; i < particleIDs.size(); i++)
     {
         int xOff, yOff;
 
+        printf("i =%d  \n", i );
+
         // extractPartcilesInMicrograph(micrographImage, particleIDs[i], particleImage  );
         getParticleXOffYOff(xOff, yOff, particleName, particleIDs[i]);
 
+        printf("particleIDs[i] =%d  \n",  particleIDs[i]);
+      
+    
         extract(particle, micrograph, xOff, yOff);
+
+        printf("extract i =%d  \n", i );
 
         if (_para.doNormalise)
         {
@@ -180,13 +184,13 @@ void Preprocess::getParticleXOffYOff(int& xOff,
     _exp->execute(sql,
                   SQLITE3_CALLBACK
                   {
-                      ((PARTICLE_INFO*)data)->x = atof(values[0]);  
-                      ((PARTICLE_INFO*)data)->y = atof(values[1]);  
+                      ((PARTICLE_INFO*)data)->x = atoi(values[0]);  
+                      ((PARTICLE_INFO*)data)->y = atoi(values[1]);  
                       sprintf(  ((PARTICLE_INFO*)data)->particleName,"%s", values[2]);  
                       return 0;
                   },
                   &info);
-    printf(" x=%f, y=%f \n", info.x, info.y);
+    printf(" x=%d, y=%d \n", info.x, info.y);
     xOff = info.x;
     yOff = info.y;
     sprintf(particleName, "%s", info.particleName); 
