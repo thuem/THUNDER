@@ -182,9 +182,12 @@ void createDB(Experiment& exp)
 
 int main(int argc, const char* argv[])
 {   
-      
+    system("cp test.db  /dev/shm/test.db");
+
+    
     printf("%s\n", RM_DB);
-    system(RM_DB);
+
+    //system(RM_DB);
 
     Experiment exp(DBNAME);
 /*
@@ -198,7 +201,7 @@ int main(int argc, const char* argv[])
     */
 
 
-    createDB(exp);
+    //createDB(exp);
 
 
     vector<int> partIDs;

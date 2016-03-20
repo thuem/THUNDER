@@ -43,6 +43,7 @@ void Preprocess::extractParticles(const int micrographID)
     // _exp
     // save
     
+
     char micName[FILE_NAME_LENGTH];
     char particleName[FILE_NAME_LENGTH];    
 
@@ -63,15 +64,22 @@ void Preprocess::extractParticles(const int micrographID)
         return ;
     }
  
+    
+
     ImageFile micrographFile(micName, "rb");
     Image micrograph;
 
+    printf("micrograph =%s \n", micName);
     //  read micrograph image 
-    micrographFile.readImage(micrograph, 0);    
-    
+    micrographFile.readImage(micrograph, 0, "MRC");    
+    micrographFile.display();
+    printf(" ????\n");
+
     ImageFile particleFile;
     Image particle(_para.nCol, _para.nRow, RL_SPACE);
 
+
+    printf("[x1]\n");
 
     #pragma omp parallel for
     for (int i = 0; i < particleIDs.size(); i++)
@@ -163,20 +171,22 @@ void Preprocess::getParticleXOffYOff(int& xOff,
     PARTICLE_INFO info; 
     char sql[128]; 
     sprintf(sql, 
-            "select XOff, YOFF, particleName from particles "
+            "select XOff, YOff, Name from particles "
             "where ID = %d;", 
             particleID); 
+
+    printf("sql = %s \n", sql);
 
     _exp->execute(sql,
                   SQLITE3_CALLBACK
                   {
-                      ((PARTICLE_INFO*)data)->x = atoi(values[0]);  
-                      ((PARTICLE_INFO*)data)->y = atoi(values[1]);  
+                      ((PARTICLE_INFO*)data)->x = atof(values[0]);  
+                      ((PARTICLE_INFO*)data)->y = atof(values[1]);  
                       sprintf(  ((PARTICLE_INFO*)data)->particleName,"%s", values[2]);  
                       return 0;
                   },
                   &info);
-
+    printf(" x=%f, y=%f \n", info.x, info.y);
     xOff = info.x;
     yOff = info.y;
     sprintf(particleName, "%s", info.particleName); 
@@ -194,6 +204,7 @@ void Preprocess::run()
     
     //#pragma omp parallel for
     printf("_micrographIDs.size()=%d \n ", _micrographIDs.size());
+
     for (int i = 0; i < _micrographIDs.size(); i++)
     {
     	printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
