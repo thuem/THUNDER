@@ -42,7 +42,6 @@ void Preprocess::extractParticles(const int micrographID)
     // micrograph
     // _exp
     // save
-    
 
     char micName[FILE_NAME_LENGTH];
     char particleName[FILE_NAME_LENGTH];    
@@ -70,7 +69,7 @@ void Preprocess::extractParticles(const int micrographID)
     //  read micrograph image 
     micrographFile.readMetaDataMRC();
     micrographFile.readImage(micrograph, 0, "MRC");    
-    //micrographFile.display();
+    micrographFile.display();
 
     ImageFile particleFile;
     Image particle(_para.nCol, _para.nRow, RL_SPACE);
@@ -88,9 +87,10 @@ void Preprocess::extractParticles(const int micrographID)
         // extractPartcilesInMicrograph(micrographImage, particleIDs[i], particleImage  );
         getParticleXOffYOff(xOff, yOff, particleName, particleIDs[i]);
 
-        printf("particleIDs[i] =%d  \n",  particleIDs[i]);
-      
+        printf("particleIDs[i] =%d  \n",  particleIDs[i]);      
     
+        printf("xOff =%d  yOff = %d  col=%d  row=%d \n",  xOff, yOff, _para.nCol, _para.nRow );    
+        printf("Before extracting .....\n\n");
         extract(particle, micrograph, xOff, yOff);
 
         printf("extract i =%d  \n", i );
