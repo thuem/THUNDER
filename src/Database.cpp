@@ -29,17 +29,15 @@ Database::~Database()
     SQLITE3_HANDLE_ERROR(sqlite3_close(_db));
 }
 
-/***
-void Database::setCommSize(const int commSize)
+int Database::mode() const
 {
-    _commSize = commSize;
+    return _mode;
 }
 
-void Database::setCommRank(const int commRank)
+void Database::setMode(const int mode)
 {
-    _commRank = commRank;
+    _mode = mode;
 }
-***/
 
 void Database::openDatabase(const char database[])
 {
@@ -91,17 +89,41 @@ void Database::saveDatabase(const int rank)
     int start, end;
     split(start, end, rank);
 
-    sql = "insert into dst.groups select distinct groups.* from \
-           groups, particles where \
-           (particles.groupID = groups.ID) and \
-           (particles.ID >= ?1) and (particles.ID <= ?2); \
-           insert into dst.micrographs \
-           select distinct micrographs.* from \
-           micrographs, particles where \
-           particles.micrographID = micrographs.ID and \
-           (particles.ID >= ?1) and (particles.ID <= ?2); \
-           insert into dst.particles select * from particles \
-           where (ID >= ?1) and (ID <= ?2);";
+    if (_mode == PARTICLE_MOD)
+        sql = "insert into dst.groups select distinct groups.* from \
+               groups, particles where \
+               (particles.groupID = groups.ID) and \
+               (particles.ID >= ?1) and (particles.ID <= ?2); \
+               insert into dst.micrographs \
+               select distinct micrographs.* from \
+               micrographs, particles where \
+               particles.micrographID = micrographs.ID and \
+               (particles.ID >= ?1) and (particles.ID <= ?2); \
+               insert into dst.particles select * from particles \
+               where (ID >= ?1) and (ID <= ?2);";
+    else if (_mode == MICROGRAPH_MOD)
+    {
+        // TODO: change to proper SQL
+        sql = "insert into dst.micrographs select * from micrographs \
+               where (ID >= ?1) and (ID <= ?2); \
+               insert into dst.particles select particles.* from \
+               micrographs, particles where \
+               particles.micrographID = micrographs.ID and \
+               (micrographs.ID >= ?1) and (micrographs.ID <= ?2);";
+        /***
+        sql = "insert into dst.groups select distinct groups.* from \
+               groups, particles where \
+               (particles.groupID = groups.ID) and \
+               (particles.ID >= ?1) and (particles.ID <= ?2); \
+               insert into dst.micrographs \
+               select distinct micrographs.* from \
+               micrographs, particles where \
+               particles.micrographID = micrographs.ID and \
+               (particles.ID >= ?1) and (particles.ID <= ?2); \
+               insert into dst.particles select * from particles \
+               where (ID >= ?1) and (ID <= ?2);";
+               ***/
+    }
 
     sqlite3_stmt* _stmtSaveDatabase;
     const char* tail;
@@ -171,10 +193,7 @@ void Database::createTableParticles()
                          "create table particles( \
                                   ID integer primary key, \
                                   GroupID integer not null, \
-                                  MicrographID integer not null, \
-                                  IpCoarse integer, \
-                                  IpFine integer, \
-                                  Subset integer);",
+                                  MicrographID integer not null);",
                          NULL, NULL, NULL));
     
     const char sql[] = "insert into particles (GroupID, MicrographID) \
@@ -251,14 +270,6 @@ void Database::appendMicrograph(const char name[],
 void Database::appendParticle(const int groupID,
                               const int micrographID)
 {
-    /***
-    SQLITE3_HANDLE_ERROR(
-            sqlite3_bind_text(_stmtAppendParticle,
-                              1,
-                              name,
-                              strlen(name),
-                              SQLITE_TRANSIENT));
-                              ***/
     SQLITE3_HANDLE_ERROR(
             sqlite3_bind_int(_stmtAppendParticle,
                              1,
@@ -277,6 +288,21 @@ int Database::nParticle() const
 
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
                                       "select count(*) from particles",
+                                      SQLITE3_CALLBACK
+                                      {
+                                          *((int*)data) = atoi(values[0]);
+                                          return 0;    
+                                      },
+                                      &size,
+                                      NULL));
+}
+
+int Database::nMicrograph() const
+{
+    int size;
+
+    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
+                                      "select count(*) from micrographs",
                                       SQLITE3_CALLBACK
                                       {
                                           *((int*)data) = atoi(values[0]);
@@ -347,23 +373,27 @@ void Database::send()
         slaveReceive();
 }
 
-void Database::split(int& startParticleID,
-                     int& endParticleID,
+void Database::split(int& start,
+                     int& end,
                      const int commRank) const
 {
-    int size = nParticle();
+    int size;
+    if (_mode == PARTICLE_MOD)
+        size = nParticle();
+    else if (_mode == MICROGRAPH_MOD)
+        size = nMicrograph();
 
     int piece = size / (_commSize - 1);
 
     if (commRank <= size % (_commSize - 1))
     {
-        startParticleID = (piece + 1) * (commRank - 1) + 1;
-        endParticleID = startParticleID + (piece + 1);
+        start = (piece + 1) * (commRank - 1) + 1;
+        end = start + (piece + 1);
     }
     else
     {
-        startParticleID = piece * (commRank - 1) + size % (_commSize - 1) + 1;
-        endParticleID = startParticleID + piece;
+        start = piece * (commRank - 1) + size % (_commSize - 1) + 1;
+        end = start + piece;
     }
 }
 

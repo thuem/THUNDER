@@ -16,6 +16,9 @@
 #include "Sqlite3Error.h"
 #include "Parallel.h"
 
+#define PARTICLE_MOD 0
+#define MICROGRAPH_MOD 1
+
 #define MAX_LENGTH (1024 * 1024 * 128)
 
 #define MASTER_RAMPATH         "/thuem/shm/dbMaster"
@@ -66,6 +69,8 @@ class Database : public Parallel
 {
     private:
 
+        int _mode = PARTICLE_MOD;
+
         sqlite3_stmt* _stmtAppendGroup = NULL;
         sqlite3_stmt* _stmtAppendMicrograph = NULL;
         sqlite3_stmt* _stmtAppendParticle = NULL;
@@ -81,6 +86,10 @@ class Database : public Parallel
         Database(const char database[]);
 
         ~Database();
+
+        int mode() const;
+
+        void setMode(const int mode);
 
         void openDatabase(const char database[]);
 
@@ -113,6 +122,9 @@ class Database : public Parallel
         int nParticle() const;
         /* number of particles */
 
+        int nMicrograph() const;
+        /* number of micrographs */
+
         void update(const char database[],
                     const Table table);
 
@@ -124,8 +136,8 @@ class Database : public Parallel
 
     protected:
 
-        void split(int& startParticleID,
-                   int& endParticleID,
+        void split(int& start,
+                   int& end,
                    int commRank) const;
 
     private:
