@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependecy:
  * Test:
  * Execution:
@@ -91,8 +91,8 @@ class Particle
                  const int i) const;
         /* return the rotation matrix of the ith particle */
 
-        void t(double& dst[],
-               const int i) const
+        void t(vec2& dst,
+               const int i) const;
         /* return the translate coordinate of the ith particle */
 
         void quaternion(vec4& dst,

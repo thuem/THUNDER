@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependency:
  * Test:
  * Execution:
@@ -49,6 +49,15 @@ void MLOptimiser::initParticles()
     }
 }
 
+double MLOptimiser::norm(const Image& imgA,
+                         const Image& imgB,
+                         const Image& ctf,
+                         const vector<vec>& sig,
+                         const int r) const
+{
+    // Todo
+}
+
 void MLOptimiser::expectation()
 {
     Image image(_img[0].nColFT(),
@@ -73,20 +82,23 @@ void MLOptimiser::expectation()
                             _ctf[i],
                             _sig,
                             _r);
+
             _par[i].mulW(w, j);
         }
         _par[i].normW();
 
-        vec4 tmp;
+        // Save particles
+        vec4 q;
+        vec2 t;
         for (int k = 0; k < _par[i].N(); k++)
         {
-            _par[i].quaternion(tmp, i);
+            _par[i].quaternion(q, k);
+            _par[i].t(t, k);
             fprintf(file, "%f %f %f %f, %f %f, %f\n",
-                          tmp(0),tmp(1),tmp(2),tmp(3),
-                          _par[i]
+                          q(0),q(1),q(2),q(3),
+                          t(0), t(1),
                           _par[i].w(k));
         }
-            
         fclose(file);
     }
 }

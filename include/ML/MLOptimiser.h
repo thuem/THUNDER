@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependency:
  * Test:
  * Execution:
@@ -110,6 +110,12 @@ class MLOptimiser : public Parallel
         void expectation();
 
         void initParticles();
+
+        double norm(const Image& imgA,
+                    const Image& imgB,
+                    const Image& ctf,
+                    const vector<vec>& sig,
+                    const int r) const;
 
         //Guo Heng, Li Bing
         void maximization();
