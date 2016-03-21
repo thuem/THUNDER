@@ -105,12 +105,10 @@ void normalise(Image& img,
 
     bgMeanStddev(mean, stddev, img, r);
 
-    gsl_vector vec;
-    vec.size = img.sizeRL();
-    vec.data = &img(0);
-    
-    gsl_vector_add_constant(&vec, -mean);
-    gsl_vector_scale(&vec, 1.0 / stddev);
+    FOR_EACH_PIXEL_RL(img)
+        img(i) -= mean;
+
+    SCALE_RL(img, 1.0 / stddev);
 }
 
 void extract(Image& dst,
