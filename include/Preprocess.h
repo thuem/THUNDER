@@ -1,13 +1,19 @@
 #ifndef PREPROCESS_H
 #define PREPROCESS_H
 
-#include "Experiment.h"
-#include "Macro.h"
 #include <unistd.h>
-#include "ImageFile.h"
+
+#include "Macro.h"
+
 #include "Image.h"
+#include "ImageFile.h"
 #include "ImageFunctions.h"
 
+#include "Experiment.h"
+
+#include "Parallel.h"
+
+/***
 #define GET_MIC_ID(dst, start, end )\
 [this](vector<int>& _dst, int _start, int _end) \
 { \
@@ -28,16 +34,24 @@
                                       &_dst, \
                                       NULL)); \
 }(dst,start, end)
+***/
 
+/***
 typedef struct _PARTICLE_INFO 
 {
     int x; 
     int y;
     char particleName[FILE_NAME_LENGTH];
 }   PARTICLE_INFO;
+***/
 
-typedef struct _XY {int x; int y;} XY;
+typedef struct X_Y
+{
+    int x;
+    int y;
+} XY;
 
+/***
 #define GET_PARTICLE_INFO(micrographID, particleID, x, y) \
 [this](int _micographID, int _particleID, int& _x, int& _y) \
 { \
@@ -58,11 +72,9 @@ typedef struct _XY {int x; int y;} XY;
                                       &xy, \
                                       NULL)); \
 }(micrographID, particleID, x, y)
+***/
 
-
-
-
-
+/***
 #define GET_MIC_NAME(dst, micId )\
 [this](char * _dst, int _micId) \
 { \
@@ -81,70 +93,65 @@ typedef struct _XY {int x; int y;} XY;
                                       &_dst, \
                                       NULL)); \
 }(dst, micId)
+***/
 
-
-
-
-
-typedef struct _PREPROCESS_PARA
+typedef struct PREPROCESS_PARA
 {    
     int nCol;    
+
     int nRow;
+
     int xOffBias;
+
     int yOffBias;
+
     bool doNormalise;
+
     bool doInvertConstrast;
+
     double wDust;
+
     double bDust;
+
     double r;
-} PREPROCESS_PARA;
 
-class Preprocess
+} PreprocessPara;
+
+class Preprocess : public Parallel
 {
-    protected:
+    private:
 
-        int _commRank;
-        int _commSize;        
-        
+        PreprocessPara _para;
 
         Experiment* _exp;
 
-        vector<int> _micrographIDs;
+        vector<int> _micIDs;
 
     public:        
-    	
-        PREPROCESS_PARA _para;
-
 
         Preprocess();
 
-        Preprocess(PREPROCESS_PARA& para,
+        Preprocess(const PreprocessPara& para,
                    Experiment* exp); 
 
-        PREPROCESS_PARA& getPara() ;
+        PreprocessPara& getPara();
 
-        void setPara(PREPROCESS_PARA& para);
+        void setPara(const PreprocessPara& para);
 
-        void extractParticles(int micrographID);
+        void extractParticles(const int micID);
 
         void run();
 
     private:
 
-        void getMicrographIDs(vector<int>& dst );
+        void getMicIDs(vector<int>& dst);
 
-        void getMicrographName(char micrographName[],
-                               const int micrographID);
+        void getMicName(char micName[],
+                        const int micID);
 
-        void getParticleXOffYOff(int& xOff,
-                                 int& yOff,
-                                 char particleName[],
-                                 const int particleID);
-
-
-
-      
-
+        void getParXOffYOff(int& xOff,
+                            int& yOff,
+                            const int parID);
 };
 
 #endif // PREPROCESS_H

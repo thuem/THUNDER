@@ -51,11 +51,6 @@ using namespace std;
                                       NULL)); \
 }(dst, value)
 
-
-
-
-
-
 class Experiment : public Database
 {
     private:
