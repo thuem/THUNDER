@@ -179,6 +179,8 @@ void Particle::resample()
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
+
+    perturb();
 }
 
 double Particle::neff() const

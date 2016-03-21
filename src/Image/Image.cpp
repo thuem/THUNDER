@@ -215,8 +215,8 @@ Complex Image::getBiLinearFT(const double iCol,
 void Image::coordinatesInBoundaryRL(const int iCol,
                                     const int iRow) const
 {
-    if ((iCol < _nCol / 2) || (iCol >= _nCol / 2) ||
-        (iRow < _nRow / 2) || (iRow >= _nRow / 2))
+    if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
+        (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
         REPORT_ERROR("Try to get value out of the boundary");
 }
 
