@@ -34,8 +34,11 @@ void Preprocess::setPara(PREPROCESS_PARA& para)
     _para = para;    
 }
 
-
-
+/****************************************************************** 
+  extractParticles(): extract particles from specified micrographID
+  
+  
+*******************************************************************/
 void Preprocess::extractParticles(const int micrographID)
 {
     // x, y
@@ -77,22 +80,21 @@ void Preprocess::extractParticles(const int micrographID)
    
     printf("[x1]particleIDs.size() = %d nRow=%d  col=%d \n", particleIDs.size() , _para.nCol, _para.nRow );
 
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int i = 0; i < particleIDs.size(); i++)
     {
         int xOff, yOff;
 
-        printf("i =%d  \n", i );
-
         // extractPartcilesInMicrograph(micrographImage, particleIDs[i], particleImage  );
         getParticleXOffYOff(xOff, yOff, particleName, particleIDs[i]);
-
-        printf("particleIDs[i] =%d  \n",  particleIDs[i]);      
     
         printf("xOff =%d  yOff = %d  col=%d  row=%d \n",  xOff, yOff, _para.nCol, _para.nRow );    
-        printf("Before extracting .....\n\n");
-        extract(particle, micrograph, xOff, yOff);
 
+        xOff = xOff - micrographFile.nCol() /2 + _para.nCol /2;
+        yOff = yOff - micrographFile.nRow() /2 + _para.nRow /2;
+
+        printf("New x,y=%d, %d \n", xOff, yOff);
+        extract(particle, micrograph, xOff, yOff);
         printf("extract i =%d  \n", i );
 
         if (_para.doNormalise)
@@ -103,19 +105,23 @@ void Preprocess::extractParticles(const int micrographID)
                       _para.r);  
         }
 
+        printf("extract xxx =%d  \n", i );
         if (_para.doInvertConstrast )
         {
             //invertContrast(particle);
             NEG_RL(particle);
         }
-
+printf("extract iyyy =%d  \n", i );
         particleFile.writeImage(particleName, particle);
-
+printf("extract izzz =%d  \n", i );
     }    
 }
 
 
 
+/****************************************************************** 
+  getMicrographIDs(): get micrograph IDs and saved in  dst vectors   
+*******************************************************************/
 void Preprocess::getMicrographIDs(vector<int>& dst )
 {
     dst.clear();
@@ -131,14 +137,16 @@ void Preprocess::getMicrographIDs(vector<int>& dst )
                       ->push_back(atoi(values[0]));
                       return 0;
                   },
-                  &dst); 
-     
+                  &dst);      
 }
 
 
-
-void Preprocess::getMicrographName(char  micrographName[], 
-                                   const int  micrographID )
+/****************************************************************** 
+  getMicrographName(): get micrograph names for specific micrograph ID  
+*******************************************************************/
+void Preprocess::getMicrographName(char micrographName[], 
+                                   const int micrographID
+                                   )
 {
     
     //GET_MIC_NAME(micName, micrographID);  // ???
@@ -163,14 +171,17 @@ void Preprocess::getMicrographName(char  micrographName[],
 }
 
 
+/****************************************************************** 
+  getParticleXOffYOff(): get particle XOff,YOff, particle names for
+                         specific particle ID  
+*******************************************************************/
 void Preprocess::getParticleXOffYOff(int& xOff,
                                      int& yOff,
                                      char particleName[], 
                                      const int particleID                                     
                                      )
 {
-    
-   // GET_PARTICLE_INFO( micrographID, particleID, x, y);  // ???
+    // GET_PARTICLE_INFO( micrographID, particleID, x, y);  
 
     PARTICLE_INFO info; 
     char sql[128]; 
@@ -197,8 +208,10 @@ void Preprocess::getParticleXOffYOff(int& xOff,
     
 }
 
-
-
+/****************************************************************** 
+  getParticleXOffYOff(): get particle XOff,YOff, particle names for
+                         specific particle ID  
+*******************************************************************/
 void Preprocess::run()
 {   
     // get all micrographID;
@@ -215,6 +228,3 @@ void Preprocess::run()
         extractParticles(_micrographIDs[i]);
     }
 }
-
-
-
