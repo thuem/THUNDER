@@ -32,32 +32,63 @@ void MLOptimiser::init()
     
     // estimate initial sigma values
     initSigma();
+
+    //
+    initParticles();
+}
+
+void MLOptimiser::initParticles()
+{
+    for (int i = 0; i < _model.K(); i++)
+    {
+        _par.push_back(Particle());
+        _par.end()->init(_para.particleNum,
+                         _para.maxX,
+                         _para.maxY,
+                         &_sym);
+    }
 }
 
 void MLOptimiser::expectation()
 {
+    Image image(_img[0].nColFT(),
+                _img[0].nRowFT(),
+                FT_SPACE);
 
-    int N = 6000;
-    double maxX = 30;
-    double maxY = 30;
-
-    vector<Image>::iterator imgIter;
-
-    for (imgIter = _img.begin(); imgIter < _img.end(); imgIter++) 
+    for (int i = 0; i < _img.size(); i++)
     {
-        Particle p(N, maxX, maxY, &_sym);
+        stringstream ss;
+        ss << "Particle" << i << ".par";
+        FILE* file = fopen(ss.str().c_str(), "w");
+        ss.str("");
 
-       //handle one ref 
-        for (int i = 0; i < N; i++)
+        for (int j = 0; j < _par[i].N(); j++)
         {
+            Coordinate5D cor;
+            _par[i].coord(cor, j);
+            _model.proj(0).project(image, cor);
 
+            double w = norm(image,
+                            _img[i],
+                            _ctf[i],
+                            _sig,
+                            _r);
+            _par[i].mulW(w, j);
         }
+        _par[i].normW();
 
-
+        vec4 tmp;
+        for (int k = 0; k < _par[i].N(); k++)
+        {
+            _par[i].quaternion(tmp, i);
+            fprintf(file, "%f %f %f %f, %f %f, %f\n",
+                          tmp(0),tmp(1),tmp(2),tmp(3),
+                          _par[i]
+                          _par[i].w(k));
+        }
+            
+        fclose(file);
     }
-    
-
-
 }
 
 void MLOptimiser::maximization()

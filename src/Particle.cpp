@@ -107,6 +107,12 @@ void Particle::rot(mat33& dst,
                         _r[i][3]}));
 }
 
+void Particle::t(vector<double>& dst,
+                 const int i)
+{
+    dst[0] = _t(i, 0);
+}
+
 void Particle::quaternion(vec4& dst,
                           const int i) const
 {

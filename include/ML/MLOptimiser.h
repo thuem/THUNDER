@@ -12,6 +12,8 @@
 #define ML_OPTIMISER_H
 
 #include <vector>
+#include <cstdlib>
+#include <sstream>
 
 #include "Typedef.h"
 
@@ -47,6 +49,15 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
+    int particleNum;
+    //
+
+    int maxX;
+
+    int maxY;
+
+    char* sym;
+
 } MLOptimiserPara;
 
 class MLOptimiser : public Parallel
@@ -79,7 +90,7 @@ class MLOptimiser : public Parallel
 
         vector<Particle> _par;
 
-        vector<vec> _ctf;
+        vector<Image> _ctf;
 
         vector<vec> _sig;
 
@@ -97,6 +108,8 @@ class MLOptimiser : public Parallel
 
         //Yu Hongkun ,Wang Kunpeng
         void expectation();
+
+        void initParticles();
 
         //Guo Heng, Li Bing
         void maximization();
