@@ -12,7 +12,7 @@
 
 #include "FFT.h"
 
-#define N 128
+#define N 3710
 
 using namespace std;
 
@@ -20,29 +20,24 @@ int main(int argc, const char* argv[])
 {
     Image image(N, N, RL_SPACE);
 
-    for (int i = 0; i < N; i++)
-        for (int j = 0; j < N; j++)
+    try
+    {
+        IMAGE_FOR_EACH_PIXEL_RL(image)
         {
-            if ((i > N / 4) &&
-                (i < N / 4 * 3) &&
-                (j > N / 4) &&
-                (j < N / 4 * 3))
-                image.setRL(1, i, j);
-            else
-                image.setRL(0, i, j);
+            image.setRL(1, i, j);
         }
+    }
+    catch (Error& err)
+    {
+        cout << err;
+    }
 
+    /***
     image.saveRLToBMP("ori.bmp");
 
     cout << "****** NEG_RL ******" << endl;
     NEG_RL(image);
     image.saveRLToBMP("NEG_RL.bmp");
-
-    /***
-    cout << "****** normalise ******" << endl;
-
-    normalise(image);
-    ***/
 
     cout << "****** SCALE_RL ******" << endl;
 
@@ -59,4 +54,21 @@ int main(int argc, const char* argv[])
 
     R2R_FT(image, image, translate(image, image, N / 4, N / 4));
     image.saveRLToBMP("trans2.bmp");
+    ***/
+
+    /***
+    cout << "****** extract ******" << endl;
+    Image particle(100, 100, RL_SPACE);
+    ***/
+    /***
+    try
+    {
+        // extract(particle, image, 1251, 122);
+        extract(particle, image, 0, 0);
+    }
+    catch (Error& err)
+    {
+        cout << err;
+    }
+    ***/
 }

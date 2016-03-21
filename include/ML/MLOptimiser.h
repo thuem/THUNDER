@@ -98,6 +98,14 @@ class MLOptimiser : public Parallel
         void run();
 
         void clear();
+
+    private:
+
+        void initSigma();
+
+        void allReduceSigma();
+
+        void reconstructRef();
 };
 
 #endif // ML_OPTIMSER_H
