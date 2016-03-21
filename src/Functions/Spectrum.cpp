@@ -81,8 +81,6 @@ void powerSpectrum(vec& dst,
                    const Image& src,
                    const int r)
 {
-    dst.resize(r);
-
     for (int i = 0; i < r; i++)
         dst(i) = ringAverage(i, src);
 }
@@ -91,8 +89,6 @@ void powerSpectrum(vec& dst,
                    const Volume& src,
                    const int r)
 {
-    dst.resize(r);
-
     for (int i = 0; i < r; i++)
         dst(i) = shellAverage(i, src);
 }

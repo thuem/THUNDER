@@ -18,6 +18,7 @@
 #include "Image.h"
 #include "Volume.h"
 #include "ImageFile.h"
+#include "Spectrum.h"
 #include "Symmetry.h"
 #include "Parallel.h"
 
@@ -53,6 +54,9 @@ class MLOptimiser : public Parallel
     private:
 
         MLOptimiserPara _para;
+
+        int _N;
+        /* total number of 2D images in each hemisphere */
 
         int _r;
         /* radius of calculating posterior possibility */
@@ -102,6 +106,14 @@ class MLOptimiser : public Parallel
         void clear();
 
     private:
+
+        void allReduceN();
+
+        int size() const;
+        /* size of 2D image */
+        
+        int maxR() const;
+        /* max value of _r */
 
         void initSigma();
 

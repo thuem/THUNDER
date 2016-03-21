@@ -8,9 +8,10 @@
 
 #include <iostream>
 
-#include "ImageFunctions.h"
-
+#include "ImageFile.h"
 #include "FFT.h"
+
+#include "ImageFunctions.h"
 
 #define N 3710
 
@@ -56,19 +57,18 @@ int main(int argc, const char* argv[])
     image.saveRLToBMP("trans2.bmp");
     ***/
 
-    /***
     cout << "****** extract ******" << endl;
     Image particle(100, 100, RL_SPACE);
-    ***/
-    /***
     try
     {
         // extract(particle, image, 1251, 122);
-        extract(particle, image, 0, 0);
+        extract(particle, image, -554, -1683);
+
+        ImageFile imf;
+        imf.writeImage("image.mrc", particle);
     }
     catch (Error& err)
     {
         cout << err;
     }
-    ***/
 }

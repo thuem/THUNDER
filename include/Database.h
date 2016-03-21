@@ -82,12 +82,6 @@ class Database : public Parallel
 
         ~Database();
 
-        /***
-        void setCommSize(int commSize);
-
-        void setCommRank(int commRank);
-        ***/
-
         void openDatabase(const char database[]);
 
         void saveDatabase(sqlite3* database);
@@ -115,6 +109,9 @@ class Database : public Parallel
 
         void appendParticle(const int groupID,
                             const int micrographID);
+        
+        int nParticle() const;
+        /* number of particles */
 
         void update(const char database[],
                     const Table table);

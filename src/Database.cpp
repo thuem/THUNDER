@@ -272,6 +272,21 @@ void Database::appendParticle(const int groupID,
     SQLITE3_HANDLE_ERROR(sqlite3_reset(_stmtAppendParticle));
 }
 
+int Database::nParticle() const
+{
+    int size;
+
+    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
+                                      "select count(*) from particles",
+                                      SQLITE3_CALLBACK
+                                      {
+                                          *((int*)data) = atoi(values[0]);
+                                          return 0;    
+                                      },
+                                      &size,
+                                      NULL));
+}
+
 void Database::update(const char database[],
                       const Table table)
 {
@@ -337,16 +352,7 @@ void Database::split(int& startParticleID,
                      int& endParticleID,
                      const int commRank) const
 {
-    int size;
-    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
-                                      "select count(*) from particles",
-                                      SQLITE3_CALLBACK
-                                      {
-                                          *((int*)data) = atoi(values[0]);
-                                          return 0;    
-                                      },
-                                      &size,
-                                      NULL));
+    int size = nParticle();
 
     int piece = size / (_commSize - 1);
 
