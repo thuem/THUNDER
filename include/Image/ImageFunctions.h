@@ -43,6 +43,20 @@ using namespace arma;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, pf)
 
+#define SLC_REPLACE_RL(dst, src, k) \
+    [](Volume& _dst, const Image& _src, const int _k) \
+    { \
+        IMAGE_FOR_EACH_PIXEL_RL(_src) \
+            _dst.setRL(_src.getRL(i, j), i, j, _k); \
+    }(dst, src, k)
+
+#define SLC_EXTRACT_RL(dst, src, k) \
+    [](Image& _dst, const Volume& _src, const int _k) \
+    { \
+        IMAGE_FOR_EACH_PIXEL_RL(_dst) \
+            _dst.setRL(_src.getRL(i, j, _k), i, j); \
+    }(dst, src, k)
+
 void translate(Image& dst,
                const Image& src,
                const double nTransCol,
@@ -82,9 +96,5 @@ void extract(Image& dst,
              const Image& src,
              const int xOff,
              const int yOff);
-
-void slice(Image& dst,
-           const Volume& src,
-           const int iSlc);
 
 #endif // IMAGE_FUNCTIONS_H

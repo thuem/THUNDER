@@ -76,7 +76,6 @@ void Database::saveDatabase(const char database[])
     SQLITE3_HANDLE_ERROR(sqlite3_close(dstDB));
 }
 
-
 void Database::saveDatabase(const int rank)
 {
     char database[64];

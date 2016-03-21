@@ -39,7 +39,6 @@ void  initPara(PREPROCESS_PARA *para)
      para->r = 10;    
 }
 
-
 void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 {
 

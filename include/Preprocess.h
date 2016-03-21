@@ -70,6 +70,8 @@ class Preprocess : public Parallel
         
     private:
 
+        void removeOutOfBoundaryPar(const int micID);
+
         void getMicIDs(vector<int>& dst);
 
         void getMicName(char micName[],

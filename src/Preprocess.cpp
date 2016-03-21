@@ -23,7 +23,27 @@ void Preprocess::run()
     getMicIDs(_micIDs);
 
     for (int i = 0; i < _micIDs.size(); i++)
+    {
+        removeOutOfBoundaryPar(_micIDs[i]);
         extractParticles(_micIDs[i]);
+    }
+}
+
+void Preprocess::removeOutOfBoundaryPar(const int micID)
+{
+    vector<int> parIDs;
+    _exp.particleIDsMicrograph(parIDs, micID);
+
+    for (int i = 0; i < parIDs.size(); i++)
+    {
+        int xOff, yOff;
+        getParXOffYOff(xOff, yOff, parIDs[i]);
+        
+        // remove it from database
+        char sql[SQL_COMMAND_LENGTH];
+        sprintf(sql, "delete from particles where ID = %d\n", parIDs[i]);
+        _exp.execute(sql, NULL, NULL);
+    }
 }
 
 void Preprocess::getMicIDs(vector<int>& dst)
@@ -45,7 +65,7 @@ void Preprocess::getMicIDs(vector<int>& dst)
 void Preprocess::getMicName(char micName[], 
                             const int micID)
 {
-    char sql[128]; 
+    char sql[SQL_COMMAND_LENGTH]; 
 
     sprintf(sql, "select Name from micrographs where ID = %d;", micID); 
 
@@ -63,7 +83,7 @@ void Preprocess::getParXOffYOff(int& xOff,
                                 const int parID)
 {
     XY xy;
-    char sql[128]; 
+    char sql[SQL_COMMAND_LENGTH]; 
     sprintf(sql, 
             "select XOff, YOff from particles where ID = %d;", 
             parID); 
@@ -85,8 +105,12 @@ void Preprocess::extractParticles(const int micID)
 {
     char micName[FILE_NAME_LENGTH];
     char parName[FILE_NAME_LENGTH];    
+    char stkName[FILE_NAME_LENGTH];    
 
     getMicName(micName, micID);
+
+    //TODO generate stkName according to micName
+    
     /***
     if ( 0 != ::access(micName, F_OK) )
     {
@@ -104,32 +128,27 @@ void Preprocess::extractParticles(const int micID)
 
     /* read in micrograph */
     ImageFile micFile(micName, "rb");
-    micFile.readMetaDataMRC();
+    micFile.readMetaData();
     micFile.readImage(mic, 0);    
     // micrographFile.display();
 
-    ImageFile parFile;
-
     Image par(_para.nCol, _para.nRow, RL_SPACE);
+
+    Volume stk(_para.nCol,
+               _para.nRow,
+               parIDs.size(),
+               RL_SPACE);
 
     #pragma omp parallel for
     for (int i = 0; i < parIDs.size(); i++)
     {
         int xOff, yOff;
-
         getParXOffYOff(xOff, yOff, parIDs[i]);
     
         xOff -= mic.nColRL() / 2 - par.nColRL() / 2;
         yOff -= mic.nRowRL() / 2 - par.nRowRL() / 2;
         
-        try
-        {
-            extract(par, mic, xOff, yOff);
-        }
-        catch (Error& err)
-        {
-            // TODO, remove this particle
-        }
+        extract(par, mic, xOff, yOff);
         
         if (_para.doNormalise)
             normalise(par,
@@ -140,7 +159,15 @@ void Preprocess::extractParticles(const int micID)
         if (_para.doInvertConstrast)
             NEG_RL(par);
 
-        parFile.readMetaData(par);
-        parFile.writeImage(parName, par);
+        // replace ith Slice of stk with par
+        SLC_REPLACE_RL(stk, par, i);
+
+        // generate parName according to micName and i
+
+        // write parName to database
     }
+    
+    ImageFile stkFile;
+    stkFile.readMetaData(stk);
+    stkFile.writeVolume(stkName, stk);
 }

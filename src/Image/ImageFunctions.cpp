@@ -119,11 +119,3 @@ void extract(Image& dst,
     IMAGE_FOR_EACH_PIXEL_RL(dst)
         dst.setRL(src.getRL(i + xOff, j + yOff), i, j);
 }
-
-void slice(Image& dst,
-           const Volume& src,
-           const int iSlc)
-{
-    IMAGE_FOR_EACH_PIXEL_RL(dst)
-        dst.setRL(src.getRL(i, j, iSlc), i, j);
-}

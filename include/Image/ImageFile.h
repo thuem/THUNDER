@@ -213,9 +213,9 @@ class ImageFile
 
         void clear();
 
-        void readMetaDataMRC();
-
     private:
+
+        void readMetaDataMRC();
 
         void fillMRCHeader(MRCHeader& header) const;        
 
