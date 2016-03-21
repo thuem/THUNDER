@@ -213,11 +213,11 @@ class ImageFile
 
         void clear();
 
+        void readMetaDataMRC();
+
     private:
 
-        void fillMRCHeader(MRCHeader& header) const;
-
-        void readMetaDataMRC();
+        void fillMRCHeader(MRCHeader& header) const;        
 
         void readSymmetryData();
 

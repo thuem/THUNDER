@@ -10,6 +10,12 @@
 
 #include "Preprocess.h"
 
+int main()
+{
+    return 0;
+}
+
+/***
 #define N 8
 
 #define DBNAME   "/dev/shm/test.db"
@@ -31,7 +37,6 @@ void  initPara(PREPROCESS_PARA *para)
      para->wDust = 0.1;
      para->bDust = 0.1;
      para->r = 10;    
-
 }
 
 
@@ -51,8 +56,11 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
     char sqlStatement[1024];
     char particleName[1024];
 
+
     double CooridinateX,CooridinateY, AnglePsi, AutopickFigureOfMerit;
     int    ClassNumber;
+
+
 
     fdMicrograph = fopen( micrographFileName, "r");
     if (NULL == fdMicrograph)
@@ -70,7 +78,6 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
     }  
 
 
-    /* skip header */
     while ( !feof(fdStar) )
     {
         fscanf(fdStar, "%s\n", buffer);
@@ -107,17 +114,26 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
     while ( !feof(fdStar) )
     {          
          
-        fscanf(fdStar, "%lf %lf %lf  %d  %f\n", &CooridinateX, &CooridinateY, 
+        fscanf(fdStar, "%lf %lf %lf  %d  %lf\n", &CooridinateX, &CooridinateY, 
                &AnglePsi, &ClassNumber , &AutopickFigureOfMerit);
                    
-        sprintf(particleName , "%s/%s_%d.bmp",MICROGRAPH_PATH, micrographFileName , particleNumber );
+        sprintf(particleName, "%s", micrographFileName);
+        len = strlen( particleName );
+        if ( strcmp( particleName+ len -4, ".mrc") == 0)
+        {
+          len -= 4;
+        };        
+        sprintf( particleName + len, "_%d.mrc", particleNumber);
+
+        printf(" particleName=%s \n", particleName);
+
         sprintf(sqlStatement, "insert into particles "\
                               "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
                               "VALUES (%f, %f, \"%s\" ,0 ,%d  ); ", 
                               CooridinateX, CooridinateY, 
                               particleName,micrographID);
 
-        printf("%s\n", sqlStatement);
+        //printf("%s\n", sqlStatement);
        
         exp.execute(sqlStatement,
                     NULL, 
@@ -127,9 +143,7 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 
     fclose(fdStar);
     fclose(fdMicrograph);
-
 }
-
 
 void createDB(Experiment& exp)
 {
@@ -151,7 +165,7 @@ void createDB(Experiment& exp)
 
         if ( -1 == ::access(micrographFileName, F_OK) )
         {
-            printf("Micrograph file-%s not exists.\n ", micrographFileName);
+            pcblas_daxpy(a.sizeRL(),rintf("Micrograph file-%s not exists.\n ", micrographFileName);
             continue;
         }
 
@@ -170,11 +184,19 @@ void createDB(Experiment& exp)
 
 int main(int argc, const char* argv[])
 {   
-      
+    system("cp test.db  /dev/shm/test.db");
+
+    
     printf("%s\n", RM_DB);
-    system(RM_DB);
+
+//    system(RM_DB);
 
     Experiment exp(DBNAME);
+
+ //   createDB(exp);
+
+ //   return 0;
+ ***/
 /*
     exp.createTableParticles();
     exp.addColumnXOff();
@@ -186,9 +208,10 @@ int main(int argc, const char* argv[])
     */
 
 
-    createDB(exp);
+    
 
 
+     /***
     vector<int> partIDs;
 
     printf("\nAppending particles FInished. \n");
@@ -208,5 +231,5 @@ int main(int argc, const char* argv[])
 
     Preprocess   preprocess(para, &exp);
     preprocess.run();
-
 }
+***/

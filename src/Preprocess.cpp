@@ -1,22 +1,11 @@
 #include "Preprocess.h"
 
-/* TODO list: 
-  3  invert is not implemented yet
-  4  OMP #pragma is not written yet
-
-
-  X1  normalise() : how to fill the parameter?
-  X2  GET_PARTICLE_INFO:  how to write Lambda function and where to get x, y?
-*/
-
-
 Preprocess::Preprocess() {}
 
-Preprocess::Preprocess(const PreprocessPara& para,
-                       Experiment* exp)
+Preprocess::Preprocess(const PreprocessPara& para)
 {
     _para = para;
-    _exp = exp;
+    _exp.openDatabase(_para.db);
 }
 
 PreprocessPara& Preprocess::getPara()  
@@ -29,59 +18,12 @@ void Preprocess::setPara(const PreprocessPara& para)
     _para = para;    
 }
 
-void Preprocess::extractParticles(const int micID)
+void Preprocess::run()
 {
-    // x, y
-    // micrograph
-    // _exp
-    // save
-    
-    char micName[FILE_NAME_LENGTH];
-    char particleName[FILE_NAME_LENGTH];    
+    getMicIDs(_micIDs);
 
-    getMicrographName(micName, micID);
-    if ( 0 != ::access(micName, F_OK) )
-    {
-        char msg[256];
-        sprintf(msg, "[Error] micrograph file %s doesn't exists .\n", micName);
-        REPORT_ERROR(msg);        
-        return ;
-    };
-
-    // get all particleID;
-    vector<int> parIDs;
-    _exp->particleIDsMicrograph(parIDs, micID);
- 
-    ImageFile micrographFile(micName, "rb");
-    Image micrograph;
-
-    //  read micrograph image 
-    micrographFile.readImage(micrograph, 0);    
-    
-    ImageFile particleFile;
-    Image particle(_para.nCol, _para.nRow, RL_SPACE);
-
-    #pragma omp parallel for
-    for (int i = 0; i < particleIDs.size(); i++)
-    {
-        int xOff, yOff;
-
-        // extractPartcilesInMicrograph(micrographImage, particleIDs[i], particleImage  );
-        getParticleXOffYOff(xOff, yOff, particleName, particleIDs[i]);
-
-        extract(particle, micrograph, xOff, yOff);
-
-        if (_para.doNormalise)
-            normalise(particle,
-                      _para.wDust,
-                      _para.bDust,
-                      _para.r);  
-
-        if (_para.doInvertConstrast)
-            NEG_RL(particle);
-
-        particleFile.writeImage(particleName, particle);
-    }    
+    for (int i = 0; i < _micIDs.size(); i++)
+        extractParticles(_micIDs[i]);
 }
 
 void Preprocess::getMicIDs(vector<int>& dst)
@@ -90,14 +32,14 @@ void Preprocess::getMicIDs(vector<int>& dst)
 
     char sql[] = "select ID from micrographs;";
 
-    _exp->execute(sql,
-                  SQLITE3_CALLBACK
-                  {
-                      ((vector<int>*)data)
-                      ->push_back(atoi(values[0]));
-                      return 0;
-                  },
-                  &dst); 
+    _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                     ((vector<int>*)data)
+                     ->push_back(atoi(values[0]));
+                     return 0;
+                 },
+                 &dst); 
 }
 
 void Preprocess::getMicName(char micName[], 
@@ -107,13 +49,13 @@ void Preprocess::getMicName(char micName[],
 
     sprintf(sql, "select Name from micrographs where ID = %d;", micID); 
 
-    _exp->execute(sql,
-                  SQLITE3_CALLBACK
-                  {
-                      sprintf((char*)data, "%s", values[0]); 
-                      return 0;
-                  },
-                  micName);
+    _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                     sprintf((char*)data, "%s", values[0]); 
+                     return 0;
+                 },
+                 micName);
 }
 
 void Preprocess::getParXOffYOff(int& xOff,
@@ -124,30 +66,81 @@ void Preprocess::getParXOffYOff(int& xOff,
     char sql[128]; 
     sprintf(sql, 
             "select XOff, YOff from particles where ID = %d;", 
-            particleID); 
+            parID); 
 
-    _exp->execute(sql,
-                  SQLITE3_CALLBACK
-                  {
-                      ((XY*)data)->x = atoi(values[0]);  
-                      ((XY*)data)->y = atoi(values[1]);  
-                      return 0;
-                  },
-                  &xy);
+    _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                     ((XY*)data)->x = atoi(values[0]);  
+                     ((XY*)data)->y = atoi(values[1]);  
+                     return 0;
+                 },
+                 &xy);
 
     xOff = xy.x;
     yOff = xy.y;
 }
 
-void Preprocess::run()
-{   
-    getMicrographIDs(_micrographIDs);
-    
-    //#pragma omp parallel for
-    printf("_micrographIDs.size()=%d \n ", _micrographIDs.size());
-    for (int i = 0; i < _micrographIDs.size(); i++)
+void Preprocess::extractParticles(const int micID)
+{
+    char micName[FILE_NAME_LENGTH];
+    char parName[FILE_NAME_LENGTH];    
+
+    getMicName(micName, micID);
+    /***
+    if ( 0 != ::access(micName, F_OK) )
     {
-    	//printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
-        extractParticles(_micrographIDs[i]);
+        char msg[256];
+        sprintf(msg, "[Error] micrograph file %s doesn't exists .\n", micName);
+        REPORT_ERROR(msg);        
+        return ;
+    };
+    ***/
+
+    vector<int> parIDs;
+    _exp.particleIDsMicrograph(parIDs, micID);
+ 
+    Image mic;
+
+    /* read in micrograph */
+    ImageFile micFile(micName, "rb");
+    micFile.readMetaDataMRC();
+    micFile.readImage(mic, 0);    
+    // micrographFile.display();
+
+    ImageFile parFile;
+
+    Image par(_para.nCol, _para.nRow, RL_SPACE);
+
+    #pragma omp parallel for
+    for (int i = 0; i < parIDs.size(); i++)
+    {
+        int xOff, yOff;
+
+        getParXOffYOff(xOff, yOff, parIDs[i]);
+    
+        xOff -= mic.nColRL() / 2 - par.nColRL() / 2;
+        yOff -= mic.nRowRL() / 2 - par.nRowRL() / 2;
+        
+        try
+        {
+            extract(par, mic, xOff, yOff);
+        }
+        catch (Error& err)
+        {
+            // TODO, remove this particle
+        }
+        
+        if (_para.doNormalise)
+            normalise(par,
+                      _para.wDust,
+                      _para.bDust,
+                      _para.r);  
+
+        if (_para.doInvertConstrast)
+            NEG_RL(par);
+
+        parFile.readMetaData(par);
+        parFile.writeImage(parName, par);
     }
 }
