@@ -125,10 +125,13 @@ class Preprocess
 
         void setPara(PREPROCESS_PARA& para);
 
-        void extractParticles(int micrographID);
+        
 
         void run();
 
+        
+
+        
     private:
 
         void getMicrographIDs(vector<int>& dst );
@@ -141,8 +144,11 @@ class Preprocess
                                  char particleName[],
                                  const int particleID);
 
+        void removeOutboundParticles(const int micrographID);
 
+        void dbPreprocess(); 
 
+        void extractParticles(int micrographID);
       
 
 };

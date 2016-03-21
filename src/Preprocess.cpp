@@ -72,13 +72,13 @@ void Preprocess::extractParticles(const int micrographID)
     //  read micrograph image 
     micrographFile.readMetaDataMRC();
     micrographFile.readImage(micrograph, 0, "MRC");    
-    micrographFile.display();
+//    micrographFile.display();
 
     ImageFile particleFile;
     Image particle(_para.nCol, _para.nRow, RL_SPACE);
 
    
-    printf("[x1]particleIDs.size() = %d nRow=%d  col=%d \n", particleIDs.size() , _para.nCol, _para.nRow );
+    //printf("[x1]particleIDs.size() = %d nRow=%d  col=%d \n", particleIDs.size() , _para.nCol, _para.nRow );
 
     //#pragma omp parallel for
     for (int i = 0; i < particleIDs.size(); i++)
@@ -88,15 +88,15 @@ void Preprocess::extractParticles(const int micrographID)
         // extractPartcilesInMicrograph(micrographImage, particleIDs[i], particleImage  );
         getParticleXOffYOff(xOff, yOff, particleName, particleIDs[i]);
     
-        printf("xOff =%d  yOff = %d  col=%d  row=%d \n",  xOff, yOff, _para.nCol, _para.nRow );    
+        //rintf("xOff =%d  yOff = %d  col=%d  row=%d \n",  xOff, yOff, _para.nCol, _para.nRow );    
 
         xOff = xOff - micrographFile.nCol() /2 + _para.nCol /2;
         yOff = yOff - micrographFile.nRow() /2 + _para.nRow /2;
-
-        printf("New x,y=%d, %d \n", xOff, yOff);
+        
+        //printf("[x1] xOff=%d  yOff=%d \n", xOff, yOff);
         extract(particle, micrograph, xOff, yOff);
-        printf("extract i =%d  \n", i );
-
+        //printf("[x2]");
+        
         if (_para.doNormalise)
         {
             normalise(particle,
@@ -104,16 +104,21 @@ void Preprocess::extractParticles(const int micrographID)
                       _para.bDust,
                       _para.r);  
         }
-
-        printf("extract xxx =%d  \n", i );
+        
+        //printf("[x3]");
         if (_para.doInvertConstrast )
         {
             //invertContrast(particle);
             NEG_RL(particle);
         }
-printf("extract iyyy =%d  \n", i );
+        //printf("[x4] particleName =%s \n", particleName);
+        #if 1   
+        //ImageFile particleFile("/dev/shm/xx", "wb");
+        particleFile.readMetaData(particle );        
         particleFile.writeImage(particleName, particle);
-printf("extract izzz =%d  \n", i );
+        //printf("[x5]");
+        #endif
+        
     }    
 }
 
@@ -190,7 +195,7 @@ void Preprocess::getParticleXOffYOff(int& xOff,
             "where ID = %d;", 
             particleID); 
 
-    printf("sql = %s \n", sql);
+    
 
     _exp->execute(sql,
                   SQLITE3_CALLBACK
@@ -201,7 +206,7 @@ void Preprocess::getParticleXOffYOff(int& xOff,
                       return 0;
                   },
                   &info);
-    printf(" x=%d, y=%d \n", info.x, info.y);
+    
     xOff = info.x;
     yOff = info.y;
     sprintf(particleName, "%s", info.particleName); 
@@ -217,6 +222,9 @@ void Preprocess::run()
     // get all micrographID;
     //vector<int> micrographIDs;e
 
+    dbPreprocess();
+
+    
     getMicrographIDs(_micrographIDs);
     
     //#pragma omp parallel for
@@ -224,7 +232,81 @@ void Preprocess::run()
 
     for (int i = 0; i < _micrographIDs.size(); i++)
     {
-    	printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
+    	  //printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
         extractParticles(_micrographIDs[i]);
     }
+}
+
+
+void Preprocess::dbPreprocess()
+{
+
+    getMicrographIDs(_micrographIDs);
+    
+    //#pragma omp parallel for
+    for (int i = 0; i < _micrographIDs.size(); i++)
+    {
+        //printf(" _micrographIDs[%d]= %d \n", i, _micrographIDs[i]);
+        removeOutboundParticles(_micrographIDs[i]);
+    }
+
+
+}
+
+
+
+
+/****************************************************************** 
+  removeOutboundParticles(): extract particles from specified micrographID
+  
+  
+*******************************************************************/
+void Preprocess::removeOutboundParticles(const int micrographID)
+{
+    // x, y
+    // micrograph
+    // _exp
+    // save
+    int  XL, XR, YT, YB;
+    char sql[1024];
+    char micName[FILE_NAME_LENGTH];
+    char particleName[FILE_NAME_LENGTH];    
+
+    getMicrographName(micName, micrographID);
+    if ( 0 != ::access(micName, F_OK) )
+    {
+        char msg[256];
+        sprintf(msg, "[Error] micrograph file %s doesn't exists .\n", micName);
+        REPORT_ERROR(msg);        
+        return ;
+    };
+
+
+    ImageFile micrographFile(micName, "rb");
+    Image micrograph;
+    
+    //  read micrograph image 
+    micrographFile.readMetaDataMRC();         
+
+    ImageFile particleFile;
+    Image particle(_para.nCol, _para.nRow, RL_SPACE);
+
+    // particles coordinates indicates the particle left-top corner index
+    XL = 0;
+    XR = micrographFile.nCol()  - _para.nCol -1 ;
+
+    YT = 0;
+    YB = micrographFile.nRow()  - _para.nRow -1 ;
+
+    sprintf(sql, 
+            "delete  from particles "
+            "where ID = %d and abs(XOff) < %d or  abs(XOff) > %d "
+            "or abs(YOff) < %d or  abs(YOff) > %d   ;", 
+            micrographID, XL, XR, YT , YB ); 
+    //printf( "%s\n", sql );
+
+    _exp->execute(sql,
+                  NULL,
+                  NULL);  
+   
 }

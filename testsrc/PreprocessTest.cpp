@@ -113,13 +113,13 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
         fscanf(fdStar, "%lf %lf %lf  %d  %lf\n", &CooridinateX, &CooridinateY, 
                &AnglePsi, &ClassNumber , &AutopickFigureOfMerit);
                    
-        sprintf(particleName, "%s/%s", MICROGRAPH_PATH, micrographFileName, particleNumber);
+        sprintf(particleName, "%s", micrographFileName);
         len = strlen( particleName );
         if ( strcmp( particleName+ len -4, ".mrc") == 0)
         {
           len -= 4;
         };        
-        sprintf( particleName + len, "_%d.bmp", particleNumber);
+        sprintf( particleName + len, "_%d.mrc", particleNumber);
 
         printf(" particleName=%s \n", particleName);
 
@@ -187,9 +187,13 @@ int main(int argc, const char* argv[])
     
     printf("%s\n", RM_DB);
 
-    //system(RM_DB);
+//    system(RM_DB);
 
     Experiment exp(DBNAME);
+
+ //   createDB(exp);
+
+ //   return 0;
 /*
     exp.createTableParticles();
     exp.addColumnXOff();
@@ -201,7 +205,7 @@ int main(int argc, const char* argv[])
     */
 
 
-    //createDB(exp);
+    
 
 
     vector<int> partIDs;
