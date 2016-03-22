@@ -67,6 +67,13 @@ void MLOptimiser::expectation()
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
 
+
+        if (_par[i].neff() < _par[i].N() / 3)
+            _par[i].resample();
+        else 
+            _par[i].perturb();
+
+
         for (int j = 0; j < _par[i].N(); j++)
         {
             Coordinate5D coord;

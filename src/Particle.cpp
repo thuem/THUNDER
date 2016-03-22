@@ -58,8 +58,6 @@ void Particle::init(const int N,
 
     symmetrise();
 
-    perturb();
-    /* perform a perturbation immediately */
 }
 
 int Particle::N() const { return _N; }
