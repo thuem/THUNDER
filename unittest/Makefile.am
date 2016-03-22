@@ -22,7 +22,8 @@ noist_PROGRAMS = FunctionsTest \
 				 ParallelTest \
 				 TabFunctionTest \
 				 DatabaseTest \
-				 PreprocessTest
+				 PreprocessTest \
+				 RandomTest
 
 THUEMLIBS = ../libthuem.a
 
@@ -64,3 +65,6 @@ DatabaseTest_LDADD = ${THUEMLIBS}
 
 PreprocessTest_SOURCES = ../testsrc/PreprocessTest.cpp
 PreprocessTest_LDADD = ${THUEMLIBS}
+
+RandomTest_SOURCES = ../testsrc/RandomTest.cpp
+RandomTest_LDADD = ${THUEMLIBS}

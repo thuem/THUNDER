@@ -17,4 +17,7 @@
 const static gsl_rng_type* RANDT = gsl_rng_default;
 static gsl_rng* RANDR = gsl_rng_alloc(RANDT);
 
+void rand(char dst[], const int len);
+/* generate a random string with all capital letters */
+
 #endif // RANDOM_H

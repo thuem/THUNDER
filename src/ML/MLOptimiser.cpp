@@ -30,7 +30,7 @@ void MLOptimiser::init()
     // apply low pass filter on initial references
 
     // read in images from hard disk
-    // apply a mask to the images
+    // apply soft mask to the images
     // perform Fourier transform
 
     // genereate corresponding CTF
