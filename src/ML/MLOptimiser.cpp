@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependency:
  * Test:
  * Execution:
@@ -22,42 +22,81 @@ void MLOptimiser::init()
     // set MPI environment of _model
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    // initialise symmetry
+    _sym.init(_para.sym);
+
     // append initial references into _model
 
     // apply low pass filter on initial references
 
     // read in images from hard disk
+    // apply a mask to the images
+    // perform Fourier transform
 
     // genereate corresponding CTF
     
     // estimate initial sigma values
     initSigma();
+
+    // initialise a particle filter for each 2D image
+    initParticles();
+}
+
+void MLOptimiser::initParticles()
+{
+    for (int i = 0; i < _img.size(); i++)
+    {
+        _par.push_back(Particle());
+        _par.end()->init(_para.M,
+                         _para.maxX,
+                         _para.maxY,
+                         &_sym);
+    }
 }
 
 void MLOptimiser::expectation()
 {
+    Image image(_img[0].nColFT(),
+                _img[0].nRowFT(),
+                FT_SPACE);
 
-    int N = 6000;
-    double maxX = 30;
-    double maxY = 30;
-
-    vector<Image>::iterator imgIter;
-
-    for (imgIter = _img.begin(); imgIter < _img.end(); imgIter++) 
+    for (int i = 0; i < _img.size(); i++)
     {
-        Particle p(N, maxX, maxY, &_sym);
+        stringstream ss;
+        ss << "Particle" << i << ".par";
+        FILE* file = fopen(ss.str().c_str(), "w");
+        ss.str("");
 
-       //handle one ref 
-        for (int i = 0; i < N; i++)
+        for (int j = 0; j < _par[i].N(); j++)
         {
+            Coordinate5D coord;
+            _par[i].coord(coord, j);
+            _model.proj(0).project(image, coord);
 
+            double w = dataVSPrior(image,
+                                   _img[i],
+                                   _ctf[i],
+                                   _sig[i],
+                                   _r);
+
+            _par[i].mulW(w, j);
         }
+        _par[i].normW();
 
-
+        // Save particles
+        vec4 q;
+        vec2 t;
+        for (int k = 0; k < _par[i].N(); k++)
+        {
+            _par[i].quaternion(q, k);
+            _par[i].t(t, k);
+            fprintf(file, "%f %f %f %f, %f %f, %f\n",
+                          q(0),q(1),q(2),q(3),
+                          t(0), t(1),
+                          _par[i].w(k));
+        }
+        fclose(file);
     }
-    
-
-
 }
 
 void MLOptimiser::maximization()
@@ -192,3 +231,13 @@ void MLOptimiser::reconstructRef()
 {
     // TODO
 }
+
+double dataVSPrior(const Image& A,
+                   const Image& B,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r)
+{
+    // Todo
+}
+

@@ -14,9 +14,7 @@ Symmetry::Symmetry() {}
 
 Symmetry::Symmetry(const char sym[])
 {
-    symmetryGroup(_pgGroup, _pgOrder, sym);
-
-    init();
+    init(sym);
 }
 
 Symmetry::Symmetry(const int pgGroup,
@@ -24,6 +22,8 @@ Symmetry::Symmetry(const int pgGroup,
 {
     _pgGroup = pgGroup;
     _pgOrder = pgOrder;
+
+    init();
 }
 
 Symmetry::Symmetry(const Symmetry& that)
@@ -51,6 +51,13 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
     }
 
     return *this;
+}
+
+void Symmetry::init(const char sym[])
+{
+    symmetryGroup(_pgGroup, _pgOrder, sym);
+
+    init();
 }
 
 int Symmetry::pgGroup() const

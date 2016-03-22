@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependecy:
  * Test:
  * Execution:
@@ -105,6 +105,13 @@ void Particle::rot(mat33& dst,
                         _r[i][1],
                         _r[i][2],
                         _r[i][3]}));
+}
+
+void Particle::t(vec2& dst,
+                 const int i) const
+{
+    dst(0) = _t(i, 0);
+    dst(1) = _t(i, 1);
 }
 
 void Particle::quaternion(vec4& dst,

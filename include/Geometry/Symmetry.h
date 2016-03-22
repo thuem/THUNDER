@@ -28,6 +28,8 @@
 using namespace std;
 using namespace arma;
 
+#define SYM_ID_LENGTH 4
+
 #define SAME_MATRIX(A, B) (norm(A - B) < 1e4)
 /* axis has an accuracy of 6-7 decimal numbers 
  * As the mulplication here will not decrease the accuracy for 1e2 fold,
@@ -69,6 +71,8 @@ class Symmetry
         ~Symmetry();
 
         Symmetry& operator=(const Symmetry& that);
+
+        void init(const char sym[]);
 
         int pgGroup() const;
 
