@@ -24,6 +24,10 @@ int main(int argc, char* argv[])
 
         db.BcastID();
         db.prepareTmpFile();
+
+        db.scatter();
+        db.gather();   
+
     }
     catch (Error& err)
     {
