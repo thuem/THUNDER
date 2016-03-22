@@ -147,6 +147,7 @@ void createDB(Experiment& exp)
 
     exp.createTableParticles();
     exp.createTableMicrographs();
+    exp.createTableGroups();
     exp.addColumnXOff();
     exp.addColumnYOff();
     exp.addColumnParticleName();
