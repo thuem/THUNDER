@@ -135,8 +135,8 @@ class MLOptimiser : public Parallel
         void reconstructRef();
 };
 
-double dataVSPrior(const Image& imgA,
-                   const Image& imgB,
+double dataVSPrior(const Image& A,
+                   const Image& B,
                    const Image& ctf,
                    const vec& sig,
                    const int r);
