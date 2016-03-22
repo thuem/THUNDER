@@ -10,23 +10,17 @@
 
 #include "Preprocess.h"
 
-int main()
-{
-    return 0;
-}
-
-/***
 #define N 8
 
-#define DBNAME   "/dev/shm/test.db"
+#define DBNAME   "test.db"
 #define SHELL_RM "rm "
-#define RM_DB     "rm /dev/shm/test.db"
-#define MICROGRAPH_PATH "/home/icelee/bio/Micrographs"
-#define STAR_PATH        "/home/icelee/bio/Star"
+#define RM_DB    "rm /dev/shm/test.db"
+#define MICROGRAPH_PATH "/home/humingxu/Micrographs"
+#define STAR_PATH        "/home/humingxu/Star"
 
 using namespace std;
 
-void  initPara(PREPROCESS_PARA *para)
+void initPara(PREPROCESS_PARA* para)
 {
      para->nCol = 100;
      para->nRow = 100;
@@ -164,7 +158,7 @@ void createDB(Experiment& exp)
 
         if ( -1 == ::access(micrographFileName, F_OK) )
         {
-            pcblas_daxpy(a.sizeRL(),rintf("Micrograph file-%s not exists.\n ", micrographFileName);
+            printf("Micrograph file-%s not exists.\n ", micrographFileName);
             continue;
         }
 
@@ -188,14 +182,12 @@ int main(int argc, const char* argv[])
     
     printf("%s\n", RM_DB);
 
-//    system(RM_DB);
+    system(RM_DB);
 
     Experiment exp(DBNAME);
 
- //   createDB(exp);
+    createDB(exp);
 
- //   return 0;
- ***/
 /*
     exp.createTableParticles();
     exp.addColumnXOff();
@@ -230,5 +222,6 @@ int main(int argc, const char* argv[])
 
     Preprocess   preprocess(para, &exp);
     preprocess.run();
-}
 ***/
+	return 0;
+}
