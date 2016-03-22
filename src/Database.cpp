@@ -439,22 +439,27 @@ void Database::masterPrepareTmpFile()
     // open dst database
     sqlite3* dstDB;
 
-    char emptyDb[256];
-    char nodeDb[256];
-    char syscmd[128];
+    char die[256];
+    char cast[256];
+    char cmd[128];
     
+    sprintf(cmd, "mkdir /tmp/%s", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/m", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
+    system(cmd); 
+
+    MASTER_TMP_FILE(die, 0);
+    sprintf(cmd, "rm -f %s", die);  
+    system(cmd); 
+    sprintf(cmd, "touch %s", die);
+    system(cmd); 
+
     string sql;
 
-    // remove struct.db at tempory file direction
-    // sprintf(emptyDb, "%s/struct.db", MASTER_RAMPATH);
-    MASTER_TMP_FILE(emptyDb, 0);
-    sprintf(syscmd, "rm -f %s", emptyDb);  
-    system(syscmd); 
-    sprintf(syscmd, "touch %s", emptyDb);
-    system(syscmd); 
-
     // create a database struct for each node
-    sql = "attach database '" + string(emptyDb) + "' as dst";
+    sql = "attach database '" + string(die) + "' as dst";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
 
     sql= "create table dst.groups as select * from groups where 1=0";
@@ -471,11 +476,10 @@ void Database::masterPrepareTmpFile()
 
     for (int i = 1; i < _commSize; i++)
     {
-        MASTER_TMP_FILE(nodeDb, i);
-        // sprintf(nodeDb, "%s/node%04d.db", MASTER_RAMPATH, i); 
-        system(syscmd);         
-        sprintf(syscmd, "cp %s %s", emptyDb, nodeDb);  
-        system(syscmd);           
+        MASTER_TMP_FILE(cast, i);
+        system(cmd);         
+        sprintf(cmd, "cp %s %s", die, cast);  
+        system(cmd);           
     }
 }
 
