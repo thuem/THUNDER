@@ -31,8 +31,7 @@ libthuem_a_SOURCES += src/Error/Error.cpp \
 libthuem_a_SOURCES += src/Functions/Functions.cpp \
 					  src/Functions/Filter.cpp \
 					  src/Functions/Mask.cpp \
-					  src/Functions/Spectrum.cpp \
-					  src/Functions/Random.cpp
+					  src/Functions/Spectrum.cpp
 
 libthuem_a_SOURCES += src/Image/ImageBase.cpp \
 					  src/Image/BMP.cpp \
