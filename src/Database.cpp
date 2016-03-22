@@ -32,10 +32,17 @@ Database::~Database()
 void Database::BcastID()
 {
     if (_commRank == 0)
+    {
         for (int i = 0; i < DB_ID_LENGTH; i++)
             _ID[i] = (char)(gsl_rng_get(RANDR) % 26 + 65);
-    
-    // TODO
+        _ID[DB_ID_LENGTH] = '\0';
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(_ID, DB_ID_LENGTH + 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 int Database::mode() const
@@ -86,11 +93,11 @@ void Database::saveDatabase(const char database[])
 void Database::saveDatabase(const int rank)
 {
     char database[64];
+    MASTER_TMP_FILE(database, rank);
+
+    // sprintf(database, "%s/node%04d.db", MASTER_RAMPATH, rank);  
 
     string sql;
-
-    sprintf(database, "%s/node%04d.db", MASTER_RAMPATH, rank);  
-
     sql = "attach database '" +  string(database) + "' as dst;";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
 
@@ -361,7 +368,7 @@ void Database::prepareTmpFile()
         masterPrepareTmpFile();
 }
 
-void Database::receive()
+void Database::gather()
 {
     if (_commRank == 0)
         for (int i = 1; i < _commSize; i++)
@@ -370,7 +377,7 @@ void Database::receive()
         slaveSend();
 }
 
-void Database::send()
+void Database::scatter()
 {
     if (_commRank == 0)
         for (int i = 1; i < _commSize; i++)
@@ -439,7 +446,8 @@ void Database::masterPrepareTmpFile()
     string sql;
 
     // remove struct.db at tempory file direction
-    sprintf(emptyDb, "%s/struct.db", MASTER_RAMPATH);
+    // sprintf(emptyDb, "%s/struct.db", MASTER_RAMPATH);
+    MASTER_TMP_FILE(emptyDb, 0);
     sprintf(syscmd, "rm -f %s", emptyDb);  
     system(syscmd); 
     sprintf(syscmd, "touch %s", emptyDb);
@@ -463,7 +471,8 @@ void Database::masterPrepareTmpFile()
 
     for (int i = 1; i < _commSize; i++)
     {
-        sprintf(nodeDb, "%s/node%04d.db", MASTER_RAMPATH, i); 
+        MASTER_TMP_FILE(nodeDb, i);
+        // sprintf(nodeDb, "%s/node%04d.db", MASTER_RAMPATH, i); 
         system(syscmd);         
         sprintf(syscmd, "cp %s %s", emptyDb, nodeDb);  
         system(syscmd);           

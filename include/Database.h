@@ -24,23 +24,25 @@
 
 #define MAX_LENGTH (1024 * 1024 * 128)
 
+/***
 #define MASTER_RAMPATH         "/thuem/shm/dbMaster"
 #define SLAVE_RAMPATH          "/thuem/shm/dbSlave"
+***/
 
 using namespace std;
 
 #define SQLITE3_CALLBACK [](void* data, int ncols, char** values, char** header)
 
 #define MASTER_TMP_FILE(database, rank) \
-    [&database, &rank]() mutable \
+    [this, &database](const int _rank) mutable \
     { \
-        sprintf(database, "%s/node%04d.db", MASTER_RAMPATH, rank); \
-    }()
+        sprintf(database, "/tmp/%s/m/%04d.db", _ID, _rank); \
+    }(rank)
 
 #define SLAVE_TMP_FILE(database) \
     [this, &database]() mutable \
     { \
-        sprintf(database, "%s/node%04d.db", SLAVE_RAMPATH, _commRank); \
+        sprintf(database, "/tmp/%s/s/%04d.db", _ID, _commRank); \
     }()
 
 #define WRITE_FILE(filename, buf, len) \
@@ -138,9 +140,9 @@ class Database : public Parallel
 
         void prepareTmpFile();
 
-        void receive();
+        void gather();
 
-        void send();
+        void scatter();
 
     protected:
 
