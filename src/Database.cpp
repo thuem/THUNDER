@@ -85,7 +85,7 @@ void Database::saveDatabase(const int rank)
     sql = "attach database '" +  string(database) + "' as dst;";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
 
-    // get the ID of particles of process commRank
+    // get the IDs of process commRank
     int start, end;
     split(start, end, rank);
 

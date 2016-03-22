@@ -21,6 +21,7 @@ noist_PROGRAMS = FunctionsTest \
 				 ParticleTest \
 				 ParallelTest \
 				 TabFunctionTest \
+				 DatabaseTest \
 				 PreprocessTest
 
 THUEMLIBS = ../libthuem.a
@@ -57,6 +58,9 @@ ParallelTest_LDADD = ${THUEMLIBS}
 
 TabFunctionTest_SOURCES = ../testsrc/TabFunctionTest.cpp
 TabFunctionTest_LDADD = ${THUEMLIBS}
+
+DatabaseTest_SOURCES = ../testsrc/DatabaseTest.cpp
+DatabaseTest_LDADD = ${THUEMLIBS}
 
 PreprocessTest_SOURCES = ../testsrc/PreprocessTest.cpp
 PreprocessTest_LDADD = ${THUEMLIBS}
