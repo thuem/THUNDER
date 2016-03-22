@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Author: Mingxu Hu, Bing Li
+ * Dependecy:
+ * Test:
+ * Execution:
+ * Description:
+ * ****************************************************************************/
+
 #include "Preprocess.h"
 
 Preprocess::Preprocess() {}
@@ -22,6 +30,14 @@ void Preprocess::run()
 {
     _exp.openDatabase(_para.db);
 
+    _exp.BcastID();
+
+    _exp.setMPIEnv(_commSize, _commRank, _hemi);
+
+    _exp.prepareTmpFile();
+
+    _exp.setMode(MICROGRAPH_MODE);
+
     _exp.scatter();
 
     if (_commRank != 0)
@@ -30,29 +46,12 @@ void Preprocess::run()
 
         for (int i = 0; i < _micIDs.size(); i++)
         {
-            removeOutOfBoundaryPar(_micIDs[i]);
+            cout << _micIDs[i] << endl;
             extractParticles(_micIDs[i]);
         }
     }
 
     _exp.gather();
-}
-
-void Preprocess::removeOutOfBoundaryPar(const int micID)
-{
-    vector<int> parIDs;
-    _exp.particleIDsMicrograph(parIDs, micID);
-
-    for (int i = 0; i < parIDs.size(); i++)
-    {
-        int xOff, yOff;
-        getParXOffYOff(xOff, yOff, parIDs[i]);
-        
-        // remove it from database
-        char sql[SQL_COMMAND_LENGTH];
-        sprintf(sql, "delete from particles where ID = %d\n", parIDs[i]);
-        _exp.execute(sql, NULL, NULL);
-    }
 }
 
 void Preprocess::getMicIDs(vector<int>& dst)
@@ -116,15 +115,9 @@ void Preprocess::extractParticles(const int micID)
     getMicName(micName, micID);
     string sMicName(micName);
 
-    char stkName[FILE_NAME_LENGTH];    
     char parName[FILE_NAME_LENGTH];    
 
-    /* generate stkName according to micName */
-    sprintf(stkName,
-            "%s_stack.mrc",
-            sMicName.substr(0, sMicName.rfind('.') - 1));
-
-    /***
+/***
     if ( 0 != ::access(micName, F_OK) )
     {
         char msg[256];
@@ -132,29 +125,26 @@ void Preprocess::extractParticles(const int micID)
         REPORT_ERROR(msg);        
         return ;
     };
-    ***/
+***/
 
     vector<int> parIDs;
     _exp.particleIDsMicrograph(parIDs, micID);
+
+    if (parIDs.size() == 0) return;
  
     Image mic;
 
-    /* read in micrograph */
-    ImageFile micFile(micName, "rb");
+    // read in micrograph
+    ImageFile micFile(micName, "r");
     micFile.readMetaData();
     micFile.readImage(mic, 0);    
-    // micrographFile.display();
 
     Image par(_para.nCol, _para.nRow, RL_SPACE);
 
-    Volume stk(_para.nCol,
-               _para.nRow,
-               parIDs.size(),
-               RL_SPACE);
+    ImageFile parFile;
 
     char sql[SQL_COMMAND_LENGTH]; 
 
-    #pragma omp parallel for
     for (int i = 0; i < parIDs.size(); i++)
     {
         int xOff, yOff;
@@ -174,24 +164,19 @@ void Preprocess::extractParticles(const int micID)
         if (_para.doInvertConstrast)
             NEG_RL(par);
 
-        // replace ith Slice of stk with par
-        SLC_REPLACE_RL(stk, par, i);
-
         // generate parName according to micName and i
         sprintf(parName,
-                "%04d@%s_stack.mrc",
-                i,
-                sMicName.substr(0, sMicName.rfind('.') - 1));
+                "%s_%04d.mrc",
+                sMicName.substr(0, sMicName.rfind('.') - 1).c_str(),
+                i);
+        parFile.readMetaData(par);
+        parFile.writeImage(parName, par);
 
         // write parName to database
         sprintf(sql,
-                "update particles set Name = %s where ID = %d;", 
+                "update particles set Name = \"%s\" where ID = %d;", 
                 parName,
-                micID); 
+                parIDs[i]); 
         _exp.execute(sql, NULL, NULL);
     }
-    
-    ImageFile stkFile;
-    stkFile.readMetaData(stk);
-    stkFile.writeVolume(stkName, stk);
 }

@@ -10,7 +10,6 @@
 
 #include "Preprocess.h"
 
-/***
 #define N 8
 
 #define DBNAME   "test.db"
@@ -18,7 +17,6 @@
 #define RM_DB    "rm /dev/shm/test.db"
 #define MICROGRAPH_PATH "/home/humingxu/Micrographs"
 #define STAR_PATH        "/home/humingxu/Star"
-***/
 
 using namespace std;
 
@@ -36,7 +34,6 @@ void initPara(PREPROCESS_PARA* para)
      strcpy(para->db, "./test.db");
 }
 
-/***
 void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 {
 
@@ -124,6 +121,13 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 
         printf(" particleName=%s \n", particleName);
 
+	ImageFile imf(micrographFileName, "rb");
+	imf.readMetaData();
+        if ((CooridinateX >= 0) &&
+            (CooridinateY >= 0) &&
+            (CooridinateX < imf.nCol() - 300) &&
+            (CooridinateY < imf.nRow() - 300))
+        {
         sprintf(sqlStatement, "insert into particles "\
                               "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
                               "VALUES (%f, %f, \"%s\" ,0 ,%d  ); ", 
@@ -136,6 +140,7 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
                     NULL, 
                     NULL);
         particleNumber++;
+        }
     }
 
     fclose(fdStar);
@@ -178,12 +183,11 @@ void createDB(Experiment& exp)
     }
 
 }
-***/
 
 
 int main(int argc, char* argv[])
 {   
-    /***
+/***
     system("cp test.db  /dev/shm/test.db");
 
     
@@ -194,7 +198,7 @@ int main(int argc, char* argv[])
     Experiment exp(DBNAME);
 
     createDB(exp);
-    ***/
+***/
 
     /***
     exp.createTableParticles();
@@ -233,9 +237,16 @@ int main(int argc, char* argv[])
     Preprocess preprocess(para);
     preprocess.setMPIEnv();
 
-    preprocess.run();
+    try
+    {
+    	preprocess.run();
+    }
+    catch (Error& err)
+    {
+        cout << err;
+    }
 
     MPI_Finalize();
 
-	return 0;
+    return 0;
 }
