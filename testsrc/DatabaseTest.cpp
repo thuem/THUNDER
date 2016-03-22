@@ -25,6 +25,8 @@ int main(int argc, char* argv[])
         db.BcastID();
         db.prepareTmpFile();
 
+        db.setMode(MICROGRAPH_MODE);
+
         db.scatter();
         db.gather();   
 

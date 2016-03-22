@@ -105,7 +105,7 @@ void Database::saveDatabase(const int rank)
     int start, end;
     split(start, end, rank);
 
-    if (_mode == PARTICLE_MOD)
+    if (_mode == PARTICLE_MODE)
         sql = "insert into dst.groups select distinct groups.* from \
                groups, particles where \
                (particles.groupID = groups.ID) and \
@@ -117,7 +117,7 @@ void Database::saveDatabase(const int rank)
                (particles.ID >= ?1) and (particles.ID <= ?2); \
                insert into dst.particles select * from particles \
                where (ID >= ?1) and (ID <= ?2);";
-    else if (_mode == MICROGRAPH_MOD)
+    else if (_mode == MICROGRAPH_MODE)
     {
         // TODO: change to proper SQL
         sql = "insert into dst.micrographs select * from micrographs \
@@ -396,9 +396,9 @@ void Database::split(int& start,
                      const int commRank) const
 {
     int size;
-    if (_mode == PARTICLE_MOD)
+    if (_mode == PARTICLE_MODE)
         size = nParticle();
-    else if (_mode == MICROGRAPH_MOD)
+    else if (_mode == MICROGRAPH_MODE)
         size = nMicrograph();
 
     int piece = size / (_commSize - 1);
