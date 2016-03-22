@@ -311,6 +311,7 @@ int Database::nParticle() const
                                       },
                                       &size,
                                       NULL));
+    return size;
 }
 
 int Database::nMicrograph() const
@@ -326,6 +327,7 @@ int Database::nMicrograph() const
                                       },
                                       &size,
                                       NULL));
+    return size;
 }
 
 void Database::update(const char database[],
