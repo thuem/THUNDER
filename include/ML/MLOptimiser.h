@@ -49,14 +49,14 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
-    int particleNum;
-    //
+    int M;
+    // number of samplings in particle filter
 
     int maxX;
 
     int maxY;
 
-    char* sym;
+    char sym[SYM_ID_LENGTH];
 
 } MLOptimiserPara;
 
@@ -111,12 +111,6 @@ class MLOptimiser : public Parallel
 
         void initParticles();
 
-        double norm(const Image& imgA,
-                    const Image& imgB,
-                    const Image& ctf,
-                    const vector<vec>& sig,
-                    const int r) const;
-
         //Guo Heng, Li Bing
         void maximization();
 
@@ -140,5 +134,11 @@ class MLOptimiser : public Parallel
 
         void reconstructRef();
 };
+
+double dataVSPrior(const Image& imgA,
+                   const Image& imgB,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r);
 
 #endif // ML_OPTIMSER_H

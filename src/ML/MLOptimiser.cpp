@@ -22,40 +22,36 @@ void MLOptimiser::init()
     // set MPI environment of _model
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    // initialise symmetry
+    _sym.init(_para.sym);
+
     // append initial references into _model
 
     // apply low pass filter on initial references
 
     // read in images from hard disk
+    // apply a mask to the images
+    // perform Fourier transform
 
     // genereate corresponding CTF
     
     // estimate initial sigma values
     initSigma();
 
-    //
+    // initialise a particle filter for each 2D image
     initParticles();
 }
 
 void MLOptimiser::initParticles()
 {
-    for (int i = 0; i < _model.K(); i++)
+    for (int i = 0; i < _img.size(); i++)
     {
         _par.push_back(Particle());
-        _par.end()->init(_para.particleNum,
+        _par.end()->init(_para.M,
                          _para.maxX,
                          _para.maxY,
                          &_sym);
     }
-}
-
-double MLOptimiser::norm(const Image& imgA,
-                         const Image& imgB,
-                         const Image& ctf,
-                         const vector<vec>& sig,
-                         const int r) const
-{
-    // Todo
 }
 
 void MLOptimiser::expectation()
@@ -73,15 +69,15 @@ void MLOptimiser::expectation()
 
         for (int j = 0; j < _par[i].N(); j++)
         {
-            Coordinate5D cor;
-            _par[i].coord(cor, j);
-            _model.proj(0).project(image, cor);
+            Coordinate5D coord;
+            _par[i].coord(coord, j);
+            _model.proj(0).project(image, coord);
 
-            double w = norm(image,
-                            _img[i],
-                            _ctf[i],
-                            _sig,
-                            _r);
+            double w = dataVSPrior(image,
+                                   _img[i],
+                                   _ctf[i],
+                                   _sig[i],
+                                   _r);
 
             _par[i].mulW(w, j);
         }
@@ -235,3 +231,13 @@ void MLOptimiser::reconstructRef()
 {
     // TODO
 }
+
+double dataVSPrior(const Image& imgA,
+                   const Image& imgB,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r)
+{
+    // Todo
+}
+
