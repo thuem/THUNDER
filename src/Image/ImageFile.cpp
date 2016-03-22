@@ -255,24 +255,16 @@ void ImageFile::readVolumeMRC(Volume& dst)
 void ImageFile::writeImageMRC(const char dst[],
                               const Image& src)
 {
-    //printf("Start WRITE\n");
     _file = fopen(dst, "w");
 
     MRCHeader header;
     fillMRCHeader(header);
-/***
-    printf("Header Filled\n");
-    printf("symmetryDataSize() = %d\n", symmetryDataSize());
-    printf("filename = %s\n", dst);
-***/
 
     rewind(_file);
     if (fwrite(&header, 1, 1024, _file) == 0 ||
         (symmetryDataSize() != 0 &&
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
-
-   //  printf("Start IMAGE CAST\n");
 
     IMAGE_WRITE_CAST(src, float);
 
