@@ -10,6 +10,7 @@
 
 #include "Preprocess.h"
 
+/***
 #define N 8
 
 #define DBNAME   "test.db"
@@ -17,6 +18,7 @@
 #define RM_DB    "rm /dev/shm/test.db"
 #define MICROGRAPH_PATH "/home/humingxu/Micrographs"
 #define STAR_PATH        "/home/humingxu/Star"
+***/
 
 using namespace std;
 
@@ -31,8 +33,10 @@ void initPara(PREPROCESS_PARA* para)
      para->wDust = 0.1;
      para->bDust = 0.1;
      para->r = 10;    
+     strcpy(para->db, "./test.db");
 }
 
+/***
 void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 {
 
@@ -174,10 +178,12 @@ void createDB(Experiment& exp)
     }
 
 }
+***/
 
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {   
+    /***
     system("cp test.db  /dev/shm/test.db");
 
     
@@ -188,15 +194,15 @@ int main(int argc, const char* argv[])
     Experiment exp(DBNAME);
 
     createDB(exp);
+    ***/
 
-/*
+    /***
     exp.createTableParticles();
     exp.addColumnXOff();
     exp.addColumnYOff();
     exp.addColumnParticleName();
 
     exp.createTableMicrographs();
-
     */
 
 
@@ -217,12 +223,19 @@ int main(int argc, const char* argv[])
     for (int i = 0; i < partIDs.size(); i++)
         cout << partIDs[i] << endl;
     #endif
+    ***/
 
-    PREPROCESS_PARA  para;    
+    MPI_Init(&argc, &argv);
+
+    PreprocessPara para;    
     initPara(&para);
 
-    Preprocess   preprocess(para, &exp);
+    Preprocess preprocess(para);
+    preprocess.setMPIEnv();
+
     preprocess.run();
-***/
+
+    MPI_Finalize();
+
 	return 0;
 }

@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 #include <vector>
+#include <string>
 
 #include "Macro.h"
 
@@ -65,6 +66,8 @@ class Preprocess : public Parallel
         PreprocessPara& getPara();
 
         void setPara(const PreprocessPara& para);
+
+        void init();
 
         void run();
         

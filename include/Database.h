@@ -24,8 +24,6 @@
 
 #define MAX_LENGTH (1024 * 1024 * 128)
 
-using namespace std;
-
 #define SQLITE3_CALLBACK [](void* data, int ncols, char** values, char** header)
 
 #define MASTER_TMP_FILE(database, rank) \
@@ -57,6 +55,8 @@ using namespace std;
         fclose(fd); \
         return size; \
     }()
+
+using namespace std;
 
 enum Table
 {

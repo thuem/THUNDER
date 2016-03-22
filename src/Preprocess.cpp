@@ -20,13 +20,22 @@ void Preprocess::setPara(const PreprocessPara& para)
 
 void Preprocess::run()
 {
-    getMicIDs(_micIDs);
+    _exp.openDatabase(_para.db);
 
-    for (int i = 0; i < _micIDs.size(); i++)
+    _exp.scatter();
+
+    if (_commRank != 0)
     {
-        removeOutOfBoundaryPar(_micIDs[i]);
-        extractParticles(_micIDs[i]);
+        getMicIDs(_micIDs);
+
+        for (int i = 0; i < _micIDs.size(); i++)
+        {
+            removeOutOfBoundaryPar(_micIDs[i]);
+            extractParticles(_micIDs[i]);
+        }
     }
+
+    _exp.gather();
 }
 
 void Preprocess::removeOutOfBoundaryPar(const int micID)
@@ -104,13 +113,17 @@ void Preprocess::getParXOffYOff(int& xOff,
 void Preprocess::extractParticles(const int micID)
 {
     char micName[FILE_NAME_LENGTH];
-    char parName[FILE_NAME_LENGTH];    
-    char stkName[FILE_NAME_LENGTH];    
-
     getMicName(micName, micID);
+    string sMicName(micName);
 
-    //TODO generate stkName according to micName
-    
+    char stkName[FILE_NAME_LENGTH];    
+    char parName[FILE_NAME_LENGTH];    
+
+    /* generate stkName according to micName */
+    sprintf(stkName,
+            "%s_stack.mrc",
+            sMicName.substr(0, sMicName.rfind('.') - 1));
+
     /***
     if ( 0 != ::access(micName, F_OK) )
     {
@@ -139,6 +152,8 @@ void Preprocess::extractParticles(const int micID)
                parIDs.size(),
                RL_SPACE);
 
+    char sql[SQL_COMMAND_LENGTH]; 
+
     #pragma omp parallel for
     for (int i = 0; i < parIDs.size(); i++)
     {
@@ -163,8 +178,17 @@ void Preprocess::extractParticles(const int micID)
         SLC_REPLACE_RL(stk, par, i);
 
         // generate parName according to micName and i
+        sprintf(parName,
+                "%04d@%s_stack.mrc",
+                i,
+                sMicName.substr(0, sMicName.rfind('.') - 1));
 
         // write parName to database
+        sprintf(sql,
+                "update particles set Name = %s where ID = %d;", 
+                parName,
+                micID); 
+        _exp.execute(sql, NULL, NULL);
     }
     
     ImageFile stkFile;

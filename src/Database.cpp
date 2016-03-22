@@ -95,8 +95,6 @@ void Database::saveDatabase(const int rank)
     char database[64];
     MASTER_TMP_FILE(database, rank);
 
-    // sprintf(database, "%s/node%04d.db", MASTER_RAMPATH, rank);  
-
     string sql;
     sql = "attach database '" +  string(database) + "' as dst;";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
@@ -118,34 +116,17 @@ void Database::saveDatabase(const int rank)
                insert into dst.particles select * from particles \
                where (ID >= ?1) and (ID <= ?2);";
     else if (_mode == MICROGRAPH_MODE)
-    {
-        // TODO: change to proper SQL
         sql = "insert into dst.micrographs select * from micrographs \
                where (ID >= ?1) and (ID <= ?2); \
                insert into dst.particles select particles.* from \
                micrographs, particles where \
                particles.micrographID = micrographs.ID and \
                (micrographs.ID >= ?1) and (micrographs.ID <= ?2);";
-        /***
-        sql = "insert into dst.groups select distinct groups.* from \
-               groups, particles where \
-               (particles.groupID = groups.ID) and \
-               (particles.ID >= ?1) and (particles.ID <= ?2); \
-               insert into dst.micrographs \
-               select distinct micrographs.* from \
-               micrographs, particles where \
-               particles.micrographID = micrographs.ID and \
-               (particles.ID >= ?1) and (particles.ID <= ?2); \
-               insert into dst.particles select * from particles \
-               where (ID >= ?1) and (ID <= ?2);";
-               ***/
-    }
 
     sqlite3_stmt* _stmtSaveDatabase;
     const char* tail;
     while (sqlite3_complete(sql.c_str()))
     {
-      
         SQLITE3_HANDLE_ERROR(sqlite3_prepare(_db,
                                              sql.c_str(),
                                              -1,
