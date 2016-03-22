@@ -29,6 +29,15 @@ Database::~Database()
     SQLITE3_HANDLE_ERROR(sqlite3_close(_db));
 }
 
+void Database::BcastID()
+{
+    if (_commRank == 0)
+        for (int i = 0; i < DB_ID_LENGTH; i++)
+            _ID[i] = (char)(gsl_rng_get(RANDR) % 26 + 65);
+    
+    // TODO
+}
+
 int Database::mode() const
 {
     return _mode;

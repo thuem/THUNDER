@@ -14,10 +14,13 @@
 #include <sqlite3.h>
 
 #include "Sqlite3Error.h"
+#include "Random.h"
 #include "Parallel.h"
 
 #define PARTICLE_MOD 0
 #define MICROGRAPH_MOD 1
+
+#define DB_ID_LENGTH 20
 
 #define MAX_LENGTH (1024 * 1024 * 128)
 
@@ -69,6 +72,8 @@ class Database : public Parallel
 {
     private:
 
+        char _ID[DB_ID_LENGTH + 1];
+
         int _mode = PARTICLE_MOD;
 
         sqlite3_stmt* _stmtAppendGroup = NULL;
@@ -86,6 +91,9 @@ class Database : public Parallel
         Database(const char database[]);
 
         ~Database();
+
+        void BcastID();
+        /* generate and broadcast an unique ID */
 
         int mode() const;
 
