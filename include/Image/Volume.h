@@ -13,6 +13,9 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <vector>
+
+#include <armadillo>
 
 #include "Typedef.h"
 #include "Enum.h"
@@ -25,6 +28,9 @@
 #include "Interpolation.h"
 #include "Functions.h"
 #include "TabFunction.h"
+#include "Coordinate5D.h"
+#include "Transformation.h"
+#include "ImageFunctions.h"
 
 #define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
     (((iCol) > 0) ? 0 : [&iCol, &iRow, &iSlc]() \
@@ -88,7 +94,7 @@
 class Volume : public ImageBase 
 {
     public:
-		
+    
         int _nCol = 0;
         int _nRow = 0;
         int _nSlc = 0;
@@ -188,6 +194,24 @@ class Volume : public ImageBase
                    const double a,
                    const TabFunction& kernel);
         /* add by a given kernel */
+
+        void addImages(std::vector<Image>& images,
+                       std::vector<Coordinate5D>& coords,
+                       const double maxRadius,
+                       const double a,
+                       const TabFunction& kernel);
+        /* add whole images once */
+
+        void addImage(const int iCol,
+                      const int iRow,
+                      const int iSlc,
+                      const Image& image,
+                      const arma::mat33& mat,
+                      const TabFunction& kernel,
+                      const double w = 1.0,
+                      const double a = 1.9,
+                      const int _pf = 2);
+        /* add a image once */
 
     private:
 
