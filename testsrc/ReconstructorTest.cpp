@@ -13,6 +13,7 @@
 #include "FFT.h"
 #include "Mask.h"
 #include "ImageFile.h"
+#include "Timer.h"
 
 #define N 32
 #define M 16
@@ -87,6 +88,9 @@ int main(int argc, char* argv[])
     {
     if (commRank != MASTER_ID)
     {
+        if (commRank == 1)
+            timing();
+
         printf("Projection and Insertion\n");
         /***
         for (int k = M / 2 / numworkers * workerid;
@@ -142,6 +146,8 @@ int main(int argc, char* argv[])
             std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
         ***/
+        if (commRank == 1)
+            timing();
     }
     }
     catch (Error& err)
@@ -162,6 +168,9 @@ int main(int argc, char* argv[])
         imf.readMetaData(result);
         imf.writeVolume("result.mrc", result);
     }
+
+    if (commRank == 1)
+        timing();
 
     /***
     if (commRank == 1) {
