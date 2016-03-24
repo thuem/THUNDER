@@ -174,7 +174,7 @@ void MLOptimiser::initImg()
     
     for (int i = 0; i < _ID.size(); i++)
     {
-        // TODO
+        // TODO: read the image from hard disk
         /***
         = "select Name from particles;";
         char imgName[FILE_NAME_LENGTH]
@@ -186,6 +186,10 @@ void MLOptimiser::initImg()
                  },
                  &_ID);
                  ***/
+
+        // TODO: apply a soft mask on it
+        
+        // TODO: perform Fourier Transform
     }
 }
 
