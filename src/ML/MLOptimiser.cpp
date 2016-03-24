@@ -22,18 +22,26 @@ void MLOptimiser::init()
     // set MPI environment of _model
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    // set paramters: _N, _r, _iter
+    allReduceN();
+    _r = maxR() / 8; // start from 1 / 8 of highest frequency
+    _iter = 0;
+
     // initialise symmetry
     _sym.init(_para.sym);
 
     // append initial references into _model
+    Volume ref;
+    // TODO: read in ref
+    _model.appendRef(ref);
 
     // apply low pass filter on initial references
+    _model.lowPassRef(_r, EDGE_WIDTH_FT);
 
     // read in images from hard disk
-
     // apply soft mask to the images
-
     // perform Fourier transform
+    initImg();
 
     // genereate corresponding CTF
     initCTF();
@@ -122,7 +130,7 @@ void MLOptimiser::run()
 
         /* update the radius of frequency for computing */
         _model.updateR();
-        _r = _model.r() / 2;
+        _r = _model.r() / _para.pf;
     }
 }
 

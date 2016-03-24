@@ -59,6 +59,9 @@ typedef struct ML_OPTIMISER_PARA
 
     char sym[SYM_ID_LENGTH];
 
+    char initModel[FILE_NAME_LENGTH];
+    // the initial model for this iteration
+
 } MLOptimiserPara;
 
 typedef struct CTF_ATTR
