@@ -14,8 +14,9 @@
 #include <cmath>
 #include <cstdlib>
 #include <vector>
-
 #include <armadillo>
+
+#include <omp.h>
 
 #include "Typedef.h"
 #include "Enum.h"

@@ -161,6 +161,8 @@ void Volume::addFT(const Complex value,
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
+    // #pragma omp critical
+    #pragma omp atomic
     _dataFT[index] += flag ? CONJUGATE(value) : value;
 }
 

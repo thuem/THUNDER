@@ -15,6 +15,7 @@
 
 #include <armadillo>
 #include <mpi.h>
+#include <omp.h>
 
 #include "Parallel.h"
 #include "Coordinate5D.h"
