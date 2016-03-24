@@ -30,10 +30,13 @@ void MLOptimiser::init()
     // apply low pass filter on initial references
 
     // read in images from hard disk
-    // apply a mask to the images
+
+    // apply soft mask to the images
+
     // perform Fourier transform
 
     // genereate corresponding CTF
+    initCTF();
     
     // estimate initial sigma values
     initSigma();
@@ -42,22 +45,10 @@ void MLOptimiser::init()
     initParticles();
 }
 
-void MLOptimiser::initParticles()
-{
-    for (int i = 0; i < _img.size(); i++)
-    {
-        _par.push_back(Particle());
-        _par.end()->init(_para.M,
-                         _para.maxX,
-                         _para.maxY,
-                         &_sym);
-    }
-}
-
 void MLOptimiser::expectation()
 {
-    Image image(_img[0].nColFT(),
-                _img[0].nRowFT(),
+    Image image(size(),
+                size(),
                 FT_SPACE);
 
     for (int i = 0; i < _img.size(); i++)
@@ -167,6 +158,48 @@ int MLOptimiser::maxR() const
     return size() / 2 - 1;
 }
 
+void MLOptimiser::initCTF()
+{
+    // get CTF attributes from _exp
+    char sql[SQL_COMMAND_LENGTH];
+
+    CTFAttr ctfAttr;
+
+    for (int i = 0; i < _ID.size(); i++)
+    {
+        // get attributes of CTF from database
+        sprintf(sql,
+                "select (Voltage, DefocusU, DefocusV, DefocusAngle, CS) from \
+                 micrographs, particles where \
+                 particles.micrographID = micrographs.ID and \
+                 particles.ID = %d;",
+                _ID[i]);
+        _exp.execute(sql,
+                     SQLITE3_CALLBACK
+                     {
+                        ((CTFAttr*)data)->voltage = atof(values[0]);
+                        ((CTFAttr*)data)->defocusU = atof(values[1]);
+                        ((CTFAttr*)data)->defocusV = atof(values[2]);
+                        ((CTFAttr*)data)->defocusAngle = atof(values[3]);
+                        ((CTFAttr*)data)->CS = atof(values[4]);
+                        return 0;
+                     },
+                     &ctfAttr);
+
+        // append a CTF
+        _ctf.push_back(Image(size(), size(), FT_SPACE));
+
+        // initialise the CTF according to attributes given
+        CTF(*_ctf.last(),
+            _para.pixelSize,
+            ctfAttr.voltage,
+            ctfAttr.defocusU,
+            ctfAttr.defocusV,
+            ctfAttr.defocusAngle,
+            ctfAttr.CS);
+    }
+}
+
 void MLOptimiser::initSigma()
 {
     if (_commRank == MASTER_ID) return;
@@ -227,6 +260,18 @@ void MLOptimiser::initSigma()
     _sig[0] = (vAvgPs - vPsAvg) / 2;
     for (int i = 1; i < _sig.size(); i++)
         _sig[i] = _sig[0];
+}
+
+void MLOptimiser::initParticles()
+{
+    for (int i = 0; i < _img.size(); i++)
+    {
+        _par.push_back(Particle());
+        _par.end()->init(_para.M,
+                         _para.maxX,
+                         _para.maxY,
+                         &_sym);
+    }
 }
 
 void MLOptimiser::allReduceSigma()

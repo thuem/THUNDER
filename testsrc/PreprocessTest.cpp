@@ -10,23 +10,17 @@
 
 #include "Preprocess.h"
 
-int main()
-{
-    return 0;
-}
-
-/***
 #define N 8
 
-#define DBNAME   "/dev/shm/test.db"
+#define DBNAME   "test.db"
 #define SHELL_RM "rm "
-#define RM_DB     "rm /dev/shm/test.db"
-#define MICROGRAPH_PATH "/home/icelee/bio/Micrographs"
-#define STAR_PATH        "/home/icelee/bio/Star"
+#define RM_DB    "rm /dev/shm/test.db"
+#define MICROGRAPH_PATH "/home/humingxu/Micrographs"
+#define STAR_PATH        "/home/humingxu/Star"
 
 using namespace std;
 
-void  initPara(PREPROCESS_PARA *para)
+void initPara(PREPROCESS_PARA* para)
 {
      para->nCol = 100;
      para->nRow = 100;
@@ -37,6 +31,7 @@ void  initPara(PREPROCESS_PARA *para)
      para->wDust = 0.1;
      para->bDust = 0.1;
      para->r = 10;    
+     strcpy(para->db, "./test.db");
 }
 
 void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
@@ -126,6 +121,13 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 
         printf(" particleName=%s \n", particleName);
 
+	ImageFile imf(micrographFileName, "rb");
+	imf.readMetaData();
+        if ((CooridinateX >= 0) &&
+            (CooridinateY >= 0) &&
+            (CooridinateX < imf.nCol() - 300) &&
+            (CooridinateY < imf.nRow() - 300))
+        {
         sprintf(sqlStatement, "insert into particles "\
                               "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
                               "VALUES (%f, %f, \"%s\" ,0 ,%d  ); ", 
@@ -138,6 +140,7 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
                     NULL, 
                     NULL);
         particleNumber++;
+        }
     }
 
     fclose(fdStar);
@@ -153,6 +156,7 @@ void createDB(Experiment& exp)
 
     exp.createTableParticles();
     exp.createTableMicrographs();
+    exp.createTableGroups();
     exp.addColumnXOff();
     exp.addColumnYOff();
     exp.addColumnParticleName();
@@ -164,7 +168,7 @@ void createDB(Experiment& exp)
 
         if ( -1 == ::access(micrographFileName, F_OK) )
         {
-            pcblas_daxpy(a.sizeRL(),rintf("Micrograph file-%s not exists.\n ", micrographFileName);
+            printf("Micrograph file-%s not exists.\n ", micrographFileName);
             continue;
         }
 
@@ -181,29 +185,28 @@ void createDB(Experiment& exp)
 }
 
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {   
+/***
     system("cp test.db  /dev/shm/test.db");
 
     
     printf("%s\n", RM_DB);
 
-//    system(RM_DB);
+    system(RM_DB);
 
     Experiment exp(DBNAME);
 
- //   createDB(exp);
+    createDB(exp);
+***/
 
- //   return 0;
- ***/
-/*
+    /***
     exp.createTableParticles();
     exp.addColumnXOff();
     exp.addColumnYOff();
     exp.addColumnParticleName();
 
     exp.createTableMicrographs();
-
     */
 
 
@@ -224,11 +227,26 @@ int main(int argc, const char* argv[])
     for (int i = 0; i < partIDs.size(); i++)
         cout << partIDs[i] << endl;
     #endif
+    ***/
 
-    PREPROCESS_PARA  para;    
+    MPI_Init(&argc, &argv);
+
+    PreprocessPara para;    
     initPara(&para);
 
-    Preprocess   preprocess(para, &exp);
-    preprocess.run();
+    Preprocess preprocess(para);
+    preprocess.setMPIEnv();
+
+    try
+    {
+    	preprocess.run();
+    }
+    catch (Error& err)
+    {
+        cout << err;
+    }
+
+    MPI_Finalize();
+
+    return 0;
 }
-***/

@@ -29,6 +29,22 @@ Database::~Database()
     SQLITE3_HANDLE_ERROR(sqlite3_close(_db));
 }
 
+void Database::BcastID()
+{
+    if (_commRank == 0)
+    {
+        for (int i = 0; i < DB_ID_LENGTH; i++)
+            _ID[i] = (char)(gsl_rng_get(RANDR) % 26 + 65);
+        _ID[DB_ID_LENGTH] = '\0';
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(_ID, DB_ID_LENGTH + 1, MPI_CHAR, 0, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+}
+
 int Database::mode() const
 {
     return _mode;
@@ -77,11 +93,9 @@ void Database::saveDatabase(const char database[])
 void Database::saveDatabase(const int rank)
 {
     char database[64];
+    MASTER_TMP_FILE(database, rank);
 
     string sql;
-
-    sprintf(database, "%s/node%04d.db", MASTER_RAMPATH, rank);  
-
     sql = "attach database '" +  string(database) + "' as dst;";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
 
@@ -89,7 +103,7 @@ void Database::saveDatabase(const int rank)
     int start, end;
     split(start, end, rank);
 
-    if (_mode == PARTICLE_MOD)
+    if (_mode == PARTICLE_MODE)
         sql = "insert into dst.groups select distinct groups.* from \
                groups, particles where \
                (particles.groupID = groups.ID) and \
@@ -101,35 +115,18 @@ void Database::saveDatabase(const int rank)
                (particles.ID >= ?1) and (particles.ID <= ?2); \
                insert into dst.particles select * from particles \
                where (ID >= ?1) and (ID <= ?2);";
-    else if (_mode == MICROGRAPH_MOD)
-    {
-        // TODO: change to proper SQL
+    else if (_mode == MICROGRAPH_MODE)
         sql = "insert into dst.micrographs select * from micrographs \
                where (ID >= ?1) and (ID <= ?2); \
                insert into dst.particles select particles.* from \
                micrographs, particles where \
                particles.micrographID = micrographs.ID and \
                (micrographs.ID >= ?1) and (micrographs.ID <= ?2);";
-        /***
-        sql = "insert into dst.groups select distinct groups.* from \
-               groups, particles where \
-               (particles.groupID = groups.ID) and \
-               (particles.ID >= ?1) and (particles.ID <= ?2); \
-               insert into dst.micrographs \
-               select distinct micrographs.* from \
-               micrographs, particles where \
-               particles.micrographID = micrographs.ID and \
-               (particles.ID >= ?1) and (particles.ID <= ?2); \
-               insert into dst.particles select * from particles \
-               where (ID >= ?1) and (ID <= ?2);";
-               ***/
-    }
 
     sqlite3_stmt* _stmtSaveDatabase;
     const char* tail;
     while (sqlite3_complete(sql.c_str()))
     {
-      
         SQLITE3_HANDLE_ERROR(sqlite3_prepare(_db,
                                              sql.c_str(),
                                              -1,
@@ -173,7 +170,7 @@ void Database::createTableMicrographs()
                                                    DefocusU real not null, \
                                                    DefocusV real not null, \
                                                    DefocusAngle real not null, \
-                                                   CA real not null);",
+                                                   CS real not null);",
                          NULL, NULL, NULL));
 
     const char sql[] = "insert into micrographs \
@@ -229,7 +226,7 @@ void Database::appendMicrograph(const char name[],
                                 const double defocusU,
                                 const double defocusV,
                                 const double defocusAngle,
-                                const double CA,
+                                const double CS,
                                 const int id)
 {
     if (id != -1)
@@ -262,7 +259,7 @@ void Database::appendMicrograph(const char name[],
     SQLITE3_HANDLE_ERROR(
             sqlite3_bind_double(_stmtAppendMicrograph,
                                 7,
-                                CA));
+                                CS));
     SQLITE3_HANDLE_ERROR(sqlite3_step(_stmtAppendMicrograph));
     SQLITE3_HANDLE_ERROR(sqlite3_reset(_stmtAppendMicrograph));
 }
@@ -295,6 +292,7 @@ int Database::nParticle() const
                                       },
                                       &size,
                                       NULL));
+    return size;
 }
 
 int Database::nMicrograph() const
@@ -310,6 +308,7 @@ int Database::nMicrograph() const
                                       },
                                       &size,
                                       NULL));
+    return size;
 }
 
 void Database::update(const char database[],
@@ -352,7 +351,7 @@ void Database::prepareTmpFile()
         masterPrepareTmpFile();
 }
 
-void Database::receive()
+void Database::gather()
 {
     if (_commRank == 0)
         for (int i = 1; i < _commSize; i++)
@@ -361,7 +360,7 @@ void Database::receive()
         slaveSend();
 }
 
-void Database::send()
+void Database::scatter()
 {
     if (_commRank == 0)
         for (int i = 1; i < _commSize; i++)
@@ -378,9 +377,9 @@ void Database::split(int& start,
                      const int commRank) const
 {
     int size;
-    if (_mode == PARTICLE_MOD)
+    if (_mode == PARTICLE_MODE)
         size = nParticle();
-    else if (_mode == MICROGRAPH_MOD)
+    else if (_mode == MICROGRAPH_MODE)
         size = nMicrograph();
 
     int piece = size / (_commSize - 1);
@@ -423,21 +422,27 @@ void Database::masterPrepareTmpFile()
     // open dst database
     sqlite3* dstDB;
 
-    char emptyDb[256];
-    char nodeDb[256];
-    char syscmd[128];
+    char die[256];
+    char cast[256];
+    char cmd[128];
     
+    sprintf(cmd, "mkdir /tmp/%s", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/m", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
+    system(cmd); 
+
+    MASTER_TMP_FILE(die, 0);
+    sprintf(cmd, "rm -f %s", die);  
+    system(cmd); 
+    sprintf(cmd, "touch %s", die);
+    system(cmd); 
+
     string sql;
 
-    // remove struct.db at tempory file direction
-    sprintf(emptyDb, "%s/struct.db", MASTER_RAMPATH);
-    sprintf(syscmd, "rm -f %s", emptyDb);  
-    system(syscmd); 
-    sprintf(syscmd, "touch %s", emptyDb);
-    system(syscmd); 
-
     // create a database struct for each node
-    sql = "attach database '" + string(emptyDb) + "' as dst";
+    sql = "attach database '" + string(die) + "' as dst";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
 
     sql= "create table dst.groups as select * from groups where 1=0";
@@ -454,10 +459,10 @@ void Database::masterPrepareTmpFile()
 
     for (int i = 1; i < _commSize; i++)
     {
-        sprintf(nodeDb, "%s/node%04d.db", MASTER_RAMPATH, i); 
-        system(syscmd);         
-        sprintf(syscmd, "cp %s %s", emptyDb, nodeDb);  
-        system(syscmd);           
+        MASTER_TMP_FILE(cast, i);
+        system(cmd);         
+        sprintf(cmd, "cp %s %s", die, cast);  
+        system(cmd);           
     }
 }
 

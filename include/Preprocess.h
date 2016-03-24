@@ -1,8 +1,18 @@
+/*******************************************************************************
+ * Author: Mingxu Hu, Bing Li
+ * Dependecy:
+ * Test:
+ * Execution:
+ * Description:
+ * ****************************************************************************/
+
 #ifndef PREPROCESS_H
 #define PREPROCESS_H
 
 #include <unistd.h>
+#include <iostream>
 #include <vector>
+#include <string>
 
 #include "Macro.h"
 
@@ -66,11 +76,11 @@ class Preprocess : public Parallel
 
         void setPara(const PreprocessPara& para);
 
+        void init();
+
         void run();
         
     private:
-
-        void removeOutOfBoundaryPar(const int micID);
 
         void getMicIDs(vector<int>& dst);
 

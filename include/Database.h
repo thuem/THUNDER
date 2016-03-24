@@ -14,30 +14,28 @@
 #include <sqlite3.h>
 
 #include "Sqlite3Error.h"
+#include "Random.h"
 #include "Parallel.h"
 
-#define PARTICLE_MOD 0
-#define MICROGRAPH_MOD 1
+#define PARTICLE_MODE 0
+#define MICROGRAPH_MODE 1
+
+#define DB_ID_LENGTH 20
 
 #define MAX_LENGTH (1024 * 1024 * 128)
-
-#define MASTER_RAMPATH         "/thuem/shm/dbMaster"
-#define SLAVE_RAMPATH          "/thuem/shm/dbSlave"
-
-using namespace std;
 
 #define SQLITE3_CALLBACK [](void* data, int ncols, char** values, char** header)
 
 #define MASTER_TMP_FILE(database, rank) \
-    [&database, &rank]() mutable \
+    [this, &database](const int _rank) mutable \
     { \
-        sprintf(database, "%s/node%04d.db", MASTER_RAMPATH, rank); \
-    }()
+        sprintf(database, "/tmp/%s/m/%04d.db", _ID, _rank); \
+    }(rank)
 
 #define SLAVE_TMP_FILE(database) \
     [this, &database]() mutable \
     { \
-        sprintf(database, "%s/node%04d.db", SLAVE_RAMPATH, _commRank); \
+        sprintf(database, "/tmp/%s/s/%04d.db", _ID, _commRank); \
     }()
 
 #define WRITE_FILE(filename, buf, len) \
@@ -58,6 +56,8 @@ using namespace std;
         return size; \
     }()
 
+using namespace std;
+
 enum Table
 {
     Groups,
@@ -69,7 +69,9 @@ class Database : public Parallel
 {
     private:
 
-        int _mode = PARTICLE_MOD;
+        char _ID[DB_ID_LENGTH + 1];
+
+        int _mode = PARTICLE_MODE;
 
         sqlite3_stmt* _stmtAppendGroup = NULL;
         sqlite3_stmt* _stmtAppendMicrograph = NULL;
@@ -86,6 +88,9 @@ class Database : public Parallel
         Database(const char database[]);
 
         ~Database();
+
+        void BcastID();
+        /* generate and broadcast an unique ID */
 
         int mode() const;
 
@@ -113,7 +118,7 @@ class Database : public Parallel
                               const double defocusU,
                               const double defocusV,
                               const double defocusAngle,
-                              const double CA,
+                              const double CS,
                               const int id = -1);
 
         void appendParticle(const int groupID,
@@ -130,9 +135,9 @@ class Database : public Parallel
 
         void prepareTmpFile();
 
-        void receive();
+        void gather();
 
-        void send();
+        void scatter();
 
     protected:
 
