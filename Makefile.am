@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = . unittest
 
-AM_CXXFLAGS = -std=c++11
+AM_CXXFLAGS = -std=c++11 -fopenmp
 
 AM_CXXFLAGS += -I${top_srcdir}/include \
 			   -I${top_srcdir}/include/Error \
