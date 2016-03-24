@@ -60,6 +60,15 @@ typedef struct ML_OPTIMISER_PARA
 
 } MLOptimiserPara;
 
+typedef struct CTF_ATTR
+{
+    double voltage;
+    double defocusU;
+    double defocusV;
+    double defocusAngle;
+    double CS;
+} CTFAttr;
+
 class MLOptimiser : public Parallel
 {
     private:
@@ -86,6 +95,9 @@ class MLOptimiser : public Parallel
 
         Symmetry _sym; 
 
+        vector<int> _ID;
+        /* IDs for each 2D images */
+
         vector<Image> _img;
 
         vector<Particle> _par;
@@ -109,8 +121,6 @@ class MLOptimiser : public Parallel
         //Yu Hongkun ,Wang Kunpeng
         void expectation();
 
-        void initParticles();
-
         //Guo Heng, Li Bing
         void maximization();
 
@@ -128,7 +138,11 @@ class MLOptimiser : public Parallel
         int maxR() const;
         /* max value of _r */
 
+        void initCTF();
+
         void initSigma();
+
+        void initParticles();
 
         void allReduceSigma();
 
