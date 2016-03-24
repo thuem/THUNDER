@@ -138,6 +138,12 @@ class MLOptimiser : public Parallel
         int maxR() const;
         /* max value of _r */
 
+        void initID();
+        /* save IDs from database */
+
+        void initImg();
+        /* read 2D images from hard disk */
+
         void initCTF();
 
         void initSigma();

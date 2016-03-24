@@ -58,12 +58,10 @@ void MLOptimiser::expectation()
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
 
-
         if (_par[i].neff() < _par[i].N() / 3)
             _par[i].resample();
         else 
             _par[i].perturb();
-
 
         for (int j = 0; j < _par[i].N(); j++)
         {
@@ -156,6 +154,39 @@ int MLOptimiser::size() const
 int MLOptimiser::maxR() const
 {
     return size() / 2 - 1;
+}
+
+void MLOptimiser::initID()
+{
+    char sql[] = "select ID from particles;";
+    _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                    ((vector<int>*)data)-push_back(atoi(values[0]));
+                    return 0;
+                 },
+                 &_ID);
+}
+
+void MLOptimiser::initImg()
+{
+    char sql[SQL_COMMAND_LENGTH];
+    
+    for (int i = 0; i < _ID.size(); i++)
+    {
+        // TODO
+        /***
+        = "select Name from particles;";
+        char imgName[FILE_NAME_LENGTH]
+        _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                    ((vector<int>*)data)-push_back(atoi(values[0]));
+                    return 0;
+                 },
+                 &_ID);
+                 ***/
+    }
 }
 
 void MLOptimiser::initCTF()
