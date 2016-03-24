@@ -110,7 +110,6 @@ void Volume::setRL(const double value,
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
-    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] = value;
 }
 
 void Volume::addRL(const double value,
@@ -122,7 +121,6 @@ void Volume::addRL(const double value,
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
-    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
 }
 
 Complex Volume::getFT(int iCol,
