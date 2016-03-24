@@ -22,6 +22,7 @@
 #include "ImageFile.h"
 #include "Spectrum.h"
 #include "Symmetry.h"
+#include "CTF.h"
 #include "Parallel.h"
 
 #include "Experiment.h"

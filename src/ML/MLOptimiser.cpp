@@ -162,7 +162,7 @@ void MLOptimiser::initID()
     _exp.execute(sql,
                  SQLITE3_CALLBACK
                  {
-                    ((vector<int>*)data)-push_back(atoi(values[0]));
+                    ((vector<int>*)data)->push_back(atoi(values[0]));
                     return 0;
                  },
                  &_ID);
@@ -221,7 +221,7 @@ void MLOptimiser::initCTF()
         _ctf.push_back(Image(size(), size(), FT_SPACE));
 
         // initialise the CTF according to attributes given
-        CTF(*_ctf.last(),
+        CTF(*_ctf.end(),
             _para.pixelSize,
             ctfAttr.voltage,
             ctfAttr.defocusU,
