@@ -31,7 +31,8 @@ libthuem_a_SOURCES += src/Error/Error.cpp \
 libthuem_a_SOURCES += src/Functions/Functions.cpp \
 					  src/Functions/Filter.cpp \
 					  src/Functions/Mask.cpp \
-					  src/Functions/Spectrum.cpp
+					  src/Functions/Spectrum.cpp \
+					  src/Functions/Timer.cpp
 
 libthuem_a_SOURCES += src/Image/ImageBase.cpp \
 					  src/Image/BMP.cpp \
@@ -69,7 +70,8 @@ nobase_pkginclude_HEADERS += include/Functions/Functions.h \
 							 include/Functions/Mask.h \
 							 include/Functions/Spectrum.h \
 							 include/Functions/Interpolation.h \
-							 include/Functions/Random.h
+							 include/Functions/Random.h \
+							 include/Functions/Timer.h
 
 nobase_pkginclude_HEADERS += include/Image/ImageBase.h \
 							 include/Image/BMP.h \
