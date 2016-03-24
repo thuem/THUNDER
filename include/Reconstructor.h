@@ -85,6 +85,9 @@ class Reconstructor : public Parallel
                     const Coordinate5D coord,
                     const double w);
 
+        // void insertCoord(const Coordinate5D coord,
+        //                  const double w);
+
         void reconstruct(Volume& dst);
 
     private:

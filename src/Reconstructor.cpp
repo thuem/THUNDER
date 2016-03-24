@@ -73,8 +73,8 @@ void Reconstructor::insert(const Image& src,
 
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        vec3 newCor = {(double)i, (double)j, 0};
-        vec3 oldCor = mat * newCor *_pf;
+        arma::vec3 newCor = {(double)i, (double)j, 0};
+        arma::vec3 oldCor = mat * newCor *_pf;
         
         if (norm(oldCor) < _maxRadius)
             _F.addFT(transSrc.getFT(i, j) * w, 

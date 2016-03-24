@@ -67,6 +67,8 @@ int main(int argc, char* argv[])
     char name[256];
     int counter = 0;
 
+    // vector<Image> images;
+    // images.reserve((M / (commSize - 1)) * (M / 2) * (M / 2));
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
     
@@ -91,6 +93,9 @@ int main(int argc, char* argv[])
                  k < M / 2 / numworkers * (workerid + 1);
                  k++)
                  ***/
+        int counter = 0;
+        /* for vec images */
+
         for (int k = M / (commSize - 1) * (commRank - 1);
                  k < M / (commSize - 1) * commRank;
                  k++)
@@ -105,8 +110,12 @@ int main(int argc, char* argv[])
                                        0,
                                        0);
                     projector.project(image, coord);
+                    // projector.project(images[counter], coord);
                     // C2C_RL(image, image, softMask(image, N / 4, 2));
+                    
+                    // insertCoord(images[counter++], coord, 1);
                     reconstructor.insert(image, coord, 1);
+
                     /***
                     FFT fft;
                     fft.fw(image);
