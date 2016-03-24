@@ -170,7 +170,7 @@ void Database::createTableMicrographs()
                                                    DefocusU real not null, \
                                                    DefocusV real not null, \
                                                    DefocusAngle real not null, \
-                                                   CA real not null);",
+                                                   CS real not null);",
                          NULL, NULL, NULL));
 
     const char sql[] = "insert into micrographs \
@@ -226,7 +226,7 @@ void Database::appendMicrograph(const char name[],
                                 const double defocusU,
                                 const double defocusV,
                                 const double defocusAngle,
-                                const double CA,
+                                const double CS,
                                 const int id)
 {
     if (id != -1)
@@ -259,7 +259,7 @@ void Database::appendMicrograph(const char name[],
     SQLITE3_HANDLE_ERROR(
             sqlite3_bind_double(_stmtAppendMicrograph,
                                 7,
-                                CA));
+                                CS));
     SQLITE3_HANDLE_ERROR(sqlite3_step(_stmtAppendMicrograph));
     SQLITE3_HANDLE_ERROR(sqlite3_reset(_stmtAppendMicrograph));
 }

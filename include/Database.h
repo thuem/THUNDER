@@ -118,7 +118,7 @@ class Database : public Parallel
                               const double defocusU,
                               const double defocusV,
                               const double defocusAngle,
-                              const double CA,
+                              const double CS,
                               const int id = -1);
 
         void appendParticle(const int groupID,
