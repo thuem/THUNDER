@@ -17,8 +17,8 @@
 
 #define PF 2
 
-#define N 128
-#define M 10
+#define N 256
+#define M 10000
 #define MAX_X 10
 #define MAX_Y 10
 
