@@ -13,11 +13,19 @@
 #include "FFT.h"
 #include "ImageFile.h"
 #include "Particle.h"
+#include "CTF.h"
 
 #define N 128
 #define M 10000
 #define MAX_X 30
 #define MAX_Y 30
+
+#define PIXEL_SIZE 1.32
+#define VOLTAGE 3e5
+#define DEFOCUS_U 2e4
+#define DEFOCUS_V 2e4
+#define THETA 0
+#define CS 0
 
 using namespace std;
 
@@ -50,10 +58,19 @@ int main(int argc, char* argv[])
     Projector projector;
     projector.setProjectee(padHead);
 
+    Image ctf(N, N, FT_SPACE);
+    CTF(ctf,
+        VOLTAGE,
+        PIXEL_SIZE,
+        DEFOCUS_U,
+        DEFOCUS_V,
+        THETA,
+        CS);
+
     char name[256];
 
-    // Image image(N, N, FT_SPACE);
-    Image image(N, N, RL_SPACE);
+    Image image(N, N, FT_SPACE);
+    // Image image(N, N, RL_SPACE);
 
     cout << "Initialising Random Sampling Points" << endl;
     Particle par(M, MAX_X, MAX_Y);
@@ -65,7 +82,10 @@ int main(int argc, char* argv[])
         printf("%s\n", name);
 
         par.coord(coord, i);
-        R2R_FT(image, image, projector.project(image, coord));
+        // R2R_FT(image, image, projector.project(image, coord));
+        projector.project(image, coord);
+
+        MUL_FT(image, ctf);
         image.saveRLToBMP(name);
     }
     
