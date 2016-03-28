@@ -22,18 +22,26 @@ void MLOptimiser::init()
     // set MPI environment of _model
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    // set paramters: _N, _r, _iter
+    allReduceN();
+    _r = maxR() / 8; // start from 1 / 8 of highest frequency
+    _iter = 0;
+
     // initialise symmetry
     _sym.init(_para.sym);
 
     // append initial references into _model
+    Volume ref;
+    // TODO: read in ref
+    _model.appendRef(ref);
 
     // apply low pass filter on initial references
+    _model.lowPassRef(_r, EDGE_WIDTH_FT);
 
     // read in images from hard disk
-
     // apply soft mask to the images
-
     // perform Fourier transform
+    initImg();
 
     // genereate corresponding CTF
     initCTF();
@@ -58,12 +66,10 @@ void MLOptimiser::expectation()
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
 
-
         if (_par[i].neff() < _par[i].N() / 3)
             _par[i].resample();
         else 
             _par[i].perturb();
-
 
         for (int j = 0; j < _par[i].N(); j++)
         {
@@ -124,7 +130,7 @@ void MLOptimiser::run()
 
         /* update the radius of frequency for computing */
         _model.updateR();
-        _r = _model.r() / 2;
+        _r = _model.r() / _para.pf;
     }
 }
 
@@ -156,6 +162,43 @@ int MLOptimiser::size() const
 int MLOptimiser::maxR() const
 {
     return size() / 2 - 1;
+}
+
+void MLOptimiser::initID()
+{
+    char sql[] = "select ID from particles;";
+    _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                    ((vector<int>*)data)->push_back(atoi(values[0]));
+                    return 0;
+                 },
+                 &_ID);
+}
+
+void MLOptimiser::initImg()
+{
+    char sql[SQL_COMMAND_LENGTH];
+    
+    for (int i = 0; i < _ID.size(); i++)
+    {
+        // TODO: read the image from hard disk
+        /***
+        = "select Name from particles;";
+        char imgName[FILE_NAME_LENGTH]
+        _exp.execute(sql,
+                 SQLITE3_CALLBACK
+                 {
+                    ((vector<int>*)data)-push_back(atoi(values[0]));
+                    return 0;
+                 },
+                 &_ID);
+                 ***/
+
+        // TODO: apply a soft mask on it
+        
+        // TODO: perform Fourier Transform
+    }
 }
 
 void MLOptimiser::initCTF()
@@ -190,7 +233,7 @@ void MLOptimiser::initCTF()
         _ctf.push_back(Image(size(), size(), FT_SPACE));
 
         // initialise the CTF according to attributes given
-        CTF(*_ctf.last(),
+        CTF(*_ctf.end(),
             _para.pixelSize,
             ctfAttr.voltage,
             ctfAttr.defocusU,

@@ -22,6 +22,7 @@
 #include "ImageFile.h"
 #include "Spectrum.h"
 #include "Symmetry.h"
+#include "CTF.h"
 #include "Parallel.h"
 
 #include "Experiment.h"
@@ -57,6 +58,9 @@ typedef struct ML_OPTIMISER_PARA
     int maxY;
 
     char sym[SYM_ID_LENGTH];
+
+    char initModel[FILE_NAME_LENGTH];
+    // the initial model for this iteration
 
 } MLOptimiserPara;
 
@@ -137,6 +141,12 @@ class MLOptimiser : public Parallel
         
         int maxR() const;
         /* max value of _r */
+
+        void initID();
+        /* save IDs from database */
+
+        void initImg();
+        /* read 2D images from hard disk */
 
         void initCTF();
 

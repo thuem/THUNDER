@@ -110,7 +110,6 @@ void Volume::setRL(const double value,
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
-    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] = value;
 }
 
 void Volume::addRL(const double value,
@@ -122,7 +121,6 @@ void Volume::addRL(const double value,
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
-    // _dataRL[VOLUME_INDEX(iCol, iRow, iSlc)] += value;
 }
 
 Complex Volume::getFT(int iCol,
@@ -161,6 +159,8 @@ void Volume::addFT(const Complex value,
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
+    #pragma omp critical
+    // #pragma omp atomic
     _dataFT[index] += flag ? CONJUGATE(value) : value;
 }
 
