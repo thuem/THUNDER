@@ -51,12 +51,14 @@ int main(int argc, char* argv[])
     }
     normalise(head);
 
+    /***
     cout << "Adding Noise" << endl;
     Volume noise(N, N, N, RL_SPACE);
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(RANDR, 5);
     ADD_RL(head, noise);
     normalise(head);
+    ***/
 
     printf("head: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&head(0), 1, head.sizeRL()),
@@ -113,17 +115,25 @@ int main(int argc, char* argv[])
         printf("%s\n", name);
 
         par.coord(coord, i);
-        // R2R_FT(image, image, projector.project(image, coord));
         projector.project(image, coord);
 
-        //MUL_FT(image, ctf);
+        MUL_FT(image, ctf);
+
+        Image noise(N, N, RL_SPACE);
+        FOR_EACH_PIXEL_RL(noise)
+        noise(i) = gsl_ran_gaussian(RANDR, 2);
 
         fft.bw(image);
+
+        ADD_RL(image, noise);
+
         printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
               gsl_stats_mean(&image(0), 1, image.sizeRL()),
               gsl_stats_sd(&image(0), 1, image.sizeRL()),
               image(cblas_idamax(image.sizeRL(), &image(0), 1)));
+
         image.saveRLToBMP(name);
+
         fft.fw(image);
     }
     
