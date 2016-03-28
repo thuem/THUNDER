@@ -15,8 +15,10 @@
 #include "Particle.h"
 #include "CTF.h"
 
+#define PF 2
+
 #define N 128
-#define M 10000
+#define M 10
 #define MAX_X 10
 #define MAX_Y 10
 
@@ -31,6 +33,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    FFT fft;
+
     cout << "Defining Head" << endl;
     Volume head(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(head)
@@ -45,17 +49,43 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
+    normalise(head);
 
+    cout << "Adding Noise" << endl;
+    Volume noise(N, N, N, RL_SPACE);
+    FOR_EACH_PIXEL_RL(noise)
+        noise(i) = gsl_ran_gaussian(RANDR, 5);
+    ADD_RL(head, noise);
+    normalise(head);
+
+    printf("head: mean = %f, stddev = %f, maxValue = %f\n",
+           gsl_stats_mean(&head(0), 1, head.sizeRL()),
+           gsl_stats_sd(&head(0), 1, head.sizeRL()),
+           head(cblas_idamax(head.sizeRL(), &head(0), 1)));
+
+    /***
+    fft.fw(head);
+    fft.bw(head);
+
+    printf("head: mean = %f, stddev = %f\n",
+           gsl_stats_mean(&head(0), 1, head.sizeRL()),
+           gsl_stats_sd(&head(0), 1, head.sizeRL()));
+    ***/
+           
     cout << "Padding Head" << endl;
     Volume padHead;
-    VOL_PAD_RL(padHead, head, 2);
+    VOL_PAD_RL(padHead, head, PF);
+    printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
+           gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
+           gsl_stats_sd(&padHead(0), 1, padHead.sizeRL()),
+           padHead(cblas_idamax(padHead.sizeRL(), &padHead(0), 1)));
 
     cout << "Fourier Transforming Head" << endl;
-    FFT fft;
     fft.fw(padHead);
 
     cout << "Setting Projectee" << endl;
     Projector projector;
+    projector.setPf(PF);
     projector.setProjectee(padHead);
 
     cout << "Setting CTF" << endl;
@@ -71,7 +101,6 @@ int main(int argc, char* argv[])
     char name[256];
 
     Image image(N, N, FT_SPACE);
-    Image noise(N, N, RL_SPACE);
     // Image image(N, N, RL_SPACE);
 
     cout << "Initialising Random Sampling Points" << endl;
@@ -83,17 +112,17 @@ int main(int argc, char* argv[])
         sprintf(name, "%06d.bmp", i);
         printf("%s\n", name);
 
-        FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(RANDR, 5);
-
         par.coord(coord, i);
         // R2R_FT(image, image, projector.project(image, coord));
         projector.project(image, coord);
 
-        MUL_FT(image, ctf);
+        //MUL_FT(image, ctf);
 
         fft.bw(image);
-        ADD_RL(image, noise);
+        printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
+              gsl_stats_mean(&image(0), 1, image.sizeRL()),
+              gsl_stats_sd(&image(0), 1, image.sizeRL()),
+              image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         image.saveRLToBMP(name);
         fft.fw(image);
     }

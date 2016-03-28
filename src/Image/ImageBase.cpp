@@ -104,11 +104,11 @@ double norm(ImageBase& base)
 
 void normalise(ImageBase& base)
 {
-    /***
-    gsl_vector vec;
-    vec.size = base.sizeRL();
-    vec.data = &base(0);
+    double mean = gsl_stats_mean(&base(0), 1, base.sizeRL());
+    double stddev = gsl_stats_sd_m(&base(0), 1, base.sizeRL(), mean);
 
-    normalise(vec);
-    ***/
+    FOR_EACH_PIXEL_RL(base)
+        base(i) -= mean;
+
+    SCALE_RL(base, 1.0 / stddev);
 }
