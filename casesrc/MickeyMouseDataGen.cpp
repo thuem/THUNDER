@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
     char name[256];
 
     Image image(N, N, FT_SPACE);
+    Image noise(N, N, RL_SPACE);
     // Image image(N, N, RL_SPACE);
 
     cout << "Initialising Random Sampling Points" << endl;
@@ -81,6 +82,9 @@ int main(int argc, char* argv[])
     {
         sprintf(name, "%06d.bmp", i);
         printf("%s\n", name);
+
+        FOR_EACH_PIXEL_RL(noise)
+            noise(i) = gsl_ran_gaussian(RANDR, 5);
 
         par.coord(coord, i);
         // R2R_FT(image, image, projector.project(image, coord));
