@@ -35,6 +35,7 @@ AC_CHECK_FUNCS([floor memset pow sqrt])
 
 AC_CONFIG_SUBDIRS([gpu])
 AC_CONFIG_FILES([Makefile
-                 unittest/Makefile])
+                 unittest/Makefile
+                 case/Makefile])
 
 AC_OUTPUT
