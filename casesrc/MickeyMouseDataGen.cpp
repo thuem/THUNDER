@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
     Particle par(M, MAX_X, MAX_Y);
 
     Coordinate5D coord;
+    FFT fft;
     for (int i = 0; i < M; i++)
     {
         sprintf(name, "%06d.bmp", i);
@@ -91,7 +92,11 @@ int main(int argc, char* argv[])
         projector.project(image, coord);
 
         MUL_FT(image, ctf);
-        C2C_RL(image, image, image.saveRLToBMP(name));
+
+        fft.bw(image);
+        ADD_RL(image, noise);
+        image.saveRLToBMP(name);
+        fft.fw(image);
     }
     
     return 0;
