@@ -393,11 +393,15 @@ void MLOptimiser::initParticles()
                      _para.maxY,
                      &_sym);
     /***
-        _par[0].init(_para.m,
+    for (int l = 0; l < _img.size(); l++)
+    {
+        _par.push_back(Particle());
+        _par.back().init(_para.m,
                          _para.maxX,
                          _para.maxY,
                          &_sym);
-                         ***/
+    }
+    ***/
 }
 
 void MLOptimiser::allReduceSigma()
