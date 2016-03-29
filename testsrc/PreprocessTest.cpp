@@ -159,7 +159,6 @@ void createDB(Experiment& exp)
     exp.createTableGroups();
     exp.addColumnXOff();
     exp.addColumnYOff();
-    exp.addColumnParticleName();
   
     for (i = 211; i <= 326 ; i++)
     {

@@ -16,7 +16,7 @@ Preprocess::Preprocess(const PreprocessPara& para)
     _exp.openDatabase(_para.db);
 }
 
-PreprocessPara& Preprocess::getPara()  
+PreprocessPara& Preprocess::para()  
 {
     return _para;
 }
@@ -30,7 +30,7 @@ void Preprocess::run()
 {
     _exp.openDatabase(_para.db);
 
-    _exp.BcastID();
+    _exp.bcastID();
 
     _exp.setMPIEnv(_commSize, _commRank, _hemi);
 

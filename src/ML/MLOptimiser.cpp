@@ -17,40 +17,80 @@ MLOptimiser::~MLOptimiser()
     clear();
 }
 
+MLOptimiserPara& MLOptimiser::para()
+{
+    return _para;
+}
+
+void MLOptimiser::setPara(const MLOptimiserPara& para)
+{
+    _para = para;
+}
+
 void MLOptimiser::init()
 {
-    // set MPI environment of _model
+    MLOG(INFO) << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
-    // set paramters: _N, _r, _iter
-    allReduceN();
-    _r = maxR() / 8; // start from 1 / 8 of highest frequency
-    _iter = 0;
+    MLOG(INFO) << "Openning Database File";
+    _exp.openDatabase(_para.db);
 
-    // initialise symmetry
-    _sym.init(_para.sym);
+    MLOG(INFO) << "Setting MPI Environment of _exp";
+    _exp.setMPIEnv(_commSize, _commRank, _hemi);
 
-    // append initial references into _model
-    Volume ref;
-    // TODO: read in ref
-    _model.appendRef(ref);
+    MLOG(INFO) << "Broadcasting ID of _exp";
+    _exp.bcastID();
 
-    // apply low pass filter on initial references
-    _model.lowPassRef(_r, EDGE_WIDTH_FT);
+    MLOG(INFO) << "Preparing Temporary File of _exp";
+    _exp.prepareTmpFile();
 
-    // read in images from hard disk
-    // apply soft mask to the images
-    // perform Fourier transform
-    initImg();
+    MLOG(INFO) << "Scattering _exp";
+    _exp.scatter();
 
-    // genereate corresponding CTF
-    initCTF();
+    NT_MASTER
+    {
+        ALOG(INFO) << "Setting up Symmetry";
+        _sym.init(_para.sym);
+
+        ALOG(INFO) << "Appending Initial References into _model";
+        /***
+        // append initial references into _model
+        Volume ref;
+        // TODO: read in ref
+        _model.appendRef(ref);
+        ***/
+
+        ALOG(INFO) << "Initialising IDs of 2D Images";
+        initID();
+
+        ALOG(INFO) << "Initialising 2D Images";
+        /***
+        // read in images from hard disk
+        // apply soft mask to the images
+        // perform Fourier transform
+        initImg();
+        ***/
+
+        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
+        // apply low pass filter on initial references
+        /***
+        _model.lowPassRef(_r, EDGE_WIDTH_FT);
+
+        // set paramters: _N, _r, _iter
+        allReduceN();
+        _r = maxR() / 8; // start from 1 / 8 of highest frequency
+        _iter = 0;
+
+        // genereate corresponding CTF
+        initCTF();
     
-    // estimate initial sigma values
-    initSigma();
+        // estimate initial sigma values
+        initSigma();
 
-    // initialise a particle filter for each 2D image
-    initParticles();
+        // initialise a particle filter for each 2D image
+        initParticles();
+        ***/
+    }
 }
 
 void MLOptimiser::expectation()
@@ -114,10 +154,14 @@ void MLOptimiser::maximization()
 
 void MLOptimiser::run()
 {
+    MLOG(INFO) << "Initialising MLOptimiser";
     init();
 
+    MLOG(INFO) << "Entering Iteration";
     for (int i = 0; i < _para.iterMax; i++)
     {
+        MLOG(INFO) << "Round " << i;
+
         expectation();
 
         maximization();
@@ -245,7 +289,7 @@ void MLOptimiser::initCTF()
 
 void MLOptimiser::initSigma()
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER return;
 
     /* calculate average image */
 
@@ -310,7 +354,7 @@ void MLOptimiser::initParticles()
     for (int i = 0; i < _img.size(); i++)
     {
         _par.push_back(Particle());
-        _par.end()->init(_para.M,
+        _par.end()->init(_para.m,
                          _para.maxX,
                          _para.maxY,
                          &_sym);

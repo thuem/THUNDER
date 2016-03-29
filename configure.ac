@@ -22,6 +22,7 @@ AC_CHECK_LIB([gsl], main)
 AC_CHECK_LIB([armadillo], main)
 AC_CHECK_LIB([sqlite3], main)
 AC_CHECK_LIB([bingham], main)
+AC_CHECK_LIB([glog], main)
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])

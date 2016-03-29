@@ -192,6 +192,11 @@ double Particle::neff() const
     return 1.0 / gsl_pow_2(norm(_w, 2));
 }
 
+uvec Particle::iSort() const
+{
+    return sort_index(_w, "descend");
+}
+
 void Particle::symmetrise()
 {
     double phi, theta, psi;

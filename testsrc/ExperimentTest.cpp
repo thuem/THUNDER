@@ -21,12 +21,11 @@ int main(int argc, const char* argv[])
     exp.createTableParticles();
     exp.addColumnXOff();
     exp.addColumnYOff();
-    exp.addColumnParticleName();
 
     exp.createTableMicrographs();
 
     for (int i = 0; i < N; i++)
-        exp.appendParticle(i / 10, i / 10);
+        exp.appendParticle("", i / 10, i / 10);
 
     vector<int> partIDs;
     exp.particleIDsMicrograph(partIDs, 0);

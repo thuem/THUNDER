@@ -15,6 +15,8 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <glog/logging.h>
+
 #include "Typedef.h"
 
 #include "Image.h"
@@ -32,6 +34,7 @@
 #include "MLModel.h"
 
 using namespace std;
+using namespace google;
 
 typedef struct ML_OPTIMISER_PARA
 {
@@ -50,7 +53,7 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
-    int M;
+    int m;
     // number of samplings in particle filter
 
     int maxX;
@@ -61,6 +64,8 @@ typedef struct ML_OPTIMISER_PARA
 
     char initModel[FILE_NAME_LENGTH];
     // the initial model for this iteration
+
+    char db[FILE_NAME_LENGTH];
 
 } MLOptimiserPara;
 
@@ -115,6 +120,10 @@ class MLOptimiser : public Parallel
         MLOptimiser();
 
         ~MLOptimiser();
+
+        MLOptimiserPara& para();
+
+        void setPara(const MLOptimiserPara& para);
 
         void init();
         /* set parameters of _model

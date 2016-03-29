@@ -72,7 +72,7 @@ class Preprocess : public Parallel
 
         Preprocess(const PreprocessPara& para);
 
-        PreprocessPara& getPara();
+        PreprocessPara& para();
 
         void setPara(const PreprocessPara& para);
 
