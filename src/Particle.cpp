@@ -57,7 +57,6 @@ void Particle::init(const int N,
     bingham_free(&B);
 
     symmetrise();
-
 }
 
 int Particle::N() const { return _N; }
@@ -212,7 +211,7 @@ void Particle::symmetrise()
         }
 
         // make phi and theta in the asymetric unit
-        symmetryCounterpart(phi, theta, *_sym);
+        if (_sym != NULL) symmetryCounterpart(phi, theta, *_sym);
 
         quaternoin(quat, phi, theta, psi);
         _r[i][0] = quat(0);

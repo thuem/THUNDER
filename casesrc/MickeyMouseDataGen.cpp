@@ -55,14 +55,17 @@ int main(int argc, char* argv[])
     // Image image(N, N, FT_SPACE);
     Image image(N, N, RL_SPACE);
 
+    cout << "Initialising Random Sampling Points" << endl;
     Particle par(M, MAX_X, MAX_Y);
 
     Coordinate5D coord;
     for (int i = 0; i < M; i++)
     {
+        sprintf(name, "%06d.bmp", i);
+        printf("%s\n", name);
+
         par.coord(coord, i);
         R2R_FT(image, image, projector.project(image, coord));
-        sprintf(name, "%06d.bmp", i);
         image.saveRLToBMP(name);
     }
     

@@ -49,7 +49,7 @@ class Particle
 
         vec _w; // weight
         
-        const Symmetry* _sym;
+        const Symmetry* _sym = NULL;
 
         double _k0 = 0;
         double _k1 = 0;
