@@ -17,8 +17,8 @@
 
 #define N 128
 #define M 10000
-#define MAX_X 30
-#define MAX_Y 30
+#define MAX_X 10
+#define MAX_Y 10
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
@@ -58,6 +58,7 @@ int main(int argc, char* argv[])
     Projector projector;
     projector.setProjectee(padHead);
 
+    cout << "Setting CTF" << endl;
     Image ctf(N, N, FT_SPACE);
     CTF(ctf,
         VOLTAGE,
@@ -86,7 +87,7 @@ int main(int argc, char* argv[])
         projector.project(image, coord);
 
         MUL_FT(image, ctf);
-        image.saveRLToBMP(name);
+        C2C_RL(image, image, image.saveRLToBMP(name));
     }
     
     return 0;
