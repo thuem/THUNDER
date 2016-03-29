@@ -25,7 +25,7 @@
 #include "Spectrum.h"
 #include "Symmetry.h"
 #include "CTF.h"
-#include "Parallel.h"
+#include "Mask.h"
 
 #include "Experiment.h"
 

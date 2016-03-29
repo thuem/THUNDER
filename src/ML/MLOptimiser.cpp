@@ -64,12 +64,7 @@ void MLOptimiser::init()
         initID();
 
         ALOG(INFO) << "Initialising 2D Images";
-        /***
-        // read in images from hard disk
-        // apply soft mask to the images
-        // perform Fourier transform
         initImg();
-        ***/
 
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         // apply low pass filter on initial references
@@ -222,26 +217,41 @@ void MLOptimiser::initID()
 
 void MLOptimiser::initImg()
 {
+    FFT fft;
+
     char sql[SQL_COMMAND_LENGTH];
+    char imgName[FILE_NAME_LENGTH];
+
+    for (int i = 0; i < _ID.size(); i++)
+        _img.push_back(Image());
     
     for (int i = 0; i < _ID.size(); i++)
     {
-        // TODO: read the image from hard disk
-        /***
-        = "select Name from particles;";
-        char imgName[FILE_NAME_LENGTH]
-        _exp.execute(sql,
-                 SQLITE3_CALLBACK
-                 {
-                    ((vector<int>*)data)-push_back(atoi(values[0]));
-                    return 0;
-                 },
-                 &_ID);
-                 ***/
+        ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
 
-        // TODO: apply a soft mask on it
-        
-        // TODO: perform Fourier Transform
+        // get the filename of the image from database
+        sprintf(sql, "select Name from particles where ID = %d;", _ID[i]);
+        _exp.execute(sql,
+                     SQLITE3_CALLBACK
+                     {
+                         sprintf((char*)data, "%s", values[0]); 
+                         return 0;
+                     },
+                     imgName);
+
+        // read the image fromm hard disk
+        ImageFile imf(imgName, "rb");
+        imf.readMetaData();
+        imf.readImage(_img[i]);
+
+        // apply a soft mask on it
+        softMask(_img[i], _img[i], _img[i].nColRL() / 4, EDGE_WIDTH_RL);
+
+        sprintf(imgName, "%04dMasked.bmp", _ID[i]);
+        _img[i].saveRLToBMP(imgName);
+
+        // perform Fourier Transform
+        fft.fw(_img[i]);
     }
 }
 

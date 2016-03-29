@@ -110,6 +110,8 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
+    
+    ImageFile imf;
 
     cout << "Initialising Random Sampling Points" << endl;
     Particle par(M, MAX_X, MAX_Y);
@@ -117,7 +119,7 @@ int main(int argc, char* argv[])
     Coordinate5D coord;
     for (int i = 0; i < M; i++)
     {
-        sprintf(name, "%06d.bmp", i);
+        sprintf(name, "%06d.mrc", i);
         printf("%s\n", name);
 
         par.coord(coord, i);
@@ -140,7 +142,8 @@ int main(int argc, char* argv[])
         
         exp.appendParticle(name, 1, 1);
 
-        image.saveRLToBMP(name);
+        imf.readMetaData(image);
+        imf.writeImage(name, image);
 
         fft.fw(image);
     }
