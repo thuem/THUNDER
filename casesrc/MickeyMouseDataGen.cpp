@@ -78,7 +78,6 @@ int main(int argc, char* argv[])
     Particle par(M, MAX_X, MAX_Y);
 
     Coordinate5D coord;
-    FFT fft;
     for (int i = 0; i < M; i++)
     {
         sprintf(name, "%06d.bmp", i);
