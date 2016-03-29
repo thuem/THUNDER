@@ -15,6 +15,8 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <glog/logging.h>
+
 #include "Typedef.h"
 
 #include "Image.h"
@@ -32,6 +34,7 @@
 #include "MLModel.h"
 
 using namespace std;
+using namespace google;
 
 typedef struct ML_OPTIMISER_PARA
 {

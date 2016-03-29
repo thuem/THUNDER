@@ -33,6 +33,8 @@ int main(int argc, char* argv[])
 {
     MPI_Init(&argc, &argv);
 
+    InitGoogleLogging(argv[0]);
+
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
     para.iterMax = 30;
@@ -55,14 +57,7 @@ int main(int argc, char* argv[])
     opt.setMPIEnv();
 
     cout << "Initialising" << endl;
-    try
-    {
-        opt.init();
-    }
-    catch (Error& err)
-    {
-        cout << err;
-    }
+    opt.init();
 
     MPI_Finalize();
 }

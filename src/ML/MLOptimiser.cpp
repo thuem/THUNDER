@@ -29,19 +29,27 @@ void MLOptimiser::setPara(const MLOptimiserPara& para)
 
 void MLOptimiser::init()
 {
-    // set MPI environment of _model
+    MLOG(INFO) << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
-    // set MPI environment of _exp
+    MLOG(INFO) << "Openning Database File";
     _exp.openDatabase(_para.db);
+
+    MLOG(INFO) << "Setting MPI Environment of _exp";
     _exp.setMPIEnv(_commSize, _commRank, _hemi);
+
+    MLOG(INFO) << "Broadcasting ID of _exp";
     _exp.bcastID();
+
+    MLOG(INFO) << "Preparing Temporary File of _exp";
     _exp.prepareTmpFile();
+
+    MLOG(INFO) << "Scattering _exp";
     _exp.scatter();
 
     if (_commRank != MASTER_ID)
     {
-        // initialise symmetry
+        ALOG(INFO) << "Setting up Symmetry";
         _sym.init(_para.sym);
 
         /***

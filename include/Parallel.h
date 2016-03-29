@@ -10,11 +10,20 @@
 #define PARALLEL_H
 
 #include <cstdio>
+
 #include <mpi.h>
+#include <glog/logging.h>
 
 #define MASTER_ID 0
 #define HEMI_A_LEAD 1
 #define HEMI_B_LEAD 2
+
+#define IF_MASTER if (_commRank == MASTER_ID)
+#define NT_MASTER if (_commRank != MASTER_ID)
+
+#define MLOG(LEVEL) IF_MASTER LOG(LEVEL) << "MASTER: "
+#define ALOG(LEVEL) if (_commRank == HEMI_A_LEAD) LOG(LEVEL) << "A_LEAD: "
+#define BLOG(LEVEL) if (_commRank == HEMI_B_LEAD) LOG(LEVEL) << "B_LEAD: "
 
 class Parallel
 {
