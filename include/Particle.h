@@ -105,6 +105,9 @@ class Particle
         void resample();
 
         double neff() const;
+
+        uvec iSort() const;
+        /* return the index of sorting in descending order */
     
     private:
 
