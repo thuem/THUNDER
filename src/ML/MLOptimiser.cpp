@@ -320,7 +320,7 @@ void MLOptimiser::initParticles()
     for (int i = 0; i < _img.size(); i++)
     {
         _par.push_back(Particle());
-        _par.end()->init(_para.M,
+        _par.end()->init(_para.m,
                          _para.maxX,
                          _para.maxY,
                          &_sym);

@@ -50,7 +50,7 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
-    int M;
+    int m;
     // number of samplings in particle filter
 
     int maxX;

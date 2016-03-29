@@ -15,6 +15,7 @@
 #include "Particle.h"
 #include "CTF.h"
 #include "Experiment.h"
+#include "MLOptimiser.h"
 
 #define PF 2
 
@@ -37,7 +38,7 @@ int main(int argc, char* argv[])
     para.a = 1.9;
     para.alpha = 10;
     para.pixelSize = PIXEL_SIZE;
-    para.M = M;
+    para.m = M;
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
     sprintf(para.sym, "C2V");

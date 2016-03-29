@@ -15,20 +15,18 @@ double nyquist(const double pixelSize)
     return 2 / pixelSize;
 }
 
-void resP2A(double& resA,
-            const double resP,
-            const int imageSize,
-            const double pixelSize)
+double resP2A(const double resP,
+              const int imageSize,
+              const double pixelSize)
 {
-    resA = resP / imageSize / pixelSize;
+    return resP / imageSize / pixelSize;
 }
 
-void resA2P(double& resP,
-            const double resA,
-            const int imageSize,
-            const double pixelSize)
+double resA2P(const double resA,
+              const int imageSize,
+              const double pixelSize)
 {
-    resP =  resA * imageSize * pixelSize;
+    return resA * imageSize * pixelSize;
 }
 
 void resP2A(vec& res,
