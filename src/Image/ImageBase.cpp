@@ -26,7 +26,7 @@ ImageBase& ImageBase::operator=(const ImageBase& that)
 
     if (!that.isEmptyRL())
     {
-        _dataRL = new double [_sizeRL];
+        _dataRL = new double[_sizeRL];
         memcpy(_dataRL, &that.iGetRL(), sizeof(double) * _sizeRL);
     }
 

@@ -19,8 +19,27 @@ using namespace std;
 
 int main(int argc, const char* argv[])
 {
+    FFT fft;
+    Image A(N, N, RL_SPACE);
+    fft.fw(A);
+    Image B = A;
+    ADD_FT(B, A);
+
+    /***
+    Image A(N, N, FT_SPACE);
+    Image B = A;
+    ADD_FT(B, A);
+    ***/
+
+
+    /***
     Image image(N, N, RL_SPACE);
 
+    Image B = image;
+    ADD_RL(B, image);
+    ***/
+
+    /***
     try
     {
         IMAGE_FOR_EACH_PIXEL_RL(image)
@@ -32,6 +51,7 @@ int main(int argc, const char* argv[])
     {
         cout << err;
     }
+    ***/
 
     /***
     image.saveRLToBMP("ori.bmp");
@@ -57,6 +77,7 @@ int main(int argc, const char* argv[])
     image.saveRLToBMP("trans2.bmp");
     ***/
 
+    /***
     cout << "****** extract ******" << endl;
     Image particle(100, 100, RL_SPACE);
     try
@@ -71,4 +92,5 @@ int main(int argc, const char* argv[])
     {
         cout << err;
     }
+    ***/
 }

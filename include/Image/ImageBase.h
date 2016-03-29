@@ -64,22 +64,22 @@
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] += b[i]
+        (a)[i] += (b)[i]
 
 #define SUB_RL(a, b) \
     cblas_daxpy(a.sizeRL(), -1, &b(0), 1, &a(0), 1);
 
 #define SUB_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] -= b[i]
+        (a)[i] -= (b)[i]
 
 #define MUL_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] *= b[i]
+        (a)[i] *= (b)[i]
 
 #define DIV_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] /= b[i]
+        (a)[i] /= (b)[i]
 
 class ImageBase
 {
