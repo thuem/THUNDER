@@ -319,6 +319,45 @@ void MLOptimiser::initParticles()
 
 void MLOptimiser::allReduceSigma()
 {
+    int  k;
+    int  i, j;
+    double  sigma;
+    double  phi;
+    double  ctf;
+    double  p;
+    double  v;
+    double  Ka;
+    double  noise;
+    double  deltaPhi =0;
+
+    sigma = 0;
+    deltaPhi = 0.1 ;  // ????
+    noise =0;
+
+    #if 0
+    for (k=0; k< K();  k++ )
+    {
+        for (phi = 0; phi < 2*PI; phi += deltaPhi )
+        {
+            temp = 0;
+            for ( l=1; l< L();  l++ )
+            {
+                p = Pij;
+                v = Vkl;                 
+            }
+            ctf = CTF(i,j);
+            temp = Xij - ctf * (p * v);    
+            temp = temp * temp;
+
+            ka = Ka(i, k, phi);
+            sigma += temp * Ka * deltaPhi;
+
+        }
+    }
+    #endif 
+    sigma = sigma /2;
+
+
     // TODO
 }
 
