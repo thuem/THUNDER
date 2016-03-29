@@ -291,7 +291,7 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
-    /* calculate average image */
+    ALOG(INFO) << "Calculating Average Image";
 
     Image avg = _img[0];
     for (int i = 1; i < _img.size(); i++)
@@ -310,24 +310,20 @@ void MLOptimiser::initSigma()
 
     SCALE_RL(avg, 1.0 / _N);
 
-    /* calculate average power spectrum */
+    ALOG(INFO) << "Calculating Average Power Spectrum";
 
-    double* avgPs = new double[maxR()];
-    memset(avgPs, 0, maxR() * sizeof(double));
-
-    double* ps = new double[maxR()];
-    vec vps(ps, maxR(), false, true);
+    vec avgPs(maxR(), fill::zeros);
+    vec ps(maxR());
     for (int i = 0; i < _img.size(); i++)
     {
-        powerSpectrum(vps, _img[i], maxR());
-        cblas_daxpy(maxR(), 1, ps, 1, avgPs, 1);
+        powerSpectrum(ps, _img[i], maxR());
+        cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
     }
-    delete[] ps;
 
     MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  avgPs,
+                  avgPs.memptr(),
                   maxR(),
                   MPI_DOUBLE,
                   MPI_SUM,
@@ -335,16 +331,18 @@ void MLOptimiser::initSigma()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    vec vAvgPs(avgPs, maxR());
-    delete[] avgPs;
-    vAvgPs /= _N;
+    avgPs /= _N;
 
-    vec vPsAvg(maxR());
-    powerSpectrum(vPsAvg, avg, maxR());
+    ALOG(INFO) << "Calculating Power Spectrum of Average Image";
+
+    vec psAvg(maxR());
+    powerSpectrum(psAvg, avg, maxR());
     
-    /* vAvgPs -> average power spectrum
-     * vPsAvg -> power spectrum of average image */
-    _sig[0] = (vAvgPs - vPsAvg) / 2;
+    /* avgPs -> average power spectrum
+     * psAvg -> power spectrum of average image */
+    ALOG(INFO) << "Substract avgPs and psAvg for _sig";
+
+    _sig[0] = (avgPs - psAvg) / 2;
     for (int i = 1; i < _sig.size(); i++)
         _sig[i] = _sig[0];
 }
