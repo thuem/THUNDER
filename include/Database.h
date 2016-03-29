@@ -136,6 +136,8 @@ class Database : public Parallel
         int nMicrograph() const;
         /* number of micrographs */
 
+        int nGroup() const;
+
         void update(const char database[],
                     const Table table);
 

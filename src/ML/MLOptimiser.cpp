@@ -363,7 +363,44 @@ void MLOptimiser::initParticles()
 
 void MLOptimiser::allReduceSigma()
 {
-    // TODO
+    // loop over 2D images
+    for (int i = 0; i < _img.size(); i++)
+    {
+        // reset sigma to 0
+        _sig[i].zeros();
+
+        // sort weights in particle and store its indices
+        uvec iSort = _par[i].iSort();
+
+        Coordinate5D coord;
+        double w;
+        Image img(size(), size(), FT_SPACE);
+        vec sig(_r);
+
+        // loop over sampling points with top K weights
+        for (int j = 0; j < TOP_K; j++)
+        {
+            // get coordinate
+            _par[i].coord(coord, iSort[j]);
+            // get weight
+            w = _par[i].w(iSort[j]);
+
+            // calculate differences
+            _model.proj(0).project(img, coord);
+            MUL_FT(img, _ctf[i]);
+            NEG_FT(img);
+            ADD_FT(img, _img[i]);
+
+            powerSpectrum(sig, img, _r);
+
+            // sum up the results from top K sampling points
+            _sig[i] += w * sig;
+        }
+
+        // TODO
+        // fetch groupID of img[i]
+        // average images belonging to the same group
+    }
 }
 
 void MLOptimiser::reconstructRef()
