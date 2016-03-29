@@ -47,23 +47,33 @@ void MLOptimiser::init()
     MLOG(INFO) << "Scattering _exp";
     _exp.scatter();
 
-    if (_commRank != MASTER_ID)
+    NT_MASTER
     {
         ALOG(INFO) << "Setting up Symmetry";
         _sym.init(_para.sym);
 
+        ALOG(INFO) << "Appending Initial References into _model";
         /***
         // append initial references into _model
         Volume ref;
         // TODO: read in ref
         _model.appendRef(ref);
+        ***/
 
+        ALOG(INFO) << "Initialising IDs of 2D Images";
+        initID();
+
+        ALOG(INFO) << "Initialising 2D Images";
+        /***
         // read in images from hard disk
         // apply soft mask to the images
         // perform Fourier transform
         initImg();
+        ***/
 
+        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         // apply low pass filter on initial references
+        /***
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
 
         // set paramters: _N, _r, _iter
@@ -144,10 +154,14 @@ void MLOptimiser::maximization()
 
 void MLOptimiser::run()
 {
+    MLOG(INFO) << "Initialising MLOptimiser";
     init();
 
+    MLOG(INFO) << "Entering Iteration";
     for (int i = 0; i < _para.iterMax; i++)
     {
+        MLOG(INFO) << "Round " << i;
+
         expectation();
 
         maximization();
@@ -275,7 +289,7 @@ void MLOptimiser::initCTF()
 
 void MLOptimiser::initSigma()
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER return;
 
     /* calculate average image */
 
