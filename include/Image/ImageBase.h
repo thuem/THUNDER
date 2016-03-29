@@ -49,6 +49,9 @@
 #define NEG_RL(base) \
     SCALE_RL(base, -1)
 
+#define NEG_FT(base) \
+    SCALE_FT(base, -1)
+
 #define SCALE_RL(base, a) \
     cblas_dscal(base.sizeRL(), a, &base(0), 1)
 
