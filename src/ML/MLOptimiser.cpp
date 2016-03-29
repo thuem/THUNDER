@@ -70,15 +70,20 @@ void MLOptimiser::init()
         // apply low pass filter on initial references
         /***
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
+        ***/
 
-        // set paramters: _N, _r, _iter
+        ALOG(INFO) << "Setting Parameters: _N, _r, _iter";
         allReduceN();
         _r = maxR() / 8; // start from 1 / 8 of highest frequency
         _iter = 0;
+        ALOG(INFO) << "_N = " << _N
+                   << ", _r = " << _r
+                   << ", _iter = " << _iter;
 
-        // genereate corresponding CTF
+        ALOG(INFO) << "Generating CTFs";
         initCTF();
     
+        /***
         // estimate initial sigma values
         initSigma();
 
@@ -182,15 +187,15 @@ void MLOptimiser::clear()
 
 void MLOptimiser::allReduceN()
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER return;
 
     _N = _exp.nParticle();
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, &_N, 1, MPI_INT, MPI_SUM, _hemi);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 }
 
 int MLOptimiser::size() const
@@ -227,7 +232,7 @@ void MLOptimiser::initImg()
     
     for (int i = 0; i < _ID.size(); i++)
     {
-        ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
+        // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
 
         // get the filename of the image from database
         sprintf(sql, "select Name from particles where ID = %d;", _ID[i]);
@@ -247,8 +252,10 @@ void MLOptimiser::initImg()
         // apply a soft mask on it
         softMask(_img[i], _img[i], _img[i].nColRL() / 4, EDGE_WIDTH_RL);
 
+        /***
         sprintf(imgName, "%04dMasked.bmp", _ID[i]);
         _img[i].saveRLToBMP(imgName);
+        ***/
 
         // perform Fourier Transform
         fft.fw(_img[i]);
@@ -257,6 +264,8 @@ void MLOptimiser::initImg()
 
 void MLOptimiser::initCTF()
 {
+    IF_MASTER return;
+
     // get CTF attributes from _exp
     char sql[SQL_COMMAND_LENGTH];
 
@@ -266,7 +275,7 @@ void MLOptimiser::initCTF()
     {
         // get attributes of CTF from database
         sprintf(sql,
-                "select (Voltage, DefocusU, DefocusV, DefocusAngle, CS) from \
+                "select Voltage, DefocusU, DefocusV, DefocusAngle, CS from \
                  micrographs, particles where \
                  particles.micrographID = micrographs.ID and \
                  particles.ID = %d;",
@@ -287,7 +296,7 @@ void MLOptimiser::initCTF()
         _ctf.push_back(Image(size(), size(), FT_SPACE));
 
         // initialise the CTF according to attributes given
-        CTF(*_ctf.end(),
+        CTF(_ctf.back(),
             _para.pixelSize,
             ctfAttr.voltage,
             ctfAttr.defocusU,
