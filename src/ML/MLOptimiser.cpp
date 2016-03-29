@@ -17,6 +17,16 @@ MLOptimiser::~MLOptimiser()
     clear();
 }
 
+MLOptimiserPara& MLOptimiser::para()
+{
+    return _para;
+}
+
+void MLOptimiser::setPara(const MLOptimiserPara& para)
+{
+    _para = para;
+}
+
 void MLOptimiser::init()
 {
     // set MPI environment of _model

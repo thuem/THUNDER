@@ -116,6 +116,10 @@ class MLOptimiser : public Parallel
 
         ~MLOptimiser();
 
+        MLOptimiserPara& para();
+
+        void setPara(const MLOptimiserPara& para);
+
         void init();
         /* set parameters of _model
          * setMPIEnv of _model
