@@ -39,35 +39,40 @@ void MLOptimiser::init()
     _exp.prepareTmpFile();
     _exp.scatter();
 
-    // set paramters: _N, _r, _iter
-    allReduceN();
-    _r = maxR() / 8; // start from 1 / 8 of highest frequency
-    _iter = 0;
+    if (_commRank != MASTER_ID)
+    {
+        // initialise symmetry
+        _sym.init(_para.sym);
 
-    // initialise symmetry
-    _sym.init(_para.sym);
+        /***
+        // append initial references into _model
+        Volume ref;
+        // TODO: read in ref
+        _model.appendRef(ref);
 
-    // append initial references into _model
-    Volume ref;
-    // TODO: read in ref
-    _model.appendRef(ref);
+        // read in images from hard disk
+        // apply soft mask to the images
+        // perform Fourier transform
+        initImg();
 
-    // apply low pass filter on initial references
-    _model.lowPassRef(_r, EDGE_WIDTH_FT);
+        // apply low pass filter on initial references
+        _model.lowPassRef(_r, EDGE_WIDTH_FT);
 
-    // read in images from hard disk
-    // apply soft mask to the images
-    // perform Fourier transform
-    initImg();
+        // set paramters: _N, _r, _iter
+        allReduceN();
+        _r = maxR() / 8; // start from 1 / 8 of highest frequency
+        _iter = 0;
 
-    // genereate corresponding CTF
-    initCTF();
+        // genereate corresponding CTF
+        initCTF();
     
-    // estimate initial sigma values
-    initSigma();
+        // estimate initial sigma values
+        initSigma();
 
-    // initialise a particle filter for each 2D image
-    initParticles();
+        // initialise a particle filter for each 2D image
+        initParticles();
+        ***/
+    }
 }
 
 void MLOptimiser::expectation()

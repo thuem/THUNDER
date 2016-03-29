@@ -31,6 +31,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    MPI_Init(&argc, &argv);
+
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
     para.iterMax = 30;
@@ -49,6 +51,18 @@ int main(int argc, char* argv[])
     MLOptimiser opt;
     opt.setPara(para);
 
+    cout << "MPISetting" << endl;
+    opt.setMPIEnv();
+
     cout << "Initialising" << endl;
-    opt.init();
+    try
+    {
+        opt.init();
+    }
+    catch (Error& err)
+    {
+        cout << err;
+    }
+
+    MPI_Finalize();
 }
