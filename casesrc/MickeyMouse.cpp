@@ -43,8 +43,12 @@ int main(int argc, char* argv[])
     para.maxY = MAX_Y;
     sprintf(para.sym, "C2V");
     sprintf(para.initModel, "initMode.mrc");
+    sprintf(para.db, "MickeyMouse.db");
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;
     opt.setPara(para);
+
+    cout << "Initialising" << endl;
+    opt.init();
 }

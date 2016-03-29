@@ -32,6 +32,13 @@ void MLOptimiser::init()
     // set MPI environment of _model
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    // set MPI environment of _exp
+    _exp.openDatabase(_para.db);
+    _exp.setMPIEnv(_commSize, _commRank, _hemi);
+    _exp.bcastID();
+    _exp.prepareTmpFile();
+    _exp.scatter();
+
     // set paramters: _N, _r, _iter
     allReduceN();
     _r = maxR() / 8; // start from 1 / 8 of highest frequency
