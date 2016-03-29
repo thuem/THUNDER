@@ -6,8 +6,8 @@
  * Description:
  * ****************************************************************************/
 
-#ifndef Experiment_H
-#define Experiment_H
+#ifndef EXPERIMENT_H
+#define EXPERIMENT_H
 
 #include <vector>
 #include <functional>
@@ -76,13 +76,6 @@ class Experiment : public Database
         void particleIDsGroup(vector<int>& dst,
                               const int groupID);
         /* return IDs of particles belonging to a certain group*/
-
-        /***
-        void appendParticle(const int groupID,
-                            const int micrographID,
-                            const int XOff,
-                            const int YOff);
-                            ***/
 };
 
-#endif // Experiment_H
+#endif // EXPERIMENT_H

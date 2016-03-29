@@ -6,6 +6,9 @@
  * Description:
  * ****************************************************************************/
 
+#ifndef DATABASE_H
+#define DATABASE_H
+
 #include <cstdio>
 #include <string>
 #include <cstring>
@@ -165,3 +168,5 @@ class Database : public Parallel
 
         void slaveSend();
 };
+
+#endif // DATABASE_H

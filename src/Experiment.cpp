@@ -42,5 +42,3 @@ void Experiment::particleIDsGroup(vector<int>& dst,
     dst.clear();
     GET_ID(dst, particles, GroupID, groupID);
 }
-
-

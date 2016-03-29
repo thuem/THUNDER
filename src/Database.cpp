@@ -315,7 +315,7 @@ int Database::nMicrograph() const
     int size;
 
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
-                                      "select count(*) from micrographs",
+                                      "select count(*) from micrographs;",
                                       SQLITE3_CALLBACK
                                       {
                                           *((int*)data) = atoi(values[0]);
