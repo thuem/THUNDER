@@ -363,6 +363,10 @@ void MLOptimiser::initParticles()
 
 void MLOptimiser::allReduceSigma()
 {
+
+    vector<vec>  groupPowerSpectrum;
+    vector<int>  groupSize;
+
     // loop over 2D images
     for (int i = 0; i < _img.size(); i++)
     {
@@ -401,6 +405,28 @@ void MLOptimiser::allReduceSigma()
         // fetch groupID of img[i]
         // average images belonging to the same group
     }
+    
+    // select  GroupId  from particle  as a vector 
+
+    
+    // average 
+    groupPowerSpectrum.clear();
+    groupSize.clear();
+
+    for ( i = 0; i < groupPowerSpectrum.size() ; i++  )
+    {
+        for ( f= 0;  f< groupPowerSpectrum[i].size(); f++ )
+            groupPowerSpectrum[i]. +=  
+    }
+
+
+
+
+
+
+
+
+
 }
 
 void MLOptimiser::reconstructRef()
