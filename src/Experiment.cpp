@@ -29,11 +29,6 @@ void Experiment::addColumnYOff()
     ADD_COLUMN(particles, YOff, integer);
 }
 
-void Experiment::addColumnParticleName()
-{
-    ADD_COLUMN(particles, Name, text);
-}
-
 void Experiment::particleIDsMicrograph(vector<int>& dst,
                                        const int micrographID)
 {

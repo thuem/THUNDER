@@ -196,12 +196,13 @@ void Database::createTableParticles()
             sqlite3_exec(_db,
                          "create table particles( \
                                   ID integer primary key, \
+                                  Name text, \
                                   GroupID integer not null, \
                                   MicrographID integer not null);",
                          NULL, NULL, NULL));
     
-    const char sql[] = "insert into particles (GroupID, MicrographID) \
-                        values (?, ?)";
+    const char sql[] = "insert into particles (Name, GroupID, MicrographID) \
+                        values (?, ?, ?)";
     SQLITE3_HANDLE_ERROR(
             sqlite3_prepare_v2(_db,
                                sql,
@@ -271,16 +272,23 @@ void Database::appendMicrograph(const char name[],
     SQLITE3_HANDLE_ERROR(sqlite3_reset(_stmtAppendMicrograph));
 }
 
-void Database::appendParticle(const int groupID,
+void Database::appendParticle(const char name[],
+                              const int groupID,
                               const int micrographID)
 {
     SQLITE3_HANDLE_ERROR(
-            sqlite3_bind_int(_stmtAppendParticle,
-                             1,
-                             groupID));
+            sqlite3_bind_text(_stmtAppendParticle,
+                              1,
+                              name,
+                              strlen(name),
+                              SQLITE_TRANSIENT));
     SQLITE3_HANDLE_ERROR(
             sqlite3_bind_int(_stmtAppendParticle,
                              2,
+                             groupID));
+    SQLITE3_HANDLE_ERROR(
+            sqlite3_bind_int(_stmtAppendParticle,
+                             3,
                              micrographID));
     SQLITE3_HANDLE_ERROR(sqlite3_step(_stmtAppendParticle));
     SQLITE3_HANDLE_ERROR(sqlite3_reset(_stmtAppendParticle));

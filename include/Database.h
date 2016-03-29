@@ -123,7 +123,8 @@ class Database : public Parallel
                               const double CS,
                               const int id = -1);
 
-        void appendParticle(const int groupID,
+        void appendParticle(const char name[],
+                            const int groupID,
                             const int micrographID);
         
         int nParticle() const;

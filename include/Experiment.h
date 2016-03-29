@@ -69,8 +69,6 @@ class Experiment : public Database
 
         void addColumnYOff();
 
-        void addColumnParticleName();
-
         void particleIDsMicrograph(vector<int>& dst,
                                    const int micrographID);
         /* return IDs of particles belonging to a certain micrograph */
