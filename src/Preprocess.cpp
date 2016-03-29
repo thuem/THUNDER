@@ -30,7 +30,7 @@ void Preprocess::run()
 {
     _exp.openDatabase(_para.db);
 
-    _exp.BcastID();
+    _exp.bcastID();
 
     _exp.setMPIEnv(_commSize, _commRank, _hemi);
 

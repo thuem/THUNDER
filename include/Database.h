@@ -89,7 +89,7 @@ class Database : public Parallel
 
         ~Database();
 
-        void BcastID();
+        void bcastID();
         /* generate and broadcast an unique ID */
 
         int mode() const;
@@ -103,6 +103,8 @@ class Database : public Parallel
         void saveDatabase(const char database[]);
 
         void saveDatabase(const int rank);
+
+        void createTables();
 
         void createTableGroups();
 

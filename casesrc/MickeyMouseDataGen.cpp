@@ -14,6 +14,7 @@
 #include "ImageFile.h"
 #include "Particle.h"
 #include "CTF.h"
+#include "Experiment.h"
 
 #define PF 2
 
@@ -100,6 +101,11 @@ int main(int argc, char* argv[])
         THETA,
         CS);
 
+    cout << "Initialising Experiment" << endl;
+    Experiment exp("MickeyMouse.db");
+    exp.createTables();
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS, 1);
+
     char name[256];
 
     Image image(N, N, FT_SPACE);
@@ -127,7 +133,7 @@ int main(int argc, char* argv[])
 
         ADD_RL(image, noise);
 
-        printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
+        printf("image: mean = %f, stddev = %f, maxValue = %f\n",
               gsl_stats_mean(&image(0), 1, image.sizeRL()),
               gsl_stats_sd(&image(0), 1, image.sizeRL()),
               image(cblas_idamax(image.sizeRL(), &image(0), 1)));

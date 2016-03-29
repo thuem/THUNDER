@@ -29,7 +29,7 @@ Database::~Database()
     SQLITE3_HANDLE_ERROR(sqlite3_close(_db));
 }
 
-void Database::BcastID()
+void Database::bcastID()
 {
     if (_commRank == 0)
     {
@@ -141,6 +141,13 @@ void Database::saveDatabase(const int rank)
 
     sql = "detach database dst;";
     SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql.c_str(), NULL, NULL, NULL));
+}
+
+void Database::createTables()
+{
+    createTableGroups();
+    createTableMicrographs();
+    createTableParticles();
 }
 
 void Database::createTableGroups()

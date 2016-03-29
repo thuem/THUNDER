@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
         db.setMPIEnv();
 
-        db.BcastID();
+        db.bcastID();
         db.prepareTmpFile();
 
         db.setMode(MICROGRAPH_MODE);
