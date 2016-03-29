@@ -27,8 +27,6 @@
 
 #define TOP_K 20
 
-#define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
-
 using namespace arma;
 
 using namespace std;
