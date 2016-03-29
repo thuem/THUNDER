@@ -97,7 +97,7 @@ void MLOptimiser::expectation()
                 size(),
                 FT_SPACE);
 
-    for (int l = 0; l < _img.size(); l++)
+    FOR_EACH_2D_IMAGE
     {
         stringstream ss;
         ss << "Particle" << l << ".par";
@@ -225,7 +225,7 @@ void MLOptimiser::initImg()
     char sql[SQL_COMMAND_LENGTH];
     char imgName[FILE_NAME_LENGTH];
 
-    for (int l = 0; l < _ID.size(); l++)
+    FOR_EACH_2D_IMAGE
     {
         // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
 
@@ -247,7 +247,6 @@ void MLOptimiser::initImg()
         imf.readImage(_img.back());
 
         // apply a soft mask on it
-        // softMask(_img[i], _img[i], _img[i].nColRL() / 4, EDGE_WIDTH_RL);
         softMask(_img.back(),
                  _img.back(),
                  _img.back().nColRL() / 4,
@@ -273,7 +272,7 @@ void MLOptimiser::initCTF()
 
     CTFAttr ctfAttr;
 
-    for (int l = 0; l < _ID.size(); l++)
+    FOR_EACH_2D_IMAGE
     {
         // get attributes of CTF from database
         sprintf(sql,
@@ -312,16 +311,14 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
-    for (int i = 0; i < _ID.size(); i++)
+    FOR_EACH_2D_IMAGE
         _sig.push_back(vec(maxR()));
-
-    IF_MASTER return;
 
     ALOG(INFO) << "Calculating Average Image";
 
     Image avg = _img[0];
 
-    for (int l = 1; l < _img.size(); l++)
+    for (int l = 1; l < _ID.size(); l++)
         ADD_FT(avg, _img[l]);
 
     MPI_Barrier(_hemi);
@@ -341,7 +338,7 @@ void MLOptimiser::initSigma()
 
     vec avgPs(maxR(), fill::zeros);
     vec ps(maxR());
-    for (int l = 0; l < _img.size(); l++)
+    FOR_EACH_2D_IMAGE
     {
         powerSpectrum(ps, _img[l], maxR());
         cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
@@ -374,7 +371,7 @@ void MLOptimiser::initSigma()
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
     _sig[0] = (avgPs - psAvg) / 2;
-    for (int l = 1; l < _sig.size(); l++)
+    FOR_EACH_2D_IMAGE
         _sig[l] = _sig[0];
 
     // ALOG(INFO) << "Initial Sigma is " << endl << _sig[0];
@@ -384,10 +381,10 @@ void MLOptimiser::initParticles()
 {
     IF_MASTER return;
 
-    for (int l = 0; l < _img.size(); l++)
+    FOR_EACH_2D_IMAGE
         _par.push_back(Particle());
 
-    for (int l = 0; l < _img.size(); l++)
+    FOR_EACH_2D_IMAGE
         _par[l].init(_para.m,
                      _para.maxX,
                      _para.maxY,
@@ -407,13 +404,13 @@ void MLOptimiser::initParticles()
 void MLOptimiser::allReduceSigma()
 {
     // loop over 2D images
-    for (int i = 0; i < _img.size(); i++)
+    FOR_EACH_2D_IMAGE
     {
         // reset sigma to 0
-        _sig[i].zeros();
+        _sig[l].zeros();
 
         // sort weights in particle and store its indices
-        uvec iSort = _par[i].iSort();
+        uvec iSort = _par[l].iSort();
 
         Coordinate5D coord;
         double w;
@@ -421,23 +418,23 @@ void MLOptimiser::allReduceSigma()
         vec sig(_r);
 
         // loop over sampling points with top K weights
-        for (int j = 0; j < TOP_K; j++)
+        for (int m = 0; m < TOP_K; m++)
         {
             // get coordinate
-            _par[i].coord(coord, iSort[j]);
+            _par[l].coord(coord, iSort[m]);
             // get weight
-            w = _par[i].w(iSort[j]);
+            w = _par[l].w(iSort[m]);
 
             // calculate differences
             _model.proj(0).project(img, coord);
-            MUL_FT(img, _ctf[i]);
+            MUL_FT(img, _ctf[l]);
             NEG_FT(img);
-            ADD_FT(img, _img[i]);
+            ADD_FT(img, _img[l]);
 
             powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
-            _sig[i] += w * sig;
+            _sig[l] += w * sig;
         }
 
         // TODO
@@ -457,6 +454,5 @@ double dataVSPrior(const Image& A,
                    const vec& sig,
                    const int r)
 {
-    // Todo
+    // TODO
 }
-
