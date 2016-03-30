@@ -21,7 +21,10 @@ Particle::Particle(const int N,
 Particle::~Particle()
 {
     if (_r != NULL)
+    {
         free_matrix2(_r);
+        _r = NULL;
+    }
 }
 
 void Particle::init(const int N,

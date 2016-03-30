@@ -107,7 +107,7 @@ void MLOptimiser::expectation()
 
     FOR_EACH_2D_IMAGE
     {
-        ILOG(INFO) << "Performing Expection on Particle " << _ID[l];
+        ILOG(INFO) << "Performing Expectation on Particle " << _ID[l];
         /***
         stringstream ss;
         ss << "Particle" << l << ".par";
@@ -425,6 +425,7 @@ void MLOptimiser::initParticles()
 {
     IF_MASTER return;
 
+    /***
     FOR_EACH_2D_IMAGE
         _par.push_back(Particle());
 
@@ -433,8 +434,9 @@ void MLOptimiser::initParticles()
                      _para.maxX,
                      _para.maxY,
                      &_sym);
-    /***
-    for (int l = 0; l < _img.size(); l++)
+                     ***/
+
+    FOR_EACH_2D_IMAGE
     {
         _par.push_back(Particle());
         _par.back().init(_para.m,
@@ -442,7 +444,6 @@ void MLOptimiser::initParticles()
                          _para.maxY,
                          &_sym);
     }
-    ***/
 }
 
 void MLOptimiser::allReduceSigma()
