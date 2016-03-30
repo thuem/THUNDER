@@ -511,17 +511,17 @@ double dataVSPrior(const Image& dat,
                    const vec& sig,
                    const int r)
 {
-    double result = 1;
+    double result = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
         double u = NORM(i, j);
         if (u < r )
-            result *= exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                        / (-2 * sig(AROUND(u))));
+            result += ABS2(dat.getFT(i, j)
+                         - ctf.getFT(i, j)
+                         * pri.getFT(i, j))
+                    / (-2 * sig(AROUND(u)));
     }
 
-    return result;
+    return exp(result);
 }
