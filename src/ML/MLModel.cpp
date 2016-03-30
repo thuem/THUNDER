@@ -41,6 +41,11 @@ void MLModel::initProjReco()
     setMPIEnv(_commSize, _commRank, _hemi);
 }
 
+Volume& MLModel::ref(const int i)
+{
+    return _ref[i];
+}
+
 void MLModel::appendRef(const Volume& ref)
 {
     _ref.push_back(ref);
