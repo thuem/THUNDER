@@ -173,12 +173,14 @@ void Reconstructor::allReduceW()
     
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
-            _W.setFT(_W.getFT(i, j, k, conjugateNo)
-                   / (1 + REAL(_C.getFT(i, j, k, conjugateNo))),
+        {
+            double c = REAL(_C.getFT(i, j, k, conjugateNo));
+            _W.setFT(2 * c * _W.getFT(i, j, k, conjugateNo) / (1 + gsl_pow_2(c)),
                      i,
                      j,
                      k,
                      conjugateNo);
+        }
         else
             _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
 }
