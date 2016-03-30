@@ -172,10 +172,11 @@ class MLOptimiser : public Parallel
         void reconstructRef();
 };
 
-double dataVSPrior(const Image& A,
-                   const Image& B,
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
                    const Image& ctf,
                    const vec& sig,
                    const int r);
+// dat -> data, pri -> prior, ctf
 
 #endif // ML_OPTIMSER_H

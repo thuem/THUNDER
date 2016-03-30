@@ -126,7 +126,6 @@ void MLOptimiser::expectation()
             _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
 
-            /***
             double w = dataVSPrior(image,
                                    _img[l],
                                    _ctf[l],
@@ -134,7 +133,6 @@ void MLOptimiser::expectation()
                                    _r);
 
             _par[l].mulW(w, m);
-            ***/
         }
         _par[l].normW();
 
@@ -511,11 +509,21 @@ void MLOptimiser::reconstructRef()
     _model.reco(0).reconstruct(_model.ref(0));
 }
 
-double dataVSPrior(const Image& A,
-                   const Image& B,
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
                    const Image& ctf,
                    const vec& sig,
                    const int r)
 {
-    // TODO
+    double result = 1;
+
+    IMAGE_FOR_EACH_PIXEL_FT(pri)
+    {
+        double u = NORM(i, j);
+        if (u < r )
+            result *= exp(ABS2(dat.getFT(i, j)
+                             - ctf.getFT(i, j)
+                             * pri.getFT(i, j))
+                        / (-2 * sig(AROUND(u))));
+    }
 }
