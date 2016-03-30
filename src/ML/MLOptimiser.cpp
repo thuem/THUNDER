@@ -425,7 +425,6 @@ void MLOptimiser::initParticles()
 {
     IF_MASTER return;
 
-    /***
     FOR_EACH_2D_IMAGE
         _par.push_back(Particle());
 
@@ -434,8 +433,8 @@ void MLOptimiser::initParticles()
                      _para.maxX,
                      _para.maxY,
                      &_sym);
-                     ***/
 
+    /***
     FOR_EACH_2D_IMAGE
     {
         _par.push_back(Particle());
@@ -444,6 +443,7 @@ void MLOptimiser::initParticles()
                          _para.maxY,
                          &_sym);
     }
+    ***/
 }
 
 void MLOptimiser::allReduceSigma()
