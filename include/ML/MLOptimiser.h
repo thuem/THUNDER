@@ -153,6 +153,8 @@ class MLOptimiser : public Parallel
         int maxR() const;
         /* max value of _r */
 
+        void initRef();
+
         void initID();
         /* save IDs from database */
 

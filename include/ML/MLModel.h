@@ -21,13 +21,14 @@
 #include "Filter.h"
 #include "Spectrum.h"
 #include "Projector.h"
+#include "Symmetry.h"
 #include "Reconstructor.h"
 
 using namespace std;
 using namespace arma;
 
 #define FOR_EACH_CLASS \
-    for (int i = 0; i < size(); i++)
+    for (int i = 0; i < K(); i++)
 
 class MLModel : public Parallel
 {
@@ -57,6 +58,8 @@ class MLModel : public Parallel
 
         double _alpha;
 
+        const Symmetry* _sym = NULL;
+
     public:
 
         MLModel();
@@ -67,7 +70,8 @@ class MLModel : public Parallel
                   const int pf,
                   const double pixelSize,
                   const double a,
-                  const double alpha);
+                  const double alpha,
+                  const Symmetry* sym);
 
         void initProjReco();
         /* initialise Projectors and Reconstructors */

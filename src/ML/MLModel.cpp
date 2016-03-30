@@ -21,24 +21,31 @@ void MLModel::init(const int r,
                    const int pf,
                    const double pixelSize,
                    const double a,
-                   const double alpha)
+                   const double alpha,
+                   const Symmetry* sym)
 {
     _r = r;
     _pf = pf;
     _pixelSize = pixelSize;
     _a = a;
     _alpha = alpha;
+    _sym = sym;
 }
 
 void MLModel::initProjReco()
 {
-    /* initialise Projector */
+    ALOG(INFO) << "Appending Projectors and Reconstructors";
+    FOR_EACH_CLASS
+    {
+        _proj.push_back(Projector());
+        _reco.push_back(Reconstructor());
+    }
+
+    ALOG(INFO) << "Refreshing Projectors";
     refreshProj();
 
-    /* TODO: initialise Reconstructor */
-
-    /* setMPIEnv of Reconstructor */
-    setMPIEnv(_commSize, _commRank, _hemi);
+    ALOG(INFO) << "Refreshing Reconstructors";
+    refreshReco();
 }
 
 Volume& MLModel::ref(const int i)
@@ -200,8 +207,12 @@ void MLModel::refreshProj()
 
 void MLModel::refreshReco()
 {
-    /* TODO: reset paramaters of Reconstructor without re-allocating memory
-     * space */
+    FOR_EACH_CLASS
+        _reco[i].init(size() / _pf,
+                      _pf,
+                      _sym,
+                      _a,
+                      _alpha);
 }
 
 void MLModel::updateR()

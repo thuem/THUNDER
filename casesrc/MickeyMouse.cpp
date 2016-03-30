@@ -25,7 +25,7 @@
 
 #define PIXEL_SIZE 1.32
 
-#define M 6000
+#define M 1000
 
 using namespace std;
 
@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
-    para.iterMax = 30;
+    para.iterMax = 1;
     para.pf = PF;
     para.a = 1.9;
     para.alpha = 10;
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
     sprintf(para.sym, "C2V");
-    sprintf(para.initModel, "initMode.mrc");
+    sprintf(para.initModel, "sphere.mrc");
     sprintf(para.db, "MickeyMouse.db");
 
     cout << "Setting Parameters" << endl;
@@ -56,8 +56,8 @@ int main(int argc, char* argv[])
     cout << "MPISetting" << endl;
     opt.setMPIEnv();
 
-    cout << "Initialising" << endl;
-    opt.init();
+    cout << "Run" << endl;
+    opt.run();
 
     MPI_Finalize();
 }

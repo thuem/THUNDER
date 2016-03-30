@@ -32,6 +32,17 @@ void MLOptimiser::init()
     MLOG(INFO) << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    MLOG(INFO) << "Setting up Symmetry";
+    _sym.init(_para.sym);
+
+    MLOG(INFO) << "Passing Parameters to _model";
+    _model.init(0,
+                _para.pf,
+                _para.pixelSize,
+                _para.a,
+                _para.alpha,
+                &_sym);
+
     MLOG(INFO) << "Openning Database File";
     _exp.openDatabase(_para.db);
 
@@ -49,28 +60,14 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
-        ALOG(INFO) << "Setting up Symmetry";
-        _sym.init(_para.sym);
-
         ALOG(INFO) << "Appending Initial References into _model";
-        /***
-        // append initial references into _model
-        Volume ref;
-        // TODO: read in ref
-        _model.appendRef(ref);
-        ***/
+        initRef();
 
         ALOG(INFO) << "Initialising IDs of 2D Images";
         initID();
 
         ALOG(INFO) << "Initialising 2D Images";
         initImg();
-
-        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
-        // apply low pass filter on initial references
-        /***
-        _model.lowPassRef(_r, EDGE_WIDTH_FT);
-        ***/
 
         ALOG(INFO) << "Setting Parameters: _N, _r, _iter";
         allReduceN();
@@ -79,6 +76,12 @@ void MLOptimiser::init()
         ALOG(INFO) << "_N = " << _N
                    << ", _r = " << _r
                    << ", _iter = " << _iter;
+
+        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
+        _model.lowPassRef(_r, EDGE_WIDTH_FT);
+
+        ALOG(INFO) << "Setting Up Projectors and Reconstructors of _model";
+        _model.initProjReco();
 
         ALOG(INFO) << "Generating CTFs";
         initCTF();
@@ -93,16 +96,21 @@ void MLOptimiser::init()
 
 void MLOptimiser::expectation()
 {
+    IF_MASTER return;
+
     Image image(size(),
                 size(),
                 FT_SPACE);
 
     FOR_EACH_2D_IMAGE
     {
+        ILOG(INFO) << "Performing Expection on Particle " << _ID[l];
+        /***
         stringstream ss;
         ss << "Particle" << l << ".par";
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
+        ***/
 
         if (_par[l].neff() < _par[l].N() / 3)
             _par[l].resample();
@@ -115,6 +123,7 @@ void MLOptimiser::expectation()
             _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
 
+            /***
             double w = dataVSPrior(image,
                                    _img[l],
                                    _ctf[l],
@@ -122,9 +131,11 @@ void MLOptimiser::expectation()
                                    _r);
 
             _par[l].mulW(w, m);
+            ***/
         }
         _par[l].normW();
 
+        /***
         // Save particles
         vec4 q;
         vec2 t;
@@ -138,6 +149,7 @@ void MLOptimiser::expectation()
                           _par[l].w(m));
         }
         fclose(file);
+        ***/
     }
 }
 
@@ -153,26 +165,32 @@ void MLOptimiser::maximization()
 void MLOptimiser::run()
 {
     MLOG(INFO) << "Initialising MLOptimiser";
+
     init();
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO) << "Entering Iteration";
     for (int l = 0; l < _para.iterMax; l++)
     {
         MLOG(INFO) << "Round " << l;
 
+        MLOG(INFO) << "Performing Expectation";
         expectation();
 
+        /***
         maximization();
 
-        /* calculate FSC */
+        // calculate FSC
         _model.BcastFSC();
 
-        /* record current resolution */
+        // record current resolution
         _res = _model.resolutionP();
 
-        /* update the radius of frequency for computing */
+        // update the radius of frequency for computing
         _model.updateR();
         _r = _model.r() / _para.pf;
+        ***/
     }
 }
 
@@ -204,6 +222,29 @@ int MLOptimiser::size() const
 int MLOptimiser::maxR() const
 {
     return size() / 2 - 1;
+}
+
+void MLOptimiser::initRef()
+{
+    _model.appendRef(Volume());
+
+    ALOG(INFO) << "Read Initial Model from Hard-disk";
+
+    ImageFile imf(_para.initModel, "rb");
+    imf.readMetaData();
+    imf.readVolume(_model.ref(0));
+
+    ALOG(INFO) << "Size of the Initial Model is: "
+               << _model.ref(0).nColRL()
+               << " X "
+               << _model.ref(0).nRowRL()
+               << " X "
+               << _model.ref(0).nSlcRL();
+
+    // perform fourier transformation
+    FFT fft;
+    fft.fw(_model.ref(0));
+    _model.ref(0).clearRL();
 }
 
 void MLOptimiser::initID()
@@ -446,17 +487,24 @@ void MLOptimiser::allReduceSigma()
 
 void MLOptimiser::reconstructRef()
 {
-    // TODO
-    for (int i = 0; i < _img.size(); i++) {
-        for (int j = 0; j < _par[i].N(); j++) {
-    		// insert particle
-    		Coordinate5D c5D;
-    		_par[i].coord(c5D, j);
-    		_model.reco(0).insert(_img[i], c5D, _par[i].w(j));
-    	}
+    FOR_EACH_2D_IMAGE
+    {
+        uvec iSort = _par[l].iSort();
+
+        Coordinate5D coord;
+        double w;
+        for (int m = 0; m < TOP_K; m++)
+        {
+            // get coordinate
+            _par[l].coord(coord, iSort[m]);
+            // get weight
+            w = _par[l].w(iSort[m]);
+
+            _model.reco(0).insert(_img[l], coord, w);
+        }
     }
-    Volume newRef;
-    _model.reco(0).reconstruct(newRef) //?????????????????
+
+    _model.reco(0).reconstruct(_model.ref(0));
 }
 
 double dataVSPrior(const Image& A,
