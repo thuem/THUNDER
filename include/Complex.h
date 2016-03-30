@@ -52,4 +52,8 @@ Complex operator*(double x, Complex a);
 
 void operator*=(Complex& a, double x);
 
+Complex operator/(Complex a, double x);
+
+void operator/=(Complex a, double x);
+
 #endif // COMPLEX_H
