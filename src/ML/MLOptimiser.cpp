@@ -225,11 +225,54 @@ void MLOptimiser::initSigma()
 void MLOptimiser::allReduceSigma()
 {
     // TODO
+    for (int i = 0; i < _img.size(); i++) {
+    	Image sum(_img[0]);
+    	for(int j = 0; j < _par[i].N(); j++) {
+    		Coordinate5D c5D;
+    		_par[i].coord(c5D, j);
+    		// project
+    		Projector proj = _model.proj(0);
+    		Image dst;
+    		proj.project(dst, c5D);
+    		// dst = ctf * dst
+    		for(int x = 0; x < _img[i].nColFT(); x++) {
+    			for(int y = 0; y < _img[i].nRowFT(); y++) {
+    				dst.setFT(_ctf[i].getFT(x, y) * dst.getFT(x, y), x, y);
+    			}
+    		}
+    		// sum = img[i] - dst
+    		for(int x = 0; x < _img[i].nColFT(); x++) {
+    			for(int y = 0; y < _img[i].nRowFT(); y++) {
+    				sum.setFT(_img[i].getFT(x, y) - dst.getFT(x, y), x, y);
+    			}
+    		}
+    		// sum = sum^2
+    		for(int x = 0; x < _img[i].nColFT(); x++) {
+    			for(int y = 0; y < _img[i].nRowFT(); y++) {
+    				sum.setFT(sum.getFT(x, y) * sum.getFT(x, y), x, y);
+    			}
+    		}
+    		// ringAverage
+    	}
+    	for (int friquency = 0; friquency < _r; friquency++) {
+    		//caculate sigma per each image and each friquency
+    	}
+    }
 }
 
 void MLOptimiser::reconstructRef()
 {
     // TODO
+    for (int i = 0; i < _img.size(); i++) {
+        for (int j = 0; j < _par[i].N(); j++) {
+    		// insert particle
+    		Coordinate5D c5D;
+    		_par[i].coord(c5D, j);
+    		_model.reco(0).insert(_img[i], c5D, _par[i].w(j));
+    	}
+    }
+    Volume newRef;
+    _model.reco(0).reconstruct(newRef) //?????????????????
 }
 
 double dataVSPrior(const Image& A,
