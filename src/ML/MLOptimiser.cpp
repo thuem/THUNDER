@@ -80,6 +80,9 @@ void MLOptimiser::init()
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
 
+        ALOG(INFO) << "Seting maxRadius of _model";
+        _model.setR(_r);
+
         ALOG(INFO) << "Setting Up Projectors and Reconstructors of _model";
         _model.initProjReco();
 
