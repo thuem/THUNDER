@@ -44,17 +44,29 @@ using namespace arma;
     }(dst, src, pf)
 
 #define SLC_REPLACE_RL(dst, src, k) \
+    SLC_REPLACE(RL, dst, src, k)
+
+#define SLC_REPLACE_FT(dst, src, k) \
+    SLC_REPLACE(FT, dst, src, k)
+
+#define SLC_REPLACE(SP, dst, src, k) \
     [](Volume& _dst, const Image& _src, const int _k) \
     { \
-        IMAGE_FOR_EACH_PIXEL_RL(_src) \
-            _dst.setRL(_src.getRL(i, j), i, j, _k); \
+        IMAGE_FOR_EACH_PIXEL_##SP(_src) \
+            _dst.set##SP(_src.get##SP(i, j), i, j, _k); \
     }(dst, src, k)
 
 #define SLC_EXTRACT_RL(dst, src, k) \
+    SLC_EXTRACT(RL, dst, src, k)
+
+#define SLC_EXTRACT_FT(dst, src, k) \
+    SLC_EXTRACT(FT, dst, src, k)
+
+#define SLC_EXTRACT(SP, dst, src, k) \
     [](Image& _dst, const Volume& _src, const int _k) \
     { \
-        IMAGE_FOR_EACH_PIXEL_RL(_dst) \
-            _dst.setRL(_src.getRL(i, j, _k), i, j); \
+        IMAGE_FOR_EACH_PIXEL_##SP(_dst) \
+            _dst.set##SP(_src.get##SP(i, j, _k), i, j); \
     }(dst, src, k)
 
 void translate(Image& dst,

@@ -26,7 +26,7 @@ ImageBase& ImageBase::operator=(const ImageBase& that)
 
     if (!that.isEmptyRL())
     {
-        _dataRL = new double [_sizeRL];
+        _dataRL = new double[_sizeRL];
         memcpy(_dataRL, &that.iGetRL(), sizeof(double) * _sizeRL);
     }
 
@@ -104,11 +104,11 @@ double norm(ImageBase& base)
 
 void normalise(ImageBase& base)
 {
-    /***
-    gsl_vector vec;
-    vec.size = base.sizeRL();
-    vec.data = &base(0);
+    double mean = gsl_stats_mean(&base(0), 1, base.sizeRL());
+    double stddev = gsl_stats_sd_m(&base(0), 1, base.sizeRL(), mean);
 
-    normalise(vec);
-    ***/
+    FOR_EACH_PIXEL_RL(base)
+        base(i) -= mean;
+
+    SCALE_RL(base, 1.0 / stddev);
 }

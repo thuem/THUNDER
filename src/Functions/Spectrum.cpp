@@ -15,20 +15,18 @@ double nyquist(const double pixelSize)
     return 2 / pixelSize;
 }
 
-void resP2A(double& resA,
-            const double resP,
-            const int imageSize,
-            const double pixelSize)
+double resP2A(const double resP,
+              const int imageSize,
+              const double pixelSize)
 {
-    resA = resP / imageSize / pixelSize;
+    return resP / imageSize / pixelSize;
 }
 
-void resA2P(double& resP,
-            const double resA,
-            const int imageSize,
-            const double pixelSize)
+double resA2P(const double resA,
+              const int imageSize,
+              const double pixelSize)
 {
-    resP =  resA * imageSize * pixelSize;
+    return resA * imageSize * pixelSize;
 }
 
 void resP2A(vec& res,
@@ -61,8 +59,26 @@ double ringAverage(const int resP,
     return result / counter;
 }
 
+double ringAverage(const int resP,
+                   const Image& img,
+                   const function<double(const Complex)> func)
+{
+    double result = 0;
+    int counter = 0;
+
+    IMAGE_FOR_EACH_PIXEL_FT(img)
+        if (AROUND(NORM(i, j)) == resP)
+        {
+            result += func(img.getFT(i, j));
+            counter++;
+        }
+
+    return result / counter;
+}
+
 double shellAverage(const int resP,
-                    const Volume& vol)
+                    const Volume& vol,
+                    const function<double(const Complex)> func)
 {
     double result = 0;
     int counter = 0;
@@ -70,7 +86,7 @@ double shellAverage(const int resP,
     VOLUME_FOR_EACH_PIXEL_FT(vol)
         if (AROUND(NORM_3(i, j, k)) == resP)
         {
-            result += ABS(vol.getFT(i, j, k));
+            result += func(vol.getFT(i, j, k));
             counter++;
         }
 
@@ -82,7 +98,7 @@ void powerSpectrum(vec& dst,
                    const int r)
 {
     for (int i = 0; i < r; i++)
-        dst(i) = ringAverage(i, src);
+        dst(i) = ringAverage(i, src, [](const Complex x){ return ABS2(x); });
 }
 
 void powerSpectrum(vec& dst,
@@ -90,7 +106,7 @@ void powerSpectrum(vec& dst,
                    const int r)
 {
     for (int i = 0; i < r; i++)
-        dst(i) = shellAverage(i, src);
+        dst(i) = shellAverage(i, src, [](const Complex x){ return ABS2(x); });
 }
 
 void FRC(vec& dst,

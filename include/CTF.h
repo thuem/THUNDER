@@ -15,6 +15,8 @@
 #include "Functions.h"
 #include "Image.h"
 
+#define CTF_A 0.19
+
 void CTF(Image& dst,
          const double pixelSize,
          const double voltage,
@@ -22,5 +24,11 @@ void CTF(Image& dst,
          const double defocusV,
          const double theta,
          const double Cs);
+/* pixelSize : Angstrom
+ * voltage : V 
+ * defocusU : Angstrom
+ * defocusV : Angstrom
+ * theta : rad
+ * Cs */
 
 #endif // CTF_H

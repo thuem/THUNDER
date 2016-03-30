@@ -25,6 +25,8 @@
 #include "Functions.h"
 #include "Symmetry.h"
 
+#define TOP_K 20
+
 using namespace arma;
 
 using namespace std;
@@ -49,7 +51,7 @@ class Particle
 
         vec _w; // weight
         
-        const Symmetry* _sym;
+        const Symmetry* _sym = NULL;
 
         double _k0 = 0;
         double _k1 = 0;
@@ -105,6 +107,9 @@ class Particle
         void resample();
 
         double neff() const;
+
+        uvec iSort() const;
+        /* return the index of sorting in descending order */
     
     private:
 

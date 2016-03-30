@@ -6,6 +6,9 @@
  * Description:
  * ****************************************************************************/
 
+#ifndef DATABASE_H
+#define DATABASE_H
+
 #include <cstdio>
 #include <string>
 #include <cstring>
@@ -89,7 +92,7 @@ class Database : public Parallel
 
         ~Database();
 
-        void BcastID();
+        void bcastID();
         /* generate and broadcast an unique ID */
 
         int mode() const;
@@ -103,6 +106,8 @@ class Database : public Parallel
         void saveDatabase(const char database[]);
 
         void saveDatabase(const int rank);
+
+        void createTables();
 
         void createTableGroups();
 
@@ -118,10 +123,11 @@ class Database : public Parallel
                               const double defocusU,
                               const double defocusV,
                               const double defocusAngle,
-                              const double CA,
+                              const double CS,
                               const int id = -1);
 
-        void appendParticle(const int groupID,
+        void appendParticle(const char name[],
+                            const int groupID,
                             const int micrographID);
         
         int nParticle() const;
@@ -129,6 +135,8 @@ class Database : public Parallel
 
         int nMicrograph() const;
         /* number of micrographs */
+
+        int nGroup() const;
 
         void update(const char database[],
                     const Table table);
@@ -162,3 +170,5 @@ class Database : public Parallel
 
         void slaveSend();
 };
+
+#endif // DATABASE_H

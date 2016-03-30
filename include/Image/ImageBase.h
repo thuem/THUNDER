@@ -49,30 +49,37 @@
 #define NEG_RL(base) \
     SCALE_RL(base, -1)
 
+#define NEG_FT(base) \
+    SCALE_FT(base, -1)
+
 #define SCALE_RL(base, a) \
     cblas_dscal(base.sizeRL(), a, &base(0), 1)
+
+#define SCALE_FT(base, a) \
+    FOR_EACH_PIXEL_FT(base) \
+        base[i] *= a
 
 #define ADD_RL(a, b) \
     cblas_daxpy(a.sizeRL(), 1, &b(0), 1, &a(0), 1);
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] += b[i]
+        (a)[i] += (b)[i]
 
 #define SUB_RL(a, b) \
     cblas_daxpy(a.sizeRL(), -1, &b(0), 1, &a(0), 1);
 
 #define SUB_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] -= b[i]
+        (a)[i] -= (b)[i]
 
 #define MUL_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] *= b[i]
+        (a)[i] *= (b)[i]
 
 #define DIV_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
-        a[i] /= b[i]
+        (a)[i] /= (b)[i]
 
 class ImageBase
 {

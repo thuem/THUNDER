@@ -11,6 +11,8 @@
 #ifndef SPECTRUM_H
 #define SPECTRUM_H
 
+#include <functional>
+
 #include <armadillo>
 
 #include "Error.h"
@@ -48,12 +50,14 @@ void resA2P(vec& res,
 /* convert the resolution from 1/Angstrom to pixel */
 
 double ringAverage(const int resP,
-                   const Image& img);
-/* calculate ring average of modulus at given resolution */
+                   const Image& img,
+                   const function<double(const Complex)> func); 
+/* calculate ring average at given resolution */
 
 double shellAverage(const int resP,
-                    const Volume& vol);
-/* calculate shell average of modulus at given resolution */
+                    const Volume& vol,
+                    const function<double(const Complex)> func);
+/* calculate shell average at given resolution */
 
 void powerSpectrum(vec& dst,
                    const Image& src,

@@ -13,8 +13,9 @@
 #include "FFT.h"
 #include "Mask.h"
 #include "ImageFile.h"
+#include "Timer.h"
 
-#define N 32
+#define N 128
 #define M 16
 
 using namespace std;
@@ -67,6 +68,8 @@ int main(int argc, char* argv[])
     char name[256];
     int counter = 0;
 
+    // vector<Image> images;
+    // images.reserve((M / (commSize - 1)) * (M / 2) * (M / 2));
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
     
@@ -85,12 +88,18 @@ int main(int argc, char* argv[])
     {
     if (commRank != MASTER_ID)
     {
+        if (commRank == 1)
+            timing();
+
         printf("Projection and Insertion\n");
         /***
         for (int k = M / 2 / numworkers * workerid;
                  k < M / 2 / numworkers * (workerid + 1);
                  k++)
                  ***/
+        int counter = 0;
+        /* for vec images */
+
         for (int k = M / (commSize - 1) * (commRank - 1);
                  k < M / (commSize - 1) * commRank;
                  k++)
@@ -105,8 +114,12 @@ int main(int argc, char* argv[])
                                        0,
                                        0);
                     projector.project(image, coord);
+                    // projector.project(images[counter], coord);
                     // C2C_RL(image, image, softMask(image, N / 4, 2));
+                    
+                    // insertCoord(images[counter++], coord, 1);
                     reconstructor.insert(image, coord, 1);
+
                     /***
                     FFT fft;
                     fft.fw(image);
@@ -133,6 +146,8 @@ int main(int argc, char* argv[])
             std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
         ***/
+        if (commRank == 1)
+            timing();
     }
     }
     catch (Error& err)
@@ -153,6 +168,9 @@ int main(int argc, char* argv[])
         imf.readMetaData(result);
         imf.writeVolume("result.mrc", result);
     }
+
+    if (commRank == 1)
+        timing();
 
     /***
     if (commRank == 1) {

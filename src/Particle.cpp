@@ -42,9 +42,9 @@ void Particle::init(const int N,
 
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
-    /* uniform bingham distribution */
+    // uniform bingham distribution
     bingham_sample(_r, &B, _N);
-    /* draw _N samples from it */
+    // draw _N samples from it
 
     for (int i = 0; i < _N; i++)
     {
@@ -57,9 +57,6 @@ void Particle::init(const int N,
     bingham_free(&B);
 
     symmetrise();
-
-    perturb();
-    /* perform a perturbation immediately */
 }
 
 int Particle::N() const { return _N; }
@@ -195,6 +192,11 @@ double Particle::neff() const
     return 1.0 / gsl_pow_2(norm(_w, 2));
 }
 
+uvec Particle::iSort() const
+{
+    return sort_index(_w, "descend");
+}
+
 void Particle::symmetrise()
 {
     double phi, theta, psi;
@@ -214,7 +216,7 @@ void Particle::symmetrise()
         }
 
         // make phi and theta in the asymetric unit
-        symmetryCounterpart(phi, theta, *_sym);
+        if (_sym != NULL) symmetryCounterpart(phi, theta, *_sym);
 
         quaternoin(quat, phi, theta, psi);
         _r[i][0] = quat(0);

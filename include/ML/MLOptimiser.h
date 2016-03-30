@@ -15,6 +15,8 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <glog/logging.h>
+
 #include "Typedef.h"
 
 #include "Image.h"
@@ -22,7 +24,8 @@
 #include "ImageFile.h"
 #include "Spectrum.h"
 #include "Symmetry.h"
-#include "Parallel.h"
+#include "CTF.h"
+#include "Mask.h"
 
 #include "Experiment.h"
 
@@ -30,7 +33,10 @@
 
 #include "MLModel.h"
 
+#define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
+
 using namespace std;
+using namespace google;
 
 typedef struct ML_OPTIMISER_PARA
 {
@@ -49,7 +55,7 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
-    int M;
+    int m;
     // number of samplings in particle filter
 
     int maxX;
@@ -58,7 +64,21 @@ typedef struct ML_OPTIMISER_PARA
 
     char sym[SYM_ID_LENGTH];
 
+    char initModel[FILE_NAME_LENGTH];
+    // the initial model for this iteration
+
+    char db[FILE_NAME_LENGTH];
+
 } MLOptimiserPara;
+
+typedef struct CTF_ATTR
+{
+    double voltage;
+    double defocusU;
+    double defocusV;
+    double defocusAngle;
+    double CS;
+} CTFAttr;
 
 class MLOptimiser : public Parallel
 {
@@ -86,6 +106,9 @@ class MLOptimiser : public Parallel
 
         Symmetry _sym; 
 
+        vector<int> _ID;
+        /* IDs for each 2D images */
+
         vector<Image> _img;
 
         vector<Particle> _par;
@@ -100,6 +123,10 @@ class MLOptimiser : public Parallel
 
         ~MLOptimiser();
 
+        MLOptimiserPara& para();
+
+        void setPara(const MLOptimiserPara& para);
+
         void init();
         /* set parameters of _model
          * setMPIEnv of _model
@@ -108,8 +135,6 @@ class MLOptimiser : public Parallel
 
         //Yu Hongkun ,Wang Kunpeng
         void expectation();
-
-        void initParticles();
 
         //Guo Heng, Li Bing
         void maximization();
@@ -128,7 +153,17 @@ class MLOptimiser : public Parallel
         int maxR() const;
         /* max value of _r */
 
+        void initID();
+        /* save IDs from database */
+
+        void initImg();
+        /* read 2D images from hard disk */
+
+        void initCTF();
+
         void initSigma();
+
+        void initParticles();
 
         void allReduceSigma();
 

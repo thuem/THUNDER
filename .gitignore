@@ -33,10 +33,13 @@ gpu/gpuunittest/
 bin/
 gpu/
 autom4te.cache/
+case/
 
 !unittest/Makefile.am
 !gpu/gpuunittest/Makefile.am
 !bin/Makefile.am
+
+!case/Makefile.am
 
 *.dSYM/
 

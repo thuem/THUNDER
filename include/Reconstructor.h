@@ -15,6 +15,7 @@
 
 #include <armadillo>
 #include <mpi.h>
+#include <omp.h>
 
 #include "Parallel.h"
 #include "Coordinate5D.h"
@@ -84,6 +85,9 @@ class Reconstructor : public Parallel
         void insert(const Image& src,
                     const Coordinate5D coord,
                     const double w);
+
+        // void insertCoord(const Coordinate5D coord,
+        //                  const double w);
 
         void reconstruct(Volume& dst);
 

@@ -72,6 +72,8 @@ class MLModel : public Parallel
         void initProjReco();
         /* initialise Projectors and Reconstructors */
 
+        Volume& ref(const int i);
+
         void appendRef(const Volume& ref);
 
         int K() const;

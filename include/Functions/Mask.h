@@ -17,16 +17,28 @@
 #include "Volume.h"
 #include "Interpolation.h"
 
+double background(const Image& img,
+                  const double r,
+                  const double ew);
+
+double background(const Image& img,
+                  const Image& alpha); 
+
 double background(const Volume& vol,
                   const double r,
                   const double ew);
 
-double background(const Volume& volume,
+double background(const Volume& vol,
                   const Volume& alpha);
 
-void softMask(Image& img,
+void softMask(Image& dst,
+              const Image& src,
               const double r,
               const double ew);
+
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha);
 
 void softMask(Volume& dst,
               const Volume& src,

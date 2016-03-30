@@ -71,10 +71,11 @@ void Reconstructor::insert(const Image& src,
     mat33 mat;
     rotate3D(mat, coord.phi, coord.theta, coord.psi);
 
+    #pragma omp parallel for num_threads(4)
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        vec3 newCor = {(double)i, (double)j, 0};
-        vec3 oldCor = mat * newCor *_pf;
+        arma::vec3 newCor = {(double)i, (double)j, 0};
+        arma::vec3 oldCor = mat * newCor *_pf;
         
         if (norm(oldCor) < _maxRadius)
             _F.addFT(transSrc.getFT(i, j) * w, 
@@ -90,7 +91,12 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     if (_commRank == MASTER_ID) return;
 
-    double c;
+    for (int i = 0; i < 3; i++)
+    {
+        ALOG(INFO) << "Balancing Weights Round " << i;
+        allReduceW();
+    }
+/***
     do
     {
         allReduceW();
@@ -98,6 +104,7 @@ void Reconstructor::reconstruct(Volume& dst)
         printf("checkC = %12f\n", c);
     }
     while (c > _zeta);
+***/
 
     allReduceF();
 
@@ -125,7 +132,8 @@ void Reconstructor::reconstruct(Volume& dst)
 void Reconstructor::allReduceW()
 {
     SET_0_FT(_C);
-    
+
+    #pragma omp parallel for num_threads(4)
     for (int i = 0; i < _coord.size(); i++)
     {
         mat33 mat;
@@ -163,15 +171,16 @@ void Reconstructor::allReduceW()
 
     symmetrizeC();
     
-    //some problems need to be improved: divede zero
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
-            _W.setFT(_W.getFT(i, j, k, conjugateNo)
-                   / _C.getFT(i, j, k, conjugateNo),
+        {
+            double c = REAL(_C.getFT(i, j, k, conjugateNo));
+            _W.setFT(2 * c * _W.getFT(i, j, k, conjugateNo) / (1 + gsl_pow_2(c)),
                      i,
                      j,
                      k,
                      conjugateNo);
+        }
         else
             _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
 }
