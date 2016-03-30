@@ -40,7 +40,7 @@ class Projector
         // _maxRadius will be automatically set to the properly value when
         // projectee is set.
 
-        int _interp = LINEAR_INTERP;
+        int _interp = NEAREST_INTERP;
         
         int _pf = 2; // padding factor
 

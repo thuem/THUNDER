@@ -74,11 +74,11 @@ void translate(Image& dst,
                const double nTransCol,
                const double nTransRow);
 
-// void meshReverse(Image& img);
-/* In fourier space, if iCol + iRow is odd, reverse it. */
-
-// void meshReverse(Volume& vol);
-/* In fourier space, if iCol + iRow + iSlc is odd, reverse it. */
+void translate(Image& dst,
+               const Image& src,
+               const double r,
+               const double nTransCol,
+               const double nTransRow);
 
 void bgMeanStddev(double& mean,
                   double& stddev,

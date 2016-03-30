@@ -28,9 +28,13 @@
 
 #define MIN_3(a, b, c) MIN(MIN(a, b), c)
 
-#define NORM(a, b) sqrt(gsl_pow_2(a) + gsl_pow_2(b))
+#define QUAD(a, b) (gsl_pow_2(a) + gsl_pow_2(b))
 
-#define NORM_3(a, b, c) sqrt(gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
+#define NORM(a, b) sqrt(QUAD(a, b))
+
+#define QUAD_3(a, b, c) (gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
+
+#define NORM_3(a, b, c) sqrt(QUAD_3(a, b, c))
 
 int periodic(double& x,
              const double p);
