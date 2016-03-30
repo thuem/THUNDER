@@ -108,12 +108,10 @@ void MLOptimiser::expectation()
     FOR_EACH_2D_IMAGE
     {
         ILOG(INFO) << "Performing Expectation on Particle " << _ID[l];
-        /***
         stringstream ss;
         ss << "Particle" << _ID[l] << ".par";
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
-        ***/
 
         if (_par[l].neff() < _par[l].N() / 3)
             _par[l].resample();
@@ -136,7 +134,6 @@ void MLOptimiser::expectation()
         }
         _par[l].normW();
 
-        /***
         // Save particles
         vec4 q;
         vec2 t;
@@ -150,7 +147,6 @@ void MLOptimiser::expectation()
                           _par[l].w(m));
         }
         fclose(file);
-        ***/
     }
 }
 
