@@ -110,7 +110,7 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Particle " << _ID[l];
         /***
         stringstream ss;
-        ss << "Particle" << l << ".par";
+        ss << "Particle" << _ID[l] << ".par";
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
         ***/
@@ -526,4 +526,6 @@ double dataVSPrior(const Image& dat,
                              * pri.getFT(i, j))
                         / (-2 * sig(AROUND(u))));
     }
+
+    return result;
 }
