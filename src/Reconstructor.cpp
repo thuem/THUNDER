@@ -89,22 +89,16 @@ void Reconstructor::insert(const Image& src,
 
 void Reconstructor::reconstruct(Volume& dst)
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER return;
 
     for (int i = 0; i < 3; i++)
     {
         ALOG(INFO) << "Balancing Weights Round " << i;
+
         allReduceW();
     }
-/***
-    do
-    {
-        allReduceW();
-        c = checkC();
-        printf("checkC = %12f\n", c);
-    }
-    while (c > _zeta);
-***/
+
+    ALOG(INFO) << "Reducing F";
 
     allReduceF();
 
@@ -112,6 +106,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
     FFT fft;
     fft.bw(dst);
+
+    ALOG(INFO) << "Correcting Convolution Kernel";
 
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {     
