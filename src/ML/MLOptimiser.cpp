@@ -147,7 +147,7 @@ void MLOptimiser::expectation()
         {
             _par[l].quaternion(q, m);
             _par[l].t(t, m);
-            fprintf(file, "%f %f %f %f, %f %f, %10f\n",
+            fprintf(file, "%f %f %f %f %f %f %10f\n",
                           q(0),q(1),q(2),q(3),
                           t(0), t(1),
                           _par[l].w(m));
