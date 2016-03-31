@@ -115,6 +115,8 @@ class MLOptimiser : public Parallel
 
         vector<vec> _sig;
 
+        vector<int> group
+
     public:
 
         MLOptimiser();

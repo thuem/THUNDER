@@ -359,11 +359,43 @@ void MLOptimiser::initParticles()
     }
 }
 
+
+#define  MAX_GROUPID          300
+#define  MAX_POWER_SPECTRUM   100
 void MLOptimiser::allReduceSigma()
 {
 
     vector<vec>  groupPowerSpectrum;
     vector<int>  groupSize;
+    
+    char  sql[1024] = "select ID from micrographs;";
+
+    double*      pAllSigma;
+
+    int i, j;
+
+    // all reduce sigma
+    int  count;
+    
+    count = MAX_GROUPID * MAX_POWER_SPECTRUM ; 
+
+    pMySigma  = (double *)malloc( sizeof(double) * count );
+    if (pMySigma ==NULL )
+    {
+        REPORT_ERROR("Fail to allocate memory for storing sigma");
+        return ;
+    }
+    pAllSigma = (double *)malloc( sizeof(double) * count );
+    if (pAllSigma ==NULL )
+    {
+        free(pMySigma );
+        REPORT_ERROR("Fail to allocate memory for storing sigma");
+        return ;
+    }
+    memset(pMySigma,  0, sizeof(double) * count);
+    memset(pALlSigma, 0, sizeof(double) * count);
+
+
 
     // loop over 2D images
     for (int i = 0; i < _img.size(); i++)
@@ -400,7 +432,22 @@ void MLOptimiser::allReduceSigma()
         }
 
         // TODO
-        // fetch groupID of img[i]
+        // fetch groupID of img[i] -> _par[i]
+        int  groudId=0;
+
+        sprintf(sql, "select GroupID from particles where ID= %d ;", i );
+        _exp.execute(sql,
+                     SQLITE3_CALLBACK
+                     {
+                        ((int*) *data)= atoi(values[0]));
+                        return 0;
+                     },
+                     &groudId); 
+
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            pMySigma[groudId * MAX_POWER_SPECTRUM + j] += sig[j];
+        };
         // average images belonging to the same group
     }
     
@@ -408,24 +455,50 @@ void MLOptimiser::allReduceSigma()
 
     
     // average 
-    groupPowerSpectrum.clear();
-    groupSize.clear();
-
-    for ( i = 0; i < groupPowerSpectrum.size() ; i++  )
+/*
+    for (groudId= 0;  groupId <  MAX_GROUP;  groupId++)
     {
-        for ( f= 0;  f< groupPowerSpectrum[i].size(); f++ )
-            groupPowerSpectrum[i]. +=  
+        groupPowerSpectrum.clear();
+        groupSize.clear();
+
+        for ( i = 1; i < groupPowerSpectrum.size() ; i++)
+        {
+            for ( f= 0;  f< groupPowerSpectrum[i].size(); f++)
+            {
+                groupPowerSpectrum[0][f] +=  groupPowerSpectrum[i][f] ;  
+            }
+        }
+
     }
+*/
+    //
+    /*
+    for ( i=0; i< MAX_GROUPID; i++ )
+    {
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            *(pMySigma+i * MAX_POWER_SPECTRUM + j) = _sig[i][j];
+        }
 
+    }
+*/
+    MPI_Allreduce( pMySigma, pAllSigma  , count , MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
+    for ( i=0; i< MAX_GROUPID; i++ )
+    {
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            if (groupSize[i] == 0)
+               _sig[i](j)=0;
+            else
+               _sig[i](j) = *( pMySigma+i * MAX_POWER_SPECTRUM + j) / groupSize[i];
+        }
+    }    
 
-
-
-
-
-
-
+    free(pMySigma);
+    free(pAllSigma);
 }
+
 
 void MLOptimiser::reconstructRef()
 {
