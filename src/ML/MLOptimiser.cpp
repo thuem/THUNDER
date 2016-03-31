@@ -95,6 +95,9 @@ void MLOptimiser::init()
         ALOG(INFO) << "Initialising Particle Filters";
         initParticles();
     }
+
+    MLOG(INFO) << "Broadacasting Information of Groups";
+    bcastGroupInfo();
 }
 
 void MLOptimiser::expectation()
@@ -127,7 +130,7 @@ void MLOptimiser::expectation()
             double w = dataVSPrior(image,
                                    _img[l],
                                    _ctf[l],
-                                   _sig[l],
+                                   _sig.col(_groupID[l] - 1).head(_r),
                                    _r);
 
             _par[l].mulW(w, m);
@@ -219,6 +222,43 @@ int MLOptimiser::size() const
 int MLOptimiser::maxR() const
 {
     return size() / 2 - 1;
+}
+
+void MLOptimiser::bcastGroupInfo()
+{
+    ALOG(INFO) << "Storing GroupID";
+    NT_MASTER
+    {
+        char sql[SQL_COMMAND_LENGTH];
+    
+        FOR_EACH_2D_IMAGE
+        {
+            sprintf(sql, "select GroupID from particles where ID = %d;", _ID[l]);
+            _exp.execute(sql,
+                         SQLITE3_CALLBACK
+                         {
+                             ((vector<int>*)data)->push_back(atoi(values[0]));
+                             return 0;
+                         },
+                         &_groupID); 
+        }
+    }
+
+    MLOG(INFO) << "Getting Number of Groups from Database";
+    IF_MASTER
+        _exp.execute("select count(*) from groups;",
+                     SQLITE3_CALLBACK
+                     {
+                         *((int*)data) = atoi(values[0]);
+                         return 0;
+                     },
+                     &_nGroup);
+
+    MLOG(INFO) << "Broadcasting Number of Groups";
+    MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+    
+    ALOG(INFO) << "Setting Up Space for Storing Sigma";
+    NT_MASTER _sig.set_size(1 + maxR(), _nGroup);
 }
 
 void MLOptimiser::initRef()
@@ -349,8 +389,10 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
+    /***
     FOR_EACH_2D_IMAGE
         _sig.push_back(vec(maxR()));
+        ***/
 
     ALOG(INFO) << "Calculating Average Image";
 
@@ -408,9 +450,12 @@ void MLOptimiser::initSigma()
     // psAvg -> power spectrum of average image
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
+    _sig.head_rows(_sig.n_rows - 1).each_col() = (avgPs - psAvg) / 2;
+    /***
     _sig[0] = (avgPs - psAvg) / 2;
     FOR_EACH_2D_IMAGE
         _sig[l] = _sig[0];
+        ***/
 
     // ALOG(INFO) << "Initial Sigma is " << endl << _sig[0];
 }
@@ -440,14 +485,26 @@ void MLOptimiser::initParticles()
     ***/
 }
 
+
+/***
+#define  MAX_GROUPID          300
+#define  MAX_POWER_SPECTRUM   100
+***/
+
 void MLOptimiser::allReduceSigma()
 {
+    IF_MASTER return;
+
+    // set to 0
+    _sig.zeros();
 
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
+        /***
         // reset sigma to 0
         _sig[l].zeros();
+        ***/
 
         // sort weights in particle and store its indices
         uvec iSort = _par[l].iSort();
@@ -474,13 +531,88 @@ void MLOptimiser::allReduceSigma()
             powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
-            _sig[l] += w * sig;
+            _sig.col(_groupID[l] - 1).head(_r) += w * sig;
+            _sig.col(_groupID[l] - 1).tail(1) += 1;
         }
-
-        // TODO
-        // fetch groupID of img[i]
-        // average images belonging to the same group
     }
+
+    /***
+        // TODO
+        // fetch groupID of img[i] -> _par[i]
+        //int  groudId=0;
+
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            pMySigma[groupID[i] * MAX_POWER_SPECTRUM + j] += _sig[i][j];
+        };
+        ***/
+    
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _sig.memptr(),
+                  _sig.n_elem,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    _sig.each_col([](vec& x){ x /= x(x.n_elem); });
+
+    /***
+    // average images belonging to the same group
+     
+    vector<vec>  groupPowerSpectrum;
+    vector<int>  groupSize;
+    
+    char  sql[1024] = "";
+
+    double*      pAllSigma;
+    double*      pMySigma;
+
+    int i, j;
+
+    // all reduce sigma
+    int  count;
+    
+    count = MAX_GROUPID * _r
+
+
+    pMySigma  = (double *)malloc( sizeof(double) * count );
+    if (pMySigma ==NULL )
+    {
+        REPORT_ERROR("Fail to allocate memory for storing sigma");
+        return ;
+    }
+    pAllSigma = (double *)malloc( sizeof(double) * count );
+    if (pAllSigma ==NULL )
+    {
+        free(pMySigma );
+        REPORT_ERROR("Fail to allocate memory for storing sigma");
+        return ;
+    }
+    memset(pMySigma,  0, sizeof(double) * count);
+    memset(pAllSigma, 0, sizeof(double) * count);
+
+    groupID.clear();
+
+    MPI_Allreduce( pMySigma, pAllSigma  , count , MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    for ( i = 0; i < _img.size(); i++)
+    {
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            if (groupSize[i] == 0)
+               _sig[i](j)=0;
+            else
+               _sig[i](j) = *( pMySigma+ groupID[i] * MAX_POWER_SPECTRUM + j) / groupSize[i];
+        }
+    }    
+
+    free(pMySigma);
+    free(pAllSigma);
+    ***/
 }
 
 void MLOptimiser::reconstructRef()
