@@ -598,8 +598,14 @@ void MLOptimiser::allReduceSigma()
 
 void MLOptimiser::reconstructRef()
 {
+    Image img(size(), size(), FT_SPACE);
+
     FOR_EACH_2D_IMAGE
     {
+        /***
+        IMAGE_FOR_EACH_PIXEL_FT(_img[l])
+            if (QUAD(i, j) < _r * _r)
+            ***/
         uvec iSort = _par[l].iSort();
 
         Coordinate5D coord;
@@ -616,6 +622,10 @@ void MLOptimiser::reconstructRef()
     }
 
     _model.reco(0).reconstruct(_model.ref(0));
+
+    FFT fft;
+    fft.fw(_model.ref(0));
+    _model.ref(0).clearRL();
 }
 
 double dataVSPrior(const Image& dat,
