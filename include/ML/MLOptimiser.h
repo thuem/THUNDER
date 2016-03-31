@@ -115,13 +115,19 @@ class MLOptimiser : public Parallel
 
         vector<Image> _ctf;
 
-        vector<vec> _sig;
+        // vector<vec> _sig;
 
-        vector<int> groupSize;
+        mat _sig;
+        // each column is a sigma value
+        // size : maxR() * _nGroup
+
+        int _nGroup;
+
+        // vector<int> _groupSize;
+
+        vector<int> _groupID;
 
     public:
-
-        vector<int> groupID;
         
         MLOptimiser();
 
@@ -156,6 +162,9 @@ class MLOptimiser : public Parallel
         
         int maxR() const;
         /* max value of _r */
+
+        void bcastGroupInfo();
+        /* broadcast information of groups */
 
         void initRef();
 
