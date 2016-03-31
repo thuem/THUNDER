@@ -365,6 +365,7 @@ void MLOptimiser::initParticles()
 void MLOptimiser::allReduceSigma()
 {
 
+
     vector<vec>  groupPowerSpectrum;
     vector<int>  groupSize;
     
@@ -497,6 +498,7 @@ void MLOptimiser::allReduceSigma()
 
     free(pMySigma);
     free(pAllSigma);
+
 }
 
 
