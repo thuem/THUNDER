@@ -539,7 +539,7 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
-    _sig.each_col([](vec& x){ x /= x(x.n_elem); });
+    _sig.each_col([](vec& x){ x /= x(x.n_elem - 1); });
 
     /***
     // average images belonging to the same group
