@@ -440,9 +440,12 @@ void MLOptimiser::initParticles()
     ***/
 }
 
+
+#define  MAX_GROUPID          300
+#define  MAX_POWER_SPECTRUM   100
+
 void MLOptimiser::allReduceSigma()
 {
-
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
@@ -478,9 +481,75 @@ void MLOptimiser::allReduceSigma()
         }
 
         // TODO
-        // fetch groupID of img[i]
-        // average images belonging to the same group
+        // fetch groupID of img[i] -> _par[i]
+        //int  groudId=0;
+
+        sprintf(sql, "select GroupID from particles where ID= %d ;", _ID[i] );
+        _exp.execute(sql,
+                     SQLITE3_CALLBACK
+                     {
+                        *((int*)data)= atoi(values[0]);
+                        return 0;
+                     },
+                     &groupID[i]); 
+
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            pMySigma[groupID[i] * MAX_POWER_SPECTRUM + j] += _sig[i][j];
+        };
     }
+    
+    // average images belonging to the same group
+     
+    vector<vec>  groupPowerSpectrum;
+    vector<int>  groupSize;
+    
+    char  sql[1024] = "";
+
+    double*      pAllSigma;
+    double*      pMySigma;
+
+    int i, j;
+
+    // all reduce sigma
+    int  count;
+    
+    count = MAX_GROUPID * _r  /* MAX_POWER_SPECTRUM */; 
+
+
+    pMySigma  = (double *)malloc( sizeof(double) * count );
+    if (pMySigma ==NULL )
+    {
+        REPORT_ERROR("Fail to allocate memory for storing sigma");
+        return ;
+    }
+    pAllSigma = (double *)malloc( sizeof(double) * count );
+    if (pAllSigma ==NULL )
+    {
+        free(pMySigma );
+        REPORT_ERROR("Fail to allocate memory for storing sigma");
+        return ;
+    }
+    memset(pMySigma,  0, sizeof(double) * count);
+    memset(pAllSigma, 0, sizeof(double) * count);
+
+    groupID.clear();
+
+    MPI_Allreduce( pMySigma, pAllSigma  , count , MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+    for ( i = 0; i < _img.size(); i++)
+    {
+        for (j=0; j< MAX_POWER_SPECTRUM; j++)
+        {
+            if (groupSize[i] == 0)
+               _sig[i](j)=0;
+            else
+               _sig[i](j) = *( pMySigma+ groupID[i] * MAX_POWER_SPECTRUM + j) / groupSize[i];
+        }
+    }    
+
+    free(pMySigma);
+    free(pAllSigma);
 }
 
 void MLOptimiser::reconstructRef()

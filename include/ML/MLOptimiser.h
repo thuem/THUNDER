@@ -117,8 +117,12 @@ class MLOptimiser : public Parallel
 
         vector<vec> _sig;
 
+        vector<int> groupSize;
+
     public:
 
+        vector<int> groupID;
+        
         MLOptimiser();
 
         ~MLOptimiser();
