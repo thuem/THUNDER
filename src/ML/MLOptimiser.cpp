@@ -89,15 +89,18 @@ void MLOptimiser::init()
         ALOG(INFO) << "Generating CTFs";
         initCTF();
     
-        ALOG(INFO) << "Estimating Initial Sigma";
-        initSigma();
-
         ALOG(INFO) << "Initialising Particle Filters";
         initParticles();
     }
 
     MLOG(INFO) << "Broadacasting Information of Groups";
     bcastGroupInfo();
+
+    NT_MASTER
+    {
+        ALOG(INFO) << "Estimating Initial Sigma";
+        initSigma();
+    }
 }
 
 void MLOptimiser::expectation()
