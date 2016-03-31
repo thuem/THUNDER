@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Bing Li, Heng Guo
  * Dependency:
  * Test:
  * Execution:
@@ -114,6 +114,7 @@ void MLOptimiser::expectation()
     FOR_EACH_2D_IMAGE
     {
         ILOG(INFO) << "Performing Expectation on Particle " << _ID[l];
+
         stringstream ss;
         ss << "Particle" << _ID[l] << ".par";
         FILE* file = fopen(ss.str().c_str(), "w");
@@ -158,11 +159,13 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    /* generate sigma for the next iteration */
+    ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
-    /* reconstruct references */
+    /***
+    ALOG(INFO) << "Reconstruct Reference";
     reconstructRef();
+    ***/
 }
 
 void MLOptimiser::run()
@@ -181,9 +184,10 @@ void MLOptimiser::run()
         MLOG(INFO) << "Performing Expectation";
         expectation();
 
-        /***
+        MLOG(INFO) << "Performing Maximization";
         maximization();
 
+        /***
         // calculate FSC
         _model.BcastFSC();
 
@@ -392,11 +396,6 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
-    /***
-    FOR_EACH_2D_IMAGE
-        _sig.push_back(vec(maxR()));
-        ***/
-
     ALOG(INFO) << "Calculating Average Image";
 
     Image avg = _img[0];
@@ -454,11 +453,6 @@ void MLOptimiser::initSigma()
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
     _sig.head_rows(_sig.n_rows - 1).each_col() = (avgPs - psAvg) / 2;
-    /***
-    _sig[0] = (avgPs - psAvg) / 2;
-    FOR_EACH_2D_IMAGE
-        _sig[l] = _sig[0];
-        ***/
 
     // ALOG(INFO) << "Initial Sigma is " << endl << _sig[0];
 }
@@ -489,26 +483,19 @@ void MLOptimiser::initParticles()
 }
 
 
-/***
-#define  MAX_GROUPID          300
-#define  MAX_POWER_SPECTRUM   100
-***/
-
 void MLOptimiser::allReduceSigma()
 {
     IF_MASTER return;
 
+    ALOG(INFO) << "Clear Up Sigma";
+
     // set to 0
     _sig.zeros();
 
+    ALOG(INFO) << "Recalculate Sigma";
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
-        /***
-        // reset sigma to 0
-        _sig[l].zeros();
-        ***/
-
         // sort weights in particle and store its indices
         uvec iSort = _par[l].iSort();
 
@@ -539,17 +526,8 @@ void MLOptimiser::allReduceSigma()
         }
     }
 
-    /***
-        // TODO
-        // fetch groupID of img[i] -> _par[i]
-        //int  groudId=0;
+    ALOG(INFO) << "Averaging Sigma of Images Belonging to the Same Group";
 
-        for (j=0; j< MAX_POWER_SPECTRUM; j++)
-        {
-            pMySigma[groupID[i] * MAX_POWER_SPECTRUM + j] += _sig[i][j];
-        };
-        ***/
-    
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
