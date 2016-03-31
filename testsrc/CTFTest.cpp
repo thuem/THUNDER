@@ -12,6 +12,8 @@
 
 #define N 1024
 
+using namespace std;
+
 int main(int argc, const char* argv[])
 {
     double pixelSize = 1.32;
@@ -25,11 +27,14 @@ int main(int argc, const char* argv[])
 
     CTF(img, pixelSize, voltage, defocusU, defocusV, theta, Cs);
 
+    /***
     Image realPart(N, N, FT_SPACE);
     IMAGE_FOR_EACH_PIXEL_FT(img)
         realPart.setFT(COMPLEX(REAL(img.getFT(i, j)), 0), i, j);
+        ***/
 
-    realPart.saveFTToBMP("realPart.bmp", 0.1);
+    img.saveFTToBMP("CTF.bmp", 0.1);
+    cout << REAL(img.getFT(0, 0)) << endl;
 
     return 0;
 }

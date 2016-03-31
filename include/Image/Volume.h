@@ -89,7 +89,7 @@
 
 #define VOLUME_FOR_EACH_PIXEL_FT(that) \
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
-        for (int j = -that.nRowRL() / 2; j < that.nSlcRL() / 2; j++) \
+        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
             for (int i = 0; i <= that.nColRL() / 2; i++)
 
 class Volume : public ImageBase 

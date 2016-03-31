@@ -98,7 +98,7 @@ void powerSpectrum(vec& dst,
                    const int r)
 {
     for (int i = 0; i < r; i++)
-        dst(i) = ringAverage(i, src, [](const Complex x){ return ABS(x); });
+        dst(i) = ringAverage(i, src, [](const Complex x){ return ABS2(x); });
 }
 
 void powerSpectrum(vec& dst,
@@ -106,7 +106,7 @@ void powerSpectrum(vec& dst,
                    const int r)
 {
     for (int i = 0; i < r; i++)
-        dst(i) = shellAverage(i, src, [](const Complex x){ return ABS(x); });
+        dst(i) = shellAverage(i, src, [](const Complex x){ return ABS2(x); });
 }
 
 void FRC(vec& dst,

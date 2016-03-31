@@ -329,6 +329,22 @@ int Database::nMicrograph() const
     return size;
 }
 
+int Database::nGroup() const
+{
+    int size;
+
+    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db,
+                                      "select count(*) from groups;",
+                                      SQLITE3_CALLBACK
+                                      {
+                                          *((int*)data) = atoi(values[0]);
+                                          return 0;    
+                                      },
+                                      &size,
+                                      NULL));
+    return size;
+}
+
 void Database::update(const char database[],
                       const Table table)
 {

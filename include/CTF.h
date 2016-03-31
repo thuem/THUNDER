@@ -15,6 +15,8 @@
 #include "Functions.h"
 #include "Image.h"
 
+#define CTF_A 0.19
+
 void CTF(Image& dst,
          const double pixelSize,
          const double voltage,

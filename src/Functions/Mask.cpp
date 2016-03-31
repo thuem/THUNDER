@@ -10,6 +10,49 @@
 
 #include "Mask.h"
 
+double background(const Image& img,
+                  const double r,
+                  const double ew)
+{
+    double weightSum = 0;
+    double sum = 0;
+
+    IMAGE_FOR_EACH_PIXEL_RL(img)
+    {
+        double u = NORM(i, j);
+
+        if (u > r + ew)
+        {
+            weightSum += 1;
+            sum += img.getRL(i, j);
+        }
+        else if (u >= r)
+        {
+            double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
+            weightSum += w;
+            sum += img.getRL(i, j) * w;
+        }
+    }
+
+    return sum / weightSum;
+}
+
+double background(const Image& img,
+                  const Image& alpha)
+{
+    double weightSum = 0;
+    double sum = 0;
+
+    IMAGE_FOR_EACH_PIXEL_RL(img)
+    {
+        double w = 1 - alpha.getRL(i, j);
+        weightSum += w;
+        sum += img.getRL(i, j) * w;
+    }
+
+    return sum / weightSum;
+}
+
 double background(const Volume& vol,
                   const double r,
                   const double ew)
@@ -53,21 +96,39 @@ double background(const Volume& vol,
     return sum / weightSum;
 }
 
-void softMask(Image& img,
+void softMask(Image& dst,
+              const Image& src,
               const double r,
               const double ew)
 {
-    IMAGE_FOR_EACH_PIXEL_RL(img)
+    double bg = background(src, r, ew);
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         double u = NORM(i, j);
 
         if (u > r + ew)
-            img.setRL(0, i, j);
+            dst.setRL(bg, i, j);
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
-            img.setRL(img.getRL(i, j) * w, i, j);
+            dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
         }
+        else
+            dst.setRL(src.getRL(i, j), i, j);
+    }
+}
+
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha)
+{
+    double bg = background(src, alpha);
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+    {
+        double w = 1 - alpha.getRL(i, j);
+        dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
     }
 }
 
@@ -86,9 +147,11 @@ void softMask(Volume& dst,
             dst.setRL(bg, i, j, k);
         else if (u >= r)
         {
-            double w = 0.5 - 0.5 * cos((r - r) / ew * M_PI);
+            double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
             dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
         }
+        else
+            dst.setRL(src.getRL(i, j, k), i, j, k);
     }
 }
 

@@ -63,8 +63,15 @@ void lowPassFilter(Volume& dst,
                    const double thres,
                    const double ew)
 {
+    printf("nColRL = %d, nRowRL = %d, nSlcRL = %d\n",
+           src.nColRL(),
+           src.nRowRL(),
+           src.nSlcRL());
+
+        /***
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
+        // printf("%d %d %d\n", i, j, k);
         double f = NORM_3(double(i) / src.nColRL(),
                           double(j) / src.nRowRL(),
                           double(k) / src.nSlcRL());
@@ -79,6 +86,7 @@ void lowPassFilter(Volume& dst,
                       j,
                       k);
     }
+                      ***/
 }
 
 void highPassFilter(Image& dst,

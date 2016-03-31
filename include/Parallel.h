@@ -24,6 +24,7 @@
 #define MLOG(LEVEL) IF_MASTER LOG(LEVEL) << "MASTER: "
 #define ALOG(LEVEL) if (_commRank == HEMI_A_LEAD) LOG(LEVEL) << "A_LEAD: "
 #define BLOG(LEVEL) if (_commRank == HEMI_B_LEAD) LOG(LEVEL) << "B_LEAD: "
+#define ILOG(LEVEL) LOG(LEVEL) << "RANK " << _commRank << ": "
 
 class Parallel
 {

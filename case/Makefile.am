@@ -12,9 +12,13 @@ AM_CXXFLAGS += -fPIC -std=c++11 -fopenmp
 noistdir = .
 
 noist_PROGRAMS = MickeyMouseDataGen \
-				 MickeyMouse
+				 MickeyMouse \
+				 InitModelGen
 
 THUEMLIBS = ../libthuem.a
+
+InitModelGen_SOURCES = ../casesrc/InitModelGen.cpp
+InitModelGen_LDADD = ${THUEMLIBS}
 
 MickeyMouseDataGen_SOURCES = ../casesrc/MickeyMouseDataGen.cpp
 MickeyMouseDataGen_LDADD = ${THUEMLIBS}

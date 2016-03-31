@@ -32,6 +32,17 @@ void MLOptimiser::init()
     MLOG(INFO) << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
+    MLOG(INFO) << "Setting up Symmetry";
+    _sym.init(_para.sym);
+
+    MLOG(INFO) << "Passing Parameters to _model";
+    _model.init(0,
+                _para.pf,
+                _para.pixelSize,
+                _para.a,
+                _para.alpha,
+                &_sym);
+
     MLOG(INFO) << "Openning Database File";
     _exp.openDatabase(_para.db);
 
@@ -49,97 +60,96 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
-        ALOG(INFO) << "Setting up Symmetry";
-        _sym.init(_para.sym);
-
         ALOG(INFO) << "Appending Initial References into _model";
-        /***
-        // append initial references into _model
-        Volume ref;
-        // TODO: read in ref
-        _model.appendRef(ref);
-        ***/
+        initRef();
 
         ALOG(INFO) << "Initialising IDs of 2D Images";
         initID();
 
         ALOG(INFO) << "Initialising 2D Images";
-        /***
-        // read in images from hard disk
-        // apply soft mask to the images
-        // perform Fourier transform
         initImg();
-        ***/
 
-        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
-        // apply low pass filter on initial references
-        /***
-        _model.lowPassRef(_r, EDGE_WIDTH_FT);
-
-        // set paramters: _N, _r, _iter
+        ALOG(INFO) << "Setting Parameters: _N, _r, _iter";
         allReduceN();
         _r = maxR() / 8; // start from 1 / 8 of highest frequency
         _iter = 0;
+        ALOG(INFO) << "_N = " << _N
+                   << ", _r = " << _r
+                   << ", _iter = " << _iter;
 
-        // genereate corresponding CTF
+        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
+        _model.lowPassRef(_r, EDGE_WIDTH_FT);
+
+        ALOG(INFO) << "Setting Up Projectors and Reconstructors of _model";
+        _model.initProjReco();
+
+        ALOG(INFO) << "Generating CTFs";
         initCTF();
     
-        // estimate initial sigma values
+        ALOG(INFO) << "Estimating Initial Sigma";
         initSigma();
 
-        // initialise a particle filter for each 2D image
+        ALOG(INFO) << "Initialising Particle Filters";
         initParticles();
-        ***/
     }
 }
 
 void MLOptimiser::expectation()
 {
+    IF_MASTER return;
+
     Image image(size(),
                 size(),
                 FT_SPACE);
 
-    for (int i = 0; i < _img.size(); i++)
+    FOR_EACH_2D_IMAGE
     {
+        ILOG(INFO) << "Performing Expection on Particle " << _ID[l];
+        /***
         stringstream ss;
-        ss << "Particle" << i << ".par";
+        ss << "Particle" << l << ".par";
         FILE* file = fopen(ss.str().c_str(), "w");
         ss.str("");
+        ***/
 
-        if (_par[i].neff() < _par[i].N() / 3)
-            _par[i].resample();
+        if (_par[l].neff() < _par[l].N() / 3)
+            _par[l].resample();
         else 
-            _par[i].perturb();
+            _par[l].perturb();
 
-        for (int j = 0; j < _par[i].N(); j++)
+        for (int m = 0; m < _par[l].N(); m++)
         {
             Coordinate5D coord;
-            _par[i].coord(coord, j);
+            _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
 
+            /***
             double w = dataVSPrior(image,
-                                   _img[i],
-                                   _ctf[i],
-                                   _sig[i],
+                                   _img[l],
+                                   _ctf[l],
+                                   _sig[l],
                                    _r);
 
-            _par[i].mulW(w, j);
+            _par[l].mulW(w, m);
+            ***/
         }
-        _par[i].normW();
+        _par[l].normW();
 
+        /***
         // Save particles
         vec4 q;
         vec2 t;
-        for (int k = 0; k < _par[i].N(); k++)
+        for (int m = 0; m < _par[l].N(); m++)
         {
-            _par[i].quaternion(q, k);
-            _par[i].t(t, k);
+            _par[l].quaternion(q, m);
+            _par[l].t(t, m);
             fprintf(file, "%f %f %f %f, %f %f, %f\n",
                           q(0),q(1),q(2),q(3),
                           t(0), t(1),
-                          _par[i].w(k));
+                          _par[l].w(m));
         }
         fclose(file);
+        ***/
     }
 }
 
@@ -155,26 +165,32 @@ void MLOptimiser::maximization()
 void MLOptimiser::run()
 {
     MLOG(INFO) << "Initialising MLOptimiser";
+
     init();
 
-    MLOG(INFO) << "Entering Iteration";
-    for (int i = 0; i < _para.iterMax; i++)
-    {
-        MLOG(INFO) << "Round " << i;
+    MPI_Barrier(MPI_COMM_WORLD);
 
+    MLOG(INFO) << "Entering Iteration";
+    for (int l = 0; l < _para.iterMax; l++)
+    {
+        MLOG(INFO) << "Round " << l;
+
+        MLOG(INFO) << "Performing Expectation";
         expectation();
 
+        /***
         maximization();
 
-        /* calculate FSC */
+        // calculate FSC
         _model.BcastFSC();
 
-        /* record current resolution */
+        // record current resolution
         _res = _model.resolutionP();
 
-        /* update the radius of frequency for computing */
+        // update the radius of frequency for computing
         _model.updateR();
         _r = _model.r() / _para.pf;
+        ***/
     }
 }
 
@@ -187,15 +203,15 @@ void MLOptimiser::clear()
 
 void MLOptimiser::allReduceN()
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER return;
 
     _N = _exp.nParticle();
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, &_N, 1, MPI_INT, MPI_SUM, _hemi);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 }
 
 int MLOptimiser::size() const
@@ -206,6 +222,29 @@ int MLOptimiser::size() const
 int MLOptimiser::maxR() const
 {
     return size() / 2 - 1;
+}
+
+void MLOptimiser::initRef()
+{
+    _model.appendRef(Volume());
+
+    ALOG(INFO) << "Read Initial Model from Hard-disk";
+
+    ImageFile imf(_para.initModel, "rb");
+    imf.readMetaData();
+    imf.readVolume(_model.ref(0));
+
+    ALOG(INFO) << "Size of the Initial Model is: "
+               << _model.ref(0).nColRL()
+               << " X "
+               << _model.ref(0).nRowRL()
+               << " X "
+               << _model.ref(0).nSlcRL();
+
+    // perform fourier transformation
+    FFT fft;
+    fft.fw(_model.ref(0));
+    _model.ref(0).clearRL();
 }
 
 void MLOptimiser::initID()
@@ -222,45 +261,67 @@ void MLOptimiser::initID()
 
 void MLOptimiser::initImg()
 {
-    char sql[SQL_COMMAND_LENGTH];
-    
-    for (int i = 0; i < _ID.size(); i++)
-    {
-        // TODO: read the image from hard disk
-        /***
-        = "select Name from particles;";
-        char imgName[FILE_NAME_LENGTH]
-        _exp.execute(sql,
-                 SQLITE3_CALLBACK
-                 {
-                    ((vector<int>*)data)-push_back(atoi(values[0]));
-                    return 0;
-                 },
-                 &_ID);
-                 ***/
+    FFT fft;
 
-        // TODO: apply a soft mask on it
-        
-        // TODO: perform Fourier Transform
+    char sql[SQL_COMMAND_LENGTH];
+    char imgName[FILE_NAME_LENGTH];
+
+    FOR_EACH_2D_IMAGE
+    {
+        // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
+
+        _img.push_back(Image());
+
+        // get the filename of the image from database
+        sprintf(sql, "select Name from particles where ID = %d;", _ID[l]);
+        _exp.execute(sql,
+                     SQLITE3_CALLBACK
+                     {
+                         sprintf((char*)data, "%s", values[0]); 
+                         return 0;
+                     },
+                     imgName);
+
+        // read the image fromm hard disk
+        ImageFile imf(imgName, "rb");
+        imf.readMetaData();
+        imf.readImage(_img.back());
+
+        // apply a soft mask on it
+        softMask(_img.back(),
+                 _img.back(),
+                 _img.back().nColRL() / 4,
+                 EDGE_WIDTH_RL);
+
+        /***
+        sprintf(imgName, "%04dMasked.bmp", _ID[i]);
+        _img[i].saveRLToBMP(imgName);
+        ***/
+
+        // perform Fourier Transform
+        fft.fw(_img.back());
+        _img.back().clearRL();
     }
 }
 
 void MLOptimiser::initCTF()
 {
+    IF_MASTER return;
+
     // get CTF attributes from _exp
     char sql[SQL_COMMAND_LENGTH];
 
     CTFAttr ctfAttr;
 
-    for (int i = 0; i < _ID.size(); i++)
+    FOR_EACH_2D_IMAGE
     {
         // get attributes of CTF from database
         sprintf(sql,
-                "select (Voltage, DefocusU, DefocusV, DefocusAngle, CS) from \
+                "select Voltage, DefocusU, DefocusV, DefocusAngle, CS from \
                  micrographs, particles where \
                  particles.micrographID = micrographs.ID and \
                  particles.ID = %d;",
-                _ID[i]);
+                _ID[l]);
         _exp.execute(sql,
                      SQLITE3_CALLBACK
                      {
@@ -277,7 +338,7 @@ void MLOptimiser::initCTF()
         _ctf.push_back(Image(size(), size(), FT_SPACE));
 
         // initialise the CTF according to attributes given
-        CTF(*_ctf.end(),
+        CTF(_ctf.back(),
             _para.pixelSize,
             ctfAttr.voltage,
             ctfAttr.defocusU,
@@ -291,13 +352,17 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
-    /* calculate average image */
+    FOR_EACH_2D_IMAGE
+        _sig.push_back(vec(maxR()));
+
+    ALOG(INFO) << "Calculating Average Image";
 
     Image avg = _img[0];
-    for (int i = 1; i < _img.size(); i++)
-        ADD_FT(avg, _img[i]);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    for (int l = 1; l < _ID.size(); l++)
+        ADD_FT(avg, _img[l]);
+
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &avg[0],
@@ -306,69 +371,140 @@ void MLOptimiser::initSigma()
                   MPI_SUM,
                   _hemi);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
-    SCALE_RL(avg, 1.0 / _N);
+    SCALE_FT(avg, 1.0 / _N);
 
-    /* calculate average power spectrum */
+    ALOG(INFO) << "Calculating Average Power Spectrum";
 
-    double* avgPs = new double[maxR()];
-    memset(avgPs, 0, maxR() * sizeof(double));
-
-    double* ps = new double[maxR()];
-    vec vps(ps, maxR(), false, true);
-    for (int i = 0; i < _img.size(); i++)
+    vec avgPs(maxR(), fill::zeros);
+    vec ps(maxR());
+    FOR_EACH_2D_IMAGE
     {
-        powerSpectrum(vps, _img[i], maxR());
-        cblas_daxpy(maxR(), 1, ps, 1, avgPs, 1);
+        powerSpectrum(ps, _img[l], maxR());
+        cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
     }
-    delete[] ps;
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  avgPs,
+                  avgPs.memptr(),
                   maxR(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
-    vec vAvgPs(avgPs, maxR());
-    delete[] avgPs;
-    vAvgPs /= _N;
+    avgPs /= _N;
 
-    vec vPsAvg(maxR());
-    powerSpectrum(vPsAvg, avg, maxR());
+    // ALOG(INFO) << "Average Power Spectrum is " << endl << avgPs;
+
+    ALOG(INFO) << "Calculating Power Spectrum of Average Image";
+
+    vec psAvg(maxR());
+    powerSpectrum(psAvg, avg, maxR());
+
+    // ALOG(INFO) << "Power Spectrum of Average Image is " << endl << psAvg;
     
-    /* vAvgPs -> average power spectrum
-     * vPsAvg -> power spectrum of average image */
-    _sig[0] = (vAvgPs - vPsAvg) / 2;
-    for (int i = 1; i < _sig.size(); i++)
-        _sig[i] = _sig[0];
+    // avgPs -> average power spectrum
+    // psAvg -> power spectrum of average image
+    ALOG(INFO) << "Substract avgPs and psAvg for _sig";
+
+    _sig[0] = (avgPs - psAvg) / 2;
+    FOR_EACH_2D_IMAGE
+        _sig[l] = _sig[0];
+
+    // ALOG(INFO) << "Initial Sigma is " << endl << _sig[0];
 }
 
 void MLOptimiser::initParticles()
 {
-    for (int i = 0; i < _img.size(); i++)
+    IF_MASTER return;
+
+    FOR_EACH_2D_IMAGE
+        _par.push_back(Particle());
+
+    FOR_EACH_2D_IMAGE
+        _par[l].init(_para.m,
+                     _para.maxX,
+                     _para.maxY,
+                     &_sym);
+    /***
+    for (int l = 0; l < _img.size(); l++)
     {
         _par.push_back(Particle());
-        _par.end()->init(_para.m,
+        _par.back().init(_para.m,
                          _para.maxX,
                          _para.maxY,
                          &_sym);
     }
+    ***/
 }
 
 void MLOptimiser::allReduceSigma()
 {
-    // TODO
+
+    // loop over 2D images
+    FOR_EACH_2D_IMAGE
+    {
+        // reset sigma to 0
+        _sig[l].zeros();
+
+        // sort weights in particle and store its indices
+        uvec iSort = _par[l].iSort();
+
+        Coordinate5D coord;
+        double w;
+        Image img(size(), size(), FT_SPACE);
+        vec sig(_r);
+
+        // loop over sampling points with top K weights
+        for (int m = 0; m < TOP_K; m++)
+        {
+            // get coordinate
+            _par[l].coord(coord, iSort[m]);
+            // get weight
+            w = _par[l].w(iSort[m]);
+
+            // calculate differences
+            _model.proj(0).project(img, coord);
+            MUL_FT(img, _ctf[l]);
+            NEG_FT(img);
+            ADD_FT(img, _img[l]);
+
+            powerSpectrum(sig, img, _r);
+
+            // sum up the results from top K sampling points
+            _sig[l] += w * sig;
+        }
+
+        // TODO
+        // fetch groupID of img[i]
+        // average images belonging to the same group
+    }
 }
 
 void MLOptimiser::reconstructRef()
 {
-    // TODO
+    FOR_EACH_2D_IMAGE
+    {
+        uvec iSort = _par[l].iSort();
+
+        Coordinate5D coord;
+        double w;
+        for (int m = 0; m < TOP_K; m++)
+        {
+            // get coordinate
+            _par[l].coord(coord, iSort[m]);
+            // get weight
+            w = _par[l].w(iSort[m]);
+
+            _model.reco(0).insert(_img[l], coord, w);
+        }
+    }
+
+    _model.reco(0).reconstruct(_model.ref(0));
 }
 
 double dataVSPrior(const Image& A,
@@ -377,6 +513,5 @@ double dataVSPrior(const Image& A,
                    const vec& sig,
                    const int r)
 {
-    // Todo
+    // TODO
 }
-

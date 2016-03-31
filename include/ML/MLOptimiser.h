@@ -25,13 +25,15 @@
 #include "Spectrum.h"
 #include "Symmetry.h"
 #include "CTF.h"
-#include "Parallel.h"
+#include "Mask.h"
 
 #include "Experiment.h"
 
 #include "Particle.h"
 
 #include "MLModel.h"
+
+#define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
 
 using namespace std;
 using namespace google;
@@ -150,6 +152,8 @@ class MLOptimiser : public Parallel
         
         int maxR() const;
         /* max value of _r */
+
+        void initRef();
 
         void initID();
         /* save IDs from database */

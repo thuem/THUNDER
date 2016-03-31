@@ -91,7 +91,12 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     if (_commRank == MASTER_ID) return;
 
-    double c;
+    for (int i = 0; i < 3; i++)
+    {
+        ALOG(INFO) << "Balancing Weights Round " << i;
+        allReduceW();
+    }
+/***
     do
     {
         allReduceW();
@@ -99,6 +104,7 @@ void Reconstructor::reconstruct(Volume& dst)
         printf("checkC = %12f\n", c);
     }
     while (c > _zeta);
+***/
 
     allReduceF();
 
@@ -165,15 +171,16 @@ void Reconstructor::allReduceW()
 
     symmetrizeC();
     
-    //some problems need to be improved: divede zero
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
-            _W.setFT(_W.getFT(i, j, k, conjugateNo)
-                   / _C.getFT(i, j, k, conjugateNo),
+        {
+            double c = REAL(_C.getFT(i, j, k, conjugateNo));
+            _W.setFT(2 * c * _W.getFT(i, j, k, conjugateNo) / (1 + gsl_pow_2(c)),
                      i,
                      j,
                      k,
                      conjugateNo);
+        }
         else
             _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
 }

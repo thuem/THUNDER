@@ -52,3 +52,10 @@ Complex operator*(double x, Complex a)
 }
 
 void operator*=(Complex& a, double x) { a = a * x; }
+
+Complex operator/(Complex a, double x)
+{
+    return gsl_complex_div_real(a, x);
+}
+
+void operator/=(Complex a, double x) { a = a / x; }

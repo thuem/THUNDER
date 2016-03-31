@@ -42,9 +42,9 @@ void Particle::init(const int N,
 
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
-    /* uniform bingham distribution */
+    // uniform bingham distribution
     bingham_sample(_r, &B, _N);
-    /* draw _N samples from it */
+    // draw _N samples from it
 
     for (int i = 0; i < _N; i++)
     {

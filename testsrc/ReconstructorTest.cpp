@@ -15,7 +15,7 @@
 #include "ImageFile.h"
 #include "Timer.h"
 
-#define N 32
+#define N 128
 #define M 16
 
 using namespace std;
