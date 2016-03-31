@@ -162,10 +162,8 @@ void MLOptimiser::maximization()
     ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
-    /***
     ALOG(INFO) << "Reconstruct Reference";
     reconstructRef();
-    ***/
 }
 
 void MLOptimiser::run()
@@ -598,7 +596,13 @@ void MLOptimiser::allReduceSigma()
 
 void MLOptimiser::reconstructRef()
 {
+    IF_MASTER return;
+
     Image img(size(), size(), FT_SPACE);
+
+    // TODO: considering CTF effect
+    
+    ALOG(INFO) << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
     {
@@ -621,7 +625,11 @@ void MLOptimiser::reconstructRef()
         }
     }
 
+    ALOG(INFO) << "Reconstructing References for Next Iteration";
+
     _model.reco(0).reconstruct(_model.ref(0));
+
+    ALOG(INFO) << "Fourier Transforming References";
 
     FFT fft;
     fft.fw(_model.ref(0));
