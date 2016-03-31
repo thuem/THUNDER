@@ -71,7 +71,7 @@ void Reconstructor::insert(const Image& src,
     mat33 mat;
     rotate3D(mat, coord.phi, coord.theta, coord.psi);
 
-    #pragma omp parallel for num_threads(4)
+    #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         arma::vec3 newCor = {(double)i, (double)j, 0};
@@ -133,7 +133,7 @@ void Reconstructor::allReduceW()
 {
     SET_0_FT(_C);
 
-    #pragma omp parallel for num_threads(4)
+    #pragma omp parallel for
     for (int i = 0; i < _coord.size(); i++)
     {
         mat33 mat;
