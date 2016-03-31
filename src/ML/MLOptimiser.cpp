@@ -650,12 +650,12 @@ double dataVSPrior(const Image& dat,
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
-        double u = NORM(i, j);
-        if (u < r )
+        int u = AROUND(NORM(i, j));
+        if (u < r)
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                    / (-2 * sig(AROUND(u)));
+                    / (-2 * sig(u));
     }
 
     return exp(result);

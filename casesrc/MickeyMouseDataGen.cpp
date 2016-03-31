@@ -105,6 +105,7 @@ int main(int argc, char* argv[])
     Experiment exp("MickeyMouse.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS, 1);
+    exp.appendGroup("");
 
     char name[256];
 
