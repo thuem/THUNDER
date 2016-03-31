@@ -362,6 +362,7 @@ void MLOptimiser::initParticles()
 
 #define  MAX_GROUPID          300
 #define  MAX_POWER_SPECTRUM   100
+
 void MLOptimiser::allReduceSigma()
 {
 
@@ -369,16 +370,18 @@ void MLOptimiser::allReduceSigma()
     vector<vec>  groupPowerSpectrum;
     vector<int>  groupSize;
     
-    char  sql[1024] = "select ID from micrographs;";
+    char  sql[1024] = "";
 
     double*      pAllSigma;
+    double*      pMySigma;
 
     int i, j;
 
     // all reduce sigma
     int  count;
     
-    count = MAX_GROUPID * MAX_POWER_SPECTRUM ; 
+    count = MAX_GROUPID * _r  /* MAX_POWER_SPECTRUM */; 
+
 
     pMySigma  = (double *)malloc( sizeof(double) * count );
     if (pMySigma ==NULL )
@@ -394,7 +397,7 @@ void MLOptimiser::allReduceSigma()
         return ;
     }
     memset(pMySigma,  0, sizeof(double) * count);
-    memset(pALlSigma, 0, sizeof(double) * count);
+    memset(pAllSigma, 0, sizeof(double) * count);
 
 
 
@@ -436,19 +439,20 @@ void MLOptimiser::allReduceSigma()
         // fetch groupID of img[i] -> _par[i]
         int  groudId=0;
 
-        sprintf(sql, "select GroupID from particles where ID= %d ;", i );
+        sprintf(sql, "select GroupID from particles where ID= %d ;", _ID[i] );
         _exp.execute(sql,
                      SQLITE3_CALLBACK
                      {
-                        ((int*) *data)= atoi(values[0]));
+                        *((int*)data)= atoi(values[0]);
                         return 0;
                      },
                      &groudId); 
 
         for (j=0; j< MAX_POWER_SPECTRUM; j++)
         {
-            pMySigma[groudId * MAX_POWER_SPECTRUM + j] += sig[j];
+            pMySigma[groudId * MAX_POWER_SPECTRUM + j] += _sig[i][j];
         };
+
         // average images belonging to the same group
     }
     

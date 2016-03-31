@@ -12,7 +12,7 @@
 #include <cstdio>
 
 #include <mpi.h>
-//#include <glog/logging.h>
+#include <glog/logging.h>
 
 #define MASTER_ID 0
 #define HEMI_A_LEAD 1
