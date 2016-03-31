@@ -399,7 +399,7 @@ void MLOptimiser::allReduceSigma()
     memset(pMySigma,  0, sizeof(double) * count);
     memset(pAllSigma, 0, sizeof(double) * count);
 
-
+    groupID.clear();
 
     // loop over 2D images
     for (int i = 0; i < _img.size(); i++)
@@ -437,7 +437,7 @@ void MLOptimiser::allReduceSigma()
 
         // TODO
         // fetch groupID of img[i] -> _par[i]
-        int  groudId=0;
+        //int  groudId=0;
 
         sprintf(sql, "select GroupID from particles where ID= %d ;", _ID[i] );
         _exp.execute(sql,
@@ -446,59 +446,31 @@ void MLOptimiser::allReduceSigma()
                         *((int*)data)= atoi(values[0]);
                         return 0;
                      },
-                     &groudId); 
+                     &groupID[i]); 
 
         for (j=0; j< MAX_POWER_SPECTRUM; j++)
         {
-            pMySigma[groudId * MAX_POWER_SPECTRUM + j] += _sig[i][j];
+            pMySigma[groupID[i] * MAX_POWER_SPECTRUM + j] += _sig[i][j];
         };
 
         // average images belonging to the same group
     }
     
-    // select  GroupId  from particle  as a vector 
+   
 
-    
-    // average 
-/*
-    for (groudId= 0;  groupId <  MAX_GROUP;  groupId++)
-    {
-        groupPowerSpectrum.clear();
-        groupSize.clear();
-
-        for ( i = 1; i < groupPowerSpectrum.size() ; i++)
-        {
-            for ( f= 0;  f< groupPowerSpectrum[i].size(); f++)
-            {
-                groupPowerSpectrum[0][f] +=  groupPowerSpectrum[i][f] ;  
-            }
-        }
-
-    }
-*/
-    //
-    /*
-    for ( i=0; i< MAX_GROUPID; i++ )
-    {
-        for (j=0; j< MAX_POWER_SPECTRUM; j++)
-        {
-            *(pMySigma+i * MAX_POWER_SPECTRUM + j) = _sig[i][j];
-        }
-
-    }
-*/
     MPI_Allreduce( pMySigma, pAllSigma  , count , MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-    for ( i=0; i< MAX_GROUPID; i++ )
+    for ( i = 0; i < _img.size(); i++)
     {
         for (j=0; j< MAX_POWER_SPECTRUM; j++)
         {
             if (groupSize[i] == 0)
                _sig[i](j)=0;
             else
-               _sig[i](j) = *( pMySigma+i * MAX_POWER_SPECTRUM + j) / groupSize[i];
+               _sig[i](j) = *( pMySigma+ groupID[i] * MAX_POWER_SPECTRUM + j) / groupSize[i];
         }
     }    
+
 
     free(pMySigma);
     free(pAllSigma);
