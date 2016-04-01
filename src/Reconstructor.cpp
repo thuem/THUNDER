@@ -71,13 +71,18 @@ void Reconstructor::insert(const Image& src,
                            const Coordinate5D coord,
                            const double w)
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER
+    {
+        LOG(WARNING) << "Inserting Images into Reconstructor in MASTER";
+        return;
+    }
 
-    /***
-    ALOG(INFO) << "_size = " << _size;
-    ALOG(INFO) << "nCol = " << src.nColRL();
-    ALOG(INFO) << "nRow = " << src.nRowRL();
-    ***/
+    if ((src.nColRL() != _size) ||
+        (src.nRowRL() != _size))
+        LOG(FATAL) << "Incorrect Size of Inserting Image"
+                   << ": _size = " << _size
+                   << ", nCol = " << src.nColRL()
+                   << ", nRow = " << src.nRowRL();
 
     _coord.push_back(coord);
 

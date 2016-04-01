@@ -63,6 +63,15 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(const Volume& ref)
 {
+    if ((ref.nColRL() != _size) ||
+        (ref.nRowRL() != _size) ||
+        (ref.nSlcRL() != _size))
+        LOG(FATAL) << "Incorrect Size of Appending Reference"
+                   << ": _size = " << _size
+                   << ", nCol = " << ref.nColRL()
+                   << ", nRow = " << ref.nRowRL()
+                   << ", nSlc = " << ref.nSlcRL();
+
     _ref.push_back(ref);
 }
 
@@ -104,8 +113,8 @@ void MLModel::BcastFSC()
     {
         if (_commRank == MASTER_ID)
         {
-            Volume A(_size, _size, _size, FT_SPACE);
-            Volume B(_size, _size, _size, FT_SPACE);
+            Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+            Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
             MPI_Recv(&A[0],
                      A.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
@@ -217,7 +226,7 @@ void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
     {
-        _reco[i].init(_size / _pf,
+        _reco[i].init(_size,
                       _pf,
                       _sym,
                       _a,
