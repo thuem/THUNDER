@@ -28,7 +28,7 @@ using namespace std;
 using namespace arma;
 
 #define FOR_EACH_CLASS \
-    for (int i = 0; i < K(); i++)
+    for (int i = 0; i < _k; i++)
 
 class MLModel : public Parallel
 {
@@ -44,6 +44,9 @@ class MLModel : public Parallel
         vector<Projector> _proj;
 
         vector<Reconstructor> _reco;
+
+        int _k;
+        /* number of references */
 
         int _r;
         /* radius of calculating FSC and SNR */
@@ -66,7 +69,8 @@ class MLModel : public Parallel
 
         ~MLModel();
 
-        void init(const int r,
+        void init(const int k,
+                  const int r,
                   const int pf,
                   const double pixelSize,
                   const double a,
@@ -80,7 +84,7 @@ class MLModel : public Parallel
 
         void appendRef(const Volume& ref);
 
-        int K() const;
+        int k() const;
 
         int size() const;
 

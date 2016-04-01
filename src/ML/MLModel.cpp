@@ -17,13 +17,15 @@ MLModel::~MLModel()
     clear();
 }
 
-void MLModel::init(const int r,
+void MLModel::init(const int k,
+                   const int r,
                    const int pf,
                    const double pixelSize,
                    const double a,
                    const double alpha,
                    const Symmetry* sym)
 {
+    _k = k;
     _r = r;
     _pf = pf;
     _pixelSize = pixelSize;
@@ -62,9 +64,9 @@ void MLModel::appendRef(const Volume& ref)
     _ref.push_back(ref);
 }
 
-int MLModel::K() const
+int MLModel::k() const
 {
-    return _ref.size();
+    return _k;
 }
 
 int MLModel::size() const
@@ -132,7 +134,7 @@ void MLModel::BcastFSC()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    double* FSC = new double[K() * _r];
+    double* FSC = new double[_k * _r];
 
     if (_commRank == MASTER_ID)
         FOR_EACH_CLASS
@@ -140,7 +142,7 @@ void MLModel::BcastFSC()
                 FSC[i * _r + j] = _FSC[i](j);
 
     MPI_Bcast(FSC,
-              K() * _r,
+              _k * _r,
               MPI_DOUBLE,
               MASTER_ID,
               MPI_COMM_WORLD);

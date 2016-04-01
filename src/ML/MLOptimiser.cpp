@@ -36,7 +36,8 @@ void MLOptimiser::init()
     _sym.init(_para.sym);
 
     MLOG(INFO) << "Passing Parameters to _model";
-    _model.init(0,
+    _model.init(1,
+                0,
                 _para.pf,
                 _para.pixelSize,
                 _para.a,
@@ -185,10 +186,10 @@ void MLOptimiser::run()
         MLOG(INFO) << "Performing Maximization";
         maximization();
 
-        /***
         // calculate FSC
         _model.BcastFSC();
 
+        /***
         // record current resolution
         _res = _model.resolutionP();
 
