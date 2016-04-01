@@ -120,6 +120,8 @@ int main(int argc, char* argv[])
     Coordinate5D coord;
     for (int i = 0; i < M; i++)
     {
+        SET_0_FT(image);
+
         sprintf(name, "%06d.mrc", i);
         printf("%s\n", name);
 
@@ -130,7 +132,7 @@ int main(int argc, char* argv[])
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(RANDR, 2);
+            noise(i) = gsl_ran_gaussian(RANDR, 2);
 
         fft.bw(image);
 
@@ -145,6 +147,9 @@ int main(int argc, char* argv[])
 
         imf.readMetaData(image);
         imf.writeImage(name, image);
+
+        sprintf(name, "%06d.bmp", i);
+        image.saveRLToBMP(name);
 
         fft.fw(image);
     }
