@@ -63,9 +63,11 @@ void Reconstructor::insert(const Image& src,
 {
     if (_commRank == MASTER_ID) return;
 
+    /***
     ALOG(INFO) << "_size = " << _size;
     ALOG(INFO) << "nCol = " << src.nColRL();
     ALOG(INFO) << "nRow = " << src.nRowRL();
+    ***/
 
     _coord.push_back(coord);
 

@@ -25,8 +25,6 @@
 #include "Functions.h"
 #include "Symmetry.h"
 
-#define TOP_K 20
-
 using namespace arma;
 
 using namespace std;

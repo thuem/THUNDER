@@ -35,6 +35,8 @@
 
 #define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
 
+#define TOP_K 3
+
 using namespace std;
 using namespace google;
 

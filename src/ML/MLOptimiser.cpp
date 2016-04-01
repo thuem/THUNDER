@@ -606,6 +606,9 @@ void MLOptimiser::reconstructRef()
 
     FOR_EACH_2D_IMAGE
     {
+        ILOG(INFO) << "Inserting Particle "
+                   << _ID[l]
+                   << " into Reconstructor";
         /***
         IMAGE_FOR_EACH_PIXEL_FT(_img[l])
             if (QUAD(i, j) < _r * _r)
