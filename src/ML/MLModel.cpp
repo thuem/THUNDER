@@ -41,6 +41,10 @@ void MLModel::initProjReco()
         _reco.push_back(Reconstructor());
     }
 
+    ALOG(INFO) << "Setting Up MPI Environment of Reconstructors";
+    FOR_EACH_CLASS
+        _reco[i].setMPIEnv(_commSize, _commRank, _hemi);
+
     ALOG(INFO) << "Refreshing Projectors";
     refreshProj();
 
