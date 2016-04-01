@@ -175,9 +175,9 @@ void MLOptimiser::run()
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO) << "Entering Iteration";
-    for (int l = 0; l < _para.iterMax; l++)
+    for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
-        MLOG(INFO) << "Round " << l;
+        MLOG(INFO) << "Round " << _iter;
 
         MLOG(INFO) << "Performing Expectation";
         expectation();
@@ -600,8 +600,6 @@ void MLOptimiser::reconstructRef()
 
     Image img(size(), size(), FT_SPACE);
 
-    // TODO: considering CTF effect
-    
     ALOG(INFO) << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
@@ -609,10 +607,10 @@ void MLOptimiser::reconstructRef()
         ILOG(INFO) << "Inserting Particle "
                    << _ID[l]
                    << " into Reconstructor";
-        /***
-        IMAGE_FOR_EACH_PIXEL_FT(_img[l])
-            if (QUAD(i, j) < _r * _r)
-            ***/
+
+        // reduce the CTF effect
+        reduceCTF(img, _img[l], _ctf[l], _r);
+
         uvec iSort = _par[l].iSort();
 
         Coordinate5D coord;
@@ -631,6 +629,25 @@ void MLOptimiser::reconstructRef()
     ALOG(INFO) << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
+
+    ImageFile imf;
+    char filename[FILE_NAME_LENGTH];
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO) << "Saving References";
+
+        imf.readMetaData(_model.ref(0));
+        sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+        imf.writeVolume(filename, _model.ref(0));
+    }
+    else if (_commRank == HEMI_B_LEAD)
+    {
+        BLOG(INFO) << "Saving References";
+
+        imf.readMetaData(_model.ref(0));
+        sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+        imf.writeVolume(filename, _model.ref(0));
+    }
 
     ALOG(INFO) << "Fourier Transforming References";
 

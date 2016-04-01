@@ -36,3 +36,16 @@ void CTF(Image& dst,
                   j);
     }
 }
+
+void reduceCTF(Image& dst,
+               const Image& src,
+               const Image& ctf,
+               const double r)
+{
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+        if (QUAD(i, j) < r * r)
+            dst.setFT(src.getFT(i, j)
+                    / (CTF_TAU + REAL(ctf.getFT(i, j))),
+                      i,
+                      j);
+}
