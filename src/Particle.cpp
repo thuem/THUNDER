@@ -224,6 +224,7 @@ double Particle::neff() const
 
 uvec Particle::iSort() const
 {
+    LOG(INFO) << _w;
     return sort_index(_w, "descend");
 }
 
