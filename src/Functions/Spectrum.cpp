@@ -111,21 +111,28 @@ void powerSpectrum(vec& dst,
 
 void FRC(vec& dst,
          const Image& A,
-         const Image& B,
-         const int r)
+         const Image& B)
 {
-    dst.resize(r);
+    // dst.set_size(r);
 
+    vec vecS = zeros<vec>(size(dst));
+    vec vecA = zeros<vec>(size(dst));
+    vec vecB = zeros<vec>(size(dst));
+    /***
     vec vecS = zeros<vec>(r);
     vec vecA = zeros<vec>(r);
     vec vecB = zeros<vec>(r);
+    ***/
 
     IMAGE_FOR_EACH_PIXEL_FT(A)
     {
         int u = AROUND(NORM(i, j));
-        vecS[u] += REAL(A.getFT(i, j) * CONJUGATE(B.getFT(i, j)));
-        vecA[u] += ABS2(A.getFT(i, j));
-        vecB[u] += ABS2(B.getFT(i, j));
+        if (u < dst.n_elem)
+        {
+            vecS[u] += REAL(A.getFT(i, j) * CONJUGATE(B.getFT(i, j)));
+            vecA[u] += ABS2(A.getFT(i, j));
+            vecB[u] += ABS2(B.getFT(i, j));
+        }
     }
 
     dst = vecS / sqrt(vecA % vecB);
@@ -133,21 +140,23 @@ void FRC(vec& dst,
 
 void FSC(vec& dst,
          const Volume& A,
-         const Volume& B,
-         const int r)
+         const Volume& B)
 {
-    dst.resize(r);
+    // dst.set_size(r);
 
-    vec vecS = zeros<vec>(r);
-    vec vecA = zeros<vec>(r);
-    vec vecB = zeros<vec>(r);
+    vec vecS = zeros<vec>(size(dst));
+    vec vecA = zeros<vec>(size(dst));
+    vec vecB = zeros<vec>(size(dst));
 
     VOLUME_FOR_EACH_PIXEL_FT(A)
     {
         int u = AROUND(NORM_3(i, j, k));
-        vecS[u] += REAL(A.getFT(i, j, k) * CONJUGATE(B.getFT(i, j, k)));
-        vecA[u] += ABS2(A.getFT(i, j, k));
-        vecB[u] += ABS2(B.getFT(i, j, k));
+        if (u < dst.n_elem)
+        {
+            vecS[u] += REAL(A.getFT(i, j, k) * CONJUGATE(B.getFT(i, j, k)));
+            vecA[u] += ABS2(A.getFT(i, j, k));
+            vecB[u] += ABS2(B.getFT(i, j, k));
+        }
     }
 
     dst = vecS / sqrt(vecA % vecB);

@@ -151,11 +151,9 @@ void MLModel::BcastFSC()
             
             MLOG(INFO) << "Calculating FSC of Reference " << i;
             // FSC(_FSC.col(i), A, B, _r);
-            /***
             vec fsc(_r);
-            FSC(fsc, A, B, _r);
+            FSC(fsc, A, B);
             _FSC.col(i) = fsc;
-            ***/
         }
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
