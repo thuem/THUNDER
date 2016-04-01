@@ -127,6 +127,8 @@ void MLModel::BcastFSC()
             if ((&A[0] == NULL) && (&B[0] == NULL))
                 LOG(FATAL) << "Failed to Allocate Space for Storing a Reference";
 
+            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere A";
+
             MPI_Recv(&A[0],
                      A.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
@@ -134,6 +136,9 @@ void MLModel::BcastFSC()
                      i,
                      MPI_COMM_WORLD,
                      &stat);
+
+            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere B";
+
             MPI_Recv(&B[0],
                      B.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
@@ -143,15 +148,21 @@ void MLModel::BcastFSC()
                      &stat);
 
             // TODO: check transporting using MPI_Status
-
+            
+            MLOG(INFO) << "Calculating FSC of Reference " << i;
             // FSC(_FSC.col(i), A, B, _r);
+            /***
             vec fsc(_r);
             FSC(fsc, A, B, _r);
             _FSC.col(i) = fsc;
+            ***/
         }
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
         {
+            ALOG(INFO) << "Sending Reference " << i << " from Hemisphere A";
+            BLOG(INFO) << "Sending Reference " << i << " from Hemisphere B";
+
             MPI_Ssend(&_ref[i][0],
                       _ref[i].sizeFT(),
                       MPI_DOUBLE_COMPLEX,
