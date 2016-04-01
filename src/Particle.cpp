@@ -143,7 +143,7 @@ void Particle::perturb()
                                     _t.n_rows));
     _rho = gsl_stats_covariance(_t.colptr(0),
                                 1,
-                                _t.colptr(0),
+                                _t.colptr(1),
                                 1,
                                 _t.n_rows) / _s0 / _s1;
 
@@ -213,6 +213,7 @@ void Particle::resample()
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
+    r = NULL;
 
     perturb();
 }
