@@ -226,8 +226,7 @@ void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
     {
-        LOG(FATAL) << "Important: _size = " << _size;
-
+        // LOG(FATAL) << "Important: _size = " << _size;
         _reco[i].init(_size,
                       _pf,
                       _sym,
