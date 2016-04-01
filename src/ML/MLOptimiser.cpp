@@ -117,7 +117,7 @@ void MLOptimiser::expectation()
 
     FOR_EACH_2D_IMAGE
     {
-        ILOG(INFO) << "Performing Expectation on Particle " << _ID[l];
+        ILOG(INFO) << "Performing Expectation on Image " << _ID[l];
 
         stringstream ss;
         ss << "Particle" << _ID[l] << ".par";
@@ -125,7 +125,12 @@ void MLOptimiser::expectation()
         ss.str("");
 
         if (_par[l].neff() < _par[l].N() / 3)
+        {
+            ILOG(INFO) << "Resampling Particle " << _ID[l]
+                       << " for neff = " << _par[l].neff();
+
             _par[l].resample();
+        }
         else 
             _par[l].perturb();
 

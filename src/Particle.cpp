@@ -132,6 +132,7 @@ void Particle::perturb()
 {
     // translation perturbation
     mat L = chol(cov(_t), "lower");
+    cout << cov(_t) << endl;
     for (int i = 0; i < _N; i++)
         _t.row(i) += (L * randn<vec>(2)).t() / 3;
 
