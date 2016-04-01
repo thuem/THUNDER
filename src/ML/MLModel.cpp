@@ -63,9 +63,9 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(const Volume& ref)
 {
-    if ((ref.nColRL() != _size) ||
-        (ref.nRowRL() != _size) ||
-        (ref.nSlcRL() != _size))
+    if (((ref.nColRL() != _size) && (ref.nColRL() != 0)) ||
+        ((ref.nRowRL() != _size) && (ref.nRowRL() != 0)) ||
+        ((ref.nSlcRL() != _size) && (ref.nSlcRL() != 0)))
         LOG(FATAL) << "Incorrect Size of Appending Reference"
                    << ": _size = " << _size
                    << ", nCol = " << ref.nColRL()
