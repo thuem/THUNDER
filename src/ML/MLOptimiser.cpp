@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
-    _r = _para.size / 8;
+    _r = _para.size / 16;
     _iter = 0;
     _model.setR(_r);
 
@@ -144,6 +144,9 @@ void MLOptimiser::expectation()
             _par[l].mulW(w, m);
         }
         _par[l].normW();
+
+        ILOG(INFO) << "Neff of Particle " << _ID[l]
+                   << " is " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
         sprintf(filename, "Particle%004d.par", l);
