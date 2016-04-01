@@ -145,7 +145,7 @@ void MLModel::BcastFSC()
             // TODO: check transporting using MPI_Status
 
             // FSC(_FSC.col(i), A, B, _r);
-            vec fsc;
+            vec fsc(_r);
             FSC(fsc, A, B, _r);
             _FSC.col(i) = fsc;
         }
