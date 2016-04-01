@@ -37,9 +37,13 @@ class MLModel : public Parallel
         vector<Volume> _ref;
         /* references in Fourier space */
 
-        vector<vec> _FSC;
+        mat _FSC;
+        /* each column: a FSC of a certain reference */
+        // vector<vec> _FSC;
 
-        vector<vec> _SNR;
+        mat _SNR;
+        /* each column: a SNR of a certain reference */
+        // vector<vec> _SNR;
 
         vector<Projector> _proj;
 
@@ -52,7 +56,7 @@ class MLModel : public Parallel
         /* size of references before padding */
 
         int _r;
-        /* radius of calculating FSC and SNR */
+        /* radius of calculating FSC and SNR before padding */
 
         int _pf;
         /* padding factor */

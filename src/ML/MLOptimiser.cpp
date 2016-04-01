@@ -45,6 +45,11 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
+    MLOG(INFO) << "Setting Parameters: _r, _iter";
+    _r = _para.size / 8;
+    _iter = 0;
+    _model.setR(_r);
+
     MLOG(INFO) << "Openning Database File";
     _exp.openDatabase(_para.db);
 
@@ -71,13 +76,10 @@ void MLOptimiser::init()
         ALOG(INFO) << "Initialising 2D Images";
         initImg();
 
-        ALOG(INFO) << "Setting Parameters: _N, _r, _iter";
+        ALOG(INFO) << "Setting Parameters: _N";
         allReduceN();
-        _r = maxR() / 8; // start from 1 / 8 of highest frequency
-        _iter = 0;
-        ALOG(INFO) << "_N = " << _N
-                   << ", _r = " << _r
-                   << ", _iter = " << _iter;
+        ALOG(INFO) << "Number of Images in Hemisphere A: " << _N;
+        BLOG(INFO) << "Number of Images in Hemisphere B: " << _N;
 
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
@@ -331,10 +333,14 @@ void MLOptimiser::initImg()
         imf.readMetaData();
         imf.readImage(_img.back());
 
+        if ((_img.back().nColRL() != _para.size) ||
+            (_img.back().nRowRL() != _para.size))
+            LOG(FATAL) << "Incorrect Size of 2D Images";
+
         // apply a soft mask on it
         softMask(_img.back(),
                  _img.back(),
-                 _img.back().nColRL() / 4,
+                 para._size / 4,
                  EDGE_WIDTH_RL);
 
         /***

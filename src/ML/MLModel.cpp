@@ -107,6 +107,10 @@ Reconstructor& MLModel::reco(const int i)
 
 void MLModel::BcastFSC()
 {
+    MLOG(INFO) << "Setting Size of _FSC";
+
+    _FSC.set_size(_r, _k);
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO) << "Gathering References from Hemisphere A and Hemisphere B";
@@ -140,7 +144,10 @@ void MLModel::BcastFSC()
 
             // TODO: check transporting using MPI_Status
 
-            FSC(_FSC[i], A, B, _r);
+            // FSC(_FSC.col(i), A, B, _r);
+            vec fsc;
+            FSC(fsc, A, B, _r);
+            _FSC.col(i) = fsc;
         }
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
@@ -156,19 +163,22 @@ void MLModel::BcastFSC()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+    /***
     double* FSC = new double[_k * _r];
 
     if (_commRank == MASTER_ID)
         FOR_EACH_CLASS
             for (int j = 0; j < _r; j++)
                 FSC[i * _r + j] = _FSC[i](j);
+                ***/
 
-    MPI_Bcast(FSC,
-              _k * _r,
+    MPI_Bcast(_FSC.memptr(),
+              _FSC.n_elem,
               MPI_DOUBLE,
               MASTER_ID,
               MPI_COMM_WORLD);
 
+    /***
     if (_commRank != MASTER_ID)
         FOR_EACH_CLASS
         {
@@ -178,6 +188,7 @@ void MLModel::BcastFSC()
         }
 
     delete[] FSC;
+    ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -191,13 +202,15 @@ void MLModel::lowPassRef(const double thres,
 
 void MLModel::refreshSNR()
 {
+    _SNR.copy_size(_FSC);
+
     FOR_EACH_CLASS
-        _SNR[i] = _FSC[i] / (1 + _FSC[i]);
+        _SNR.col(i) = _FSC.col(i) / (1 + _FSC.col(i));
 }
 
 int MLModel::resolutionP(const int i) const
 {
-    return uvec(find(_SNR[i] > 1, 1))(0);
+    return uvec(find(_SNR.col(i) > 1, 1))(0);
 }
 
 int MLModel::resolutionP() const
@@ -251,7 +264,7 @@ void MLModel::updateR()
 {
     // TODO: considering padding factor
     FOR_EACH_CLASS
-        if (_FSC[i](_r) > 0.2)
+        if (_FSC.col(i)(_r) > 0.2)
         {
             _r += AROUND(double(_size) / 8);
             _r = MIN(_r, _size / 2 - _a);
