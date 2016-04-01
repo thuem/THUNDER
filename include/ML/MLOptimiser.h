@@ -44,6 +44,12 @@ typedef struct ML_OPTIMISER_PARA
 {
     int iterMax;
     // max number of iterations
+    
+    int k;
+    // number of references
+
+    int size;
+    // size of references and images
 
     int pf;
     // pading factor

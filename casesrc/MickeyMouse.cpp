@@ -19,7 +19,7 @@
 
 #define PF 2
 
-#define N 256
+#define N 128
 #define MAX_X 10
 #define MAX_Y 10
 
@@ -38,6 +38,8 @@ int main(int argc, char* argv[])
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
     para.iterMax = 1;
+    para.k = 1;
+    para.size = N;
     para.pf = PF;
     para.a = 1.9;
     para.alpha = 10;

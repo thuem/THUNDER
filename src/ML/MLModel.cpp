@@ -18,6 +18,7 @@ MLModel::~MLModel()
 }
 
 void MLModel::init(const int k,
+                   const int size,
                    const int r,
                    const int pf,
                    const double pixelSize,
@@ -26,6 +27,7 @@ void MLModel::init(const int k,
                    const Symmetry* sym)
 {
     _k = k;
+    _size = size;
     _r = r;
     _pf = pf;
     _pixelSize = pixelSize;
@@ -71,7 +73,7 @@ int MLModel::k() const
 
 int MLModel::size() const
 {
-    return _ref[0].nColRL();
+    return _size;
 }
 
 int MLModel::r() const
@@ -102,8 +104,8 @@ void MLModel::BcastFSC()
     {
         if (_commRank == MASTER_ID)
         {
-            Volume A(size(), size(), size(), FT_SPACE);
-            Volume B(size(), size(), size(), FT_SPACE);
+            Volume A(_size, _size, _size, FT_SPACE);
+            Volume B(_size, _size, _size, FT_SPACE);
             MPI_Recv(&A[0],
                      A.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
@@ -192,13 +194,13 @@ int MLModel::resolutionP() const
 double MLModel::resolutionA(const int i) const
 {
     // TODO: considering padding factor
-    return resP2A(resolutionP(i), size(), _pixelSize);
+    return resP2A(resolutionP(i), _size, _pixelSize);
 }
 
 double MLModel::resolutionA() const
 {
     // TODO: considering padding factor
-    return resP2A(resolutionP(), size(), _pixelSize);
+    return resP2A(resolutionP(), _size, _pixelSize);
 }
 
 void MLModel::refreshProj()
@@ -215,7 +217,7 @@ void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
     {
-        _reco[i].init(size() / _pf,
+        _reco[i].init(_size / _pf,
                       _pf,
                       _sym,
                       _a,
@@ -230,13 +232,13 @@ void MLModel::updateR()
     FOR_EACH_CLASS
         if (_FSC[i](_r) > 0.2)
         {
-            _r += AROUND(double(size()) / 8);
-            _r = MIN(_r, size() / 2 - _a);
+            _r += AROUND(double(_size) / 8);
+            _r = MIN(_r, _size / 2 - _a);
             return;
         }
 
     _r += 10;
-    _r = MIN(_r, size() / 2 - _a);
+    _r = MIN(_r, _size / 2 - _a);
 }
 
 void MLModel::clear()

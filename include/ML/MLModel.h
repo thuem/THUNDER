@@ -48,6 +48,9 @@ class MLModel : public Parallel
         int _k;
         /* number of references */
 
+        int _size;
+        /* size of references before padding */
+
         int _r;
         /* radius of calculating FSC and SNR */
 
@@ -70,6 +73,7 @@ class MLModel : public Parallel
         ~MLModel();
 
         void init(const int k,
+                  const int size,
                   const int r,
                   const int pf,
                   const double pixelSize,

@@ -37,7 +37,8 @@ void MLOptimiser::init()
 
     MLOG(INFO) << "Passing Parameters to _model";
     _model.init(1,
-                0,
+                _para.k,
+                _para.size,
                 _para.pf,
                 _para.pixelSize,
                 _para.a,
