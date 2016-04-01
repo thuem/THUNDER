@@ -11,7 +11,7 @@
 #include "ImageFile.h"
 #include "Volume.h"
 
-#define N 256
+#define N 128
 #define PF 2
 
 using namespace std;
