@@ -152,7 +152,7 @@ void MLModel::BcastFSC()
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
         {
-            MPI_Ssend(&_ref[i],
+            MPI_Ssend(&_ref[i][0],
                       _ref[i].sizeFT(),
                       MPI_DOUBLE_COMPLEX,
                       MASTER_ID,
@@ -163,32 +163,13 @@ void MLModel::BcastFSC()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /***
-    double* FSC = new double[_k * _r];
-
-    if (_commRank == MASTER_ID)
-        FOR_EACH_CLASS
-            for (int j = 0; j < _r; j++)
-                FSC[i * _r + j] = _FSC[i](j);
-                ***/
+    MLOG(INFO) << "Broadcasting FSC from MASTER";
 
     MPI_Bcast(_FSC.memptr(),
               _FSC.n_elem,
               MPI_DOUBLE,
               MASTER_ID,
               MPI_COMM_WORLD);
-
-    /***
-    if (_commRank != MASTER_ID)
-        FOR_EACH_CLASS
-        {
-            _FSC[i].resize(_r);
-            for (int j = 0; j < _r; j++)
-                _FSC[i](j) = FSC[i * _r + j];
-        }
-
-    delete[] FSC;
-    ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 }
