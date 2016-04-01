@@ -39,11 +39,9 @@ class MLModel : public Parallel
 
         mat _FSC;
         /* each column: a FSC of a certain reference */
-        // vector<vec> _FSC;
 
         mat _SNR;
         /* each column: a SNR of a certain reference */
-        // vector<vec> _SNR;
 
         vector<Projector> _proj;
 
