@@ -537,7 +537,7 @@ void MLOptimiser::allReduceSigma()
             powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
-            _sig.col(_groupID[l] - 1).head(_r) += w * sig;
+            _sig.col(_groupID[l] - 1).head(_r) += w * sig / 2;
             _sig.col(_groupID[l] - 1).tail(1) += 1;
         }
     }
