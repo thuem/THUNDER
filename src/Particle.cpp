@@ -225,7 +225,6 @@ double Particle::neff() const
 
 uvec Particle::iSort() const
 {
-    LOG(INFO) << _w;
     return sort_index(_w, "descend");
 }
 
@@ -266,4 +265,25 @@ void display(const Particle& particle)
         particle.coord(coord, i);
         display(coord);
     }
+}
+
+void save(const char filename[],
+          const Particle& par)
+{
+    FILE* file = fopen(filename, "w");
+
+    vec4 q;
+    vec2 t;
+    for (int i = 0; i < par.N(); i++)
+    {
+        par.quaternion(q, i);
+        par.t(t, i);
+        fprintf(file,
+                "%10f %10f %10f %10f %10f %10f %10f\n",
+                 q(0),q(1),q(2),q(3),
+                 t(0), t(1),
+                 par.w(i));
+    }
+
+    fclose(file);
 }

@@ -119,11 +119,6 @@ void MLOptimiser::expectation()
     {
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l];
 
-        stringstream ss;
-        ss << "Particle" << _ID[l] << ".par";
-        FILE* file = fopen(ss.str().c_str(), "w");
-        ss.str("");
-
         if (_par[l].neff() < _par[l].N() / 3)
         {
             ILOG(INFO) << "Resampling Particle " << _ID[l]
@@ -150,19 +145,9 @@ void MLOptimiser::expectation()
         }
         _par[l].normW();
 
-        // Save particles
-        vec4 q;
-        vec2 t;
-        for (int m = 0; m < _par[l].N(); m++)
-        {
-            _par[l].quaternion(q, m);
-            _par[l].t(t, m);
-            fprintf(file, "%f %f %f %f %f %f %10f\n",
-                          q(0),q(1),q(2),q(3),
-                          t(0), t(1),
-                          _par[l].w(m));
-        }
-        fclose(file);
+        char filename[FILE_NAME_LENGTH];
+        sprintf(filename, "Particle%004d.par", l);
+        save(filename, _par[l]);
     }
 }
 

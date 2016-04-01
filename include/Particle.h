@@ -122,4 +122,7 @@ class Particle
 
 void display(const Particle& particle);
 
+void save(const char filename[],
+          const Particle& particle);
+
 #endif  //PARTICLE_H
