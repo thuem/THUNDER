@@ -131,10 +131,36 @@ void Particle::setSymmetry(const Symmetry* sym)
 void Particle::perturb()
 {
     // translation perturbation
+    _s0 = sqrt(gsl_stats_covariance(_t.colptr(0),
+                                    1,
+                                    _t.colptr(0),
+                                    1,
+                                    _t.n_rows));
+    _s1 = sqrt(gsl_stats_covariance(_t.colptr(1),
+                                    1,
+                                    _t.colptr(1),
+                                    1,
+                                    _t.n_rows));
+    _rho = gsl_stats_covariance(_t.colptr(0),
+                                1,
+                                _t.colptr(0),
+                                1,
+                                _t.n_rows) / _s0 / _s1;
+
+    _t.each_row([this](rowvec& row)
+                {
+                    double x, y;
+                    gsl_ran_bivariate_gaussian(RANDR, _s0, _s1, _rho, &x, &y);
+                    row(0) += x / 3;
+                    row(1) += y / 3;
+                });
+
+    /***
     mat L = chol(cov(_t), "lower");
     cout << cov(_t) << endl;
     for (int i = 0; i < _N; i++)
         _t.row(i) += (L * randn<vec>(2)).t() / 3;
+        ***/
 
     // rotation perturbation
     bingham_t B;

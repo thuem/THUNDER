@@ -13,6 +13,7 @@
 #include <numeric>
 
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_statistics.h>
 #include <armadillo>
 #include <bingham.h>
 
@@ -54,6 +55,10 @@ class Particle
         double _k0 = 0;
         double _k1 = 0;
         double _k2 = 0;
+
+        double _s0 = 0; // sigma0
+        double _s1 = 0; // sgima1
+        double _rho = 0;
 
     public:
 
