@@ -63,8 +63,10 @@ void Reconstructor::insert(const Image& src,
 {
     if (_commRank == MASTER_ID) return;
 
+    /***
     CHECK_EQ(_size, src.nColRL()) << "Wrong Size of Inserting Image";
     CHECK_EQ(_size, src.nRowRL()) << "Wrong Size of Inserting Image";
+    ***/
 
     _coord.push_back(coord);
 
