@@ -12,6 +12,7 @@
 #include "Volume.h"
 
 #define N 256
+#define PF 2
 
 using namespace std;
 
@@ -28,9 +29,12 @@ int main(int argc, char* argv[])
     }
     normalise(sphere);
 
+    Volume padSphere;
+    VOL_PAD_RL(padSphere, sphere, PF);
+
     ImageFile imf;
-    imf.readMetaData(sphere);
-    imf.writeVolume("sphere.mrc", sphere);
+    imf.readMetaData(padSphere);
+    imf.writeVolume("sphere.mrc", padSphere);
 
     return 0;
 }
