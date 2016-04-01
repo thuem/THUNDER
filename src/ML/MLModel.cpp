@@ -115,6 +115,8 @@ void MLModel::BcastFSC()
     {
         IF_MASTER
         {
+            MPI_Status stat;
+
             Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
             Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
 
@@ -127,14 +129,17 @@ void MLModel::BcastFSC()
                      HEMI_A_LEAD,
                      i,
                      MPI_COMM_WORLD,
-                     NULL);
+                     &stat);
             MPI_Recv(&B[0],
                      B.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
                      HEMI_B_LEAD,
                      i,
                      MPI_COMM_WORLD,
-                     NULL);
+                     &stat);
+
+            // TODO: check transporting using MPI_Status
+
             FSC(_FSC[i], A, B, _r);
         }
         else if ((_commRank == HEMI_A_LEAD) ||
