@@ -109,7 +109,7 @@ void MLModel::BcastFSC()
 {
     MLOG(INFO) << "Setting Size of _FSC";
 
-    _FSC.set_size(_r, _k);
+    _FSC.set_size(_r * _pf, _k);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -151,7 +151,7 @@ void MLModel::BcastFSC()
             
             MLOG(INFO) << "Calculating FSC of Reference " << i;
             // FSC(_FSC.col(i), A, B, _r);
-            vec fsc(_r);
+            vec fsc(_r * _pf);
             FSC(fsc, A, B);
             _FSC.col(i) = fsc;
         }
@@ -200,7 +200,7 @@ void MLModel::refreshSNR()
 
 int MLModel::resolutionP(const int i) const
 {
-    return uvec(find(_SNR.col(i) > 1, 1, "last"))(0);
+    return uvec(find(_SNR.col(i) > 1, 1, "last"))(0) / _pf;
 }
 
 int MLModel::resolutionP() const
@@ -216,13 +216,11 @@ int MLModel::resolutionP() const
 
 double MLModel::resolutionA(const int i) const
 {
-    // TODO: considering padding factor
     return resP2A(resolutionP(i), _size, _pixelSize);
 }
 
 double MLModel::resolutionA() const
 {
-    // TODO: considering padding factor
     return resP2A(resolutionP(), _size, _pixelSize);
 }
 
@@ -240,7 +238,6 @@ void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
     {
-        // LOG(FATAL) << "Important: _size = " << _size;
         _reco[i].init(_size,
                       _pf,
                       _sym,
@@ -252,9 +249,8 @@ void MLModel::refreshReco()
 
 void MLModel::updateR()
 {
-    // TODO: considering padding factor
     FOR_EACH_CLASS
-        if (_FSC.col(i)(_r) > 0.2)
+        if (_FSC.col(i)(_pf * _r - 1) > 0.2)
         {
             _r += AROUND(double(_size) / 8);
             _r = MIN(_r, _size / 2 - _a);

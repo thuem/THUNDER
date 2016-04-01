@@ -198,21 +198,24 @@ void MLOptimiser::run()
         MLOG(INFO) << "Recording Current Resolution";
         _res = _model.resolutionP();
         MLOG(INFO) << "Current Cutoff Frequency: "
-                   << _r
+                   << _r - 1
                    << " (Spatial), "
-                   << resP2A(_r, _para.size, _para.pixelSize)
+                   << 1.0 / resP2A(_r, _para.size, _para.pixelSize)
                    << " (Angstrom)";
         MLOG(INFO) << "Current Resolution: "
                    << _res
                    << " (Spatial), "
-                   << resP2A(_res, _para.size, _para.pixelSize)
+                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
                    << " (Angstrom)";
 
-        /***
-        // update the radius of frequency for computing
+        MLOG(INFO) << "Update Cutoff Frequency: ";
         _model.updateR();
-        _r = _model.r() / _para.pf;
-        ***/
+        _r = _model.r();
+        MLOG(INFO) << "New Cutoff Frequency: "
+                   << _r - 1
+                   << " (Spatial), "
+                   << 1.0 / resP2A(_r, _para.size, _para.pixelSize)
+                   << " (Angstrom)";
     }
 }
 
