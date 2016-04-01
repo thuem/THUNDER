@@ -41,7 +41,7 @@ void Reconstructor::init(const int size,
                  _pf * _a,
                  1e5);
 
-    _maxRadius = (_size / 2 - a) * _pf;
+    _maxRadius = (_size / 2 - a);
 
     _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
@@ -55,6 +55,16 @@ void Reconstructor::init(const int size,
 void Reconstructor::setSymmetry(const Symmetry* sym)
 {
     _sym = sym;
+}
+
+int Reconstructor::maxRadius() const
+{
+    return _maxRadius;
+}
+
+void Reconstructor::setMaxRadius(const int maxRadius)
+{
+    _maxRadius = maxRadius;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -83,7 +93,7 @@ void Reconstructor::insert(const Image& src,
         arma::vec3 newCor = {(double)i, (double)j, 0};
         arma::vec3 oldCor = mat * newCor *_pf;
         
-        if (norm(oldCor) < _maxRadius)
+        if (norm(oldCor) < _maxRadius * _pf)
             _F.addFT(transSrc.getFT(i, j) * w, 
                      oldCor(0), 
                      oldCor(1), 
@@ -147,7 +157,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)i, (double)j, 0};
                 vec3 oldCor = mat * newCor * _pf;
 
-                if (norm(oldCor) < _maxRadius)
+                if (norm(oldCor) < _maxRadius * _pf)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
                                                      oldCor(1),
                                                      oldCor(2),

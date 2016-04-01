@@ -212,11 +212,14 @@ void MLModel::refreshProj()
 void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
+    {
         _reco[i].init(size() / _pf,
                       _pf,
                       _sym,
                       _a,
                       _alpha);
+        _reco[i].setMaxRadius(_r);
+    }
 }
 
 void MLModel::updateR()

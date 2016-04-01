@@ -82,6 +82,10 @@ class Reconstructor : public Parallel
 
         void setSymmetry(const Symmetry* sym);
 
+        int maxRadius() const;
+
+        void setMaxRadius(const int maxRadius); 
+
         void insert(const Image& src,
                     const Coordinate5D coord,
                     const double w);
