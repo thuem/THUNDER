@@ -560,60 +560,6 @@ void MLOptimiser::allReduceSigma()
     MPI_Barrier(_hemi);
 
     _sig.each_col([](vec& x){ x /= x(x.n_elem - 1); });
-
-    /***
-    // average images belonging to the same group
-     
-    vector<vec>  groupPowerSpectrum;
-    vector<int>  groupSize;
-    
-    char  sql[1024] = "";
-
-    double*      pAllSigma;
-    double*      pMySigma;
-
-    int i, j;
-
-    // all reduce sigma
-    int  count;
-    
-    count = MAX_GROUPID * _r
-
-
-    pMySigma  = (double *)malloc( sizeof(double) * count );
-    if (pMySigma ==NULL )
-    {
-        REPORT_ERROR("Fail to allocate memory for storing sigma");
-        return ;
-    }
-    pAllSigma = (double *)malloc( sizeof(double) * count );
-    if (pAllSigma ==NULL )
-    {
-        free(pMySigma );
-        REPORT_ERROR("Fail to allocate memory for storing sigma");
-        return ;
-    }
-    memset(pMySigma,  0, sizeof(double) * count);
-    memset(pAllSigma, 0, sizeof(double) * count);
-
-    groupID.clear();
-
-    MPI_Allreduce( pMySigma, pAllSigma  , count , MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-    for ( i = 0; i < _img.size(); i++)
-    {
-        for (j=0; j< MAX_POWER_SPECTRUM; j++)
-        {
-            if (groupSize[i] == 0)
-               _sig[i](j)=0;
-            else
-               _sig[i](j) = *( pMySigma+ groupID[i] * MAX_POWER_SPECTRUM + j) / groupSize[i];
-        }
-    }    
-
-    free(pMySigma);
-    free(pAllSigma);
-    ***/
 }
 
 void MLOptimiser::reconstructRef()
