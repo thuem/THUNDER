@@ -199,6 +199,7 @@ void MLModel::refreshSNR()
     ALOG(INFO) << _SNR.n_cols;
     ALOG(INFO) << _SNR.n_rows;
     ALOG(INFO) << "_r = " << _r;
+    ALOG(INFO) << "_k = " << _k;
 
     FOR_EACH_CLASS
         _SNR.col(i) = _FSC.col(i) / (1 + _FSC.col(i));
