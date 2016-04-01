@@ -109,12 +109,18 @@ void MLModel::BcastFSC()
 {
     MPI_Barrier(MPI_COMM_WORLD);
 
+    MLOG(INFO) << "Gathering References from Hemisphere A and Hemisphere B";
+
     FOR_EACH_CLASS
     {
-        if (_commRank == MASTER_ID)
+        IF_MASTER
         {
             Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
             Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+
+            if ((&A[0] == NULL) && (&B[0] == NULL))
+                LOG(FATAL) << "Failed to Allocate Space for Storing a Reference";
+
             MPI_Recv(&A[0],
                      A.sizeFT(),
                      MPI_DOUBLE_COMPLEX,

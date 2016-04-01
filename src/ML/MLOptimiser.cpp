@@ -187,7 +187,7 @@ void MLOptimiser::run()
         MLOG(INFO) << "Performing Maximization";
         maximization();
 
-        // calculate FSC
+        MLOG(INFO) << "Calculating FSC";
         _model.BcastFSC();
 
         /***
