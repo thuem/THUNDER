@@ -340,7 +340,7 @@ void MLOptimiser::initImg()
         // apply a soft mask on it
         softMask(_img.back(),
                  _img.back(),
-                 para._size / 4,
+                 _para.size / 4,
                  EDGE_WIDTH_RL);
 
         /***
