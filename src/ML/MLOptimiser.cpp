@@ -192,10 +192,23 @@ void MLOptimiser::run()
         MLOG(INFO) << "Calculating FSC";
         _model.BcastFSC();
 
-        /***
-        // record current resolution
-        _res = _model.resolutionP();
+        MLOG(INFO) << "Calculating SNR";
+        _model.refreshSNR();
 
+        MLOG(INFO) << "Recording Current Resolution";
+        _res = _model.resolutionP();
+        MLOG(INFO) << "Current Cutoff Frequency: "
+                   << _r
+                   << " (Spatial), "
+                   << resP2A(_r, _para.size, _para.pixelSize)
+                   << " (Angstrom)";
+        MLOG(INFO) << "Current Resolution: "
+                   << _res
+                   << " (Spatial), "
+                   << resP2A(_res, _para.size, _para.pixelSize)
+                   << " (Angstrom)";
+
+        /***
         // update the radius of frequency for computing
         _model.updateR();
         _r = _model.r() / _para.pf;
@@ -287,7 +300,8 @@ void MLOptimiser::initRef()
                << " X "
                << _model.ref(0).nSlcRL();
 
-    // perform fourier transformation
+    ALOG(INFO) << "Performing Fourier Transform";
+
     FFT fft;
     fft.fw(_model.ref(0));
     _model.ref(0).clearRL();
