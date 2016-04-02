@@ -138,7 +138,7 @@ void MLOptimiser::expectation()
             double w = dataVSPrior(image,
                                    _img[l],
                                    _ctf[l],
-                                   _sig.col(_groupID[l] - 1).head(_r),
+                                   _sig.row(_groupID[l] - 1).head(_r).t(),
                                    _r);
 
             _par[l].mulW(w, m);
@@ -468,7 +468,7 @@ void MLOptimiser::initSigma()
     // psAvg -> power spectrum of average image
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
-    _sig.head_rows(_sig.n_rows - 1).each_col() = (avgPs - psAvg) / 2;
+    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
 
     ALOG(INFO) << "Saving Initial Sigma";
     _sig.save("Sigma_00.txt", raw_ascii);
@@ -507,8 +507,8 @@ void MLOptimiser::allReduceSigma()
     ALOG(INFO) << "Clear Up Sigma";
 
     // set re-calculating part to zero
-    _sig.head_rows(_r).zeros();
-    _sig.tail_rows(1).zeros();
+    _sig.head_cols(_r).zeros();
+    _sig.tail_cols(1).zeros();
 
     ALOG(INFO) << "Recalculate Sigma";
     // loop over 2D images
@@ -539,8 +539,8 @@ void MLOptimiser::allReduceSigma()
             powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
-            _sig.col(_groupID[l] - 1).head(_r) += w * sig / 2;
-            _sig.col(_groupID[l] - 1).tail(1) += 1;
+            _sig.row(_groupID[l] - 1).head(_r) += w * sig.t() / 2;
+            _sig.row(_groupID[l] - 1).tail(1) += 1;
         }
     }
 
@@ -550,14 +550,21 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.memptr(),
-                  _sig.n_elem,
+                  _r * _nGroup,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _sig.colptr(_sig.n_cols - 1),
+                  _nGroup,
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
     MPI_Barrier(_hemi);
 
-    _sig.each_col([](vec& x){ x /= x(x.n_elem - 1); });
+    _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
 
     ALOG(INFO) << "Saving Sigma";
     char filename[FILE_NAME_LENGTH];

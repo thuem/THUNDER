@@ -126,8 +126,8 @@ class MLOptimiser : public Parallel
         // vector<vec> _sig;
 
         mat _sig;
-        // each column is a sigma value
-        // size : maxR() * _nGroup
+        // each row is a sigma value
+        // size : _nGroup * maxR()
 
         int _nGroup;
 
