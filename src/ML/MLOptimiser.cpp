@@ -471,7 +471,8 @@ void MLOptimiser::initSigma()
     _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
 
     ALOG(INFO) << "Saving Initial Sigma";
-    _sig.save("Sigma_00.txt", raw_ascii);
+    if (_commRank == HEMI_A_LEAD)
+        _sig.save("Sigma_00.txt", raw_ascii);
 }
 
 void MLOptimiser::initParticles()
@@ -567,9 +568,12 @@ void MLOptimiser::allReduceSigma()
     _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
 
     ALOG(INFO) << "Saving Sigma";
-    char filename[FILE_NAME_LENGTH];
-    sprintf(filename, "Sigma_%02d.txt", _iter + 1);
-    _sig.save(filename, raw_ascii);
+    if (_commRank == HEMI_A_LEAD)
+    {
+        char filename[FILE_NAME_LENGTH];
+        sprintf(filename, "Sigma_%02d.txt", _iter + 1);
+        _sig.save(filename, raw_ascii);
+    }
 }
 
 void MLOptimiser::reconstructRef()
