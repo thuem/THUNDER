@@ -470,7 +470,8 @@ void MLOptimiser::initSigma()
 
     _sig.head_rows(_sig.n_rows - 1).each_col() = (avgPs - psAvg) / 2;
 
-    // ALOG(INFO) << "Initial Sigma is " << endl << _sig[0];
+    ALOG(INFO) << "Saving Initial Sigma";
+    _sig.save("Sigma_00.txt", raw_ascii);
 }
 
 void MLOptimiser::initParticles()
@@ -505,8 +506,9 @@ void MLOptimiser::allReduceSigma()
 
     ALOG(INFO) << "Clear Up Sigma";
 
-    // set to 0
-    _sig.zeros();
+    // set re-calculating part to zero
+    _sig.head_rows(_r).zeros();
+    _sig.tail_rows(1).zeros();
 
     ALOG(INFO) << "Recalculate Sigma";
     // loop over 2D images
@@ -555,7 +557,12 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
-    _sig.each_col([](vec& x){ x /= x(x.n_elem - 1); });
+    _sig.head_rows(_r).each_col([](vec& x){ x /= x(x.n_elem - 1); });
+
+    ALOG(INFO) << "Saving Sigma";
+    char filename[FILE_NAME_LENGTH];
+    sprintf(filename, "Sigm_%02d.txt", _iter);
+    _sig.save(filename, raw_ascii);
 }
 
 void MLOptimiser::reconstructRef()
