@@ -127,7 +127,7 @@ class MLOptimiser : public Parallel
 
         mat _sig;
         // each row is a sigma value
-        // size : _nGroup * maxR()
+        // size : _nGroup * (maxR() + 1)
 
         int _nGroup;
 

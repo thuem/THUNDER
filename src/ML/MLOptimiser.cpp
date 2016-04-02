@@ -234,7 +234,7 @@ void MLOptimiser::allReduceN()
 
 int MLOptimiser::size() const
 {
-    return _img[0].nColRL();
+    return _para.size;
 }
 
 int MLOptimiser::maxR() const
@@ -276,7 +276,7 @@ void MLOptimiser::bcastGroupInfo()
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
     
     ALOG(INFO) << "Setting Up Space for Storing Sigma";
-    NT_MASTER _sig.set_size(1 + maxR(), _nGroup);
+    NT_MASTER _sig.set_size(_nGroup, maxR() + 1);
 }
 
 void MLOptimiser::initRef()
