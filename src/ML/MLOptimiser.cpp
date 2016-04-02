@@ -557,11 +557,11 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
-    _sig.head_rows(_r).each_col([](vec& x){ x /= x(x.n_elem - 1); });
+    _sig.each_col([](vec& x){ x /= x(x.n_elem - 1); });
 
     ALOG(INFO) << "Saving Sigma";
     char filename[FILE_NAME_LENGTH];
-    sprintf(filename, "Sigm_%02d.txt", _iter);
+    sprintf(filename, "Sigma_%02d.txt", _iter + 1);
     _sig.save(filename, raw_ascii);
 }
 
