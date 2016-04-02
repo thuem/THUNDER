@@ -149,7 +149,7 @@ void MLOptimiser::expectation()
                    << " is " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Particle%004d.par", l);
+        sprintf(filename, "Particle%004d.par", _ID[l]);
         save(filename, _par[l]);
     }
 }
