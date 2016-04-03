@@ -133,7 +133,6 @@ void Reconstructor::reconstruct(Volume& dst)
 
     ALOG(INFO) << "Correcting Convolution Kernel";
 
-/***
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {     
         double r = NORM_3(i, j, k) / PAD_SIZE;
@@ -148,7 +147,6 @@ void Reconstructor::reconstruct(Volume& dst)
         else
             dst.setRL(0, i, j, k);
     }
-***/
 }
 
 void Reconstructor::allReduceW()
