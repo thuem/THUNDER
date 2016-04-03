@@ -96,8 +96,6 @@ int main(int argc, char* argv[])
                  k < M / 2 / numworkers * (workerid + 1);
                  k++)
                  ***/
-        int counter = 0;
-        /* for vec images */
 
         for (int k = M / (commSize - 1) * (commRank - 1);
                  k < M / (commSize - 1) * commRank;
@@ -113,11 +111,15 @@ int main(int argc, char* argv[])
                                        0,
                                        0);
                     projector.project(image, coord);
-                    // projector.project(images[counter], coord);
-                    // C2C_RL(image, image, softMask(image, N / 4, 2));
+
+                    fft.bw(image);
                     
                     // insertCoord(images[counter++], coord, 1);
                     reconstructor.insert(image, coord, 1);
+                    printf("image: mean = %f, stddev = %f, maxValue = %f\n",
+                           gsl_stats_mean(&image(0), 1, image.sizeRL()),
+                           gsl_stats_sd(&image(0), 1, image.sizeRL()),
+                           image(cblas_idamax(image.sizeRL(), &image(0), 1)));
 
                     /***
                     FFT fft;
