@@ -156,10 +156,8 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    /***
     ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
-    ***/
 
     /***
     ALOG(INFO) << "Reconstruct Reference";
@@ -662,7 +660,8 @@ double dataVSPrior(const Image& dat,
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                    / (-2 * sig(u));
+                    / (-2 * sig(u))
+                    / (2 * M_PI * u);
     }
 
     return exp(result);
