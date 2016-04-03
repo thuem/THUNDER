@@ -184,6 +184,7 @@ void MLOptimiser::run()
         MLOG(INFO) << "Performing Maximization";
         maximization();
 
+        /***
         MLOG(INFO) << "Calculating FSC";
         _model.BcastFSC();
 
@@ -211,6 +212,7 @@ void MLOptimiser::run()
                    << " (Spatial), "
                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                    << " (Angstrom)";
+                   ***/
     }
 }
 
