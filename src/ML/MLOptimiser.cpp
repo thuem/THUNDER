@@ -214,11 +214,14 @@ void MLOptimiser::run()
                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                    << " (Angstrom)";
 
-        MLOG(INFO) << "Refreshing Projectors";
-        _model.refreshProj();
+        NT_MASTER
+        {
+            ALOG(INFO) << "Refreshing Projectors";
+            _model.refreshProj();
 
-        MLOG(INFO) << "Refreshing Reconstructors";
-        _model.refreshReco();
+            ALOG(INFO) << "Refreshing Reconstructors";
+            _model.refreshReco();
+        }
     }
 }
 
