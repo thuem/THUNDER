@@ -109,6 +109,8 @@ int main(int argc, char* argv[])
             for (int j = 0; j < M / 2; j++)
                 for (int i = 0; i < M / 2; i++)
                 {
+                    SET_0_FT(image);
+
                     printf("%02d %02d %02d\n", i, j, k);
                     sprintf(name, "%02d%02d%02d.bmp", i, j, k);
                     Coordinate5D coord(2 * M_PI * i / M,
