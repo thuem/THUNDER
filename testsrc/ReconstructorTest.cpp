@@ -121,6 +121,8 @@ int main(int argc, char* argv[])
                            gsl_stats_sd(&image(0), 1, image.sizeRL()),
                            image(cblas_idamax(image.sizeRL(), &image(0), 1)));
 
+                    fft.fw(image);
+
                     /***
                     FFT fft;
                     fft.fw(image);
