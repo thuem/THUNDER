@@ -159,8 +159,10 @@ void MLOptimiser::maximization()
     ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
+    /***
     ALOG(INFO) << "Reconstruct Reference";
     reconstructRef();
+    ***/
 }
 
 void MLOptimiser::run()
