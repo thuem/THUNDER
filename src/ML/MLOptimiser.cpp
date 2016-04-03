@@ -655,13 +655,14 @@ double dataVSPrior(const Image& dat,
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
+        // adding /u for compensate
         int u = AROUND(NORM(i, j));
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                    / (-2 * sig(u));
+                    / (-2 * sig(u)) / u;
     }
 
     return exp(result);
