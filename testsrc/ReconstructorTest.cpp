@@ -16,7 +16,7 @@
 #include "ImageFile.h"
 #include "Timer.h"
 
-#define N 128
+#define N 64
 #define M 16
 
 using namespace std;
@@ -173,9 +173,9 @@ int main(int argc, char* argv[])
     reconstructor.allReduceF();
     ***/
  
+    Volume result;
     if (commRank != MASTER_ID)
     {
-        Volume result;
         reconstructor.reconstruct(result);
 
         printf("result: mean = %f, stddev = %f, maxValue = %f\n",
@@ -195,14 +195,39 @@ int main(int argc, char* argv[])
     if (commRank == 1)
         timing();
 
-    /***
-    if (commRank == 1) {
-    // if (myid == 1) {
-        std::cout << "server-" << commRank << ":          finised reduce" << std::endl;
-        reconstructor.constructor("result.mrc");
-        std::cout << "output success!" << std::endl;
+    fft.fw(result);
+
+    projector.setProjectee(result);
+
+    if (commRank != MASTER_ID)
+    {
+        for (int k = M / (commSize - 1) * (commRank - 1);
+                 k < M / (commSize - 1) * commRank;
+                 k++)
+            for (int j = 0; j < M / 2; j++)
+                for (int i = 0; i < M / 2; i++)
+                {
+                    SET_0_FT(image);
+
+                    printf("%02d %02d %02d\n", i, j, k);
+                    sprintf(name, "%02d%02d%02d.bmp", i, j, k);
+                    Coordinate5D coord(2 * M_PI * i / M,
+                                       2 * M_PI * j / M,
+                                       2 * M_PI * k / M,
+                                       0,
+                                       0);
+                    projector.project(image, coord);
+
+                    fft.bw(image);
+                    
+                    printf("image: mean = %f, stddev = %f, maxValue = %f\n",
+                           gsl_stats_mean(&image(0), 1, image.sizeRL()),
+                           gsl_stats_sd(&image(0), 1, image.sizeRL()),
+                           image(cblas_idamax(image.sizeRL(), &image(0), 1)));
+
+                    fft.fw(image);
+                }
     }
-    ***/
 
     //MPI_Comm_free(&world);
     //MPI_Comm_free(&workers);
