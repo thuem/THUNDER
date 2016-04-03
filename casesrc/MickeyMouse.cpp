@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
-    para.iterMax = 1;
+    para.iterMax = atoi(argv[1]);
     para.k = 1;
     para.size = N;
     para.pf = PF;

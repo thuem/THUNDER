@@ -121,7 +121,8 @@ void MLOptimiser::expectation()
 
         if (_par[l].neff() < _par[l].N() / 3)
         {
-            ILOG(INFO) << "Resampling Particle " << _ID[l]
+            ILOG(INFO) << "Round " << _iter
+                       << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
             _par[l].resample();
@@ -145,7 +146,8 @@ void MLOptimiser::expectation()
         }
         _par[l].normW();
 
-        ILOG(INFO) << "Neff of Particle " << _ID[l]
+        ILOG(INFO) << "Round " << _iter
+                   << "Neff of Particle " << _ID[l]
                    << " is " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
@@ -184,7 +186,6 @@ void MLOptimiser::run()
         MLOG(INFO) << "Performing Maximization";
         maximization();
 
-        /***
         MLOG(INFO) << "Calculating FSC";
         _model.BcastFSC();
 
@@ -204,7 +205,7 @@ void MLOptimiser::run()
                    << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
                    << " (Angstrom)";
 
-        MLOG(INFO) << "Update Cutoff Frequency: ";
+        MLOG(INFO) << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
         MLOG(INFO) << "New Cutoff Frequency: "
@@ -212,7 +213,12 @@ void MLOptimiser::run()
                    << " (Spatial), "
                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                    << " (Angstrom)";
-                   ***/
+
+        MLOG(INFO) << "Refreshing Projectors";
+        _model.refreshProj();
+
+        MLOG(INFO) << "Refreshing Reconstructors";
+        _model.refreshReco();
     }
 }
 
@@ -610,7 +616,7 @@ void MLOptimiser::reconstructRef()
             // get weight
             w = _par[l].w(iSort[m]);
 
-            // _model.reco(0).insert(_img[l], coord, w);
+            // TODO: _model.reco(0).insert(_img[l], coord, w);
             _model.reco(0).insert(_img[l], coord, 1);
         }
     }
