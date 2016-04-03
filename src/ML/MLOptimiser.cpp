@@ -651,7 +651,7 @@ double dataVSPrior(const Image& dat,
     {
         int u = AROUND(NORM(i, j));
         if ((FREQ_DOWN_CUTOFF < u) &&
-            (u < r)
+            (u < r))
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
