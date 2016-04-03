@@ -73,11 +73,13 @@ int main(int argc, char* argv[])
     VOL_PAD_RL(padHead, head, PF);
     normalise(padHead);
 
+    /***
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(RANDR, 20);
     ADD_RL(padHead, noise);
+    ***/
 
     printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
@@ -133,7 +135,7 @@ int main(int argc, char* argv[])
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(RANDR, 2);
+            noise(i) = gsl_ran_gaussian(RANDR, 5);
 
         fft.bw(image);
 
