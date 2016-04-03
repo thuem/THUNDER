@@ -10,6 +10,7 @@
 
 #include "Projector.h"
 #include "Reconstructor.h"
+#include "ImageFunctions.h"
 #include "FFT.h"
 #include "Mask.h"
 #include "ImageFile.h"
@@ -43,7 +44,6 @@ int main(int argc, char* argv[])
             head.setRL(0, i, j, k);
     }
     
-    // cout << "1: commRank = " << commRank << endl;
     if (commRank == MASTER_ID)
     {
         ImageFile imf;
@@ -51,16 +51,21 @@ int main(int argc, char* argv[])
         imf.display();
         imf.writeVolume("head.mrc", head);
     }
-    // cout << "2: commRank = " << commRank << endl;
 
     printf("head defined\n");
 
     Volume padHead;
     VOL_PAD_RL(padHead, head, 2);
+    normalise(head);
+
+    printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
+           gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
+           gsl_stats_sd(&padHead(0), 1, padHead.sizeRL()),
+           padHead(cblas_idamax(padHead.sizeRL(), &padHead(0), 1)));
+
     FFT fft;
     fft.fw(padHead);
     printf("FFT Done\n");
-    // cout << "3: commRank = " << commRank << endl;
 
     Projector projector;
     projector.setProjectee(padHead);
@@ -68,21 +73,15 @@ int main(int argc, char* argv[])
     char name[256];
     int counter = 0;
 
-    // vector<Image> images;
-    // images.reserve((M / (commSize - 1)) * (M / 2) * (M / 2));
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
     
     Symmetry sym("C2");
    
-    // cout << "4: commRank = " << commRank << endl;
     Reconstructor reconstructor(N, 2, &sym);
     reconstructor.setMPIEnv();
 
     printf("Set Symmetry Done\n");
-
-    // cout << "5: commRank = " << commRank << endl;
-    // cout << (commRank != MASTER_ID) << endl;
 
     try
     {

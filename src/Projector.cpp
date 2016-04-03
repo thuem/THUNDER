@@ -73,8 +73,8 @@ void Projector::setProjectee(const Volume& src)
     _projectee = src;
 
     // make sure the scale correct
-    SCALE_FT(_projectee, 1.0 / _pf);
-    SCALE_FT(_projectee, 1.0 / sqrt(_projectee.nColRL()));
+    // SCALE_FT(_projectee, 1.0 / _pf);
+    SCALE_FT(_projectee, 1.0 / _pf / sqrt(_projectee.nColRL()));
 
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),

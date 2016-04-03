@@ -125,6 +125,9 @@ void Reconstructor::reconstruct(Volume& dst)
 
     dst = _F;
 
+    // make sure the scale correct
+    SCALE_FT(_F, _pf * sqrt(_pf * _size));
+
     FFT fft;
     fft.bw(dst);
 

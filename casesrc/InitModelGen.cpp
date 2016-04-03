@@ -29,10 +29,10 @@ int main(int argc, char* argv[])
         else
             sphere.setRL(0, i, j, k);
     }
-    normalise(sphere);
 
     Volume padSphere;
     VOL_PAD_RL(padSphere, sphere, PF);
+    normalise(sphere);
 
     ImageFile imf;
     imf.readMetaData(padSphere);
