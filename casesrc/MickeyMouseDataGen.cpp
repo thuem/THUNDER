@@ -50,21 +50,14 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
-    normalise(head);
 
-    /***
-    cout << "Adding Noise" << endl;
-    Volume noise(N, N, N, RL_SPACE);
-    FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(RANDR, 5);
-    ADD_RL(head, noise);
-    normalise(head);
-    ***/
 
+/***
     printf("head: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&head(0), 1, head.sizeRL()),
            gsl_stats_sd(&head(0), 1, head.sizeRL()),
            head(cblas_idamax(head.sizeRL(), &head(0), 1)));
+***/
 
     /***
     fft.fw(head);
@@ -78,6 +71,14 @@ int main(int argc, char* argv[])
     cout << "Padding Head" << endl;
     Volume padHead;
     VOL_PAD_RL(padHead, head, PF);
+    normalise(padHead);
+
+    cout << "Adding Noise" << endl;
+    Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
+    FOR_EACH_PIXEL_RL(noise)
+        noise(i) = gsl_ran_gaussian(RANDR, 5);
+    ADD_RL(padHead, noise);
+
     printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
            gsl_stats_sd(&padHead(0), 1, padHead.sizeRL()),

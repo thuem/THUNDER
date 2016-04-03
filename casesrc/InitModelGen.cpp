@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
     Volume padSphere;
     VOL_PAD_RL(padSphere, sphere, PF);
-    normalise(sphere);
+    normalise(padSphere);
 
     ImageFile imf;
     imf.readMetaData(padSphere);
