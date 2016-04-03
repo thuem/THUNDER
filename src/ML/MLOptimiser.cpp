@@ -544,9 +544,11 @@ void MLOptimiser::allReduceSigma()
             powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
-            _sig.row(_groupID[l] - 1).head(_r) += w * sig.t() / 2;
-            _sig.row(_groupID[l] - 1).tail(1) += 1;
+            // TODO Change it to w
+            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.t() / 2;
         }
+        
+        _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 
     ALOG(INFO) << "Averaging Sigma of Images Belonging to the Same Group";
