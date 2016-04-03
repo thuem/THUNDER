@@ -604,7 +604,8 @@ void MLOptimiser::reconstructRef()
             // get weight
             w = _par[l].w(iSort[m]);
 
-            _model.reco(0).insert(_img[l], coord, w);
+            // _model.reco(0).insert(_img[l], coord, w);
+            _model.reco(0).insert(_img[l], coord, 1);
         }
     }
 
@@ -649,7 +650,8 @@ double dataVSPrior(const Image& dat,
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
         int u = AROUND(NORM(i, j));
-        if (u < r)
+        if ((FREQ_DOWN_CUTOFF < u) &&
+            (u < r)
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
