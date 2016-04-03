@@ -114,14 +114,14 @@ int main(int argc, char* argv[])
 
                     fft.bw(image);
                     
-                    // insertCoord(images[counter++], coord, 1);
-                    reconstructor.insert(image, coord, 1);
                     printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                            gsl_stats_mean(&image(0), 1, image.sizeRL()),
                            gsl_stats_sd(&image(0), 1, image.sizeRL()),
                            image(cblas_idamax(image.sizeRL(), &image(0), 1)));
 
                     fft.fw(image);
+
+                    reconstructor.insert(image, coord, 1);
 
                     /***
                     FFT fft;
