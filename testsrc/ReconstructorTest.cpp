@@ -145,10 +145,11 @@ int main(int argc, char* argv[])
                                                     M_PI * j / M,
                                                     2 * M_PI * k / M));
                                                     ***/
-
+                    /***
                     fft.bw(image);
                     image.saveRLToBMP(name);
                     fft.fw(image);
+                    ***/
                     // image.saveFTToBMP(name, 0.1);    
                 }
 
@@ -172,19 +173,23 @@ int main(int argc, char* argv[])
     reconstructor.allReduceF();
     ***/
  
-    Volume result;
-    reconstructor.reconstruct(result);
-
-    printf("result: mean = %f, stddev = %f, maxValue = %f\n",
-           gsl_stats_mean(&result(0), 1, result.sizeRL()),
-           gsl_stats_sd(&result(0), 1, result.sizeRL()),
-           result(cblas_idamax(result.sizeRL(), &result(0), 1)));
-
-    if (commRank == 1)
+    if (commRank != MASTER_ID)
     {
-        ImageFile imf;
-        imf.readMetaData(result);
-        imf.writeVolume("result.mrc", result);
+        Volume result;
+        reconstructor.reconstruct(result);
+
+        printf("result: mean = %f, stddev = %f, maxValue = %f\n",
+               gsl_stats_mean(&result(0), 1, result.sizeRL()),
+               gsl_stats_sd(&result(0), 1, result.sizeRL()),
+               result(cblas_idamax(result.sizeRL(), &result(0), 1)));
+
+        if (commRank == 1)
+        {
+            ImageFile imf;
+            imf.readMetaData(result);
+            imf.writeVolume("result.mrc", result);
+        }
+
     }
 
     if (commRank == 1)
