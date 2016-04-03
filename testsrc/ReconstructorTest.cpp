@@ -175,6 +175,11 @@ int main(int argc, char* argv[])
     Volume result;
     reconstructor.reconstruct(result);
 
+    printf("result: mean = %f, stddev = %f, maxValue = %f\n",
+           gsl_stats_mean(&result(0), 1, result.sizeRL()),
+           gsl_stats_sd(&result(0), 1, result.sizeRL()),
+           result(cblas_idamax(result.sizeRL(), &result(0), 1)));
+
     if (commRank == 1)
     {
         ImageFile imf;
