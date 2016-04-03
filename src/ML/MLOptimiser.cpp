@@ -147,7 +147,7 @@ void MLOptimiser::expectation()
         _par[l].normW();
 
         ILOG(INFO) << "Round " << _iter
-                   << "Neff of Particle " << _ID[l]
+                   << ": Neff of Particle " << _ID[l]
                    << " is " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
