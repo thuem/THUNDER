@@ -123,10 +123,10 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceF();
 
-    dst = _F;
-
     // make sure the scale correct
     SCALE_FT(_F, _pf * sqrt(_pf * _size));
+
+    dst = _F;
 
     FFT fft;
     fft.bw(dst);
