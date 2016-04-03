@@ -144,11 +144,9 @@ int main(int argc, char* argv[])
                                                     2 * M_PI * k / M));
                                                     ***/
 
-                    /***
                     fft.bw(image);
                     image.saveRLToBMP(name);
                     fft.fw(image);
-                    ***/
                     // image.saveFTToBMP(name, 0.1);    
                 }
 
