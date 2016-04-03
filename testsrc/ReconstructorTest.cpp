@@ -189,18 +189,15 @@ int main(int argc, char* argv[])
             imf.readMetaData(result);
             imf.writeVolume("result.mrc", result);
         }
-
     }
 
     if (commRank == 1)
         timing();
 
-    fft.fw(result);
-
-    projector.setProjectee(result);
-
     if (commRank != MASTER_ID)
     {
+        fft.fw(result);
+        projector.setProjectee(result);
         for (int k = M / (commSize - 1) * (commRank - 1);
                  k < M / (commSize - 1) * commRank;
                  k++)
