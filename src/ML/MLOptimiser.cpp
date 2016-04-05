@@ -118,7 +118,7 @@ void MLOptimiser::expectation()
     FOR_EACH_2D_IMAGE
     {
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
-                   << "with Radius of " << _r;
+                   << " with Radius of " << _r;
 
         if (_par[l].neff() < _par[l].N() / 3)
         {
@@ -486,7 +486,7 @@ void MLOptimiser::initSigma()
 
     ALOG(INFO) << "Saving Initial Sigma";
     if (_commRank == HEMI_A_LEAD)
-        _sig.save("Sigma_00.txt", raw_ascii);
+        _sig.save("Sigma_000.txt", raw_ascii);
 }
 
 void MLOptimiser::initParticles()
