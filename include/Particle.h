@@ -79,6 +79,13 @@ class Particle
 
         int N() const;
 
+        void vari(double& k0,
+                  double& k1,
+                  double& k2,
+                  double& s0,
+                  double& s1,
+                  double& rho) const;
+
         double w(const int i) const;
 
         void setW(const double w,

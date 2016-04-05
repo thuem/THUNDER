@@ -64,6 +64,21 @@ void Particle::init(const int N,
 
 int Particle::N() const { return _N; }
 
+void Particle::vari(double& k0,
+                    double& k1,
+                    double& k2,
+                    double& s0,
+                    double& s1,
+                    double& rho) const
+{
+    k0 = _k0;
+    k1 = _k1;
+    k2 = _k2;
+    s0 = _s0;
+    s1 = _s1;
+    rho = _rho;
+}
+
 double Particle::w(const int i) const { return _w(i); }
 
 void Particle::setW(const double w,
