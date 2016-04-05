@@ -37,7 +37,7 @@
 
 #define TOP_K 3
 
-#define FREQ_DOWN_CUTOFF 2
+#define FREQ_DOWN_CUTOFF 5
 
 using namespace std;
 using namespace google;
