@@ -693,8 +693,8 @@ double dataVSPrior(const Image& dat,
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                    /// (-2 * sig(u));
-                     / (2 * M_PI * u);
+                    / (-2 * sig(u))
+                    / (2 * M_PI * u);
             // counter++;
         }
     }
