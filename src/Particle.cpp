@@ -146,7 +146,6 @@ void Particle::setSymmetry(const Symmetry* sym)
 void Particle::perturb()
 {
     // translation perturbation
-    /***
     _s0 = sqrt(gsl_stats_covariance(_t.colptr(0),
                                     1,
                                     _t.colptr(0),
@@ -170,11 +169,12 @@ void Particle::perturb()
                     row(0) += x / 3;
                     row(1) += y / 3;
                 });
-                ***/
 
+    /***
     mat L = chol(cov(_t), "lower");
     for (int i = 0; i < _N; i++)
         _t.row(i) += (L * randn<vec>(2)).t() / 3;
+        ***/
 
     // rotation perturbation
     bingham_t B;
