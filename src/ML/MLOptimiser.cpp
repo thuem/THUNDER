@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
-    _r = _para.size / 16;
+    _r = _para.size / 8;
     _iter = 0;
     _model.setR(_r);
 
@@ -81,8 +81,10 @@ void MLOptimiser::init()
         ALOG(INFO) << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO) << "Number of Images in Hemisphere B: " << _N;
 
+        /***
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
+        ***/
 
         ALOG(INFO) << "Seting maxRadius of _model";
         _model.setR(_r);
@@ -697,5 +699,5 @@ double dataVSPrior(const Image& dat,
                     // / (2 * M_PI * u);
     }
 
-    return exp(result / counter);
+    return exp(result);
 }
