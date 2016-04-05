@@ -12,7 +12,7 @@
 
 int main(int argc, const char* argv[])
 {
-    Symmetry sym("C5");
+    Symmetry sym("C2V");
 
     Particle particle;
     particle.init(N, 30, 30, &sym);

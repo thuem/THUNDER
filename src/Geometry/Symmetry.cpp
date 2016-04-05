@@ -249,6 +249,13 @@ bool asymmetryUnit(const double phi,
                    const int pgGroup,
                    const int pgOrder)
 {
+    // basic range check
+    if ((phi < 0) ||
+        (phi >= 2 * M_PI) ||
+        (theta < 0) ||
+        (theta > M_PI))
+        return false;
+
     switch (pgGroup)
     {
         case PG_CN:
