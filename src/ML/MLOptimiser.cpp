@@ -126,14 +126,10 @@ void MLOptimiser::expectation()
                        << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
-            _par[l].calVari();
             _par[l].resample();
         }
         else 
-        {
-            _par[l].calVari();
             _par[l].perturb();
-        }
 
         for (int m = 0; m < _par[l].N(); m++)
         {
@@ -150,6 +146,9 @@ void MLOptimiser::expectation()
             _par[l].mulW(w, m);
         }
         _par[l].normW();
+
+        // calculate current variance
+        _par[l].calVari();
 
         double k0, k1, k2, s0, s1, rho;
         _par[l].vari(k0, k1, k2, s0, s1, rho);
