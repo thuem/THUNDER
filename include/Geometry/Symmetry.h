@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <vector>
 
+#include <glog/logging.h>
 #include <armadillo>
 
 #include "Macro.h"

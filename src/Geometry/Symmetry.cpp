@@ -353,6 +353,10 @@ void symmetryCounterpart(double& ex,
             ex = newDir(0);
             ey = newDir(1);
             ez = newDir(2);
+
+            return;
         }
     }
+
+    LOG(FATAL) << "Unable to find SymmetryCounterpart";
 }

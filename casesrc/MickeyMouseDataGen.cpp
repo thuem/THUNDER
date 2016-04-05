@@ -44,7 +44,9 @@ int main(int argc, char* argv[])
     {
         if ((NORM_3(i, j, k) < N / 8) ||
             (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
+            (NORM_3(i - N / 8, j - N / 8, k - N / 8) < N / 16) ||
             (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
+            (NORM_3(i + N / 8, j + N / 8, k - N / 8) < N / 16) ||
             ((NORM(i, j) < N / 16) &&
              (k + N / 16 < 0) &&
              (k + 3 * N / 16 > 0)))

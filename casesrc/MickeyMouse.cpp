@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     para.m = M;
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
-    sprintf(para.sym, "C2V");
+    sprintf(para.sym, "C2");
     sprintf(para.initModel, "padHead.mrc");
     sprintf(para.db, "MickeyMouse.db");
 
