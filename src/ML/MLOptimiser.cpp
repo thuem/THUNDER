@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
-    _r = _para.size / 8;
+    _r = _para.size / 16;
     _iter = 0;
     _model.setR(_r);
 
@@ -693,8 +693,8 @@ double dataVSPrior(const Image& dat,
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                    / (-2 * sig(u))
-                    / (2 * M_PI * u);
+                    / (-2 * sig(u));
+                    // / (2 * M_PI * u);
             // counter++;
         }
     }
