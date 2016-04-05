@@ -126,10 +126,14 @@ void MLOptimiser::expectation()
                        << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
+            _par[l].calVari();
             _par[l].resample();
         }
         else 
+        {
+            _par[l].calVari();
             _par[l].perturb();
+        }
 
         for (int m = 0; m < _par[l].N(); m++)
         {

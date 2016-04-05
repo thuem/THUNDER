@@ -146,9 +146,8 @@ void Particle::setSymmetry(const Symmetry* sym)
     _sym = sym;
 }
 
-void Particle::perturb()
+void Particle::calVari()
 {
-    // translation perturbation
     _s0 = sqrt(gsl_stats_covariance(_t.colptr(0),
                                     1,
                                     _t.colptr(0),
@@ -165,6 +164,18 @@ void Particle::perturb()
                                 1,
                                 _t.n_rows) / _s0 / _s1;
 
+    bingham_t B;
+    bingham_fit(&B, _r, _N, 4);
+
+    _k0 = B.Z[0];
+    _k1 = B.Z[1];
+    _k2 = B.Z[2];
+
+    bingham_free(&B);
+}
+
+void Particle::perturb()
+{
     _t.each_row([this](rowvec& row)
                 {
                     double x, y;
@@ -180,15 +191,8 @@ void Particle::perturb()
         ***/
 
     // rotation perturbation
+
     bingham_t B;
-    bingham_fit(&B, _r, _N, 4);
-
-    _k0 = B.Z[0];
-    _k1 = B.Z[1];
-    _k2 = B.Z[2];
-
-    bingham_free(&B);
-
     bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);
     double** d = new_matrix2(_N, 4);
     bingham_sample(d, &B, _N);

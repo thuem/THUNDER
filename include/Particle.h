@@ -115,6 +115,8 @@ class Particle
 
         void setSymmetry(const Symmetry* sym);
 
+        void calVari();
+
         void perturb();
 
         void resample();
