@@ -20,11 +20,7 @@ Particle::Particle(const int N,
 
 Particle::~Particle()
 {
-    if (_r != NULL)
-    {
-        free_matrix2(_r);
-        _r = NULL;
-    }
+    clear();
 }
 
 void Particle::init(const int N,
@@ -32,6 +28,8 @@ void Particle::init(const int N,
                     const double maxY,
                     const Symmetry* sym)
 {
+    clear();
+
     _N = N;
 
     _maxX = maxX;
@@ -43,6 +41,11 @@ void Particle::init(const int N,
     _t.resize(_N, 2);
     _w.resize(_N);
 
+    reset();
+}
+
+void Particle::reset()
+{
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
     // uniform bingham distribution
@@ -268,6 +271,15 @@ void Particle::symmetrise()
         _r[i][1] = quat(1);
         _r[i][2] = quat(2);
         _r[i][3] = quat(3);
+    }
+}
+
+void Particle::clear()
+{
+    if (_r != NULL)
+    {
+        free_matrix2(_r);
+        _r = NULL;
     }
 }
 

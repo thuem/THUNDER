@@ -77,6 +77,8 @@ class Particle
                   const double maxY,
                   const Symmetry* sym = NULL);
 
+        void reset();
+
         int N() const;
 
         void vari(double& k0,
@@ -125,6 +127,8 @@ class Particle
     private:
 
         void symmetrise();
+
+        void clear();
 };
 
 void display(const Particle& particle);
