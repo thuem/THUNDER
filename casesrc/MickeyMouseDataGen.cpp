@@ -34,6 +34,8 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    ImageFile imf;
+
     FFT fft;
 
     cout << "Defining Head" << endl;
@@ -72,6 +74,9 @@ int main(int argc, char* argv[])
     Volume padHead;
     VOL_PAD_RL(padHead, head, PF);
     normalise(padHead);
+
+    imf.readMetaData(padHead);
+    imf.writeVolume("padHead.mrc", padHead);
 
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
@@ -113,8 +118,6 @@ int main(int argc, char* argv[])
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
     
-    ImageFile imf;
-
     cout << "Initialising Random Sampling Points" << endl;
     Particle par(M, MAX_X, MAX_Y);
 

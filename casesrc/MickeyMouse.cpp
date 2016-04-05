@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
     sprintf(para.sym, "C2V");
-    sprintf(para.initModel, "sphere.mrc");
+    sprintf(para.initModel, "padHead.mrc");
     sprintf(para.db, "MickeyMouse.db");
 
     cout << "Setting Parameters" << endl;

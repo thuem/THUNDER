@@ -117,7 +117,8 @@ void MLOptimiser::expectation()
 
     FOR_EACH_2D_IMAGE
     {
-        ILOG(INFO) << "Performing Expectation on Image " << _ID[l];
+        ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
+                   << "with Radius of " << _r;
 
         if (_par[l].neff() < _par[l].N() / 3)
         {
@@ -151,7 +152,7 @@ void MLOptimiser::expectation()
                    << " is " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Particle%004d.par", _ID[l]);
+        sprintf(filename, "Particle_%04d_Round_%03d.par", _ID[l], _iter);
         save(filename, _par[l]);
     }
 }
@@ -161,8 +162,10 @@ void MLOptimiser::maximization()
     ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
+    /***
     ALOG(INFO) << "Reconstruct Reference";
     reconstructRef();
+    ***/
 }
 
 void MLOptimiser::run()
@@ -584,7 +587,7 @@ void MLOptimiser::allReduceSigma()
     if (_commRank == HEMI_A_LEAD)
     {
         char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Sigma_%02d.txt", _iter + 1);
+        sprintf(filename, "Sigma_%03d.txt", _iter + 1);
         _sig.save(filename, raw_ascii);
     }
 }
