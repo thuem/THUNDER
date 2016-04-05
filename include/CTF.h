@@ -17,6 +17,8 @@
 
 #define CTF_A 0.19
 
+#define CTF_TAU 0.001
+
 void CTF(Image& dst,
          const double pixelSize,
          const double voltage,
@@ -30,5 +32,10 @@ void CTF(Image& dst,
  * defocusV : Angstrom
  * theta : rad
  * Cs */
+
+void reduceCTF(Image& dst,
+               const Image& src,
+               const Image& ctf,
+               const double r);
 
 #endif // CTF_H

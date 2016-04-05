@@ -17,13 +17,17 @@ MLModel::~MLModel()
     clear();
 }
 
-void MLModel::init(const int r,
+void MLModel::init(const int k,
+                   const int size,
+                   const int r,
                    const int pf,
                    const double pixelSize,
                    const double a,
                    const double alpha,
                    const Symmetry* sym)
 {
+    _k = k;
+    _size = size;
     _r = r;
     _pf = pf;
     _pixelSize = pixelSize;
@@ -41,6 +45,10 @@ void MLModel::initProjReco()
         _reco.push_back(Reconstructor());
     }
 
+    ALOG(INFO) << "Setting Up MPI Environment of Reconstructors";
+    FOR_EACH_CLASS
+        _reco[i].setMPIEnv(_commSize, _commRank, _hemi);
+
     ALOG(INFO) << "Refreshing Projectors";
     refreshProj();
 
@@ -55,17 +63,26 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(const Volume& ref)
 {
+    if (((ref.nColRL() != _size) && (ref.nColRL() != 0)) ||
+        ((ref.nRowRL() != _size) && (ref.nRowRL() != 0)) ||
+        ((ref.nSlcRL() != _size) && (ref.nSlcRL() != 0)))
+        LOG(FATAL) << "Incorrect Size of Appending Reference"
+                   << ": _size = " << _size
+                   << ", nCol = " << ref.nColRL()
+                   << ", nRow = " << ref.nRowRL()
+                   << ", nSlc = " << ref.nSlcRL();
+
     _ref.push_back(ref);
 }
 
-int MLModel::K() const
+int MLModel::k() const
 {
-    return _ref.size();
+    return _k;
 }
 
 int MLModel::size() const
 {
-    return _ref[0].nColRL();
+    return _size;
 }
 
 int MLModel::r() const
@@ -90,34 +107,61 @@ Reconstructor& MLModel::reco(const int i)
 
 void MLModel::BcastFSC()
 {
+    MLOG(INFO) << "Setting Size of _FSC";
+
+    _FSC.set_size(_r * _pf, _k);
+
     MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO) << "Gathering References from Hemisphere A and Hemisphere B";
 
     FOR_EACH_CLASS
     {
-        if (_commRank == MASTER_ID)
+        IF_MASTER
         {
-            Volume A(size(), size(), size(), FT_SPACE);
-            Volume B(size(), size(), size(), FT_SPACE);
+            MPI_Status stat;
+
+            Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+            Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+
+            if ((&A[0] == NULL) && (&B[0] == NULL))
+                LOG(FATAL) << "Failed to Allocate Space for Storing a Reference";
+
+            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere A";
+
             MPI_Recv(&A[0],
                      A.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
                      HEMI_A_LEAD,
                      i,
                      MPI_COMM_WORLD,
-                     NULL);
+                     &stat);
+
+            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere B";
+
             MPI_Recv(&B[0],
                      B.sizeFT(),
                      MPI_DOUBLE_COMPLEX,
                      HEMI_B_LEAD,
                      i,
                      MPI_COMM_WORLD,
-                     NULL);
-            FSC(_FSC[i], A, B, _r);
+                     &stat);
+
+            // TODO: check transporting using MPI_Status
+            
+            MLOG(INFO) << "Calculating FSC of Reference " << i;
+            // FSC(_FSC.col(i), A, B, _r);
+            vec fsc(_r * _pf);
+            FSC(fsc, A, B);
+            _FSC.col(i) = fsc;
         }
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
         {
-            MPI_Ssend(&_ref[i],
+            ALOG(INFO) << "Sending Reference " << i << " from Hemisphere A";
+            BLOG(INFO) << "Sending Reference " << i << " from Hemisphere B";
+
+            MPI_Ssend(&_ref[i][0],
                       _ref[i].sizeFT(),
                       MPI_DOUBLE_COMPLEX,
                       MASTER_ID,
@@ -128,28 +172,13 @@ void MLModel::BcastFSC()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    double* FSC = new double[K() * _r];
+    MLOG(INFO) << "Broadcasting FSC from MASTER";
 
-    if (_commRank == MASTER_ID)
-        FOR_EACH_CLASS
-            for (int j = 0; j < _r; j++)
-                FSC[i * _r + j] = _FSC[i](j);
-
-    MPI_Bcast(FSC,
-              K() * _r,
+    MPI_Bcast(_FSC.memptr(),
+              _FSC.n_elem,
               MPI_DOUBLE,
               MASTER_ID,
               MPI_COMM_WORLD);
-
-    if (_commRank != MASTER_ID)
-        FOR_EACH_CLASS
-        {
-            _FSC[i].resize(_r);
-            for (int j = 0; j < _r; j++)
-                _FSC[i](j) = FSC[i * _r + j];
-        }
-
-    delete[] FSC;
 
     MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -163,13 +192,15 @@ void MLModel::lowPassRef(const double thres,
 
 void MLModel::refreshSNR()
 {
+    _SNR.copy_size(_FSC);
+
     FOR_EACH_CLASS
-        _SNR[i] = _FSC[i] / (1 + _FSC[i]);
+        _SNR.col(i) = _FSC.col(i) / (1 - _FSC.col(i));
 }
 
 int MLModel::resolutionP(const int i) const
 {
-    return uvec(find(_SNR[i] > 1, 1))(0);
+    return uvec(find(_SNR.col(i) > 1, 1, "last"))(0) / _pf;
 }
 
 int MLModel::resolutionP() const
@@ -185,14 +216,12 @@ int MLModel::resolutionP() const
 
 double MLModel::resolutionA(const int i) const
 {
-    // TODO: considering padding factor
-    return resP2A(resolutionP(i), size(), _pixelSize);
+    return resP2A(resolutionP(i), _size, _pixelSize);
 }
 
 double MLModel::resolutionA() const
 {
-    // TODO: considering padding factor
-    return resP2A(resolutionP(), size(), _pixelSize);
+    return resP2A(resolutionP(), _size, _pixelSize);
 }
 
 void MLModel::refreshProj()
@@ -208,26 +237,28 @@ void MLModel::refreshProj()
 void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
-        _reco[i].init(size() / _pf,
+    {
+        _reco[i].init(_size,
                       _pf,
                       _sym,
                       _a,
                       _alpha);
+        _reco[i].setMaxRadius(_r);
+    }
 }
 
 void MLModel::updateR()
 {
-    // TODO: considering padding factor
     FOR_EACH_CLASS
-        if (_FSC[i](_r) > 0.2)
+        if (_FSC.col(i)(_pf * _r - 1) > 0.2)
         {
-            _r += AROUND(double(size()) / 8);
-            _r = MIN(_r, size() / 2 - _a);
+            _r += AROUND(double(_size) / 16);
+            _r = MIN(_r, _size / 2 - _a);
             return;
         }
 
     _r += 10;
-    _r = MIN(_r, size() / 2 - _a);
+    _r = MIN(_r, _size / 2 - _a);
 }
 
 void MLModel::clear()

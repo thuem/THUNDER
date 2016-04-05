@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Bing Li, Heng Guo
  * Dependency:
  * Test:
  * Execution:
@@ -36,12 +36,19 @@ void MLOptimiser::init()
     _sym.init(_para.sym);
 
     MLOG(INFO) << "Passing Parameters to _model";
-    _model.init(0,
+    _model.init(_para.k,
+                _para.size,
+                0,
                 _para.pf,
                 _para.pixelSize,
                 _para.a,
                 _para.alpha,
                 &_sym);
+
+    MLOG(INFO) << "Setting Parameters: _r, _iter";
+    _r = _para.size / 16;
+    _iter = 0;
+    _model.setR(_r);
 
     MLOG(INFO) << "Openning Database File";
     _exp.openDatabase(_para.db);
@@ -69,16 +76,16 @@ void MLOptimiser::init()
         ALOG(INFO) << "Initialising 2D Images";
         initImg();
 
-        ALOG(INFO) << "Setting Parameters: _N, _r, _iter";
+        ALOG(INFO) << "Setting Parameters: _N";
         allReduceN();
-        _r = maxR() / 8; // start from 1 / 8 of highest frequency
-        _iter = 0;
-        ALOG(INFO) << "_N = " << _N
-                   << ", _r = " << _r
-                   << ", _iter = " << _iter;
+        ALOG(INFO) << "Number of Images in Hemisphere A: " << _N;
+        BLOG(INFO) << "Number of Images in Hemisphere B: " << _N;
 
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
+
+        ALOG(INFO) << "Seting maxRadius of _model";
+        _model.setR(_r);
 
         ALOG(INFO) << "Setting Up Projectors and Reconstructors of _model";
         _model.initProjReco();
@@ -86,11 +93,17 @@ void MLOptimiser::init()
         ALOG(INFO) << "Generating CTFs";
         initCTF();
     
-        ALOG(INFO) << "Estimating Initial Sigma";
-        initSigma();
-
         ALOG(INFO) << "Initialising Particle Filters";
         initParticles();
+    }
+
+    MLOG(INFO) << "Broadacasting Information of Groups";
+    bcastGroupInfo();
+
+    NT_MASTER
+    {
+        ALOG(INFO) << "Estimating Initial Sigma";
+        initSigma();
     }
 }
 
@@ -104,16 +117,16 @@ void MLOptimiser::expectation()
 
     FOR_EACH_2D_IMAGE
     {
-        ILOG(INFO) << "Performing Expection on Particle " << _ID[l];
-        /***
-        stringstream ss;
-        ss << "Particle" << l << ".par";
-        FILE* file = fopen(ss.str().c_str(), "w");
-        ss.str("");
-        ***/
+        ILOG(INFO) << "Performing Expectation on Image " << _ID[l];
 
         if (_par[l].neff() < _par[l].N() / 3)
+        {
+            ILOG(INFO) << "Round " << _iter
+                       << ": Resampling Particle " << _ID[l]
+                       << " for neff = " << _par[l].neff();
+
             _par[l].resample();
+        }
         else 
             _par[l].perturb();
 
@@ -123,42 +136,32 @@ void MLOptimiser::expectation()
             _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
 
-            /***
             double w = dataVSPrior(image,
                                    _img[l],
                                    _ctf[l],
-                                   _sig[l],
+                                   _sig.row(_groupID[l] - 1).head(_r).t(),
                                    _r);
 
             _par[l].mulW(w, m);
-            ***/
         }
         _par[l].normW();
 
-        /***
-        // Save particles
-        vec4 q;
-        vec2 t;
-        for (int m = 0; m < _par[l].N(); m++)
-        {
-            _par[l].quaternion(q, m);
-            _par[l].t(t, m);
-            fprintf(file, "%f %f %f %f, %f %f, %f\n",
-                          q(0),q(1),q(2),q(3),
-                          t(0), t(1),
-                          _par[l].w(m));
-        }
-        fclose(file);
-        ***/
+        ILOG(INFO) << "Round " << _iter
+                   << ": Neff of Particle " << _ID[l]
+                   << " is " << _par[l].neff();
+
+        char filename[FILE_NAME_LENGTH];
+        sprintf(filename, "Particle%004d.par", _ID[l]);
+        save(filename, _par[l]);
     }
 }
 
 void MLOptimiser::maximization()
 {
-    /* generate sigma for the next iteration */
+    ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
-    /* reconstruct references */
+    ALOG(INFO) << "Reconstruct Reference";
     reconstructRef();
 }
 
@@ -171,26 +174,52 @@ void MLOptimiser::run()
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO) << "Entering Iteration";
-    for (int l = 0; l < _para.iterMax; l++)
+    for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
-        MLOG(INFO) << "Round " << l;
+        MLOG(INFO) << "Round " << _iter;
 
         MLOG(INFO) << "Performing Expectation";
         expectation();
 
-        /***
+        MLOG(INFO) << "Performing Maximization";
         maximization();
 
-        // calculate FSC
+        MLOG(INFO) << "Calculating FSC";
         _model.BcastFSC();
 
-        // record current resolution
-        _res = _model.resolutionP();
+        MLOG(INFO) << "Calculating SNR";
+        _model.refreshSNR();
 
-        // update the radius of frequency for computing
+        MLOG(INFO) << "Recording Current Resolution";
+        _res = _model.resolutionP();
+        MLOG(INFO) << "Current Cutoff Frequency: "
+                   << _r - 1
+                   << " (Spatial), "
+                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
+                   << " (Angstrom)";
+        MLOG(INFO) << "Current Resolution: "
+                   << _res
+                   << " (Spatial), "
+                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
+                   << " (Angstrom)";
+
+        MLOG(INFO) << "Updating Cutoff Frequency: ";
         _model.updateR();
-        _r = _model.r() / _para.pf;
-        ***/
+        _r = _model.r();
+        MLOG(INFO) << "New Cutoff Frequency: "
+                   << _r - 1
+                   << " (Spatial), "
+                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
+                   << " (Angstrom)";
+
+        NT_MASTER
+        {
+            ALOG(INFO) << "Refreshing Projectors";
+            _model.refreshProj();
+
+            ALOG(INFO) << "Refreshing Reconstructors";
+            _model.refreshReco();
+        }
     }
 }
 
@@ -216,12 +245,49 @@ void MLOptimiser::allReduceN()
 
 int MLOptimiser::size() const
 {
-    return _img[0].nColRL();
+    return _para.size;
 }
 
 int MLOptimiser::maxR() const
 {
     return size() / 2 - 1;
+}
+
+void MLOptimiser::bcastGroupInfo()
+{
+    ALOG(INFO) << "Storing GroupID";
+    NT_MASTER
+    {
+        char sql[SQL_COMMAND_LENGTH];
+    
+        FOR_EACH_2D_IMAGE
+        {
+            sprintf(sql, "select GroupID from particles where ID = %d;", _ID[l]);
+            _exp.execute(sql,
+                         SQLITE3_CALLBACK
+                         {
+                             ((vector<int>*)data)->push_back(atoi(values[0]));
+                             return 0;
+                         },
+                         &_groupID); 
+        }
+    }
+
+    MLOG(INFO) << "Getting Number of Groups from Database";
+    IF_MASTER
+        _exp.execute("select count(*) from groups;",
+                     SQLITE3_CALLBACK
+                     {
+                         *((int*)data) = atoi(values[0]);
+                         return 0;
+                     },
+                     &_nGroup);
+
+    MLOG(INFO) << "Broadcasting Number of Groups";
+    MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+    
+    ALOG(INFO) << "Setting Up Space for Storing Sigma";
+    NT_MASTER _sig.set_size(_nGroup, maxR() + 1);
 }
 
 void MLOptimiser::initRef()
@@ -241,7 +307,8 @@ void MLOptimiser::initRef()
                << " X "
                << _model.ref(0).nSlcRL();
 
-    // perform fourier transformation
+    ALOG(INFO) << "Performing Fourier Transform";
+
     FFT fft;
     fft.fw(_model.ref(0));
     _model.ref(0).clearRL();
@@ -287,10 +354,14 @@ void MLOptimiser::initImg()
         imf.readMetaData();
         imf.readImage(_img.back());
 
+        if ((_img.back().nColRL() != _para.size) ||
+            (_img.back().nRowRL() != _para.size))
+            LOG(FATAL) << "Incorrect Size of 2D Images";
+
         // apply a soft mask on it
         softMask(_img.back(),
                  _img.back(),
-                 _img.back().nColRL() / 4,
+                 _para.size / 4,
                  EDGE_WIDTH_RL);
 
         /***
@@ -352,9 +423,6 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
-    FOR_EACH_2D_IMAGE
-        _sig.push_back(vec(maxR()));
-
     ALOG(INFO) << "Calculating Average Image";
 
     Image avg = _img[0];
@@ -411,11 +479,11 @@ void MLOptimiser::initSigma()
     // psAvg -> power spectrum of average image
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
-    _sig[0] = (avgPs - psAvg) / 2;
-    FOR_EACH_2D_IMAGE
-        _sig[l] = _sig[0];
+    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
 
-    // ALOG(INFO) << "Initial Sigma is " << endl << _sig[0];
+    ALOG(INFO) << "Saving Initial Sigma";
+    if (_commRank == HEMI_A_LEAD)
+        _sig.save("Sigma_00.txt", raw_ascii);
 }
 
 void MLOptimiser::initParticles()
@@ -430,8 +498,9 @@ void MLOptimiser::initParticles()
                      _para.maxX,
                      _para.maxY,
                      &_sym);
+
     /***
-    for (int l = 0; l < _img.size(); l++)
+    FOR_EACH_2D_IMAGE
     {
         _par.push_back(Particle());
         _par.back().init(_para.m,
@@ -442,15 +511,21 @@ void MLOptimiser::initParticles()
     ***/
 }
 
+
 void MLOptimiser::allReduceSigma()
 {
+    IF_MASTER return;
 
+    ALOG(INFO) << "Clear Up Sigma";
+
+    // set re-calculating part to zero
+    _sig.head_cols(_r).zeros();
+    _sig.tail_cols(1).zeros();
+
+    ALOG(INFO) << "Recalculate Sigma";
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
-        // reset sigma to 0
-        _sig[l].zeros();
-
         // sort weights in particle and store its indices
         uvec iSort = _par[l].iSort();
 
@@ -476,19 +551,61 @@ void MLOptimiser::allReduceSigma()
             powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
-            _sig[l] += w * sig;
+            // TODO Change it to w
+            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.t() / 2;
         }
+        
+        _sig.row(_groupID[l] - 1).tail(1) += 1;
+    }
 
-        // TODO
-        // fetch groupID of img[i]
-        // average images belonging to the same group
+    ALOG(INFO) << "Averaging Sigma of Images Belonging to the Same Group";
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _sig.memptr(),
+                  _r * _nGroup,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _sig.colptr(_sig.n_cols - 1),
+                  _nGroup,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
+
+    ALOG(INFO) << "Saving Sigma";
+    if (_commRank == HEMI_A_LEAD)
+    {
+        char filename[FILE_NAME_LENGTH];
+        sprintf(filename, "Sigma_%02d.txt", _iter + 1);
+        _sig.save(filename, raw_ascii);
     }
 }
 
 void MLOptimiser::reconstructRef()
 {
+    IF_MASTER return;
+
+    Image img(size(), size(), FT_SPACE);
+
+    ALOG(INFO) << "Inserting High Probability 2D Images into Reconstructor";
+
     FOR_EACH_2D_IMAGE
     {
+        ILOG(INFO) << "Inserting Particle "
+                   << _ID[l]
+                   << " into Reconstructor";
+
+        // reduce the CTF effect
+        reduceCTF(img, _img[l], _ctf[l], _r);
+
         uvec iSort = _par[l].iSort();
 
         Coordinate5D coord;
@@ -500,18 +617,61 @@ void MLOptimiser::reconstructRef()
             // get weight
             w = _par[l].w(iSort[m]);
 
-            _model.reco(0).insert(_img[l], coord, w);
+            // TODO: _model.reco(0).insert(_img[l], coord, w);
+            _model.reco(0).insert(_img[l], coord, 1);
         }
     }
 
+    ALOG(INFO) << "Reconstructing References for Next Iteration";
+
     _model.reco(0).reconstruct(_model.ref(0));
+
+    ImageFile imf;
+    char filename[FILE_NAME_LENGTH];
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO) << "Saving References";
+
+        imf.readMetaData(_model.ref(0));
+        sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+        imf.writeVolume(filename, _model.ref(0));
+    }
+    else if (_commRank == HEMI_B_LEAD)
+    {
+        BLOG(INFO) << "Saving References";
+
+        imf.readMetaData(_model.ref(0));
+        sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+        imf.writeVolume(filename, _model.ref(0));
+    }
+
+    ALOG(INFO) << "Fourier Transforming References";
+
+    FFT fft;
+    fft.fw(_model.ref(0));
+    _model.ref(0).clearRL();
 }
 
-double dataVSPrior(const Image& A,
-                   const Image& B,
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
                    const Image& ctf,
                    const vec& sig,
                    const int r)
 {
-    // TODO
+    double result = 0;
+
+    IMAGE_FOR_EACH_PIXEL_FT(pri)
+    {
+        // adding /u for compensate
+        int u = AROUND(NORM(i, j));
+        if ((FREQ_DOWN_CUTOFF < u) &&
+            (u < r))
+            result += ABS2(dat.getFT(i, j)
+                         - ctf.getFT(i, j)
+                         * pri.getFT(i, j))
+                    / (-2 * sig(u))
+                    / (2 * M_PI * u);
+    }
+
+    return exp(result);
 }

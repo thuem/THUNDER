@@ -35,6 +35,10 @@
 
 #define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
 
+#define TOP_K 3
+
+#define FREQ_DOWN_CUTOFF 2
+
 using namespace std;
 using namespace google;
 
@@ -42,6 +46,12 @@ typedef struct ML_OPTIMISER_PARA
 {
     int iterMax;
     // max number of iterations
+    
+    int k;
+    // number of references
+
+    int size;
+    // size of references and images
 
     int pf;
     // pading factor
@@ -115,10 +125,20 @@ class MLOptimiser : public Parallel
 
         vector<Image> _ctf;
 
-        vector<vec> _sig;
+        // vector<vec> _sig;
+
+        mat _sig;
+        // each row is a sigma value
+        // size : _nGroup * (maxR() + 1)
+
+        int _nGroup;
+
+        // vector<int> _groupSize;
+
+        vector<int> _groupID;
 
     public:
-
+        
         MLOptimiser();
 
         ~MLOptimiser();
@@ -153,6 +173,9 @@ class MLOptimiser : public Parallel
         int maxR() const;
         /* max value of _r */
 
+        void bcastGroupInfo();
+        /* broadcast information of groups */
+
         void initRef();
 
         void initID();
@@ -172,10 +195,11 @@ class MLOptimiser : public Parallel
         void reconstructRef();
 };
 
-double dataVSPrior(const Image& A,
-                   const Image& B,
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
                    const Image& ctf,
                    const vec& sig,
                    const int r);
+// dat -> data, pri -> prior, ctf
 
 #endif // ML_OPTIMSER_H

@@ -21,7 +21,10 @@ Particle::Particle(const int N,
 Particle::~Particle()
 {
     if (_r != NULL)
+    {
         free_matrix2(_r);
+        _r = NULL;
+    }
 }
 
 void Particle::init(const int N,
@@ -128,6 +131,32 @@ void Particle::setSymmetry(const Symmetry* sym)
 void Particle::perturb()
 {
     // translation perturbation
+    /***
+    _s0 = sqrt(gsl_stats_covariance(_t.colptr(0),
+                                    1,
+                                    _t.colptr(0),
+                                    1,
+                                    _t.n_rows));
+    _s1 = sqrt(gsl_stats_covariance(_t.colptr(1),
+                                    1,
+                                    _t.colptr(1),
+                                    1,
+                                    _t.n_rows));
+    _rho = gsl_stats_covariance(_t.colptr(0),
+                                1,
+                                _t.colptr(1),
+                                1,
+                                _t.n_rows) / _s0 / _s1;
+
+    _t.each_row([this](rowvec& row)
+                {
+                    double x, y;
+                    gsl_ran_bivariate_gaussian(RANDR, _s0, _s1, _rho, &x, &y);
+                    row(0) += x / 3;
+                    row(1) += y / 3;
+                });
+                ***/
+
     mat L = chol(cov(_t), "lower");
     for (int i = 0; i < _N; i++)
         _t.row(i) += (L * randn<vec>(2)).t() / 3;
@@ -183,6 +212,7 @@ void Particle::resample()
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
+    r = NULL;
 
     perturb();
 }
@@ -234,4 +264,25 @@ void display(const Particle& particle)
         particle.coord(coord, i);
         display(coord);
     }
+}
+
+void save(const char filename[],
+          const Particle& par)
+{
+    FILE* file = fopen(filename, "w");
+
+    vec4 q;
+    vec2 t;
+    for (int i = 0; i < par.N(); i++)
+    {
+        par.quaternion(q, i);
+        par.t(t, i);
+        fprintf(file,
+                "%10f %10f %10f %10f %10f %10f %10f\n",
+                 q(0),q(1),q(2),q(3),
+                 t(0), t(1),
+                 par.w(i));
+    }
+
+    fclose(file);
 }

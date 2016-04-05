@@ -13,6 +13,8 @@
 #include <numeric>
 
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_statistics.h>
+#include <glog/logging.h>
 #include <armadillo>
 #include <bingham.h>
 
@@ -24,8 +26,6 @@
 #include "Euler.h"
 #include "Functions.h"
 #include "Symmetry.h"
-
-#define TOP_K 20
 
 using namespace arma;
 
@@ -56,6 +56,10 @@ class Particle
         double _k0 = 0;
         double _k1 = 0;
         double _k2 = 0;
+
+        double _s0 = 0; // sigma0
+        double _s1 = 0; // sgima1
+        double _rho = 0;
 
     public:
 
@@ -117,5 +121,8 @@ class Particle
 };
 
 void display(const Particle& particle);
+
+void save(const char filename[],
+          const Particle& particle);
 
 #endif  //PARTICLE_H

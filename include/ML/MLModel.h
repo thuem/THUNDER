@@ -28,7 +28,7 @@ using namespace std;
 using namespace arma;
 
 #define FOR_EACH_CLASS \
-    for (int i = 0; i < K(); i++)
+    for (int i = 0; i < _k; i++)
 
 class MLModel : public Parallel
 {
@@ -37,16 +37,24 @@ class MLModel : public Parallel
         vector<Volume> _ref;
         /* references in Fourier space */
 
-        vector<vec> _FSC;
+        mat _FSC;
+        /* each column: a FSC of a certain reference */
 
-        vector<vec> _SNR;
+        mat _SNR;
+        /* each column: a SNR of a certain reference */
 
         vector<Projector> _proj;
 
         vector<Reconstructor> _reco;
 
+        int _k;
+        /* number of references */
+
+        int _size;
+        /* size of references before padding */
+
         int _r;
-        /* radius of calculating FSC and SNR */
+        /* radius of calculating FSC and SNR before padding */
 
         int _pf;
         /* padding factor */
@@ -66,7 +74,9 @@ class MLModel : public Parallel
 
         ~MLModel();
 
-        void init(const int r,
+        void init(const int k,
+                  const int size,
+                  const int r,
                   const int pf,
                   const double pixelSize,
                   const double a,
@@ -80,7 +90,7 @@ class MLModel : public Parallel
 
         void appendRef(const Volume& ref);
 
-        int K() const;
+        int k() const;
 
         int size() const;
 

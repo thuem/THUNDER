@@ -41,7 +41,7 @@ void Reconstructor::init(const int size,
                  _pf * _a,
                  1e5);
 
-    _maxRadius = (_size / 2 - a) * _pf;
+    _maxRadius = (_size / 2 - a);
 
     _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
@@ -57,11 +57,32 @@ void Reconstructor::setSymmetry(const Symmetry* sym)
     _sym = sym;
 }
 
+int Reconstructor::maxRadius() const
+{
+    return _maxRadius;
+}
+
+void Reconstructor::setMaxRadius(const int maxRadius)
+{
+    _maxRadius = maxRadius;
+}
+
 void Reconstructor::insert(const Image& src,
                            const Coordinate5D coord,
                            const double w)
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER
+    {
+        LOG(WARNING) << "Inserting Images into Reconstructor in MASTER";
+        return;
+    }
+
+    if ((src.nColRL() != _size) ||
+        (src.nRowRL() != _size))
+        LOG(FATAL) << "Incorrect Size of Inserting Image"
+                   << ": _size = " << _size
+                   << ", nCol = " << src.nColRL()
+                   << ", nRow = " << src.nRowRL();
 
     _coord.push_back(coord);
 
@@ -71,13 +92,13 @@ void Reconstructor::insert(const Image& src,
     mat33 mat;
     rotate3D(mat, coord.phi, coord.theta, coord.psi);
 
-    #pragma omp parallel for num_threads(4)
+    #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         arma::vec3 newCor = {(double)i, (double)j, 0};
         arma::vec3 oldCor = mat * newCor *_pf;
         
-        if (norm(oldCor) < _maxRadius)
+        if (norm(oldCor) < _maxRadius * _pf)
             _F.addFT(transSrc.getFT(i, j) * w, 
                      oldCor(0), 
                      oldCor(1), 
@@ -89,29 +110,28 @@ void Reconstructor::insert(const Image& src,
 
 void Reconstructor::reconstruct(Volume& dst)
 {
-    if (_commRank == MASTER_ID) return;
+    IF_MASTER return;
 
     for (int i = 0; i < 3; i++)
     {
         ALOG(INFO) << "Balancing Weights Round " << i;
+
         allReduceW();
     }
-/***
-    do
-    {
-        allReduceW();
-        c = checkC();
-        printf("checkC = %12f\n", c);
-    }
-    while (c > _zeta);
-***/
+
+    ALOG(INFO) << "Reducing F";
 
     allReduceF();
+
+    // make sure the scale correct
+    SCALE_FT(_F, _pf * sqrt(_pf * _size));
 
     dst = _F;
 
     FFT fft;
     fft.bw(dst);
+
+    ALOG(INFO) << "Correcting Convolution Kernel";
 
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {     
@@ -133,7 +153,7 @@ void Reconstructor::allReduceW()
 {
     SET_0_FT(_C);
 
-    #pragma omp parallel for num_threads(4)
+    #pragma omp parallel for
     for (int i = 0; i < _coord.size(); i++)
     {
         mat33 mat;
@@ -145,7 +165,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)i, (double)j, 0};
                 vec3 oldCor = mat * newCor * _pf;
 
-                if (norm(oldCor) < _maxRadius)
+                if (norm(oldCor) < _maxRadius * _pf)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
                                                      oldCor(1),
                                                      oldCor(2),

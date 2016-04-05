@@ -18,7 +18,7 @@
 
 #define PF 2
 
-#define N 256
+#define N 128
 #define M 1000
 #define MAX_X 10
 #define MAX_Y 10
@@ -50,21 +50,14 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
-    normalise(head);
 
-    /***
-    cout << "Adding Noise" << endl;
-    Volume noise(N, N, N, RL_SPACE);
-    FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(RANDR, 5);
-    ADD_RL(head, noise);
-    normalise(head);
-    ***/
 
+/***
     printf("head: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&head(0), 1, head.sizeRL()),
            gsl_stats_sd(&head(0), 1, head.sizeRL()),
            head(cblas_idamax(head.sizeRL(), &head(0), 1)));
+***/
 
     /***
     fft.fw(head);
@@ -78,6 +71,14 @@ int main(int argc, char* argv[])
     cout << "Padding Head" << endl;
     Volume padHead;
     VOL_PAD_RL(padHead, head, PF);
+    normalise(padHead);
+
+    cout << "Adding Noise" << endl;
+    Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
+    FOR_EACH_PIXEL_RL(noise)
+        noise(i) = gsl_ran_gaussian(RANDR, 20);
+    ADD_RL(padHead, noise);
+
     printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
            gsl_stats_sd(&padHead(0), 1, padHead.sizeRL()),
@@ -105,6 +106,7 @@ int main(int argc, char* argv[])
     Experiment exp("MickeyMouse.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS, 1);
+    exp.appendGroup("");
 
     char name[256];
 
@@ -119,6 +121,8 @@ int main(int argc, char* argv[])
     Coordinate5D coord;
     for (int i = 0; i < M; i++)
     {
+        SET_0_FT(image);
+
         sprintf(name, "%06d.mrc", i);
         printf("%s\n", name);
 
@@ -129,7 +133,7 @@ int main(int argc, char* argv[])
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(RANDR, 2);
+            noise(i) = gsl_ran_gaussian(RANDR, 5);
 
         fft.bw(image);
 
@@ -144,6 +148,9 @@ int main(int argc, char* argv[])
 
         imf.readMetaData(image);
         imf.writeImage(name, image);
+
+        sprintf(name, "%06d.bmp", i);
+        image.saveRLToBMP(name);
 
         fft.fw(image);
     }

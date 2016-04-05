@@ -73,27 +73,25 @@ void Projector::setProjectee(const Volume& src)
     _projectee = src;
 
     // make sure the scale correct
-    SCALE_FT(_projectee, 1.0 / _pf);
-    SCALE_FT(_projectee, 1.0 / sqrt(_projectee.nColRL()));
+    // SCALE_FT(_projectee, 1.0 / _pf);
+    SCALE_FT(_projectee, 1.0 / _pf / sqrt(_projectee.nColRL()));
 
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),
-                             _projectee.nSlcRL()) / 2 - 1);
+                             _projectee.nSlcRL()) / _pf / 2 - 1);
 }
 
 void Projector::project(Image& dst,
                         const mat33& mat) const
 {
-    SET_0_FT(dst);
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-
         vec3 newCor = {(double)i, (double)j, 0};
         // std::cout << newCor << std::endl;
         vec3 oldCor = mat * newCor * _pf;
         // std::cout << oldCor << std::endl;
 
-        if (norm(oldCor) < _maxRadius)
+        if (norm(oldCor) < _maxRadius * _pf)
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
                                                       oldCor(1),
                                                       oldCor(2),
@@ -122,7 +120,7 @@ void Projector::project(Image& dst,
                         const double y) const
 {
     project(dst, phi, theta, psi);
-    translate(dst, dst, x, y);
+    translate(dst, dst, _maxRadius, x, y);
 }
 
 void Projector::project(Image& dst,

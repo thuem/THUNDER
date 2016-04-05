@@ -71,14 +71,12 @@ void powerSpectrum(vec& dst,
 
 void FRC(vec& dst,
          const Image& A,
-         const Image& B,
-         const int r);
+         const Image& B);
 /* calculate the Fourier ring coefficient */
 
 void FSC(vec& dst,
          const Volume& A,
-         const Volume& B,
-         const int r);
+         const Volume& B);
 /* calculate the Fourier shell coefficient */
 
 /***

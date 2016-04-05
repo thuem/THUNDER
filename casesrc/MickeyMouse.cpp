@@ -19,13 +19,13 @@
 
 #define PF 2
 
-#define N 256
+#define N 128
 #define MAX_X 10
 #define MAX_Y 10
 
 #define PIXEL_SIZE 1.32
 
-#define M 1000
+#define M 2000
 
 using namespace std;
 
@@ -37,7 +37,9 @@ int main(int argc, char* argv[])
 
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
-    para.iterMax = 1;
+    para.iterMax = atoi(argv[1]);
+    para.k = 1;
+    para.size = N;
     para.pf = PF;
     para.a = 1.9;
     para.alpha = 10;
