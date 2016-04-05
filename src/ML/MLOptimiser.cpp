@@ -679,6 +679,7 @@ double dataVSPrior(const Image& dat,
                    const int r)
 {
     double result = 0;
+    int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
@@ -686,12 +687,15 @@ double dataVSPrior(const Image& dat,
         int u = AROUND(NORM(i, j));
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
+        {
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
                     / (-2 * sig(u));
+            counter++;
+        }
                     // / (2 * M_PI * u);
     }
 
-    return exp(result);
+    return exp(result / counter);
 }
