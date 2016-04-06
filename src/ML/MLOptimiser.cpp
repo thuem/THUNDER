@@ -512,7 +512,8 @@ void MLOptimiser::initSigma()
     // psAvg -> expectation of pixels
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
-    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
+    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
+    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
 
     ALOG(INFO) << "Saving Initial Sigma";
     if (_commRank == HEMI_A_LEAD)
