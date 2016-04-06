@@ -54,6 +54,10 @@ double ringAverage(const int resP,
                    const function<double(const Complex)> func); 
 /* calculate ring average at given resolution */
 
+Complex ringAverage(const int resP,
+                    const Image& img,
+                    const function<Complex(const Complex)> func);
+
 double shellAverage(const int resP,
                     const Volume& vol,
                     const function<double(const Complex)> func);

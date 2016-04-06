@@ -43,6 +43,7 @@ void resA2P(vec& res,
     res.transform([&](double val){ return val * imageSize * pixelSize; });
 }
 
+/***
 double ringAverage(const int resP,
                    const Image& img)
 {
@@ -58,6 +59,7 @@ double ringAverage(const int resP,
 
     return result / counter;
 }
+***/
 
 double ringAverage(const int resP,
                    const Image& img,
@@ -71,6 +73,23 @@ double ringAverage(const int resP,
         {
             result += func(img.getFT(i, j));
             counter++;
+        }
+
+    return result / counter;
+}
+
+Complex ringAverage(const int resP,
+                    const Image& img,
+                    const function<Complex(const Complex)> func)
+{
+    Complex result = COMPLEX(0, 0);
+    double counter = 0;
+
+    IMAGE_FOR_EACH_PIXEL_FT(img)
+        if (AROUND(NORM(i, j)) == resP)
+        {
+            result += func(img.getFT(i, j));
+            counter += 1;
         }
 
     return result / counter;

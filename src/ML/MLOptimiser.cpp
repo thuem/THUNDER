@@ -474,7 +474,8 @@ void MLOptimiser::initSigma()
     FOR_EACH_2D_IMAGE
     {
         powerSpectrum(ps, _img[l], maxR());
-        cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
+        avgPs += ps;
+        // cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
     }
 
     MPI_Barrier(_hemi);
