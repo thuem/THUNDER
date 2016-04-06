@@ -17,7 +17,7 @@
 #include "Experiment.h"
 #include "MLOptimiser.h"
 
-#define PF 2
+#define PF 1
 
 #define N 128
 #define MAX_X 10

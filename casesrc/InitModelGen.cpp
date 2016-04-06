@@ -12,7 +12,7 @@
 #include "Volume.h"
 
 #define N 128
-#define PF 2
+#define PF 1
 
 using namespace std;
 

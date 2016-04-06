@@ -16,7 +16,7 @@
 #include "CTF.h"
 #include "Experiment.h"
 
-#define PF 2
+#define PF 1
 
 #define N 128
 #define M 1000
