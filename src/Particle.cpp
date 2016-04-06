@@ -176,6 +176,8 @@ void Particle::calVari()
 
 void Particle::perturb()
 {
+    calVari();
+
     _t.each_row([this](rowvec& row)
                 {
                     double x, y;
