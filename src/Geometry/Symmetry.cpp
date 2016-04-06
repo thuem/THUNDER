@@ -358,5 +358,5 @@ void symmetryCounterpart(double& ex,
         }
     }
 
-    LOG(FATAL) << "Unable to find SymmetryCounterpart";
+    LOG(WARNING) << "Unable to find SymmetryCounterpart";
 }
