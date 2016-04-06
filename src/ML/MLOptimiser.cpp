@@ -504,7 +504,7 @@ void MLOptimiser::initSigma()
     vec psAvg(maxR());
     // powerSpectrum(psAvg, avg, maxR());
     for (int i = 0; i < maxR(); i++)
-        psAvg(i) = ABS2(ringAverage(i, avg, [](const Complex x){ return x; }));
+        psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
 
     // ALOG(INFO) << "Power Spectrum of Average Image is " << endl << psAvg;
     
@@ -512,8 +512,8 @@ void MLOptimiser::initSigma()
     // psAvg -> expectation of pixels
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
-    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
-    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
+    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
+    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
 
     ALOG(INFO) << "Saving Initial Sigma";
     if (_commRank == HEMI_A_LEAD)
