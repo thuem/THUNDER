@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     cout << "Initialising Experiment" << endl;
     Experiment exp("MickeyMouse.db");
     exp.createTables();
-    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS, 1);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
     exp.appendGroup("");
 
     char name[256];

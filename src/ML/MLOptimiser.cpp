@@ -208,6 +208,7 @@ void MLOptimiser::run()
         MLOG(INFO) << "Performing Maximization";
         maximization();
 
+        /***
         MLOG(INFO) << "Calculating FSC";
         _model.BcastFSC();
 
@@ -244,6 +245,7 @@ void MLOptimiser::run()
             ALOG(INFO) << "Refreshing Reconstructors";
             _model.refreshReco();
         }
+        ***/
     }
 }
 
