@@ -24,4 +24,5 @@ std::ostream& operator<<(std::ostream& os, Error& error)
     os << "ERROR: " << error._errMsg << std::endl
        << "File: " << error._file <<std::endl
        << "Line: " << error._line <<std::endl;
+    return os;
 }

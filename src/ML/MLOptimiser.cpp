@@ -329,38 +329,38 @@ void MLOptimiser::initID()
 void MLOptimiser::initImg()
 {
     FFT fft;
+    _img.clear();
+    _img.resize(_ID.size());
 
     char sql[SQL_COMMAND_LENGTH];
-    char imgName[FILE_NAME_LENGTH];
+    std::string imgName;
 
     FOR_EACH_2D_IMAGE
     {
         // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
-
-        _img.push_back(Image());
-
         // get the filename of the image from database
-        sprintf(sql, "select Name from particles where ID = %d;", _ID[l]);
+        snprintf(sql, sizeof(sql), "select Name from particles where ID = %d;", _ID[l]);
         _exp.execute(sql,
                      SQLITE3_CALLBACK
                      {
-                         sprintf((char*)data, "%s", values[0]); 
+                         *(std::string*)data = values[0];
                          return 0;
                      },
-                     imgName);
+                     &imgName);
 
         // read the image fromm hard disk
-        ImageFile imf(imgName, "rb");
+	Image& currentImg = _img[l];
+        ImageFile imf(imgName.c_str(), "rb");
         imf.readMetaData();
-        imf.readImage(_img.back());
+        imf.readImage(currentImg);
 
-        if ((_img.back().nColRL() != _para.size) ||
-            (_img.back().nRowRL() != _para.size))
+        if ((currentImg.nColRL() != _para.size) ||
+            (currentImg.nRowRL() != _para.size))
             LOG(FATAL) << "Incorrect Size of 2D Images";
 
         // apply a soft mask on it
-        softMask(_img.back(),
-                 _img.back(),
+        softMask(currentImg,
+                 currentImg,
                  _para.size / 4,
                  EDGE_WIDTH_RL);
 
@@ -370,8 +370,8 @@ void MLOptimiser::initImg()
         ***/
 
         // perform Fourier Transform
-        fft.fw(_img.back());
-        _img.back().clearRL();
+        fft.fw(currentImg);
+        currentImg.clearRL();
     }
 }
 

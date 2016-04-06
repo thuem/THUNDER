@@ -35,6 +35,7 @@ ImageBase& ImageBase::operator=(const ImageBase& that)
         _dataFT = new Complex[_sizeFT];
         memcpy(_dataFT, &that.iGetFT(), sizeof(Complex) * _sizeFT);
     }
+    return *this;
 }
 
 const double& ImageBase::iGetRL(size_t i) const
