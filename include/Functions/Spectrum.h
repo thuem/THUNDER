@@ -24,8 +24,10 @@
 using namespace std;
 using namespace arma;
 
+/** @brief This function return the Nyquist resolution limit in Angstrom(-1)
+ *  @param pixelSize pixel size in Angstrom
+ */
 double nyquist(const double pixelSize);
-/* Nyquist resolution limit in Angstrom(-1) */
 
 double resP2A(const double resP,
               const int imageSize,

@@ -63,15 +63,31 @@ class Particle
 
     public:
 
+        /** @brief default constructor of Particle
+         */
         Particle();
 
+        /** @brief constructor of Particle
+         *  @param n number of particles in this particle filter
+         *  @param maxX maximum X-axis translation in pixel
+         *  @param maxY maximum Y-axis translation in pixel
+         *  @param sym symmetry of resampling space
+         */
         Particle(const int n,
                  const double maxX,
                  const double maxY,
                  const Symmetry* sym = NULL);
 
+        /** @brief deconstructor of Particle
+         */
         ~Particle();
 
+        /** @brief This function initialises Particle
+         *  @param n number of particles in this particle filter
+         *  @param maxX maximum X-axis translation in pixel
+         *  @param maxY maximum Y-axis translation in pixel
+         *  @param sym symmetry of resampling space
+         */
         void init(const int n,
                   const double maxX,
                   const double maxY,
