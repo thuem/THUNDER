@@ -243,13 +243,11 @@ void Particle::resample(const int n)
     _t.set_size(n, 2);
     _t = t;
 
-    /***
     free_matrix2(_r);
-    _r = new_matrix2(n, 2);
+    _r = new_matrix2(n, 4);
     
     for (int i = 0; i < n; i++)
         memcpy(_r[i], r[i], sizeof(double) * 4);
-        ***/
 
     free_matrix2(r);
 
