@@ -694,7 +694,7 @@ double dataVSPrior(const Image& dat,
                    const vec& sig,
                    const int r)
 {
-    double result = 0;
+    double result = 1;
     // int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
