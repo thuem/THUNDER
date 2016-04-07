@@ -198,11 +198,17 @@ class MLOptimiser : public Parallel
         void reconstructRef();
 };
 
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int r);
+// dat -> data, pri -> prior, ctf
+
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sig,
                    const int r);
-// dat -> data, pri -> prior, ctf
 
 #endif // ML_OPTIMSER_H

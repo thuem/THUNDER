@@ -143,20 +143,26 @@ void MLOptimiser::expectation()
         else 
             _par[l].perturb();
 
+        vec logW(_par[l].n());
         for (int m = 0; m < _par[l].n(); m++)
         {
             Coordinate5D coord;
             _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
 
-            double w = dataVSPrior(_img[l], // data
-                                   image, // prior
-                                   _ctf[l], // ctf
-                                   _sig.row(_groupID[l] - 1).head(_r).t(),
-                                   _r);
+            logW[m] = logDataVSPrior(_img[l], // data
+                                     image, // prior
+                                     _ctf[l], // ctf
+                                     _sig.row(_groupID[l] - 1).head(_r).t(),
+                                     _r);
 
-            _par[l].mulW(w, m);
+            // _par[l].mulW(w, m);
         }
+        logW -= logW(0);
+
+        for (int m = 0; m < _par[l].n(); m++)
+            _par[l].mulW(exp(logW(m)), m);
+
         _par[l].normW();
 
         // calculate current variance
@@ -688,11 +694,11 @@ void MLOptimiser::reconstructRef()
     _model.ref(0).clearRL();
 }
 
-double dataVSPrior(const Image& dat,
-                   const Image& pri,
-                   const Image& ctf,
-                   const vec& sig,
-                   const int r)
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int r)
 {
     // double result = 1;
     double result = 0;
@@ -734,8 +740,20 @@ double dataVSPrior(const Image& dat,
         }
     }
 
-    LOG(INFO) << "dataVSPrior" << result << endl;
-    return exp(result);
+    // LOG(INFO) << "dataVSPrior" << result << endl;
+
+    return result;
 
     // return exp(result);
+
+    // return exp(result);
+}
+
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r)
+{
+    return exp(logDataVSPrior(dat, pri, ctf, sig, r));
 }
