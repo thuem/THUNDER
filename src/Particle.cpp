@@ -10,12 +10,12 @@
 
 Particle::Particle() {}
 
-Particle::Particle(const int N,
+Particle::Particle(const int n,
                    const double maxX,
                    const double maxY,
                    const Symmetry* sym)
 {    
-    init(N, maxX, maxY, sym);
+    init(n, maxX, maxY, sym);
 }
 
 Particle::~Particle()
@@ -23,23 +23,23 @@ Particle::~Particle()
     clear();
 }
 
-void Particle::init(const int N,
+void Particle::init(const int n,
                     const double maxX,
                     const double maxY,
                     const Symmetry* sym)
 {
     clear();
 
-    _N = N;
+    _n = n;
 
     _maxX = maxX;
     _maxY = maxY;
 
     _sym = sym;
 
-    _r = new_matrix2(_N, 4);
-    _t.resize(_N, 2);
-    _w.resize(_N);
+    _r = new_matrix2(_n, 4);
+    _t.resize(_n, 2);
+    _w.resize(_n);
 
     reset();
 }
@@ -49,15 +49,15 @@ void Particle::reset()
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
     // uniform bingham distribution
-    bingham_sample(_r, &B, _N);
-    // draw _N samples from it
+    bingham_sample(_r, &B, _n);
+    // draw _n samples from it
 
-    for (int i = 0; i < _N; i++)
+    for (int i = 0; i < _n; i++)
     {
         _t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
         _t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
-        _w(i) = 1.0 / _N;
+        _w(i) = 1.0 / _n;
     }
 
     bingham_free(&B);
@@ -65,7 +65,7 @@ void Particle::reset()
     symmetrise();
 }
 
-int Particle::N() const { return _N; }
+int Particle::n() const { return _n; }
 
 void Particle::vari(double& k0,
                     double& k1,
@@ -165,7 +165,7 @@ void Particle::calVari()
                                 _t.n_rows) / _s0 / _s1;
 
     bingham_t B;
-    bingham_fit(&B, _r, _N, 4);
+    bingham_fit(&B, _r, _n, 4);
 
     _k0 = B.Z[0];
     _k1 = B.Z[1];
@@ -188,7 +188,7 @@ void Particle::perturb()
 
     /***
     mat L = chol(cov(_t), "lower");
-    for (int i = 0; i < _N; i++)
+    for (int i = 0; i < _n; i++)
         _t.row(i) += (L * randn<vec>(2)).t() / 3;
         ***/
 
@@ -196,10 +196,10 @@ void Particle::perturb()
 
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);
-    double** d = new_matrix2(_N, 4);
-    bingham_sample(d, &B, _N);
+    double** d = new_matrix2(_n, 4);
+    bingham_sample(d, &B, _n);
 
-    for (int i = 0; i < _N; i++)
+    for (int i = 0; i < _n; i++)
         quaternion_mul(_r[i], _r[i], d[i]);
 
     bingham_free(&B);
@@ -210,24 +210,24 @@ void Particle::perturb()
 
 void Particle::resample()
 {
-    resample(_N);
+    resample(_n);
 }
 
-void Particle::resample(const int N)
+void Particle::resample(const int n)
 {
     vec cdf = cumsum(_w);
 
-    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / N);  
+    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / n);  
     
-    double** r = new_matrix2(N, 4);
-    mat t(N, 2);
+    double** r = new_matrix2(n, 4);
+    mat t(n, 2);
 
-    _w.set_size(N);
+    _w.set_size(n);
 
     int i = 0;
-    for (int j = 0; j < N; j++)
+    for (int j = 0; j < n; j++)
     {
-        double uj = u0 + j * 1.0 / N;
+        double uj = u0 + j * 1.0 / n;
 
         while (uj > cdf[i])
             i++;
@@ -235,16 +235,16 @@ void Particle::resample(const int N)
         memcpy(r[j], _r[i], sizeof(double) * 4);
         t.row(j) = _t.row(i);
 
-        _w(j) = 1.0 / N;
+        _w(j) = 1.0 / n;
     }
 
-    _t.set_size(N, 2);
+    _t.set_size(n, 2);
     _t = t;
 
     free_matrix2(_r);
-    _r = new_matrix2(N, 2);
+    _r = new_matrix2(n, 2);
     
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < n; i++)
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
@@ -266,7 +266,7 @@ void Particle::symmetrise()
 {
     double phi, theta, psi;
     vec4 quat;
-    for (int i = 0; i < _N; i++)
+    for (int i = 0; i < _n; i++)
     {
         angle(phi, theta, psi, vec4({_r[i][0],
                                      _r[i][1],
@@ -303,7 +303,7 @@ void Particle::clear()
 void display(const Particle& particle)
 {
     Coordinate5D coord;
-    for (int i = 0; i < particle.N(); i++)
+    for (int i = 0; i < particle.n(); i++)
     {
         particle.coord(coord, i);
         display(coord);
@@ -317,7 +317,7 @@ void save(const char filename[],
 
     vec4 q;
     vec2 t;
-    for (int i = 0; i < par.N(); i++)
+    for (int i = 0; i < par.n(); i++)
     {
         par.quaternion(q, i);
         par.t(t, i);

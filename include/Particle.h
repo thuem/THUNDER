@@ -39,7 +39,7 @@ class Particle
 {
     private:
 
-        int _N;
+        int _n;
 
         double _maxX;
         double _maxY;
@@ -65,21 +65,21 @@ class Particle
 
         Particle();
 
-        Particle(const int N,
+        Particle(const int n,
                  const double maxX,
                  const double maxY,
                  const Symmetry* sym = NULL);
 
         ~Particle();
 
-        void init(const int N,
+        void init(const int n,
                   const double maxX,
                   const double maxY,
                   const Symmetry* sym = NULL);
 
         void reset();
 
-        int N() const;
+        int n() const;
 
         void vari(double& k0,
                   double& k1,
@@ -121,8 +121,8 @@ class Particle
 
         void resample();
 
-        /* resample to number of particles of N */
-        void resample(const int N);
+        /* resample to number of particles of n */
+        void resample(const int n);
 
         double neff() const;
 

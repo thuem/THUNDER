@@ -130,7 +130,7 @@ void MLOptimiser::expectation()
             _par[l].reset();
         }
         ***/
-        if (_par[l].neff() < _par[l].N() / 5)
+        if (_par[l].neff() < _par[l].n() / 5)
         {
             ILOG(INFO) << "Round " << _iter
                        << ": Resampling Particle " << _ID[l]
@@ -141,7 +141,7 @@ void MLOptimiser::expectation()
         else 
             _par[l].perturb();
 
-        for (int m = 0; m < _par[l].N(); m++)
+        for (int m = 0; m < _par[l].n(); m++)
         {
             Coordinate5D coord;
             _par[l].coord(coord, m);

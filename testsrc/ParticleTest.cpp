@@ -30,7 +30,7 @@ int main(int argc, const char* argv[])
     {
         // cout << "neff = " << particle.neff() << endl;
         if (particle.neff() < nt)
-            particle.resample(GSL_MAX_INT(100, particle.N() / 2));
+            particle.resample(GSL_MAX_INT(100, particle.n() / 2));
         else particle.perturb();
 
         for (int j = 0; j < M; j++)
