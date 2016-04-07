@@ -136,8 +136,8 @@ void MLOptimiser::expectation()
                        << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
-            // _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
-            _par[l].resample();
+            _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
+            // _par[l].resample();
             // _par[l].perturb();
         }
         else 
@@ -158,7 +158,7 @@ void MLOptimiser::expectation()
 
             // _par[l].mulW(w, m);
         }
-        logW -= logW(0);
+        logW -= logW(0); // avoiding numerical error
 
         for (int m = 0; m < _par[l].n(); m++)
             _par[l].mulW(exp(logW(m)), m);
