@@ -714,5 +714,7 @@ double dataVSPrior(const Image& dat,
         }
     }
 
-    return exp(result);
+    return result;
+
+    // return exp(result);
 }
