@@ -208,19 +208,26 @@ void Particle::perturb()
     symmetrise();
 }
 
+void Particle::resample()
+{
+    resample(_N);
+}
+
 void Particle::resample(const int N)
 {
     vec cdf = cumsum(_w);
 
-    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / _N);  
+    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / N);  
     
-    double** r = new_matrix2(_N, 4);
-    mat t(_N, 2);
+    double** r = new_matrix2(N, 4);
+    mat t(N, 2);
+
+    _w.set_size(N);
 
     int i = 0;
-    for (int j = 0; j < _N; j++)
+    for (int j = 0; j < N; j++)
     {
-        double uj = u0 + j * 1.0 / _N;
+        double uj = u0 + j * 1.0 / N;
 
         while (uj > cdf[i])
             i++;
@@ -228,15 +235,19 @@ void Particle::resample(const int N)
         memcpy(r[j], _r[i], sizeof(double) * 4);
         t.row(j) = _t.row(i);
 
-        _w(j) = 1.0 / _N;
+        _w(j) = 1.0 / N;
     }
 
+    _t.set_size(N, 2);
     _t = t;
-    for (int i = 0; i < _N; i++)
+
+    free_matrix2(_r);
+    _r = new_matrix2(N, 2);
+    
+    for (int i = 0; i < N; i++)
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
-    r = NULL;
 
     perturb();
 }

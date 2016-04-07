@@ -8,20 +8,20 @@
 
 #include "Particle.h"
 
-#define N 10000
+#define M 10000
 
 int main(int argc, const char* argv[])
 {
     Symmetry sym("C2");
 
     Particle particle;
-    particle.init(N, 30, 30, &sym);
+    particle.init(M, 30, 30, &sym);
     // Particle particle(N, 30, 30, &sym);
 
     vec4 u;
     double v[4];
 
-    double nt = N / 3;
+    double nt = M / 3;
     /***
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, -30, -30, 0);
@@ -30,10 +30,10 @@ int main(int argc, const char* argv[])
     {
         // cout << "neff = " << particle.neff() << endl;
         if (particle.neff() < nt)
-            particle.resample();
+            particle.resample(GSL_MAX_INT(100, particle.N() / 2));
         else particle.perturb();
 
-        for (int j = 0; j < N; j++)
+        for (int j = 0; j < M; j++)
         {
             particle.quaternion(u, j);
             v[0] = u(0);
