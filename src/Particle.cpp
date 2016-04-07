@@ -240,10 +240,10 @@ void Particle::resample(const int n)
         _w(j) = 1.0 / n;
     }
 
-    /***
     _t.set_size(n, 2);
     _t = t;
 
+    /***
     free_matrix2(_r);
     _r = new_matrix2(n, 2);
     
