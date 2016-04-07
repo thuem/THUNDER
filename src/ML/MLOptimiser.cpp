@@ -694,7 +694,8 @@ double dataVSPrior(const Image& dat,
                    const vec& sig,
                    const int r)
 {
-    double result = 1;
+    // double result = 1;
+    double result = 0;
     // int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
@@ -704,10 +705,16 @@ double dataVSPrior(const Image& dat,
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
         {
+            result += ABS2(dat.getFT(i, j)
+                         - ctf.getFT(i, j)
+                         * pri.getFT(i, j))
+                        / (-2 * sig(u));
+            /***
             result *= exp(ABS2(dat.getFT(i, j)
                              - ctf.getFT(i, j)
                              * pri.getFT(i, j))
                         / (-2 * sig(u)));
+                        ***/
             /***
             result *= (exp(ABS2(dat.getFT(i, j)
                              - ctf.getFT(i, j)
@@ -728,7 +735,7 @@ double dataVSPrior(const Image& dat,
     }
 
     LOG(INFO) << "dataVSPrior" << result << endl;
-    return result;
+    return exp(result);
 
     // return exp(result);
 }
