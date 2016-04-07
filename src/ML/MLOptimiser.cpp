@@ -136,7 +136,8 @@ void MLOptimiser::expectation()
                        << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
-            _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
+            // _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
+            _par[l].perturb();
         }
         else 
             _par[l].perturb();
