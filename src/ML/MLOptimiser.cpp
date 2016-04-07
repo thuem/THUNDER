@@ -136,7 +136,7 @@ void MLOptimiser::expectation()
                        << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
-            _par[l].resample();
+            _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
         }
         else 
             _par[l].perturb();
@@ -528,7 +528,7 @@ void MLOptimiser::initParticles()
         _par.push_back(Particle());
 
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.m,
+        _par[l].init(_para.m * _para.mf,
                      _para.maxX,
                      _para.maxY,
                      &_sym);

@@ -67,6 +67,9 @@ typedef struct ML_OPTIMISER_PARA
 
     int m;
     // number of samplings in particle filter
+    
+    int mf;
+    // factor of number of samplings in particle filter
 
     int maxX;
 
