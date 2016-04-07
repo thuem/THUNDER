@@ -149,9 +149,9 @@ void MLOptimiser::expectation()
             _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
 
-            double w = dataVSPrior(image,
-                                   _img[l],
-                                   _ctf[l],
+            double w = dataVSPrior(_img[l], // data
+                                   image, // prior
+                                   _ctf[l], // ctf
                                    _sig.row(_groupID[l] - 1).head(_r).t(),
                                    _r);
 
@@ -704,11 +704,17 @@ double dataVSPrior(const Image& dat,
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
         {
+            result *= exp(ABS2(dat.getFT(i, j)
+                             - ctf.getFT(i, j)
+                             * pri.getFT(i, j))
+                        / (-2 * sig(u)));
+            /***
             result *= (exp(ABS2(dat.getFT(i, j)
                              - ctf.getFT(i, j)
                              * pri.getFT(i, j))
                             / (-2 * sig(u)))
                      / (2 * M_PI * sig(u)));
+                     ***/
             /***
             result *= exp(ABS2(dat.getFT(i, j)
                              - ctf.getFT(i, j)
