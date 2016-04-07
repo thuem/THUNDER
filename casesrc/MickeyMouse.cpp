@@ -26,7 +26,7 @@
 #define PIXEL_SIZE 1.32
 
 #define M 2000
-#define MF 1
+#define MF 32
 
 using namespace std;
 
