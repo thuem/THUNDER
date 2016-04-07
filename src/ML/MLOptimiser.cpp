@@ -714,6 +714,7 @@ double dataVSPrior(const Image& dat,
         }
     }
 
+    LOG(INFO) << "dataVSPrior" << result << endl;
     return result;
 
     // return exp(result);
