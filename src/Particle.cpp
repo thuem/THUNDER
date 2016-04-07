@@ -240,6 +240,7 @@ void Particle::resample(const int n)
         _w(j) = 1.0 / n;
     }
 
+    /***
     _t.set_size(n, 2);
     _t = t;
 
@@ -248,6 +249,7 @@ void Particle::resample(const int n)
     
     for (int i = 0; i < n; i++)
         memcpy(_r[i], r[i], sizeof(double) * 4);
+        ***/
 
     free_matrix2(r);
 
