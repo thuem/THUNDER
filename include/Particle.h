@@ -119,7 +119,8 @@ class Particle
 
         void perturb();
 
-        void resample();
+        /* resample to number of particles of N */
+        void resample(const int N);
 
         double neff() const;
 

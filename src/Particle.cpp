@@ -208,7 +208,7 @@ void Particle::perturb()
     symmetrise();
 }
 
-void Particle::resample()
+void Particle::resample(const int N)
 {
     vec cdf = cumsum(_w);
 
