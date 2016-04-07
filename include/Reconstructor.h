@@ -73,6 +73,9 @@ class Reconstructor : public Parallel
 
         ~Reconstructor();
 
+        /** @brief This function is to initialise the Reconstructor
+         *  @param size unpadded size of Reconstructor
+         */
         void init(const int size,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
