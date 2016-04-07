@@ -215,6 +215,8 @@ void Particle::resample()
 
 void Particle::resample(const int n)
 {
+    _n = n;
+
     vec cdf = cumsum(_w);
 
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / n);  
