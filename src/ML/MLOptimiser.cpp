@@ -704,11 +704,11 @@ double dataVSPrior(const Image& dat,
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
         {
-            result += ABS2(dat.getFT(i, j)
-                         - ctf.getFT(i, j)
-                         * pri.getFT(i, j))
-                    / (-2 * sig(u))
-                    / (M_PI * u);
+            result *= exp(ABS2(dat.getFT(i, j)
+                             - ctf.getFT(i, j)
+                             * pri.getFT(i, j))
+                            / (-2 * sig(u)))
+                    / (2 * M_PI * sig(u));
                     // / (2 * M_PI * u);
             // counter++;
         }
