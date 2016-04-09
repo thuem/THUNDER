@@ -183,6 +183,7 @@ void MLOptimiser::expectation()
         char filename[FILE_NAME_LENGTH];
         sprintf(filename, "Particle_%04d_Round_%03d.par", _ID[l], _iter);
         save(filename, _par[l]);
+
     }
 }
 
@@ -254,6 +255,24 @@ void MLOptimiser::run()
             _model.refreshReco();
         }
         ***/
+
+        // save the result of last projection
+        if (_iter == _para.iterMax - 1)
+        {
+            Image result(_para.size, _para.size, RL_SPACE);
+            Coordinate5D coord;
+            char filename[FILE_NAME_LENGTH];
+            FOR_EACH_2D_IMAGE
+            {
+                uvec iSort = _par[l].iSort();
+                _par[l].coord(coord, iSort[0]);
+                R2R_FT(result,
+                       result,
+                       _model.proj(0).project(result, coord));
+                sprintf(filename, "Result_%04d.bmp", _ID[l]);
+                result.saveRLToBMP(filename);
+            }
+        } 
     }
 }
 
