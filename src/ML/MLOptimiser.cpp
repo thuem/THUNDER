@@ -212,6 +212,7 @@ void MLOptimiser::run()
     {
         saveBestProjections();
 
+        /***
         MLOG(INFO) << "Round " << _iter;
 
         MLOG(INFO) << "Performing Expectation";
@@ -247,6 +248,7 @@ void MLOptimiser::run()
                    << " (Spatial), "
                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                    << " (Angstrom)";
+                   ***/
 
         /***
         NT_MASTER
