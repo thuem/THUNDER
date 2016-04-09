@@ -165,7 +165,7 @@ void MLOptimiser::expectation()
         logW -= logW(0); // avoiding numerical error
 
         for (int m = 0; m < _par[l].n(); m++)
-            _par[l].mulW(exp(logW(m)), m);
+            _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
 
         _par[l].normW();
 
