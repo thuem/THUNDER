@@ -210,9 +210,11 @@ void MLOptimiser::run()
     MLOG(INFO) << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
-        saveBestProjections();
-
         /***
+        NT_MASTER
+            saveBestProjections();
+            ***/
+
         MLOG(INFO) << "Round " << _iter;
 
         MLOG(INFO) << "Performing Expectation";
@@ -248,26 +250,23 @@ void MLOptimiser::run()
                    << " (Spatial), "
                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                    << " (Angstrom)";
-                   ***/
 
-        /***
         NT_MASTER
         {
             ALOG(INFO) << "Refreshing Projectors";
             _model.refreshProj();
 
+            /***
             ALOG(INFO) << "Refreshing Reconstructors";
             _model.refreshReco();
+            ***/
         }
-        ***/
 
-        /***
         // save the result of last projection
         if (_iter == _para.iterMax - 1)
         {
             saveBestProjections();
         } 
-        ***/
     }
 }
 
@@ -360,6 +359,11 @@ void MLOptimiser::initRef()
     FFT fft;
     fft.fw(_model.ref(0));
     _model.ref(0).clearRL();
+    /***
+    fft.bw(_model.ref(0));
+    fft.fw(_model.ref(0));
+    _model.ref(0).clearRL();
+    ***/
 }
 
 void MLOptimiser::initID()
@@ -709,18 +713,37 @@ void MLOptimiser::reconstructRef()
 
 void MLOptimiser::saveBestProjections()
 {
-    Image result(_para.size, _para.size, RL_SPACE);
+    FFT fft;
+
+    /***
+    fft.bw(_model.ref(0));
+    ImageFile imf;
+    imf.readMetaData(_model.ref(0));
+    imf.writeVolume("Result.mrc", _model.ref(0));
+    fft.fw(_model.ref(0));
+
+    _model.proj(0).setProjectee(_model.ref(0));
+    _model.proj(0).setPf(1);
+    _model.proj(0).setMaxRadius(60);
+    ***/
+
+    Image result(_para.size, _para.size, FT_SPACE);
     Coordinate5D coord;
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
+        SET_0_FT(result);
+
         uvec iSort = _par[l].iSort();
         _par[l].coord(coord, iSort[0]);
-        R2R_FT(result,
-               result,
-               _model.proj(0).project(result, coord));
+
+        _model.proj(0).project(result, coord);
+
         sprintf(filename, "Result_%04d.bmp", _ID[l]);
+
+        fft.bw(result);
         result.saveRLToBMP(filename);
+        fft.fw(result);
     }
 }
 

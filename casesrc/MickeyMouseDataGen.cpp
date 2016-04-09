@@ -80,6 +80,11 @@ int main(int argc, char* argv[])
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
 
+    cout << "Reading from Hard-disk" << endl;
+    ImageFile imf2("padHead.mrc", "rb");
+    imf2.readMetaData();
+    imf2.readVolume(padHead);
+
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
     FOR_EACH_PIXEL_RL(noise)
@@ -156,7 +161,7 @@ int main(int argc, char* argv[])
         imf.readMetaData(image);
         imf.writeImage(name, image);
 
-        sprintf(name, "%06d.bmp", i);
+        sprintf(name, "Image_%04d.bmp", i);
         image.saveRLToBMP(name);
 
         fft.fw(image);
