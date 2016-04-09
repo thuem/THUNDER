@@ -85,11 +85,13 @@ int main(int argc, char* argv[])
     imf2.readMetaData();
     imf2.readVolume(padHead);
 
+    /***
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(RANDR, 20);
     ADD_RL(padHead, noise);
+    ***/
 
     printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
@@ -135,7 +137,7 @@ int main(int argc, char* argv[])
     {
         SET_0_FT(image);
 
-        sprintf(name, "%06d.mrc", i);
+        sprintf(name, "%04d.mrc", i + 1);
         printf("%s\n", name);
 
         par.coord(coord, i);
@@ -161,7 +163,7 @@ int main(int argc, char* argv[])
         imf.readMetaData(image);
         imf.writeImage(name, image);
 
-        sprintf(name, "Image_%04d.bmp", i);
+        sprintf(name, "Image_%04d.bmp", i + 1);
         image.saveRLToBMP(name);
 
         fft.fw(image);
