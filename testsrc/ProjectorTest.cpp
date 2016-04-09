@@ -14,6 +14,7 @@
 
 #define N 256
 #define M 8
+#define PF 1
 
 int main(int argc, const char* argv[])
 {
@@ -39,7 +40,7 @@ int main(int argc, const char* argv[])
     imf.writeVolume("head.mrc", head);
 
     Volume padHead;
-    VOL_PAD_RL(padHead, head, 2);
+    VOL_PAD_RL(padHead, head, 1);
     /***
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
@@ -50,6 +51,7 @@ int main(int argc, const char* argv[])
 
     Projector projector;
     projector.setProjectee(padHead);
+    projector.setPf(PF);
 
     char name[256];
     int counter = 0;
@@ -79,10 +81,14 @@ int main(int argc, const char* argv[])
                 /***
                 R2R_FT(image, sin(2));
                 ***/
-                R2R_FT(image, image, projector.project(image,
-                                                2 * M_PI * i / M,
-                                                M_PI * j / M,
-                                                2 * M_PI * k / M));
+                R2R_FT(image,
+                       image,
+                       projector.project(image,
+                                         2 * M_PI * i / M,
+                                         M_PI * j / M,
+                                         2 * M_PI * k / M,
+                                         10,
+                                         10));
 
                 image.saveRLToBMP(name);
                 // image.saveFTToBMP(name, 0.1);

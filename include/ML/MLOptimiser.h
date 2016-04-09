@@ -196,6 +196,10 @@ class MLOptimiser : public Parallel
         void allReduceSigma();
 
         void reconstructRef();
+
+        // for debug
+        // save the best projections to BMP file
+        void saveBestProjections();
 };
 
 double logDataVSPrior(const Image& dat,

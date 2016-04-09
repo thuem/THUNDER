@@ -209,6 +209,8 @@ void MLOptimiser::run()
     MLOG(INFO) << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
+        saveBestProjections();
+
         MLOG(INFO) << "Round " << _iter;
 
         MLOG(INFO) << "Performing Expectation";
@@ -256,23 +258,13 @@ void MLOptimiser::run()
         }
         ***/
 
+        /***
         // save the result of last projection
         if (_iter == _para.iterMax - 1)
         {
-            Image result(_para.size, _para.size, RL_SPACE);
-            Coordinate5D coord;
-            char filename[FILE_NAME_LENGTH];
-            FOR_EACH_2D_IMAGE
-            {
-                uvec iSort = _par[l].iSort();
-                _par[l].coord(coord, iSort[0]);
-                R2R_FT(result,
-                       result,
-                       _model.proj(0).project(result, coord));
-                sprintf(filename, "Result_%04d.bmp", _ID[l]);
-                result.saveRLToBMP(filename);
-            }
+            saveBestProjections();
         } 
+        ***/
     }
 }
 
@@ -710,6 +702,23 @@ void MLOptimiser::reconstructRef()
     FFT fft;
     fft.fw(_model.ref(0));
     _model.ref(0).clearRL();
+}
+
+void MLOptimiser::saveBestProjections()
+{
+    Image result(_para.size, _para.size, RL_SPACE);
+    Coordinate5D coord;
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        uvec iSort = _par[l].iSort();
+        _par[l].coord(coord, iSort[0]);
+        R2R_FT(result,
+               result,
+               _model.proj(0).project(result, coord));
+        sprintf(filename, "Result_%04d.bmp", _ID[l]);
+        result.saveRLToBMP(filename);
+    }
 }
 
 double logDataVSPrior(const Image& dat,
