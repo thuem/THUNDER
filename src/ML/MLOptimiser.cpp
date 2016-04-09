@@ -618,6 +618,7 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
+    // TODO: there is something wrong here! FIX IT!
     _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
 
     ALOG(INFO) << "Saving Sigma";

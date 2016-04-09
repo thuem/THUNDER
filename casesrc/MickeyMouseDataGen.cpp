@@ -122,6 +122,8 @@ int main(int argc, char* argv[])
     
     cout << "Initialising Random Sampling Points" << endl;
     Particle par(M, MAX_X, MAX_Y);
+    cout << "Saving Sampling Points" << endl;
+    save("Sampling_Points.par", par);
 
     Coordinate5D coord;
     for (int i = 0; i < M; i++)
