@@ -129,7 +129,7 @@ void MLOptimiser::expectation()
                           << ": Resetting Particle due to Extreme Small neff";
             _par[l].reset();
         }
-        if (_par[l].neff() < _par[l].n() / 5)
+        if (_par[l].neff() < _par[l].n() / 100)
         {
             ILOG(INFO) << "Round " << _iter
                        << ": Resampling Particle " << _ID[l]
