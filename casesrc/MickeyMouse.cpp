@@ -20,13 +20,13 @@
 #define PF 1
 
 #define N 128
-#define MAX_X 8
-#define MAX_Y 8
+#define MAX_X 5
+#define MAX_Y 5
 
 #define PIXEL_SIZE 1.32
 
 #define M 1000
-#define MF 30
+#define MF 100
 
 using namespace std;
 
