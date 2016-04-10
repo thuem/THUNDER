@@ -419,11 +419,13 @@ void MLOptimiser::initImg()
             (_img.back().nRowRL() != _para.size))
             LOG(FATAL) << "Incorrect Size of 2D Images";
 
+        /***
         // apply a soft mask on it
         softMask(_img.back(),
                  _img.back(),
                  _para.size / 4,
                  EDGE_WIDTH_RL);
+                 ***/
 
         /***
         sprintf(imgName, "%04dMasked.bmp", _ID[i]);
