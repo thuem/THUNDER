@@ -65,10 +65,11 @@ void removeDust(Image& img,
                 const double mean,
                 const double stddev)
 {
+    auto engine = get_random_engine();
     IMAGE_FOR_EACH_PIXEL_RL(img)
         if ((img.getRL(i, j) > mean + wDust * stddev) ||
             (img.getRL(i, j) < mean - bDust * stddev))
-            img.setRL(mean + gsl_ran_gaussian(RANDR, stddev), i, j);
+            img.setRL(mean + gsl_ran_gaussian(engine, stddev), i, j);
 }
 
 void normalise(Image& img,

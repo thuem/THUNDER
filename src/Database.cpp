@@ -31,11 +31,12 @@ Database::~Database()
 
 void Database::bcastID()
 {
+    auto engine = get_random_engine();
     MLOG(INFO) << "Generating an Unique ID of Database";
     IF_MASTER 
     {
         for (int i = 0; i < DB_ID_LENGTH; i++)
-            _ID[i] = (char)(gsl_rng_get(RANDR) % 26 + 65);
+            _ID[i] = (char)(gsl_rng_uniform_int(engine, 26) + 65);
         _ID[DB_ID_LENGTH] = '\0';
     }
     MLOG(INFO) << "ID is " << _ID;

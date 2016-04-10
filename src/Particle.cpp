@@ -49,10 +49,11 @@ void Particle::init(const int N,
     bingham_sample(_r, &B, _N);
     // draw _N samples from it
 
+    auto engine = get_random_engine();
     for (int i = 0; i < _N; i++)
     {
-        _t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
-        _t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
+        _t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
+        _t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / _N;
     }
@@ -188,7 +189,7 @@ void Particle::resample()
 {
     vec cdf = cumsum(_w);
 
-    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / _N);  
+    double u0 = gsl_ran_flat(get_random_engine(), 0, 1.0 / _N);  
     
     double** r = new_matrix2(_N, 4);
     mat t(_N, 2);

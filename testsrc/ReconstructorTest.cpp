@@ -60,8 +60,9 @@ int main(int argc, char* argv[])
 
     cout << "Adding Noise" << endl;
     Volume noise(2 * N, 2 * N, 2 * N, RL_SPACE);
+    auto engine = get_random_engine();
     FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(RANDR, 5);
+        noise(i) = gsl_ran_gaussian(engine, 5);
     ADD_RL(padHead, noise);
 
     printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",

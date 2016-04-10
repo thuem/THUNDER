@@ -14,7 +14,5 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
-const static gsl_rng_type* RANDT = gsl_rng_default;
-static gsl_rng* RANDR = gsl_rng_alloc(RANDT);
-
+gsl_rng* get_random_engine();
 #endif // RANDOM_H
