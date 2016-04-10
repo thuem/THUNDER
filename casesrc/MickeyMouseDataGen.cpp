@@ -20,8 +20,8 @@
 
 #define N 128
 #define M 100
-#define MAX_X 10
-#define MAX_Y 10
+#define MAX_X 5
+#define MAX_Y 5
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
