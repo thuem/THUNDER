@@ -163,10 +163,11 @@ void MLOptimiser::expectation()
             // _par[l].mulW(w, m);
         }
         logW -= logW(0); // avoiding numerical error
-        logW /= 2; // Doing Some Compromise
+        // logW /= 2; // Doing Some Compromise
 
         for (int m = 0; m < _par[l].n(); m++)
-            _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
+            _par[l].mulW(exp(logW(m)), m);
+            // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
 
         _par[l].normW();
 
@@ -771,7 +772,8 @@ double logDataVSPrior(const Image& dat,
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                        / (-2 * sig(u));
+                        / (-2 * sig(u))
+                        / (M_PI * u);
             /***
             result *= exp(ABS2(dat.getFT(i, j)
                              - ctf.getFT(i, j)
