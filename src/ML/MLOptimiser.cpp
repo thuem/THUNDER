@@ -170,8 +170,9 @@ void MLOptimiser::expectation()
         _par[l].normW();
 
         // calculate current variance
-        _par[l].calVari();
+        // _par[l].calVari();
 
+        /***
         double k0, k1, k2, s0, s1, rho;
         _par[l].vari(k0, k1, k2, s0, s1, rho);
         ILOG(INFO) << "Round " << _iter
@@ -183,6 +184,10 @@ void MLOptimiser::expectation()
                    << ", s0 " << s0
                    << ", s1 " << s1
                    << ", rho " << rho;
+                   ***/
+        ILOG(INFO) << "Round " << _iter
+                   << ": Information of Particle " << _ID[l]
+                   << ", Neff " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
         sprintf(filename, "Particle_%04d_Round_%03d.par", _ID[l], _iter);

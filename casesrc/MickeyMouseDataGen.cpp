@@ -128,7 +128,8 @@ int main(int argc, char* argv[])
     // Image image(N, N, RL_SPACE);
     
     cout << "Initialising Random Sampling Points" << endl;
-    Particle par(M, MAX_X, MAX_Y);
+    Symmetry sym("C2");
+    Particle par(M, MAX_X, MAX_Y, &sym);
     cout << "Saving Sampling Points" << endl;
     save("Sampling_Points.par", par);
 
