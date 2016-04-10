@@ -123,14 +123,12 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
 
-        /***
         if (_par[l].neff() < 1.05)
         {
             ILOG(WARNING) << "Round " << _iter
                           << ": Resetting Particle due to Extreme Small neff";
             _par[l].reset();
         }
-        ***/
         if (_par[l].neff() < _par[l].n() / 5)
         {
             ILOG(INFO) << "Round " << _iter
