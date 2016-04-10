@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
     cout << "Setting CTF" << endl;
     Image ctf(N, N, FT_SPACE);
     CTF(ctf,
-        VOLTAGE,
         PIXEL_SIZE,
+        VOLTAGE,
         DEFOCUS_U,
         DEFOCUS_V,
         THETA,
