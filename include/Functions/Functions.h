@@ -30,11 +30,15 @@
 
 #define QUAD(a, b) (gsl_pow_2(a) + gsl_pow_2(b))
 
-#define NORM(a, b) sqrt(QUAD(a, b))
+#define NORM(a, b) (sqrt(QUAD(a, b)))
+// #define NORM(a, b) (gsl_hypot(a, b))
+// #define NORM(a, b) (hypot(a, b))
 
 #define QUAD_3(a, b, c) (gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
 
-#define NORM_3(a, b, c) sqrt(QUAD_3(a, b, c))
+#define NORM_3(a, b, c) (sqrt(QUAD_3(a, b, c)))
+// #define NORM_3(a, b, c) (gsl_hyport3(a, b, c))
+// #define NORM_3(a, b, c) (hyport3(a, b, c))
 
 int periodic(double& x,
              const double p);

@@ -773,7 +773,14 @@ double logDataVSPrior(const Image& dat,
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
                         / (-2 * sig(u))
+                        / (sqrt(NORM(i, j)));
+            /***
+            result += ABS2(dat.getFT(i, j)
+                         - ctf.getFT(i, j)
+                         * pri.getFT(i, j))
+                        / (-2 * sig(u))
                         / (M_PI * u);
+                        ***/
             /***
             result *= exp(ABS2(dat.getFT(i, j)
                              - ctf.getFT(i, j)
