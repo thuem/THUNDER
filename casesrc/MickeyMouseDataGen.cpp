@@ -163,8 +163,10 @@ int main(int argc, char* argv[])
         imf.readMetaData(image);
         imf.writeImage(name, image);
 
+        /***
         sprintf(name, "Image_%04d.bmp", i + 1);
         image.saveRLToBMP(name);
+        ***/
 
         fft.fw(image);
     }

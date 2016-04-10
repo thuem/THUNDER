@@ -200,6 +200,10 @@ class MLOptimiser : public Parallel
         // for debug
         // save the best projections to BMP file
         void saveBestProjections();
+
+        // for debug
+        // save images to BMP file
+        void saveImages();
 };
 
 double logDataVSPrior(const Image& dat,

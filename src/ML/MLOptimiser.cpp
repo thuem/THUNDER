@@ -269,6 +269,7 @@ void MLOptimiser::run()
         if (_iter == _para.iterMax - 1)
         {
             saveBestProjections();
+            saveImages();
         } 
     }
 }
@@ -718,18 +719,6 @@ void MLOptimiser::saveBestProjections()
 {
     FFT fft;
 
-    /***
-    fft.bw(_model.ref(0));
-    ImageFile imf;
-    imf.readMetaData(_model.ref(0));
-    imf.writeVolume("Result.mrc", _model.ref(0));
-    fft.fw(_model.ref(0));
-
-    _model.proj(0).setProjectee(_model.ref(0));
-    _model.proj(0).setPf(1);
-    _model.proj(0).setMaxRadius(60);
-    ***/
-
     Image result(_para.size, _para.size, FT_SPACE);
     Coordinate5D coord;
     char filename[FILE_NAME_LENGTH];
@@ -750,6 +739,20 @@ void MLOptimiser::saveBestProjections()
     }
 }
 
+void MLOptimiser::saveImages()
+{
+    FFT fft;
+
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        sprintf(filename, "Image_%04d.bmp", _ID[l]);
+
+        fft.bw(_img[l]);
+        _img[l].saveRLToBMP(filename);
+        fft.fw(_img[l]);
+    }
+}
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
