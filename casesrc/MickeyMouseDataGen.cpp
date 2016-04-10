@@ -144,7 +144,8 @@ int main(int argc, char* argv[])
         par.coord(coord, i);
         projector.project(image, coord);
 
-        MUL_FT(image, ctf);
+        FOR_EACH_PIXEL_FT(image)
+            image[i] *= REAL(ctf[i]);
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
