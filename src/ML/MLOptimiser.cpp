@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
-    _r = _para.size / 8;
+    _r = _para.size / 16;
     // _r = 60;
     _iter = 0;
     _model.setR(_r);
@@ -163,6 +163,7 @@ void MLOptimiser::expectation()
             // _par[l].mulW(w, m);
         }
         logW -= logW(0); // avoiding numerical error
+        logW /= 2; // Doing Some Compromise
 
         for (int m = 0; m < _par[l].n(); m++)
             _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
