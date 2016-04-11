@@ -264,10 +264,8 @@ void MLOptimiser::run()
             ALOG(INFO) << "Refreshing Projectors";
             _model.refreshProj();
 
-            /***
             ALOG(INFO) << "Refreshing Reconstructors";
             _model.refreshReco();
-            ***/
         }
 
         // save the result of last projection
