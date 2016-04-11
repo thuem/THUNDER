@@ -257,7 +257,7 @@ void MLModel::updateR()
             return;
         }
 
-    _r += 10;
+    _r += 2;
     _r = MIN(_r, _size / 2 - _a);
 }
 

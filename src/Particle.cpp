@@ -182,8 +182,8 @@ void Particle::perturb()
                 {
                     double x, y;
                     gsl_ran_bivariate_gaussian(RANDR, _s0, _s1, _rho, &x, &y);
-                    row(0) += x / 2;
-                    row(1) += y / 2;
+                    row(0) += x / 3;
+                    row(1) += y / 3;
                 });
 
     /***
@@ -195,7 +195,7 @@ void Particle::perturb()
     // rotation perturbation
 
     bingham_t B;
-    bingham_new_S3(&B, e0, e1, e2, _k0 * 2, _k1 * 2, _k2 * 2);
+    bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);
     double** d = new_matrix2(_n, 4);
     bingham_sample(d, &B, _n);
 
