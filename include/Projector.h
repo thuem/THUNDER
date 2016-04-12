@@ -92,6 +92,10 @@ class Projector
         void project(Image& dst,
                      const Coordinate5D& coordinate5D) const;
 
+        void project(Image& dst,
+                     const mat33& rot,
+                     const vec2& t) const;
+
     private:
 
         void gridCorrection();

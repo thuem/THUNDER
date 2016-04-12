@@ -123,7 +123,7 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
 
-        if (_par[l].neff() < 1.05)
+        if (_par[l].neff() < 1.005)
         {
             ILOG(WARNING) << "Round " << _iter
                           << ": Resetting Particle due to Extreme Small neff";
@@ -146,11 +146,18 @@ void MLOptimiser::expectation()
             _par[l].perturb();
 
         vec logW(_par[l].n());
+        mat33 rot;
+        vec2 t;
         for (int m = 0; m < _par[l].n(); m++)
         {
+            /***
             Coordinate5D coord;
             _par[l].coord(coord, m);
             _model.proj(0).project(image, coord);
+            ***/
+            _par[l].rot(rot, m);
+            _par[l].t(t, m);
+            _model.proj(0).project(image, rot, t);
 
             logW[m] = logDataVSPrior(_img[l], // data
                                      image, // prior
@@ -189,10 +196,12 @@ void MLOptimiser::expectation()
                    << ": Information of Particle " << _ID[l]
                    << ", Neff " << _par[l].neff();
 
-        char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Particle_%04d_Round_%03d.par", _ID[l], _iter);
-        save(filename, _par[l]);
-
+        if (_ID[l] < 100)
+        {
+            char filename[FILE_NAME_LENGTH];
+            sprintf(filename, "Particle_%04d_Round_%03d.par", _ID[l], _iter);
+            save(filename, _par[l]);
+        }
     }
 }
 
@@ -201,10 +210,8 @@ void MLOptimiser::maximization()
     ALOG(INFO) << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
-    /***
     ALOG(INFO) << "Reconstruct Reference";
     reconstructRef();
-    ***/
 }
 
 void MLOptimiser::run()

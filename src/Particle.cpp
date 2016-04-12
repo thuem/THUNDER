@@ -195,12 +195,25 @@ void Particle::perturb()
     // rotation perturbation
 
     bingham_t B;
-    bingham_new_S3(&B, e0, e1, e2, _k0 * 3, _k1 * 3, _k2 * 3);
+    bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
+    // bingham_new_S3(&B, e0, e1, e2, 3 * _k0, 3 * _k1, 3 * _k2);
+    /***
+    // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
+    // bingham_new_S3(&B, e0, e1, e2, -1, -1, -1);
+    bingham_new_S3(&B, e0, e1, e2, -300, -200, -100);
+    ***/
     double** d = new_matrix2(_n, 4);
     bingham_sample(d, &B, _n);
 
     for (int i = 0; i < _n; i++)
+    {
+        /***
+        printf("d: %10f %10f %10f %10f\n", d[i][0], d[i][1], d[i][2], d[i][3]);
+        printf("r: %10f %10f %10f %10f\n", _r[i][0], _r[i][1], _r[i][2], _r[i][3]);
+        ***/
         quaternion_mul(_r[i], _r[i], d[i]);
+        // printf("r: %10f %10f %10f %10f\n\n", _r[i][0], _r[i][1], _r[i][2], _r[i][3]);
+    }
 
     bingham_free(&B);
     free_matrix2(d);

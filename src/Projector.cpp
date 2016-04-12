@@ -134,6 +134,14 @@ void Projector::project(Image& dst,
             coordinate5D.y);
 }
 
+void Projector::project(Image& dst,
+                        const mat33& rot,
+                        const vec2& t) const
+{
+    project(dst, rot);
+    translate(dst, dst, _maxRadius, t(1), t(2));
+}
+
 void Projector::gridCorrection()
 {
     /***
