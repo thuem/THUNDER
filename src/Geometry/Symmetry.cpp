@@ -234,14 +234,14 @@ bool asymmetryUnit(const vec3 dir,
 {
     double phi, theta;
     angle(phi, theta, dir);
-    asymmetryUnit(phi, theta, sym);
+    return asymmetryUnit(phi, theta, sym);
 }
 
 bool asymmetryUnit(const double phi,
                    const double theta,
                    const Symmetry& sym)
 {
-    asymmetryUnit(phi, theta, sym.pgGroup(), sym.pgOrder());
+    return asymmetryUnit(phi, theta, sym.pgGroup(), sym.pgOrder());
 }
 
 bool asymmetryUnit(const double phi,
