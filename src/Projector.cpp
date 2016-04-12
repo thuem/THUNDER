@@ -139,7 +139,7 @@ void Projector::project(Image& dst,
                         const vec2& t) const
 {
     project(dst, rot);
-    translate(dst, dst, _maxRadius, t(1), t(2));
+    translate(dst, dst, _maxRadius, t(0), t(1));
 }
 
 void Projector::gridCorrection()
