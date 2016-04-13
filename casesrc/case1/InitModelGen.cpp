@@ -12,7 +12,7 @@
 #include "Volume.h"
 
 #define N 128
-#define PF 1
+#define PF 2
 
 using namespace std;
 
@@ -22,9 +22,9 @@ int main(int argc, char* argv[])
     Volume sphere(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(sphere)
     {
-        double ii = i * 1.5;
-        double jj = j * 1.5;
-        double kk = k * 1.5;
+        double ii = i * 0.8;
+        double jj = j * 0.8;
+        double kk = k * 0.8;
         if ((NORM_3(ii, jj, kk) < N / 8) ||
             (NORM_3(ii - N / 8, jj, kk - N / 8) < N / 16) ||
             (NORM_3(ii + N / 8, jj, kk - N / 8) < N / 16) ||
