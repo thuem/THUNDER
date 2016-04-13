@@ -681,7 +681,8 @@ void MLOptimiser::reconstructRef()
                    << " into Reconstructor";
 
         // reduce the CTF effect
-        reduceCTF(img, _img[l], _ctf[l], _r);
+        reduceCTF(img, _img[l], _ctf[l]);
+        // reduceCTF(img, _img[l], _ctf[l], _r);
 
         uvec iSort = _par[l].iSort();
 

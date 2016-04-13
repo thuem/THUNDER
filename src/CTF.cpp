@@ -39,6 +39,14 @@ void CTF(Image& dst,
 
 void reduceCTF(Image& dst,
                const Image& src,
+               const Image& ctf)
+{
+    FOR_EACH_PIXEL_FT(src)
+        dst[i] = src.iGetFT(i) / (CTF_TAU + REAL(ctf.iGetFT(i)));
+}
+
+void reduceCTF(Image& dst,
+               const Image& src,
                const Image& ctf,
                const double r)
 {

@@ -35,6 +35,10 @@ void CTF(Image& dst,
 
 void reduceCTF(Image& dst,
                const Image& src,
+               const Image& ctf);
+
+void reduceCTF(Image& dst,
+               const Image& src,
                const Image& ctf,
                const double r);
 
