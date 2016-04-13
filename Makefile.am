@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-SUBDIRS = . unittest case
+SUBDIRS = . unittest case/case1 case/case2
 
 AM_CXXFLAGS = -std=c++11 -fopenmp
 

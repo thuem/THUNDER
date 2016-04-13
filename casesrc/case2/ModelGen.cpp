@@ -6,20 +6,21 @@
  * Description:
  * ****************************************************************************/
 
-#include <cstdio>
 #include <iostream>
 
-#include "Symmetry.h"
+#include "ImageFile.h"
+#include "Volume.h"
 
-int main(int argc, const char* argv[])
+#define N 380
+
+using namespace std;
+
+int main(int argc, char* argv[])
 {
-    try
-    {
-        Symmetry sym("C15");
-        display(sym);
-    }
-    catch (Error& error)
-    {
-        std::cout << error;
-    }
+    cout << "Read-in Volume" << endl;
+    Volume vol;
+    ImageFile imf("ref.mrc", "r");
+    imf.readVolume(vol);
+
+    return 0;
 }
