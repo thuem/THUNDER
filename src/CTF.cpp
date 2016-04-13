@@ -29,11 +29,14 @@ void CTF(Image& dst,
         double angle = atan2(j, i) - theta;
         double defocus = -(defocusU + defocusV
                          + (defocusU - defocusV) * cos(2 * angle)) / 2;
+        /***
         dst.setFT(COMPLEX(cos(K1 * defocus * gsl_pow_2(u)
                             + K2 * gsl_pow_4(u)),
                           0),
                   i,
                   j);
+                  ***/
+        dst.setFT(COMPLEX(1, 0), i, j); // for debug
     }
 }
 
