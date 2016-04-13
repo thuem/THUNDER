@@ -66,11 +66,11 @@ void MLOptimiser::init()
     MLOG(INFO) << "Scattering _exp";
     _exp.scatter();
 
+    MLOG(INFO) << "Appending Initial References into _model";
+    initRef();
+
     NT_MASTER
     {
-        ALOG(INFO) << "Appending Initial References into _model";
-        initRef();
-
         ALOG(INFO) << "Initialising IDs of 2D Images";
         initID();
 
