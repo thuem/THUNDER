@@ -165,13 +165,13 @@ void Reconstructor::allReduceW()
     SET_0_FT(_C);
 
     #pragma omp parallel for
-    for (int i = 0; i < _rot.size(); i++)
+    for (int k = 0; k < _rot.size(); k++)
     {
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
             {
                 vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = _rot[i] * newCor * _pf;
+                vec3 oldCor = _rot[k] * newCor * _pf;
 
                 if (norm(oldCor) < _maxRadius * _pf)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
