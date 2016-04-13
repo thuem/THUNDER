@@ -68,7 +68,8 @@ void Reconstructor::setMaxRadius(const int maxRadius)
 }
 
 void Reconstructor::insert(const Image& src,
-                           const Coordinate5D coord,
+                           const mat33& rot,
+                           const vec2& t,
                            const double w)
 {
     IF_MASTER
@@ -84,19 +85,17 @@ void Reconstructor::insert(const Image& src,
                    << ", nCol = " << src.nColRL()
                    << ", nRow = " << src.nRowRL();
 
-    _coord.push_back(coord);
+    _rot.push_back(rot);
+    // _t.push_back(t);
 
     Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, -coord.x, -coord.y);
-
-    mat33 mat;
-    rotate3D(mat, coord.phi, coord.theta, coord.psi);
+    translate(transSrc, src, -t(0), -t(1));
 
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        arma::vec3 newCor = {(double)i, (double)j, 0};
-        arma::vec3 oldCor = mat * newCor *_pf;
+        vec3 newCor = {(double)i, (double)j, 0};
+        vec3 oldCor = rot * newCor *_pf;
         
         if (norm(oldCor) < _maxRadius * _pf)
             _F.addFT(transSrc.getFT(i, j) * w, 
@@ -106,6 +105,18 @@ void Reconstructor::insert(const Image& src,
                      _pf * _a, 
                      _kernel);
     }
+}
+
+void Reconstructor::insert(const Image& src,
+                           const Coordinate5D coord,
+                           const double w)
+{
+    mat33 rot;
+    rotate3D(rot, coord.phi, coord.theta, coord.psi);
+
+    vec2 t = {(double)coord.x, (double)coord.y};
+
+    insert(src, rot, t, w);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
@@ -154,16 +165,13 @@ void Reconstructor::allReduceW()
     SET_0_FT(_C);
 
     #pragma omp parallel for
-    for (int i = 0; i < _coord.size(); i++)
+    for (int i = 0; i < _rot.size(); i++)
     {
-        mat33 mat;
-        rotate3D(mat, _coord[i].phi, _coord[i].theta, _coord[i].psi);
-        
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
             {
                 vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = mat * newCor * _pf;
+                vec3 oldCor = _rot[i] * newCor * _pf;
 
                 if (norm(oldCor) < _maxRadius * _pf)
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),

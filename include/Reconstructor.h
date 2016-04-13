@@ -45,7 +45,8 @@ class Reconstructor : public Parallel
         Volume _W;
         Volume _C;
 
-        vector<Coordinate5D> _coord;
+        vector<mat33> _rot;
+        // vector<vec2> _t;
 
         int _maxRadius;
 
@@ -88,6 +89,11 @@ class Reconstructor : public Parallel
         int maxRadius() const;
 
         void setMaxRadius(const int maxRadius); 
+
+        void insert(const Image& src,
+                    const mat33& rot,
+                    const vec2& t,
+                    const double w);
 
         void insert(const Image& src,
                     const Coordinate5D coord,
