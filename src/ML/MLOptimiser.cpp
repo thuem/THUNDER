@@ -618,7 +618,9 @@ void MLOptimiser::allReduceSigma()
 
             // calculate differences
             _model.proj(0).project(img, coord);
-            MUL_FT(img, _ctf[l]);
+            FOR_EACH_PIXEL_FT(img)
+                img[i] *= REAL(_ctf[l][i]);
+            // MUL_FT(img, _ctf[l]);
             NEG_FT(img);
             ADD_FT(img, _img[l]);
 

@@ -174,7 +174,7 @@ bool Symmetry::novo(const mat33& L,
     // check whether (L, R) exists in (_L, _R) or not
     for (int i = 0; i < _L.size(); i++)
         if (SAME_MATRIX(L, _L[i]) && SAME_MATRIX(R, _R[i]))
-                return false;
+            return false;
 
     return true;
 }
