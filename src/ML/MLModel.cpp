@@ -154,6 +154,29 @@ void MLModel::BcastFSC()
             vec fsc(_r * _pf);
             FSC(fsc, A, B);
             _FSC.col(i) = fsc;
+
+            MLOG(INFO) << "Averaging A and B" << i;
+            ADD_FT(A, B);
+            SCALE_FT(A, 0.5);
+            _ref[i] = A;
+
+            /***
+            MLOG(INFO) << "Sending Average Reference to Hemisphere A";
+            MPI_Ssend(&A[0],
+                      A.sizeFT(),
+                      MPI_DOUBLE_COMPLEX,
+                      HEMI_A_LEAD,
+                      i,
+                      MPI_COMM_WORLD);
+
+            MLOG(INFO) << "Sending Average Reference to Hemisphere B";
+            MPI_Ssend(&B[0],
+                      B.sizeFT(),
+                      MPI_DOUBLE_COMPLEX,
+                      HEMI_B_LEAD,
+                      i,
+                      MPI_COMM_WORLD);
+                      ***/
         }
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
@@ -167,7 +190,23 @@ void MLModel::BcastFSC()
                       MASTER_ID,
                       i,
                       MPI_COMM_WORLD);
+
+            /***
+            ALOG(INFO) << "Receiving Average Reference from Hemisphere A";
+            ***/
         }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO) << "Broadcasting Average Reference from MASTER";
+
+        MPI_Bcast(&_ref[i][0],
+                  _ref[i].sizeFT(),
+                  MPI_DOUBLE_COMPLEX,
+                  MASTER_ID,
+                  MPI_COMM_WORLD);
+
+        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);

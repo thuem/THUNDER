@@ -66,11 +66,11 @@ void MLOptimiser::init()
     MLOG(INFO) << "Scattering _exp";
     _exp.scatter();
 
+    MLOG(INFO) << "Appending Initial References into _model";
+    initRef();
+
     NT_MASTER
     {
-        ALOG(INFO) << "Appending Initial References into _model";
-        initRef();
-
         ALOG(INFO) << "Initialising IDs of 2D Images";
         initID();
 
@@ -686,17 +686,21 @@ void MLOptimiser::reconstructRef()
 
         uvec iSort = _par[l].iSort();
 
-        Coordinate5D coord;
+        mat33 rot;
+        vec2 t;
+        // Coordinate5D coord;
         double w;
         for (int m = 0; m < TOP_K; m++)
         {
             // get coordinate
-            _par[l].coord(coord, iSort[m]);
+            // _par[l].coord(coord, iSort[m]);
+            _par[l].rot(rot, iSort[m]);
+            _par[l].t(t, iSort[m]);
             // get weight
             w = _par[l].w(iSort[m]);
 
             // TODO: _model.reco(0).insert(_img[l], coord, w);
-            _model.reco(0).insert(_img[l], coord, 1);
+            _model.reco(0).insert(_img[l], rot, t, 1);
         }
     }
 

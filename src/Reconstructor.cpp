@@ -126,11 +126,13 @@ void Reconstructor::reconstruct(Volume& dst)
     for (int i = 0; i < 3; i++)
     {
         ALOG(INFO) << "Balancing Weights Round " << i;
+        BLOG(INFO) << "Balancing Weights Round " << i;
 
         allReduceW();
     }
 
     ALOG(INFO) << "Reducing F";
+    BLOG(INFO) << "Reducing F";
 
     allReduceF();
 
@@ -143,6 +145,7 @@ void Reconstructor::reconstruct(Volume& dst)
     fft.bw(dst);
 
     ALOG(INFO) << "Correcting Convolution Kernel";
+    BLOG(INFO) << "Correcting Convolution Kernel";
 
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {     

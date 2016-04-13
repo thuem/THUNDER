@@ -42,14 +42,17 @@ int main(int argc, char* argv[])
     Volume head(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
-        if ((NORM_3(i, j, k) < N / 8) ||
-            (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
-            (NORM_3(i - N / 8, j - N / 8, k - N / 8) < N / 16) ||
-            (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
-            (NORM_3(i + N / 8, j + N / 8, k - N / 8) < N / 16) ||
-            ((NORM(i, j) < N / 16) &&
-             (k + N / 16 < 0) &&
-             (k + 3 * N / 16 > 0)))
+        double ii = i * 1.5;
+        double jj = j * 1.5;
+        double kk = k * 1.5;
+        if ((NORM_3(ii, jj, kk) < N / 8) ||
+            (NORM_3(ii - N / 8, jj, kk - N / 8) < N / 16) ||
+            (NORM_3(ii - N / 8, jj - N / 8, kk - N / 8) < N / 16) ||
+            (NORM_3(ii + N / 8, jj, kk - N / 8) < N / 16) ||
+            (NORM_3(ii + N / 8, jj + N / 8, kk - N / 8) < N / 16) ||
+            ((NORM(ii, jj) < N / 16) &&
+             (kk + N / 16 < 0) &&
+             (kk + 3 * N / 16 > 0)))
             head.setRL(1, i, j, k);
         else
             head.setRL(0, i, j, k);
