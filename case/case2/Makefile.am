@@ -12,7 +12,8 @@ AM_CXXFLAGS += -fPIC -std=c++11 -fopenmp
 noistdir = .
 
 noist_PROGRAMS = ModelGen \
-				 DataGen
+				 DataGen \
+				 Run
 
 THUEMLIBS = ../../libthuem.a
 
@@ -21,3 +22,6 @@ ModelGen_LDADD = ${THUEMLIBS}
 
 DataGen_SOURCES = ../../casesrc/case2/DataGen.cpp
 DataGen_LDADD = ${THUEMLIBS}
+
+Run_SOURCES = ../../casesrc/case2/Run.cpp
+Run_LDADD = ${THUEMLIBS}
