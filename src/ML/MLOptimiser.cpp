@@ -123,69 +123,51 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
 
-        if (_par[l].neff() < _par[l].n() / 10)
-        {
-            ILOG(INFO) << "Round " << _iter
-                       << ": Resampling Particle " << _ID[l]
-                       << " for neff = " << _par[l].neff();
-
-            if (_iter < N_ITER_GLOBAL_SEARCH)
-                _par[l].resample(ALPHA_GLOBAL_SEARCH
-                               * (N_ITER_GLOBAL_SEARCH - _iter - 1)
-                               / N_ITER_GLOBAL_SEARCH);
-            else
-                _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
-        }
-        else 
-            _par[l].perturb();
-
-        vec logW(_par[l].n());
-        mat33 rot;
-        vec2 t;
-        for (int m = 0; m < _par[l].n(); m++)
-        {
-            /***
-            Coordinate5D coord;
-            _par[l].coord(coord, m);
-            _model.proj(0).project(image, coord);
-            ***/
-            _par[l].rot(rot, m);
-            _par[l].t(t, m);
-            _model.proj(0).project(image, rot, t);
-
-            logW[m] = logDataVSPrior(_img[l], // data
-                                     image, // prior
-                                     _ctf[l], // ctf
-                                     _sig.row(_groupID[l] - 1).head(_r).t(),
-                                     _r);
-
-            // _par[l].mulW(w, m);
-        }
-        logW -= logW(0); // avoiding numerical error
-        // logW /= 2; // Doing Some Compromise
-
-        for (int m = 0; m < _par[l].n(); m++)
-            _par[l].mulW(exp(logW(m)), m);
-            // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
-
-        _par[l].normW();
-
-        // calculate current variance
-        // _par[l].calVari();
-
-        /***
-        double k0, k1, k2, s0, s1, rho;
-        _par[l].vari(k0, k1, k2, s0, s1, rho);
         ILOG(INFO) << "Round " << _iter
-                   << ": Information of Particle " << _ID[l]
-                   << ", Neff " << _par[l].neff()
-                   << ", k0 " << k0
-                   << ", k1 " << k1
-                   << ", k2 " << k2
-                   << ", s0 " << s0
-                   << ", s1 " << s1
-                   << ", rho " << rho;
-                   ***/
+                   << ": Resampling Particle " << _ID[l]
+                   << " for neff = " << _par[l].neff();
+
+        if (_iter < N_ITER_GLOBAL_SEARCH)
+            _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX - ALPHA_GLOBAL_SEARCH_MIN)
+                           * (N_ITER_GLOBAL_SEARCH - _iter - 1)
+                           / N_ITER_GLOBAL_SEARCH
+                           + ALPHA_GLOBAL_SEARCH_MIN);
+        else
+            _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
+                             ALPHA_GLOBAL_SEARCH_MIN);
+
+        int nSearch = 0;
+        do
+        {
+            vec logW(_par[l].n());
+            mat33 rot;
+            vec2 t;
+            for (int m = 0; m < _par[l].n(); m++)
+            {
+                _par[l].rot(rot, m);
+                _par[l].t(t, m);
+                _model.proj(0).project(image, rot, t);
+
+                logW[m] = logDataVSPrior(_img[l], // data
+                                         image, // prior
+                                         _ctf[l], // ctf
+                                         _sig.row(_groupID[l] - 1).head(_r).t(),
+                                         _r);
+            }
+
+            logW -= logW(0); // avoiding numerical error
+            // logW /= 2; // Doing Some Compromise
+
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(exp(logW(m)), m);
+                // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
+
+            _par[l].normW();
+
+            nSearch++;
+        } while ((_par[l].neff() > _par[l].n() / 10) &&
+                 (nSearch < MAX_N_SEARCH_PER_ITER));
+
         ILOG(INFO) << "Round " << _iter
                    << ": Information of Particle " << _ID[l]
                    << ", Neff " << _par[l].neff();
