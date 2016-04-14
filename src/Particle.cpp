@@ -231,7 +231,7 @@ void Particle::resample(const int n,
 {
     vec cdf = cumsum(_w);
 
-    LOG(INFO) << "Recording New Number of Sampling Points";
+    DLOG(INFO) << "Recording New Number of Sampling Points";
     _n = n;
     _w.set_size(n);
 
@@ -241,11 +241,11 @@ void Particle::resample(const int n,
     // number of local sampling points
     int nL = n - nG;
 
-    LOG(INFO) << "Allocating Temporary Storage";
+    DLOG(INFO) << "Allocating Temporary Storage";
     double** r = new_matrix2(n, 4);
     mat t(n, 2);
     
-    LOG(INFO) << "Generate Global Sampling Points";
+    DLOG(INFO) << "Generate Global Sampling Points";
 
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
@@ -260,7 +260,7 @@ void Particle::resample(const int n,
         _w(i) = 1.0 / n;
     }
 
-    LOG(INFO) << "Generate Local Sampling Points";
+    DLOG(INFO) << "Generate Local Sampling Points";
 
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / nL);  
 
@@ -278,7 +278,7 @@ void Particle::resample(const int n,
         _w(nG + j) = 1.0 / n;
     }
 
-    LOG(INFO) << "Recording Results";
+    DLOG(INFO) << "Recording Results";
 
     _t.set_size(n, 2);
     _t = t;
@@ -291,7 +291,7 @@ void Particle::resample(const int n,
 
     free_matrix2(r);
 
-    LOG(INFO) << "Performing Perturbation";
+    DLOG(INFO) << "Performing Perturbation";
 
     perturb();
 }
