@@ -135,10 +135,12 @@ class Particle
 
         void perturb();
 
-        void resample();
+        void resample(const double alpha = 0);
 
-        /* resample to number of particles of n */
-        void resample(const int n);
+        /* resample to number of particles of n
+         * alpha portion of sampling points will be global */
+        void resample(const int n,
+                      const double alpha = 0);
 
         double neff() const;
 

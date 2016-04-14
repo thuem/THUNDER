@@ -37,7 +37,9 @@
 
 #define TOP_K 3
 
-#define FREQ_DOWN_CUTOFF 5
+#define FREQ_DOWN_CUTOFF 3
+#define N_ITER_GLOBAL_SEARCH 15
+#define ALPHA_GLOBAL_SEARCH 0.7
 
 using namespace std;
 using namespace google;

@@ -123,24 +123,26 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
 
+        /***
         if (_par[l].neff() < 1.005)
         {
             ILOG(WARNING) << "Round " << _iter
                           << ": Resetting Particle due to Extreme Small neff";
             _par[l].reset();
         }
+        ***/
         if (_par[l].neff() < _par[l].n() / 10)
         {
             ILOG(INFO) << "Round " << _iter
                        << ": Resampling Particle " << _ID[l]
                        << " for neff = " << _par[l].neff();
 
-            if (_iter < 2)
-                _par[l].resample();
+            if (_iter < N_ITER_GLOBAL_SEARCH)
+                _par[l].resample(ALPHA_GLOBAL_SEARCH
+                               * (N_ITER_GLOBAL_SEARCH - _iter - 1)
+                               / N_ITER_GLOBAL_SEARCH);
             else
                 _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2));
-            // _par[l].resample();
-            // _par[l].perturb();
         }
         else 
             _par[l].perturb();

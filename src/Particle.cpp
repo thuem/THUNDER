@@ -195,8 +195,8 @@ void Particle::perturb()
     // rotation perturbation
 
     bingham_t B;
-    bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
-    // bingham_new_S3(&B, e0, e1, e2, 3 * _k0, 3 * _k1, 3 * _k2);
+    // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
+    bingham_new_S3(&B, e0, e1, e2, 3 * _k0, 3 * _k1, 3 * _k2);
     /***
     // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
     // bingham_new_S3(&B, e0, e1, e2, -1, -1, -1);
@@ -221,38 +221,64 @@ void Particle::perturb()
     symmetrise();
 }
 
-void Particle::resample()
+void Particle::resample(const double alpha)
 {
-    resample(_n);
+    resample(_n, alpha);
 }
 
-void Particle::resample(const int n)
+void Particle::resample(const int n,
+                        const double alpha)
 {
+    // record new number of sampling points
     _n = n;
+    _w.set_size(n);
 
-    vec cdf = cumsum(_w);
+    // number of global sampling points
+    int nG = AROUND(alpha * n);
 
-    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / n);  
-    
+    // number of local sampling points
+    int nL = n - nG;
+
+    // current storage
     double** r = new_matrix2(n, 4);
     mat t(n, 2);
 
-    _w.set_size(n);
+    // generate global sampling points
+
+    bingham_t B;
+    bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
+    bingham_sample(r, &B, nG);
+    bingham_free(&B);
+    
+    for (int i = 0; i < nG; i++)
+    {
+        t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
+        t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
+                
+        _w(i) = 1.0 / _n;
+    }
+
+    // generate local sampling points
+
+    vec cdf = cumsum(_w);
+
+    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / nL);  
 
     int i = 0;
-    for (int j = 0; j < n; j++)
+    for (int j = 0; j < nL; j++)
     {
-        double uj = u0 + j * 1.0 / n;
+        double uj = u0 + j * 1.0 / nL;
 
         while (uj > cdf[i])
             i++;
         
-        memcpy(r[j], _r[i], sizeof(double) * 4);
-        t.row(j) = _t.row(i);
+        memcpy(r[nG + j], _r[i], sizeof(double) * 4);
+        t.row(nG + j) = _t.row(i);
 
-        _w(j) = 1.0 / n;
+        _w(nG + j) = 1.0 / n;
     }
 
+    // record result
     _t.set_size(n, 2);
     _t = t;
 
@@ -264,6 +290,7 @@ void Particle::resample(const int n)
 
     free_matrix2(r);
 
+    // perform perturbation
     perturb();
 }
 

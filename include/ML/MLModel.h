@@ -30,6 +30,8 @@ using namespace arma;
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
+#define MAX_GAP 10
+
 class MLModel : public Parallel
 {
     private:
