@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
-    _r = MIN(8, MAX(5, _para.size / 16));
+    _r = MIN(8, MAX(MAX_GAP, _para.size / 16));
     // _r = 60;
     _iter = 0;
     _model.setR(_r);

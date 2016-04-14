@@ -31,6 +31,7 @@ using namespace arma;
     for (int i = 0; i < _k; i++)
 
 #define MAX_GAP 10
+#define MIN_GAP 2
 
 class MLModel : public Parallel
 {

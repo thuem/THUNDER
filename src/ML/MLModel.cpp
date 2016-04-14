@@ -291,12 +291,12 @@ void MLModel::updateR()
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.2)
         {
-            _r += MIN(5, AROUND(double(_size) / 32));
+            _r += MIN(MAX_GAP, AROUND(double(_size) / 16));
             _r = MIN(_r, _size / 2 - _a);
             return;
         }
 
-    _r += 2;
+    _r += MIN_GAP;
     _r = MIN(_r, _size / 2 - _a);
 }
 
