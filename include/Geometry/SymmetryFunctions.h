@@ -11,7 +11,6 @@
 #ifndef SYMMETRY_FUNCTIONS_H
 #define SYMMETRY_FUNCTIONS_H
 
-#include <regex>
 #include <cstdlib>
 #include <vector>
 

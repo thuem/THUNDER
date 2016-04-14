@@ -9,13 +9,13 @@
  * ****************************************************************************/
 
 #include "SymmetryFunctions.h"
+#include "Utils.h"
 
 void symmetryGroup(int& pgGroup,
                    int& pgOrder,
                    const char sym[])
 {
-    if (regex_match(sym, regex("C[[:digit:]]+",
-                               regex_constants::extended)))
+    if (regexMatches(sym, "^C[[:digit:]]+$"))
     {
         pgGroup = PG_CN;
         pgOrder = atoi(&sym[1]);
@@ -30,38 +30,32 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_CS;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("C[[:digit:]]+H",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^C[[:digit:]]+H$"))
     {
         pgGroup = PG_CNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("C[[:digit:]]+V",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^C[[:digit:]]+V$"))
     {
         pgGroup = PG_CNV;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("S[[:digit:]]+",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^S[[:digit:]]+$"))
     {
         pgGroup = PG_SN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[[:digit:]]+",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^D[[:digit:]]+$"))
     {
         pgGroup = PG_DN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[[:digit:]]+H",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^D[[:digit:]]+H$"))
     {
         pgGroup = PG_DNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[[:digit:]]+V",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^D[[:digit:]]+V$"))
     {
         pgGroup = PG_DNV;
         pgOrder = atoi(&sym[1]);
@@ -96,7 +90,7 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_I;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("I[12345]", regex_constants::extended)))
+    else if (regexMatches(sym, "^I[12345]$"))
     {
         switch (sym[1])
         {
@@ -118,7 +112,7 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_IH;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("I[12345]H", regex_constants::extended)))
+    else if (regexMatches(sym, "^I[12345]H$"))
     {
         switch (sym[1])
         {

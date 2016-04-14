@@ -24,7 +24,8 @@ libthuem_a_SOURCES = src/Complex.cpp \
 					 src/Particle.cpp \
 					 src/TabFunction.cpp \
 					 src/Preprocess.cpp \
-					 src/CTF.cpp
+					 src/CTF.cpp \
+					 src/Utils.cpp
 
 libthuem_a_SOURCES += src/Error/Error.cpp \
 					  src/Error/Sqlite3Error.cpp
@@ -63,7 +64,8 @@ nobase_pkginclude_HEADERS = include/Complex.h \
 							include/Particle.h \
 							include/TabFunction.h \
                             include/Preprocess.h \
-							include/CTF.h
+							include/CTF.h \
+							include/Utils.h
 
 nobase_pkginclude_HEADERS += include/Error/Error.h \
 							 include/Error/Sqlite3Error.h
