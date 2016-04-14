@@ -229,6 +229,8 @@ void Particle::resample(const double alpha)
 void Particle::resample(const int n,
                         const double alpha)
 {
+    vec cdf = cumsum(_w);
+
     LOG(INFO) << "Recording New Number of Sampling Points";
     _n = n;
     _w.set_size(n);
@@ -259,8 +261,6 @@ void Particle::resample(const int n,
     }
 
     LOG(INFO) << "Generate Local Sampling Points";
-
-    vec cdf = cumsum(_w);
 
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / nL);  
 
