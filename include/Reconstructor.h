@@ -46,7 +46,7 @@ class Reconstructor : public Parallel
         Volume _C;
 
         vector<mat33> _rot;
-        // vector<vec2> _t;
+        vector<double> _w;
 
         int _maxRadius;
 

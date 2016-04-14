@@ -182,8 +182,8 @@ void Particle::perturb()
                 {
                     double x, y;
                     gsl_ran_bivariate_gaussian(RANDR, _s0, _s1, _rho, &x, &y);
-                    row(0) += x / 3;
-                    row(1) += y / 3;
+                    row(0) += x / 5;
+                    row(1) += y / 5;
                 });
 
     /***
@@ -196,7 +196,7 @@ void Particle::perturb()
 
     bingham_t B;
     // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
-    bingham_new_S3(&B, e0, e1, e2, 3 * _k0, 3 * _k1, 3 * _k2);
+    bingham_new_S3(&B, e0, e1, e2, 5 * _k0, 5 * _k1, 5 * _k2);
     /***
     // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
     // bingham_new_S3(&B, e0, e1, e2, -1, -1, -1);
@@ -257,7 +257,7 @@ void Particle::resample(const int n,
         t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
         t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
-        _w(i) = 1.0 / _n;
+        _w(i) = 1.0 / n;
     }
 
     LOG(INFO) << "Generate Local Sampling Points";

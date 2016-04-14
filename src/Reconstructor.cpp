@@ -86,6 +86,7 @@ void Reconstructor::insert(const Image& src,
                    << ", nRow = " << src.nRowRL();
 
     _rot.push_back(rot);
+    _w.push_back(w);
     // _t.push_back(t);
 
     Image transSrc(_size, _size, FT_SPACE);
@@ -180,7 +181,7 @@ void Reconstructor::allReduceW()
                     _C.addFT(_W.getByInterpolationFT(oldCor(0),
                                                      oldCor(1),
                                                      oldCor(2),
-                                                     LINEAR_INTERP),
+                                                     LINEAR_INTERP) * _w[i],
                              oldCor(0),
                              oldCor(1),
                              oldCor(2),
