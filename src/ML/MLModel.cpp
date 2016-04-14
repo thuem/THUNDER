@@ -41,7 +41,10 @@ void MLModel::initProjReco()
     ALOG(INFO) << "Appending Projectors and Reconstructors";
     FOR_EACH_CLASS
     {
+        ALOG(INFO) << "Appending Projector of Reference " << i;
         _proj.push_back(Projector());
+
+        ALOG(INFO) << "Appending Reconstructor of Reference " << i;
         _reco.push_back(Reconstructor());
     }
 
