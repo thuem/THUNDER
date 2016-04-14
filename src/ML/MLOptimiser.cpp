@@ -143,6 +143,9 @@ void MLOptimiser::expectation()
         int nSearch = 0;
         do
         {
+            // perturbation
+            _par[l].perturb();
+
             vec logW(_par[l].n());
             mat33 rot;
             vec2 t;

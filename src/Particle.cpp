@@ -290,10 +290,6 @@ void Particle::resample(const int n,
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
-
-    DLOG(INFO) << "Performing Perturbation";
-
-    perturb();
 }
 
 double Particle::neff() const
