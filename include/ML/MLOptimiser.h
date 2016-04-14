@@ -35,7 +35,7 @@
 
 #define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
 
-#define TOP_K 3
+#define TOP_K 1
 
 #define FREQ_DOWN_CUTOFF 3
 #define N_ITER_GLOBAL_SEARCH 15
