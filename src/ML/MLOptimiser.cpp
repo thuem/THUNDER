@@ -123,12 +123,12 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
 
-        ILOG(INFO) << "Round " << _iter
-                   << ": Resampling Particle " << _ID[l]
-                   << " for neff = " << _par[l].neff();
-
         if (_iter != 0)
         {
+            ILOG(INFO) << "Round " << _iter
+                       << ": Resampling Particle " << _ID[l]
+                       << " for neff = " << _par[l].neff();
+
             if (_iter < N_ITER_GLOBAL_SEARCH)
                 _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX
                                 - ALPHA_GLOBAL_SEARCH_MIN)
