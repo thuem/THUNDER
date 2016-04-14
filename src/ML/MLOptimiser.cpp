@@ -130,7 +130,7 @@ void MLOptimiser::expectation()
         if (_iter < N_ITER_GLOBAL_SEARCH)
             _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX - ALPHA_GLOBAL_SEARCH_MIN)
                            * (N_ITER_GLOBAL_SEARCH - _iter - 1)
-                           / N_ITER_GLOBAL_SEARCH
+                           / (N_ITER_GLOBAL_SEARCH - 1)
                            + ALPHA_GLOBAL_SEARCH_MIN);
         else
             _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
