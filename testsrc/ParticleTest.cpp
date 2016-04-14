@@ -29,11 +29,10 @@ int main(int argc, const char* argv[])
     char filename[FILE_NAME_LENGTH];
     for (int i = 0; i < atoi(argv[1]); i++)
     {
-        printf("Round %04d\n", i);
-        // cout << "neff = " << particle.neff() << endl;
+        cout << "neff = " << particle.neff() << endl;
         if (particle.neff() < nt)
         {
-            particle.resample();
+            particle.resample(0.7);
             //particle.resample(GSL_MAX_INT(100, particle.n() / 2));
         }
         else particle.perturb();
