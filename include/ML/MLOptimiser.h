@@ -35,11 +35,14 @@
 
 #define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
 
-#define TOP_K 3
+#define TOP_K 1
 
 #define FREQ_DOWN_CUTOFF 3
 #define N_ITER_GLOBAL_SEARCH 15
-#define ALPHA_GLOBAL_SEARCH 0.7
+#define ALPHA_GLOBAL_SEARCH_MAX 0.7
+#define ALPHA_GLOBAL_SEARCH_MIN 0.1
+
+#define MAX_N_SEARCH_PER_ITER 5
 
 using namespace std;
 using namespace google;

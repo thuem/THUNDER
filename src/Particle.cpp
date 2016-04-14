@@ -182,8 +182,8 @@ void Particle::perturb()
                 {
                     double x, y;
                     gsl_ran_bivariate_gaussian(RANDR, _s0, _s1, _rho, &x, &y);
-                    row(0) += x / 3;
-                    row(1) += y / 3;
+                    row(0) += x / 5;
+                    row(1) += y / 5;
                 });
 
     /***
@@ -196,7 +196,7 @@ void Particle::perturb()
 
     bingham_t B;
     // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
-    bingham_new_S3(&B, e0, e1, e2, 3 * _k0, 3 * _k1, 3 * _k2);
+    bingham_new_S3(&B, e0, e1, e2, 5 * _k0, 5 * _k1, 5 * _k2);
     /***
     // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
     // bingham_new_S3(&B, e0, e1, e2, -1, -1, -1);
@@ -231,7 +231,7 @@ void Particle::resample(const int n,
 {
     vec cdf = cumsum(_w);
 
-    LOG(INFO) << "Recording New Number of Sampling Points";
+    DLOG(INFO) << "Recording New Number of Sampling Points";
     _n = n;
     _w.set_size(n);
 
@@ -241,11 +241,11 @@ void Particle::resample(const int n,
     // number of local sampling points
     int nL = n - nG;
 
-    LOG(INFO) << "Allocating Temporary Storage";
+    DLOG(INFO) << "Allocating Temporary Storage";
     double** r = new_matrix2(n, 4);
     mat t(n, 2);
     
-    LOG(INFO) << "Generate Global Sampling Points";
+    DLOG(INFO) << "Generate Global Sampling Points";
 
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
@@ -257,10 +257,10 @@ void Particle::resample(const int n,
         t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
         t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
                 
-        _w(i) = 1.0 / _n;
+        _w(i) = 1.0 / n;
     }
 
-    LOG(INFO) << "Generate Local Sampling Points";
+    DLOG(INFO) << "Generate Local Sampling Points";
 
     double u0 = gsl_ran_flat(RANDR, 0, 1.0 / nL);  
 
@@ -278,7 +278,7 @@ void Particle::resample(const int n,
         _w(nG + j) = 1.0 / n;
     }
 
-    LOG(INFO) << "Recording Results";
+    DLOG(INFO) << "Recording Results";
 
     _t.set_size(n, 2);
     _t = t;
@@ -290,10 +290,6 @@ void Particle::resample(const int n,
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
-
-    LOG(INFO) << "Performing Perturbation";
-
-    perturb();
 }
 
 double Particle::neff() const
