@@ -125,7 +125,7 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < N_PHASE_PER_ITER; phase++)
         {
-            if (_iter != 0)
+            if ((_iter != 0) || (phase != 0))
             {
                 ILOG(INFO) << "Round " << _iter
                            << ": Resampling Particle " << _ID[l]
