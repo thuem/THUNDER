@@ -29,6 +29,9 @@ void Reconstructor::init(const int size,
                          const double alpha,
                          const double zeta)
 {
+    _rot.clear();
+    _w.clear();
+
     _size = size;
     _pf = pf;
     _sym = sym;
