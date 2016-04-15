@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Author: Mingxu Hu
- * Dependency: 
+ * Dependency:
  * Test:
  * Execution:
  * Description:
@@ -9,6 +9,7 @@
  * ****************************************************************************/
 
 #include "Error.h"
+#include <sstream>
 
 Error::Error(const std::string& errMsg,
              const std::string& file,
@@ -19,10 +20,21 @@ Error::Error(const std::string& errMsg,
     _line = line;
 }
 
-std::ostream& operator<<(std::ostream& os, Error& error)
+std::ostream& operator<<(std::ostream& os, const Error& error)
 {
     os << "ERROR: " << error._errMsg << std::endl
        << "File: " << error._file <<std::endl
        << "Line: " << error._line <<std::endl;
     return os;
+}
+
+const char* Error::what() const noexcept
+{
+    if (_totalMsg.empty())
+    {
+        std::stringstream ss;
+        ss << *this;
+        _totalMsg = ss.str();
+    }
+    return _totalMsg.c_str();
 }

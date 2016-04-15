@@ -11,9 +11,9 @@ static pthread_key_t key;
 
 static int module_init()
 {
-    pthread_key_create(&key, [] (void* p) { 
-        if (p) 
-            gsl_rng_free(static_cast<gsl_rng*>(p)); 
+    pthread_key_create(&key, [] (void* p) {
+        if (p)
+            gsl_rng_free(static_cast<gsl_rng*>(p));
     });
     return 0;
 }
@@ -45,7 +45,7 @@ gsl_rng* get_random_engine()
     if (!engine)
         throw std::runtime_error("Failure to allocate random engine");
     gsl_rng_set(engine, urandom());
-    if (!pthread_setspecific(key, engine)) {
+    if (pthread_setspecific(key, engine) != 0) {
         gsl_rng_free(engine);
         throw std::runtime_error("Failure to set thread local storage");
     }

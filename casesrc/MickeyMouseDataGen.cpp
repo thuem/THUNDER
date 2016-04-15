@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
            gsl_stats_mean(&head(0), 1, head.sizeRL()),
            gsl_stats_sd(&head(0), 1, head.sizeRL()));
     ***/
-           
+
     cout << "Padding Head" << endl;
     Volume padHead;
     VOL_PAD_RL(padHead, head, PF);
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     cout << "Setting Projectee" << endl;
     Projector projector;
     projector.setPf(PF);
-    projector.setProjectee(padHead);
+    projector.setProjectee(padHead.copyVolume());
 
     cout << "Setting CTF" << endl;
     Image ctf(N, N, FT_SPACE);
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
-    
+
     ImageFile imf;
 
     cout << "Initialising Random Sampling Points" << endl;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
                gsl_stats_mean(&image(0), 1, image.sizeRL()),
                gsl_stats_sd(&image(0), 1, image.sizeRL()),
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
-        
+
         exp.appendParticle(name, 1, 1);
 
         imf.readMetaData(image);
@@ -155,6 +155,6 @@ int main(int argc, char* argv[])
 
         fft.fw(image);
     }
-    
+
     return 0;
 }

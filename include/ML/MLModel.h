@@ -88,7 +88,7 @@ class MLModel : public Parallel
 
         Volume& ref(const int i);
 
-        void appendRef(const Volume& ref);
+        void appendRef(Volume ref);
 
         int k() const;
 
@@ -118,12 +118,12 @@ class MLModel : public Parallel
 
         double resolutionA(const int i) const;
         /* get the resolution of _ref[i] */
-        
+
         double resolutionA() const;
         /* get the highest resolution among all references */
 
         void refreshProj();
-        
+
         void refreshReco();
 
         void updateR();

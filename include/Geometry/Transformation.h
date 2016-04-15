@@ -79,7 +79,7 @@ using namespace arma;
 #define SYMMETRIZE(SP, dst, src, sym, r) \
 [](Volume& _dst, const Volume& _src, const Symmetry& _sym, const double _r) \
 { \
-    _dst = _src; \
+    _dst = _src.copyVolume(); \
     mat33 L, R; \
     Volume se(_src.nColRL(), _src.nRowRL(), _src.nSlcRL(), SP##_SPACE); \
     for (int i = 0; i < _sym.nSymmetryElement(); i++) \

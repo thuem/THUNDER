@@ -37,6 +37,8 @@ using namespace placeholders;
 
 class Reconstructor : public Parallel
 {
+    MAKE_DEFAULT_MOVE(Reconstructor)
+
     private:
 
         int _size;
@@ -55,7 +57,7 @@ class Reconstructor : public Parallel
 
         double _a = 1.9;
         double _alpha = 10;
-        
+
         double _zeta = 0.15;
 
         TabFunction _kernel;
@@ -87,7 +89,7 @@ class Reconstructor : public Parallel
 
         int maxRadius() const;
 
-        void setMaxRadius(const int maxRadius); 
+        void setMaxRadius(const int maxRadius);
 
         void insert(const Image& src,
                     const Coordinate5D coord,

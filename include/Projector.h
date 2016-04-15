@@ -30,6 +30,8 @@ using namespace arma;
 
 class Projector
 {
+    MAKE_DEFAULT_MOVE(Projector)
+
     private:
 
         int _maxRadius = -1;
@@ -41,7 +43,7 @@ class Projector
         // projectee is set.
 
         int _interp = LINEAR_INTERP;
-        
+
         int _pf = 2; // padding factor
 
         Volume _projectee;
@@ -50,17 +52,13 @@ class Projector
 
         Projector();
 
-        Projector(const Projector& that);
-
         ~Projector();
-
-        Projector& operator=(const Projector& that);
 
         bool isEmpty() const;
 
         int maxRadius() const;
 
-        void setMaxRadius(const int maxRadius); 
+        void setMaxRadius(const int maxRadius);
 
         int interp() const;
 
@@ -72,7 +70,7 @@ class Projector
 
         const Volume& projectee() const;
 
-        void setProjectee(const Volume& src);
+        void setProjectee(Volume src);
 
         void project(Image& dst,
                      const mat33& mat) const;

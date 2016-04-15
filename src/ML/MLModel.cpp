@@ -61,7 +61,7 @@ Volume& MLModel::ref(const int i)
     return _ref[i];
 }
 
-void MLModel::appendRef(const Volume& ref)
+void MLModel::appendRef(Volume ref)
 {
     if (((ref.nColRL() != _size) && (ref.nColRL() != 0)) ||
         ((ref.nRowRL() != _size) && (ref.nRowRL() != 0)) ||
@@ -72,7 +72,7 @@ void MLModel::appendRef(const Volume& ref)
                    << ", nRow = " << ref.nRowRL()
                    << ", nSlc = " << ref.nSlcRL();
 
-    _ref.push_back(ref);
+    _ref.push_back(std::move(ref));
 }
 
 int MLModel::k() const
@@ -148,7 +148,7 @@ void MLModel::BcastFSC()
                      &stat);
 
             // TODO: check transporting using MPI_Status
-            
+
             MLOG(INFO) << "Calculating FSC of Reference " << i;
             // FSC(_FSC.col(i), A, B, _r);
             vec fsc(_r * _pf);
@@ -228,7 +228,7 @@ void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
     {
-        _proj[i].setProjectee(_ref[i]);
+        _proj[i].setProjectee(_ref[i].copyVolume());
         _proj[i].setMaxRadius(_r);
         _proj[i].setPf(_pf);
     }

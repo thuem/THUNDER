@@ -97,13 +97,13 @@ void Reconstructor::insert(const Image& src,
     {
         arma::vec3 newCor = {(double)i, (double)j, 0};
         arma::vec3 oldCor = mat * newCor *_pf;
-        
+
         if (norm(oldCor) < _maxRadius * _pf)
-            _F.addFT(transSrc.getFT(i, j) * w, 
-                     oldCor(0), 
-                     oldCor(1), 
-                     oldCor(2), 
-                     _pf * _a, 
+            _F.addFT(transSrc.getFT(i, j) * w,
+                     oldCor(0),
+                     oldCor(1),
+                     oldCor(2),
+                     _pf * _a,
                      _kernel);
     }
 }
@@ -126,7 +126,7 @@ void Reconstructor::reconstruct(Volume& dst)
     // make sure the scale correct
     SCALE_FT(_F, _pf * sqrt(_pf * _size));
 
-    dst = _F;
+    dst = _F.copyVolume();
 
     FFT fft;
     fft.bw(dst);
@@ -134,7 +134,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO) << "Correcting Convolution Kernel";
 
     VOLUME_FOR_EACH_PIXEL_RL(dst)
-    {     
+    {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
         if (r < 0.25 / _pf)
@@ -158,7 +158,7 @@ void Reconstructor::allReduceW()
     {
         mat33 mat;
         rotate3D(mat, _coord[i].phi, _coord[i].theta, _coord[i].psi);
-        
+
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
             {
@@ -180,17 +180,17 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, 
+    MPI_Allreduce(MPI_IN_PLACE,
                   &_C[0],
                   _C.sizeFT(),
-                  MPI_DOUBLE_COMPLEX, 
-                  MPI_SUM, 
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
                   _hemi);
 
     MPI_Barrier(_hemi);
 
     symmetrizeC();
-    
+
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
         {
@@ -211,11 +211,11 @@ void Reconstructor::allReduceF()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, 
+    MPI_Allreduce(MPI_IN_PLACE,
                   &_F[0],
                   _F.sizeFT(),
-                  MPI_DOUBLE_COMPLEX, 
-                  MPI_SUM, 
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
                   _hemi);
 
     MPI_Barrier(_hemi);
@@ -242,7 +242,7 @@ void Reconstructor::symmetrizeF()
 
     Volume symF;
     SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius);
-    _F = symF;
+    _F = std::move(symF);
 }
 
 void Reconstructor::symmetrizeC()
@@ -251,5 +251,5 @@ void Reconstructor::symmetrizeC()
 
     Volume symC;
     SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius);
-    _C = symC;
+    _C = std::move(symC);
 }

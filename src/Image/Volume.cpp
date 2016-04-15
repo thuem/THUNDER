@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Author: Mingxu Hu
- * Dependency: 
+ * Dependency:
  * Test:
  * Execution:
  * Description:
@@ -20,25 +20,8 @@ Volume::Volume(const int nCol,
     alloc(nCol, nRow, nSlc, space);
 }
 
-Volume::Volume(const Volume& that)
-{
-    *this = that;
-}
-
 Volume::~Volume()
 {
-    clear();
-}
-
-Volume& Volume::operator=(const Volume& that)
-{
-    ImageBase::operator=(that);
-
-    _nCol = that.nColRL();
-    _nRow = that.nRowRL();
-    _nSlc = that.nSlcRL();
-
-    return *this;
 }
 
 void Volume::alloc(int space)
@@ -62,9 +45,7 @@ void Volume::alloc(const int nCol,
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
-        _dataRL = new double[_sizeRL];
-        if (_dataRL == NULL)
-            REPORT_ERROR("Fail to allocate memory for storing volume");
+        _dataRL.reset(new double[_sizeRL]);
     }
     else if (space == FT_SPACE)
     {
@@ -73,9 +54,7 @@ void Volume::alloc(const int nCol,
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
-        _dataFT = new Complex[_sizeFT];
-        if (_dataFT == NULL)
-            REPORT_ERROR("Fail to allocate memory for storing Fourier volume");
+        _dataFT.reset(new Complex[_sizeFT]);
     }
 }
 
@@ -165,7 +144,7 @@ void Volume::addFT(const Complex value,
 }
 
 double Volume::getByInterpolationRL(const double iCol,
-                                    const double iRow, 
+                                    const double iRow,
                                     const double iSlc,
                                     const int interp) const
 {

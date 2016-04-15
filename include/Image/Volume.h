@@ -8,8 +8,8 @@
  * Manual:
  * ****************************************************************************/
 
-#ifndef VOLUME_H 
-#define VOLUME_H 
+#ifndef VOLUME_H
+#define VOLUME_H
 
 #include <cmath>
 #include <cstdlib>
@@ -92,16 +92,18 @@
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
             for (int i = 0; i <= that.nColRL() / 2; i++)
 
-class Volume : public ImageBase 
+class Volume : public ImageBase
 {
+    MAKE_DEFAULT_MOVE(Volume)
+
     public:
-    
+
         int _nCol = 0;
         int _nRow = 0;
         int _nSlc = 0;
 
     public:
-        
+
         Volume();
 
         Volume(const int nCol,
@@ -109,11 +111,7 @@ class Volume : public ImageBase
                const int nSlc,
                const int space);
 
-        Volume(const Volume& that);
-
         ~Volume();
-        
-        Volume& operator=(const Volume& that);
 
         void alloc(const int space);
 
@@ -214,9 +212,27 @@ class Volume : public ImageBase
                       const int _pf = 2);
         /* add a image once */
 
+        void clear()
+        {
+            ImageBase::clear();
+            _nCol = 0;
+            _nRow = 0;
+            _nSlc = 0;
+        }
+
+        Volume copyVolume() const
+        {
+            Volume out;
+            copyBase(out);
+            out._nRow = _nRow;
+            out._nCol = _nCol;
+            out._nSlc = _nSlc;
+            return out;
+        }
+
     private:
 
-        void coordinatesInBoundaryRL(const int iCol, 
+        void coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,
                                      const int iSlc) const;
         // check whether the input coordinates can in boundary of the volume
@@ -237,4 +253,4 @@ class Volume : public ImageBase
                       const ConjugateFlag conjugateFlag) const;
 };
 
-#endif // VOLUME_H 
+#endif // VOLUME_H

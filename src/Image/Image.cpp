@@ -12,31 +12,13 @@
 
 Image::Image() {}
 
+Image::~Image() {}
+
 Image::Image(const int nCol,
              const int nRow,
              const int space)
 {
     alloc(nCol, nRow, space);
-}
-
-Image::Image(const Image& that)
-{
-    *this = that;
-}
-
-Image::~Image()
-{
-    clear();
-}
-
-Image& Image::operator=(const Image& that)
-{
-    ImageBase::operator=(that);
-
-    _nCol = that.nColRL();
-    _nRow = that.nRowRL();
-
-    return *this;
 }
 
 void Image::alloc(const int space)
@@ -56,18 +38,14 @@ void Image::alloc(const int nCol,
         clearRL();
         _sizeRL = nCol * nRow;
         _sizeFT = (nCol / 2 + 1) * nRow;
-        _dataRL = new double[_sizeRL];
-        if (_dataRL == NULL)
-            REPORT_ERROR("Fail to allocate memory for storing image");
+        _dataRL.reset(new double[_sizeRL]);
     }
     else if (space == FT_SPACE)
     {
         clearFT();
         _sizeRL = nCol * nRow;
         _sizeFT = (nCol / 2 + 1) * nRow;
-        _dataFT = new Complex[_sizeFT];
-        if (_dataFT == NULL)
-            REPORT_ERROR("Fail to allocate memory for storing Fourier image");
+        _dataFT.reset(new Complex[_sizeFT]);
     }
 }
 
@@ -110,11 +88,11 @@ void Image::saveFTToBMP(const char* filename, double c) const
         {
             double value = gsl_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
             value = log(1 + value * c);
-                
+
             int iImage = (i + _nRow / 2 ) % _nRow;
             int jImage = (j + _nCol / 2 ) % _nCol;
             image[_nCol * iImage + jImage] = value;
-        }   
+        }
 
     for (int i = 1; i < _nRow; i++)
         for (int j = 1; j < _nCol / 2; j++)

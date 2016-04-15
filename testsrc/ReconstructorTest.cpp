@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
     int commSize, commRank;
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
-      
+
     // cout << "0: commRank = " << commRank << endl;
     Volume head(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(head)
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
-    
+
     if (commRank == MASTER_ID)
     {
         ImageFile imf;
@@ -75,16 +75,16 @@ int main(int argc, char* argv[])
     printf("FFT Done\n");
 
     Projector projector;
-    projector.setProjectee(padHead);
+    projector.setProjectee(padHead.copyVolume());
 
     char name[256];
     int counter = 0;
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
-    
+
     Symmetry sym("C2");
-   
+
     Reconstructor reconstructor(N, 2, &sym);
     reconstructor.setMPIEnv();
 
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
                     projector.project(image, coord);
 
                     fft.bw(image);
-                    
+
                     printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                            gsl_stats_mean(&image(0), 1, image.sizeRL()),
                            gsl_stats_sd(&image(0), 1, image.sizeRL()),
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
                     image.saveRLToBMP(name);
                     fft.fw(image);
                     ***/
-                    // image.saveFTToBMP(name, 0.1);    
+                    // image.saveFTToBMP(name, 0.1);
                 }
 
         /***
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
     /***
     reconstructor.allReduceF();
     ***/
- 
+
     Volume result;
     if (commRank != MASTER_ID)
     {
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
     if (commRank != MASTER_ID)
     {
         fft.fw(result);
-        projector.setProjectee(result);
+        projector.setProjectee(result.copyVolume());
         for (int k = M / (commSize - 1) * (commRank - 1);
                  k < M / (commSize - 1) * commRank;
                  k++)
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
                     projector.project(image, coord);
 
                     fft.bw(image);
-                    
+
                     printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                            gsl_stats_mean(&image(0), 1, image.sizeRL()),
                            gsl_stats_sd(&image(0), 1, image.sizeRL()),

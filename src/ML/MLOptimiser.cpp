@@ -92,7 +92,7 @@ void MLOptimiser::init()
 
         ALOG(INFO) << "Generating CTFs";
         initCTF();
-    
+
         ALOG(INFO) << "Initialising Particle Filters";
         initParticles();
     }
@@ -127,7 +127,7 @@ void MLOptimiser::expectation()
 
             _par[l].resample();
         }
-        else 
+        else
             _par[l].perturb();
 
         for (int m = 0; m < _par[l].N(); m++)
@@ -259,7 +259,7 @@ void MLOptimiser::bcastGroupInfo()
     NT_MASTER
     {
         char sql[SQL_COMMAND_LENGTH];
-    
+
         FOR_EACH_2D_IMAGE
         {
             sprintf(sql, "select GroupID from particles where ID = %d;", _ID[l]);
@@ -269,7 +269,7 @@ void MLOptimiser::bcastGroupInfo()
                              ((vector<int>*)data)->push_back(atoi(values[0]));
                              return 0;
                          },
-                         &_groupID); 
+                         &_groupID);
         }
     }
 
@@ -285,7 +285,7 @@ void MLOptimiser::bcastGroupInfo()
 
     MLOG(INFO) << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
-    
+
     ALOG(INFO) << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.set_size(_nGroup, maxR() + 1);
 }
@@ -425,7 +425,7 @@ void MLOptimiser::initSigma()
 
     ALOG(INFO) << "Calculating Average Image";
 
-    Image avg = _img[0];
+    Image avg = _img[0].copyImage();
 
     for (int l = 1; l < _ID.size(); l++)
         ADD_FT(avg, _img[l]);
@@ -474,7 +474,7 @@ void MLOptimiser::initSigma()
     powerSpectrum(psAvg, avg, maxR());
 
     // ALOG(INFO) << "Power Spectrum of Average Image is " << endl << psAvg;
-    
+
     // avgPs -> average power spectrum
     // psAvg -> power spectrum of average image
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
@@ -554,7 +554,7 @@ void MLOptimiser::allReduceSigma()
             // TODO Change it to w
             _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.t() / 2;
         }
-        
+
         _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 

@@ -12,32 +12,6 @@
 
 ImageBase::ImageBase() {}
 
-ImageBase::ImageBase(const ImageBase& that)
-{
-    *this = that;
-}
-
-ImageBase& ImageBase::operator=(const ImageBase& that)
-{
-    clear();
-
-    _sizeRL = that.sizeRL();
-    _sizeFT = that.sizeFT();
-
-    if (!that.isEmptyRL())
-    {
-        _dataRL = new double[_sizeRL];
-        memcpy(_dataRL, &that.iGetRL(), sizeof(double) * _sizeRL);
-    }
-
-    if (!that.isEmptyFT())
-    {
-        _dataFT = new Complex[_sizeFT];
-        memcpy(_dataFT, &that.iGetFT(), sizeof(Complex) * _sizeFT);
-    }
-    return *this;
-}
-
 const double& ImageBase::iGetRL(size_t i) const
 {
     return _dataRL[i];
@@ -60,17 +34,19 @@ Complex& ImageBase::operator[](const size_t i)
 
 bool ImageBase::isEmptyRL() const
 {
-    return (_dataRL == NULL);
+    return !_dataRL;
 }
 
 bool ImageBase::isEmptyFT() const
 {
-    return (_dataFT == NULL);
+    return !_dataFT;
 }
 
 size_t ImageBase::sizeRL() const { return _sizeRL; }
 
 size_t ImageBase::sizeFT() const { return _sizeFT; }
+
+ImageBase::~ImageBase() {}
 
 void ImageBase::clear()
 {
@@ -80,22 +56,14 @@ void ImageBase::clear()
 
 void ImageBase::clearRL()
 {
-    if (_dataRL != NULL)
-    {
-        delete[] _dataRL;
-        _dataRL = NULL;
-        _sizeRL = 0;
-    }
+    _dataRL.reset();
+    _sizeRL = 0;
 }
 
 void ImageBase::clearFT()
 {
-    if (_dataFT != NULL)
-    {
-        delete[] _dataFT;
-        _dataFT = NULL;
-        _sizeFT = 0;
-    }
+    _dataFT.reset();
+    _sizeFT = 0;
 }
 
 double norm(ImageBase& base)
@@ -112,4 +80,25 @@ void normalise(ImageBase& base)
         base(i) -= mean;
 
     SCALE_RL(base, 1.0 / stddev);
+}
+
+void ImageBase::copyBase(ImageBase& other) const
+{
+    other._sizeRL = _sizeRL;
+    if (_sizeRL > 0)
+    {
+        other._dataRL.reset(new double[_sizeRL]);
+        memcpy(other._dataRL.get(), _dataRL.get(), _sizeRL * sizeof(_dataRL[0]));
+    }
+    else
+        other._dataRL.reset();
+
+    other._sizeFT = _sizeFT;
+    if (_sizeFT > 0)
+    {
+        other._dataFT.reset(new Complex[_sizeFT]);
+        memcpy(other._dataFT.get(), _dataFT.get(), _sizeFT * sizeof(_dataFT[0]));
+    }
+    else
+        other._dataFT.reset();
 }

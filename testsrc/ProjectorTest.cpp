@@ -44,12 +44,12 @@ int main(int argc, const char* argv[])
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
     ***/
-    
+
     FFT fft;
     fft.fw(padHead);
 
     Projector projector;
-    projector.setProjectee(padHead);
+    projector.setProjectee(padHead.copyVolume());
 
     char name[256];
     int counter = 0;
