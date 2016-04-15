@@ -40,12 +40,25 @@ int main(int argc, const char* argv[])
             head.setRL(0, i, j, k);
     }
 
+    mat33 centre({{-1, 0, 0},
+                  {0, -1, 0},
+                  {0, 0, -1}});
+    Volume centreHead(N, N, N, RL_SPACE);
+    VOL_TRANSFORM_MAT_RL(centreHead,
+                         head,
+                         centre,
+                         centreHead.nColRL() / 2 -1);
+
     ImageFile imf;
     imf.readMetaData(head);
     imf.writeVolume("head.mrc", head);
+    imf.readMetaData(centreHead); 
+    imf.writeVolume("centreHead.mrc", centreHead);
 
     Volume padHead;
     VOL_PAD_RL(padHead, head, 1);
+    Volume padCentreHead;
+    VOL_PAD_RL(padCentreHead, centreHead, 1);
     /***
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
@@ -53,18 +66,20 @@ int main(int argc, const char* argv[])
     
     FFT fft;
     fft.fw(padHead);
+    fft.fw(padCentreHead);
 
     Projector projector;
-    projector.setProjectee(padHead);
     projector.setPf(PF);
 
     char name[256];
     int counter = 0;
 
-    // Image image(N, N, fourierSpace);
     Image image(N, N, RL_SPACE);
 
     mat33 rot;
+
+    projector.setProjectee(padHead);
+
     rotate3D(rot, 0.3, 0.3, 0.3);
 
     R2R_FT(image,
@@ -72,26 +87,39 @@ int main(int argc, const char* argv[])
            projector.project(image, rot));
     image.saveRLToBMP("Positive.bmp");
 
+    projector.setProjectee(padCentreHead);
+
+    rotate3D(rot, -0.3, -0.3, -0.3);
+
+    R2R_FT(image,
+           image,
+           projector.project(image, rot));
+    image.saveRLToBMP("Negative.bmp");
+
+    /***
     mat33 rot2;
     rotate3D(rot2, M_PI, M_PI, M_PI);
     cout << rot2 << endl;
+    ***/
 
     /***
     rot = rot * mat33({{-1, 0, 0},
                        {0, -1, 0},
                        {0, 0, -1}});
                        ***/
-    rot *= rot2;
+    //rot *= rot2;
 
     /***
     R2R_FT(image,
            image,
            projector.project(image, 2 * M_PI - 0.3, M_PI - 0.3, 2 * M_PI - 0.3));
            ***/
+    /***
     R2R_FT(image,
            image,
            projector.project(image, rot));
     image.saveRLToBMP("Negative.bmp");
+    ***/
 
     /***
     try
