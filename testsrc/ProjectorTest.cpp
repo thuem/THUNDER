@@ -21,6 +21,7 @@ int main(int argc, const char* argv[])
     std::cout << "Define a head." << std::endl;
 
     Volume head(N, N, N, RL_SPACE);
+
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
         double ii = i * 0.8;
@@ -63,16 +64,36 @@ int main(int argc, const char* argv[])
     // Image image(N, N, fourierSpace);
     Image image(N, N, RL_SPACE);
 
+    mat33 rot;
+    rotate3D(rot, 0.3, 0.3, 0.3);
+
     R2R_FT(image,
            image,
-           projector.project(image, 0.3, 0.3, 0.3));
+           projector.project(image, rot));
     image.saveRLToBMP("Positive.bmp");
 
+    mat33 rot2;
+    rotate3D(rot2, M_PI, M_PI, M_PI);
+    cout << rot2 << endl;
+
+    /***
+    rot = rot * mat33({{-1, 0, 0},
+                       {0, -1, 0},
+                       {0, 0, -1}});
+                       ***/
+    rot *= rot2;
+
+    /***
     R2R_FT(image,
            image,
-           projector.project(image, -0.3, -0.3, -0.3));
+           projector.project(image, 2 * M_PI - 0.3, M_PI - 0.3, 2 * M_PI - 0.3));
+           ***/
+    R2R_FT(image,
+           image,
+           projector.project(image, rot));
     image.saveRLToBMP("Negative.bmp");
 
+    /***
     try
     {
     for (int k = 0; k < M; k++)
@@ -81,20 +102,6 @@ int main(int argc, const char* argv[])
             {
                 printf("%02d %02d %02d\n", i, j, k);
                 sprintf(name, "%02d%02d%02d.bmp", i, j, k);
-                /***
-                projector.project(image,
-                                                2 * M_PI * i / M,
-                                                M_PI * j / M,
-                                                2 * M_PI * k / M);
-                                          ***/
-                /***
-                FFT fft;
-                fft.fw(image);
-                fft.bw(image);
-                ***/
-                /***
-                R2R_FT(image, sin(2));
-                ***/
                 R2R_FT(image,
                        image,
                        projector.project(image,
@@ -105,13 +112,13 @@ int main(int argc, const char* argv[])
                                          10));
 
                 image.saveRLToBMP(name);
-                // image.saveFTToBMP(name, 0.1);
             }
     }
     catch (Error& err)
     {
         cout << err << endl;
     }
+    ***/
 
     return 0;
 }
