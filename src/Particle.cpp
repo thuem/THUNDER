@@ -314,12 +314,14 @@ void Particle::symmetrise()
                                      _r[i][2],
                                      _r[i][3]}));
 
+        /***
         // make psi in range [0, M_PI)
         if (GSL_IS_ODD(periodic(psi, M_PI)))
         {
             phi *= -1;
             theta *= -1;
         }
+        ***/
 
         // make phi and theta in the asymetric unit
         if (_sym != NULL) symmetryCounterpart(phi, theta, *_sym);

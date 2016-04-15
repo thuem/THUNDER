@@ -89,18 +89,15 @@ int main(int argc, const char* argv[])
 
     projector.setProjectee(padCentreHead);
 
-    rotate3D(rot, -0.3, -0.3, -0.3);
+    rotate3D(rot, 0.3, 0.3, 0.3);
+    mat33 rot2;
+    rotate3D(rot2, 0, 0, M_PI);
+    cout << rot2 << endl;
 
     R2R_FT(image,
            image,
-           projector.project(image, rot));
+           projector.project(image, rot2 * rot));
     image.saveRLToBMP("Negative.bmp");
-
-    /***
-    mat33 rot2;
-    rotate3D(rot2, M_PI, M_PI, M_PI);
-    cout << rot2 << endl;
-    ***/
 
     /***
     rot = rot * mat33({{-1, 0, 0},
