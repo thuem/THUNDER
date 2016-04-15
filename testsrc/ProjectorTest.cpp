@@ -87,6 +87,18 @@ int main(int argc, const char* argv[])
            projector.project(image, rot));
     image.saveRLToBMP("Positive.bmp");
 
+    rotate3D(rot, 0.3 + M_PI, 0.3, 0.3);
+
+    R2R_FT(image,
+           image,
+           projector.project(image, rot));
+
+    image.saveRLToBMP("PositiveCounterPart.bmp");
+
+    R2R_FT(image,
+           image,
+           projector.project(image, rot));
+
     projector.setProjectee(padCentreHead);
 
     rotate3D(rot, 0.3, 0.3, 0.3);
