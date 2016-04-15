@@ -26,6 +26,7 @@ int main(int argc, const char* argv[])
     cout << atof(argv[3]) << endl;
     ***/
 
+    /***
     double a = atof(argv[1]);
     double b = atof(argv[2]);
     double c = atof(argv[3]);
@@ -44,6 +45,7 @@ int main(int argc, const char* argv[])
          << theta << endl
          << psi << endl
          << endl;
+    ***/
 
     /***
     rotate3D(rot, phi, theta, psi);
@@ -51,6 +53,7 @@ int main(int argc, const char* argv[])
     cout << rot << endl;
     ***/
 
+    /***
     angle(phi, theta, psi, rot);
 
     cout << phi << endl
@@ -60,6 +63,7 @@ int main(int argc, const char* argv[])
 
     quaternoin(u, phi, theta, psi);
     cout << u << endl;
+    ***/
 
     /***
     rotate3D(rot, phi, theta, psi);
