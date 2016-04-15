@@ -123,57 +123,65 @@ void MLOptimiser::expectation()
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
 
-        if (_iter != 0)
+        for (int phase = 0; phase < N_PHASE_PER_ITER; phase++)
         {
-            ILOG(INFO) << "Round " << _iter
-                       << ": Resampling Particle " << _ID[l]
-                       << " for neff = " << _par[l].neff();
-
-            if (_iter < N_ITER_GLOBAL_SEARCH)
-                _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX
-                                - ALPHA_GLOBAL_SEARCH_MIN)
-                               * (N_ITER_GLOBAL_SEARCH - _iter - 1)
-                               / (N_ITER_GLOBAL_SEARCH - 1)
-                               + ALPHA_GLOBAL_SEARCH_MIN);
-            else
-                _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
-                                 ALPHA_GLOBAL_SEARCH_MIN);
-        }
-
-        int nSearch = 0;
-        do
-        {
-            // perturbation
-            _par[l].perturb();
-
-            vec logW(_par[l].n());
-            mat33 rot;
-            vec2 t;
-            for (int m = 0; m < _par[l].n(); m++)
+            if (_iter != 0)
             {
-                _par[l].rot(rot, m);
-                _par[l].t(t, m);
-                _model.proj(0).project(image, rot, t);
+                ILOG(INFO) << "Round " << _iter
+                           << ": Resampling Particle " << _ID[l]
+                           << " for neff = " << _par[l].neff();
 
-                logW[m] = logDataVSPrior(_img[l], // data
-                                         image, // prior
-                                         _ctf[l], // ctf
-                                         _sig.row(_groupID[l] - 1).head(_r).t(),
-                                         _r);
+                if (_iter < N_ITER_GLOBAL_SEARCH)
+                {
+                    if (phase == 0)
+                        _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX
+                                        - ALPHA_GLOBAL_SEARCH_MIN)
+                                       * (N_ITER_GLOBAL_SEARCH - _iter - 1)
+                                       / (N_ITER_GLOBAL_SEARCH - 1)
+                                       + ALPHA_GLOBAL_SEARCH_MIN);
+                    else
+                        _par[l].resample(ALPHA_GLOBAL_SEARCH_MIN);
+                }
+                else
+                    _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
+                                     ALPHA_GLOBAL_SEARCH_MIN);
             }
 
-            logW -= logW(0); // avoiding numerical error
-            // logW /= 2; // Doing Some Compromise
+            int nSearch = 0;
+            do
+            {
+                // perturbation
+                _par[l].perturb();
 
-            for (int m = 0; m < _par[l].n(); m++)
-                _par[l].mulW(exp(logW(m)), m);
-                // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
+                vec logW(_par[l].n());
+                mat33 rot;
+                vec2 t;
+                for (int m = 0; m < _par[l].n(); m++)
+                {
+                    _par[l].rot(rot, m);
+                    _par[l].t(t, m);
+                    _model.proj(0).project(image, rot, t);
 
-            _par[l].normW();
+                    logW[m] = logDataVSPrior(_img[l], // data
+                                             image, // prior
+                                             _ctf[l], // ctf
+                                             _sig.row(_groupID[l] - 1).head(_r).t(),
+                                             _r);
+                }
 
-            nSearch++;
-        } while ((_par[l].neff() > 2 * TOP_K) &&
-                 (nSearch < MAX_N_SEARCH_PER_ITER));
+                logW -= logW(0); // avoiding numerical error
+                // logW /= 2; // Doing Some Compromise
+
+                for (int m = 0; m < _par[l].n(); m++)
+                    _par[l].mulW(exp(logW(m)), m);
+                    // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
+
+                _par[l].normW();
+
+                nSearch++;
+            } while ((_par[l].neff() > 2 * TOP_K) &&
+                     (nSearch < MAX_N_SEARCH_PER_PHASE));
+        }
 
         ILOG(INFO) << "Round " << _iter
                    << ": Information of Particle " << _ID[l]
