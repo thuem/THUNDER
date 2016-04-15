@@ -95,16 +95,18 @@ void Reconstructor::insert(const Image& src,
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        vec3 newCor = {(double)i, (double)j, 0};
-        vec3 oldCor = rot * newCor *_pf;
+        if (QUAD(i, j) < _maxRadius * _maxRadius)
+        {
+            vec3 newCor = {(double)i, (double)j, 0};
+            vec3 oldCor = rot * newCor *_pf;
         
-        if (norm(oldCor) < _maxRadius * _pf)
             _F.addFT(transSrc.getFT(i, j) * w, 
-                     oldCor(0), 
-                     oldCor(1), 
-                     oldCor(2), 
+                     oldCor[0], 
+                     oldCor[1], 
+                     oldCor[2], 
                      _pf * _a, 
                      _kernel);
+        }
     }
 }
 
@@ -174,19 +176,21 @@ void Reconstructor::allReduceW()
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
             {
-                vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = _rot[k] * newCor * _pf;
+                if (QUAD(i, j) < _maxRadius * _maxRadius)
+                {
+                    vec3 newCor = {(double)i, (double)j, 0};
+                    vec3 oldCor = _rot[k] * newCor * _pf;
 
-                if (norm(oldCor) < _maxRadius * _pf)
-                    _C.addFT(_W.getByInterpolationFT(oldCor(0),
-                                                     oldCor(1),
-                                                     oldCor(2),
+                    _C.addFT(_W.getByInterpolationFT(oldCor[0],
+                                                     oldCor[1],
+                                                     oldCor[2],
                                                      LINEAR_INTERP) * _w[i],
-                             oldCor(0),
-                             oldCor(1),
-                             oldCor(2),
+                             oldCor[0],
+                             oldCor[1],
+                             oldCor[2],
                              _pf * _a,
                              _kernel);
+                }
             }
     }
 
