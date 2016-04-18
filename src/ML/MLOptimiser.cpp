@@ -134,7 +134,7 @@ void MLOptimiser::expectation()
                 if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
-                        _par[l].resample(1);
+                        _par[l].resample(ALPHA_TOTAL_GLOBAL_SEARCH);
                     else
                         _par[l].resample(ALPHA_GLOBAL_SEARCH_BG);
                 }
