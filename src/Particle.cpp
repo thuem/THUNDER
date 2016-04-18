@@ -158,11 +158,14 @@ void Particle::calVari()
                                     _t.colptr(1),
                                     1,
                                     _t.n_rows));
+    /***
     _rho = gsl_stats_covariance(_t.colptr(0),
                                 1,
                                 _t.colptr(1),
                                 1,
                                 _t.n_rows) / _s0 / _s1;
+                                ***/
+    _rho = 0;
 
     bingham_t B;
     bingham_fit(&B, _r, _n, 4);

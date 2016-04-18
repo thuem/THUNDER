@@ -95,7 +95,7 @@ double Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
 {
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
     return _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                                    (iRow >= 0) ? iRow : iRow + _nRow,
                                    (iSlc >= 0) ? iSlc : iSlc + _nSlc)];
@@ -106,7 +106,7 @@ void Volume::setRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
@@ -117,7 +117,7 @@ void Volume::addRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
@@ -128,7 +128,7 @@ Complex Volume::getFT(int iCol,
                       int iSlc,
                       const ConjugateFlag cf) const
 {
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
@@ -142,7 +142,7 @@ void Volume::setFT(const Complex value,
                    int iSlc,
                    const ConjugateFlag cf)
 {
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
@@ -155,7 +155,7 @@ void Volume::addFT(const Complex value,
                    int iSlc,
                    const ConjugateFlag cf)
 {
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
