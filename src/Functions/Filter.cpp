@@ -149,28 +149,3 @@ void fscWeightingFilter(Volume& dst,
             dst.setFT(COMPLEX(0, 0), i, j, k);
     }
 }
-/***
-void fscWeightingFilter(Volume& dst,
-                        const Volume& src,
-                        const Vector<double>& fsc,
-                        const int step)
-{
-    VOLUME_FOR_EACH_PIXEL_FT(src)
-    {
-        double f = sqrt(pow(double(i) / src.nColumn(), 2)
-                     + pow(double(j) / src.nRow(), 2)
-                     + pow(double(k) / src.nSlice(), 2));
-
-        int idx = (int)(f * src.nColumn() / step);
-
-        if (idx < fsc.length())
-            dst.setFT(src.getFT(i, j, k)
-                    * sqrt(2 * fsc.get(idx) / (1 + fsc.get(idx))),
-                      i,
-                      j,
-                      k);
-        else
-            dst.setFT(Complex(0, 0), i, j, k);
-    }
-}
-***/
