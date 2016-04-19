@@ -43,24 +43,6 @@ void resA2P(vec& res,
     res.transform([&](double val){ return val * imageSize * pixelSize; });
 }
 
-/***
-double ringAverage(const int resP,
-                   const Image& img)
-{
-    double result = 0;
-    int counter = 0;
-
-    IMAGE_FOR_EACH_PIXEL_FT(img)
-        if (AROUND(NORM(i, j)) == resP)
-        {
-            result += ABS(img.getFT(i, j));
-            counter++;
-        }
-
-    return result / counter;
-}
-***/
-
 double ringAverage(const int resP,
                    const Image& img,
                    const function<double(const Complex)> func)
@@ -132,16 +114,9 @@ void FRC(vec& dst,
          const Image& A,
          const Image& B)
 {
-    // dst.set_size(r);
-
     vec vecS = zeros<vec>(size(dst));
     vec vecA = zeros<vec>(size(dst));
     vec vecB = zeros<vec>(size(dst));
-    /***
-    vec vecS = zeros<vec>(r);
-    vec vecA = zeros<vec>(r);
-    vec vecB = zeros<vec>(r);
-    ***/
 
     IMAGE_FOR_EACH_PIXEL_FT(A)
     {
@@ -161,8 +136,6 @@ void FSC(vec& dst,
          const Volume& A,
          const Volume& B)
 {
-    // dst.set_size(r);
-
     vec vecS = zeros<vec>(size(dst));
     vec vecA = zeros<vec>(size(dst));
     vec vecB = zeros<vec>(size(dst));

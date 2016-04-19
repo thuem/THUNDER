@@ -16,31 +16,63 @@
 #include "Image.h"
 #include "Volume.h"
 
+/** @brief This function performs a B-factor filtering on an image.
+ *  @param dst destination image in Fourier space
+ *  @param src source image in Fourier space
+ *  @param bFactor B-factor in spatial frequency
+ */
 void bFactorFilter(Image& dst,
                    const Image& src,
                    const double bFactor);
 
+/** @brief This function performs a B-factor filtering on a volume.
+ *  @param dst destination volume in Fourier space
+ *  @param src source volume in Fourier space
+ *  @param bFactor B-factor in spatial frequency
+ */
 void bFactorFilter(Volume& dst,
                    const Volume& src,
                    const double bFactor);
 
+/** @brief This function performs a low pass filtering on an image.
+ *  @param dst destination image in Fourier space
+ *  @param src source image in Fourier space
+ *  @param thres threshold of spatial frequency in pixel
+ *  @param ew edge width in pixel
+ */
 void lowPassFilter(Image& dst,
                    const Image& src,
                    const double thres,
                    const double ew);
-/* thres -> threshold
- * ew = edgeWidth */
 
+/** @brief This function performs a low pass filtering on a volume.
+ *  @param dst destination volume in Fourier space
+ *  @param src source volume in Fourier space
+ *  @param thres threshold of spatial frequency in pixel
+ *  @param ew edge width in pixel
+ */
 void lowPassFilter(Volume& dst,
                    const Volume& src,
                    const double thres,
                    const double ew);
 
+/** @brief This function performs a high pass filtering on an image.
+ *  @param dst destination image in Fourier space
+ *  @param src source image in Fourier space
+ *  @param thres threshold of spatial frequency in pixel
+ *  @param ew edge width in pixel
+ */
 void highPassFilter(Image& dst,
                     const Image& src,
                     const double thres,
                     const double ew);
 
+/** @brief This function performs a high pass filtering on a volume.
+ *  @param dst destination volume in Fourier space
+ *  @param src source volume in Fourier space
+ *  @param thres threshold of spatial frequency in pixel
+ *  @param ew edge width in pixel
+ */
 void highPassFilter(Volume& dst,
                     const Volume& src,
                     const double thres,
