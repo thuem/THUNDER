@@ -59,8 +59,8 @@ void lowPassFilter(Volume& dst,
 /** @brief This function performs a high pass filtering on an image.
  *  @param dst destination image in Fourier space
  *  @param src source image in Fourier space
- *  @param thres threshold of spatial frequency in pixel
- *  @param ew edge width in pixel
+ *  @param thres threshold of spatial frequency
+ *  @param ew edge width
  */
 void highPassFilter(Image& dst,
                     const Image& src,
@@ -70,14 +70,24 @@ void highPassFilter(Image& dst,
 /** @brief This function performs a high pass filtering on a volume.
  *  @param dst destination volume in Fourier space
  *  @param src source volume in Fourier space
- *  @param thres threshold of spatial frequency in pixel
- *  @param ew edge width in pixel
+ *  @param thres threshold of spatial frequency
+ *  @param ew edge width
  */
 void highPassFilter(Volume& dst,
                     const Volume& src,
                     const double thres,
                     const double ew);
 
+/** @brief This functions performs a weighting filtering on a volume based on
+ *         FSC.
+ *  @param dst destination volume in Fourier space
+ *  @param src source volume in Fourier space
+ *  @param fsc FSC (Fourier Ring Coefficient) on which the weighting filtering
+ *             based
+ */
+void dscWeightingFilter(Volume& dst,
+                        const Volume& src,
+                        const vec& fsc);
 /***
 void fscWeightingFilter(Volume& dst,
                         const Volume& src,
