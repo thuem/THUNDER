@@ -28,56 +28,56 @@
 
 #define IMAG(a) GSL_IMAG(a)
 
-inline Complex operator-(Complex a)
+inline Complex operator-(const Complex a)
 {
     return COMPLEX(-REAL(a), -IMAG(a));
 };
 
-inline Complex operator+(Complex a, Complex b)
+inline Complex operator+(const Complex a, const Complex b)
 {
     return gsl_complex_add(a, b);
 };
 
-inline Complex operator-(Complex a, Complex b)
+inline Complex operator-(const Complex a, const Complex b)
 {
     return gsl_complex_sub(a, b);
 };
 
-inline Complex operator*(Complex a, Complex b)
+inline Complex operator*(const Complex a, const Complex b)
 {
     return gsl_complex_mul(a, b);
 };
 
-inline Complex operator/(Complex a, Complex b)
+inline Complex operator/(const Complex a, const Complex b)
 {
     return gsl_complex_div(a, b);
 };
 
-inline void operator+=(Complex& a, Complex b) { a = a + b; };
+inline void operator+=(Complex& a, const Complex b) { a = a + b; };
 
-inline void operator-=(Complex& a, Complex b) { a = a - b; };
+inline void operator-=(Complex& a, const Complex b) { a = a - b; };
 
-inline void operator*=(Complex& a, Complex b) { a = a * b; };
+inline void operator*=(Complex& a, const Complex b) { a = a * b; };
 
-inline void operator/=(Complex& a, Complex b) { a = a / b; };
+inline void operator/=(Complex& a, const Complex b) { a = a / b; };
 
-inline Complex operator*(Complex a, double x)
+inline Complex operator*(const Complex a, const double x)
 {
     return gsl_complex_mul_real(a, x);
 };
 
-inline Complex operator*(double x, Complex a)
+inline Complex operator*(const double x, const Complex a)
 {
     return a * x;
 };
 
-inline void operator*=(Complex& a, double x) { a = a * x; };
+inline void operator*=(Complex& a, const double x) { a = a * x; };
 
-inline Complex operator/(Complex a, double x)
+inline Complex operator/(const Complex a, const double x)
 {
     return gsl_complex_div_real(a, x);
 };
 
-inline void operator/=(Complex& a, double x) { a = a / x; };
+inline void operator/=(Complex& a, const double x) { a = a / x; };
 
 #endif // COMPLEX_H
