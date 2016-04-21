@@ -110,21 +110,21 @@ void Database::saveDatabase(const int rank)
         sql = "insert into dst.groups select distinct groups.* from \
                groups, particles where \
                (particles.groupID = groups.ID) and \
-               (particles.ID >= ?1) and (particles.ID <= ?2); \
+               (particles.ID >= ?1) and (particles.ID < ?2); \
                insert into dst.micrographs \
                select distinct micrographs.* from \
                micrographs, particles where \
                particles.micrographID = micrographs.ID and \
-               (particles.ID >= ?1) and (particles.ID <= ?2); \
+               (particles.ID >= ?1) and (particles.ID < ?2); \
                insert into dst.particles select * from particles \
-               where (ID >= ?1) and (ID <= ?2);";
+               where (ID >= ?1) and (ID < ?2);";
     else if (_mode == MICROGRAPH_MODE)
         sql = "insert into dst.micrographs select * from micrographs \
-               where (ID >= ?1) and (ID <= ?2); \
+               where (ID >= ?1) and (ID < ?2); \
                insert into dst.particles select particles.* from \
                micrographs, particles where \
                particles.micrographID = micrographs.ID and \
-               (micrographs.ID >= ?1) and (micrographs.ID <= ?2);";
+               (micrographs.ID >= ?1) and (micrographs.ID < ?2);";
 
     sqlite3_stmt* _stmtSaveDatabase;
     const char* tail;

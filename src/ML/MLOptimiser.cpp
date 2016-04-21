@@ -47,7 +47,6 @@ void MLOptimiser::init()
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
     _r = MIN(8, MAX(MAX_GAP, _para.size / 16));
-    // _r = 60;
     _iter = 0;
     _model.setR(_r);
 
@@ -87,6 +86,7 @@ void MLOptimiser::init()
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
         ***/
 
+        /***
         ALOG(INFO) << "Seting maxRadius of _model";
         _model.setR(_r);
 
@@ -98,8 +98,10 @@ void MLOptimiser::init()
     
         ALOG(INFO) << "Initialising Particle Filters";
         initParticles();
+        ***/
     }
 
+    /***
     MLOG(INFO) << "Broadacasting Information of Groups";
     bcastGroupInfo();
 
@@ -108,6 +110,7 @@ void MLOptimiser::init()
         ALOG(INFO) << "Estimating Initial Sigma";
         initSigma();
     }
+    ***/
 }
 
 void MLOptimiser::expectation()
@@ -226,16 +229,12 @@ void MLOptimiser::run()
 
     init();
 
+    /***
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO) << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
-        /***
-        NT_MASTER
-            saveBestProjections();
-            ***/
-
         MLOG(INFO) << "Round " << _iter;
 
         MLOG(INFO) << "Performing Expectation";
@@ -288,6 +287,7 @@ void MLOptimiser::run()
             saveImages();
         } 
     }
+    ***/
 }
 
 void MLOptimiser::clear()
