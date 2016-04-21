@@ -117,6 +117,7 @@ void MLOptimiser::expectation()
                 size(),
                 FT_SPACE);
 
+    #pragma omp parallel for private(image)
     FOR_EACH_2D_IMAGE
     {
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
@@ -772,6 +773,7 @@ void MLOptimiser::saveImages()
         fft.fw(_img[l]);
     }
 }
+
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
