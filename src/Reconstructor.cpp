@@ -90,7 +90,6 @@ void Reconstructor::insert(const Image& src,
 
     _rot.push_back(rot);
     _w.push_back(w);
-    // _t.push_back(t);
 
     Image transSrc(_size, _size, FT_SPACE);
     translate(transSrc, src, -t(0), -t(1));
@@ -177,7 +176,11 @@ void Reconstructor::allReduceW()
     for (int k = 0; k < _rot.size(); k++)
     {
         for (int j = -_size / 2; j < _size / 2; j++)
+            for (int i = 0; i <= _size / 2; i++)
+        /***
+        for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
+        ***/
             {
                 if (QUAD(i, j) < _maxRadius * _maxRadius)
                 {
