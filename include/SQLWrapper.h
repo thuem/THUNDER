@@ -31,8 +31,15 @@ private:
     std::shared_ptr<sqlite3> handle;
 
 public:
+    explicit DB()
+    {
+    }
     explicit DB(const char* path, int flags);
     ~DB();
+    DB(const DB&) = default;
+    DB(DB&&) = default;
+    DB& operator=(const DB&) = default;
+    DB& operator=(DB&&) = default;
     void exec(const char* cmd);
     void beginTransaction()
     {
@@ -50,6 +57,10 @@ public:
     {
         return handle.get();
     }
+    bool empty() const
+    {
+        return !handle;
+    }
 };
 
 class Statement {
@@ -60,8 +71,18 @@ private:
     void check(int code);
 
 public:
+    explicit Statement()
+        : stmt(nullptr, &sqlite3_finalize)
+    {
+    }
     explicit Statement(const char* command, int nByte, DB db);
     ~Statement();
+    Statement(Statement&&) = default;
+    Statement& operator=(Statement&&) = default;
+    bool empty()
+    {
+        return !stmt;
+    }
     void reset()
     {
         sqlite3_reset(stmt.get());
@@ -71,11 +92,15 @@ public:
     {
         return stmt.get();
     }
+    void bind_null(int index)
+    {
+        check(sqlite3_bind_null(getNativeHandle(), index));
+    }
     void bind_int(int index, int val)
     {
         check(sqlite3_bind_int(getNativeHandle(), index, val));
     }
-    void bind_string(int index, const char* str, int length, bool copy)
+    void bind_text(int index, const char* str, int length, bool copy)
     {
         check(sqlite3_bind_text(getNativeHandle(), index, str, length, copy ? SQLITE_TRANSIENT : SQLITE_STATIC));
     }
@@ -91,7 +116,7 @@ public:
     {
         return sqlite3_column_double(getNativeHandle(), col);
     }
-    std::string get_string(int col)
+    std::string get_text(int col)
     {
         auto str = reinterpret_cast<const char*>(sqlite3_column_text(getNativeHandle(), col));
         return std::string(str, str + sqlite3_column_bytes(getNativeHandle(), col));

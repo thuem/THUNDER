@@ -1,3 +1,4 @@
+// clang-format
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependecy:
@@ -8,37 +9,54 @@
 
 #include "Experiment.h"
 
-Experiment::Experiment() : Database() {}
-
-Experiment::Experiment(const char database[]) : Database(database) {}
-
-void Experiment::execute(const char sql[],
-                         int(*func)(void*, int, char**, char**),
-                         void* data)
+Experiment::Experiment()
+    : Database()
 {
-    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, sql, func, data, NULL));
+}
+
+Experiment::Experiment(const char database[])
+    : Database(database)
+{
 }
 
 void Experiment::addColumnXOff()
 {
-    ADD_COLUMN(particles, XOff, integer);
+    add_column("particles", "XOff", "integer");
 }
 
 void Experiment::addColumnYOff()
 {
-    ADD_COLUMN(particles, YOff, integer);
+    add_column("particles", "YOff", "integer");
 }
 
 void Experiment::particleIDsMicrograph(vector<int>& dst,
                                        const int micrographID)
 {
-    dst.clear();
-    GET_ID(dst, particles, MicrographID, micrographID);
-} 
+    get_id(dst, "particles", "MicrographID", micrographID);
+}
 
 void Experiment::particleIDsGroup(vector<int>& dst,
                                   const int groupID)
 {
+    get_id(dst, "particles", "GroupID", groupID);
+}
+
+void Experiment::add_column(const char* table, const char* column, const char* attr)
+{
+    char cmd[128];
+    snprintf(cmd, sizeof(cmd),
+             "alter table %s add column %s %s;", table, column, attr);
+    _db.exec(cmd);
+}
+
+void Experiment::get_id(std::vector<int>& dst, const char* table, const char* column, int value)
+{
     dst.clear();
-    GET_ID(dst, particles, GroupID, groupID);
+    char cmd[128];
+    snprintf(cmd, sizeof(cmd),
+             "select ID from %s where %s = ?;", table, column);
+    sql::Statement stmt(cmd, -1, _db);
+    stmt.bind_int(1, value);
+    while (stmt.step())
+        dst.push_back(stmt.get_int(0));
 }

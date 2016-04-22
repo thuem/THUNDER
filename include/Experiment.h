@@ -10,60 +10,20 @@
 #define EXPERIMENT_H
 
 #include <vector>
-#include <functional>
 
 #include "Database.h"
-
-using namespace std;
-
-#define ADD_COLUMN(TABLE, COLUMN, ATTR) \
-{ \
-    char sql[128]; \
-    sprintf(sql, \
-            "alter table %s add column %s %s;", \
-            #TABLE, \
-            #COLUMN, \
-            #ATTR); \
-    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, \
-                                      sql, \
-                                      NULL, NULL, NULL)); \
-}
-
-
-#define GET_ID(dst, TABLE, COLUMN, value)\
-[this](vector<int>& _dst, int _value) \
-{ \
-    char sql[128]; \
-    sprintf(sql, \
-            "select ID from %s where %s = %d;", \
-            #TABLE, \
-            #COLUMN, \
-            _value); \
-    SQLITE3_HANDLE_ERROR(sqlite3_exec(_db, \
-                                      sql, \
-                                      SQLITE3_CALLBACK \
-                                      { \
-                                          ((vector<int>*)data) \
-                                          ->push_back(atoi(values[0])); \
-                                          return 0; \
-                                      }, \
-                                      &_dst, \
-                                      NULL)); \
-}(dst, value)
 
 class Experiment : public Database
 {
     private:
+        void add_column(const char* table, const char* column, const char* attr);
+        void get_id(std::vector<int>& dst, const char* table, const char* column, int value);
 
     public:
 
         Experiment();
 
         Experiment(const char database[]);
-
-        void execute(const char sql[],
-                     int(*func)(void*, int, char**, char**),
-                     void* data);
 
         void addColumnXOff();
 
