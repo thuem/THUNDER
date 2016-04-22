@@ -416,6 +416,8 @@ void Database::split(int& start,
         size = nParticle();
     else if (_mode == MICROGRAPH_MODE)
         size = nMicrograph();
+    else
+        __builtin_unreachable();
 
     int piece = size / (_commSize - 1);
 
