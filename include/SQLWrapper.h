@@ -7,15 +7,15 @@
 #include <string>
 
 namespace sql {
-class SQLite3Exception : public std::exception {
+class Exception : public std::exception {
 private:
     char description[128];
     int code;
 
 public:
-    explicit SQLite3Exception(int code);
-    explicit SQLite3Exception(int code, const char* msg);
-    explicit SQLite3Exception(sqlite3* db);
+    explicit Exception(int code);
+    explicit Exception(int code, const char* msg);
+    explicit Exception(sqlite3* db);
     int getCode() const noexcept
     {
         return code;
@@ -26,13 +26,13 @@ public:
     }
 };
 
-class SQLite3DB {
+class DB {
 private:
     std::shared_ptr<sqlite3> handle;
 
 public:
-    explicit SQLite3DB(const char* path, int flags);
-    ~SQLite3DB();
+    explicit DB(const char* path, int flags);
+    ~DB();
     void exec(const char* cmd);
     void beginTransaction()
     {
@@ -52,16 +52,16 @@ public:
     }
 };
 
-class SQLite3Statement {
+class Statement {
 private:
-    SQLite3DB db;
+    DB db;
     std::unique_ptr<sqlite3_stmt, decltype(&sqlite3_finalize)> stmt;
 
     void check(int code);
 
 public:
-    explicit SQLite3Statement(const char* command, int nByte, SQLite3DB db);
-    ~SQLite3Statement();
+    explicit Statement(const char* command, int nByte, DB db);
+    ~Statement();
     void reset()
     {
         sqlite3_reset(stmt.get());
