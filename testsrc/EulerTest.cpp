@@ -12,13 +12,11 @@
 
 int main(int argc, const char* argv[])
 {
-    /***
     vec3 axis = {0, 0, 1};
 
     mat33 mat;
     alignZ(mat, axis);
     mat.print("alignZ");
-    ***/
 
     /***
     cout << atof(argv[1]) << endl;

@@ -16,25 +16,19 @@ int main(int argc, char* argv[])
 {
     MPI_Init(&argc, &argv);
 
-    try
-    {
-    	Database db("test.db");
+    Database db;
 
-        db.setMPIEnv();
+    db.createTables();
 
-        db.bcastID();
-        db.prepareTmpFile();
+    db.setMPIEnv();
 
-        db.setMode(MICROGRAPH_MODE);
+    db.bcastID();
+    db.prepareTmpFile();
 
-        db.scatter();
-        db.gather();   
+    db.setMode(MICROGRAPH_MODE);
 
-    }
-    catch (Error& err)
-    {
-        cout << err;
-    }
+    db.scatter();
+    db.gather();   
 
     MPI_Finalize();
 }
