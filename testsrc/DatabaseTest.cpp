@@ -31,9 +31,9 @@ int main(int argc, char* argv[])
         db.gather();   
 
     }
-    catch (Error& err)
+    catch (const std::exception& err)
     {
-        cout << err;
+        cerr << err.what() << '\n';
     }
 
     MPI_Finalize();

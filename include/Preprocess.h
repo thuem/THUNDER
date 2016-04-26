@@ -84,8 +84,7 @@ class Preprocess : public Parallel
 
         void getMicIDs(vector<int>& dst);
 
-        void getMicName(char micName[],
-                        const int micID);
+        std::string getMicName(const int micID);
 
         void getParXOffYOff(int& xOff,
                             int& yOff,

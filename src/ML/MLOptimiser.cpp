@@ -151,7 +151,7 @@ void MLOptimiser::expectation()
                    << " is " << _par[l].neff();
 
         char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Particle%004d.par", _ID[l]);
+        snprintf(filename, sizeof(filename), "Particle%004d.par", _ID[l]);
         save(filename, _par[l]);
     }
 }
@@ -258,30 +258,19 @@ void MLOptimiser::bcastGroupInfo()
     ALOG(INFO) << "Storing GroupID";
     NT_MASTER
     {
-        char sql[SQL_COMMAND_LENGTH];
-
+        sql::Statement stmt("select GroupID from particles where ID = ?", -1, _exp.expose());
         FOR_EACH_2D_IMAGE
         {
-            sprintf(sql, "select GroupID from particles where ID = %d;", _ID[l]);
-            _exp.execute(sql,
-                         SQLITE3_CALLBACK
-                         {
-                             ((vector<int>*)data)->push_back(atoi(values[0]));
-                             return 0;
-                         },
-                         &_groupID);
+            stmt.bind_int(1, _ID[l]);
+            while (stmt.step())
+                _groupID.push_back(stmt.get_int(0));
+            stmt.reset();
         }
     }
 
     MLOG(INFO) << "Getting Number of Groups from Database";
     IF_MASTER
-        _exp.execute("select count(*) from groups;",
-                     SQLITE3_CALLBACK
-                     {
-                         *((int*)data) = atoi(values[0]);
-                         return 0;
-                     },
-                     &_nGroup);
+        _nGroup = _exp.nGroup();
 
     MLOG(INFO) << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
@@ -316,14 +305,9 @@ void MLOptimiser::initRef()
 
 void MLOptimiser::initID()
 {
-    char sql[] = "select ID from particles;";
-    _exp.execute(sql,
-                 SQLITE3_CALLBACK
-                 {
-                    ((vector<int>*)data)->push_back(atoi(values[0]));
-                    return 0;
-                 },
-                 &_ID);
+    sql::Statement stmt("select ID from particles;", -1, _exp.expose());
+    while (stmt.step())
+        _ID.push_back(stmt.get_int(0));
 }
 
 void MLOptimiser::initImg()
@@ -332,24 +316,21 @@ void MLOptimiser::initImg()
     _img.clear();
     _img.resize(_ID.size());
 
-    char sql[SQL_COMMAND_LENGTH];
     std::string imgName;
 
+    sql::Statement stmt("select Name from particles where ID = ?", -1, _exp.expose());
     FOR_EACH_2D_IMAGE
     {
+        stmt.bind_int(1, _ID[l]);
         // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
         // get the filename of the image from database
-        snprintf(sql, sizeof(sql), "select Name from particles where ID = %d;", _ID[l]);
-        _exp.execute(sql,
-                     SQLITE3_CALLBACK
-                     {
-                         *(std::string*)data = values[0];
-                         return 0;
-                     },
-                     &imgName);
-
+        if (stmt.step())
+            imgName = stmt.get_text(0);
+        else
+            throw std::runtime_error("Database changed");
+        stmt.reset();
         // read the image fromm hard disk
-	Image& currentImg = _img[l];
+	    Image& currentImg = _img[l];
         ImageFile imf(imgName.c_str(), "rb");
         imf.readMetaData();
         imf.readImage(currentImg);
@@ -384,26 +365,26 @@ void MLOptimiser::initCTF()
 
     CTFAttr ctfAttr;
 
+    sql::Statement stmt(
+            "select Voltage, DefocusU, DefocusV, DefocusAngle, CS from \
+             micrographs, particles where \
+             particles.micrographID = micrographs.ID and \
+             particles.ID = ?;", -1, _exp.expose());
     FOR_EACH_2D_IMAGE
     {
         // get attributes of CTF from database
-        sprintf(sql,
-                "select Voltage, DefocusU, DefocusV, DefocusAngle, CS from \
-                 micrographs, particles where \
-                 particles.micrographID = micrographs.ID and \
-                 particles.ID = %d;",
-                _ID[l]);
-        _exp.execute(sql,
-                     SQLITE3_CALLBACK
-                     {
-                        ((CTFAttr*)data)->voltage = atof(values[0]);
-                        ((CTFAttr*)data)->defocusU = atof(values[1]);
-                        ((CTFAttr*)data)->defocusV = atof(values[2]);
-                        ((CTFAttr*)data)->defocusAngle = atof(values[3]);
-                        ((CTFAttr*)data)->CS = atof(values[4]);
-                        return 0;
-                     },
-                     &ctfAttr);
+        stmt.bind_int(1, _ID[l]);
+        if (stmt.step())
+        {
+            ctfAttr.voltage = stmt.get_double(0);
+            ctfAttr.defocusU = stmt.get_double(1);
+            ctfAttr.defocusV = stmt.get_double(2);
+            ctfAttr.defocusAngle = stmt.get_double(3);
+            ctfAttr.CS = stmt.get_double(4);
+        } else {
+            throw std::runtime_error("No data");
+        }
+        stmt.reset();
 
         // append a CTF
         _ctf.push_back(Image(size(), size(), FT_SPACE));

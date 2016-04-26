@@ -121,25 +121,25 @@ void Database::saveDatabase(const int rank)
                particles.micrographID = micrographs.ID and \
                (micrographs.ID >= ?1) and (micrographs.ID <= ?2);"
         };
+    _db.exec(("attach database '" + string(database) + "' as dst;").c_str());
     try
     {
         _db.beginTransaction();
-        _db.exec(("attach database '" + string(database) + "' as dst;").c_str());
         for (const char* sql : sqls) {
             sql::Statement stmt(sql, -1, _db);
             stmt.bind_int(1, start);
             stmt.bind_int(2, end);
             stmt.step();
         }
-
-        _db.exec("detach database dst;");
         _db.endTransaction();
     }
     catch (...)
     {
         _db.rollbackTransaction();
+        _db.exec("detach database dst;");
         throw;
     }
+    _db.exec("detach database dst;");
 }
 
 void Database::createTables()
@@ -269,11 +269,11 @@ int Database::nGroup() const
 void Database::update(const char database[],
                       const Table table)
 {
+        string sql = "attach database '" + string(database) + "' as src";
+        _db.exec(sql.c_str());
     try
     {
         _db.beginTransaction();
-        string sql = "attach database '" + string(database) + "' as src";
-        _db.exec(sql.c_str());
 
         switch (table) {
         case Groups:
@@ -289,14 +289,15 @@ void Database::update(const char database[],
             break;
         }
 
-        _db.exec("detach database src");
         _db.endTransaction();
     }
     catch (...)
     {
         _db.rollbackTransaction();
+        _db.exec("detach database src");
         throw;
     }
+        _db.exec("detach database src");
 }
 
 void Database::prepareTmpFile()
@@ -383,14 +384,14 @@ void Database::masterPrepareTmpFile()
     sprintf(cmd, "touch %s", die);
     system(cmd);
 
-    try
-    {
-        _db.beginTransaction();
         string sql;
 
         // create a database struct for each node
         sql = "attach database '" + string(die) + "' as dst";
         _db.exec(sql.c_str());
+    try
+    {
+        _db.beginTransaction();
 
         _db.exec("create table dst.groups as select * from groups where 1=0");
 
@@ -398,15 +399,17 @@ void Database::masterPrepareTmpFile()
 
         _db.exec("create table dst.particles as select * from particles where 1=0");
 
-        _db.exec("detach database dst");
-
         _db.endTransaction();
     }
     catch (...)
     {
         _db.rollbackTransaction();
+        _db.exec("detach database dst");
+
         throw;
     }
+        _db.exec("detach database dst");
+
 
     for (int i = 1; i < _commSize; i++) {
         MASTER_TMP_FILE(cast, i);

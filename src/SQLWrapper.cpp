@@ -2,6 +2,8 @@
 
 #include "SQLWrapper.h"
 
+#include <utility>
+
 namespace sql {
 
 static bool isOK(int code)
@@ -12,7 +14,7 @@ static bool isOK(int code)
 Exception::Exception(int _code, const char* _msg)
     : code(_code)
 {
-    snprintf(description, sizeof(description), " Error %d: %s", _code, _msg);
+    snprintf(description, sizeof(description), "SQLite3 error %d: %s", _code, _msg);
 }
 
 Exception::Exception(int _code)
@@ -27,6 +29,8 @@ Exception::Exception(sqlite3* db)
 
 DB::DB(const char* path, int flags)
 {
+    if (flags == 0)
+        flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE; // default behavior
     sqlite3* db = nullptr;
     int rc = sqlite3_open_v2(path, &db, flags, nullptr);
     if (rc != SQLITE_OK)
@@ -51,7 +55,7 @@ void Statement::check(int rc)
         throw Exception(db.getNativeHandle());
 }
 Statement::Statement(const char* command, int nByte, DB _db)
-    : db(_db)
+    : db(std::move(_db))
     , stmt(nullptr, &sqlite3_finalize)
 {
     sqlite3_stmt* tmp = nullptr;

@@ -91,6 +91,8 @@ class Database : public Parallel
 
         ~Database();
 
+        sql::DB expose() { return _db; }
+
         void bcastID();
         /* generate and broadcast an unique ID */
 
