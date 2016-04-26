@@ -25,7 +25,7 @@ noist_PROGRAMS = FunctionsTest \
 				 PreprocessTest \
 				 CTFTest
 
-THUEMLIBS = ../libthuem.a
+THUEMLIBS = ../libthuem.a ../external/gtest/libgtest.a
 
 FunctionsTest_SOURCES = ../testsrc/FunctionsTest.cpp
 FunctionsTest_LDADD = ${THUEMLIBS}
