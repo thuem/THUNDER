@@ -160,9 +160,9 @@ class Database : public Parallel
 
         void finalizeStatement();
 
-        void slavePrepareTmpFile();
-
         void masterPrepareTmpFile();
+
+        void slavePrepareTmpFile();
 
         void masterReceive(const int rank);
 

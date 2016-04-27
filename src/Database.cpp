@@ -451,17 +451,6 @@ void Database::finalizeStatement()
         SQLITE3_HANDLE_ERROR(sqlite3_finalize(_stmtAppendParticle));
 }
 
-void Database::slavePrepareTmpFile()
-{
-    if (_commRank == 0) return;
-
-    char cmd[128];
-    sprintf(cmd, "mkdir /tmp/%s", _ID);
-    system(cmd); 
-    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
-    system(cmd); 
-}
-
 void Database::masterPrepareTmpFile()
 {
     if (_commRank != 0) return;
@@ -511,6 +500,17 @@ void Database::masterPrepareTmpFile()
         sprintf(cmd, "cp %s %s", die, cast);  
         system(cmd);           
     }
+}
+
+void Database::slavePrepareTmpFile()
+{
+    if (_commRank == 0) return;
+
+    char cmd[128];
+    sprintf(cmd, "mkdir /tmp/%s", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
+    system(cmd); 
 }
 
 void Database::masterReceive(const int rank)
