@@ -10,6 +10,8 @@
 
 #include "Database.h"
 
+#define N 1000
+
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -20,12 +22,16 @@ int main(int argc, char* argv[])
 
     db.createTables();
 
+    db.appendMicrograph("", 0, 0, 0, 0, 0);
+    db.appendGroup("");
+
+    for (int i = 0; i < N; i++)
+        db.appendParticle("", 1, 1);
+
     db.setMPIEnv();
 
     db.bcastID();
     db.prepareTmpFile();
-
-    db.setMode(MICROGRAPH_MODE);
 
     db.scatter();
     db.gather();   
