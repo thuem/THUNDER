@@ -383,6 +383,8 @@ void Database::prepareTmpFile()
 {
     if (_commRank == 0)
         masterPrepareTmpFile();
+    else
+        slavePrepareTmpFile();
 }
 
 void Database::gather()
@@ -447,6 +449,17 @@ void Database::finalizeStatement()
 
     if (_stmtAppendParticle)
         SQLITE3_HANDLE_ERROR(sqlite3_finalize(_stmtAppendParticle));
+}
+
+void Database::slavePrepareTmpFile()
+{
+    if (_commRank == 0) return;
+
+    char cmd[128];
+    sprintf(cmd, "mkdir /tmp/%s", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
+    system(cmd); 
 }
 
 void Database::masterPrepareTmpFile()
