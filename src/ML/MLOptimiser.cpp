@@ -117,7 +117,7 @@ void MLOptimiser::expectation()
                 size(),
                 FT_SPACE);
 
-    #pragma omp parallel for private(image)
+    // #pragma omp parallel for private(image)
     FOR_EACH_2D_IMAGE
     {
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
