@@ -74,7 +74,7 @@ double Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
 {
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
     return _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                                    (iRow >= 0) ? iRow : iRow + _nRow,
                                    (iSlc >= 0) ? iSlc : iSlc + _nSlc)];
@@ -85,7 +85,7 @@ void Volume::setRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
@@ -96,7 +96,7 @@ void Volume::addRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
@@ -107,7 +107,7 @@ Complex Volume::getFT(int iCol,
                       int iSlc,
                       const ConjugateFlag cf) const
 {
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
@@ -121,7 +121,7 @@ void Volume::setFT(const Complex value,
                    int iSlc,
                    const ConjugateFlag cf)
 {
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
@@ -134,13 +134,21 @@ void Volume::addFT(const Complex value,
                    int iSlc,
                    const ConjugateFlag cf)
 {
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
-    #pragma omp critical
-    // #pragma omp atomic
-    _dataFT[index] += flag ? CONJUGATE(value) : value;
+
+    // /* version 1 */
+    // #pragma omp critical
+    // _dataFT[index] += flag ? CONJUGATE(value) : value;
+
+    /* version 2: recommended */
+    Complex inc = flag ? CONJUGATE(value) : value;
+    #pragma omp atomic
+    _dataFT[index].dat[0] += inc.dat[0];
+    #pragma omp atomic
+    _dataFT[index].dat[1] += inc.dat[1];
 }
 
 double Volume::getByInterpolationRL(const double iCol,

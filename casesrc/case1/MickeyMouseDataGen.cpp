@@ -19,9 +19,9 @@
 #define PF 2
 
 #define N 128
-#define M 1000
-#define MAX_X 10
-#define MAX_Y 10
+#define M 5000
+#define MAX_X 2
+#define MAX_Y 2
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
@@ -34,18 +34,25 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    ImageFile imf;
+
     FFT fft;
 
     cout << "Defining Head" << endl;
     Volume head(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
-        if ((NORM_3(i, j, k) < N / 8) ||
-            (NORM_3(i - N / 8, j, k - N / 8) < N / 16) ||
-            (NORM_3(i + N / 8, j, k - N / 8) < N / 16) ||
-            ((NORM(i, j) < N / 16) &&
-             (k + N / 16 < 0) &&
-             (k + 3 * N / 16 > 0)))
+        double ii = i * 0.8;
+        double jj = j * 0.8;
+        double kk = k * 0.8;
+        if ((NORM_3(ii, jj, kk) < N / 8) ||
+            (NORM_3(ii - N / 8, jj, kk - N / 8) < N / 16) ||
+            (NORM_3(ii - N / 8, jj - N / 8, kk - N / 8) < N / 16) ||
+            (NORM_3(ii + N / 8, jj, kk - N / 8) < N / 16) ||
+            (NORM_3(ii + N / 8, jj + N / 8, kk - N / 8) < N / 16) ||
+            ((NORM(ii, jj) < N / 16) &&
+             (kk + N / 16 < 0) &&
+             (kk + 3 * N / 16 > 0)))
             head.setRL(1, i, j, k);
         else
             head.setRL(0, i, j, k);
@@ -73,12 +80,22 @@ int main(int argc, char* argv[])
     VOL_PAD_RL(padHead, head, PF);
     normalise(padHead);
 
+    imf.readMetaData(padHead);
+    imf.writeVolume("padHead.mrc", padHead);
+
+    cout << "Reading from Hard-disk" << endl;
+    ImageFile imf2("padHead.mrc", "rb");
+    imf2.readMetaData();
+    imf2.readVolume(padHead);
+
+    /***
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
     auto engine = get_random_engine();
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(engine, 20);
     ADD_RL(padHead, noise);
+    ***/
 
     printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
            gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
@@ -96,8 +113,8 @@ int main(int argc, char* argv[])
     cout << "Setting CTF" << endl;
     Image ctf(N, N, FT_SPACE);
     CTF(ctf,
-        VOLTAGE,
         PIXEL_SIZE,
+        VOLTAGE,
         DEFOCUS_U,
         DEFOCUS_V,
         THETA,
@@ -106,31 +123,33 @@ int main(int argc, char* argv[])
     cout << "Initialising Experiment" << endl;
     Experiment exp("MickeyMouse.db");
     exp.createTables();
-    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS, 1);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
     exp.appendGroup("");
 
     char name[256];
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
-
-    ImageFile imf;
-
     cout << "Initialising Random Sampling Points" << endl;
-    Particle par(M, MAX_X, MAX_Y);
+    Symmetry sym("C2");
+    Particle par(M, MAX_X, MAX_Y, &sym);
+    cout << "Saving Sampling Points" << endl;
+    save("Sampling_Points.par", par);
 
     Coordinate5D coord;
+    auto engine = get_random_engine();
     for (int i = 0; i < M; i++)
     {
         SET_0_FT(image);
 
-        sprintf(name, "%06d.mrc", i);
+        sprintf(name, "%04d.mrc", i + 1);
         printf("%s\n", name);
 
         par.coord(coord, i);
         projector.project(image, coord);
 
-        MUL_FT(image, ctf);
+        FOR_EACH_PIXEL_FT(image)
+            image[i] *= REAL(ctf[i]);
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
@@ -150,8 +169,10 @@ int main(int argc, char* argv[])
         imf.readMetaData(image);
         imf.writeImage(name, image);
 
-        sprintf(name, "%06d.bmp", i);
+        /***
+        sprintf(name, "Image_%04d.bmp", i + 1);
         image.saveRLToBMP(name);
+        ***/
 
         fft.fw(image);
     }

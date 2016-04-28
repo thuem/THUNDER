@@ -63,15 +63,8 @@ void lowPassFilter(Volume& dst,
                    const double thres,
                    const double ew)
 {
-    printf("nColRL = %d, nRowRL = %d, nSlcRL = %d\n",
-           src.nColRL(),
-           src.nRowRL(),
-           src.nSlcRL());
-
-        /***
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        // printf("%d %d %d\n", i, j, k);
         double f = NORM_3(double(i) / src.nColRL(),
                           double(j) / src.nRowRL(),
                           double(k) / src.nSlcRL());
@@ -86,7 +79,6 @@ void lowPassFilter(Volume& dst,
                       j,
                       k);
     }
-                      ***/
 }
 
 void highPassFilter(Image& dst,
@@ -135,28 +127,25 @@ void highPassFilter(Volume& dst,
     }
 }
 
-/***
 void fscWeightingFilter(Volume& dst,
                         const Volume& src,
-                        const Vector<double>& fsc,
-                        const int step)
+                        const vec& fsc)
 {
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        double f = sqrt(pow(double(i) / src.nColumn(), 2)
-                     + pow(double(j) / src.nRow(), 2)
-                     + pow(double(k) / src.nSlice(), 2));
+        double f = NORM_3(double(i) / src.nColRL(),
+                          double(j) / src.nRowRL(),
+                          double(k) / src.nSlcRL());
 
-        int idx = (int)(f * src.nColumn() / step);
+        int idx = AROUND(f * src.nColRL());
 
-        if (idx < fsc.length())
+        if (idx < fsc.n_elem)
             dst.setFT(src.getFT(i, j, k)
-                    * sqrt(2 * fsc.get(idx) / (1 + fsc.get(idx))),
+                    * sqrt(2 * fsc(idx) / (1 + fsc(idx))),
                       i,
                       j,
                       k);
         else
-            dst.setFT(Complex(0, 0), i, j, k);
+            dst.setFT(COMPLEX(0, 0), i, j, k);
     }
 }
-***/

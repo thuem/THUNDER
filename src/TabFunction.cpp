@@ -42,9 +42,5 @@ void TabFunction::init(function<double(const double)> func,
 
 double TabFunction::operator()(const double x) const
 {
-    /***
-    int index = rint((x - _a) / _s);
-    return _tab[index];
-    ***/
     return _tab[AROUND((x - _a) / _s)];
 }

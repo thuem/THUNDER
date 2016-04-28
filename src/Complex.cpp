@@ -8,6 +8,7 @@
 
 #include "Complex.h"
 
+/***
 Complex operator-(Complex a)
 {
     return COMPLEX(-GSL_REAL(a), -GSL_IMAG(a));
@@ -59,3 +60,4 @@ Complex operator/(Complex a, double x)
 }
 
 void operator/=(Complex a, double x) { a = a / x; }
+***/

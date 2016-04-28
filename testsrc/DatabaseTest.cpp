@@ -10,31 +10,31 @@
 
 #include "Database.h"
 
+#define N 1000
+
 using namespace std;
 
 int main(int argc, char* argv[])
 {
     MPI_Init(&argc, &argv);
 
-    try
-    {
-    	Database db("test.db");
+    Database db;
 
-        db.setMPIEnv();
+    db.createTables();
 
-        db.bcastID();
-        db.prepareTmpFile();
+    db.appendMicrograph("", 0, 0, 0, 0, 0);
+    db.appendGroup("");
 
-        db.setMode(MICROGRAPH_MODE);
+    for (int i = 0; i < N; i++)
+        db.appendParticle("", 1, 1);
 
-        db.scatter();
-        db.gather();   
+    db.setMPIEnv();
 
-    }
-    catch (const std::exception& err)
-    {
-        cerr << err.what() << '\n';
-    }
+    db.bcastID();
+    db.prepareTmpFile();
+
+    db.scatter();
+    db.gather();   
 
     MPI_Finalize();
 }

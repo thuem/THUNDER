@@ -8,7 +8,7 @@
  * Manual:
  * ****************************************************************************/
 
-#include <MLOptimiser.h>
+#include "MLOptimiser.h"
 
 MLOptimiser::MLOptimiser() {}
 
@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO) << "Setting Parameters: _r, _iter";
-    _r = _para.size / 16;
+    _r = MIN(8, MAX(MAX_GAP, _para.size / 16));
     _iter = 0;
     _model.setR(_r);
 
@@ -65,11 +65,11 @@ void MLOptimiser::init()
     MLOG(INFO) << "Scattering _exp";
     _exp.scatter();
 
+    MLOG(INFO) << "Appending Initial References into _model";
+    initRef();
+
     NT_MASTER
     {
-        ALOG(INFO) << "Appending Initial References into _model";
-        initRef();
-
         ALOG(INFO) << "Initialising IDs of 2D Images";
         initID();
 
@@ -81,8 +81,10 @@ void MLOptimiser::init()
         ALOG(INFO) << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO) << "Number of Images in Hemisphere B: " << _N;
 
+        /***
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
+        ***/
 
         ALOG(INFO) << "Seting maxRadius of _model";
         _model.setR(_r);
@@ -115,44 +117,97 @@ void MLOptimiser::expectation()
                 size(),
                 FT_SPACE);
 
+    // #pragma omp parallel for private(image)
     FOR_EACH_2D_IMAGE
     {
-        ILOG(INFO) << "Performing Expectation on Image " << _ID[l];
+        ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
+                   << " with Radius of " << _r;
 
-        if (_par[l].neff() < _par[l].N() / 3)
+        for (int phase = 0; phase < N_PHASE_PER_ITER; phase++)
         {
-            ILOG(INFO) << "Round " << _iter
-                       << ": Resampling Particle " << _ID[l]
-                       << " for neff = " << _par[l].neff();
+            if ((_iter != 0) || (phase != 0))
+            {
+                ILOG(INFO) << "Round " << _iter
+                           << ": Resampling Particle " << _ID[l]
+                           << " for neff = " << _par[l].neff();
 
-            _par[l].resample();
+                if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
+                {
+                    if (phase == 0)
+                        _par[l].resample(ALPHA_TOTAL_GLOBAL_SEARCH);
+                    else
+                        _par[l].resample(ALPHA_GLOBAL_SEARCH_BG);
+                }
+                else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
+                               + N_ITER_PARTIAL_GLOBAL_SEARCH)
+                {
+                    if (phase == 0)
+                        _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX
+                                        - ALPHA_GLOBAL_SEARCH_MIN)
+                                       * (N_ITER_TOTAL_GLOBAL_SEARCH 
+                                        + N_ITER_PARTIAL_GLOBAL_SEARCH
+                                        - _iter - 1)
+                                       / (N_ITER_PARTIAL_GLOBAL_SEARCH - 1)
+                                       + ALPHA_GLOBAL_SEARCH_MIN);
+                    else
+                        _par[l].resample(ALPHA_GLOBAL_SEARCH_BG);
+                }
+                else
+                {
+                    if (phase == 0)
+                        _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
+                                         ALPHA_GLOBAL_SEARCH_BG);
+                    else
+                        _par[l].resample();
+                }
+            }
+
+            int nSearch = 0;
+            do
+            {
+                // perturbation
+                _par[l].perturb();
+
+                vec logW(_par[l].n());
+                mat33 rot;
+                vec2 t;
+                for (int m = 0; m < _par[l].n(); m++)
+                {
+                    _par[l].rot(rot, m);
+                    _par[l].t(t, m);
+                    _model.proj(0).project(image, rot, t);
+
+                    logW[m] = logDataVSPrior(_img[l], // data
+                                             image, // prior
+                                             _ctf[l], // ctf
+                                             _sig.row(_groupID[l] - 1).head(_r).t(),
+                                             _r);
+                }
+
+                logW -= logW(0); // avoiding numerical error
+                // logW /= 2; // Doing Some Compromise
+
+                for (int m = 0; m < _par[l].n(); m++)
+                    _par[l].mulW(exp(logW(m)), m);
+                    // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
+
+                _par[l].normW();
+
+                nSearch++;
+            } while ((_par[l].neff() > 2 * TOP_K) &&
+                     (nSearch < MAX_N_SEARCH_PER_PHASE));
         }
-        else
-            _par[l].perturb();
-
-        for (int m = 0; m < _par[l].N(); m++)
-        {
-            Coordinate5D coord;
-            _par[l].coord(coord, m);
-            _model.proj(0).project(image, coord);
-
-            double w = dataVSPrior(image,
-                                   _img[l],
-                                   _ctf[l],
-                                   _sig.row(_groupID[l] - 1).head(_r).t(),
-                                   _r);
-
-            _par[l].mulW(w, m);
-        }
-        _par[l].normW();
 
         ILOG(INFO) << "Round " << _iter
-                   << ": Neff of Particle " << _ID[l]
-                   << " is " << _par[l].neff();
+                   << ": Information of Particle " << _ID[l]
+                   << ", Neff " << _par[l].neff();
 
-        char filename[FILE_NAME_LENGTH];
-        snprintf(filename, sizeof(filename), "Particle%004d.par", _ID[l]);
-        save(filename, _par[l]);
+        if (_ID[l] < 100)
+        {
+            char filename[FILE_NAME_LENGTH];
+            snprintf(filename, sizeof(filename), "Particle_%04d_Round_%03d.par", _ID[l], _iter);
+            save(filename, _par[l]);
+        }
     }
 }
 
@@ -220,6 +275,13 @@ void MLOptimiser::run()
             ALOG(INFO) << "Refreshing Reconstructors";
             _model.refreshReco();
         }
+
+        // save the result of last projection
+        if (_iter == _para.iterMax - 1)
+        {
+            saveBestProjections();
+            saveImages();
+        } 
     }
 }
 
@@ -301,6 +363,11 @@ void MLOptimiser::initRef()
     FFT fft;
     fft.fw(_model.ref(0));
     _model.ref(0).clearRL();
+    /***
+    fft.bw(_model.ref(0));
+    fft.fw(_model.ref(0));
+    _model.ref(0).clearRL();
+    ***/
 }
 
 void MLOptimiser::initID()
@@ -339,11 +406,13 @@ void MLOptimiser::initImg()
             (currentImg.nRowRL() != _para.size))
             LOG(FATAL) << "Incorrect Size of 2D Images";
 
+        /***
         // apply a soft mask on it
         softMask(currentImg,
                  currentImg,
                  _para.size / 4,
                  EDGE_WIDTH_RL);
+                 ***/
 
         /***
         sprintf(imgName, "%04dMasked.bmp", _ID[i]);
@@ -431,7 +500,8 @@ void MLOptimiser::initSigma()
     FOR_EACH_2D_IMAGE
     {
         powerSpectrum(ps, _img[l], maxR());
-        cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
+        avgPs += ps;
+        // cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
     }
 
     MPI_Barrier(_hemi);
@@ -449,22 +519,27 @@ void MLOptimiser::initSigma()
 
     // ALOG(INFO) << "Average Power Spectrum is " << endl << avgPs;
 
-    ALOG(INFO) << "Calculating Power Spectrum of Average Image";
+    // ALOG(INFO) << "Calculating Power Spectrum of Average Image";
+
+    ALOG(INFO) << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
-    powerSpectrum(psAvg, avg, maxR());
+    // powerSpectrum(psAvg, avg, maxR());
+    for (int i = 0; i < maxR(); i++)
+        psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
 
     // ALOG(INFO) << "Power Spectrum of Average Image is " << endl << psAvg;
 
     // avgPs -> average power spectrum
-    // psAvg -> power spectrum of average image
+    // psAvg -> expectation of pixels
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
     _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
+    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
 
     ALOG(INFO) << "Saving Initial Sigma";
     if (_commRank == HEMI_A_LEAD)
-        _sig.save("Sigma_00.txt", raw_ascii);
+        _sig.save("Sigma_000.txt", raw_ascii);
 }
 
 void MLOptimiser::initParticles()
@@ -475,7 +550,7 @@ void MLOptimiser::initParticles()
         _par.push_back(Particle());
 
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.m,
+        _par[l].init(_para.m * _para.mf,
                      _para.maxX,
                      _para.maxY,
                      &_sym);
@@ -525,7 +600,9 @@ void MLOptimiser::allReduceSigma()
 
             // calculate differences
             _model.proj(0).project(img, coord);
-            MUL_FT(img, _ctf[l]);
+            FOR_EACH_PIXEL_FT(img)
+                img[i] *= REAL(_ctf[l][i]);
+            // MUL_FT(img, _ctf[l]);
             NEG_FT(img);
             ADD_FT(img, _img[l]);
 
@@ -559,13 +636,14 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
+    // TODO: there is something wrong here! FIX IT!
     _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
 
     ALOG(INFO) << "Saving Sigma";
     if (_commRank == HEMI_A_LEAD)
     {
         char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Sigma_%02d.txt", _iter + 1);
+        sprintf(filename, "Sigma_%03d.txt", _iter + 1);
         _sig.save(filename, raw_ascii);
     }
 }
@@ -585,21 +663,26 @@ void MLOptimiser::reconstructRef()
                    << " into Reconstructor";
 
         // reduce the CTF effect
-        reduceCTF(img, _img[l], _ctf[l], _r);
+        reduceCTF(img, _img[l], _ctf[l]);
+        // reduceCTF(img, _img[l], _ctf[l], _r);
 
         uvec iSort = _par[l].iSort();
 
-        Coordinate5D coord;
+        mat33 rot;
+        vec2 t;
+        // Coordinate5D coord;
         double w;
         for (int m = 0; m < TOP_K; m++)
         {
             // get coordinate
-            _par[l].coord(coord, iSort[m]);
+            // _par[l].coord(coord, iSort[m]);
+            _par[l].rot(rot, iSort[m]);
+            _par[l].t(t, iSort[m]);
             // get weight
             w = _par[l].w(iSort[m]);
 
             // TODO: _model.reco(0).insert(_img[l], coord, w);
-            _model.reco(0).insert(_img[l], coord, 1);
+            _model.reco(0).insert(_img[l], rot, t, 1);
         }
     }
 
@@ -633,13 +716,54 @@ void MLOptimiser::reconstructRef()
     _model.ref(0).clearRL();
 }
 
-double dataVSPrior(const Image& dat,
-                   const Image& pri,
-                   const Image& ctf,
-                   const vec& sig,
-                   const int r)
+void MLOptimiser::saveBestProjections()
 {
+    FFT fft;
+
+    Image result(_para.size, _para.size, FT_SPACE);
+    Coordinate5D coord;
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        SET_0_FT(result);
+
+        uvec iSort = _par[l].iSort();
+        _par[l].coord(coord, iSort[0]);
+
+        _model.proj(0).project(result, coord);
+
+        sprintf(filename, "Result_%04d.bmp", _ID[l]);
+
+        fft.bw(result);
+        result.saveRLToBMP(filename);
+        fft.fw(result);
+    }
+}
+
+void MLOptimiser::saveImages()
+{
+    FFT fft;
+
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        sprintf(filename, "Image_%04d.bmp", _ID[l]);
+
+        fft.bw(_img[l]);
+        _img[l].saveRLToBMP(filename);
+        fft.fw(_img[l]);
+    }
+}
+
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int r)
+{
+    // double result = 1;
     double result = 0;
+    // int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
@@ -647,12 +771,64 @@ double dataVSPrior(const Image& dat,
         int u = AROUND(NORM(i, j));
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
+        {
+            result += ABS2(dat.getFT(i, j)
+                         - REAL(ctf.getFT(i, j))
+                         * pri.getFT(i, j))
+                        / (-2 * sig[u]);
+            /***
             result += ABS2(dat.getFT(i, j)
                          - ctf.getFT(i, j)
                          * pri.getFT(i, j))
-                    / (-2 * sig(u))
-                    / (2 * M_PI * u);
+                        / (-2 * sig(u))
+                        / (sqrt(NORM(i, j)));
+                        ***/
+            /***
+            result += ABS2(dat.getFT(i, j)
+                         - ctf.getFT(i, j)
+                         * pri.getFT(i, j))
+                        / (-2 * sig(u))
+                        / (M_PI * u);
+                        ***/
+            /***
+            result *= exp(ABS2(dat.getFT(i, j)
+                             - ctf.getFT(i, j)
+                             * pri.getFT(i, j))
+                        / (-2 * sig(u)));
+                        ***/
+            /***
+            result *= (exp(ABS2(dat.getFT(i, j)
+                             - ctf.getFT(i, j)
+                             * pri.getFT(i, j))
+                            / (-2 * sig(u)))
+                     / (2 * M_PI * sig(u)));
+                     ***/
+            /***
+            result *= exp(ABS2(dat.getFT(i, j)
+                             - ctf.getFT(i, j)
+                             * pri.getFT(i, j))
+                            / (-2 * sig(u)))
+                    / (2 * M_PI * sig(u));
+                    ***/
+                    // / (2 * M_PI * u);
+            // counter++;
+        }
     }
 
-    return exp(result);
+    // LOG(INFO) << "dataVSPrior" << result << endl;
+
+    return result;
+
+    // return exp(result);
+
+    // return exp(result);
+}
+
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r)
+{
+    return exp(logDataVSPrior(dat, pri, ctf, sig, r));
 }

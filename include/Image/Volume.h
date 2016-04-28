@@ -34,13 +34,13 @@
 #include "ImageFunctions.h"
 
 #define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
-    (((iCol) > 0) ? 0 : [&iCol, &iRow, &iSlc]() \
-                        { \
-                            iCol *= -1; \
-                            iRow *= -1; \
-                            iSlc *= -1; \
-                            return 1; \
-                        }())
+    (((iCol) >= 0) ? 0 : [&iCol, &iRow, &iSlc]() \
+                         { \
+                             iCol *= -1; \
+                             iRow *= -1; \
+                             iSlc *= -1; \
+                             return 1; \
+                         }())
 
 #define VOLUME_INDEX_RL(i, j, k) \
     (k) * _nRow * _nCol + (j) * _nCol + (i)

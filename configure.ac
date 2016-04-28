@@ -34,9 +34,14 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([floor memset pow sqrt])
 
-AC_CONFIG_SUBDIRS([gpu])
+# AC_CONFIG_SUBDIRS([gpu])
 AC_CONFIG_FILES([Makefile
+                 external/Makefile
+                 external/gtest/Makefile
                  unittest/Makefile
-                 case/Makefile])
+                 app/Makefile
+                 case/Makefile
+                 case/case1/Makefile
+                 case/case2/Makefile])
 
 AC_OUTPUT

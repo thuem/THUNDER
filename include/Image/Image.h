@@ -25,12 +25,12 @@
 #include "BMP.h"
 
 #define IMAGE_CONJUGATE_HALF(iCol, iRow) \
-    (((iCol) > 0) ? 0 : [&iCol, &iRow]() \
-                        { \
-                            iCol *= -1; \
-                            iRow *= -1; \
-                            return 1; \
-                        }())
+    (((iCol) >= 0) ? 0 : [&iCol, &iRow]() \
+                         { \
+                             iCol *= -1; \
+                             iRow *= -1; \
+                             return 1; \
+                         }())
 
 #define IMAGE_INDEX_RL(i, j) \
     (j) * _nCol + (i)

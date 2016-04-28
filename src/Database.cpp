@@ -304,6 +304,8 @@ void Database::prepareTmpFile()
 {
     if (_commRank == 0)
         masterPrepareTmpFile();
+    else
+        slavePrepareTmpFile();
 }
 
 void Database::gather()
@@ -342,10 +344,12 @@ void Database::split(int& start,
 
     if (commRank <= size % (_commSize - 1)) {
         start = (piece + 1) * (commRank - 1) + 1;
-        end = start + (piece + 1);
-    } else {
+        end = start + (piece + 1) - 1;
+    }
+    else
+    {
         start = piece * (commRank - 1) + size % (_commSize - 1) + 1;
-        end = start + piece;
+        end = start + piece - 1;
     }
 }
 
@@ -417,6 +421,17 @@ void Database::masterPrepareTmpFile()
         sprintf(cmd, "cp %s %s", die, cast);
         system(cmd);
     }
+}
+
+void Database::slavePrepareTmpFile()
+{
+    if (_commRank == 0) return;
+
+    char cmd[128];
+    sprintf(cmd, "mkdir /tmp/%s", _ID);
+    system(cmd); 
+    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
+    system(cmd); 
 }
 
 void Database::masterReceive(const int rank)

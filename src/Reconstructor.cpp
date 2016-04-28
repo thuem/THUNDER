@@ -29,6 +29,9 @@ void Reconstructor::init(const int size,
                          const double alpha,
                          const double zeta)
 {
+    _rot.clear();
+    _w.clear();
+
     _size = size;
     _pf = pf;
     _sym = sym;
@@ -68,7 +71,8 @@ void Reconstructor::setMaxRadius(const int maxRadius)
 }
 
 void Reconstructor::insert(const Image& src,
-                           const Coordinate5D coord,
+                           const mat33& rot,
+                           const vec2& t,
                            const double w)
 {
     IF_MASTER
@@ -84,28 +88,40 @@ void Reconstructor::insert(const Image& src,
                    << ", nCol = " << src.nColRL()
                    << ", nRow = " << src.nRowRL();
 
-    _coord.push_back(coord);
+    _rot.push_back(rot);
+    _w.push_back(w);
 
     Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, -coord.x, -coord.y);
-
-    mat33 mat;
-    rotate3D(mat, coord.phi, coord.theta, coord.psi);
+    translate(transSrc, src, -t(0), -t(1));
 
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        arma::vec3 newCor = {(double)i, (double)j, 0};
-        arma::vec3 oldCor = mat * newCor *_pf;
-
-        if (norm(oldCor) < _maxRadius * _pf)
-            _F.addFT(transSrc.getFT(i, j) * w,
-                     oldCor(0),
-                     oldCor(1),
-                     oldCor(2),
-                     _pf * _a,
+        if (QUAD(i, j) < _maxRadius * _maxRadius)
+        {
+            vec3 newCor = {(double)i, (double)j, 0};
+            vec3 oldCor = rot * newCor *_pf;
+        
+            _F.addFT(transSrc.getFT(i, j) * w, 
+                     oldCor[0], 
+                     oldCor[1], 
+                     oldCor[2], 
+                     _pf * _a, 
                      _kernel);
+        }
     }
+}
+
+void Reconstructor::insert(const Image& src,
+                           const Coordinate5D coord,
+                           const double w)
+{
+    mat33 rot;
+    rotate3D(rot, coord.phi, coord.theta, coord.psi);
+
+    vec2 t = {(double)coord.x, (double)coord.y};
+
+    insert(src, rot, t, w);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
@@ -115,11 +131,13 @@ void Reconstructor::reconstruct(Volume& dst)
     for (int i = 0; i < 3; i++)
     {
         ALOG(INFO) << "Balancing Weights Round " << i;
+        BLOG(INFO) << "Balancing Weights Round " << i;
 
         allReduceW();
     }
 
     ALOG(INFO) << "Reducing F";
+    BLOG(INFO) << "Reducing F";
 
     allReduceF();
 
@@ -132,12 +150,13 @@ void Reconstructor::reconstruct(Volume& dst)
     fft.bw(dst);
 
     ALOG(INFO) << "Correcting Convolution Kernel";
+    BLOG(INFO) << "Correcting Convolution Kernel";
 
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        if (r < 0.25 / _pf)
+        if (r < 0.5 / _pf)
             dst.setRL(dst.getRL(i, j, k)
                     / MKB_RL(r, _pf * _a, _alpha)
                     / TIK_RL(r),
@@ -154,27 +173,30 @@ void Reconstructor::allReduceW()
     SET_0_FT(_C);
 
     #pragma omp parallel for
-    for (int i = 0; i < _coord.size(); i++)
+    for (int k = 0; k < _rot.size(); k++)
     {
-        mat33 mat;
-        rotate3D(mat, _coord[i].phi, _coord[i].theta, _coord[i].psi);
-
+        for (int j = -_size / 2; j < _size / 2; j++)
+            for (int i = 0; i <= _size / 2; i++)
+        /***
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i <= _size / 2; i++)
+        ***/
             {
-                vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = mat * newCor * _pf;
+                if (QUAD(i, j) < _maxRadius * _maxRadius)
+                {
+                    vec3 newCor = {(double)i, (double)j, 0};
+                    vec3 oldCor = _rot[k] * newCor * _pf;
 
-                if (norm(oldCor) < _maxRadius * _pf)
-                    _C.addFT(_W.getByInterpolationFT(oldCor(0),
-                                                     oldCor(1),
-                                                     oldCor(2),
-                                                     LINEAR_INTERP),
-                             oldCor(0),
-                             oldCor(1),
-                             oldCor(2),
+                    _C.addFT(_W.getByInterpolationFT(oldCor[0],
+                                                     oldCor[1],
+                                                     oldCor[2],
+                                                     LINEAR_INTERP) * _w[i],
+                             oldCor[0],
+                             oldCor[1],
+                             oldCor[2],
                              _pf * _a,
                              _kernel);
+                }
             }
     }
 

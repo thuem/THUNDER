@@ -15,7 +15,7 @@ int main(int argc, const char* argv[])
 {
     try
     {
-        Symmetry sym("C5");
+        Symmetry sym("C15");
         display(sym);
     }
     catch (Error& error)

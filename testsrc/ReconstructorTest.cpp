@@ -122,11 +122,13 @@ int main(int argc, char* argv[])
                     projector.project(image, coord);
 
                     fft.bw(image);
-
+                    
+                    /***
                     printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                            gsl_stats_mean(&image(0), 1, image.sizeRL()),
                            gsl_stats_sd(&image(0), 1, image.sizeRL()),
                            image(cblas_idamax(image.sizeRL(), &image(0), 1)));
+                           ***/
 
                     fft.fw(image);
 

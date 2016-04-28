@@ -6,6 +6,8 @@ AM_CXXFLAGS = -I${top_srcdir}/include \
 			  -I${top_srcdir}/include/Image \
 			  -I${top_srcdir}/include/Geometry
 
+AM_CXXFLAGS += -I${top_srcdir}/external/gtest/include
+
 AM_CXXFLAGS += -fPIC -std=c++11 -fopenmp
 
 noistdir = .
@@ -25,7 +27,7 @@ noist_PROGRAMS = FunctionsTest \
 				 PreprocessTest \
 				 CTFTest
 
-THUEMLIBS = ../libthuem.a
+THUEMLIBS = ../libthuem.a ../external/gtest/libgtest.a
 
 FunctionsTest_SOURCES = ../testsrc/FunctionsTest.cpp
 FunctionsTest_LDADD = ${THUEMLIBS}
