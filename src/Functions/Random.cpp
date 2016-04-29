@@ -1,5 +1,3 @@
-#include <Functions/Random.h>
-
 #include <stdexcept>
 #include <pthread.h>
 #include <unistd.h>
@@ -7,14 +5,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "Random.h"
+
 static pthread_key_t key;
 
 static int module_init()
 {
-    pthread_key_create(&key, [] (void* p) {
-        if (p)
-            gsl_rng_free(static_cast<gsl_rng*>(p));
-    });
+    pthread_key_create(&key,
+                       [](void* p)
+                       {
+                           if (p) gsl_rng_free(static_cast<gsl_rng*>(p));
+                       });
     return 0;
 }
 
@@ -33,7 +34,6 @@ static unsigned long urandom()
     close(fd);
     return res;
 }
-
 
 gsl_rng* get_random_engine()
 {
