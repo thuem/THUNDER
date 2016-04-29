@@ -35,6 +35,13 @@ using namespace placeholders;
 
 #define PAD_SIZE (_pf * _size)
 
+/**                                                                                                                                                                                                                                       
+ * @ingroup Reconstructor
+ * @brief The 3D model reconstruction class.
+ * 
+ * Provides all APIs that is used for 
+ */
+
 class Reconstructor : public Parallel
 {
     MAKE_DEFAULT_MOVE(Reconstructor)
