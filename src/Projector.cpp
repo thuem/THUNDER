@@ -72,18 +72,18 @@ void Projector::project(Image& dst,
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        vec3 newCor = {(double)i, (double)j, 0};
-        // std::cout << newCor << std::endl;
-        vec3 oldCor = mat * newCor * _pf;
-        // std::cout << oldCor << std::endl;
+        if (QUAD(i, j) < _maxRadius * _maxRadius)
+        {
+            vec3 newCor = {(double)i, (double)j, 0};
+            vec3 oldCor = mat * newCor * _pf;
 
-        if (norm(oldCor) < _maxRadius * _pf)
-            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
-                                                      oldCor(1),
-                                                      oldCor(2),
+            dst.setFT(_projectee.getByInterpolationFT(oldCor[0],
+                                                      oldCor[1],
+                                                      oldCor[2],
                                                       _interp),
                       i,
                       j);
+        }
     }
 }
 
@@ -118,6 +118,14 @@ void Projector::project(Image& dst,
             coordinate5D.psi,
             coordinate5D.x,
             coordinate5D.y);
+}
+
+void Projector::project(Image& dst,
+                        const mat33& rot,
+                        const vec2& t) const
+{
+    project(dst, rot);
+    translate(dst, dst, _maxRadius, t[0], t[1]);
 }
 
 void Projector::gridCorrection()

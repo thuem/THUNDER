@@ -174,7 +174,7 @@ bool Symmetry::novo(const mat33& L,
     // check whether (L, R) exists in (_L, _R) or not
     for (int i = 0; i < _L.size(); i++)
         if (SAME_MATRIX(L, _L[i]) && SAME_MATRIX(R, _R[i]))
-                return false;
+            return false;
 
     return true;
 }
@@ -249,6 +249,13 @@ bool asymmetryUnit(const double phi,
                    const int pgGroup,
                    const int pgOrder)
 {
+    // basic range check
+    if ((phi < 0) ||
+        (phi >= 2 * M_PI) ||
+        (theta < 0) ||
+        (theta > M_PI))
+        return false;
+
     switch (pgGroup)
     {
         case PG_CN:
@@ -347,6 +354,10 @@ void symmetryCounterpart(double& ex,
             ex = newDir(0);
             ey = newDir(1);
             ez = newDir(2);
+
+            return;
         }
     }
+
+    LOG(WARNING) << "Unable to find SymmetryCounterpart";
 }

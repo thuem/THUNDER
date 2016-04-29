@@ -14,11 +14,10 @@
 #include <cstring>
 #include <sys/stat.h>
 
-#include <sqlite3.h>
 
-#include "Sqlite3Error.h"
 #include "Random.h"
 #include "Parallel.h"
+#include "SQLWrapper.h"
 
 #define PARTICLE_MODE 0
 #define MICROGRAPH_MODE 1
@@ -76,13 +75,13 @@ class Database : public Parallel
 
         int _mode = PARTICLE_MODE;
 
-        sqlite3_stmt* _stmtAppendGroup = NULL;
-        sqlite3_stmt* _stmtAppendMicrograph = NULL;
-        sqlite3_stmt* _stmtAppendParticle = NULL;
+        sql::Statement _stmtAppendGroup;
+        sql::Statement _stmtAppendMicrograph;
+        sql::Statement _stmtAppendParticle;
 
     protected:
 
-        sqlite3* _db;
+        sql::DB _db;
 
     public:
 
@@ -91,6 +90,8 @@ class Database : public Parallel
         Database(const char database[]);
 
         ~Database();
+
+        sql::DB expose() { return _db; }
 
         void bcastID();
         /* generate and broadcast an unique ID */
@@ -101,7 +102,7 @@ class Database : public Parallel
 
         void openDatabase(const char database[]);
 
-        void saveDatabase(sqlite3* database);
+        void saveDatabase(sql::DB database);
 
         void saveDatabase(const char database[]);
 
@@ -161,6 +162,8 @@ class Database : public Parallel
         void finalizeStatement();
 
         void masterPrepareTmpFile();
+
+        void slavePrepareTmpFile();
 
         void masterReceive(const int rank);
 

@@ -28,7 +28,7 @@
 #include "Symmetry.h"
 
 using namespace arma;
-
+using namespace google;
 using namespace std;
 
 static double e0[4] = {0, 1, 0, 0};
@@ -39,7 +39,7 @@ class Particle
 {
     private:
 
-        int _N;
+        int _n;
 
         double _maxX;
         double _maxY;
@@ -63,21 +63,46 @@ class Particle
 
     public:
 
+        /** @brief default constructor of Particle
+         */
         Particle();
 
-        Particle(const int N,
+        /** @brief constructor of Particle
+         *  @param n number of particles in this particle filter
+         *  @param maxX maximum X-axis translation in pixel
+         *  @param maxY maximum Y-axis translation in pixel
+         *  @param sym symmetry of resampling space
+         */
+        Particle(const int n,
                  const double maxX,
                  const double maxY,
                  const Symmetry* sym = NULL);
 
+        /** @brief deconstructor of Particle
+         */
         ~Particle();
 
-        void init(const int N,
+        /** @brief This function initialises Particle
+         *  @param n number of particles in this particle filter
+         *  @param maxX maximum X-axis translation in pixel
+         *  @param maxY maximum Y-axis translation in pixel
+         *  @param sym symmetry of resampling space
+         */
+        void init(const int n,
                   const double maxX,
                   const double maxY,
                   const Symmetry* sym = NULL);
 
-        int N() const;
+        void reset();
+
+        int n() const;
+
+        void vari(double& k0,
+                  double& k1,
+                  double& k2,
+                  double& s0,
+                  double& s1,
+                  double& rho) const;
 
         double w(const int i) const;
 
@@ -106,9 +131,16 @@ class Particle
 
         void setSymmetry(const Symmetry* sym);
 
+        void calVari();
+
         void perturb();
 
-        void resample();
+        void resample(const double alpha = 0);
+
+        /* resample to number of particles of n
+         * alpha portion of sampling points will be global */
+        void resample(const int n,
+                      const double alpha = 0);
 
         double neff() const;
 
@@ -118,6 +150,8 @@ class Particle
     private:
 
         void symmetrise();
+
+        void clear();
 };
 
 void display(const Particle& particle);

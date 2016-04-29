@@ -20,12 +20,13 @@
 #define PF 2
 
 #define N 128
-#define MAX_X 10
-#define MAX_Y 10
+#define MAX_X 4
+#define MAX_Y 4
 
 #define PIXEL_SIZE 1.32
 
 #define M 2000
+#define MF 1
 
 using namespace std;
 
@@ -45,9 +46,10 @@ int main(int argc, char* argv[])
     para.alpha = 10;
     para.pixelSize = PIXEL_SIZE;
     para.m = M;
+    para.mf = MF;
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
-    sprintf(para.sym, "C2V");
+    sprintf(para.sym, "C2");
     sprintf(para.initModel, "sphere.mrc");
     sprintf(para.db, "MickeyMouse.db");
 

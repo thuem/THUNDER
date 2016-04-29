@@ -58,62 +58,40 @@ void Preprocess::getMicIDs(vector<int>& dst)
 {
     dst.clear();
 
-    char sql[] = "select ID from micrographs;";
-
-    _exp.execute(sql,
-                 SQLITE3_CALLBACK
-                 {
-                     ((vector<int>*)data)
-                     ->push_back(atoi(values[0]));
-                     return 0;
-                 },
-                 &dst); 
+    sql::Statement stmt("select ID from micrographs;", -1, _exp.expose());
+    while (stmt.step())
+        dst.push_back(stmt.get_int(0));
 }
 
-void Preprocess::getMicName(char micName[], 
-                            const int micID)
+std::string Preprocess::getMicName(const int micID)
 {
-    char sql[SQL_COMMAND_LENGTH]; 
-
-    sprintf(sql, "select Name from micrographs where ID = %d;", micID); 
-
-    _exp.execute(sql,
-                 SQLITE3_CALLBACK
-                 {
-                     sprintf((char*)data, "%s", values[0]); 
-                     return 0;
-                 },
-                 micName);
+    sql::Statement stmt("select Name from micrographs where ID = ?;", -1, _exp.expose());
+    stmt.bind_int(1, micID);
+    if (stmt.step())
+        return stmt.get_text(0);
+    else
+        throw std::runtime_error("No micname");
 }
 
 void Preprocess::getParXOffYOff(int& xOff,
                                 int& yOff,
                                 const int parID)
 {
-    XY xy;
-    char sql[SQL_COMMAND_LENGTH]; 
-    sprintf(sql, 
-            "select XOff, YOff from particles where ID = %d;", 
-            parID); 
-
-    _exp.execute(sql,
-                 SQLITE3_CALLBACK
-                 {
-                     ((XY*)data)->x = atoi(values[0]);  
-                     ((XY*)data)->y = atoi(values[1]);  
-                     return 0;
-                 },
-                 &xy);
-
-    xOff = xy.x;
-    yOff = xy.y;
+    sql::Statement stmt("select XOff, YOff from particles where ID = ?", -1, _exp.expose());
+    stmt.bind_int(1, parID);
+  
+    if (stmt.step())
+    {
+        xOff = stmt.get_int(0);
+        yOff = stmt.get_int(1);
+    }
+    else
+        throw std::runtime_error("No xOff, yOff");
 }
 
 void Preprocess::extractParticles(const int micID)
 {
-    char micName[FILE_NAME_LENGTH];
-    getMicName(micName, micID);
-    string sMicName(micName);
+    string sMicName = getMicName(micID);
 
     char parName[FILE_NAME_LENGTH];    
 
@@ -135,7 +113,7 @@ void Preprocess::extractParticles(const int micID)
     Image mic;
 
     // read in micrograph
-    ImageFile micFile(micName, "r");
+    ImageFile micFile(sMicName.c_str(), "r");
     micFile.readMetaData();
     micFile.readImage(mic, 0);    
 
@@ -143,7 +121,7 @@ void Preprocess::extractParticles(const int micID)
 
     ImageFile parFile;
 
-    char sql[SQL_COMMAND_LENGTH]; 
+    sql::Statement updator("update particles set Name = ? where ID = ?", -1, _exp.expose());
 
     for (int i = 0; i < parIDs.size(); i++)
     {
@@ -165,18 +143,16 @@ void Preprocess::extractParticles(const int micID)
             NEG_RL(par);
 
         // generate parName according to micName and i
-        sprintf(parName,
+        snprintf(parName, sizeof(parName),
                 "%s_%04d.mrc",
                 sMicName.substr(0, sMicName.rfind('.') - 1).c_str(),
                 i);
         parFile.readMetaData(par);
         parFile.writeImage(parName, par);
 
-        // write parName to database
-        sprintf(sql,
-                "update particles set Name = \"%s\" where ID = %d;", 
-                parName,
-                parIDs[i]); 
-        _exp.execute(sql, NULL, NULL);
+        updator.bind_text(1, parName, strlen(parName), false);
+        updator.bind_int(2, parIDs[i]);
+        updator.step();
+        updator.reset();
     }
 }

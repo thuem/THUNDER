@@ -47,7 +47,6 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
 
 
     char buffer[1024*8];
-    char sqlStatement[1024];
     char particleName[1024];
 
 
@@ -81,27 +80,22 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
         }
     };  
 
-    sprintf(sqlStatement, "insert into Micrographs "\
+    sql::Statement stmt("insert into Micrographs "\
                           "( Name, Voltage, DefocusU, DefocusV, DefocusAngle, CA  ) "\
-                          "VALUES ( \"%s\", 1, 2, 3, 4, 5 ); ",                         
-                          micrographFileName);
+                          "VALUES (?, 1, 2, 3, 4, 5 ); ", -1, exp.expose());
+    stmt.bind_text(1, micrographFileName, strlen(micrographFileName), false);
+    stmt.step();
     
-    exp.execute(sqlStatement,
-                NULL, 
-                NULL);
+    stmt = sql::Statement("select ID from Micrographs "\
+                         "where Name== ? ;", -1, exp.expose());
+    stmt.bind_text(1, micrographFileName, strlen(micrographFileName), false);
 
-    sprintf(sqlStatement, "select ID from Micrographs "\
-                          "where Name== \"%s\" ;",        
-                          micrographFileName);
+    while (stmt.step())
+        micrographID = stmt.get_int(0);
 
-    exp.execute(sqlStatement,
-                  SQLITE3_CALLBACK
-                  {
-                      *((int*)data) = atoi(values[0]);
-                      return 0;
-                  },
-                  &micrographID); 
-
+        stmt = sql::Statement("insert into particles "\
+                              "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
+                              "VALUES (?, ?, ? ,0 , ? ); ", -1, exp.expose());
     printf(" micrographID = %d \n", micrographID);
 
     particleNumber = 0;
@@ -128,18 +122,13 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
             (CooridinateX < imf.nCol() - 300) &&
             (CooridinateY < imf.nRow() - 300))
         {
-        sprintf(sqlStatement, "insert into particles "\
-                              "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
-                              "VALUES (%f, %f, \"%s\" ,0 ,%d  ); ", 
-                              CooridinateX, CooridinateY, 
-                              particleName,micrographID);
-
-        //printf("%s\n", sqlStatement);
-       
-        exp.execute(sqlStatement,
-                    NULL, 
-                    NULL);
-        particleNumber++;
+            stmt.bind_double(1, CooridinateX);
+            stmt.bind_double(2, CooridinateY);
+            stmt.bind_text(3, particleName, strlen(particleName), false);
+            stmt.bind_int(4, micrographID);
+            stmt.step();
+            stmt.reset();
+            particleNumber++;
         }
     }
 

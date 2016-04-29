@@ -123,7 +123,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
 double Image::getRL(const int iCol,
                     const int iRow) const
 {
-    coordinatesInBoundaryRL(iCol, iRow);
+    // coordinatesInBoundaryRL(iCol, iRow);
     return _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                                   (iRow >= 0) ? iRow : iRow + _nRow)];
 }
@@ -132,7 +132,7 @@ void Image::setRL(const double value,
                   const int iCol,
                   const int iRow)
 {
-    coordinatesInBoundaryRL(iCol, iRow);
+    // coordinatesInBoundaryRL(iCol, iRow);
     _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                            (iRow >= 0) ? iRow : iRow + _nRow)] = value;
 }
@@ -140,7 +140,7 @@ void Image::setRL(const double value,
 Complex Image::getFT(int iCol,
                      int iRow) const
 {
-    coordinatesInBoundaryFT(iCol, iRow);
+    // coordinatesInBoundaryFT(iCol, iRow);
     size_t index;
     bool cf;
     IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
@@ -151,7 +151,7 @@ void Image::setFT(const Complex value,
                   int iCol,
                   int iRow)
 {
-    coordinatesInBoundaryFT(iCol, iRow);
+    // coordinatesInBoundaryFT(iCol, iRow);
     size_t index;
     bool cf;
     IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
@@ -166,8 +166,8 @@ double Image::getBiLinearRL(const double iCol,
     double x[2] = {iCol, iRow};
     WG_BI_LINEAR(w, x0, x);
 
-    coordinatesInBoundaryRL(x0[0], x0[1]);
-    coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
+    // coordinatesInBoundaryRL(x0[0], x0[1]);
+    // coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
 
     double result = 0;
     FOR_CELL_DIM_3 result += w[i][j] * getRL(x0[0] + i, x0[1] + j);
@@ -182,8 +182,8 @@ Complex Image::getBiLinearFT(const double iCol,
     double x[2] = {iCol, iRow};
     WG_BI_LINEAR(w, x0, x);
 
-    coordinatesInBoundaryFT(x0[0], x0[1]);
-    coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);
+    // coordinatesInBoundaryFT(x0[0], x0[1]);
+    // coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);
 
     Complex result = COMPLEX(0, 0);
     FOR_CELL_DIM_2 result += w[i][j] * getFT(x0[0] + i , x0[1] + j);

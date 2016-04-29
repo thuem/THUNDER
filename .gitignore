@@ -34,12 +34,18 @@ bin/
 gpu/
 autom4te.cache/
 case/
+case/case1
+case/case2
+app/
 
 !unittest/Makefile.am
 !gpu/gpuunittest/Makefile.am
 !bin/Makefile.am
 
 !case/Makefile.am
+!case/case1/Makefile.am
+!case/case2/Makefile.am
+!app/Makefile.am
 
 *.dSYM/
 
@@ -57,5 +63,3 @@ tags
 
 doc/html
 doc/latex
-
-

@@ -35,9 +35,18 @@
 
 #define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
 
-#define TOP_K 3
+#define TOP_K 1
 
-#define FREQ_DOWN_CUTOFF 2
+#define FREQ_DOWN_CUTOFF 3
+#define N_ITER_TOTAL_GLOBAL_SEARCH 5
+#define N_ITER_PARTIAL_GLOBAL_SEARCH 15
+#define ALPHA_TOTAL_GLOBAL_SEARCH 1.0
+#define ALPHA_GLOBAL_SEARCH_MAX 0.8
+#define ALPHA_GLOBAL_SEARCH_MIN 0.2
+#define ALPHA_GLOBAL_SEARCH_BG 0.05
+
+#define N_PHASE_PER_ITER 2
+#define MAX_N_SEARCH_PER_PHASE 3
 
 using namespace std;
 using namespace google;
@@ -67,6 +76,9 @@ typedef struct ML_OPTIMISER_PARA
 
     int m;
     // number of samplings in particle filter
+    
+    int mf;
+    // factor of number of samplings in particle filter
 
     int maxX;
 
@@ -193,13 +205,27 @@ class MLOptimiser : public Parallel
         void allReduceSigma();
 
         void reconstructRef();
+
+        // for debug
+        // save the best projections to BMP file
+        void saveBestProjections();
+
+        // for debug
+        // save images to BMP file
+        void saveImages();
 };
+
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int r);
+// dat -> data, pri -> prior, ctf
 
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sig,
                    const int r);
-// dat -> data, pri -> prior, ctf
 
 #endif // ML_OPTIMSER_H
