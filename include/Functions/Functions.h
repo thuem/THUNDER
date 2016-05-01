@@ -14,7 +14,7 @@
 #include <cmath>
 
 #include <gsl/gsl_blas.h>
-#include <gsl/gsl_statistics_double.h>
+#include <gsl/gsl_statistics.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
 
@@ -24,22 +24,43 @@
 #define AROUND(a) ((int)rint(a))
 
 /**
- * This function returns the maximum value among a and b.
+ * This macro returns the maximum value among a and b.
  */
 #define MAX(a, b) GSL_MAX(a, b)
 
+/**
+ * This macro returns the maximum value among a, b and c.
+ */
 #define MAX_3(a, b, c) MAX(MAX(a, b), c)
 
+/**
+ * This macro returns the minimum value among a and b.
+ */
 #define MIN(a, b) GSL_MIN(a, b)
 
+/**
+ * This macro returns the minimum value among a, b and c.
+ */
 #define MIN_3(a, b, c) MIN(MIN(a, b), c)
 
+/**
+ * This macro returns the quadratic sum of a and b.
+ */
 #define QUAD(a, b) (gsl_pow_2(a) + gsl_pow_2(b))
 
+/**
+ * This macro returns the 2-norm of a and b.
+ */
 #define NORM(a, b) (gsl_hypot(a, b))
 
+/**
+ * This macro returns the quadratic sum of a, b and c.
+ */
 #define QUAD_3(a, b, c) (gsl_pow_2(a) + gsl_pow_2(b) + gsl_pow_2(c))
 
+/**
+ * This macro returns the 2-norm of a, b and c.
+ */
 #define NORM_3(a, b, c) (gsl_hypot3(a, b, c))
 
 /**
