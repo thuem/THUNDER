@@ -1,9 +1,12 @@
-#include <stdexcept>
-#include <pthread.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+/*******************************************************************************
+ * Author: Siyuan Ren, Mingxu Hu
+ * Dependency:
+ * Test:
+ * Execution:
+ * Description:
+ *
+ * Manual:
+ * ****************************************************************************/
 
 #include "Random.h"
 
@@ -24,30 +27,40 @@ static const int MODULE_INITED = module_init();
 static unsigned long urandom()
 {
     int fd = open("/dev/urandom", O_RDONLY);
-    if (fd < 0)
-        throw std::runtime_error("No /dev/urandom");
+
+    if (fd < 0) LOG(FATAL) << "No /dev/urandom";
+
     unsigned long res;
-    if (read(fd, &res, sizeof(res)) != sizeof(res)) {
+    if (read(fd, &res, sizeof(res)) != sizeof(res))
+    {
         close(fd);
-        throw std::runtime_error("Insufficient read");
+        LOG(FATAL) << "Insufficient Read";
     }
+
     close(fd);
     return res;
 }
 
 gsl_rng* get_random_engine()
 {
-    (void)MODULE_INITED; // Supress warnings about unused variable
+    // Supress warnings about unused variable
+    (void)MODULE_INITED; 
+
     auto engine = static_cast<gsl_rng*>(pthread_getspecific(key));
-    if (engine)
-        return engine;
+
+    if (engine) return engine;
+
     engine = gsl_rng_alloc(gsl_rng_mt19937);
-    if (!engine)
-        throw std::runtime_error("Failure to allocate random engine");
+
+    if (!engine) LOG(FATAL) << "Failure to Allocate Random Engine";
+
     gsl_rng_set(engine, urandom());
-    if (pthread_setspecific(key, engine) != 0) {
+
+    if (pthread_setspecific(key, engine) != 0)
+    {
         gsl_rng_free(engine);
-        throw std::runtime_error("Failure to set thread local storage");
+        LOG(FATAL) << "Failure to Set Thread Local Storage";
     }
+
     return engine;
 }
