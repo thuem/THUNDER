@@ -18,8 +18,14 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
 
+/**
+ * This macros returns the nearest integer number of a.
+ */
 #define AROUND(a) ((int)rint(a))
 
+/**
+ * This function returns the maximum value among a and b.
+ */
 #define MAX(a, b) GSL_MAX(a, b)
 
 #define MAX_3(a, b, c) MAX(MAX(a, b), c)
@@ -46,6 +52,12 @@
 int periodic(double& x,
              const double p);
 
+/**
+ * Multiplication between two quaterions.
+ * @param dst result
+ * @param a left multiplier
+ * @param b right multiplier
+ */
 void quaternion_mul(double* dst,
                     const double* a,
                     const double* b);
@@ -60,13 +72,20 @@ double MKB_FT(const double r,
               const double a,
               const double alpha);
 
+/**
+ * Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3.
+ * @param r radius
+ * @param a maximum radius
+ * @param alpha smooth factor
+ */
 double MKB_RL(const double r,
               const double a,
               const double alpha);
-/* Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3 */
-/* Typically, a = 1.9 and alpha = 10 */
 
+/**
+ * Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function
+ * @param r radius
+ */
 double TIK_RL(const double r);
-/* Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function */
 
 #endif // FUNCTIONS_H
