@@ -12,7 +12,6 @@
 #define COORDINATE_5D_H
 
 #include <cstdio>
-    
 
 /**                                                                                                                                                                                                                                       
  * @ingroup Coordinate5D
@@ -80,7 +79,6 @@ struct Coordinate5D
      * Construct a empty Coordinate5D object.
      */
     Coordinate5D();
-
 
     /**
      * Construct a specific Coordinate5D object with 5D coordinates parameters.
