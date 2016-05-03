@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <functional>
+#include <memory>
 
 #include "Macro.h"
 #include "Functions.h"
@@ -21,7 +22,7 @@ class TabFunction
 {
 	private:
 
-        double* _tab = NULL;
+        std::unique_ptr<double[]> _tab;
 
         double _a = 0;
         double _b = 0;

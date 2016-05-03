@@ -12,6 +12,7 @@
 #define ML_MODEL_H
 
 #include <armadillo>
+#include <memory>
 
 #include "Typedef.h"
 
@@ -48,7 +49,7 @@ class MLModel : public Parallel
 
         vector<Projector> _proj;
 
-        vector<Reconstructor> _reco;
+        vector<std::unique_ptr<Reconstructor>> _reco;
 
         int _k;
         /* number of references */

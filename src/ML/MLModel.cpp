@@ -45,12 +45,12 @@ void MLModel::initProjReco()
         _proj.push_back(Projector());
 
         ALOG(INFO) << "Appending Reconstructor of Reference " << i;
-        _reco.push_back(Reconstructor());
+        _reco.push_back(std::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
     ALOG(INFO) << "Setting Up MPI Environment of Reconstructors";
     FOR_EACH_CLASS
-        _reco[i].setMPIEnv(_commSize, _commRank, _hemi);
+        _reco[i]->setMPIEnv(_commSize, _commRank, _hemi);
 
     ALOG(INFO) << "Refreshing Projectors";
     refreshProj();
@@ -105,7 +105,7 @@ Projector& MLModel::proj(const int i)
 
 Reconstructor& MLModel::reco(const int i)
 {
-    return _reco[i];
+    return *_reco[i];
 }
 
 void MLModel::BcastFSC()
@@ -280,7 +280,7 @@ void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
     {
-        _reco[i].init(_size,
+        _reco[i]->init(_size,
                       _pf,
                       _sym,
                       _a,
