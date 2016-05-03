@@ -21,39 +21,70 @@
 
 using namespace arma;
 
+/**
+ * This function calculates phi and theta given a certain direction indicated by
+ * a 3-vector.
+ * @param phi phi
+ * @param theta theta
+ * @param src 3-vector indicating the direction
+ */
 void angle(double& phi,
            double& theta,
            const vec3& src);
-/* Return phi and theta given the direction 
- * src should be a 3-vector */
 
+/**
+ * This function calculates phi, theta and psi given the rotation matrix.
+ * @param phi phi
+ * @param theta theta
+ * @param psi psi
+ * @param src the rotation matrix
+ */
 void angle(double& phi,
            double& theta,
            double& psi,
            const mat33& src);
 
+/**
+ * This function calculates phi, theta and psi given the quaternion indicated
+ * by a 4-vector.
+ * @param phi phi
+ * @param theta theta
+ * @param psi psi
+ * @param src the quaternion
+ */
 void angle(double& phi,
            double& theta,
            double& psi,
            const vec4& src);
-// quaternion -> (phi, theta, psi)
 
+/**
+ * This function calculate the quaternion given phi, theta and psi.
+ * @param dst the quaternion to be calculated
+ * @param phi phi
+ * @param theta theta
+ * @param psi psi
+ */
 void quaternoin(vec4& dst,
                 const double phi,
                 const double theta,
                 const double psi);
 
+/**
+ * This function calculates the rotation matrix given phi in 2D.
+ * @param dst the rotation matrix
+ * @param phi phi
+ */
 void rotate2D(mat22& dst, const double phi);
-// Return the rotating matrix for rotating for phi in 2D.
-// This matrix should be on the left when calculating cooridinate.
-// phi is radius, not degree.
-// dst should be 2x2 matrix.
 
+/**
+ * This function calculates the direction vector given phi and theta. The 2-norm
+ * of this direction vector is 1.
+ * @param phi phi
+ * @param theta
+ */
 void direction(vec3& dst,
                const double phi,
                const double theta);
-// Return the direction of (phi, theta)
-// dst should be a 3-vector.
 
 void rotate3D(mat33& dst,
               const double phi,
