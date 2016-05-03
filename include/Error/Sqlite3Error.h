@@ -16,7 +16,11 @@
 
 #include <sqlite3.h>
 
+#include <glog/logging.h>
+
 #include "Error.h"
+
+using namespace std;
 
 #define SQLITE3_HANDLE_ERROR(err) \
     [](const int _err) throw() \
@@ -24,9 +28,10 @@
         if ((_err != 0) && \
             (_err != 100) && \
             (_err != 101)) \
-            REPORT_ERROR(std::string(sqlite3GetErrorString(_err))); \
+        LOG(FATAL) << string(sqlite3GetErrorString(_err)); \
     }(err)
 
+            //REPORT_ERROR(std::string(sqlite3GetErrorString(_err)));
 const char* sqlite3GetErrorString(const int err);
 
 #endif // SQLITE3_ERROR
