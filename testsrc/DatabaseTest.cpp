@@ -33,8 +33,10 @@ int main(int argc, char* argv[])
     db.bcastID();
     db.prepareTmpFile();
 
+    /***
     db.scatter();
     db.gather();   
+    ***/
 
     MPI_Finalize();
 }
