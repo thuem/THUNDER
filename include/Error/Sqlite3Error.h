@@ -31,7 +31,6 @@ using namespace std;
         LOG(FATAL) << string(sqlite3GetErrorString(_err)); \
     }(err)
 
-            //REPORT_ERROR(std::string(sqlite3GetErrorString(_err)));
 const char* sqlite3GetErrorString(const int err);
 
 #endif // SQLITE3_ERROR
