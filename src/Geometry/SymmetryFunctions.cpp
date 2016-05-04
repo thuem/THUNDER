@@ -273,7 +273,7 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             break;
 
         case PG_I5:
-            REPORT_ERROR("PG_I5 Not Implemented");
+            LOG(FATAL) << "PG_I5 Not Implemented";
             break;
 
         case PG_IH:
