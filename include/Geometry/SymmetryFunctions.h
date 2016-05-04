@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include <glog/logging.h>
+
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
@@ -24,11 +26,15 @@
 
 using namespace std;
 
+/* This function translates a string indicating the symmetry group to the code
+ * of symmetry group and the order in that group.
+ * @param pgGroup the code of symmetry group
+ * @param pgOrder the order in the symmetry group
+ * @param sym the string indicating the symmetry group
+ */
 void symmetryGroup(int& pgGroup,
                    int& pgOrder,
                    const char sym[]);
-/* translate sym to symmetry group
- * return false when translation is not possible */
 
 void fillSymmetryEntry(vector<SymmetryOperation>& entry,
                        const int pgGroup,

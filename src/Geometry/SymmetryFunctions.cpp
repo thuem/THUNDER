@@ -130,7 +130,7 @@ void symmetryGroup(int& pgGroup,
         pgOrder = -1;
     }
     else
-        REPORT_ERROR("Invalid Symmetry Index");
+        LOG(FATAL) << "Invalid Symmetry Index";
 }
 
 void fillSymmetryEntry(vector<SymmetryOperation>& entry,
@@ -302,11 +302,12 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             break;
 
         case PG_I5H:
-            REPORT_ERROR("PG_I5H Not Implemented");
+            LOG(FATAL) << "PG_I5H Not Implemented";
             break;
 
         default:
-            REPORT_ERROR("Symmetry Point Group Is Not Known.");
+            LOG(FATAL) << "Symmetry Point Group is Not Known";
+            break;
     }
 }
 
