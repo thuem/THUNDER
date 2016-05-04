@@ -79,6 +79,7 @@ void rotate2D(mat22& dst, const double phi);
 /**
  * This function calculates the direction vector given phi and theta. The 2-norm
  * of this direction vector is 1.
+ * @param dst the direction vector
  * @param phi phi
  * @param theta
  */
@@ -86,56 +87,103 @@ void direction(vec3& dst,
                const double phi,
                const double theta);
 
+/**
+ * This function calculates the rotation matrix given phi, theta and psi.
+ * @param dst the rotation matrix
+ * @param phi phi
+ * @param theta theta
+ * @param psi psi
+ */
 void rotate3D(mat33& dst,
               const double phi,
               const double theta,
               const double psi);
-// Return the rotating matrix for rotating Euler angle alpha, beta and gamma.
-// dst should be a 3x3 matrix.
 
+/**
+ * This function calculates the rotation matrix given a quaternion.
+ * @param dst the rotation matrix
+ * @param src the quaternion
+ */
 void rotate3D(mat33& dst,
               const vec4& src);
-// quaternion -> rotation matrix
 
+/**
+ * This function calculates the rotation matrix of rotation along X-axis of phi.
+ * @param dst the rotation matrix
+ * @param phi phi
+ */
 void rotate3DX(mat33& dst, const double phi);
+
+/**
+ * This function calculates the rotation matrix of rotation along Y-axis of phi.
+ * @param dst the rotation matrix
+ * @param phi phi
+ */
 void rotate3DY(mat33& dst, const double phi);
+
+/**
+ * This function calculates the rotation matrix of rotation along Z-axis of phi.
+ * @param dst the rotation matrix
+ * @param phi phi
+ */
 void rotate3DZ(mat33& dst, const double phi);
 
+/**
+ * This function calculates the rotation matrix for aligning a direction vector
+ * to Z-axis.
+ * @param dst the rotation matrix
+ * @param vec the direction vector
+ */
 void alignZ(mat33& dst,
             const vec3& vec);
-// This function returns a 3x3 matrix.
-// This matrix can align vec to Z axis.
 
+/**
+ * This function calculates the rotation matrix of rotation along a certain axis
+ * (X, Y or Z) of phi.
+ * @param dst the rotation matrix
+ * @param axis a character indicating which axis the rotation is along
+ */
 void rotate3D(mat33& dst,
               const double phi,
               const char axis);
-// This function returns a 3x3 matrix.
-// X -> rotate around X axis
-// Y -> rotate around Y axis
-// Z -> rotate around Z axis
 
+/**
+ * This function calculates the rotation matrix of rotation along a certain axis
+ * given by a direction vector of phi.
+ * @param dst the rotation matrix
+ * @param phi phi
+ * @param axis the direction vector indicating the axis
+ */
 void rotate3D(mat33& dst,
               const double phi,
               const vec3& axis);
-// This function returns a 3x3 matrix.
-// This matrix represents a rotation around the axis given.
 
+/**
+ * This function calculates the transformation matrix of reflection against a
+ * certain plane given by its normal vector.
+ * @param dst the rotation matrix
+ * @param plane the normal vector the reflection plane
+ */
 void reflect3D(mat33& dst,
                const vec3& plane);
-// This function returns a 3x3 matrix.
-// This matrix represents a reflection of the plane given.
 
+/**
+ * This function calculates the singular matrix of translation of a certain
+ * vector.
+ * @param dst the singular matrix
+ * @param vec the translation vector
+ */
 void translate3D(mat44& dst,
                  const vec3& vec);
-// This function returns a 4x4 matrix.
-// This matrix represents a translation of the vec given.
 
+/**
+ * This function calculates the transformation matrix of scaling.
+ * @param dst the transformation matrix
+ * @param vec a 3-vector of which vec[0] indicates the scale factor along X
+ * axis, vec[1] indicates the scale factor along Y axis and vec[2] indicates the
+ * scale factor along Z axis
+ */
 void scale3D(mat33& dst,
              const vec3& vec);
-// This function returns a 3x3 matrix.
-// This matrix represents a scaling.
-// scale along X -> vec[0]
-// scale along Y -> vec[1]
-// scale along Z -> vec[2]
 
 #endif // EULER_H 
