@@ -29,13 +29,26 @@
 using namespace std;
 using namespace arma;
 
+/**
+ * Maximum ID Length of Symmetry
+ * Example: C5, C4H, O, I, D2V
+ */
 #define SYM_ID_LENGTH 4
 
+/**
+ * This macros determines whether A and B matrix is equal with tolerence of 1e4.
+ * @param A A matrix
+ * @param B B matrix
+ */
 #define SAME_MATRIX(A, B) (norm(A - B) < 1e4)
-/* axis has an accuracy of 6-7 decimal numbers 
- * As the mulplication here will not decrease the accuracy for 1e2 fold,
- * choosing 1e4 as the accuracy limit is sufficient. */
 
+/**
+ * This marcos determines whether a direction given by phi and theta belongs to
+ * a certain asymmetric unit.
+ * @param PG code indicating the symmetry group
+ * @param phi phi
+ * @param theta theta
+ */
 #define ASY(PG, phi, theta) \
     [](const double _phi, const double _theta) \
     { \
