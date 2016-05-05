@@ -59,20 +59,40 @@ using namespace arma;
                 (sum(norm % vec3(pg_##PG##_a3)) >= 0)); \
     }(phi, theta)
 
+/**
+ * @ingroup Symmetry
+ * @brief Symmetry class can generate and store a vector of transformation
+ * matrices according to symmetry group information.
+ */
 class Symmetry
 {
     private:
 
+        /**
+         * the code of point group
+         */
         int _pgGroup;
 
+        /**
+         * the order of point group
+         */
         int _pgOrder;
 
+        /**
+         * a vector of left transformation matrices
+         */
         vector<mat33> _L;
 
+        /**
+         * a vector of right transformation matices
+         */
         vector<mat33> _R;
 
     public:
 
+        /**
+         * default constructor
+         */
         Symmetry();
 
         Symmetry(const char sym[]);
