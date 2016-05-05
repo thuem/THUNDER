@@ -95,8 +95,17 @@ class Symmetry
          */
         Symmetry();
 
+        /**
+         * construct from the ID of symmetry group
+         * @param sym ID of symmetry group
+         */
         Symmetry(const char sym[]);
 
+        /**
+         * construct from the code of point group and the order of point group
+         * @param pgGroup the code of point group
+         * @param pgOrder the order of point group
+         */
         Symmetry(const int pgGroup,
                  const int pgOrder);
 
@@ -108,17 +117,36 @@ class Symmetry
 
         void init(const char sym[]);
 
+        /**
+         * This function returns the code of point group.
+         */
         int pgGroup() const;
 
+        /**
+         * This function returns the order of point group.
+         */
         int pgOrder() const;
 
+        /**
+         * This function gets the left transformation matrix and the right
+         * transformation matrix of the ith symmetry element.
+         * @param L the left transformation matrix
+         * @param R the right transformation matrix
+         * @param i the rank of symmetry element
+         */
         void get(mat33& L,
                  mat33& R,
                  const int i) const;
-        /* get the ith symmetry element */
 
+        /**
+         * This function calculates how many symmetry elements there are in this
+         * symmetry group.
+         */
         int nSymmetryElement() const;
 
+        /**
+         * This function clears up the storage.
+         */
         void clear();
 
     private:
@@ -144,11 +172,28 @@ class Symmetry
         void completePointGroup();
 };
 
+/**
+ * This function displays the content of a Symmetry object.
+ * @param sym the Symmetry object to be displayed
+ */
 void display(const Symmetry& sym);
 
+/**
+ * This function determines whether the direction given belongs to a certain
+ * asymmetric unit of a point group or not.
+ * @param dir the direction vector
+ * @param sym the symmetry group
+ */
 bool asymmetryUnit(const vec3 dir,
                    const Symmetry& sym);
 
+/**
+ * This function determines whether the direction given by phi and theta
+ * belongs to a certain asymmetric unit of a point group or not.
+ * @param phi phi
+ * @param theta theta
+ * @param sym the symmetry group
+ */
 bool asymmetryUnit(const double phi,
                    const double theta,
                    const Symmetry& sym);
