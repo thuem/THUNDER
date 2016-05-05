@@ -13,7 +13,7 @@
 
 #include <cstdio>
 
-/**                                                                                                                                                                                                                                       
+/**
  * @ingroup Coordinate5D
  * @brief The 5-Dimension coordinate parameters.
  * 
@@ -32,7 +32,6 @@
  * of nodes (N axis, which satisfies the right hand rule with the rotation from
  * z axis to z1 axis).
  */
-
 struct Coordinate5D
 {
 
@@ -97,7 +96,7 @@ struct Coordinate5D
 
 /**
  * Display the specific values of each dimension of the Coordinate5D object. 
- * @param coord The Coordinate5D object to display.  
+ * @param coord the Coordinate5D object
  */
 void display(const Coordinate5D& coord);
 
