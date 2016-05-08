@@ -39,7 +39,26 @@ using namespace placeholders;
  * @ingroup Reconstructor
  * @brief The 3D model reconstruction class.
  * 
- * Provides all APIs that is used for 
+ * Provides all APIs that is used for reconstructing a 3D Fourier transform
+ * of a 3D model in 3D Fourier space from the pixels data of 2D Fourie 
+ * transform of real images and the associated 5D coordinates which are 
+ * learned from sampling in last turn.
+ * With the projection-slice theorem, the Fourier transform of the projection
+ * of a 3D model onto a 2D plane is equal to a 2D slice of the 3D Fourier 
+ * transform of that model consisting of a 2D plane through the origin in 
+ * the Fourier space which is parallel to the projection plane. So each 
+ * Fourier transform of the images should be a slice of 3d Fourier transform
+ * of the protein in the 3D Fourier space. 
+ * By inserting the Fourier transform of the images into a empty volume with 
+ * correct 5D coordinate in 3D Fourie space, the 3D Fourier transform of the 
+ * protein can be reconstructed as similar as the origin.
+ * Since slices that are inserted into the 3D empty volume are all through 
+ * the origin in 3D Fourier space, the value at site near the origin will be 
+ * affected by much more slices than that far from the origin. It is necessary
+ * to balance the value at different site in 3D Fourier space. By using 
+ * weights, we reduce the scale of value at site near origin and add the scale
+ * of value at site far from the origin. Simultaneously, normalization is done 
+ * to make sure the value at every site is proper in 3D Fourie space.
  */
 
 class Reconstructor : public Parallel
@@ -48,32 +67,136 @@ class Reconstructor : public Parallel
 
     private:
 
+        /**
+         * The real size of the 3D Fourier reconstructor space that is used to
+         * determine the size (PAD_SIZE) of Volume in 3 dimensions(xyz).
+         * The result of reconstructor will be a (PAD_SIZE)^3 volume in 3D 
+         * Fourier space.
+         */
         int _size;
 
+        /**
+         * The 3D grid volume used to save the accumulation of the pixels 
+         * values of 2D Fourier transforms of inserting images in 3D Fourier
+         * space. Since the discretization in computation, the volume is a 
+         * 3D grid. Pixels data of 2D Fourier transforms of real images is 
+         * inserted into proper grid points of this volume by interpolation. 
+         * After inserting in a single node, it will multiply the relative 
+         * weights value of each grid point stored in @ref_W to get balanced.
+         * Then an allreduce operation will be done to get the final sum of
+         * _F volumes of all nodes, which the 3D Fourier transform of the 
+         * model is obtained. This volume is initialised to be all zero.
+         */
         Volume _F;
+        
+        /**
+         * The 3D grid volume used to save the balancing weights factors of 
+         * every 3D grid point in a single node. Since the discretization 
+         * in computation, the volume is a 3D grid. Every inserting operation
+         * will accumulate weights of associated points get by interpolation
+         * of this volume into the grid point of accumulated weights volume 
+         * @ref_C also by interpolation. After multiple rounds of divion by
+         * relative accumulated weights value of each grid points in volume _C
+         * that has been allreduced within all nodes, the weights are balanced
+         * and normalized, with which can be multiply with volume @ref_F to 
+         * get the 3D Fourier transform of the model. This volume initialised
+         * to be all one.
+         */
         Volume _W;
+        
+        
+        /**
+         * The 3D grid volume used to save the accumulation of weights of every
+         * 3D grid point. Since the discretization in computation, the volume 
+         * is a 3D grid. Every inserting operation will accumulate weights of
+         * associated points get by interpolation of @ref _W grid into the 
+         * grid point of this volume also by interpolation. An allreduce 
+         * operation will be done to get the sum of accumulated weights value 
+         * of each grid points of all nodes before balancing and normalization
+         * by the divion of _W and _C, with which _C can be approximately equal
+         * to 1. This volume initialised to be all zero.
+         */
         Volume _C;
 
+        /**
+         * The vector to save the rotate matrixs of each insertion with image 
+         * and associated 5D coordinate. Since each 2D Fourier transformsof 
+         * images is a slice in the 3D Fourier transforms in a particular 
+         * direction, matrixs to rotate the image 2D coordinate(x,y) associated
+         * the 3rd coordinate z(always 0) to its real location in the 3D space 
+         * can be obtained by the 5D coordinate of the image. Every inserting 
+         * operation will also insert the rotate matrix into this vector. Note
+         * that matrix can be the same because of the multiple possibility of
+         * 5D coordinates in a single image. 
+         */
         vector<mat33> _rot;
+        
+        /**
+         * The vector to save the weight values of each insertion with image, 
+         * associated 5D coordinate and weight. Since there are serveral 
+         * different 5D coordinates that have the similar possibility for a 
+         * single image, multiple 5D coordinates and weights of a single image
+         * can be inserted. Every inserting operation will also insert the
+         * weights into this vector.
+         */
         vector<double> _w;
-
+        
+        /**
+         * The max radius within the distance of which other point can be 
+         * affected when one point is doing interpolation. 
+         */
         int _maxRadius;
 
+        /**
+         * The padding factor which defined the PAD_SIZE (_pf * _size).
+         * See @ref _size. By default, _pf = 2.
+         */
         int _pf = 2; // padding factor
 
+        /**
+         * The symmetry mark of the model, which is used to reduce computation.
+         */
         const Symmetry* _sym = NULL;
 
+        /**
+         * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
+         */
         double _a = 1.9;
+
+        /**
+         * The smoothness parameter. Parameter of modified Kaiser-Bessel Kernel.
+         */
         double _alpha = 10;
-
+        
+        /**
+         * NTD
+         */
         double _zeta = 0.15;
-
+        
+        /**
+         * NTD
+         */
         TabFunction _kernel;
 
     public:
 
+        /**
+         * Construct a empty Reconstructor object
+         */
         Reconstructor();
 
+        /**
+         * Construct a specific Reconstructor object with specific parameters.
+         *
+         * @param size The size of real reconstructor space.
+         * @param pf Padding factor. By default is 2. 
+         * @param sym Symmetry mark. By default is NULL.
+         * @param a The width of the modified Kaiser-Bessel Kernel. By default
+         * is 1.9.
+         * @param alpha The smoothness parameter of modified Kaiser-Bessel 
+         * Kernel. By default is 10.
+         * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+         */
         Reconstructor(const int size,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
@@ -81,10 +204,22 @@ class Reconstructor : public Parallel
                       const double alpha = 10,
                       const double zeta = 0.15);
 
+        /**
+         * Deonstruct a reconstructor object.
+         */
         ~Reconstructor();
 
-        /** @brief This function is to initialise the Reconstructor
-         *  @param size unpadded size of Reconstructor
+        /** 
+         * initialize the member data of a reconstruct object. 
+         *
+         * @param size The size of real reconstructor space.
+         * @param pf Padding factor. By default is 2. 
+         * @param sym Symmetry mark. By default is NULL.
+         * @param a The width of the modified Kaiser-Bessel Kernel. By default
+         * is 1.9.
+         * @param alpha The smoothness parameter of modified Kaiser-Bessel 
+         * Kernel. By default is 10.
+         * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
          */
         void init(const int size,
                   const int pf = 2,
@@ -93,36 +228,106 @@ class Reconstructor : public Parallel
                   const double alpha = 10,
                   const double zeta = 0.15);
 
+        /** 
+         * set the symmetry mark of the model to be reconstructed. 
+         *
+         * @param sym Symmetry mark. Details see @ref Symmetry.
+         */
         void setSymmetry(const Symmetry* sym);
 
+        /**
+         * get the max radius that points can affect each other 
+         * during interpolation         
+         */
         int maxRadius() const;
 
+        /**
+         * set the value of member data _maxRadius.
+         *
+         * @param maxRadius The max radius that points can affect each other 
+         * during interpolation. 
+         */
         void setMaxRadius(const int maxRadius);
 
+        /**
+         * Insert a 2D Fourier transform of image pixel data with associated
+         * 3D rotated matrix, 2D translation vector and weight into member 
+         * data. The image data src will be accumulate into the relative grid
+         * points of volume @ref_F by translation vecto, rotate matrix and 
+         * interpolation. The rotate matrix will be recorded into vector 
+         * @ref_rot. The weight values will be saved in vector @ref_w.
+         *
+         * @param src The image data that need to be inserted.
+         * @param rot The rotate matrix to transform the image to its real
+         * location based on the projection direction.
+         * @param t The translation vector to move the origin of 2D Fourier
+         * transform of the image to the image center.
+         * @param w The weight values to measure the possibility of the rotate
+         * matrix and translation vector.
+         */
         void insert(const Image& src,
                     const mat33& rot,
                     const vec2& t,
                     const double w);
 
-        void insert(const Image& src,
+
+        /**
+         * Insert a 2D Fourier transform of image pixel data with associated
+         * 5D coordinate and weight into member data. The image data src will
+         * be accumulate into the relative grid points of volume @ref_F by 
+         * 5D coordinate and interpolation. Based on 5D coordinate, the rotate
+         * matrix can be solved and will be recorded into vector @ref_rot. The 
+         * weight values will be saved in vector @ref_w.
+         *
+         * @param src The image data that need to be inserted.
+         * @param coord The 5D coordinate of the image in the 5D sampling space.
+         * @param w The weight values to measure the possibility of 5D coordinate.
+         */
+       void insert(const Image& src,
                     const Coordinate5D coord,
                     const double w);
 
         // void insertCoord(const Coordinate5D coord,
         //                  const double w);
 
+        /**
+         * reconstruct a 3D model and save it into a volume.
+         * 
+         * @param dst The destination volume that reconstructor object saves the
+         * result of reconstruction into.
+         */
         void reconstruct(Volume& dst);
 
     private:
 
+        /**
+         * The size of the reconstructor area that is used to determine the
+         * size of Volume in 3 dimension xyz.
+         */
         void allReduceW();
 
+        /**
+         * The size of the reconstructor area that is used to determine the
+         * size of Volume in 3 dimension xyz.
+         */
         void allReduceF();
 
+        /**
+         * The size of the reconstructor area that is used to determine the
+         * size of Volume in 3 dimension xyz.
+         */
         void symmetrizeF();
 
+        /**
+         * The size of the reconstructor area that is used to determine the
+         * size of Volume in 3 dimension xyz.
+         */
         void symmetrizeC();
 
+        /**
+         * The size of the reconstructor area that is used to determine the
+         * size of Volume in 3 dimension xyz.
+         */
         double checkC() const;
         /* calculate the distance between C and 1 */
 };
