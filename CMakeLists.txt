@@ -7,11 +7,20 @@ set (CMAKE_BUILD_TYPE Release)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(FFTW REQUIRED)
 find_package(GSL REQUIRED)
-include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS})
+find_package(MPI REQUIRED)
+find_package(Glog REQUIRED)
+include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${MPI_INCLUDE_PATH} ${GLOG_INCLUDE_DIR})
+set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
+set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
+
+link_libraries(${FFTW_LIBRARIES} ${GSL_LIBRARIES} ${MPI_LIBRARIES} ${GLOG_LIBRARIES})
 
 set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
 include_directories(${PROJECT_SOURCE_DIR}/external/Eigen3)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-add_library(libthuem STATIC ${SOURCES})
+add_library(thuem STATIC ${SOURCES})
+
+add_executable(ReconTest ${PROJECT_SOURCE_DIR}/testsrc/ReconstructorTest.cpp)
+target_link_libraries(ReconTest thuem)
