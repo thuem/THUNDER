@@ -10,8 +10,6 @@
 
 #include "Euler.h"
 
-#include <gtest/gtest.h>
-
 int main(int argc, const char* argv[])
 {
     vec3 axis = {0, 0, 1};
@@ -20,13 +18,16 @@ int main(int argc, const char* argv[])
     alignZ(mat, axis);
 
     /***
-    EXPECT_TRUE(approx_equal(mat,
+    if (!approx_equal(mat,
                              mat33({{1, 0, 0},
                                     {0, 1, 0},
                                     {0, 0, 1}}),
                              "absdiff",
                              0.001));
-                             ***/
+    {
+        cout << "Test failed\n";
+        return 1;
+    }
 
     return 0;
 }
