@@ -14,14 +14,11 @@
 #include <vector>
 #include <cstdio>
 
-#include <armadillo>
-
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
 
 using namespace std;
-using namespace arma;
 
 /**
  * @ingroup SymmetryOperation

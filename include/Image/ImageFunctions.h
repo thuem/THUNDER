@@ -16,14 +16,11 @@
 
 #include <gsl/gsl_math.h>
 
-#include <armadillo>
-
 #include "Image.h"
 #include "Volume.h"
 #include "Random.h"
 
 using namespace std;
-using namespace arma;
 
 #define VOL_PAD_RL(dst, src, pf) \
     VOL_PAD(RL, dst, src, pf)

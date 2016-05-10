@@ -12,11 +12,16 @@
 #define FUNCTIONS_H
 
 #include <cmath>
+#include <numeric>
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
+
+#include "Typedef.h"
+
+using namespace std;
 
 /**
  * This macros returns the nearest integer number of a.
@@ -62,6 +67,14 @@
  * This macro returns the 2-norm of a, b and c.
  */
 #define NORM_3(a, b, c) (gsl_hypot3(a, b, c))
+
+/**
+ * This function calculates the cumulative summation over v.
+ * @param v a vector to be cumulative added
+ */
+vec cumsum(const vec& v);
+
+uvec 
 
 /**
  * If x is peroidic and has a period of p, change x to the counterpart in [0, p)

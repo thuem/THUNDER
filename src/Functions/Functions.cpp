@@ -10,6 +10,15 @@
 
 #include "Functions.h"
 
+vec cumsum(const vec& v)
+{
+    vec sum(v.size());
+
+    partial_sum(v.data(), v.data() + v.size(), sum.data());
+
+    return sum;
+}
+
 int periodic(double& x,
              const double p)
 {

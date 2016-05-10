@@ -14,8 +14,6 @@
 #include <cmath>
 #include <iostream>
 
-#include <armadillo>
-
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
@@ -28,8 +26,6 @@
 #include "Volume.h"
 
 #include "Symmetry.h"
-
-using namespace arma;
 
 /**
  * This macro performs a transformation on a volume in real space given 
@@ -114,7 +110,7 @@ using namespace arma;
     { \
         vec3 newCor = {(double)i, (double)j, (double)k}; \
         vec3 oldCor = _mat * newCor; \
-        if (norm(oldCor) < _r) \
+        if (oldCor.norm() < _r) \
             _dst.set##SPACE(_src.getByInterpolation##SPACE(oldCor(0), \
                                                            oldCor(1), \
                                                            oldCor(2), \

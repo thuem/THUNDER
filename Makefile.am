@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 SUBDIRS = . external unittest app case
 
-AM_CXXFLAGS = -std=c++11 -fopenmp
+AM_CXXFLAGS = -I ./external/Eigen3 -std=c++11 -fopenmp
 
 AM_CXXFLAGS += -I${top_srcdir}/include \
 			   -I${top_srcdir}/include/Error \

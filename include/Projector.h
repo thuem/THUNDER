@@ -11,8 +11,6 @@
 #ifndef PROJECTOR_H
 #define PROJECTOR_H
 
-#include <armadillo>
-
 #include "Complex.h"
 #include "Error.h"
 #include "Enum.h"
@@ -25,8 +23,6 @@
 #include "Coordinate5D.h"
 
 #include "ImageFunctions.h"
-
-using namespace arma;
 
 class Projector
 {

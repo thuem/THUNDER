@@ -13,13 +13,10 @@
 
 #include <cmath>
 
-#include <armadillo>
 #include <gsl/gsl_math.h>
 
 #include "Macro.h"
 #include "Typedef.h"
-
-using namespace arma;
 
 /**
  * This function calculates phi and theta given a certain direction indicated by

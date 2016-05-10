@@ -15,7 +15,6 @@
 #include <vector>
 
 #include <glog/logging.h>
-#include <armadillo>
 
 #include "Macro.h"
 #include "Typedef.h"
@@ -27,7 +26,6 @@
 #include "SymmetryFunctions.h"
 
 using namespace std;
-using namespace arma;
 
 /**
  * Maximum ID Length of Symmetry

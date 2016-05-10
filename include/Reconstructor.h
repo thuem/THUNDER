@@ -13,10 +13,10 @@
 #include <vector>
 #include <functional>
 
-#include <armadillo>
 #include <mpi.h>
 #include <omp.h>
 
+#include "Typedef.h"
 #include "Parallel.h"
 #include "Coordinate5D.h"
 #include "Functions.h"
@@ -30,12 +30,11 @@
 #include "TabFunction.h"
 
 using namespace std;
-using namespace arma;
 using namespace placeholders;
 
 #define PAD_SIZE (_pf * _size)
 
-/**                                                                                                                                                                                                                                       
+/**
  * @ingroup Reconstructor
  * @brief The 3D model reconstruction class.
  * 
@@ -151,7 +150,7 @@ class Reconstructor : public Parallel
          * The padding factor which defined the PAD_SIZE (_pf * _size).
          * See @ref _size. By default, _pf = 2.
          */
-        int _pf = 2; // padding factor
+        int _pf = 2;
 
         /**
          * The symmetry mark of the model, which is used to reduce computation.

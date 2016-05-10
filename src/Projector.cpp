@@ -77,9 +77,9 @@ void Projector::project(Image& dst,
             vec3 newCor = {(double)i, (double)j, 0};
             vec3 oldCor = mat * newCor * _pf;
 
-            dst.setFT(_projectee.getByInterpolationFT(oldCor[0],
-                                                      oldCor[1],
-                                                      oldCor[2],
+            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
+                                                      oldCor(1),
+                                                      oldCor(2),
                                                       _interp),
                       i,
                       j);
@@ -125,7 +125,7 @@ void Projector::project(Image& dst,
                         const vec2& t) const
 {
     project(dst, rot);
-    translate(dst, dst, _maxRadius, t[0], t[1]);
+    translate(dst, dst, _maxRadius, t(0), t(1));
 }
 
 void Projector::gridCorrection()
