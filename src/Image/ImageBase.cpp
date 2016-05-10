@@ -85,7 +85,7 @@ void normalise(ImageBase& base)
 void ImageBase::copyBase(ImageBase& other) const
 {
     other._sizeRL = _sizeRL;
-    if (_sizeRL > 0)
+    if (_dataRL)
     {
         other._dataRL.reset(new double[_sizeRL]);
         memcpy(other._dataRL.get(), _dataRL.get(), _sizeRL * sizeof(_dataRL[0]));
@@ -94,7 +94,7 @@ void ImageBase::copyBase(ImageBase& other) const
         other._dataRL.reset();
 
     other._sizeFT = _sizeFT;
-    if (_sizeFT > 0)
+    if (_dataFT)
     {
         other._dataFT.reset(new Complex[_sizeFT]);
         memcpy(other._dataFT.get(), _dataFT.get(), _sizeFT * sizeof(_dataFT[0]));
