@@ -54,9 +54,14 @@ void bgMeanStddev(double& mean,
         if (NORM(i, j) > r)
             bg.push_back(src.getRL(i, j));
 
+    mean = gsl_stats_mean(&bg[0], 1, bg.size());
+    stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+
+    /***
     vec bv(bg);
-    mean = arma::mean(bv);
+    mean = mean(bv);
     stddev = arma::stddev(bv);
+    ***/
 }
 
 void removeDust(Image& img,

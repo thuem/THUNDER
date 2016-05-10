@@ -261,6 +261,7 @@ Complex Volume::getFT(const double w[2][2][2],
     return result;
 }
 
+/***
 void Volume::addImages(std::vector<Image>& images,
                        std::vector<Coordinate5D>& coords,
                        const double maxRadius,
@@ -278,13 +279,6 @@ void Volume::addImages(std::vector<Image>& images,
             arma::mat33 mat;
             rotate3D(mat, coords[index].phi, coords[index].theta, coords[index].psi);
 
-            /*-----------------------------------------------------------*
-             *  If the distance from this voxle to the present projection
-             * plane (image) is larger than "a", then pass this image.
-             *-----------------------------------------------------------*/
-            // if (distance(voxleCor, coords[index]) > a)
-            //     continue;
-
             Image transSrc(images[0].nColFT(), images[0].nRowFT(), FT_SPACE);
             translate(transSrc, images[index], -coords[index].x, -coords[index].y);
 
@@ -292,7 +286,6 @@ void Volume::addImages(std::vector<Image>& images,
             addImage(i, j, k, transSrc, mat, kernel);
         }
     }
-
 }
 
 void Volume::addImage(const int iCol,
@@ -320,3 +313,4 @@ void Volume::addImage(const int iCol,
                   iSlc);
     }
 }
+***/

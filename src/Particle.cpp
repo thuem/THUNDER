@@ -313,7 +313,8 @@ double Particle::neff() const
 
 uvec Particle::iSort() const
 {
-    return sort_index(_w, "descend");
+    return index_sort_descend(_w);
+    // return sort_index(_w, "descend");
 }
 
 void Particle::symmetrise()

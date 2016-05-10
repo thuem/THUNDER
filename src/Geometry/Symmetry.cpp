@@ -127,7 +127,7 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
 
     for (size_t i = 0; i < entry.size(); i++)
     {
-        L.eye();
+        L.setIdentity();
 
         if (entry[i].id == 0)
         {
@@ -156,8 +156,15 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
              *      [ 0 -1  0]
              *      [ 0  0 -1] */
             L(2, 2) = -1;
-            R.zeros();
-            R.diag() = vec({-1, -1, -1});
+
+            R = vec3(-1, -1, -1).asDiagonal();
+            /***
+            R.setZero();
+            R(0, 0) = -1;
+            R(1, 1) = -1;
+            R(2, 2) = -1;
+            ***/
+
             append(L, R);
         }
     }
@@ -167,7 +174,7 @@ bool Symmetry::novo(const mat33& L,
                     const mat33& R) const
 {
     // check whether L and R are both identity matrix or not
-    mat33 I(fill::eye);
+    mat33 I = mat33::Identity();
     if (SAME_MATRIX(L, I) && SAME_MATRIX(R, I))
         return false;
 
@@ -181,15 +188,19 @@ bool Symmetry::novo(const mat33& L,
 
 void Symmetry::completePointGroup()
 {
+    umat table = umat::Zero(nSymmetryElement(),
+                            nSymmetryElement());
+    /***
     umat table(nSymmetryElement(),
                nSymmetryElement(),
                fill::zeros);
+    ***/
 
     int i, j;
     while ([&]
            {
-                for (int row = 0; row < table.n_rows; row++)
-                    for (int col = 0; col < table.n_cols; col++)
+                for (int row = 0; row < table.rows(); row++)
+                    for (int col = 0; col < table.cols(); col++)
                         if (table(row, col) == 0)
                         {
                             i = row;
@@ -208,8 +219,8 @@ void Symmetry::completePointGroup()
         if (novo(L, R))
         {
             append(L, R);
-            table.resize(table.n_rows + 1,
-                         table.n_cols + 1);
+            table.resize(table.rows() + 1,
+                         table.cols() + 1);
         }
     }
 }
@@ -224,8 +235,8 @@ void display(const Symmetry& sym)
 
         sym.get(L, R, i);
 
-        L.print("L matrix");
-        R.print("R matrix");
+        cout << "L matrix:\n" << L << endl << endl;
+        cout << "R matrix:\n" << R << endl << endl;
     }
 }
 

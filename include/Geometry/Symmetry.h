@@ -13,6 +13,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include <iostream>
 
 #include <glog/logging.h>
 
@@ -38,7 +39,7 @@ using namespace std;
  * @param A A matrix
  * @param B B matrix
  */
-#define SAME_MATRIX(A, B) (norm(A - B) < 1e4)
+#define SAME_MATRIX(A, B) (sqrt((A - B).colwise().squaredNorm().sum()) < 1e4)
 
 /**
  * This marcos determines whether a direction given by phi and theta belongs to
@@ -52,9 +53,9 @@ using namespace std;
     { \
         vec3 norm; \
         direction(norm, _phi, _theta); \
-        return ((sum(norm % vec3(pg_##PG##_a1)) >= 0) && \
-                (sum(norm % vec3(pg_##PG##_a2)) >= 0) && \
-                (sum(norm % vec3(pg_##PG##_a3)) >= 0)); \
+        return ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
+                (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
+                (norm.dot(vec3(pg_##PG##_a3)) >= 0)); \
     }(phi, theta)
 
 /**

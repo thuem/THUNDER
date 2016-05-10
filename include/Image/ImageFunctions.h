@@ -13,8 +13,10 @@
 
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_statistics.h>
 
 #include "Image.h"
 #include "Volume.h"

@@ -40,9 +40,15 @@ int main(int argc, const char* argv[])
             head.setRL(0, i, j, k);
     }
 
+    mat33 centre;
+    centre << -1, 0, 0,
+              0, -1, 0,
+              0, 0, -1;
+    /***
     mat33 centre({{-1, 0, 0},
                   {0, -1, 0},
                   {0, 0, -1}});
+                  ***/
     Volume centreHead(N, N, N, RL_SPACE);
     VOL_TRANSFORM_MAT_RL(centreHead,
                          head,

@@ -13,8 +13,6 @@
 
 #include <functional>
 
-#include <armadillo>
-
 #include "Error.h"
 #include "Typedef.h"
 
@@ -22,7 +20,6 @@
 #include "Volume.h"
 
 using namespace std;
-using namespace arma;
 
 /**
  * This function returns the Nyquist resolution limit in Angstrom(-1).

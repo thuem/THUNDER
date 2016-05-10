@@ -112,7 +112,7 @@ void MLModel::BcastFSC()
 {
     MLOG(INFO) << "Setting Size of _FSC";
 
-    _FSC.set_size(_r * _pf, _k);
+    _FSC.resize(_r * _pf, _k);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -216,11 +216,18 @@ void MLModel::BcastFSC()
 
     MLOG(INFO) << "Broadcasting FSC from MASTER";
 
+    MPI_Bcast(_FSC.data(),
+              _FSC.size(),
+              MPI_DOUBLE,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+    /***
     MPI_Bcast(_FSC.memptr(),
               _FSC.n_elem,
               MPI_DOUBLE,
               MASTER_ID,
               MPI_COMM_WORLD);
+              ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -234,15 +241,27 @@ void MLModel::lowPassRef(const double thres,
 
 void MLModel::refreshSNR()
 {
-    _SNR.copy_size(_FSC);
+    _SNR.resize(_FSC.rows(), _FSC.cols());
+    // _SNR.copy_size(_FSC);
 
     FOR_EACH_CLASS
-        _SNR.col(i) = _FSC.col(i) / (1 - _FSC.col(i));
+        _SNR.col(i) = _FSC.col(i).array() / (1 - _FSC.col(i).array());
 }
 
 int MLModel::resolutionP(const int i) const
 {
+    int result;
+
+    for (result = _SNR.rows() - 1;
+         result >= 0;
+         result--)
+        if (_SNR(result, i) > 1) break;
+
+    return result / _pf;
+
+    /***
     return uvec(find(_SNR.col(i) > 1, 1, "last"))(0) / _pf;
+    ***/
 }
 
 int MLModel::resolutionP() const
@@ -306,8 +325,10 @@ void MLModel::updateR()
 void MLModel::clear()
 {
     _ref.clear();
+    /***
     _FSC.clear();
     _SNR.clear();
+    ***/
     _proj.clear();
     _reco.clear();
 }

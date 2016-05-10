@@ -180,11 +180,11 @@ void MLOptimiser::expectation()
                     logW[m] = logDataVSPrior(_img[l], // data
                                              image, // prior
                                              _ctf[l], // ctf
-                                             _sig.row(_groupID[l] - 1).head(_r).t(),
+                                             _sig.row(_groupID[l] - 1).head(_r).transpose(),
                                              _r);
                 }
 
-                logW -= logW(0); // avoiding numerical error
+                logW.array() -= logW(0); // avoiding numerical error
                 // logW /= 2; // Doing Some Compromise
 
                 for (int m = 0; m < _par[l].n(); m++)
@@ -338,7 +338,7 @@ void MLOptimiser::bcastGroupInfo()
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
     ALOG(INFO) << "Setting Up Space for Storing Sigma";
-    NT_MASTER _sig.set_size(_nGroup, maxR() + 1);
+    NT_MASTER _sig.resize(_nGroup, maxR() + 1);
 }
 
 void MLOptimiser::initRef()
@@ -495,7 +495,8 @@ void MLOptimiser::initSigma()
 
     ALOG(INFO) << "Calculating Average Power Spectrum";
 
-    vec avgPs(maxR(), fill::zeros);
+    // vec avgPs(maxR(), fill::zeros);
+    vec avgPs = vec::Zero(maxR());
     vec ps(maxR());
     FOR_EACH_2D_IMAGE
     {
@@ -507,7 +508,7 @@ void MLOptimiser::initSigma()
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  avgPs.memptr(),
+                  avgPs.data(),
                   maxR(),
                   MPI_DOUBLE,
                   MPI_SUM,
@@ -534,12 +535,15 @@ void MLOptimiser::initSigma()
     // psAvg -> expectation of pixels
     ALOG(INFO) << "Substract avgPs and psAvg for _sig";
 
-    _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
+    _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
+    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
     // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
 
+    /***
     ALOG(INFO) << "Saving Initial Sigma";
     if (_commRank == HEMI_A_LEAD)
         _sig.save("Sigma_000.txt", raw_ascii);
+        ***/
 }
 
 void MLOptimiser::initParticles()
@@ -575,8 +579,8 @@ void MLOptimiser::allReduceSigma()
     ALOG(INFO) << "Clear Up Sigma";
 
     // set re-calculating part to zero
-    _sig.head_cols(_r).zeros();
-    _sig.tail_cols(1).zeros();
+    _sig.leftCols(_r).setZero();
+    _sig.rightCols(1).setZero();
 
     ALOG(INFO) << "Recalculate Sigma";
     // loop over 2D images
@@ -610,10 +614,11 @@ void MLOptimiser::allReduceSigma()
 
             // sum up the results from top K sampling points
             // TODO Change it to w
-            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.t() / 2;
+            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.transpose() / 2;
         }
 
-        _sig.row(_groupID[l] - 1).tail(1) += 1;
+        _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+        // _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 
     ALOG(INFO) << "Averaging Sigma of Images Belonging to the Same Group";
@@ -621,14 +626,15 @@ void MLOptimiser::allReduceSigma()
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  _sig.memptr(),
+                  _sig.data(),
                   _r * _nGroup,
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  _sig.colptr(_sig.n_cols - 1),
+                  _sig.col(_sig.cols() - 1).data(),
+                  // _sig.colptr(_sig.n_cols - 1),
                   _nGroup,
                   MPI_DOUBLE,
                   MPI_SUM,
@@ -636,9 +642,14 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
+    /***
     // TODO: there is something wrong here! FIX IT!
     _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
+    ***/
+    for (int i = 0; i < _sig.rows(); i++)
+        _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
 
+    /***
     ALOG(INFO) << "Saving Sigma";
     if (_commRank == HEMI_A_LEAD)
     {
@@ -646,6 +657,7 @@ void MLOptimiser::allReduceSigma()
         sprintf(filename, "Sigma_%03d.txt", _iter + 1);
         _sig.save(filename, raw_ascii);
     }
+    ***/
 }
 
 void MLOptimiser::reconstructRef()

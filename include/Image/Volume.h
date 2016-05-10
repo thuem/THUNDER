@@ -14,7 +14,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <vector>
-#include <armadillo>
 
 #include <omp.h>
 
@@ -194,12 +193,12 @@ class Volume : public ImageBase
                    const TabFunction& kernel);
         /* add by a given kernel */
 
+        /***
         void addImages(std::vector<Image>& images,
                        std::vector<Coordinate5D>& coords,
                        const double maxRadius,
                        const double a,
                        const TabFunction& kernel);
-        /* add whole images once */
 
         void addImage(const int iCol,
                       const int iRow,
@@ -210,7 +209,7 @@ class Volume : public ImageBase
                       const double w = 1.0,
                       const double a = 1.9,
                       const int _pf = 2);
-        /* add a image once */
+                      ***/
 
         void clear()
         {

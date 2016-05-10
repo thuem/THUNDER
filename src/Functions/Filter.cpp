@@ -139,7 +139,7 @@ void fscWeightingFilter(Volume& dst,
 
         int idx = AROUND(f * src.nColRL());
 
-        if (idx < fsc.n_elem)
+        if (idx < fsc.size())
             dst.setFT(src.getFT(i, j, k)
                     * sqrt(2 * fsc(idx) / (1 + fsc(idx))),
                       i,

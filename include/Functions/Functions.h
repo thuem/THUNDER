@@ -74,7 +74,19 @@ using namespace std;
  */
 vec cumsum(const vec& v);
 
-uvec 
+/**
+ * This function sorts a vector in ascending order and stores the result by its
+ * indices.
+ * @param v the vector to be sorted
+ */
+uvec index_sort_ascend(const vec& v);
+
+/**
+ * This function sorts a vector in descending order and stores the result by its
+ * indices.
+ * @param v the vector to be sorted
+ */
+uvec index_sort_descend(const vec& v);
 
 /**
  * If x is peroidic and has a period of p, change x to the counterpart in [0, p)

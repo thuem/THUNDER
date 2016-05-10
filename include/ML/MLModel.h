@@ -11,7 +11,6 @@
 #ifndef ML_MODEL_H
 #define ML_MODEL_H
 
-#include <armadillo>
 #include <memory>
 
 #include "Typedef.h"
@@ -26,7 +25,6 @@
 #include "Reconstructor.h"
 
 using namespace std;
-using namespace arma;
 
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)

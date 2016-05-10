@@ -19,6 +19,34 @@ vec cumsum(const vec& v)
     return sum;
 }
 
+uvec index_sort_ascend(const vec& v)
+{
+    uvec idx(v.size());
+
+    for (unsigned int i = 0; i < idx.size(); i++)
+        idx(i) = i;
+
+    sort(idx.data(),
+         idx.data() + idx.size(),
+         [&v](unsigned int i, unsigned int j){ return v(i) < v(j); });
+
+    return idx;
+}
+
+uvec index_sort_descend(const vec& v)
+{
+    uvec idx(v.size());
+
+    for (unsigned int i = 0; i < idx.size(); i++)
+        idx(i) = i;
+
+    sort(idx.data(),
+         idx.data() + idx.size(),
+         [&v](unsigned int i, unsigned int j){ return v(i) > v(j); });
+
+    return idx;
+}
+
 int periodic(double& x,
              const double p)
 {
