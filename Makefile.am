@@ -46,7 +46,6 @@ libthuem_a_SOURCES += src/Image/ImageBase.cpp \
 					  src/Image/ImageFunctions.cpp
 
 libthuem_a_SOURCES += src/Geometry/Euler.cpp \
-					  src/Geometry/Transformation.cpp \
 					  src/Geometry/SymmetryOperation.cpp \
 					  src/Geometry/SymmetryFunctions.cpp \
 					  src/Geometry/Symmetry.cpp
