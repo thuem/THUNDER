@@ -16,8 +16,7 @@ int main(int argc, const char* argv[])
 
     mat33 mat;
     alignZ(mat, axis);
-
-    /***
+#if 0
     if (!approx_equal(mat,
                              mat33({{1, 0, 0},
                                     {0, 1, 0},
@@ -28,6 +27,6 @@ int main(int argc, const char* argv[])
         cout << "Test failed\n";
         return 1;
     }
-
+#endif
     return 0;
 }
