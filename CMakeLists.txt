@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
-set (CMAKE_C_FLAGS "-Wall -fopenmp -march=native -mtune=native")
+set (CMAKE_C_FLAGS "-Wall -fopenmp")
 set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
 set (CMAKE_BUILD_TYPE Release)
 
