@@ -24,11 +24,9 @@ link_libraries(${FFTW_LIBRARIES} ${GSL_LIBRARIES} ${MPI_LIBRARIES} ${GLOG_LIBRAR
 
 set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
-include_directories(${PROJECT_SOURCE_DIR}/external/Eigen3)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_library(thuem STATIC ${SOURCES})
-
 
 # Libraries are compiled. Now compile the programs
 
