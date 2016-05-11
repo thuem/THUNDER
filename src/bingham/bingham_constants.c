@@ -827,55 +827,55 @@ static double compute_d1F1_dz3_3d(int dim, double z1, double z2, double z3, int 
 
 //---------------- Bingham normalizing constants F(z) and partial derivatives ------------------//
 
-inline double bingham_F_1d(double z)
+double bingham_F_1d(double z)
 {
   int iter = MAX((int)fabs(z)*ITERATION_MULT, MIN_ITERATIONS);
   return compute_1F1_1d(1, z, iter);
 }
 
-inline double bingham_dF_1d(double z)
+double bingham_dF_1d(double z)
 {
   int iter = MAX((int)fabs(z)*ITERATION_MULT, MIN_ITERATIONS);
   return compute_d1F1_dz_1d(1, z, iter);
 }
 
-inline double bingham_F_2d(double z1, double z2)
+double bingham_F_2d(double z1, double z2)
 {
   int iter = MAX((int)MAX(fabs(z1), fabs(z2))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_1F1_2d(2, z1, z2, iter);
 }
 
-inline double bingham_dF1_2d(double z1, double z2)
+double bingham_dF1_2d(double z1, double z2)
 {
   int iter = MAX((int)MAX(fabs(z1), fabs(z2))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_d1F1_dz1_2d(2, z1, z2, iter);
 }
 
-inline double bingham_dF2_2d(double z1, double z2)
+double bingham_dF2_2d(double z1, double z2)
 {
   int iter = MAX((int)MAX(fabs(z1), fabs(z2))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_d1F1_dz2_2d(2, z1, z2, iter);
 }
 
-inline double bingham_F_3d(double z1, double z2, double z3)
+double bingham_F_3d(double z1, double z2, double z3)
 {
   int iter = MAX((int)MAX(MAX(fabs(z1), fabs(z2)), fabs(z3))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_1F1_3d(3, z1, z2, z3, iter);
 }
 
-inline double bingham_dF1_3d(double z1, double z2, double z3)
+double bingham_dF1_3d(double z1, double z2, double z3)
 {
   int iter = MAX((int)MAX(MAX(fabs(z1), fabs(z2)), fabs(z3))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_d1F1_dz1_3d(3, z1, z2, z3, iter);
 }
 
-inline double bingham_dF2_3d(double z1, double z2, double z3)
+double bingham_dF2_3d(double z1, double z2, double z3)
 {
   int iter = MAX((int)MAX(MAX(fabs(z1), fabs(z2)), fabs(z3))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_d1F1_dz2_3d(3, z1, z2, z3, iter);
 }
 
-inline double bingham_dF3_3d(double z1, double z2, double z3)
+double bingham_dF3_3d(double z1, double z2, double z3)
 {
   int iter = MAX((int)MAX(MAX(fabs(z1), fabs(z2)), fabs(z3))*ITERATION_MULT, MIN_ITERATIONS);
   return compute_d1F1_dz3_3d(3, z1, z2, z3, iter);

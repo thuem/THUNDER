@@ -19,15 +19,15 @@ double bingham_dF_table_get(int a, int i, int j, int k);
 
 //---------------- Bingham normalizing constants F(z) and partial derivatives ------------------//
 
-inline double bingham_F_1d(double z);
-inline double bingham_dF_1d(double z);
-inline double bingham_F_2d(double z1, double z2);
-inline double bingham_dF1_2d(double z1, double z2);
-inline double bingham_dF2_2d(double z1, double z2);
-inline double bingham_F_3d(double z1, double z2, double z3);
-inline double bingham_dF1_3d(double z1, double z2, double z3);
-inline double bingham_dF2_3d(double z1, double z2, double z3);
-inline double bingham_dF3_3d(double z1, double z2, double z3);
+double bingham_F_1d(double z);
+double bingham_dF_1d(double z);
+double bingham_F_2d(double z1, double z2);
+double bingham_dF1_2d(double z1, double z2);
+double bingham_dF2_2d(double z1, double z2);
+double bingham_F_3d(double z1, double z2, double z3);
+double bingham_dF1_3d(double z1, double z2, double z3);
+double bingham_dF2_3d(double z1, double z2, double z3);
+double bingham_dF3_3d(double z1, double z2, double z3);
 
 
 //----------------- Bingham F(z) "compute_all" tools --------------------//
