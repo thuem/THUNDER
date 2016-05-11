@@ -26,11 +26,17 @@ set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
 include_directories(${PROJECT_SOURCE_DIR}/external/Eigen3)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/*.c)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_library(thuem STATIC ${SOURCES})
 
-set (TEST_NAMES TabFunctionTest;ParallelTest;ExperimentTest;ProjectorTest;ExpectationTest;CTFTest;FunctionsTest;DatabaseTest;ImageFunctionsTest;EulerTest;PreprocessTest;ReconstructorTest;SymmetryTest;ParticleTest;TransformationTest)
-foreach (TSTEXE ${TEST_NAMES})
-	add_executable(${TSTEXE} ${PROJECT_SOURCE_DIR}/testsrc/${TSTEXE}.cpp)
-	target_link_libraries(${TSTEXE} thuem)
+
+# Libraries are compiled. Now compile the programs
+
+link_libraries(thuem)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/unittest)
+file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/testsrc/*.cpp)
+foreach (TSTSRC ${TEST_SOURCES})
+    get_filename_component(TSTNAME ${TSTSRC} NAME_WE)
+    add_executable(${TSTNAME} ${TSTSRC})
 endforeach()
