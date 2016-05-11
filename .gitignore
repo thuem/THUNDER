@@ -37,6 +37,7 @@ case/
 case/case1
 case/case2
 app/
+build/
 
 !unittest/Makefile.am
 !gpu/gpuunittest/Makefile.am
