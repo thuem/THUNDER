@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
-set (CMAKE_C_FLAGS "-Wall -fopenmp -Wno-deprecated-declarations")
+set (CMAKE_C_FLAGS "-Wall -Wno-deprecated-declarations")
+
 set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
 set (CMAKE_BUILD_TYPE Release)
 
@@ -16,8 +17,20 @@ find_package(FFTW REQUIRED)
 find_package(GSL REQUIRED)
 find_package(MPI REQUIRED)
 find_package(Glog REQUIRED)
+
+# Compiler settings
 set (CMAKE_C_COMPILER ${MPI_C_COMPILER})
 set (CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-fopenmp" HAS_OPENMP)
+
+if (${HAS_OPENMP})
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+endif()
+
+# includes and linker flags
 include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR})
 
 link_libraries(${FFTW_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${CMAKE_DL_LIBS})

@@ -15,8 +15,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include <omp.h>
-
+#include "omp_if.h"
 #include "Typedef.h"
 #include "Enum.h"
 #include "Error.h"

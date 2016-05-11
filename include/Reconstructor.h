@@ -14,8 +14,8 @@
 #include <functional>
 
 #include <mpi.h>
-#include <omp.h>
 
+#include "omp_if.h"
 #include "Typedef.h"
 #include "Parallel.h"
 #include "Coordinate5D.h"
