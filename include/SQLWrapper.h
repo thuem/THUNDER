@@ -1,6 +1,6 @@
 // clang-format
 #pragma once
-#include <sqlite3.h>
+#include <sqlite3/sqlite3.h>
 #include <stddef.h>
 #include <exception>
 #include <memory>

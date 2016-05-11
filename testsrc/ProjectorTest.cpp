@@ -136,7 +136,6 @@ int main(int argc, const char* argv[])
     image.saveRLToBMP("Negative.bmp");
     ***/
 
-    /***
     try
     {
     for (int k = 0; k < M; k++)
@@ -161,7 +160,6 @@ int main(int argc, const char* argv[])
     {
         cout << err << endl;
     }
-    ***/
 
     return 0;
 }
