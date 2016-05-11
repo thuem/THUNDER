@@ -31,9 +31,9 @@ if (${HAS_OPENMP})
 endif()
 
 # includes and linker flags
-include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR})
+include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${MPI_INCLUDE_PATH})
 
-link_libraries(${FFTW_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${CMAKE_DL_LIBS})
+link_libraries(${FFTW_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${MPI_LIBRARIES} ${CMAKE_DL_LIBS})
 
 set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
