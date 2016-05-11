@@ -39,7 +39,10 @@ set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
 
 set (EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external)
-include_directories(${EXTERNAL_DIR})
+file (GLOB EXTERNAL_SUBDIR ${EXTERNAL_DIR}/*)
+foreach (A ${EXTERNAL_SUBDIR})
+    include_directories(${A})
+endforeach()
 
 file(GLOB_RECURSE SOURCES ${EXTERNAL_DIR}/*.c ${EXTERNAL_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_library(thuem STATIC ${SOURCES})
