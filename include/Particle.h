@@ -14,7 +14,6 @@
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
-#include <glog/logging.h>
 #include <bingham.h>
 
 #include "Typedef.h"

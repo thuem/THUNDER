@@ -184,8 +184,12 @@ void MLModel::BcastFSC()
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
         {
-            ALOG(INFO) << "Sending Reference " << i << " from Hemisphere A";
-            BLOG(INFO) << "Sending Reference " << i << " from Hemisphere B";
+            ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                         << i
+                                         << " from Hemisphere A";
+            BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                         << i
+                                         << " from Hemisphere B";
 
             MPI_Ssend(&_ref[i][0],
                       _ref[i].sizeFT(),
@@ -201,7 +205,7 @@ void MLModel::BcastFSC()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO) << "Broadcasting Average Reference from MASTER";
+        MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Average Reference from MASTER";
 
         MPI_Bcast(&_ref[i][0],
                   _ref[i].sizeFT(),

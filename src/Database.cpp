@@ -1,6 +1,5 @@
-// clang-format
 /*******************************************************************************
- * Author: Mingxu Hu, Bing Li
+ * Author: Mingxu Hu, Bing Li, Siyuan Ren
  * Dependecy:
  * Test:
  * Execution:
@@ -28,18 +27,18 @@ Database::~Database()
 void Database::bcastID()
 {
     auto engine = get_random_engine();
-    MLOG(INFO) << "Generating an Unique ID of Database";
+    MLOG(INFO, "LOGGER_INIT") << "Generating an Unique ID of Database";
     IF_MASTER
     {
         for (int i = 0; i < DB_ID_LENGTH; i++)
             _ID[i] = (char)(gsl_rng_uniform_int(engine, 26) + 65);
         _ID[DB_ID_LENGTH] = '\0';
     }
-    MLOG(INFO) << "ID is " << _ID;
+    MLOG(INFO, "LOGGER_INIT") << "ID is " << _ID;
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO) << "Broadcasting the Unique ID of Database";
+    MLOG(INFO, "LOGGER_INIT") << "Broadcasting the Unique ID of Database";
     MPI_Bcast(_ID, DB_ID_LENGTH + 1, MPI_CHAR, 0, MPI_COMM_WORLD);
 
     MPI_Barrier(MPI_COMM_WORLD);

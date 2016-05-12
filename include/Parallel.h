@@ -12,7 +12,8 @@
 #include <cstdio>
 
 #include <mpi.h>
-#include <glog/logging.h>
+
+#include "Logging.h"
 
 #define MASTER_ID 0
 #define HEMI_A_LEAD 1
@@ -21,10 +22,14 @@
 #define IF_MASTER if (_commRank == MASTER_ID)
 #define NT_MASTER if (_commRank != MASTER_ID)
 
-#define MLOG(LEVEL) IF_MASTER LOG(LEVEL) << "MASTER: "
-#define ALOG(LEVEL) if (_commRank == HEMI_A_LEAD) LOG(LEVEL) << "A_LEAD: "
-#define BLOG(LEVEL) if (_commRank == HEMI_B_LEAD) LOG(LEVEL) << "B_LEAD: "
-#define ILOG(LEVEL) LOG(LEVEL) << "RANK " << _commRank << ": "
+#define MLOG(LEVEL, LOGGER) \
+    IF_MASTER CLOG(LEVEL, LOGGER) << "MASTER: "
+#define ALOG(LEVEL, LOGGER) \
+    if (_commRank == HEMI_A_LEAD) CLOG(LEVEL, LOGGER) << "A_LEAD: "
+#define BLOG(LEVEL, LOGGER) \
+    if (_commRank == HEMI_B_LEAD) CLOG(LEVEL, LOGGER) << "B_LEAD: "
+#define ILOG(LEVEL, LOGGER) \
+    CLOG(LEVEL, LOGGER) << "RANK " << _commRank << ": "
 
 class Parallel
 {

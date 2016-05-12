@@ -14,7 +14,6 @@
 #include <cstring>
 #include <sys/stat.h>
 
-
 #include "Random.h"
 #include "Parallel.h"
 #include "SQLWrapper.h"
