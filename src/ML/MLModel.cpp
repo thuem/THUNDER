@@ -38,24 +38,24 @@ void MLModel::init(const int k,
 
 void MLModel::initProjReco()
 {
-    ALOG(INFO) << "Appending Projectors and Reconstructors";
+    ALOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
     FOR_EACH_CLASS
     {
-        ALOG(INFO) << "Appending Projector of Reference " << i;
+        ALOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << i;
         _proj.push_back(Projector());
 
-        ALOG(INFO) << "Appending Reconstructor of Reference " << i;
+        ALOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << i;
         _reco.push_back(std::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
-    ALOG(INFO) << "Setting Up MPI Environment of Reconstructors";
+    ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
     FOR_EACH_CLASS
         _reco[i]->setMPIEnv(_commSize, _commRank, _hemi);
 
-    ALOG(INFO) << "Refreshing Projectors";
+    ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
     refreshProj();
 
-    ALOG(INFO) << "Refreshing Reconstructors";
+    ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
     refreshReco();
 }
 
@@ -110,13 +110,13 @@ Reconstructor& MLModel::reco(const int i)
 
 void MLModel::BcastFSC()
 {
-    MLOG(INFO) << "Setting Size of _FSC";
+    MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
     _FSC.resize(_r * _pf, _k);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO) << "Gathering References from Hemisphere A and Hemisphere B";
+    MLOG(INFO, "LOGGER_COMPARE") << "Gathering References from Hemisphere A and Hemisphere B";
 
     FOR_EACH_CLASS
     {
@@ -130,7 +130,7 @@ void MLModel::BcastFSC()
             if ((&A[0] == NULL) && (&B[0] == NULL))
                 LOG(FATAL) << "Failed to Allocate Space for Storing a Reference";
 
-            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere A";
+            MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere A";
 
             MPI_Recv(&A[0],
                      A.sizeFT(),
@@ -140,7 +140,7 @@ void MLModel::BcastFSC()
                      MPI_COMM_WORLD,
                      &stat);
 
-            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere B";
+            MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere B";
 
             MPI_Recv(&B[0],
                      B.sizeFT(),
@@ -152,13 +152,13 @@ void MLModel::BcastFSC()
 
             // TODO: check transporting using MPI_Status
 
-            MLOG(INFO) << "Calculating FSC of Reference " << i;
+            MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << i;
             // FSC(_FSC.col(i), A, B, _r);
             vec fsc(_r * _pf);
             FSC(fsc, A, B);
             _FSC.col(i) = fsc;
 
-            MLOG(INFO) << "Averaging A and B" << i;
+            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B" << i;
             ADD_FT(A, B);
             SCALE_FT(A, 0.5);
             _ref[i] = A.copyVolume();
@@ -218,7 +218,7 @@ void MLModel::BcastFSC()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO) << "Broadcasting FSC from MASTER";
+    MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
 
     MPI_Bcast(_FSC.data(),
               _FSC.size(),
