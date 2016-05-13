@@ -34,6 +34,8 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    loggerInit();
+
     MPI_Init(&argc, &argv);
 
     cout << "Initialising Parameters" << endl;
