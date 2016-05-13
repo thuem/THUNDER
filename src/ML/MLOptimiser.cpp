@@ -29,13 +29,13 @@ void MLOptimiser::setPara(const MLOptimiserPara& para)
 
 void MLOptimiser::init()
 {
-    MLOG(INFO) << "Setting MPI Environment of _model";
+    MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
-    MLOG(INFO) << "Setting up Symmetry";
+    MLOG(INFO, "LOGGER_INIT") << "Setting up Symmetry";
     _sym.init(_para.sym);
 
-    MLOG(INFO) << "Passing Parameters to _model";
+    MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.k,
                 _para.size,
                 0,
@@ -45,66 +45,66 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
-    MLOG(INFO) << "Setting Parameters: _r, _iter";
+    MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
     _r = MIN(8, MAX(MAX_GAP, _para.size / 16));
     _iter = 0;
     _model.setR(_r);
 
-    MLOG(INFO) << "Openning Database File";
+    MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _exp.openDatabase(_para.db);
 
-    MLOG(INFO) << "Setting MPI Environment of _exp";
+    MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _exp";
     _exp.setMPIEnv(_commSize, _commRank, _hemi);
 
-    MLOG(INFO) << "Broadcasting ID of _exp";
+    MLOG(INFO, "LOGGER_INIT") << "Broadcasting ID of _exp";
     _exp.bcastID();
 
-    MLOG(INFO) << "Preparing Temporary File of _exp";
+    MLOG(INFO, "LOGGER_INIT") << "Preparing Temporary File of _exp";
     _exp.prepareTmpFile();
 
-    MLOG(INFO) << "Scattering _exp";
+    MLOG(INFO, "LOGGER_INIT") << "Scattering _exp";
     _exp.scatter();
 
-    MLOG(INFO) << "Appending Initial References into _model";
+    MLOG(INFO, "LOGGER_INIT") << "Appending Initial References into _model";
     initRef();
 
     NT_MASTER
     {
-        ALOG(INFO) << "Initialising IDs of 2D Images";
+        ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
         initID();
 
-        ALOG(INFO) << "Initialising 2D Images";
+        ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
         initImg();
 
-        ALOG(INFO) << "Setting Parameters: _N";
+        ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
         allReduceN();
-        ALOG(INFO) << "Number of Images in Hemisphere A: " << _N;
-        BLOG(INFO) << "Number of Images in Hemisphere B: " << _N;
+        ALOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere A: " << _N;
+        BLOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere B: " << _N;
 
         /***
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
         ***/
 
-        ALOG(INFO) << "Seting maxRadius of _model";
+        ALOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
         _model.setR(_r);
 
-        ALOG(INFO) << "Setting Up Projectors and Reconstructors of _model";
+        ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
         _model.initProjReco();
 
-        ALOG(INFO) << "Generating CTFs";
+        ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         initCTF();
 
-        ALOG(INFO) << "Initialising Particle Filters";
+        ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         initParticles();
     }
 
-    MLOG(INFO) << "Broadacasting Information of Groups";
+    MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
     bcastGroupInfo();
 
     NT_MASTER
     {
-        ALOG(INFO) << "Estimating Initial Sigma";
+        ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         initSigma();
     }
 }
@@ -120,16 +120,20 @@ void MLOptimiser::expectation()
     // #pragma omp parallel for private(image)
     FOR_EACH_2D_IMAGE
     {
+        /***
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
+                   ***/
 
         for (int phase = 0; phase < N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
             {
+                /***
                 ILOG(INFO) << "Round " << _iter
                            << ": Resampling Particle " << _ID[l]
                            << " for neff = " << _par[l].neff();
+                           ***/
 
                 if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                 {
@@ -198,9 +202,11 @@ void MLOptimiser::expectation()
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
         }
 
+        /***
         ILOG(INFO) << "Round " << _iter
                    << ": Information of Particle " << _ID[l]
                    << ", Neff " << _par[l].neff();
+                   ***/
 
         if (_ID[l] < 100)
         {
@@ -213,66 +219,69 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    ALOG(INFO) << "Generate Sigma for the Next Iteration";
+    ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     allReduceSigma();
 
-    ALOG(INFO) << "Reconstruct Reference";
+    ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     reconstructRef();
 }
 
 void MLOptimiser::run()
 {
-    MLOG(INFO) << "Initialising MLOptimiser";
+    MLOG(INFO, "LOGGER_ROUND") << "Initialising MLOptimiser";
 
     init();
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO) << "Entering Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
-        MLOG(INFO) << "Round " << _iter;
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
-        MLOG(INFO) << "Performing Expectation";
+        MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
         expectation();
 
-        MLOG(INFO) << "Performing Maximization";
+        MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
-        MLOG(INFO) << "Calculating FSC";
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC";
         _model.BcastFSC();
 
-        MLOG(INFO) << "Calculating SNR";
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR";
         _model.refreshSNR();
 
-        MLOG(INFO) << "Recording Current Resolution";
+        MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
         _res = _model.resolutionP();
-        MLOG(INFO) << "Current Cutoff Frequency: "
-                   << _r - 1
-                   << " (Spatial), "
-                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
-                   << " (Angstrom)";
-        MLOG(INFO) << "Current Resolution: "
-                   << _res
-                   << " (Spatial), "
-                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
-                   << " (Angstrom)";
+        MLOG(INFO, "LOGGER_ROUND") << "Current Cutoff Frequency: "
+                                   << _r - 1
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_r - 1,
+                                                   _para.size,
+                                                   _para.pixelSize)
+                                   << " (Angstrom)";
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution: "
+                                   << _res
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
+                                   << " (Angstrom)";
 
-        MLOG(INFO) << "Updating Cutoff Frequency: ";
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
-        MLOG(INFO) << "New Cutoff Frequency: "
-                   << _r - 1
-                   << " (Spatial), "
-                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
-                   << " (Angstrom)";
+
+        MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
+                                   << _r - 1
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
+                                   << " (Angstrom)";
 
         NT_MASTER
         {
-            ALOG(INFO) << "Refreshing Projectors";
+            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
             _model.refreshProj();
 
-            ALOG(INFO) << "Refreshing Reconstructors";
+            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
             _model.refreshReco();
         }
 
@@ -317,7 +326,7 @@ int MLOptimiser::maxR() const
 
 void MLOptimiser::bcastGroupInfo()
 {
-    ALOG(INFO) << "Storing GroupID";
+    ALOG(INFO, "LOGGER_INIT") << "Storing GroupID";
     NT_MASTER
     {
         sql::Statement stmt("select GroupID from particles where ID = ?", -1, _exp.expose());
@@ -330,14 +339,14 @@ void MLOptimiser::bcastGroupInfo()
         }
     }
 
-    MLOG(INFO) << "Getting Number of Groups from Database";
+    MLOG(INFO, "LOGGER_INIT") << "Getting Number of Groups from Database";
     IF_MASTER
         _nGroup = _exp.nGroup();
 
-    MLOG(INFO) << "Broadcasting Number of Groups";
+    MLOG(INFO, "LOGGER_INIT") << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
-    ALOG(INFO) << "Setting Up Space for Storing Sigma";
+    ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.resize(_nGroup, maxR() + 1);
 }
 
@@ -345,20 +354,20 @@ void MLOptimiser::initRef()
 {
     _model.appendRef(Volume());
 
-    ALOG(INFO) << "Read Initial Model from Hard-disk";
+    ALOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
     ImageFile imf(_para.initModel, "rb");
     imf.readMetaData();
     imf.readVolume(_model.ref(0));
 
-    ALOG(INFO) << "Size of the Initial Model is: "
-               << _model.ref(0).nColRL()
-               << " X "
-               << _model.ref(0).nRowRL()
-               << " X "
-               << _model.ref(0).nSlcRL();
+    ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
+                              << _model.ref(0).nColRL()
+                              << " X "
+                              << _model.ref(0).nRowRL()
+                              << " X "
+                              << _model.ref(0).nSlcRL();
 
-    ALOG(INFO) << "Performing Fourier Transform";
+    ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
 
     FFT fft;
     fft.fw(_model.ref(0));
@@ -473,7 +482,7 @@ void MLOptimiser::initSigma()
 {
     IF_MASTER return;
 
-    ALOG(INFO) << "Calculating Average Image";
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
 
     Image avg = _img[0].copyImage();
 
@@ -493,7 +502,7 @@ void MLOptimiser::initSigma()
 
     SCALE_FT(avg, 1.0 / _N);
 
-    ALOG(INFO) << "Calculating Average Power Spectrum";
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
 
     // vec avgPs(maxR(), fill::zeros);
     vec avgPs = vec::Zero(maxR());
@@ -522,7 +531,7 @@ void MLOptimiser::initSigma()
 
     // ALOG(INFO) << "Calculating Power Spectrum of Average Image";
 
-    ALOG(INFO) << "Calculating Expectation for Initializing Sigma";
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
     // powerSpectrum(psAvg, avg, maxR());
@@ -533,7 +542,7 @@ void MLOptimiser::initSigma()
 
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
-    ALOG(INFO) << "Substract avgPs and psAvg for _sig";
+    ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
 
     _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
     // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
@@ -576,13 +585,13 @@ void MLOptimiser::allReduceSigma()
 {
     IF_MASTER return;
 
-    ALOG(INFO) << "Clear Up Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
 
     // set re-calculating part to zero
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
 
-    ALOG(INFO) << "Recalculate Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
@@ -621,7 +630,7 @@ void MLOptimiser::allReduceSigma()
         // _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 
-    ALOG(INFO) << "Averaging Sigma of Images Belonging to the Same Group";
+    ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
     MPI_Barrier(_hemi);
 
@@ -666,13 +675,15 @@ void MLOptimiser::reconstructRef()
 
     Image img(size(), size(), FT_SPACE);
 
-    ALOG(INFO) << "Inserting High Probability 2D Images into Reconstructor";
+    ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
     {
+        /***
         ILOG(INFO) << "Inserting Particle "
                    << _ID[l]
                    << " into Reconstructor";
+                   ***/
 
         // reduce the CTF effect
         reduceCTF(img, _img[l], _ctf[l]);
@@ -698,7 +709,7 @@ void MLOptimiser::reconstructRef()
         }
     }
 
-    ALOG(INFO) << "Reconstructing References for Next Iteration";
+    ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
 
@@ -706,7 +717,7 @@ void MLOptimiser::reconstructRef()
     char filename[FILE_NAME_LENGTH];
     if (_commRank == HEMI_A_LEAD)
     {
-        ALOG(INFO) << "Saving References";
+        ALOG(INFO, "LOGGER_ROUND") << "Saving References";
 
         imf.readMetaData(_model.ref(0));
         sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
@@ -714,14 +725,14 @@ void MLOptimiser::reconstructRef()
     }
     else if (_commRank == HEMI_B_LEAD)
     {
-        BLOG(INFO) << "Saving References";
+        BLOG(INFO, "LOGGER_ROUND") << "Saving References";
 
         imf.readMetaData(_model.ref(0));
         sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
         imf.writeVolume(filename, _model.ref(0));
     }
 
-    ALOG(INFO) << "Fourier Transforming References";
+    ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
     FFT fft;
     fft.fw(_model.ref(0));

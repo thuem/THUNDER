@@ -17,8 +17,12 @@
 #define N 256
 #define M 8
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, const char* argv[])
 {
+    loggerInit();
+
     std::cout << "Define a head." << std::endl;
 
     Volume head(N, N, N, RL_SPACE);

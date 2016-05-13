@@ -15,8 +15,6 @@
 #include <cstdlib>
 #include <sstream>
 
-#include <glog/logging.h>
-
 #include "Typedef.h"
 
 #include "Image.h"
@@ -49,7 +47,6 @@
 #define MAX_N_SEARCH_PER_PHASE 3
 
 using namespace std;
-using namespace google;
 
 typedef struct ML_OPTIMISER_PARA
 {

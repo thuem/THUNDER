@@ -8,8 +8,6 @@
 
 #include <iostream>
 
-#include <glog/logging.h>
-
 #include "Projector.h"
 #include "Reconstructor.h"
 #include "ImageFunctions.h"
@@ -22,11 +20,12 @@
 #define M 16
 
 using namespace std;
-using namespace google;
+
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    InitGoogleLogging(argv[0]);
+    loggerInit();
 
     MPI_Init(&argc, &argv);
 

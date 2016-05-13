@@ -9,7 +9,6 @@
  * ****************************************************************************/
 
 #include "SymmetryFunctions.h"
-#include "Utils.h"
 
 void symmetryGroup(int& pgGroup,
                    int& pgOrder,
@@ -130,7 +129,7 @@ void symmetryGroup(int& pgGroup,
         pgOrder = -1;
     }
     else
-        LOG(FATAL) << "Invalid Symmetry Index";
+        CLOG(FATAL, "LOGGER_SYS") << "Invalid Symmetry Index";
 }
 
 void fillSymmetryEntry(vector<SymmetryOperation>& entry,
@@ -163,7 +162,7 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
 
         case PG_SN:
             if (pgOrder % 2 == 1)
-                REPORT_ERROR("order for SN group must be even");
+                CLOG(FATAL, "LOGGER_SYS") << "Order for SN Group Must Be Even";
             fillSymmetryEntry(entry, PG_CN, pgOrder / 2);
             entry.push_back(SymmetryOperation(InversionSO()));
             break;
@@ -273,7 +272,7 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             break;
 
         case PG_I5:
-            LOG(FATAL) << "PG_I5 Not Implemented";
+            CLOG(FATAL, "LOGGER_SYS") << "PG_I5 Not Implemented";
             break;
 
         case PG_IH:
@@ -302,11 +301,11 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             break;
 
         case PG_I5H:
-            LOG(FATAL) << "PG_I5H Not Implemented";
+            CLOG(FATAL, "LOGGER_SYS") << "PG_I5H Not Implemented";
             break;
 
         default:
-            LOG(FATAL) << "Symmetry Point Group is Not Known";
+            CLOG(FATAL, "LOGGER_SYS") << "Symmetry Point Group is Not Known";
             break;
     }
 }

@@ -172,9 +172,12 @@ void createDB(Experiment& exp)
 
 }
 
+INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {   
+    loggerInit();
+
 /***
     system("cp test.db  /dev/shm/test.db");
 

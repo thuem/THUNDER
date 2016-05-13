@@ -39,6 +39,7 @@ static void loggerInit(el::Configurations conf,
 
 static void loggerInit()
 {
+    loggerInit(loggerAConf, "LOGGER_SYS", "LOGGER_SYS.log");
     loggerInit(loggerAConf, "LOGGER_INIT", "LOGGER_INIT.log");
     loggerInit(loggerBConf, "LOGGER_ROUND", "LOGGER_ROUND.log");
     loggerInit(loggerBConf, "LOGGER_COMPARE", "LOGGER_COMPARE.log");

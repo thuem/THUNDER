@@ -28,13 +28,13 @@ static unsigned long urandom()
 {
     int fd = open("/dev/urandom", O_RDONLY);
 
-    if (fd < 0) LOG(FATAL) << "No /dev/urandom";
+    if (fd < 0) CLOG(FATAL, "LOGGER_SYS") << "No /dev/urandom";
 
     unsigned long res;
     if (read(fd, &res, sizeof(res)) != sizeof(res))
     {
         close(fd);
-        LOG(FATAL) << "Insufficient Read";
+        CLOG(FATAL, "LOGGER_SYS") << "Insufficient Read";
     }
 
     close(fd);
@@ -52,14 +52,14 @@ gsl_rng* get_random_engine()
 
     engine = gsl_rng_alloc(gsl_rng_mt19937);
 
-    if (!engine) LOG(FATAL) << "Failure to Allocate Random Engine";
+    if (!engine) CLOG(FATAL, "LOGGER_SYS") << "Failure to Allocate Random Engine";
 
     gsl_rng_set(engine, urandom());
 
     if (pthread_setspecific(key, engine) != 0)
     {
         gsl_rng_free(engine);
-        LOG(FATAL) << "Failure to Set Thread Local Storage";
+        CLOG(FATAL, "LOGGER_SYS") << "Failure to Set Thread Local Storage";
     }
 
     return engine;

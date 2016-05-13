@@ -14,8 +14,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, const char* argv[])
 {
+    loggerInit();
+
     Experiment exp("test.db");
 
     exp.createTableParticles();

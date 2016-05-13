@@ -32,8 +32,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit();
+
     ImageFile imf;
 
     FFT fft;

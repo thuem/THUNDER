@@ -10,8 +10,12 @@
 
 #define M 10000
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, const char* argv[])
 {
+    loggerInit();
+
     Symmetry sym("C2");
 
     Particle particle;

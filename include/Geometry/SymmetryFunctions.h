@@ -14,15 +14,15 @@
 #include <cstdlib>
 #include <vector>
 
-#include <glog/logging.h>
-
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
+#include "Logging.h"
 
 #include "Euler.h"
 #include "PointGroup.h"
 #include "SymmetryOperation.h"
+#include "Utils.h"
 
 using namespace std;
 

@@ -11,8 +11,12 @@
 
 #include "Symmetry.h"
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, const char* argv[])
 {
+    loggerInit();
+
     try
     {
         Symmetry sym("C15");

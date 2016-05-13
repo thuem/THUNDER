@@ -16,8 +16,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit();
+
     Volume obj;
 
     cout << "Reading in Object" << endl;

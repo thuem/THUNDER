@@ -25,7 +25,6 @@
 #include "Functions.h"
 #include "Symmetry.h"
 
-using namespace google;
 using namespace std;
 
 static double e0[4] = {0, 1, 0, 0};

@@ -331,8 +331,9 @@ bool asymmetryUnit(const double phi,
         case PG_I3H:
         case PG_I4H:
         case PG_I5H:
-            REPORT_ERROR("Point Group has not been implemented.");
+            CLOG(FATAL, "LOGGER_SYS") << "Point Group has not been implemented.";
     }
+
     __builtin_unreachable();
 }
 
@@ -370,5 +371,5 @@ void symmetryCounterpart(double& ex,
         }
     }
 
-    LOG(WARNING) << "Unable to find SymmetryCounterpart";
+    CLOG(WARNING, "LOGGER_SYS") << "Unable to find SymmetryCounterpart";
 }

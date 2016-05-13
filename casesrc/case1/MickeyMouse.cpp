@@ -30,11 +30,11 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
     MPI_Init(&argc, &argv);
-
-    InitGoogleLogging(argv[0]);
 
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;

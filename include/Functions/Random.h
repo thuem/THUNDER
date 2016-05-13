@@ -23,7 +23,7 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
-#include <glog/logging.h>
+#include "Logging.h"
 
 using namespace std;
 

@@ -15,11 +15,10 @@
 #include <vector>
 #include <iostream>
 
-#include <glog/logging.h>
-
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
+#include "Logging.h"
 
 #include "Euler.h"
 #include "PointGroup.h"
