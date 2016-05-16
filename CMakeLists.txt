@@ -16,7 +16,6 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(FFTW REQUIRED)
 find_package(GSL REQUIRED)
 find_package(MPI REQUIRED)
-find_package(Glog REQUIRED)
 
 # Compiler settings
 set (CMAKE_C_COMPILER ${MPI_C_COMPILER})
