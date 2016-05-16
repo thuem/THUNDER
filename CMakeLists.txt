@@ -8,8 +8,10 @@ set (CMAKE_BUILD_TYPE Release)
 
 option (SANITIZE "Turn on sanitization" OFF)
 if (SANITIZE)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    if (NOT APPLE)
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lasan")
+    endif()
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
