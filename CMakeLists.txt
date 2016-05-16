@@ -32,7 +32,7 @@ if (${HAS_OPENMP})
 endif()
 
 # includes and linker flags
-include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${MPI_INCLUDE_PATH})
+include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${MPI_INCLUDE_PATH})
 
 link_libraries(${FFTW_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${MPI_LIBRARIES} ${CMAKE_DL_LIBS})
 
