@@ -38,24 +38,24 @@ void MLModel::init(const int k,
 
 void MLModel::initProjReco()
 {
-    ALOG(INFO) << "Appending Projectors and Reconstructors";
+    ALOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
     FOR_EACH_CLASS
     {
-        ALOG(INFO) << "Appending Projector of Reference " << i;
+        ALOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << i;
         _proj.push_back(Projector());
 
-        ALOG(INFO) << "Appending Reconstructor of Reference " << i;
-        _reco.push_back(Reconstructor());
+        ALOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << i;
+        _reco.push_back(std::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
-    ALOG(INFO) << "Setting Up MPI Environment of Reconstructors";
+    ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
     FOR_EACH_CLASS
-        _reco[i].setMPIEnv(_commSize, _commRank, _hemi);
+        _reco[i]->setMPIEnv(_commSize, _commRank, _hemi);
 
-    ALOG(INFO) << "Refreshing Projectors";
+    ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
     refreshProj();
 
-    ALOG(INFO) << "Refreshing Reconstructors";
+    ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
     refreshReco();
 }
 
@@ -64,7 +64,7 @@ Volume& MLModel::ref(const int i)
     return _ref[i];
 }
 
-void MLModel::appendRef(const Volume& ref)
+void MLModel::appendRef(Volume ref)
 {
     if (((ref.nColRL() != _size) && (ref.nColRL() != 0)) ||
         ((ref.nRowRL() != _size) && (ref.nRowRL() != 0)) ||
@@ -75,7 +75,7 @@ void MLModel::appendRef(const Volume& ref)
                    << ", nRow = " << ref.nRowRL()
                    << ", nSlc = " << ref.nSlcRL();
 
-    _ref.push_back(ref);
+    _ref.push_back(std::move(ref));
 }
 
 int MLModel::k() const
@@ -105,18 +105,18 @@ Projector& MLModel::proj(const int i)
 
 Reconstructor& MLModel::reco(const int i)
 {
-    return _reco[i];
+    return *_reco[i];
 }
 
 void MLModel::BcastFSC()
 {
-    MLOG(INFO) << "Setting Size of _FSC";
+    MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
-    _FSC.set_size(_r * _pf, _k);
+    _FSC.resize(_r * _pf, _k);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO) << "Gathering References from Hemisphere A and Hemisphere B";
+    MLOG(INFO, "LOGGER_COMPARE") << "Gathering References from Hemisphere A and Hemisphere B";
 
     FOR_EACH_CLASS
     {
@@ -130,7 +130,7 @@ void MLModel::BcastFSC()
             if ((&A[0] == NULL) && (&B[0] == NULL))
                 LOG(FATAL) << "Failed to Allocate Space for Storing a Reference";
 
-            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere A";
+            MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere A";
 
             MPI_Recv(&A[0],
                      A.sizeFT(),
@@ -140,7 +140,7 @@ void MLModel::BcastFSC()
                      MPI_COMM_WORLD,
                      &stat);
 
-            MLOG(INFO) << "Receiving Reference " << i << " from Hemisphere B";
+            MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere B";
 
             MPI_Recv(&B[0],
                      B.sizeFT(),
@@ -151,17 +151,17 @@ void MLModel::BcastFSC()
                      &stat);
 
             // TODO: check transporting using MPI_Status
-            
-            MLOG(INFO) << "Calculating FSC of Reference " << i;
+
+            MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << i;
             // FSC(_FSC.col(i), A, B, _r);
             vec fsc(_r * _pf);
             FSC(fsc, A, B);
             _FSC.col(i) = fsc;
 
-            MLOG(INFO) << "Averaging A and B" << i;
+            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B" << i;
             ADD_FT(A, B);
             SCALE_FT(A, 0.5);
-            _ref[i] = A;
+            _ref[i] = A.copyVolume();
 
             /***
             MLOG(INFO) << "Sending Average Reference to Hemisphere A";
@@ -184,8 +184,12 @@ void MLModel::BcastFSC()
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
         {
-            ALOG(INFO) << "Sending Reference " << i << " from Hemisphere A";
-            BLOG(INFO) << "Sending Reference " << i << " from Hemisphere B";
+            ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                         << i
+                                         << " from Hemisphere A";
+            BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                         << i
+                                         << " from Hemisphere B";
 
             MPI_Ssend(&_ref[i][0],
                       _ref[i].sizeFT(),
@@ -201,7 +205,7 @@ void MLModel::BcastFSC()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO) << "Broadcasting Average Reference from MASTER";
+        MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Average Reference from MASTER";
 
         MPI_Bcast(&_ref[i][0],
                   _ref[i].sizeFT(),
@@ -214,13 +218,20 @@ void MLModel::BcastFSC()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO) << "Broadcasting FSC from MASTER";
+    MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
 
+    MPI_Bcast(_FSC.data(),
+              _FSC.size(),
+              MPI_DOUBLE,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+    /***
     MPI_Bcast(_FSC.memptr(),
               _FSC.n_elem,
               MPI_DOUBLE,
               MASTER_ID,
               MPI_COMM_WORLD);
+              ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 }
@@ -234,15 +245,27 @@ void MLModel::lowPassRef(const double thres,
 
 void MLModel::refreshSNR()
 {
-    _SNR.copy_size(_FSC);
+    _SNR.resize(_FSC.rows(), _FSC.cols());
+    // _SNR.copy_size(_FSC);
 
     FOR_EACH_CLASS
-        _SNR.col(i) = _FSC.col(i) / (1 - _FSC.col(i));
+        _SNR.col(i) = _FSC.col(i).array() / (1 - _FSC.col(i).array());
 }
 
 int MLModel::resolutionP(const int i) const
 {
+    int result;
+
+    for (result = _SNR.rows() - 1;
+         result >= 0;
+         result--)
+        if (_SNR(result, i) > 1) break;
+
+    return result / _pf;
+
+    /***
     return uvec(find(_SNR.col(i) > 1, 1, "last"))(0) / _pf;
+    ***/
 }
 
 int MLModel::resolutionP() const
@@ -270,7 +293,7 @@ void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
     {
-        _proj[i].setProjectee(_ref[i]);
+        _proj[i].setProjectee(_ref[i].copyVolume());
         _proj[i].setMaxRadius(_r);
         _proj[i].setPf(_pf);
     }
@@ -280,7 +303,7 @@ void MLModel::refreshReco()
 {
     FOR_EACH_CLASS
     {
-        _reco[i].init(_size,
+        _reco[i]->init(_size,
                       _pf,
                       _sym,
                       _a,
@@ -306,8 +329,10 @@ void MLModel::updateR()
 void MLModel::clear()
 {
     _ref.clear();
+    /***
     _FSC.clear();
     _SNR.clear();
+    ***/
     _proj.clear();
     _reco.clear();
 }

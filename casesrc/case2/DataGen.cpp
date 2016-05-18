@@ -33,6 +33,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+    /***
     FFT fft;
 
     cout << "Read-in Ref" << endl;
@@ -53,6 +54,7 @@ int main(int argc, char* argv[])
 
     imf.readMetaData(padRef);
     imf.writeVolume("padRef.mrc", padRef);
+    ***/
 
     /***
     cout << "Reading from Hard-disk" << endl;
@@ -61,13 +63,14 @@ int main(int argc, char* argv[])
     imf2.readVolume(padHead);
     ***/
     
+    /***
     cout << "Fourier Transforming Ref" << endl;
     fft.fw(padRef);
 
     cout << "Setting Projectee" << endl;
     Projector projector;
     projector.setPf(PF);
-    projector.setProjectee(padRef);
+    projector.setProjectee(padRef.copyVolume());
 
     cout << "Setting CTF" << endl;
     Image ctf(N, N, FT_SPACE);
@@ -96,6 +99,7 @@ int main(int argc, char* argv[])
     save("Sampling_Points.par", par);
 
     Coordinate5D coord;
+    auto engine = get_random_engine();
     for (int i = 0; i < M; i++)
     {
         SET_0_FT(image);
@@ -111,7 +115,7 @@ int main(int argc, char* argv[])
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(RANDR, 5);
+            noise(i) = gsl_ran_gaussian(engine, 5);
 
         fft.bw(image);
 
@@ -131,4 +135,5 @@ int main(int argc, char* argv[])
     }
     
     return 0;
+    ***/
 }

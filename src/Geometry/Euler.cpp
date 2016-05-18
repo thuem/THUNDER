@@ -112,10 +112,18 @@ void rotate3D(mat33& dst,
 void rotate3D(mat33& dst,
               const vec4& src)
 {
+    /***
     mat33 A = {{0, -src(3), src(2)},
                {src(3), 0, -src(1)},
                {-src(2), src(1), 0}};
     dst = mat33(fill::eye) + 2 * src(0) * A + 2 * A * A;
+    ***/
+
+    mat33 A;
+    A << 0, -src(3), src(2),
+         src(3), 0, -src(1),
+         -src(2), src(1), 0;
+    dst = mat33::Identity() + 2 * src(0) * A + 2 * A * A;
 }
 
 void rotate3DX(mat33& dst, const double phi)
@@ -174,9 +182,11 @@ void alignZ(mat33& dst,
     double z = vec(2);
 
     // compute the length of projection of YZ plane
-    double pYZ = norm(vec.tail(2));
+    double pYZ = vec.tail<2>().norm();
+    // double pYZ = norm(vec.tail(2));
     // compute the length of this vector
-    double p = norm(vec);
+    double p = vec.norm();
+    // double p = norm(vec);
 
     if ((pYZ / p) > EQUAL_ACCURACY)
     {
@@ -188,11 +198,11 @@ void alignZ(mat33& dst,
         dst(1, 1) = z / pYZ;
         dst(1, 2) = -y / pYZ;
 
-        dst.row(2) = vec.t() / p;
+        dst.row(2) = vec.transpose() / p;
     }
     else
     {
-        dst.zeros();
+        dst.setZero();
         dst(0, 2) = -1;
         dst(1, 1) = 1;
         dst(2, 0) = 1;
@@ -226,7 +236,7 @@ void rotate3D(mat33& dst,
 
     rotate3DZ(R, phi);
 
-    dst = A.t() * R * A;
+    dst = A.transpose() * R * A;
 }
 
 void reflect3D(mat33& dst,
@@ -236,22 +246,25 @@ void reflect3D(mat33& dst,
 
     alignZ(A, plane);
 
-    M.eye();
+    M.setIdentity();
     M(2, 2) = -1;
 
-    dst = A.t() * M * A;
+    dst = A.transpose() * M * A;
 }
 
 void translate3D(mat44& dst,
                  const vec3& vec)
 {
-    dst.eye();
-    dst.col(3).head(3) = vec;
+    dst.setIdentity();
+    dst.col(3).head<3>() = vec;
 }
 
 void scale3D(mat33& dst,
              const vec3& vec)
 {
-    dst.zeros();
-    dst.diag() = vec;
+    dst.setZero();
+    dst(0, 0) = vec(0);
+    dst(1, 1) = vec(1);
+    dst(2, 2) = vec(2);
+    //dst.diag() = vec;
 }

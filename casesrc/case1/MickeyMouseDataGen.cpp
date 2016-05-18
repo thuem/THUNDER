@@ -32,8 +32,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit();
+
     ImageFile imf;
 
     FFT fft;
@@ -74,7 +78,7 @@ int main(int argc, char* argv[])
            gsl_stats_mean(&head(0), 1, head.sizeRL()),
            gsl_stats_sd(&head(0), 1, head.sizeRL()));
     ***/
-           
+
     cout << "Padding Head" << endl;
     Volume padHead;
     VOL_PAD_RL(padHead, head, PF);
@@ -91,8 +95,9 @@ int main(int argc, char* argv[])
     /***
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
+    auto engine = get_random_engine();
     FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(RANDR, 20);
+        noise(i) = gsl_ran_gaussian(engine, 20);
     ADD_RL(padHead, noise);
     ***/
 
@@ -107,7 +112,7 @@ int main(int argc, char* argv[])
     cout << "Setting Projectee" << endl;
     Projector projector;
     projector.setPf(PF);
-    projector.setProjectee(padHead);
+    projector.setProjectee(padHead.copyVolume());
 
     cout << "Setting CTF" << endl;
     Image ctf(N, N, FT_SPACE);
@@ -120,7 +125,7 @@ int main(int argc, char* argv[])
         CS);
 
     cout << "Initialising Experiment" << endl;
-    Experiment exp("MickeyMouse.db");
+    Experiment exp("/tmp/MickeyMouse.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
     exp.appendGroup("");
@@ -129,7 +134,6 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
-    
     cout << "Initialising Random Sampling Points" << endl;
     Symmetry sym("C2");
     Particle par(M, MAX_X, MAX_Y, &sym);
@@ -137,6 +141,7 @@ int main(int argc, char* argv[])
     save("Sampling_Points.par", par);
 
     Coordinate5D coord;
+    auto engine = get_random_engine();
     for (int i = 0; i < M; i++)
     {
         SET_0_FT(image);
@@ -152,7 +157,7 @@ int main(int argc, char* argv[])
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(RANDR, 5);
+            noise(i) = gsl_ran_gaussian(engine, 5);
 
         fft.bw(image);
 
@@ -162,7 +167,7 @@ int main(int argc, char* argv[])
                gsl_stats_mean(&image(0), 1, image.sizeRL()),
                gsl_stats_sd(&image(0), 1, image.sizeRL()),
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
-        
+
         exp.appendParticle(name, 1, 1);
 
         imf.readMetaData(image);
@@ -175,6 +180,6 @@ int main(int argc, char* argv[])
 
         fft.fw(image);
     }
-    
+
     return 0;
 }

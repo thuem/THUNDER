@@ -12,7 +12,6 @@ TabFunction::TabFunction() {}
 
 TabFunction::~TabFunction()
 {
-    SAVE_DELETE(_tab);
 }
 
 TabFunction::TabFunction(function<double(const double)> func,
@@ -34,7 +33,7 @@ void TabFunction::init(function<double(const double)> func,
 
 	_s = (_b - _a) / _n;
 
-	_tab = new double[_n + 1];
+	_tab.reset(new double[_n + 1]);
 
 	for (int i = 0; i <= _n; i++)
         _tab[i] = func(_a + i * _s);

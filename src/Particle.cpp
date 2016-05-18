@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Siyuan Ren
  * Dependecy:
  * Test:
  * Execution:
@@ -52,10 +52,11 @@ void Particle::reset()
     bingham_sample(_r, &B, _n);
     // draw _n samples from it
 
+    auto engine = get_random_engine();
     for (int i = 0; i < _n; i++)
     {
-        _t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
-        _t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
+        _t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
+        _t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / _n;
     }
@@ -98,7 +99,7 @@ void Particle::mulW(const double w,
 
 void Particle::normW()
 {
-    _w /= sum(_w);
+    _w /= _w.sum();
 }
 
 void Particle::coord(Coordinate5D& dst,
@@ -148,16 +149,16 @@ void Particle::setSymmetry(const Symmetry* sym)
 
 void Particle::calVari()
 {
-    _s0 = sqrt(gsl_stats_covariance(_t.colptr(0),
+    _s0 = sqrt(gsl_stats_covariance(_t.col(0).data(),
                                     1,
-                                    _t.colptr(0),
+                                    _t.col(0).data(),
                                     1,
-                                    _t.n_rows));
-    _s1 = sqrt(gsl_stats_covariance(_t.colptr(1),
+                                    _t.rows()));
+    _s1 = sqrt(gsl_stats_covariance(_t.col(1).data(),
                                     1,
-                                    _t.colptr(1),
+                                    _t.col(1).data(),
                                     1,
-                                    _t.n_rows));
+                                    _t.rows()));
     /***
     _rho = gsl_stats_covariance(_t.colptr(0),
                                 1,
@@ -181,19 +182,25 @@ void Particle::perturb()
 {
     calVari();
 
-    _t.each_row([this](rowvec& row)
+    auto engine = get_random_engine();
+
+    for (int i = 0; i < _t.rows(); i++)
+    {
+        double x, y;
+        gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+        _t(i, 0) += x / 5;
+        _t(i, 1) += y / 5;
+    }
+
+    /***
+    _t.each_row([this, engine](rowvec& row)
                 {
                     double x, y;
-                    gsl_ran_bivariate_gaussian(RANDR, _s0, _s1, _rho, &x, &y);
+                    gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
                     row(0) += x / 5;
                     row(1) += y / 5;
                 });
-
-    /***
-    mat L = chol(cov(_t), "lower");
-    for (int i = 0; i < _n; i++)
-        _t.row(i) += (L * randn<vec>(2)).t() / 3;
-        ***/
+    ***/
 
     // rotation perturbation
 
@@ -236,7 +243,7 @@ void Particle::resample(const int n,
 
     // DLOG(INFO) << "Recording New Number of Sampling Points";
     _n = n;
-    _w.set_size(n);
+    _w.resize(n);
 
     // number of global sampling points
     int nG = AROUND(alpha * n);
@@ -255,18 +262,20 @@ void Particle::resample(const int n,
     bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
     bingham_sample(r, &B, nG);
     bingham_free(&B);
+
+    auto engine = get_random_engine();
     
     for (int i = 0; i < nG; i++)
     {
-        t(i, 0) = gsl_ran_flat(RANDR, -_maxX, _maxX); 
-        t(i, 1) = gsl_ran_flat(RANDR, -_maxY, _maxY);
+        t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
+        t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / n;
     }
 
     // DLOG(INFO) << "Generate Local Sampling Points";
 
-    double u0 = gsl_ran_flat(RANDR, 0, 1.0 / nL);  
+    double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
 
     int i = 0;
     for (int j = 0; j < nL; j++)
@@ -284,7 +293,7 @@ void Particle::resample(const int n,
 
     // DLOG(INFO) << "Recording Results";
 
-    _t.set_size(n, 2);
+    _t.resize(n, 2);
     _t = t;
 
     free_matrix2(_r);
@@ -298,12 +307,14 @@ void Particle::resample(const int n,
 
 double Particle::neff() const
 {
-    return 1.0 / gsl_pow_2(norm(_w, 2));
+    return 1.0 / _w.squaredNorm();
+    // return 1.0 / gsl_pow_2(norm(_w, 2));
 }
 
 uvec Particle::iSort() const
 {
-    return sort_index(_w, "descend");
+    return index_sort_descend(_w);
+    // return sort_index(_w, "descend");
 }
 
 void Particle::symmetrise()

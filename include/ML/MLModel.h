@@ -11,7 +11,7 @@
 #ifndef ML_MODEL_H
 #define ML_MODEL_H
 
-#include <armadillo>
+#include <memory>
 
 #include "Typedef.h"
 
@@ -25,7 +25,6 @@
 #include "Reconstructor.h"
 
 using namespace std;
-using namespace arma;
 
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
@@ -48,7 +47,7 @@ class MLModel : public Parallel
 
         vector<Projector> _proj;
 
-        vector<Reconstructor> _reco;
+        vector<std::unique_ptr<Reconstructor>> _reco;
 
         int _k;
         /* number of references */
@@ -91,7 +90,7 @@ class MLModel : public Parallel
 
         Volume& ref(const int i);
 
-        void appendRef(const Volume& ref);
+        void appendRef(Volume ref);
 
         int k() const;
 
@@ -121,12 +120,12 @@ class MLModel : public Parallel
 
         double resolutionA(const int i) const;
         /* get the resolution of _ref[i] */
-        
+
         double resolutionA() const;
         /* get the highest resolution among all references */
 
         void refreshProj();
-        
+
         void refreshReco();
 
         void updateR();

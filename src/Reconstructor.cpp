@@ -130,30 +130,30 @@ void Reconstructor::reconstruct(Volume& dst)
 
     for (int i = 0; i < 3; i++)
     {
-        ALOG(INFO) << "Balancing Weights Round " << i;
-        BLOG(INFO) << "Balancing Weights Round " << i;
+        ALOG(INFO, "LOGGER_ROUND") << "Balancing Weights Round " << i;
+        BLOG(INFO, "LOGGER_ROUND") << "Balancing Weights Round " << i;
 
         allReduceW();
     }
 
-    ALOG(INFO) << "Reducing F";
-    BLOG(INFO) << "Reducing F";
+    ALOG(INFO, "LOGGER_ROUND") << "Reducing F";
+    BLOG(INFO, "LOGGER_ROUND") << "Reducing F";
 
     allReduceF();
 
     // make sure the scale correct
     SCALE_FT(_F, _pf * sqrt(_pf * _size));
 
-    dst = _F;
+    dst = _F.copyVolume();
 
     FFT fft;
     fft.bw(dst);
 
-    ALOG(INFO) << "Correcting Convolution Kernel";
-    BLOG(INFO) << "Correcting Convolution Kernel";
+    ALOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
+    BLOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
 
     VOLUME_FOR_EACH_PIXEL_RL(dst)
-    {     
+    {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
         if (r < 0.5 / _pf)
@@ -202,17 +202,17 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, 
+    MPI_Allreduce(MPI_IN_PLACE,
                   &_C[0],
                   _C.sizeFT(),
-                  MPI_DOUBLE_COMPLEX, 
-                  MPI_SUM, 
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
                   _hemi);
 
     MPI_Barrier(_hemi);
 
     symmetrizeC();
-    
+
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
         {
@@ -233,11 +233,11 @@ void Reconstructor::allReduceF()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, 
+    MPI_Allreduce(MPI_IN_PLACE,
                   &_F[0],
                   _F.sizeFT(),
-                  MPI_DOUBLE_COMPLEX, 
-                  MPI_SUM, 
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
                   _hemi);
 
     MPI_Barrier(_hemi);
@@ -264,7 +264,7 @@ void Reconstructor::symmetrizeF()
 
     Volume symF;
     SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius);
-    _F = symF;
+    _F = std::move(symF);
 }
 
 void Reconstructor::symmetrizeC()
@@ -273,5 +273,5 @@ void Reconstructor::symmetrizeC()
 
     Volume symC;
     SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius);
-    _C = symC;
+    _C = std::move(symC);
 }

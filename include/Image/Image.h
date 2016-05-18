@@ -56,24 +56,22 @@
 
 class Image : public ImageBase
 {
+    MAKE_DEFAULT_MOVE(Image)
+
     protected:
-		
+
         int _nCol = 0;
         int _nRow = 0;
 
     public:
-        
+
         Image();
 
         Image(const int nCol,
               const int nRow,
               const int space);
 
-        Image(const Image& that);
-
         ~Image();
-        
-        Image& operator=(const Image& that);
 
         void alloc(const int space);
 
@@ -114,14 +112,30 @@ class Image : public ImageBase
 
         Complex getBiLinearFT(const double iCol,
                               const double iRow) const;
-        
+
+        void clear()
+        {
+            ImageBase::clear();
+            _nRow = 0;
+            _nCol = 0;
+        }
+
+        Image copyImage() const
+        {
+            Image out;
+            copyBase(out);
+            out._nRow = _nRow;
+            out._nCol = _nCol;
+            return out;
+        }
+
     private:
 
         void coordinatesInBoundaryRL(const int iCol,
                                      const int iRow) const;
         // check whether the given coordinates are in the boundary of the image
         // if not, throw out an Error
-        
+
         void coordinatesInBoundaryFT(const int iCol,
                                      const int iRow) const;
         // check whether the given coordinates are in the boundary of the

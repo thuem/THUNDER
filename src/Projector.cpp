@@ -12,21 +12,7 @@
 
 Projector::Projector() {}
 
-Projector::Projector(const Projector& that)
-{
-    *this = that;
-}
-
 Projector::~Projector() {}
-
-Projector& Projector::operator=(const Projector& that)
-{
-    _maxRadius = that.maxRadius();
-    _interp = that.interp();
-    _projectee = that.projectee();
-
-    return *this;
-}
 
 bool Projector::isEmpty() const
 {
@@ -68,9 +54,9 @@ const Volume& Projector::projectee() const
     return _projectee;
 }
 
-void Projector::setProjectee(const Volume& src)
+void Projector::setProjectee(Volume src)
 {
-    _projectee = src;
+    _projectee = std::move(src);
 
     // make sure the scale correct
     // SCALE_FT(_projectee, 1.0 / _pf);
@@ -91,9 +77,9 @@ void Projector::project(Image& dst,
             vec3 newCor = {(double)i, (double)j, 0};
             vec3 oldCor = mat * newCor * _pf;
 
-            dst.setFT(_projectee.getByInterpolationFT(oldCor[0],
-                                                      oldCor[1],
-                                                      oldCor[2],
+            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
+                                                      oldCor(1),
+                                                      oldCor(2),
                                                       _interp),
                       i,
                       j);
@@ -139,7 +125,7 @@ void Projector::project(Image& dst,
                         const vec2& t) const
 {
     project(dst, rot);
-    translate(dst, dst, _maxRadius, t[0], t[1]);
+    translate(dst, dst, _maxRadius, t(0), t(1));
 }
 
 void Projector::gridCorrection()

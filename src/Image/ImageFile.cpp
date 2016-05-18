@@ -32,7 +32,7 @@ void ImageFile::display() const
     printf("Symmetry Data Size:           %6d\n", symmetryDataSize());
 
     printf("\n");
-    printf("MRC Header Size:              %6d\n", sizeof(MRCHeader));
+    printf("MRC Header Size:              %6llu\n", static_cast<unsigned long long>(sizeof(MRCHeader)));
     printf("Num of Intervals along Column:%6d\n", _MRCHeader.mx);
     printf("Num of Intervals along Row:   %6d\n", _MRCHeader.my);
     printf("Num of Intervals along Slice: %6d\n", _MRCHeader.mz);

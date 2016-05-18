@@ -14,8 +14,7 @@ void symmetryGroup(int& pgGroup,
                    int& pgOrder,
                    const char sym[])
 {
-    if (regex_match(sym, regex("C[[:digit:]]+",
-                               regex_constants::extended)))
+    if (regexMatches(sym, "^C[[:digit:]]+$"))
     {
         pgGroup = PG_CN;
         pgOrder = atoi(&sym[1]);
@@ -30,38 +29,32 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_CS;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("C[[:digit:]]+H",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^C[[:digit:]]+H$"))
     {
         pgGroup = PG_CNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("C[[:digit:]]+V",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^C[[:digit:]]+V$"))
     {
         pgGroup = PG_CNV;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("S[[:digit:]]+",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^S[[:digit:]]+$"))
     {
         pgGroup = PG_SN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[[:digit:]]+",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^D[[:digit:]]+$"))
     {
         pgGroup = PG_DN;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[[:digit:]]+H",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^D[[:digit:]]+H$"))
     {
         pgGroup = PG_DNH;
         pgOrder = atoi(&sym[1]);
     }
-    else if (regex_match(sym, regex("D[[:digit:]]+V",
-                                    regex_constants::extended)))
+    else if (regexMatches(sym, "^D[[:digit:]]+V$"))
     {
         pgGroup = PG_DNV;
         pgOrder = atoi(&sym[1]);
@@ -96,7 +89,7 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_I;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("I[12345]", regex_constants::extended)))
+    else if (regexMatches(sym, "^I[12345]$"))
     {
         switch (sym[1])
         {
@@ -118,7 +111,7 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_IH;
         pgOrder = -1;
     }
-    else if (regex_match(sym, regex("I[12345]H", regex_constants::extended)))
+    else if (regexMatches(sym, "^I[12345]H$"))
     {
         switch (sym[1])
         {
@@ -136,7 +129,7 @@ void symmetryGroup(int& pgGroup,
         pgOrder = -1;
     }
     else
-        REPORT_ERROR("Invalid Symmetry Index");
+        CLOG(FATAL, "LOGGER_SYS") << "Invalid Symmetry Index";
 }
 
 void fillSymmetryEntry(vector<SymmetryOperation>& entry,
@@ -169,7 +162,7 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
 
         case PG_SN:
             if (pgOrder % 2 == 1)
-                REPORT_ERROR("order for SN group must be even");
+                CLOG(FATAL, "LOGGER_SYS") << "Order for SN Group Must Be Even";
             fillSymmetryEntry(entry, PG_CN, pgOrder / 2);
             entry.push_back(SymmetryOperation(InversionSO()));
             break;
@@ -279,7 +272,7 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             break;
 
         case PG_I5:
-            REPORT_ERROR("PG_I5 Not Implemented");
+            CLOG(FATAL, "LOGGER_SYS") << "PG_I5 Not Implemented";
             break;
 
         case PG_IH:
@@ -308,11 +301,12 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             break;
 
         case PG_I5H:
-            REPORT_ERROR("PG_I5H Not Implemented");
+            CLOG(FATAL, "LOGGER_SYS") << "PG_I5H Not Implemented";
             break;
 
         default:
-            REPORT_ERROR("Symmetry Point Group Is Not Known.");
+            CLOG(FATAL, "LOGGER_SYS") << "Symmetry Point Group is Not Known";
+            break;
     }
 }
 

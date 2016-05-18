@@ -12,12 +12,16 @@
 #include "ImageFile.h"
 #include "FFT.h"
 
-#define N 256
+#define N 190
 #define M 8
 #define PF 1
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, const char* argv[])
 {
+    loggerInit();
+
     std::cout << "Define a head." << std::endl;
 
     Volume head(N, N, N, RL_SPACE);
@@ -40,9 +44,15 @@ int main(int argc, const char* argv[])
             head.setRL(0, i, j, k);
     }
 
+    mat33 centre;
+    centre << -1, 0, 0,
+              0, -1, 0,
+              0, 0, -1;
+    /***
     mat33 centre({{-1, 0, 0},
                   {0, -1, 0},
                   {0, 0, -1}});
+                  ***/
     Volume centreHead(N, N, N, RL_SPACE);
     VOL_TRANSFORM_MAT_RL(centreHead,
                          head,
@@ -63,7 +73,7 @@ int main(int argc, const char* argv[])
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
     ***/
-    
+
     FFT fft;
     fft.fw(padHead);
     fft.fw(padCentreHead);
@@ -78,7 +88,7 @@ int main(int argc, const char* argv[])
 
     mat33 rot;
 
-    projector.setProjectee(padHead);
+    projector.setProjectee(padHead.copyVolume());
 
     rotate3D(rot, 0.3, 0.3, 0.3);
 
@@ -99,7 +109,7 @@ int main(int argc, const char* argv[])
            image,
            projector.project(image, rot));
 
-    projector.setProjectee(padCentreHead);
+    projector.setProjectee(padCentreHead.copyVolume());
 
     rotate3D(rot, 0.3, 0.3, 0.3);
     mat33 rot2;
@@ -130,32 +140,42 @@ int main(int argc, const char* argv[])
     image.saveRLToBMP("Negative.bmp");
     ***/
 
-    /***
+    Image img(N, N, FT_SPACE);
+
     try
     {
     for (int k = 0; k < M; k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
             {
+                SET_0_FT(img);
                 printf("%02d %02d %02d\n", i, j, k);
-                sprintf(name, "%02d%02d%02d.bmp", i, j, k);
-                R2R_FT(image,
-                       image,
-                       projector.project(image,
-                                         2 * M_PI * i / M,
-                                         M_PI * j / M,
-                                         2 * M_PI * k / M,
-                                         10,
-                                         10));
+                projector.project(img,
+                                  2 * M_PI * i / M,
+                                  M_PI * j / M,
+                                  2 * M_PI * k / M,
+                                  10,
+                                  10);
 
-                image.saveRLToBMP(name);
+                sprintf(name, "%02d%02d%02dFT.bmp", i, j, k);
+                img.saveFTToBMP(name, 0.1);
+
+                fft.bw(img);
+
+                sprintf(name, "%02d%02d%02dRL.bmp", i, j, k);
+                img.saveRLToBMP(name);
+
+                sprintf(name, "%02d%02d%02dRL.mrc", i, j, k);
+                imf.readMetaData(img);
+                imf.writeImage(name, img);
+
+                fft.fw(img);
             }
     }
     catch (Error& err)
     {
         cout << err << endl;
     }
-    ***/
 
     return 0;
 }

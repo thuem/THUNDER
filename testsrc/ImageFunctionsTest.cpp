@@ -22,7 +22,7 @@ int main(int argc, const char* argv[])
     FFT fft;
     Image A(N, N, RL_SPACE);
     fft.fw(A);
-    Image B = A;
+    Image B = A.copyImage();
     ADD_FT(B, A);
 
     /***

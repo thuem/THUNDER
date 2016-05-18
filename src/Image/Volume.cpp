@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Author: Mingxu Hu
- * Dependency: 
+ * Dependency:
  * Test:
  * Execution:
  * Description:
@@ -20,25 +20,8 @@ Volume::Volume(const int nCol,
     alloc(nCol, nRow, nSlc, space);
 }
 
-Volume::Volume(const Volume& that)
-{
-    *this = that;
-}
-
 Volume::~Volume()
 {
-    clear();
-}
-
-Volume& Volume::operator=(const Volume& that)
-{
-    ImageBase::operator=(that);
-
-    _nCol = that.nColRL();
-    _nRow = that.nRowRL();
-    _nSlc = that.nSlcRL();
-
-    return *this;
 }
 
 void Volume::alloc(int space)
@@ -62,9 +45,7 @@ void Volume::alloc(const int nCol,
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
-        _dataRL = new double[_sizeRL];
-        if (_dataRL == NULL)
-            REPORT_ERROR("Fail to allocate memory for storing volume");
+        _dataRL.reset(new double[_sizeRL]);
     }
     else if (space == FT_SPACE)
     {
@@ -73,9 +54,7 @@ void Volume::alloc(const int nCol,
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
-        _dataFT = new Complex[_sizeFT];
-        if (_dataFT == NULL)
-            REPORT_ERROR("Fail to allocate memory for storing Fourier volume");
+        _dataFT.reset(new Complex[_sizeFT]);
     }
 }
 
@@ -173,7 +152,7 @@ void Volume::addFT(const Complex value,
 }
 
 double Volume::getByInterpolationRL(const double iCol,
-                                    const double iRow, 
+                                    const double iRow,
                                     const double iSlc,
                                     const int interp) const
 {
@@ -282,6 +261,7 @@ Complex Volume::getFT(const double w[2][2][2],
     return result;
 }
 
+/***
 void Volume::addImages(std::vector<Image>& images,
                        std::vector<Coordinate5D>& coords,
                        const double maxRadius,
@@ -299,13 +279,6 @@ void Volume::addImages(std::vector<Image>& images,
             arma::mat33 mat;
             rotate3D(mat, coords[index].phi, coords[index].theta, coords[index].psi);
 
-            /*-----------------------------------------------------------*
-             *  If the distance from this voxle to the present projection
-             * plane (image) is larger than "a", then pass this image.
-             *-----------------------------------------------------------*/
-            // if (distance(voxleCor, coords[index]) > a)
-            //     continue;
-
             Image transSrc(images[0].nColFT(), images[0].nRowFT(), FT_SPACE);
             translate(transSrc, images[index], -coords[index].x, -coords[index].y);
 
@@ -313,7 +286,6 @@ void Volume::addImages(std::vector<Image>& images,
             addImage(i, j, k, transSrc, mat, kernel);
         }
     }
-
 }
 
 void Volume::addImage(const int iCol,
@@ -341,3 +313,4 @@ void Volume::addImage(const int iCol,
                   iSlc);
     }
 }
+***/

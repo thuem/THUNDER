@@ -9,7 +9,7 @@
  * ****************************************************************************/
 
 #ifndef IMAGE_BASE
-#define IMAGE_BASE 
+#define IMAGE_BASE
 
 #include <functional>
 #include <cstring>
@@ -22,6 +22,7 @@
 #include "Complex.h"
 #include "Typedef.h"
 #include "Functions.h"
+#include "Utils.h"
 
 #define RL_SPACE 0
 #define FT_SPACE 1
@@ -83,32 +84,30 @@
 
 class ImageBase
 {
+    MAKE_DEFAULT_MOVE(ImageBase)
+
     protected:
 
-        double* _dataRL = NULL;
-        Complex* _dataFT = NULL;
+        std::unique_ptr<double[]> _dataRL;
+        std::unique_ptr<Complex[]> _dataFT;
 
         size_t _sizeRL = 0;
         size_t _sizeFT = 0;
 
-    public:
-
         ImageBase();
+        ~ImageBase();
 
-        ImageBase(const ImageBase& that);
-
-        ImageBase& operator=(const ImageBase& that);
-
+    public:
         const double& iGetRL(size_t i = 0) const;
         // return a const pointer which points to the i-th element
 
         const Complex& iGetFT(size_t i = 0) const;
         // return a const pointer which points to the i-th element
-        
+
         double& operator()(const size_t i);
 
         Complex& operator[](const size_t i);
-        
+
         bool isEmptyRL() const;
         // check whether _data is NULL or not
 
@@ -129,10 +128,18 @@ class ImageBase
 
         void clearFT();
         // free the memory storing Fourier Transform image
+
+        void copyBase(ImageBase&) const;
+        ImageBase copyBase() const
+        {
+            ImageBase res;
+            copyBase(res);
+            return res;
+        }
 };
 
 double norm(ImageBase& base);
 
 void normalise(ImageBase& base);
 
-#endif // IMAGE_BASE 
+#endif // IMAGE_BASE

@@ -33,14 +33,16 @@ void resP2A(vec& res,
             const int imageSize,
             const double pixelSize)
 {
-    res.transform([&](double val){ return val / imageSize / pixelSize; });
+    res /= imageSize * pixelSize;
+    // res.transform([&](double val){ return val / imageSize / pixelSize; });
 }
 
 void resA2P(vec& res,
             const int imageSize,
             const double pixelSize)
 {
-    res.transform([&](double val){ return val * imageSize * pixelSize; });
+    res *= imageSize * pixelSize;
+    // res.transform([&](double val){ return val * imageSize * pixelSize; });
 }
 
 double ringAverage(const int resP,
@@ -114,14 +116,19 @@ void FRC(vec& dst,
          const Image& A,
          const Image& B)
 {
+    vec vecS = vec::Zero(dst.size());
+    vec vecA = vec::Zero(dst.size());
+    vec vecB = vec::Zero(dst.size());
+    /***
     vec vecS = zeros<vec>(size(dst));
     vec vecA = zeros<vec>(size(dst));
     vec vecB = zeros<vec>(size(dst));
+    ***/
 
     IMAGE_FOR_EACH_PIXEL_FT(A)
     {
         int u = AROUND(NORM(i, j));
-        if (u < dst.n_elem)
+        if (u < dst.size())
         {
             vecS[u] += REAL(A.getFT(i, j) * CONJUGATE(B.getFT(i, j)));
             vecA[u] += ABS2(A.getFT(i, j));
@@ -129,21 +136,26 @@ void FRC(vec& dst,
         }
     }
 
-    dst = vecS / sqrt(vecA % vecB);
+    dst = vecS.array() / sqrt(vecA.array() * vecB.array());
 }
 
 void FSC(vec& dst,
          const Volume& A,
          const Volume& B)
 {
+    vec vecS = vec::Zero(dst.size());
+    vec vecA = vec::Zero(dst.size());
+    vec vecB = vec::Zero(dst.size());
+    /***
     vec vecS = zeros<vec>(size(dst));
     vec vecA = zeros<vec>(size(dst));
     vec vecB = zeros<vec>(size(dst));
+    ***/
 
     VOLUME_FOR_EACH_PIXEL_FT(A)
     {
         int u = AROUND(NORM_3(i, j, k));
-        if (u < dst.n_elem)
+        if (u < dst.size())
         {
             vecS[u] += REAL(A.getFT(i, j, k) * CONJUGATE(B.getFT(i, j, k)));
             vecA[u] += ABS2(A.getFT(i, j, k));
@@ -151,7 +163,8 @@ void FSC(vec& dst,
         }
     }
 
-    dst = vecS / sqrt(vecA % vecB);
+    dst = vecS.array() / sqrt(vecA.array() * vecB.array());
+    // dst = vecS / sqrt(vecA % vecB);
 }
 
 /***

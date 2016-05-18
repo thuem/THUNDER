@@ -14,8 +14,6 @@
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
-#include <glog/logging.h>
-#include <armadillo>
 #include <bingham.h>
 
 #include "Typedef.h"
@@ -27,8 +25,6 @@
 #include "Functions.h"
 #include "Symmetry.h"
 
-using namespace arma;
-using namespace google;
 using namespace std;
 
 static double e0[4] = {0, 1, 0, 0};

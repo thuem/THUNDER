@@ -14,8 +14,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit();
+
     MPI_Init(&argc, &argv);
 
     Database db;

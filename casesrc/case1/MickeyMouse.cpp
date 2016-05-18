@@ -30,11 +30,13 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
-    MPI_Init(&argc, &argv);
+    loggerInit(argc, argv);
 
-    InitGoogleLogging(argv[0]);
+    MPI_Init(&argc, &argv);
 
     cout << "Initialising Parameters" << endl;
     MLOptimiserPara para;
@@ -51,7 +53,7 @@ int main(int argc, char* argv[])
     para.maxY = MAX_Y;
     sprintf(para.sym, "C2");
     sprintf(para.initModel, "sphere.mrc");
-    sprintf(para.db, "MickeyMouse.db");
+    sprintf(para.db, "/tmp/MickeyMouse.db");
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;
