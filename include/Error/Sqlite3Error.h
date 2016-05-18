@@ -16,10 +16,12 @@
 
 #include <sqlite3.h>
 
+#include "logging.h"
+
 using namespace std;
 
 #define SQLITE3_HANDLE_ERROR(err) \
-    [](const int _err) throw() \
+    [](const int _err) \
     { \
         if ((_err != 0) && \
             (_err != 100) && \
