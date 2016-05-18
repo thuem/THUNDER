@@ -25,7 +25,7 @@
 
 #define PIXEL_SIZE 1.32
 
-#define M 2000
+#define M 500
 #define MF 1
 
 using namespace std;
@@ -34,7 +34,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     MPI_Init(&argc, &argv);
 
