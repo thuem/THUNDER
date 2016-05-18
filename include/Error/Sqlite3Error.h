@@ -16,8 +16,6 @@
 
 #include <sqlite3.h>
 
-#include <glog/logging.h>
-
 using namespace std;
 
 #define SQLITE3_HANDLE_ERROR(err) \
