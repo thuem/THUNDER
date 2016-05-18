@@ -12,7 +12,7 @@
 #include "ImageFile.h"
 #include "FFT.h"
 
-#define N 256
+#define N 190
 #define M 8
 #define PF 1
 
@@ -140,32 +140,42 @@ int main(int argc, const char* argv[])
     image.saveRLToBMP("Negative.bmp");
     ***/
 
-    /***
+    Image img(N, N, FT_SPACE);
+
     try
     {
     for (int k = 0; k < M; k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
             {
+                SET_0_FT(img);
                 printf("%02d %02d %02d\n", i, j, k);
-                sprintf(name, "%02d%02d%02d.bmp", i, j, k);
-                R2R_FT(image,
-                       image,
-                       projector.project(image,
-                                         2 * M_PI * i / M,
-                                         M_PI * j / M,
-                                         2 * M_PI * k / M,
-                                         10,
-                                         10));
+                projector.project(img,
+                                  2 * M_PI * i / M,
+                                  M_PI * j / M,
+                                  2 * M_PI * k / M,
+                                  10,
+                                  10);
 
-                image.saveRLToBMP(name);
+                sprintf(name, "%02d%02d%02dFT.bmp", i, j, k);
+                img.saveFTToBMP(name, 0.1);
+
+                fft.bw(img);
+
+                sprintf(name, "%02d%02d%02dRL.bmp", i, j, k);
+                img.saveRLToBMP(name);
+
+                sprintf(name, "%02d%02d%02dRL.mrc", i, j, k);
+                imf.readMetaData(img);
+                imf.writeImage(name, img);
+
+                fft.fw(img);
             }
     }
     catch (Error& err)
     {
         cout << err << endl;
     }
-    ***/
 
     return 0;
 }
