@@ -18,8 +18,6 @@
 
 #include <glog/logging.h>
 
-#include "Error.h"
-
 using namespace std;
 
 #define SQLITE3_HANDLE_ERROR(err) \
@@ -28,7 +26,7 @@ using namespace std;
         if ((_err != 0) && \
             (_err != 100) && \
             (_err != 101)) \
-        LOG(FATAL) << string(sqlite3GetErrorString(_err)); \
+        CLOG(FATAL, "LOGGER_SYS") << string(sqlite3GetErrorString(_err)); \
     }(err)
 
 const char* sqlite3GetErrorString(const int err);
