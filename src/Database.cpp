@@ -153,7 +153,7 @@ void Database::createTableGroups()
     _db.exec("create table groups(ID integer primary key, Name text);");
 
     const char* sql = "insert into groups values (?, ?);";
-    _stmtAppendGroup = std::move(sql::Statement(sql, strlen(sql), _db));
+    _stmtAppendGroup = sql::Statement(sql, strlen(sql), _db);
 }
 
 void Database::createTableMicrographs()
@@ -168,7 +168,7 @@ void Database::createTableMicrographs()
 
     const char* sql = "insert into micrographs \
                         values (?, ?, ?, ?, ?, ?, ?)";
-    _stmtAppendMicrograph = std::move(sql::Statement(sql, strlen(sql), _db));
+    _stmtAppendMicrograph = sql::Statement(sql, strlen(sql), _db);
 }
 
 void Database::createTableParticles()
@@ -181,7 +181,7 @@ void Database::createTableParticles()
 
     const char* sql = "insert into particles (Name, GroupID, MicrographID) \
                         values (?, ?, ?)";
-    _stmtAppendParticle = std::move(sql::Statement(sql, strlen(sql), _db));
+    _stmtAppendParticle = sql::Statement(sql, strlen(sql), _db);
 }
 
 void Database::appendGroup(const char name[],
@@ -368,7 +368,6 @@ void Database::masterPrepareTmpFile()
         return;
 
     // open dst database
-    sqlite3* dstDB;
 
     char die[256];
     char cast[256];
@@ -387,11 +386,10 @@ void Database::masterPrepareTmpFile()
     sprintf(cmd, "touch %s", die);
     system(cmd);
 
-        string sql;
-
-        // create a database struct for each node
-        sql = "attach database '" + string(die) + "' as dst";
-        _db.exec(sql.c_str());
+    string sql;
+    // create a database struct for each node
+    sql = "attach database '" + string(die) + "' as dst";
+    _db.exec(sql.c_str());
     try
     {
         _db.beginTransaction();

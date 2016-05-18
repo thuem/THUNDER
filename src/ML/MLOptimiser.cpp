@@ -439,8 +439,6 @@ void MLOptimiser::initCTF()
     IF_MASTER return;
 
     // get CTF attributes from _exp
-    char sql[SQL_COMMAND_LENGTH];
-
     CTFAttr ctfAttr;
 
     sql::Statement stmt(

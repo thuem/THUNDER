@@ -19,7 +19,7 @@ using namespace std;
 
 static el::Configurations loggerConf;
 
-static void loggerInit(el::Configurations conf,
+inline void loggerInit(el::Configurations conf,
                        const char loggerName[],
                        const char loggerFile[])
 {
@@ -40,7 +40,7 @@ static void loggerInit(el::Configurations conf,
     el::Loggers::reconfigureLogger(loggerName, conf);
 };
 
-static void loggerInit()
+inline void loggerInit()
 {
     loggerInit(loggerConf, "LOGGER_SYS", "LOGGER_SYS.log");
     loggerInit(loggerConf, "LOGGER_INIT", "LOGGER_INIT.log");
@@ -48,7 +48,7 @@ static void loggerInit()
     loggerInit(loggerConf, "LOGGER_COMPARE", "LOGGER_COMPARE.log");
 };
 
-static void loggerInit(int argc, char* argv[])
+inline void loggerInit(int argc, char* argv[])
 {
     string logger(argv[0]);
     loggerInit(loggerConf, "LOGGER_SYS", (logger + ".log").c_str());

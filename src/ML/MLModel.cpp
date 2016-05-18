@@ -127,9 +127,6 @@ void MLModel::BcastFSC()
             Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
             Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
 
-            if ((&A[0] == NULL) && (&B[0] == NULL))
-                LOG(FATAL) << "Failed to Allocate Space for Storing a Reference";
-
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere A";
 
             MPI_Recv(&A[0],

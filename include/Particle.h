@@ -27,9 +27,7 @@
 
 using namespace std;
 
-static double e0[4] = {0, 1, 0, 0};
-static double e1[4] = {0, 0, 1, 0};
-static double e2[4] = {0, 0, 0, 1};
+extern double e0[4], e1[4], e2[4];
 
 class Particle
 {

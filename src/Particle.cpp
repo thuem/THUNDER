@@ -8,6 +8,10 @@
 
 #include "Particle.h"
 
+double e0[4] = {0, 1, 0, 0};
+double e1[4] = {0, 0, 1, 0};
+double e2[4] = {0, 0, 0, 1};
+
 Particle::Particle() {}
 
 Particle::Particle(const int n,
