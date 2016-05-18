@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
-    _r = MIN(8, MAX(MAX_GAP, _para.size / 16));
+    _r = MIN(16, MAX(MAX_GAP, _para.size / 8));
     _iter = 0;
     _model.setR(_r);
 
@@ -166,6 +166,10 @@ void MLOptimiser::expectation()
                 }
             }
 
+            double nt = (phase == N_PHASE_PER_ITER - 1)
+                      ? 2 * TOP_K
+                      : _par[l].n() / 10;
+
             int nSearch = 0;
             do
             {
@@ -189,7 +193,6 @@ void MLOptimiser::expectation()
                 }
 
                 logW.array() -= logW(0); // avoiding numerical error
-                // logW /= 2; // Doing Some Compromise
 
                 for (int m = 0; m < _par[l].n(); m++)
                     _par[l].mulW(exp(logW(m)), m);
@@ -198,7 +201,7 @@ void MLOptimiser::expectation()
                 _par[l].normW();
 
                 nSearch++;
-            } while ((_par[l].neff() > 2 * TOP_K) &&
+            } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
         }
 
