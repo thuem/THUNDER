@@ -24,6 +24,8 @@
 #include "Functions.h"
 #include "Utils.h"
 
+using namespace std;
+
 #define RL_SPACE 0
 #define FT_SPACE 1
 
@@ -88,8 +90,8 @@ class ImageBase
 
     protected:
 
-        std::unique_ptr<double[]> _dataRL;
-        std::unique_ptr<Complex[]> _dataFT;
+        unique_ptr<double[]> _dataRL;
+        unique_ptr<Complex[]> _dataFT;
 
         size_t _sizeRL = 0;
         size_t _sizeFT = 0;
