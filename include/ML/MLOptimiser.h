@@ -43,7 +43,7 @@
 #define ALPHA_GLOBAL_SEARCH_MIN 0.9
 #define ALPHA_GLOBAL_SEARCH_BG 0.1
 
-#define N_PHASE_PER_ITER 2
+#define N_PHASE_PER_ITER 3
 #define MAX_N_SEARCH_PER_PHASE 3
 
 using namespace std;
