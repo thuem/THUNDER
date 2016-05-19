@@ -113,13 +113,13 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    Image image(size(),
-                size(),
-                FT_SPACE);
-
-    // #pragma omp parallel for private(image)
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        Image image(size(),
+                    size(),
+                    FT_SPACE);
+
         /***
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
@@ -787,67 +787,21 @@ double logDataVSPrior(const Image& dat,
                       const vec& sig,
                       const int r)
 {
-    // double result = 1;
     double result = 0;
-    // int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
-        // adding /u for compensate
         int u = AROUND(NORM(i, j));
+
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
-        {
             result += ABS2(dat.getFT(i, j)
                          - REAL(ctf.getFT(i, j))
                          * pri.getFT(i, j))
                         / (-2 * sig[u]);
-            /***
-            result += ABS2(dat.getFT(i, j)
-                         - ctf.getFT(i, j)
-                         * pri.getFT(i, j))
-                        / (-2 * sig(u))
-                        / (sqrt(NORM(i, j)));
-                        ***/
-            /***
-            result += ABS2(dat.getFT(i, j)
-                         - ctf.getFT(i, j)
-                         * pri.getFT(i, j))
-                        / (-2 * sig(u))
-                        / (M_PI * u);
-                        ***/
-            /***
-            result *= exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                        / (-2 * sig(u)));
-                        ***/
-            /***
-            result *= (exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                            / (-2 * sig(u)))
-                     / (2 * M_PI * sig(u)));
-                     ***/
-            /***
-            result *= exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                            / (-2 * sig(u)))
-                    / (2 * M_PI * sig(u));
-                    ***/
-                    // / (2 * M_PI * u);
-            // counter++;
-        }
     }
 
-    // LOG(INFO) << "dataVSPrior" << result << endl;
-
     return result;
-
-    // return exp(result);
-
-    // return exp(result);
 }
 
 double dataVSPrior(const Image& dat,

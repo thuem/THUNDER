@@ -77,16 +77,16 @@ void Reconstructor::insert(const Image& src,
 {
     IF_MASTER
     {
-        LOG(WARNING) << "Inserting Images into Reconstructor in MASTER";
+        CLOG(WARNING, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
         return;
     }
 
     if ((src.nColRL() != _size) ||
         (src.nRowRL() != _size))
-        LOG(FATAL) << "Incorrect Size of Inserting Image"
-                   << ": _size = " << _size
-                   << ", nCol = " << src.nColRL()
-                   << ", nRow = " << src.nRowRL();
+        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Inserting Image"
+                                  << ": _size = " << _size
+                                  << ", nCol = " << src.nColRL()
+                                  << ", nRow = " << src.nRowRL();
 
     _rot.push_back(rot);
     _w.push_back(w);
@@ -177,10 +177,6 @@ void Reconstructor::allReduceW()
     {
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = 0; i <= _size / 2; i++)
-        /***
-        for (int j = -_size / 2; j < _size / 2; j++)
-            for (int i = -_size / 2; i <= _size / 2; i++)
-        ***/
             {
                 if (QUAD(i, j) < _maxRadius * _maxRadius)
                 {
@@ -249,12 +245,14 @@ double Reconstructor::checkC() const
 {
     int counter = 0;
     double diff = 0;
+
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (NORM_3(i, j, k) < _maxRadius - _pf * _a)
         {
             counter += 1;
             diff += abs(REAL(_C.getFT(i, j, k)) - 1);
         }
+
     return diff / counter;
 }
 
@@ -264,6 +262,7 @@ void Reconstructor::symmetrizeF()
 
     Volume symF;
     SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius);
+
     _F = std::move(symF);
 }
 
@@ -273,5 +272,6 @@ void Reconstructor::symmetrizeC()
 
     Volume symC;
     SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius);
+
     _C = std::move(symC);
 }
