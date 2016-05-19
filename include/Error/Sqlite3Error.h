@@ -16,7 +16,7 @@
 
 #include <sqlite3.h>
 
-#include "logging.h"
+#include "Logging.h"
 
 using namespace std;
 
