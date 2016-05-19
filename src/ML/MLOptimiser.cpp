@@ -113,7 +113,7 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    // #pragma omp parallel for
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         Image image(size(),
