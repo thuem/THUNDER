@@ -718,21 +718,26 @@ void MLOptimiser::reconstructRef()
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];
+    Volume result;
     if (_commRank == HEMI_A_LEAD)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Saving References";
 
-        imf.readMetaData(_model.ref(0));
+        VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+        imf.readMetaData(result);
         sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
-        imf.writeVolume(filename, _model.ref(0));
+        imf.writeVolume(filename, result);
     }
     else if (_commRank == HEMI_B_LEAD)
     {
         BLOG(INFO, "LOGGER_ROUND") << "Saving References";
 
-        imf.readMetaData(_model.ref(0));
+        VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+        imf.readMetaData(result);
         sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
-        imf.writeVolume(filename, _model.ref(0));
+        imf.writeVolume(filename, result);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
