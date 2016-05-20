@@ -31,8 +31,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit(argc, argv);
+
     FFT fft;
 
     cout << "Read-in Ref" << endl;
