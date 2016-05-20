@@ -152,6 +152,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;

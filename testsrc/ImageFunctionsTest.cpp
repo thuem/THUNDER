@@ -40,6 +40,12 @@ int main(int argc, const char* argv[])
     cout << "Padding A" << endl;
     VOL_PAD_RL(B, A, 2);
 
+    cout << "FFT B" << endl;
+    fft.fw(B);
+    B.clearRL();
+    cout << "iFFT B" << endl;
+    fft.bw(B);
+
     cout << "Writing B" << endl;
     imf.readMetaData(B);
     imf.writeVolume("B0.mrc", B);

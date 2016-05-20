@@ -530,18 +530,12 @@ void MLOptimiser::initSigma()
 
     avgPs /= _N;
 
-    // ALOG(INFO) << "Average Power Spectrum is " << endl << avgPs;
-
-    // ALOG(INFO) << "Calculating Power Spectrum of Average Image";
-
     ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
     // powerSpectrum(psAvg, avg, maxR());
     for (int i = 0; i < maxR(); i++)
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
-
-    // ALOG(INFO) << "Power Spectrum of Average Image is " << endl << psAvg;
 
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
