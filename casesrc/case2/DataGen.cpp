@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
     VOL_PAD_RL(padRef, ref, PF);
     normalise(padRef);
 
+    cout << "Writing padRef" << endl;
     imf.readMetaData(padRef);
     imf.writeVolume("padRef.mrc", padRef);
 
