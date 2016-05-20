@@ -24,6 +24,43 @@
 
 using namespace std;
 
+/**
+ * This macro extracts the centre block out of a volume in real space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param ef the extraction factor (0 < ef <= 1)
+ */
+#define VOL_EXTRACT_RL(dst, src, ef) \
+    VOL_EXTRACT(RL, dst, src, ef) 
+
+/**
+ * This macro extracts the centre block out of a volume in Fourier space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param ef the extraction factor (0 < ef <= 1)
+ */
+#define VOL_EXTRACT_FT(dst, src, ef) \
+    VOL_EXTRACT(FT, dst, src, ef)
+
+/**
+ * This macro extracts the centre block out of a volume.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param ef the extraction factor (0 < ef <= 1)
+ */
+#define VOL_EXTRACT(SP, dst, src, ef) \
+    [](Volume& _dst, const Volume& _src, const int _ef) \
+    { \
+        _dst.alloc(_pf * _src.nColRL(), \
+                   _pf * _src.nRowRL(), \
+                   _pf * _src.nSlcRL(), \
+                    SP##_SPACE); \
+        VOLUME_FOR_EACH_PIXEL_##SP(_dst) \
+            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
+    }(dst, src, ef)
+
 #define VOL_PAD_RL(dst, src, pf) \
     VOL_PAD(RL, dst, src, pf)
 
