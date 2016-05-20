@@ -33,7 +33,6 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-    /***
     FFT fft;
 
     cout << "Read-in Ref" << endl;
@@ -54,7 +53,6 @@ int main(int argc, char* argv[])
 
     imf.readMetaData(padRef);
     imf.writeVolume("padRef.mrc", padRef);
-    ***/
 
     /***
     cout << "Reading from Hard-disk" << endl;
@@ -63,7 +61,6 @@ int main(int argc, char* argv[])
     imf2.readVolume(padHead);
     ***/
     
-    /***
     cout << "Fourier Transforming Ref" << endl;
     fft.fw(padRef);
 
@@ -135,5 +132,4 @@ int main(int argc, char* argv[])
     }
     
     return 0;
-    ***/
 }
