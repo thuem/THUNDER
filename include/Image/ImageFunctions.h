@@ -51,12 +51,12 @@ using namespace std;
  * @param ef the extraction factor (0 < ef <= 1)
  */
 #define VOL_EXTRACT(SP, dst, src, ef) \
-    [](Volume& _dst, const Volume& _src, const int _ef) \
+    [](Volume& _dst, const Volume& _src, const double _ef) \
     { \
-        _dst.alloc(_ef * _src.nColRL(), \
-                   _ef * _src.nRowRL(), \
-                   _ef * _src.nSlcRL(), \
-                    SP##_SPACE); \
+        _dst.alloc(AROUND(_ef * _src.nColRL()), \
+                   AROUND(_ef * _src.nRowRL()), \
+                   AROUND(_ef * _src.nSlcRL()), \
+                   SP##_SPACE); \
         VOLUME_FOR_EACH_PIXEL_##SP(_dst) \
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, ef)
