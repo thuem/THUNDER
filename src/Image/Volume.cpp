@@ -126,6 +126,12 @@ void Volume::setFT(const Complex value,
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
     _dataFT[index] = flag ? CONJUGATE(value) : value;
+
+    Complex val = flag ? CONJUGATE(value) : value;
+    #pragma omp atomic
+    _data[index].dat[0] = val.dat[0];
+    #pragma omp atomic
+    _data[index].dat[1] = val.dat[1];
 }
 
 void Volume::addFT(const Complex value,
@@ -139,16 +145,11 @@ void Volume::addFT(const Complex value,
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
 
-    // /* version 1 */
-    // #pragma omp critical
-    // _dataFT[index] += flag ? CONJUGATE(value) : value;
-
-    /* version 2: recommended */
-    Complex inc = flag ? CONJUGATE(value) : value;
+    Complex val = flag ? CONJUGATE(value) : value;
     #pragma omp atomic
-    _dataFT[index].dat[0] += inc.dat[0];
+    _dataFT[index].dat[0] += val.dat[0];
     #pragma omp atomic
-    _dataFT[index].dat[1] += inc.dat[1];
+    _dataFT[index].dat[1] += val.dat[1];
 }
 
 double Volume::getByInterpolationRL(const double iCol,

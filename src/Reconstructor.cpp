@@ -209,6 +209,7 @@ void Reconstructor::allReduceW()
 
     symmetrizeC();
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
         {
