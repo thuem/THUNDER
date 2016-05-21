@@ -25,6 +25,11 @@ int main(int argc, char* argv[])
         double ii = i * 0.8;
         double jj = j * 0.8;
         double kk = k * 0.8;
+        if (NORM_3(ii, jj, kk) < N / 8)
+            sphere.setRL(1, i, j, k);
+        else
+            sphere.setRL(0, i, j, k);
+        /***
         if ((NORM_3(ii, jj, kk) < N / 8) ||
             (NORM_3(ii - N / 8, jj, kk - N / 8) < N / 16) ||
             (NORM_3(ii + N / 8, jj, kk - N / 8) < N / 16) ||
@@ -34,6 +39,7 @@ int main(int argc, char* argv[])
             sphere.setRL(1, i, j, k);
         else
             sphere.setRL(0, i, j, k);
+        ***/
     }
 
     Volume padSphere;
