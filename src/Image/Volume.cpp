@@ -86,6 +86,7 @@ void Volume::setRL(const double value,
                    const int iSlc)
 {
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    #pragma omp critical
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
@@ -97,6 +98,7 @@ void Volume::addRL(const double value,
                    const int iSlc)
 {
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    #pragma omp atomic
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
