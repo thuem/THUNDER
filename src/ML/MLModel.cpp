@@ -287,6 +287,7 @@ void MLModel::updateR()
             return;
         }
 
+    _r = resolutionP();
     _r += MIN_GAP;
     _r = MIN(_r, _size / 2 - _a);
 }
