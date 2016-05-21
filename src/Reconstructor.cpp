@@ -130,14 +130,14 @@ void Reconstructor::reconstruct(Volume& dst)
 
     for (int i = 0; i < 3; i++)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Balancing Weights Round " << i;
-        BLOG(INFO, "LOGGER_ROUND") << "Balancing Weights Round " << i;
+        ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
+        BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
 
         allReduceW();
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Reducing F";
-    BLOG(INFO, "LOGGER_ROUND") << "Reducing F";
+    ALOG(INFO, "LOGGER_RECO") << "Reducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Reducing F";
 
     allReduceF();
 
@@ -149,8 +149,8 @@ void Reconstructor::reconstruct(Volume& dst)
     FFT fft;
     fft.bw(dst);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
-    BLOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
+    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(dst)
@@ -172,6 +172,9 @@ void Reconstructor::reconstruct(Volume& dst)
 void Reconstructor::allReduceW()
 {
     SET_0_FT(_C);
+
+    ALOG(INFO, "LOGGER_RECO") << "Re-calculating C";
+    BLOG(INFO, "LOGGER_RECO") << "Re-calculating C";
 
     #pragma omp parallel for
     for (int k = 0; k < _rot.size(); k++)
@@ -197,6 +200,9 @@ void Reconstructor::allReduceW()
             }
     }
 
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing C";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing C";
+
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
@@ -208,7 +214,13 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
+
     symmetrizeC();
+
+    ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
+    BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_W)
