@@ -182,6 +182,8 @@ void Particle::perturb()
 {
     calVari();
 
+    // translation perturbation
+
     auto engine = get_random_engine();
 
     for (int i = 0; i < _t.rows(); i++)
@@ -192,38 +194,16 @@ void Particle::perturb()
         _t(i, 1) += y / 5;
     }
 
-    /***
-    _t.each_row([this, engine](rowvec& row)
-                {
-                    double x, y;
-                    gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-                    row(0) += x / 5;
-                    row(1) += y / 5;
-                });
-    ***/
-
     // rotation perturbation
 
     bingham_t B;
-    // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
     bingham_new_S3(&B, e0, e1, e2, 5 * _k0, 5 * _k1, 5 * _k2);
-    /***
-    // bingham_new_S3(&B, e0, e1, e2, _k0, _k1, _k2);
-    // bingham_new_S3(&B, e0, e1, e2, -1, -1, -1);
-    bingham_new_S3(&B, e0, e1, e2, -300, -200, -100);
-    ***/
+
     double** d = new_matrix2(_n, 4);
     bingham_sample(d, &B, _n);
 
     for (int i = 0; i < _n; i++)
-    {
-        /***
-        printf("d: %10f %10f %10f %10f\n", d[i][0], d[i][1], d[i][2], d[i][3]);
-        printf("r: %10f %10f %10f %10f\n", _r[i][0], _r[i][1], _r[i][2], _r[i][3]);
-        ***/
         quaternion_mul(_r[i], _r[i], d[i]);
-        // printf("r: %10f %10f %10f %10f\n\n", _r[i][0], _r[i][1], _r[i][2], _r[i][3]);
-    }
 
     bingham_free(&B);
     free_matrix2(d);
@@ -303,6 +283,10 @@ void Particle::resample(const int n,
         memcpy(_r[i], r[i], sizeof(double) * 4);
 
     free_matrix2(r);
+
+    // DLOG(INFO) << "Symmetrize";
+    
+    symmetrise();
 }
 
 double Particle::neff() const
