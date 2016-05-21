@@ -178,7 +178,6 @@ void Reconstructor::allReduceW()
 
     #pragma omp parallel for
     for (int k = 0; k < _rot.size(); k++)
-    {
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = 0; i <= _size / 2; i++)
             {
@@ -198,7 +197,6 @@ void Reconstructor::allReduceW()
                              _kernel);
                 }
             }
-    }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing C";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing C";
@@ -241,6 +239,9 @@ void Reconstructor::allReduceF()
 {
     MUL_FT(_F, _W);
 
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
+
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
@@ -251,6 +252,9 @@ void Reconstructor::allReduceF()
                   _hemi);
 
     MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
     symmetrizeF();
 }
