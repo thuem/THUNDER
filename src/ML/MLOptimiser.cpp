@@ -138,15 +138,18 @@ void MLOptimiser::expectation()
                 if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
-                        _par[l].resample(ALPHA_TOTAL_GLOBAL_SEARCH);
+                        _par[l].resample(_para.m * _para.mf,
+                                         ALPHA_TOTAL_GLOBAL_SEARCH);
                     else
-                        _par[l].resample(ALPHA_SEARCH_BG);
+                        _par[l].resample(_para.m,
+                                         ALPHA_SEARCH_BG);
                 }
                 else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
                                + N_ITER_PARTIAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
-                        _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX
+                        _par[l].resample(_para.m * _para.mf,
+                                         (ALPHA_GLOBAL_SEARCH_MAX
                                         - ALPHA_GLOBAL_SEARCH_MIN)
                                        * (N_ITER_TOTAL_GLOBAL_SEARCH 
                                         + N_ITER_PARTIAL_GLOBAL_SEARCH
@@ -154,13 +157,13 @@ void MLOptimiser::expectation()
                                        / (N_ITER_PARTIAL_GLOBAL_SEARCH - 1)
                                        + ALPHA_GLOBAL_SEARCH_MIN);
                     else
-                        _par[l].resample(ALPHA_SEARCH_BG);
+                        _par[l].resample(_para.m,
+                                         ALPHA_SEARCH_BG);
                 }
                 else
                 {
                     if (phase == 0)
-                        _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
-                                         ALPHA_LOCAL_SEARCH);
+                        _par[l].resample(ALPHA_LOCAL_SEARCH);
                     else
                         _par[l].resample();
                 }
