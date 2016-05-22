@@ -29,8 +29,8 @@ using namespace std;
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define MAX_GAP 20
-#define MIN_GAP 5
+#define MAX_GAP 15
+#define MIN_GAP 10
 
 class MLModel : public Parallel
 {
