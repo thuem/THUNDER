@@ -163,7 +163,8 @@ void MLOptimiser::expectation()
                 else
                 {
                     if (phase == 0)
-                        _par[l].resample(ALPHA_LOCAL_SEARCH);
+                        _par[l].resample(_para.m,
+                                         ALPHA_LOCAL_SEARCH);
                     else
                         _par[l].resample();
                 }
@@ -220,7 +221,6 @@ void MLOptimiser::expectation()
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
         }
-
     }
 }
 
