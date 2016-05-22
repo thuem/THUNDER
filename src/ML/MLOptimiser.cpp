@@ -203,23 +203,24 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
+                if (_ID[l] < 100)
+                {
+                    char filename[FILE_NAME_LENGTH];
+                    snprintf(filename,
+                             sizeof(filename),
+                             "Particle_%04d_Round_%03d_03%d_03%d.par",
+                             _ID[l],
+                             _iter,
+                             phase,
+                             nSearch);
+                    save(filename, _par[l]);
+                }
+
                 nSearch++;
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
         }
 
-        /***
-        ILOG(INFO) << "Round " << _iter
-                   << ": Information of Particle " << _ID[l]
-                   << ", Neff " << _par[l].neff();
-                   ***/
-
-        if (_ID[l] < 100)
-        {
-            char filename[FILE_NAME_LENGTH];
-            snprintf(filename, sizeof(filename), "Particle_%04d_Round_%03d.par", _ID[l], _iter);
-            save(filename, _par[l]);
-        }
     }
 }
 
