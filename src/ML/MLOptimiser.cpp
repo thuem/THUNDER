@@ -208,7 +208,7 @@ void MLOptimiser::expectation()
                     char filename[FILE_NAME_LENGTH];
                     snprintf(filename,
                              sizeof(filename),
-                             "Particle_%04d_Round_%03d_03%d_03%d.par",
+                             "Particle_%04d_Round_%03d_%03d_%03d.par",
                              _ID[l],
                              _iter,
                              phase,
