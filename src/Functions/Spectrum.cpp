@@ -146,11 +146,6 @@ void FSC(vec& dst,
     vec vecS = vec::Zero(dst.size());
     vec vecA = vec::Zero(dst.size());
     vec vecB = vec::Zero(dst.size());
-    /***
-    vec vecS = zeros<vec>(size(dst));
-    vec vecA = zeros<vec>(size(dst));
-    vec vecB = zeros<vec>(size(dst));
-    ***/
 
     VOLUME_FOR_EACH_PIXEL_FT(A)
     {
@@ -164,7 +159,6 @@ void FSC(vec& dst,
     }
 
     dst = vecS.array() / sqrt(vecA.array() * vecB.array());
-    // dst = vecS / sqrt(vecA % vecB);
 }
 
 /***
