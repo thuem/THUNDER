@@ -189,7 +189,7 @@ void Reconstructor::allReduceW()
                     _C.addFT(_W.getByInterpolationFT(oldCor[0],
                                                      oldCor[1],
                                                      oldCor[2],
-                                                     LINEAR_INTERP) * _w[i],
+                                                     LINEAR_INTERP) * _w[k],
                              oldCor[0],
                              oldCor[1],
                              oldCor[2],
