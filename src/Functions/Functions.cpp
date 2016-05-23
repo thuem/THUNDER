@@ -55,9 +55,9 @@ int periodic(double& x,
     return n;
 }
 
-void quaternion_mul(double* dst,
-                    const double* a,
-                    const double* b)
+void quaternion_mul(vec4& dst,
+                    const vec4& a,
+                    const vec4& b)
 {
     double w = a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3];
     double x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];

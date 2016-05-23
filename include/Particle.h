@@ -24,12 +24,15 @@
 #include "Euler.h"
 #include "Functions.h"
 #include "Symmetry.h"
+#include "DirectionalStat.h"
 
 using namespace std;
 
+/***
 static double e0[4] = {0, 1, 0, 0};
 static double e1[4] = {0, 0, 1, 0};
 static double e2[4] = {0, 0, 0, 1};
+***/
 
 class Particle
 {
@@ -40,10 +43,23 @@ class Particle
         double _maxX;
         double _maxY;
 
-        double** _r = NULL;
-        /* rotation, quaternion */
 
+        /**
+         * a table storing the rotation information with each row storing a
+         * quaternion
+         */
+        mat4 _r;
+
+        /**
+         * a table storing the translation information with each row storing a
+         * 2-vector with x and y respectively
+         */
+        mat2 _t;
+
+        /***
+        double** _r = NULL;
         mat _t; // translation
+        ***/
 
         vec _w; // weight
         
@@ -51,7 +67,9 @@ class Particle
 
         double _k0 = 0;
         double _k1 = 0;
+        /***
         double _k2 = 0;
+        ***/
 
         double _s0 = 0; // sigma0
         double _s1 = 0; // sgima1
@@ -95,7 +113,6 @@ class Particle
 
         void vari(double& k0,
                   double& k1,
-                  double& k2,
                   double& s0,
                   double& s1,
                   double& rho) const;

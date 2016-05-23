@@ -12,9 +12,9 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     Symmetry sym("C2");
 
@@ -27,8 +27,10 @@ int main(int argc, const char* argv[])
     double v[4];
 
     double nt = M / 3;
+    /***
     bingham_t B;
     bingham_new_S3(&B, e0, e1, e2, -30, -30, 0);
+    ***/
 
     char filename[FILE_NAME_LENGTH];
     for (int i = 0; i < atoi(argv[1]); i++)
@@ -51,7 +53,9 @@ int main(int argc, const char* argv[])
             v[1] = u(1);
             v[2] = u(2);
             v[3] = u(3);
+            /***
             particle.mulW(bingham_pdf(v, &B), j);
+            ***/
         }
 
         particle.normW();
@@ -60,5 +64,7 @@ int main(int argc, const char* argv[])
         save(filename, particle);
     }
 
+    /***
     bingham_free(&B);
+    ***/
 }
