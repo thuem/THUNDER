@@ -200,6 +200,11 @@ void Particle::perturb()
 {
     calVari();
 
+    CLOG(WARNING, "LOGGER_SYS") << "_k0 = " << _k0
+                                << ", _k1 = " << _k1
+                                << ", _s0 = " << _s0
+                                << ", _s1 = " << _s1;
+
     // translation perturbation
 
     auto engine = get_random_engine();
@@ -214,34 +219,16 @@ void Particle::perturb()
 
     // rotation perturbation
 
-    /***
-    bingham_t B;
-    bingham_new_S3(&B, e0, e1, e2, 5 * _k0, 5 * _k1, 5 * _k2);
-
-    double** d = new_matrix2(_n, 4);
-    bingham_sample(d, &B, _n);
-    ***/
     mat4 d(_n, 4);
-    sampleACG(d, _k0, _k1, _n);
+    sampleACG(d, 5 * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
     {
         vec4 quat = _r.row(i).transpose();
         vec4 pert = d.row(i).transpose();
         quaternion_mul(quat, quat, pert);
-        _r.row(i).transpose() = quat;
-        /***
-        quaternion_mul(_r.row(i).transpose(),
-                       _r.row(i).transpose(),
-                       d.row(i).transpose());
-                       ***/
+        _r.row(i) = quat.transpose();
     }
-        //quaternion_mul(_r[i], _r[i], d[i]);
-
-    /***
-    bingham_free(&B);
-    free_matrix2(d);
-    ***/
 
     symmetrise();
 }
@@ -256,7 +243,8 @@ void Particle::resample(const int n,
 {
     vec cdf = cumsum(_w);
 
-    // DLOG(INFO) << "Recording New Number of Sampling Points";
+    CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
+
     _n = n;
     _w.resize(n);
 
@@ -266,21 +254,14 @@ void Particle::resample(const int n,
     // number of local sampling points
     int nL = n - nG;
 
-    // DLOG(INFO) << "Allocating Temporary Storage";
+    CLOG(INFO, "LOGGER_SYS") << "Allocating Temporary Storage";
 
     mat4 r(n, 4);
-    //double** r = new_matrix2(n, 4);
     mat2 t(n, 2);
     
-    // DLOG(INFO) << "Generate Global Sampling Points";
+    CLOG(INFO, "LOGGER_SYS") << "Generate Global Sampling Points";
 
     sampleACG(r, 1, 1, nG);
-    /***
-    bingham_t B;
-    bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
-    bingham_sample(r, &B, nG);
-    bingham_free(&B);
-    ***/
 
     auto engine = get_random_engine();
     
@@ -292,9 +273,17 @@ void Particle::resample(const int n,
         _w(i) = 1.0 / n;
     }
 
-    // DLOG(INFO) << "Generate Local Sampling Points";
+    CLOG(INFO, "LOGGER_SYS") << "Generate Local Sampling Points";
+    CLOG(INFO, "LOGGER_SYS") << "nL = " << nL << ", nG = " << nG;
 
     double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
+
+    /***
+    cout << r.rows() << endl << r.cols() << endl << endl;
+    cout << _r.rows() << endl << _r.cols() << endl << endl;
+    cout << t.rows() << endl << t.cols() << endl << endl;
+    cout << _t.rows() << endl << _t.cols() << endl << endl;
+    ***/
 
     int i = 0;
     for (int j = 0; j < nL; j++)
@@ -304,33 +293,21 @@ void Particle::resample(const int n,
         while (uj > cdf[i])
             i++;
         
-        r.col(nG + j) = _r.col(i);
-        //memcpy(r[nG + j], _r[i], sizeof(double) * 4);
+        r.row(nG + j) = _r.row(i);
         t.row(nG + j) = _t.row(i);
 
         _w(nG + j) = 1.0 / n;
     }
 
-    // DLOG(INFO) << "Recording Results";
+    CLOG(INFO, "LOGGER_SYS") << "Recording Results";
 
     _t.resize(n, 2);
     _t = t;
 
-    /***
-    free_matrix2(_r);
-    _r = new_matrix2(n, 4);
-    ***/
     _r.resize(n, 4);
     _r = r;
     
-    /***
-    for (int i = 0; i < n; i++)
-        memcpy(_r[i], r[i], sizeof(double) * 4);
-
-    free_matrix2(r);
-    ***/
-
-    // DLOG(INFO) << "Symmetrize";
+    CLOG(INFO, "LOGGER_SYS") << "Symmetrize";
     
     symmetrise();
 }

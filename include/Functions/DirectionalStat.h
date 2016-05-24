@@ -22,6 +22,18 @@
 
 using namespace std;
 
+/**
+ * Probabilty Density Function of Angular Central Gaussian distribution.
+ * @param x a quaternion
+ * @param sig a symmetric positive definite parameter matrix
+ */
+double pdfACG(const vec4& x,
+              const mat44& sig);
+
+double pdfACG(const vec4& x,
+              const double k0,
+              const double k1);
+
 void sampleACG(mat4& dst,
                const mat44& src,
                const int n);

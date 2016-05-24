@@ -10,6 +10,37 @@
 
 #include "DirectionalStat.h"
 
+double pdfACG(const vec4& x,
+              const mat44& sig)
+{
+    /***
+    cout << sig.determinant() << endl;
+    cout << sig.inverse() << endl;
+    ***/
+    /***
+    cout << pow(sig.determinant(), -0.5) << endl;
+    cout << pow(x.transpose() * sig.inverse() * x, -2) << endl;
+    ***/
+    return pow(sig.determinant(), -0.5)
+         * pow(x.transpose() * sig.inverse() * x, -2);
+    /***
+    return 1;
+    ***/
+}
+
+double pdfACG(const vec4& x,
+              const double k0,
+              const double k1)
+{
+    mat44 sig;
+    sig << k0, 0, 0, 0,
+           0, k1, 0, 0,
+           0, 0, k1, 0,
+           0, 0, 0, k1;
+
+    return pdfACG(x, sig);
+}
+
 void sampleACG(mat4& dst,
                const mat44& src,
                const int n)
@@ -71,7 +102,12 @@ void inferACG(mat44& dst,
                     tensor(j, k) = src(i, j) * src(i, k);
 
             // get the factor
-            double u = src.row(i) * src.inverse() * src.row(i).transpose();
+            double u = src.row(i) * A.inverse() * src.row(i).transpose();
+
+            /***
+            cout << tensor << endl << endl;
+            cout << u << endl << endl;
+            ***/
 
             B += tensor / u;
 
@@ -85,6 +121,8 @@ void inferACG(mat44& dst,
             for (int j = 0; j < i; j++)
                 B(i, j) = B(j, i);
     } while ((abs((A - B).array())).sum() > 0.001);
+
+    dst = A;
 }
 
 void inferACG(double& k0,

@@ -14,10 +14,10 @@
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
-#include <bingham.h>
 
 #include "Typedef.h"
 #include "Macro.h"
+#include "Logging.h"
 
 #include "Coordinate5D.h"
 #include "Random.h"
