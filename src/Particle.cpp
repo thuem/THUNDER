@@ -200,10 +200,12 @@ void Particle::perturb()
 {
     calVari();
 
+    /***
     CLOG(WARNING, "LOGGER_SYS") << "_k0 = " << _k0
                                 << ", _k1 = " << _k1
                                 << ", _s0 = " << _s0
                                 << ", _s1 = " << _s1;
+    ***/
 
     // translation perturbation
 
@@ -243,7 +245,7 @@ void Particle::resample(const int n,
 {
     vec cdf = cumsum(_w);
 
-    CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
+    // CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
 
     _n = n;
     _w.resize(n);
@@ -254,12 +256,12 @@ void Particle::resample(const int n,
     // number of local sampling points
     int nL = n - nG;
 
-    CLOG(INFO, "LOGGER_SYS") << "Allocating Temporary Storage";
+    // CLOG(INFO, "LOGGER_SYS") << "Allocating Temporary Storage";
 
     mat4 r(n, 4);
     mat2 t(n, 2);
     
-    CLOG(INFO, "LOGGER_SYS") << "Generate Global Sampling Points";
+    // CLOG(INFO, "LOGGER_SYS") << "Generate Global Sampling Points";
 
     sampleACG(r, 1, 1, nG);
 
@@ -273,17 +275,10 @@ void Particle::resample(const int n,
         _w(i) = 1.0 / n;
     }
 
-    CLOG(INFO, "LOGGER_SYS") << "Generate Local Sampling Points";
-    CLOG(INFO, "LOGGER_SYS") << "nL = " << nL << ", nG = " << nG;
+    // CLOG(INFO, "LOGGER_SYS") << "Generate Local Sampling Points";
+    // CLOG(INFO, "LOGGER_SYS") << "nL = " << nL << ", nG = " << nG;
 
     double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
-
-    /***
-    cout << r.rows() << endl << r.cols() << endl << endl;
-    cout << _r.rows() << endl << _r.cols() << endl << endl;
-    cout << t.rows() << endl << t.cols() << endl << endl;
-    cout << _t.rows() << endl << _t.cols() << endl << endl;
-    ***/
 
     int i = 0;
     for (int j = 0; j < nL; j++)
@@ -299,7 +294,7 @@ void Particle::resample(const int n,
         _w(nG + j) = 1.0 / n;
     }
 
-    CLOG(INFO, "LOGGER_SYS") << "Recording Results";
+    // CLOG(INFO, "LOGGER_SYS") << "Recording Results";
 
     _t.resize(n, 2);
     _t = t;
@@ -307,7 +302,7 @@ void Particle::resample(const int n,
     _r.resize(n, 4);
     _r = r;
     
-    CLOG(INFO, "LOGGER_SYS") << "Symmetrize";
+    // CLOG(INFO, "LOGGER_SYS") << "Symmetrize";
     
     symmetrise();
 }
