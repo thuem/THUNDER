@@ -16,15 +16,17 @@
 
 #include <sqlite3.h>
 
-#include "Error.h"
+#include "Logging.h"
+
+using namespace std;
 
 #define SQLITE3_HANDLE_ERROR(err) \
-    [](const int _err) throw() \
+    [](const int _err) \
     { \
         if ((_err != 0) && \
             (_err != 100) && \
             (_err != 101)) \
-            REPORT_ERROR(std::string(sqlite3GetErrorString(_err))); \
+        CLOG(FATAL, "LOGGER_SYS") << string(sqlite3GetErrorString(_err)); \
     }(err)
 
 const char* sqlite3GetErrorString(const int err);

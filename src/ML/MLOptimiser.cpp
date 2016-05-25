@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
-    _r = MIN(8, MAX(MAX_GAP, _para.size / 16));
+    _r = MIN(16, MAX(MAX_GAP, _para.size / 16));
     _iter = 0;
     _model.setR(_r);
 
@@ -113,13 +113,13 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    Image image(size(),
-                size(),
-                FT_SPACE);
-
-    // #pragma omp parallel for private(image)
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        Image image(size(),
+                    size(),
+                    FT_SPACE);
+
         /***
         ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
                    << " with Radius of " << _r;
@@ -138,15 +138,18 @@ void MLOptimiser::expectation()
                 if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
-                        _par[l].resample(ALPHA_TOTAL_GLOBAL_SEARCH);
+                        _par[l].resample(_para.m * _para.mf,
+                                         ALPHA_TOTAL_GLOBAL_SEARCH);
                     else
-                        _par[l].resample(ALPHA_GLOBAL_SEARCH_BG);
+                        _par[l].resample(_para.m,
+                                         ALPHA_SEARCH_BG);
                 }
                 else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
                                + N_ITER_PARTIAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
-                        _par[l].resample((ALPHA_GLOBAL_SEARCH_MAX
+                        _par[l].resample(_para.m * _para.mf,
+                                         (ALPHA_GLOBAL_SEARCH_MAX
                                         - ALPHA_GLOBAL_SEARCH_MIN)
                                        * (N_ITER_TOTAL_GLOBAL_SEARCH 
                                         + N_ITER_PARTIAL_GLOBAL_SEARCH
@@ -154,17 +157,22 @@ void MLOptimiser::expectation()
                                        / (N_ITER_PARTIAL_GLOBAL_SEARCH - 1)
                                        + ALPHA_GLOBAL_SEARCH_MIN);
                     else
-                        _par[l].resample(ALPHA_GLOBAL_SEARCH_BG);
+                        _par[l].resample(_para.m,
+                                         ALPHA_SEARCH_BG);
                 }
                 else
                 {
                     if (phase == 0)
-                        _par[l].resample(GSL_MAX_INT(_para.m, _par[l].n() / 2),
-                                         ALPHA_GLOBAL_SEARCH_BG);
+                        _par[l].resample(_para.m,
+                                         ALPHA_LOCAL_SEARCH);
                     else
                         _par[l].resample();
                 }
             }
+
+            double nt = (phase == N_PHASE_PER_ITER - 1)
+                      ? 2 * TOP_K
+                      : _par[l].n() / 10;
 
             int nSearch = 0;
             do
@@ -188,8 +196,7 @@ void MLOptimiser::expectation()
                                              _r);
                 }
 
-                logW.array() -= logW(0); // avoiding numerical error
-                // logW /= 2; // Doing Some Compromise
+                logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
                 for (int m = 0; m < _par[l].n(); m++)
                     _par[l].mulW(exp(logW(m)), m);
@@ -197,22 +204,22 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
+                if (_ID[l] < 100)
+                {
+                    char filename[FILE_NAME_LENGTH];
+                    snprintf(filename,
+                             sizeof(filename),
+                             "Particle_%04d_Round_%03d_%03d_%03d.par",
+                             _ID[l],
+                             _iter,
+                             phase,
+                             nSearch);
+                    save(filename, _par[l]);
+                }
+
                 nSearch++;
-            } while ((_par[l].neff() > 2 * TOP_K) &&
+            } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
-        }
-
-        /***
-        ILOG(INFO) << "Round " << _iter
-                   << ": Information of Particle " << _ID[l]
-                   << ", Neff " << _par[l].neff();
-                   ***/
-
-        if (_ID[l] < 100)
-        {
-            char filename[FILE_NAME_LENGTH];
-            snprintf(filename, sizeof(filename), "Particle_%04d_Round_%03d.par", _ID[l], _iter);
-            save(filename, _par[l]);
         }
     }
 }
@@ -525,18 +532,12 @@ void MLOptimiser::initSigma()
 
     avgPs /= _N;
 
-    // ALOG(INFO) << "Average Power Spectrum is " << endl << avgPs;
-
-    // ALOG(INFO) << "Calculating Power Spectrum of Average Image";
-
     ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
     // powerSpectrum(psAvg, avg, maxR());
     for (int i = 0; i < maxR(); i++)
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
-
-    // ALOG(INFO) << "Power Spectrum of Average Image is " << endl << psAvg;
 
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
@@ -713,21 +714,26 @@ void MLOptimiser::reconstructRef()
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];
+    Volume result;
     if (_commRank == HEMI_A_LEAD)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Saving References";
 
-        imf.readMetaData(_model.ref(0));
+        VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+        imf.readMetaData(result);
         sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
-        imf.writeVolume(filename, _model.ref(0));
+        imf.writeVolume(filename, result);
     }
     else if (_commRank == HEMI_B_LEAD)
     {
         BLOG(INFO, "LOGGER_ROUND") << "Saving References";
 
-        imf.readMetaData(_model.ref(0));
+        VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+        imf.readMetaData(result);
         sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
-        imf.writeVolume(filename, _model.ref(0));
+        imf.writeVolume(filename, result);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
@@ -782,67 +788,21 @@ double logDataVSPrior(const Image& dat,
                       const vec& sig,
                       const int r)
 {
-    // double result = 1;
     double result = 0;
-    // int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(pri)
     {
-        // adding /u for compensate
         int u = AROUND(NORM(i, j));
+
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
-        {
             result += ABS2(dat.getFT(i, j)
                          - REAL(ctf.getFT(i, j))
                          * pri.getFT(i, j))
                         / (-2 * sig[u]);
-            /***
-            result += ABS2(dat.getFT(i, j)
-                         - ctf.getFT(i, j)
-                         * pri.getFT(i, j))
-                        / (-2 * sig(u))
-                        / (sqrt(NORM(i, j)));
-                        ***/
-            /***
-            result += ABS2(dat.getFT(i, j)
-                         - ctf.getFT(i, j)
-                         * pri.getFT(i, j))
-                        / (-2 * sig(u))
-                        / (M_PI * u);
-                        ***/
-            /***
-            result *= exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                        / (-2 * sig(u)));
-                        ***/
-            /***
-            result *= (exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                            / (-2 * sig(u)))
-                     / (2 * M_PI * sig(u)));
-                     ***/
-            /***
-            result *= exp(ABS2(dat.getFT(i, j)
-                             - ctf.getFT(i, j)
-                             * pri.getFT(i, j))
-                            / (-2 * sig(u)))
-                    / (2 * M_PI * sig(u));
-                    ***/
-                    // / (2 * M_PI * u);
-            // counter++;
-        }
     }
 
-    // LOG(INFO) << "dataVSPrior" << result << endl;
-
     return result;
-
-    // return exp(result);
-
-    // return exp(result);
 }
 
 double dataVSPrior(const Image& dat,

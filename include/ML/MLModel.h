@@ -29,8 +29,8 @@ using namespace std;
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define MAX_GAP 10
-#define MIN_GAP 2
+#define MAX_GAP 15
+#define MIN_GAP 10
 
 class MLModel : public Parallel
 {
@@ -47,7 +47,7 @@ class MLModel : public Parallel
 
         vector<Projector> _proj;
 
-        vector<std::unique_ptr<Reconstructor>> _reco;
+        vector<unique_ptr<Reconstructor>> _reco;
 
         int _k;
         /* number of references */

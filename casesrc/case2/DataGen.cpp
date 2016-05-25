@@ -18,7 +18,7 @@
 #define PF 2
 
 #define N 380
-#define M 1000
+#define M 5000
 #define MAX_X 2
 #define MAX_Y 2
 
@@ -31,9 +31,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
-    /***
+    loggerInit(argc, argv);
+
     FFT fft;
 
     cout << "Read-in Ref" << endl;
@@ -52,9 +55,9 @@ int main(int argc, char* argv[])
     VOL_PAD_RL(padRef, ref, PF);
     normalise(padRef);
 
+    cout << "Writing padRef" << endl;
     imf.readMetaData(padRef);
     imf.writeVolume("padRef.mrc", padRef);
-    ***/
 
     /***
     cout << "Reading from Hard-disk" << endl;
@@ -63,7 +66,6 @@ int main(int argc, char* argv[])
     imf2.readVolume(padHead);
     ***/
     
-    /***
     cout << "Fourier Transforming Ref" << endl;
     fft.fw(padRef);
 
@@ -135,5 +137,4 @@ int main(int argc, char* argv[])
     }
     
     return 0;
-    ***/
 }

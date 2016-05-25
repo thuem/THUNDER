@@ -106,6 +106,7 @@
 [](Volume& _dst, const Volume& _src, const mat33 _mat, const double _r)\
 { \
     SET_0_##SPACE(_dst); \
+    _Pragma("omp parallel for") \
     VOLUME_FOR_EACH_PIXEL_##SPACE(_dst) \
     { \
         vec3 newCor = {(double)i, (double)j, (double)k}; \

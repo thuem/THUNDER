@@ -13,17 +13,49 @@
 
 #include "ImageFunctions.h"
 
-#define N 3710
+#define N 380
 
 using namespace std;
 
 int main(int argc, const char* argv[])
 {
+    cout << "Setting A" << endl;
     FFT fft;
-    Image A(N, N, RL_SPACE);
+    Volume A(N, N, N, RL_SPACE);
+    SET_0_RL(A);
+
+    cout << "FFT A" << endl;
     fft.fw(A);
-    Image B = A.copyImage();
+
+    cout << "Copying A to B" << endl;
+    Volume B = A.copyVolume();
+
+    cout << "Adding A to B" << endl;
     ADD_FT(B, A);
+
+    fft.bw(A);
+
+    ImageFile imf;
+
+    cout << "Padding A" << endl;
+    VOL_PAD_RL(B, A, 2);
+
+    cout << "FFT B" << endl;
+    fft.fw(B);
+    B.clearRL();
+    cout << "iFFT B" << endl;
+    fft.bw(B);
+
+    cout << "Writing B" << endl;
+    imf.readMetaData(B);
+    imf.writeVolume("B0.mrc", B);
+
+    cout << "Extracting A" << endl;
+    VOL_EXTRACT_RL(B, A, 0.5);
+
+    cout << "Writing B" << endl;
+    imf.readMetaData(B);
+    imf.writeVolume("B1.mrc", B);
 
     /***
     Image A(N, N, FT_SPACE);

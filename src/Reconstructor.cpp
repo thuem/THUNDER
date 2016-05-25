@@ -77,16 +77,16 @@ void Reconstructor::insert(const Image& src,
 {
     IF_MASTER
     {
-        LOG(WARNING) << "Inserting Images into Reconstructor in MASTER";
+        CLOG(WARNING, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
         return;
     }
 
     if ((src.nColRL() != _size) ||
         (src.nRowRL() != _size))
-        LOG(FATAL) << "Incorrect Size of Inserting Image"
-                   << ": _size = " << _size
-                   << ", nCol = " << src.nColRL()
-                   << ", nRow = " << src.nRowRL();
+        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Inserting Image"
+                                  << ": _size = " << _size
+                                  << ", nCol = " << src.nColRL()
+                                  << ", nRow = " << src.nRowRL();
 
     _rot.push_back(rot);
     _w.push_back(w);
@@ -130,14 +130,14 @@ void Reconstructor::reconstruct(Volume& dst)
 
     for (int i = 0; i < 3; i++)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Balancing Weights Round " << i;
-        BLOG(INFO, "LOGGER_ROUND") << "Balancing Weights Round " << i;
+        ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
+        BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
 
         allReduceW();
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Reducing F";
-    BLOG(INFO, "LOGGER_ROUND") << "Reducing F";
+    ALOG(INFO, "LOGGER_RECO") << "Reducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Reducing F";
 
     allReduceF();
 
@@ -149,9 +149,10 @@ void Reconstructor::reconstruct(Volume& dst)
     FFT fft;
     fft.bw(dst);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
-    BLOG(INFO, "LOGGER_ROUND") << "Correcting Convolution Kernel";
+    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
@@ -172,15 +173,13 @@ void Reconstructor::allReduceW()
 {
     SET_0_FT(_C);
 
+    ALOG(INFO, "LOGGER_RECO") << "Re-calculating C";
+    BLOG(INFO, "LOGGER_RECO") << "Re-calculating C";
+
     #pragma omp parallel for
     for (int k = 0; k < _rot.size(); k++)
-    {
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = 0; i <= _size / 2; i++)
-        /***
-        for (int j = -_size / 2; j < _size / 2; j++)
-            for (int i = -_size / 2; i <= _size / 2; i++)
-        ***/
             {
                 if (QUAD(i, j) < _maxRadius * _maxRadius)
                 {
@@ -190,7 +189,7 @@ void Reconstructor::allReduceW()
                     _C.addFT(_W.getByInterpolationFT(oldCor[0],
                                                      oldCor[1],
                                                      oldCor[2],
-                                                     LINEAR_INTERP) * _w[i],
+                                                     LINEAR_INTERP) * _w[k],
                              oldCor[0],
                              oldCor[1],
                              oldCor[2],
@@ -198,7 +197,9 @@ void Reconstructor::allReduceW()
                              _kernel);
                 }
             }
-    }
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing C";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing C";
 
     MPI_Barrier(_hemi);
 
@@ -211,8 +212,15 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
+
     symmetrizeC();
 
+    ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
+    BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
+
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (NORM_3(i, j, k) < _maxRadius)
         {
@@ -231,6 +239,9 @@ void Reconstructor::allReduceF()
 {
     MUL_FT(_F, _W);
 
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
+
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
@@ -242,6 +253,9 @@ void Reconstructor::allReduceF()
 
     MPI_Barrier(_hemi);
 
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+
     symmetrizeF();
 }
 
@@ -249,12 +263,14 @@ double Reconstructor::checkC() const
 {
     int counter = 0;
     double diff = 0;
+
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (NORM_3(i, j, k) < _maxRadius - _pf * _a)
         {
             counter += 1;
             diff += abs(REAL(_C.getFT(i, j, k)) - 1);
         }
+
     return diff / counter;
 }
 
@@ -264,6 +280,7 @@ void Reconstructor::symmetrizeF()
 
     Volume symF;
     SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius);
+
     _F = std::move(symF);
 }
 
@@ -273,5 +290,6 @@ void Reconstructor::symmetrizeC()
 
     Volume symC;
     SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius);
+
     _C = std::move(symC);
 }

@@ -104,9 +104,9 @@ int periodic(double& x,
  * @param a left multiplier
  * @param b right multiplier
  */
-void quaternion_mul(double* dst,
-                    const double* a,
-                    const double* b);
+void quaternion_mul(vec4& dst,
+                    const vec4& a,
+                    const vec4& b);
 
 /**
  * Modified Kaiser Bessel Function with m = 2 and n = 3.
