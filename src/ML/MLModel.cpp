@@ -123,6 +123,14 @@ void MLModel::BcastFSC()
         IF_MASTER
         {
             MPI_Status stat;
+            size_t count;
+
+            MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
+                                         << _size * _pf
+                                         << " X "
+                                         << _size * _pf
+                                         << " X "
+                                         << _size * _pf;
 
             Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
             Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
@@ -140,6 +148,11 @@ void MLModel::BcastFSC()
                      MPI_COMM_WORLD,
                      &stat);
 
+            // check the integrity of transporting using MPI_Status
+            MPI_Get_count(&stat, MPI_DOUBLE_COMPLEX, &count);
+            if (count != A.sizeFT())
+                CLOG(FATAL, "LOGGER_SYS") << "Receiving Incomplete Buffer from Hemisphere A";
+
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere B";
 
             MPI_Recv(&B[0],
@@ -150,7 +163,10 @@ void MLModel::BcastFSC()
                      MPI_COMM_WORLD,
                      &stat);
 
-            // TODO: check transporting using MPI_Status
+            // check the integrity of transporting using MPI_Status
+            MPI_Get_count(&stat, MPI_DOUBLE_COMPLEX, &count);
+            if (count != B.sizeFT())
+                CLOG(FATAL, "LOGGER_SYS") << "Receiving Incomplete Buffer from Hemisphere B";
 
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << i;
             vec fsc(_r * _pf);

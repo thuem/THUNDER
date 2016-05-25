@@ -116,25 +116,12 @@ void MLOptimiser::expectation()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        Image image(size(),
-                    size(),
-                    FT_SPACE);
+        Image image(size(), size(), FT_SPACE);
 
-        /***
-        ILOG(INFO) << "Performing Expectation on Image " << _ID[l]
-                   << " with Radius of " << _r;
-                   ***/
-
-        for (int phase = 0; phase < N_PHASE_PER_ITER; phase++)
+        for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
             {
-                /***
-                ILOG(INFO) << "Round " << _iter
-                           << ": Resampling Particle " << _ID[l]
-                           << " for neff = " << _par[l].neff();
-                           ***/
-
                 if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
@@ -170,9 +157,12 @@ void MLOptimiser::expectation()
                 }
             }
 
+            /***
             double nt = (phase == N_PHASE_PER_ITER - 1)
                       ? 2 * TOP_K
                       : _par[l].n() / 10;
+            ***/
+            double nt = _par[l].n() / 10;
 
             int nSearch = 0;
             do
@@ -220,6 +210,8 @@ void MLOptimiser::expectation()
                 nSearch++;
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
+
+            if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
         }
     }
 }

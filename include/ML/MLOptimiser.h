@@ -44,7 +44,7 @@
 #define ALPHA_LOCAL_SEARCH 0.1
 #define ALPHA_SEARCH_BG 0.05
 
-#define N_PHASE_PER_ITER 3
+#define MAX_N_PHASE_PER_ITER 10
 #define MAX_N_SEARCH_PER_PHASE 3
 
 using namespace std;
