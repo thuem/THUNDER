@@ -203,12 +203,20 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    MPI_Allreduce_Large(MPI_IN_PLACE,
+                        &_C[0],
+                        _C.sizeFT(),
+                        MPI_DOUBLE_COMPLEX,
+                        MPI_SUM,
+                        _hemi);
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   &_C[0],
                   _C.sizeFT(),
                   MPI_DOUBLE_COMPLEX,
                   MPI_SUM,
                   _hemi);
+                  ***/
 
     MPI_Barrier(_hemi);
 
@@ -244,12 +252,21 @@ void Reconstructor::allReduceF()
 
     MPI_Barrier(_hemi);
 
+    MPI_Allreduce_Large(MPI_IN_PLACE,
+                        &_F[0],
+                        _F.sizeFT(),
+                        MPI_DOUBLE_COMPLEX,
+                        MPI_SUM,
+                        _hemi);
+
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   &_F[0],
                   _F.sizeFT(),
                   MPI_DOUBLE_COMPLEX,
                   MPI_SUM,
                   _hemi);
+    ***/
 
     MPI_Barrier(_hemi);
 
