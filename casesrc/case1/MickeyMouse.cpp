@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     para.maxY = MAX_Y;
     sprintf(para.sym, "C2");
     sprintf(para.initModel, "sphere.mrc");
-    sprintf(para.db, "/tmp/MickeyMouse.db");
+    sprintf(para.db, "MickeyMouse.db");
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;
