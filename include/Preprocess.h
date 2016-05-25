@@ -15,7 +15,7 @@
 #include <string>
 
 #include "Macro.h"
-#include "Typdef.h"
+#include "Typedef.h"
 #include "Logging.h"
 
 #include "Image.h"

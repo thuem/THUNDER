@@ -68,8 +68,10 @@ std::string Preprocess::getMicName(const int micID)
     sql::Statement stmt("select Name from micrographs where ID = ?;", -1, _exp.expose());
     stmt.bind_int(1, micID);
 
-    if (stmt.step()) return stmt.get_text(0);
-    else CLOG(FATAL, "LOGGER_SYS") << "No Micrograph Name";
+    if (stmt.step())
+        return stmt.get_text(0);
+    else
+        CLOG(FATAL, "LOGGER_SYS") << "No Micrograph Name";
 }
 
 void Preprocess::getParXOffYOff(int& xOff,
@@ -84,7 +86,8 @@ void Preprocess::getParXOffYOff(int& xOff,
         xOff = stmt.get_int(0);
         yOff = stmt.get_int(1);
     }
-    else CLOG(FATAL, "LOGGER_SYS") << "No xOff, yOff";
+    else
+        CLOG(FATAL, "LOGGER_SYS") << "No xOff, yOff";
 }
 
 void Preprocess::extractParticles(const int micID)
