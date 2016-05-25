@@ -32,9 +32,19 @@ class Particle
 {
     private:
 
+        /**
+         * numer of particles in this particle filter
+         */
         int _n;
 
+        /**
+         * the translation range along X-axis is [_maxX, maxX]
+         */
         double _maxX;
+
+        /**
+         * the translation range along Y-axis is [_maxY, maxY]
+         */
         double _maxY;
 
         /**
@@ -49,51 +59,73 @@ class Particle
          */
         mat2 _t;
 
-        /***
-        double** _r = NULL;
-        mat _t; // translation
-        ***/
-
-        vec _w; // weight
+        /**
+         * a vector storing the weight of each image inserted
+         */
+        vec _w;
         
+        /**
+         * a pointer points to a Symmetry object which indicating the symmetry
+         */
         const Symmetry* _sym = NULL;
 
+        /**
+         * concentration parameter of Angular Central Gaussian distribution of
+         * rotation
+         */
         double _k0 = 0;
-        double _k1 = 0;
-        /***
-        double _k2 = 0;
-        ***/
 
-        double _s0 = 0; // sigma0
-        double _s1 = 0; // sgima1
+        /**
+         * concentration parameter of Angular Central Gaussian distribution of
+         * rotation
+         */
+        double _k1 = 0;
+
+        /**
+         * sigma0 of 2D Gaussian distribution of translation
+         */
+        double _s0 = 0;
+
+        /**
+         * sigma1 of 2D Gaussian distribution of translation
+         */
+        double _s1 = 0;
+
+        /**
+         * rho of 2D Gaussian distribution of translation
+         */
         double _rho = 0;
 
     public:
 
-        /** @brief default constructor of Particle
+        /**
+         * default constructor of Particle
          */
         Particle();
 
-        /** @brief constructor of Particle
-         *  @param n number of particles in this particle filter
-         *  @param maxX maximum X-axis translation in pixel
-         *  @param maxY maximum Y-axis translation in pixel
-         *  @param sym symmetry of resampling space
+        /**
+         * constructor of Particle
+         * @param n number of particles in this particle filter
+         * @param maxX maximum X-axis translation in pixel
+         * @param maxY maximum Y-axis translation in pixel
+         * @param sym symmetry of resampling space
          */
         Particle(const int n,
                  const double maxX,
                  const double maxY,
                  const Symmetry* sym = NULL);
 
-        /** @brief deconstructor of Particle
+        /**
+         * deconstructor of Particle
          */
         ~Particle();
 
-        /** @brief This function initialises Particle
-         *  @param n number of particles in this particle filter
-         *  @param maxX maximum X-axis translation in pixel
-         *  @param maxY maximum Y-axis translation in pixel
-         *  @param sym symmetry of resampling space
+        /**
+         * This function initialises Particle.
+         * @param n number of particles in this particle filter
+         * @param maxX maximum X-axis translation in pixel
+         * @param maxY maximum Y-axis translation in pixel
+         * @param sym symmetry of resampling space
          */
         void init(const int n,
                   const double maxX,
