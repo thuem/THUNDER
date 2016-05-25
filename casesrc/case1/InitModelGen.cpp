@@ -22,10 +22,10 @@ int main(int argc, char* argv[])
     Volume sphere(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(sphere)
     {
-        /***
         double ii = i * 0.8;
         double jj = j * 0.8;
         double kk = k * 0.8;
+        /***
         if (NORM_3(ii, jj, kk) < N / 8)
             sphere.setRL(1, i, j, k);
         else
