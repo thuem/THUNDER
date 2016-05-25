@@ -122,9 +122,6 @@ void MLModel::BcastFSC()
     {
         IF_MASTER
         {
-            MPI_Status stat;
-            size_t count;
-
             MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
                                          << _size * _pf
                                          << " X "
@@ -140,33 +137,35 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere A";
 
-            MPI_Recv(&A[0],
-                     A.sizeFT(),
-                     MPI_DOUBLE_COMPLEX,
-                     HEMI_A_LEAD,
-                     i,
-                     MPI_COMM_WORLD,
-                     &stat);
+            MPI_Recv_Large(&A[0],
+                           A.sizeFT(),
+                           MPI_DOUBLE_COMPLEX,
+                           HEMI_A_LEAD,
+                           i,
+                           MPI_COMM_WORLD);
 
+            /***
             // check the integrity of transporting using MPI_Status
             MPI_Get_count(&stat, MPI_DOUBLE_COMPLEX, &count);
             if (count != A.sizeFT())
                 CLOG(FATAL, "LOGGER_SYS") << "Receiving Incomplete Buffer from Hemisphere A";
+                ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere B";
 
-            MPI_Recv(&B[0],
-                     B.sizeFT(),
-                     MPI_DOUBLE_COMPLEX,
-                     HEMI_B_LEAD,
-                     i,
-                     MPI_COMM_WORLD,
-                     &stat);
+            MPI_Recv_Large(&B[0],
+                           B.sizeFT(),
+                           MPI_DOUBLE_COMPLEX,
+                           HEMI_B_LEAD,
+                           i,
+                           MPI_COMM_WORLD);
 
+            /***
             // check the integrity of transporting using MPI_Status
             MPI_Get_count(&stat, MPI_DOUBLE_COMPLEX, &count);
             if (count != B.sizeFT())
                 CLOG(FATAL, "LOGGER_SYS") << "Receiving Incomplete Buffer from Hemisphere B";
+                ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << i;
             vec fsc(_r * _pf);
@@ -188,23 +187,23 @@ void MLModel::BcastFSC()
                                          << i
                                          << " from Hemisphere B";
 
-            MPI_Ssend(&_ref[i][0],
-                      _ref[i].sizeFT(),
-                      MPI_DOUBLE_COMPLEX,
-                      MASTER_ID,
-                      i,
-                      MPI_COMM_WORLD);
+            MPI_Ssend_Large(&_ref[i][0],
+                            _ref[i].sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            MASTER_ID,
+                            i,
+                            MPI_COMM_WORLD);
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
 
         MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Average Reference from MASTER";
 
-        MPI_Bcast(&_ref[i][0],
-                  _ref[i].sizeFT(),
-                  MPI_DOUBLE_COMPLEX,
-                  MASTER_ID,
-                  MPI_COMM_WORLD);
+        MPI_Bcast_Large(&_ref[i][0],
+                        _ref[i].sizeFT(),
+                        MPI_DOUBLE_COMPLEX,
+                        MASTER_ID,
+                        MPI_COMM_WORLD);
 
         MPI_Barrier(MPI_COMM_WORLD);
     }
