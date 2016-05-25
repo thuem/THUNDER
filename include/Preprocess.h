@@ -15,6 +15,8 @@
 #include <string>
 
 #include "Macro.h"
+#include "Typdef.h"
+#include "Logging.h"
 
 #include "Image.h"
 #include "ImageFile.h"

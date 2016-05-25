@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu, Bing Li
+ * Author: Mingxu Hu, Bing Li, Siyuan Ren
  * Dependecy:
  * Test:
  * Execution:
@@ -67,10 +67,9 @@ std::string Preprocess::getMicName(const int micID)
 {
     sql::Statement stmt("select Name from micrographs where ID = ?;", -1, _exp.expose());
     stmt.bind_int(1, micID);
-    if (stmt.step())
-        return stmt.get_text(0);
-    else
-        throw std::runtime_error("No micname");
+
+    if (stmt.step()) return stmt.get_text(0);
+    else CLOG(FATAL, "LOGGER_SYS") << "No Micrograph Name";
 }
 
 void Preprocess::getParXOffYOff(int& xOff,
@@ -85,8 +84,7 @@ void Preprocess::getParXOffYOff(int& xOff,
         xOff = stmt.get_int(0);
         yOff = stmt.get_int(1);
     }
-    else
-        throw std::runtime_error("No xOff, yOff");
+    else CLOG(FATAL, "LOGGER_SYS") << "No xOff, yOff";
 }
 
 void Preprocess::extractParticles(const int micID)
@@ -94,16 +92,6 @@ void Preprocess::extractParticles(const int micID)
     string sMicName = getMicName(micID);
 
     char parName[FILE_NAME_LENGTH];    
-
-/***
-    if ( 0 != ::access(micName, F_OK) )
-    {
-        char msg[256];
-        sprintf(msg, "[Error] micrograph file %s doesn't exists .\n", micName);
-        REPORT_ERROR(msg);        
-        return ;
-    };
-***/
 
     vector<int> parIDs;
     _exp.particleIDsMicrograph(parIDs, micID);

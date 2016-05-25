@@ -8,10 +8,6 @@
 
 #include "Particle.h"
 
-double e0[4] = {0, 1, 0, 0};
-double e1[4] = {0, 0, 1, 0};
-double e2[4] = {0, 0, 0, 1};
-
 Particle::Particle() {}
 
 Particle::Particle(const int n,
@@ -51,14 +47,6 @@ void Particle::init(const int n,
 
 void Particle::reset()
 {
-    /***
-    bingham_t B;
-    bingham_new_S3(&B, e0, e1, e2, 0, 0, 0);
-    // uniform bingham distribution
-    bingham_sample(_r, &B, _n);
-    // draw _n samples from it
-    ***/
-    
     // sample from Angular Central Gaussian Distribution with identity matrix
     sampleACG(_r, 1, 1, _n);
 
@@ -70,10 +58,6 @@ void Particle::reset()
                 
         _w(i) = 1.0 / _n;
     }
-
-    /***
-    bingham_free(&B);
-    ***/
 
     symmetrise();
 }
@@ -120,7 +104,6 @@ void Particle::coord(Coordinate5D& dst,
           dst.theta,
           dst.psi,
           quat);
-          //_r.row(i).transpose());
 
     dst.x = _t(i, 0);
     dst.y = _t(i, 1);
@@ -130,34 +113,18 @@ void Particle::rot(mat33& dst,
                    const int i) const
 {
     rotate3D(dst, _r.row(i).transpose());
-    /***
-    rotate3D(dst, vec4({_r[i][0],
-                        _r[i][1],
-                        _r[i][2],
-                        _r[i][3]}));
-                        ***/
 }
 
 void Particle::t(vec2& dst,
                  const int i) const
 {
     dst = _t.row(i).transpose();
-    /***
-    dst(0) = _t(i, 0);
-    dst(1) = _t(i, 1);
-    ***/
 }
 
 void Particle::quaternion(vec4& dst,
                           const int i) const
 {
     dst = _r.row(i).transpose();
-    /***
-    dst(0) = _r[i][0];
-    dst(1) = _r[i][1];
-    dst(2) = _r[i][2];
-    dst(3) = _r[i][3];
-    ***/
 }
 
 void Particle::setSymmetry(const Symmetry* sym)
@@ -187,17 +154,6 @@ void Particle::calVari()
     _rho = 0;
 
     inferACG(_k0, _k1, _r);
-
-    /***
-    bingham_t B;
-    bingham_fit(&B, _r, _n, 4);
-
-    _k0 = B.Z[0];
-    _k1 = B.Z[1];
-    _k2 = B.Z[2];
-
-    bingham_free(&B);
-    ***/
 }
 
 void Particle::perturb()
@@ -329,49 +285,18 @@ void Particle::symmetrise()
     vec4 quat;
     for (int i = 0; i < _n; i++)
     {
-        //angle(phi, theta, psi, _r.row(i).transpose());
         vec4 quat = _r.row(i).transpose();
         angle(phi, theta, psi, quat);
-        /***
-        angle(phi, theta, psi, vec4({_r[i][0],
-                                     _r[i][1],
-                                     _r[i][2],
-                                     _r[i][3]}));
-                                     ***/
-
-        /***
-        // make psi in range [0, M_PI)
-        if (GSL_IS_ODD(periodic(psi, M_PI)))
-        {
-            phi *= -1;
-            theta *= -1;
-        }
-        ***/
 
         // make phi and theta in the asymetric unit
         if (_sym != NULL) symmetryCounterpart(phi, theta, *_sym);
 
         quaternoin(quat, phi, theta, psi);
         _r.row(i) = quat.transpose();
-        /***
-        _r[i][0] = quat(0);
-        _r[i][1] = quat(1);
-        _r[i][2] = quat(2);
-        _r[i][3] = quat(3);
-        ***/
     }
 }
 
-void Particle::clear()
-{
-    /***
-    if (_r != NULL)
-    {
-        free_matrix2(_r);
-        _r = NULL;
-    }
-    ***/
-}
+void Particle::clear() {}
 
 void display(const Particle& particle)
 {

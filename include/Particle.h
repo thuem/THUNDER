@@ -37,7 +37,6 @@ class Particle
         double _maxX;
         double _maxY;
 
-
         /**
          * a table storing the rotation information with each row storing a
          * quaternion
