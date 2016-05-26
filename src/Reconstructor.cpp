@@ -197,11 +197,14 @@ void Reconstructor::allReduceW()
                              _kernel);
                 }
             }
+    
+    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Porcesses in Hemisphere A";
+    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Porcesses in Hemisphere B";
+
+    MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing C";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing C";
-
-    MPI_Barrier(_hemi);
 
     MPI_Allreduce_Large(MPI_IN_PLACE,
                         &_C[0],
@@ -247,10 +250,13 @@ void Reconstructor::allReduceF()
 {
     MUL_FT(_F, _W);
 
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
+    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Porcesses in Hemisphere A";
+    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Porcesses in Hemisphere B";
 
     MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
 
     MPI_Allreduce_Large(MPI_IN_PLACE,
                         &_F[0],

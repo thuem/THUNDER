@@ -116,9 +116,10 @@ void MPI_Recv_Large(void* buf,
 
     int nBlock = (count - 1) / INT_MAX + 1;
 
-    CLOG(INFO, "LOGGER_SYS") << "MPI_Recv_Large: Transmitting "
-                             << nBlock
-                             << " Block(s).";
+    if (nBlock != 1)
+        CLOG(INFO, "LOGGER_SYS") << "MPI_Recv_Large: Transmitting "
+                                 << nBlock
+                                 << " Block(s).";
 
     for (int i = 0; i < nBlock; i++)
     {
@@ -152,9 +153,10 @@ void MPI_Ssend_Large(const void* buf,
 {
     int nBlock = (count - 1) / INT_MAX + 1;
 
-    CLOG(INFO, "LOGGER_SYS") << "MPI_Ssend_Large: Transmitting "
-                             << nBlock
-                             << " Block(s).";
+    if (nBlock != 1)
+        CLOG(INFO, "LOGGER_SYS") << "MPI_Ssend_Large: Transmitting "
+                                 << nBlock
+                                 << " Block(s).";
 
     for (int i = 0; i < nBlock; i++)
     {
@@ -179,9 +181,10 @@ void MPI_Bcast_Large(void* buf,
 {
     int nBlock = (count - 1) / INT_MAX + 1;
 
-    CLOG(INFO, "LOGGER_SYS") << "MPI_Bcast_Large: Transmitting "
-                             << nBlock
-                             << " Block(s).";
+    if (nBlock != 1)
+        CLOG(INFO, "LOGGER_SYS") << "MPI_Bcast_Large: Transmitting "
+                                 << nBlock
+                                 << " Block(s).";
 
     for (int i = 0; i < nBlock; i++)
     {
@@ -206,9 +209,10 @@ void MPI_Allreduce_Large(const void* sendbuf,
 {
     int nBlock = (count - 1) / INT_MAX + 1;
 
-    CLOG(INFO, "LOGGER_SYS") << "MPI_Allreduce_Large: Transmitting "
-                             << nBlock
-                             << " Block(s).";
+    if (nBlock != 1)
+        CLOG(INFO, "LOGGER_SYS") << "MPI_Allreduce_Large: Transmitting "
+                                 << nBlock
+                                 << " Block(s).";
 
     for (int i = 0; i < nBlock; i++)
     {
