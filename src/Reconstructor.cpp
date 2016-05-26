@@ -181,7 +181,7 @@ void Reconstructor::allReduceW()
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = 0; i <= _size / 2; i++)
             {
-                if (QUAD(i, j) < _maxRadius * _maxRadius)
+                if (QUAD(i, j) < gsl_pow_2(_maxRadius))
                 {
                     vec3 newCor = {(double)i, (double)j, 0};
                     vec3 oldCor = _rot[k] * newCor * _pf;
@@ -233,7 +233,7 @@ void Reconstructor::allReduceW()
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_W)
-        if (NORM_3(i, j, k) < _maxRadius)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius))
         {
             double c = REAL(_C.getFT(i, j, k, conjugateNo));
             _W.setFT(2 * c * _W.getFT(i, j, k, conjugateNo) / (1 + gsl_pow_2(c)),
