@@ -245,23 +245,39 @@ class Volume : public ImageBase
                       const int iSlc,
                       const ConjugateFlag cf = conjugateUnknown) const;
 
+        /**
+         * This function sets the value of the pixel in Fourier space at a given
+         * coordinate.
+         * @param iCol the index of the column of this pixel in Fourier space
+         * @param iRow the index of the row of this pixel in Fourier space
+         * @param iSlc the index of the slice of this pixel in real space
+         * @param cf the conjugate flag, where conjugateUnknown stands for
+         * calculating the conjugate status on its own, conjugateYes stands
+         * for setting the conjugate of the value of the pixel and conjugateNo
+         * stands for setting the value of the pixel without conjugation
+         */
         void setFT(const Complex value,
                    int iCol,
                    int iRow,
                    int iSlc,
                    const ConjugateFlag cf = conjugateUnknown);
-        // set the value of the Fourier volume according to given coordinates
-        // the coordinates refer to the frequency information; not the way the
-        // data actually output by FFTW and stored
         
+        /**
+         * This function adds the value of the pixel in Fourier space at a given
+         * coordinate.
+         * @param iCol the index of the column of this pixel in Fourier space
+         * @param iRow the index of the row of this pixel in Fourier space
+         * @param iSlc the index of the slice of this pixel in real space
+         * @param cf the conjugate flag, where conjugateUnknown stands for
+         * calculating the conjugate status on its own, conjugateYes stands
+         * for adding the conjugate of the value of the pixel and conjugateNo
+         * stands for adding the value of the pixel without conjugation
+         */
         void addFT(const Complex value,
                    int iCol,
                    int iRow,
                    int iSlc,
                    const ConjugateFlag cf = conjugateUnknown);
-        // add the value of the Fourier volume according to given coordinates
-        // the coordinates refer to the frequency information; not the way the
-        // data actually output by FFTW and stored
 
         double getByInterpolationRL(const double iCol,
                                     const double iRow,
