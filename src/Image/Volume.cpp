@@ -20,9 +20,7 @@ Volume::Volume(const int nCol,
     alloc(nCol, nRow, nSlc, space);
 }
 
-Volume::~Volume()
-{
-}
+Volume::~Volume() {}
 
 void Volume::alloc(int space)
 {
