@@ -92,7 +92,6 @@ void Volume::setRL(const double value,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
 }
 
-/***
 void Volume::atomicSetRL(const double value,
                          const int iCol,
                          const int iRow,
@@ -110,7 +109,6 @@ void Volume::atomicSetRL(const double value,
     _dataRL[idx] = value;
     _mtxRL[idx].unlock();
 }
-***/
 
 void Volume::addRL(const double value,
                    const int iCol,
