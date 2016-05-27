@@ -381,18 +381,31 @@ class Volume : public ImageBase
 
     private:
 
+        /**
+         * This function checks whether the given coordinates is in the boundary
+         * of the volume or not in real space. If not, it will crash the process
+         * and record a fatal log.
+         *
+         * @param iCol the index of the column of this voxel in real space
+         * @param iRow the index of the row of this voxel in real space
+         * @param iSlc the index of the slice of this voxel in real space
+         */
         void coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,
                                      const int iSlc) const;
-        // check whether the input coordinates can in boundary of the volume
-        // If not, throw out an Error
 
+        /**
+         * This function checks whether the given coordinates is in the boundary
+         * of the volume or not in Fourier space. If not, it will crash the
+         * process and record a fatal log.
+         *
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in Fourier space
+         */
         void coordinatesInBoundaryFT(const int iCol,
                                      const int iRow,
                                      const int iSlc) const;
-        // check whether the input coordinates can in boundary of the Fourier
-        // volume
-        // If not, throw out an Error
 
         double getRL(const double w[2][2][2],
                      const int x0[3]) const;
