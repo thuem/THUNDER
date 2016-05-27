@@ -12,6 +12,8 @@
 
 ImageBase::ImageBase() {}
 
+ImageBase::~ImageBase() {}
+
 const double& ImageBase::iGetRL(size_t i) const
 {
     return _dataRL[i];
@@ -46,7 +48,25 @@ size_t ImageBase::sizeRL() const { return _sizeRL; }
 
 size_t ImageBase::sizeFT() const { return _sizeFT; }
 
-ImageBase::~ImageBase() {}
+void ImageBase::mtxIniRL()
+{
+    _mtxRL.reset(new mutex[_sizeRL]);
+}
+
+void ImageBase::mtxIniFT()
+{
+    _mtxRL.reset(new mutex[_sizeFT]);
+}
+
+void ImageBase::mtxClrRL()
+{
+    _mtxRL.reset();
+}
+
+void ImageBase::mtxClrFT()
+{
+    _mtxFT.reset();
+}
 
 void ImageBase::clear()
 {

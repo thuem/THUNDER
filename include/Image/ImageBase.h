@@ -14,6 +14,7 @@
 #include <functional>
 #include <cstring>
 #include <cstdio>
+#include <mutex>
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_complex.h>
@@ -23,6 +24,7 @@
 #include "Typedef.h"
 #include "Functions.h"
 #include "Utils.h"
+#include "Logging.h"
 
 using namespace std;
 
@@ -96,10 +98,14 @@ class ImageBase
         size_t _sizeRL = 0;
         size_t _sizeFT = 0;
 
+        unique_ptr<mutex[]> _mtxRL;
+        unique_ptr<mutex[]> _mtxFT;
+
         ImageBase();
         ~ImageBase();
 
     public:
+
         const double& iGetRL(size_t i = 0) const;
         // return a const pointer which points to the i-th element
 
@@ -121,6 +127,26 @@ class ImageBase
 
         size_t sizeFT() const;
         // return the total size of the Fourier transformed image
+        
+        /**
+         * This function initializes a mutex for each pixel in real space.
+         */
+        void mtxIniRL();
+
+        /**
+         * This function initializes a mutex for each pixel in Fourier space.
+         */
+        void mtxIniFT();
+
+        /**
+         * This function clears up the mutexes in real spaace.
+         */
+        void mtxClrRL();
+
+        /**
+         * This function clears up the mutexes in Fourier space.
+         */
+        void mtxClrFT();
 
         void clear();
         // free the memory

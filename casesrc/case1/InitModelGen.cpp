@@ -16,8 +16,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit(argc, argv);
+
     cout << "Defining Sphere" << endl;
     Volume sphere(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(sphere)

@@ -135,6 +135,11 @@ class Volume : public ImageBase
                    const int iRow,
                    const int iSlc);
 
+        void atomicSetRL(const double value,
+                         const int iCol,
+                         const int iRow,
+                         const int iSlc);
+
         void addRL(const double value,
                    const int iCol,
                    const int iRow,
@@ -156,6 +161,12 @@ class Volume : public ImageBase
         // set the value of the Fourier volume according to given coordinates
         // the coordinates refer to the frequency information; not the way the
         // data actually output by FFTW and stored
+        
+        void atomicSetFT(const Complex value,
+                         int iCol,
+                         int iRow,
+                         int iSlc,
+                         const ConjugateFlag cf = conjugateUnknown);
 
         void addFT(const Complex value,
                    int iCol,

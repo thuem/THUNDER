@@ -17,8 +17,12 @@
 
 using namespace std;
 
-int main(int argc, const char* argv[])
+INITIALIZE_EASYLOGGINGPP
+
+int main(int argc, char* argv[])
 {
+    loggerInit(argc, argv);
+
     cout << "Setting A" << endl;
     FFT fft;
     Volume A(N, N, N, RL_SPACE);

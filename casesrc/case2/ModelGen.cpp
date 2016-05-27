@@ -15,8 +15,12 @@
 
 using namespace std;
 
+INITIALIZE_EASYLOGGINGPP
+
 int main(int argc, char* argv[])
 {
+    loggerInit(argc, argv);
+
     cout << "Read-in Volume" << endl;
     Volume vol;
     ImageFile imf("ref.mrc", "r");

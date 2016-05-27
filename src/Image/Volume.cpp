@@ -86,10 +86,28 @@ void Volume::setRL(const double value,
                    const int iSlc)
 {
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    #pragma omp critical
+
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
+}
+
+void Volume::atomicSetRL(const double value,
+                         const int iCol,
+                         const int iRow,
+                         const int iSlc)
+{
+    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+
+    if (!_mtxRL) CLOG(FATAL, "LOGGER_SYS") << "atomicSetRL Should be Called After mtxIniRL";
+
+    size_t idx = VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
+                                 (iRow >= 0) ? iRow : iRow + _nRow,
+                                 (iSlc >= 0) ? iSlc : iSlc + _nSlc);
+
+    _mtxRL[idx].lock();
+    _dataRL[idx] = value;
+    _mtxRL[idx].unlock();
 }
 
 void Volume::addRL(const double value,
@@ -98,6 +116,7 @@ void Volume::addRL(const double value,
                    const int iSlc)
 {
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+
     #pragma omp atomic
     _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
                             (iRow >= 0) ? iRow : iRow + _nRow,
@@ -123,12 +142,31 @@ void Volume::setFT(const Complex value,
                    const ConjugateFlag cf)
 {
     // coordinatesInBoundaryFT(iCol, iRow, iSlc);
+
     bool flag;
     size_t index;
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
 
-    #pragma omp critical
     _dataFT[index] = flag ? CONJUGATE(value) : value;
+}
+
+void Volume::atomicSetFT(const Complex value,
+                         int iCol,
+                         int iRow,
+                         int iSlc,
+                         const ConjugateFlag cf)
+{
+    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
+
+    if (!_mtxFT) CLOG(FATAL, "LOGGER_SYS") << "atomicSetFT Should be Called After mtxIniFT";
+
+    bool flag;
+    size_t index;
+    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
+
+    _mtxFT[index].lock();
+    _dataFT[index] = flag ? CONJUGATE(value) : value;
+    _mtxFT[index].unlock();
 }
 
 void Volume::addFT(const Complex value,
