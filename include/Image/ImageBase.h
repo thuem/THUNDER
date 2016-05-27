@@ -139,7 +139,7 @@ class ImageBase
         void mtxIniFT();
 
         /**
-         * This function clears up the mutexes in real spaace.
+         * This function clears up the mutexes in real space.
          */
         void mtxClrRL();
 
