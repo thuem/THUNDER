@@ -286,9 +286,6 @@ class Reconstructor : public Parallel
                     const Coordinate5D coord,
                     const double w);
 
-        // void insertCoord(const Coordinate5D coord,
-        //                  const double w);
-
         /**
          * reconstruct a 3D model and save it into a volume.
          * 
@@ -328,7 +325,6 @@ class Reconstructor : public Parallel
          * size of Volume in 3 dimension xyz.
          */
         double checkC() const;
-        /* calculate the distance between C and 1 */
 };
 
 #endif //RECONSTRUCTOR_H

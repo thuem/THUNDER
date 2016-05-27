@@ -120,6 +120,7 @@ class Volume : public ImageBase
 
         /**
          * constructor
+         *
          * @param nCol number of columns of this volume
          * @param nRow number of rows of this volume
          * @param nSlc number of slices of this volume
@@ -146,6 +147,7 @@ class Volume : public ImageBase
         void alloc(const int space);
 
         /* This function allocates a piece of memory in a certain space.
+         *
          * @param nCol number of columns of this volume
          * @param nRow number of rows of this volume
          * @param nSlc number of slices of this volume
@@ -197,6 +199,7 @@ class Volume : public ImageBase
         /**
          * This function gets the value of the pixel in real space at a given
          * coordinate.
+         *
          * @param iCol the index of the column of this pixel in real space
          * @param iRow the index of the row of this pixel in real space
          * @param iSlc the index of the slice of this pixel in real space
@@ -208,6 +211,7 @@ class Volume : public ImageBase
         /**
          * This function sets the value of the pixel in real space at a given
          * coordinate.
+         *
          * @param iCol the index of the column of this pixel in real space
          * @param iRow the index of the row of this pixel in real space
          * @param iSlc the index of the slice of this pixel in real space
@@ -220,6 +224,7 @@ class Volume : public ImageBase
         /**
          * This function sets the value of the pixel in real space at a given
          * coordinate.
+         *
          * @param iCol the index of the column of this pixel in real space
          * @param iRow the index of the row of this pixel in real space
          * @param iSlc the index of the slice of this pixel in real space
@@ -232,6 +237,7 @@ class Volume : public ImageBase
         /**
          * This function gets the value of the pixel in Fourier space at a given
          * coordinate.
+         *
          * @param iCol the index of the column of this pixel in Fourier space
          * @param iRow the index of the row of this pixel in Fourier space
          * @param iSlc the index of the slice of this pixel in real space
@@ -248,6 +254,7 @@ class Volume : public ImageBase
         /**
          * This function sets the value of the pixel in Fourier space at a given
          * coordinate.
+         *
          * @param iCol the index of the column of this pixel in Fourier space
          * @param iRow the index of the row of this pixel in Fourier space
          * @param iSlc the index of the slice of this pixel in real space
@@ -265,6 +272,7 @@ class Volume : public ImageBase
         /**
          * This function adds the value of the pixel in Fourier space at a given
          * coordinate.
+         *
          * @param iCol the index of the column of this pixel in Fourier space
          * @param iRow the index of the row of this pixel in Fourier space
          * @param iSlc the index of the slice of this pixel in real space
