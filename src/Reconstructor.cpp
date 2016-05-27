@@ -94,7 +94,7 @@ void Reconstructor::insert(const Image& src,
     Image transSrc(_size, _size, FT_SPACE);
     translate(transSrc, src, -t(0), -t(1));
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         if (QUAD(i, j) < _maxRadius * _maxRadius)
@@ -152,7 +152,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
