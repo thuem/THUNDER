@@ -92,24 +92,6 @@ void Volume::setRL(const double value,
                             (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
 }
 
-void Volume::atomicSetRL(const double value,
-                         const int iCol,
-                         const int iRow,
-                         const int iSlc)
-{
-    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
-
-    if (!_mtxRL) CLOG(FATAL, "LOGGER_SYS") << "atomicSetRL Should be Called After mtxIniRL";
-
-    size_t idx = VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                                 (iRow >= 0) ? iRow : iRow + _nRow,
-                                 (iSlc >= 0) ? iSlc : iSlc + _nSlc);
-
-    _mtxRL[idx].lock();
-    _dataRL[idx] = value;
-    _mtxRL[idx].unlock();
-}
-
 void Volume::addRL(const double value,
                    const int iCol,
                    const int iRow,
@@ -148,25 +130,6 @@ void Volume::setFT(const Complex value,
     VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
 
     _dataFT[index] = flag ? CONJUGATE(value) : value;
-}
-
-void Volume::atomicSetFT(const Complex value,
-                         int iCol,
-                         int iRow,
-                         int iSlc,
-                         const ConjugateFlag cf)
-{
-    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
-
-    if (!_mtxFT) CLOG(FATAL, "LOGGER_SYS") << "atomicSetFT Should be Called After mtxIniFT";
-
-    bool flag;
-    size_t index;
-    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
-
-    _mtxFT[index].lock();
-    _dataFT[index] = flag ? CONJUGATE(value) : value;
-    _mtxFT[index].unlock();
 }
 
 void Volume::addFT(const Complex value,
@@ -297,57 +260,3 @@ Complex Volume::getFT(const double w[2][2][2],
                            * w[i][j][k];
     return result;
 }
-
-/***
-void Volume::addImages(std::vector<Image>& images,
-                       std::vector<Coordinate5D>& coords,
-                       const double maxRadius,
-                       const double a,
-                       const TabFunction& kernel)
-{
-    VOLUME_FOR_EACH_PIXEL_FT((*this))
-    {
-        arma::vec3 voxleCor = {(double)i, (double)j, (double)k};
-        if (norm(voxleCor) > (maxRadius + a))
-            continue;
-
-        for (int index = 0; index < images.size(); index++)
-        {
-            arma::mat33 mat;
-            rotate3D(mat, coords[index].phi, coords[index].theta, coords[index].psi);
-
-            Image transSrc(images[0].nColFT(), images[0].nRowFT(), FT_SPACE);
-            translate(transSrc, images[index], -coords[index].x, -coords[index].y);
-
-            // call below
-            addImage(i, j, k, transSrc, mat, kernel);
-        }
-    }
-}
-
-void Volume::addImage(const int iCol,
-                      const int iRow,
-                      const int iSlc,
-                      const Image& image,
-                      const arma::mat33& mat,
-                      const TabFunction& kernel,
-                      const double w,
-                      const double a,
-                      const int pf)
-{
-    IMAGE_FOR_EACH_PIXEL_FT(image)
-    {
-        arma::vec3 newCor = {(double)i, (double)j, 0};
-        arma::vec3 oldCor = mat * newCor * pf;
-
-        double r = NORM_3(oldCor(0) - iCol,
-                          oldCor(1) - iRow,
-                          oldCor(2) - iSlc);
-        if (r < a)
-            addFT(image.getFT(i, j) * w * kernel(r),
-                  iCol,
-                  iRow,
-                  iSlc);
-    }
-}
-***/

@@ -96,8 +96,19 @@ class Volume : public ImageBase
 
     public:
 
+        /**
+         * number of columns in this volume
+         */
         int _nCol = 0;
+
+        /**
+         * number of rows in this volume
+         */
         int _nRow = 0;
+
+        /**
+         * number of slices in this volume
+         */
         int _nSlc = 0;
 
     public:
@@ -135,11 +146,6 @@ class Volume : public ImageBase
                    const int iRow,
                    const int iSlc);
 
-        void atomicSetRL(const double value,
-                         const int iCol,
-                         const int iRow,
-                         const int iSlc);
-
         void addRL(const double value,
                    const int iCol,
                    const int iRow,
@@ -162,12 +168,6 @@ class Volume : public ImageBase
         // the coordinates refer to the frequency information; not the way the
         // data actually output by FFTW and stored
         
-        void atomicSetFT(const Complex value,
-                         int iCol,
-                         int iRow,
-                         int iSlc,
-                         const ConjugateFlag cf = conjugateUnknown);
-
         void addFT(const Complex value,
                    int iCol,
                    int iRow,
@@ -202,24 +202,6 @@ class Volume : public ImageBase
                    const double a,
                    const TabFunction& kernel);
         /* add by a given kernel */
-
-        /***
-        void addImages(std::vector<Image>& images,
-                       std::vector<Coordinate5D>& coords,
-                       const double maxRadius,
-                       const double a,
-                       const TabFunction& kernel);
-
-        void addImage(const int iCol,
-                      const int iRow,
-                      const int iSlc,
-                      const Image& image,
-                      const arma::mat33& mat,
-                      const TabFunction& kernel,
-                      const double w = 1.0,
-                      const double a = 1.9,
-                      const int _pf = 2);
-                      ***/
 
         void clear()
         {
