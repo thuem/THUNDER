@@ -197,24 +197,24 @@ class Volume : public ImageBase
         inline int nSlcFT() const { return _nSlc; };
 
         /**
-         * This function gets the value of the pixel in real space at a given
+         * This function gets the value of the voxel in real space at a given
          * coordinate.
          *
-         * @param iCol the index of the column of this pixel in real space
-         * @param iRow the index of the row of this pixel in real space
-         * @param iSlc the index of the slice of this pixel in real space
+         * @param iCol the index of the column of this voxel in real space
+         * @param iRow the index of the row of this voxel in real space
+         * @param iSlc the index of the slice of this voxel in real space
          */
         double getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const;
 
         /**
-         * This function sets the value of the pixel in real space at a given
+         * This function sets the value of the voxel in real space at a given
          * coordinate.
          *
-         * @param iCol the index of the column of this pixel in real space
-         * @param iRow the index of the row of this pixel in real space
-         * @param iSlc the index of the slice of this pixel in real space
+         * @param iCol the index of the column of this voxel in real space
+         * @param iRow the index of the row of this voxel in real space
+         * @param iSlc the index of the slice of this voxel in real space
          */
         void setRL(const double value,
                    const int iCol,
@@ -222,12 +222,12 @@ class Volume : public ImageBase
                    const int iSlc);
 
         /**
-         * This function sets the value of the pixel in real space at a given
-         * coordinate.
+         * This function add a certain value on the voxel in real space at a
+         * given coordinate.
          *
-         * @param iCol the index of the column of this pixel in real space
-         * @param iRow the index of the row of this pixel in real space
-         * @param iSlc the index of the slice of this pixel in real space
+         * @param iCol the index of the column of this voxel in real space
+         * @param iRow the index of the row of this voxel in real space
+         * @param iSlc the index of the slice of this voxel in real space
          */
         void addRL(const double value,
                    const int iCol,
@@ -235,16 +235,16 @@ class Volume : public ImageBase
                    const int iSlc);
 
         /**
-         * This function gets the value of the pixel in Fourier space at a given
+         * This function gets the value of the voxel in Fourier space at a given
          * coordinate.
          *
-         * @param iCol the index of the column of this pixel in Fourier space
-         * @param iRow the index of the row of this pixel in Fourier space
-         * @param iSlc the index of the slice of this pixel in real space
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in real space
          * @param cf the conjugate flag, where conjugateUnknown stands for
          * calculating the conjugate status on its own, conjugateYes stands
-         * for returning the conjugate of the value of the pixel and conjugateNo
-         * stands for returning the value of the pixel without conjugation
+         * for returning the conjugate of the value of the voxel and conjugateNo
+         * stands for returning the value of the voxel without conjugation
          */
         Complex getFT(const int iCol,
                       const int iRow,
@@ -252,16 +252,16 @@ class Volume : public ImageBase
                       const ConjugateFlag cf = conjugateUnknown) const;
 
         /**
-         * This function sets the value of the pixel in Fourier space at a given
+         * This function sets the value of the voxel in Fourier space at a given
          * coordinate.
          *
-         * @param iCol the index of the column of this pixel in Fourier space
-         * @param iRow the index of the row of this pixel in Fourier space
-         * @param iSlc the index of the slice of this pixel in real space
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in real space
          * @param cf the conjugate flag, where conjugateUnknown stands for
          * calculating the conjugate status on its own, conjugateYes stands
-         * for setting the conjugate of the value of the pixel and conjugateNo
-         * stands for setting the value of the pixel without conjugation
+         * for setting the conjugate of the value of the voxel and conjugateNo
+         * stands for setting the value of the voxel without conjugation
          */
         void setFT(const Complex value,
                    int iCol,
@@ -270,16 +270,16 @@ class Volume : public ImageBase
                    const ConjugateFlag cf = conjugateUnknown);
         
         /**
-         * This function adds the value of the pixel in Fourier space at a given
-         * coordinate.
+         * This function adds a certain value on a voxel in Fourier space at a
+         * given coordinate.
          *
-         * @param iCol the index of the column of this pixel in Fourier space
-         * @param iRow the index of the row of this pixel in Fourier space
-         * @param iSlc the index of the slice of this pixel in real space
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in real space
          * @param cf the conjugate flag, where conjugateUnknown stands for
          * calculating the conjugate status on its own, conjugateYes stands
-         * for adding the conjugate of the value of the pixel and conjugateNo
-         * stands for adding the value of the pixel without conjugation
+         * for adding the conjugate of the value of the voxel and conjugateNo
+         * stands for adding the value of the voxel without conjugation
          */
         void addFT(const Complex value,
                    int iCol,
@@ -287,49 +287,97 @@ class Volume : public ImageBase
                    int iSlc,
                    const ConjugateFlag cf = conjugateUnknown);
 
+        /**
+         * This function returns the value of an unregular voxel in speace spce
+         * by interpolation.
+         *
+         * @param iCol the index of the column of this unregular voxel in
+         *             Fourier space
+         * @param iRow the index of the row of this unregular voxel in
+         *             Fourier space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             Fourier space
+         * @param interp indicate the type of interpolation, where INTERP_NEAREST
+         *               stands for the nearest point interpolation,
+         *               INTERP_LINEAR stands for the trilinear interpolation
+         *               and INTERP_SINC stands for the sinc interpolation
+         */
         double getByInterpolationRL(const double iCol,
                                     const double iRow,
                                     const double iSlc,
                                     const int interp) const;
 
+        /**
+         * This function returns the value of an unregular voxel in Fourier
+         * space by interpolation.
+         *
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param interp indicate the type of interpolation, where INTERP_NEAREST
+         *               stands for the nearest point interpolation,
+         *               INTERP_LINEAR stands for the trilinear interpolation
+         *               and INTERP_SINC stands for the sinc interpolation
+         */
         Complex getByInterpolationFT(double iCol,
                                      double iRow,
                                      double iSlc,
                                      const int interp) const;
 
+        /**
+         * This function adds a certain value on an unregular voxel in Fourier
+         * space by a kernal of Modified Kaiser Bessel Function.
+         *
+         * @param value the value to be added
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param a the radius of Modified Kaiser Bessel Function
+         * @param alpha the smooth factor of Modified Kaiser Bessel Function
+         */
         void addFT(const Complex value,
                    const double iCol,
                    const double iRow,
                    const double iSlc,
                    const double a,
                    const double alpha);
-        /* add by a kernel of Mofidied Kaiser Bessel Function */
 
+        /**
+         * This function adds a certain value on an unregualr voxel in Fourier
+         * space by a certain kernal.
+         *
+         * @param value the value to be added
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param kerbel a tabular function indicating the kernel
+         */
         void addFT(const Complex value,
                    const double iCol,
                    const double iRow,
                    const double iSlc,
                    const double a,
                    const TabFunction& kernel);
-        /* add by a given kernel */
 
-        void clear()
-        {
-            ImageBase::clear();
-            _nCol = 0;
-            _nRow = 0;
-            _nSlc = 0;
-        }
+        /**
+         * This function clears up the allocated space and resets the size of
+         * the volume to 0.
+         */
+        void clear();
 
-        Volume copyVolume() const
-        {
-            Volume out;
-            copyBase(out);
-            out._nRow = _nRow;
-            out._nCol = _nCol;
-            out._nSlc = _nSlc;
-            return out;
-        }
+        /**
+         * This function returns a copy of itself.
+         */
+        Volume copyVolume() const;
 
     private:
 

@@ -206,6 +206,27 @@ void Volume::addFT(const Complex value,
     }
 }
 
+void Volume::clear()
+{
+    ImageBase::clear();
+
+    _nCol = 0;
+    _nRow = 0;
+    _nSlc = 0;
+}
+
+Volume Volume::copyVolume() const
+{
+    Volume out;
+
+    copyBase(out);
+    out._nCol = _nCol;
+    out._nRow = _nRow;
+    out._nSlc = _nSlc;
+
+    return out;
+}
+
 void Volume::coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
