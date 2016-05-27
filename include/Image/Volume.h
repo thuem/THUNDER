@@ -97,67 +97,153 @@ class Volume : public ImageBase
     public:
 
         /**
-         * number of columns in this volume
+         * number of columns of this volume
          */
         int _nCol = 0;
 
         /**
-         * number of rows in this volume
+         * number of rows of this volume
          */
         int _nRow = 0;
 
         /**
-         * number of slices in this volume
+         * number of slices of this volume
          */
         int _nSlc = 0;
 
     public:
 
+        /**
+         * default constructor
+         */
         Volume();
 
+        /**
+         * constructor
+         * @param nCol number of columns of this volume
+         * @param nRow number of rows of this volume
+         * @param nSlc number of slices of this volume
+         * @param space the space this volume allocating, where RL_SPACE stands
+         *              for the real space and FT_SPACE stands for the Fourier
+         *              space
+         */
         Volume(const int nCol,
                const int nRow,
                const int nSlc,
                const int space);
 
+        /**
+         * The deconstructor will automatically free all allocated space.
+         */
         ~Volume();
 
+        /**
+         * This function allocates a piece of memory in a certain space.
+         * @param space the space this volume allocating, where RL_SPACE stands
+         *              for the real space and FT_SPACE stands for the Fourier
+         *              space
+         */
         void alloc(const int space);
 
+        /* This function allocates a piece of memory in a certain space.
+         * @param nCol number of columns of this volume
+         * @param nRow number of rows of this volume
+         * @param nSlc number of slices of this volume
+         * @param space the space this volume allocating, where RL_SPACE stands
+         *              for the real space and FT_SPACE stands for the Fourier
+         *              space
+         */
         void alloc(const int nCol,
                    const int nRow,
                    const int nSlc,
                    const int space);
 
-        int nColRL() const;
-        int nRowRL() const;
-        int nSlcRL() const;
+        /**
+         * This function returns the number of columns of this volume in real
+         * space.
+         */
+        inline int nColRL() const { return _nCol; };
 
-        int nColFT() const;
-        int nRowFT() const;
-        int nSlcFT() const;
+        /**
+         * This function returns the number of rows of this volume in real
+         * space.
+         */
+        inline int nRowRL() const { return _nRow; };
 
+        /**
+         * This function returns the number of rows of this volume in real
+         * space.
+         */
+        inline int nSlcRL() const { return _nSlc; };
+
+        /**
+         * This function returns the number of columns of this volume in Fourier
+         * space.
+         */
+        inline int nColFT() const { return _nCol / 2 + 1; };
+
+        /**
+         * This function returns the number of rows of this volume in Fourier
+         * space.
+         */
+        inline int nRowFT() const { return _nRow; };
+
+        /**
+         * This function returns the number of slices of this volume in Fourier
+         * space.
+         */
+        inline int nSlcFT() const { return _nSlc; };
+
+        /**
+         * This function gets the value of the pixel in real space at a given
+         * coordinate.
+         * @param iCol the index of the column of this pixel in real space
+         * @param iRow the index of the row of this pixel in real space
+         * @param iSlc the index of the slice of this pixel in real space
+         */
         double getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const;
 
+        /**
+         * This function sets the value of the pixel in real space at a given
+         * coordinate.
+         * @param iCol the index of the column of this pixel in real space
+         * @param iRow the index of the row of this pixel in real space
+         * @param iSlc the index of the slice of this pixel in real space
+         */
         void setRL(const double value,
                    const int iCol,
                    const int iRow,
                    const int iSlc);
 
+        /**
+         * This function sets the value of the pixel in real space at a given
+         * coordinate.
+         * @param iCol the index of the column of this pixel in real space
+         * @param iRow the index of the row of this pixel in real space
+         * @param iSlc the index of the slice of this pixel in real space
+         */
         void addRL(const double value,
                    const int iCol,
                    const int iRow,
                    const int iSlc);
 
+        /**
+         * This function gets the value of the pixel in Fourier space at a given
+         * coordinate.
+         * @param iCol the index of the column of this pixel in Fourier space
+         * @param iRow the index of the row of this pixel in Fourier space
+         * @param iSlc the index of the slice of this pixel in real space
+         * @param cf the conjugate flag, where conjugateUnknown stands for
+         * calculating the conjugate status on its own, conjugateYes stands
+         * for returning the conjugate of the value of the pixel and conjugateNo
+         * stands for returning the value of the pixel without conjugation
+         */
         Complex getFT(const int iCol,
                       const int iRow,
                       const int iSlc,
                       const ConjugateFlag cf = conjugateUnknown) const;
-        // get the value of the Fourier volume according to given coordinates
-        // the coordinates refer to the frequency information; not the way the
-        // data actually output by FFTW and stored
 
         void setFT(const Complex value,
                    int iCol,

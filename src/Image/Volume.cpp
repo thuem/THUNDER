@@ -58,18 +58,6 @@ void Volume::alloc(const int nCol,
     }
 }
 
-int Volume::nColRL() const { return _nCol; }
-
-int Volume::nRowRL() const { return _nRow; }
-
-int Volume::nSlcRL() const { return _nSlc; }
-
-int Volume::nColFT() const { return _nCol / 2 + 1; }
-
-int Volume::nRowFT() const { return _nRow; }
-
-int Volume::nSlcFT() const { return _nSlc; }
-
 double Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
@@ -226,7 +214,7 @@ void Volume::coordinatesInBoundaryRL(const int iCol,
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
-        REPORT_ERROR("Try to get value out of the boundary");
+        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
 }
 
 void Volume::coordinatesInBoundaryFT(const int iCol,
@@ -236,7 +224,7 @@ void Volume::coordinatesInBoundaryFT(const int iCol,
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
-        REPORT_ERROR("Try to get value out of the boundary");
+        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
 }
 
 double Volume::getRL(const double w[2][2][2],
