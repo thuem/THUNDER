@@ -294,17 +294,20 @@ void MLModel::refreshReco()
 
 void MLModel::updateR()
 {
+    //int resUpperBoundary = _size / 2 - _a;
+    int resUpperBoundary = 70; // for debug
+
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
         {
             _r += MIN(MAX_GAP, AROUND(double(_size) / 16));
-            _r = MIN(_r, _size / 2 - _a);
+            _r = MIN(_r, resUpperBoundary);
             return;
         }
 
     _r = resolutionP();
     _r += MIN_GAP;
-    _r = MIN(_r, _size / 2 - _a);
+    _r = MIN(_r, resUpperBoundary);
 }
 
 void MLModel::clear()
