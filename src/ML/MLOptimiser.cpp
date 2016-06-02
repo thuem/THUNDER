@@ -271,7 +271,7 @@ void MLOptimiser::run()
         {
             _r = AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
                                _para.size,
-                               _para.pixelSize));
+                               _para.pixelSize)) + 1;
             _model.setR(_r);
         }
         else
