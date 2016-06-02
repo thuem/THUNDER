@@ -39,6 +39,7 @@ void Reconstructor::init(const int size,
     _alpha = alpha;
     _zeta = zeta;
 
+    // initialise the interpolation kernel
     _kernel.init(bind(MKB_FT, _1, _pf * _a, _alpha),
                  0,
                  _pf * _a,
