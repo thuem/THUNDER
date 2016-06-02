@@ -269,7 +269,9 @@ void MLOptimiser::run()
         if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
             (1.0 / resP2A(_res, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
         {
-            _r = AROUND(resA2P(TOTAL_GLOBAL_SEARCH_RES_LIMIT, _para.size, _para.pixelSize));
+            _r = AROUND(resA2P(TOTAL_GLOBAL_SEARCH_RES_LIMIT,
+                               _para.size,
+                               _para.pixelSize));
             _model.setR(_r);
         }
         else
