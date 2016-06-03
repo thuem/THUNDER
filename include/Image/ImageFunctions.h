@@ -61,9 +61,21 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, ef)
 
+/**
+ * This macro replaces the centre block of a volume with another volume in real
+ * space.
+ * @param dst the destination volume
+ * @param src the source volume
+ */
 #define VOL_REPLACE_RL(dst, src) \
     VOL_REPLACE(RL, dst, src)
 
+/**
+ * This macro replaces the centre block of a volume with another volume in
+ * Fourier space.
+ * @param dst the destination volume
+ * @param src the source volume
+ */
 #define VOL_REPLACE_FT(dst, src) \
     VOL_REPLACE(FT, dst, src)
 
