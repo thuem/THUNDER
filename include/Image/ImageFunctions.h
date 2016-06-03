@@ -61,6 +61,19 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, ef)
 
+#define VOL_REPLACE_RL(dst, src) \
+    VOL_REPLACE(RL, dst, src)
+
+#define VOL_REPLACE_FT(dst, src) \
+    VOL_REPLACE(FT, dst, src)
+
+#define VOL_REPLACE(SP, dst, src) \
+    [](Volume& _dst, const Volume& _src) \
+    { \
+        VOLUME_FOR_EACH_PIXEL_##SP(_src) \
+            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
+    }(dst, src)
+
 #define VOL_PAD_RL(dst, src, pf) \
     VOL_PAD(RL, dst, src, pf)
 

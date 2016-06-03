@@ -144,13 +144,6 @@ void MLModel::BcastFSC()
                            i,
                            MPI_COMM_WORLD);
 
-            /***
-            // check the integrity of transporting using MPI_Status
-            MPI_Get_count(&stat, MPI_DOUBLE_COMPLEX, &count);
-            if (count != A.sizeFT())
-                CLOG(FATAL, "LOGGER_SYS") << "Receiving Incomplete Buffer from Hemisphere A";
-                ***/
-
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from Hemisphere B";
 
             MPI_Recv_Large(&B[0],
@@ -160,22 +153,46 @@ void MLModel::BcastFSC()
                            i,
                            MPI_COMM_WORLD);
 
-            /***
-            // check the integrity of transporting using MPI_Status
-            MPI_Get_count(&stat, MPI_DOUBLE_COMPLEX, &count);
-            if (count != B.sizeFT())
-                CLOG(FATAL, "LOGGER_SYS") << "Receiving Incomplete Buffer from Hemisphere B";
-                ***/
-
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << i;
             vec fsc(_r * _pf);
             FSC(fsc, A, B);
             _FSC.col(i) = fsc;
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
-            ADD_FT(A, B);
-            SCALE_FT(A, 0.5);
-            _ref[i] = A.copyVolume();
+            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
+
+            Volume ACentre, BCentre;
+            double ef = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)
+                      / (_size / 2 + 1);
+            VOL_EXTRACT_FT(ACentre, A, ef);
+            VOL_EXTRACT_FT(BCentre, B, ef);
+
+            ADD_FT(ACentre, BCentre);
+            SCALE_FT(ACentre, 0.5);
+
+            VOL_REPLACE_FT(A, ACentre);
+            VOL_REPLACE_FT(B, ACentre);
+
+            MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                         << i
+                                         << " to Hemisphere A";
+            
+            MPI_Ssend_Large(&A[0],
+                            A.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            HEMI_A_LEAD,
+                            i,
+                            MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                         << i
+                                         << " to Hemisphere B";
+
+            MPI_Ssend_Large(&B[0],
+                            B.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            HEMI_B_LEAD,
+                            i,
+                            MPI_COMM_WORLD);
         }
         else if ((_commRank == HEMI_A_LEAD) ||
                  (_commRank == HEMI_B_LEAD))
@@ -183,7 +200,7 @@ void MLModel::BcastFSC()
             ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << i
                                          << " from Hemisphere A";
-            BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+            BLOG(INFO, "LOGGER_COMPARE") << "Snding Reference "
                                          << i
                                          << " from Hemisphere B";
 
@@ -193,19 +210,30 @@ void MLModel::BcastFSC()
                             MASTER_ID,
                             i,
                             MPI_COMM_WORLD);
+
+            ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from MASTER";
+            BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from MASTER";
+
+            MPI_Recv_Large(&_ref[i][0],
+                           _ref[i].sizeFT(),
+                           MPI_DOUBLE_COMPLEX,
+                           MASTER_ID,
+                           i,
+                           MPI_COMM_WORLD);
+
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
+            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from B_LEAD";
+
+            MPI_Bcast_Large(&_ref[i][0],
+                            _ref[i].sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            _commRank,
+                            _hemi);
+
+            MPI_Barrier(_hemi);
         }
-
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Average Reference from MASTER";
-
-        MPI_Bcast_Large(&_ref[i][0],
-                        _ref[i].sizeFT(),
-                        MPI_DOUBLE_COMPLEX,
-                        MASTER_ID,
-                        MPI_COMM_WORLD);
-
-        MPI_Barrier(MPI_COMM_WORLD);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -284,10 +312,10 @@ void MLModel::refreshReco()
     FOR_EACH_CLASS
     {
         _reco[i]->init(_size,
-                      _pf,
-                      _sym,
-                      _a,
-                      _alpha);
+                       _pf,
+                       _sym,
+                       _a,
+                       _alpha);
         // _reco[i].setMaxRadius(_r);
     }
 }
