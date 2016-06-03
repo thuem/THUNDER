@@ -238,22 +238,25 @@ void MLModel::BcastFSC()
 
             MPI_Barrier(_hemi);
 
-            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
-            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from B_LEAD";
-
             if (isA())
+            {
+                ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
                 MPI_Bcast_Large(&_ref[i][0],
                                _ref[i].sizeFT(),
                                MPI_DOUBLE_COMPLEX,
                                HEM_A_LEAD,
                                _hemi);
+            }
 
             if (isB())
+            {
+                BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from B_LEAD";
                 MPI_Bcast_Large(&_ref[i][0],
                                 _ref[i].sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
                                 HEM_B_LEAD,
                                 _hemi);
+            }
 
             MPI_Barrier(_hemi);
         }
