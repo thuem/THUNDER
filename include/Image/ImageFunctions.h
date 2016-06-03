@@ -131,12 +131,33 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, pf)
 
+/**
+ * This macro replaces a slice of a volume with an image given in real space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_REPLACE_RL(dst, src, k) \
     SLC_REPLACE(RL, dst, src, k)
 
+/**
+ * This macro replaces a slice of a volume with an image given in Fourier
+ * space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_REPLACE_FT(dst, src, k) \
     SLC_REPLACE(FT, dst, src, k)
 
+/**
+ * This macro replaces a slice of a volume with an image given.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_REPLACE(SP, dst, src, k) \
     [](Volume& _dst, const Image& _src, const int _k) \
     { \

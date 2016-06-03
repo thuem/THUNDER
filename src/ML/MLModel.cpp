@@ -164,7 +164,7 @@ void MLModel::BcastFSC()
             MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL(A)
-                if (QUAD(i, j, k) < r * r)
+                if (QUAD_3(i, j, k) < r * r)
                 {
                     Complex avg = (A.getFT(i, j, k) + B.getFT(i, j, k)) / 2;
                     A.setFT(avg, i, j, k);
