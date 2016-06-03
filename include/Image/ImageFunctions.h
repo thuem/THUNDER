@@ -79,6 +79,13 @@ using namespace std;
 #define VOL_REPLACE_FT(dst, src) \
     VOL_REPLACE(FT, dst, src)
 
+/**
+ * This macro replaces the centre block of a volume with another volume.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ */
 #define VOL_REPLACE(SP, dst, src) \
     [](Volume& _dst, const Volume& _src) \
     { \
@@ -86,12 +93,32 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src)
 
+/**
+ * This macro pads a volumen in real space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf the padding factor
+ */
 #define VOL_PAD_RL(dst, src, pf) \
     VOL_PAD(RL, dst, src, pf)
 
+/**
+ * This macro pads a volumen in Fourier space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf the padding factor
+ */
 #define VOL_PAD_FT(dst, src, pf) \
     VOL_PAD(FT, dst, src, pf)
 
+/**
+ * This macro pads a volume.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf the padding factor
+ */
 #define VOL_PAD(SP, dst, src, pf) \
     [](Volume& _dst, const Volume& _src, const int _pf) \
     { \

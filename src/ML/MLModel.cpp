@@ -160,6 +160,16 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
+            double r = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize) * _pf;
+            MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
+            VOLUME_FOR_EACH_PIXEL(A)
+                if (QUAD(i, j, k) < r * r)
+                {
+                    Complex avg = (A.getFT(i, j, k) + B.getFT(i, j, k)) / 2;
+                    A.setFT(avg, i, j, k);
+                    B.setFT(avg, i, j, k);
+                }
+            /***
             Volume ACentre, BCentre;
             double ef = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)
                       / (_size / 2 + 1);
@@ -171,6 +181,7 @@ void MLModel::BcastFSC()
 
             VOL_REPLACE_FT(A, ACentre);
             VOL_REPLACE_FT(B, ACentre);
+            ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << i
