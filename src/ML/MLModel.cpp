@@ -244,7 +244,7 @@ void MLModel::BcastFSC()
                 MPI_Bcast_Large(&_ref[i][0],
                                _ref[i].sizeFT(),
                                MPI_DOUBLE_COMPLEX,
-                               HEM_A_LEAD,
+                               HEMI_A_LEAD,
                                _hemi);
             }
 
@@ -254,7 +254,7 @@ void MLModel::BcastFSC()
                 MPI_Bcast_Large(&_ref[i][0],
                                 _ref[i].sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
-                                HEM_B_LEAD,
+                                HEMI_B_LEAD,
                                 _hemi);
             }
 
