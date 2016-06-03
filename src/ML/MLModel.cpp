@@ -162,6 +162,7 @@ void MLModel::BcastFSC()
 
             double r = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize) * _pf;
             MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
+            #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL(A)
                 if (QUAD(i, j, k) < r * r)
                 {

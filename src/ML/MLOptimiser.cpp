@@ -194,7 +194,7 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
-                if (_ID[l] < 100)
+                if (_ID[l] < 20)
                 {
                     char filename[FILE_NAME_LENGTH];
                     snprintf(filename,
