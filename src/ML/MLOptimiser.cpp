@@ -266,6 +266,8 @@ void MLOptimiser::run()
                                    << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
+        _model.updateR();
+        _r = _model.r();
         if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
             (1.0 / resP2A(_res, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
         {
@@ -274,11 +276,13 @@ void MLOptimiser::run()
                                _para.pixelSize)) + 1;
             _model.setR(_r);
         }
+        /***
         else
         {
             _model.updateR();
             _r = _model.r();
         }
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
@@ -413,7 +417,7 @@ void MLOptimiser::initImg()
         if (stmt.step())
             imgName = stmt.get_text(0);
         else
-            throw std::runtime_error("Database changed");
+            CLOG(FATAL, "LOGGER_SYS") << "Database Changed";
         stmt.reset();
         // read the image fromm hard disk
 	    Image& currentImg = _img[l];
@@ -423,7 +427,7 @@ void MLOptimiser::initImg()
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
-            LOG(FATAL) << "Incorrect Size of 2D Images";
+            CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
 
         /***
         // apply a soft mask on it
@@ -467,9 +471,9 @@ void MLOptimiser::initCTF()
             ctfAttr.defocusV = stmt.get_double(2);
             ctfAttr.defocusAngle = stmt.get_double(3);
             ctfAttr.CS = stmt.get_double(4);
-        } else {
-            throw std::runtime_error("No data");
         }
+        else 
+            CLOG(FATAL, "LOGGER_SYS") << "No Data";
         stmt.reset();
 
         // append a CTF
