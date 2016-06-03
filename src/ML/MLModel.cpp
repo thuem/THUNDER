@@ -206,32 +206,35 @@ void MLModel::BcastFSC()
                             i,
                             MPI_COMM_WORLD);
         }
-        else if ((_commRank == HEMI_A_LEAD) ||
-                 (_commRank == HEMI_B_LEAD))
+        else
         {
-            ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
-                                         << i
-                                         << " from Hemisphere A";
-            BLOG(INFO, "LOGGER_COMPARE") << "Snding Reference "
-                                         << i
-                                         << " from Hemisphere B";
+            if ((_commRank == HEMI_A_LEAD) ||
+                (_commRank == HEMI_B_LEAD))
+            {
+                ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                             << i
+                                             << " from Hemisphere A";
+                BLOG(INFO, "LOGGER_COMPARE") << "Snding Reference "
+                                             << i
+                                             << " from Hemisphere B";
 
-            MPI_Ssend_Large(&_ref[i][0],
-                            _ref[i].sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            MASTER_ID,
-                            i,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&_ref[i][0],
+                                _ref[i].sizeFT(),
+                                 MPI_DOUBLE_COMPLEX,
+                                MASTER_ID,
+                                i,
+                                MPI_COMM_WORLD);
 
-            ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from MASTER";
-            BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from MASTER";
+                ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from MASTER";
+                BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << i << " from MASTER";
 
-            MPI_Recv_Large(&_ref[i][0],
-                           _ref[i].sizeFT(),
-                           MPI_DOUBLE_COMPLEX,
-                           MASTER_ID,
-                           i,
-                           MPI_COMM_WORLD);
+                MPI_Recv_Large(&_ref[i][0],
+                               _ref[i].sizeFT(),
+                               MPI_DOUBLE_COMPLEX,
+                               MASTER_ID,
+                               i,
+                               MPI_COMM_WORLD);
+            }
 
             MPI_Barrier(_hemi);
 
