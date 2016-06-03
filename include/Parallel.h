@@ -61,6 +61,10 @@ class Parallel
 
         bool isMaster() const;
 
+        bool isA() const;
+
+        bool isB() const;
+
         int commSize() const;
 
         void setCommSize(const int commSize);
