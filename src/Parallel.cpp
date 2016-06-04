@@ -114,9 +114,18 @@ void display(const Parallel& parallel)
     if (parallel.isMaster())
         printf("Master Process\n");
     else
-        printf("Process %4d of %4d Processes\n",
-               parallel.commRank(),
-               parallel.commSize());
+    {
+        if (parallel.isA())
+            printf("A: Process %4d of %4d Processes\n",
+                    parallel.commRank(),
+                    parallel.commSize());
+        else if (parallel.isB())
+            printf("B: Process %4d of %4d Processes\n",
+                    parallel.commRank(),
+                    parallel.commSize());
+        else
+            CLOG(FATAL, "LOGGER_SYS") << "Incorrect Process Initialization";
+    }
 }
 
 void MPI_Recv_Large(void* buf,
