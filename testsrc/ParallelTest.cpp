@@ -27,14 +27,20 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < atoi(argv[1]); i++)
     {
-        CLOG(INFO, "LOGGER_SYS") << "Round " << i;
         if (par.commRank() != MASTER_ID)
+        {
+            if (par.commRank() == HEMI_A_LEAD)
+                CLOG(INFO, "LOGGER_SYS") << "HEMI_A: Round " << i;
+            if (par.commRank() == HEMI_B_LEAD)
+                CLOG(INFO, "LOGGER_SYS") << "HEMI_B: Round " << i;
+
             MPI_Allreduce_Large(MPI_IN_PLACE,
                                 &vol[0],
                                 vol.sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
                                 MPI_SUM,
                                 par.hemi());
+        }
     }
     
     MPI_Finalize();
