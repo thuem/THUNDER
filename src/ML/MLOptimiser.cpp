@@ -77,7 +77,9 @@ void MLOptimiser::init()
         initImg();
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+
         allReduceN();
+
         ALOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere B: " << _N;
 
@@ -269,7 +271,7 @@ void MLOptimiser::run()
         _model.updateR();
         _r = _model.r();
         if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
-            (1.0 / resP2A(_res, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
+            (1.0 / resP2A(_r - 1, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
         {
             _r = AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
                                _para.size,
