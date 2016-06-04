@@ -40,6 +40,8 @@ void Parallel::setMPIEnv()
     MPI_Comm_create(MPI_COMM_WORLD, aGroup, &A);
     MPI_Comm_create(MPI_COMM_WORLD, bGroup, &B);
 
+    _hemi = MPI_COMM_NULL;
+
     if (A != MPI_COMM_NULL) { _hemi = A; };
     if (B != MPI_COMM_NULL) { _hemi = B; };
 
