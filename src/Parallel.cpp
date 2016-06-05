@@ -244,6 +244,10 @@ void MPI_Allreduce_Large(const void* sendbuf,
 
     int nBlock = (count - 1) / (INT_MAX / dataTypeSize) + 1;
 
+    CLOG(INFO, "LOGGER_SYS") << "count = " << count;
+    CLOG(INFO, "LOGGER_SYS") << "INT_MAX = " << INT_MAX;
+    CLOG(INFO, "LOGGER_SYS") << "dataTypeSize = " << dataTypeSize;
+
     if (nBlock != 1)
         CLOG(INFO, "LOGGER_SYS") << "MPI_Allreduce_Large: Transmitting "
                                  << nBlock
