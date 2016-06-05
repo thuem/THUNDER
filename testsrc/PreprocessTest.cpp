@@ -90,10 +90,12 @@ void readStar(Experiment& exp, char *micrographFileName, char *starFileName)
                          "where Name== ? ;", -1, exp.expose());
     stmt.bind_text(1, micrographFileName, strlen(micrographFileName), false);
 
-    while (stmt.step())
+    if (stmt.step())
         micrographID = stmt.get_int(0);
+    else
+        REPORT_ERROR("No micrographID");
 
-        stmt = sql::Statement("insert into particles "\
+    stmt = sql::Statement("insert into particles "\
                               "(XOff, YOff, Name ,GroupID ,MicrographID  ) "\
                               "VALUES (?, ?, ? ,0 , ? ); ", -1, exp.expose());
     printf(" micrographID = %d \n", micrographID);
