@@ -44,7 +44,7 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
     _pgOrder = that.pgOrder();
 
     mat33 L, R;
-    for (size_t i = 0; i < that.nSymmetryElement(); i++)
+    for (ptrdiff_t i = 0; i < that.nSymmetryElement(); i++)
     {
         that.get(L, R, i);
         append(L, R);
@@ -179,7 +179,7 @@ bool Symmetry::novo(const mat33& L,
         return false;
 
     // check whether (L, R) exists in (_L, _R) or not
-    for (int i = 0; i < _L.size(); i++)
+    for (size_t i = 0; i < _L.size(); i++)
         if (SAME_MATRIX(L, _L[i]) && SAME_MATRIX(R, _R[i]))
             return false;
 

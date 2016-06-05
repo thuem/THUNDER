@@ -82,7 +82,6 @@ int main(int argc, const char* argv[])
     projector.setPf(PF);
 
     char name[256];
-    int counter = 0;
 
     Image image(N, N, RL_SPACE);
 

@@ -177,7 +177,7 @@ void Reconstructor::allReduceW()
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating C";
 
     #pragma omp parallel for
-    for (int k = 0; k < _rot.size(); k++)
+    for (int k = 0; k < int(_rot.size()); k++)
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = 0; i <= _size / 2; i++)
             {

@@ -82,7 +82,6 @@ int main(int argc, char* argv[])
     projector.setProjectee(padHead.copyVolume());
 
     char name[256];
-    int counter = 0;
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);

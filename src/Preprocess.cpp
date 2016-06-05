@@ -44,7 +44,7 @@ void Preprocess::run()
     {
         getMicIDs(_micIDs);
 
-        for (int i = 0; i < _micIDs.size(); i++)
+        for (size_t i = 0; i < _micIDs.size(); i++)
         {
             cout << _micIDs[i] << endl;
             extractParticles(_micIDs[i]);
@@ -72,6 +72,7 @@ std::string Preprocess::getMicName(const int micID)
         return stmt.get_text(0);
     else
         CLOG(FATAL, "LOGGER_SYS") << "No Micrograph Name";
+    __builtin_unreachable();
 }
 
 void Preprocess::getParXOffYOff(int& xOff,
@@ -114,7 +115,7 @@ void Preprocess::extractParticles(const int micID)
 
     sql::Statement updator("update particles set Name = ? where ID = ?", -1, _exp.expose());
 
-    for (int i = 0; i < parIDs.size(); i++)
+    for (size_t i = 0; i < parIDs.size(); i++)
     {
         int xOff, yOff;
         getParXOffYOff(xOff, yOff, parIDs[i]);
@@ -135,7 +136,7 @@ void Preprocess::extractParticles(const int micID)
 
         // generate parName according to micName and i
         snprintf(parName, sizeof(parName),
-                "%s_%04d.mrc",
+                "%s_%04zu.mrc",
                 sMicName.substr(0, sMicName.rfind('.') - 1).c_str(),
                 i);
         parFile.readMetaData(par);

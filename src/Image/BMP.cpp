@@ -95,8 +95,7 @@ bool BMP::createBMP(float* buf, int width, int height)
 {
 	if (buf == NULL) return false;
 	
-	int i;
-	int size = width * height;
+	long size = width * height;
 	unsigned char* bufc = new unsigned char[size];
 	DataConvert(bufc, buf, size);
 
@@ -112,8 +111,7 @@ bool BMP::createBMP(short* buf, int width, int height)
 {
 	if (buf == NULL) return false;
 	
-	int i;
-	int size = width * height;
+	long size = width * height;
 	unsigned char* bufc = new unsigned char[size];
 	DataConvert(bufc, buf, size);
 

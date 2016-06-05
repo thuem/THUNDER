@@ -128,7 +128,7 @@ void MPI_Recv_Large(void* buf,
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Recv(buf + sizeof(datatype) * i * INT_MAX,
+        MPI_Recv(static_cast<char*>(buf) + sizeof(datatype) * i * INT_MAX,
                  blockSize,
                  datatype,
                  source,
@@ -164,7 +164,7 @@ void MPI_Ssend_Large(const void* buf,
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Ssend(buf + sizeof(datatype) * i * INT_MAX,
+        MPI_Ssend(static_cast<const char*>(buf) + sizeof(datatype) * i * INT_MAX,
                   blockSize,
                   datatype,
                   dest,
@@ -192,7 +192,7 @@ void MPI_Bcast_Large(void* buf,
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Bcast(buf + sizeof(datatype) * i * INT_MAX,
+        MPI_Bcast(static_cast<char*>(buf) + sizeof(datatype) * i * INT_MAX,
                   blockSize,
                   datatype,
                   root,
@@ -220,8 +220,8 @@ void MPI_Allreduce_Large(const void* sendbuf,
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Allreduce(sendbuf + sizeof(datatype) * i * INT_MAX,
-                      recvbuf + sizeof(datatype) * i * INT_MAX,
+        MPI_Allreduce(static_cast<const char*>(sendbuf) + sizeof(datatype) * i * INT_MAX,
+                      static_cast<char*>(recvbuf) + sizeof(datatype) * i * INT_MAX,
                       blockSize,
                       datatype,
                       op,
