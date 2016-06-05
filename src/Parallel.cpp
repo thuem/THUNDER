@@ -238,6 +238,7 @@ void MPI_Bcast_Large(void* buf,
     }
 }
 
+/***
 void MPI_Allreduce_Large(const void* sendbuf,
                          void* recvbuf,
                          size_t count,
@@ -252,8 +253,8 @@ void MPI_Allreduce_Large(const void* sendbuf,
                   op,
                   comm);
 }
+***/
 
-/***
 void MPI_Allreduce_Large(const void* sendbuf,
                          void* recvbuf,
                          size_t count,
@@ -274,6 +275,8 @@ void MPI_Allreduce_Large(const void* sendbuf,
         CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+
+    char* ptr = static_cast<char*>(recvbuf);
 
     for (int i = 0; i < nBlock; i++)
     {
@@ -297,13 +300,23 @@ void MPI_Allreduce_Large(const void* sendbuf,
         else
         {
             CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: In Place Allreduce";
+            /***
             MPI_Allreduce(MPI_IN_PLACE,
                           static_cast<char*>(recvbuf) + i * MPI_MAX_BUF,
                           blockSize,
                           datatype,
                           op,
                           comm);
+                          ***/
+            cout << (long long)ptr << endl;
+
+            MPI_Allreduce(MPI_IN_PLACE,
+                          ptr,
+                          blockSize,
+                          datatype,
+                          op,
+                          comm);
+            ptr += MPI_MAX_BUF;
         }
     }
 }
-***/
