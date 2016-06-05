@@ -245,16 +245,30 @@ void MPI_Allreduce_Large(const void* sendbuf,
                          MPI_Op op,
                          MPI_Comm comm)
 {
+    MPI_Allreduce(sendbuf,
+                  recvbuf,
+                  count,
+                  datatype,
+                  op,
+                  comm);
+}
+
+/***
+void MPI_Allreduce_Large(const void* sendbuf,
+                         void* recvbuf,
+                         size_t count,
+                         MPI_Datatype datatype,
+                         MPI_Op op,
+                         MPI_Comm comm)
+{
     int dataTypeSize;
     MPI_Type_size(datatype, &dataTypeSize);
 
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
-    /***
-    CLOG(INFO, "LOGGER_MPI") << "count = " << count;
-    CLOG(INFO, "LOGGER_MPI") << "MPI_MAX_BUF = " << MPI_MAX_BUF;
-    CLOG(INFO, "LOGGER_MPI") << "dataTypeSize = " << dataTypeSize;
-    ***/
+    //CLOG(INFO, "LOGGER_MPI") << "count = " << count;
+    //CLOG(INFO, "LOGGER_MPI") << "MPI_MAX_BUF = " << MPI_MAX_BUF;
+    //CLOG(INFO, "LOGGER_MPI") << "dataTypeSize = " << dataTypeSize;
 
     if (nBlock != 1)
         CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting "
@@ -292,3 +306,4 @@ void MPI_Allreduce_Large(const void* sendbuf,
         }
     }
 }
+***/
