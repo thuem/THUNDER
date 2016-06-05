@@ -500,7 +500,7 @@ void MLOptimiser::initSigma()
 
     Image avg = _img[0].copyImage();
 
-    for (int l = 1; l < _ID.size(); l++)
+    for (size_t l = 1; l < _ID.size(); l++)
         ADD_FT(avg, _img[l]);
 
     MPI_Barrier(_hemi);

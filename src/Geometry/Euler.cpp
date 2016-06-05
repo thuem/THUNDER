@@ -16,7 +16,8 @@ void angle(double& phi,
 {
     theta = acos(src(2));
     phi = acos(src(0) / sin(theta));
-    (src(1) / sin(theta) > 0) ? : (phi = 2 * M_PI - phi);
+    if (src(1) / sin(theta) <= 0)
+        (phi = 2 * M_PI - phi);
 }
 
 void angle(double& phi,
@@ -26,9 +27,11 @@ void angle(double& phi,
 {
     theta = acos(src(2, 2));
     psi = acos(src(2, 1) / sin(theta));
-    (src(2, 0) / sin(theta) > 0) ? : (psi = 2 * M_PI - psi);
+    if (src(2, 0) / sin(theta) <= 0)
+        (psi = 2 * M_PI - psi);
     phi = acos(-src(1, 2) / sin(theta));
-    (src(0, 2) / sin(theta) > 0) ? : (phi = 2 * M_PI - phi);
+    if (src(0, 2) / sin(theta) <= 0)
+        (phi = 2 * M_PI - phi);
 }
 
 void angle(double& phi,
@@ -38,7 +41,8 @@ void angle(double& phi,
 {
     phi = atan2((src(1) * src(3) + src(0) * src(2)),
                 (src(0) * src(1) - src(2) * src(3)));
-    (phi >= 0) ? : phi += 2 * M_PI;
+    if (phi < 0)
+        phi += 2 * M_PI;
 
     theta = acos(gsl_pow_2(src(0))
                - gsl_pow_2(src(1))
@@ -47,7 +51,8 @@ void angle(double& phi,
 
     psi = atan2((src(1) * src(3) - src(0) * src(2)),
                 (src(0) * src(1) + src(2) * src(3)));
-    (psi >= 0) ? : psi += 2 * M_PI;
+    if (psi < 0)
+        psi += 2 * M_PI;
 }
 
 void quaternoin(vec4& dst,

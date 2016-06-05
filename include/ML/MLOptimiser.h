@@ -31,7 +31,7 @@
 
 #include "MLModel.h"
 
-#define FOR_EACH_2D_IMAGE for (int l = 0; l < _ID.size(); l++)
+#define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
 #define TOP_K 1
 
