@@ -227,7 +227,7 @@ void MPI_Bcast_Large(void* buf,
         MPI_Barrier(comm);
 
         if (nBlock != 1)
-            CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting Block "
+            CLOG(INFO, "LOGGER_MPI") << "MPI_Bcast_Large: Transmitting Block "
                                      << i;
 
         MPI_Bcast(static_cast<char*>(buf) + i * MPI_MAX_BUF,
