@@ -147,14 +147,17 @@ void MPI_Recv_Large(void* buf,
                                  << nBlock
                                  << " Block(s).";
 
+    char* ptr = static_cast<char*>(buf);
+
     for (int i = 0; i < nBlock; i++)
     {
         int blockSizeCheck;
         int blockSize = (i != nBlock - 1)
                       ? (MPI_MAX_BUF / dataTypeSize)
-                      : count - (MPI_MAX_BUF / dataTypeSize) * (nBlock - 1);
+                      : count - (size_t)(MPI_MAX_BUF / dataTypeSize)
+                              * (nBlock - 1);
 
-        MPI_Recv(static_cast<char*>(buf) + i * MPI_MAX_BUF,
+        MPI_Recv(ptr,
                  blockSize,
                  datatype,
                  source,
@@ -167,6 +170,8 @@ void MPI_Recv_Large(void* buf,
 
         if (blockSizeCheck != blockSize)
             CLOG(FATAL, "LOGGER_MPI") << "MPI_Recv_Large: Incomplete Transmission";
+
+        ptr += MPI_MAX_BUF;
     }
 }
 
@@ -187,18 +192,23 @@ void MPI_Ssend_Large(const void* buf,
                                  << nBlock
                                  << " Block(s).";
 
+    const char* ptr = static_cast<const char*>(buf);
+
     for (int i = 0; i < nBlock; i++)
     {
         int blockSize = (i != nBlock - 1)
                       ? (MPI_MAX_BUF / dataTypeSize)
-                      : count - (MPI_MAX_BUF / dataTypeSize) * (nBlock - 1);
+                      : count - (size_t)(MPI_MAX_BUF / dataTypeSize)
+                              * (nBlock - 1);
 
-        MPI_Ssend(static_cast<const char*>(buf) + i * MPI_MAX_BUF,
+        MPI_Ssend(ptr,
                   blockSize,
                   datatype,
                   dest,
                   tag * nBlock + i,
                   comm);
+
+        ptr += MPI_MAX_BUF;
     }
 }
 
@@ -218,11 +228,14 @@ void MPI_Bcast_Large(void* buf,
                                  << nBlock
                                  << " Block(s).";
 
+    char* ptr = static_cast<char*>(buf);
+
     for (int i = 0; i < nBlock; i++)
     {
         int blockSize = (i != nBlock - 1)
                       ? (MPI_MAX_BUF / dataTypeSize)
-                      : count - (MPI_MAX_BUF / dataTypeSize) * (nBlock - 1);
+                      : count - (size_t)(MPI_MAX_BUF / dataTypeSize)
+                              * (nBlock - 1);
 
         MPI_Barrier(comm);
 
@@ -230,11 +243,13 @@ void MPI_Bcast_Large(void* buf,
             CLOG(INFO, "LOGGER_MPI") << "MPI_Bcast_Large: Transmitting Block "
                                      << i;
 
-        MPI_Bcast(static_cast<char*>(buf) + i * MPI_MAX_BUF,
+        MPI_Bcast(ptr,
                   blockSize,
                   datatype,
                   root,
                   comm);
+
+        ptr += MPI_MAX_BUF;
     }
 }
 
@@ -282,7 +297,8 @@ void MPI_Allreduce_Large(const void* sendbuf,
     {
         int blockSize = (i != nBlock - 1)
                       ? (MPI_MAX_BUF / dataTypeSize)
-                      : count - (MPI_MAX_BUF / dataTypeSize) * (nBlock - 1);
+                      : count - (size_t)(MPI_MAX_BUF / dataTypeSize)
+                              * (nBlock - 1);
 
         MPI_Barrier(comm);
 
@@ -290,6 +306,7 @@ void MPI_Allreduce_Large(const void* sendbuf,
             CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting Block "
                                      << i;
 
+        /***
         if (sendbuf != MPI_IN_PLACE)
             MPI_Allreduce(static_cast<const char*>(sendbuf) + i * MPI_MAX_BUF,
                           static_cast<char*>(recvbuf) + i * MPI_MAX_BUF,
@@ -297,9 +314,8 @@ void MPI_Allreduce_Large(const void* sendbuf,
                           datatype,
                           op,
                           comm);
-        else
-        {
-            CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: In Place Allreduce";
+                          ***/
+            //CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: In Place Allreduce";
             /***
             MPI_Allreduce(MPI_IN_PLACE,
                           static_cast<char*>(recvbuf) + i * MPI_MAX_BUF,
@@ -317,6 +333,5 @@ void MPI_Allreduce_Large(const void* sendbuf,
                           op,
                           comm);
             ptr += MPI_MAX_BUF;
-        }
     }
 }
