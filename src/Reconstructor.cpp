@@ -207,8 +207,7 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Allreducing C";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing C";
 
-    MPI_Allreduce_Large(MPI_IN_PLACE,
-                        &_C[0],
+    MPI_Allreduce_Large(&_C[0],
                         _C.sizeFT(),
                         MPI_DOUBLE_COMPLEX,
                         MPI_SUM,
@@ -259,8 +258,7 @@ void Reconstructor::allReduceF()
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
 
-    MPI_Allreduce_Large(MPI_IN_PLACE,
-                        &_F[0],
+    MPI_Allreduce_Large(&_F[0],
                         _F.sizeFT(),
                         MPI_DOUBLE_COMPLEX,
                         MPI_SUM,

@@ -35,8 +35,7 @@ int main(int argc, char* argv[])
             if (par.commRank() == HEMI_B_LEAD)
                 CLOG(INFO, "LOGGER_SYS") << "HEMI_B: Round " << i;
 
-            MPI_Allreduce_Large(MPI_IN_PLACE,
-                                &vol[0],
+            MPI_Allreduce_Large(&vol[0],
                                 vol.sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
                                 MPI_SUM,

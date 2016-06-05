@@ -106,8 +106,7 @@ void MPI_Bcast_Large(void* buf,
                      int root,
                      MPI_Comm comm);
 
-void MPI_Allreduce_Large(const void* sendbuf,
-                         void* recvbuf,
+void MPI_Allreduce_Large(void* buf,
                          size_t count,
                          MPI_Datatype datatype,
                          MPI_Op op,
