@@ -66,9 +66,9 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(Volume ref)
 {
-    if (((ref.nColRL() != _size) && (ref.nColRL() != 0)) ||
-        ((ref.nRowRL() != _size) && (ref.nRowRL() != 0)) ||
-        ((ref.nSlcRL() != _size) && (ref.nSlcRL() != 0)))
+    if (((ref.nColRL() != _size * _pf) && (ref.nColRL() != 0)) ||
+        ((ref.nRowRL() != _size * _pf) && (ref.nRowRL() != 0)) ||
+        ((ref.nSlcRL() != _size * _pf) && (ref.nSlcRL() != 0)))
         CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
                                   << ": _size = " << _size
                                   << ", nCol = " << ref.nColRL()
@@ -220,7 +220,7 @@ void MLModel::BcastFSC()
 
                 MPI_Ssend_Large(&_ref[i][0],
                                 _ref[i].sizeFT(),
-                                 MPI_DOUBLE_COMPLEX,
+                                MPI_DOUBLE_COMPLEX,
                                 MASTER_ID,
                                 i,
                                 MPI_COMM_WORLD);
@@ -242,10 +242,10 @@ void MLModel::BcastFSC()
             {
                 ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
                 MPI_Bcast_Large(&_ref[i][0],
-                               _ref[i].sizeFT(),
-                               MPI_DOUBLE_COMPLEX,
-                               HEMI_A_LEAD,
-                               _hemi);
+                                _ref[i].sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_A_LEAD,
+                                _hemi);
             }
 
             if (isB())
