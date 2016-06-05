@@ -124,7 +124,7 @@ void display(const Parallel& parallel)
                     parallel.commRank(),
                     parallel.commSize());
         else
-            CLOG(FATAL, "LOGGER_SYS") << "Incorrect Process Initialization";
+            CLOG(FATAL, "LOGGER_MPI") << "Incorrect Process Initialization";
     }
 }
 
@@ -143,7 +143,7 @@ void MPI_Recv_Large(void* buf,
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
     if (nBlock != 1)
-        CLOG(INFO, "LOGGER_SYS") << "MPI_Recv_Large: Transmitting "
+        CLOG(INFO, "LOGGER_MPI") << "MPI_Recv_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
 
@@ -166,7 +166,7 @@ void MPI_Recv_Large(void* buf,
         MPI_Get_count(&status, datatype, &blockSizeCheck);
 
         if (blockSizeCheck != blockSize)
-            CLOG(FATAL, "LOGGER_SYS") << "MPI_Recv_Large: Incomplete Transmission";
+            CLOG(FATAL, "LOGGER_MPI") << "MPI_Recv_Large: Incomplete Transmission";
     }
 }
 
@@ -183,7 +183,7 @@ void MPI_Ssend_Large(const void* buf,
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
     if (nBlock != 1)
-        CLOG(INFO, "LOGGER_SYS") << "MPI_Ssend_Large: Transmitting "
+        CLOG(INFO, "LOGGER_MPI") << "MPI_Ssend_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
 
@@ -214,7 +214,7 @@ void MPI_Bcast_Large(void* buf,
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
     if (nBlock != 1)
-        CLOG(INFO, "LOGGER_SYS") << "MPI_Bcast_Large: Transmitting "
+        CLOG(INFO, "LOGGER_MPI") << "MPI_Bcast_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
 
@@ -226,8 +226,9 @@ void MPI_Bcast_Large(void* buf,
 
         MPI_Barrier(comm);
 
-        CLOG(INFO, "LOGGER_SYS") << "MPI_Allreduce_Large: Transmitting Block "
-                                 << i;
+        if (nBlock != 1)
+            CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting Block "
+                                     << i;
 
         MPI_Bcast(static_cast<char*>(buf) + i * MPI_MAX_BUF,
                   blockSize,
@@ -250,13 +251,13 @@ void MPI_Allreduce_Large(const void* sendbuf,
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
     /***
-    CLOG(INFO, "LOGGER_SYS") << "count = " << count;
-    CLOG(INFO, "LOGGER_SYS") << "MPI_MAX_BUF = " << MPI_MAX_BUF;
-    CLOG(INFO, "LOGGER_SYS") << "dataTypeSize = " << dataTypeSize;
+    CLOG(INFO, "LOGGER_MPI") << "count = " << count;
+    CLOG(INFO, "LOGGER_MPI") << "MPI_MAX_BUF = " << MPI_MAX_BUF;
+    CLOG(INFO, "LOGGER_MPI") << "dataTypeSize = " << dataTypeSize;
     ***/
 
     if (nBlock != 1)
-        CLOG(INFO, "LOGGER_SYS") << "MPI_Allreduce_Large: Transmitting "
+        CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
 
@@ -268,8 +269,9 @@ void MPI_Allreduce_Large(const void* sendbuf,
 
         MPI_Barrier(comm);
 
-        CLOG(INFO, "LOGGER_SYS") << "MPI_Allreduce_Large: Transmitting Block "
-                                 << i;
+        if (nBlock != 1)
+            CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting Block "
+                                     << i;
 
         if (sendbuf != MPI_IN_PLACE)
             MPI_Allreduce(static_cast<const char*>(sendbuf) + i * MPI_MAX_BUF,
@@ -279,11 +281,14 @@ void MPI_Allreduce_Large(const void* sendbuf,
                           op,
                           comm);
         else
+        {
+            CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: In Place Allreduce";
             MPI_Allreduce(MPI_IN_PLACE,
                           static_cast<char*>(recvbuf) + i * MPI_MAX_BUF,
                           blockSize,
                           datatype,
                           op,
                           comm);
+        }
     }
 }

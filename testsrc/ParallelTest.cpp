@@ -23,7 +23,8 @@ int main(int argc, char* argv[])
     display(par);
 
     Volume vol(760, 760, 760, FT_SPACE);
-    SET_0_FT(vol);
+    //Volume vol(100, 100, 100, FT_SPACE);
+    SET_1_FT(vol);
 
     for (int i = 0; i < atoi(argv[1]); i++)
     {
@@ -40,6 +41,20 @@ int main(int argc, char* argv[])
                                 MPI_DOUBLE_COMPLEX,
                                 MPI_SUM,
                                 par.hemi());
+
+            if (par.commRank() == HEMI_A_LEAD)
+            {
+                for (size_t j = 0; j < vol.sizeFT(); j++)
+                    if ((REAL(vol[j]) != 2) ||
+                        (IMAG(vol[j]) != 0))
+                        {
+                            cout << "Error!" << endl;
+                            cout << j << " : ( " << REAL(vol[j])
+                                 << ", " << IMAG(vol[j]) << endl;
+                            break;
+                        }
+            }
+            cout << endl;
         }
     }
     
