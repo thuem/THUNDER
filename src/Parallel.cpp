@@ -268,7 +268,7 @@ void MPI_Allreduce_Large(const void* sendbuf,
                           comm);
         else
             MPI_Allreduce(MPI_IN_PLACE,
-                          recvbuf + i * INT_MAX,
+                          static_cast<char*>recvbuf + i * INT_MAX,
                           blockSize,
                           datatype,
                           op,
