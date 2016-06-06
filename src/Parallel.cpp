@@ -8,6 +8,8 @@
 
 #include "Parallel.h"
 
+#include <exception>
+
 Parallel::Parallel() {}
 
 Parallel::~Parallel() {}
@@ -120,6 +122,10 @@ void MPI_Recv_Large(void* buf,
         CLOG(INFO, "LOGGER_SYS") << "MPI_Recv_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+    
+    int type_size;
+    if (MPI_Type_size(datatype, &type_size) != MPI_SUCCESS)
+        std::terminate();
 
     for (int i = 0; i < nBlock; i++)
     {
@@ -128,7 +134,7 @@ void MPI_Recv_Large(void* buf,
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Recv(static_cast<char*>(buf) + sizeof(datatype) * i * INT_MAX,
+        MPI_Recv(static_cast<char*>(buf) + type_size * i * INT_MAX,
                  blockSize,
                  datatype,
                  source,
@@ -157,6 +163,10 @@ void MPI_Ssend_Large(const void* buf,
         CLOG(INFO, "LOGGER_SYS") << "MPI_Ssend_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+    
+    int type_size;
+    if (MPI_Type_size(datatype, &type_size) != MPI_SUCCESS)
+        std::terminate();
 
     for (int i = 0; i < nBlock; i++)
     {
@@ -164,7 +174,7 @@ void MPI_Ssend_Large(const void* buf,
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Ssend(static_cast<const char*>(buf) + sizeof(datatype) * i * INT_MAX,
+        MPI_Ssend(static_cast<const char*>(buf) + type_size * i * INT_MAX,
                   blockSize,
                   datatype,
                   dest,
@@ -186,13 +196,17 @@ void MPI_Bcast_Large(void* buf,
                                  << nBlock
                                  << " Block(s).";
 
+    int type_size;
+    if (MPI_Type_size(datatype, &type_size) != MPI_SUCCESS)
+        std::terminate();
+    
     for (int i = 0; i < nBlock; i++)
     {
         int blockSize = (i != nBlock - 1)
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Bcast(static_cast<char*>(buf) + sizeof(datatype) * i * INT_MAX,
+        MPI_Bcast(static_cast<char*>(buf) + type_size * i * INT_MAX,
                   blockSize,
                   datatype,
                   root,
@@ -214,14 +228,18 @@ void MPI_Allreduce_Large(const void* sendbuf,
                                  << nBlock
                                  << " Block(s).";
 
+    int type_size;
+    if (MPI_Type_size(datatype, &type_size) != MPI_SUCCESS)
+        std::terminate();
+    
     for (int i = 0; i < nBlock; i++)
     {
         int blockSize = (i != nBlock - 1)
                       ? INT_MAX
                       : count - INT_MAX * (nBlock - 1);
 
-        MPI_Allreduce(static_cast<const char*>(sendbuf) + sizeof(datatype) * i * INT_MAX,
-                      static_cast<char*>(recvbuf) + sizeof(datatype) * i * INT_MAX,
+        MPI_Allreduce(static_cast<const char*>(sendbuf) + type_size * i * INT_MAX,
+                      static_cast<char*>(recvbuf) + type_size * i * INT_MAX,
                       blockSize,
                       datatype,
                       op,
