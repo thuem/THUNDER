@@ -196,6 +196,17 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
+                // IF_GBOBAL_SEARCH_SEARCH, too few point, triple the
+                // number of resampling
+                if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                    (phase == 0) &&
+                    (nSearch == 0) &&
+                    (_par[l].neff() < 10))
+                {
+                    _par[l].resample(3 * _par[l].n());
+                    continue;
+                }
+
                 if (_ID[l] < 20)
                 {
                     char filename[FILE_NAME_LENGTH];
@@ -210,6 +221,7 @@ void MLOptimiser::expectation()
                 }
 
                 nSearch++;
+
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
 
