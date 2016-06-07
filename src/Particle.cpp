@@ -134,6 +134,7 @@ void Particle::setSymmetry(const Symmetry* sym)
 
 void Particle::calVari()
 {
+    //TODO: gsl_stats_sd
     _s0 = sqrt(gsl_stats_covariance(_t.col(0).data(),
                                     1,
                                     _t.col(0).data(),

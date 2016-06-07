@@ -299,4 +299,9 @@ void display(const Particle& particle);
 void save(const char filename[],
           const Particle& particle);
 
+/***
+void load(Particle& particle,
+          const char filename[]);
+***/
+
 #endif  //PARTICLE_H
