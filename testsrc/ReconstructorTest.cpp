@@ -16,8 +16,9 @@
 #include "ImageFile.h"
 #include "Timer.h"
 
-#define N 64
-#define M 16
+#define N 380
+#define M 38
+//#define M 16
 
 using namespace std;
 
@@ -25,7 +26,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     MPI_Init(&argc, &argv);
 
@@ -200,6 +201,7 @@ int main(int argc, char* argv[])
     if (commRank == 1)
         timing();
 
+    /***
     if (commRank != MASTER_ID)
     {
         fft.fw(result);
@@ -231,6 +233,7 @@ int main(int argc, char* argv[])
                     fft.fw(image);
                 }
     }
+    ***/
 
     //MPI_Comm_free(&world);
     //MPI_Comm_free(&workers);

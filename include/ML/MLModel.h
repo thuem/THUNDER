@@ -32,6 +32,8 @@ using namespace std;
 #define MAX_GAP 20
 #define MIN_GAP 10
 
+#define A_B_AVERAGE_THRES 40 // Angstrom
+
 class MLModel : public Parallel
 {
     private:

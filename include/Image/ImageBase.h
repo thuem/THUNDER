@@ -57,14 +57,16 @@ using namespace std;
     SCALE_FT(base, -1)
 
 #define SCALE_RL(base, a) \
-    cblas_dscal(base.sizeRL(), a, &base(0), 1)
+    FOR_EACH_PIXEL_RL(base) \
+        (base)(i) *= a
 
 #define SCALE_FT(base, a) \
     FOR_EACH_PIXEL_FT(base) \
-        base[i] *= a
+        (base)[i] *= a
 
 #define ADD_RL(a, b) \
-    cblas_daxpy(a.sizeRL(), 1, &b(0), 1, &a(0), 1);
+    FOR_EACH_PIXEL_RL(a) \
+        (a)(i) += (b)(i)
 
 #define ADD_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \

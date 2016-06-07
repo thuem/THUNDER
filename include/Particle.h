@@ -139,6 +139,12 @@ class Particle
         void reset();
 
         /**
+         * This function resets the particles in this particle to a uniform
+         * distribution with a given number of sampling points.
+         */
+        void reset(const int n);
+
+        /**
          * This function returns the number of particles in this particle
          * filter.
          */
@@ -298,5 +304,10 @@ void display(const Particle& particle);
  */
 void save(const char filename[],
           const Particle& particle);
+
+/***
+void load(Particle& particle,
+          const char filename[]);
+***/
 
 #endif  //PARTICLE_H

@@ -16,6 +16,7 @@ void angle(double& phi,
 {
     theta = acos(src(2));
     phi = acos(src(0) / sin(theta));
+
     if (src(1) / sin(theta) <= 0)
         (phi = 2 * M_PI - phi);
 }
@@ -27,9 +28,12 @@ void angle(double& phi,
 {
     theta = acos(src(2, 2));
     psi = acos(src(2, 1) / sin(theta));
+
     if (src(2, 0) / sin(theta) <= 0)
         (psi = 2 * M_PI - psi);
+
     phi = acos(-src(1, 2) / sin(theta));
+
     if (src(0, 2) / sin(theta) <= 0)
         (phi = 2 * M_PI - phi);
 }
@@ -41,8 +45,8 @@ void angle(double& phi,
 {
     phi = atan2((src(1) * src(3) + src(0) * src(2)),
                 (src(0) * src(1) - src(2) * src(3)));
-    if (phi < 0)
-        phi += 2 * M_PI;
+
+    if (phi < 0) phi += 2 * M_PI;
 
     theta = acos(gsl_pow_2(src(0))
                - gsl_pow_2(src(1))
@@ -51,8 +55,8 @@ void angle(double& phi,
 
     psi = atan2((src(1) * src(3) - src(0) * src(2)),
                 (src(0) * src(1) + src(2) * src(3)));
-    if (psi < 0)
-        psi += 2 * M_PI;
+
+    if (psi < 0) psi += 2 * M_PI;
 }
 
 void quaternoin(vec4& dst,
@@ -271,5 +275,4 @@ void scale3D(mat33& dst,
     dst(0, 0) = vec(0);
     dst(1, 1) = vec(1);
     dst(2, 2) = vec(2);
-    //dst.diag() = vec;
 }

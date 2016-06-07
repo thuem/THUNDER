@@ -10,11 +10,17 @@
 #define PARALLEL_H
 
 #include <cstdio>
-#include <climits>
 
 #include <mpi.h>
 
 #include "Logging.h"
+
+/**
+ * The maximum buf size used in MPI environment. It is just a little bit smaller
+ * than INT_MAX, and it can be divided by 2, 4, 8 and 16.
+ * BTW, INT_MAX = 2147483647
+ */
+#define MPI_MAX_BUF 2000000000
 
 #define MASTER_ID 0
 
@@ -61,6 +67,10 @@ class Parallel
 
         bool isMaster() const;
 
+        bool isA() const;
+
+        bool isB() const;
+
         int commSize() const;
 
         void setCommSize(const int commSize);
@@ -96,8 +106,7 @@ void MPI_Bcast_Large(void* buf,
                      int root,
                      MPI_Comm comm);
 
-void MPI_Allreduce_Large(const void* sendbuf,
-                         void* recvbuf,
+void MPI_Allreduce_Large(void* buf,
                          size_t count,
                          MPI_Datatype datatype,
                          MPI_Op op,

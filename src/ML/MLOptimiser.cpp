@@ -77,7 +77,9 @@ void MLOptimiser::init()
         initImg();
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+
         allReduceN();
+
         ALOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere B: " << _N;
 
@@ -194,7 +196,19 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
-                if (_ID[l] < 100)
+                // IF_GBOBAL_SEARCH_SEARCH, too few point, triple the
+                // number of resampling
+                if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                    (phase == 0) &&
+                    (nSearch == 0) &&
+                    (_par[l].neff() < 2))
+                {
+                    //_par[l].resample(3 * _par[l].n());
+                    _par[l].reset(3 * _par[l].n());
+                    continue;
+                }
+
+                if (_ID[l] < 20)
                 {
                     char filename[FILE_NAME_LENGTH];
                     snprintf(filename,
@@ -208,6 +222,7 @@ void MLOptimiser::expectation()
                 }
 
                 nSearch++;
+
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
 
@@ -268,6 +283,21 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
+        if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+            (1.0 / resP2A(_r - 1, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
+        {
+            _r = AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
+                               _para.size,
+                               _para.pixelSize)) + 1;
+            _model.setR(_r);
+        }
+        /***
+        else
+        {
+            _model.updateR();
+            _r = _model.r();
+        }
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
@@ -402,7 +432,7 @@ void MLOptimiser::initImg()
         if (stmt.step())
             imgName = stmt.get_text(0);
         else
-            throw std::runtime_error("Database changed");
+            CLOG(FATAL, "LOGGER_SYS") << "Database Changed";
         stmt.reset();
         // read the image fromm hard disk
 	    Image& currentImg = _img[l];
@@ -412,7 +442,7 @@ void MLOptimiser::initImg()
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
-            LOG(FATAL) << "Incorrect Size of 2D Images";
+            CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
 
         /***
         // apply a soft mask on it
@@ -456,9 +486,9 @@ void MLOptimiser::initCTF()
             ctfAttr.defocusV = stmt.get_double(2);
             ctfAttr.defocusAngle = stmt.get_double(3);
             ctfAttr.CS = stmt.get_double(4);
-        } else {
-            throw std::runtime_error("No data");
         }
+        else 
+            CLOG(FATAL, "LOGGER_SYS") << "No Data";
         stmt.reset();
 
         // append a CTF

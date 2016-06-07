@@ -161,6 +161,7 @@
     { \
         _sym.get(L, R, i); \
         VOL_TRANSFORM_MAT_##SP(se, _src, R, _r); \
+        _Pragma("omp parallel for") \
         ADD_##SP(_dst, se); \
     } \
 }(dst, src, sym, r)

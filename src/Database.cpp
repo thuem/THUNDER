@@ -68,9 +68,11 @@ void Database::saveDatabase(sql::DB database)
                                                    _db.getNativeHandle(),
                                                    "main");
 
-    if (backupDB) {
+    if (backupDB)
+    {
         int rc = sqlite3_backup_step(backupDB, -1);
-        if (rc != SQLITE_OK && rc != SQLITE_DONE) {
+        if (rc != SQLITE_OK && rc != SQLITE_DONE)
+        {
             sqlite3_backup_finish(backupDB);
             throw sql::Exception(rc);
         }
@@ -319,7 +321,8 @@ void Database::gather()
 void Database::scatter()
 {
     if (_commRank == 0)
-        for (int i = 1; i < _commSize; i++) {
+        for (int i = 1; i < _commSize; i++)
+        {
             saveDatabase(i);
             masterSend(i);
         }

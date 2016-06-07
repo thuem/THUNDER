@@ -61,12 +61,64 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, ef)
 
+/**
+ * This macro replaces the centre block of a volume with another volume in real
+ * space.
+ * @param dst the destination volume
+ * @param src the source volume
+ */
+#define VOL_REPLACE_RL(dst, src) \
+    VOL_REPLACE(RL, dst, src)
+
+/**
+ * This macro replaces the centre block of a volume with another volume in
+ * Fourier space.
+ * @param dst the destination volume
+ * @param src the source volume
+ */
+#define VOL_REPLACE_FT(dst, src) \
+    VOL_REPLACE(FT, dst, src)
+
+/**
+ * This macro replaces the centre block of a volume with another volume.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ */
+#define VOL_REPLACE(SP, dst, src) \
+    [](Volume& _dst, const Volume& _src) \
+    { \
+        VOLUME_FOR_EACH_PIXEL_##SP(_src) \
+            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
+    }(dst, src)
+
+/**
+ * This macro pads a volumen in real space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf the padding factor
+ */
 #define VOL_PAD_RL(dst, src, pf) \
     VOL_PAD(RL, dst, src, pf)
 
+/**
+ * This macro pads a volumen in Fourier space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf the padding factor
+ */
 #define VOL_PAD_FT(dst, src, pf) \
     VOL_PAD(FT, dst, src, pf)
 
+/**
+ * This macro pads a volume.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf the padding factor
+ */
 #define VOL_PAD(SP, dst, src, pf) \
     [](Volume& _dst, const Volume& _src, const int _pf) \
     { \
@@ -79,12 +131,33 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, pf)
 
+/**
+ * This macro replaces a slice of a volume with an image given in real space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_REPLACE_RL(dst, src, k) \
     SLC_REPLACE(RL, dst, src, k)
 
+/**
+ * This macro replaces a slice of a volume with an image given in Fourier
+ * space.
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_REPLACE_FT(dst, src, k) \
     SLC_REPLACE(FT, dst, src, k)
 
+/**
+ * This macro replaces a slice of a volume with an image given.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_REPLACE(SP, dst, src, k) \
     [](Volume& _dst, const Image& _src, const int _k) \
     { \

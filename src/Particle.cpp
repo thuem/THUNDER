@@ -62,6 +62,17 @@ void Particle::reset()
     symmetrise();
 }
 
+void Particle::reset(const int n)
+{
+    _n = n;
+
+    _r.resize(_n, 4);
+    _t.resize(_n, 2);
+    _w.resize(_n);
+
+    reset();
+}
+
 int Particle::n() const { return _n; }
 
 void Particle::vari(double& k0,
@@ -134,6 +145,7 @@ void Particle::setSymmetry(const Symmetry* sym)
 
 void Particle::calVari()
 {
+    //TODO: gsl_stats_sd
     _s0 = sqrt(gsl_stats_covariance(_t.col(0).data(),
                                     1,
                                     _t.col(0).data(),
