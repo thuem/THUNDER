@@ -203,7 +203,8 @@ void MLOptimiser::expectation()
                     (nSearch == 0) &&
                     (_par[l].neff() < 10))
                 {
-                    _par[l].resample(3 * _par[l].n());
+                    //_par[l].resample(3 * _par[l].n());
+                    _par[l].reset(3 * _par[l].n());
                     continue;
                 }
 

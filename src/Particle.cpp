@@ -62,6 +62,17 @@ void Particle::reset()
     symmetrise();
 }
 
+void Particle::reset(const int n)
+{
+    _n = n;
+
+    _r.resize(_n, 4);
+    _t.resize(_n, 2);
+    _w.resize(_n);
+
+    reset();
+}
+
 int Particle::n() const { return _n; }
 
 void Particle::vari(double& k0,
