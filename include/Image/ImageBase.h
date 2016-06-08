@@ -173,9 +173,11 @@ class ImageBase
         unique_ptr<Complex[]> _dataFT;
 
         size_t _sizeRL = 0;
+
         size_t _sizeFT = 0;
 
         ImageBase();
+
         ~ImageBase();
 
     public:
@@ -206,35 +208,43 @@ class ImageBase
         Complex& operator[](const size_t i);
 
         /**
-         * check whether _data is NULL or not
+         * check whether _dataRL is NULL or not
          */
         bool isEmptyRL() const;
 
+        /**
+         * check whether _dataFT is nULL or not
+         */
         bool isEmptyFT() const;
-        // check whether _dataFT is NULL or not
 
+        /**
+         * return the number of pixels in real space
+         */
         size_t sizeRL() const;
-        // return the total size of this image
 
+        /**
+         * return the number of pixels in Fourier space
+         */
         size_t sizeFT() const;
-        // return the total size of the Fourier transformed image
         
+        /**
+         * free the allocated space both in real space and Fouier space
+         */
         void clear();
-        // free the memory
 
+        /**
+         * free the allocated space in real space
+         */
         void clearRL();
-        // free the memory storing real space image
 
+        /**
+         * free the allocated space in Fourier space
+         */
         void clearFT();
-        // free the memory storing Fourier Transform image
 
         void copyBase(ImageBase&) const;
-        ImageBase copyBase() const
-        {
-            ImageBase res;
-            copyBase(res);
-            return res;
-        }
+
+        ImageBase copyBase() const;
 };
 
 double norm(ImageBase& base);

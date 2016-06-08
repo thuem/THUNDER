@@ -319,9 +319,13 @@ void MLOptimiser::run()
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+
             _model.refreshProj();
 
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+
             _model.refreshReco();
         }
 
