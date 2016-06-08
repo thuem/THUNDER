@@ -511,6 +511,7 @@ void MLOptimiser::initSigma()
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
 
     Image avg = _img[0].copyImage();
 
@@ -531,6 +532,7 @@ void MLOptimiser::initSigma()
     SCALE_FT(avg, 1.0 / _N);
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
 
     // vec avgPs(maxR(), fill::zeros);
     vec avgPs = vec::Zero(maxR());
@@ -556,6 +558,7 @@ void MLOptimiser::initSigma()
     avgPs /= _N;
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
     // powerSpectrum(psAvg, avg, maxR());
@@ -565,10 +568,9 @@ void MLOptimiser::initSigma()
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
     ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
+    BLOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
 
     _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
-    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
-    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
 
     /***
     ALOG(INFO) << "Saving Initial Sigma";
