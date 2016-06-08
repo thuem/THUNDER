@@ -42,7 +42,7 @@
     if (_commRank == HEMI_B_LEAD) CLOG(LEVEL, LOGGER) << "B_LEAD: "
 
 #define ILOG(LEVEL, LOGGER) \
-    CLOG(LEVEL, LOGGER) << "RANK " << _commRank << ": "
+    NT_MASTER CLOG(LEVEL, LOGGER) << "RANK " << _commRank << ": "
 
 class Parallel
 {

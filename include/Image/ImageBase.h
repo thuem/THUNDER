@@ -28,24 +28,49 @@
 using namespace std;
 
 #define RL_SPACE 0
+
 #define FT_SPACE 1
 
+/**
+ * This macro loops over each pixel of an Image / Volume in real space.
+ * @param base an Image / Volume
+ */
 #define FOR_EACH_PIXEL_RL(base) \
     for (size_t i = 0; i < base.sizeRL(); i++)
 
+/**
+ * This macro loops over each pixel of an Image / Volume in Fourier space.
+ * @param base an Image / Volume
+ */
 #define FOR_EACH_PIXEL_FT(base) \
     for (size_t i = 0; i < base.sizeFT(); i++)
 
+/**
+ * This macro sets each pixel of an Image / Volume to 0 in real space.
+ * @param base an Image / Volume
+ */
 #define SET_0_RL(base) \
     memset(&base(0), 0, sizeof(double) * base.sizeRL());
 
+/**
+ * This macro sets each pixel of an Image / Volume to 0 in Fourier space.
+ * @param base an Image / Volume
+ */
 #define SET_0_FT(base) \
     memset(&base[0], 0, sizeof(Complex) * base.sizeFT());
 
+/**
+ * This macro sets each pixel of an Image / Volume to 1 in real space.
+ * @param base an Image / Volume
+ */
 #define SET_1_RL(base) \
     FOR_EACH_PIXEL_RL(base) \
         base(i) = 1
 
+/**
+ * This macro sets each pixel of an Image / Volume to 1 in Fourier space.
+ * @param base an Image / Volume
+ */
 #define SET_1_FT(base) \
     FOR_EACH_PIXEL_FT(base) \
         base[i] = COMPLEX(1, 0)

@@ -255,6 +255,7 @@ void MLOptimiser::run()
         expectation();
 
         MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expecation";
+        ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished";
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
 
