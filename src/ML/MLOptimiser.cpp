@@ -201,7 +201,7 @@ void MLOptimiser::expectation()
                 if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
                     (phase == 0) &&
                     (nSearch == 0) &&
-                    (_par[l].neff() < 1.2))
+                    (_par[l].neff() < 1 + 2 * PART_RESET_FACTOR))
                 {
                     //_par[l].resample(3 * _par[l].n());
                     _par[l].reset(3 * _par[l].n());

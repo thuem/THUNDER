@@ -50,6 +50,8 @@
 #define MAX_N_PHASE_PER_ITER 10
 #define MAX_N_SEARCH_PER_PHASE 3
 
+#define PART_RESET_FACTOR 0.1
+
 using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
