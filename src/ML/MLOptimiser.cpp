@@ -115,11 +115,8 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        Image image(size(), size(), FT_SPACE);
-
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
@@ -175,8 +172,12 @@ void MLOptimiser::expectation()
                 vec logW(_par[l].n());
                 mat33 rot;
                 vec2 t;
+
+                #pragma omp parallel for private(rot, t)
                 for (int m = 0; m < _par[l].n(); m++)
                 {
+                    Image image(size(), size(), FT_SPACE);
+
                     _par[l].rot(rot, m);
                     _par[l].t(t, m);
                     _model.proj(0).project(image, rot, t);
