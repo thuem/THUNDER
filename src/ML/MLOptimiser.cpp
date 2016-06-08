@@ -699,6 +699,7 @@ void MLOptimiser::reconstructRef()
     Image img(size(), size(), FT_SPACE);
 
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
+    BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
     {
