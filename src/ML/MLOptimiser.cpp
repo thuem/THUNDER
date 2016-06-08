@@ -235,9 +235,13 @@ void MLOptimiser::expectation()
 void MLOptimiser::maximization()
 {
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+    BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+
     allReduceSigma();
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+    BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+
     reconstructRef();
 }
 
@@ -608,12 +612,15 @@ void MLOptimiser::allReduceSigma()
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
 
     // set re-calculating part to zero
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
 
     ALOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
+
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
@@ -652,6 +659,7 @@ void MLOptimiser::allReduceSigma()
         // _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 
+    ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
     MPI_Barrier(_hemi);
