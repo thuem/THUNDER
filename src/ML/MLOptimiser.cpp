@@ -156,11 +156,6 @@ void MLOptimiser::expectation()
                 }
             }
 
-            /***
-            double nt = (phase == N_PHASE_PER_ITER - 1)
-                      ? 2 * TOP_K
-                      : _par[l].n() / 10;
-            ***/
             double nt = _par[l].n() / 10;
 
             int nSearch = 0;
@@ -193,7 +188,6 @@ void MLOptimiser::expectation()
 
                 for (int m = 0; m < _par[l].n(); m++)
                     _par[l].mulW(exp(logW(m)), m);
-                    // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
 
                 _par[l].normW();
 
@@ -204,7 +198,6 @@ void MLOptimiser::expectation()
                     (nSearch == 0) &&
                     (_par[l].neff() < 1 + 2 * PART_RESET_FACTOR))
                 {
-                    //_par[l].resample(3 * _par[l].n());
                     _par[l].reset(3 * _par[l].n());
                     continue;
                 }
@@ -261,6 +254,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
         expectation();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expecation";
+        MPI_Barrier(MPI_COMM_WORLD);
+        MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
@@ -296,13 +293,6 @@ void MLOptimiser::run()
                                _para.pixelSize)) + 1;
             _model.setR(_r);
         }
-        /***
-        else
-        {
-            _model.updateR();
-            _r = _model.r();
-        }
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
@@ -389,19 +379,23 @@ void MLOptimiser::initRef()
     _model.appendRef(Volume());
 
     ALOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
+    BLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
     ImageFile imf(_para.initModel, "rb");
     imf.readMetaData();
     imf.readVolume(_model.ref(0));
 
+    /***
     ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
                               << _model.ref(0).nColRL()
                               << " X "
                               << _model.ref(0).nRowRL()
                               << " X "
                               << _model.ref(0).nSlcRL();
+    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
+    BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
 
     FFT fft;
     fft.fw(_model.ref(0));
