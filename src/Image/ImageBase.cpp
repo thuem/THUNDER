@@ -14,12 +14,12 @@ ImageBase::ImageBase() {}
 
 ImageBase::~ImageBase() {}
 
-const double& ImageBase::iGetRL(size_t i) const
+const double& ImageBase::iGetRL(const size_t i) const
 {
     return _dataRL[i];
 };
 
-const Complex& ImageBase::iGetFT(size_t i) const
+const Complex& ImageBase::iGetFT(const size_t i) const
 {
     return _dataFT[i];
 };

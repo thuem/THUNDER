@@ -71,12 +71,17 @@ void MLOptimiser::init()
     NT_MASTER
     {
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
+
         initID();
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+
         initImg();
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
 
         allReduceN();
 
@@ -89,15 +94,23 @@ void MLOptimiser::init()
         ***/
 
         ALOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
+        BLOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
+
         _model.setR(_r);
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
+
         _model.initProjReco();
 
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
+        BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
+
         initCTF();
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
+
         initParticles();
     }
 
@@ -107,6 +120,8 @@ void MLOptimiser::init()
     NT_MASTER
     {
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
+        BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
+
         initSigma();
     }
 }
@@ -703,12 +718,6 @@ void MLOptimiser::reconstructRef()
 
     FOR_EACH_2D_IMAGE
     {
-        /***
-        ILOG(INFO) << "Inserting Particle "
-                   << _ID[l]
-                   << " into Reconstructor";
-                   ***/
-
         // reduce the CTF effect
         reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
