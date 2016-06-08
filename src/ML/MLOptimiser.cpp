@@ -474,6 +474,7 @@ void MLOptimiser::initCTF()
              micrographs, particles where \
              particles.micrographID = micrographs.ID and \
              particles.ID = ?;", -1, _exp.expose());
+
     FOR_EACH_2D_IMAGE
     {
         // get attributes of CTF from database
@@ -650,11 +651,10 @@ void MLOptimiser::allReduceSigma()
         }
 
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
-        // _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
-    ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
+    BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
     MPI_Barrier(_hemi);
 
@@ -675,10 +675,6 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
-    /***
-    // TODO: there is something wrong here! FIX IT!
-    _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
-    ***/
     for (int i = 0; i < _sig.rows(); i++)
         _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
 
