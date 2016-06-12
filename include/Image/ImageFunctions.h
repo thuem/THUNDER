@@ -134,7 +134,7 @@ using namespace std;
 /**
  * This macro replaces a slice of a volume with an image given in real space.
  * @param dst the destination volume
- * @param src the source volume
+ * @param src the source image
  * @param k the index of the slice
  */
 #define SLC_REPLACE_RL(dst, src, k) \
@@ -144,7 +144,7 @@ using namespace std;
  * This macro replaces a slice of a volume with an image given in Fourier
  * space.
  * @param dst the destination volume
- * @param src the source volume
+ * @param src the source image
  * @param k the index of the slice
  */
 #define SLC_REPLACE_FT(dst, src, k) \
@@ -155,7 +155,7 @@ using namespace std;
  * @param SP the space in which the extraction perfroms (RL: real space, FT:
  * Fourier space)
  * @param dst the destination volume
- * @param src the source volume
+ * @param src the source image
  * @param k the index of the slice
  */
 #define SLC_REPLACE(SP, dst, src, k) \
@@ -165,12 +165,34 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j), i, j, _k); \
     }(dst, src, k)
 
+/**
+ * This macro extracts a slice out of a volume and stores it in an image in real
+ * space.
+ * @param dst the destination image
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_EXTRACT_RL(dst, src, k) \
     SLC_EXTRACT(RL, dst, src, k)
 
+/**
+ * This macro extracts a slice out of a volume and stores it in an image in
+ * Fourier space.
+ * @param dst the destination image
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_EXTRACT_FT(dst, src, k) \
     SLC_EXTRACT(FT, dst, src, k)
 
+/**
+ * This macro extracts a slice out of a volume and stores it in an image.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination image
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_EXTRACT(SP, dst, src, k) \
     [](Image& _dst, const Volume& _src, const int _k) \
     { \
@@ -178,11 +200,27 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, _k), i, j); \
     }(dst, src, k)
 
+/**
+ * This macro translations an image with a given vector indicating by the number
+ * of columns and the number of rows.
+ * @param dst the destination image (Fourier space)
+ * @param src the source image (Fourier space)
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
 void translate(Image& dst,
                const Image& src,
                const double nTransCol,
                const double nTransRow);
 
+/**
+ * This macro translations an image in a certain frequency threshold with a 
+ * given vector indicating by the number of columns and the number of rows.
+ * @param dst the destination image (Fourier space)
+ * @param src the source image (Fourier space)
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
 void translate(Image& dst,
                const Image& src,
                const double r,
