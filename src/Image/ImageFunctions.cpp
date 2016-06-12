@@ -44,6 +44,27 @@ void translate(Image& dst,
     }
 }
 
+void crossCorrelation(Image& dst,
+                      const Image& a,
+                      const Image& b)
+{
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+        dst.setFT(CONJUGATE(a.getFT(i, j)) * b.getFT(i, j), i, j);
+}
+
+void translate(int& nTransCol,
+               int& nTransRow,
+               const Image& a,
+               const Image& b,
+               const int maxX,
+               const int maxY)
+{
+    Image cc(maxX, maxY, FT_SPACE);
+
+    // calculate the cross correlation between A and B
+    crossCorrelation(cc, a, b);
+}
+
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,

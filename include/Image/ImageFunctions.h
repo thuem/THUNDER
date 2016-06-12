@@ -228,6 +228,26 @@ void translate(Image& dst,
                const double nTransRow);
 
 /**
+ * This function calculates the cross-correlation image of two images in a
+ * certain region.
+ * @param dst the destination image
+ * @param a the image A
+ * @param b the image B
+ * @param maxX the maximum column translation
+ * @param maxY the maximum row translation
+ */
+void crossCorrelation(Image& dst,
+                      const Image& a,
+                      const Image& b);
+
+void translate(int& nTranCol,
+               int& nTranRow,
+               const Image& a,
+               const Image& b,
+               const int maxX,
+               const int maxY);
+
+/**
  * This function calculates the mean and standard deviation of the background.
  * The background stands for the outer region beyond a certain radius.
  * @param mean the mean value
@@ -240,33 +260,45 @@ void bgMeanStddev(double& mean,
                   const Image& src,
                   const double r);
 
+/**
+ * This function removes white and black dust from the image. Any value out of
+ * the range (mean - bDust * stddev, mean + wDust * stddev) will be replaced by
+ * a draw from N(mean, stddev).
+ * @param img the image to be processed
+ * @param wDust the factor of white dust
+ * @param bDust the factor of black dust
+ * @param mean the mean value
+ * @param stddev the standard deviation
+ */
 void removeDust(Image& img,
                 const double wDust,
                 const double bDust,
                 const double mean,
                 const double stddev);
-/* remove white and black dust
- * value > mean + wDust * stddev will be replace by a draw of 
- * Gaussian(mean, stddev)
- * value < mean - kDust * stddev will be replace by a draw of 
- * Gaussian(mean, stddev) */
 
+/**
+ * This fucntion normalises the image according to the mean and stddev of the
+ * background dust points are removed according to wDust and bDust.
+ * @param img the image to be processed
+ * @param wDust the factor of white dust
+ * @param bDust the factor of black dust
+ * @param r the radius
+ */
 void normalise(Image& img,
                const double wDust,
                const double bDust,
                const double r);
-/* normalise the image according to the mean and stddev of the background
- * dust points are removed according to wDust and bDust */
 
+/**
+ * This function extracts a sub-image from an image.
+ * @param dst the destination image
+ * @param src the source image
+ * @param xOff the column shift
+ * @param yOff the row shift
+ */
 void extract(Image& dst,
              const Image& src,
              const int xOff,
              const int yOff);
-
-void crossCorrelation(Image& dst,
-                      const Image& a,
-                      const Image& b,
-                      const double maxX,
-                      const double maxY);
 
 #endif // IMAGE_FUNCTIONS_H
