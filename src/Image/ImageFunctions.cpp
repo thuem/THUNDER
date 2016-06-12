@@ -63,6 +63,25 @@ void translate(int& nTransCol,
 
     // calculate the cross correlation between A and B
     crossCorrelation(cc, a, b);
+
+    double max;
+
+    IMAGE_FOR_EACH_PIXEL_FT(cc)
+    {
+        double tmp = ABS(cc.getFT(i, j));
+        if ((i == 0) && (j == 0))
+        {
+            max = tmp;
+            nTransCol = i;
+            nTransRow = j;
+        }
+        else if (max < tmp)
+        {
+            tmp = max;
+            nTransCol = i;
+            nTransRow = j;
+        }
+    }
 }
 
 void bgMeanStddev(double& mean,
