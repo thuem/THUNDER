@@ -189,11 +189,18 @@ void translate(Image& dst,
                const double nTransCol,
                const double nTransRow);
 
+/**
+ * This function calculates the mean and standard deviation of the background.
+ * The background stands for the outer region beyond a certain radius.
+ * @param mean the mean value
+ * @param stddev the standard devation
+ * @param src the image to be calculated
+ * @param r the radius
+ */
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,
                   const double r);
-/* calculate the mean and standard deviation of the background */
 
 void removeDust(Image& img,
                 const double wDust,
@@ -217,5 +224,11 @@ void extract(Image& dst,
              const Image& src,
              const int xOff,
              const int yOff);
+
+void crossCorrelation(Image& dst,
+                      const Image& a,
+                      const Image& b,
+                      const double maxX,
+                      const double maxY);
 
 #endif // IMAGE_FUNCTIONS_H

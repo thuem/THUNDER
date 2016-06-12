@@ -50,18 +50,13 @@ void bgMeanStddev(double& mean,
                   const double r)
 {
     vector<double> bg;
+
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (NORM(i, j) > r)
             bg.push_back(src.getRL(i, j));
 
     mean = gsl_stats_mean(&bg[0], 1, bg.size());
     stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
-
-    /***
-    vec bv(bg);
-    mean = mean(bv);
-    stddev = arma::stddev(bv);
-    ***/
 }
 
 void removeDust(Image& img,
@@ -71,6 +66,7 @@ void removeDust(Image& img,
                 const double stddev)
 {
     auto engine = get_random_engine();
+
     IMAGE_FOR_EACH_PIXEL_RL(img)
         if ((img.getRL(i, j) > mean + wDust * stddev) ||
             (img.getRL(i, j) < mean - bDust * stddev))
