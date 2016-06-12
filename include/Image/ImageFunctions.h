@@ -240,6 +240,16 @@ void crossCorrelation(Image& dst,
                       const Image& a,
                       const Image& b);
 
+/**
+ * This function calculates the most likely translation between two images using
+ * max cross correlation method.
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ * @param a Image A
+ * @param b Image B
+ * @param maxX the maximum column translation
+ * @param maxY the maximum row translation
+ */
 void translate(int& nTranCol,
                int& nTranRow,
                const Image& a,
