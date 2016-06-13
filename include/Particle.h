@@ -26,7 +26,7 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
-#define PERTURB_FACTOR 3
+#define PERTURB_FACTOR 5
 
 using namespace std;
 
