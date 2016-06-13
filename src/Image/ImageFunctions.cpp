@@ -73,7 +73,7 @@ void translate(int& nTransCol,
 
     FFT fft;
 
-    #pragma omp critical
+    //#pragma omp critical
     fft.bw(cc);
 
     double max = 0;

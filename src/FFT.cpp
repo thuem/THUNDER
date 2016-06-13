@@ -18,13 +18,14 @@ void FFT::fw(Image& img)
 {
     FW_EXTRACT_P(img);
 
-    //#pragma omp critical
+    #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_2d(img.nRowRL(),
                                   img.nColRL(),
                                   _srcR,
                                   _dstC,
                                   FFTW_ESTIMATE);
 
+    #pragma omp barrier
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
@@ -34,15 +35,17 @@ void FFT::bw(Image& img)
 {
     BW_EXTRACT_P(img);
 
-    //#pragma omp critical
+    #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(img.nRowRL(),
                                   img.nColRL(),
                                   _srcC,
                                   _dstR,
                                   FFTW_ESTIMATE);
 
+    #pragma omp barrier
     fftw_execute(bwPlan);
 
+    #pragma omp parallel for
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
@@ -52,7 +55,7 @@ void FFT::fw(Volume& vol)
 {
     FW_EXTRACT_P(vol);
 
-    //#pragma omp critical
+    #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
                                   vol.nColRL(),
                                   vol.nSlcRL(),
@@ -60,6 +63,7 @@ void FFT::fw(Volume& vol)
                                   _dstC,
                                   FFTW_ESTIMATE);
 
+    #pragma omp barrier
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
@@ -69,7 +73,7 @@ void FFT::bw(Volume& vol)
 {
     BW_EXTRACT_P(vol);
 
-    //#pragma omp critical
+    #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
                                   vol.nColRL(),
                                   vol.nSlcRL(),
@@ -77,8 +81,10 @@ void FFT::bw(Volume& vol)
                                   _dstR,
                                   FFTW_ESTIMATE);
 
+    #pragma omp barrier
     fftw_execute(bwPlan);
 
+    #pragma omp parallel for
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);
