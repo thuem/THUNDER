@@ -59,29 +59,31 @@ void translate(int& nTransCol,
                const int maxX,
                const int maxY)
 {
-    Image cc(maxX, maxY, FT_SPACE);
+    Image cc(a.nColRL(),
+             a.nRowRL(),
+             FT_SPACE);
 
     // calculate the cross correlation between A and B
     crossCorrelation(cc, a, b);
 
-    double max;
+    FFT fft;
+    fft.bw(cc);
 
-    IMAGE_FOR_EACH_PIXEL_FT(cc)
-    {
-        double tmp = ABS(cc.getFT(i, j));
-        if ((i == 0) && (j == 0))
+    double max = 0;
+
+    nTransCol = 0;
+    nTransRow = 0;
+
+    for (int j = -maxY; j <= maxY; j++)
+        for (int i = -maxX; i <= maxX; i++)
         {
-            max = tmp;
-            nTransCol = i;
-            nTransRow = j;
+            if (cc.getRL(i, j) > max)
+            {            
+                max = cc.getRL(i, j);
+                nTransCol = i;
+                nTransRow = j;
+            }
         }
-        else if (max < tmp)
-        {
-            tmp = max;
-            nTransCol = i;
-            nTransRow = j;
-        }
-    }
 }
 
 void bgMeanStddev(double& mean,
