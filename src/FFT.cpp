@@ -45,7 +45,6 @@ void FFT::bw(Image& img)
     #pragma omp barrier
     fftw_execute(bwPlan);
 
-    #pragma omp parallel for
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
@@ -84,7 +83,6 @@ void FFT::bw(Volume& vol)
     #pragma omp barrier
     fftw_execute(bwPlan);
 
-    #pragma omp parallel for
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);
