@@ -193,14 +193,17 @@ void Particle::perturb()
     {
         double x, y;
         gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-        _t(i, 0) += x / sqrt(PERTURB_FACTOR);
-        _t(i, 1) += y / sqrt(PERTURB_FACTOR);
+        // _t(i, 0) += x / sqrt(PERTURB_FACTOR);
+        // _t(i, 1) += y / sqrt(PERTURB_FACTOR);
+        _t(i, 0) += x / PERTURB_FACTOR;
+        _t(i, 1) += y / PERTURB_FACTOR;
     }
 
     // rotation perturbation
 
     mat4 d(_n, 4);
-    sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
+    //sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
+    sampleACG(d, PERTURB_FACTOR * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
     {
