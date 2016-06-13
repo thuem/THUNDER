@@ -15,6 +15,8 @@
 #include <vector>
 #include <iostream>
 
+#include <omp.h>
+
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
 

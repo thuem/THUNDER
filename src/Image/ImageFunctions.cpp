@@ -72,6 +72,8 @@ void translate(int& nTransCol,
     crossCorrelation(cc, a, b, r);
 
     FFT fft;
+
+    #pragma omp critical
     fft.bw(cc);
 
     double max = 0;

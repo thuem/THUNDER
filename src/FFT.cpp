@@ -18,7 +18,7 @@ void FFT::fw(Image& img)
 {
     FW_EXTRACT_P(img);
 
-    #pragma omp critical
+    //#pragma omp critical
     fwPlan = fftw_plan_dft_r2c_2d(img.nRowRL(),
                                   img.nColRL(),
                                   _srcR,
@@ -34,7 +34,7 @@ void FFT::bw(Image& img)
 {
     BW_EXTRACT_P(img);
 
-    #pragma omp critical
+    //#pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(img.nRowRL(),
                                   img.nColRL(),
                                   _srcC,
@@ -52,7 +52,7 @@ void FFT::fw(Volume& vol)
 {
     FW_EXTRACT_P(vol);
 
-    #pragma omp critical
+    //#pragma omp critical
     fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
                                   vol.nColRL(),
                                   vol.nSlcRL(),
@@ -69,7 +69,7 @@ void FFT::bw(Volume& vol)
 {
     BW_EXTRACT_P(vol);
 
-    #pragma omp critical
+    //#pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
                                   vol.nColRL(),
                                   vol.nSlcRL(),
