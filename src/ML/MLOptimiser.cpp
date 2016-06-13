@@ -210,7 +210,7 @@ void MLOptimiser::expectation()
                         t(1) = nTransRow;
 
                         //CLOG(INFO, "LOGGER_SYS") << 3;
-                        translate(image, _img[l], _r, t(0), t(1));
+                        translate(image, image, _r, t(0), t(1));
 
                         //CLOG(INFO, "LOGGER_SYS") << 4;
                         _par[l].setT(t, m);
