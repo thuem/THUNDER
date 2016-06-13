@@ -194,10 +194,10 @@ void MLOptimiser::expectation()
                         (phase == 0) &&
                         (nSearch == 0))
                     {
-                        cout << "1" << endl;
+                        CLOG(WARN, "LOGGER_SYS") << 1;
                         _model.proj(0).project(image, rot);
 
-                        cout << "2" << endl;
+                        CLOG(WARN, "LOGGER_SYS") << 2;
                         int nTransCol, nTransRow;
                         translate(nTransCol,
                                   nTransRow,
@@ -209,10 +209,10 @@ void MLOptimiser::expectation()
                         t(0) = nTransCol;
                         t(1) = nTransRow;
 
-                        cout << "3" << endl;
+                        CLOG(WARN, "LOGGER_SYS") << 3;
                         translate(image, _img[l], _r, t(0), t(1));
 
-                        cout << "4" << endl;
+                        CLOG(WARN, "LOGGER_SYS") << 4;
                         _par[l].setT(t, m);
                     }
                     else
