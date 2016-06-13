@@ -147,9 +147,11 @@ void MLOptimiser::expectation()
                     else if (phase == 1)
                         _par[l].resample(_para.m,
                                          ALPHA_TOTAL_GLOBAL_SEARCH_1_PASS);
+                    /***
                     else if (phase == 2)
                         _par[l].resample(_para.m,
                                          ALPHA_TOTAL_GLOBAL_SEARCH_2_PASS);
+                    ***/
                     else
                         _par[l].resample(_para.m,
                                          ALPHA_SEARCH_BG);
