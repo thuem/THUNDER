@@ -234,12 +234,12 @@ void translate(Image& dst,
  * @param dst the destination image
  * @param a the image A
  * @param b the image B
- * @param maxX the maximum column translation
- * @param maxY the maximum row translation
+ * @param r the radius of the frequency
  */
 void crossCorrelation(Image& dst,
                       const Image& a,
-                      const Image& b);
+                      const Image& b,
+                      const double r);
 
 /**
  * This function calculates the most likely translation between two images using
@@ -248,6 +248,7 @@ void crossCorrelation(Image& dst,
  * @param nTransRow number of rows for translation
  * @param a Image A
  * @param b Image B
+ * @param r the radius of the frequency
  * @param maxX the maximum column translation
  * @param maxY the maximum row translation
  */
@@ -255,6 +256,7 @@ void translate(int& nTranCol,
                int& nTranRow,
                const Image& a,
                const Image& b,
+               const double r,
                const int maxX,
                const int maxY);
 

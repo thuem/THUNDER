@@ -220,6 +220,14 @@ class Particle
                const int i) const;
 
         /**
+         * This function sets the translation vector of the i-th particle.
+         * @param src the translation vector
+         * @param i the index of particle
+         */
+        void setT(const vec2& src,
+                  const int i);
+
+        /**
          * This function returns the quaternion of the i-th particle.
          * @param dst the quaternion
          * @param i the index of particle

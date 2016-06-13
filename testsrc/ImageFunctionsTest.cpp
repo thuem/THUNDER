@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
     cout << "Translating, " << N / 8 << ", " << N / 8 << endl;
 
-    translate(nTransCol, nTransRow, image, trans, N / 4, N / 4);
+    translate(nTransCol, nTransRow, image, trans, N / 2, N / 4, N / 4);
 
     cout << "nTransCol = " << nTransCol << ", nTranRow = " << nTransRow << endl;
 }

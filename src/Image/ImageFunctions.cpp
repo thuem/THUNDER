@@ -46,16 +46,19 @@ void translate(Image& dst,
 
 void crossCorrelation(Image& dst,
                       const Image& a,
-                      const Image& b)
+                      const Image& b,
+                      const double r)
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
-        dst.setFT(CONJUGATE(a.getFT(i, j)) * b.getFT(i, j), i, j);
+        if (QUAD(i, j) < r * r)
+            dst.setFT(CONJUGATE(a.getFT(i, j)) * b.getFT(i, j), i, j);
 }
 
 void translate(int& nTransCol,
                int& nTransRow,
                const Image& a,
                const Image& b,
+               const double r,
                const int maxX,
                const int maxY)
 {
@@ -63,8 +66,10 @@ void translate(int& nTransCol,
              a.nRowRL(),
              FT_SPACE);
 
+    SET_0_FT(cc);
+
     // calculate the cross correlation between A and B
-    crossCorrelation(cc, a, b);
+    crossCorrelation(cc, a, b, r);
 
     FFT fft;
     fft.bw(cc);

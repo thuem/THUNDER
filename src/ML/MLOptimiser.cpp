@@ -130,8 +130,11 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        Image image(size(), size(), FT_SPACE);
+
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
@@ -183,14 +186,36 @@ void MLOptimiser::expectation()
                 mat33 rot;
                 vec2 t;
 
-                #pragma omp parallel for private(rot, t)
                 for (int m = 0; m < _par[l].n(); m++)
                 {
-                    Image image(size(), size(), FT_SPACE);
-
                     _par[l].rot(rot, m);
-                    _par[l].t(t, m);
-                    _model.proj(0).project(image, rot, t);
+
+                    if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                        (phase == 0) &&
+                        (nSearch == 0))
+                    {
+                        _model.proj(0).project(image, rot);
+
+                        int nTransCol, nTransRow;
+                        translate(nTransCol,
+                                  nTransRow,
+                                  _img[l],
+                                  image,
+                                  _r,
+                                  _para.maxX,
+                                  _para.maxY);
+                        t(0) = nTransCol;
+                        t(1) = nTransRow;
+
+                        translate(image, _img[l], _r, t(0), t(1));
+
+                        _par[l].setT(t, m);
+                    }
+                    else
+                    {
+                        _par[l].t(t, m);
+                        _model.proj(0).project(image, rot, t);
+                    }
 
                     logW[m] = logDataVSPrior(_img[l], // data
                                              image, // prior
@@ -206,6 +231,7 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
+                /***
                 // IF_GBOBAL_SEARCH_SEARCH, too few point, triple the
                 // number of resampling
                 if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
@@ -216,6 +242,7 @@ void MLOptimiser::expectation()
                     _par[l].reset(3 * _par[l].n());
                     continue;
                 }
+                ***/
 
                 if (_ID[l] < 20)
                 {

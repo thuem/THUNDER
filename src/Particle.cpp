@@ -132,6 +132,12 @@ void Particle::t(vec2& dst,
     dst = _t.row(i).transpose();
 }
 
+void Particle::setT(const vec2& src,
+                    const int i)
+{
+    _t.row(i) = src.transpose();
+}
+
 void Particle::quaternion(vec4& dst,
                           const int i) const
 {
