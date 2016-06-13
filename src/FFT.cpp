@@ -25,7 +25,6 @@ void FFT::fw(Image& img)
                                   _dstC,
                                   FFTW_ESTIMATE);
 
-    #pragma omp barrier
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
@@ -42,7 +41,6 @@ void FFT::bw(Image& img)
                                   _dstR,
                                   FFTW_ESTIMATE);
 
-    #pragma omp barrier
     fftw_execute(bwPlan);
 
     SCALE_RL(img, 1.0 / img.sizeRL());
@@ -62,7 +60,6 @@ void FFT::fw(Volume& vol)
                                   _dstC,
                                   FFTW_ESTIMATE);
 
-    #pragma omp barrier
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
@@ -80,7 +77,6 @@ void FFT::bw(Volume& vol)
                                   _dstR,
                                   FFTW_ESTIMATE);
 
-    #pragma omp barrier
     fftw_execute(bwPlan);
 
     SCALE_RL(vol, 1.0 / vol.sizeRL());
