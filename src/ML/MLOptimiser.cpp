@@ -155,7 +155,7 @@ void MLOptimiser::expectation()
                                + N_ITER_PARTIAL_GLOBAL_SEARCH)
                 {
                     if (phase == 0)
-                        _par[l].resample(_para.m * _para.mf,
+                        _par[l].resample(_para.m,
                                          (ALPHA_GLOBAL_SEARCH_MAX
                                         - ALPHA_GLOBAL_SEARCH_MIN)
                                        * (N_ITER_TOTAL_GLOBAL_SEARCH 
