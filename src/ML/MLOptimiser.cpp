@@ -228,7 +228,7 @@ void MLOptimiser::expectation()
                                              _r);
                 }
 
-                CLOG(INFO, "LOGGER_SYS") << 5;
+                //CLOG(INFO, "LOGGER_SYS") << 5;
 
                 logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
@@ -237,7 +237,7 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
-                CLOG(INFO, "LOGGER_SYS") << 6;
+                //CLOG(INFO, "LOGGER_SYS") << 6;
 
                 /***
                 // IF_GBOBAL_SEARCH_SEARCH, too few point, triple the
