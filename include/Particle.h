@@ -26,6 +26,8 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
+#define PERTURB_FACTOR 3
+
 using namespace std;
 
 class Particle
