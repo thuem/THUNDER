@@ -194,10 +194,10 @@ void MLOptimiser::expectation()
                         (phase == 0) &&
                         (nSearch == 0))
                     {
-                        CLOG(INFO, "LOGGER_SYS") << 1;
+                        //CLOG(INFO, "LOGGER_SYS") << 1;
                         _model.proj(0).project(image, rot);
 
-                        CLOG(INFO, "LOGGER_SYS") << 2;
+                        //CLOG(INFO, "LOGGER_SYS") << 2;
                         int nTransCol, nTransRow;
                         translate(nTransCol,
                                   nTransRow,
@@ -209,10 +209,10 @@ void MLOptimiser::expectation()
                         t(0) = nTransCol;
                         t(1) = nTransRow;
 
-                        CLOG(INFO, "LOGGER_SYS") << 3;
+                        //CLOG(INFO, "LOGGER_SYS") << 3;
                         translate(image, _img[l], _r, t(0), t(1));
 
-                        CLOG(INFO, "LOGGER_SYS") << 4;
+                        //CLOG(INFO, "LOGGER_SYS") << 4;
                         _par[l].setT(t, m);
                     }
                     else
@@ -228,12 +228,16 @@ void MLOptimiser::expectation()
                                              _r);
                 }
 
+                CLOG(INFO, "LOGGER_SYS") << 5;
+
                 logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
                 for (int m = 0; m < _par[l].n(); m++)
                     _par[l].mulW(exp(logW(m)), m);
 
                 _par[l].normW();
+
+                CLOG(INFO, "LOGGER_SYS") << 6;
 
                 /***
                 // IF_GBOBAL_SEARCH_SEARCH, too few point, triple the
