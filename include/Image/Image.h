@@ -48,11 +48,19 @@
 
 #define IMAGE_FOR_EACH_PIXEL_RL(that) \
     for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-        for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
+        for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++)
 
 #define IMAGE_FOR_EACH_PIXEL_FT(that) \
     for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
         for (int i = 0; i <= that.nColRL() / 2; i++)
+
+#define IMAGE_FOR_PIXEL_R_RL(r) \
+    for (int j = -r; j < r; j++) \
+        for (int i = -r; i < r; i++)
+
+#define IMAGE_FOR_PIXEL_R_FT(r) \
+    for (int j = -r; j < r; j++) \
+        for (int i = 0; i<= r; i++)
 
 class Image : public ImageBase
 {
