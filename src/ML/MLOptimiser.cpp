@@ -202,11 +202,12 @@ void MLOptimiser::expectation()
                     {
                         _model.proj(0).project(image, rot);
 
+                        // TODO: check the diff
                         int nTransCol, nTransRow;
                         translate(nTransCol,
                                   nTransRow,
-                                  _img[l],
                                   image,
+                                  _img[l],
                                   _r,
                                   _para.maxX,
                                   _para.maxY);
