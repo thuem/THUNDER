@@ -29,7 +29,6 @@
 #include "TabFunction.h"
 #include "Coordinate5D.h"
 #include "Transformation.h"
-#include "ImageFunctions.h"
 
 #define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
     (((iCol) >= 0) ? 0 : [&iCol, &iRow, &iSlc]() \

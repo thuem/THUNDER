@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <memory>
 
@@ -15,3 +16,5 @@
                                cls& operator=(cls&&) = default;
 
 bool regexMatches(const char* str, const char* pattern);
+
+#endif // UTILS_H
