@@ -130,6 +130,8 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    double logThres = 0.5 * M_PI * _r * _r * 0.1;
+
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -250,7 +252,7 @@ void MLOptimiser::expectation()
                 logW.array() -= logW.maxCoeff();
 
                 for (int m = 0; m < _par[l].n(); m++)
-                    _par[l].mulW(logW(m) < -10 ? 0 : logW(m) + 10, m);
+                    _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
 
                 _par[l].normW();
 
