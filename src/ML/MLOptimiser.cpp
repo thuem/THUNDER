@@ -130,8 +130,11 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        Image image(size(), size(), FT_SPACE);
+
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
@@ -191,11 +194,8 @@ void MLOptimiser::expectation()
                 mat33 rot;
                 vec2 t;
 
-                #pragma omp parallel for private(rot, t)
                 for (int m = 0; m < _par[l].n(); m++)
                 {
-                    Image image(size(), size(), FT_SPACE);
-
                     _par[l].rot(rot, m);
 
                     if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
@@ -240,6 +240,7 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
+                /***
                 if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
                     (phase == 0) &&
                     (nSearch == 0) &&
@@ -248,6 +249,7 @@ void MLOptimiser::expectation()
                     _par[l].reset(3 * _par[l].n());
                     continue;
                 }
+                ***/
 
                 if (_ID[l] < 20)
                 {
