@@ -254,7 +254,6 @@ void MLOptimiser::expectation()
 
                 _par[l].normW();
 
-                /***
                 if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
                     (phase == 0) &&
                     (nSearch == 0) &&
@@ -263,7 +262,6 @@ void MLOptimiser::expectation()
                     _par[l].reset(3 * _par[l].n());
                     continue;
                 }
-                ***/
 
                 if (_ID[l] < 20)
                 {
