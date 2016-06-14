@@ -245,6 +245,13 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m), m);
                 ***/
 
+                /***
+                logW.array() -= logW.maxCoeff();
+
+                for (int m = 0; m < _par[l].n(); m++)
+                    _par[l].mulW(logW(m) < -10 ? 0 : logW(m) + 10);
+                ***/
+
                 _par[l].normW();
 
                 /***
