@@ -49,14 +49,6 @@ void Image::alloc(const int nCol,
     }
 }
 
-int Image::nColRL() const { return _nCol; }
-
-int Image::nRowRL() const { return _nRow; }
-
-int Image::nColFT() const { return _nCol / 2 + 1; }
-
-int Image::nRowFT() const { return _nRow; }
-
 void Image::saveRLToBMP(const char* filename) const
 {
     float* image = new float[_sizeRL];
