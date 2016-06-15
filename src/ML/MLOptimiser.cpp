@@ -184,7 +184,7 @@ void MLOptimiser::expectation()
                 }
             }
 
-            double nt = _par[l].n() / 10;
+            double nt = _par[l].n() / NT_FACTOR;
 
             int nSearch = 0;
             do
