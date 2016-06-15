@@ -55,7 +55,7 @@
 
 #define NT_FACTOR 10
 
-#define PART_RESET_FACTOR 0.01
+//#define PART_RESET_FACTOR 0.01
 
 using namespace std;
 
