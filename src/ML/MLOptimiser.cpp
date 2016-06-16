@@ -304,12 +304,13 @@ void MLOptimiser::expectation()
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
 
+            // Only after resampling, the current variance can be calculated
+            // correctly.
+            _par[l].resample();
+
             // break if after a few searching, the resampling condition can not
             // be reached
             if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
-
-            // Only after resampling, the current variance can be calculated.
-            _par[l].resample();
             
             double tVariS0Cur;
             double tVariS1Cur;
