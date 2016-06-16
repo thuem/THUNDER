@@ -168,6 +168,17 @@ class Particle
                   double& rho) const;
 
         /**
+         * This function returns the concentration parameters, including
+         * rotation and translation.
+         * @param rVar the concentration parameter of the rotation
+         * @param s0 sigma0 of 2D Gaussian distribution of the translation
+         * @param s1 sigma1 of 2D Gaussian distribution of the translation
+         */
+        void vari(double& rVari,
+                  double& s0,
+                  double& s1) const;
+
+        /**
          * This function returns the weight of the i-th particle in this
          * particle filter.
          * @param i the index of particle

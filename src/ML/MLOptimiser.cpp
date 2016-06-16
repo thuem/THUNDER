@@ -137,6 +137,12 @@ void MLOptimiser::expectation()
     {
         Image image(size(), size(), FT_SPACE);
 
+        int nPhaseWithNoVariDecrease = 0;
+
+        double tVariS0;
+        double tVariS1;
+        double rVari;
+
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
@@ -185,6 +191,9 @@ void MLOptimiser::expectation()
                         _par[l].resample();
                 }
             }
+
+            // record the current variance
+            _par[l].vari(rVari, tVariS0, tVariS1);
 
             double nt = _par[l].n() / NT_FACTOR;
 
@@ -295,12 +304,36 @@ void MLOptimiser::expectation()
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
 
+            // break if after a few searching, the resampling condition can not
+            // be reached
             if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
+
+            // Only after resampling, the current variance can be calculated.
+            _par[l].resample();
+            
+            double tVariS0Cur;
+            double tVariS1Cur;
+            double rVariCur;
+            _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
+            if ((tVariS0Cur < tVariS0 * 0.9) ||
+                (tVariS1Cur < tVariS1 * 0.9) ||
+                (rVariCur > rVari * 1.1))
+            {
+                // there is still room for searching
+                nPhaseWithNoVariDecrease = 0;
+            }
+            else
+            {
+                // there is no improvement in this search
+                nPhaseWithNoVariDecrease += 1;
+            }
+
+            // break if in a few continuous searching, there is no improvement
+            if (nPhaseWithNoVariDecrease == 3) break;
         }
 
         if (_ID[l] < 20)
         {
-            _par[l].resample();
             char filename[FILE_NAME_LENGTH];
             snprintf(filename,
                      sizeof(filename),

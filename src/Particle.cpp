@@ -88,6 +88,15 @@ void Particle::vari(double& k0,
     rho = _rho;
 }
 
+void Particle::vari(double& rVari,
+                    double& s0,
+                    double& s1) const
+{
+    rVari = _k0 / _k1;
+    s0 = _s0;
+    s1 = _s1;
+}
+
 double Particle::w(const int i) const { return _w(i); }
 
 void Particle::setW(const double w,
@@ -203,7 +212,7 @@ void Particle::perturb()
 
     mat4 d(_n, 4);
     //sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
-    sampleACG(d, PERTURB_FACTOR * _k0, _k1, _n);
+    sampleACG(d, gsl_pow_2(PERTURB_FACTOR) * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
     {
