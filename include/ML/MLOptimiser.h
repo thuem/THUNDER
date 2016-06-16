@@ -53,7 +53,8 @@
 #define MAX_N_PHASE_PER_ITER 30
 #define MAX_N_SEARCH_PER_PHASE 5
 
-#define NT_FACTOR 10
+#define NT_FACTOR 1
+//#define NT_FACTOR 10
 
 //#define PART_RESET_FACTOR 0.01
 
