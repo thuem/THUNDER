@@ -316,9 +316,8 @@ void MLOptimiser::expectation()
             double tVariS1Cur;
             double rVariCur;
             _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
-            if ((tVariS0Cur < tVariS0 * 0.98) ||
-                (tVariS1Cur < tVariS1 * 0.98) ||
-                (rVariCur > rVari * 1.02))
+            if ((tVariS0Cur * tVariS1Cur < tVariS0 * tVariS1 * 0.95) ||
+                (rVariCur > rVari * 1.05))
             {
                 // there is still room for searching
                 nPhaseWithNoVariDecrease = 0;
