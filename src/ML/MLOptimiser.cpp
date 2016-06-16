@@ -297,6 +297,18 @@ void MLOptimiser::expectation()
 
             if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
         }
+
+        if (_ID[l] < 20)
+        {
+            _par[l].resample();
+            char filename[FILE_NAME_LENGTH];
+            snprintf(filename,
+                     sizeof(filename),
+                     "Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l]);
+        }
     }
 }
 
