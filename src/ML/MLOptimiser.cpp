@@ -147,29 +147,13 @@ void MLOptimiser::expectation()
         {
             if ((_iter != 0) || (phase != 0))
             {
-                if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
+                if (phase == 0)
                 {
-                    if (phase == 0)
+                    if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                         _par[l].resample(_para.m * _para.mf,
                                          ALPHA_TOTAL_GLOBAL_SEARCH);
-                    /***
-                    else if (phase == 1)
-                        _par[l].resample(_para.m,
-                                         ALPHA_TOTAL_GLOBAL_SEARCH_1_PASS);
-                    ***/
-                    /***
-                    else if (phase == 2)
-                        _par[l].resample(_para.m,
-                                         ALPHA_TOTAL_GLOBAL_SEARCH_2_PASS);
-                    ***/
-                    else
-                        _par[l].resample(_para.m,
-                                         ALPHA_SEARCH_BG);
-                }
-                else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
-                               + N_ITER_PARTIAL_GLOBAL_SEARCH)
-                {
-                    if (phase == 0)
+                    else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
+                                   + N_ITER_PARTIAL_GLOBAL_SEARCH)
                         _par[l].resample(_para.m,
                                          (ALPHA_GLOBAL_SEARCH_MAX
                                         - ALPHA_GLOBAL_SEARCH_MIN)
@@ -180,15 +164,7 @@ void MLOptimiser::expectation()
                                        + ALPHA_GLOBAL_SEARCH_MIN);
                     else
                         _par[l].resample(_para.m,
-                                         ALPHA_SEARCH_BG);
-                }
-                else
-                {
-                    if (phase == 0)
-                        _par[l].resample(_para.m,
                                          ALPHA_LOCAL_SEARCH);
-                    else
-                        _par[l].resample();
                 }
             }
 
