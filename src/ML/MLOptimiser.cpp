@@ -315,30 +315,33 @@ void MLOptimiser::expectation()
             // be reached
             if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
             
-            double tVariS0Cur;
-            double tVariS1Cur;
-            double rVariCur;
-            _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
-            if ((tVariS0Cur < tVariS0 * 0.995) ||
-                (tVariS1Cur < tVariS1 * 0.995) ||
-                (rVariCur > rVari * 1.005))
+            if (phase >= MIN_N_PHASE_PER_ITER)
             {
-                // there is still room for searching
-                nPhaseWithNoVariDecrease = 0;
-            }
-            else
-            {
-                // there is no improvement in this search
-                nPhaseWithNoVariDecrease += 1;
-            }
+                double tVariS0Cur;
+                double tVariS1Cur;
+                double rVariCur;
+                _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
+                if ((tVariS0Cur < tVariS0) ||
+                    (tVariS1Cur < tVariS1) ||
+                    (rVariCur > rVari))
+                {
+                    // there is still room for searching
+                    nPhaseWithNoVariDecrease = 0;
+                }
+                else
+                {
+                    // there is no improvement in this search
+                    nPhaseWithNoVariDecrease += 1;
+                }
 
-            // make tVariS0, tVariS1, rVari the smallest variance ever got
-            if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
-            if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
-            if (rVariCur > rVari) rVari = rVariCur;
+                // make tVariS0, tVariS1, rVari the smallest variance ever got
+                if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
+                if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
+                if (rVariCur > rVari) rVari = rVariCur;
 
-            // break if in a few continuous searching, there is no improvement
-            if (nPhaseWithNoVariDecrease == 3) break;
+                // break if in a few continuous searching, there is no improvement
+                if (nPhaseWithNoVariDecrease == 3) break;
+            }
         }
 
         if (_ID[l] < 20)
