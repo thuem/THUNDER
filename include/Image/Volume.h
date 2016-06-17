@@ -20,6 +20,7 @@
 #include "Enum.h"
 #include "Error.h"
 #include "Complex.h"
+#include "Logging.h"
 
 #include "ImageBase.h"
 #include "BMP.h"

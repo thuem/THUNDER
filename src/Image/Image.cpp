@@ -187,7 +187,7 @@ void Image::coordinatesInBoundaryRL(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
-        REPORT_ERROR("Try to get value out of the boundary");
+        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
 }
 
 void Image::coordinatesInBoundaryFT(const int iCol,
@@ -195,5 +195,5 @@ void Image::coordinatesInBoundaryFT(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
-        REPORT_ERROR("Try to get FT value out of the boundary");
+        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
 }

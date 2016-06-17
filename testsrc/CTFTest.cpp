@@ -14,8 +14,12 @@
 
 using namespace std;
 
-int main(int argc, const char* argv[])
+INITIALIZE_EASYLOGGINGPP
+
+int main(int argc, char* argv[])
 {
+    loggerInit(argc, argv);
+
     double pixelSize = 1.32;
     double voltage = 3e5;
     double defocusU = 20000;

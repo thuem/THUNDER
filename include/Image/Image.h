@@ -18,6 +18,7 @@
 #include "Enum.h"
 #include "Error.h"
 #include "Complex.h"
+#include "Logging.h"
 
 #include "Interpolation.h"
 
@@ -203,15 +204,31 @@ class Image : public ImageBase
                       int iRow) const;
 
         /**
-         * This function sets the value 
+         * This function sets the value of the pixel at the certain column and
+         * row in Fourier space.
+         * @param value the value
+         * @param iCol index of the column
+         * @param iRow index of the row
          */
         void setFT(const Complex value,
                    int iCol,
                    int iRow);
 
+        /**
+         * This function gets the value of an irregular pixel by bi-linear
+         * interpolation in real space.
+         * @param iCol index of the column (irregular)
+         * @param iRow index of the row (irregular)
+         */
         double getBiLinearRL(const double iCol,
                              const double iRow) const;
 
+        /**
+         * This function gets the value of an irregular pixel by bi-linear
+         * interpolation in Fourier space.
+         * @param iCol index of the column (irregular)
+         * @param iRow index of the row (irregular)
+         */
         Complex getBiLinearFT(const double iCol,
                               const double iRow) const;
 
@@ -233,16 +250,27 @@ class Image : public ImageBase
 
     private:
 
+        /**
+         * This function checks whether the given coordinates is in the boundary
+         * of the image or not in real space. If not, it will crash the process
+         * and record a fatal log.
+         *
+         * @param iCol the index of the column of this pixel in real space
+         * @param iRow the index of the row of this pixel in real space
+         */
         void coordinatesInBoundaryRL(const int iCol,
                                      const int iRow) const;
-        // check whether the given coordinates are in the boundary of the image
-        // if not, throw out an Error
 
+        /**
+         * This function checks whether the given coordinates is in the boundary
+         * of the image or not in Fourier space. If not, it will crash the 
+         * process and record a fatal log.
+         *
+         * @param iCol the index of the column of this pixel in real space
+         * @param iRow the index of the row of this pixel in real space
+         */
         void coordinatesInBoundaryFT(const int iCol,
                                      const int iRow) const;
-        // check whether the given coordinates are in the boundary of the
-        // Fourier image.
-        // if not, throw out an Error
 };
 
 #endif // IMAGE_H
