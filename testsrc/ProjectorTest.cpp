@@ -13,14 +13,14 @@
 #include "FFT.h"
 
 #define N 120
-#define M 8
+#define M 10
 #define PF 1
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     std::cout << "Define a head." << std::endl;
 
@@ -141,6 +141,8 @@ int main(int argc, const char* argv[])
 
     Image img(N, N, FT_SPACE);
 
+    CLOG(INFO, "LOGGER_SYS") << "START";
+
     try
     {
     for (int k = 0; k < M; k++)
@@ -156,6 +158,7 @@ int main(int argc, const char* argv[])
                                   10,
                                   10);
 
+                /***
                 sprintf(name, "%02d%02d%02dFT.bmp", i, j, k);
                 img.saveFTToBMP(name, 0.1);
 
@@ -169,12 +172,15 @@ int main(int argc, const char* argv[])
                 imf.writeImage(name, img);
 
                 fft.fw(img);
+                ***/
             }
     }
     catch (Error& err)
     {
         cout << err << endl;
     }
+
+    CLOG(INFO, "LOGGER_SYS") << "END";
 
     return 0;
 }

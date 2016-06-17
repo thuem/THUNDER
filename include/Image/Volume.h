@@ -31,6 +31,19 @@
 #include "Coordinate5D.h"
 #include "Transformation.h"
 
+inline bool conjHalf(int& iCol,
+                     int& iRow,
+                     int& iSlc)
+{
+    if (iCol >= 0) return false;
+
+    iCol *= -1;
+    iRow *= -1;
+    iSlc *= -1;
+
+    return true;
+};
+
 #define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
     (((iCol) >= 0) ? 0 : [&iCol, &iRow, &iSlc]() \
                          { \
@@ -380,6 +393,29 @@ class Volume : public ImageBase
         Volume copyVolume() const;
 
     private:
+
+        inline int iRL(const int i,
+                       const int j,
+                       const int k) const
+        {
+            return (k >= 0 ? k : k + _nSlc) * _nCol * _nRow
+                 + (j >= 0 ? j : j + _nRow) * _nCol
+                 + (i >= 0 ? i : i + _nCol);
+        }
+
+        inline int iFT(bool& conj,
+                       int i,
+                       int j,
+                       int k) const
+        {
+            conj = conjHalf(i, j, k);
+
+            int nColFT = _nCol / 2 + 1;
+
+            return (k >= 0 ? k : k + _nSlc) * nColFT * _nRow
+                 + (j >= 0 ? j : j + _nRow) * nColFT 
+                 + i;
+        }
 
         /**
          * This function checks whether the given coordinates is in the boundary
