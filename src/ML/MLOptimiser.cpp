@@ -829,6 +829,7 @@ void MLOptimiser::reconstructRef()
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
+    BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
 
@@ -857,6 +858,7 @@ void MLOptimiser::reconstructRef()
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
+    BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
     FFT fft;
     fft.fw(_model.ref(0));

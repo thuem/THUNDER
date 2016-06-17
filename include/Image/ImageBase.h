@@ -206,19 +206,13 @@ class ImageBase
          * return the i-th element in real space
          * @param i index of the element
          */
-        inline double& operator()(const size_t i)
-        {
-            return _dataRL[i];
-        };
+        inline double& operator()(const size_t i) { return _dataRL[i]; };
 
         /**
          * return the i-th element in Fourier space
          * @param i index of the element
          */
-        inline Complex& operator[](const size_t i)
-        {
-            return _dataFT[i];
-        };
+        inline Complex& operator[](const size_t i) { return _dataFT[i]; };
 
         /**
          * check whether _dataRL is NULL or not
