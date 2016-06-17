@@ -321,6 +321,15 @@ void MLOptimiser::expectation()
                 double tVariS1Cur;
                 double rVariCur;
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
+
+                CLOG(INFO, "LOGGER_SYS") << "phase = " << phase;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS0 = " << tVariS0;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS1 = " << tVariS1;
+                CLOG(INFO, "LOGGER_SYS") << "rVari = " << rVari;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS0Cur = " << tVariS0Cur;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS1Cur = " << tVariS1Cur;
+                CLOG(INFO, "LOGGER_SYS") << "rVariCur = " << rVariCur;
+
                 if ((tVariS0Cur < tVariS0) ||
                     (tVariS1Cur < tVariS1) ||
                     (rVariCur > rVari))
