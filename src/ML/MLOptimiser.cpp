@@ -291,9 +291,9 @@ void MLOptimiser::expectation()
                 CLOG(INFO, "LOGGER_SYS") << "rVariCur = " << rVariCur;
                 ***/
 
-                if ((tVariS0Cur < tVariS0 * 0.95) ||
-                    (tVariS1Cur < tVariS1 * 0.95) ||
-                    (rVariCur < rVari * 0.95))
+                if ((tVariS0Cur < tVariS0 * 0.9) ||
+                    (tVariS1Cur < tVariS1 * 0.9) ||
+                    (rVariCur < rVari * 0.9))
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
