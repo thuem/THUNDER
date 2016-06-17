@@ -633,7 +633,10 @@ void MLOptimiser::initSigma()
     Image avg = _img[0].copyImage();
 
     for (size_t l = 1; l < _ID.size(); l++)
+    {
+        #pragma omp parallel for
         ADD_FT(avg, _img[l]);
+    }
 
     MPI_Barrier(_hemi);
 
@@ -646,17 +649,22 @@ void MLOptimiser::initSigma()
 
     MPI_Barrier(_hemi);
 
+    #pragma omp parallel for
     SCALE_FT(avg, 1.0 / _N);
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
     BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
 
-    // vec avgPs(maxR(), fill::zeros);
     vec avgPs = vec::Zero(maxR());
-    vec ps(maxR());
+
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        vec ps(maxR());
+
         powerSpectrum(ps, _img[l], maxR());
+
+        #pragma omp critical
         avgPs += ps;
     }
 
@@ -677,7 +685,6 @@ void MLOptimiser::initSigma()
     BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
-    // powerSpectrum(psAvg, avg, maxR());
     for (int i = 0; i < maxR(); i++)
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
 
