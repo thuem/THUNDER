@@ -910,16 +910,32 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
-    IMAGE_FOR_EACH_PIXEL_FT(pri)
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
         int u = AROUND(NORM(i, j));
 
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
+        {
+            int index = dat.iFTHalf(i, j);
+
+            result += ABS2(dat.iGetFT(index)
+                         - REAL(ctf.iGetFT(index))
+                         * pri.iGetFT(index))
+                    / (-2 * sig[u]);
+            /***
+            result += ABS2(dat[index]
+                         - REAL(ctf[index])
+                         * pri[index])
+                    / (-2 * sig[u]);
+                    ***/
+            /***
             result += ABS2(dat.getFT(i, j)
                          - REAL(ctf.getFT(i, j))
                          * pri.getFT(i, j))
-                        / (-2 * sig[u]);
+                    / (-2 * sig[u]);
+            ***/
+        }
     }
 
     return result;

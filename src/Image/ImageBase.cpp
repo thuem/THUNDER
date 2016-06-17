@@ -14,6 +14,7 @@ ImageBase::ImageBase() {}
 
 ImageBase::~ImageBase() {}
 
+/***
 const double& ImageBase::iGetRL(const size_t i) const
 {
     return _dataRL[i];
@@ -23,7 +24,9 @@ const Complex& ImageBase::iGetFT(const size_t i) const
 {
     return _dataFT[i];
 };
+***/
 
+/***
 double& ImageBase::operator()(const size_t i)
 {
     return _dataRL[i];
@@ -33,6 +36,7 @@ Complex& ImageBase::operator[](const size_t i)
 {
     return _dataFT[i];
 }
+***/
 
 bool ImageBase::isEmptyRL() const
 {

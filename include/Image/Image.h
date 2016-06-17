@@ -244,8 +244,6 @@ class Image : public ImageBase
             return out;
         }
 
-    private:
-
         inline int iRL(const int i,
                        const int j) const
         {
@@ -259,8 +257,16 @@ class Image : public ImageBase
         {
             conj = conjHalf(i, j);
 
+            return iFTHalf(i, j);
+        }
+
+        inline int iFTHalf(const int i,
+                           const int j) const
+        {
             return (j >= 0 ? j : j + _nRow) * (_nCol / 2 + 1) + i;
         }
+
+    private:
 
         /**
          * This function checks whether the given coordinates is in the boundary

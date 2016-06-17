@@ -170,6 +170,7 @@ class ImageBase
     protected:
 
         unique_ptr<double[]> _dataRL;
+
         unique_ptr<Complex[]> _dataFT;
 
         size_t _sizeRL = 0;
@@ -186,26 +187,38 @@ class ImageBase
          * return a const pointer which points to the i-th element in real space
          * @param i index of the element
          */
-        const double& iGetRL(const size_t i = 0) const;
+        inline const double& iGetRL(const size_t i = 0) const
+        {
+            return _dataRL[i];
+        };
 
         /**
          * return a const pointer which points to the i-th element in Fourier
          * space
          * @param i index of the element
          */
-        const Complex& iGetFT(const size_t i = 0) const;
+        inline const Complex& iGetFT(const size_t i = 0) const
+        {
+            return _dataFT[i];
+        };
 
         /**
          * return the i-th element in real space
          * @param i index of the element
          */
-        double& operator()(const size_t i);
+        inline double& operator()(const size_t i)
+        {
+            return _dataRL[i];
+        };
 
         /**
          * return the i-th element in Fourier space
          * @param i index of the element
          */
-        Complex& operator[](const size_t i);
+        inline Complex& operator[](const size_t i)
+        {
+            return _dataFT[i];
+        };
 
         /**
          * check whether _dataRL is NULL or not

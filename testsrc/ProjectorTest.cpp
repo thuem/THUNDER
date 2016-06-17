@@ -14,7 +14,7 @@
 
 #define N 120
 #define M 10
-#define PF 1
+#define PF 2
 
 INITIALIZE_EASYLOGGINGPP
 

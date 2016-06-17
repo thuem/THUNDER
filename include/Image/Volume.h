@@ -31,6 +31,27 @@
 #include "Coordinate5D.h"
 #include "Transformation.h"
 
+#define VOLUME_SUB_SPHERE_FT(a) \
+    for (int k = MAX(-_nSlc / 2, floor(iSlc - a)); \
+             k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a)); \
+             k++) \
+        for (int j = MAX(-_nRow / 2, floor(iRow - a)); \
+                 j <= MIN(_nRow / 2 - 1, ceil(iRow + a)); \
+                 j++) \
+            for (int i = MAX(-_nCol / 2, floor(iCol - a)); \
+                     i <= MIN(_nCol / 2, ceil(iCol + a)); \
+                     i++)
+
+#define VOLUME_FOR_EACH_PIXEL_RL(that) \
+    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
+        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+            for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
+
+#define VOLUME_FOR_EACH_PIXEL_FT(that) \
+    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
+        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+            for (int i = 0; i <= that.nColRL() / 2; i++)
+
 inline bool conjHalf(int& iCol,
                      int& iRow,
                      int& iSlc)
@@ -56,27 +77,6 @@ inline bool conjHalf(double& iCol,
 
     return true;
 }
-
-#define VOLUME_SUB_SPHERE_FT(a) \
-    for (int k = MAX(-_nSlc / 2, floor(iSlc - a)); \
-             k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a)); \
-             k++) \
-        for (int j = MAX(-_nRow / 2, floor(iRow - a)); \
-                 j <= MIN(_nRow / 2 - 1, ceil(iRow + a)); \
-                 j++) \
-            for (int i = MAX(-_nCol / 2, floor(iCol - a)); \
-                     i <= MIN(_nCol / 2, ceil(iCol + a)); \
-                     i++)
-
-#define VOLUME_FOR_EACH_PIXEL_RL(that) \
-    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
-        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-            for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
-
-#define VOLUME_FOR_EACH_PIXEL_FT(that) \
-    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
-        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-            for (int i = 0; i <= that.nColRL() / 2; i++)
 
 class Volume : public ImageBase
 {
@@ -366,8 +366,6 @@ class Volume : public ImageBase
          */
         Volume copyVolume() const;
 
-    private:
-
         inline int iRL(const int i,
                        const int j,
                        const int k) const
@@ -397,6 +395,8 @@ class Volume : public ImageBase
                  + (j >= 0 ? j : j + _nRow) * nColFT 
                  + i;
         }
+
+    private:
 
         /**
          * This function checks whether the given coordinates is in the boundary
