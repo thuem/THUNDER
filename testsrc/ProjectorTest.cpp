@@ -12,7 +12,7 @@
 #include "ImageFile.h"
 #include "FFT.h"
 
-#define N 190
+#define N 120
 #define M 8
 #define PF 1
 

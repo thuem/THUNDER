@@ -25,20 +25,6 @@
 #include "ImageBase.h"
 #include "BMP.h"
 
-#define IMAGE_CONJUGATE_HALF(iCol, iRow) \
-    (((iCol) >= 0) ? 0 : [&iCol, &iRow]() \
-                         { \
-                             iCol *= -1; \
-                             iRow *= -1; \
-                             return 1; \
-                         }())
-
-#define IMAGE_INDEX_RL(i, j) \
-    (j) * _nCol + (i)
-
-#define IMAGE_INDEX_FT(i, j) \
-    (j) * (_nCol / 2 + 1) + (i)
-
 #define IMAGE_FREQ_TO_STORE_INDEX(index, flag, i, j) \
     [this, &index, &flag, i, j]() mutable \
     { \
@@ -80,6 +66,16 @@
 #define IMAGE_FOR_PIXEL_R_FT(r) \
     for (int j = -r; j < r; j++) \
         for (int i = 0; i<= r; i++)
+
+inline bool conjHalf(int& iCol, int& iRow)
+{
+    if (iCol >= 0) return false;
+
+    iCol *= -1;
+    iRow *= -1;
+
+    return true;
+}
 
 class Image : public ImageBase
 {
@@ -249,6 +245,22 @@ class Image : public ImageBase
         }
 
     private:
+
+        inline int iRL(const int i,
+                       const int j) const
+        {
+            return (j >= 0 ? j : j + _nRow) * _nCol
+                 + (i >= 0 ? i : i + _nCol);
+        }
+
+        inline int iFT(bool& conj,
+                       int i,
+                       int j) const
+        {
+            conj = conjHalf(i, j);
+
+            return (j >= 0 ? j : j + _nRow) * (_nCol / 2 + 1) + i;
+        }
 
         /**
          * This function checks whether the given coordinates is in the boundary

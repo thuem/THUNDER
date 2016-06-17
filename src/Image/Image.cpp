@@ -116,8 +116,8 @@ double Image::getRL(const int iCol,
                     const int iRow) const
 {
     // coordinatesInBoundaryRL(iCol, iRow);
-    return _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                                  (iRow >= 0) ? iRow : iRow + _nRow)];
+
+    return _dataRL[iRL(iCol, iRow)];
 }
 
 void Image::setRL(const double value,
@@ -125,18 +125,19 @@ void Image::setRL(const double value,
                   const int iRow)
 {
     // coordinatesInBoundaryRL(iCol, iRow);
-    _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                           (iRow >= 0) ? iRow : iRow + _nRow)] = value;
+
+    _dataRL[iRL(iCol, iRow)] = value;
 }
 
 Complex Image::getFT(int iCol,
                      int iRow) const
 {
     // coordinatesInBoundaryFT(iCol, iRow);
-    size_t index;
-    bool cf;
-    IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
-    return cf ? CONJUGATE(_dataFT[index]) : _dataFT[index];
+    
+    bool conj;
+    int index = iFT(conj, iCol, iRow);
+
+    return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
 void Image::setFT(const Complex value,
@@ -144,10 +145,11 @@ void Image::setFT(const Complex value,
                   int iRow)
 {
     // coordinatesInBoundaryFT(iCol, iRow);
-    size_t index;
-    bool cf;
-    IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
-    _dataFT[index] = cf ? CONJUGATE(value) : value;
+
+    bool conj;
+    int index = iFT(conj, iCol, iRow);
+
+    _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
 double Image::getBiLinearRL(const double iCol,
