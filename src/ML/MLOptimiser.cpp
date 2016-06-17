@@ -139,9 +139,9 @@ void MLOptimiser::expectation()
 
         int nPhaseWithNoVariDecrease = 0;
 
-        double tVariS0;
-        double tVariS1;
-        double rVari;
+        double tVariS0 = _para.maxX;
+        double tVariS1 = _para.maxY;
+        double rVari = 1;
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
@@ -190,12 +190,6 @@ void MLOptimiser::expectation()
                     else
                         _par[l].resample();
                 }
-            }
-
-            if (phase == 0)
-            {
-                // record the current variance
-                _par[l].vari(rVari, tVariS0, tVariS1);
             }
 
             double nt = _par[l].n() / NT_FACTOR;
@@ -332,7 +326,7 @@ void MLOptimiser::expectation()
 
                 if ((tVariS0Cur < tVariS0) ||
                     (tVariS1Cur < tVariS1) ||
-                    (rVariCur > rVari))
+                    (rVariCur < rVari))
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
@@ -346,7 +340,7 @@ void MLOptimiser::expectation()
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
                 if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
-                if (rVariCur > rVari) rVari = rVariCur;
+                if (rVariCur < rVari) rVari = rVariCur;
 
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3) break;
