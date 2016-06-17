@@ -26,6 +26,8 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
+#define PERTURB_FACTOR 5
+
 using namespace std;
 
 class Particle
@@ -166,6 +168,17 @@ class Particle
                   double& rho) const;
 
         /**
+         * This function returns the concentration parameters, including
+         * rotation and translation.
+         * @param rVar the concentration parameter of the rotation
+         * @param s0 sigma0 of 2D Gaussian distribution of the translation
+         * @param s1 sigma1 of 2D Gaussian distribution of the translation
+         */
+        void vari(double& rVari,
+                  double& s0,
+                  double& s1) const;
+
+        /**
          * This function returns the weight of the i-th particle in this
          * particle filter.
          * @param i the index of particle
@@ -218,6 +231,14 @@ class Particle
          */
         void t(vec2& dst,
                const int i) const;
+
+        /**
+         * This function sets the translation vector of the i-th particle.
+         * @param src the translation vector
+         * @param i the index of particle
+         */
+        void setT(const vec2& src,
+                  const int i);
 
         /**
          * This function returns the quaternion of the i-th particle.

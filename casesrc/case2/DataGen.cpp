@@ -14,6 +14,7 @@
 #include "Particle.h"
 #include "CTF.h"
 #include "Experiment.h"
+#include "Spectrum.h"
 
 #define PF 2
 
@@ -68,6 +69,11 @@ int main(int argc, char* argv[])
     
     cout << "Fourier Transforming Ref" << endl;
     fft.fw(padRef);
+    fft.fw(ref);
+
+    cout << "Power Spectrum" << endl;
+    vec ps = vec::Zero(N);
+    powerSpectrum(ps, ref, N / 2 - 1);
 
     cout << "Setting Projectee" << endl;
     Projector projector;
@@ -115,13 +121,18 @@ int main(int argc, char* argv[])
         FOR_EACH_PIXEL_FT(image)
             image[i] *= REAL(ctf[i]);
 
-        Image noise(N, N, RL_SPACE);
-        FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(engine, 5);
+        Image noise(N, N, FT_SPACE);
+        SET_0_FT(noise);
+        IMAGE_FOR_EACH_PIXEL_FT(noise)
+            if (QUAD(i, j) < pow(N / 2 - 1, 2))
+                noise.setFT(COMPLEX(gsl_ran_gaussian(engine, 10 * sqrt(ps(AROUND(NORM(i, j))))),
+                                    gsl_ran_gaussian(engine, 10 * sqrt(ps(AROUND(NORM(i, j)))))),
+                            i,
+                            j);
+
+        ADD_FT(image, noise);
 
         fft.bw(image);
-
-        ADD_RL(image, noise);
 
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                gsl_stats_mean(&image(0), 1, image.sizeRL()),

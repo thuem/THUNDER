@@ -44,24 +44,68 @@ void translate(Image& dst,
     }
 }
 
+void crossCorrelation(Image& dst,
+                      const Image& a,
+                      const Image& b,
+                      const double r)
+{
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+        if (QUAD(i, j) < r * r)
+            dst.setFT(CONJUGATE(a.getFT(i, j)) * b.getFT(i, j), i, j);
+}
+
+void translate(int& nTransCol,
+               int& nTransRow,
+               const Image& a,
+               const Image& b,
+               const double r,
+               const int maxX,
+               const int maxY)
+{
+    Image cc(a.nColRL(),
+             a.nRowRL(),
+             FT_SPACE);
+
+    SET_0_FT(cc);
+
+    // calculate the cross correlation between A and B
+    crossCorrelation(cc, a, b, r);
+
+    FFT fft;
+
+    //#pragma omp critical
+    fft.bw(cc);
+
+    double max = 0;
+
+    nTransCol = 0;
+    nTransRow = 0;
+
+    for (int j = -maxY; j <= maxY; j++)
+        for (int i = -maxX; i <= maxX; i++)
+        {
+            if (cc.getRL(i, j) > max)
+            {            
+                max = cc.getRL(i, j);
+                nTransCol = i;
+                nTransRow = j;
+            }
+        }
+}
+
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,
                   const double r)
 {
     vector<double> bg;
+
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (NORM(i, j) > r)
             bg.push_back(src.getRL(i, j));
 
     mean = gsl_stats_mean(&bg[0], 1, bg.size());
     stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
-
-    /***
-    vec bv(bg);
-    mean = mean(bv);
-    stddev = arma::stddev(bv);
-    ***/
 }
 
 void removeDust(Image& img,
@@ -71,6 +115,7 @@ void removeDust(Image& img,
                 const double stddev)
 {
     auto engine = get_random_engine();
+
     IMAGE_FOR_EACH_PIXEL_RL(img)
         if ((img.getRL(i, j) > mean + wDust * stddev) ||
             (img.getRL(i, j) < mean - bDust * stddev))

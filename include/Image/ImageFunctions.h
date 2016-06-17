@@ -15,12 +15,15 @@
 #include <vector>
 #include <iostream>
 
+#include <omp.h>
+
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
 
+#include "Random.h"
+#include "FFT.h"
 #include "Image.h"
 #include "Volume.h"
-#include "Random.h"
 
 using namespace std;
 
@@ -134,7 +137,7 @@ using namespace std;
 /**
  * This macro replaces a slice of a volume with an image given in real space.
  * @param dst the destination volume
- * @param src the source volume
+ * @param src the source image
  * @param k the index of the slice
  */
 #define SLC_REPLACE_RL(dst, src, k) \
@@ -144,7 +147,7 @@ using namespace std;
  * This macro replaces a slice of a volume with an image given in Fourier
  * space.
  * @param dst the destination volume
- * @param src the source volume
+ * @param src the source image
  * @param k the index of the slice
  */
 #define SLC_REPLACE_FT(dst, src, k) \
@@ -155,7 +158,7 @@ using namespace std;
  * @param SP the space in which the extraction perfroms (RL: real space, FT:
  * Fourier space)
  * @param dst the destination volume
- * @param src the source volume
+ * @param src the source image
  * @param k the index of the slice
  */
 #define SLC_REPLACE(SP, dst, src, k) \
@@ -165,12 +168,34 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j), i, j, _k); \
     }(dst, src, k)
 
+/**
+ * This macro extracts a slice out of a volume and stores it in an image in real
+ * space.
+ * @param dst the destination image
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_EXTRACT_RL(dst, src, k) \
     SLC_EXTRACT(RL, dst, src, k)
 
+/**
+ * This macro extracts a slice out of a volume and stores it in an image in
+ * Fourier space.
+ * @param dst the destination image
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_EXTRACT_FT(dst, src, k) \
     SLC_EXTRACT(FT, dst, src, k)
 
+/**
+ * This macro extracts a slice out of a volume and stores it in an image.
+ * @param SP the space in which the extraction perfroms (RL: real space, FT:
+ * Fourier space)
+ * @param dst the destination image
+ * @param src the source volume
+ * @param k the index of the slice
+ */
 #define SLC_EXTRACT(SP, dst, src, k) \
     [](Image& _dst, const Volume& _src, const int _k) \
     { \
@@ -178,41 +203,114 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, _k), i, j); \
     }(dst, src, k)
 
+/**
+ * This macro translations an image with a given vector indicating by the number
+ * of columns and the number of rows.
+ * @param dst the destination image (Fourier space)
+ * @param src the source image (Fourier space)
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
 void translate(Image& dst,
                const Image& src,
                const double nTransCol,
                const double nTransRow);
 
+/**
+ * This macro translations an image in a certain frequency threshold with a 
+ * given vector indicating by the number of columns and the number of rows.
+ * @param dst the destination image (Fourier space)
+ * @param src the source image (Fourier space)
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
 void translate(Image& dst,
                const Image& src,
                const double r,
                const double nTransCol,
                const double nTransRow);
 
+/**
+ * This function calculates the cross-correlation image of two images in a
+ * certain region.
+ * @param dst the destination image
+ * @param a the image A
+ * @param b the image B
+ * @param r the radius of the frequency
+ */
+void crossCorrelation(Image& dst,
+                      const Image& a,
+                      const Image& b,
+                      const double r);
+
+/**
+ * This function calculates the most likely translation between two images using
+ * max cross correlation method.
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ * @param a Image A
+ * @param b Image B
+ * @param r the radius of the frequency
+ * @param maxX the maximum column translation
+ * @param maxY the maximum row translation
+ */
+void translate(int& nTranCol,
+               int& nTranRow,
+               const Image& a,
+               const Image& b,
+               const double r,
+               const int maxX,
+               const int maxY);
+
+/**
+ * This function calculates the mean and standard deviation of the background.
+ * The background stands for the outer region beyond a certain radius.
+ * @param mean the mean value
+ * @param stddev the standard devation
+ * @param src the image to be calculated
+ * @param r the radius
+ */
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,
                   const double r);
-/* calculate the mean and standard deviation of the background */
 
+/**
+ * This function removes white and black dust from the image. Any value out of
+ * the range (mean - bDust * stddev, mean + wDust * stddev) will be replaced by
+ * a draw from N(mean, stddev).
+ * @param img the image to be processed
+ * @param wDust the factor of white dust
+ * @param bDust the factor of black dust
+ * @param mean the mean value
+ * @param stddev the standard deviation
+ */
 void removeDust(Image& img,
                 const double wDust,
                 const double bDust,
                 const double mean,
                 const double stddev);
-/* remove white and black dust
- * value > mean + wDust * stddev will be replace by a draw of 
- * Gaussian(mean, stddev)
- * value < mean - kDust * stddev will be replace by a draw of 
- * Gaussian(mean, stddev) */
 
+/**
+ * This fucntion normalises the image according to the mean and stddev of the
+ * background dust points are removed according to wDust and bDust.
+ * @param img the image to be processed
+ * @param wDust the factor of white dust
+ * @param bDust the factor of black dust
+ * @param r the radius
+ */
 void normalise(Image& img,
                const double wDust,
                const double bDust,
                const double r);
-/* normalise the image according to the mean and stddev of the background
- * dust points are removed according to wDust and bDust */
 
+/**
+ * This function extracts a sub-image from an image.
+ * @param dst the destination image
+ * @param src the source image
+ * @param xOff the column shift
+ * @param yOff the row shift
+ */
 void extract(Image& dst,
              const Image& src,
              const int xOff,

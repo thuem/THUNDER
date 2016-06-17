@@ -88,6 +88,16 @@ void Particle::vari(double& k0,
     rho = _rho;
 }
 
+void Particle::vari(double& rVari,
+                    double& s0,
+                    double& s1) const
+{
+    //rVari = sqrt(_k0 / _k1);
+    rVari = sqrt(_k1 / _k0);
+    s0 = _s0;
+    s1 = _s1;
+}
+
 double Particle::w(const int i) const { return _w(i); }
 
 void Particle::setW(const double w,
@@ -130,6 +140,12 @@ void Particle::t(vec2& dst,
                  const int i) const
 {
     dst = _t.row(i).transpose();
+}
+
+void Particle::setT(const vec2& src,
+                    const int i)
+{
+    _t.row(i) = src.transpose();
 }
 
 void Particle::quaternion(vec4& dst,
@@ -187,14 +203,17 @@ void Particle::perturb()
     {
         double x, y;
         gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-        _t(i, 0) += x / 5;
-        _t(i, 1) += y / 5;
+        _t(i, 0) += x / sqrt(PERTURB_FACTOR);
+        _t(i, 1) += y / sqrt(PERTURB_FACTOR);
+        //_t(i, 0) += x / PERTURB_FACTOR;
+        //_t(i, 1) += y / PERTURB_FACTOR;
     }
 
     // rotation perturbation
 
     mat4 d(_n, 4);
-    sampleACG(d, 5 * _k0, _k1, _n);
+    //sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
+    sampleACG(d, pow(PERTURB_FACTOR, 2.0 / 3) * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
     {

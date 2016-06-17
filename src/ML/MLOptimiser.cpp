@@ -71,12 +71,17 @@ void MLOptimiser::init()
     NT_MASTER
     {
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
+
         initID();
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+
         initImg();
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
 
         allReduceN();
 
@@ -89,15 +94,23 @@ void MLOptimiser::init()
         ***/
 
         ALOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
+        BLOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
+
         _model.setR(_r);
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
+
         _model.initProjReco();
 
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
+        BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
+
         initCTF();
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
+
         initParticles();
     }
 
@@ -107,6 +120,8 @@ void MLOptimiser::init()
     NT_MASTER
     {
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
+        BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
+
         initSigma();
     }
 }
@@ -115,29 +130,31 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    //double logThres = 0.5 * M_PI * _r * _r * 0.1;
+
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         Image image(size(), size(), FT_SPACE);
 
+        int nPhaseWithNoVariDecrease = 0;
+
+        double tVariS0 = _para.maxX;
+        double tVariS1 = _para.maxY;
+        double rVari = 1;
+
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((_iter != 0) || (phase != 0))
             {
-                if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
+                if (phase == 0)
                 {
-                    if (phase == 0)
+                    if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
                         _par[l].resample(_para.m * _para.mf,
                                          ALPHA_TOTAL_GLOBAL_SEARCH);
-                    else
+                    else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
+                                   + N_ITER_PARTIAL_GLOBAL_SEARCH)
                         _par[l].resample(_para.m,
-                                         ALPHA_SEARCH_BG);
-                }
-                else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
-                               + N_ITER_PARTIAL_GLOBAL_SEARCH)
-                {
-                    if (phase == 0)
-                        _par[l].resample(_para.m * _para.mf,
                                          (ALPHA_GLOBAL_SEARCH_MAX
                                         - ALPHA_GLOBAL_SEARCH_MIN)
                                        * (N_ITER_TOTAL_GLOBAL_SEARCH 
@@ -147,24 +164,11 @@ void MLOptimiser::expectation()
                                        + ALPHA_GLOBAL_SEARCH_MIN);
                     else
                         _par[l].resample(_para.m,
-                                         ALPHA_SEARCH_BG);
-                }
-                else
-                {
-                    if (phase == 0)
-                        _par[l].resample(_para.m,
                                          ALPHA_LOCAL_SEARCH);
-                    else
-                        _par[l].resample();
                 }
             }
 
-            /***
-            double nt = (phase == N_PHASE_PER_ITER - 1)
-                      ? 2 * TOP_K
-                      : _par[l].n() / 10;
-            ***/
-            double nt = _par[l].n() / 10;
+            double nt = _par[l].n() / NT_FACTOR;
 
             int nSearch = 0;
             do
@@ -175,11 +179,38 @@ void MLOptimiser::expectation()
                 vec logW(_par[l].n());
                 mat33 rot;
                 vec2 t;
+
                 for (int m = 0; m < _par[l].n(); m++)
                 {
                     _par[l].rot(rot, m);
-                    _par[l].t(t, m);
-                    _model.proj(0).project(image, rot, t);
+
+                    if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                        (phase == 0) &&
+                        (nSearch == 0))
+                    {
+                        _model.proj(0).project(image, rot);
+
+                        // TODO: check the diff
+                        int nTransCol, nTransRow;
+                        translate(nTransCol,
+                                  nTransRow,
+                                  image,
+                                  _img[l],
+                                  _r,
+                                  _para.maxX,
+                                  _para.maxY);
+                        t(0) = nTransCol;
+                        t(1) = nTransRow;
+
+                        translate(image, image, _r, t(0), t(1));
+
+                        _par[l].setT(t, m);
+                    }
+                    else
+                    {
+                        _par[l].t(t, m);
+                        _model.proj(0).project(image, rot, t);
+                    }
 
                     logW[m] = logDataVSPrior(_img[l], // data
                                              image, // prior
@@ -188,25 +219,34 @@ void MLOptimiser::expectation()
                                              _r);
                 }
 
+                /***
                 logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
                 for (int m = 0; m < _par[l].n(); m++)
                     _par[l].mulW(exp(logW(m)), m);
-                    // _par[l].mulW(logW(m) > -20 ? exp(logW(m)) : 0, m);
+                ***/
+
+                /***
+                logW.array() -= logW.minCoeff();
+
+                for (int m = 0; m < _par[l].n(); m++)
+                    _par[l].mulW(logW(m), m);
+                ***/
+
+                /***
+                logW.array() -= logW.maxCoeff();
+
+                for (int m = 0; m < _par[l].n(); m++)
+                    _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
+                ***/
+
+                logW.array() -= logW.maxCoeff();
+                logW.array() *= -1;
+                logW.array() += 1;
+                for (int m = 0; m < _par[l].n(); m++)
+                    _par[l].mulW(1.0 / logW(m), m);
 
                 _par[l].normW();
-
-                // IF_GBOBAL_SEARCH_SEARCH, too few point, triple the
-                // number of resampling
-                if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
-                    (phase == 0) &&
-                    (nSearch == 0) &&
-                    (_par[l].neff() < 2))
-                {
-                    //_par[l].resample(3 * _par[l].n());
-                    _par[l].reset(3 * _par[l].n());
-                    continue;
-                }
 
                 if (_ID[l] < 20)
                 {
@@ -226,7 +266,63 @@ void MLOptimiser::expectation()
             } while ((_par[l].neff() > nt) &&
                      (nSearch < MAX_N_SEARCH_PER_PHASE));
 
+            // Only after resampling, the current variance can be calculated
+            // correctly.
+            _par[l].resample();
+
+            // break if after a few searching, the resampling condition can not
+            // be reached
             if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
+            
+            if (phase >= MIN_N_PHASE_PER_ITER)
+            {
+                double tVariS0Cur;
+                double tVariS1Cur;
+                double rVariCur;
+                _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
+
+                /***
+                CLOG(INFO, "LOGGER_SYS") << "phase = " << phase;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS0 = " << tVariS0;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS1 = " << tVariS1;
+                CLOG(INFO, "LOGGER_SYS") << "rVari = " << rVari;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS0Cur = " << tVariS0Cur;
+                CLOG(INFO, "LOGGER_SYS") << "tVariS1Cur = " << tVariS1Cur;
+                CLOG(INFO, "LOGGER_SYS") << "rVariCur = " << rVariCur;
+                ***/
+
+                if ((tVariS0Cur < tVariS0 * 0.9) ||
+                    (tVariS1Cur < tVariS1 * 0.9) ||
+                    (rVariCur < rVari * 0.9))
+                {
+                    // there is still room for searching
+                    nPhaseWithNoVariDecrease = 0;
+                }
+                else
+                {
+                    // there is no improvement in this search
+                    nPhaseWithNoVariDecrease += 1;
+                }
+
+                // make tVariS0, tVariS1, rVari the smallest variance ever got
+                if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
+                if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
+                if (rVariCur < rVari) rVari = rVariCur;
+
+                // break if in a few continuous searching, there is no improvement
+                if (nPhaseWithNoVariDecrease == 3) break;
+            }
+        }
+
+        if (_ID[l] < 20)
+        {
+            char filename[FILE_NAME_LENGTH];
+            snprintf(filename,
+                     sizeof(filename),
+                     "Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l]);
         }
     }
 }
@@ -234,9 +330,13 @@ void MLOptimiser::expectation()
 void MLOptimiser::maximization()
 {
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+    BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+
     allReduceSigma();
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+    BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+
     reconstructRef();
 }
 
@@ -255,6 +355,11 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
         expectation();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expecation";
+        ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished";
+        MPI_Barrier(MPI_COMM_WORLD);
+        MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
@@ -291,13 +396,6 @@ void MLOptimiser::run()
                                _para.pixelSize)) + 1;
             _model.setR(_r);
         }
-        /***
-        else
-        {
-            _model.updateR();
-            _r = _model.r();
-        }
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
@@ -308,9 +406,13 @@ void MLOptimiser::run()
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+
             _model.refreshProj();
 
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+
             _model.refreshReco();
         }
 
@@ -384,19 +486,23 @@ void MLOptimiser::initRef()
     _model.appendRef(Volume());
 
     ALOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
+    BLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
     ImageFile imf(_para.initModel, "rb");
     imf.readMetaData();
     imf.readVolume(_model.ref(0));
 
+    /***
     ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
                               << _model.ref(0).nColRL()
                               << " X "
                               << _model.ref(0).nRowRL()
                               << " X "
                               << _model.ref(0).nSlcRL();
+    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
+    BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
 
     FFT fft;
     fft.fw(_model.ref(0));
@@ -475,6 +581,7 @@ void MLOptimiser::initCTF()
              micrographs, particles where \
              particles.micrographID = micrographs.ID and \
              particles.ID = ?;", -1, _exp.expose());
+
     FOR_EACH_2D_IMAGE
     {
         // get attributes of CTF from database
@@ -510,11 +617,15 @@ void MLOptimiser::initSigma()
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
 
     Image avg = _img[0].copyImage();
 
     for (size_t l = 1; l < _ID.size(); l++)
+    {
+        #pragma omp parallel for
         ADD_FT(avg, _img[l]);
+    }
 
     MPI_Barrier(_hemi);
 
@@ -527,18 +638,23 @@ void MLOptimiser::initSigma()
 
     MPI_Barrier(_hemi);
 
+    #pragma omp parallel for
     SCALE_FT(avg, 1.0 / _N);
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
 
-    // vec avgPs(maxR(), fill::zeros);
     vec avgPs = vec::Zero(maxR());
-    vec ps(maxR());
+
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        vec ps(maxR());
+
         powerSpectrum(ps, _img[l], maxR());
+
+        #pragma omp critical
         avgPs += ps;
-        // cblas_daxpy(maxR(), 1, ps.memptr(), 1, avgPs.memptr(), 1);
     }
 
     MPI_Barrier(_hemi);
@@ -555,19 +671,18 @@ void MLOptimiser::initSigma()
     avgPs /= _N;
 
     ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
     vec psAvg(maxR());
-    // powerSpectrum(psAvg, avg, maxR());
     for (int i = 0; i < maxR(); i++)
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
 
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
     ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
+    BLOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
 
     _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
-    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t() / 2;
-    // _sig.head_cols(_sig.n_cols - 1).each_row() = (avgPs - psAvg).t();
 
     /***
     ALOG(INFO) << "Saving Initial Sigma";
@@ -583,36 +698,28 @@ void MLOptimiser::initParticles()
     FOR_EACH_2D_IMAGE
         _par.push_back(Particle());
 
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
         _par[l].init(_para.m * _para.mf,
                      _para.maxX,
                      _para.maxY,
                      &_sym);
-
-    /***
-    FOR_EACH_2D_IMAGE
-    {
-        _par.push_back(Particle());
-        _par.back().init(_para.m,
-                         _para.maxX,
-                         _para.maxY,
-                         &_sym);
-    }
-    ***/
 }
-
 
 void MLOptimiser::allReduceSigma()
 {
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
 
     // set re-calculating part to zero
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
 
     ALOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
+
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
@@ -648,10 +755,10 @@ void MLOptimiser::allReduceSigma()
         }
 
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
-        // _sig.row(_groupID[l] - 1).tail(1) += 1;
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
+    BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
     MPI_Barrier(_hemi);
 
@@ -672,10 +779,6 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
-    /***
-    // TODO: there is something wrong here! FIX IT!
-    _sig.each_row([this](rowvec& x){ x.head(_r) /= x(x.n_elem - 1); });
-    ***/
     for (int i = 0; i < _sig.rows(); i++)
         _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
 
@@ -697,15 +800,10 @@ void MLOptimiser::reconstructRef()
     Image img(size(), size(), FT_SPACE);
 
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
+    BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
     {
-        /***
-        ILOG(INFO) << "Inserting Particle "
-                   << _ID[l]
-                   << " into Reconstructor";
-                   ***/
-
         // reduce the CTF effect
         reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
@@ -731,6 +829,7 @@ void MLOptimiser::reconstructRef()
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
+    BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
 
@@ -759,6 +858,7 @@ void MLOptimiser::reconstructRef()
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
+    BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
     FFT fft;
     fft.fw(_model.ref(0));
@@ -812,16 +912,32 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
-    IMAGE_FOR_EACH_PIXEL_FT(pri)
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
         int u = AROUND(NORM(i, j));
 
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
+        {
+            int index = dat.iFTHalf(i, j);
+
+            result += ABS2(dat.iGetFT(index)
+                         - REAL(ctf.iGetFT(index))
+                         * pri.iGetFT(index))
+                    / (-2 * sig[u]);
+            /***
+            result += ABS2(dat[index]
+                         - REAL(ctf[index])
+                         * pri[index])
+                    / (-2 * sig[u]);
+                    ***/
+            /***
             result += ABS2(dat.getFT(i, j)
                          - REAL(ctf.getFT(i, j))
                          * pri.getFT(i, j))
-                        / (-2 * sig[u]);
+                    / (-2 * sig[u]);
+            ***/
+        }
     }
 
     return result;

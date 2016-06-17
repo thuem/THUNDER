@@ -70,7 +70,7 @@ void Projector::setProjectee(Volume src)
 void Projector::project(Image& dst,
                         const mat33& mat) const
 {
-    IMAGE_FOR_EACH_PIXEL_FT(dst)
+    IMAGE_FOR_PIXEL_R_FT(_maxRadius)
     {
         if (QUAD(i, j) < _maxRadius * _maxRadius)
         {

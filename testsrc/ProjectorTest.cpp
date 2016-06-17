@@ -12,15 +12,15 @@
 #include "ImageFile.h"
 #include "FFT.h"
 
-#define N 190
-#define M 8
-#define PF 1
+#define N 120
+#define M 10
+#define PF 2
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     std::cout << "Define a head." << std::endl;
 
@@ -141,14 +141,18 @@ int main(int argc, const char* argv[])
 
     Image img(N, N, FT_SPACE);
 
+    CLOG(INFO, "LOGGER_SYS") << "START";
+
     try
     {
     for (int k = 0; k < M; k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
             {
+                /***
                 SET_0_FT(img);
                 printf("%02d %02d %02d\n", i, j, k);
+                ***/
                 projector.project(img,
                                   2 * M_PI * i / M,
                                   M_PI * j / M,
@@ -156,6 +160,7 @@ int main(int argc, const char* argv[])
                                   10,
                                   10);
 
+                /***
                 sprintf(name, "%02d%02d%02dFT.bmp", i, j, k);
                 img.saveFTToBMP(name, 0.1);
 
@@ -169,12 +174,15 @@ int main(int argc, const char* argv[])
                 imf.writeImage(name, img);
 
                 fft.fw(img);
+                ***/
             }
     }
     catch (Error& err)
     {
         cout << err << endl;
     }
+
+    CLOG(INFO, "LOGGER_SYS") << "END";
 
     return 0;
 }

@@ -49,14 +49,6 @@ void Image::alloc(const int nCol,
     }
 }
 
-int Image::nColRL() const { return _nCol; }
-
-int Image::nRowRL() const { return _nRow; }
-
-int Image::nColFT() const { return _nCol / 2 + 1; }
-
-int Image::nRowFT() const { return _nRow; }
-
 void Image::saveRLToBMP(const char* filename) const
 {
     float* image = new float[_sizeRL];
@@ -124,8 +116,8 @@ double Image::getRL(const int iCol,
                     const int iRow) const
 {
     // coordinatesInBoundaryRL(iCol, iRow);
-    return _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                                  (iRow >= 0) ? iRow : iRow + _nRow)];
+
+    return _dataRL[iRL(iCol, iRow)];
 }
 
 void Image::setRL(const double value,
@@ -133,18 +125,19 @@ void Image::setRL(const double value,
                   const int iRow)
 {
     // coordinatesInBoundaryRL(iCol, iRow);
-    _dataRL[IMAGE_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                           (iRow >= 0) ? iRow : iRow + _nRow)] = value;
+
+    _dataRL[iRL(iCol, iRow)] = value;
 }
 
 Complex Image::getFT(int iCol,
                      int iRow) const
 {
     // coordinatesInBoundaryFT(iCol, iRow);
-    size_t index;
-    bool cf;
-    IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
-    return cf ? CONJUGATE(_dataFT[index]) : _dataFT[index];
+    
+    bool conj;
+    int index = iFT(conj, iCol, iRow);
+
+    return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
 void Image::setFT(const Complex value,
@@ -152,10 +145,11 @@ void Image::setFT(const Complex value,
                   int iRow)
 {
     // coordinatesInBoundaryFT(iCol, iRow);
-    size_t index;
-    bool cf;
-    IMAGE_FREQ_TO_STORE_INDEX(index, cf, iCol, iRow);
-    _dataFT[index] = cf ? CONJUGATE(value) : value;
+
+    bool conj;
+    int index = iFT(conj, iCol, iRow);
+
+    _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
 double Image::getBiLinearRL(const double iCol,
@@ -195,7 +189,7 @@ void Image::coordinatesInBoundaryRL(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
-        REPORT_ERROR("Try to get value out of the boundary");
+        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
 }
 
 void Image::coordinatesInBoundaryFT(const int iCol,
@@ -203,5 +197,5 @@ void Image::coordinatesInBoundaryFT(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
-        REPORT_ERROR("Try to get FT value out of the boundary");
+        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
 }

@@ -10,6 +10,7 @@
 
 #include "ImageFile.h"
 #include "Volume.h"
+#include "ImageFunctions.h"
 
 #define N 128
 #define PF 2

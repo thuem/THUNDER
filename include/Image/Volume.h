@@ -20,6 +20,7 @@
 #include "Enum.h"
 #include "Error.h"
 #include "Complex.h"
+#include "Logging.h"
 
 #include "ImageBase.h"
 #include "BMP.h"
@@ -29,45 +30,6 @@
 #include "TabFunction.h"
 #include "Coordinate5D.h"
 #include "Transformation.h"
-#include "ImageFunctions.h"
-
-#define VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc) \
-    (((iCol) >= 0) ? 0 : [&iCol, &iRow, &iSlc]() \
-                         { \
-                             iCol *= -1; \
-                             iRow *= -1; \
-                             iSlc *= -1; \
-                             return 1; \
-                         }())
-
-#define VOLUME_INDEX_RL(i, j, k) \
-    (k) * _nRow * _nCol + (j) * _nCol + (i)
-
-#define VOLUME_INDEX_FT(i, j, k) \
-    (k) * _nRow * (_nCol / 2 + 1) + (j) * (_nCol / 2 + 1) + (i)
-
-#define VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k) \
-    [this](int ii, int jj, int kk) \
-    { \
-        if ((jj) < 0) jj += _nRow; \
-        if ((kk) < 0) kk += _nSlc; \
-        return VOLUME_INDEX_FT(ii, jj, kk); \
-    }(i, j, k)
-
-#define VOLUME_FREQ_TO_STORE_INDEX(index, flag, i, j, k, cf) \
-    [this, &index, &flag, i, j, k, cf]() mutable \
-    { \
-        switch (cf) \
-        { \
-            case conjugateUnknown: \
-                flag = VOLUME_CONJUGATE_HALF(i, j, k); break; \
-            case conjugateYes: \
-                flag = true; break; \
-            case conjugateNo: \
-                flag = false; break; \
-        } \
-        index = VOLUME_FREQ_TO_STORE_INDEX_HALF(i, j, k); \
-    }()
 
 #define VOLUME_SUB_SPHERE_FT(a) \
     for (int k = MAX(-_nSlc / 2, floor(iSlc - a)); \
@@ -89,6 +51,32 @@
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
             for (int i = 0; i <= that.nColRL() / 2; i++)
+
+inline bool conjHalf(int& iCol,
+                     int& iRow,
+                     int& iSlc)
+{
+    if (iCol >= 0) return false;
+
+    iCol *= -1;
+    iRow *= -1;
+    iSlc *= -1;
+
+    return true;
+};
+
+inline bool conjHalf(double& iCol,
+                     double& iRow,
+                     double& iSlc)
+{
+    if (iCol >= 0) return false;
+
+    iCol *= -1;
+    iRow *= -1;
+    iSlc *= -1;
+
+    return true;
+}
 
 class Volume : public ImageBase
 {
@@ -241,15 +229,14 @@ class Volume : public ImageBase
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
          * @param iSlc the index of the slice of this voxel in real space
-         * @param cf the conjugate flag, where conjugateUnknown stands for
-         * calculating the conjugate status on its own, conjugateYes stands
-         * for returning the conjugate of the value of the voxel and conjugateNo
-         * stands for returning the value of the voxel without conjugation
          */
-        Complex getFT(const int iCol,
-                      const int iRow,
-                      const int iSlc,
-                      const ConjugateFlag cf = conjugateUnknown) const;
+        Complex getFT(int iCol,
+                      int iRow,
+                      int iSlc) const;
+
+        Complex getFTHalf(const int iCol,
+                          const int iRow,
+                          const int iSlc) const;
 
         /**
          * This function sets the value of the voxel in Fourier space at a given
@@ -379,6 +366,36 @@ class Volume : public ImageBase
          */
         Volume copyVolume() const;
 
+        inline int iRL(const int i,
+                       const int j,
+                       const int k) const
+        {
+            return (k >= 0 ? k : k + _nSlc) * _nCol * _nRow
+                 + (j >= 0 ? j : j + _nRow) * _nCol
+                 + (i >= 0 ? i : i + _nCol);
+        }
+
+        inline int iFT(bool& conj,
+                       int i,
+                       int j,
+                       int k) const
+        {
+            conj = conjHalf(i, j, k);
+
+            return iFTHalf(i, j, k);
+        }
+
+        inline int iFTHalf(const int i,
+                           const int j,
+                           const int k) const
+        {
+            int nColFT = _nCol / 2 + 1;
+
+            return (k >= 0 ? k : k + _nSlc) * nColFT * _nRow
+                 + (j >= 0 ? j : j + _nRow) * nColFT 
+                 + i;
+        }
+
     private:
 
         /**
@@ -410,9 +427,9 @@ class Volume : public ImageBase
         double getRL(const double w[2][2][2],
                      const int x0[3]) const;
 
-        Complex getFT(const double w[2][2][2],
-                      const int x0[3],
-                      const ConjugateFlag conjugateFlag) const;
+        Complex getFTHalf(const double w[2][2][2],
+                          const int x0[3]) const;
+                      //const ConjugateFlag conjugateFlag) const;
 };
 
 #endif // VOLUME_H
