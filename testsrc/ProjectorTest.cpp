@@ -149,8 +149,10 @@ int main(int argc, char* argv[])
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
             {
+                /***
                 SET_0_FT(img);
                 printf("%02d %02d %02d\n", i, j, k);
+                ***/
                 projector.project(img,
                                   2 * M_PI * i / M,
                                   M_PI * j / M,

@@ -235,8 +235,8 @@ void Reconstructor::allReduceW()
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius))
         {
-            double c = REAL(_C.getFT(i, j, k, conjugateNo));
-            _W.setFT(2 * c * _W.getFT(i, j, k, conjugateNo) / (1 + gsl_pow_2(c)),
+            double c = REAL(_C.getFTHalf(i, j, k));
+            _W.setFT(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
                      i,
                      j,
                      k,

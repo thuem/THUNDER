@@ -61,9 +61,8 @@ double Volume::getRL(const int iCol,
                      const int iSlc) const
 {
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
-    return _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                                   (iRow >= 0) ? iRow : iRow + _nRow,
-                                   (iSlc >= 0) ? iSlc : iSlc + _nSlc)];
+    
+    return _dataRL[iRL(iCol, iRow, iSlc)];
 }
 
 void Volume::setRL(const double value,
@@ -73,9 +72,7 @@ void Volume::setRL(const double value,
 {
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
 
-    _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                            (iRow >= 0) ? iRow : iRow + _nRow,
-                            (iSlc >= 0) ? iSlc : iSlc + _nSlc)] = value;
+    _dataRL[iRL(iCol, iRow, iSlc)] = value;
 }
 
 void Volume::addRL(const double value,
@@ -86,21 +83,26 @@ void Volume::addRL(const double value,
     // coordinatesInBoundaryRL(iCol, iRow, iSlc);
 
     #pragma omp atomic
-    _dataRL[VOLUME_INDEX_RL((iCol >= 0) ? iCol : iCol + _nCol,
-                            (iRow >= 0) ? iRow : iRow + _nRow,
-                            (iSlc >= 0) ? iSlc : iSlc + _nSlc)] += value;
+    _dataRL[iRL(iCol, iRow, iSlc)] += value;
 }
 
 Complex Volume::getFT(int iCol,
                       int iRow,
-                      int iSlc,
-                      const ConjugateFlag cf) const
+                      int iSlc) const
 {
     // coordinatesInBoundaryFT(iCol, iRow, iSlc);
-    bool flag;
-    size_t index;
-    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
-    return flag ? CONJUGATE(_dataFT[index]) : _dataFT[index];
+
+    bool conj;
+    int index = iFT(conj, iCol, iRow, iSlc);
+
+    return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
+}
+
+Complex Volume::getFTHalf(const int iCol,
+                          const int iRow,
+                          const int iSlc) const
+{
+    return _dataFT[iFTHalf(iCol, iRow, iSlc)];
 }
 
 void Volume::setFT(const Complex value,
@@ -111,11 +113,10 @@ void Volume::setFT(const Complex value,
 {
     // coordinatesInBoundaryFT(iCol, iRow, iSlc);
 
-    bool flag;
-    size_t index;
-    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
+    bool conj;
+    int index = iFT(conj, iCol, iRow, iSlc);
 
-    _dataFT[index] = flag ? CONJUGATE(value) : value;
+    _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
 void Volume::addFT(const Complex value,
@@ -125,11 +126,11 @@ void Volume::addFT(const Complex value,
                    const ConjugateFlag cf)
 {
     // coordinatesInBoundaryFT(iCol, iRow, iSlc);
-    bool flag;
-    size_t index;
-    VOLUME_FREQ_TO_STORE_INDEX(index, flag, iCol, iRow, iSlc, cf);
 
-    Complex val = flag ? CONJUGATE(value) : value;
+    bool conj;
+    int index = iFT(conj, iCol, iRow, iSlc);
+
+    Complex val = conj ? CONJUGATE(value) : value;
 
     #pragma omp atomic
     _dataFT[index].dat[0] += val.dat[0];
@@ -160,11 +161,12 @@ Complex Volume::getByInterpolationFT(double iCol,
                                      double iSlc,
                                      const int interp) const
 {
-    bool cf = VOLUME_CONJUGATE_HALF(iCol, iRow, iSlc);
+    bool conj = conjHalf(iCol, iRow, iSlc);
 
     double w[2][2][2];
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
+
     switch (interp)
     {
         case NEAREST_INTERP: WG_TRI_NEAREST(w, x0, x); break;
@@ -172,8 +174,9 @@ Complex Volume::getByInterpolationFT(double iCol,
         case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
     }
 
-    Complex result = getFT(w, x0, conjugateNo);
-    return cf ? CONJUGATE(result) : result;
+    Complex result = getFTHalf(w, x0);
+
+    return conj ? CONJUGATE(result) : result;
 }
 
 void Volume::addFT(const Complex value,
@@ -254,15 +257,13 @@ double Volume::getRL(const double w[2][2][2],
     return result;
 }
 
-Complex Volume::getFT(const double w[2][2][2],
-                      const int x0[3],
-                      const ConjugateFlag conjugateFlag) const
+Complex Volume::getFTHalf(const double w[2][2][2],
+                          const int x0[3]) const
 {
     Complex result = COMPLEX(0, 0);
-    FOR_CELL_DIM_3 result += getFT(x0[0] + i,
-                                   x0[1] + j,
-                                   x0[2] + k,
-                                   conjugateFlag)
+    FOR_CELL_DIM_3 result += getFTHalf(x0[0] + i,
+                                       x0[1] + j,
+                                       x0[2] + k)
                            * w[i][j][k];
     return result;
 }
