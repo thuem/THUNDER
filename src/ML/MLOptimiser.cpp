@@ -316,6 +316,7 @@ void MLOptimiser::expectation()
                 double rVariCur;
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
 
+                /***
                 CLOG(INFO, "LOGGER_SYS") << "phase = " << phase;
                 CLOG(INFO, "LOGGER_SYS") << "tVariS0 = " << tVariS0;
                 CLOG(INFO, "LOGGER_SYS") << "tVariS1 = " << tVariS1;
@@ -323,10 +324,11 @@ void MLOptimiser::expectation()
                 CLOG(INFO, "LOGGER_SYS") << "tVariS0Cur = " << tVariS0Cur;
                 CLOG(INFO, "LOGGER_SYS") << "tVariS1Cur = " << tVariS1Cur;
                 CLOG(INFO, "LOGGER_SYS") << "rVariCur = " << rVariCur;
+                ***/
 
-                if ((tVariS0Cur < tVariS0) ||
-                    (tVariS1Cur < tVariS1) ||
-                    (rVariCur < rVari))
+                if ((tVariS0Cur < tVariS0 * 0.95) ||
+                    (tVariS1Cur < tVariS1 * 0.95) ||
+                    (rVariCur < rVari * 0.95))
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
