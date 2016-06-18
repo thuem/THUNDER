@@ -40,43 +40,87 @@ class MLModel : public Parallel
 {
     private:
 
+        /**
+         * references in Fourier space
+         */
         vector<Volume> _ref;
-        /* references in Fourier space */
 
+        /**
+         * Fourier Shell Coefficient
+         * each column stands for a FSC of a certain reference
+         */
         mat _FSC;
-        /* each column: a FSC of a certain reference */
 
+        /**
+         * Signal Noise Ratio
+         * each column stands for a SNR of a certain reference
+         */
         mat _SNR;
-        /* each column: a SNR of a certain reference */
 
+        /**
+         * projectors
+         */
         vector<Projector> _proj;
 
+        /**
+         * reconstructors
+         */
         vector<unique_ptr<Reconstructor>> _reco;
 
+        /**
+         * number of references
+         */
         int _k;
-        /* number of references */
 
+        /**
+         * size of references bfore padding
+         */
         int _size;
-        /* size of references before padding */
 
+        /**
+         * radius of calculating FSC and SNR before padding
+         */
         int _r;
-        /* radius of calculating FSC and SNR before padding */
 
+        /**
+         * padding factor
+         */
         int _pf;
-        /* padding factor */
 
+        /**
+         * pixel size of 2D images (in Angstrom)
+         */
         double _pixelSize;
-        /* pixel size of 2D images */
 
-        double _a;
+        /**
+         * width of modified Kaiser-Bessel function
+         */
+        double _a = 1.9;
 
+        /**
+         * smoothness parameter of modified Kaiser-Bessel function
+         */
         double _alpha;
 
+        /**
+         * the concentration parameter of the rotation
+         */
         double _rVari;
 
+        /**
+         * variance 2D Gaussian distribution of the translation in X
+         */
         double _tVariS0;
 
+        /**
+         * variance 2D Gaussian distribution of the translation in Y
+         */
         double _tVariS1;
+
+        /**
+         * a parameter indicating the change of rotation between iterations
+         */
+        double _rChange;
 
         const Symmetry* _sym = NULL;
 

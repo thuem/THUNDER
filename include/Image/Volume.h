@@ -431,7 +431,6 @@ class Volume : public ImageBase
 
         Complex getFTHalf(const double w[2][2][2],
                           const int x0[3]) const;
-                      //const ConjugateFlag conjugateFlag) const;
 };
 
 #endif // VOLUME_H

@@ -242,7 +242,7 @@ void Reconstructor::allReduceW()
                          k);
         }
         else
-            _W.setFT(COMPLEX(0, 0), i, j, k);
+            _W.setFTHalf(COMPLEX(0, 0), i, j, k);
 }
 
 void Reconstructor::allReduceF()
