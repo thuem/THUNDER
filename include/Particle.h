@@ -26,8 +26,6 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
-#define PERTURB_FACTOR 5
-
 using namespace std;
 
 class Particle
@@ -107,6 +105,7 @@ class Particle
 
         /**
          * constructor of Particle
+         *
          * @param n number of particles in this particle filter
          * @param maxX maximum X-axis translation in pixel
          * @param maxY maximum Y-axis translation in pixel
@@ -124,6 +123,7 @@ class Particle
 
         /**
          * This function initialises Particle.
+         *
          * @param n number of particles in this particle filter
          * @param maxX maximum X-axis translation in pixel
          * @param maxY maximum Y-axis translation in pixel
@@ -155,6 +155,7 @@ class Particle
         /**
          * This function returns the concentration parameters, including
          * rotation and translation.
+         *
          * @param k0 the concentration parameter of the rotation
          * @param k1 the concentration parameter of the rotation
          * @param s0 sigma0 of 2D Gaussian distribution of the translation
@@ -170,6 +171,7 @@ class Particle
         /**
          * This function returns the concentration parameters, including
          * rotation and translation.
+         *
          * @param rVar the concentration parameter of the rotation
          * @param s0 sigma0 of 2D Gaussian distribution of the translation
          * @param s1 sigma1 of 2D Gaussian distribution of the translation
@@ -181,6 +183,7 @@ class Particle
         /**
          * This function returns the weight of the i-th particle in this
          * particle filter.
+         *
          * @param i the index of particle
          */
         double w(const int i) const;
@@ -188,6 +191,7 @@ class Particle
         /**
          * This function sets the weight of the i-th particle in this particle
          * filter.
+         *
          * @param w the weight of particle
          * @param i the index of particle
          */
@@ -197,6 +201,7 @@ class Particle
         /**
          * This function multiply the weight of the i-th particle in this
          * particle with a factor.
+         *
          * @param w the factor
          * @param i the index of particle
          */
@@ -210,6 +215,7 @@ class Particle
 
         /**
          * This function returns the 5D coordinates of the i-th particle.
+         *
          * @param dst the 5D coordinate
          * @param i the index of particle
          */
@@ -218,6 +224,7 @@ class Particle
 
         /**
          * This function returns the rotation matrix of the i-th particle.
+         *
          * @param dst the rotation matrix
          * @param i the index of particle
          */
@@ -226,6 +233,7 @@ class Particle
 
         /**
          * This function returns the translation vector of the i-th particle.
+         *
          * @param dst the translation vector
          * @param i the index of particle
          */
@@ -234,6 +242,7 @@ class Particle
 
         /**
          * This function sets the translation vector of the i-th particle.
+         *
          * @param src the translation vector
          * @param i the index of particle
          */
@@ -242,6 +251,7 @@ class Particle
 
         /**
          * This function returns the quaternion of the i-th particle.
+         *
          * @param dst the quaternion
          * @param i the index of particle
          */
@@ -250,6 +260,7 @@ class Particle
 
         /**
          * This function sets the symmetry.
+         *
          * @param sym a pointer points to the Symmetry object
          */
         void setSymmetry(const Symmetry* sym);
@@ -263,14 +274,19 @@ class Particle
         /**
          * This function performs a perturbation on the particles in this
          * particle filter.
+         *
+         * @param pf perturbation factor, which stands for the portion of
+         *           confidence area of perturbation of the confidence area
+         *           of the sampling points
          */
         void perturb(const double pf = 0.2);
 
         /**
          * This function resamples the particles in this particle filter with
          * adding a portion of global sampling points.
+         *
          * @param alpha the portion of global sampling points in the resampled
-         * particles
+         *              particles
          */
         void resample(const double alpha = 0);
 
@@ -278,10 +294,11 @@ class Particle
          * This function resamples the particles in this particle filter to a
          * given number of particles with adding a portion of global sampling
          * points.
+         *
          * @param n the number of sampling points of the resampled particle
-         * filter
+         *          filter
          * @param alpha the portion of global sampling points in the resampled
-         * particles
+         *              particles
          */
         void resample(const int n,
                       const double alpha = 0);
@@ -314,12 +331,14 @@ class Particle
 
 /**
  * This function displays the information in this particle filter.
+ *
  * @param particle the particle filter
  */
 void display(const Particle& particle);
 
 /**
  * This function save this particle filter to a file.
+ *
  * @param filename the file name for saving
  * @param particle the particle filter to be saved
  */
