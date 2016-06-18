@@ -236,14 +236,13 @@ void Reconstructor::allReduceW()
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
-            _W.setFT(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
-                     i,
-                     j,
-                     k,
-                     conjugateNo);
+            _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                         i,
+                         j,
+                         k);
         }
         else
-            _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+            _W.setFT(COMPLEX(0, 0), i, j, k);
 }
 
 void Reconstructor::allReduceF()
