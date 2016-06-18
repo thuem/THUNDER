@@ -378,6 +378,8 @@ double MLModel::tVariS1() const
 void MLModel::allReduceVari(const vector<Particle>& par,
                             const int n)
 {
+    IF_MASTER return;
+
     _rVari = 0;
     _tVariS0 = 0;
     _tVariS1 = 0;

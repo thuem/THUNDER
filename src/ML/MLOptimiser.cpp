@@ -353,6 +353,20 @@ void MLOptimiser::run()
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
 
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
+        NT_MASTER
+        {
+            _model.allReduceVari(_par, _N);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+            BLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+
+            ALOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
+                                       << ", " << _model.tVariS1();
+            BLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
+                                       << ", " << _model.tVariS1();
+        }
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
