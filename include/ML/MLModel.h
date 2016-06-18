@@ -12,6 +12,7 @@
 #define ML_MODEL_H
 
 #include <memory>
+#include <vector>
 
 #include "Typedef.h"
 
@@ -23,8 +24,7 @@
 #include "Projector.h"
 #include "Symmetry.h"
 #include "Reconstructor.h"
-
-using namespace std;
+#include "Particle.h"
 
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
@@ -33,6 +33,8 @@ using namespace std;
 #define MIN_GAP 10
 
 #define A_B_AVERAGE_THRES 40 // Angstrom
+
+using namespace std;
 
 class MLModel : public Parallel
 {
@@ -69,6 +71,12 @@ class MLModel : public Parallel
         double _a;
 
         double _alpha;
+
+        double _rVari;
+
+        double _tVariS0;
+
+        double _tVariS1;
 
         const Symmetry* _sym = NULL;
 
@@ -133,7 +141,30 @@ class MLModel : public Parallel
         void updateR();
         /* increase _r according to wether FSC is high than 0.2 at current _r */
 
+        double rVari() const;
+
+        double tVariS0() const;
+        
+        double tVariS1() const;
+
+        /**
+         * @param par a vector of Particle
+         * @param n number of images in the hemisphere
+         */
+        void allReduceVari(const vector<Particle>& par,
+                           const int n);
+
         void clear();
+
+    private:
+
+        /***
+        void addRVari(const double rVari);
+
+        void addTVariS0(const double tVariS0);
+
+        void addTVariS1(const double tVariS1);
+        ***/
 };
 
 #endif // ML_MODEL_H

@@ -346,8 +346,6 @@ void MLModel::refreshReco()
 void MLModel::updateR()
 {
     int resUpperBoundary = _size / 2 - _a;
-    //int resUpperBoundary = 70; // for debug
-    // int resUpperBoundary = 35; // for debug
 
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
@@ -362,6 +360,73 @@ void MLModel::updateR()
     _r = MIN(_r, resUpperBoundary);
 }
 
+double MLModel::rVari() const
+{
+    return _rVari;
+}
+
+double MLModel::tVariS0() const
+{
+    return _tVariS0;
+}
+
+double MLModel::tVariS1() const
+{
+    return _tVariS1;
+}
+
+void MLModel::allReduceVari(const vector<Particle>& par,
+                            const int n)
+{
+    _rVari = 0;
+    _tVariS0 = 0;
+    _tVariS1 = 0;
+
+    double rVari, tVariS0, tVariS1;
+
+    for (size_t i = 0; i < par.size(); i++)
+    {
+        par[i].vari(rVari,
+                    tVariS0,
+                    tVariS1);
+
+        _rVari += rVari;
+        _tVariS0 += tVariS0;
+        _tVariS1 += tVariS1;
+    }
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_rVari,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_tVariS0,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_tVariS0,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    _rVari /= n;
+    _tVariS0 /= n;
+    _tVariS1 /= n;
+}
+
 void MLModel::clear()
 {
     _ref.clear();
@@ -369,3 +434,20 @@ void MLModel::clear()
     _proj.clear();
     _reco.clear();
 }
+
+/***
+void MLModel::addRVari(const double rVari)
+{
+    _rVari += rVari;
+}
+
+void MLModel::addTVariS0(const double tVariS0)
+{
+    _tVariS0 += tVariS0;
+}
+
+void MLModel::addTVariS1(const double tVariS1)
+{
+    _tVariS1 += tVariS1;
+}
+***/
