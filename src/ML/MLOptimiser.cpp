@@ -130,8 +130,6 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    //double logThres = 0.5 * M_PI * _r * _r * 0.1;
-
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -168,56 +166,59 @@ void MLOptimiser::expectation()
                 }
             }
 
-            double nt = _par[l].n() / NT_FACTOR;
-
-            int nSearch = 0;
-            do
+            if ((_iter >= N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                (phase == 0))
             {
-                // perturbation
+                // perturb with 5x confidence area
+                _par[l].perturb(5);
+            }
+            else
+            {
+                // pertrub with 0.2x confidence area
                 _par[l].perturb();
+            }
 
-                vec logW(_par[l].n());
-                mat33 rot;
-                vec2 t;
+            vec logW(_par[l].n());
+            mat33 rot;
+            vec2 t;
 
-                for (int m = 0; m < _par[l].n(); m++)
+            for (int m = 0; m < _par[l].n(); m++)
+            {
+                _par[l].rot(rot, m);
+
+                if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                    (phase == 0))
                 {
-                    _par[l].rot(rot, m);
+                    _model.proj(0).project(image, rot);
 
-                    if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
-                        (phase == 0) &&
-                        (nSearch == 0))
-                    {
-                        _model.proj(0).project(image, rot);
+                    // TODO: check the diff
+                    int nTransCol, nTransRow;
+                    translate(nTransCol,
+                              nTransRow,
+                              image,
+                              _img[l],
+                              _r,
+                              _para.maxX,
+                              _para.maxY);
+                    t(0) = nTransCol;
+                    t(1) = nTransRow;
 
-                        // TODO: check the diff
-                        int nTransCol, nTransRow;
-                        translate(nTransCol,
-                                  nTransRow,
-                                  image,
-                                  _img[l],
-                                  _r,
-                                  _para.maxX,
-                                  _para.maxY);
-                        t(0) = nTransCol;
-                        t(1) = nTransRow;
+                    translate(image, image, _r, t(0), t(1));
 
-                        translate(image, image, _r, t(0), t(1));
-
-                        _par[l].setT(t, m);
-                    }
-                    else
-                    {
-                        _par[l].t(t, m);
-                        _model.proj(0).project(image, rot, t);
-                    }
-
-                    logW[m] = logDataVSPrior(_img[l], // data
-                                             image, // prior
-                                             _ctf[l], // ctf
-                                             _sig.row(_groupID[l] - 1).head(_r).transpose(),
-                                             _r);
+                    _par[l].setT(t, m);
                 }
+                else
+                {
+                    _par[l].t(t, m);
+                    _model.proj(0).project(image, rot, t);
+                }
+
+                logW[m] = logDataVSPrior(_img[l], // data
+                                         image, // prior
+                                         _ctf[l], // ctf
+                                         _sig.row(_groupID[l] - 1).head(_r).transpose(),
+                                         _r);
+            }
 
                 /***
                 logW.array() -= logW.maxCoeff(); // avoiding numerical error
@@ -240,40 +241,31 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
                 ***/
 
-                logW.array() -= logW.maxCoeff();
-                logW.array() *= -1;
-                logW.array() += 1;
-                for (int m = 0; m < _par[l].n(); m++)
-                    _par[l].mulW(1.0 / logW(m), m);
+            logW.array() -= logW.maxCoeff();
+            logW.array() *= -1;
+            logW.array() += 1;
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(1.0 / logW(m), m);
 
-                _par[l].normW();
+            _par[l].normW();
 
-                if (_ID[l] < 20)
-                {
-                    char filename[FILE_NAME_LENGTH];
-                    snprintf(filename,
-                             sizeof(filename),
-                             "Particle_%04d_Round_%03d_%03d_%03d.par",
-                             _ID[l],
-                             _iter,
-                             phase,
-                             nSearch);
-                    save(filename, _par[l]);
-                }
-
-                nSearch++;
-
-            } while ((_par[l].neff() > nt) &&
-                     (nSearch < MAX_N_SEARCH_PER_PHASE));
+            if (_ID[l] < 20)
+            {
+                char filename[FILE_NAME_LENGTH];
+                snprintf(filename,
+                         sizeof(filename),
+                         "Particle_%04d_Round_%03d_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase,
+                         0);
+                save(filename, _par[l]);
+            }
 
             // Only after resampling, the current variance can be calculated
             // correctly.
             _par[l].resample();
 
-            // break if after a few searching, the resampling condition can not
-            // be reached
-            if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
-            
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
                 double tVariS0Cur;

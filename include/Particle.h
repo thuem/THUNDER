@@ -264,7 +264,7 @@ class Particle
          * This function performs a perturbation on the particles in this
          * particle filter.
          */
-        void perturb();
+        void perturb(const double pf = 0.2);
 
         /**
          * This function resamples the particles in this particle filter with
