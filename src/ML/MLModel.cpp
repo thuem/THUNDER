@@ -158,7 +158,9 @@ void MLModel::BcastFSC()
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
             double r = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize) * _pf;
-            MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
+
+            //MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
+
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(A)
                 if (QUAD_3(i, j, k) < r * r)
@@ -167,19 +169,6 @@ void MLModel::BcastFSC()
                     A.setFT(avg, i, j, k);
                     B.setFT(avg, i, j, k);
                 }
-            /***
-            Volume ACentre, BCentre;
-            double ef = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)
-                      / (_size / 2 + 1);
-            VOL_EXTRACT_FT(ACentre, A, ef);
-            VOL_EXTRACT_FT(BCentre, B, ef);
-
-            ADD_FT(ACentre, BCentre);
-            SCALE_FT(ACentre, 0.5);
-
-            VOL_REPLACE_FT(A, ACentre);
-            VOL_REPLACE_FT(B, ACentre);
-            ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << i
