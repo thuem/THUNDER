@@ -215,7 +215,7 @@ void Particle::perturb(const double pf)
     mat4 d(_n, 4);
     //sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
     //sampleACG(d, pow(PERTURB_FACTOR, 2.0 / 3) * _k0, _k1, _n);
-    sampleACG(d, pow(PERTURB_FACTOR, -2.0 / 3) * _k0, _k1, _n);
+    sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
     {
