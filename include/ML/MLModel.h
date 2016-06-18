@@ -73,7 +73,7 @@ class MLModel : public Parallel
         int _k;
 
         /**
-         * size of references bfore padding
+         * size of references before padding
          */
         int _size;
 
@@ -122,14 +122,35 @@ class MLModel : public Parallel
          */
         double _rChange;
 
+        /**
+         * the symmetry information
+         */
         const Symmetry* _sym = NULL;
 
     public:
 
+        /**
+         * default constructor
+         */
         MLModel();
 
+        /**
+         * default deconstructor
+         */
         ~MLModel();
 
+        /**
+         * This function initialises the MLModel object.
+         *
+         * @param number of references
+         * @param size size of references before padding
+         * @param r radius of calculating FSC and SNR before padding
+         * @param pf padding factor
+         * @param pixelSize pixel size of 2D images (in Angstrom)
+         * @param a width of modified Kaiser-Bessel function
+         * @param alpha smoothness parameter of modified Kaiser-Bessel function
+         * @param sym the symmetry information
+         */
         void init(const int k,
                   const int size,
                   const int r,
@@ -139,25 +160,71 @@ class MLModel : public Parallel
                   const double alpha,
                   const Symmetry* sym);
 
+        /**
+         * This function initialises projectors and reconstructors.
+         */
         void initProjReco();
-        /* initialise Projectors and Reconstructors */
 
+        /**
+         * This function returns a reference of the i-th reference.
+         *
+         * @param i index of the reference
+         */
         Volume& ref(const int i);
 
+        /**
+         * This function appends a reference to the vector of references.
+         * 
+         * @param ref the reference to be appended
+         */
         void appendRef(Volume ref);
 
+        /**
+         * This function returns the number of references.
+         */
         int k() const;
 
+        /**
+         * This function returns the size of references before padding.
+         */
         int size() const;
 
+        /**
+         * This function returns the radius of calculating FSC and SNR before
+         * padding.
+         */
         int r() const;
 
+        /**
+         * This function sets the radius of calculating FSC and SNR before
+         * padding.
+         *
+         * @param r the radius of calculating FSC and SNR before padding
+         */
         void setR(const int r);
 
+        /**
+         * This function returns a reference to the projector of the i-th
+         * reference.
+         *
+         * @param i the index of the reference
+         */
         Projector& proj(const int i = 0);
 
+        /**
+         * This function returns a reference to the reconstructor of the i-th
+         * reference.
+         *
+         * @param i the index of the reference
+         */
         Reconstructor& reco(const int i = 0);
 
+        /**
+         * This function performs the following procedure. The MASTER process
+         * fetchs references both from A hemisphere and B hemisphere. It
+         * compares the references from two hemisphere respectively for FSC. It
+         * broadcast the FSC to all process.
+         */
         void BcastFSC();
 
         void lowPassRef(const double thres,
