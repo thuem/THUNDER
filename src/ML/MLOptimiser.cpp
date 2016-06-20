@@ -176,7 +176,7 @@ void MLOptimiser::expectation()
             {
                 _par[l].rot(rot, m);
 
-                if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+                if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                     (phase == 0))
                 {
                     _model.proj(0).project(image, rot);
@@ -336,9 +336,13 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
+        }
         else
+        {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
         expectation();
@@ -401,7 +405,7 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
-        if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+        if ((_searchType == SEARCH_TYPE_GLOBAL) &&
             (1.0 / resP2A(_r - 1, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
         {
             _r = AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
