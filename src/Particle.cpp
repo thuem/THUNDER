@@ -313,6 +313,46 @@ uvec Particle::iSort() const
     // return sort_index(_w, "descend");
 }
 
+double Particle::diffTop()
+{
+    vec4 quat;
+    vec2 tran;
+
+    rank1st(quat, tran);
+
+    double diff = 1 - abs(quat.dot(_topR));
+
+    _topR = quat;
+
+    return diff;
+}
+
+void Particle::rank1st(vec4& quat,
+                       vec2& tran) const
+{
+    uvec rank = iSort();
+
+    quaternion(quat, rank[0]);
+    t(tran, rank[0]);
+
+    /***
+    double diff = 1 - abs(quat.cross(_topR));
+    
+    _topR = quat;
+
+    return diff;
+    ***/
+}
+
+void Particle::rank1st(mat33& rot,
+                       vec2& tran) const
+{
+    vec4 quat;
+    rank1st(quat, tran);
+
+    rotate3D(rot, quat);
+}
+
 void Particle::symmetrise()
 {
     double phi, theta, psi;

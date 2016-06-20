@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <numeric>
+#include <cmath>
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
@@ -95,6 +96,11 @@ class Particle
          * rho of 2D Gaussian distribution of translation
          */
         double _rho = 0;
+
+        /**
+         * quaternion of the most likely rotation
+         */
+        vec4 _topR = vec4({1, 0, 0, 0});
 
     public:
 
@@ -314,6 +320,31 @@ class Particle
          * in a descending order.
          */
         uvec iSort() const;
+
+        /**
+         * This function returns the difference between the most likely
+         * rotations between two iterations. This function also resets the most likely
+         * rotatation.
+         */
+        double diffTop();
+
+        /**
+         * This function reports the 1-st rank coordinates by parameters.
+         * 
+         * @param quat the quaternion of the most likely rotation
+         * @param t the translation of the most likely coordinate
+         */
+        void rank1st(vec4& quat,
+                     vec2& tran) const;
+
+        /**
+         * This function reports the 1-st rank coordinates by parameters.
+         * 
+         * @param rot the rotation matrix of the most likely rotation
+         * @param t the translation of the most likely coordinate
+         */
+        void rank1st(mat33& rot,
+                     vec2& tran) const;
     
     private:
 
