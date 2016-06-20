@@ -89,11 +89,17 @@ typedef struct ML_OPTIMISER_PARA
 
 typedef struct CTF_ATTR
 {
+
     double voltage;
+
     double defocusU;
+
     double defocusV;
+
     double defocusAngle;
+
     double CS;
+
 } CTFAttr;
 
 class MLOptimiser : public Parallel
