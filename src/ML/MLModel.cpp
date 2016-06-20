@@ -424,6 +424,31 @@ void MLModel::allReduceVari(const vector<Particle>& par,
     _tVariS1 /= n;
 }
 
+double MLModel::rChange() const
+{
+    return _rChange;
+}
+
+void MLModel::allReduceRChange(vector<Particle>& par,
+                               const int n)
+{
+    _rChange = 0;
+
+    for (size_t i = 0; i < par.size(); i++)
+        _rChange += par[i].diffTop();
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_rChange,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    _rChange /= n;
+}
+
 void MLModel::clear()
 {
     _ref.clear();

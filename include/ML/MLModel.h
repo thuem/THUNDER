@@ -265,6 +265,16 @@ class MLModel : public Parallel
         void allReduceVari(const vector<Particle>& par,
                            const int n);
 
+
+        double rChange() const;
+
+        /**
+         * @param par a vector of Particle
+         * @param n number of images in the hemisphere
+         */
+        void allReduceRChange(vector<Particle>& par,
+                              const int n);
+
         void clear();
 
     private:

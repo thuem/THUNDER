@@ -367,6 +367,15 @@ void MLOptimiser::run()
                                        << ", " << _model.tVariS1();
         }
 
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
+        NT_MASTER
+        {
+            _model.allReduceRChange(_par, _N);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
+            BLOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
+        }
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
