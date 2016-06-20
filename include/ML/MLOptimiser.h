@@ -42,7 +42,7 @@
 #define ALPHA_LOCAL_SEARCH 0
 #define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
 
-#define MIN_N_PHASE_PER_ITER 2
+#define MIN_N_PHASE_PER_ITER 1
 #define MAX_N_PHASE_PER_ITER 100
 
 using namespace std;
@@ -70,11 +70,11 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
-    int m;
+    int mG;
     // number of samplings in particle filter
-    
-    int mf;
-    // factor of number of samplings in particle filter
+
+    int mL;
+    // number of samplings in particle filter
 
     int maxX;
 
