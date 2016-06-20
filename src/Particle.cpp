@@ -92,7 +92,8 @@ void Particle::vari(double& rVari,
                     double& s0,
                     double& s1) const
 {
-    rVari = sqrt(_k1 / _k0);
+    //rVari = sqrt(_k1 / _k0);
+    rVari = sqrt(_k1) / sqrt(_k0);
     s0 = _s0;
     s1 = _s1;
 }
