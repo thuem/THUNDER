@@ -108,12 +108,12 @@ class MLModel : public Parallel
         double _rVari;
 
         /**
-         * variance 2D Gaussian distribution of the translation in X
+         * variance of 2D Gaussian distribution of the translation in X
          */
         double _tVariS0;
 
         /**
-         * variance 2D Gaussian distribution of the translation in Y
+         * variance of 2D Gaussian distribution of the translation in Y
          */
         double _tVariS1;
 
@@ -227,48 +227,105 @@ class MLModel : public Parallel
          */
         void BcastFSC();
 
+        /**
+         * This function performs a low pass filter on each reference.
+         * 
+         * @param thres threshold of spatial frequency of low pass filter
+         * @param ew edge width of spatial frequency of low pass filter
+         */
         void lowPassRef(const double thres,
                         const double ew);
-        /* perform a low pass filtering on each reference */
 
+        /**
+         * This function calculates SNR from FSC.
+         */
         void refreshSNR();
 
+        /**
+         * This function returns the resolution in pixel of the i-th
+         * reference.
+         *
+         * @param i the index of the reference
+         */
         int resolutionP(const int i) const;
-        /* get the resolution of _ref[i] */
 
+        /**
+         * This function returns the highest resolution in pixel of the
+         * references.
+         */
         int resolutionP() const;
-        /* get the highest resolution among all references */
 
+        /**
+         * This function returns the resolution in Angstrom(-1) of the i-th
+         * reference.
+         *
+         * @param i the index of the reference
+         */
         double resolutionA(const int i) const;
-        /* get the resolution of _ref[i] */
 
+        /**
+         * This function returns the highest resolution in Angstrom(-1) of the
+         * references.
+         */
         double resolutionA() const;
-        /* get the highest resolution among all references */
 
+        /**
+         * This function refreshs the projectors by resetting the projectee, the
+         * frequency threshold and padding factor, respectively.
+         */
         void refreshProj();
 
+        /**
+         * This function refreshs the reconstructors by resetting the size,
+         * padding factor, symmetry information, MKB kernel parameters,
+         * respectively.
+         */
         void refreshReco();
 
+        /** 
+         * This function increases _r according to wether FSC is high than 0.2
+         * at current _r.
+         */
         void updateR();
-        /* increase _r according to wether FSC is high than 0.2 at current _r */
 
+        /**
+         * This function returns the concentration parameter of the rotation.
+         */
         double rVari() const;
 
+        /** 
+         * This function returns the variance of 2D Gaussian distribution of the
+         * translation in X.
+         */
         double tVariS0() const;
         
+        /** 
+         * This function returns the variance of 2D Gaussian distribution of the
+         * translation in Y.
+         */
         double tVariS1() const;
 
         /**
+         * This function calculates the variance paramters and averages those in
+         * the same hemisphere. The variance paramters include the concentration
+         * parameter of the rotation, the variances of 2D Guassian distribution
+         * of the translation in X and Y.
+         *
          * @param par a vector of Particle
          * @param n number of images in the hemisphere
          */
         void allReduceVari(const vector<Particle>& par,
                            const int n);
 
-
+        /**
+         * This function returns the average rotation change between iterations.
+         */
         double rChange() const;
 
         /**
+         * This function calculates the difference of the rotation between
+         * iterations and averages those in the same hemisphere.
+         *
          * @param par a vector of Particle
          * @param n number of images in the hemisphere
          */
@@ -276,16 +333,6 @@ class MLModel : public Parallel
                               const int n);
 
         void clear();
-
-    private:
-
-        /***
-        void addRVari(const double rVari);
-
-        void addTVariS0(const double tVariS0);
-
-        void addTVariS1(const double tVariS1);
-        ***/
 };
 
 #endif // ML_MODEL_H

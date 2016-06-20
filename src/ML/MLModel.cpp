@@ -39,23 +39,35 @@ void MLModel::init(const int k,
 void MLModel::initProjReco()
 {
     ALOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
+    BLOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
+
     FOR_EACH_CLASS
     {
         ALOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << i;
+        BLOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << i;
+
         _proj.push_back(Projector());
 
         ALOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << i;
+        BLOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << i;
+
         _reco.push_back(unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
     ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
+    BLOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
+
     FOR_EACH_CLASS
         _reco[i]->setMPIEnv(_commSize, _commRank, _hemi);
 
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
+    BLOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
+
     refreshProj();
 
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
+    BLOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
+
     refreshReco();
 }
 
@@ -456,20 +468,3 @@ void MLModel::clear()
     _proj.clear();
     _reco.clear();
 }
-
-/***
-void MLModel::addRVari(const double rVari)
-{
-    _rVari += rVari;
-}
-
-void MLModel::addTVariS0(const double tVariS0)
-{
-    _tVariS0 += tVariS0;
-}
-
-void MLModel::addTVariS1(const double tVariS1)
-{
-    _tVariS1 += tVariS1;
-}
-***/
