@@ -444,6 +444,8 @@ double MLModel::rChange() const
 void MLModel::allReduceRChange(vector<Particle>& par,
                                const int n)
 {
+    _rChangePrev = _rChange;
+
     _rChange = 0;
 
     for (size_t i = 0; i < par.size(); i++)
@@ -459,6 +461,68 @@ void MLModel::allReduceRChange(vector<Particle>& par,
                   _hemi);
 
     _rChange /= n;
+}
+
+int MLModel::searchType()
+{
+    // If it is local search, just continue to perform local search.
+    if (_searchType == SEARCH_TYPE_LOCAL) return SEARCH_TYPE_LOCAL;
+
+    // If it is global search now, make sure the change of rotations beteween
+    // iterations still gets room for improvement.
+    
+    IF_MASTER
+    {
+        bool switchFromGlobalToLocalA;
+        bool switchFromGlobalToLocalB;
+
+        MPI_Status status;
+
+        MPI_Recv(&switchFromGlobalToLocalA,
+                 1,
+                 MPI_C_BOOL,
+                 HEMI_A_LEAD,
+                 0,
+                 MPI_COMM_WORLD,
+                 &status);
+
+        MPI_Recv(&switchFromGlobalToLocalB,
+                 1,
+                 MPI_C_BOOL,
+                 HEMI_B_LEAD,
+                 0,
+                 MPI_COMM_WORLD,
+                 &status);
+
+        if (switchFromGlobalToLocalA &&
+            switchFromGlobalToLocalB)
+            _searchType = SEARCH_TYPE_LOCAL;
+    }
+    else
+    {
+        if ((_commRank == HEMI_A_LEAD) ||
+            (_commRank == HEMI_B_LEAD))
+        {
+            bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.95);
+
+            MPI_Ssend(&switchFromGlobalToLocal,
+                      1,
+                      MPI_C_BOOL,
+                      MASTER_ID,
+                      0,
+                      MPI_COMM_WORLD);
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(&_searchType,
+              1,
+              MPI_INT,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    return _searchType;
 }
 
 void MLModel::clear()

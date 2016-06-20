@@ -30,7 +30,12 @@
     for (int i = 0; i < _k; i++)
 
 #define MAX_GAP 20
+
 #define MIN_GAP 10
+
+#define SEARCH_TYPE_GLOBAL 0
+
+#define SEARCH_TYPE_LOCAL 1
 
 #define A_B_AVERAGE_THRES 40 // Angstrom
 
@@ -120,12 +125,23 @@ class MLModel : public Parallel
         /**
          * a parameter indicating the change of rotation between iterations
          */
-        double _rChange;
+        double _rChange = 1;
+
+        /**
+         * a parameter indicating the change of rotation between iterations of
+         * the previous
+         */
+        double _rChangePrev = 1;
 
         /**
          * the symmetry information
          */
         const Symmetry* _sym = NULL;
+
+        /**
+         * the suggest search type
+         */
+        int _searchType = 0;
 
     public:
 
@@ -331,6 +347,11 @@ class MLModel : public Parallel
          */
         void allReduceRChange(vector<Particle>& par,
                               const int n);
+
+        /**
+         * This function returns the suggested search type.
+         */
+        int searchType();
 
         void clear();
 };
