@@ -503,7 +503,7 @@ int MLModel::searchType()
         if ((_commRank == HEMI_A_LEAD) ||
             (_commRank == HEMI_B_LEAD))
         {
-            bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.95);
+            bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.9);
 
             MPI_Ssend(&switchFromGlobalToLocal,
                       1,
