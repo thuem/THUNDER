@@ -38,11 +38,7 @@
 #define FREQ_DOWN_CUTOFF 3
 #define N_ITER_TOTAL_GLOBAL_SEARCH 10
 #define N_ITER_PARTIAL_GLOBAL_SEARCH 0
-#define ALPHA_TOTAL_GLOBAL_SEARCH 1.0
-#define ALPHA_GLOBAL_SEARCH_MAX 0.5
-#define ALPHA_GLOBAL_SEARCH_MIN 0.5
-//#define ALPHA_GLOBAL_SEARCH_MAX 1.0
-//#define ALPHA_GLOBAL_SEARCH_MIN 1.0
+#define ALPHA_GLOBAL_SEARCH 1.0
 #define ALPHA_LOCAL_SEARCH 0
 #define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
 
@@ -119,6 +115,8 @@ class MLOptimiser : public Parallel
 
         double _res;
         /* current resolution in pixel */
+
+        int _searchType = SEARCH_TYPE_GLOBAL;
 
         MLModel _model;
         /* model, including references, projectors and reconstructors */

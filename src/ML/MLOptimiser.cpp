@@ -147,26 +147,16 @@ void MLOptimiser::expectation()
             {
                 if (phase == 0)
                 {
-                    if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
+                    if (_searchType == SEARCH_TYPE_GLOBAL)
                         _par[l].resample(_para.m * _para.mf,
-                                         ALPHA_TOTAL_GLOBAL_SEARCH);
-                    else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
-                                   + N_ITER_PARTIAL_GLOBAL_SEARCH)
-                        _par[l].resample(_para.m,
-                                         (ALPHA_GLOBAL_SEARCH_MAX
-                                        - ALPHA_GLOBAL_SEARCH_MIN)
-                                       * (N_ITER_TOTAL_GLOBAL_SEARCH 
-                                        + N_ITER_PARTIAL_GLOBAL_SEARCH
-                                        - _iter - 1)
-                                       / (N_ITER_PARTIAL_GLOBAL_SEARCH - 1)
-                                       + ALPHA_GLOBAL_SEARCH_MIN);
+                                         ALPHA_GLOBAL_SEARCH);
                     else
                         _par[l].resample(_para.m,
                                          ALPHA_LOCAL_SEARCH);
                 }
             }
 
-            if ((_iter >= N_ITER_TOTAL_GLOBAL_SEARCH) &&
+            if ((_searchType == SEARCH_TYPE_LOCAL) &&
                 (phase == 0))
             {
                 // perturb with 5x confidence area
@@ -345,6 +335,11 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
+        else
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
         expectation();
 
@@ -375,6 +370,9 @@ void MLOptimiser::run()
             ALOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
             BLOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
         }
+
+        MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
+        _searchType = _model.searchType();
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
