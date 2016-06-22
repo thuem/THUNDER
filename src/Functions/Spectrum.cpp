@@ -115,6 +115,8 @@ void powerSpectrum(vec& dst,
         dst(i) = shellAverage(i, src, [](const Complex x){ return ABS2(x); });
     ***/
 
+    dst.setZero();
+
     uvec counter = uvec::Zero(dst.size());
 
     #pragma omp parallel for schedule(dynamic)
