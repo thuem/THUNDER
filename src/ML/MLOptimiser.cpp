@@ -856,7 +856,8 @@ void MLOptimiser::reconstructRef()
         reduceCTF(img,
                   _img[l],
                   _ctf[l],
-                  _sig.row(l).transpose(),
+                  _sig.row(_groupID[l] - 1).head(maxR()).transpose(),
+                  //_sig.row(l).transpose(),
                   _model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
                   _para.pf,
                   maxR());

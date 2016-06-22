@@ -301,7 +301,7 @@ void MLModel::refreshTau()
     {
         vec ps(maxR() * _pf);
         powerSpectrum(ps, _ref[i], maxR() * _pf);
-        _tau.col(i) = ps;
+        _tau.col(i) = ps / 2;
     }
 }
 

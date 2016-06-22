@@ -103,6 +103,10 @@ void reduceCTF(Image& dst,
         {
             double v = REAL(ctf.getFT(i, j));
 
+            cout << "sigma = " << sigma(u) << endl;
+            cout << "tau = " << tau(pf * u) << endl;
+            cout << "sigma / tau" << sigma(u) / tau(pf * u) << endl;
+
             dst.setFT((v * src.getFT(i, j) / sigma(u))
                     / (gsl_pow_2(v) / sigma(u) + 1.0 / tau(pf * u)),
                       i,
