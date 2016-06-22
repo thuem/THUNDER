@@ -100,6 +100,7 @@ void powerSpectrum(vec& dst,
                    const Image& src,
                    const int r)
 {
+    #pragma omp parallel for schedule(dynamic)
     for (int i = 0; i < r; i++)
         dst(i) = ringAverage(i, src, [](const Complex x){ return ABS2(x); });
 }
@@ -108,8 +109,28 @@ void powerSpectrum(vec& dst,
                    const Volume& src,
                    const int r)
 {
+    /***
+    #pragma parallel for schedule(dynamic)
     for (int i = 0; i < r; i++)
         dst(i) = shellAverage(i, src, [](const Complex x){ return ABS2(x); });
+    ***/
+
+    uvec counter = uvec::Zero(dst.size());
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(src)
+    {
+        int u = AROUND(NORM_3(i, j, k));
+        if (u < r)
+        {
+            dst(u) += ABS2(src.getFT(i, j, k));
+            counter(u) += 1;
+        }
+    }
+
+    #pragma omp parallel for
+    for (int i = 0; i < r; i++)
+        dst(i) /= counter(i);
 }
 
 void FRC(vec& dst,

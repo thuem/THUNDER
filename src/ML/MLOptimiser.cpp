@@ -675,14 +675,12 @@ void MLOptimiser::initSigma()
 
     vec avgPs = vec::Zero(maxR());
 
-    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         vec ps(maxR());
 
         powerSpectrum(ps, _img[l], maxR());
 
-        #pragma omp critical
         avgPs += ps;
     }
 
@@ -776,9 +774,14 @@ void MLOptimiser::allReduceSigma()
 
             // calculate differences
             _model.proj(0).project(img, coord);
+
+            #pragma omp parallel for
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
+
+            #pragma omp parallel for
             NEG_FT(img);
+            #pragma omp parallel for
             ADD_FT(img, _img[l]);
 
             powerSpectrum(sig, img, maxR());
