@@ -378,6 +378,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
         _searchType = _model.searchType();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Tau";
+        NT_MASTER
+        {
+            _model.refreshTau();
+        }
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
@@ -829,8 +835,15 @@ void MLOptimiser::reconstructRef()
     FOR_EACH_2D_IMAGE
     {
         // reduce the CTF effect
-        reduceCTF(img, _img[l], _ctf[l]);
+        // reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
+        reduceCTF(img,
+                  _img[l],
+                  _ctf[l],
+                  _sig.row(l).transpose(),
+                  _model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
+                  2,
+                  _r);
 
         uvec iSort = _par[l].iSort();
 
