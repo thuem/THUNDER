@@ -821,6 +821,7 @@ void MLOptimiser::reconstructRef()
     IF_MASTER return;
 
     Image img(size(), size(), FT_SPACE);
+    SET_0_FT(img);
 
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
@@ -847,7 +848,7 @@ void MLOptimiser::reconstructRef()
             w = _par[l].w(iSort[m]);
 
             // TODO: _model.reco(0).insert(_img[l], coord, w);
-            _model.reco(0).insert(_img[l], rot, t, 1);
+            _model.reco(0).insert(img, rot, t, 1);
         }
     }
 

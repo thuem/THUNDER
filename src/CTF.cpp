@@ -18,6 +18,8 @@ void CTF(Image& dst,
 {
     double lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
+    //cout << "lambda = " << lambda << endl;
+
     double K1 = M_PI * lambda;
     double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);
 
@@ -35,9 +37,11 @@ void CTF(Image& dst,
         constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
         constexpr double w2 = CTF_A;
 
+        /***
         dst.setFT(COMPLEX(w1 * sin(ki) + w2 * cos(ki), 0),
                   i,
                   j);
+                  **/
         /***
         dst.setFT(COMPLEX(cos(K1 * defocus * gsl_pow_2(u)
                             + K2 * gsl_pow_4(u)),
@@ -45,7 +49,7 @@ void CTF(Image& dst,
                   i,
                   j);
                   ***/
-        //dst.setFT(COMPLEX(1, 0), i, j); // for debug
+        dst.setFT(COMPLEX(1, 0), i, j); // for debug
     }
 }
 
