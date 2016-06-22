@@ -60,7 +60,8 @@ void reduceCTF(Image& dst,
         if (abs(v) > CTF_TAU)
             dst[i] = src.iGetFT(i) / v;
         else
-            dst[i] = COMPLEX(0, 0);
+            dst[i] = src.iGetFT(i);
+            //dst[i] = COMPLEX(0, 0);
     }
 }
 
@@ -79,6 +80,7 @@ void reduceCTF(Image& dst,
                           i,
                           j);
             else
-                dst.setFT(COMPLEX(0, 0), i, j);
+                dst.setFT(src.getFT(i, j), i, j);
+                //dst.setFT(COMPLEX(0, 0), i, j);
         }
 }
