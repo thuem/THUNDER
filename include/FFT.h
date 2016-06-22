@@ -12,7 +12,10 @@
 #define FFT_H
 
 #include <fftw3.h>
+
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 
 #include "Complex.h"
 #include "Error.h"

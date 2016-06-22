@@ -81,8 +81,6 @@ int main(int argc, char* argv[])
     Projector projector;
     projector.setPf(PF);
 
-    char name[256];
-
     Image image(N, N, RL_SPACE);
 
     mat33 rot;
