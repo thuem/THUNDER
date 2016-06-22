@@ -68,7 +68,7 @@ void reduceCTF(Image& dst,
 void reduceCTF(Image& dst,
                const Image& src,
                const Image& ctf,
-               const double r)
+               const int r)
 {
     IMAGE_FOR_PIXEL_R_FT(r + 1)
         if (QUAD(i, j) < r * r)
@@ -83,4 +83,28 @@ void reduceCTF(Image& dst,
                 dst.setFT(src.getFT(i, j), i, j);
                 //dst.setFT(COMPLEX(0, 0), i, j);
         }
+}
+
+void reduceCTF(Image& dst,
+               const Image& src,
+               const Image& ctf,
+               const vec& sigma,
+               const vec& tau,
+               const int pf,
+               const int r)
+{
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    {
+        int u = NORM(i, j);
+
+        if (u < r)
+        {
+            double v = REAL(ctf.getFT(i, j));
+
+            dst.setFT((v * src.getFT(i, j) / sigma(u))
+                    / (gsl_pow_2(v) / sigma(u) + 1.0 / tau(pf * u)),
+                      i,
+                      j);
+        }
+    }
 }
