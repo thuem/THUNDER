@@ -34,7 +34,6 @@ void resP2A(vec& res,
             const double pixelSize)
 {
     res /= imageSize * pixelSize;
-    // res.transform([&](double val){ return val / imageSize / pixelSize; });
 }
 
 void resA2P(vec& res,
@@ -42,7 +41,6 @@ void resA2P(vec& res,
             const double pixelSize)
 {
     res *= imageSize * pixelSize;
-    // res.transform([&](double val){ return val * imageSize * pixelSize; });
 }
 
 double ringAverage(const int resP,
@@ -100,9 +98,30 @@ void powerSpectrum(vec& dst,
                    const Image& src,
                    const int r)
 {
+    /***
     #pragma omp parallel for schedule(dynamic)
     for (int i = 0; i < r; i++)
         dst(i) = ringAverage(i, src, [](const Complex x){ return ABS2(x); });
+    ***/
+
+    dst.setZero();
+
+    uvec counter = uvec::Zero(dst.size());
+
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+    {
+        int u = AROUND(NORM(i, j));
+        if (u < r)
+        {
+            dst(u) += ABS2(src.getFT(i, j));
+            counter(u) += 1;
+        }
+    }
+
+    #pragma omp parallel for
+    for (int i = 0; i < r; i++)
+        dst(i) /= counter(i);
 }
 
 void powerSpectrum(vec& dst,
@@ -142,11 +161,6 @@ void FRC(vec& dst,
     vec vecS = vec::Zero(dst.size());
     vec vecA = vec::Zero(dst.size());
     vec vecB = vec::Zero(dst.size());
-    /***
-    vec vecS = zeros<vec>(size(dst));
-    vec vecA = zeros<vec>(size(dst));
-    vec vecB = zeros<vec>(size(dst));
-    ***/
 
     IMAGE_FOR_EACH_PIXEL_FT(A)
     {
