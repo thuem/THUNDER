@@ -500,6 +500,8 @@ void MLOptimiser::bcastGroupInfo()
     MLOG(INFO, "LOGGER_INIT") << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
+    MLOG(INFO, "LOGGER_INIT") << "Number of Group: " << _nGroup;
+
     ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.resize(_nGroup, maxR() + 1);
 }
