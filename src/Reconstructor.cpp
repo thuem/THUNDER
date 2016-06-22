@@ -98,7 +98,7 @@ void Reconstructor::insert(const Image& src,
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        if (QUAD(i, j) < _maxRadius * _maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
             vec3 newCor = {(double)i, (double)j, 0};
             vec3 oldCor = rot * newCor *_pf;
