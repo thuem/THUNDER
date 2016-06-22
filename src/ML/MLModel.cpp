@@ -288,6 +288,23 @@ void MLModel::refreshSNR()
         _SNR.col(i) = _FSC.col(i).array() / (1 - _FSC.col(i).array());
 }
 
+void MLModel::refreshTau()
+{
+    _tau.resize(_r * _pf, _k);
+
+    FOR_EACH_CLASS
+    {
+        vec ps(_r * _pf);
+        powerSpectrum(ps, _ref[i], _r * _pf);
+        _tau.col(i) = ps;
+    }
+}
+
+vec MLModel::tau(const int i) const
+{
+    return _tau.col(i);
+}
+
 int MLModel::resolutionP(const int i) const
 {
     int result;

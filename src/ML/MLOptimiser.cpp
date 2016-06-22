@@ -603,6 +603,7 @@ void MLOptimiser::initCTF()
     {
         // get attributes of CTF from database
         stmt.bind_int(1, _ID[l]);
+
         if (stmt.step())
         {
             ctfAttr.voltage = stmt.get_double(0);
@@ -612,7 +613,12 @@ void MLOptimiser::initCTF()
             ctfAttr.CS = stmt.get_double(4);
         }
         else 
+        {
             CLOG(FATAL, "LOGGER_SYS") << "No Data";
+
+            __builtin_unreachable();
+        }
+
         stmt.reset();
 
         // append a CTF

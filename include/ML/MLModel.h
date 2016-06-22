@@ -53,14 +53,23 @@ class MLModel : public Parallel
         /**
          * Fourier Shell Coefficient
          * each column stands for a FSC of a certain reference
+         * (_r * _pf) x _k
          */
         mat _FSC;
 
         /**
          * Signal Noise Ratio
          * each column stands for a SNR of a certain reference
+         * (_r * _pf) x _k
          */
         mat _SNR;
+
+        /**
+         * tau^2
+         * each column stands for the power spectrum of a certain reference
+         * (_r * _pf) x _k
+         */
+        mat _tau;
 
         /**
          * projectors
@@ -256,6 +265,19 @@ class MLModel : public Parallel
          * This function calculates SNR from FSC.
          */
         void refreshSNR();
+
+        /**
+         * This function calculates tau^2 (power spectrum) of each references.
+         */
+        void refreshTau();
+
+        /**
+         * This function returns the tau^2 (power spectrum) of the i-th
+         * reference.
+         *
+         * @param i the index of the refefence
+         */
+        vec tau(const int i) const;
 
         /**
          * This function returns the resolution in pixel of the i-th
