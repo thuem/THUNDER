@@ -739,15 +739,21 @@ void MLOptimiser::allReduceSigma()
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
-    BLOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
 
     // set re-calculating part to zero
+    _sig.setZero();
+    /***
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
+    ***/
 
-    ALOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
-    BLOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
+
+    // project references with all frequency
+    _model.setProjMaxRadius(maxR());
 
     // loop over 2D images
     FOR_EACH_2D_IMAGE
@@ -758,7 +764,7 @@ void MLOptimiser::allReduceSigma()
         Coordinate5D coord;
         double w;
         Image img(size(), size(), FT_SPACE);
-        vec sig(_r);
+        vec sig(maxR());
 
         // loop over sampling points with top K weights
         for (int m = 0; m < TOP_K; m++)
@@ -772,15 +778,14 @@ void MLOptimiser::allReduceSigma()
             _model.proj(0).project(img, coord);
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
-            // MUL_FT(img, _ctf[l]);
             NEG_FT(img);
             ADD_FT(img, _img[l]);
 
-            powerSpectrum(sig, img, _r);
+            powerSpectrum(sig, img, maxR());
 
             // sum up the results from top K sampling points
             // TODO Change it to w
-            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.transpose() / 2;
+            _sig.row(_groupID[l] - 1).head(maxR()) += (1.0 / TOP_K) * sig.transpose() / 2;
         }
 
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
@@ -791,6 +796,13 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _sig.data(),
+                  (maxR() + 1) * _nGroup,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
                   _r * _nGroup,
@@ -805,11 +817,12 @@ void MLOptimiser::allReduceSigma()
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
+    ***/
 
     MPI_Barrier(_hemi);
 
     for (int i = 0; i < _sig.rows(); i++)
-        _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
+        _sig.row(i).head(maxR()) /= _sig(i, _sig.cols() - 1);
 
     /***
     ALOG(INFO) << "Saving Sigma";
@@ -843,7 +856,7 @@ void MLOptimiser::reconstructRef()
                   _sig.row(l).transpose(),
                   _model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
                   _para.pf,
-                  _r);
+                  maxR());
 
         uvec iSort = _par[l].iSort();
 

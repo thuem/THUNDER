@@ -100,6 +100,11 @@ int MLModel::size() const
     return _size;
 }
 
+int MLModel::maxR() const
+{
+    return _size / 2 - _a;
+}
+
 int MLModel::r() const
 {
     return _r;
@@ -290,12 +295,12 @@ void MLModel::refreshSNR()
 
 void MLModel::refreshTau()
 {
-    _tau.resize(_r * _pf, _k);
+    _tau.resize(maxR() * _pf, _k);
 
     FOR_EACH_CLASS
     {
-        vec ps(_r * _pf);
-        powerSpectrum(ps, _ref[i], _r * _pf);
+        vec ps(maxR() * _pf);
+        powerSpectrum(ps, _ref[i], maxR() * _pf);
         _tau.col(i) = ps;
     }
 }
@@ -338,6 +343,12 @@ double MLModel::resolutionA() const
     return resP2A(resolutionP(), _size, _pixelSize);
 }
 
+void MLModel::setProjMaxRadius(const int maxRadius)
+{
+    FOR_EACH_CLASS
+        _proj[i].setMaxRadius(maxRadius);
+}
+
 void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
@@ -357,25 +368,26 @@ void MLModel::refreshReco()
                        _sym,
                        _a,
                        _alpha);
-        _reco[i]->setMaxRadius(_r);
+        //_reco[i]->setMaxRadius(_r);
+        _reco[i]->setMaxRadius(maxR());
     }
 }
 
 void MLModel::updateR()
 {
-    int resUpperBoundary = _size / 2 - _a;
+    //int resUpperBoundary = _size / 2 - _a;
 
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
         {
             _r += MIN(MAX_GAP, AROUND(double(_size) / 16));
-            _r = MIN(_r, resUpperBoundary);
+            _r = MIN(_r, maxR());
             return;
         }
 
     _r = resolutionP();
     _r += MIN_GAP;
-    _r = MIN(_r, resUpperBoundary);
+    _r = MIN(_r, maxR());
 }
 
 double MLModel::rVari() const

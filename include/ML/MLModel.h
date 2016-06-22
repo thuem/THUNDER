@@ -215,6 +215,11 @@ class MLModel : public Parallel
         int size() const;
 
         /**
+         * This function returns the maximum possible value of _r.
+         */
+        int maxR() const;
+
+        /**
          * This function returns the radius of calculating FSC and SNR before
          * padding.
          */
@@ -306,6 +311,14 @@ class MLModel : public Parallel
          * references.
          */
         double resolutionA() const;
+
+        /**
+         * This function sets the max radius of all projector to a certain
+         * value.
+         *
+         * @param maxRadius max radius
+         */
+        void setProjMaxRadius(const int maxRadius);
 
         /**
          * This function refreshs the projectors by resetting the projectee, the
