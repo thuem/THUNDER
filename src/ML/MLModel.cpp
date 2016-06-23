@@ -300,7 +300,7 @@ void MLModel::refreshTau()
 
     FOR_EACH_CLASS
     {
-        vec ps(_size * _pf / 2 - 1, _k);
+        vec ps(_size * _pf / 2 - 1);
         powerSpectrum(ps, _ref[i], _size * _pf / 2 - 1);
         _tau.col(i) = ps / 2;
     }
