@@ -82,7 +82,8 @@ void reduceCTF(Image& dst,
         {
             double v = REAL(ctf.getFT(i, j));
 
-            dst[i] = v * src.iGetFT(i) / (gsl_pow_2(v) + CTF_TAU);
+            dst.setFT(v * src.getFT(i, j) / (gsl_pow_2(v) + CTF_TAU), i, j);
+
             /***
             if (abs(v) > CTF_TAU)
                 dst.setFT(src.getFT(i, j) / v,
@@ -117,7 +118,7 @@ void reduceCTF(Image& dst,
             ***/
 
             dst.setFT(v * src.getFT(i, j)
-                    / (gsl_pow_2(v) + MIN(0.1, sigma(u) / tau(pf * u))),
+                    / (gsl_pow_2(v) + sigma(u) / tau(pf * u)),
                       i,
                       j);
 
