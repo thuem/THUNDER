@@ -98,7 +98,7 @@ void reduceCTF(Image& dst,
 {
     IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
-        int u = NORM(i, j);
+        int u = AROUND(NORM(i, j));
 
         if (u < r)
         {
