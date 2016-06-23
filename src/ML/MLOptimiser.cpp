@@ -850,11 +850,27 @@ void MLOptimiser::reconstructRef()
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
+
     FOR_EACH_2D_IMAGE
     {
         // reduce the CTF effect
         // reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
+
+        if (_ID[l] == 1) // debug
+        {
+            vec sig = _sig.row(_groupID[l] - 1).head(maxR()).transpose();
+            vec tau = _model.tau(0) / gsl_pow_3(_para.pf) / _para.size;
+
+            for (int i = 0; i < maxR(); i++)
+                MLOG(INFO, "LOGGER_SYS") << "i = "
+                                         << i
+                                         << ", sig = "
+                                         << sig[i]
+                                         << ", tau = "
+                                         << tau[_para.pf * i];
+        }
+
         reduceCTF(img,
                   _img[l],
                   _ctf[l],
