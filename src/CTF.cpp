@@ -111,7 +111,7 @@ void reduceCTF(Image& dst,
             ***/
 
             dst.setFT(v * src.getFT(i, j)
-                    / (gsl_pow_2(v) + sigma(u) / tau(pf * u)),
+                    / (gsl_pow_2(v) + MIN(0.1, sigma(u) / tau(pf * u))),
                       i,
                       j);
 
