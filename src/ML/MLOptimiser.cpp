@@ -863,7 +863,7 @@ void MLOptimiser::reconstructRef()
             vec tau = _model.tau(0) / gsl_pow_3(_para.pf) / _para.size;
 
             for (int i = 0; i < maxR(); i++)
-                MLOG(INFO, "LOGGER_SYS") << "i = "
+                CLOG(INFO, "LOGGER_SYS") << "i = "
                                          << i
                                          << ", sig = "
                                          << sig[i]
