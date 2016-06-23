@@ -110,17 +110,17 @@ void reduceCTF(Image& dst,
             CLOG(INFO, "LOGGER_SYS") << "sigma / tau" << sigma(u) / tau(pf * u) << endl;
             ***/
 
-            /***
             dst.setFT(v * src.getFT(i, j)
                     / (gsl_pow_2(v) + sigma(u) / tau(pf * u)),
                       i,
                       j);
-            ***/
 
+            /***
             dst.setFT(v * src.getFT(i, j)
                     / (gsl_pow_2(v) + 0.1),
                       i,
                       j); // debug
+            ***/
         }
     }
 }
