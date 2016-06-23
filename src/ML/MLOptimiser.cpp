@@ -874,10 +874,10 @@ void MLOptimiser::reconstructRef()
         reduceCTF(img,
                   _img[l],
                   _ctf[l],
-                  _sig.row(_groupID[l] - 1).head(maxR()).transpose(),
+                  _sig.row(_groupID[l] - 1).head(maxR()).transpose(), // noise
                   //_sig.row(l).transpose(),
                   //_model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
-                  _model.tau(0) / gsl_pow_3(_para.pf) /_para.size,
+                  _model.tau(0) / gsl_pow_3(_para.pf) /_para.size, // signal
                   _para.pf,
                   maxR());
 
