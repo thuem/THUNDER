@@ -60,11 +60,15 @@ void reduceCTF(Image& dst,
     {
         //dst[i] = src.iGetFT(i) / (CTF_TAU + REAL(ctf.iGetFT(i)));
         double v = REAL(ctf.iGetFT(i));
+
+        dst[i] = v * src.iGetFT(i) / (gsl_pow_2(v) + CTF_TAU);
+
+        /***
         if (abs(v) > CTF_TAU)
             dst[i] = src.iGetFT(i) / v;
         else
             dst[i] = src.iGetFT(i);
-            //dst[i] = COMPLEX(0, 0);
+        ***/
     }
 }
 
@@ -78,13 +82,15 @@ void reduceCTF(Image& dst,
         {
             double v = REAL(ctf.getFT(i, j));
 
+            dst[i] = v * src.iGetFT(i) / (gsl_pow_2(v) + CTF_TAU);
+            /***
             if (abs(v) > CTF_TAU)
                 dst.setFT(src.getFT(i, j) / v,
                           i,
                           j);
             else
                 dst.setFT(src.getFT(i, j), i, j);
-                //dst.setFT(COMPLEX(0, 0), i, j);
+            ***/
         }
 }
 

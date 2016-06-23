@@ -856,7 +856,9 @@ void MLOptimiser::reconstructRef()
         // reduce the CTF effect
         // reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
+        reduceCTF(img, _img[l], _ctf[l], maxR());
 
+        /***
         if (_ID[l] == 1) // debug
         {
             vec sig = _sig.row(_groupID[l] - 1).head(maxR()).transpose();
@@ -870,7 +872,9 @@ void MLOptimiser::reconstructRef()
                                          << ", tau = "
                                          << tau[_para.pf * i];
         }
+        ***/
 
+        /***
         reduceCTF(img,
                   _img[l],
                   _ctf[l],
@@ -880,6 +884,7 @@ void MLOptimiser::reconstructRef()
                   _model.tau(0) / gsl_pow_3(_para.pf) /_para.size, // signal
                   _para.pf,
                   maxR());
+        ***/
 
         uvec iSort = _par[l].iSort();
 
