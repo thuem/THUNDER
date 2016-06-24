@@ -176,6 +176,7 @@ void MLOptimiser::expectation()
             {
                 _par[l].rot(rot, m);
 
+                /***
                 if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                     (phase == 0))
                 {
@@ -199,9 +200,10 @@ void MLOptimiser::expectation()
                 }
                 else
                 {
+                ***/
                     _par[l].t(t, m);
                     _model.proj(0).project(image, rot, t);
-                }
+                //}
 
                 logW[m] = logDataVSPrior(_img[l], // data
                                          image, // prior
