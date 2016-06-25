@@ -271,7 +271,7 @@ void MLOptimiser::expectation()
                                                                                AROUND(10 * _par[l].neff())));
                                                                                ***/
             
-            if (_phase == 0)
+            if (phase == 0)
             {
                 _par[l].resample(GSL_MIN_INT(_par[l].n(),
                                              AROUND(100 * _par[l].neff())));
