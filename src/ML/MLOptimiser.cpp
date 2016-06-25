@@ -285,6 +285,8 @@ void MLOptimiser::expectation()
             ***/
 
             //_par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())), 0);
+            
+            _par[l].resample();
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
