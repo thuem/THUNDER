@@ -951,18 +951,21 @@ void MLOptimiser::saveBestProjections()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        SET_0_FT(result);
+        if (_ID[l] < 20)
+        {
+            SET_0_FT(result);
 
-        uvec iSort = _par[l].iSort();
-        _par[l].coord(coord, iSort[0]);
+            uvec iSort = _par[l].iSort();
+            _par[l].coord(coord, iSort[0]);
 
-        _model.proj(0).project(result, coord);
+            _model.proj(0).project(result, coord);
 
-        sprintf(filename, "Result_%04d.bmp", _ID[l]);
+            sprintf(filename, "Result_%04d.bmp", _ID[l]);
 
-        fft.bw(result);
-        result.saveRLToBMP(filename);
-        fft.fw(result);
+            fft.bw(result);
+            result.saveRLToBMP(filename);
+            fft.fw(result);
+        }
     }
 }
 
@@ -973,11 +976,14 @@ void MLOptimiser::saveImages()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        sprintf(filename, "Image_%04d.bmp", _ID[l]);
+        if (_ID[l] < 20)
+        {
+            sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
-        fft.bw(_img[l]);
-        _img[l].saveRLToBMP(filename);
-        fft.fw(_img[l]);
+            fft.bw(_img[l]);
+            _img[l].saveRLToBMP(filename);
+            fft.fw(_img[l]);
+        }
     }
 }
 
