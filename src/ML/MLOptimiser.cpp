@@ -265,7 +265,13 @@ void MLOptimiser::expectation()
             _par[l].resample(GSL_MAX_INT(30,
                                          GSL_MIN_INT(_par[l].n(),
                                                      AROUND(10 * _par[l].neff()))));
-            //CLOG(INFO, "LOGGER_SYS") << "Neff = " << AROUND(_par[l].neff());
+
+            CLOG(INFO, "LOGGER_SYS") << "Neff = " << _par[l].neff();
+            CLOG(INFO, "LOGGER_SYS") << "AROUND(10 * Neff) = " << AROUND(10 * _par[l].neff());
+            CLOG(INFO, "LOGGER_SYS") << "Final =  " << GSL_MAX_INT(30,
+                                                                   GSL_MIN_INT(_par[l].n(),
+                                                                               AROUND(10 * _par[l].neff())));
+
             //_par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())), 0);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
