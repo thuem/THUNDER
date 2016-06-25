@@ -135,6 +135,9 @@ void MLOptimiser::expectation()
     {
         Image image(size(), size(), FT_SPACE);
 
+        // number of sampling for the next phase searching
+        //int nSamplingNextPhase = 0;
+
         int nPhaseWithNoVariDecrease = 0;
 
         double tVariS0 = _para.maxX;
@@ -254,9 +257,12 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 
+            // compute the number of sampling for the next phase of searching
+            //nSamplingNextPhase = GSL_MIN_INT(_par[l].n(), AROUND(2 * _par[l].neff()));
+
             // Only after resampling, the current variance can be calculated
             // correctly.
-            _par[l].resample();
+            _par[l].resample(GSL_MIN_INT(_par[l].n(), AROUND(2 * _par[l].neff())));
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
