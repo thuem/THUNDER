@@ -19,7 +19,7 @@
 #define PF 2
 
 #define N 380
-#define M 5000
+#define M 40000
 #define MAX_X 2
 #define MAX_Y 2
 
