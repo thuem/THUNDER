@@ -270,8 +270,16 @@ void MLOptimiser::expectation()
                                                                    GSL_MIN_INT(_par[l].n(),
                                                                                AROUND(10 * _par[l].neff())));
                                                                                ***/
-            _par[l].resample(GSL_MIN_INT(_par[l].n(),
-                                         AROUND(30 * _par[l].neff())));
+            
+            if (_phase == 0)
+            {
+                _par[l].resample(GSL_MIN_INT(_par[l].n(),
+                                             AROUND(100 * _par[l].neff())));
+            }
+            else
+            { 
+                _par[l].resample();
+            }
 
             //_par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())), 0);
 
