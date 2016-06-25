@@ -263,7 +263,8 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
             //_par[l].resample(GSL_MIN_INT(_par[l].n(), AROUND(2 * _par[l].neff())));
-            _par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())));
+            CLOG(INFO, "LOGGER_SYS") << "Neff = " << AROUND(_par[l].neff());
+            _par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())), 0);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
