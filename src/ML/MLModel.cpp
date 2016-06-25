@@ -372,7 +372,8 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
         //_reco[i]->setMaxRadius(_r);
-        _reco[i]->setMaxRadius(MIN(maxR(), _r + MAX_GAP));
+        //_reco[i]->setMaxRadius(MIN(maxR(), _r + MAX_GAP));
+        _reco[i]->setMaxRadius(maxR());
     }
 }
 
@@ -535,7 +536,7 @@ int MLModel::searchType()
         if ((_commRank == HEMI_A_LEAD) ||
             (_commRank == HEMI_B_LEAD))
         {
-            bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.9);
+            bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.95);
 
             MPI_Ssend(&switchFromGlobalToLocal,
                       1,
