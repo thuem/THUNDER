@@ -611,15 +611,15 @@ void MLOptimiser::initImg()
         }
         else
         {
-            int nSlc = atoi(imgName.substr(0, imgName.find('@')).c_str());
+            int nSlc = atoi(imgName.substr(0, imgName.find('@')).c_str()) - 1;
             string filename = imgName.substr(imgName.find('@') + 1);
 
-            CLOG(INFO, "LOGGER_SYS") << "nSlc = " << nSlc - 1;
-            CLOG(INFO, "LOGGER_SYS") << "filename = " << filename;
+            // CLOG(INFO, "LOGGER_SYS") << "nSlc = " << nSlc;
+            // CLOG(INFO, "LOGGER_SYS") << "filename = " << filename;
 
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
-            imf.readImage(currentImg, nSlc - 1);
+            imf.readImage(currentImg, nSlc);
         }
 
         if ((currentImg.nColRL() != _para.size) ||
