@@ -598,7 +598,7 @@ void MLOptimiser::initImg()
 
         stmt.reset();
 
-        CLOG(INFO, "LOGGER_SYS") << imgName;
+        // CLOG(INFO, "LOGGER_SYS") << imgName;
 
 	    Image& currentImg = _img[l];
 
