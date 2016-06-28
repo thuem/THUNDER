@@ -103,26 +103,26 @@ void Database::saveDatabase(const int rank)
 
     if (_mode == PARTICLE_MODE)
         sqls = { "insert into dst.groups select distinct groups.* from \
-               groups, particles where \
-               (particles.groupID = groups.ID) and \
-               (particles.ID >= ?1) and (particles.ID <= ?2);",
+                  groups, particles where \
+                  (particles.groupID = groups.ID) and \
+                  (particles.ID >= ?1) and (particles.ID <= ?2);",
                  "insert into dst.micrographs \
-               select distinct micrographs.* from \
-               micrographs, particles where \
-               particles.micrographID = micrographs.ID and \
-               (particles.ID >= ?1) and (particles.ID <= ?2);",
+                  select distinct micrographs.* from \
+                  micrographs, particles where \
+                  particles.micrographID = micrographs.ID and \
+                  (particles.ID >= ?1) and (particles.ID <= ?2);",
                  "insert into dst.particles select * from particles \
-               where (ID >= ?1) and (ID <= ?2);" };
+                  where (ID >= ?1) and (ID <= ?2);" };
     else if (_mode == MICROGRAPH_MODE)
-        sqls = {
-            "insert into dst.micrographs select * from micrographs \
-               where (ID >= ?1) and (ID <= ?2);",
-            "insert into dst.particles select particles.* from \
-               micrographs, particles where \
-               particles.micrographID = micrographs.ID and \
-               (micrographs.ID >= ?1) and (micrographs.ID <= ?2);"
-        };
+        sqls = { "insert into dst.micrographs select * from micrographs \
+                  where (ID >= ?1) and (ID <= ?2);",
+                 "insert into dst.particles select particles.* from \
+                  micrographs, particles where \
+                  particles.micrographID = micrographs.ID and \
+                  (micrographs.ID >= ?1) and (micrographs.ID <= ?2);" };
+
     _db.exec(("attach database '" + string(database) + "' as dst;").c_str());
+
     try
     {
         _db.beginTransaction();
@@ -321,11 +321,17 @@ void Database::gather()
 void Database::scatter()
 {
     if (_commRank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << nParticle();
+        CLOG(INFO, "LOGGER_SYS") << "Total Number of Micrographs: " << nMicrograph();
+        CLOG(INFO, "LOGGER_SYS") << "Total Number of Groups: " << nGroup();
+
         for (int i = 1; i < _commSize; i++)
         {
             saveDatabase(i);
             masterSend(i);
         }
+    }
     else
         slaveReceive();
 }
