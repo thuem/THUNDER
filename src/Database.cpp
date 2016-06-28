@@ -20,9 +20,7 @@ Database::Database(const char database[])
     openDatabase(database);
 }
 
-Database::~Database()
-{
-}
+Database::~Database() {}
 
 void Database::bcastID()
 {
@@ -99,47 +97,56 @@ void Database::saveDatabase(const int rank)
     int start, end;
     split(start, end, rank);
 
-    std::vector<const char*> sqls;
+    // CLOG(INFO, "LOGGER_SYS") << "Start ID: " << start;
+    // CLOG(INFO, "LOGGER_SYS") << "End ID: " << end;
+
+    vector<const char*> sqls;
 
     if (_mode == PARTICLE_MODE)
         sqls = { "insert into dst.groups select distinct groups.* from \
-               groups, particles where \
-               (particles.groupID = groups.ID) and \
-               (particles.ID >= ?1) and (particles.ID <= ?2);",
+                  groups, particles where \
+                  (particles.groupID = groups.ID) and \
+                  (particles.ID >= ?1) and (particles.ID <= ?2);",
                  "insert into dst.micrographs \
-               select distinct micrographs.* from \
-               micrographs, particles where \
-               particles.micrographID = micrographs.ID and \
-               (particles.ID >= ?1) and (particles.ID <= ?2);",
+                  select distinct micrographs.* from \
+                  micrographs, particles where \
+                  particles.micrographID = micrographs.ID and \
+                  (particles.ID >= ?1) and (particles.ID <= ?2);",
                  "insert into dst.particles select * from particles \
-               where (ID >= ?1) and (ID <= ?2);" };
+                  where (ID >= ?1) and (ID <= ?2);" };
     else if (_mode == MICROGRAPH_MODE)
-        sqls = {
-            "insert into dst.micrographs select * from micrographs \
-               where (ID >= ?1) and (ID <= ?2);",
-            "insert into dst.particles select particles.* from \
-               micrographs, particles where \
-               particles.micrographID = micrographs.ID and \
-               (micrographs.ID >= ?1) and (micrographs.ID <= ?2);"
-        };
+        sqls = { "insert into dst.micrographs select * from micrographs \
+                  where (ID >= ?1) and (ID <= ?2);",
+                 "insert into dst.particles select particles.* from \
+                  micrographs, particles where \
+                  particles.micrographID = micrographs.ID and \
+                  (micrographs.ID >= ?1) and (micrographs.ID <= ?2);" };
+
     _db.exec(("attach database '" + string(database) + "' as dst;").c_str());
+
     try
     {
         _db.beginTransaction();
-        for (const char* sql : sqls) {
+
+        for (const char* sql : sqls)
+        {
             sql::Statement stmt(sql, -1, _db);
             stmt.bind_int(1, start);
             stmt.bind_int(2, end);
             stmt.step();
         }
+
         _db.endTransaction();
     }
     catch (...)
     {
         _db.rollbackTransaction();
+
         _db.exec("detach database dst;");
-        throw;
+
+        CLOG(FATAL, "LOGGER_SYS") << "Unable to Save Databases for Each Process";
     }
+
     _db.exec("detach database dst;");
 }
 
@@ -321,11 +328,17 @@ void Database::gather()
 void Database::scatter()
 {
     if (_commRank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << nParticle();
+        CLOG(INFO, "LOGGER_SYS") << "Total Number of Micrographs: " << nMicrograph();
+        CLOG(INFO, "LOGGER_SYS") << "Total Number of Groups: " << nGroup();
+
         for (int i = 1; i < _commSize; i++)
         {
             saveDatabase(i);
             masterSend(i);
         }
+    }
     else
         slaveReceive();
 }

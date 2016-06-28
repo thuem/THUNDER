@@ -13,6 +13,7 @@
 #include <string>
 #include <cstring>
 #include <sys/stat.h>
+#include <vector>
 
 #include "Random.h"
 #include "Parallel.h"

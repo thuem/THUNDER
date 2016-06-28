@@ -92,8 +92,8 @@ void Particle::vari(double& rVari,
                     double& s0,
                     double& s1) const
 {
-    //rVari = sqrt(_k0 / _k1);
-    rVari = sqrt(_k1 / _k0);
+    //rVari = sqrt(_k1 / _k0);
+    rVari = sqrt(_k1) / sqrt(_k0);
     s0 = _s0;
     s1 = _s1;
 }
@@ -184,7 +184,7 @@ void Particle::calVari()
     inferACG(_k0, _k1, _r);
 }
 
-void Particle::perturb()
+void Particle::perturb(const double pf)
 {
     calVari();
 
@@ -203,17 +203,20 @@ void Particle::perturb()
     {
         double x, y;
         gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-        _t(i, 0) += x / sqrt(PERTURB_FACTOR);
-        _t(i, 1) += y / sqrt(PERTURB_FACTOR);
+        //_t(i, 0) += x / sqrt(PERTURB_FACTOR);
+        //_t(i, 1) += y / sqrt(PERTURB_FACTOR);
         //_t(i, 0) += x / PERTURB_FACTOR;
         //_t(i, 1) += y / PERTURB_FACTOR;
+        _t(i, 0) += x * sqrt(pf);
+        _t(i, 1) += y * sqrt(pf);
     }
 
     // rotation perturbation
 
     mat4 d(_n, 4);
     //sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
-    sampleACG(d, pow(PERTURB_FACTOR, 2.0 / 3) * _k0, _k1, _n);
+    //sampleACG(d, pow(PERTURB_FACTOR, 2.0 / 3) * _k0, _k1, _n);
+    sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
     {
@@ -308,6 +311,46 @@ uvec Particle::iSort() const
 {
     return index_sort_descend(_w);
     // return sort_index(_w, "descend");
+}
+
+double Particle::diffTop()
+{
+    vec4 quat;
+    vec2 tran;
+
+    rank1st(quat, tran);
+
+    double diff = 1 - abs(quat.dot(_topR));
+
+    _topR = quat;
+
+    return diff;
+}
+
+void Particle::rank1st(vec4& quat,
+                       vec2& tran) const
+{
+    uvec rank = iSort();
+
+    quaternion(quat, rank[0]);
+    t(tran, rank[0]);
+
+    /***
+    double diff = 1 - abs(quat.cross(_topR));
+    
+    _topR = quat;
+
+    return diff;
+    ***/
+}
+
+void Particle::rank1st(mat33& rot,
+                       vec2& tran) const
+{
+    vec4 quat;
+    rank1st(quat, tran);
+
+    rotate3D(rot, quat);
 }
 
 void Particle::symmetrise()

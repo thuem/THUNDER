@@ -22,6 +22,7 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
+    /***
     Database db;
 
     db.createTables();
@@ -36,6 +37,7 @@ int main(int argc, char* argv[])
 
     db.bcastID();
     db.prepareTmpFile();
+    ***/
 
     /***
     db.scatter();

@@ -14,6 +14,7 @@
 #include <vector>
 #include <cstdlib>
 #include <sstream>
+#include <string>
 
 #include "Typedef.h"
 
@@ -36,22 +37,12 @@
 #define TOP_K 1
 
 #define FREQ_DOWN_CUTOFF 3
-#define N_ITER_TOTAL_GLOBAL_SEARCH 10
-#define N_ITER_PARTIAL_GLOBAL_SEARCH 10
-#define ALPHA_TOTAL_GLOBAL_SEARCH 1.0
-#define ALPHA_GLOBAL_SEARCH_MAX 0.5
-#define ALPHA_GLOBAL_SEARCH_MIN 0.5
-//#define ALPHA_GLOBAL_SEARCH_MAX 1.0
-//#define ALPHA_GLOBAL_SEARCH_MIN 1.0
-#define ALPHA_LOCAL_SEARCH 0.1
-#define ALPHA_SEARCH_BG 0
+#define ALPHA_GLOBAL_SEARCH 1.0
+#define ALPHA_LOCAL_SEARCH 0
 #define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
 
-#define MIN_N_PHASE_PER_ITER 5
+#define MIN_N_PHASE_PER_ITER 1
 #define MAX_N_PHASE_PER_ITER 100
-#define MAX_N_SEARCH_PER_PHASE 5
-
-#define NT_FACTOR 1
 
 using namespace std;
 
@@ -78,11 +69,11 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
-    int m;
+    int mG;
     // number of samplings in particle filter
-    
-    int mf;
-    // factor of number of samplings in particle filter
+
+    int mL;
+    // number of samplings in particle filter
 
     int maxX;
 
@@ -99,11 +90,17 @@ typedef struct ML_OPTIMISER_PARA
 
 typedef struct CTF_ATTR
 {
+
     double voltage;
+
     double defocusU;
+
     double defocusV;
+
     double defocusAngle;
+
     double CS;
+
 } CTFAttr;
 
 class MLOptimiser : public Parallel
@@ -123,6 +120,8 @@ class MLOptimiser : public Parallel
 
         double _res;
         /* current resolution in pixel */
+
+        int _searchType = SEARCH_TYPE_GLOBAL;
 
         MLModel _model;
         /* model, including references, projectors and reconstructors */

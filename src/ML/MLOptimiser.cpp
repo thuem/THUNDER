@@ -130,12 +130,13 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    //double logThres = 0.5 * M_PI * _r * _r * 0.1;
-
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         Image image(size(), size(), FT_SPACE);
+
+        // number of sampling for the next phase searching
+        // int nSamplingNextPhase = 0;
 
         int nPhaseWithNoVariDecrease = 0;
 
@@ -149,75 +150,68 @@ void MLOptimiser::expectation()
             {
                 if (phase == 0)
                 {
-                    if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH)
-                        _par[l].resample(_para.m * _para.mf,
-                                         ALPHA_TOTAL_GLOBAL_SEARCH);
-                    else if (_iter < N_ITER_TOTAL_GLOBAL_SEARCH
-                                   + N_ITER_PARTIAL_GLOBAL_SEARCH)
-                        _par[l].resample(_para.m,
-                                         (ALPHA_GLOBAL_SEARCH_MAX
-                                        - ALPHA_GLOBAL_SEARCH_MIN)
-                                       * (N_ITER_TOTAL_GLOBAL_SEARCH 
-                                        + N_ITER_PARTIAL_GLOBAL_SEARCH
-                                        - _iter - 1)
-                                       / (N_ITER_PARTIAL_GLOBAL_SEARCH - 1)
-                                       + ALPHA_GLOBAL_SEARCH_MIN);
+                    if (_searchType == SEARCH_TYPE_GLOBAL)
+                        _par[l].resample(_para.mG,
+                                         ALPHA_GLOBAL_SEARCH);
                     else
-                        _par[l].resample(_para.m,
+                        _par[l].resample(_para.mL,
                                          ALPHA_LOCAL_SEARCH);
                 }
             }
 
-            double nt = _par[l].n() / NT_FACTOR;
-
-            int nSearch = 0;
-            do
+            if ((_searchType == SEARCH_TYPE_LOCAL) &&
+                (phase == 0))
             {
-                // perturbation
+                // perturb with 5x confidence area
+                _par[l].perturb(5);
+            }
+            else
+            {
+                // pertrub with 0.2x confidence area
                 _par[l].perturb();
+            }
 
-                vec logW(_par[l].n());
-                mat33 rot;
-                vec2 t;
+            vec logW(_par[l].n());
+            mat33 rot;
+            vec2 t;
 
-                for (int m = 0; m < _par[l].n(); m++)
+            for (int m = 0; m < _par[l].n(); m++)
+            {
+                _par[l].rot(rot, m);
+
+                if ((_searchType == SEARCH_TYPE_GLOBAL) &&
+                    (phase == 0))
                 {
-                    _par[l].rot(rot, m);
+                    _model.proj(0).project(image, rot);
 
-                    if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
-                        (phase == 0) &&
-                        (nSearch == 0))
-                    {
-                        _model.proj(0).project(image, rot);
+                    // TODO: check the diff
+                    int nTransCol, nTransRow;
+                    translate(nTransCol,
+                              nTransRow,
+                              image,
+                              _img[l],
+                              _r,
+                              _para.maxX,
+                              _para.maxY);
+                    t(0) = nTransCol;
+                    t(1) = nTransRow;
 
-                        // TODO: check the diff
-                        int nTransCol, nTransRow;
-                        translate(nTransCol,
-                                  nTransRow,
-                                  image,
-                                  _img[l],
-                                  _r,
-                                  _para.maxX,
-                                  _para.maxY);
-                        t(0) = nTransCol;
-                        t(1) = nTransRow;
+                    translate(image, image, _r, t(0), t(1));
 
-                        translate(image, image, _r, t(0), t(1));
-
-                        _par[l].setT(t, m);
-                    }
-                    else
-                    {
-                        _par[l].t(t, m);
-                        _model.proj(0).project(image, rot, t);
-                    }
-
-                    logW[m] = logDataVSPrior(_img[l], // data
-                                             image, // prior
-                                             _ctf[l], // ctf
-                                             _sig.row(_groupID[l] - 1).head(_r).transpose(),
-                                             _r);
+                    _par[l].setT(t, m);
                 }
+                else
+                {
+                    _par[l].t(t, m);
+                    _model.proj(0).project(image, rot, t);
+                }
+
+                logW[m] = logDataVSPrior(_img[l], // data
+                                         image, // prior
+                                         _ctf[l], // ctf
+                                         _sig.row(_groupID[l] - 1).head(_r).transpose(),
+                                         _r);
+            }
 
                 /***
                 logW.array() -= logW.maxCoeff(); // avoiding numerical error
@@ -240,40 +234,58 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
                 ***/
 
-                logW.array() -= logW.maxCoeff();
-                logW.array() *= -1;
-                logW.array() += 1;
-                for (int m = 0; m < _par[l].n(); m++)
-                    _par[l].mulW(1.0 / logW(m), m);
+            logW.array() -= logW.maxCoeff();
+            logW.array() *= -1;
+            logW.array() += 1;
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(1.0 / logW(m), m);
 
-                _par[l].normW();
+            _par[l].normW();
 
-                if (_ID[l] < 20)
-                {
-                    char filename[FILE_NAME_LENGTH];
-                    snprintf(filename,
-                             sizeof(filename),
-                             "Particle_%04d_Round_%03d_%03d_%03d.par",
-                             _ID[l],
-                             _iter,
-                             phase,
-                             nSearch);
-                    save(filename, _par[l]);
-                }
+            if (_ID[l] < 20)
+            {
+                char filename[FILE_NAME_LENGTH];
+                snprintf(filename,
+                         sizeof(filename),
+                         "Particle_%04d_Round_%03d_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase,
+                         0);
+                save(filename, _par[l]);
+            }
 
-                nSearch++;
-
-            } while ((_par[l].neff() > nt) &&
-                     (nSearch < MAX_N_SEARCH_PER_PHASE));
+            // compute the number of sampling for the next phase of searching
+            //nSamplingNextPhase = GSL_MIN_INT(_par[l].n(), AROUND(2 * _par[l].neff()));
 
             // Only after resampling, the current variance can be calculated
             // correctly.
+
+            /***
+            CLOG(INFO, "LOGGER_SYS") << "Neff = " << _par[l].neff();
+            CLOG(INFO, "LOGGER_SYS") << "AROUND(10 * Neff) = " << AROUND(10 * _par[l].neff());
+            CLOG(INFO, "LOGGER_SYS") << "Final = " << GSL_MAX_INT(30,
+                                                                   GSL_MIN_INT(_par[l].n(),
+                                                                               AROUND(10 * _par[l].neff())));
+                                                                               ***/
+            
+            /***
+            if ((phase == 0) &&
+                (_searchType == SEARCH_TYPE_GLOBAL))
+            {
+                _par[l].resample(GSL_MIN_INT(_par[l].n(),
+                                             AROUND(100 * _par[l].neff())));
+            }
+            else
+            { 
+                _par[l].resample();
+            }
+            ***/
+
+            //_par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())), 0);
+            
             _par[l].resample();
 
-            // break if after a few searching, the resampling condition can not
-            // be reached
-            if (nSearch == MAX_N_SEARCH_PER_PHASE) break;
-            
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
                 double tVariS0Cur;
@@ -353,6 +365,15 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
+        }
+        else
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
+        }
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
         expectation();
 
@@ -360,6 +381,38 @@ void MLOptimiser::run()
         ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished";
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
+        NT_MASTER
+        {
+            _model.allReduceVari(_par, _N);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+            BLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+
+            ALOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
+                                       << ", " << _model.tVariS1();
+            BLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
+                                       << ", " << _model.tVariS1();
+        }
+
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
+        NT_MASTER
+        {
+            _model.allReduceRChange(_par, _N);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
+            BLOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
+        }
+
+        MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
+        _searchType = _model.searchType();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Tau";
+        NT_MASTER
+        {
+            _model.refreshTau();
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
@@ -388,7 +441,7 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
-        if ((_iter < N_ITER_TOTAL_GLOBAL_SEARCH) &&
+        if ((_searchType == SEARCH_TYPE_GLOBAL) &&
             (1.0 / resP2A(_r - 1, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
         {
             _r = AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
@@ -477,6 +530,8 @@ void MLOptimiser::bcastGroupInfo()
     MLOG(INFO, "LOGGER_INIT") << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
+    MLOG(INFO, "LOGGER_INIT") << "Number of Group: " << _nGroup;
+
     ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.resize(_nGroup, maxR() + 1);
 }
@@ -527,9 +582,10 @@ void MLOptimiser::initImg()
     _img.clear();
     _img.resize(_ID.size());
 
-    std::string imgName;
+    string imgName;
 
     sql::Statement stmt("select Name from particles where ID = ?", -1, _exp.expose());
+
     FOR_EACH_2D_IMAGE
     {
         stmt.bind_int(1, _ID[l]);
@@ -539,12 +595,32 @@ void MLOptimiser::initImg()
             imgName = stmt.get_text(0);
         else
             CLOG(FATAL, "LOGGER_SYS") << "Database Changed";
+
         stmt.reset();
-        // read the image fromm hard disk
+
+        // CLOG(INFO, "LOGGER_SYS") << imgName;
+
 	    Image& currentImg = _img[l];
-        ImageFile imf(imgName.c_str(), "rb");
-        imf.readMetaData();
-        imf.readImage(currentImg);
+
+        // read the image fromm hard disk
+        if (imgName.find('@') == string::npos)
+        {
+            ImageFile imf(imgName.c_str(), "rb");
+            imf.readMetaData();
+            imf.readImage(currentImg);
+        }
+        else
+        {
+            int nSlc = atoi(imgName.substr(0, imgName.find('@')).c_str()) - 1;
+            string filename = imgName.substr(imgName.find('@') + 1);
+
+            // CLOG(INFO, "LOGGER_SYS") << "nSlc = " << nSlc;
+            // CLOG(INFO, "LOGGER_SYS") << "filename = " << filename;
+
+            ImageFile imf(filename.c_str(), "rb");
+            imf.readMetaData();
+            imf.readImage(currentImg, nSlc);
+        }
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
@@ -586,6 +662,7 @@ void MLOptimiser::initCTF()
     {
         // get attributes of CTF from database
         stmt.bind_int(1, _ID[l]);
+
         if (stmt.step())
         {
             ctfAttr.voltage = stmt.get_double(0);
@@ -595,7 +672,12 @@ void MLOptimiser::initCTF()
             ctfAttr.CS = stmt.get_double(4);
         }
         else 
+        {
             CLOG(FATAL, "LOGGER_SYS") << "No Data";
+
+            __builtin_unreachable();
+        }
+
         stmt.reset();
 
         // append a CTF
@@ -646,14 +728,12 @@ void MLOptimiser::initSigma()
 
     vec avgPs = vec::Zero(maxR());
 
-    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         vec ps(maxR());
 
         powerSpectrum(ps, _img[l], maxR());
 
-        #pragma omp critical
         avgPs += ps;
     }
 
@@ -700,7 +780,7 @@ void MLOptimiser::initParticles()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.m * _para.mf,
+        _par[l].init(_para.mG,
                      _para.maxX,
                      _para.maxY,
                      &_sym);
@@ -710,15 +790,21 @@ void MLOptimiser::allReduceSigma()
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
-    BLOG(INFO, "LOGGER_ROUND") << "Clear Up Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
 
     // set re-calculating part to zero
+    _sig.setZero();
+    /***
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
+    ***/
 
-    ALOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
-    BLOG(INFO, "LOGGER_ROUND") << "Recalculate Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
+
+    // project references with all frequency
+    _model.setProjMaxRadius(maxR());
 
     // loop over 2D images
     FOR_EACH_2D_IMAGE
@@ -729,7 +815,7 @@ void MLOptimiser::allReduceSigma()
         Coordinate5D coord;
         double w;
         Image img(size(), size(), FT_SPACE);
-        vec sig(_r);
+        vec sig(maxR());
 
         // loop over sampling points with top K weights
         for (int m = 0; m < TOP_K; m++)
@@ -741,17 +827,21 @@ void MLOptimiser::allReduceSigma()
 
             // calculate differences
             _model.proj(0).project(img, coord);
+
+            #pragma omp parallel for
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
-            // MUL_FT(img, _ctf[l]);
+
+            #pragma omp parallel for
             NEG_FT(img);
+            #pragma omp parallel for
             ADD_FT(img, _img[l]);
 
-            powerSpectrum(sig, img, _r);
+            powerSpectrum(sig, img, maxR());
 
             // sum up the results from top K sampling points
             // TODO Change it to w
-            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.transpose() / 2;
+            _sig.row(_groupID[l] - 1).head(maxR()) += (1.0 / TOP_K) * sig.transpose() / 2;
         }
 
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
@@ -762,6 +852,13 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _sig.data(),
+                  (maxR() + 1) * _nGroup,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
                   _r * _nGroup,
@@ -776,11 +873,12 @@ void MLOptimiser::allReduceSigma()
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
+    ***/
 
     MPI_Barrier(_hemi);
 
     for (int i = 0; i < _sig.rows(); i++)
-        _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
+        _sig.row(i).head(maxR()) /= _sig(i, _sig.cols() - 1);
 
     /***
     ALOG(INFO) << "Saving Sigma";
@@ -798,33 +896,61 @@ void MLOptimiser::reconstructRef()
     IF_MASTER return;
 
     Image img(size(), size(), FT_SPACE);
+    SET_0_FT(img);
 
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
+
     FOR_EACH_2D_IMAGE
     {
         // reduce the CTF effect
-        reduceCTF(img, _img[l], _ctf[l]);
+        // reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
+        reduceCTF(img, _img[l], _ctf[l], maxR());
+
+        /***
+        if (_ID[l] == 1) // debug
+        {
+            vec sig = _sig.row(_groupID[l] - 1).head(maxR()).transpose();
+            vec tau = _model.tau(0) / gsl_pow_3(_para.pf) / _para.size;
+
+            for (int i = 0; i < maxR(); i++)
+                CLOG(INFO, "LOGGER_SYS") << "i = "
+                                         << i
+                                         << ", sig = "
+                                         << sig[i]
+                                         << ", tau = "
+                                         << tau[_para.pf * i];
+        }
+        ***/
+
+        /***
+        reduceCTF(img,
+                  _img[l],
+                  _ctf[l],
+                  _sig.row(_groupID[l] - 1).head(maxR()).transpose(), // noise
+                  //_sig.row(l).transpose(),
+                  //_model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
+                  _model.tau(0) / gsl_pow_3(_para.pf) /_para.size, // signal
+                  _para.pf,
+                  maxR());
+        ***/
 
         uvec iSort = _par[l].iSort();
 
         mat33 rot;
         vec2 t;
-        // Coordinate5D coord;
         double w;
         for (int m = 0; m < TOP_K; m++)
         {
-            // get coordinate
-            // _par[l].coord(coord, iSort[m]);
             _par[l].rot(rot, iSort[m]);
             _par[l].t(t, iSort[m]);
-            // get weight
+
             w = _par[l].w(iSort[m]);
 
             // TODO: _model.reco(0).insert(_img[l], coord, w);
-            _model.reco(0).insert(_img[l], rot, t, 1);
+            _model.reco(0).insert(img, rot, t, 1);
         }
     }
 
@@ -874,18 +1000,21 @@ void MLOptimiser::saveBestProjections()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        SET_0_FT(result);
+        if (_ID[l] < 20)
+        {
+            SET_0_FT(result);
 
-        uvec iSort = _par[l].iSort();
-        _par[l].coord(coord, iSort[0]);
+            uvec iSort = _par[l].iSort();
+            _par[l].coord(coord, iSort[0]);
 
-        _model.proj(0).project(result, coord);
+            _model.proj(0).project(result, coord);
 
-        sprintf(filename, "Result_%04d.bmp", _ID[l]);
+            sprintf(filename, "Result_%04d.bmp", _ID[l]);
 
-        fft.bw(result);
-        result.saveRLToBMP(filename);
-        fft.fw(result);
+            fft.bw(result);
+            result.saveRLToBMP(filename);
+            fft.fw(result);
+        }
     }
 }
 
@@ -896,11 +1025,14 @@ void MLOptimiser::saveImages()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        sprintf(filename, "Image_%04d.bmp", _ID[l]);
+        if (_ID[l] < 20)
+        {
+            sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
-        fft.bw(_img[l]);
-        _img[l].saveRLToBMP(filename);
-        fft.fw(_img[l]);
+            fft.bw(_img[l]);
+            _img[l].saveRLToBMP(filename);
+            fft.fw(_img[l]);
+        }
     }
 }
 

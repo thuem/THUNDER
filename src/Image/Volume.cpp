@@ -108,8 +108,7 @@ Complex Volume::getFTHalf(const int iCol,
 void Volume::setFT(const Complex value,
                    int iCol,
                    int iRow,
-                   int iSlc,
-                   const ConjugateFlag cf)
+                   int iSlc)
 {
     // coordinatesInBoundaryFT(iCol, iRow, iSlc);
 
@@ -119,11 +118,18 @@ void Volume::setFT(const Complex value,
     _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
+void Volume::setFTHalf(const Complex value,
+                       const int iCol,
+                       const int iRow,
+                       const int iSlc)
+{
+    _dataFT[iFTHalf(iCol, iRow, iSlc)] = value;
+}
+
 void Volume::addFT(const Complex value,
                    int iCol,
                    int iRow,
-                   int iSlc,
-                   const ConjugateFlag cf)
+                   int iSlc)
 {
     // coordinatesInBoundaryFT(iCol, iRow, iSlc);
 

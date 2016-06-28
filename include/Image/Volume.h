@@ -17,7 +17,6 @@
 
 #include "omp_if.h"
 #include "Typedef.h"
-#include "Enum.h"
 #include "Error.h"
 #include "Complex.h"
 #include "Logging.h"
@@ -245,16 +244,24 @@ class Volume : public ImageBase
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
          * @param iSlc the index of the slice of this voxel in real space
-         * @param cf the conjugate flag, where conjugateUnknown stands for
-         * calculating the conjugate status on its own, conjugateYes stands
-         * for setting the conjugate of the value of the voxel and conjugateNo
-         * stands for setting the value of the voxel without conjugation
          */
         void setFT(const Complex value,
                    int iCol,
                    int iRow,
-                   int iSlc,
-                   const ConjugateFlag cf = conjugateUnknown);
+                   int iSlc);
+
+        /**
+         * This function sets the value of the voxel in Fourier space at a given
+         * coordinate.
+         *
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in real space
+         */
+        void setFTHalf(const Complex value,
+                       const int iCol,
+                       const int iRow,
+                       const int iSlc);
         
         /**
          * This function adds a certain value on a voxel in Fourier space at a
@@ -263,16 +270,11 @@ class Volume : public ImageBase
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
          * @param iSlc the index of the slice of this voxel in real space
-         * @param cf the conjugate flag, where conjugateUnknown stands for
-         * calculating the conjugate status on its own, conjugateYes stands
-         * for adding the conjugate of the value of the voxel and conjugateNo
-         * stands for adding the value of the voxel without conjugation
          */
         void addFT(const Complex value,
                    int iCol,
                    int iRow,
-                   int iSlc,
-                   const ConjugateFlag cf = conjugateUnknown);
+                   int iSlc);
 
         /**
          * This function returns the value of an unregular voxel in speace spce
@@ -429,7 +431,6 @@ class Volume : public ImageBase
 
         Complex getFTHalf(const double w[2][2][2],
                           const int x0[3]) const;
-                      //const ConjugateFlag conjugateFlag) const;
 };
 
 #endif // VOLUME_H

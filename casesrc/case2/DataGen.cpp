@@ -19,7 +19,7 @@
 #define PF 2
 
 #define N 380
-#define M 5000
+#define M 40000
 #define MAX_X 2
 #define MAX_Y 2
 
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     {
         SET_0_FT(image);
 
-        sprintf(name, "%04d.mrc", i + 1);
+        sprintf(name, "%05d.mrc", i + 1);
         printf("%s\n", name);
 
         par.coord(coord, i);

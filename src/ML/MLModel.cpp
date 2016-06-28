@@ -39,23 +39,35 @@ void MLModel::init(const int k,
 void MLModel::initProjReco()
 {
     ALOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
+    BLOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
+
     FOR_EACH_CLASS
     {
         ALOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << i;
+        BLOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << i;
+
         _proj.push_back(Projector());
 
         ALOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << i;
+        BLOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << i;
+
         _reco.push_back(unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
     ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
+    BLOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
+
     FOR_EACH_CLASS
         _reco[i]->setMPIEnv(_commSize, _commRank, _hemi);
 
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
+    BLOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
+
     refreshProj();
 
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
+    BLOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
+
     refreshReco();
 }
 
@@ -86,6 +98,11 @@ int MLModel::k() const
 int MLModel::size() const
 {
     return _size;
+}
+
+int MLModel::maxR() const
+{
+    return _size / 2 - _a;
 }
 
 int MLModel::r() const
@@ -158,7 +175,9 @@ void MLModel::BcastFSC()
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
             double r = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize) * _pf;
-            MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
+
+            //MLOG(INFO, "LOGGER_COMPARE") << "r = " << r; // debug
+
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(A)
                 if (QUAD_3(i, j, k) < r * r)
@@ -167,19 +186,6 @@ void MLModel::BcastFSC()
                     A.setFT(avg, i, j, k);
                     B.setFT(avg, i, j, k);
                 }
-            /***
-            Volume ACentre, BCentre;
-            double ef = resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)
-                      / (_size / 2 + 1);
-            VOL_EXTRACT_FT(ACentre, A, ef);
-            VOL_EXTRACT_FT(BCentre, B, ef);
-
-            ADD_FT(ACentre, BCentre);
-            SCALE_FT(ACentre, 0.5);
-
-            VOL_REPLACE_FT(A, ACentre);
-            VOL_REPLACE_FT(B, ACentre);
-            ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << i
@@ -241,7 +247,8 @@ void MLModel::BcastFSC()
                 MPI_Bcast_Large(&_ref[i][0],
                                 _ref[i].sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
-                                HEMI_A_LEAD,
+                                0,
+                                //HEMI_A_LEAD,
                                 _hemi);
             }
 
@@ -251,7 +258,8 @@ void MLModel::BcastFSC()
                 MPI_Bcast_Large(&_ref[i][0],
                                 _ref[i].sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
-                                HEMI_B_LEAD,
+                                0,
+                                //HEMI_B_LEAD,
                                 _hemi);
             }
 
@@ -287,6 +295,24 @@ void MLModel::refreshSNR()
         _SNR.col(i) = _FSC.col(i).array() / (1 - _FSC.col(i).array());
 }
 
+void MLModel::refreshTau()
+{
+    //_tau.resize(maxR() * _pf, _k);
+    _tau.resize(_size * _pf / 2 - 1, _k);
+
+    FOR_EACH_CLASS
+    {
+        vec ps(_size * _pf / 2 - 1);
+        powerSpectrum(ps, _ref[i], _size * _pf / 2 - 1);
+        _tau.col(i) = ps / 2;
+    }
+}
+
+vec MLModel::tau(const int i) const
+{
+    return _tau.col(i);
+}
+
 int MLModel::resolutionP(const int i) const
 {
     int result;
@@ -320,6 +346,12 @@ double MLModel::resolutionA() const
     return resP2A(resolutionP(), _size, _pixelSize);
 }
 
+void MLModel::setProjMaxRadius(const int maxRadius)
+{
+    FOR_EACH_CLASS
+        _proj[i].setMaxRadius(maxRadius);
+}
+
 void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
@@ -339,27 +371,199 @@ void MLModel::refreshReco()
                        _sym,
                        _a,
                        _alpha);
-        // _reco[i].setMaxRadius(_r);
+        //_reco[i]->setMaxRadius(_r);
+        //_reco[i]->setMaxRadius(MIN(maxR(), _r + MAX_GAP));
+        _reco[i]->setMaxRadius(maxR());
     }
 }
 
 void MLModel::updateR()
 {
-    int resUpperBoundary = _size / 2 - _a;
-    //int resUpperBoundary = 70; // for debug
-    // int resUpperBoundary = 35; // for debug
+    //int resUpperBoundary = _size / 2 - _a;
 
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
         {
             _r += MIN(MAX_GAP, AROUND(double(_size) / 16));
-            _r = MIN(_r, resUpperBoundary);
+            _r = MIN(_r, maxR());
             return;
         }
 
     _r = resolutionP();
     _r += MIN_GAP;
-    _r = MIN(_r, resUpperBoundary);
+    _r = MIN(_r, maxR());
+}
+
+double MLModel::rVari() const
+{
+    return _rVari;
+}
+
+double MLModel::tVariS0() const
+{
+    return _tVariS0;
+}
+
+double MLModel::tVariS1() const
+{
+    return _tVariS1;
+}
+
+void MLModel::allReduceVari(const vector<Particle>& par,
+                            const int n)
+{
+    IF_MASTER return;
+
+    _rVari = 0;
+    _tVariS0 = 0;
+    _tVariS1 = 0;
+
+    double rVari, tVariS0, tVariS1;
+
+    for (size_t i = 0; i < par.size(); i++)
+    {
+        par[i].vari(rVari,
+                    tVariS0,
+                    tVariS1);
+
+        /***
+        CLOG(INFO, "LOGGER_SYS") << "rVari = " << rVari;
+        CLOG(INFO, "LOGGER_SYS") << "tVariS0 = " << tVariS0;
+        CLOG(INFO, "LOGGER_SYS") << "tVariS1 = " << tVariS1;
+        ***/
+
+        _rVari += rVari;
+        _tVariS0 += tVariS0;
+        _tVariS1 += tVariS1;
+    }
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_rVari,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_tVariS0,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_tVariS1,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    _rVari /= n;
+    _tVariS0 /= n;
+    _tVariS1 /= n;
+}
+
+double MLModel::rChange() const
+{
+    return _rChange;
+}
+
+void MLModel::allReduceRChange(vector<Particle>& par,
+                               const int n)
+{
+    _rChangePrev = _rChange;
+
+    _rChange = 0;
+
+    for (size_t i = 0; i < par.size(); i++)
+        _rChange += par[i].diffTop();
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_rChange,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    _rChange /= n;
+}
+
+int MLModel::searchType()
+{
+    // If it is local search, just continue to perform local search.
+    if (_searchType == SEARCH_TYPE_LOCAL) return SEARCH_TYPE_LOCAL;
+
+    // If it is global search now, make sure the change of rotations beteween
+    // iterations still gets room for improvement.
+    
+    IF_MASTER
+    {
+        bool switchFromGlobalToLocalA;
+        bool switchFromGlobalToLocalB;
+
+        MPI_Status status;
+
+        MPI_Recv(&switchFromGlobalToLocalA,
+                 1,
+                 MPI_C_BOOL,
+                 HEMI_A_LEAD,
+                 0,
+                 MPI_COMM_WORLD,
+                 &status);
+
+        MPI_Recv(&switchFromGlobalToLocalB,
+                 1,
+                 MPI_C_BOOL,
+                 HEMI_B_LEAD,
+                 0,
+                 MPI_COMM_WORLD,
+                 &status);
+
+        if (switchFromGlobalToLocalA &&
+            switchFromGlobalToLocalB)
+            _searchType = SEARCH_TYPE_LOCAL;
+    }
+    else
+    {
+        if ((_commRank == HEMI_A_LEAD) ||
+            (_commRank == HEMI_B_LEAD))
+        {
+            if (_rChange > _rChangePrev * 0.95)
+                _nRChangeNoDecrease += 1;
+            else
+                _nRChangeNoDecrease = 0;
+
+            bool switchFromGlobalToLocal = (_nRChangeNoDecrease
+                                        >= MAX_ITER_R_CHANGE_NO_DECREASE);
+
+            //bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.95);
+
+            MPI_Ssend(&switchFromGlobalToLocal,
+                      1,
+                      MPI_C_BOOL,
+                      MASTER_ID,
+                      0,
+                      MPI_COMM_WORLD);
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(&_searchType,
+              1,
+              MPI_INT,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    return _searchType;
 }
 
 void MLModel::clear()

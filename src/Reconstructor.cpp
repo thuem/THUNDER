@@ -98,7 +98,7 @@ void Reconstructor::insert(const Image& src,
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
-        if (QUAD(i, j) < _maxRadius * _maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
             vec3 newCor = {(double)i, (double)j, 0};
             vec3 oldCor = rot * newCor *_pf;
@@ -236,14 +236,13 @@ void Reconstructor::allReduceW()
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
-            _W.setFT(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
-                     i,
-                     j,
-                     k,
-                     conjugateNo);
+            _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                         i,
+                         j,
+                         k);
         }
         else
-            _W.setFT(COMPLEX(0, 0), i, j, k, conjugateNo);
+            _W.setFTHalf(COMPLEX(0, 0), i, j, k);
 }
 
 void Reconstructor::allReduceF()

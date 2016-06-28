@@ -13,7 +13,6 @@
 
 #include "Complex.h"
 #include "Error.h"
-#include "Enum.h"
 
 #include "Euler.h"
 

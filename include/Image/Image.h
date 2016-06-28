@@ -15,7 +15,6 @@
 #include <cstdlib>
 
 #include "Typedef.h"
-#include "Enum.h"
 #include "Error.h"
 #include "Complex.h"
 #include "Logging.h"
@@ -24,14 +23,6 @@
 
 #include "ImageBase.h"
 #include "BMP.h"
-
-#define IMAGE_FREQ_TO_STORE_INDEX(index, flag, i, j) \
-    [this, &index, &flag, i, j]() mutable \
-    { \
-        flag = IMAGE_CONJUGATE_HALF(i, j); \
-        if ((j) < 0) j += _nRow; \
-        index = IMAGE_INDEX_FT(i, j); \
-    }()
 
 /**
  * This macro loops over each pixel of an image in real space.

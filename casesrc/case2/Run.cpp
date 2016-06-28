@@ -20,13 +20,14 @@
 #define PF 2
 
 #define N 380
-#define MAX_X 4
-#define MAX_Y 4
+#define MAX_X (N / 8)
+#define MAX_Y (N / 8)
 
 #define PIXEL_SIZE 1.32
 
-#define M 1000
-#define MF 1
+#define MG 1000
+#define ML 100
+#define MF 10
 
 using namespace std;
 
@@ -47,8 +48,8 @@ int main(int argc, char* argv[])
     para.a = 1.9;
     para.alpha = 10;
     para.pixelSize = PIXEL_SIZE;
-    para.m = M;
-    para.mf = MF;
+    para.mG = MG;
+    para.mL = ML;
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
     sprintf(para.sym, "C15");
