@@ -20,9 +20,7 @@ Database::Database(const char database[])
     openDatabase(database);
 }
 
-Database::~Database()
-{
-}
+Database::~Database() {}
 
 void Database::bcastID()
 {
@@ -99,7 +97,10 @@ void Database::saveDatabase(const int rank)
     int start, end;
     split(start, end, rank);
 
-    std::vector<const char*> sqls;
+    CLOG(INFO, "LOGGER_SYS") << "Start ID: " << start;
+    CLOG(INFO, "LOGGER_SYS") << "End ID: " << end;
+
+    vector<const char*> sqls;
 
     if (_mode == PARTICLE_MODE)
         sqls = { "insert into dst.groups select distinct groups.* from \
