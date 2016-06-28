@@ -127,20 +127,26 @@ void Database::saveDatabase(const int rank)
     try
     {
         _db.beginTransaction();
-        for (const char* sql : sqls) {
+
+        for (const char* sql : sqls)
+        {
             sql::Statement stmt(sql, -1, _db);
             stmt.bind_int(1, start);
             stmt.bind_int(2, end);
             stmt.step();
         }
+
         _db.endTransaction();
     }
     catch (...)
     {
         _db.rollbackTransaction();
+
         _db.exec("detach database dst;");
-        throw;
+
+        CLOG(FATAL, "LOGGER_SYS") << "Unable to Save Databases for Each Process";
     }
+
     _db.exec("detach database dst;");
 }
 
