@@ -603,7 +603,7 @@ void MLOptimiser::initImg()
 	    Image& currentImg = _img[l];
 
         // read the image fromm hard disk
-        if (imgName.find('@') == -1)
+        if (imgName.find('@') == string::npos)
         {
             ImageFile imf(imgName.c_str(), "rb");
             imf.readMetaData();
