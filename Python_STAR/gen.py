@@ -53,30 +53,45 @@ print "Tables Created"
 micrographList = []
 
 for i in range(len(lines)):
-    micrographID = 1
+
+    micrographID = 0
+    groupID = 0
+
     if micrographName[i] not in micrographList:
+
+        micrographID = len(micrographList) + 1
+
         micrographList.append(micrographName[i])
-        sql = "INSERT INTO micrographs (Name, Voltage, DefocusU, \
-               DefocusV, DefocusAngle, Cs) VALUES ('" \
+        sql = "INSERT INTO micrographs (ID, Name, Voltage, DefocusU, \
+               DefocusV, DefocusAngle, Cs) VALUES (" \
+            + str(micrographID) + ", '" \
             + micrographName[i] + "', " \
             + str(voltage[i]) + ", " \
             + str(defocusU[i]) + ", " \
             + str(defocusV[i]) + ", " \
             + str(defocusTheta[i]) + ", " + "0);"
         conn.execute(sql)
-        sql = "INSERT INTO groups (Name) VALUES ('');"
+
+        groupID = micrographID
+
+        sql = "INSERT INTO groups (ID, Name) VALUES (" \
+            + str(groupID) + ", '')"
         conn.execute(sql)
+
         conn.commit()
-        micrographID = len(micrographList)
+
     else:
+
         micrographID = micrographList.index(micrographName[i]) + 1
 
-    groupID = micrographID
+        groupID = micrographID
 
-    sql = "INSERT INTO particles (Name, GroupID, MicrographID) VALUES ('" \
+    sql = "INSERT INTO particles (ID, Name, GroupID, MicrographID) VALUES (" \
+        + str(i + 1) + ", '" \
         + imageName[i] + "', " \
         + str(groupID) + ", " \
         + str(micrographID) +");";
+
     conn.execute(sql)
     conn.commit()
 

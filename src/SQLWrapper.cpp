@@ -4,8 +4,8 @@
 
 #include <utility>
 
-namespace sql {
-
+namespace sql
+{
 static bool isOK(int code)
 {
     return code == SQLITE_OK || code == SQLITE_DONE || code == SQLITE_ROW;
