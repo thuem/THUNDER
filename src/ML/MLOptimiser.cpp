@@ -136,7 +136,7 @@ void MLOptimiser::expectation()
         Image image(size(), size(), FT_SPACE);
 
         // number of sampling for the next phase searching
-        //int nSamplingNextPhase = 0;
+        // int nSamplingNextPhase = 0;
 
         int nPhaseWithNoVariDecrease = 0;
 
@@ -595,6 +595,9 @@ void MLOptimiser::initImg()
         else
             CLOG(FATAL, "LOGGER_SYS") << "Database Changed";
         stmt.reset();
+
+        CLOG(INFO, "LOGGER_SYS") << imgName;
+
         // read the image fromm hard disk
 	    Image& currentImg = _img[l];
         ImageFile imf(imgName.c_str(), "rb");
