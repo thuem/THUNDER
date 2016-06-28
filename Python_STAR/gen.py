@@ -64,6 +64,8 @@ for i in range(len(lines)):
             + str(defocusV[i]) + ", " \
             + str(defocusTheta[i]) + ", " + "0);"
         conn.execute(sql)
+        sql = "INSERT INTO groups (Name) VALUES ('');"
+        conn.execute(sql)
         conn.commit()
         micrographID = len(micrographList)
     else:
