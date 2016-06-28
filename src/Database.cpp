@@ -97,8 +97,8 @@ void Database::saveDatabase(const int rank)
     int start, end;
     split(start, end, rank);
 
-    CLOG(INFO, "LOGGER_SYS") << "Start ID: " << start;
-    CLOG(INFO, "LOGGER_SYS") << "End ID: " << end;
+    // CLOG(INFO, "LOGGER_SYS") << "Start ID: " << start;
+    // CLOG(INFO, "LOGGER_SYS") << "End ID: " << end;
 
     vector<const char*> sqls;
 

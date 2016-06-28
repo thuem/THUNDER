@@ -14,6 +14,7 @@
 #include <vector>
 #include <cstdlib>
 #include <sstream>
+#include <string>
 
 #include "Typedef.h"
 

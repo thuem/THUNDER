@@ -582,9 +582,10 @@ void MLOptimiser::initImg()
     _img.clear();
     _img.resize(_ID.size());
 
-    std::string imgName;
+    string imgName;
 
     sql::Statement stmt("select Name from particles where ID = ?", -1, _exp.expose());
+
     FOR_EACH_2D_IMAGE
     {
         stmt.bind_int(1, _ID[l]);
@@ -594,15 +595,31 @@ void MLOptimiser::initImg()
             imgName = stmt.get_text(0);
         else
             CLOG(FATAL, "LOGGER_SYS") << "Database Changed";
+
         stmt.reset();
 
         CLOG(INFO, "LOGGER_SYS") << imgName;
 
-        // read the image fromm hard disk
 	    Image& currentImg = _img[l];
-        ImageFile imf(imgName.c_str(), "rb");
-        imf.readMetaData();
-        imf.readImage(currentImg);
+
+        // read the image fromm hard disk
+        if (imgName.find('@') == -1)
+        {
+            ImageFile imf(imgName.c_str(), "rb");
+            imf.readMetaData();
+            imf.readImage(currentImg);
+        else
+        {
+            int nSlc = atoi(imgName.substr(0, imgName.find('@')).c_str());
+            string filename = imgName.substr(imgName.find('@') + 1);
+
+            CLOG(INFO, "LOGGER_SYS") << "nSlc = " << nSLc;
+            CLOG(INFO, "LOGGER_SYS") << "filename = " << filename;
+
+            ImageFile imf(filename.c_str(), "rb");
+            imf.readMetaData();
+            imf.readImage(currentImage, nSlc);
+        }
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
