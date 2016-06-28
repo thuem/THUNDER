@@ -39,6 +39,8 @@
 
 #define A_B_AVERAGE_THRES 40 // Angstrom
 
+#define MAX_ITER_R_CHANGE_NO_DECREASE 2
+
 using namespace std;
 
 class MLModel : public Parallel
@@ -141,6 +143,8 @@ class MLModel : public Parallel
          * the previous
          */
         double _rChangePrev = 1;
+
+        int _nRChangeNoDecrease = 0;
 
         /**
          * the symmetry information
