@@ -14,7 +14,7 @@
 
 #define N 120
 #define M 10
-#define PF 2
+#define PF 4
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -66,9 +66,9 @@ int main(int argc, char* argv[])
     imf.writeVolume("centreHead.mrc", centreHead);
 
     Volume padHead;
-    VOL_PAD_RL(padHead, head, 1);
+    VOL_PAD_RL(padHead, head, PF);
     Volume padCentreHead;
-    VOL_PAD_RL(padCentreHead, centreHead, 1);
+    VOL_PAD_RL(padCentreHead, centreHead, PF);
     /***
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
@@ -141,16 +141,16 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "START";
 
+    char name[FILE_NAME_LENGTH];
+
     try
     {
     for (int k = 0; k < M; k++)
         for (int j = 0; j < M; j++)
             for (int i = 0; i < M; i++)
             {
-                /***
                 SET_0_FT(img);
                 printf("%02d %02d %02d\n", i, j, k);
-                ***/
                 projector.project(img,
                                   2 * M_PI * i / M,
                                   M_PI * j / M,
@@ -158,7 +158,6 @@ int main(int argc, char* argv[])
                                   10,
                                   10);
 
-                /***
                 sprintf(name, "%02d%02d%02dFT.bmp", i, j, k);
                 img.saveFTToBMP(name, 0.1);
 
@@ -172,7 +171,6 @@ int main(int argc, char* argv[])
                 imf.writeImage(name, img);
 
                 fft.fw(img);
-                ***/
             }
     }
     catch (Error& err)

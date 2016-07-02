@@ -629,7 +629,8 @@ void MLOptimiser::initImg()
         }
 
         // perform normalise
-        normalise(_img[l]);
+        //normalise(_img[l]);
+        normalise(currentImg);
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
@@ -1046,7 +1047,7 @@ void MLOptimiser::saveImages()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 20)
+        if (_ID[l] < 100)
         {
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
@@ -1068,7 +1069,7 @@ void MLOptimiser::saveReduceCTFImages()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 20)
+        if (_ID[l] < 100)
         {
             reduceCTF(img, _img[l], _ctf[l], maxR());
 
@@ -1092,7 +1093,7 @@ void MLOptimiser::saveLowPassImages()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 20)
+        if (_ID[l] < 100)
         {
             lowPassFilter(img, _img[l], 15.0 / _para.size, 3.0 / _para.size);
 
@@ -1116,7 +1117,7 @@ void MLOptimiser::saveLowPassReduceCTFImages()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 20)
+        if (_ID[l] < 100)
         {
             reduceCTF(img, _img[l], _ctf[l], maxR());
 
