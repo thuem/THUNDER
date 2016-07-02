@@ -17,7 +17,8 @@
 
 #define CTF_A 0.1
 
-#define CTF_TAU 0.001
+//#define CTF_TAU 0.001
+#define CTF_TAU 0.1
 
 void CTF(Image& dst,
          const double pixelSize,
