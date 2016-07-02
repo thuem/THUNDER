@@ -213,10 +213,12 @@ void MLOptimiser::expectation()
                                          _r);
             }
 
+                /***
                 logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
                 for (int m = 0; m < _par[l].n(); m++)
                     _par[l].mulW(exp(logW(m)), m);
+                ***/
 
                 /***
                 logW.array() -= logW.minCoeff();
@@ -232,13 +234,11 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
                 ***/
 
-            /***
             logW.array() -= logW.maxCoeff();
             logW.array() *= -1;
             logW.array() += 1;
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(1.0 / logW(m), m);
-            ***/
 
             _par[l].normW();
 
@@ -547,6 +547,9 @@ void MLOptimiser::initRef()
     imf.readMetaData();
     imf.readVolume(_model.ref(0));
 
+    // perform normalise
+    normalise(_model.ref(0));
+
     /***
     ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
                               << _model.ref(0).nColRL()
@@ -621,6 +624,9 @@ void MLOptimiser::initImg()
             imf.readMetaData();
             imf.readImage(currentImg, nSlc);
         }
+
+        // perform normalise
+        normalise(_img[l]);
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
