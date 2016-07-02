@@ -853,10 +853,10 @@ void MLOptimiser::allReduceSigma()
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
     }
 
+    MPI_Barrier(_hemi);
+
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
-
-    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
