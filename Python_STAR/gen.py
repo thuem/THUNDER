@@ -48,6 +48,12 @@ conn.execute('''CREATE TABLE groups
 
 conn.commit()
 
+sql = "INSERT INTO groups (ID, Name) VALUES (1, '')"
+
+conn.execute(sql)
+
+conn.commit()
+
 print "Tables Created"
 
 micrographList = []
@@ -72,19 +78,21 @@ for i in range(len(lines)):
             + str(defocusTheta[i]) + ", " + "0);"
         conn.execute(sql)
 
-        groupID = micrographID
+        # groupID = micrographID
 
-        sql = "INSERT INTO groups (ID, Name) VALUES (" \
-            + str(groupID) + ", '')"
-        conn.execute(sql)
+        # sql = "INSERT INTO groups (ID, Name) VALUES (" \
+          #   + str(groupID) + ", '')"
+        # conn.execute(sql)
 
-        conn.commit()
+        # conn.commit()
 
     else:
 
         micrographID = micrographList.index(micrographName[i]) + 1
 
-        groupID = micrographID
+        # groupID = micrographID
+
+    groupID = 1
 
     sql = "INSERT INTO particles (ID, Name, GroupID, MicrographID) VALUES (" \
         + str(i + 1) + ", '" \
