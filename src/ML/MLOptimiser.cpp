@@ -1054,6 +1054,30 @@ void MLOptimiser::saveImages()
     }
 }
 
+void MLOptimiser::saveReduceCTFImages()
+{
+    FFT fft;
+
+    Image img(size(), size(), FT_SPACE);
+    SET_0_FT(img);
+
+    char filename[FILE_NAME_LENGTH];
+
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < 20)
+        {
+            reduceCTF(img, _img[l], _ctf[l], maxR());
+
+            sprintf(filename, "Image_ReduceCTF_%04d.bmp", _ID[l]);
+
+            fft.bw(img);
+            _img[l].saveRLToBMP(filename);
+            fft.fw(img);
+        }
+    }
+}
+
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
