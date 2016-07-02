@@ -474,6 +474,7 @@ void MLOptimiser::run()
         {
             saveBestProjections();
             saveImages();
+            saveReduceCTFImages();
         } 
     }
 }
