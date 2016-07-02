@@ -47,9 +47,9 @@ struct ImageMetaData
 #define DEBUGWRITEIMAGE
 
 #define BYTE_MODE(mode) \
-    [&mode]() \
+    [](const int _mode) \
     { \
-        switch (mode) \
+        switch (_mode) \
         { \
             case 0: return 1; \
             case 1: return 2; \
@@ -59,7 +59,7 @@ struct ImageMetaData
             case 6: return 2; \
             default: return -1; \
         } \
-    }()
+    }(mode)
 
 #define IMAGE_INDEX(i, j, nCol) \
     j * (nCol) + i
