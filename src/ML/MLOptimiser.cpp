@@ -915,6 +915,18 @@ void MLOptimiser::reconstructRef()
         // reduceCTF(img, _img[l], _ctf[l], _r);
         reduceCTF(img, _img[l], _ctf[l], maxR());
 
+        if (_ID[l] < 20)
+        {
+            Image lp(_para.size, _para.size, FT_SPACE);
+            lowPassFilter(lp, img, (double)_r / _para.size, 3.0 / _para.size);
+            FFT fft;
+            fft.bw(lp);
+            
+            char filename[FILE_NAME_LENGTH];
+            sprintf(filename, "Insert_%04d_Round_%03d.bmp", _ID[l], _iter);
+            lp.saveRLToBMP(filename);
+        }
+
         /***
         if (_ID[l] == 1) // debug
         {
