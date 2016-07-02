@@ -475,6 +475,8 @@ void MLOptimiser::run()
             saveBestProjections();
             saveImages();
             saveReduceCTFImages();
+            saveLowPassImages();
+            saveLowPassReduceCTFImages();
         } 
     }
 }
@@ -1071,6 +1073,56 @@ void MLOptimiser::saveReduceCTFImages()
             reduceCTF(img, _img[l], _ctf[l], maxR());
 
             sprintf(filename, "Image_ReduceCTF_%04d.bmp", _ID[l]);
+
+            fft.bw(img);
+            _img[l].saveRLToBMP(filename);
+            fft.fw(img);
+        }
+    }
+}
+
+void MLOptimiser::saveLowPassImages()
+{
+    FFT fft;
+
+    Image img(size(), size(), FT_SPACE);
+    SET_0_FT(img);
+
+    char filename[FILE_NAME_LENGTH];
+
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < 20)
+        {
+            lowPassFilter(img, _img[l], 15.0 / _para.size, 3.0 / _para.size);
+
+            sprintf(filename, "Image_LowPass_%04d.bmp", _ID[l]);
+
+            fft.bw(img);
+            _img[l].saveRLToBMP(filename);
+            fft.fw(img);
+        }
+    }
+}
+
+void MLOptimiser::saveLowPassReduceCTFImages()
+{
+    FFT fft;
+
+    Image img(size(), size(), FT_SPACE);
+    SET_0_FT(img);
+
+    char filename[FILE_NAME_LENGTH];
+
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < 20)
+        {
+            reduceCTF(img, _img[l], _ctf[l], maxR());
+
+            lowPassFilter(img, _img[l], 15.0 / _para.size, 3.0 / _para.size);
+
+            sprintf(filename, "Image_LowPass_ReduceCTF_%04d.bmp", _ID[l]);
 
             fft.bw(img);
             _img[l].saveRLToBMP(filename);

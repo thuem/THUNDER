@@ -217,8 +217,17 @@ class MLOptimiser : public Parallel
         // save images to BMP file
         void saveImages();
 
+        // for debug
         // save images after removing CTFs
         void saveReduceCTFImages();
+
+        // for debug
+        // save low pass filtered images
+        void saveLowPassImages();
+
+        // for debug
+        // save low pass filtered images after removing CTFs
+        void saveLowPassReduceCTFImages();
 };
 
 double logDataVSPrior(const Image& dat,

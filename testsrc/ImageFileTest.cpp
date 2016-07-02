@@ -50,7 +50,8 @@ int main(int argc, char* argv[])
         outImf.writeImage(filename, image);
 
         // perform low pass filter with threshold at 8.7 A
-        double thres = PIXEL_SIZE / 8.7;
+        //double thres = PIXEL_SIZE / 8.7;
+        double thres = PIXEL_SIZE / 33;
         double ew = EW / N;
 
         R2R_FT(image, image, lowPassFilter(image, image, thres, ew));
