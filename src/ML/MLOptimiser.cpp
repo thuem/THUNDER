@@ -1075,7 +1075,7 @@ void MLOptimiser::saveReduceCTFImages()
             sprintf(filename, "Image_ReduceCTF_%04d.bmp", _ID[l]);
 
             fft.bw(img);
-            _img[l].saveRLToBMP(filename);
+            img.saveRLToBMP(filename);
             fft.fw(img);
         }
     }
@@ -1099,7 +1099,7 @@ void MLOptimiser::saveLowPassImages()
             sprintf(filename, "Image_LowPass_%04d.bmp", _ID[l]);
 
             fft.bw(img);
-            _img[l].saveRLToBMP(filename);
+            img.saveRLToBMP(filename);
             fft.fw(img);
         }
     }
@@ -1125,7 +1125,7 @@ void MLOptimiser::saveLowPassReduceCTFImages()
             sprintf(filename, "Image_LowPass_ReduceCTF_%04d.bmp", _ID[l]);
 
             fft.bw(img);
-            _img[l].saveRLToBMP(filename);
+            img.saveRLToBMP(filename);
             fft.fw(img);
         }
     }
