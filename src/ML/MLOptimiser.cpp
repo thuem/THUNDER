@@ -1022,7 +1022,7 @@ void MLOptimiser::saveBestProjections()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 20)
+        if (_ID[l] < 100)
         {
             SET_0_FT(result);
 
