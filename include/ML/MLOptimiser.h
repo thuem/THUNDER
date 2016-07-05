@@ -41,7 +41,7 @@
 #define ALPHA_LOCAL_SEARCH 0
 #define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
 
-#define MIN_N_PHASE_PER_ITER 1
+#define MIN_N_PHASE_PER_ITER 3
 #define MAX_N_PHASE_PER_ITER 100
 
 using namespace std;

@@ -54,10 +54,10 @@ int main(int argc, char* argv[])
         double thres = PIXEL_SIZE / 33;
         double ew = EW / N;
 
-        R2R_FT(image, image, lowPassFilter(image, image, thres, ew));
+        //R2R_FT(image, image, lowPassFilter(image, image, thres, ew));
 
-        sprintf(filename, "Image_%04d_LP.bmp", i);
-        image.saveRLToBMP(filename);
+        //sprintf(filename, "Image_%04d_LP.bmp", i);
+        //image.saveRLToBMP(filename);
         
         fft.fw(image);
 

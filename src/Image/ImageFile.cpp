@@ -208,8 +208,6 @@ void ImageFile::readImageMRC(Image& dst,
     size_t size = dst.sizeRL();
 
     SKIP_HEAD(size * iSlc * BYTE_MODE(mode()));
-    //SKIP_HEAD(size * iSlc);
-    //SKIP_HEAD(8);
 	
     switch (mode())
     {
