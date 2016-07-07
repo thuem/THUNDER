@@ -382,6 +382,9 @@ void MLOptimiser::run()
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
 
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
+        saveBestProjections();
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
         NT_MASTER
         {
@@ -472,7 +475,6 @@ void MLOptimiser::run()
         // save the result of last projection
         if (_iter == _para.iterMax - 1)
         {
-            saveBestProjections();
             saveImages();
             saveReduceCTFImages();
             saveLowPassImages();
@@ -1031,7 +1033,7 @@ void MLOptimiser::saveBestProjections()
 
             _model.proj(0).project(result, coord);
 
-            sprintf(filename, "Result_%04d.bmp", _ID[l]);
+            sprintf(filename, "Result_%04d_Round_%03d.bmp", _ID[l], _iter);
 
             fft.bw(result);
             result.saveRLToBMP(filename);
