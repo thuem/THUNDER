@@ -27,7 +27,6 @@
 
 #define MG 1000
 #define ML 100
-#define MF 10
 
 using namespace std;
 
