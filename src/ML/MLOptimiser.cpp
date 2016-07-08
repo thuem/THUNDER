@@ -552,8 +552,10 @@ void MLOptimiser::initRef()
     imf.readMetaData();
     imf.readVolume(_model.ref(0));
 
+    /***
     // perform normalise
     normalise(_model.ref(0));
+    ***/
 
     /***
     ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
@@ -630,9 +632,11 @@ void MLOptimiser::initImg()
             imf.readImage(currentImg, nSlc);
         }
 
+        /***
         // perform normalise
         //normalise(_img[l]);
         normalise(currentImg);
+        ***/
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
