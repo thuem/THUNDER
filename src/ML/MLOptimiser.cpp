@@ -752,22 +752,22 @@ void MLOptimiser::correctScale()
     }
     ***/
 
-    int totalN;
+    int nPar;
 
-    IF_MASTER totalN = _exp.nParticle();
+    IF_MASTER nPar = _exp.nParticle();
 
-    MPI_Bcast(&totalN, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+    MPI_Bcast(&nPar, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << totalN;
+    MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << nPar;
 
-    vec dc = vec::Zero(totalN);
+    vec dc = vec::Zero(nPar);
 
     NT_MASTER
     {
         FOR_EACH_2D_IMAGE
         {
-            //dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
-            dc(_ID[l] - 1) = 1;
+            dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
+            //dc(_ID[l] - 1) = 1;
         }
     }
 
@@ -782,7 +782,26 @@ void MLOptimiser::correctScale()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_SYS") << dc;
+    // MLOG(INFO, "LOGGER_SYS") << dc;
+
+    gsl_sort(dc.data(), 1, nPar);
+
+    double median = gsl_stats_quantile_from_sorted_data(dc.data(),
+                                                        1,
+                                                        nPar,
+                                                        0.5);
+
+    dc = abs(dc.array() - median);
+
+    gsl_sort(dc.data(), 1, nPar);
+
+    double std = gsl_stats_quantile_from_sorted_data(dc.data(),
+                                                     1,
+                                                     nPar,
+                                                     0.5)
+               * 1.4826;
+
+    MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
 }
 
 void MLOptimiser::initSigma()

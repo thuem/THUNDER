@@ -16,6 +16,9 @@
 #include <sstream>
 #include <string>
 
+#include <gsl/gsl_sort.h>
+#include <gsl/gsl_statistics.h>
+
 #include "Typedef.h"
 
 #include "Image.h"
