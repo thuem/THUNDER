@@ -151,6 +151,8 @@ int main(int argc, char* argv[])
     #pragma omp parallel for
     for (int i = 0; i < M; i++)
     {
+        FFT fftThread;
+
         auto engine = get_random_engine();
 
         char name[256];
@@ -181,7 +183,7 @@ int main(int argc, char* argv[])
         ADD_FT(image, noise);
         ***/
 
-        fft.bw(image);
+        fftThread.bw(image);
 
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                gsl_stats_mean(&image(0), 1, image.sizeRL()),
@@ -196,7 +198,7 @@ int main(int argc, char* argv[])
         imfThread.readMetaData(image);
         imfThread.writeImage(name, image);
 
-        fft.fw(image);
+        fftThread.fw(image);
     }
 
     
