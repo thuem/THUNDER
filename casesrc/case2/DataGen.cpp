@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
-    Volume cylinder(N, N, N);
+    Volume cylinder(N, N, N, RL_SPACE);
     SET_0_RL(cylinder);
 
     CLOG(INFO, "LOGGER_SYS") << "Generate Cylinder" << endl;
