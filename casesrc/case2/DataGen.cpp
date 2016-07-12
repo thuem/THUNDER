@@ -53,11 +53,16 @@ int main(int argc, char* argv[])
             cylinder.setRL(1, i, j, k);
 
     ImageFile imfCylinder;
+
+    CLOG(INFO, "LOGGER_SYS") << "Write Cylinder" << endl;
     imfCylinder.readMetaData(cylinder);
     imfCylinder.writeVolume("cylinder.mrc", cylinder);
 
+    CLOG(INFO, "LOGGER_SYS") << "Write Cylinder" << endl;
     Volume padCylinder;
     VOL_PAD_RL(padCylinder, cylinder, PF);
+
+    CLOG(INFO, "LOGGER_SYS") << "Write padCylinder" << endl;
     imfCylinder.readMetaData(padCylinder);
     imfCylinder.writeVolume("padCylinder.mrc", padCylinder);
 
