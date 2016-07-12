@@ -765,10 +765,7 @@ void MLOptimiser::correctScale()
     NT_MASTER
     {
         FOR_EACH_2D_IMAGE
-        {
             dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
-            //dc(_ID[l] - 1) = 1;
-        }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -807,6 +804,11 @@ void MLOptimiser::correctScale()
     double modelScale = abs(median) + 2 * std;
 
     MLOG(INFO, "LOGGER_SYS") << "modelScale = " << modelScale;
+
+    if (std > abs(median) * 0.05)
+        CLOG(WARNING, "LOGGER_SYS") << "DC Component Has a High Standard Deviation, It May Be Inaccurate!";
+
+    MLOG(INFO, "LOGGER_SYS" ) << "Sum of Reference = " << REAL(_model.ref(0)[0]) << endl;
 }
 
 void MLOptimiser::initSigma()
