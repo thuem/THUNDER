@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <gsl/gsl_statistics.h>
+
 #include "Projector.h"
 #include "FFT.h"
 #include "ImageFile.h"
@@ -47,6 +49,10 @@ int main(int argc, char* argv[])
     imf.readMetaData();
     imf.readVolume(ref);
 
+    cout << "Max = " << gsl_stats_max(&ref(0), 1, ref.sizeRL());
+    cout << "Min = " << gsl_stats_min(&ref(0), 1, ref.sizeRL());
+    cout << "Mean = " << gsl_stats_mean(&ref(0), 1, ref.sizeRL());
+
     cout << "Checkout Size" << endl;
     if ((ref.nColRL() != N) ||
         (ref.nRowRL() != N))
@@ -55,7 +61,7 @@ int main(int argc, char* argv[])
     cout << "Padding Head" << endl;
     Volume padRef;
     VOL_PAD_RL(padRef, ref, PF);
-    normalise(padRef);
+    //normalise(padRef);
 
     cout << "Writing padRef" << endl;
     imf.readMetaData(padRef);
