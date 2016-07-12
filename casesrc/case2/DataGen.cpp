@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
-    Volume cylinder;
+    Volume cylinder(N, N, N);
     SET_0_RL(cylinder);
 
     CLOG(INFO, "LOGGER_SYS") << "Generate Cylinder" << endl;
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     imfCylinder.readMetaData(cylinder);
     imfCylinder.writeVolume("cylinder.mrc", cylinder);
 
-    CLOG(INFO, "LOGGER_SYS") << "Write Cylinder" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Pad Cylinder" << endl;
     Volume padCylinder;
     VOL_PAD_RL(padCylinder, cylinder, PF);
 
