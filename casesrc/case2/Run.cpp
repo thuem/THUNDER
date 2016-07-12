@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     para.maxX = MAX_X;
     para.maxY = MAX_Y;
     sprintf(para.sym, "C15");
-    sprintf(para.initModel, "padRef.mrc");
+    sprintf(para.initModel, "padCylinder.mrc");
     sprintf(para.db, "C15.db");
 
     cout << "Setting Parameters" << endl;
