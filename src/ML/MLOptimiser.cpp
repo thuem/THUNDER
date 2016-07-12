@@ -804,7 +804,7 @@ void MLOptimiser::correctScale()
 
     MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
 
-    double modelScale = abs(mean) + 2 * std;
+    double modelScale = abs(median) + 2 * std;
 
     MLOG(INFO, "LOGGER_SYS") << "modelScale = " << modelScale;
 }
