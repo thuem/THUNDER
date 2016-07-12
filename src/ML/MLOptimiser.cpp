@@ -799,9 +799,14 @@ void MLOptimiser::correctScale()
                                                      1,
                                                      nPar,
                                                      0.5)
-               * 1.4826;
+               * 1.4826
+               / sqrt(nPar);
 
     MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
+
+    double modelScale = abs(mean) + 2 * std;
+
+    MLOG(INFO, "LOGGER_SYS") << "modelScale = " << modelScale;
 }
 
 void MLOptimiser::initSigma()
