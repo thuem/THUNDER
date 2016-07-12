@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <omp.h>
+
 #include <gsl/gsl_statistics.h>
 
 #include "Projector.h"
@@ -139,20 +141,21 @@ int main(int argc, char* argv[])
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
     exp.appendGroup("");
 
-    char name[256];
-
-    Image image(N, N, FT_SPACE);
-    
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points" << endl;
     Symmetry sym("C15");
     Particle par(M, MAX_X, MAX_Y, &sym);
     CLOG(INFO, "LOGGER_SYS") << "Saving Sampling Points" << endl;
     save("Sampling_Points.par", par);
 
-    Coordinate5D coord;
-    auto engine = get_random_engine();
+    #pragma omp parallel for
     for (int i = 0; i < M; i++)
     {
+        auto engine = get_random_engine();
+
+        char name[256];
+        Coordinate5D coord;
+
+        Image image(N, N, FT_SPACE);
         SET_0_FT(image);
 
         sprintf(name, "%05d.mrc", i + 1);
@@ -182,6 +185,7 @@ int main(int argc, char* argv[])
                gsl_stats_sd(&image(0), 1, image.sizeRL()),
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         
+        #pragma omp critical
         exp.appendParticle(name, 1, 1);
 
         imf.readMetaData(image);
