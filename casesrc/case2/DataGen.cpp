@@ -43,6 +43,24 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
+    Volume cylinder;
+    SET_0_RL(cylinder);
+
+    CLOG(INFO, "LOGGER_SYS") << "Generate Cylinder" << endl;
+    VOLUME_FOR_EACH_PIXEL_RL(cylinder)
+        if ((NORM(i, j) < 75.0 / PIXEL_SIZE) &&
+            (abs(k) < 100))
+            cylinder.setRL(1, i, j, k);
+
+    ImageFile imfCylinder;
+    imfCylinder.readMetaData(cylinder);
+    imfCylinder.writeVolume("cylinder.mrc", cylinder);
+
+    Volume padCylinder;
+    VOL_PAD_RL(padCylinder, cylinder, PF);
+    imfCylinder.readMetaData(padCylinder);
+    imfCylinder.writeVolume("padCylinder.mrc", padCylinder);
+
     CLOG(INFO, "LOGGER_SYS") << "Read-in Ref" << endl;
 
     Volume ref;
@@ -164,6 +182,7 @@ int main(int argc, char* argv[])
 
         fft.fw(image);
     }
+
     
     return 0;
 }
