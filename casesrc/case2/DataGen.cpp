@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     Volume cylinder(N, N, N, RL_SPACE);
     SET_0_RL(cylinder);
 
-    CLOG(INFO, "LOGGER_SYS") << "Generate Cylinder" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Generate Cylinder";
     VOLUME_FOR_EACH_PIXEL_RL(cylinder)
         if ((NORM(i, j) < 75.0 / PIXEL_SIZE) &&
             (abs(k) < 100))
@@ -56,19 +56,19 @@ int main(int argc, char* argv[])
 
     ImageFile imfCylinder;
 
-    CLOG(INFO, "LOGGER_SYS") << "Write Cylinder" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Write Cylinder";
     imfCylinder.readMetaData(cylinder);
     imfCylinder.writeVolume("cylinder.mrc", cylinder);
 
-    CLOG(INFO, "LOGGER_SYS") << "Pad Cylinder" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Pad Cylinder";
     Volume padCylinder;
     VOL_PAD_RL(padCylinder, cylinder, PF);
 
-    CLOG(INFO, "LOGGER_SYS") << "Write padCylinder" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Write padCylinder";
     imfCylinder.readMetaData(padCylinder);
     imfCylinder.writeVolume("padCylinder.mrc", padCylinder);
 
-    CLOG(INFO, "LOGGER_SYS") << "Read-in Ref" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Read-in Ref";
 
     Volume ref;
     ImageFile imf("ref.mrc", "r");
@@ -88,44 +88,44 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Mean = " << gsl_stats_mean(&ref(0), 1, ref.sizeRL());
     ***/
 
-    CLOG(INFO, "LOGGER_SYS") << "Checkout Size" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Checkout Size";
     if ((ref.nColRL() != N) ||
         (ref.nRowRL() != N))
-        CLOG(INFO, "LOGGER_SYS") << "Wrong Size!" << endl;
+        CLOG(INFO, "LOGGER_SYS") << "Wrong Size!";
 
-    CLOG(INFO, "LOGGER_SYS") << "Padding Head" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Padding Head";
     Volume padRef;
     VOL_PAD_RL(padRef, ref, PF);
     //normalise(padRef);
 
-    CLOG(INFO, "LOGGER_SYS") << "Writing padRef" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Writing padRef";
     imf.readMetaData(padRef);
     imf.writeVolume("padRef.mrc", padRef);
 
     /***
-    CLOG(INFO, "LOGGER_SYS") << "Reading from Hard-disk" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Reading from Hard-disk";
     ImageFile imf2("padHead.mrc", "rb");
     imf2.readMetaData();
     imf2.readVolume(padHead);
     ***/
     
-    CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Ref" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Ref";
     fft.fw(padRef);
     fft.fw(ref);
 
-    CLOG(INFO, "LOGGER_SYS") << "Sum of ref = " << REAL(ref[0]) << endl;
-    CLOG(INFO, "LOGGER_SYS") << "Sum of padRef = " << REAL(padRef[0]) << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Sum of ref = " << REAL(ref[0]);
+    CLOG(INFO, "LOGGER_SYS") << "Sum of padRef = " << REAL(padRef[0]);
 
-    CLOG(INFO, "LOGGER_SYS") << "Power Spectrum" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Power Spectrum";
     vec ps = vec::Zero(N);
     powerSpectrum(ps, ref, N / 2 - 1);
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting Projectee" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
     Projector projector;
     projector.setPf(PF);
     projector.setProjectee(padRef.copyVolume());
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting CTF" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
     Image ctf(N, N, FT_SPACE);
     CTF(ctf,
         PIXEL_SIZE,
@@ -135,16 +135,17 @@ int main(int argc, char* argv[])
         THETA,
         CS);
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Experiment" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Initialising Experiment";
     Experiment exp("C15.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
     exp.appendGroup("");
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points" << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
     Particle par(M, MAX_X, MAX_Y, &sym);
-    CLOG(INFO, "LOGGER_SYS") << "Saving Sampling Points" << endl;
+
+    CLOG(INFO, "LOGGER_SYS") << "Saving Sampling Points";
     save("Sampling_Points.par", par);
 
     #pragma omp parallel for
