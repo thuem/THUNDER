@@ -191,8 +191,10 @@ int main(int argc, char* argv[])
         #pragma omp critical
         exp.appendParticle(name, 1, 1);
 
-        imf.readMetaData(image);
-        imf.writeImage(name, image);
+        ImageFile imfThread;
+
+        imfThread.readMetaData(image);
+        imfThread.writeImage(name, image);
 
         fft.fw(image);
     }
