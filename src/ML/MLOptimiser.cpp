@@ -806,9 +806,13 @@ void MLOptimiser::correctScale()
     MLOG(INFO, "LOGGER_SYS") << "modelScale = " << modelScale;
 
     if (std > abs(median) * 0.05)
-        CLOG(WARNING, "LOGGER_SYS") << "DC Component Has a High Standard Deviation, It May Be Inaccurate!";
+        MLOG(WARNING, "LOGGER_SYS") << "DC Component Has a High Standard Deviation, It May Be Inaccurate!";
 
-    MLOG(INFO, "LOGGER_SYS" ) << "Sum of Reference = " << REAL(_model.ref(0)[0]) << endl;
+    MLOG(INFO, "LOGGER_SYS") << "Sum of Reference = " << REAL(_model.ref(0)[0]) << endl;
+
+    double sf = modelScale / REAL(_model.ref(0)[0]);
+    
+    MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
 }
 
 void MLOptimiser::initSigma()
