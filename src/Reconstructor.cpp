@@ -143,7 +143,7 @@ void Reconstructor::reconstruct(Volume& dst)
     allReduceF();
 
     // make sure the scale correct
-    SCALE_FT(_F, _pf * sqrt(_pf * _size));
+    // SCALE_FT(_F, _pf * sqrt(_pf * _size));
 
     dst = _F.copyVolume();
 
