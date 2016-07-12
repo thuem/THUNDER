@@ -112,6 +112,11 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
         initParticles();
+
+        ALOG(INFO, "LOGGER_INIT") << "Correcting Scale";
+        BLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
+
+        correctScale();
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
@@ -672,7 +677,9 @@ void MLOptimiser::initCTF()
             "select Voltage, DefocusU, DefocusV, DefocusAngle, CS from \
              micrographs, particles where \
              particles.micrographID = micrographs.ID and \
-             particles.ID = ?;", -1, _exp.expose());
+             particles.ID = ?;",
+             -1,
+             _exp.expose());
 
     FOR_EACH_2D_IMAGE
     {
@@ -708,6 +715,62 @@ void MLOptimiser::initCTF()
             ctfAttr.defocusAngle,
             ctfAttr.CS);
     }
+}
+
+void MLOptimiser::correctScale()
+{
+    /***
+    _groupScale.resize(_nGroup);
+
+    sql::Statement stmt("select count(*) from particles where groupID = ?;",
+                        -1,
+                        _exp.expose());
+
+    for (int i = 0; i < _nGroup; i++)
+    {
+        IF_MASTER
+        {
+            int groupSize;
+
+            stmt.bind_int(1, i + 1);
+
+            if (stmt.step())
+            {
+                groupSize = stmt.get_int(0);
+            }
+            else
+            {
+                CLOG(FATAL, "LOGGER_SYS") << "No Data";
+
+                __builtin_unreachable();
+            }
+
+            stmt.reset();
+
+            vec dc(groupSize);
+    }
+    ***/
+
+    IF_MASTER return;
+
+    vec dc = vec::Zero(_N);
+
+    FOR_EACH_2D_IMAGE
+        dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  dc.data(),
+                  dc.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi); 
+
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_SYS") << dc;
+    BLOG(INFO, "LOGGER_SYS") << dc;
 }
 
 void MLOptimiser::initSigma()

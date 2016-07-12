@@ -201,6 +201,8 @@ class MLOptimiser : public Parallel
 
         void initCTF();
 
+        void correctScale();
+
         void initSigma();
 
         void initParticles();
