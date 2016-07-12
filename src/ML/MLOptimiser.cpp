@@ -98,11 +98,6 @@ void MLOptimiser::init()
 
         _model.setR(_r);
 
-        ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
-        BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
-
-        _model.initProjReco();
-
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
@@ -112,7 +107,6 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
         initParticles();
-
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
@@ -125,6 +119,11 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
+        ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
+
+        _model.initProjReco();
+
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
@@ -813,6 +812,8 @@ void MLOptimiser::correctScale()
     double sf = modelScale / REAL(_model.ref(0)[0]);
     
     MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
+
+    SCALE_FT(_model.ref(0), sf);
 }
 
 void MLOptimiser::initSigma()
