@@ -751,14 +751,26 @@ void MLOptimiser::correctScale()
     }
     ***/
 
-    IF_MASTER return;
+    int totalN;
 
-    vec dc = vec::Zero(_N);
+    IF_MASTER totalN = _exp.nParticle();
 
-    FOR_EACH_2D_IMAGE
-        dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
+    MPI_Bcast(&totalN, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
-    MPI_Barrier(_hemi);
+    MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << totalN;
+
+    vec dc = vec::Zero(totalN);
+
+    NT_MASTER
+    {
+        FOR_EACH_2D_IMAGE
+        {
+            //dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
+            dc(_ID[l] - 1) = 1;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   dc.data(),
@@ -767,10 +779,9 @@ void MLOptimiser::correctScale()
                   MPI_SUM,
                   _hemi); 
 
-    MPI_Barrier(_hemi);
+    MPI_Barrier(MPI_COMM_WORLD);
 
-    ALOG(INFO, "LOGGER_SYS") << dc;
-    BLOG(INFO, "LOGGER_SYS") << dc;
+    MLOG(INFO, "LOGGER_SYS") << dc;
 }
 
 void MLOptimiser::initSigma()
