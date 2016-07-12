@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Min = " << gsl_stats_min(&ref(0), 1, ref.sizeRL());
     CLOG(INFO, "LOGGER_SYS") << "Mean = " << gsl_stats_mean(&ref(0), 1, ref.sizeRL());
 
-    FOR_EACH_PIXEL_RL
+    FOR_EACH_PIXEL_RL(ref)
         if (ref(i) < 0) ref(i) = 0;
 
     CLOG(INFO, "LOGGER_SYS") << "Max = " << gsl_stats_max(&ref(0), 1, ref.sizeRL());
