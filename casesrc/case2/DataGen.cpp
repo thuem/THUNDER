@@ -86,6 +86,9 @@ int main(int argc, char* argv[])
     fft.fw(padRef);
     fft.fw(ref);
 
+    CLOG(INFO, "LOGGER_SYS") << "Sum of ref = " << REAL(ref[0]) << endl;
+    CLOG(INFO, "LOGGER_SYS") << "Sum of padRef = " << REAL(padRef[0]) << endl;
+
     CLOG(INFO, "LOGGER_SYS") << "Power Spectrum" << endl;
     vec ps = vec::Zero(N);
     powerSpectrum(ps, ref, N / 2 - 1);
