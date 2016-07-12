@@ -120,6 +120,7 @@ void MLOptimiser::init()
     correctScale();
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
+
     bcastGroupInfo();
 
     NT_MASTER
@@ -777,7 +778,7 @@ void MLOptimiser::correctScale()
                   dc.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
-                  _hemi); 
+                  MPI_COMM_WORLD); 
 
     MPI_Barrier(MPI_COMM_WORLD);
 
