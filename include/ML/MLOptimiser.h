@@ -47,6 +47,8 @@
 #define MIN_N_PHASE_PER_ITER 3
 #define MAX_N_PHASE_PER_ITER 100
 
+#define MASK_RATIO 0.6
+
 using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
@@ -112,6 +114,9 @@ class MLOptimiser : public Parallel
 
         MLOptimiserPara _para;
 
+        int _nPar;
+        /* total number of 2D images */
+
         int _N;
         /* total number of 2D images in each hemisphere */
 
@@ -155,6 +160,18 @@ class MLOptimiser : public Parallel
 
         vector<int> _groupID;
 
+        double _noiseMean = 0;
+
+        double _noiseStddev = 0;
+
+        double _dataMean = 0;
+
+        double _dataStddev = 0;
+
+        double _signalMean = 0;
+
+        double _signalStddev = 0;
+
     public:
         
         MLOptimiser();
@@ -183,6 +200,8 @@ class MLOptimiser : public Parallel
 
     private:
 
+        void bCastNPar();
+
         void allReduceN();
 
         int size() const;
@@ -199,8 +218,9 @@ class MLOptimiser : public Parallel
         void initID();
         /* save IDs from database */
 
+        /* read 2D images from hard disk 
+         * keep a tally on the images */
         void initImg();
-        /* read 2D images from hard disk */
 
         void initCTF();
 

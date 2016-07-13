@@ -372,8 +372,8 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
         //_reco[i]->setMaxRadius(_r);
-        _reco[i]->setMaxRadius(MIN(maxR(), _r + MAX_GAP));
-        //_reco[i]->setMaxRadius(maxR());
+        //_reco[i]->setMaxRadius(MIN(maxR(), _r + MAX_GAP));
+        _reco[i]->setMaxRadius(maxR());
     }
 }
 

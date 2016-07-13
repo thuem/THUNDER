@@ -73,7 +73,6 @@ void translate(int& nTransCol,
 
     FFT fft;
 
-    //#pragma omp critical
     fft.bw(cc);
 
     double max = 0;
@@ -91,6 +90,14 @@ void translate(int& nTransCol,
                 nTransRow = j;
             }
         }
+}
+
+void meanStddev(double& mean,
+                double& stddev,
+                const Image& src)
+{
+    mean = gsl_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
+    stddev = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
 void bgMeanStddev(double& mean,

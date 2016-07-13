@@ -265,6 +265,16 @@ void translate(int& nTranCol,
                const int maxY);
 
 /**
+ * This function calculates the mean and standard deviation of an image.
+ * @param mean the mean value
+ * @param stddev the standard devation
+ * @param src the image to be calculated
+ */
+void meanStddev(double& mean,
+                double& stddev,
+                const Image& src);
+
+/**
  * This function calculates the mean and standard deviation of the background.
  * The background stands for the outer region beyond a certain radius.
  * @param mean the mean value

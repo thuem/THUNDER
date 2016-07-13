@@ -68,6 +68,9 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Appending Initial References into _model";
     initRef();
 
+    MLOG(INFO, "LOGGER_INIT") << "Bcasting Total Number of 2D Images";
+    bCastNPar();
+
     NT_MASTER
     {
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
@@ -495,6 +498,13 @@ void MLOptimiser::clear()
     _ctf.clear();
 }
 
+void MLOptimiser::bCastNPar()
+{
+    IF_MASTER _nPar = _exp.nParticle();
+
+    MPI_Bcast(&_nPar, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+}
+
 void MLOptimiser::allReduceN()
 {
     IF_MASTER return;
@@ -645,7 +655,10 @@ void MLOptimiser::initImg()
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
+        {
             CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
+            __builtin_unreachable();
+        }
 
         /***
         // apply a soft mask on it
@@ -661,8 +674,61 @@ void MLOptimiser::initImg()
         ***/
 
         // perform Fourier Transform
-        fft.fw(currentImg);
-        currentImg.clearRL();
+    }
+
+    // keep a tally on the images
+
+    FOR_EACH_2D_IMAGE
+    {
+        double mean, stddev;
+
+        meanStddev(mean, stddev, _img[l]);
+        _dataMean += mean;
+        _dataStddev += stddev;
+
+        bgMeanStddev(mean, stddev, _img[l], _img[l].nColRL() * MASK_RATIO);
+        _noiseMean += mean;
+        _noiseStddev += stddev;
+    }
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE, &_dataMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_dataStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_noiseMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_noiseStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+
+    MPI_Barrier(_hemi);
+
+    _dataMean /= _N;
+    _dataStddev /= _N;
+    _noiseMean /= _N;
+    _noiseStddev /= _N;
+
+    _signalMean = _dataMean - _noiseMean;
+    _signalStddev = _dataStddev - _noiseStddev;
+
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise : " << _noiseMean;
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Data : " << _dataMean;
+
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise : " << _noiseStddev;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data : " << _dataStddev;
+
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise : " << _noiseMean;
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Data : " << _dataMean;
+
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise : " << _noiseStddev;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data : " << _dataStddev;
+
+    // perform Fourier transform
+    FOR_EACH_2D_IMAGE
+    {
+        fft.fw(_img[l]);
+        _img[l].clearRL();
     }
 }
 
@@ -719,47 +785,9 @@ void MLOptimiser::initCTF()
 
 void MLOptimiser::correctScale()
 {
-    /***
-    _groupScale.resize(_nGroup);
+    MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << _nPar;
 
-    sql::Statement stmt("select count(*) from particles where groupID = ?;",
-                        -1,
-                        _exp.expose());
-
-    for (int i = 0; i < _nGroup; i++)
-    {
-        IF_MASTER
-        {
-            int groupSize;
-
-            stmt.bind_int(1, i + 1);
-
-            if (stmt.step())
-            {
-                groupSize = stmt.get_int(0);
-            }
-            else
-            {
-                CLOG(FATAL, "LOGGER_SYS") << "No Data";
-
-                __builtin_unreachable();
-            }
-
-            stmt.reset();
-
-            vec dc(groupSize);
-    }
-    ***/
-
-    int nPar;
-
-    IF_MASTER nPar = _exp.nParticle();
-
-    MPI_Bcast(&nPar, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
-
-    MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << nPar;
-
-    vec dc = vec::Zero(nPar);
+    vec dc = vec::Zero(_nPar);
 
     NT_MASTER
     {
@@ -780,23 +808,23 @@ void MLOptimiser::correctScale()
 
     // MLOG(INFO, "LOGGER_SYS") << dc;
 
-    gsl_sort(dc.data(), 1, nPar);
+    gsl_sort(dc.data(), 1, _nPar);
 
     double median = gsl_stats_quantile_from_sorted_data(dc.data(),
                                                         1,
-                                                        nPar,
+                                                        _nPar,
                                                         0.5);
 
     dc = abs(dc.array() - median);
 
-    gsl_sort(dc.data(), 1, nPar);
+    gsl_sort(dc.data(), 1, _nPar);
 
     double std = gsl_stats_quantile_from_sorted_data(dc.data(),
                                                      1,
-                                                     nPar,
+                                                     _nPar,
                                                      0.5)
                * 1.4826
-               / sqrt(nPar);
+               / sqrt(_nPar);
 
     MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
 
@@ -1034,7 +1062,7 @@ void MLOptimiser::reconstructRef()
         if (_ID[l] < 20)
         {
             Image lp(_para.size, _para.size, FT_SPACE);
-            lowPassFilter(lp, img, (double)_r / _para.size, 3.0 / _para.size);
+            //lowPassFilter(lp, img, (double)_r / _para.size, 3.0 / _para.size);
             FFT fft;
             fft.bw(lp);
             
