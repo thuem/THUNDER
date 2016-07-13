@@ -604,6 +604,7 @@ void MLOptimiser::initID()
 void MLOptimiser::initImg()
 {
     FFT fft;
+
     _img.clear();
     _img.resize(_ID.size());
 
@@ -944,17 +945,17 @@ void MLOptimiser::allReduceSigma()
     BLOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
 
     // set re-calculating part to zero
-    _sig.setZero();
-    /***
+    // _sig.setZero();
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
+    /***
     // project references with all frequency
     _model.setProjMaxRadius(maxR());
+    ***/
 
     // loop over 2D images
     FOR_EACH_2D_IMAGE
@@ -965,7 +966,9 @@ void MLOptimiser::allReduceSigma()
         Coordinate5D coord;
         double w;
         Image img(size(), size(), FT_SPACE);
-        vec sig(maxR());
+
+        //vec sig(maxR());
+        vec sig(_r);
 
         // loop over sampling points with top K weights
         for (int m = 0; m < TOP_K; m++)
@@ -987,11 +990,13 @@ void MLOptimiser::allReduceSigma()
             #pragma omp parallel for
             ADD_FT(img, _img[l]);
 
-            powerSpectrum(sig, img, maxR());
+            //powerSpectrum(sig, img, maxR());
+            powerSpectrum(sig, img, _r);
 
             // sum up the results from top K sampling points
             // TODO Change it to w
-            _sig.row(_groupID[l] - 1).head(maxR()) += (1.0 / TOP_K) * sig.transpose() / 2;
+            //_sig.row(_groupID[l] - 1).head(maxR()) += (1.0 / TOP_K) * sig.transpose() / 2;
+            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.transpose() / 2;
         }
 
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
@@ -1002,13 +1007,15 @@ void MLOptimiser::allReduceSigma()
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
                   (maxR() + 1) * _nGroup,
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
-    /***
+                  ***/
+
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
                   _r * _nGroup,
@@ -1018,17 +1025,21 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.col(_sig.cols() - 1).data(),
-                  // _sig.colptr(_sig.n_cols - 1),
                   _nGroup,
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
-    ***/
 
     MPI_Barrier(_hemi);
 
+    /***
     for (int i = 0; i < _sig.rows(); i++)
         _sig.row(i).head(maxR()) /= _sig(i, _sig.cols() - 1);
+        ***/
+    
+    for (int i = 0; i < _sig.rows(); i++)
+        _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
+
 
     /***
     ALOG(INFO) << "Saving Sigma";
@@ -1051,7 +1062,6 @@ void MLOptimiser::reconstructRef()
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
-
     FOR_EACH_2D_IMAGE
     {
         // reduce the CTF effect
@@ -1062,6 +1072,7 @@ void MLOptimiser::reconstructRef()
         if (_ID[l] < 20)
         {
             Image lp(_para.size, _para.size, FT_SPACE);
+            lp = img.copyImage();
             //lowPassFilter(lp, img, (double)_r / _para.size, 3.0 / _para.size);
             FFT fft;
             fft.bw(lp);
