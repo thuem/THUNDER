@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     Symmetry sym("C2");
 
     Particle particle;
-    particle.init(M, 30, 30, &sym);
+    particle.init(M, 30, &sym);
 
     save("Initial.par", particle);
 

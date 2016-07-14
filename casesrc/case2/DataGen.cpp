@@ -20,8 +20,7 @@
 
 #define N 380
 #define M 5000
-#define MAX_X 2
-#define MAX_Y 2
+#define TRANS_S 2
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
@@ -102,7 +101,7 @@ int main(int argc, char* argv[])
     
     cout << "Initialising Random Sampling Points" << endl;
     Symmetry sym("C15");
-    Particle par(M, MAX_X, MAX_Y, &sym);
+    Particle par(M, TRANS_S, &sym);
     cout << "Saving Sampling Points" << endl;
     save("Sampling_Points.par", par);
 

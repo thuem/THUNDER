@@ -137,8 +137,8 @@ void MLOptimiser::expectation()
 
         int nPhaseWithNoVariDecrease = 0;
 
-        double tVariS0 = _para.maxX;
-        double tVariS1 = _para.maxY;
+        double tVariS0 = 2 * _para.transS;
+        double tVariS1 = 2 * _para.transS;
         double rVari = 1;
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
@@ -176,6 +176,7 @@ void MLOptimiser::expectation()
             {
                 _par[l].rot(rot, m);
 
+                /***
                 if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                     (phase == 0))
                 {
@@ -199,9 +200,10 @@ void MLOptimiser::expectation()
                 }
                 else
                 {
+                ***/
                     _par[l].t(t, m);
                     _model.proj(0).project(image, rot, t);
-                }
+                //}
 
                 logW[m] = logDataVSPrior(_img[l], // data
                                          image, // prior
@@ -730,8 +732,7 @@ void MLOptimiser::initParticles()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
         _par[l].init(_para.mG,
-                     _para.maxX,
-                     _para.maxY,
+                     _para.transS,
                      &_sym);
 }
 

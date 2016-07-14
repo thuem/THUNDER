@@ -11,11 +11,10 @@
 Particle::Particle() {}
 
 Particle::Particle(const int n,
-                   const double maxX,
-                   const double maxY,
+                   const double transS,
                    const Symmetry* sym)
 {    
-    init(n, maxX, maxY, sym);
+    init(n, transS, sym);
 }
 
 Particle::~Particle()
@@ -24,16 +23,14 @@ Particle::~Particle()
 }
 
 void Particle::init(const int n,
-                    const double maxX,
-                    const double maxY,
+                    const double transS,
                     const Symmetry* sym)
 {
     clear();
 
     _n = n;
 
-    _maxX = maxX;
-    _maxY = maxY;
+    _transS = transS;
 
     _sym = sym;
 
@@ -53,8 +50,14 @@ void Particle::reset()
     auto engine = get_random_engine();
     for (int i = 0; i < _n; i++)
     {
-        _t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
-        _t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
+        gsl_ran_bivariate_gaussian(engine,
+                                   _transS,
+                                   _transS,
+                                   0,
+                                   &_t(i, 0),
+                                   &_t(i, 1));
+        //_t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
+        //_t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / _n;
     }
@@ -263,8 +266,14 @@ void Particle::resample(const int n,
     
     for (int i = 0; i < nG; i++)
     {
-        t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
-        t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
+        gsl_ran_bivariate_gaussian(engine,
+                                   _transS,
+                                   _transS,
+                                   0,
+                                   &_t(i, 0),
+                                   &_t(i, 1));
+        //t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
+        //t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / n;
     }

@@ -74,9 +74,7 @@ typedef struct ML_OPTIMISER_PARA
     int mL;
     // number of samplings in particle filter
 
-    int maxX;
-
-    int maxY;
+    double transS;
 
     char sym[SYM_ID_LENGTH];
 

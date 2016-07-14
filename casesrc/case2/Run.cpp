@@ -22,8 +22,9 @@
 #define N 380
 //#define MAX_X 4
 //#define MAX_Y 4
-#define MAX_X N / 8
-#define MAX_Y N / 8
+//#define MAX_X N / 8
+//#define MAX_Y N / 8
+#define TRANS_S 4
 
 #define PIXEL_SIZE 1.32
 
@@ -52,8 +53,7 @@ int main(int argc, char* argv[])
     para.pixelSize = PIXEL_SIZE;
     para.mG = MG;
     para.mL = ML;
-    para.maxX = MAX_X;
-    para.maxY = MAX_Y;
+    para.transS = TRANS_S;
     sprintf(para.sym, "C15");
     sprintf(para.initModel, "padRef.mrc");
     sprintf(para.db, "C15.db");
