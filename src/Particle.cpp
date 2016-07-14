@@ -270,8 +270,8 @@ void Particle::resample(const int n,
                                    _transS,
                                    _transS,
                                    0,
-                                   &_t(i, 0),
-                                   &_t(i, 1));
+                                   &t(i, 0),
+                                   &t(i, 1));
         //t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
         //t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
