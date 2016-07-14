@@ -20,8 +20,10 @@
 #define PF 2
 
 #define N 380
-#define MAX_X 4
-#define MAX_Y 4
+//#define MAX_X 4
+//#define MAX_Y 4
+#define MAX_X 90
+#define MAX_Y 90
 
 #define PIXEL_SIZE 1.32
 
