@@ -145,15 +145,18 @@ void MLOptimiser::expectation()
         {
             if ((_iter != 0) || (phase != 0))
             {
-                if (phase == 0)
+                if (_searchType == SEARCH_TYPE_GLOBAL)
                 {
-                    if (_searchType == SEARCH_TYPE_GLOBAL)
-                        _par[l].resample(_para.mG,
+                    if (phase == 0)
+                        _par[l].resample(AROUND(_para.mG * _para.transS),
                                          ALPHA_GLOBAL_SEARCH);
                     else
-                        _par[l].resample(_para.mL,
-                                         ALPHA_LOCAL_SEARCH);
+                        _par[l].resample(_para.mG,
+                                         ALPHA_GLOBAL_SEARCH);
                 }
+                else
+                    _par[l].resample(_para.mL,
+                                     ALPHA_LOCAL_SEARCH);
             }
 
             if ((_searchType == SEARCH_TYPE_LOCAL) &&
@@ -731,7 +734,7 @@ void MLOptimiser::initParticles()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.mG,
+        _par[l].init(AROUND(_para.mG * _para.transS),
                      _para.transS,
                      &_sym);
 }
