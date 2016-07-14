@@ -143,18 +143,15 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            if (_searchType == SEARCH_TYPE_GLOBAL)
+            if (phase == 0)
             {
-                if (phase == 0)
+                if (_searchType == SEARCH_TYPE_GLOBAL)
                     _par[l].resample(AROUND(_para.mG * _para.transS),
                                      ALPHA_GLOBAL_SEARCH);
                 else
-                    _par[l].resample(_para.mG,
-                                     ALPHA_GLOBAL_SEARCH);
+                    _par[l].resample(_para.mL,
+                                     ALPHA_LOCAL_SEARCH);
             }
-            else
-                _par[l].resample(_para.mL,
-                                 ALPHA_LOCAL_SEARCH);
 
             if ((_searchType == SEARCH_TYPE_LOCAL) &&
                 (phase == 0))
@@ -256,7 +253,10 @@ void MLOptimiser::expectation()
 
             // Only after resampling, the current variance can be calculated
             // correctly.
-            _par[l].resample();
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].resample(_para.mG);
+            else
+                _par[l].resample(_para.mL);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
