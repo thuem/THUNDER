@@ -47,6 +47,7 @@ void Particle::reset()
     // sample from Angular Central Gaussian Distribution with identity matrix
     sampleACG(_r, 1, 1, _n);
 
+    // sample from 2D Gaussian Distribution
     auto engine = get_random_engine();
     for (int i = 0; i < _n; i++)
     {
