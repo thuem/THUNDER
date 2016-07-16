@@ -20,7 +20,7 @@
 #define PF 2
 
 #define N 380
-#define TRANS_S 20
+#define TRANS_S 8
 
 #define PIXEL_SIZE 1.32
 
