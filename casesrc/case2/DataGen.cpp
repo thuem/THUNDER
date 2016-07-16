@@ -175,8 +175,8 @@ int main(int argc, char* argv[])
         SET_0_FT(noise);
         IMAGE_FOR_EACH_PIXEL_FT(noise)
             if (QUAD(i, j) < pow(N / 2 - 1, 2))
-                noise.setFT(COMPLEX(gsl_ran_gaussian(engine, 5 * sqrt(ps(AROUND(NORM(i, j))))),
-                                    gsl_ran_gaussian(engine, 5 * sqrt(ps(AROUND(NORM(i, j)))))),
+                noise.setFT(COMPLEX(gsl_ran_gaussian(engine, 1 * sqrt(ps(AROUND(NORM(i, j))))),
+                                    gsl_ran_gaussian(engine, 1 * sqrt(ps(AROUND(NORM(i, j)))))),
                             i,
                             j);
 
