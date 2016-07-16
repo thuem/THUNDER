@@ -884,7 +884,7 @@ void MLOptimiser::initSigma()
     for (int i = 0; i < maxR(); i++)
     {
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
-        psAvg(i) *= 2;
+        psAvg(i) = gsl_pow_2(psAvg(i));
     }
 
     // avgPs -> average power spectrum
@@ -923,7 +923,6 @@ void MLOptimiser::allReduceSigma()
     BLOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
 
     // set re-calculating part to zero
-    // _sig.setZero();
     _sig.leftCols(_r).setZero();
     _sig.rightCols(1).setZero();
 
@@ -1047,11 +1046,11 @@ void MLOptimiser::reconstructRef()
         // reduceCTF(img, _img[l], _ctf[l], _r);
         reduceCTF(img, _img[l], _ctf[l], maxR());
 
+        /***
         if (_ID[l] < 20)
         {
             Image lp(_para.size, _para.size, FT_SPACE);
             lp = img.copyImage();
-            //lowPassFilter(lp, img, (double)_r / _para.size, 3.0 / _para.size);
             FFT fft;
             fft.bw(lp);
             
@@ -1059,6 +1058,7 @@ void MLOptimiser::reconstructRef()
             sprintf(filename, "Insert_%04d_Round_%03d.bmp", _ID[l], _iter);
             lp.saveRLToBMP(filename);
         }
+        ***/
 
         /***
         if (_ID[l] == 1) // debug
