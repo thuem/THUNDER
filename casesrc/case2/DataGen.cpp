@@ -168,7 +168,6 @@ int main(int argc, char* argv[])
         FOR_EACH_PIXEL_FT(image)
             image[i] *= REAL(ctf[i]);
 
-        /***
         Image noise(N, N, FT_SPACE);
         SET_0_FT(noise);
         IMAGE_FOR_EACH_PIXEL_FT(noise)
@@ -179,7 +178,6 @@ int main(int argc, char* argv[])
                             j);
 
         ADD_FT(image, noise);
-        ***/
 
         fftThread.bw(image);
 
