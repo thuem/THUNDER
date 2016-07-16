@@ -114,7 +114,9 @@ void powerSpectrum(vec& dst,
         int u = AROUND(NORM(i, j));
         if (u < r)
         {
+            #pragma omp atomic
             dst(u) += ABS2(src.getFT(i, j));
+            #pragma omp atomic
             counter(u) += 1;
         }
     }
@@ -144,7 +146,9 @@ void powerSpectrum(vec& dst,
         int u = AROUND(NORM_3(i, j, k));
         if (u < r)
         {
+            #pragma omp atomic
             dst(u) += ABS2(src.getFT(i, j, k));
+            #pragma omp atomic
             counter(u) += 1;
         }
     }

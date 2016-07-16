@@ -20,10 +20,7 @@
 #define PF 2
 
 #define N 380
-#define MAX_X (N / 4)
-#define MAX_Y (N / 4)
-//#define MAX_X 4
-//#define MAX_Y 4
+#define TRANS_S 8
 
 #define PIXEL_SIZE 1.32
 
@@ -51,8 +48,7 @@ int main(int argc, char* argv[])
     para.pixelSize = PIXEL_SIZE;
     para.mG = MG;
     para.mL = ML;
-    para.maxX = MAX_X;
-    para.maxY = MAX_Y;
+    para.transS = TRANS_S;
     sprintf(para.sym, "C15");
     //sprintf(para.initModel, "padCylinder.mrc");
     sprintf(para.initModel, "padRef.mrc");

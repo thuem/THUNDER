@@ -25,8 +25,7 @@
 #define N 380
 //#define M 40000
 #define M 5000
-#define MAX_X 2
-#define MAX_Y 2
+#define TRANS_S 2
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
@@ -143,9 +142,8 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
-    Particle par(M, MAX_X, MAX_Y, &sym);
-
-    CLOG(INFO, "LOGGER_SYS") << "Saving Sampling Points";
+    Particle par(M, TRANS_S, &sym);
+    cout << "Saving Sampling Points" << endl;
     save("Sampling_Points.par", par);
 
     #pragma omp parallel for

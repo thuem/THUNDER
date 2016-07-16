@@ -148,23 +148,20 @@ void MLOptimiser::expectation()
 
         int nPhaseWithNoVariDecrease = 0;
 
-        double tVariS0 = _para.maxX;
-        double tVariS1 = _para.maxY;
+        double tVariS0 = 2 * _para.transS;
+        double tVariS1 = 2 * _para.transS;
         double rVari = 1;
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            if ((_iter != 0) || (phase != 0))
+            if (phase == 0)
             {
-                if (phase == 0)
-                {
-                    if (_searchType == SEARCH_TYPE_GLOBAL)
-                        _par[l].resample(_para.mG,
-                                         ALPHA_GLOBAL_SEARCH);
-                    else
-                        _par[l].resample(_para.mL,
-                                         ALPHA_LOCAL_SEARCH);
-                }
+                if (_searchType == SEARCH_TYPE_GLOBAL)
+                    _par[l].resample(AROUND(_para.mG * gsl_pow_2(_para.transS)),
+                                     ALPHA_GLOBAL_SEARCH);
+                else
+                    _par[l].resample(_para.mL,
+                                     ALPHA_LOCAL_SEARCH);
             }
 
             if ((_searchType == SEARCH_TYPE_LOCAL) &&
@@ -187,6 +184,7 @@ void MLOptimiser::expectation()
             {
                 _par[l].rot(rot, m);
 
+                /***
                 if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                     (phase == 0))
                 {
@@ -210,9 +208,10 @@ void MLOptimiser::expectation()
                 }
                 else
                 {
+                ***/
                     _par[l].t(t, m);
                     _model.proj(0).project(image, rot, t);
-                }
+                //}
 
                 logW[m] = logDataVSPrior(_img[l], // data
                                          image, // prior
@@ -263,36 +262,13 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 
-            // compute the number of sampling for the next phase of searching
-            //nSamplingNextPhase = GSL_MIN_INT(_par[l].n(), AROUND(2 * _par[l].neff()));
-
             // Only after resampling, the current variance can be calculated
             // correctly.
-
-            /***
-            CLOG(INFO, "LOGGER_SYS") << "Neff = " << _par[l].neff();
-            CLOG(INFO, "LOGGER_SYS") << "AROUND(10 * Neff) = " << AROUND(10 * _par[l].neff());
-            CLOG(INFO, "LOGGER_SYS") << "Final = " << GSL_MAX_INT(30,
-                                                                   GSL_MIN_INT(_par[l].n(),
-                                                                               AROUND(10 * _par[l].neff())));
-                                                                               ***/
             
-            /***
-            if ((phase == 0) &&
-                (_searchType == SEARCH_TYPE_GLOBAL))
-            {
-                _par[l].resample(GSL_MIN_INT(_par[l].n(),
-                                             AROUND(100 * _par[l].neff())));
-            }
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].resample(_para.mG);
             else
-            { 
-                _par[l].resample();
-            }
-            ***/
-
-            //_par[l].resample(GSL_MAX_INT(20, AROUND(_par[l].neff())), 0);
-            
-            _par[l].resample();
+                _par[l].resample(_para.mL);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
@@ -906,7 +882,10 @@ void MLOptimiser::initSigma()
 
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
+    {
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
+        psAvg(i) *= 2;
+    }
 
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
@@ -931,9 +910,8 @@ void MLOptimiser::initParticles()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.mG,
-                     _para.maxX,
-                     _para.maxY,
+        _par[l].init(AROUND(_para.mG * gsl_pow_2(_para.transS)),
+                     _para.transS,
                      &_sym);
 }
 

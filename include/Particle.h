@@ -39,14 +39,10 @@ class Particle
         int _n;
 
         /**
-         * the translation range along X-axis is [_maxX, maxX]
+         * the standard deviation of translation, assuming the translation
+         * follows a 2D Gaussian distribution
          */
-        double _maxX;
-
-        /**
-         * the translation range along Y-axis is [_maxY, maxY]
-         */
-        double _maxY;
+        double _transS;
 
         /**
          * a table storing the rotation information with each row storing a
@@ -113,13 +109,11 @@ class Particle
          * constructor of Particle
          *
          * @param n number of particles in this particle filter
-         * @param maxX maximum X-axis translation in pixel
-         * @param maxY maximum Y-axis translation in pixel
+         * @param transS stndard deviation of translation
          * @param sym symmetry of resampling space
          */
         Particle(const int n,
-                 const double maxX,
-                 const double maxY,
+                 const double transS,
                  const Symmetry* sym = NULL);
 
         /**
@@ -131,13 +125,11 @@ class Particle
          * This function initialises Particle.
          *
          * @param n number of particles in this particle filter
-         * @param maxX maximum X-axis translation in pixel
-         * @param maxY maximum Y-axis translation in pixel
+         * @param transS stndard deviation of translation
          * @param sym symmetry of resampling space
          */
         void init(const int n,
-                  const double maxX,
-                  const double maxY,
+                  const double transS,
                   const Symmetry* sym = NULL);
 
         /**
@@ -147,10 +139,27 @@ class Particle
         void reset();
 
         /**
-         * This function resets the particles in this particle to a uniform
-         * distribution with a given number of sampling points.
+         * This function resets the particles in this particle filter to a uniform
+         * distribution in rotation and 2D Gaussian distribution in translation
+         * with a given number of sampling points.
+         *
+         * @param n number of particles in this particle filter
          */
         void reset(const int n);
+
+        /**
+         * This function resets the particles in this particle filter to a
+         * uiform distribution in rotation with nR sampling points, and 2D
+         * Gaussian distribution in translation with nT sampling points. The
+         * total number of particles in this particle will be nR x nT. The
+         * sampling points for the iR-th rotation and the iT-th translation will
+         * be at (iR * nT + iT) index of the particles in this particle filter.
+         *
+         * @param nR the number of rotation in this particle filter
+         * @param nT the number of translation in this particle filter
+         */
+        void reset(const int nR,
+                   const int nT);
 
         /**
          * This function returns the number of particles in this particle

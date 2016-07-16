@@ -20,8 +20,7 @@
 #define PF 2
 
 #define N 128
-#define MAX_X 4
-#define MAX_Y 4
+#define TRANS_S 4
 
 #define PIXEL_SIZE 1.32
 
@@ -49,8 +48,7 @@ int main(int argc, char* argv[])
     para.pixelSize = PIXEL_SIZE;
     para.mG = MG;
     para.mL = ML;
-    para.maxX = MAX_X;
-    para.maxY = MAX_Y;
+    para.transS = TRANS_S;
     sprintf(para.sym, "C2");
     sprintf(para.initModel, "sphere.mrc");
     sprintf(para.db, "MickeyMouse.db");
