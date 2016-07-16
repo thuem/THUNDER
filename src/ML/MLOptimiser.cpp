@@ -663,7 +663,7 @@ void MLOptimiser::initImg()
         _dataMean += mean;
         _dataStddev += stddev;
 
-        bgMeanStddev(mean, stddev, _img[l], _img[l].nColRL() * MASK_RATIO);
+        bgMeanStddev(mean, stddev, _img[l], size() * MASK_RATIO);
         _noiseMean += mean;
         _noiseStddev += stddev;
     }

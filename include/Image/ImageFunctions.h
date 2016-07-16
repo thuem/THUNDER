@@ -206,8 +206,37 @@ using namespace std;
     }(dst, src, k)
 
 /**
- * This macro translations an image with a given vector indicating by the number
+ * This function generates a "translation image" with a given vector indicating
+ * the number of columns and the number of rows. An image can be tranlated by
+ * this vector, just by multiplying this "translation image" in Fourier space.
+ *
+ * @param dst the translation image
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
+void translate(Image& dst,
+               const double nTransCol,
+               const double nTransRow);
+
+/**
+ * This function generates a "translation image" in a certain frequency
+ * threshold with a given vector indicating the number of columns and the number
+ * of rows. An image can be tranlated by this vector, just by multiplying this
+ * "translation image" in Fourier space.
+ *
+ * @param dst the translation image
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
+void translate(Image& dst,
+               const double r,
+               const double nTransCol,
+               const double nTransRow);
+
+/**
+ * This function translations an image with a given vector indicating by the number
  * of columns and the number of rows.
+ *
  * @param dst the destination image (Fourier space)
  * @param src the source image (Fourier space)
  * @param nTransCol number of columns for translation
@@ -219,7 +248,7 @@ void translate(Image& dst,
                const double nTransRow);
 
 /**
- * This macro translations an image in a certain frequency threshold with a 
+ * This function translations an image in a certain frequency threshold with a 
  * given vector indicating by the number of columns and the number of rows.
  * @param dst the destination image (Fourier space)
  * @param src the source image (Fourier space)

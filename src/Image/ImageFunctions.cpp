@@ -11,6 +11,38 @@
 #include "ImageFunctions.h"
 
 void translate(Image& dst,
+               const double nTransCol,
+               const double nTransRow)
+{
+    double rCol = nTransCol / dst.nColRL();
+    double rRow = nTransRow / dst.nRowRL();
+
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+    {
+        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
+    }
+}
+
+void translate(Image& dst,
+               const double r,
+               const double nTransCol,
+               const double nTransRow)
+{
+    double rCol = nTransCol / dst.nColRL();
+    double rRow = nTransRow / dst.nRowRL();
+
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+    {
+        if (QUAD(i, j) < r * r)
+        {
+            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            dst.setFT(COMPLEX_POLAR(-phase), i, j);
+        }
+    }
+}
+
+void translate(Image& dst,
                const Image& src,
                const double nTransCol,
                const double nTransRow)
