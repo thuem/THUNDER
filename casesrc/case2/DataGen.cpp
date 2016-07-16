@@ -171,6 +171,7 @@ int main(int argc, char* argv[])
         FOR_EACH_PIXEL_FT(image)
             image[i] *= REAL(ctf[i]);
 
+        /***
         Image noise(N, N, FT_SPACE);
         SET_0_FT(noise);
         IMAGE_FOR_EACH_PIXEL_FT(noise)
@@ -179,10 +180,19 @@ int main(int argc, char* argv[])
                                     gsl_ran_gaussian(engine, 1 * sqrt(ps(AROUND(NORM(i, j)))))),
                             i,
                             j);
+                            ***/
 
-        ADD_FT(image, noise);
+        //ADD_FT(image, noise);
 
         fftThread.bw(image);
+
+        double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
+
+        Image noise(N, N, RL_SPACE);
+        FOR_EACH_PIXEL_RL(noise)
+            noise(i) = gsl_ran_gaussian(engine, 5 * std);
+
+        ADD_RL(image, noise);
 
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                gsl_stats_mean(&image(0), 1, image.sizeRL()),
