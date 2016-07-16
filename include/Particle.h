@@ -139,10 +139,27 @@ class Particle
         void reset();
 
         /**
-         * This function resets the particles in this particle to a uniform
-         * distribution with a given number of sampling points.
+         * This function resets the particles in this particle filter to a uniform
+         * distribution in rotation and 2D Gaussian distribution in translation
+         * with a given number of sampling points.
+         *
+         * @param n number of particles in this particle filter
          */
         void reset(const int n);
+
+        /**
+         * This function resets the particles in this particle filter to a
+         * uiform distribution in rotation with nR sampling points, and 2D
+         * Gaussian distribution in translation with nT sampling points. The
+         * total number of particles in this particle will be nR x nT. The
+         * sampling points for the iR-th rotation and the iT-th translation will
+         * be at (iR * nT + iT) index of the particles in this particle filter.
+         *
+         * @param nR the number of rotation in this particle filter
+         * @param nT the number of translation in this particle filter
+         */
+        void reset(const int nR,
+                   const int nT);
 
         /**
          * This function returns the number of particles in this particle

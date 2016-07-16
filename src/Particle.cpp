@@ -57,8 +57,6 @@ void Particle::reset()
                                    0,
                                    &_t(i, 0),
                                    &_t(i, 1));
-        //_t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
-        //_t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / _n;
     }
@@ -75,6 +73,44 @@ void Particle::reset(const int n)
     _w.resize(_n);
 
     reset();
+}
+
+void Particle::reset(const int nR,
+                     const int nT)
+{
+    _n = nR * nT;
+
+    _r.resize(_n, 4);
+    _r.resize(_n, 2);
+    _w.resize(_n);
+
+    mat4 r(nR, 4);
+
+    // sample from Angular Central Gaussian Distribution with identity matrix
+    sampleACG(r, 1, 1, nR);
+    
+    mat2 t(nT, 2);
+
+    // sample from 2D Gaussian Distribution
+    auto engine = get_random_engine();
+    for (int i = 0; i < nT; i++)
+        gsl_ran_bivariate_gaussian(engine,
+                                   _transS,
+                                   _transS,
+                                   0,
+                                   &t(i, 0),
+                                   &t(i, 1));
+
+    for (int j = 0; j < nR; j++)
+        for (int i = 0; i < nT; i++)
+        {
+            _r.row(j * nT + i) = r.row(j);
+            _t.row(j * nT + i) = t.row(i);
+            //_r(j * nT + i) = r(j);
+            //_t(j * nT + i) = t(i);
+
+            _w(j * nT + i) = 1.0 / _n;
+        }
 }
 
 int Particle::n() const { return _n; }
@@ -96,7 +132,6 @@ void Particle::vari(double& rVari,
                     double& s0,
                     double& s1) const
 {
-    //rVari = sqrt(_k1 / _k0);
     rVari = sqrt(_k1) / sqrt(_k0);
     s0 = _s0;
     s1 = _s1;
