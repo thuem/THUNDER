@@ -148,8 +148,8 @@ void MLOptimiser::expectation()
 
         int nPhaseWithNoVariDecrease = 0;
 
-        double tVariS0 = 2 * _para.transS;
-        double tVariS1 = 2 * _para.transS;
+        double tVariS0 = 5 * _para.transS;
+        double tVariS1 = 5 * _para.transS;
         double rVari = 1;
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)

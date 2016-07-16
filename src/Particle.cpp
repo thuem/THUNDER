@@ -276,6 +276,7 @@ void Particle::perturb(const double pf)
     }
 
     symmetrise();
+
     reCentre();
 }
 
