@@ -115,9 +115,6 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Sum of ref = " << REAL(ref[0]);
     CLOG(INFO, "LOGGER_SYS") << "Sum of padRef = " << REAL(padRef[0]);
 
-    CLOG(INFO, "LOGGER_SYS") << "Power Spectrum";
-    vec ps = vec::Zero(N);
-    powerSpectrum(ps, ref, N / 2 - 1);
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
     Projector projector;
@@ -149,6 +146,9 @@ int main(int argc, char* argv[])
     #pragma omp parallel for
     for (int i = 0; i < M; i++)
     {
+        // CLOG(INFO, "LOGGER_SYS") << "Power Spectrum";
+
+
         FFT fftThread;
 
         auto engine = get_random_engine();
@@ -165,6 +165,9 @@ int main(int argc, char* argv[])
         par.coord(coord, i);
         projector.project(image, coord);
 
+        vec ps = vec::Zero(N);
+        powerSpectrum(ps, image, N / 2 - 1);
+
         FOR_EACH_PIXEL_FT(image)
             image[i] *= REAL(ctf[i]);
 
@@ -172,8 +175,8 @@ int main(int argc, char* argv[])
         SET_0_FT(noise);
         IMAGE_FOR_EACH_PIXEL_FT(noise)
             if (QUAD(i, j) < pow(N / 2 - 1, 2))
-                noise.setFT(COMPLEX(gsl_ran_gaussian(engine, 10 * sqrt(ps(AROUND(NORM(i, j))))),
-                                    gsl_ran_gaussian(engine, 10 * sqrt(ps(AROUND(NORM(i, j)))))),
+                noise.setFT(COMPLEX(gsl_ran_gaussian(engine, 5 * sqrt(ps(AROUND(NORM(i, j))))),
+                                    gsl_ran_gaussian(engine, 5 * sqrt(ps(AROUND(NORM(i, j)))))),
                             i,
                             j);
 
