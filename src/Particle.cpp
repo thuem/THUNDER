@@ -276,6 +276,7 @@ void Particle::perturb(const double pf)
     }
 
     symmetrise();
+    reCentre();
 }
 
 void Particle::resample(const double alpha)
@@ -423,6 +424,26 @@ void Particle::symmetrise()
         quaternoin(quat, phi, theta, psi);
         _r.row(i) = quat.transpose();
     }
+}
+
+void Particle::reCentre()
+{
+    double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
+
+    //CLOG(INFO, "LOGGER_SYS") << "transM = " << transM;
+
+    auto engine = get_random_engine();
+
+    for (int i = 0; i < _n; i++)
+        if (NORM(_t(i, 0), _t(i, 1)) > transM)
+        {
+            gsl_ran_bivariate_gaussian(engine,
+                                       _transS,
+                                       _transS,
+                                       0,
+                                       &_t(i, 0),
+                                       &_t(i, 1));
+        }
 }
 
 void Particle::clear() {}

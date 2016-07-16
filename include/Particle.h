@@ -15,6 +15,7 @@
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
+#include <gsl/gsl_cdf.h>
 
 #include "Typedef.h"
 #include "Macro.h"
@@ -382,6 +383,12 @@ class Particle
          * according to the symmetry information.
          */
         void symmetrise();
+
+        /**
+         * This function re-centres in the translation of the particles in this
+         * particle filter.
+         */
+        void reCentre();
 
         /**
          * This function clears up the content in this particle filter.
