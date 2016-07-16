@@ -316,7 +316,7 @@ void MLOptimiser::maximization()
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
-    allReduceSigma();
+    //allReduceSigma();
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
@@ -706,7 +706,10 @@ void MLOptimiser::initSigma()
 
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
+    {
         psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
+        psAvg(i) *= 2;
+    }
 
     // avgPs -> average power spectrum
     // psAvg -> expectation of pixels
