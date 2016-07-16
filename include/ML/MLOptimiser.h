@@ -260,8 +260,22 @@ double logDataVSPrior(const Image& dat,
                       const int r);
 // dat -> data, pri -> prior, ctf
 
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& tra,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int r);
+
 double dataVSPrior(const Image& dat,
                    const Image& pri,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r);
+
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
+                   const Image& tra,
                    const Image& ctf,
                    const vec& sig,
                    const int r);

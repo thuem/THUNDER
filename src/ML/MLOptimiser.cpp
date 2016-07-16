@@ -910,8 +910,8 @@ void MLOptimiser::initParticles()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].init(AROUND(_para.mG * gsl_pow_2(_para.transS)),
-                     _para.transS,
+        _par[l].init(_para.transS,
+                     0.01,
                      &_sym);
 }
 
@@ -1271,7 +1271,8 @@ double logDataVSPrior(const Image& dat,
 
     IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
-        int u = AROUND(NORM(i, j));
+        //int u = AROUND(NORM(i, j));
+        int u = FLOOR(NORM(i, j));
 
         if ((FREQ_DOWN_CUTOFF < u) &&
             (u < r))
@@ -1282,18 +1283,36 @@ double logDataVSPrior(const Image& dat,
                          - REAL(ctf.iGetFT(index))
                          * pri.iGetFT(index))
                     / (-2 * sig[u]);
-            /***
-            result += ABS2(dat[index]
-                         - REAL(ctf[index])
-                         * pri[index])
+        }
+    }
+
+    return result;
+}
+
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& tra,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int r)
+{
+    double result = 0;
+
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    {
+        //int u = AROUND(NORM(i, j));
+        int u = FLOOR(NORM(i, j));
+
+        if ((FREQ_DOWN_CUTOFF < u) &&
+            (u < r))
+        {
+            int index = dat.iFTHalf(i, j);
+
+            result += ABS2(dat.iGetFT(index)
+                         - REAL(ctf.iGetFT(index))
+                         * pri.iGetFT(index)
+                         * tra.iGetFT(index))
                     / (-2 * sig[u]);
-                    ***/
-            /***
-            result += ABS2(dat.getFT(i, j)
-                         - REAL(ctf.getFT(i, j))
-                         * pri.getFT(i, j))
-                    / (-2 * sig[u]);
-            ***/
         }
     }
 
@@ -1307,4 +1326,14 @@ double dataVSPrior(const Image& dat,
                    const int r)
 {
     return exp(logDataVSPrior(dat, pri, ctf, sig, r));
+}
+
+double dataVSPrior(const Image& dat,
+                   const Image& pri,
+                   const Image& tra,
+                   const Image& ctf,
+                   const vec& sig,
+                   const int r)
+{
+    return exp(logDataVSPrior(dat, pri, tra, ctf, sig, r));
 }

@@ -29,6 +29,16 @@ using namespace std;
 #define AROUND(a) ((int)rint(a))
 
 /**
+ * This macros returns the lower nearest integer number of a.
+ */
+#define FLOOR(a) ((int)floor(a))
+
+/**
+ * This macros returns the upper nearest integer number of a.
+ */
+#define CEIL(a) ((int)ceil(a))
+
+/**
  * This macro returns the maximum value among a and b.
  */
 #define MAX(a, b) GSL_MAX(a, b)

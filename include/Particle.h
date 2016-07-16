@@ -45,6 +45,11 @@ class Particle
         double _transS;
 
         /**
+         * the re-center threshold of translation
+         */
+        double _transQ;
+
+        /**
          * a table storing the rotation information with each row storing a
          * quaternion
          */
@@ -109,11 +114,13 @@ class Particle
          * constructor of Particle
          *
          * @param n number of particles in this particle filter
-         * @param transS stndard deviation of translation
+         * @param transS standard deviation of translation
+         * @param transQ the re-center threshold of translation
          * @param sym symmetry of resampling space
          */
         Particle(const int n,
                  const double transS,
+                 const double transQ = 0.01,
                  const Symmetry* sym = NULL);
 
         /**
@@ -122,14 +129,27 @@ class Particle
         ~Particle();
 
         /**
+         * This function initialise Particle.
+         *
+         * @param transS stndard deviation of translation
+         * @param transM the maximum translation
+         * @param sym symmetry of resampling space
+         */
+        void init(const double transS,
+                  const double transQ = 0.01,
+                  const Symmetry* sym = NULL);
+
+        /**
          * This function initialises Particle.
          *
          * @param n number of particles in this particle filter
          * @param transS stndard deviation of translation
+         * @param transM the maximum translation
          * @param sym symmetry of resampling space
          */
         void init(const int n,
                   const double transS,
+                  const double transQ = 0.01,
                   const Symmetry* sym = NULL);
 
         /**

@@ -12,9 +12,10 @@ Particle::Particle() {}
 
 Particle::Particle(const int n,
                    const double transS,
+                   const double transQ,
                    const Symmetry* sym)
 {    
-    init(n, transS, sym);
+    init(n, transS, transQ, sym);
 }
 
 Particle::~Particle()
@@ -22,17 +23,26 @@ Particle::~Particle()
     clear();
 }
 
-void Particle::init(const int n,
-                    const double transS,
+void Particle::init(const double transS,
+                    const double transQ,
                     const Symmetry* sym)
 {
     clear();
 
-    _n = n;
-
     _transS = transS;
+    _transQ = transQ;
 
     _sym = sym;
+}
+
+void Particle::init(const int n,
+                    const double transS,
+                    const double transQ,
+                    const Symmetry* sym)
+{
+    init(transS, transQ, sym);
+
+    _n = n;
 
     _r.resize(_n, 4);
     _t.resize(_n, 2);
