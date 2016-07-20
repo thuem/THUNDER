@@ -391,14 +391,6 @@ void Particle::rank1st(vec4& quat,
 
     quaternion(quat, rank[0]);
     t(tran, rank[0]);
-
-    /***
-    double diff = 1 - abs(quat.cross(_topR));
-    
-    _topR = quat;
-
-    return diff;
-    ***/
 }
 
 void Particle::rank1st(mat33& rot,
@@ -406,6 +398,26 @@ void Particle::rank1st(mat33& rot,
 {
     vec4 quat;
     rank1st(quat, tran);
+
+    rotate3D(rot, quat);
+}
+
+void Particle::rand(vec4& quat,
+                    vec2& tran) const
+{
+    auto engine = get_random_engine();
+
+    size_t u = gsl_rng_uniform_int(engine, _n);
+
+    quaternion(quat, u);
+    t(tran, u);
+}
+
+void Particle::rand(mat33& rot,
+                    vec2& tran) const
+{
+    vec4 quat;
+    rand(quat, tran);
 
     rotate3D(rot, quat);
 }

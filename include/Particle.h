@@ -359,10 +359,10 @@ class Particle
         double diffTop();
 
         /**
-         * This function reports the 1-st rank coordinates by parameters.
+         * This function reports the 1-st rank coordinate by parameters.
          * 
          * @param quat the quaternion of the most likely rotation
-         * @param t the translation of the most likely coordinate
+         * @param tran the translation of the most likely coordinate
          */
         void rank1st(vec4& quat,
                      vec2& tran) const;
@@ -371,10 +371,28 @@ class Particle
          * This function reports the 1-st rank coordinates by parameters.
          * 
          * @param rot the rotation matrix of the most likely rotation
-         * @param t the translation of the most likely coordinate
+         * @param tran the translation of the most likely coordinate
          */
         void rank1st(mat33& rot,
                      vec2& tran) const;
+
+        /**
+         * This function randomly reports a coordinate by parameters.
+         *
+         * @param quat the quaternion of the rotation
+         * @param tran the translation
+         */
+        void rand(vec4& quat,
+                  vec2& tran) const;
+
+        /**
+         * This function randomly reports a coordinate by parameters.
+         *
+         * @param quat the rotation matrix of the rotation
+         * @param tran the translation
+         */
+        void rand(mat33& rot,
+                  vec2& tran) const;
     
     private:
 
