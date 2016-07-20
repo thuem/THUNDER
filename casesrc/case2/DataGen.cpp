@@ -186,6 +186,7 @@ int main(int argc, char* argv[])
 
         fftThread.bw(image);
 
+        /***
         double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
 
         Image noise(N, N, RL_SPACE);
@@ -198,6 +199,7 @@ int main(int argc, char* argv[])
                gsl_stats_mean(&image(0), 1, image.sizeRL()),
                gsl_stats_sd(&image(0), 1, image.sizeRL()),
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
+        ***/
         
         #pragma omp critical
         exp.appendParticle(name, 1, 1);
