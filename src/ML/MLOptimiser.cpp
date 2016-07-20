@@ -154,21 +154,35 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
+            int nR = 0;
+            int nT = 0;
+
             if (phase == 0)
             {
                 if (_searchType == SEARCH_TYPE_GLOBAL)
+                {
+                    nR = _para.mG;
+                    nT = AROUND(M_PI * gsl_pow_2(_para.transS));
+                    
+                    _par[l].reset(nR, nT);
+                    //_par[l].reset(_par.mG, AROUND(M_PI * gsl_pow_2(_para.transS)));
+                    /***
                     _par[l].resample(AROUND(_para.mG * gsl_pow_2(_para.transS)),
                                      ALPHA_GLOBAL_SEARCH);
+                    ***/
+                }
                 else
                     _par[l].resample(_para.mL,
                                      ALPHA_LOCAL_SEARCH);
             }
 
-            if ((_searchType == SEARCH_TYPE_LOCAL) &&
-                (phase == 0))
+            if (phase == 0)
             {
-                // perturb with 5x confidence area
-                _par[l].perturb(5);
+                if (_searchType == SEARCH_TYPE_LOCAL)
+                {
+                    // perturb with 5x confidence area
+                    _par[l].perturb(5);
+                }
             }
             else
             {
@@ -176,48 +190,72 @@ void MLOptimiser::expectation()
                 _par[l].perturb();
             }
 
+            /***
+            if ((_searchType == SEARCH_TYPE_LOCAL) &&
+                (phase == 0))
+            {
+                // perturb with 5x confidence area
+                _par[l].perturb(5);
+            }
+            else if (phase != 0)
+            {
+                // pertrub with 0.2x confidence area
+                _par[l].perturb();
+            }
+            ***/
+
             vec logW(_par[l].n());
             mat33 rot;
             vec2 t;
 
-            for (int m = 0; m < _par[l].n(); m++)
+            if ((_searchType == SEARCH_TYPE_GLOBAL) &&
+                (phase == 0))
             {
-                _par[l].rot(rot, m);
+                // generate "translations"
 
-                /***
-                if ((_searchType == SEARCH_TYPE_GLOBAL) &&
-                    (phase == 0))
+                vector<Image> trans;
+                trans.resize(nT);
+
+                for (int m = 0; m < nT; m++)
                 {
+                    trans[m].alloc(size(), size(), FT_SPACE);
+
+                    _par[l].t(t, m);
+                    
+                    translate(trans[m], _r, t(0), t(1));
+                }
+
+                // perform expectations
+
+                for (int m = 0; m < nR; m++)
+                {
+                    _par[l].rot(rot, m * nT);
+
                     _model.proj(0).project(image, rot);
 
-                    // TODO: check the diff
-                    int nTransCol, nTransRow;
-                    translate(nTransCol,
-                              nTransRow,
-                              image,
-                              _img[l],
-                              _r,
-                              _para.maxX,
-                              _para.maxY);
-                    t(0) = nTransCol;
-                    t(1) = nTransRow;
-
-                    translate(image, image, _r, t(0), t(1));
-
-                    _par[l].setT(t, m);
+                    for (int n = 0; n < nT; n++)
+                        logW(m * nT + n) = logDataVSPrior(_img[l], // dat
+                                                          image, // pri
+                                                          trans[n], // tra
+                                                          _ctf[l], // ctf
+                                                          _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
+                                                          _r);
                 }
-                else
+            }
+            else
+            {
+                for (int m = 0; m < _par[l].n(); m++)
                 {
-                ***/
+                    _par[l].rot(rot, m);
                     _par[l].t(t, m);
                     _model.proj(0).project(image, rot, t);
-                //}
 
-                logW[m] = logDataVSPrior(_img[l], // data
-                                         image, // prior
-                                         _ctf[l], // ctf
-                                         _sig.row(_groupID[l] - 1).head(_r).transpose(),
-                                         _r);
+                    logW(m) = logDataVSPrior(_img[l], // dat
+                                             image, // pri
+                                             _ctf[l], // ctf
+                                             _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
+                                             _r);
+                }
             }
 
                 /***

@@ -59,4 +59,15 @@ int main(int argc, char* argv[])
     translate(nTransCol, nTransRow, image, trans, N / 2, N / 4, N / 4);
 
     cout << "nTransCol = " << nTransCol << ", nTranRow = " << nTransRow << endl;
+
+    cout << "****** translate ******" << endl;
+
+    Image transImg(N, N, FT_SPACE);
+    translate(transImg, N / 8, N / 8);
+
+    MUL_FT(image, transImg);
+
+    fft.bw(image);
+
+    image.saveRLToBMP("trans3.bmp");
 }
