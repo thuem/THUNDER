@@ -166,7 +166,8 @@ void MLOptimiser::expectation()
                     // double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
                     nT = AROUND(M_PI
                               * gsl_pow_2(_para.transS
-                                        * gsl_cdf_chisq_Qinv(0.01, 2)));
+                                        * gsl_cdf_chisq_Qinv(0.01, 2))
+                              / 30);
                     
                     _par[l].reset(nR, nT);
                     //_par[l].reset(_par.mG, AROUND(M_PI * gsl_pow_2(_para.transS)));
