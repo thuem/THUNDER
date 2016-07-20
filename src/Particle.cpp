@@ -91,7 +91,7 @@ void Particle::reset(const int nR,
     _n = nR * nT;
 
     _r.resize(_n, 4);
-    _r.resize(_n, 2);
+    _t.resize(_n, 2);
     _w.resize(_n);
 
     mat4 r(nR, 4);
