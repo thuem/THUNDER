@@ -211,7 +211,6 @@ void MLOptimiser::expectation()
             if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                 (phase == 0))
             {
-                /***
                 // generate "translations"
 
                 vector<Image> trans;
@@ -242,10 +241,11 @@ void MLOptimiser::expectation()
                                                           _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                                           _r);
                 }
-                ***/
 
+                /***
                 for (int m = 0; m < _par[l].n(); m++)
                     logW(m) = 1;
+                    ***/
             }
             else
             {
