@@ -211,7 +211,6 @@ int main(int argc, char* argv[])
 
         fftThread.fw(image);
     }
-
     
     return 0;
 }
