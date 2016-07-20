@@ -162,7 +162,11 @@ void MLOptimiser::expectation()
                 if (_searchType == SEARCH_TYPE_GLOBAL)
                 {
                     nR = _para.mG;
-                    nT = AROUND(M_PI * gsl_pow_2(_para.transS));
+                    // nT = AROUND(M_PI * gsl_pow_2(_para.transS));
+                    // double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
+                    nT = AROUND(M_PI
+                              * gsl_pow_2(_para.transS
+                                        * gsl_cdf_chisq_Qinv(0.01, 2)));
                     
                     _par[l].reset(nR, nT);
                     //_par[l].reset(_par.mG, AROUND(M_PI * gsl_pow_2(_para.transS)));

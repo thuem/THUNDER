@@ -18,6 +18,7 @@
 
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
+#include <gsl/gsl_cdf.h>
 
 #include "Typedef.h"
 
