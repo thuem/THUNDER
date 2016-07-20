@@ -162,19 +162,12 @@ void MLOptimiser::expectation()
                 if (_searchType == SEARCH_TYPE_GLOBAL)
                 {
                     nR = _para.mG;
-                    // nT = AROUND(M_PI * gsl_pow_2(_para.transS));
-                    // double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
-                    nT = AROUND(M_PI
-                              * gsl_pow_2(_para.transS
-                                        * gsl_cdf_chisq_Qinv(0.01, 2))
-                              / 30);
+                    nT = GSL_MAX_INT(100,
+                                     AROUND(M_PI
+                                          * gsl_pow_2(_para.transS
+                                                    * gsl_cdf_chisq_Qinv(0.5, 2))));
                     
                     _par[l].reset(nR, nT);
-                    //_par[l].reset(_par.mG, AROUND(M_PI * gsl_pow_2(_para.transS)));
-                    /***
-                    _par[l].resample(AROUND(_para.mG * gsl_pow_2(_para.transS)),
-                                     ALPHA_GLOBAL_SEARCH);
-                    ***/
                 }
                 else
                     _par[l].resample(_para.mL,
@@ -246,11 +239,6 @@ void MLOptimiser::expectation()
                                                           _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                                           _r);
                 }
-
-                /***
-                for (int m = 0; m < _par[l].n(); m++)
-                    logW(m) = 1;
-                    ***/
             }
             else
             {
