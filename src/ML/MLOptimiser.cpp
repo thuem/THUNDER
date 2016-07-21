@@ -240,9 +240,6 @@ void MLOptimiser::expectation()
                                                           _r);
                 }
 
-                // sort
-
-                _par[l].sort(_par[l].n());
 
                 // shuffle
 
@@ -292,6 +289,16 @@ void MLOptimiser::expectation()
                 _par[l].mulW(1.0 / logW(m), m);
 
             _par[l].normW();
+
+            if ((_searchType == SEARCH_TYPE_GLOBAL) &&
+                (phase == 0))
+            {
+                // sort
+                _par[l].sort(_par[l].n());
+
+                // shuffle
+                // _par[l].shuffle();
+            }
 
             if (_ID[l] < 20)
             {
