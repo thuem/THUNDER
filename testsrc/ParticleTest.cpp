@@ -50,6 +50,8 @@ int main(int argc, char* argv[])
 
         particle.normW();
 
+        particle.sort(particle.n());
+
         sprintf(filename, "Round_%04d.par", i);
         save(filename, particle);
     }

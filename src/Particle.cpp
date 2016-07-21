@@ -445,7 +445,7 @@ void Particle::shuffle()
 {
     uvec s = uvec(_n);
 
-    for (int i = 0; i < _n; i++) s(i) = i;
+    for (unsigned int i = 0; i < _n; i++) s(i) = i;
 
     auto engine = get_random_engine();
 
