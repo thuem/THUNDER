@@ -511,10 +511,10 @@ void save(const char filename[],
         par.quaternion(q, i);
         par.t(t, i);
         fprintf(file,
-                "%.10lf %.10lf %.10lf %.10lf %.10lf %.10lf %.10lf\n",
-                 q(0), q(1), q(2), q(3),
-                 t(0), t(1),
-                 par.w(i));
+                "%12.9lf %12.9lf %12.9lf %12.9lf %12.9lf %12.9lf %12.9lf\n",
+                q(0), q(1), q(2), q(3),
+                t(0), t(1),
+                par.w(i));
     }
 
     fclose(file);
