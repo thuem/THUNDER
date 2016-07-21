@@ -422,6 +422,32 @@ void Particle::rand(mat33& rot,
     rotate3D(rot, quat);
 }
 
+void Particle::shuffle()
+{
+    uvec s = uvec(_n);
+
+    for (int i = 0; i < _n; i++) s(i) = i;
+
+    auto engine = get_random_engine();
+
+    gsl_ran_shuffle(engine, s.data(), _n, sizeof(int));
+
+    mat4 r(_n, 4);
+    mat2 t(_n, 2);
+    vec w(_n);
+
+    for (int i = 0; i < _n; i++)
+    {
+        r.row(s(i)) = _r.row(i);
+        t.row(s(i)) = _t.row(i);
+        w(s(i)) = _w(i);
+    }
+
+    _r = r;
+    _t = t;
+    _w = w;
+}
+
 void Particle::symmetrise()
 {
     double phi, theta, psi;

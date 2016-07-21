@@ -393,6 +393,8 @@ class Particle
          */
         void rand(mat33& rot,
                   vec2& tran) const;
+
+        void shuffle();
     
     private:
 
