@@ -240,6 +240,10 @@ void MLOptimiser::expectation()
                                                           _r);
                 }
 
+                // sort
+
+                _par[l].sort(_par[l].n());
+
                 // shuffle
 
                 _par[l].shuffle();

@@ -116,8 +116,6 @@ void Particle::reset(const int nR,
         {
             _r.row(j * nT + i) = r.row(j);
             _t.row(j * nT + i) = t.row(i);
-            //_r(j * nT + i) = r(j);
-            //_t(j * nT + i) = t(i);
 
             _w(j * nT + i) = 1.0 / _n;
         }
@@ -364,10 +362,31 @@ double Particle::neff() const
     // return 1.0 / gsl_pow_2(norm(_w, 2));
 }
 
+void Particle::sort(const int n)
+{
+    uvec order = iSort();
+
+    mat4 r(n, 4);
+    mat2 t(n, 2);
+    vec w(n);
+
+    for (int i = 0; i < n; i++)
+    {
+        r.row(i) = _r.row(order(i));
+        t.row(i) = _t.row(order(i));
+        w(i) = _w(order(i));
+    }
+
+    _n = n;
+
+    _r = r;
+    _t = t;
+    _w = w;
+}
+
 uvec Particle::iSort() const
 {
     return index_sort_descend(_w);
-    // return sort_index(_w, "descend");
 }
 
 double Particle::diffTop()

@@ -346,6 +346,14 @@ class Particle
         double neff() const;
 
         /**
+         * This function sorts all particles by their weight in a descending
+         * order. It only keeps top N particles.
+         *
+         * @param n the number of particles to keep
+         */
+        void sort(const int n);
+
+        /**
          * This function returns the index of sorting of the particles' weight
          * in a descending order.
          */
