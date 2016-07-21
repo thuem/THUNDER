@@ -289,7 +289,7 @@ void MLOptimiser::expectation()
                 (phase == 0))
             {
                 // sort
-                _par[l].sort(_para.mG);
+                // _par[l].sort(_para.mG);
 
                 // shuffle
                 //_par[l].shuffle();
