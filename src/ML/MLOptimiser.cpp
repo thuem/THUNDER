@@ -246,7 +246,7 @@ void MLOptimiser::expectation()
 
                 // shuffle
 
-                _par[l].shuffle();
+                // _par[l].shuffle();
             }
             else
             {
