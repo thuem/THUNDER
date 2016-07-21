@@ -239,11 +239,6 @@ void MLOptimiser::expectation()
                                                           _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                                           _r);
                 }
-
-
-                // shuffle
-
-                // _par[l].shuffle();
             }
             else
             {
@@ -297,7 +292,7 @@ void MLOptimiser::expectation()
                 _par[l].sort(_para.mG);
 
                 // shuffle
-                _par[l].shuffle();
+                //_par[l].shuffle();
             }
 
             if (_ID[l] < 20)
