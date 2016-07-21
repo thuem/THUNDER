@@ -165,7 +165,7 @@ void MLOptimiser::expectation()
                     nT = GSL_MAX_INT(100,
                                      AROUND(M_PI
                                           * gsl_pow_2(_para.transS
-                                                    * gsl_cdf_chisq_Qinv(0.9, 2))));
+                                                    * gsl_cdf_chisq_Qinv(0.1, 2))));
                     
                     _par[l].reset(nR, nT);
                 }
