@@ -294,10 +294,10 @@ void MLOptimiser::expectation()
                 (phase == 0))
             {
                 // sort
-                _par[l].sort(_par[l].n());
+                _par[l].sort(_para.mG);
 
                 // shuffle
-                // _par[l].shuffle();
+                _par[l].shuffle();
             }
 
             if (_ID[l] < 20)
