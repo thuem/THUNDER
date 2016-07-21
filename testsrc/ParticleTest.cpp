@@ -8,7 +8,7 @@
 
 #include "Particle.h"
 
-#define M 5000
+#define M 100
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -37,6 +37,8 @@ int main(int argc, char* argv[])
             cout << "Resampling" << endl;
             particle.resample();
         }
+
+        particle.shuffle();
         
         particle.perturb();
 

@@ -239,6 +239,10 @@ void MLOptimiser::expectation()
                                                           _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                                           _r);
                 }
+
+                // shuffle
+
+                _par[l].shuffle();
             }
             else
             {

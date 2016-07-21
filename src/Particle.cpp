@@ -430,7 +430,9 @@ void Particle::shuffle()
 
     auto engine = get_random_engine();
 
-    gsl_ran_shuffle(engine, s.data(), _n, sizeof(int));
+    gsl_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
+
+    // cout << s << endl << endl;
 
     mat4 r(_n, 4);
     mat2 t(_n, 2);
