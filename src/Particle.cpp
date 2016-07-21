@@ -511,7 +511,7 @@ void save(const char filename[],
         par.quaternion(q, i);
         par.t(t, i);
         fprintf(file,
-                "%10f %10f %10f %10f %10f %10f %10f\n",
+                "%12f %12f %12f %12f %12f %12f %12f\n",
                  q(0),q(1),q(2),q(3),
                  t(0), t(1),
                  par.w(i));
