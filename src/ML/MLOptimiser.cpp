@@ -162,10 +162,11 @@ void MLOptimiser::expectation()
                 if (_searchType == SEARCH_TYPE_GLOBAL)
                 {
                     nR = _para.mG;
-                    nT = GSL_MAX_INT(100,
+                    nT = GSL_MAX_INT(50,
                                      AROUND(M_PI
                                           * gsl_pow_2(_para.transS
-                                                    * gsl_cdf_chisq_Qinv(0.5, 2))));
+                                                    * gsl_cdf_chisq_Qinv(0.5, 2))
+                                          * TRANS_SEARCH_FACTOR));
                     
                     _par[l].reset(nR, nT);
                 }

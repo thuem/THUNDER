@@ -50,6 +50,8 @@
 
 #define MASK_RATIO 0.6
 
+#define TRANS_SEARCH_FACTOR 0.1
+
 using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
