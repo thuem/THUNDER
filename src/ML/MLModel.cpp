@@ -539,7 +539,7 @@ int MLModel::searchType()
     }
     else
     {
-        if ((_commRank == HEMI_A_LEAD) &&
+        if ((_commRank == HEMI_A_LEAD) ||
             (_commRank == HEMI_B_LEAD))
         {
             if (_rChange > _rChangePrev * 0.95)
