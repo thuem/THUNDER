@@ -364,6 +364,9 @@ double Particle::neff() const
 
 void Particle::sort(const int n)
 {
+    if (n > _n)
+        CLOG(FATAL, "LOGGER_SYS") << "Can not Select Top K from N when K > N";
+
     uvec order = iSort();
 
     mat4 r(n, 4);
@@ -382,6 +385,9 @@ void Particle::sort(const int n)
     _r = r;
     _t = t;
     _w = w;
+
+    // normalise weight again
+    normW();
 }
 
 uvec Particle::iSort() const
