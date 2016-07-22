@@ -527,7 +527,13 @@ int MLModel::searchType()
                  MPI_COMM_WORLD,
                  &status);
 
+        /***
         if (switchFromGlobalToLocalA &&
+            switchFromGlobalToLocalB)
+            _searchType = SEARCH_TYPE_LOCAL;
+        ***/
+
+        if (switchFromGlobalToLocalA ||
             switchFromGlobalToLocalB)
             _searchType = SEARCH_TYPE_LOCAL;
     }

@@ -286,6 +286,10 @@ void Particle::resample(const double alpha)
 void Particle::resample(const int n,
                         const double alpha)
 {
+    // record the current most likely coordinate (highest weight)
+    
+    // TODO
+
     vec cdf = cumsum(_w);
 
     // CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
@@ -318,8 +322,6 @@ void Particle::resample(const int n,
                                    0,
                                    &t(i, 0),
                                    &t(i, 1));
-        //t(i, 0) = gsl_ran_flat(engine, -_maxX, _maxX); 
-        //t(i, 1) = gsl_ran_flat(engine, -_maxY, _maxY);
                 
         _w(i) = 1.0 / n;
     }
@@ -359,7 +361,6 @@ void Particle::resample(const int n,
 double Particle::neff() const
 {
     return 1.0 / _w.squaredNorm();
-    // return 1.0 / gsl_pow_2(norm(_w, 2));
 }
 
 void Particle::sort(const int n)

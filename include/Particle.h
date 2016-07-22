@@ -100,9 +100,26 @@ class Particle
         double _rho = 0;
 
         /**
+         * quaternion of the previous most likely rotation
+         */
+        vec4 _topRPrev = vec4({1, 0, 0, 0});
+
+        /**
          * quaternion of the most likely rotation
+         * it will be refreshed by resampling
          */
         vec4 _topR = vec4({1, 0, 0, 0});
+
+        /**
+         * the previous most likely translation
+         */
+        vec2 _topTPrev = vec2({0, 0});
+
+        /**
+         * the most likely translation
+         * it will be refreshed by resampling
+         */
+        vec2 _topT = vec2({0, 0});
 
     public:
 
