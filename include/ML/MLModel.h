@@ -41,6 +41,8 @@
 
 #define MAX_ITER_R_CHANGE_NO_DECREASE 3
 
+#define THRES_ITER_R_CHANGE_DECREASE_CONTINOUS 2
+
 using namespace std;
 
 class MLModel : public Parallel
@@ -144,7 +146,15 @@ class MLModel : public Parallel
          */
         double _rChangePrev = 1;
 
+        /**
+         * number of iterations without decreasing in rotation change
+         */
         int _nRChangeNoDecrease = 0;
+
+        /**
+         * number of iterations with continous decreasing in rotation change
+         */
+        int _nRChangeDecreaseContinous = 0;
 
         /**
          * the symmetry information

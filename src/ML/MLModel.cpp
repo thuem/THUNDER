@@ -543,7 +543,15 @@ int MLModel::searchType()
             (_commRank == HEMI_B_LEAD))
         {
             if (_rChange > _rChangePrev * 0.95)
+            {
                 _nRChangeNoDecrease += 1;
+                _nRChangeDecreaseContinous = 0;
+            }
+            else
+                _nRChangeDecreaseContinous += 1;
+
+            if (_nRChangeDecreaseContinous >= THRES_ITER_R_CHANGE_DECREASE_CONTINOUS)
+                _nRChangeNoDecrease = 0;
 
             bool switchFromGlobalToLocal = (_nRChangeNoDecrease
                                         >= MAX_ITER_R_CHANGE_NO_DECREASE);
