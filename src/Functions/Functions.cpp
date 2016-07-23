@@ -109,3 +109,27 @@ double TIK_RL(const double r)
 {
     return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));
 }
+
+void stat_MAS(double& mean,
+              double& std,
+              vec src,
+              const int n)
+{
+    gsl_sort(src.data(), 1, n);
+
+    mean = gsl_stats_quantile_from_sorted_data(src.data(),
+                                               1,
+                                               n,
+                                               0.5);
+
+    src = abs(src.array() - mean);
+
+    gsl_sort(src.data(), 1, n);
+
+    std = gsl_stats_quantile_from_sorted_data(src.data(),
+                                              1,
+                                              n,
+                                              0.5)
+        * 1.4826
+        / sqrt(n);
+}

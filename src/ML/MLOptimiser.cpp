@@ -836,8 +836,7 @@ void MLOptimiser::correctScale()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    // MLOG(INFO, "LOGGER_SYS") << dc;
-
+    /***
     gsl_sort(dc.data(), 1, _nPar);
 
     double median = gsl_stats_quantile_from_sorted_data(dc.data(),
@@ -855,6 +854,10 @@ void MLOptimiser::correctScale()
                                                      0.5)
                * 1.4826
                / sqrt(_nPar);
+    ***/
+
+    double median, std;
+    stat_MAS(median, std, dc, _nPar);
 
     MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
 

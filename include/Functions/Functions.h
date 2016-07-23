@@ -18,6 +18,7 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
+#include <gsl/gsl_sort.h>
 
 #include "Typedef.h"
 
@@ -130,6 +131,7 @@ double MKB_FT(const double r,
 
 /**
  * Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3.
+ *
  * @param r radius
  * @param a maximum radius
  * @param alpha smooth factor
@@ -143,5 +145,18 @@ double MKB_RL(const double r,
  * @param r radius
  */
 double TIK_RL(const double r);
+
+/**
+ * Calculcuate the Median Absolute Deviation
+ *
+ * @param mean the mean value
+ * @param std the standard devation
+ * @param src the input data
+ * @param n the length of the the data
+ */
+void stat_MAS(double& mean,
+              double& std,
+              vec src,
+              const int n);
 
 #endif // FUNCTIONS_H
