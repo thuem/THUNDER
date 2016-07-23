@@ -412,8 +412,14 @@ class MLModel : public Parallel
          * @param par a vector of Particle
          * @param n number of images in the hemisphere
          */
+        /***
         void allReduceRChange(vector<Particle>& par,
                               const int n);
+                              ***/
+
+        void setRChange(const double rChange);
+
+        void setStdRChange(const double stdRChange);
 
         /**
          * This function returns the suggested search type.

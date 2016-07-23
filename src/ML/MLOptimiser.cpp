@@ -432,6 +432,13 @@ void MLOptimiser::run()
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
+        refreshRotationChange();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
+        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
+                                   << _model.stdRChange();
+
+        /***
         NT_MASTER
         {
             _model.allReduceRChange(_par, _N);
@@ -444,6 +451,7 @@ void MLOptimiser::run()
             BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                        << _model.stdRChange();
         }
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
         _searchType = _model.searchType();
@@ -815,7 +823,7 @@ void MLOptimiser::initCTF()
 
 void MLOptimiser::correctScale()
 {
-    MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << _nPar;
+    // MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << _nPar;
 
     vec dc = vec::Zero(_nPar);
 
@@ -836,26 +844,6 @@ void MLOptimiser::correctScale()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /***
-    gsl_sort(dc.data(), 1, _nPar);
-
-    double median = gsl_stats_quantile_from_sorted_data(dc.data(),
-                                                        1,
-                                                        _nPar,
-                                                        0.5);
-
-    dc = abs(dc.array() - median);
-
-    gsl_sort(dc.data(), 1, _nPar);
-
-    double std = gsl_stats_quantile_from_sorted_data(dc.data(),
-                                                     1,
-                                                     _nPar,
-                                                     0.5)
-               * 1.4826
-               / sqrt(_nPar);
-    ***/
-
     double median, std;
     stat_MAS(median, std, dc, _nPar);
 
@@ -875,6 +863,34 @@ void MLOptimiser::correctScale()
     MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
 
     //SCALE_FT(_model.ref(0), sf);
+}
+
+void MLOptimiser::refreshRotationChange()
+{
+    vec rc = vec::Zero(_nPar);
+
+    NT_MASTER
+    {
+        FOR_EACH_2D_IMAGE
+            rc(_ID[l] - 1) = _par[l].diffTop();
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  rc.data(),
+                  rc.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    double median, std;
+    stat_MAS(median, std, rc, _nPar);
+
+    _model.setRChange(median);
+    _model.setStdRChange(std);
 }
 
 void MLOptimiser::initSigma()

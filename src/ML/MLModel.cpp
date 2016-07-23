@@ -479,12 +479,34 @@ double MLModel::stdRChange() const
     return _stdRChange;
 }
 
+void MLModel::setRChange(const double rChange)
+{
+    _rChangePrev = _rChange;
+
+    _rChange = rChange;
+}
+
+void MLModel::setStdRChange(const double stdRChange)
+{
+    _stdRChangePrev = _stdRChange;
+
+    _stdRChange = stdRChange;
+}
+
+/***
 void MLModel::allReduceRChange(vector<Particle>& par,
                                const int n)
 {
     _rChangePrev = _rChange;
     _stdRChangePrev = _stdRChange;
 
+    vec rc = vec::Zero(_nPar);
+
+    NT_MASTER
+    {
+        FOR_EACH_2D_IMAGE
+            dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
+    }
     _rChange = 0;
 
     double rChangeSq = 0;
@@ -500,7 +522,6 @@ void MLModel::allReduceRChange(vector<Particle>& par,
         rChangeSq += gsl_pow_2(rChange);
     }
 
-    /***
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
@@ -523,13 +544,13 @@ void MLModel::allReduceRChange(vector<Particle>& par,
 
     _rChange /= n;
     rChangeSq /= n;
-    ***/
 
-    _rChange /= par.size();
-    rChangeSq /= par.size();
+    //_rChange /= par.size();
+    //rChangeSq /= par.size();
 
     _stdRChange = sqrt(rChangeSq - gsl_pow_2(_rChange));
 }
+***/
 
 int MLModel::searchType()
 {

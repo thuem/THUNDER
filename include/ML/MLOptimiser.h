@@ -227,6 +227,8 @@ class MLOptimiser : public Parallel
 
         void correctScale();
 
+        void refreshRotationChange();
+
         void initSigma();
 
         void initParticles();
