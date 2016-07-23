@@ -562,6 +562,16 @@ int MLModel::searchType()
     
     IF_MASTER
     {
+        if (_rChange > _rChangePrev * 0.95)
+            _nRChangeNoDecrease += 1;
+        else
+            _nRChangeNoDecrease = 0;
+
+        _searchType = (_nRChangeNoDecrease >= MAX_ITER_R_CHANGE_NO_DECREASE)
+                    ? SEARCH_TYPE_LOCAL
+                    : SEARCH_TYPE_GLOBAL;
+
+        /***
         bool switchFromGlobalToLocalA;
         bool switchFromGlobalToLocalB;
 
@@ -586,13 +596,9 @@ int MLModel::searchType()
         if (switchFromGlobalToLocalA &&
             switchFromGlobalToLocalB)
             _searchType = SEARCH_TYPE_LOCAL;
-
-        /***
-        if (switchFromGlobalToLocalA ||
-            switchFromGlobalToLocalB)
-            _searchType = SEARCH_TYPE_LOCAL;
         ***/
     }
+    /***
     else
     {
         if ((_commRank == HEMI_A_LEAD) ||
@@ -612,8 +618,6 @@ int MLModel::searchType()
             bool switchFromGlobalToLocal = (_nRChangeNoDecrease
                                         >= MAX_ITER_R_CHANGE_NO_DECREASE);
 
-            //bool switchFromGlobalToLocal = (_rChange > _rChangePrev * 0.95);
-
             MPI_Ssend(&switchFromGlobalToLocal,
                       1,
                       MPI_C_BOOL,
@@ -622,6 +626,7 @@ int MLModel::searchType()
                       MPI_COMM_WORLD);
         }
     }
+    ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 

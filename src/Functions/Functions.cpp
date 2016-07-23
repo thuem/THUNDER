@@ -130,6 +130,5 @@ void stat_MAS(double& mean,
                                               1,
                                               n,
                                               0.5)
-        * 1.4826
-        / sqrt(n);
+        * 1.4826;
 }
