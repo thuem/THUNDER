@@ -519,7 +519,7 @@ void MLModel::allReduceRChange(vector<Particle>& par,
     _rChange /= n;
     rChangeSq /= n;
 
-    _stdRChange = sqrt(rChangeSq - _rChange);
+    _stdRChange = sqrt(rChangeSq - gsl_pow_2(_rChange));
 }
 
 int MLModel::searchType()

@@ -439,9 +439,9 @@ void MLOptimiser::run()
             ALOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
             BLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation Rotation Change : "
+            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                        << _model.stdRChange();
-            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation Rotation Change : "
+            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                        << _model.stdRChange();
         }
 
