@@ -500,6 +500,7 @@ void MLModel::allReduceRChange(vector<Particle>& par,
         rChangeSq += gsl_pow_2(rChange);
     }
 
+    /***
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
@@ -518,8 +519,14 @@ void MLModel::allReduceRChange(vector<Particle>& par,
                   MPI_SUM,
                   _hemi);
 
+    MPI_Barrier(_hemi);
+
     _rChange /= n;
     rChangeSq /= n;
+    ***/
+
+    _rChange /= par.size();
+    rChangeSq /= par.size();
 
     _stdRChange = sqrt(rChangeSq - gsl_pow_2(_rChange));
 }

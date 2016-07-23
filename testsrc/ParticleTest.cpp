@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
     vec4 u;
 
-    double nt = M / 3;
+    double nt = 0;
 
     char filename[FILE_NAME_LENGTH];
     for (int i = 0; i < atoi(argv[1]); i++)
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
             particle.resample();
         }
 
-        particle.shuffle();
+        //particle.shuffle();
         
         particle.perturb();
 
@@ -50,7 +50,9 @@ int main(int argc, char* argv[])
 
         particle.normW();
 
-        particle.sort(particle.n());
+        cout << "rChange = " << particle.diffTop() << endl;
+
+        //particle.sort(particle.n());
 
         sprintf(filename, "Round_%04d.par", i);
         save(filename, particle);
