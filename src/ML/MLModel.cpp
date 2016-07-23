@@ -474,15 +474,29 @@ double MLModel::rChange() const
     return _rChange;
 }
 
+double MLModel::stdRChange() const
+{
+    return _stdRChange;
+}
+
 void MLModel::allReduceRChange(vector<Particle>& par,
                                const int n)
 {
     _rChangePrev = _rChange;
+    _stdRChangePrev = _stdRChange;
 
     _rChange = 0;
 
+    double rChangeSq = 0;
+
+    double rChange;
     for (size_t i = 0; i < par.size(); i++)
-        _rChange += par[i].diffTop();
+    {
+        rChange = par[i].diffTop();
+
+        _rChange += rChange;
+        rChangeSq += gsl_pow_2(rChange);
+    }
 
     MPI_Barrier(_hemi);
 
@@ -493,7 +507,19 @@ void MLModel::allReduceRChange(vector<Particle>& par,
                   MPI_SUM,
                   _hemi);
 
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &rChangeSq,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
     _rChange /= n;
+    rChangeSq /= n;
+
+    _stdRChange = sqrt(rChangeSq - _rChange);
 }
 
 int MLModel::searchType()

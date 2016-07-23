@@ -436,8 +436,13 @@ void MLOptimiser::run()
         {
             _model.allReduceRChange(_par, _N);
 
-            ALOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
-            BLOG(INFO, "LOGGER_ROUND") << "Rotation Changes : " << _model.rChange();
+            ALOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
+            BLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
+
+            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation Rotation Change : "
+                                       << _model.stdRChange();
+            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation Rotation Change : "
+                                       << _model.stdRChange();
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";

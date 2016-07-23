@@ -147,6 +147,18 @@ class MLModel : public Parallel
         double _rChangePrev = 1;
 
         /**
+         * a parameter indicating the standard deviation of rotation between
+         * iterations
+         */
+        double _stdRChange = 0;
+
+        /**
+         * a parameter indicating the standard deviation of rotation between
+         * iteration of the previous
+         */
+        double _stdRChangePrev = 0;
+
+        /**
          * number of iterations without decreasing in rotation change
          */
         int _nRChangeNoDecrease = 0;
@@ -386,6 +398,12 @@ class MLModel : public Parallel
          * This function returns the average rotation change between iterations.
          */
         double rChange() const;
+
+        /**
+         * This function returns the standard deviation of the rotation change
+         * between iterations.
+         */
+        double stdRChange() const;
 
         /**
          * This function calculates the difference of the rotation between
