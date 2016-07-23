@@ -494,6 +494,8 @@ void MLModel::allReduceRChange(vector<Particle>& par,
     {
         rChange = par[i].diffTop();
 
+        CLOG(INFO, "LOGGER_SYS") << "rChange = " << rChange;
+
         _rChange += rChange;
         rChangeSq += gsl_pow_2(rChange);
     }
