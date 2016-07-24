@@ -562,7 +562,7 @@ int MLModel::searchType()
     
     IF_MASTER
     {
-        if (_rChange > _rChangePrev - _stdRChangePrev / 3)
+        if (_rChange > _rChangePrev - 0.1 * _stdRChangePrev)
             _nRChangeNoDecrease += 1;
         else
             _nRChangeNoDecrease = 0;

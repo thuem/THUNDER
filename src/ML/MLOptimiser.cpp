@@ -886,14 +886,14 @@ void MLOptimiser::refreshRotationChange()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+    /***
     double mean = gsl_stats_mean(rc.data(), 1, rc.size());
     double std = gsl_stats_sd_m(rc.data(), 1, rc.size(), mean);
-    /***
-    double median, std;
-    stat_MAS(median, std, rc, _nPar);
     ***/
 
-    //_model.setRChange(median);
+    double mean, std;
+    stat_MAS(mean, std, rc, _nPar);
+
     _model.setRChange(mean);
     _model.setStdRChange(std);
 }
