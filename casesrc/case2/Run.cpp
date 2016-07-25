@@ -50,8 +50,8 @@ int main(int argc, char* argv[])
     para.mL = ML;
     para.transS = TRANS_S;
     sprintf(para.sym, "C15");
-    //sprintf(para.initModel, "padCylinder.mrc");
-    sprintf(para.initModel, "padRef.mrc");
+    sprintf(para.initModel, "padCylinder.mrc");
+    // sprintf(para.initModel, "padRef.mrc");
     sprintf(para.db, "C15.db");
 
     cout << "Setting Parameters" << endl;

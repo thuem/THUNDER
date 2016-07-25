@@ -823,8 +823,6 @@ void MLOptimiser::initCTF()
 
 void MLOptimiser::correctScale()
 {
-    // MLOG(INFO, "LOGGER_SYS") << "Total Number of Particles: " << _nPar;
-
     vec dc = vec::Zero(_nPar);
 
     NT_MASTER
@@ -862,7 +860,7 @@ void MLOptimiser::correctScale()
     
     MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
 
-    //SCALE_FT(_model.ref(0), sf);
+    SCALE_FT(_model.ref(0), sf);
 }
 
 void MLOptimiser::refreshRotationChange()
