@@ -640,8 +640,6 @@ void MLOptimiser::initID()
 
 void MLOptimiser::initImg()
 {
-    FFT fft;
-
     _img.clear();
     _img.resize(_ID.size());
 
@@ -677,19 +675,10 @@ void MLOptimiser::initImg()
             int nSlc = atoi(imgName.substr(0, imgName.find('@')).c_str()) - 1;
             string filename = imgName.substr(imgName.find('@') + 1);
 
-            // CLOG(INFO, "LOGGER_SYS") << "nSlc = " << nSlc;
-            // CLOG(INFO, "LOGGER_SYS") << "filename = " << filename;
-
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
             imf.readImage(currentImg, nSlc);
         }
-
-        /***
-        // perform normalise
-        //normalise(_img[l]);
-        normalise(currentImg);
-        ***/
 
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
@@ -697,23 +686,15 @@ void MLOptimiser::initImg()
             CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
             __builtin_unreachable();
         }
-
-        /***
-        // apply a soft mask on it
-        softMask(currentImg,
-                 currentImg,
-                 _para.size / 4,
-                 EDGE_WIDTH_RL);
-                 ***/
-
-        /***
-        sprintf(imgName, "%04dMasked.bmp", _ID[i]);
-        _img[i].saveRLToBMP(imgName);
-        ***/
-
-        // perform Fourier Transform
     }
 
+    normaliseImg();
+
+    fwImg();
+}
+
+void MLOptimiser::normaliseImg()
+{
     // keep a tally on the images
 
     FOR_EACH_2D_IMAGE
@@ -761,8 +742,14 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise : " << _noiseStddev;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data : " << _dataStddev;
+}
+
+void MLOptimiser::fwImg()
+{
+    FFT fft;
 
     // perform Fourier transform
+
     FOR_EACH_2D_IMAGE
     {
         fft.fw(_img[l]);

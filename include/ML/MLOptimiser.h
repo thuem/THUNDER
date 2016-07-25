@@ -219,9 +219,14 @@ class MLOptimiser : public Parallel
         void initID();
         /* save IDs from database */
 
-        /* read 2D images from hard disk 
-         * keep a tally on the images */
+        /* read 2D images from hard disk */
         void initImg();
+
+        /* normlise 2D images */
+        void normaliseImg();
+
+        /* perform Fourier transform */
+        void fwImg();
 
         void initCTF();
 
