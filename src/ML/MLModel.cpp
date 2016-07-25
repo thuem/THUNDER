@@ -372,7 +372,7 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
         //_reco[i]->setMaxRadius(_r);
-        _reco[i]->setMaxRadius(MIN(maxR(), _r + MAX_GAP));
+        _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP));
         //_reco[i]->setMaxRadius(maxR());
     }
 }
@@ -384,14 +384,14 @@ void MLModel::updateR()
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
         {
-            _r += MIN(MAX_GAP, AROUND(double(_size) / 16));
-            _r = MIN(_r, maxR());
+            _r += GSL_MIN_INT(MAX_GAP, AROUND(double(_size) / 16));
+            _r = GSL_MIN_INT(_r, maxR());
             return;
         }
 
     _r = resolutionP();
     _r += MIN_GAP;
-    _r = MIN(_r, maxR());
+    _r = GSL_MIN_INT(_r, maxR());
 }
 
 double MLModel::rVari() const

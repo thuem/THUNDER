@@ -111,7 +111,7 @@
     { \
         vec3 newCor = {(double)i, (double)j, (double)k}; \
         vec3 oldCor = _mat * newCor; \
-        if (oldCor.norm() < _r) \
+        if (oldCor.squaredNorm() < gsl_pow_2(_r)) \
             _dst.set##SPACE(_src.getByInterpolation##SPACE(oldCor(0), \
                                                            oldCor(1), \
                                                            oldCor(2), \

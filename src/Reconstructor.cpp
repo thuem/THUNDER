@@ -101,7 +101,7 @@ void Reconstructor::insert(const Image& src,
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
             vec3 newCor = {(double)i, (double)j, 0};
-            vec3 oldCor = rot * newCor *_pf;
+            vec3 oldCor = rot * newCor * _pf;
         
             _F.addFT(transSrc.getFT(i, j) * w, 
                      oldCor[0], 
@@ -233,7 +233,7 @@ void Reconstructor::allReduceW()
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius))
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
             _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
@@ -286,7 +286,7 @@ double Reconstructor::checkC() const
     double diff = 0;
 
     VOLUME_FOR_EACH_PIXEL_FT(_C)
-        if (NORM_3(i, j, k) < _maxRadius - _pf * _a)
+        if (NORM_3(i, j, k) < (_maxRadius - _a) * _pf)
         {
             counter += 1;
             diff += abs(REAL(_C.getFT(i, j, k)) - 1);
@@ -300,7 +300,7 @@ void Reconstructor::symmetrizeF()
     if (_sym == NULL) return;
 
     Volume symF;
-    SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius);
+    SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius * _pf);
 
     _F = std::move(symF);
 }
@@ -310,7 +310,7 @@ void Reconstructor::symmetrizeC()
     if (_sym == NULL) return;
 
     Volume symC;
-    SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius);
+    SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius * _pf);
 
     _C = std::move(symC);
 }
