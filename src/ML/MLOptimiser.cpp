@@ -759,9 +759,9 @@ void MLOptimiser::substractBgImg()
         FOR_EACH_PIXEL_RL(_img[l])
             _img[l](i) -= _noiseMean;
 
-    _noiseMean = 0;
-
     _dataMean -= _noiseMean;
+
+    _noiseMean = 0;
 }
 
 void MLOptimiser::maskImg()
