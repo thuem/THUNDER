@@ -81,15 +81,15 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
         BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
 
-        initImg();
-
-        ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
-        BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
-
         allReduceN();
 
         ALOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere B: " << _N;
+
+        initImg();
+
+        ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
 
         /***
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
