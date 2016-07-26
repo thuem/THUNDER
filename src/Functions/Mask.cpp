@@ -132,6 +132,36 @@ void softMask(Image& dst,
     }
 }
 
+void softMask(Image& dst,
+              const Image& src,
+              const double r,
+              const double ew,
+              const double bgMean,
+              const double bgStd)
+{
+    auto engine = get_random_engine();
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+    {
+        double u = NORM(i, j);
+
+        if (u < r)
+            dst.setRL(src.getRL(i, j), i, j);
+        else
+        {
+            double bg = bgMean + gsl_ran_gaussian(engine, bgStd);
+
+            if (u > r + ew)
+                dst.setRL(bg, i, j);
+            else
+            {
+                double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
+                dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
+            }
+        }
+    }
+}
+
 void softMask(Volume& dst,
               const Volume& src,
               const double r,

@@ -222,6 +222,14 @@ class MLOptimiser : public Parallel
         /* read 2D images from hard disk */
         void initImg();
 
+        void statImg();
+
+        void displayStatImg();
+
+        void substractBgImg();
+
+        void maskImg();
+
         /* normlise 2D images */
         void normaliseImg();
 

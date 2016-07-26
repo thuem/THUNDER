@@ -659,8 +659,6 @@ void MLOptimiser::initImg()
 
         stmt.reset();
 
-        // CLOG(INFO, "LOGGER_SYS") << imgName;
-
 	    Image& currentImg = _img[l];
 
         // read the image fromm hard disk
@@ -688,15 +686,23 @@ void MLOptimiser::initImg()
         }
     }
 
+    statImg();
+
+    displayStatImg();
+
+    substractBgImg();
+
+    maskImg();
+
     normaliseImg();
+
+    displayStatImg();
 
     fwImg();
 }
 
-void MLOptimiser::normaliseImg()
+void MLOptimiser::statImg()
 {
-    // keep a tally on the images
-
     FOR_EACH_2D_IMAGE
     {
         double mean, stddev;
@@ -726,7 +732,10 @@ void MLOptimiser::normaliseImg()
 
     _signalMean = _dataMean - _noiseMean;
     _signalStddev = _dataStddev - _noiseStddev;
+}
 
+void MLOptimiser::displayStatImg()
+{
     ALOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
     ALOG(INFO, "LOGGER_INIT") << "Mean of Noise : " << _noiseMean;
     ALOG(INFO, "LOGGER_INIT") << "Mean of Data : " << _dataMean;
@@ -742,6 +751,45 @@ void MLOptimiser::normaliseImg()
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise : " << _noiseStddev;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data : " << _dataStddev;
+}
+
+void MLOptimiser::substractBgImg()
+{
+    FOR_EACH_2D_IMAGE
+        FOR_EACH_PIXEL_RL(_img[l])
+            _img[l](i) -= _noiseMean;
+
+    _noiseMean = 0;
+
+    _dataMean -= _noiseMean;
+}
+
+void MLOptimiser::maskImg()
+{
+    FOR_EACH_2D_IMAGE
+        softMask(_img[l],
+                 _img[l],
+                 size() * MASK_RATIO,
+                 EDGE_WIDTH_RL,
+                 _noiseMean,
+                 _noiseStddev);
+}
+
+void MLOptimiser::normaliseImg()
+{
+    double scale = 1.0 / _noiseStddev;
+
+    FOR_EACH_2D_IMAGE
+        SCALE_RL(_img[l], scale);
+
+    _noiseMean *= scale;
+    _noiseStddev = 1;
+
+    _dataMean *= scale;
+    _dataStddev *= scale;
+
+    _signalMean *= scale;
+    _signalStddev *= scale;
 }
 
 void MLOptimiser::fwImg()

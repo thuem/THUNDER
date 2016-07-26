@@ -14,12 +14,14 @@
 #include <cmath>
 #include <functional>
 
+#include "Random.h"
 #include "Volume.h"
 #include "Interpolation.h"
 
 /**
  * This function calculates the average value of pixels outside the circle of
  * a certain radius.
+ *
  * @param img the image to be calculated
  * @param r radius of the circle
  * @param ew edge width of the circle
@@ -31,6 +33,7 @@ double background(const Image& img,
 /**
  * This function calculates the average value of pixels not belonging to a
  * certain layer.
+ *
  * @param img the image to be calcualted
  * @param alpha the layer
  */
@@ -40,6 +43,7 @@ double background(const Image& img,
 /**
  * This function calculates the average value of pixels outside the sphere of
  * a certain radius.
+ *
  * @param vol the volume to be calculated
  * @param r radius of the sphere
  * @param ew edge width of the sphere
@@ -51,6 +55,7 @@ double background(const Volume& vol,
 /**
  * This function calculates the average value of pixels not belonging to a
  * certain layer.
+ *
  * @param vol the volume to be calculated
  * @param alpha the layer
  */
@@ -60,9 +65,10 @@ double background(const Volume& vol,
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
  * from the source image with a certain radius and edge width.
+ *
  * @param dst destination image
  * @param src source image
- * @param radius of the circle
+ * @param r radius of the circle
  * @param ew edge width of the cirlce
  */
 void softMask(Image& dst,
@@ -73,6 +79,7 @@ void softMask(Image& dst,
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
  * from the source image with a certain layer.
+ *
  * @param dst destination image
  * @param src source image
  * @param alpha the layer
@@ -82,8 +89,27 @@ void softMask(Image& dst,
               const Image& alpha);
 
 /**
+ * This function applys a soft mask on an image. The background will be
+ * generated with given mean value and standard deviation.
+ *
+ * @param dst destination image
+ * @param src source image
+ * @param r radius of the circle
+ * @param ew edge width of the cirlce
+ * @param bgMean the mean value of the background
+ * @param bgStd the standard devation of the background
+ */
+void softMask(Image& dst,
+              const Image& src,
+              const double r,
+              const double ew,
+              const double bgMean,
+              const double bgStd);
+
+/**
  * This function applys a soft mask on a volume. The soft mask is calculated
  * from the source volume with a certain radius and edge width.
+ *
  * @param dst destination volume
  * @param src source volume
  * @param radius of the sphere
@@ -97,6 +123,7 @@ void softMask(Volume& dst,
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated
  * from the source image with a certain layer.
+ *
  * @param dst destination volume
  * @param src source volume
  * @param alpha the layer
