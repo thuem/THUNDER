@@ -717,12 +717,14 @@ void MLOptimiser::initImg()
 
     displayStatImg();
 
+    /***
     statImg();
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
+    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
