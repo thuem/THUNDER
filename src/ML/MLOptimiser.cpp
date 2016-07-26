@@ -389,8 +389,10 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Initialising MLOptimiser";
 
     init();
-
+    
     MPI_Barrier(MPI_COMM_WORLD);
+
+    saveImages();
 
     MLOG(INFO, "LOGGER_ROUND") << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
@@ -520,7 +522,6 @@ void MLOptimiser::run()
         // save the result of last projection
         if (_iter == _para.iterMax - 1)
         {
-            saveImages();
             saveReduceCTFImages();
             saveLowPassImages();
             saveLowPassReduceCTFImages();
