@@ -696,12 +696,12 @@ void MLOptimiser::initImg()
 
     displayStatImg();
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
     substractBgImg();
 
+    /***
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
 
