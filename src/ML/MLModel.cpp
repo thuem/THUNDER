@@ -248,7 +248,6 @@ void MLModel::BcastFSC()
                                 _ref[i].sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
                                 0,
-                                //HEMI_A_LEAD,
                                 _hemi);
             }
 
@@ -259,7 +258,6 @@ void MLModel::BcastFSC()
                                 _ref[i].sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
                                 0,
-                                //HEMI_B_LEAD,
                                 _hemi);
             }
 
@@ -493,65 +491,6 @@ void MLModel::setStdRChange(const double stdRChange)
     _stdRChange = stdRChange;
 }
 
-/***
-void MLModel::allReduceRChange(vector<Particle>& par,
-                               const int n)
-{
-    _rChangePrev = _rChange;
-    _stdRChangePrev = _stdRChange;
-
-    vec rc = vec::Zero(_nPar);
-
-    NT_MASTER
-    {
-        FOR_EACH_2D_IMAGE
-            dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
-    }
-    _rChange = 0;
-
-    double rChangeSq = 0;
-
-    double rChange;
-    for (size_t i = 0; i < par.size(); i++)
-    {
-        rChange = par[i].diffTop();
-
-        CLOG(INFO, "LOGGER_SYS") << "rChange = " << rChange;
-
-        _rChange += rChange;
-        rChangeSq += gsl_pow_2(rChange);
-    }
-
-    MPI_Barrier(_hemi);
-
-    MPI_Allreduce(MPI_IN_PLACE,
-                  &_rChange,
-                  1,
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-
-    MPI_Barrier(_hemi);
-
-    MPI_Allreduce(MPI_IN_PLACE,
-                  &rChangeSq,
-                  1,
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-
-    MPI_Barrier(_hemi);
-
-    _rChange /= n;
-    rChangeSq /= n;
-
-    //_rChange /= par.size();
-    //rChangeSq /= par.size();
-
-    _stdRChange = sqrt(rChangeSq - gsl_pow_2(_rChange));
-}
-***/
-
 int MLModel::searchType()
 {
     // If it is local search, just continue to perform local search.
@@ -571,63 +510,7 @@ int MLModel::searchType()
         _searchType = (_nRChangeNoDecrease >= MAX_ITER_R_CHANGE_NO_DECREASE)
                     ? SEARCH_TYPE_LOCAL
                     : SEARCH_TYPE_GLOBAL;
-
-        /***
-        bool switchFromGlobalToLocalA;
-        bool switchFromGlobalToLocalB;
-
-        MPI_Status status;
-
-        MPI_Recv(&switchFromGlobalToLocalA,
-                 1,
-                 MPI_C_BOOL,
-                 HEMI_A_LEAD,
-                 0,
-                 MPI_COMM_WORLD,
-                 &status);
-
-        MPI_Recv(&switchFromGlobalToLocalB,
-                 1,
-                 MPI_C_BOOL,
-                 HEMI_B_LEAD,
-                 0,
-                 MPI_COMM_WORLD,
-                 &status);
-
-        if (switchFromGlobalToLocalA &&
-            switchFromGlobalToLocalB)
-            _searchType = SEARCH_TYPE_LOCAL;
-        ***/
     }
-    /***
-    else
-    {
-        if ((_commRank == HEMI_A_LEAD) ||
-            (_commRank == HEMI_B_LEAD))
-        {
-            if (_rChange > _rChangePrev * 0.95)
-            {
-                _nRChangeNoDecrease += 1;
-                _nRChangeDecreaseContinous = 0;
-            }
-            else
-                _nRChangeDecreaseContinous += 1;
-
-            if (_nRChangeDecreaseContinous >= THRES_ITER_R_CHANGE_DECREASE_CONTINOUS)
-                _nRChangeNoDecrease = 0;
-
-            bool switchFromGlobalToLocal = (_nRChangeNoDecrease
-                                        >= MAX_ITER_R_CHANGE_NO_DECREASE);
-
-            MPI_Ssend(&switchFromGlobalToLocal,
-                      1,
-                      MPI_C_BOOL,
-                      MASTER_ID,
-                      0,
-                      MPI_COMM_WORLD);
-        }
-    }
-    ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 

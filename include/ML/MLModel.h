@@ -404,19 +404,21 @@ class MLModel : public Parallel
         double stdRChange() const;
 
         /**
-         * This function calculates the difference of the rotation between
-         * iterations and averages those in the same hemisphere.
+         * This function sets the mean value of rotation change. This function
+         * will automatically save the previous rotation change to another
+         * attribute.
          *
-         * @param par a vector of Particle
-         * @param n number of images in the hemisphere
+         * @param rChange mean value of rotation change
          */
-        /***
-        void allReduceRChange(vector<Particle>& par,
-                              const int n);
-                              ***/
-
         void setRChange(const double rChange);
 
+        /**
+         * This function sets the standard deviation of rotation change. This
+         * function will automatically save the previous standard devation of
+         * rotation change to another attribute.
+         *
+         * @param stdRChange standard devation of rotation change
+         */
         void setStdRChange(const double stdRChange);
 
         /**
@@ -424,6 +426,9 @@ class MLModel : public Parallel
          */
         int searchType();
 
+        /**
+         * This function clears up references, projectors and reconstructors.
+         */
         void clear();
 };
 
