@@ -733,6 +733,15 @@ void MLOptimiser::initImg()
 
 void MLOptimiser::statImg()
 {
+    _dataMean = 0;
+    _dataStddev = 0;
+    
+    _noiseMean = 0;
+    _noiseStddev = 0;
+    
+    _signalMean = 0;
+    _signalStddev = 0;
+
     FOR_EACH_2D_IMAGE
     {
         double mean, stddev;
