@@ -702,7 +702,6 @@ void MLOptimiser::initImg()
 
     substractBgImg();
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
 
@@ -717,7 +716,6 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
-    ***/
 
     statImg();
 
@@ -777,20 +775,20 @@ void MLOptimiser::statImg()
 void MLOptimiser::displayStatImg()
 {
     ALOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
-    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise : " << _noiseMean;
-    ALOG(INFO, "LOGGER_INIT") << "Mean of Data : " << _dataMean;
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise  : " << _noiseMean;
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
 
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
-    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise : " << _noiseStddev;
-    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data : " << _dataStddev;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _noiseStddev;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _dataStddev;
 
     BLOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
-    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise : " << _noiseMean;
-    BLOG(INFO, "LOGGER_INIT") << "Mean of Data : " << _dataMean;
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise  : " << _noiseMean;
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
 
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
-    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise : " << _noiseStddev;
-    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data : " << _dataStddev;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _noiseStddev;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _dataStddev;
 }
 
 void MLOptimiser::substractBgImg()
