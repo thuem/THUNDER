@@ -186,7 +186,6 @@ int main(int argc, char* argv[])
 
         fftThread.bw(image);
 
-        /***
         double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
 
         Image noise(N, N, RL_SPACE);
@@ -195,6 +194,7 @@ int main(int argc, char* argv[])
 
         ADD_RL(image, noise);
 
+        /***
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
                gsl_stats_mean(&image(0), 1, image.sizeRL()),
                gsl_stats_sd(&image(0), 1, image.sizeRL()),
