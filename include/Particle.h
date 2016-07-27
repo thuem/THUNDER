@@ -381,7 +381,14 @@ class Particle
          * rotations between two iterations. This function also resets the most likely
          * rotatation.
          */
-        double diffTop();
+        double diffTopR();
+
+        /**
+         * This function returns the difference between the most likely
+         * translations between two iterations. This function also resets the
+         * most likely translation.
+         */
+        double diffTopT();
 
         /**
          * This function reports the 1-st rank coordinate by parameters.

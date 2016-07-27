@@ -287,8 +287,13 @@ void Particle::resample(const int n,
                         const double alpha)
 {
     // record the current most likely coordinate (highest weight)
-    
-    // TODO
+
+    uvec rank = iSort();
+
+    quaternion(_topR, rank[0]);
+    t(_topT, rank[0]);
+
+    // perform resampling
 
     vec cdf = cumsum(_w);
 
@@ -396,16 +401,20 @@ uvec Particle::iSort() const
     return index_sort_descend(_w);
 }
 
-double Particle::diffTop()
+double Particle::diffTopR()
 {
-    vec4 quat;
-    vec2 tran;
+    double diff = 1 - abs(_topRPrev.dot(_topR));
 
-    rank1st(quat, tran);
+    _topRPrev = _topR;
 
-    double diff = 1 - abs(quat.dot(_topR));
+    return diff;
+}
 
-    _topR = quat;
+double Particle::diffTopT()
+{
+    double diff = (_topTPrev - _topT).norm();
+
+    _topTPrev = _topT;
 
     return diff;
 }
@@ -413,10 +422,14 @@ double Particle::diffTop()
 void Particle::rank1st(vec4& quat,
                        vec2& tran) const
 {
+    quat = _topR;
+    tran = _topT;
+    /***
     uvec rank = iSort();
 
     quaternion(quat, rank[0]);
     t(tran, rank[0]);
+    ***/
 }
 
 void Particle::rank1st(mat33& rot,
@@ -452,7 +465,7 @@ void Particle::shuffle()
 {
     uvec s = uvec(_n);
 
-    for (unsigned int i = 0; i < _n; i++) s(i) = i;
+    for (int i = 0; i < _n; i++) s(i) = i;
 
     auto engine = get_random_engine();
 

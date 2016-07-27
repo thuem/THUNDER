@@ -945,7 +945,7 @@ void MLOptimiser::refreshRotationChange()
     NT_MASTER
     {
         FOR_EACH_2D_IMAGE
-            rc(_ID[l] - 1) = _par[l].diffTop();
+            rc(_ID[l] - 1) = _par[l].diffTopR();
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
