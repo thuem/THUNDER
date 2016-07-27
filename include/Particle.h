@@ -47,6 +47,9 @@ class Particle
 
         /**
          * the re-center threshold of translation
+         * For example, assuming _transQ = 0.01, if a translation lies beyond
+         * the confidence area of 99%, this translation will be re-centre to the
+         * original point.
          */
         double _transQ;
 
