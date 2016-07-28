@@ -526,6 +526,7 @@ int MLModel::searchType()
     IF_MASTER
     {
         if ((_rChange > _rChangePrev - 0.1 * _stdRChangePrev) &&
+            (_r == _rGlobal) &&
             (_rChange < 0.01))
             _nRChangeNoDecrease += 1;
         else
