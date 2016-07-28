@@ -38,8 +38,6 @@
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
-#define TOP_K 1
-
 #define FREQ_DOWN_CUTOFF 3
 #define ALPHA_GLOBAL_SEARCH 1.0
 #define ALPHA_LOCAL_SEARCH 0

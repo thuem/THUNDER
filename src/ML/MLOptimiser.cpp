@@ -281,8 +281,16 @@ void MLOptimiser::expectation()
             logW.array() -= logW.maxCoeff();
             logW.array() *= -1;
             logW.array() += 1;
+            logW.array() = 1.0 / logW.array();
+            logW.array() -= logW.minCoeff();
+
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(logW(m), m);
+
+            /***
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(1.0 / logW(m), m);
+            ***/
 
             _par[l].normW();
 
@@ -1090,41 +1098,31 @@ void MLOptimiser::allReduceSigma()
         // sort weights in particle and store its indices
         uvec iSort = _par[l].iSort();
 
-        Coordinate5D coord;
-        double w;
+        mat33 rot;
+        vec2 tran;
         Image img(size(), size(), FT_SPACE);
 
         //vec sig(maxR());
         vec sig(_r);
 
-        // loop over sampling points with top K weights
-        for (int m = 0; m < TOP_K; m++)
-        {
-            // get coordinate
-            _par[l].coord(coord, iSort[m]);
-            // get weight
-            w = _par[l].w(iSort[m]);
+        _par[l].rank1st(rot, tran);
 
-            // calculate differences
-            _model.proj(0).project(img, coord);
+        // calculate differences
 
-            #pragma omp parallel for
-            FOR_EACH_PIXEL_FT(img)
-                img[i] *= REAL(_ctf[l][i]);
+        _model.proj(0).project(img, rot, tran);
 
-            #pragma omp parallel for
-            NEG_FT(img);
-            #pragma omp parallel for
-            ADD_FT(img, _img[l]);
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(img)
+            img[i] *= REAL(_ctf[l][i]);
 
-            //powerSpectrum(sig, img, maxR());
-            powerSpectrum(sig, img, _r);
+        #pragma omp parallel for
+        NEG_FT(img);
+        #pragma omp parallel for
+        ADD_FT(img, _img[l]);
 
-            // sum up the results from top K sampling points
-            // TODO Change it to w
-            //_sig.row(_groupID[l] - 1).head(maxR()) += (1.0 / TOP_K) * sig.transpose() / 2;
-            _sig.row(_groupID[l] - 1).head(_r) += (1.0 / TOP_K) * sig.transpose() / 2;
-        }
+        powerSpectrum(sig, img, _r);
+
+        _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
 
         _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
     }
@@ -1241,18 +1239,11 @@ void MLOptimiser::reconstructRef()
         uvec iSort = _par[l].iSort();
 
         mat33 rot;
-        vec2 t;
-        double w;
-        for (int m = 0; m < TOP_K; m++)
-        {
-            _par[l].rot(rot, iSort[m]);
-            _par[l].t(t, iSort[m]);
+        vec2 tran;
+        
+        _par[l].rank1st(rot, tran);
 
-            w = _par[l].w(iSort[m]);
-
-            // TODO: _model.reco(0).insert(_img[l], coord, w);
-            _model.reco(0).insert(img, rot, t, 1);
-        }
+        _model.reco(0).insert(img, rot, tran, 1);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
