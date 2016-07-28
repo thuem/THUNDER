@@ -46,7 +46,7 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
-    _r = MIN(16, MAX(MAX_GAP, _para.size / 16));
+    _r = MIN(8, _para.size / 16);
     _iter = 0;
     _model.setR(_r);
 
@@ -257,9 +257,9 @@ void MLOptimiser::expectation()
                 }
             }
 
+            /***
             logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
-            /***
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(exp(logW(m)), m);
             ***/

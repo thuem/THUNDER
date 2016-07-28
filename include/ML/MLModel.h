@@ -29,9 +29,13 @@
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define MAX_GAP 20
+#define MAX_GAP_GLOBAL 5
 
-#define MIN_GAP 10
+#define MAX_GAP_LOCAL 20
+
+#define MIN_GAP_GLOBAL 2
+
+#define MIN_GAP_LOCAL 10
 
 #define SEARCH_TYPE_GLOBAL 0
 

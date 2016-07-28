@@ -295,7 +295,6 @@ void MLModel::refreshSNR()
 
 void MLModel::refreshTau()
 {
-    //_tau.resize(maxR() * _pf, _k);
     _tau.resize(_size * _pf / 2 - 1, _k);
 
     FOR_EACH_CLASS
@@ -369,26 +368,35 @@ void MLModel::refreshReco()
                        _sym,
                        _a,
                        _alpha);
-        //_reco[i]->setMaxRadius(_r);
-        _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP));
-        //_reco[i]->setMaxRadius(maxR());
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+            _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP_GLOBAL));
+        else
+            _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP_LOCAL));
     }
 }
 
 void MLModel::updateR()
 {
-    //int resUpperBoundary = _size / 2 - _a;
-
     FOR_EACH_CLASS
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
         {
-            _r += GSL_MIN_INT(MAX_GAP, AROUND(double(_size) / 16));
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _r += GSL_MIN_INT(MAX_GAP_GLOBAL, AROUND(double(_size) / 16));
+            else
+                _r += GSL_MIN_INT(MAX_GAP_LOCAL, AROUND(double(_size) / 16));
+
             _r = GSL_MIN_INT(_r, maxR());
             return;
         }
 
     _r = resolutionP();
-    _r += MIN_GAP;
+    
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+        _r += MIN_GAP_GLOBAL;
+    else
+        _r += MIN_GAP_LOCAL;
+
     _r = GSL_MIN_INT(_r, maxR());
 }
 
