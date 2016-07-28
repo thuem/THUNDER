@@ -299,7 +299,6 @@ void MLOptimiser::expectation()
             {
                 // sort
                 _par[l].sort(_para.mG);
-                //_par[l].sort(_par[l].n());
 
                 // shuffle
                 _par[l].shuffle();
@@ -1288,18 +1287,20 @@ void MLOptimiser::saveBestProjections()
     FFT fft;
 
     Image result(_para.size, _para.size, FT_SPACE);
-    Coordinate5D coord;
     char filename[FILE_NAME_LENGTH];
+
+    mat33 rot;
+    vec2 tran;
+
     FOR_EACH_2D_IMAGE
     {
         if (_ID[l] < 100)
         {
             SET_0_FT(result);
 
-            uvec iSort = _par[l].iSort();
-            _par[l].coord(coord, iSort[0]);
+            _par[l].rank1st(rot, tran);
 
-            _model.proj(0).project(result, coord);
+            _model.proj(0).project(result, rot, tran);
 
             sprintf(filename, "Result_%04d_Round_%03d.bmp", _ID[l], _iter);
 
