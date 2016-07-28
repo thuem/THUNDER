@@ -448,12 +448,6 @@ void MLModel::allReduceVari(const vector<Particle>& par,
                     tVariS0,
                     tVariS1);
 
-        /***
-        CLOG(INFO, "LOGGER_SYS") << "rVari = " << rVari;
-        CLOG(INFO, "LOGGER_SYS") << "tVariS0 = " << tVariS0;
-        CLOG(INFO, "LOGGER_SYS") << "tVariS1 = " << tVariS1;
-        ***/
-
         _rVari += rVari;
         _tVariS0 += tVariS0;
         _tVariS1 += tVariS1;
