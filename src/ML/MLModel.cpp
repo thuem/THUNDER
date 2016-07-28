@@ -115,6 +115,16 @@ void MLModel::setR(const int r)
     _r = r;
 }
 
+int MLModel::rGlobal() const
+{
+    return _rGlobal;
+}
+
+void MLModel::setRGlobal(const int rGlobal)
+{
+    _rGlobal = rGlobal;
+}
+
 Projector& MLModel::proj(const int i)
 {
     return _proj[i];
@@ -382,7 +392,10 @@ void MLModel::updateR()
         if (_FSC.col(i)(_pf * _r - 1) > 0.5)
         {
             if (_searchType == SEARCH_TYPE_GLOBAL)
+            {
                 _r += GSL_MIN_INT(MAX_GAP_GLOBAL, AROUND(double(_size) / 16));
+                _r = GSL_MIN_INT(_rGlobal, _r);
+            }
             else
                 _r += GSL_MIN_INT(MAX_GAP_LOCAL, AROUND(double(_size) / 16));
 
@@ -393,7 +406,10 @@ void MLModel::updateR()
     _r = resolutionP();
     
     if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
         _r += MIN_GAP_GLOBAL;
+        _r = GSL_MIN_INT(_rGlobal, _r);
+    }
     else
         _r += MIN_GAP_LOCAL;
 

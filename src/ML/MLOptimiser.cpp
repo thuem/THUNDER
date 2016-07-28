@@ -46,10 +46,16 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
-    // _r = MIN(8, _para.size / 16);
+
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize));
     _iter = 0;
     _model.setR(_r);
+
+    MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
+
+    _model.setRGlobal(AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
+                             _para.size,
+                             _para.pixelSize)) + 1);
 
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _exp.openDatabase(_para.db);
@@ -96,11 +102,6 @@ void MLOptimiser::init()
         ALOG(INFO) << "Applying Low Pass Filter on Initial References";
         _model.lowPassRef(_r, EDGE_WIDTH_FT);
         ***/
-
-        ALOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
-        BLOG(INFO, "LOGGER_INIT") << "Seting maxRadius of _model";
-
-        _model.setR(_r);
 
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
@@ -499,14 +500,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
+        /***
         if ((_searchType == SEARCH_TYPE_GLOBAL) &&
             (1.0 / resP2A(_r - 1, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
         {
-            _r = AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
-                               _para.size,
-                               _para.pixelSize)) + 1;
-            _model.setR(_r);
         }
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1

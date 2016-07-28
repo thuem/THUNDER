@@ -98,7 +98,7 @@ class MLModel : public Parallel
         int _size;
 
         /**
-         * radius of calculating FSC and SNR before padding
+         * frequency before padding (in pixel)
          */
         int _r;
 
@@ -111,6 +111,12 @@ class MLModel : public Parallel
          * pixel size of 2D images (in Angstrom)
          */
         double _pixelSize;
+
+        /**
+         * upper boundary of frequency during global search before padding (in
+         * pixel)
+         */
+        int _rGlobal;
 
         /**
          * width of modified Kaiser-Bessel function
@@ -248,18 +254,30 @@ class MLModel : public Parallel
         int maxR() const;
 
         /**
-         * This function returns the radius of calculating FSC and SNR before
-         * padding.
+         * This function returns the frequency before padding (in pixel).
          */
         int r() const;
 
         /**
-         * This function sets the radius of calculating FSC and SNR before
-         * padding.
+         * This function sets the frequency before padding (in pixel).
          *
-         * @param r the radius of calculating FSC and SNR before padding
+         * @param r the frequency before padding (in pixel)
          */
         void setR(const int r);
+
+        /**
+         * This function returns the upper boundary frequency during global
+         * search before padding (in pixel).
+         */
+        int rGlobal() const;
+
+        /**
+         * This function sets the upper boundary frequency during global
+         * search before padding (in pixel).
+         *
+         * @param the upper boundary frequency during global search stage
+         */
+        void setRGlobal(const int rGlobal);
 
         /**
          * This function returns a reference to the projector of the i-th
