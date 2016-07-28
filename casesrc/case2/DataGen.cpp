@@ -148,7 +148,6 @@ int main(int argc, char* argv[])
     {
         // CLOG(INFO, "LOGGER_SYS") << "Power Spectrum";
 
-
         FFT fftThread;
 
         auto engine = get_random_engine();
@@ -186,6 +185,7 @@ int main(int argc, char* argv[])
 
         fftThread.bw(image);
 
+        /***
         double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
 
         Image noise(N, N, RL_SPACE);
@@ -193,6 +193,7 @@ int main(int argc, char* argv[])
             noise(i) = gsl_ran_gaussian(engine, 5 * std);
 
         ADD_RL(image, noise);
+        ***/
 
         /***
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
