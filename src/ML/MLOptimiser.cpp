@@ -257,12 +257,10 @@ void MLOptimiser::expectation()
                 }
             }
 
-                /***
-                logW.array() -= logW.maxCoeff(); // avoiding numerical error
+            logW.array() -= logW.maxCoeff(); // avoiding numerical error
 
-                for (int m = 0; m < _par[l].n(); m++)
-                    _par[l].mulW(exp(logW(m)), m);
-                ***/
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(exp(logW(m)), m);
 
                 /***
                 logW.array() -= logW.minCoeff();
@@ -278,11 +276,13 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
                 ***/
 
+            /***
             logW.array() -= logW.maxCoeff();
             logW.array() *= -1;
             logW.array() += 1;
             logW.array() = 1.0 / logW.array();
             logW.array() -= logW.minCoeff();
+            ***/
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
