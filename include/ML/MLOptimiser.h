@@ -83,6 +83,9 @@ typedef struct ML_OPTIMISER_PARA
 
     double transS;
 
+    // initial estimated resolution (Angstrom)
+    double initRes;
+
     char sym[SYM_ID_LENGTH];
 
     char initModel[FILE_NAME_LENGTH];

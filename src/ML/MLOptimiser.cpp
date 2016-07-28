@@ -46,7 +46,8 @@ void MLOptimiser::init()
                 &_sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
-    _r = MIN(8, _para.size / 16);
+    // _r = MIN(8, _para.size / 16);
+    _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize));
     _iter = 0;
     _model.setR(_r);
 
