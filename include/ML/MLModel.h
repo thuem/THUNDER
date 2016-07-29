@@ -29,11 +29,15 @@
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define MAX_GAP_GLOBAL 5
+//#define MAX_GAP_GLOBAL 5
+
+#define MAX_GAP_GLOBAL 20
 
 #define MAX_GAP_LOCAL 20
 
-#define MIN_GAP_GLOBAL 2
+//#define MIN_GAP_GLOBAL 2
+
+#define MIN_GAP_GLOBAL 10
 
 #define MIN_GAP_LOCAL 10
 

@@ -379,10 +379,16 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
 
+        /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
             _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP_GLOBAL));
         else
             _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP_LOCAL));
+        ***/
+
+        _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(),
+                                           _r + GSL_MAX_INT(MAX_GAP_GLOBAL,
+                                                            MAX_GAP_LOCAL)));
     }
 }
 
