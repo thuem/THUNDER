@@ -406,6 +406,7 @@ void MLModel::updateR()
                 _r += GSL_MIN_INT(MAX_GAP_LOCAL, AROUND(double(_size) / 16));
 
             _r = GSL_MIN_INT(_r, maxR());
+
             return;
         }
 
