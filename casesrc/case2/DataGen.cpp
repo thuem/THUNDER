@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Generate Cylinder";
     VOLUME_FOR_EACH_PIXEL_RL(cylinder)
         if ((NORM(i, j) < 75.0 / PIXEL_SIZE) &&
-            (abs(k) < 100))
+            (abs(k) < 70))
             cylinder.setRL(1, i, j, k);
 
     ImageFile imfCylinder;
@@ -185,15 +185,13 @@ int main(int argc, char* argv[])
 
         fftThread.bw(image);
 
-        /***
         double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(engine, 5 * std);
+            noise(i) = gsl_ran_gaussian(engine, 2 * std);
 
         ADD_RL(image, noise);
-        ***/
 
         /***
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
