@@ -175,8 +175,10 @@ int main(int argc, char* argv[])
         par.coord(coord, i);
         projector.project(image, coord);
 
+        /***
         vec ps = vec::Zero(N);
         powerSpectrum(ps, image, N / 2 - 1);
+        ***/
 
         FOR_EACH_PIXEL_FT(image)
             image[i] *= REAL(ctf[i]);

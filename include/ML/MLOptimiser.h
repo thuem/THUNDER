@@ -170,7 +170,7 @@ class MLOptimiser : public Parallel
 
         double _dataStddev = 0;
 
-       // double _signalMean = 0;
+        //double _signalMean = 0;
 
         double _signalStddev = 0;
 
