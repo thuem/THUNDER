@@ -27,6 +27,7 @@ void bFactorFilter(Volume& dst,
                    const Volume& src,
                    const double bFactor)
 {
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         double f = gsl_pow_2(double(i) / src.nColRL())
@@ -63,6 +64,7 @@ void lowPassFilter(Volume& dst,
                    const double thres,
                    const double ew)
 {
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         double f = NORM_3(double(i) / src.nColRL(),
@@ -108,6 +110,7 @@ void highPassFilter(Volume& dst,
                     const double thres,
                     const double ew)
 {
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         double f = NORM_3(double(i) / src.nColRL(),
@@ -131,6 +134,7 @@ void fscWeightingFilter(Volume& dst,
                         const Volume& src,
                         const vec& fsc)
 {
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         double f = NORM_3(double(i) / src.nColRL(),
