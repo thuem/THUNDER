@@ -386,12 +386,10 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    /***
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
     allReduceSigma();
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
@@ -1434,7 +1432,7 @@ void MLOptimiser::saveReference()
 
     if (_commRank == HEMI_A_LEAD)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Saving References";
+        ALOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
         VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
 
@@ -1444,7 +1442,7 @@ void MLOptimiser::saveReference()
     }
     else if (_commRank == HEMI_B_LEAD)
     {
-        BLOG(INFO, "LOGGER_ROUND") << "Saving References";
+        BLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
         VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
 

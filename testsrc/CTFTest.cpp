@@ -11,7 +11,7 @@
 #include "CTF.h"
 #include "Spectrum.h"
 
-#define N 1024
+#define N 380
 
 using namespace std;
 
@@ -33,7 +33,6 @@ int main(int argc, char* argv[])
     loggerInit(argc, argv);
 
     double pixelSize = 1.32;
-    //double pixelSize = 5;
     double voltage = 3e5;
     double defocusU = 20000;
     double defocusV = 20000;
@@ -48,7 +47,10 @@ int main(int argc, char* argv[])
 
     for (int i = 1; i < img.nColRL() / 2; i++)
     {
-        cout << "Resolution = "
+        cout << "Pixel = "
+             << i - 1
+             << endl
+             << "Resolution = "
              << 1.0 / resP2A(i, img.nColRL(), pixelSize)
              << endl
              << "CTF = "
