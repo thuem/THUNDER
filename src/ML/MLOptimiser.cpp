@@ -743,59 +743,66 @@ void MLOptimiser::initImg()
 
 void MLOptimiser::statImg()
 {
-    _dataMean = 0;
-    _dataStddev = 0;
+    //_dataMean = 0;
     
     _noiseMean = 0;
+
+    _dataStddev = 0;
     _noiseStddev = 0;
-    
-    _signalMean = 0;
     _signalStddev = 0;
+    
+    //_signalMean = 0;
 
     FOR_EACH_2D_IMAGE
     {
-        double mean, stddev;
+        double mean, std;
 
+        bgMeanStddev(mean, std, _img[l], size() * MASK_RATIO / 2);
+        _noiseMean += mean;
+        _noiseStddev += std;
+
+        _dataStddev += stddev(_noiseMean, _img[l]); 
+        
+        /***
         meanStddev(mean, stddev, _img[l]);
         _dataMean += mean;
         _dataStddev += stddev;
-
-        bgMeanStddev(mean, stddev, _img[l], size() * MASK_RATIO / 2);
-        _noiseMean += mean;
-        _noiseStddev += stddev;
+        ***/
     }
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, &_dataMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
-    MPI_Allreduce(MPI_IN_PLACE, &_dataStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    //MPI_Allreduce(MPI_IN_PLACE, &_dataMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
     MPI_Allreduce(MPI_IN_PLACE, &_noiseMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
     MPI_Allreduce(MPI_IN_PLACE, &_noiseStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE, &_dataStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+
     MPI_Barrier(_hemi);
 
-    _dataMean /= _N;
-    _dataStddev /= _N;
     _noiseMean /= _N;
     _noiseStddev /= _N;
 
-    _signalMean = _dataMean - _noiseMean;
+    // _dataMean /= _N;
+    _dataStddev /= _N;
+
+    // _signalMean = _dataMean - _noiseMean;
     _signalStddev = _dataStddev - _noiseStddev;
 }
 
 void MLOptimiser::displayStatImg()
 {
-    ALOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
+    //ALOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
     ALOG(INFO, "LOGGER_INIT") << "Mean of Noise  : " << _noiseMean;
-    ALOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
+    //ALOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
 
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _noiseStddev;
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _dataStddev;
 
-    BLOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
+    //BLOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
     BLOG(INFO, "LOGGER_INIT") << "Mean of Noise  : " << _noiseMean;
-    BLOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
+    //BLOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
 
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _noiseStddev;
@@ -808,7 +815,7 @@ void MLOptimiser::substractBgImg()
         FOR_EACH_PIXEL_RL(_img[l])
             _img[l](i) -= _noiseMean;
 
-    _dataMean -= _noiseMean;
+    //_dataMean -= _noiseMean;
 
     _noiseMean = 0;
 }
@@ -834,10 +841,10 @@ void MLOptimiser::normaliseImg()
     _noiseMean *= scale;
     _noiseStddev = 1;
 
-    _dataMean *= scale;
+    //_dataMean *= scale;
     _dataStddev *= scale;
 
-    _signalMean *= scale;
+    //_signalMean *= scale;
     _signalStddev *= scale;
 }
 

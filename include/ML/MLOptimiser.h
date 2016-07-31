@@ -166,11 +166,11 @@ class MLOptimiser : public Parallel
 
         double _noiseStddev = 0;
 
-        double _dataMean = 0;
+        //double _dataMean = 0;
 
         double _dataStddev = 0;
 
-        double _signalMean = 0;
+       // double _signalMean = 0;
 
         double _signalStddev = 0;
 

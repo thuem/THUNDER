@@ -124,6 +124,12 @@ void translate(int& nTransCol,
         }
 }
 
+double stddev(const double mean,
+              const Image& src)
+{
+    return gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
+}
+
 void meanStddev(double& mean,
                 double& stddev,
                 const Image& src)
