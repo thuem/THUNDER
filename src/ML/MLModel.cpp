@@ -113,6 +113,13 @@ int MLModel::r() const
 void MLModel::setR(const int r)
 {
     _r = r;
+
+    updateRU();
+}
+
+int MLModel::rU() const
+{
+    return _rU;
 }
 
 int MLModel::rGlobal() const
@@ -407,8 +414,10 @@ void MLModel::updateR()
         {
             _r = _rU;
 
-            _rU += GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL);
-            _rU = GSL_MIN_INT(_rU, maxR());
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _r = GSL_MIN_INT(_rGlobal, _r);
+
+            updateRU();
             /***
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
@@ -426,8 +435,15 @@ void MLModel::updateR()
 
     _r = resolutionP();
 
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+        _r = GSL_MIN_INT(_rGlobal, _r);
+    
+    updateRU();
+
+    /***
     _rU += GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL);
     _rU = GSL_MIN_INT(_rU, maxR());
+    ***/
     
     /***
     if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -575,3 +591,10 @@ void MLModel::clear()
     _proj.clear();
     _reco.clear();
 }
+
+void MLModel::updateRU()
+{
+    _rU = GSL_MIN_INT(_r + GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL),
+                      maxR());
+}
+

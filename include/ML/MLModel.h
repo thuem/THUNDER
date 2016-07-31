@@ -275,6 +275,12 @@ class MLModel : public Parallel
         void setR(const int r);
 
         /**
+         * This function returns the frequency for reconstruction and
+         * calculating FSC, SNR.
+         */
+        int rU() const;
+
+        /**
          * This function returns the upper boundary frequency during global
          * search before padding (in pixel).
          */
@@ -461,6 +467,14 @@ class MLModel : public Parallel
          * This function clears up references, projectors and reconstructors.
          */
         void clear();
+
+    private:
+
+        /**
+         * This function update the frequency for reconstruction and calculating
+         * FSC, SNR by the frequency before padding (in pixel).
+         */
+        void updateRU();
 };
 
 #endif // ML_MODEL_H
