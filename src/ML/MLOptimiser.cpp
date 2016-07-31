@@ -861,6 +861,19 @@ void MLOptimiser::fwImg()
     }
 }
 
+void MLOptimiser::bwImg()
+{
+    FFT fft;
+
+    // perform inverse Fourier transform
+    
+    FOR_EACH_2D_IMAGE
+    {
+        fft.bw(_img[l]);
+        _img[l].clearFT();
+    }
+}
+
 void MLOptimiser::initCTF()
 {
     IF_MASTER return;

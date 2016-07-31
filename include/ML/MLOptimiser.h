@@ -237,6 +237,9 @@ class MLOptimiser : public Parallel
         /* perform Fourier transform */
         void fwImg();
 
+        /* perform inverse Fourier transform */
+        void bwImg();
+
         void initCTF();
 
         void correctScale();
