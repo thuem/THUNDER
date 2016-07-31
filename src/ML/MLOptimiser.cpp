@@ -1121,9 +1121,6 @@ void MLOptimiser::allReduceSigma()
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
-        // sort weights in particle and store its indices
-        uvec iSort = _par[l].iSort();
-
         mat33 rot;
         vec2 tran;
         Image img(size(), size(), FT_SPACE);
@@ -1262,7 +1259,7 @@ void MLOptimiser::reconstructRef()
                   maxR());
         ***/
 
-        uvec iSort = _par[l].iSort();
+        //uvec iSort = _par[l].iSort();
 
         mat33 rot;
         vec2 tran;
@@ -1438,20 +1435,25 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
+    int r2 = gsl_pow_2(r);
+    int d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+
     IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
-        //int u = AROUND(NORM(i, j));
-        int u = FLOOR(NORM(i, j));
+        int u = QUAD(i, j);
 
-        if ((FREQ_DOWN_CUTOFF < u) &&
-            (u < r))
+        if ((u < r2) && (u > d2))
         {
-            int index = dat.iFTHalf(i, j);
+            int v = AROUND(NORM(i, j));
+            if (v < r)
+            {
+                int index = dat.iFTHalf(i, j);
 
-            result += ABS2(dat.iGetFT(index)
-                         - REAL(ctf.iGetFT(index))
-                         * pri.iGetFT(index))
-                    / (-2 * sig[u]);
+                result += ABS2(dat.iGetFT(index)
+                             - REAL(ctf.iGetFT(index))
+                             * pri.iGetFT(index))
+                        / (-2 * sig[v]);
+            }
         }
     }
 
@@ -1467,21 +1469,26 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
+    int r2 = gsl_pow_2(r);
+    int d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+
     IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
-        //int u = AROUND(NORM(i, j));
-        int u = FLOOR(NORM(i, j));
+        int u = QUAD(i, j);
 
-        if ((FREQ_DOWN_CUTOFF < u) &&
-            (u < r))
+        if ((u < r2) && (u > d2))
         {
-            int index = dat.iFTHalf(i, j);
+            int v = AROUND(NORM(i, j));
+            if (v < r)
+            {
+                int index = dat.iFTHalf(i, j);
 
-            result += ABS2(dat.iGetFT(index)
-                         - REAL(ctf.iGetFT(index))
-                         * pri.iGetFT(index)
-                         * tra.iGetFT(index))
-                    / (-2 * sig[u]);
+                result += ABS2(dat.iGetFT(index)
+                             - REAL(ctf.iGetFT(index))
+                             * pri.iGetFT(index)
+                             * tra.iGetFT(index))
+                        / (-2 * sig[v]);
+            }
         }
     }
 
