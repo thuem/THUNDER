@@ -62,6 +62,7 @@ using namespace std;
                    AROUND(_ef * _src.nRowRL()), \
                    AROUND(_ef * _src.nSlcRL()), \
                    SP##_SPACE); \
+        _Pragma("omp parallel for") \
         VOLUME_FOR_EACH_PIXEL_##SP(_dst) \
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, ef)
@@ -94,6 +95,7 @@ using namespace std;
 #define VOL_REPLACE(SP, dst, src) \
     [](Volume& _dst, const Volume& _src) \
     { \
+        _Pragma("omp parallel for") \
         VOLUME_FOR_EACH_PIXEL_##SP(_src) \
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src)
@@ -132,6 +134,7 @@ using namespace std;
                    _pf * _src.nSlcRL(), \
                     SP##_SPACE); \
         SET_0_##SP(_dst); \
+        _Pragma("omp parallel for") \
         VOLUME_FOR_EACH_PIXEL_##SP(_src) \
             _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
     }(dst, src, pf)
