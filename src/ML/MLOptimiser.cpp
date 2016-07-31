@@ -1494,8 +1494,8 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
-    int r2 = gsl_pow_2(r);
-    int d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double r2 = gsl_pow_2(r);
+    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
 
     IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
