@@ -190,7 +190,8 @@ void MLModel::BcastFSC()
                                    0.5 * (_r + 1) * _pf);
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
-                                         << 1.0 / resP2A(r / _pf - 1, _size, _pixelSize);
+                                         << 1.0 / resP2A(r / _pf - 1, _size, _pixelSize)
+                                         << "(Angstrom)";
 
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(A)
