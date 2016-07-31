@@ -116,11 +116,9 @@ void MLOptimiser::init()
         initParticles();
     }
 
-    /***
     MLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
 
     correctScale();
-    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
