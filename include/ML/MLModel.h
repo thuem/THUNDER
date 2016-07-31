@@ -107,6 +107,11 @@ class MLModel : public Parallel
         int _r;
 
         /**
+         * frequency for reconstruction and calculating FSC, SNR 
+         */
+        int _rU;
+
+        /**
          * padding factor
          */
         int _pf;

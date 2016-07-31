@@ -139,7 +139,7 @@ void MLModel::BcastFSC()
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
-    _FSC.resize(_r * _pf, _k);
+    _FSC.resize(_rU * _pf, _k);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -178,7 +178,7 @@ void MLModel::BcastFSC()
                            MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << i;
-            vec fsc(_r * _pf);
+            vec fsc(_rU * _pf);
             FSC(fsc, A, B);
             _FSC.col(i) = fsc;
 
@@ -391,17 +391,25 @@ void MLModel::refreshReco()
             _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(), _r + MAX_GAP_LOCAL));
         ***/
 
+        /***
         _reco[i]->setMaxRadius(GSL_MIN_INT(maxR(),
                                            _r + GSL_MAX_INT(MAX_GAP_GLOBAL,
                                                             MAX_GAP_LOCAL)));
+                                                            ***/
+        _reco[i]->setMaxRadius(_rU);
     }
 }
 
 void MLModel::updateR()
 {
     FOR_EACH_CLASS
-        if (_FSC.col(i)(_pf * _r - 1) > 0.5)
+        if (_FSC.col(i)(_pf * _rU - 1) > 0.5)
         {
+            _r = _rU;
+
+            _rU += GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL);
+            _rU = GSL_MIN_INT(_rU, maxR());
+            /***
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
                 _r += GSL_MIN_INT(MAX_GAP_GLOBAL, AROUND(double(_size) / 16));
@@ -411,12 +419,17 @@ void MLModel::updateR()
                 _r += GSL_MIN_INT(MAX_GAP_LOCAL, AROUND(double(_size) / 16));
 
             _r = GSL_MIN_INT(_r, maxR());
+            ***/
 
             return;
         }
 
     _r = resolutionP();
+
+    _rU += GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL);
+    _rU = GSL_MIN_INT(_rU, maxR());
     
+    /***
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         _r += MIN_GAP_GLOBAL;
@@ -426,6 +439,7 @@ void MLModel::updateR()
         _r += MIN_GAP_LOCAL;
 
     _r = GSL_MIN_INT(_r, maxR());
+    ***/
 }
 
 double MLModel::rVari() const
