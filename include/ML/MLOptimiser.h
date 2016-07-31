@@ -273,6 +273,8 @@ class MLOptimiser : public Parallel
         // for debug
         // save low pass filtered images after removing CTFs
         void saveLowPassReduceCTFImages();
+
+        void saveReference();
 };
 
 double logDataVSPrior(const Image& dat,
