@@ -1420,7 +1420,7 @@ void MLOptimiser::saveReference()
     lowPassFilter(lowPass,
                   _model.ref(0),
                   (double)_r / _para.size,
-                  0);
+                  (double)EDGE_WIDTH_FT / _para.size);
 
     FFT fft;
     fft.bw(lowPass);
