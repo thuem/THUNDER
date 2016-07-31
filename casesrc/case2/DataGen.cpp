@@ -143,6 +143,17 @@ int main(int argc, char* argv[])
     cout << "Saving Sampling Points" << endl;
     save("Sampling_Points.par", par);
 
+    Image image(N, N, FT_SPACE);
+    SET_0_FT(image);
+    
+    Coordinate5D coord;
+    par.coord(coord, 0);
+    
+    projector.project(image, coord);
+    fft.bw(image);
+
+    double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
+
     #pragma omp parallel for
     for (int i = 0; i < M; i++)
     {
@@ -185,11 +196,9 @@ int main(int argc, char* argv[])
 
         fftThread.bw(image);
 
-        double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
-
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(engine, 10 * std);
+            noise(i) = gsl_ran_gaussian(engine, 5 * std);
 
         ADD_RL(image, noise);
 
