@@ -15,9 +15,9 @@
 #include "FFT.h"
 #include "Random.h"
 
-#define N 200
+#define N 512
 #define M 10
-#define PF 2
+#define PF 1
 
 INITIALIZE_EASYLOGGINGPP
 
