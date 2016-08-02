@@ -17,7 +17,7 @@
 
 #define N 128
 #define M 10
-#define PF 2
+#define PF 1
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -90,6 +90,7 @@ int main(int argc, char* argv[])
     fft.fw(padCentreHead);
 
     Projector projector;
+    projector.setMaxRadius(N / 4);
     projector.setPf(PF);
 
     Image image(N, N, RL_SPACE);
