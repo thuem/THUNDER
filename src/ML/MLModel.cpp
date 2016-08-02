@@ -433,7 +433,7 @@ void MLModel::updateR()
             return;
         }
 
-    _r = resolutionP();
+    _r = resolutionP() + 1;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);

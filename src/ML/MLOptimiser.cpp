@@ -480,6 +480,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+        saveReference();
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC";
         _model.BcastFSC();
 
@@ -1274,30 +1277,6 @@ void MLOptimiser::reconstructRef()
 
     _model.reco(0).reconstruct(_model.ref(0));
 
-    ImageFile imf;
-    char filename[FILE_NAME_LENGTH];
-    Volume result;
-    if (_commRank == HEMI_A_LEAD)
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Saving References";
-
-        VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
-
-        imf.readMetaData(result);
-        sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
-        imf.writeVolume(filename, result);
-    }
-    else if (_commRank == HEMI_B_LEAD)
-    {
-        BLOG(INFO, "LOGGER_ROUND") << "Saving References";
-
-        VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
-
-        imf.readMetaData(result);
-        sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
-        imf.writeVolume(filename, result);
-    }
-
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
@@ -1424,6 +1403,52 @@ void MLOptimiser::saveLowPassReduceCTFImages()
             img.saveRLToBMP(filename);
             fft.fw(img);
         }
+    }
+}
+
+void MLOptimiser::saveReference()
+{
+    if ((_commRank != HEMI_A_LEAD) &&
+        (_commRank != HEMI_B_LEAD))
+        return;
+
+    Volume lowPass(_para.size * _para.pf,
+                   _para.size * _para.pf,
+                   _para.size * _para.pf,
+                   FT_SPACE);
+
+    lowPassFilter(lowPass,
+                  _model.ref(0),
+                  (double)_r / _para.size,
+                  (double)EDGE_WIDTH_FT / _para.size);
+
+    FFT fft;
+    fft.bw(lowPass);
+
+    ImageFile imf;
+    char filename[FILE_NAME_LENGTH];
+
+    Volume result;
+
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+
+        VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+
+        imf.readMetaData(result);
+        sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+        imf.writeVolume(filename, result);
+    }
+    else if (_commRank == HEMI_B_LEAD)
+    {
+        BLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+
+        VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+
+        imf.readMetaData(result);
+        sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+        imf.writeVolume(filename, result);
     }
 }
 
