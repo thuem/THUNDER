@@ -135,7 +135,7 @@ void powerSpectrum(vec& dst,
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD_3(i, j, k) < gsl_pow_3(r))
+        if (QUAD_3(i, j, k) < gsl_pow_2(r))
         {
             int u = AROUND(NORM_3(i, j, k));
 
