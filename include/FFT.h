@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
  * Test:
  * Execution:
@@ -141,6 +141,9 @@ class FFT
         void fw(Volume& vol);
         void bw(Volume& vol);
 
+        void fw_mtr(Volume& vol);
+        void bw_mtr(Volume& vol);
+        
         void clear();
 };
 
