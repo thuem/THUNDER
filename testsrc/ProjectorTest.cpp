@@ -8,13 +8,16 @@
 
 #include <iostream>
 
+#include <gsl/gsl_randist.h>
+
 #include "Projector.h"
 #include "ImageFile.h"
 #include "FFT.h"
+#include "Random.h"
 
-#define N 120
+#define N 200
 #define M 10
-#define PF 4
+#define PF 2
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -43,6 +46,14 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
+
+    auto engine = get_random_engine();
+
+    Volume noise(N, N, N, RL_SPACE);
+    FOR_EACH_PIXEL_RL(noise)
+        noise(i) = gsl_ran_gaussian(engine, 0.2);
+
+    ADD_RL(head, noise);
 
     mat33 centre;
     centre << -1, 0, 0,
