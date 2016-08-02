@@ -66,6 +66,9 @@ void Projector::setProjectee(Volume src)
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),
                              _projectee.nSlcRL()) / _pf / 2 - 1);
+
+    // perform grid correction
+    gridCorrection();
 }
 
 void Projector::project(Image& dst,
@@ -131,6 +134,23 @@ void Projector::project(Image& dst,
 
 void Projector::gridCorrection()
 {
+    if ((_interp == LINEAR_INTERP) ||
+        (_interp == NEAREST_INTERP))
+    {
+        FFT fft;
+
+        fft.bw(_projectee);
+
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(_projectee)
+        {
+            double r = NORM_3(i, j, k) / (_projectee.nColRL() * _pf);
+
+            _projectee.setRL(_projectee.getRL(i, j, k) / TIK_RL(r), i, j, k);
+        }
+
+        fft.bw(_projectee);
+    }
     /***
     FFT fft;
 
