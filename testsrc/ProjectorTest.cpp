@@ -162,12 +162,18 @@ int main(int argc, char* argv[])
             {
                 SET_0_FT(img);
                 printf("%02d %02d %02d\n", i, j, k);
+                /***
                 projector.project(img,
                                   2 * M_PI * i / M,
                                   M_PI * j / M,
                                   2 * M_PI * k / M,
                                   10,
                                   10);
+                ***/
+                projector.project(img,
+                                  2 * M_PI * i / M,
+                                  M_PI * j / M,
+                                  2 * M_PI * k / M);
 
                 sprintf(name, "%02d%02d%02dFT.bmp", i, j, k);
                 img.saveFTToBMP(name, 0.1);
