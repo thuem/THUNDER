@@ -12,11 +12,12 @@ endif (FFTW_INCLUDES)
 
 find_path (FFTW_INCLUDES fftw3.h)
 
+find_library (FFTWOMP_LIBRARIES NAMES fftw3_omp fftw3)
 find_library (FFTW_LIBRARIES NAMES fftw3)
 
 # handle the QUIETLY and REQUIRED arguments and set FFTW_FOUND to TRUE if
 # all listed variables are TRUE
 include (FindPackageHandleStandardArgs)
-find_package_handle_standard_args (FFTW DEFAULT_MSG FFTW_LIBRARIES FFTW_INCLUDES)
+find_package_handle_standard_args (FFTW DEFAULT_MSG FFTW_LIBRARIES FFTWOMP_LIBRARIES FFTW_INCLUDES)
 
-mark_as_advanced (FFTW_LIBRARIES FFTW_INCLUDES)
+mark_as_advanced (FFTW_LIBRARIES FFTWOMP_LIBRARIES FFTW_INCLUDES)
