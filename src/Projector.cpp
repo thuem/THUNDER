@@ -151,7 +151,7 @@ void Projector::gridCorrection()
             _projectee.setRL(_projectee.getRL(i, j, k) / TIK_RL(r), i, j, k);
         }
 
-        fft.bw(_projectee);
+        fft.fw(_projectee);
     }
     /***
     FFT fft;
