@@ -15,9 +15,9 @@
 #include "FFT.h"
 #include "Random.h"
 
-#define N 512
+#define N 128
 #define M 10
-#define PF 1
+#define PF 2
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
     Volume noise(N, N, N, RL_SPACE);
     FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(engine, 0.2);
+        noise(i) = gsl_ran_gaussian(engine, 1);
 
     ADD_RL(head, noise);
 
