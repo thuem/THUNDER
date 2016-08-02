@@ -38,10 +38,10 @@
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
-#define FREQ_DOWN_CUTOFF 3
+#define FREQ_DOWN_CUTOFF 1.5
 #define ALPHA_GLOBAL_SEARCH 1.0
 #define ALPHA_LOCAL_SEARCH 0
-#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 30 // Angstrom
+#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
 
 #define MIN_N_PHASE_PER_ITER 3
 #define MAX_N_PHASE_PER_ITER 100
