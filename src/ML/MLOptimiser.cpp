@@ -116,11 +116,9 @@ void MLOptimiser::init()
         initParticles();
     }
 
-    /***
     MLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
 
     correctScale();
-    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
@@ -701,7 +699,6 @@ void MLOptimiser::initImg()
         }
     }
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
 
@@ -731,7 +728,6 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
-    ***/
 
     /***
     statImg();
