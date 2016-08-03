@@ -133,18 +133,68 @@ class FFT
     public:
 
         FFT();
+
         ~FFT();
 
+        /**
+         * This function performs Fourier transform on an image.
+         *
+         * @param img the image to be transformed
+         */
         void fw(Image& img);
+
+        /**
+         * This function performs inverse Fourier transform on an image.
+         *
+         * @param img the image to be transformed
+         */
         void bw(Image& img);
 
+        /**
+         * This function performs Fourier transform on a volume.
+         *
+         * @param vol the volume to be transformed
+         */
         void fw(Volume& vol);
+
+        /**
+         * This function performs inverse Fourier transform on a volume.
+         *
+         * @param vol the volume to be transformed
+         */
         void bw(Volume& vol);
 
-        void fw_mtr(Volume& vol);
-        void bw_mtr(Volume& vol);
-        
-        void clear();
+        /**
+         * This function performs Fourier transform on an image using multiple
+         * threads.
+         *
+         * @param img the image to be transformed
+         */
+        void fwMT(Image& img);
+
+        /**
+         * This function performs inverse Fourier transform on an image using 
+         * multiple threads.
+         *
+         * @param img the image to be transformed
+         */
+        void bwMT(Image& img);
+
+        /**
+         * This function performs Fourier transform on a volume using multiple
+         * threads.
+         *
+         * @param vol the volume to be transformed
+         */
+        void fwMT(Volume& vol);
+
+        /**
+         * This function performs inverse Fourier transform on a volume using
+         * multiple threads.
+         *
+         * @param vol the volume to be transformed
+         */
+        void bwMT(Volume& vol);
 };
 
 #endif // FFT_H 
