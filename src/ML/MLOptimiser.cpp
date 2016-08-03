@@ -142,6 +142,8 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    _nF = 0;
+
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -365,7 +367,13 @@ void MLOptimiser::expectation()
                 if (rVariCur < rVari) rVari = rVariCur;
 
                 // break if in a few continuous searching, there is no improvement
-                if (nPhaseWithNoVariDecrease == 3) break;
+                if (nPhaseWithNoVariDecrease == 3)
+                {
+                    #pragma omp critical
+                    _nF += phase;
+
+                    break;
+                }
             }
         }
 
@@ -426,7 +434,12 @@ void MLOptimiser::run()
         expectation();
 
         MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expecation";
-        ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished";
+        ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
+                                   << _nF
+                                   << " Times over "
+                                   << _ID.size()
+                                   << " Images";
+
         MPI_Barrier(MPI_COMM_WORLD);
 
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";

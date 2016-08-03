@@ -174,6 +174,11 @@ class MLOptimiser : public Parallel
 
         double _signalStddev = 0;
 
+        /**
+         * number of filtering in an iteration of a process
+         */
+        int _nF = 0;
+
     public:
         
         MLOptimiser();
