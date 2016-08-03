@@ -49,7 +49,7 @@ void MLOptimiser::init()
 
     // _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize));
     // _r = 16;
-    _r = 10;
+    _r = 7;
     _iter = 0;
     _model.setR(_r);
 
