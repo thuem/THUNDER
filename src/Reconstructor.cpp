@@ -148,7 +148,7 @@ void Reconstructor::reconstruct(Volume& dst)
     dst = _F.copyVolume();
 
     FFT fft;
-    fft.bw(dst);
+    fft.bwMT(dst);
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";

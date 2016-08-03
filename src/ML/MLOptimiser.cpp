@@ -635,7 +635,7 @@ void MLOptimiser::initRef()
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
 
     FFT fft;
-    fft.fw(_model.ref(0));
+    fft.fwMT(_model.ref(0));
     _model.ref(0).clearRL();
     /***
     fft.bw(_model.ref(0));
@@ -1277,7 +1277,7 @@ void MLOptimiser::reconstructRef()
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
     FFT fft;
-    fft.fw(_model.ref(0));
+    fft.fwMT(_model.ref(0));
     _model.ref(0).clearRL();
 }
 
@@ -1419,7 +1419,7 @@ void MLOptimiser::saveReference()
                   (double)EDGE_WIDTH_FT / _para.size);
 
     FFT fft;
-    fft.bw(lowPass);
+    fft.bwMT(lowPass);
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];

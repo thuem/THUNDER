@@ -139,7 +139,7 @@ void Projector::gridCorrection()
     {
         FFT fft;
 
-        fft.bw(_projectee);
+        fft.bwMT(_projectee);
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_RL(_projectee)
@@ -149,32 +149,6 @@ void Projector::gridCorrection()
             _projectee.setRL(_projectee.getRL(i, j, k) / TIK_RL(r), i, j, k);
         }
 
-        fft.fw(_projectee);
+        fft.fwMT(_projectee);
     }
-    /***
-    FFT fft;
-
-    fft.complexToFloat(_projectee);
-
-    VOLUME_FOR_EACH_PIXEL(_projectee)
-    {
-        if ((i != 0) || (j != 0) || (k != 0))
-        {
-            double u = sinc(M_PI * sqrt(i * i + j * j + k * k)
-                         / _projectee.nColumn());
-
-            // when sinc3D, no correction needed
-            switch (_interpolation)
-            {
-                case nearest3D:
-                    _projectee.set(_projectee.get(i, j, k) / u, i, j, k);
-                    break;
-
-                case linear3D:
-                    _projectee.set(_projectee.get(i, j, k) / u / u, i, j, k);
-                    break;
-            }
-        }
-    }
-    ***/
 }
