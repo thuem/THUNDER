@@ -144,7 +144,7 @@ void MLOptimiser::expectation()
 
     _nF = 0;
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         Image image(size(), size(), FT_SPACE);
