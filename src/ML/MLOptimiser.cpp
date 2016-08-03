@@ -433,7 +433,7 @@ void MLOptimiser::run()
 
         expectation();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expecation";
+        MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
         ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
                                    << _nF
                                    << " Times over "
