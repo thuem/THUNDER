@@ -72,12 +72,14 @@ bool Parallel::isMaster() const
 bool Parallel::isA() const
 {
     if (isMaster()) return false;
+
     return (_commRank % 2 == 1);
 }
 
 bool Parallel::isB() const
 {
     if (isMaster()) return false;
+
     return (_commRank % 2 == 0);
 }
 

@@ -20,10 +20,10 @@ int main(int argc, char* argv[])
 
     Parallel par;
     par.setMPIEnv();
-    display(par);
+
+    // display(par);
 
     Volume vol(760, 760, 760, FT_SPACE);
-    //Volume vol(100, 100, 100, FT_SPACE);
     SET_1_FT(vol);
 
     for (int i = 0; i < atoi(argv[1]); i++)
@@ -35,6 +35,27 @@ int main(int argc, char* argv[])
             if (par.commRank() == HEMI_B_LEAD)
                 CLOG(INFO, "LOGGER_SYS") << "HEMI_B: Round " << i;
 
+            display(par);
+
+            if (par.isA())
+            {
+                MPI_Bcast_Large(&vol[0],
+                                vol.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                0,
+                                par.hemi());
+            }
+
+            if (par.isB())
+            {
+                MPI_Bcast_Large(&vol[0],
+                                vol.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                0,
+                                par.hemi());
+            }
+
+            /***
             MPI_Allreduce_Large(&vol[0],
                                 vol.sizeFT(),
                                 MPI_DOUBLE_COMPLEX,
@@ -54,6 +75,7 @@ int main(int argc, char* argv[])
                         }
             }
             cout << endl;
+            ***/
         }
     }
     
