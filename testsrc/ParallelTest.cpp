@@ -37,7 +37,6 @@ int main(int argc, char* argv[])
 
             display(par);
 
-            /***
             if (par.isA())
             {
                 MPI_Bcast_Large(&vol[0],
@@ -46,8 +45,8 @@ int main(int argc, char* argv[])
                                 0,
                                 par.hemi());
             }
-            ***/
 
+            /***
             if (par.isB())
             {
                 MPI_Bcast_Large(&vol[0],
@@ -56,6 +55,7 @@ int main(int argc, char* argv[])
                                 0,
                                 par.hemi());
             }
+            ***/
 
             /***
             MPI_Allreduce_Large(&vol[0],
