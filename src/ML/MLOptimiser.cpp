@@ -49,7 +49,7 @@ void MLOptimiser::init()
 
     // _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize));
     // _r = 16;
-    _r = 7;
+    _r = 10;
     _iter = 0;
     _model.setR(_r);
 
@@ -442,7 +442,7 @@ void MLOptimiser::run()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expecation";
+        MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
