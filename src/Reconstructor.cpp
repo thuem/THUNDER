@@ -215,14 +215,6 @@ void Reconstructor::allReduceW()
                         MPI_DOUBLE_COMPLEX,
                         MPI_SUM,
                         _hemi);
-    /***
-    MPI_Allreduce(MPI_IN_PLACE,
-                  &_C[0],
-                  _C.sizeFT(),
-                  MPI_DOUBLE_COMPLEX,
-                  MPI_SUM,
-                  _hemi);
-                  ***/
 
     MPI_Barrier(_hemi);
 
