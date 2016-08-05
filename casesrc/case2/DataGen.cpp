@@ -78,14 +78,16 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Min = " << gsl_stats_min(&ref(0), 1, ref.sizeRL());
     CLOG(INFO, "LOGGER_SYS") << "Mean = " << gsl_stats_mean(&ref(0), 1, ref.sizeRL());
 
-    /***
+    double bg = background(ref, N * 1.2 / 2, EDGE_WIDTH_RL);
+
+    CLOG(INFO, "LOGGER_SYS") << "Background of Reference = " << bg;
+
     FOR_EACH_PIXEL_RL(ref)
         if (ref(i) < 0) ref(i) = 0;
 
     CLOG(INFO, "LOGGER_SYS") << "Max = " << gsl_stats_max(&ref(0), 1, ref.sizeRL());
     CLOG(INFO, "LOGGER_SYS") << "Min = " << gsl_stats_min(&ref(0), 1, ref.sizeRL());
     CLOG(INFO, "LOGGER_SYS") << "Mean = " << gsl_stats_mean(&ref(0), 1, ref.sizeRL());
-    ***/
 
     CLOG(INFO, "LOGGER_SYS") << "Checkout Size";
     if ((ref.nColRL() != N) ||
