@@ -138,6 +138,19 @@ void meanStddev(double& mean,
     stddev = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
+double bgStddev(const double mean,
+                const Image& src,
+                const double r)
+{
+    vector<double> bg;
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+        if (NORM(i, j) > r)
+            bg.push_back(src.getRL(i, j));
+
+    return gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+}
+
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,

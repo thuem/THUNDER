@@ -303,7 +303,7 @@ void translate(int& nTranCol,
  * @param mean the mean value
  * @param the image to be calculated
  */
-double stddev(const double meam,
+double stddev(const double mean,
               const Image& src);
 
 /**
@@ -316,6 +316,18 @@ double stddev(const double meam,
 void meanStddev(double& mean,
                 double& stddev,
                 const Image& src);
+
+/**
+ * This function calculates the standard deviation of the background when the
+ * mean value is given.
+ *
+ * @param mean the mean value
+ * @param src the image to be calculated
+ * @param r the radius
+ */
+double bgStddev(const double mean,
+                const Image& src,
+                const double r);
 
 /**
  * This function calculates the mean and standard deviation of the background.

@@ -46,7 +46,7 @@
 #define MIN_N_PHASE_PER_ITER 3
 #define MAX_N_PHASE_PER_ITER 100
 
-#define MASK_RATIO 1.2
+#define MASK_RATIO 1.0
 
 #define TRANS_SEARCH_FACTOR 0.1
 
@@ -199,13 +199,19 @@ class MLOptimiser : public Parallel
          */
         vector<int> _groupID;
 
-        double _noiseMean = 0;
+        double _stdN = 0;
 
+        double _stdD = 0;
+
+        double _stdS = 0;
+
+        /***
         double _noiseStddev = 0;
 
         double _dataStddev = 0;
 
         double _signalStddev = 0;
+        ***/
 
         /**
          * number of filtering in an iteration of a process

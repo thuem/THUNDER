@@ -704,6 +704,11 @@ void MLOptimiser::initImg()
         }
     }
 
+    ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
+    BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
+
+    substractBgImg();
+
     ALOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
 
@@ -713,11 +718,6 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images Before Normalising";
 
     displayStatImg();
-
-    ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
-    BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
-
-    substractBgImg();
 
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
@@ -734,14 +734,12 @@ void MLOptimiser::initImg()
 
     displayStatImg();
 
-    /***
     statImg();
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
-    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
@@ -751,119 +749,90 @@ void MLOptimiser::initImg()
 
 void MLOptimiser::statImg()
 {
-    //_dataMean = 0;
+    _stdN = 0;
+    _stdD = 0;
+    _stdS = 0;
     
-    _noiseMean = 0;
-
-    _dataStddev = 0;
-    _noiseStddev = 0;
-    _signalStddev = 0;
-    
-    //_signalMean = 0;
-
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        double mean, std;
+        #pragma omp critical
+        _stdN += bgStddev(0, _img[l], size() * MASK_RATIO / 2);
 
-        bgMeanStddev(mean, std, _img[l], size() * MASK_RATIO / 2);
-        _noiseMean += mean;
-        _noiseStddev += std;
-
-        _dataStddev += stddev(_noiseMean, _img[l]); 
-        
-        /***
-        meanStddev(mean, stddev, _img[l]);
-        _dataMean += mean;
-        _dataStddev += stddev;
-        ***/
+        #pragma omp critical
+        _stdD = stddev(0, _img[l]);
     }
 
     MPI_Barrier(_hemi);
 
-    //MPI_Allreduce(MPI_IN_PLACE, &_dataMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
-    MPI_Allreduce(MPI_IN_PLACE, &_noiseMean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
-    MPI_Allreduce(MPI_IN_PLACE, &_noiseStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
-
-    MPI_Allreduce(MPI_IN_PLACE, &_dataStddev, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_stdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_stdD, 1, MPI_DOUBLE, MPI_SUM, _hemi);
 
     MPI_Barrier(_hemi);
 
-    _noiseMean /= _N;
-    _noiseStddev /= _N;
+    _stdN /= _N;
+    _stdD /= _N;
 
-    // _dataMean /= _N;
-    _dataStddev /= _N;
-
-    // _signalMean = _dataMean - _noiseMean;
-    _signalStddev = _dataStddev - _noiseStddev;
+    _stdS = _stdD - _stdN;
 }
 
 void MLOptimiser::displayStatImg()
 {
-    //ALOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
-    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise  : " << _noiseMean;
-    //ALOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _stdN;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
 
-    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
-    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _noiseStddev;
-    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _dataStddev;
-
-    //BLOG(INFO, "LOGGER_INIT") << "Mean of Signal : " << _signalMean;
-    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise  : " << _noiseMean;
-    //BLOG(INFO, "LOGGER_INIT") << "Mean of Data   : " << _dataMean;
-
-    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _signalStddev;
-    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _noiseStddev;
-    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _dataStddev;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _stdN;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
 }
 
 void MLOptimiser::substractBgImg()
 {
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
+    {
+        double bg = background(_img[l],
+                               size() * MASK_RATIO / 2,
+                               EDGE_WIDTH_RL);
+
         FOR_EACH_PIXEL_RL(_img[l])
-            _img[l](i) -= _noiseMean;
-
-    //_dataMean -= _noiseMean;
-
-    _noiseMean = 0;
+            _img[l](i) -= bg;
+    }
 }
 
 void MLOptimiser::maskImg()
 {
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
         softMask(_img[l],
                  _img[l],
                  size() * MASK_RATIO / 2,
                  EDGE_WIDTH_RL,
-                 _noiseMean,
-                 _noiseStddev);
+                 0,
+                 0);
 }
 
 void MLOptimiser::normaliseImg()
 {
-    double scale = 1.0 / _noiseStddev;
+    double scale = 1.0 / _stdN;
 
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
         SCALE_RL(_img[l], scale);
 
-    _noiseMean *= scale;
-    _noiseStddev = 1;
-
-    //_dataMean *= scale;
-    _dataStddev *= scale;
-
-    //_signalMean *= scale;
-    _signalStddev *= scale;
+    _stdN *= scale;
+    _stdD *= scale;
+    _stdS *= scale;
 }
 
 void MLOptimiser::fwImg()
 {
-    FFT fft;
-
     // perform Fourier transform
-
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        FFT fft;
         fft.fw(_img[l]);
         _img[l].clearRL();
     }
@@ -871,12 +840,11 @@ void MLOptimiser::fwImg()
 
 void MLOptimiser::bwImg()
 {
-    FFT fft;
-
     // perform inverse Fourier transform
-    
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        FFT fft;
         fft.bw(_img[l]);
         _img[l].clearFT();
     }
