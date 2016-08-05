@@ -709,7 +709,6 @@ void MLOptimiser::initImg()
 
     substractBgImg();
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
 
@@ -735,6 +734,7 @@ void MLOptimiser::initImg()
 
     displayStatImg();
 
+    /***
     statImg();
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
