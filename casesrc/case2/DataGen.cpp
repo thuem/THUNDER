@@ -19,6 +19,7 @@
 #include "CTF.h"
 #include "Experiment.h"
 #include "Spectrum.h"
+#include "Mask.h"
 
 #define PF 2
 
