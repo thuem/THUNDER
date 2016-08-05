@@ -174,6 +174,14 @@
         fft.bw(dst); \
     }()
 
+/**
+ * This macro performs Fourier transform on the source image (volume) and
+ * excutes a function in Fourier space.
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
 #define R2C_FT(dst, src, function) \
     [&]() mutable \
     { \
@@ -182,6 +190,14 @@
         function; \
     }()
 
+/**
+ * This macro executes a function in Fourier space and performs an inverse
+ * Fourier transform on the destination image (volume).
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
 #define C2R_FT(dst, src, function) \
     [&]() mutable \
     { \
@@ -194,22 +210,46 @@ class FFT
 {
     private:
 
+        /**
+         * a pointer points to the source of the Fourier transform
+         */
         double* _srcR = NULL;
 
+        /**
+         * a pointer points to the source of the inverse Fourier transform
+         */
         fftw_complex* _srcC = NULL;
 
+        /**
+         * a pointer points to the destination of the inverse Fourier transform
+         */
         double* _dstR = NULL;
 
+        /**
+         * a pointer points to the destination of the Fourier transform
+         */
         fftw_complex* _dstC = NULL;
 
+        /**
+         * the plan of Fourier transform
+         */
         fftw_plan fwPlan;
 
+        /**
+         * the plan of inverse Fourier transform
+         */
         fftw_plan bwPlan;
 
     public:
 
+        /**
+         * default contructor
+         */
         FFT();
 
+        /**
+         * default reconstructor
+         */
         ~FFT();
 
         /**

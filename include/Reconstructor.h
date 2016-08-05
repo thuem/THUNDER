@@ -269,7 +269,6 @@ class Reconstructor : public Parallel
                     const vec2& t,
                     const double w);
 
-
         /**
          * Insert a 2D Fourier transform of image pixel data with associated
          * 5D coordinate and weight into member data. The image data src will
