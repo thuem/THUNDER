@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Mean = " << gsl_stats_mean(&ref(0), 1, ref.sizeRL());
 
     imf.readMetaData(ref);
-    imf.writeVolume("truncRef.mrc", padRef);
+    imf.writeVolume("truncRef.mrc", ref);
 
     CLOG(INFO, "LOGGER_SYS") << "Padding Head";
     Volume padRef;
