@@ -158,13 +158,16 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        if (r < 0.5 / _pf)
+        if ((r < 0.5 / _pf) &&
+            (dst.getRL(i, j, k) > 0))
+        {
             dst.setRL(dst.getRL(i, j, k)
                     / MKB_RL(r, _pf * _a, _alpha)
                     / TIK_RL(r),
                       i,
                       j,
                       k);
+        }
         else
             dst.setRL(0, i, j, k);
     }
