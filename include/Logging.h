@@ -48,6 +48,7 @@ inline void loggerInit()
     loggerInit(loggerConf, "LOGGER_COMPARE", "LOGGER_COMPARE.log");
     loggerInit(loggerConf, "LOGGER_RECO", "LOGGER_RECO.log");
     loggerInit(loggerConf, "LOGGER_MPI", "LOGGER_MPI.log");
+    loggerInit(loggerConf, "LOGGER_FFT", "LOGGER_MPI.log");
 };
 
 inline void loggerInit(int argc, char* argv[])
@@ -59,6 +60,7 @@ inline void loggerInit(int argc, char* argv[])
     loggerInit(loggerConf, "LOGGER_COMPARE", (logger + ".log").c_str());
     loggerInit(loggerConf, "LOGGER_RECO", (logger + ".log").c_str());
     loggerInit(loggerConf, "LOGGER_MPI", (logger + ".log").c_str());
+    loggerInit(loggerConf, "LOGGER_FFT", (logger + ".log").c_str());
 }
 
 #endif // LOGGING_H
