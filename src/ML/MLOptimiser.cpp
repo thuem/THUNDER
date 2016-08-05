@@ -760,7 +760,7 @@ void MLOptimiser::statImg()
         _stdN += bgStddev(0, _img[l], size() * MASK_RATIO / 2);
 
         #pragma omp critical
-        _stdD = stddev(0, _img[l]);
+        _stdD += stddev(0, _img[l]);
     }
 
     MPI_Barrier(_hemi);
