@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Sum of ref = " << REAL(ref[0]);
     CLOG(INFO, "LOGGER_SYS") << "Sum of padRef = " << REAL(padRef[0]);
 
-
     CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
     Projector projector;
     projector.setPf(PF);

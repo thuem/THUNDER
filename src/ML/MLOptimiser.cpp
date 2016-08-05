@@ -719,19 +719,15 @@ void MLOptimiser::initImg()
 
     displayStatImg();
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
 
     maskImg();
-    ***/
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
     BLOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
 
     normaliseImg();
-    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
