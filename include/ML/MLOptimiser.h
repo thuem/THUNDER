@@ -46,7 +46,7 @@
 #define MIN_N_PHASE_PER_ITER 3
 #define MAX_N_PHASE_PER_ITER 100
 
-#define MASK_RATIO 1.5
+#define MASK_RATIO 1.0
 
 #define TRANS_SEARCH_FACTOR 0.1
 
