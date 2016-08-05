@@ -116,61 +116,94 @@ class MLOptimiser : public Parallel
 
         MLOptimiserPara _para;
 
+        /**
+         * total number of 2D images
+         */
         int _nPar;
-        /* total number of 2D images */
 
+        /**
+         * total number of 2D images in each hemisphere
+         */
         int _N;
-        /* total number of 2D images in each hemisphere */
 
+        /**
+         * cutoff frequency (in pixels)
+         */
         int _r;
-        /* radius of calculating posterior possibility */
 
+        /**
+         * current number of iterations
+         */
         int _iter;
-        /* number of iterations performed */
 
+        /**
+         * current resolution (in Angstrom)
+         */
         double _res;
-        /* current resolution in pixel */
 
+        /**
+         * current search type
+         */
         int _searchType = SEARCH_TYPE_GLOBAL;
 
+        /**
+         * model containting references, projectors, reconstruuctors, information 
+         * about FSC, SNR and determining the cutoff frequency and search type
+         */
         MLModel _model;
-        /* model, including references, projectors and reconstructors */
 
+        /**
+         * a database containing information of 2D images, CTFs, group and
+         * micrograph information
+         */
         Experiment _exp;
-        /* information of 2D images, groups and micrographs */
 
+        /**
+         * the symmetry information of this reconstruction
+         */
         Symmetry _sym; 
 
+        /**
+         * a unique ID for each 2D image
+         */
         vector<int> _ID;
-        /* IDs for each 2D images */
 
+        /**
+         * 2D images
+         */
         vector<Image> _img;
 
+        /**
+         * a particle filter for each 2D image
+         */
         vector<Particle> _par;
 
+        /**
+         * a CTF for each 2D image
+         */
         vector<Image> _ctf;
 
-        // vector<vec> _sig;
-
+        /**
+         * Each row stands for sigma^2 of a certain group, thus the size of this
+         * matrix is _nGroup x (maxR() + 1)
+         */
         mat _sig;
-        // each row is a sigma value
-        // size : _nGroup * (maxR() + 1)
 
+        /**
+         * number of groups
+         */
         int _nGroup;
 
-        // vector<int> _groupSize;
-
+        /**
+         * a unique ID for each group
+         */
         vector<int> _groupID;
 
         double _noiseMean = 0;
 
         double _noiseStddev = 0;
 
-        //double _dataMean = 0;
-
         double _dataStddev = 0;
-
-        //double _signalMean = 0;
 
         double _signalStddev = 0;
 
