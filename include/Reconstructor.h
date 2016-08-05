@@ -282,8 +282,8 @@ class Reconstructor : public Parallel
          * @param w The weight values to measure the possibility of 5D coordinate.
          */
        void insert(const Image& src,
-                    const Coordinate5D coord,
-                    const double w);
+                   const Coordinate5D coord,
+                   const double w);
 
         /**
          * reconstruct a 3D model and save it into a volume.

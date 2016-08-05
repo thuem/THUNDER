@@ -13,6 +13,7 @@
 #include <gsl/gsl_statistics.h>
 
 #include "Projector.h"
+#include "Reconstructor.h"
 #include "FFT.h"
 #include "ImageFile.h"
 #include "Particle.h"
@@ -101,8 +102,9 @@ int main(int argc, char* argv[])
     Image image(N, N, FT_SPACE);
     SET_0_FT(image);
     
-    /***
     Coordinate5D coord;
+
+    /***
     par.coord(coord, 0);
     
     projector.project(image, coord);
@@ -114,8 +116,6 @@ int main(int argc, char* argv[])
     #pragma omp parallel for
     for (int i = 0; i < M; i++)
     {
-        // CLOG(INFO, "LOGGER_SYS") << "Power Spectrum";
-
         FFT fftThread;
 
         auto engine = get_random_engine();
@@ -152,6 +152,32 @@ int main(int argc, char* argv[])
 
         fftThread.fw(image);
     }
+
+    Reconstructor reco(N, 2, &sym);
+
+    Image insert(N, N, RL_SPACE);
+
+    char nameInsert[256];
+
+    for (int i = 0; i < M; i++)
+    {
+        sprintf(nameInsert, "%05d.mrc", i + 1);
+        printf("%s\n", nameInsert);
+
+        ImageFile imfInsert(nameInsert, "rb");
+        imfInsert.readMetaData();
+        imfInsert.readImage(insert);
+
+        par.coord(coord, i);
+
+        reco.insert(insert, coord, 1);
+    }
+
+    Volume result;
+    reco.reconstruct(result);
+
+    imf.readMetaData(result);
+    imf.writeVolume("result.mrc", result);
     
     return 0;
 }
