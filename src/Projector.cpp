@@ -68,7 +68,7 @@ void Projector::setProjectee(Volume src)
                              _projectee.nSlcRL()) / _pf / 2 - 1);
 
     // perform grid correction
-    // gridCorrection();
+    gridCorrection();
 }
 
 void Projector::project(Image& dst,
