@@ -48,10 +48,9 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
 
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
-    // _r = 16;
-    // _r = 7;
-    _iter = 0;
     _model.setR(_r);
+
+    _iter = 0;
 
     MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
@@ -409,9 +408,12 @@ void MLOptimiser::run()
 
     init();
     
-    MPI_Barrier(MPI_COMM_WORLD);
-
     saveImages();
+    saveReduceCTFImages();
+    saveLowPassImages();
+    saveLowPassReduceCTFImages();
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_ROUND") << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
@@ -522,12 +524,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
         _model.updateR();
         _r = _model.r();
-        /***
-        if ((_searchType == SEARCH_TYPE_GLOBAL) &&
-            (1.0 / resP2A(_r - 1, _para.size, _para.pixelSize) < TOTAL_GLOBAL_SEARCH_RES_LIMIT))
-        {
-        }
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
@@ -547,14 +543,6 @@ void MLOptimiser::run()
 
             _model.refreshReco();
         }
-
-        // save the result of last projection
-        if (_iter == _para.iterMax - 1)
-        {
-            saveReduceCTFImages();
-            saveLowPassImages();
-            saveLowPassReduceCTFImages();
-        } 
     }
 }
 
@@ -1300,6 +1288,8 @@ void MLOptimiser::reconstructRef()
 
 void MLOptimiser::saveBestProjections()
 {
+    IF_MASTER return;
+
     FFT fft;
 
     Image result(_para.size, _para.size, FT_SPACE);
@@ -1329,6 +1319,8 @@ void MLOptimiser::saveBestProjections()
 
 void MLOptimiser::saveImages()
 {
+    IF_MASTER return;
+
     FFT fft;
 
     char filename[FILE_NAME_LENGTH];
@@ -1347,6 +1339,8 @@ void MLOptimiser::saveImages()
 
 void MLOptimiser::saveReduceCTFImages()
 {
+    IF_MASTER return;
+
     FFT fft;
 
     Image img(size(), size(), FT_SPACE);
@@ -1371,6 +1365,8 @@ void MLOptimiser::saveReduceCTFImages()
 
 void MLOptimiser::saveLowPassImages()
 {
+    IF_MASTER return;
+
     FFT fft;
 
     Image img(size(), size(), FT_SPACE);
@@ -1395,6 +1391,8 @@ void MLOptimiser::saveLowPassImages()
 
 void MLOptimiser::saveLowPassReduceCTFImages()
 {
+    IF_MASTER return;
+
     FFT fft;
 
     Image img(size(), size(), FT_SPACE);
