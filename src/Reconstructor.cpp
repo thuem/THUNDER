@@ -263,6 +263,8 @@ void Reconstructor::allReduceF()
 
     MPI_Barrier(_hemi);
 
+    CLOG(INFO, "LOGGER_SYS") << "_F[0] = " << REAL(_F[0]);
+
     ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
     BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
