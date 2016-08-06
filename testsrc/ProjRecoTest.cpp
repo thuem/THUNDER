@@ -111,6 +111,10 @@ int main(int argc, char* argv[])
             CS);
         ***/
 
+        double std;
+        Coordinate5D coord;
+        Image image(N, N, FT_SPACE);
+        SET_0_FT(image);
 
         par.coord(coord, 0);
     
@@ -279,7 +283,7 @@ int main(int argc, char* argv[])
 
         #pragma omp parallel for
         for (int i = 0; i < 100; i++)
-        859860{
+        {
             FFT fftThread;
 
             char name[256];
