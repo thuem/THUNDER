@@ -187,13 +187,13 @@ class Reconstructor : public Parallel
         /**
          * Construct a specific Reconstructor object with specific parameters.
          *
-         * @param size The size of real reconstructor space.
-         * @param pf Padding factor. By default is 2. 
-         * @param sym Symmetry mark. By default is NULL.
-         * @param a The width of the modified Kaiser-Bessel Kernel. By default
-         * is 1.9.
+         * @param size  the size of real reconstructor space
+         * @param pf    Padding factor. By default is 2. 
+         * @param sym   Symmetry mark. By default is NULL.
+         * @param a     The width of the modified Kaiser-Bessel Kernel. The
+         *              default value is 0.95.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
-         * Kernel. By default is 10.
+         *              Kernel. By default is 10.
          * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
          */
         Reconstructor(const int size,
@@ -204,20 +204,20 @@ class Reconstructor : public Parallel
                       const double zeta = 0.15);
 
         /**
-         * Deonstruct a reconstructor object.
+         * default deconstructor
          */
         ~Reconstructor();
 
         /** 
          * initialize the member data of a reconstruct object. 
          *
-         * @param size The size of real reconstructor space.
-         * @param pf Padding factor. By default is 2. 
-         * @param sym Symmetry mark. By default is NULL.
-         * @param a The width of the modified Kaiser-Bessel Kernel. By default
-         * is 1.9.
+         * @param size  The size of real reconstructor space.
+         * @param pf    Padding factor. By default is 2. 
+         * @param sym   Symmetry mark. By default is NULL.
+         * @param a     The width of the modified Kaiser-Bessel Kernel. By 
+         *              default is 1.9.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
-         * Kernel. By default is 10.
+         *              kernel. By default is 10.
          * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
          */
         void init(const int size,
