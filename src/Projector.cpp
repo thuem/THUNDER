@@ -76,7 +76,7 @@ void Projector::project(Image& dst,
 {
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
     {
-        if (QUAD(i, j) < _maxRadius * _maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
             vec3 newCor = {(double)i, (double)j, 0};
             vec3 oldCor = mat * newCor * _pf;

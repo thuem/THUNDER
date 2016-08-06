@@ -210,14 +210,14 @@ class MLModel : public Parallel
         /**
          * This function initialises the MLModel object.
          *
-         * @param number of references
-         * @param size size of references before padding
-         * @param r radius of calculating FSC and SNR before padding
-         * @param pf padding factor
+         * @param k         number of references
+         * @param size      size of references before padding
+         * @param r         radius of calculating FSC and SNR before padding
+         * @param pf        padding factor
          * @param pixelSize pixel size of 2D images (in Angstrom)
-         * @param a width of modified Kaiser-Bessel function
-         * @param alpha smoothness parameter of modified Kaiser-Bessel function
-         * @param sym the symmetry information
+         * @param a         width of modified Kaiser-Bessel function
+         * @param alpha     smoothness parameter of modified Kaiser-Bessel function
+         * @param sym       the symmetry information
          */
         void init(const int k,
                   const int size,
@@ -290,7 +290,7 @@ class MLModel : public Parallel
          * This function sets the upper boundary frequency during global
          * search before padding (in pixel).
          *
-         * @param the upper boundary frequency during global search stage
+         * @param rGlobal the upper boundary frequency during global search stage
          */
         void setRGlobal(const int rGlobal);
 
@@ -322,7 +322,7 @@ class MLModel : public Parallel
          * This function performs a low pass filter on each reference.
          * 
          * @param thres threshold of spatial frequency of low pass filter
-         * @param ew edge width of spatial frequency of low pass filter
+         * @param ew    edge width of spatial frequency of low pass filter
          */
         void lowPassRef(const double thres,
                         const double ew);
@@ -424,7 +424,7 @@ class MLModel : public Parallel
          * of the translation in X and Y.
          *
          * @param par a vector of Particle
-         * @param n number of images in the hemisphere
+         * @param n   number of images in the hemisphere
          */
         void allReduceVari(const vector<Particle>& par,
                            const int n);
