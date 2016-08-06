@@ -21,6 +21,8 @@
 #define FILE_NAME_LENGTH 256
 #define SQL_COMMAND_LENGTH 256
 
+#define FILE_LINE_LENGTH 1024
+
 #define EDGE_WIDTH_FT 2 // edge width in filtering
 #define EDGE_WIDTH_RL 2 // edge width in mask
 

@@ -572,15 +572,16 @@ void load(Particle& par,
     vec2 t;
     double w;
 
-    char buf[1000];
-    int lineCont = 0;
-    while(fgets(buf, 1000, file))
-        lineCont++;
+    char buf[FILE_LINE_LENGTH];
 
-    par.reset(lineCont);
+    int nLine = 0;
+    while (fgets(buf, FILE_LINE_LENGTH, file)) nLine++;
+
+    par.reset(nLine);
 
     rewind(file);
-    for (int i = 0; i < lineCont; i++) 
+
+    for (int i = 0; i < nLine; i++) 
     {
         fscanf(file,
                "%lf %lf %lf %lf %lf %lf %lf",
@@ -594,5 +595,4 @@ void load(Particle& par,
     }
 
     fclose(file);
-
 }
