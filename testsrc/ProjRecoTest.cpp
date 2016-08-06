@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
             CS);
         ***/
 
-        double std;
         Coordinate5D coord;
         Image image(N, N, FT_SPACE);
         SET_0_FT(image);
