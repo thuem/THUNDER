@@ -373,3 +373,23 @@ void symmetryCounterpart(double& ex,
 
     CLOG(WARNING, "LOGGER_SYS") << "Unable to find SymmetryCounterpart";
 }
+
+void symmetryRotation(vector<mat33>& sr,
+                      const mat33 rot,
+                      const Symmetry* sym)
+{
+    sr.clear();
+
+    sr.push_back(rot);
+
+    if (sym == NULL) return;
+
+    mat33 L, R;
+
+    for (int i = 0; i < sym->nSymmetryElement(); i++)
+    {
+        sym->get(L, R, i);
+        
+        sr.push_back(R * rot);
+    }
+}

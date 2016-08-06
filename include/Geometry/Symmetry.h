@@ -210,4 +210,8 @@ void symmetryCounterpart(double& ex,
                          double& ez,
                          const Symmetry& sym);
 
+void symmetryRotation(vector<mat33>& sr,
+                      const mat33 rot,
+                      const Symmetry* sym = NULL);
+
 #endif // SYMMETRY_H

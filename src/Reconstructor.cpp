@@ -89,26 +89,32 @@ void Reconstructor::insert(const Image& src,
                                   << ", nCol = " << src.nColRL()
                                   << ", nRow = " << src.nRowRL();
 
-    _rot.push_back(rot);
-    _w.push_back(w);
-
     Image transSrc(_size, _size, FT_SPACE);
     translate(transSrc, src, -t(0), -t(1));
 
-    #pragma omp parallel for schedule(dynamic)
-    IMAGE_FOR_EACH_PIXEL_FT(transSrc)
+    vector<mat33> sr;
+    symmetryRotation(sr, rot, _sym);
+
+    for (int k = 0; k < int(sr.size()); k++)
     {
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        _rot.push_back(sr[k]);
+        _w.push_back(w);
+
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_FT(transSrc)
         {
-            vec3 newCor = {(double)i, (double)j, 0};
-            vec3 oldCor = rot * newCor * _pf;
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+            {
+                vec3 newCor = {(double)i, (double)j, 0};
+                vec3 oldCor = rot * newCor * _pf;
         
-            _F.addFT(transSrc.getFT(i, j) * w, 
-                     oldCor[0], 
-                     oldCor[1], 
-                     oldCor[2], 
-                     _pf * _a, 
-                     _kernel);
+                _F.addFT(transSrc.getFT(i, j) * w, 
+                         oldCor[0], 
+                         oldCor[1], 
+                         oldCor[2], 
+                         _pf * _a, 
+                         _kernel);
+            }
         }
     }
 
@@ -228,10 +234,12 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
     BLOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
 
     symmetrizeC();
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
@@ -275,10 +283,12 @@ void Reconstructor::allReduceF()
 
     CLOG(INFO, "LOGGER_SYS") << "Total : _F[0] = " << REAL(_F[0]);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
     BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
     symmetrizeF();
+    ***/
 }
 
 double Reconstructor::checkC() const
@@ -296,6 +306,7 @@ double Reconstructor::checkC() const
     return diff / counter;
 }
 
+/***
 void Reconstructor::symmetrizeF()
 {
     if (_sym == NULL) return;
@@ -315,3 +326,4 @@ void Reconstructor::symmetrizeC()
 
     _C = std::move(symC);
 }
+***/
