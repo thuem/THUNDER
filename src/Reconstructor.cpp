@@ -112,7 +112,7 @@ void Reconstructor::insert(const Image& src,
         }
     }
 
-    CLOG(INFO, "LOGGER_SYS") << "Total : _F[0] = " << REAL(_F[0]);
+    CLOG(INFO, "LOGGER_SYS") << "Partial : _F[0] = " << REAL(_F[0]);
 }
 
 void Reconstructor::insert(const Image& src,
