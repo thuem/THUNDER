@@ -160,7 +160,7 @@ class Reconstructor : public Parallel
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _a = 1.9;
+        double _a = 0.95;
 
         /**
          * The smoothness parameter. Parameter of modified Kaiser-Bessel Kernel.
