@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     para.k = 1;
     para.size = N;
     para.pf = PF;
-    para.a = 1.9;
+    para.a = 0.95;
     para.alpha = 10;
     para.pixelSize = PIXEL_SIZE;
     para.mG = MG;
