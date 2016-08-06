@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
         projector.setPf(PF);
         projector.setProjectee(padRef.copyVolume());
 
+        /***
         CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
         Image ctf(N, N, FT_SPACE);
 
@@ -105,6 +106,7 @@ int main(int argc, char* argv[])
             DEFOCUS_V,
             THETA,
             CS);
+        ***/
 
 
     /***
@@ -171,14 +173,18 @@ int main(int argc, char* argv[])
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    if (commRank == HEMI_A_LEAD)
+    if (commRank != MASTER_ID)
     {
         char nameInsert[256];
 
         Coordinate5D coord;
 
-        for (int i = 0; i < M; i++)
+        for (int i = M / (commSize - 1) * (commRank - 1);
+                 i < M / (commSize - 1) * commRank;
+                 i++)
         {
+            FFT fftThread;
+
             sprintf(nameInsert, "%05d.mrc", i + 1);
 
             CLOG(INFO, "LOGGER_SYS") << "Inserting " << nameInsert;
@@ -189,17 +195,17 @@ int main(int argc, char* argv[])
             imfInsert.readMetaData();
             imfInsert.readImage(insert);
 
-            CLOG(INFO, "LOGGER_SYS") << nameInsert << "Read!";
+            CLOG(INFO, "LOGGER_SYS") << nameInsert << " Read!";
 
-            fft.fw(insert);
+            fftThread.fw(insert);
 
-            CLOG(INFO, "LOGGER_SYS") << nameInsert << "Fourier transformed";
+            CLOG(INFO, "LOGGER_SYS") << nameInsert << " Fourier transformed";
 
             par.coord(coord, i);
 
             reco.insert(insert, coord, 1);
 
-            CLOG(INFO, "LOGGER_SYS") << nameInsert << "Inserted!";
+            CLOG(INFO, "LOGGER_SYS") << nameInsert << " Inserted!";
         }
 
         CLOG(INFO, "LOGGER_SYS") << "Reconstructing!";
@@ -209,10 +215,21 @@ int main(int argc, char* argv[])
 
         CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
 
-        ImageFile imf;
+        if (commRank == HEMI_A_LEAD)
+        {
+            ImageFile imf;
 
-        imf.readMetaData(result);
-        imf.writeVolume("result.mrc", result);
+            imf.readMetaData(result);
+            imf.writeVolume("resultA.mrc", result);
+        }
+
+        if (commRank == HEMI_B_LEAD)
+        {
+            ImageFile imf;
+
+            imf.readMetaData(result);
+            imf.writeVolume("resultB.mrc", result);
+        }
     }
     
     return 0;
