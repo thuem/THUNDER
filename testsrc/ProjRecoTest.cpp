@@ -290,8 +290,8 @@ int main(int argc, char* argv[])
             Coordinate5D coord;
 
             Image image(N, N, RL_SPACE);
-            sprintf(nameOri, "%05d.mrc", i + 1);
-            ImageFile imfOri(nameOri, "rb");
+            sprintf(name, "%05d.mrc", i + 1);
+            ImageFile imfOri(name, "rb");
             imfOri.readMetaData();
             imfOri.readImage(image);
             fftThread.fw(image);
