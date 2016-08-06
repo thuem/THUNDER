@@ -477,8 +477,6 @@ void Particle::shuffle()
 
     gsl_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
 
-    // cout << s << endl << endl;
-
     mat4 r(_n, 4);
     mat2 t(_n, 2);
     vec w(_n);
