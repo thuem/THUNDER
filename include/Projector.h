@@ -29,32 +29,64 @@ class Projector
 
     private:
 
+        /**
+         * Only the signal beyond the max radius in frequnecy will be processed.
+         * Max radius must be smaller than half of the shortest dimension of the
+         * projectee. When projectee is set, max radius will be properly set as
+         * well. However, it can be overwrited.
+         */
         int _maxRadius = -1;
-        // Only the signal in the _maxRadius circle in Fourier space will be
-        // processed. Otherwise, it will set to 0.
-        // _maxRadius should be smaller than half of the shortest dimension
-        // of the _projectee.
-        // _maxRadius will be automatically set to the properly value when
-        // projectee is set.
 
+        /**
+         * the interpolation type (SINC_INTERP, LINEAR_INTERP, NEAREST_INTERP)
+         */
         int _interp = LINEAR_INTERP;
 
-        int _pf = 2; // padding factor
+        /**
+         * padding factor
+         */
+        int _pf = 2;
 
+        /**
+         * the volume to be projected
+         */
         Volume _projectee;
 
     public:
 
+        /**
+         * default constructor
+         */
         Projector();
 
+        /**
+         * default deconstructor
+         */
         ~Projector();
 
+        /**
+         * If there is a volume to be projected, return false, otherwise return
+         * true.
+         */
         bool isEmpty() const;
 
+        /**
+         * This function returns the max radius for processing signal in Fourier
+         * transform (in pixel).
+         */
         int maxRadius() const;
 
+        /**
+         * This function sets the max radius for processing signal in Fourier
+         * transform (in pixel).
+         *
+         * @param maxRadius the max radius
+         */
         void setMaxRadius(const int maxRadius);
 
+        /**
+         * This function returns the interpolation type for this projection.
+         */
         int interp() const;
 
         void setInterp(const int interp);

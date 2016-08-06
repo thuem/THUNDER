@@ -81,6 +81,7 @@ struct Coordinate5D
 
     /**
      * Construct a specific Coordinate5D object with 5D coordinates parameters.
+     *
      * @param phi Intrinsic angle phi. Details see @ref phi.
      * @param theta Nutation angle theta. Details see @ref theta. 
      * @param psi Precession angle psi. Details see @ref psi.

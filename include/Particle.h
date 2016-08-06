@@ -429,6 +429,9 @@ class Particle
         void rand(mat33& rot,
                   vec2& tran) const;
 
+        /**
+         * This function shuffles the sampling points.
+         */
         void shuffle();
     
     private:
