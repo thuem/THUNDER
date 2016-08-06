@@ -576,7 +576,6 @@ void load(Particle& par,
     int lineCont = 0;
     while(fgets(buf, 1000, file))
         lineCont++;
-    cout << "lineCont" << " " << lineCont << endl;
 
     par.reset(lineCont);
 
@@ -588,7 +587,7 @@ void load(Particle& par,
                &q(0), &q(1), &q(2), &q(3),
                &t(0), &t(1),
                &w);
-        cout << q(0) << " " << t(0) << " " << w << endl;
+
         par.setQuaternion(q, i);
         par.setT(t, i);
         par.setW(w, i);
