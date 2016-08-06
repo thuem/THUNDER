@@ -160,12 +160,14 @@ int main(int argc, char* argv[])
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_SYS") << "Projection Done!";
+    if (commRank == MASTER_ID)
+        MLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
     Reconstructor reco(N, 2, &sym);
     reco.setMPIEnv();
 
-    MLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
+    if (commRank == MASTER_ID)
+        MLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
 
     MPI_Barrier(MPI_COMM_WORLD);
 
