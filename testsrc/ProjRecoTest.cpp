@@ -171,7 +171,8 @@ int main(int argc, char* argv[])
         CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
     //Reconstructor reco(N, 2, &sym);
-    Reconstructor reco(N, 2, NULL);
+    Reconstructor reco(N, 2, NULL, 0.95);
+    //Reconstructor reco(N, 2, NULL);
     reco.setMPIEnv();
 
     if (commRank == MASTER_ID)
