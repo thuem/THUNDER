@@ -173,8 +173,6 @@ int main(int argc, char* argv[])
 
     if (commRank == HEMI_A_LEAD)
     {
-        Image insert(N, N, RL_SPACE);
-
         char nameInsert[256];
 
         Coordinate5D coord;
@@ -185,11 +183,17 @@ int main(int argc, char* argv[])
 
             CLOG(INFO, "LOGGER_SYS") << "Inserting " << nameInsert;
 
+            Image insert(N, N, RL_SPACE);
+
             ImageFile imfInsert(nameInsert, "rb");
             imfInsert.readMetaData();
             imfInsert.readImage(insert);
 
-            CLOG(INFO, "LOGGER_SYS") << "Reading " << nameInsert;
+            CLOG(INFO, "LOGGER_SYS") << nameInsert << "Read!";
+
+            fft.fw(insert);
+
+            CLOG(INFO, "LOGGER_SYS") << nameInsert << "Fourier transformed";
 
             par.coord(coord, i);
 
