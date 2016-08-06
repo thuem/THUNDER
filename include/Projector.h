@@ -96,12 +96,29 @@ class Projector
          */
         void setInterp(const int interp);
 
+        /**
+         * This function returns the paddding factor.
+         */
         int pf() const;
 
+        /**
+         * This function sets the padding factor.
+         *
+         * @param pf the padding factor
+         */
         void setPf(const int pf);
 
+        /**
+         * This function returns a constant reference to the projectee.
+         */
         const Volume& projectee() const;
 
+        /**
+         * This function sets the projectee. Moreover, it automatically sets the
+         * max radius of processing signal.
+         *
+         * @param src the volume to be projected
+         */
         void setProjectee(Volume src);
 
         void project(Image& dst,
