@@ -130,7 +130,6 @@ int main(int argc, char* argv[])
             SET_0_FT(image);
 
             sprintf(name, "%05d.mrc", i + 1);
-            printf("%s\n", name);
 
             par.coord(coord, i);
             projector.project(image, coord);
@@ -161,8 +160,12 @@ int main(int argc, char* argv[])
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+    CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
+
     Reconstructor reco(N, 2, &sym);
     reco.setMPIEnv();
+
+    CLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
 
     if (commRank == HEMI_A_LEAD)
     {
@@ -175,7 +178,8 @@ int main(int argc, char* argv[])
         for (int i = 0; i < M; i++)
         {
             sprintf(nameInsert, "%05d.mrc", i + 1);
-            printf("%s\n", nameInsert);
+
+            CLOG(INFO, "LOGGER_SYS") << "Inserting " << nameInsert;
 
             ImageFile imfInsert(nameInsert, "rb");
             imfInsert.readMetaData();
@@ -186,8 +190,12 @@ int main(int argc, char* argv[])
             reco.insert(insert, coord, 1);
         }
 
+        CLOG(INFO, "LOGGER_SYS") << "Reconstructing!";
+
         Volume result;
         reco.reconstruct(result);
+
+        CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
 
         ImageFile imf;
 
