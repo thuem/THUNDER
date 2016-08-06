@@ -53,6 +53,8 @@ int main(int argc, char* argv[])
 
     Symmetry sym("C15");
 
+    Projector projector;
+
     if (commRank == MASTER_ID)
     {
         CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
@@ -89,11 +91,10 @@ int main(int argc, char* argv[])
         imf.writeVolume("padRef.mrc", padRef);
 
         CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Ref";
-        fft.fw(padRef);
-        fft.fw(ref);
+        fft.fwMT(padRef);
+        fft.fwMT(ref);
 
         CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
-        Projector projector;
         projector.setPf(PF);
         projector.setProjectee(padRef.copyVolume());
 
@@ -219,22 +220,95 @@ int main(int argc, char* argv[])
         Volume result;
         reco.reconstruct(result);
 
-        CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
-
         if (commRank == HEMI_A_LEAD)
         {
+            CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
+
+            Volume resultA;
+            VOL_EXTRACT_RL(resultA, result, 0.5);
+
             ImageFile imf;
 
-            imf.readMetaData(result);
+            imf.readMetaData(resultA);
             imf.writeVolume("resultA.mrc", result);
         }
 
         if (commRank == HEMI_B_LEAD)
         {
+            CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
+
+            Volume resultB;
+            VOL_EXTRACT_RL(resultB, result, 0.5);
+
             ImageFile imf;
 
-            imf.readMetaData(result);
+            imf.readMetaData(resultB);
             imf.writeVolume("resultB.mrc", result);
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    if (commRank == MASTER_ID)
+        CLOG(INFO, "LOGGER_SYS") << "Compare!";
+
+    if (commRank == MASTER_ID)
+    {
+        Volume newRef;
+
+        CLOG(INFO, "LOGGER_SYS") << "Loading Constructed Reference";
+
+        ImageFile imfNew("resultA.mrc", "rb");
+        imfNew.readMetaData();
+        imfNew.readVolume(newRef);
+
+        CLOG(INFO, "LOGGER_SYS") << "Padding Constructed Reference";
+
+        Volume padNewRef;
+        VOL_PAD_RL(padNewRef, newRef, PF);
+
+        CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Constructed Reference";
+
+        fft.fwMT(padNewRef);
+
+        CLOG(INFO, "LOGGER_SYS") << "Setting Projector on Constructed Reference";
+        
+        Projector projectorNew;
+        projectorNew.setPf(PF);
+        projectorNew.setProjectee(padNewRef.copyVolume());
+
+        CLOG(INFO, "LOGGER_SYS") << "Loading Sampling Points";
+        Particle par(M, TRANS_S, 0.01, &sym);
+        load(par, "SamplingPoints.par");
+
+        #pragma omp parallel for
+        for (int i = 0; i < M; i++)
+        {
+            FFT fftThread;
+
+            char name[256];
+            sprintf(name, "DIFF_%05d.mrc", i + 1);
+
+            Coordinate5D coord;
+
+            Image image(N, N, FT_SPACE);
+            SET_0_FT(image);
+
+            Image imageNew(N, N, FT_SPACE);
+            SET_0_FT(imageNew);
+
+            par.coord(coord, i);
+
+            projector.project(image, coord);
+            projectorNew.project(imageNew, coord);
+
+            Image diff(N, N, FT_SPACE);
+            FOR_EACH_PIXEL_FT(diff)
+                diff[i] = image[i] - imageNew[i];
+
+            fftThread.bw(diff);
+
+            diff.saveRLToBMP(name);
         }
     }
     

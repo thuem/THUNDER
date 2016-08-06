@@ -121,9 +121,23 @@ class Projector
          */
         void setProjectee(Volume src);
 
+        /**
+         * This function projects given the rotation matrix.
+         * 
+         * @param dst the destination image
+         * @param mat the rotation matrix
+         */
         void project(Image& dst,
                      const mat33& mat) const;
 
+        /**
+         * This function projects given the three Euler angles.
+         *
+         * @param dst the destination image
+         * @param phi phi
+         * @param theta theta
+         * @param psi psi
+         */
         void project(Image& dst,
                      const double phi,
                      const double theta,
