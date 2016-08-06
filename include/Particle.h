@@ -134,10 +134,10 @@ class Particle
         /**
          * constructor of Particle
          *
-         * @param n number of particles in this particle filter
+         * @param n      number of particles in this particle filter
          * @param transS standard deviation of translation
          * @param transQ the re-center threshold of translation
-         * @param sym symmetry of resampling space
+         * @param sym    symmetry of resampling space
          */
         Particle(const int n,
                  const double transS,
@@ -153,8 +153,8 @@ class Particle
          * This function initialise Particle.
          *
          * @param transS stndard deviation of translation
-         * @param transM the maximum translation
-         * @param sym symmetry of resampling space
+         * @param transQ the re-center threshold of translation
+         * @param sym    symmetry of resampling space
          */
         void init(const double transS,
                   const double transQ = 0.01,
@@ -163,10 +163,10 @@ class Particle
         /**
          * This function initialises Particle.
          *
-         * @param n number of particles in this particle filter
+         * @param n      number of particles in this particle filter
          * @param transS stndard deviation of translation
-         * @param transM the maximum translation
-         * @param sym symmetry of resampling space
+         * @param transQ the re-center threshold of translation
+         * @param sym    symmetry of resampling space
          */
         void init(const int n,
                   const double transS,
@@ -212,10 +212,10 @@ class Particle
          * This function returns the concentration parameters, including
          * rotation and translation.
          *
-         * @param k0 the concentration parameter of the rotation
-         * @param k1 the concentration parameter of the rotation
-         * @param s0 sigma0 of 2D Gaussian distribution of the translation
-         * @param s1 sigma1 of 2D Gaussian distribution of the translation
+         * @param k0  the concentration parameter of the rotation
+         * @param k1  the concentration parameter of the rotation
+         * @param s0  sigma0 of 2D Gaussian distribution of the translation
+         * @param s1  sigma1 of 2D Gaussian distribution of the translation
          * @param rho rho of 2D Gaussian distribution of the translation
          */
         void vari(double& k0,
@@ -228,9 +228,9 @@ class Particle
          * This function returns the concentration parameters, including
          * rotation and translation.
          *
-         * @param rVar the concentration parameter of the rotation
-         * @param s0 sigma0 of 2D Gaussian distribution of the translation
-         * @param s1 sigma1 of 2D Gaussian distribution of the translation
+         * @param rVari the concentration parameter of the rotation
+         * @param s0    sigma0 of 2D Gaussian distribution of the translation
+         * @param s1    sigma1 of 2D Gaussian distribution of the translation
          */
         void vari(double& rVari,
                   double& s0,
@@ -273,7 +273,7 @@ class Particle
          * This function returns the 5D coordinates of the i-th particle.
          *
          * @param dst the 5D coordinate
-         * @param i the index of particle
+         * @param i   the index of particle
          */
         void coord(Coordinate5D& dst,
                    const int i) const;
@@ -282,7 +282,7 @@ class Particle
          * This function returns the rotation matrix of the i-th particle.
          *
          * @param dst the rotation matrix
-         * @param i the index of particle
+         * @param i   the index of particle
          */
         void rot(mat33& dst,
                  const int i) const;
@@ -291,7 +291,7 @@ class Particle
          * This function returns the translation vector of the i-th particle.
          *
          * @param dst the translation vector
-         * @param i the index of particle
+         * @param i   the index of particle
          */
         void t(vec2& dst,
                const int i) const;
@@ -300,7 +300,7 @@ class Particle
          * This function sets the translation vector of the i-th particle.
          *
          * @param src the translation vector
-         * @param i the index of particle
+         * @param i   the index of particle
          */
         void setT(const vec2& src,
                   const int i);
@@ -309,7 +309,7 @@ class Particle
          * This function returns the quaternion of the i-th particle.
          *
          * @param dst the quaternion
-         * @param i the index of particle
+         * @param i   the index of particle
          */
         void quaternion(vec4& dst,
                         const int i) const;
@@ -351,8 +351,8 @@ class Particle
          * given number of particles with adding a portion of global sampling
          * points.
          *
-         * @param n the number of sampling points of the resampled particle
-         *          filter
+         * @param n     the number of sampling points of the resampled particle
+         *              filter
          * @param alpha the portion of global sampling points in the resampled
          *              particles
          */
@@ -405,7 +405,7 @@ class Particle
         /**
          * This function reports the 1-st rank coordinates by parameters.
          * 
-         * @param rot the rotation matrix of the most likely rotation
+         * @param rot  the rotation matrix of the most likely rotation
          * @param tran the translation of the most likely coordinate
          */
         void rank1st(mat33& rot,
@@ -423,7 +423,7 @@ class Particle
         /**
          * This function randomly reports a coordinate by parameters.
          *
-         * @param quat the rotation matrix of the rotation
+         * @param rot  the rotation matrix of the rotation
          * @param tran the translation
          */
         void rand(mat33& rot,

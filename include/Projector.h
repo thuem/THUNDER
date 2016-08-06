@@ -89,6 +89,11 @@ class Projector
          */
         int interp() const;
 
+        /**
+         * This function sets the interpolation type for this projection.
+         *
+         * @param interp the interpolation type
+         */
         void setInterp(const int interp);
 
         int pf() const;

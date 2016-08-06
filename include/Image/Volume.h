@@ -199,6 +199,7 @@ class Volume : public ImageBase
          * This function sets the value of the voxel in real space at a given
          * coordinate.
          *
+         * @param value the value of the voxel in real space
          * @param iCol the index of the column of this voxel in real space
          * @param iRow the index of the row of this voxel in real space
          * @param iSlc the index of the slice of this voxel in real space
@@ -212,6 +213,7 @@ class Volume : public ImageBase
          * This function add a certain value on the voxel in real space at a
          * given coordinate.
          *
+         * @param value the value of the voxel in real space
          * @param iCol the index of the column of this voxel in real space
          * @param iRow the index of the row of this voxel in real space
          * @param iSlc the index of the slice of this voxel in real space
@@ -241,6 +243,7 @@ class Volume : public ImageBase
          * This function sets the value of the voxel in Fourier space at a given
          * coordinate.
          *
+         * @param value the value of voxel in Fourier space
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
          * @param iSlc the index of the slice of this voxel in real space
@@ -254,6 +257,7 @@ class Volume : public ImageBase
          * This function sets the value of the voxel in Fourier space at a given
          * coordinate.
          *
+         * @param value the value of the voxel in Fourier space
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
          * @param iSlc the index of the slice of this voxel in real space
@@ -267,6 +271,7 @@ class Volume : public ImageBase
          * This function adds a certain value on a voxel in Fourier space at a
          * given coordinate.
          *
+         * @param value the value of the voxel
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
          * @param iSlc the index of the slice of this voxel in real space
@@ -339,7 +344,7 @@ class Volume : public ImageBase
 
         /**
          * This function adds a certain value on an unregualr voxel in Fourier
-         * space by a certain kernal.
+         * space by a certain kernel.
          *
          * @param value the value to be added
          * @param iCol the index of the column of this unregular voxel in
@@ -348,7 +353,8 @@ class Volume : public ImageBase
          *             real space
          * @param iSlc the index of the slice of this unregular voxel in
          *             real space
-         * @param kerbel a tabular function indicating the kernel
+         * @param a the radius of the blob
+         * @param kernel a tabular function indicating the kernel
          */
         void addFT(const Complex value,
                    const double iCol,
