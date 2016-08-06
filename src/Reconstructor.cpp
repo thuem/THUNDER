@@ -238,6 +238,9 @@ void Reconstructor::allReduceW()
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+
+    //DEBUG
+    CLOG(INFO, "LOGGER_SYS") << "_W[0] = " << REAL(_W[0]);
 }
 
 void Reconstructor::allReduceF()
