@@ -161,13 +161,13 @@ int main(int argc, char* argv[])
     MPI_Barrier(MPI_COMM_WORLD);
 
     if (commRank == MASTER_ID)
-        MLOG(INFO, "LOGGER_SYS") << "Projection Done!";
+        CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
     Reconstructor reco(N, 2, &sym);
     reco.setMPIEnv();
 
     if (commRank == MASTER_ID)
-        MLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
+        CLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
 
     MPI_Barrier(MPI_COMM_WORLD);
 
