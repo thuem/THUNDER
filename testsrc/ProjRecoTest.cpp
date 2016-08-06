@@ -43,66 +43,69 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
+    MPI_Init(&argc, &argv);
+
+    int commSize, commRank;
+    MPI_Comm_size(MPI_COMM_WORLD, &commSize);
+    MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
+
     FFT fft;
-
-    CLOG(INFO, "LOGGER_SYS") << "Read-in Ref";
-
-    Volume ref;
-    ImageFile imf("ref.mrc", "r");
-    imf.readMetaData();
-    imf.readVolume(ref);
-
-    CLOG(INFO, "LOGGER_SYS") << "Checkout Size";
-
-    if ((ref.nColRL() != N) ||
-        (ref.nRowRL() != N))
-        CLOG(INFO, "LOGGER_SYS") << "Wrong Size!";
-
-    FOR_EACH_PIXEL_RL(ref)
-        if (ref(i) < 0) ref(i) = 0;
-
-    imf.readMetaData(ref);
-    imf.writeVolume("truncRef.mrc", ref);
-
-    CLOG(INFO, "LOGGER_SYS") << "Padding Head";
-
-    Volume padRef;
-    VOL_PAD_RL(padRef, ref, PF);
-
-    CLOG(INFO, "LOGGER_SYS") << "Writing padRef";
-
-    imf.readMetaData(padRef);
-    imf.writeVolume("padRef.mrc", padRef);
-
-    CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Ref";
-    fft.fw(padRef);
-    fft.fw(ref);
-
-    CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
-    Projector projector;
-    projector.setPf(PF);
-    projector.setProjectee(padRef.copyVolume());
-
-    CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
-    Image ctf(N, N, FT_SPACE);
-    CTF(ctf,
-        PIXEL_SIZE,
-        VOLTAGE,
-        DEFOCUS_U,
-        DEFOCUS_V,
-        THETA,
-        CS);
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
     Particle par(M, TRANS_S, 0.01, &sym);
-    cout << "Saving Sampling Points" << endl;
-    save("Sampling_Points.par", par);
 
-    Image image(N, N, FT_SPACE);
-    SET_0_FT(image);
-    
-    Coordinate5D coord;
+    if (commRank == MASTER_ID)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Read-in Ref";
+
+        Volume ref;
+        ImageFile imf("ref.mrc", "r");
+        imf.readMetaData();
+        imf.readVolume(ref);
+
+        CLOG(INFO, "LOGGER_SYS") << "Checkout Size";
+
+        if ((ref.nColRL() != N) ||
+            (ref.nRowRL() != N))
+            CLOG(INFO, "LOGGER_SYS") << "Wrong Size!";
+
+        FOR_EACH_PIXEL_RL(ref)
+            if (ref(i) < 0) ref(i) = 0;
+
+        imf.readMetaData(ref);
+        imf.writeVolume("truncRef.mrc", ref);
+
+        CLOG(INFO, "LOGGER_SYS") << "Padding Head";
+
+        Volume padRef;
+        VOL_PAD_RL(padRef, ref, PF);
+
+        CLOG(INFO, "LOGGER_SYS") << "Writing padRef";
+
+        imf.readMetaData(padRef);
+        imf.writeVolume("padRef.mrc", padRef);
+
+        CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Ref";
+        fft.fw(padRef);
+        fft.fw(ref);
+
+        CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
+        Projector projector;
+        projector.setPf(PF);
+        projector.setProjectee(padRef.copyVolume());
+
+        CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
+        Image ctf(N, N, FT_SPACE);
+
+        CTF(ctf,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_U,
+            DEFOCUS_V,
+            THETA,
+            CS);
+
 
     /***
     par.coord(coord, 0);
@@ -113,29 +116,31 @@ int main(int argc, char* argv[])
     double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
     ***/
 
-    #pragma omp parallel for
-    for (int i = 0; i < M; i++)
-    {
-        FFT fftThread;
+        #pragma omp parallel for
+        for (int i = 0; i < M; i++)
+        {
+            FFT fftThread;
 
-        auto engine = get_random_engine();
+            auto engine = get_random_engine();
 
-        char name[256];
-        Coordinate5D coord;
+            char name[256];
+            Coordinate5D coord;
 
-        Image image(N, N, FT_SPACE);
-        SET_0_FT(image);
+            Image image(N, N, FT_SPACE);
+            SET_0_FT(image);
 
-        sprintf(name, "%05d.mrc", i + 1);
-        printf("%s\n", name);
+            sprintf(name, "%05d.mrc", i + 1);
+            printf("%s\n", name);
 
-        par.coord(coord, i);
-        projector.project(image, coord);
+            par.coord(coord, i);
+            projector.project(image, coord);
 
-        FOR_EACH_PIXEL_FT(image)
-            image[i] *= REAL(ctf[i]);
+            /***
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf[i]);
+            ***/
 
-        fftThread.bw(image);
+            fftThread.bw(image);
 
         /***
         Image noise(N, N, RL_SPACE);
@@ -145,39 +150,50 @@ int main(int argc, char* argv[])
         ADD_RL(image, noise);
         ***/
 
-        ImageFile imfThread;
+            ImageFile imfThread;
 
-        imfThread.readMetaData(image);
-        imfThread.writeImage(name, image);
+            imfThread.readMetaData(image);
+            imfThread.writeImage(name, image);
 
-        fftThread.fw(image);
+            fftThread.fw(image);
+        }
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     Reconstructor reco(N, 2, &sym);
+    reco.setMPIEnv();
 
-    Image insert(N, N, RL_SPACE);
-
-    char nameInsert[256];
-
-    for (int i = 0; i < M; i++)
+    if (commRank == HEMI_A_LEAD)
     {
-        sprintf(nameInsert, "%05d.mrc", i + 1);
-        printf("%s\n", nameInsert);
+        Image insert(N, N, RL_SPACE);
 
-        ImageFile imfInsert(nameInsert, "rb");
-        imfInsert.readMetaData();
-        imfInsert.readImage(insert);
+        char nameInsert[256];
 
-        par.coord(coord, i);
+        Coordinate5D coord;
 
-        reco.insert(insert, coord, 1);
+        for (int i = 0; i < M; i++)
+        {
+            sprintf(nameInsert, "%05d.mrc", i + 1);
+            printf("%s\n", nameInsert);
+
+            ImageFile imfInsert(nameInsert, "rb");
+            imfInsert.readMetaData();
+            imfInsert.readImage(insert);
+
+            par.coord(coord, i);
+
+            reco.insert(insert, coord, 1);
+        }
+
+        Volume result;
+        reco.reconstruct(result);
+
+        ImageFile imf;
+
+        imf.readMetaData(result);
+        imf.writeVolume("result.mrc", result);
     }
-
-    Volume result;
-    reco.reconstruct(result);
-
-    imf.readMetaData(result);
-    imf.writeVolume("result.mrc", result);
     
     return 0;
 }
