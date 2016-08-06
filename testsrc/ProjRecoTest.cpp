@@ -51,12 +51,14 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
-    Particle par(M, TRANS_S, 0.01, &sym);
 
     if (commRank == MASTER_ID)
     {
+        CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
+        Particle par(M, TRANS_S, 0.01, &sym);
+        save("SamplingPoints.par", par);
+
         CLOG(INFO, "LOGGER_SYS") << "Read-in Ref";
 
         Volume ref;
@@ -175,6 +177,10 @@ int main(int argc, char* argv[])
 
     if (commRank != MASTER_ID)
     {
+        CLOG(INFO, "LOGGER_SYS") << "Loading Sampling Points";
+        Particle par(M, TRANS_S, 0.01, &sym);
+        load(par, "SamplingPoints.par");
+
         char nameInsert[256];
 
         Coordinate5D coord;
