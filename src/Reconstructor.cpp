@@ -178,6 +178,9 @@ void Reconstructor::reconstruct(Volume& dst)
         else
             dst.setRL(0, i, j, k);
     }
+
+    CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
+                                            * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
 }
 
 void Reconstructor::allReduceW()
