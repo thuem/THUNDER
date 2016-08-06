@@ -289,15 +289,18 @@ int main(int argc, char* argv[])
 
             Coordinate5D coord;
 
-            Image image(N, N, FT_SPACE);
-            SET_0_FT(image);
+            Image image(N, N, RL_SPACE);
+            sprintf(nameOri, "%05d.mrc", i + 1);
+            ImageFile imfOri(nameOri, "rb");
+            imfOri.readMetaData();
+            imfOri.readImage(image);
+            fftThread.fw(image);
 
             Image imageNew(N, N, FT_SPACE);
             SET_0_FT(imageNew);
 
             par.coord(coord, i);
 
-            projector.project(image, coord);
             projectorNew.project(imageNew, coord);
 
             Image diff(N, N, FT_SPACE);
