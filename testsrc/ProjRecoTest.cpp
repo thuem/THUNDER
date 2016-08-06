@@ -303,16 +303,16 @@ int main(int argc, char* argv[])
 
             projectorNew.project(imageNew, coord);
 
+            Image diff(N, N, FT_SPACE);
+            FOR_EACH_PIXEL_FT(diff)
+                diff[i] = image[i] - imageNew[i];
+
             CLOG(INFO, "LOGGER_SYS") << "ORI[0] = "
                                      << REAL(image[0])
                                      << ", NEW[0] = "
                                      << REAL(imageNew[0])
                                      << ", DIFF[0] = "
                                      << REAL(diff[0]);
-
-            Image diff(N, N, FT_SPACE);
-            FOR_EACH_PIXEL_FT(diff)
-                diff[i] = image[i] - imageNew[i];
 
             fftThread.bw(diff);
 
