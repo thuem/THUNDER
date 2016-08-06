@@ -201,6 +201,12 @@ void Particle::quaternion(vec4& dst,
     dst = _r.row(i).transpose();
 }
 
+void Particle::setQuaternion(const vec4& src,
+                             const int i) 
+{
+    _r.row(i) = src.transpose();
+}
+
 void Particle::setSymmetry(const Symmetry* sym)
 {
     _sym = sym;
@@ -562,4 +568,34 @@ void save(const char filename[],
 void load(Particle& par,
           const char filename[])
 {
+    FILE* file = fopen(filename, "r");
+
+    vec4 q;
+    vec2 t;
+    double w;
+
+    char buf[1000];
+    int lineCont = 0;
+    while(fgets(buf, 1000, file))
+        lineCont++;
+    cout << "lineCont" << " " << lineCont << endl;
+
+    par.reset(lineCont);
+
+    rewind(file);
+    for (int i = 0; i < lineCont; i++) 
+    {
+        fscanf(file,
+               "%lf %lf %lf %lf %lf %lf %lf",
+               &q(0), &q(1), &q(2), &q(3),
+               &t(0), &t(1),
+               &w);
+        cout << q(0) << " " << t(0) << " " << w << endl;
+        par.setQuaternion(q, i);
+        par.setT(t, i);
+        par.setW(w, i);
+    }
+
+    fclose(file);
+
 }

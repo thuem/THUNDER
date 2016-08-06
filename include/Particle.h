@@ -315,6 +315,14 @@ class Particle
                         const int i) const;
 
         /**
+         * This function sets the quaternion of the i-th particle.
+         *
+         * @param src the quaternion
+         * @param i the index of particle
+         */
+        void setQuaternion(const vec4& src,
+                           const int i);
+        /**
          * This function sets the symmetry.
          *
          * @param sym a pointer points to the Symmetry object
@@ -467,6 +475,12 @@ void display(const Particle& particle);
 void save(const char filename[],
           const Particle& particle);
 
+/**
+ * This function load a particle filter from a file.
+ *
+ * @param particle the particle filter to be loaded
+ * @param filename the file name for loading
+ */
 void load(Particle& particle,
           const char filename[]);
 
