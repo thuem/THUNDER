@@ -131,18 +131,29 @@ class Projector
                      const mat33& mat) const;
 
         /**
-         * This function projects given the three Euler angles.
+         * This function projects given three Euler angles.
          *
-         * @param dst the destination image
-         * @param phi phi
+         * @param dst   the destination image
+         * @param phi   phi
          * @param theta theta
-         * @param psi psi
+         * @param psi   psi
          */
         void project(Image& dst,
                      const double phi,
                      const double theta,
                      const double psi) const;
 
+        /**
+         * This function projects given three Euler angles, and then translate
+         * given a vector.
+         *
+         * @param dst   the destination image
+         * @param phi   phi
+         * @param theta theta
+         * @param psi   psi
+         * @param x     x
+         * @param y     y
+         */
         void project(Image& dst,
                      const double phi,
                      const double theta,
@@ -150,6 +161,13 @@ class Projector
                      const double x,
                      const double y) const;
 
+        /**
+         * This function projects given a 5D coordinate.
+         *
+         * @param dst          the destination image
+         * @param coordinate5D the 5D coordiante, containing three Euler angles
+         *                     and a translation vector
+         */
         void project(Image& dst,
                      const Coordinate5D& coordinate5D) const;
 

@@ -112,14 +112,12 @@ int main(int argc, char* argv[])
         ***/
 
 
-    /***
-    par.coord(coord, 0);
+        par.coord(coord, 0);
     
-    projector.project(image, coord);
-    fft.bw(image);
+        projector.project(image, coord);
+        fft.bw(image);
 
-    double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
-    ***/
+        double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
 
         #pragma omp parallel for
         for (int i = 0; i < M; i++)
@@ -146,13 +144,11 @@ int main(int argc, char* argv[])
 
             fftThread.bw(image);
 
-        /***
-        Image noise(N, N, RL_SPACE);
-        FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(engine, std);
+            Image noise(N, N, RL_SPACE);
+            FOR_EACH_PIXEL_RL(noise)
+                noise(i) = gsl_ran_gaussian(engine, std);
 
-        ADD_RL(image, noise);
-        ***/
+            ADD_RL(image, noise);
 
             ImageFile imfThread;
 
@@ -283,11 +279,10 @@ int main(int argc, char* argv[])
 
         #pragma omp parallel for
         for (int i = 0; i < 100; i++)
-        {
+        859860{
             FFT fftThread;
 
             char name[256];
-            sprintf(name, "DIFF_%05d.bmp", i + 1);
 
             Coordinate5D coord;
 
@@ -308,7 +303,18 @@ int main(int argc, char* argv[])
 
             fftThread.bw(diff);
 
+            sprintf(name, "DIFF_%05d.bmp", i + 1);
             diff.saveRLToBMP(name);
+
+            fftThread.bw(image);
+
+            sprintf(name, "ORI_%05d.bmp", i + 1);
+            image.saveRLToBMP(name);
+
+            fftThread.bw(imageNew);
+
+            sprintf(name, "NEW_%05d.bmp", i + 1);
+            imageNew.saveRLToBMP(name);
         }
     }
     
