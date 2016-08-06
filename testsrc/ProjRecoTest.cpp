@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
             ImageFile imf;
 
             imf.readMetaData(resultA);
-            imf.writeVolume("resultA.mrc", result);
+            imf.writeVolume("resultA.mrc", resultA);
         }
 
         if (commRank == HEMI_B_LEAD)
@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
             ImageFile imf;
 
             imf.readMetaData(resultB);
-            imf.writeVolume("resultB.mrc", result);
+            imf.writeVolume("resultB.mrc", resultB);
         }
     }
 
