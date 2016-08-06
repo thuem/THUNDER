@@ -282,12 +282,12 @@ int main(int argc, char* argv[])
         load(par, "SamplingPoints.par");
 
         #pragma omp parallel for
-        for (int i = 0; i < M; i++)
+        for (int i = 0; i < 100; i++)
         {
             FFT fftThread;
 
             char name[256];
-            sprintf(name, "DIFF_%05d.mrc", i + 1);
+            sprintf(name, "DIFF_%05d.bmp", i + 1);
 
             Coordinate5D coord;
 
