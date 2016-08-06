@@ -558,3 +558,8 @@ void save(const char filename[],
 
     fclose(file);
 }
+
+void load(Particle& par,
+          const char filename[])
+{
+}
