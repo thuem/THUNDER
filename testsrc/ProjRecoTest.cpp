@@ -160,12 +160,14 @@ int main(int argc, char* argv[])
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
+    MLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
     Reconstructor reco(N, 2, &sym);
     reco.setMPIEnv();
 
-    CLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
+    MLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     if (commRank == HEMI_A_LEAD)
     {
@@ -185,9 +187,13 @@ int main(int argc, char* argv[])
             imfInsert.readMetaData();
             imfInsert.readImage(insert);
 
+            CLOG(INFO, "LOGGER_SYS") << "Reading " << nameInsert;
+
             par.coord(coord, i);
 
             reco.insert(insert, coord, 1);
+
+            CLOG(INFO, "LOGGER_SYS") << nameInsert << "Inserted!";
         }
 
         CLOG(INFO, "LOGGER_SYS") << "Reconstructing!";
