@@ -149,8 +149,13 @@ void Reconstructor::reconstruct(Volume& dst)
 
     dst = _F.copyVolume();
 
+    CLOG(INFO, "LOGGER_SYS") << "dst[0] = " << dst[0];
+
     FFT fft;
     fft.bwMT(dst);
+
+    CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
+                                            * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
