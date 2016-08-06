@@ -95,6 +95,8 @@ int main(int argc, char* argv[])
         fft.fwMT(padRef);
         fft.fwMT(ref);
 
+        CLOG(INFO, "LOGGER_SYS") << "padRef[0]" << padRef[0];
+
         CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
         projector.setPf(PF);
         projector.setProjectee(padRef.copyVolume());
@@ -271,6 +273,8 @@ int main(int argc, char* argv[])
         CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Constructed Reference";
 
         fft.fwMT(padNewRef);
+
+        CLOG(INFO, "LOGGER_SYS") << "padNewRef[0]" << padNewRef[0];
 
         CLOG(INFO, "LOGGER_SYS") << "Setting Projector on Constructed Reference";
         
