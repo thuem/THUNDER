@@ -146,7 +146,14 @@ void Projector::gridCorrection()
         {
             double r = NORM_3(i, j, k) / (_projectee.nColRL() * _pf);
 
-            _projectee.setRL(_projectee.getRL(i, j, k) / TIK_RL(r), i, j, k);
+            if (r < 0.25 / _pf)
+                _projectee.setRL(_projectee.getRL(i, j, k)
+                               / TIK_RL(r),
+                                 i,
+                                 j,
+                                 k);
+            else
+                _projectee.setRL(0, i, j, k);
         }
 
         fft.fwMT(_projectee);

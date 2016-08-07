@@ -215,7 +215,7 @@ class Reconstructor : public Parallel
          * @param pf    Padding factor. By default is 2. 
          * @param sym   Symmetry mark. By default is NULL.
          * @param a     The width of the modified Kaiser-Bessel Kernel. By 
-         *              default is 1.9.
+         *              default is 0.95.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
          *              kernel. By default is 10.
          * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -223,7 +223,7 @@ class Reconstructor : public Parallel
         void init(const int size,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
-                  const double a = 1.9,
+                  const double a = 0.95,
                   const double alpha = 10,
                   const double zeta = 0.15);
 
