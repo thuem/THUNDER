@@ -258,10 +258,13 @@ void Reconstructor::allReduceW()
         {
             double c = REAL(_C.getFTHalf(i, j, k));
             if (c >= cThres)
-                _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+            {
+                //_W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
+            }
             else
                 _W.setFTHalf(COMPLEX(0, 0), i, j, k);
         }
