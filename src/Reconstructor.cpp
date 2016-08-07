@@ -244,15 +244,26 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
 
+    if (_pf * _a <= 1)
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Parameter a of MKB Kernel is Too Small.";
+        __builtin_unreachable();
+    }
+
+    double cThres = MKB_FT(1, _pf * _a, _alpha);
+
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
-            _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
-                         i,
-                         j,
-                         k);
+            if (c >= cThres)
+                _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                             i,
+                             j,
+                             k);
+            else
+                _W.setFTHalf(COMPLEX(0, 0), i, j, k);
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
