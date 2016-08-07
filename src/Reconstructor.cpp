@@ -106,7 +106,7 @@ void Reconstructor::insert(const Image& src,
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
                 vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = rot * newCor * _pf;
+                vec3 oldCor = sr[k] * newCor * _pf;
         
                 _F.addFT(transSrc.getFT(i, j) * w, 
                          oldCor[0], 
