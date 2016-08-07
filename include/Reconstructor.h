@@ -318,12 +318,6 @@ class Reconstructor : public Parallel
          * size of Volume in 3 dimension xyz.
          */
         //void symmetrizeC();
-
-        /**
-         * The size of the reconstructor area that is used to determine the
-         * size of Volume in 3 dimension xyz.
-         */
-        double checkC() const;
 };
 
 #endif //RECONSTRUCTOR_H

@@ -171,10 +171,6 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        /***
-        if ((r < 0.5 / _pf) &&
-            (dst.getRL(i, j, k) > 0))
-        ***/
         if (r < 0.5 / _pf)
         {
             /***
@@ -314,22 +310,6 @@ void Reconstructor::allReduceF()
 
     symmetrizeF();
     ***/
-}
-
-double Reconstructor::checkC() const
-{6696.8
-2016-08-07 21:15:33,323 INFO  [LOGGER_SYS] sum(dst)1
-    int counter = 0;
-    double diff = 0;
-
-    VOLUME_FOR_EACH_PIXEL_FT(_C)
-        if (NORM_3(i, j, k) < (_maxRadius - _a) * _pf)
-        {
-            counter += 1;
-            diff += abs(REAL(_C.getFT(i, j, k)) - 1);
-        }
-
-    return diff / counter;
 }
 
 /***
