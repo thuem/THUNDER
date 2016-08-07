@@ -171,11 +171,11 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        if (r < 0.5 / _pf)
         /***
         if ((r < 0.5 / _pf) &&
             (dst.getRL(i, j, k) > 0))
         ***/
+        if (r < 0.5 / _pf)
         {
             /***
             dst.setRL(dst.getRL(i, j, k)
@@ -185,6 +185,12 @@ void Reconstructor::reconstruct(Volume& dst)
                       j,
                       k);
             ***/
+            dst.setRL(dst.getRL(i, j, k)
+                    * gsl_pow_2(MKB_RL(r, _pf * _a, _alpha))
+                    / gsl_pow_3(TIK_RL(r)),
+                      i,
+                      j,
+                      k);
         }
         else
             dst.setRL(0, i, j, k);
@@ -311,7 +317,8 @@ void Reconstructor::allReduceF()
 }
 
 double Reconstructor::checkC() const
-{
+{6696.8
+2016-08-07 21:15:33,323 INFO  [LOGGER_SYS] sum(dst)1
     int counter = 0;
     double diff = 0;
 
