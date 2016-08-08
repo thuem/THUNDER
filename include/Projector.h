@@ -23,6 +23,8 @@
 
 #include "ImageFunctions.h"
 
+#define PROJ_LOOSE_FACTOR 2
+
 class Projector
 {
     MAKE_DEFAULT_MOVE(Projector)
