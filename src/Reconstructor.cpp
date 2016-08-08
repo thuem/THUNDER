@@ -251,7 +251,7 @@ void Reconstructor::allReduceW()
     }
 
     //double cThres = MKB_FT(1, _pf * _a, _alpha);
-    double cThres = MKB_FT(_pf * _a * 0.1,
+    double cThres = MKB_FT(_pf * _a * 0.9,
                            _pf * _a,
                            _alpha);
 
