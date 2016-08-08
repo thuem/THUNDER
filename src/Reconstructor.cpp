@@ -250,7 +250,10 @@ void Reconstructor::allReduceW()
         __builtin_unreachable();
     }
 
-    double cThres = MKB_FT(1, _pf * _a, _alpha);
+    //double cThres = MKB_FT(1, _pf * _a, _alpha);
+    double cThres = MKB_FT(_pf * _a * 0.1,
+                           _pf * _a,
+                           _alpha);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
