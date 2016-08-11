@@ -1291,7 +1291,7 @@ void MLOptimiser::saveBestProjections()
 
             sprintf(filename, "Diff_%04d_Round_%03d.bmp", _ID[l], _iter);
             fft.bw(diff);
-            result.saveRLToBMP(filename);
+            diff.saveRLToBMP(filename);
             fft.fw(diff);
         }
     }
