@@ -118,7 +118,7 @@ void Reconstructor::insert(const Image& src,
         }
     }
 
-    CLOG(INFO, "LOGGER_SYS") << "Partial : _F[0] = " << REAL(_F[0]);
+    //CLOG(INFO, "LOGGER_SYS") << "Partial : _F[0] = " << REAL(_F[0]);
 }
 
 void Reconstructor::insert(const Image& src,
@@ -171,11 +171,9 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        /***
         if ((r > 0.25 / _pf * RECO_LOOSE_FACTOR) ||
             (dst.getRL(i, j, k) < 0))
             dst.setRL(0, i, j, k);
-        ***/
 
         /***
         if (r > 0.25 / _pf * RECO_LOOSE_FACTOR)
@@ -195,6 +193,7 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(0, i, j, k);
         ***/
 
+        /***
         if ((r < 0.5 / _pf) &&
             (dst.getRL(i, j, k) > 0))
         {
@@ -206,6 +205,7 @@ void Reconstructor::reconstruct(Volume& dst)
         }
         else
             dst.setRL(0, i, j, k);
+        ***/
 
         /***
         if ((r < 0.5 / _pf) &&
@@ -223,8 +223,10 @@ void Reconstructor::reconstruct(Volume& dst)
         ***/
     }
 
+    /***
     CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
                                             * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
+    ***/
 }
 
 void Reconstructor::allReduceW()
@@ -316,7 +318,7 @@ void Reconstructor::allReduceW()
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
 
     //DEBUG
-    CLOG(INFO, "LOGGER_SYS") << "_W[0] = " << REAL(_W[0]);
+    //CLOG(INFO, "LOGGER_SYS") << "_W[0] = " << REAL(_W[0]);
 }
 
 void Reconstructor::allReduceF()
