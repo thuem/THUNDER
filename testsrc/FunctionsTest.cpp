@@ -25,11 +25,16 @@ int main(int argc, const char* argv[])
         cout << i << " " << MKB_FT(i, 2, atoi(argv[1])) << endl;
     ***/
 
+    /***
     for (double i = 0; i <= 1.5; i += 0.01)
         cout << i << " " << MKB_RL(i, 2, 0.5) << endl;
+    ***/
     
     /***
     for (double i = 0; i <= BLOB_A * PF; i += 0.01)
         cout << i << " " << MKB_RL(i, PF * BLOB_A, BLOB_ALPHA) << endl;
     ***/
+
+    for (double i = 0; i <= 1.; i += 0.01)
+        cout << i << " " << TIK_RL(i) << endl;
 }
