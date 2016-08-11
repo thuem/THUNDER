@@ -172,6 +172,9 @@ int main(int argc, char* argv[])
 
     Reconstructor reco(N, 2, &sym, 0.95);
     //Reconstructor reco(N, 2, NULL, 0.95);
+    //Reconstructor reco(N, 2, &sym);
+    //Reconstructor reco(N, 2, NULL, 0.95);
+    //Reconstructor reco(N, 2, &sym, 0.95);
     //Reconstructor reco(N, 2, NULL);
     reco.setMPIEnv();
 
@@ -284,8 +287,8 @@ int main(int argc, char* argv[])
         projectorNew.setProjectee(padNewRef.copyVolume());
 
         CLOG(INFO, "LOGGER_SYS") << "Loading Sampling Points";
-        //Particle par(M, TRANS_S, 0.01, &sym);
-        Particle par(M, TRANS_S, 0.01, NULL);
+        Particle par(M, TRANS_S, 0.01, &sym);
+        //Particle par(M, TRANS_S, 0.01, NULL);
         load(par, "SamplingPoints.par");
 
         #pragma omp parallel for
