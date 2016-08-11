@@ -211,7 +211,6 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(0, i, j, k);
         ***/
 
-        /***
         if ((r < 0.5 / _pf) &&
             (dst.getRL(i, j, k) > 0))
         {
@@ -224,7 +223,6 @@ void Reconstructor::reconstruct(Volume& dst)
         }
         else
             dst.setRL(0, i, j, k);
-        ***/
     }
 
     /***
