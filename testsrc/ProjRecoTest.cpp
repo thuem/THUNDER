@@ -35,6 +35,8 @@
 #define THETA 0
 #define CS 0
 
+#define BLOB_A 1.9
+
 using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
@@ -170,7 +172,7 @@ int main(int argc, char* argv[])
     if (commRank == MASTER_ID)
         CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
-    Reconstructor reco(N, 2, &sym, 0.95);
+    Reconstructor reco(N, 2, &sym, BLOB_A);
     //Reconstructor reco(N, 2, NULL, 0.95);
     //Reconstructor reco(N, 2, &sym);
     //Reconstructor reco(N, 2, NULL, 0.95);
