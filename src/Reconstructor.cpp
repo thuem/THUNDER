@@ -173,9 +173,11 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
+        /***
         if ((r > 0.25 / _pf * RECO_LOOSE_FACTOR) ||
             (dst.getRL(i, j, k) < 0))
             dst.setRL(0, i, j, k);
+        ***/
 
         /***
         if (r > 0.25 / _pf * RECO_LOOSE_FACTOR)
@@ -307,11 +309,16 @@ void Reconstructor::allReduceW()
             double c = REAL(_C.getFTHalf(i, j, k));
             if (c >= cThres)
             {
-                //_W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                             i,
+                             j,
+                             k);
+                /***
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
+                ***/
             }
             else
                 _W.setFTHalf(COMPLEX(0, 0), i, j, k);
