@@ -1263,6 +1263,7 @@ void MLOptimiser::saveBestProjections()
     FFT fft;
 
     Image result(_para.size, _para.size, FT_SPACE);
+    Image diff(_para.size, _para.size, FT_SPACE);
     char filename[FILE_NAME_LENGTH];
 
     mat33 rot;
@@ -1273,16 +1274,25 @@ void MLOptimiser::saveBestProjections()
         if (_ID[l] < 100)
         {
             SET_0_FT(result);
+            SET_0_FT(diff);
 
             _par[l].rank1st(rot, tran);
 
             _model.proj(0).project(result, rot, tran);
+
+            FOR_EACH_PIXEL_FT(diff)
+                diff[i] = _img[l][i] - result[i];
 
             sprintf(filename, "Result_%04d_Round_%03d.bmp", _ID[l], _iter);
 
             fft.bw(result);
             result.saveRLToBMP(filename);
             fft.fw(result);
+
+            sprintf(filename, "Diff_%04d_Round_%03d.bmp", _ID[l], _iter);
+            fft.bw(diff);
+            result.saveRLToBMP(filename);
+            fft.fw(diff);
         }
     }
 }
