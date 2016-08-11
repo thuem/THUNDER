@@ -182,6 +182,7 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(0, i, j, k);
         ***/
 
+        /***
         if (r < 0.5 / _pf)
         {
             dst.setRL(dst.getRL(i, j, k)
@@ -192,10 +193,9 @@ void Reconstructor::reconstruct(Volume& dst)
         }
         else
             dst.setRL(0, i, j, k);
+        ***/
 
-        /***
-        if ((r < 0.5 / _pf) &&
-            (dst.getRL(i, j, k) > 0))
+        if (r < 0.5 / _pf)
         {
             dst.setRL(dst.getRL(i, j, k)
                     / TIK_RL(r),
@@ -205,7 +205,6 @@ void Reconstructor::reconstruct(Volume& dst)
         }
         else
             dst.setRL(0, i, j, k);
-        ***/
 
         /***
         if ((r < 0.5 / _pf) &&
