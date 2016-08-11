@@ -155,7 +155,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
     dst = _F.copyVolume();
 
-    CLOG(INFO, "LOGGER_SYS") << "dst[0] = " << REAL(dst[0]);
+    //CLOG(INFO, "LOGGER_SYS") << "dst[0] = " << REAL(dst[0]);
 
     FFT fft;
     fft.bwMT(dst);
