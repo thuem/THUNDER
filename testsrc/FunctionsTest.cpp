@@ -11,7 +11,7 @@
 #include "Functions.h"
 
 #define BLOB_A 1.9
-#define BLOB_ALPHA 2
+#define BLOB_ALPHA 10
 
 #define PF 2
 
