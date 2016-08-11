@@ -199,7 +199,7 @@ class Reconstructor : public Parallel
         Reconstructor(const int size,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
-                      const double a = 1.9,
+                      const double a = 0.95,
                       const double alpha = 10,
                       const double zeta = 0.15);
 
