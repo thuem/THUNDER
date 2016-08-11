@@ -21,6 +21,7 @@ find_package(MPI REQUIRED)
 # Compiler settings
 set (CMAKE_C_COMPILER ${MPI_C_COMPILER})
 set (CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+message("-- CMAKE_CXX_COMPILER: ${MPI_CXX_COMPILER}")
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-fopenmp" HAS_OPENMP)
