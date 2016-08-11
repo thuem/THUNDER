@@ -160,8 +160,10 @@ void Reconstructor::reconstruct(Volume& dst)
     FFT fft;
     fft.bwMT(dst);
 
+    /***
     CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
                                             * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
