@@ -292,7 +292,8 @@ void Reconstructor::allReduceW()
         __builtin_unreachable();
     }
 
-    double cThres = MKB_FT(sqrt(3) / 2, _pf * _a, _alpha);
+    //double cThres = MKB_FT(sqrt(3) / 2, _pf * _a, _alpha);
+    double cThres = 0.2;
     //double cThres = MKB_FT(1, _pf * _a, _alpha);
     /***
     double cThres = MKB_FT(_pf * _a * 0.2,
