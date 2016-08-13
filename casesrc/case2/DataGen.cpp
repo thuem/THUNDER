@@ -205,13 +205,11 @@ int main(int argc, char* argv[])
 
         fftThread.bw(image);
 
-        /***
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(engine, std);
+            noise(i) = gsl_ran_gaussian(engine, 2 * std);
 
         ADD_RL(image, noise);
-        ***/
 
         /***
         printf("image: mean = %f, stddev = %f, maxValue = %f\n",
