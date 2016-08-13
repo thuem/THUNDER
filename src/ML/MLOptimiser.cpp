@@ -1281,7 +1281,7 @@ void MLOptimiser::saveBestProjections()
             _model.proj(0).project(result, rot, tran);
 
             FOR_EACH_PIXEL_FT(diff)
-                diff[i] = _img[l][i] - result[i];
+                diff[i] = _img[l][i] - result[i] * REAL(ctf[l][i]);
 
             sprintf(filename, "Result_%04d_Round_%03d.bmp", _ID[l], _iter);
 

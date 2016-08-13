@@ -294,7 +294,8 @@ void Reconstructor::allReduceW()
 
     //double cThres = MKB_FT(sqrt(3) / 2, _pf * _a, _alpha);
     //double cThres = 0.2;
-    double cThres = 0.5;
+    //double cThres = 0.5;
+    double cThres = 1;
     //double cThres = MKB_FT(1, _pf * _a, _alpha);
     /***
     double cThres = MKB_FT(_pf * _a * 0.2,
@@ -321,7 +322,13 @@ void Reconstructor::allReduceW()
                              k);
             }
             else
-                _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+            {
+                //_W.setFTHalf(COMPLEX(0, 0), i, j, k);
+                _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+                             i,
+                             j,
+                             k);
+            }
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
