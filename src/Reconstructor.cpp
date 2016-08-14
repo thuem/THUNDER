@@ -321,6 +321,8 @@ void Reconstructor::allReduceW()
                              j,
                              k);
             }
+            else if (c == 0)
+                _W.setFTHalf(COMPLEX(0, 0), i, j, k);
             /***
             else
             {
