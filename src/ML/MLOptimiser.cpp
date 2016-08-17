@@ -142,6 +142,9 @@ void MLOptimiser::expectation()
     IF_MASTER return;
 
     _nF = 0;
+    _nI = 0;
+
+    int nPer = 0;
 
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
@@ -368,12 +371,26 @@ void MLOptimiser::expectation()
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
                 {
-                    #pragma omp critical
+                    #pragma omp atomic
                     _nF += phase;
+
+                    #pragma omp atomic
+                    _nI += 1;
 
                     break;
                 }
             }
+        }
+
+        #pragma omp critical
+        if (_nI > (int)(_ID.size() / 10))
+        {
+            _nI = 0;
+
+            nPer += 1;
+
+            ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expecation Performed.";
+            BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expecation Performed.";
         }
 
         if (_ID[l] < 20)

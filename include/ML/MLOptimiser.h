@@ -214,9 +214,14 @@ class MLOptimiser : public Parallel
         ***/
 
         /**
-         * number of filtering in an iteration of a process
+         * number of performed filtering in an iteration of a process
          */
         int _nF = 0;
+
+        /**
+         * number of performed images in an iteration of a process
+         */
+        int _nI = 0;
 
     public:
         
