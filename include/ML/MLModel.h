@@ -45,7 +45,7 @@
 
 #define SEARCH_TYPE_LOCAL 1
 
-#define A_B_AVERAGE_THRES 40 // Angstrom
+#define A_B_AVERAGE_THRES 25 // Angstrom
 
 #define MAX_ITER_R_CHANGE_NO_DECREASE 2
 
