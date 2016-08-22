@@ -562,17 +562,19 @@ int MLModel::searchType()
         // improvement or not. If there is, perform further local search, if
         // there is not, stop the search.
         IF_MASTER
-            if (_r > _rTop)
+        {
+            if (_r > _rT)
             {
-                _rTop = _r;
+                _rT = _r;
                 _nRNoImprove = 0;
             }
             else
                 _nRNoImprove += 1;
 
-        _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
-                    ? SEARCH_TYPE_STOP
-                    : SEARCH_TYPE_LOCAL;
+            _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
+                        ? SEARCH_TYPE_STOP
+                        : SEARCH_TYPE_LOCAL;
+        }
     }
     else
     {
