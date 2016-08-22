@@ -194,7 +194,8 @@ void MLModel::BcastFSC()
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
                                            _size,
                                            _pixelSize) + 1) * _pf,
-                                   0.9 * (_r + 1) * _pf);
+                                   _rU * _pf);
+                                   //0.9 * (_r + 1) * _pf);
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
                                          << 1.0 / resP2A(r / _pf - 1, _size, _pixelSize)
