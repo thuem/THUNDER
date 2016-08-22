@@ -441,9 +441,16 @@ void MLOptimiser::run()
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
         }
-        else
+        else if (_searchType == SEARCH_TYPE_LOCAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
+        }
+        else
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Stop Search";
+            MLOG(INFO, "LOGGER_ROUND") << "Exitting Searching";
+
+            break;
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
