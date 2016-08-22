@@ -24,6 +24,21 @@ void translate(Image& dst,
     }
 }
 
+void translateMT(Image& dst,
+                 const double nTransCol,
+                 const double nTransRow)
+{
+    double rCol = nTransCol / dst.nColRL();
+    double rRow = nTransRow / dst.nRowRL();
+
+    #pragma omp parallel for
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+    {
+        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        dst.setFT(COMPLEX_POLAR(-phase), i, j);
+    }
+}
+
 void translate(Image& dst,
                const double r,
                const double nTransCol,
@@ -32,14 +47,29 @@ void translate(Image& dst,
     double rCol = nTransCol / dst.nColRL();
     double rRow = nTransRow / dst.nRowRL();
 
-    IMAGE_FOR_EACH_PIXEL_FT(dst)
-    {
-        if (QUAD(i, j) < r * r)
+    IMAGE_FOR_PIXEL_R_FT(r)
+        if (QUAD(i, j) < gsl_pow_2(r))
         {
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
         }
-    }
+}
+
+void translateMT(Image& dst,
+                 const double r,
+                 const double nTransCol,
+                 const double nTransRow)
+{
+    double rCol = nTransCol / dst.nColRL();
+    double rRow = nTransRow / dst.nRowRL();
+
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+        if (QUAD(i, j) < gsl_pow_2(r))
+        {
+            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            dst.setFT(COMPLEX_POLAR(-phase), i, j);
+        }
 }
 
 void translate(Image& dst,
@@ -66,14 +96,12 @@ void translate(Image& dst,
     double rCol = nTransCol / src.nColRL();
     double rRow = nTransRow / src.nRowRL();
 
-    IMAGE_FOR_EACH_PIXEL_FT(src)
-    {
-        if (QUAD(i, j) < r * r)
+    IMAGE_FOR_PIXEL_R_FT(r)
+        if (QUAD(i, j) < gsl_pow_2(r))
         {
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
-    }
 }
 
 void crossCorrelation(Image& dst,
@@ -82,7 +110,7 @@ void crossCorrelation(Image& dst,
                       const double r)
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
-        if (QUAD(i, j) < r * r)
+        if (QUAD(i, j) < gsl_pow_2(r))
             dst.setFT(CONJUGATE(a.getFT(i, j)) * b.getFT(i, j), i, j);
 }
 

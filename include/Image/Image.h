@@ -56,7 +56,7 @@
  */
 #define IMAGE_FOR_PIXEL_R_FT(r) \
     for (int j = -r; j < r; j++) \
-        for (int i = 0; i<= r; i++)
+        for (int i = 0; i <= r; i++)
 
 inline bool conjHalf(int& iCol, int& iRow)
 {

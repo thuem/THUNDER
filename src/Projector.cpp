@@ -121,6 +121,7 @@ void Projector::project(Image& dst,
 
 void Projector::projectMT(Image& dst,
                           const double phi,
+                          const double theta,
                           const double psi) const
 {
     mat33 mat;
