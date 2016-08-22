@@ -29,25 +29,19 @@
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define MAX_GAP_GLOBAL 5
+#define SEARCH_RES_GAP 20
 
-//#define MAX_GAP_GLOBAL 20
-
-#define MAX_GAP_LOCAL 20
-
-//#define MIN_GAP_GLOBAL 2
-
-#define MIN_GAP_GLOBAL 10
-
-#define MIN_GAP_LOCAL 10
+#define SEARCH_TYPE_STOP -1
 
 #define SEARCH_TYPE_GLOBAL 0
 
 #define SEARCH_TYPE_LOCAL 1
 
-#define A_B_AVERAGE_THRES 25 // Angstrom
+#define A_B_AVERAGE_THRES 20 // Angstrom
 
 #define MAX_ITER_R_CHANGE_NO_DECREASE 2
+
+#define MAX_ITER_R_NO_IMPROVE 2
 
 using namespace std;
 
@@ -110,6 +104,11 @@ class MLModel : public Parallel
          * frequency for reconstruction and calculating FSC, SNR 
          */
         int _rU;
+
+        /**
+         * the top frequency ever reached
+         */
+        int _rT = 0;
 
         /**
          * padding factor
@@ -181,9 +180,9 @@ class MLModel : public Parallel
         int _nRChangeNoDecrease = 0;
 
         /**
-         * number of iterations with continous decreasing in rotation change
+         * number of iterations without frequency improvement
          */
-        int _nRChangeDecreaseContinous = 0;
+        int _nRNoImprove = 0;
 
         /**
          * the symmetry information

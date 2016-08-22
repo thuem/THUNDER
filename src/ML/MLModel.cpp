@@ -553,24 +553,44 @@ void MLModel::setStdRChange(const double stdRChange)
 
 int MLModel::searchType()
 {
-    // If it is local search, just continue to perform local search.
-    if (_searchType == SEARCH_TYPE_LOCAL) return SEARCH_TYPE_LOCAL;
+    // If the searching needs to stop, return the stop signal.
+    if (_searchType == SEARCH_TYPE_STOP) return SEARCH_TYPE_STOP;
 
-    // If it is global search now, make sure the change of rotations beteween
-    // iterations still gets room for improvement.
-    
-    IF_MASTER
+    if (_searchType == SEARCH_TYPE_LOCAL)
     {
-        if ((_rChange > _rChangePrev - 0.02 * _stdRChangePrev) &&
-            (_r == _rGlobal) &&
-            (_rChange < 0.01))
-            _nRChangeNoDecrease += 1;
-        else
-            _nRChangeNoDecrease = 0;
+        // If it is local search, check whether there is no space for
+        // improvement or not. If there is, perform further local search, if
+        // there is not, stop the search.
+        IF_MASTER
+            if (_r > _rTop)
+            {
+                _rTop = _r;
+                _nRNoImprove = 0;
+            }
+            else
+                _nRNoImprove += 1;
 
-        _searchType = (_nRChangeNoDecrease >= MAX_ITER_R_CHANGE_NO_DECREASE)
-                    ? SEARCH_TYPE_LOCAL
-                    : SEARCH_TYPE_GLOBAL;
+        _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
+                    ? SEARCH_TYPE_STOP
+                    : SEARCH_TYPE_LOCAL;
+    }
+    else
+    {
+        // If it is global search now, make sure the change of rotations
+        // beteween iterations still gets room for improvement.
+        IF_MASTER
+        {
+            if ((_rChange > _rChangePrev - 0.02 * _stdRChangePrev) &&
+                (_r == _rGlobal) &&
+                (_rChange < 0.01))
+                _nRChangeNoDecrease += 1;
+            else
+                _nRChangeNoDecrease = 0;
+
+            _searchType = (_nRChangeNoDecrease >= MAX_ITER_R_CHANGE_NO_DECREASE)
+                        ? SEARCH_TYPE_LOCAL
+                        : SEARCH_TYPE_GLOBAL;
+        }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -594,7 +614,10 @@ void MLModel::clear()
 
 void MLModel::updateRU()
 {
+    _rU = GSL_MIN_INT(_r + SEARCH_RES_GAP, maxR());
+    /***
     _rU = GSL_MIN_INT(_r + GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL),
                       maxR());
+    ***/
 }
 
