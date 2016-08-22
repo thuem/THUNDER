@@ -16,34 +16,79 @@
 #include <cstdlib>
 #include <cmath>
 
+/**
+ * nearest point interpolation
+ */
 #define NEAREST_INTERP 0
 
+/**
+ * linear interpolation
+ */
 #define LINEAR_INTERP 1
 
+/**
+ * sinc interpolation
+ */
 #define SINC_INTERP 2
 
+/**
+ * This macro loops over a 2D cell.
+ */
 #define FOR_CELL_DIM_2 \
     for (int i = 0; i < 2; i++) \
         for (int j = 0; j < 2; j++)
 
+/**
+ * This macro loops over a 3D cell.
+ */
 #define FOR_CELL_DIM_3 \
     for (int i = 0; i < 2; i++) \
         for (int j = 0; j < 2; j++) \
             for (int k = 0; k < 2; k++)
 
+/**
+ * This macro calculates the 1D linear interpolation result given values of two
+ * sampling points and the distance between the interpolation point and the
+ * first sampling point.
+ *
+ * @param v  a 2-array indicating the values of two sampling points
+ * @param xd the distance between the interpolation point and the first sampling
+ *           points
+ */
 #define LINEAR(v, xd) (v[0] * (1 - (xd)) + v[1] * (xd))
-/* v[2], xd */
 
+/**
+ * This macro calculates the 2D linear interpolation result given values of
+ * 2D cell of sampling points and the distances between the interpolation point
+ * and the first sampling points along X-axis and Y-axis.
+ *
+ * @param v  a 2D cell indicating the values of four sampling points
+ * @param xd a 2-array indicating the distances between the interpolation point
+ *           and the first sampling points along X-axis and Y-axis
+ */
 #define BI_LINEAR(v, xd) (LINEAR(v[0], xd[0]) * (1 - (xd[1])) \
                         + LINEAR(v[1], xd[0]) * (xd[1]))
-/* v[2][2], xd[2] */
 
+/**
+ * This macro calculates the 2D linear interpolation result given values of 3D
+ * cell of sampling points and the distances between the interpolation point and
+ * the first sampling points along X-axis, Y-axis and Z-axis.
+ *
+ * @param v  a 3D cell indicating the values of eight sampling points
+ * @param xd a 3-array indicating the distances between the interpolation point
+ *           and the first sampling points along X-axis, Y-axis and Z-axis.
+ */
 #define TRI_LINEAR(v, xd) (BI_LINEAR(v[0], xd) * (1 - (xd[2])) \
                          + BI_LINEAR(v[1], xd) * (xd[2]))
-/* v[2][2][2], xd[2][2] */
 
-/* W_ -> Weight, WG_ -> Weight & Grid */
-
+/**
+ * This macro determines the weights of two sampling points during 1D nearest
+ * point interpolation.
+ *
+ * @param w the weights
+ * @param xd the distance between the interpolation point and the first sampling
+ *           points
+ */
 #define W_NEAREST(w, xd) \
     [](double _w[2], const double _xd) \
     { \
