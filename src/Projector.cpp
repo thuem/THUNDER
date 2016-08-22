@@ -75,7 +75,6 @@ void Projector::project(Image& dst,
                         const mat33& mat) const
 {
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-    {
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
             vec3 newCor = {(double)i, (double)j, 0};
@@ -88,7 +87,25 @@ void Projector::project(Image& dst,
                       i,
                       j);
         }
-    }
+}
+
+void Projector::projectMT(Image& dst,
+                          const mat33& mat) const
+{
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_PIXEL_R_FT(_maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        {
+            vec3 newCor = {(double)i, (double)j, 0};
+            vec3 oldCor = mat * newCor * _pf;
+
+            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
+                                                      oldCor(1),
+                                                      oldCor(2),
+                                                      _interp),
+                      i,
+                      j);
+        }
 }
 
 void Projector::project(Image& dst,
@@ -100,6 +117,16 @@ void Projector::project(Image& dst,
     rotate3D(mat, phi, theta, psi);
 
     project(dst, mat);
+}
+
+void Projector::projectMT(Image& dst,
+                          const double phi,
+                          const double psi) const
+{
+    mat33 mat;
+    rotate3D(mat, phi, theta, psi);
+
+    projectMT(dst, mat);
 }
 
 void Projector::project(Image& dst,

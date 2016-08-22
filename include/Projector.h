@@ -133,6 +133,16 @@ class Projector
                      const mat33& mat) const;
 
         /**
+         * This function projects given the rotation matrix using multiple
+         * threads.
+         *
+         * @param dst the destination image
+         * @param mat the rotation matrix
+         */
+        void projectMT(Image& dst,
+                       const mat33& mat) const;
+
+        /**
          * This function projects given three Euler angles.
          *
          * @param dst   the destination image
@@ -144,6 +154,20 @@ class Projector
                      const double phi,
                      const double theta,
                      const double psi) const;
+
+        /**
+         * This function projects given three Euler angles using multiple
+         * threads.
+         *
+         * @param dst   the destination image
+         * @param phi   phi
+         * @param theta theta
+         * @param psi   psi
+         */
+        void projectMT(Image& dst,
+                       const double phi,
+                       const double theta,
+                       const double psi) const;
 
         /**
          * This function projects given three Euler angles, and then translate
