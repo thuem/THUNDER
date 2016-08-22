@@ -83,11 +83,12 @@
 
 /**
  * This macro determines the weights of two sampling points during 1D nearest
- * point interpolation.
+ * point interpolation given the distance between the interpolation point and
+ * the first sampling point.
  *
- * @param w the weights
+ * @param w  2-array indicating the weights
  * @param xd the distance between the interpolation point and the first sampling
- *           points
+ *           point
  */
 #define W_NEAREST(w, xd) \
     [](double _w[2], const double _xd) \
@@ -97,6 +98,15 @@
         (_xd < 0.5) ? _w[0]++ : _w[1]++; \
     }(w, xd)
 
+/**
+ * This macro determines the weights of two sampling points during 1D linear
+ * interpolation given the distance between the interpolation point and the
+ * first sampling point.
+ *
+ * @param w  2-array indicating the weights
+ * @param xd the distance between the interpolation point and the first sampling
+ *           point
+ */
 #define W_LINEAR(w, xd) \
     [](double _w[2], const double _xd) \
     { \
@@ -104,6 +114,15 @@
         _w[1] = _xd; \
     }(w, xd)
 
+/**
+ * This macro determines the weights of two sampling points during 1D sinc
+ * interpolation given the distance between the interpolation point and the
+ * first sampling point.
+ *
+ * @param w  2-array indicating the weights
+ * @param xd the distance between the interpolation point and the first sampling
+ *           point
+ */
 #define W_SINC(w, xd) \
     [](double _w[2], const double _xd) \
     { \
@@ -111,6 +130,11 @@
         _w[1] = gsl_sf_sinc(1 - _xd); \
     }(w, xd)
 
+/**
+ * This macro determines the weights of two sampling points and the coordinate
+ * of the first sampling point during 1D interpolation given the coordinate of
+ * interpolation point.
+ */
 #define WG_INTERP(INTERP, w, x0, x) \
     [](double _w[2], int& _x0, const double _x) \
     { \
