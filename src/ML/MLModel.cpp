@@ -261,31 +261,31 @@ void MLModel::BcastFSC()
                                i,
                                MPI_COMM_WORLD);
             }
-
-            MPI_Barrier(_hemi);
-
-            if (isA())
-            {
-                ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
-                MPI_Bcast_Large(&_ref[i][0],
-                                _ref[i].sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
-                                0,
-                                _hemi);
-            }
-
-            if (isB())
-            {
-                BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from B_LEAD";
-                MPI_Bcast_Large(&_ref[i][0],
-                                _ref[i].sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
-                                0,
-                                _hemi);
-            }
-
-            MPI_Barrier(_hemi);
         }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        if (isA())
+        {
+            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
+            MPI_Bcast_Large(&_ref[i][0],
+                            _ref[i].sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            0,
+                           _hemi);
+        }
+
+        if (isB())
+        {
+            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from B_LEAD";
+            MPI_Bcast_Large(&_ref[i][0],
+                            _ref[i].sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            0,
+                            _hemi);
+        }
+
+        MPI_Barrier(_hemi);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
