@@ -509,9 +509,6 @@ void MLOptimiser::run()
         }
         ***/
 
-        MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
-        _searchType = _model.searchType();
-
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Tau";
         NT_MASTER
         {
@@ -554,6 +551,9 @@ void MLOptimiser::run()
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
+        _searchType = _model.searchType();
 
         NT_MASTER
         {
