@@ -30,8 +30,10 @@
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
-#define DEFOCUS_U 2e4
-#define DEFOCUS_V 2e4
+#define DEFOCUS_U_1 2e4
+#define DEFOCUS_V_1 2e4
+#define DEFOCUS_U_2 1.5e4
+#define DEFOCUS_V_2 1.5e4
 #define THETA 0
 #define CS 0
 
@@ -129,19 +131,29 @@ int main(int argc, char* argv[])
     projector.setProjectee(padRef.copyVolume());
 
     CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
-    Image ctf(N, N, FT_SPACE);
-    CTF(ctf,
+    Image ctf_1(N, N, FT_SPACE);
+    CTF(ctf_1,
         PIXEL_SIZE,
         VOLTAGE,
-        DEFOCUS_U,
-        DEFOCUS_V,
+        DEFOCUS_U_1,
+        DEFOCUS_V_1,
+        THETA,
+        CS);
+    Image ctf_2(N, N, FT_SPACE);
+    CTF(ctf_2,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_2,
+        DEFOCUS_V_2,
         THETA,
         CS);
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Experiment";
     Experiment exp("C15.db");
     exp.createTables();
-    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_1, DEFOCUS_V_1, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_2, DEFOCUS_V_2, THETA, CS);
+    exp.appendGroup("");
     exp.appendGroup("");
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
@@ -187,8 +199,16 @@ int main(int argc, char* argv[])
         powerSpectrum(ps, image, N / 2 - 1);
         ***/
 
-        FOR_EACH_PIXEL_FT(image)
-            image[i] *= REAL(ctf[i]);
+        if (i % 2 == 0)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_1[i]);
+        }
+        else
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_2[i]);
+        }
 
         /***
         Image noise(N, N, FT_SPACE);
@@ -218,8 +238,16 @@ int main(int argc, char* argv[])
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         ***/
         
-        #pragma omp critical
-        exp.appendParticle(name, 1, 1);
+        if (i % 2 == 0)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 1);
+        }
+        else
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 2, 2);
+        }
 
         ImageFile imfThread;
 
