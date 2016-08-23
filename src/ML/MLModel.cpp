@@ -285,10 +285,8 @@ void MLModel::BcastFSC()
                             _hemi);
         }
 
-        MPI_Barrier(_hemi);
+        MPI_Barrier(MPI_COMM_WORLD);
     }
-
-    MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
 
