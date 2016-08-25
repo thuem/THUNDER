@@ -1382,7 +1382,7 @@ void MLOptimiser::saveLowPassImages()
     {
         if (_ID[l] < 100)
         {
-            lowPassFilter(img, _img[l], _para.pixelSize / 100, 1.0 / _para.size);
+            lowPassFilter(img, _img[l], _para.pixelSize / 50, 1.0 / _para.size);
 
             sprintf(filename, "Image_LowPass_%04d.bmp", _ID[l]);
 
@@ -1410,7 +1410,7 @@ void MLOptimiser::saveLowPassReduceCTFImages()
         {
             reduceCTF(img, _img[l], _ctf[l], maxR());
 
-            lowPassFilter(img, _img[l],  _para.pixelSize / 100, 1.0 / _para.size);
+            lowPassFilter(img, _img[l], _para.pixelSize / 50, 1.0 / _para.size);
 
             sprintf(filename, "Image_LowPass_ReduceCTF_%04d.bmp", _ID[l]);
 
