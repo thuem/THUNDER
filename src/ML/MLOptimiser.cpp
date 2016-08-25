@@ -389,8 +389,8 @@ void MLOptimiser::expectation()
 
             nPer += 1;
 
-            ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expecation Performed";
-            BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expecation Performed";
+            ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+            BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
         }
 
         if (_ID[l] < 20)
