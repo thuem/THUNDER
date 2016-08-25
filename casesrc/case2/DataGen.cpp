@@ -37,6 +37,8 @@
 #define THETA 0
 #define CS 0
 
+#define NOISE_FACTOR 1
+
 using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
@@ -227,7 +229,7 @@ int main(int argc, char* argv[])
 
         Image noise(N, N, RL_SPACE);
         FOR_EACH_PIXEL_RL(noise)
-            noise(i) = gsl_ran_gaussian(engine, 10 * std);
+            noise(i) = gsl_ran_gaussian(engine, NOISE_FACTOR * std);
 
         ADD_RL(image, noise);
 
