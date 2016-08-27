@@ -26,7 +26,7 @@
 
 #define N 380
 //#define M 5000
-#define M 100
+#define M 10
 #define TRANS_S 2
 
 #define PIXEL_SIZE 1.32
