@@ -199,11 +199,25 @@ class MLOptimiser : public Parallel
          */
         vector<int> _groupID;
 
+        /*
+         * standard deviation of noise
+         */
         double _stdN = 0;
 
+        /*
+         * standard deviation of data
+         */
         double _stdD = 0;
 
+        /*
+         * standard deviation of signal
+         */
         double _stdS = 0;
+
+        /*
+         * standard deviation of standard deviation of noise
+         */
+        double _stdStdN = 0;
 
         /***
         double _noiseStddev = 0;
