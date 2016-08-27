@@ -779,6 +779,8 @@ void MLOptimiser::statImg()
     _stdD = 0;
     _stdS = 0;
     
+    _stdStdN = 0;
+
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -787,6 +789,9 @@ void MLOptimiser::statImg()
 
         #pragma omp critical
         _stdD += stddev(0, _img[l]);
+
+        #pragma omp critical
+        _stdStdN += gsl_pow_2(bgStddev(0, _img[l], size() * MASK_RATIO / 2));
     }
 
     MPI_Barrier(_hemi);
@@ -794,12 +799,18 @@ void MLOptimiser::statImg()
     MPI_Allreduce(MPI_IN_PLACE, &_stdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
     MPI_Allreduce(MPI_IN_PLACE, &_stdD, 1, MPI_DOUBLE, MPI_SUM, _hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE, &_stdStdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+
     MPI_Barrier(_hemi);
 
     _stdN /= _N;
     _stdD /= _N;
 
+    _stdStdN /= _N;
+
     _stdS = _stdD - _stdN;
+
+    _stdStdN = sqrt(_stdStdN - gsl_pow_2(_stdN));
 }
 
 void MLOptimiser::displayStatImg()
@@ -808,9 +819,15 @@ void MLOptimiser::displayStatImg()
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
 
+    ALOG(INFO, "LOGGER_INIT") << "Standard Devation of Standard Deviation of Noise : "
+                              << _stdStdN;
+
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _stdN;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
+
+    BLOG(INFO, "LOGGER_INIT") << "Standard Devation of Standard Deviation of Noise : "
+                              << _stdStdN;
 }
 
 void MLOptimiser::substractBgImg()
