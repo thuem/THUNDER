@@ -25,7 +25,8 @@
 #define PF 2
 
 #define N 380
-#define M 5000
+//#define M 5000
+#define M 100
 #define TRANS_S 2
 
 #define PIXEL_SIZE 1.32
@@ -36,6 +37,8 @@
 #define CS 0
 
 #define BLOB_A 1.9
+
+#define NOISE_FACTOR 0
 
 using namespace std;
 
@@ -154,7 +157,7 @@ int main(int argc, char* argv[])
 
             Image noise(N, N, RL_SPACE);
             FOR_EACH_PIXEL_RL(noise)
-                noise(i) = gsl_ran_gaussian(engine, 3 * std);
+                noise(i) = gsl_ran_gaussian(engine, NOISE_FACTOR * std);
 
             ADD_RL(image, noise);
 
