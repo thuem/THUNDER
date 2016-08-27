@@ -38,7 +38,7 @@ void CTF(Image& dst,
         constexpr double w2 = CTF_A;
 
         //dst.setFT(COMPLEX(w1 * sin(ki) + w2 * cos(ki), 0),
-        dst.setFT(COMPLEX(w1 * sin(ki) - w2 * cos(ki), 0), // CORRECT_ONE
+        dst.setFT(COMPLEX(w2 * cos(ki) - w1 * sin(ki), 0), // CORRECT_ONE
                   i,
                   j);
         /***

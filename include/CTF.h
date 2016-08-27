@@ -15,7 +15,8 @@
 #include "Functions.h"
 #include "Image.h"
 
-#define CTF_A 0.1
+//#define CTF_A 0.1
+#define CTF_A 0.07
 
 //#define CTF_TAU 0.001
 #define CTF_TAU 0.01
