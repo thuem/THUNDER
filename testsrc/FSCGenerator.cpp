@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
     double pixelSize = atof(argv[3]);
 
-    for (int i = 0; i < N / 2 - 1; i++)
+    for (int i = 1; i < N / 2 - 1; i++)
         printf("%05d   %10.6lf   %10.6lf\n",
                i,
                1.0 / resP2A(i, N, pixelSize),
