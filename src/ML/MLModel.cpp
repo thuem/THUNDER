@@ -428,10 +428,10 @@ void MLModel::refreshReco()
     }
 }
 
-void MLModel::updateR()
+void MLModel::updateR(const double thres)
 {
     FOR_EACH_CLASS
-        if (_FSC.col(i)(_pf * _rU - 1) > 0.5)
+        if (_FSC.col(i)(_pf * _rU - 1) > thres)
         {
             _r = _rU;
 
@@ -454,7 +454,7 @@ void MLModel::updateR()
             return;
         }
 
-    _r = resolutionP() + 1;
+    _r = resolutionP(thres) + 1;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);

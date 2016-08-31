@@ -430,8 +430,10 @@ class MLModel : public Parallel
         /** 
          * This function increases _r according to wether FSC is high than 0.2
          * at current _r.
+         *
+         * @param thres the threshold for determining resolution
          */
-        void updateR();
+        void updateR(const double thres = 0.143);
 
         /**
          * This function returns the concentration parameter of the rotation.
