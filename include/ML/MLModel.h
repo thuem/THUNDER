@@ -43,6 +43,8 @@
 
 #define MAX_ITER_R_NO_IMPROVE 2
 
+#define PERTURB_FACTOR 100
+
 using namespace std;
 
 class MLModel : public Parallel

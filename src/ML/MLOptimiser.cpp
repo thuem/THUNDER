@@ -188,7 +188,7 @@ void MLOptimiser::expectation()
                 if (_searchType == SEARCH_TYPE_LOCAL)
                 {
                     // perturb with 5x confidence area
-                    _par[l].perturb(5);
+                    _par[l].perturb(PERTURB_FACTOR);
                 }
             }
             else
