@@ -521,14 +521,14 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
-        saveFSC();
-
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC";
         _model.BcastFSC();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR";
         _model.refreshSNR();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
+        saveFSC();
 
         MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
         _res = _model.resolutionP();
@@ -1504,11 +1504,11 @@ void MLOptimiser::saveFSC() const
 
         FILE* file = fopen(filename, "w");
 
-        for (int i = 1; i < _r * _para.pf; i++)
+        for (int i = 1; i < fsc.size(); i++)
             fprintf(file,
                     "%05d   %10.6lf   %10.6lf\n",
                     i,
-                    1.0 / resP2A(i, _para.size, _para.pixelSize),
+                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
                     fsc(i));
 
         fclose(file);
@@ -1519,11 +1519,11 @@ void MLOptimiser::saveFSC() const
 
         FILE* file = fopen(filename, "w");
 
-        for (int i = 1; i < _r * _para.pf; i++)
+        for (int i = 1; i < fsc.size(); i++)
             fprintf(file,
                     "%05d   %10.6lf   %10.6lf\n",
                     i,
-                    1.0 / resP2A(i, _para.size, _para.pixelSize),
+                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
                     fsc(i));
 
         fclose(file);
