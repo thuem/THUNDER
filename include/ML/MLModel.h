@@ -348,29 +348,35 @@ class MLModel : public Parallel
          * This function returns the resolution in pixel of the i-th
          * reference.
          *
-         * @param i the index of the reference
+         * @param i     the index of the reference
+         * @param thres the threshold for determining resolution
          */
-        int resolutionP(const int i) const;
+        int resolutionP(const int i,
+                        const double thres = 0.134) const;
 
         /**
          * This function returns the highest resolution in pixel of the
          * references.
+         *
+         * @param thres the threshold for determining resolution
          */
-        int resolutionP() const;
+        int resolutionP(const double thres = 0.134) const;
 
         /**
          * This function returns the resolution in Angstrom(-1) of the i-th
          * reference.
          *
          * @param i the index of the reference
+         * @param thres the threshold for determining resolution
          */
-        double resolutionA(const int i) const;
+        double resolutionA(const int i,
+                           const double thres = 0.134) const;
 
         /**
          * This function returns the highest resolution in Angstrom(-1) of the
          * references.
          */
-        double resolutionA() const;
+        double resolutionA(const double thres = 0.134) const;
 
         /**
          * This function sets the max radius of all projector to a certain

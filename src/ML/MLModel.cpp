@@ -331,37 +331,39 @@ vec MLModel::tau(const int i) const
     return _tau.col(i);
 }
 
-int MLModel::resolutionP(const int i) const
+int MLModel::resolutionP(const int i,
+                         const double thres) const
 {
     int result;
 
     for (result = _SNR.rows() - 1;
          result >= 0;
          result--)
-        if (_SNR(result, i) > 1) break;
+        if (_SNR(result, i) > thres / (1 - thres)) break;
 
     return result / _pf;
 }
 
-int MLModel::resolutionP() const
+int MLModel::resolutionP(const double thres) const
 {
     int result = 0;
 
     FOR_EACH_CLASS
-        if (result < resolutionP(i))
-            result = resolutionP(i);
+        if (result < resolutionP(i, thres))
+            result = resolutionP(i, thres);
 
     return result;
 }
 
-double MLModel::resolutionA(const int i) const
+double MLModel::resolutionA(const int i,
+                            const double thres) const
 {
-    return resP2A(resolutionP(i), _size, _pixelSize);
+    return resP2A(resolutionP(i, thres), _size, _pixelSize);
 }
 
-double MLModel::resolutionA() const
+double MLModel::resolutionA(const double thres) const
 {
-    return resP2A(resolutionP(), _size, _pixelSize);
+    return resP2A(resolutionP(thres), _size, _pixelSize);
 }
 
 void MLModel::setProjMaxRadius(const int maxRadius)
