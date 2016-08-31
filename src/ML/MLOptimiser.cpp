@@ -1489,6 +1489,10 @@ void MLOptimiser::saveReference()
 
 void MLOptimiser::saveFSC() const
 {
+    if ((_commRank != HEMI_A_LEAD) &&
+        (_commRank != HEMI_B_LEAD))
+        return;
+
     char filename[FILE_NAME_LENGTH];
 
     //mat fsc = _model.fsc();
