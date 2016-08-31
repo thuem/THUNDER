@@ -338,6 +338,8 @@ class MLOptimiser : public Parallel
         void saveLowPassReduceCTFImages();
 
         void saveReference();
+
+        void saveFSC() const;
 };
 
 double logDataVSPrior(const Image& dat,

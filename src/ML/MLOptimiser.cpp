@@ -1484,6 +1484,45 @@ void MLOptimiser::saveReference()
     }
 }
 
+void MLOptimiser::saveFSC() const
+{
+    char filename[FILE_NAME_LENGTH];
+
+    //mat fsc = _model.fsc();
+    vec fsc = _model.fsc(0);
+
+    if (_commRank == HEMI_A_LEAD)
+    {
+        sprintf(filename, "FSC_A_Round_%03d.txt", _iter);
+
+        FILE* file = fopen(filename, "w");
+
+        for (int i = 1; i < _r * _para.pf; i++)
+            fprintf(file,
+                    "%05d   %10.6lf   %10.6lf\n",
+                    i,
+                    1.0 / resP2A(i, _para.size, _para.pixelSize),
+                    fsc(i));
+
+        fclose(file);
+    }
+    else if (_commRank == HEMI_B_LEAD)
+    {
+        sprintf(filename, "FSC_B_Round_%03d.txt", _iter);
+
+        FILE* file = fopen(filename, "w");
+
+        for (int i = 1; i < _r * _para.pf; i++)
+            fprintf(file,
+                    "%05d   %10.6lf   %10.6lf\n",
+                    i,
+                    1.0 / resP2A(i, _para.size, _para.pixelSize),
+                    fsc(i));
+
+        fclose(file);
+    }
+}
+
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
