@@ -306,6 +306,26 @@ void MLModel::lowPassRef(const double thres,
         lowPassFilter(_ref[i], _ref[i], thres, ew);
 }
 
+mat MLModel::fsc() const
+{
+    return _FSC;
+}
+
+mat MLModel::snr() const
+{
+    return _SNR;
+}
+
+vec MLModel::fsc(const int i) const
+{
+    return _FSC.col(i);
+}
+
+vec MLModel::snr(const int i) const
+{
+    return _SNR.col(i);
+}
+
 void MLModel::refreshSNR()
 {
     _SNR.resize(_FSC.rows(), _FSC.cols());

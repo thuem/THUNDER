@@ -327,6 +327,32 @@ class MLModel : public Parallel
                         const double ew);
 
         /**
+         * This function returns the FSCs as each column stands for the FSC of a
+         * reference.
+         */
+        mat fsc() const;
+
+        /**
+         * This function returns the SNRs as each column stands for the SNR of a
+         * reference.
+         */
+        mat snr() const;
+
+        /**
+         * This function returns the FSC of the i-th reference.
+         *
+         * @param i the index of the reference
+         */
+        vec fsc(const int i) const;
+
+        /**
+         * This function returns the SNR of the i-th reference.
+         *
+         * @param i the index of the reference
+         */
+        vec snr(const int i) const;
+
+        /**
          * This function calculates SNR from FSC.
          */
         void refreshSNR();
