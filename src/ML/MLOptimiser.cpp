@@ -521,6 +521,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
+        saveFSC();
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC";
         _model.BcastFSC();
 
