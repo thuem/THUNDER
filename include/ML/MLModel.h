@@ -380,7 +380,7 @@ class MLModel : public Parallel
          * @param thres the threshold for determining resolution
          */
         int resolutionP(const int i,
-                        const double thres = 0.134) const;
+                        const double thres = 0.143) const;
 
         /**
          * This function returns the highest resolution in pixel of the
@@ -388,7 +388,7 @@ class MLModel : public Parallel
          *
          * @param thres the threshold for determining resolution
          */
-        int resolutionP(const double thres = 0.134) const;
+        int resolutionP(const double thres = 0.143) const;
 
         /**
          * This function returns the resolution in Angstrom(-1) of the i-th
@@ -398,13 +398,13 @@ class MLModel : public Parallel
          * @param thres the threshold for determining resolution
          */
         double resolutionA(const int i,
-                           const double thres = 0.134) const;
+                           const double thres = 0.143) const;
 
         /**
          * This function returns the highest resolution in Angstrom(-1) of the
          * references.
          */
-        double resolutionA(const double thres = 0.134) const;
+        double resolutionA(const double thres = 0.143) const;
 
         /**
          * This function sets the max radius of all projector to a certain
