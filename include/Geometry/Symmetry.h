@@ -43,8 +43,9 @@ using namespace std;
 /**
  * This marcos determines whether a direction given by phi and theta belongs to
  * a certain asymmetric unit.
- * @param PG code indicating the symmetry group
- * @param phi phi
+ *
+ * @param PG    code indicating the symmetry group
+ * @param phi   phi
  * @param theta theta
  */
 #define ASY(PG, phi, theta) \
@@ -59,8 +60,8 @@ using namespace std;
 
 /**
  * @ingroup Symmetry
- * @brief Symmetry class can generate and store a vector of transformation
- * matrices according to symmetry group information.
+ * @brief   Symmetry class can generate and store a vector of transformation
+ *          matrices according to symmetry group information.
  */
 class Symmetry
 {
@@ -95,24 +96,42 @@ class Symmetry
 
         /**
          * construct from the ID of symmetry group
+         *
          * @param sym ID of symmetry group
          */
         Symmetry(const char sym[]);
 
         /**
          * construct from the code of point group and the order of point group
+         *
          * @param pgGroup the code of point group
          * @param pgOrder the order of point group
          */
         Symmetry(const int pgGroup,
                  const int pgOrder);
 
+        /**
+         * copy constructor
+         */
         Symmetry(const Symmetry& that);
 
+        /**
+         * default deconstructor
+         */
         ~Symmetry();
 
+        /**
+         * an overwrite of = operator for copying content of a Symmetry object
+         */
         Symmetry& operator=(const Symmetry& that);
 
+        /**
+         * This function initialises by inputing the symmetry code. For example,
+         * C15 stands for a 15-fold symmetry around Z-axis, D5 stands for a
+         * 5-fold symmetry around Z-axis and a 2-fold symmetry around X-axis.
+         *
+         * @param sym the symmetry code
+         */
         void init(const char sym[]);
 
         /**
@@ -128,6 +147,7 @@ class Symmetry
         /**
          * This function gets the left transformation matrix and the right
          * transformation matrix of the ith symmetry element.
+         *
          * @param L the left transformation matrix
          * @param R the right transformation matrix
          * @param i the rank of symmetry element
@@ -149,8 +169,16 @@ class Symmetry
 
     private:
 
+        /**
+         * This function initialises the content.
+         */
         void init();
 
+        /**
+         * This function initialises by input a series of symmetry operations.
+         *
+         * @param entry a series of symmetry operations
+         */
         void init(const vector<SymmetryOperation>& entry);
 
         void append(const mat33& L,
