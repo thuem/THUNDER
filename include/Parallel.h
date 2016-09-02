@@ -49,15 +49,44 @@
  */
 #define NT_MASTER if (_commRank != MASTER_ID)
 
+/**
+ * This macro is a short hand of logging when the current process is the
+ * master process.
+ *
+ * @param LEVEL  level of the log
+ * @param LOGGER logger of the log
+ */
 #define MLOG(LEVEL, LOGGER) \
     IF_MASTER CLOG(LEVEL, LOGGER) << "MASTER: "
 
+/**
+ * This macro is a short hand of logging when the current process is the
+ * leader process of hemisphere A.
+ *
+ * @param LEVEL  level of the log
+ * @param LOGGER logger of the log
+ */
 #define ALOG(LEVEL, LOGGER) \
     if (_commRank == HEMI_A_LEAD) CLOG(LEVEL, LOGGER) << "A_LEAD: "
 
+/**
+ * This macro is a short hand of logging when the current process is the
+ * leader process of hemisphere B.
+ *
+ * @param LEVEL  level of the log
+ * @param LOGGER logger of the log
+ */
 #define BLOG(LEVEL, LOGGER) \
     if (_commRank == HEMI_B_LEAD) CLOG(LEVEL, LOGGER) << "B_LEAD: "
 
+/**
+ * This macro is a short hand of logging when the current process is not the 
+ * master process. Along with this log, the rank ID of the current process 
+ * will be shown.
+ *
+ * @param LEVEL  level of the log
+ * @param LOGGER logger of the log
+ */
 #define ILOG(LEVEL, LOGGER) \
     NT_MASTER CLOG(LEVEL, LOGGER) << "RANK " << _commRank << ": "
 
@@ -66,6 +95,7 @@ class Parallel
     protected:
 
         int _commSize;
+
         int _commRank;
 
         MPI_Comm _hemi;
