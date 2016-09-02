@@ -94,32 +94,78 @@ class Parallel
 {
     protected:
 
+        /**
+         * number of processes in MPI_COMM_WORLD
+         */
         int _commSize;
 
+        /**
+         * the rank ID of the current process in MPI_COMM_WORLD
+         */
         int _commRank;
 
+        /**
+         * communicator of hemisphere A(B)
+         */
         MPI_Comm _hemi;
 
     public:
 
+        /**
+         * default constructor
+         */
         Parallel();
 
+        /**
+         * default deconstructor
+         */
         ~Parallel();
 
+        /**
+         * This function detects the number of processes in MPI_COMM_WORLD and
+         * the rank ID of the current process in MPI_COMM_WORLD. Moreover, it
+         * will assign all process in MPI_COMM_WORLD into three parts: master,
+         * hemisphere A and hemisphere B.
+         */
         void setMPIEnv();
 
+        /**
+         * This function inherits the MPI information by parameters.
+         *
+         * @param commSize the numbber of process in MPI_COMM_WORLD
+         * @param commRank the rank ID of the current process in MPI_COMM_WORLD
+         * @param hemi     the hemisphere of the current process
+         */
         void setMPIEnv(const int commSize,
                        const int commRank,
                        const MPI_Comm& hemi);
 
+        /**
+         * This function returns whether the current process is the master
+         * process or not.
+         */
         bool isMaster() const;
 
+        /**
+         * This function returns whether the current process is in hemisphere A
+         * or not.
+         */
         bool isA() const;
 
+        /**
+         * This function returns whether the current process is in hemisphere B
+         * or not.
+         */
         bool isB() const;
 
+        /**
+         * This function returns the number of processes in MPI_COMM_WORLD.
+         */
         int commSize() const;
 
+        /**
+         * This function sets the number of processes in MPI_COMM_WORLD.
+         */
         void setCommSize(const int commSize);
 
         int commRank() const;
