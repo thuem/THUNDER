@@ -132,8 +132,9 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
         if (entry[i].id == 0)
         {
             // rotation
+
             double angle = 2 * M_PI / entry[i].fold;
-            // printf("angle = %f\n", angle);
+
             for (int j = 1; j < entry[i].fold; j++)
             {
                 rotate3D(R, angle * j, entry[i].axisPlane);
@@ -143,13 +144,15 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
         else if (entry[i].id == 1)
         {
             // reflexion
+
             reflect3D(R, entry[i].axisPlane);
             append(L, R);
         }
         else if (entry[i].id == 2)
         {
-            /* inversion
-             * L -> [ 1  0  0]
+            // inversion
+            
+            /* L -> [ 1  0  0]
              *      [ 0  1  0]
              *      [ 0  0 -1]
              * R -> [-1  0  0]
@@ -158,12 +161,6 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             L(2, 2) = -1;
 
             R = vec3(-1, -1, -1).asDiagonal();
-            /***
-            R.setZero();
-            R(0, 0) = -1;
-            R(1, 1) = -1;
-            R(2, 2) = -1;
-            ***/
 
             append(L, R);
         }
@@ -190,11 +187,6 @@ void Symmetry::completePointGroup()
 {
     umat table = umat::Zero(nSymmetryElement(),
                             nSymmetryElement());
-    /***
-    umat table(nSymmetryElement(),
-               nSymmetryElement(),
-               fill::zeros);
-    ***/
 
     int i, j;
     while ([&]

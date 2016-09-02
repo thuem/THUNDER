@@ -181,25 +181,52 @@ class Symmetry
          */
         void init(const vector<SymmetryOperation>& entry);
 
+        /**
+         * This function adds a left matrix and a right matrix.
+         *
+         * @param L the left matrix
+         * @param R the right matrix
+         */
         void append(const mat33& L,
                     const mat33& R);
 
+        /**
+         * This function sets the i-th left matrix and right matrix.
+         *
+         * @param L the left matrix
+         * @param R the right matrix
+         */
         void set(const mat33& L,
                  const mat33& R,
                  const int i);
-        /* set the ith symmetry element */
 
+        /**
+         * This function fills lefts matrices and right matrices by inputing
+         * a series of symmetry operations.
+         *
+         * @param entry a series of symmetry operations
+         */
         void fillLR(const vector<SymmetryOperation>& entry);
 
+        /**
+         * This function checks whether (L, R) is novo or not.
+         *
+         * @param L the left matrix
+         * @param R the right matrix
+         */
         bool novo(const mat33& L,
                   const mat33& R) const;
-        /* check whether (L, R) is novo or not */
 
+        /**
+         * This function completes the transformation matrices of the certain
+         * point group by searching and assigning the missing part.
+         */
         void completePointGroup();
 };
 
 /**
  * This function displays the content of a Symmetry object.
+ *
  * @param sym the Symmetry object to be displayed
  */
 void display(const Symmetry& sym);
@@ -207,6 +234,7 @@ void display(const Symmetry& sym);
 /**
  * This function determines whether the direction given belongs to a certain
  * asymmetric unit of a point group or not.
+ *
  * @param dir the direction vector
  * @param sym the symmetry group
  */
@@ -216,28 +244,63 @@ bool asymmetryUnit(const vec3 dir,
 /**
  * This function determines whether the direction given by phi and theta
  * belongs to a certain asymmetric unit of a point group or not.
- * @param phi phi
+ *
+ * @param phi   phi
  * @param theta theta
- * @param sym the symmetry group
+ * @param sym   the symmetry group
  */
 bool asymmetryUnit(const double phi,
                    const double theta,
                    const Symmetry& sym);
 
+/**
+ * This function determines whether the direction given by phi and theta belongs
+ * to a certain asymmetric unit of a point group or not.
+ *
+ * @param phi     phi
+ * @param theta   theta
+ * @param pgGroup the code of point group
+ * @param pgOrder the order of point group
+ */
 bool asymmetryUnit(const double phi,
                    const double theta,
                    const int pgGroup,
                    const int pgOrder);
 
+/**
+ * This function changes the direction given by phi and theta to the
+ * corresponding direction belonging to a certain asymetric unit.
+ *
+ * @param phi   phi
+ * @param theta theta
+ * @param sym   the symmetry group
+ */
 void symmetryCounterpart(double& phi,
-                         double& psi,
+                         double& theta,
                          const Symmetry& sym);
 
+/**
+ * This function changes the direction given by a 3-vector to the corresponding
+ * direction belonging to a certain asymetric unit.
+ *
+ * @param ex  the 1st element of the direction vector
+ * @param ey  the 2nd element of the direction vector
+ * @param ez  the 3rd element of the direction vector
+ * @param sym the symmetry group
+ */
 void symmetryCounterpart(double& ex,
                          double& ey,
                          double& ez,
                          const Symmetry& sym);
 
+/**
+ * This function generates all corresponding rotation matrices of a rotation
+ * matrix for a given symmetry group.
+ *
+ * @param sr  the corresponding rotation matrices
+ * @param rot the rotation matrix
+ * @param sym the symmety group
+ */
 void symmetryRotation(vector<mat33>& sr,
                       const mat33 rot,
                       const Symmetry* sym = NULL);
