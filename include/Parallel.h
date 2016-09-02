@@ -165,20 +165,56 @@ class Parallel
 
         /**
          * This function sets the number of processes in MPI_COMM_WORLD.
+         *
+         * @param commSize the number of processes in MPI_COMM_WORLD
          */
         void setCommSize(const int commSize);
 
+        /**
+         * This function returns the rank ID of the current process in
+         * MPI_COMM_WORLD.
+         */
         int commRank() const;
 
+        /**
+         * This function sets the rank ID of the current process in
+         * MPI_COMM_WORLD.
+         *
+         * @param commRank the rank ID of the current process in MPI_COMM_WORLD
+         */
         void setCommRank(const int commRank);
 
+        /**
+         * This function returns the hemisphere of the current process.
+         */
         MPI_Comm hemi() const;
 
+        /**
+         * This function sets the hemisphere of the current process.
+         *
+         * @param hemi the hemisphere of the current process
+         */
         void setHemi(const MPI_Comm& hemi);
 };
 
+/**
+ * This function displays MPI information of a Parallel object.
+ *
+ * @param parallel a Parallel object
+ */
 void display(const Parallel& parallel);
 
+/**
+ * This function is an overwrite of MPI_Recv function for large data
+ * transporting.
+ *
+ * @param buf      the buffer area for receiving data
+ * @param count    the number of the data
+ * @param datatype the type of the data
+ * @param source   the rank ID of the sending process in the communicator
+ * @param tag      the tag of the data
+ * @param comm     the communicator
+ */
 void MPI_Recv_Large(void* buf,
                     size_t count,
                     MPI_Datatype datatype,
@@ -186,6 +222,17 @@ void MPI_Recv_Large(void* buf,
                     int tag,
                     MPI_Comm comm);
 
+/**
+ * This function is an overwrite of MPI_Ssend function for large data
+ * transporting.
+ *
+ * @param buf      the buffer area for sending data
+ * @param count    the number of the data
+ * @param datatype the type of the data
+ * @param dest     the rank ID of the receiving process in the communicator
+ * @param tag      the tag of the data
+ * @param comm     the communicator
+ */
 void MPI_Ssend_Large(const void* buf,
                      size_t count,
                      MPI_Datatype datatype,
@@ -193,12 +240,32 @@ void MPI_Ssend_Large(const void* buf,
                      int tag,
                      MPI_Comm comm);
 
+/**
+ * This function is an overwrite of MPI_Bcast function for large data
+ * transporting.
+ *
+ * @param buf      the buffer area for broadcasting data
+ * @param count    the number of the data
+ * @param datatype the type of the data
+ * @param dest     the rank ID of the root process in the communicator
+ * @param comm     the communicator
+ */
 void MPI_Bcast_Large(void* buf,
                      size_t count,
                      MPI_Datatype datatype,
                      int root,
                      MPI_Comm comm);
 
+/**
+ * This function is an overwrite of MPI_Allreduce function for large data
+ * transporting.
+ *
+ * @param buf      the buffer area of all-reducing data
+ * @param count    the number of the data
+ * @param datatype the type of the data
+ * @param op       the operator of all-reducing
+ * @param comm     the communicator
+ */
 void MPI_Allreduce_Large(void* buf,
                          size_t count,
                          MPI_Datatype datatype,
