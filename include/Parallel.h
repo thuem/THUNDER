@@ -22,14 +22,31 @@
  */
 #define MPI_MAX_BUF 2000000000
 
+/**
+ * rank ID of master process
+ */
 #define MASTER_ID 0
 
+/**
+ * rank ID of the leader process of hemisphere A
+ */
 #define HEMI_A_LEAD 1
 
+/**
+ * rank IF of the leader process of hemisphere B
+ */
 #define HEMI_B_LEAD 2
 
+/**
+ * This macro is a short hand of a condition statement that the current process
+ * is the master process.
+ */
 #define IF_MASTER if (_commRank == MASTER_ID)
 
+/**
+ * This macro is a short hand of a condition statement that the current process
+ * is not the master process.
+ */
 #define NT_MASTER if (_commRank != MASTER_ID)
 
 #define MLOG(LEVEL, LOGGER) \
