@@ -614,7 +614,10 @@ int MLModel::searchType()
                 _nRChangeNoDecrease = 0;
             ***/
 
-            _searchType = _increaseR ? SEARCH_TYPE_LOCAL : SEARCH_TYPE_GLOBAL;
+            _searchType = ((_r == _rGlobal) &&
+                            _increaseR)
+                        ? SEARCH_TYPE_LOCAL
+                        : SEARCH_TYPE_GLOBAL;
         }
     }
 
