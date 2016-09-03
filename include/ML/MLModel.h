@@ -39,7 +39,9 @@
 
 #define A_B_AVERAGE_THRES 20 // Angstrom
 
-#define MAX_ITER_R_CHANGE_NO_DECREASE 2
+#define MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL 2
+
+#define MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL 1
 
 #define MAX_ITER_R_NO_IMPROVE 2
 
@@ -106,6 +108,11 @@ class MLModel : public Parallel
          * frequency for reconstruction and calculating FSC, SNR 
          */
         int _rU;
+
+        /**
+         * frequency of the previous iteration
+         */
+        int _rPrev = 0;
 
         /**
          * the top frequency ever reached
@@ -195,6 +202,11 @@ class MLModel : public Parallel
          * the suggest search type
          */
         int _searchType = 0;
+
+        /**
+         * whether the frequency should be increased or not
+         */
+        bool _increaseR = false;
 
     public:
 
@@ -470,6 +482,12 @@ class MLModel : public Parallel
         double rChange() const;
 
         /**
+         * This function returns the average rotation change between the
+         * previous two iterations.
+         */
+        double rChangePrev() const;
+
+        /**
          * This function returns the standard deviation of the rotation change
          * between iterations.
          */
@@ -499,11 +517,23 @@ class MLModel : public Parallel
         int searchType();
 
         /**
+         * This function returns whether to increase cutoff frequency or not.
+         */
+        bool increaseR() const;
+
+        /**
          * This function clears up references, projectors and reconstructors.
          */
         void clear();
 
     private:
+
+        /**
+         * This function checks whether rotation change has room for decreasing
+         * or not at current frequency. If there is still room, return false,
+         * otherwise, return true.
+         */
+        bool determineIncreaseR();
 
         /**
          * This function update the frequency for reconstruction and calculating
