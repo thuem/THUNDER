@@ -693,4 +693,3 @@ void MLModel::updateRU()
                                   AROUND((double)_size / 32)),
                       maxR());
 }
-
