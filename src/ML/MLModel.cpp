@@ -432,17 +432,6 @@ void MLModel::updateR(const double thres)
                     _r = GSL_MIN_INT(_rGlobal, _r);
 
                 updateRU();
-            /***
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-            {
-                _r += GSL_MIN_INT(MAX_GAP_GLOBAL, AROUND(double(_size) / 16));
-                _r = GSL_MIN_INT(_rGlobal, _r);
-            }
-            else
-                _r += GSL_MIN_INT(MAX_GAP_LOCAL, AROUND(double(_size) / 16));
-
-            _r = GSL_MIN_INT(_r, maxR());
-            ***/
 
                 return;
             }
@@ -569,6 +558,16 @@ void MLModel::setStdRChange(const double stdRChange)
     _stdRChangePrev = _stdRChange;
 
     _stdRChange = stdRChange;
+}
+
+int MLModel::nRChangeNoDecrease() const
+{
+    return _nRChangeNoDecrease;
+}
+
+void MLModel::setNRChangeNoDecrease(const int nRChangeNoDecrease)
+{
+    _nRChangeNoDecrease = nRChangeNoDecrease;
 }
 
 int MLModel::searchType()

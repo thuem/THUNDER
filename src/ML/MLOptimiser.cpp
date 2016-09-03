@@ -556,6 +556,14 @@ void MLOptimiser::run()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
 
+        if (_model.increaseR())
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
+
+            _model.setRChange(1);
+            _model.setNRChangeNoDecrease(0);
+        }
+
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
                                    << " (Spatial), "

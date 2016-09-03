@@ -512,6 +512,21 @@ class MLModel : public Parallel
         void setStdRChange(const double stdRChange);
 
         /**
+         * This function returns the number of iterations that rotation change
+         * between iterations does not decrease.
+         */
+        int nRChangeNoDecrease() const;
+
+        /**
+         * This function sets the number of iterations that rotation change
+         * between iterations does not decrease.
+         *
+         * @param nRChangeNoDecrease the number of iterations that rotation
+         *                           change between iterations does not decrease
+         */
+        void setNRChangeNoDecrease(const int nRChangeNoDecrease);
+
+        /**
          * This function returns the suggested search type.
          */
         int searchType();
