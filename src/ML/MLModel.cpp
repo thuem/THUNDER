@@ -667,6 +667,11 @@ bool MLModel::increaseR() const
     return _increaseR;
 }
 
+void MLModel::setIncreaseR(const bool increaseR)
+{
+    _increaseR = increaseR;
+}
+
 void MLModel::clear()
 {
     _ref.clear();

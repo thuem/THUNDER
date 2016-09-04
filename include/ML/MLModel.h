@@ -549,6 +549,13 @@ class MLModel : public Parallel
         bool increaseR() const;
 
         /**
+         * This function sets whether to increase cutoff frequency or not.
+         *
+         * @param increaseR increase cutoff increase or not
+         */
+        void setIncreaseR(const bool increaseR);
+
+        /**
          * This function clears up references, projectors and reconstructors.
          */
         void clear();
