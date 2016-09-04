@@ -545,7 +545,7 @@ void MLOptimiser::run()
                                    << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
         _model.updateR();
         _r = _model.r();
 

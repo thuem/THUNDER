@@ -428,6 +428,9 @@ void MLModel::updateR(const double thres)
 
     if ([&]()
         {
+            MLOG(INFO, "LOGGER_SYS") << "_r = " << _r;
+            MLOG(INFO, "LOGGER_SYS") << "_searchType = " << _searchType;
+
             if ((_r == _rGlobal) &&
                 (_searchType == SEARCH_TYPE_GLOBAL))
             {
@@ -579,7 +582,7 @@ void MLModel::resetRChange()
     
     _rChange = 1;
 
-    _stdRChange = 1;
+    _stdRChange = 0;
 }
 
 void MLModel::setStdRChange(const double stdRChange)
