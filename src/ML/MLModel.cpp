@@ -578,6 +578,8 @@ void MLModel::resetRChange()
     _rChangePrev = 1;
     
     _rChange = 1;
+
+    _stdRChange = 1;
 }
 
 void MLModel::setStdRChange(const double stdRChange)

@@ -175,7 +175,7 @@ class MLModel : public Parallel
          * a parameter indicating the standard deviation of rotation between
          * iterations
          */
-        double _stdRChange = 0;
+        double _stdRChange = 1;
 
         /**
          * a parameter indicating the standard deviation of rotation between
