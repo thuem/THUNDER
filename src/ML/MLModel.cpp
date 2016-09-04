@@ -430,9 +430,17 @@ void MLModel::updateR(const double thres)
         {
             if ((_r == _rGlobal) &&
                 (_searchType == SEARCH_TYPE_GLOBAL))
+            {
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.05";
+
                 return determineIncreaseR(0.05);
+            }
             else
+            {
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.5";
+
                 return determineIncreaseR(0.5);
+            }
         }())
     {
         FOR_EACH_CLASS

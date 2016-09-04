@@ -561,7 +561,7 @@ void MLOptimiser::run()
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 
-            _model.setRChange(1);
+            _model.resetRChange();
             _model.setNRChangeNoDecrease(0);
         }
 
