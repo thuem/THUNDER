@@ -432,7 +432,7 @@ void MLModel::updateR(const double thres)
                 (_searchType == SEARCH_TYPE_GLOBAL))
                 return determineIncreaseR(0.02);
             else
-                return determineIncreaseR(0.1);
+                return determineIncreaseR(0.2);
         }())
     {
         FOR_EACH_CLASS
