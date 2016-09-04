@@ -554,7 +554,7 @@ class MLModel : public Parallel
          * or not at current frequency. If there is still room, return false,
          * otherwise, return true.
          */
-        bool determineIncreaseR();
+        bool determineIncreaseR(const double rChangeDecreaseFactor = 0.02);
 
         /**
          * This function update the frequency for reconstruction and calculating

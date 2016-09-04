@@ -648,11 +648,13 @@ void MLModel::clear()
     _reco.clear();
 }
 
-bool MLModel::determineIncreaseR()
+bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 {
     IF_MASTER
     {
-        if ((_rChange > _rChangePrev - 0.02 * _stdRChangePrev) &&
+        if ((_rChange > _rChangePrev
+                      - rChangeDecreaseFactor
+                      * _stdRChangePrev) &&
             (_r <= _rPrev))
         {
             // When the frequency remains the same as the last iteration, check
