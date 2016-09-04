@@ -565,6 +565,13 @@ void MLModel::setRChange(const double rChange)
     _rChange = rChange;
 }
 
+void MLModel::resetRChange()
+{
+    _rChangePrev = 1;
+    
+    _rChange = 1;
+}
+
 void MLModel::setStdRChange(const double stdRChange)
 {
     _stdRChangePrev = _stdRChange;
@@ -659,10 +666,9 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 {
     IF_MASTER
     {
-        if ((_rChange > _rChangePrev
-                      - rChangeDecreaseFactor
-                      * _stdRChangePrev) &&
-            (_r <= _rPrev))
+        if (_rChange > _rChangePrev
+                     - rChangeDecreaseFactor
+                     * _stdRChangePrev)
         {
             // When the frequency remains the same as the last iteration, check
             // whether there is a decrease of rotation change.

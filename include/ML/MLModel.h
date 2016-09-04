@@ -509,6 +509,12 @@ class MLModel : public Parallel
         void setRChange(const double rChange);
 
         /**
+         * This function resets the mean value of rotation change and the
+         * previous rotation change to 1.
+         */
+        void resetRChange();
+
+        /**
          * This function sets the standard deviation of rotation change. This
          * function will automatically save the previous standard devation of
          * rotation change to another attribute.
