@@ -122,6 +122,11 @@ int MLModel::rU() const
     return _rU;
 }
 
+int MLModel::rPrev() const
+{
+    return _rPrev;
+}
+
 int MLModel::rGlobal() const
 {
     return _rGlobal;

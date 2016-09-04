@@ -556,7 +556,8 @@ void MLOptimiser::run()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
 
-        if (_model.increaseR())
+        if ((_r > _model.rPrev()) &&
+            _model.increaseR())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 

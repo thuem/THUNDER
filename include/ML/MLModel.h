@@ -294,6 +294,12 @@ class MLModel : public Parallel
         int rU() const;
 
         /**
+         * This function returns the frequency before padding (in pixel) of the
+         * previous iteration.
+         */
+        int rPrev() const;
+
+        /**
          * This function returns the upper boundary frequency during global
          * search before padding (in pixel).
          */
