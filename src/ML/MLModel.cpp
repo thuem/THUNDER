@@ -426,7 +426,14 @@ void MLModel::updateR(const double thres)
     // record the frequency
     _rPrev = _r;
 
-    if (determineIncreaseR())
+    if ([&]()
+        {
+            if ((_r == _rGlobal) &&
+                (_searchType == SEARCH_TYPE_GLOBAL))
+                return determineIncreaseR(0.02);
+            else
+                return determineIncreaseR(0.1);
+        }())
     {
         FOR_EACH_CLASS
             if (_FSC.col(i)(_pf * _rU - 1) > thres)
