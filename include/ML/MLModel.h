@@ -47,6 +47,8 @@
 
 #define PERTURB_FACTOR 100
 
+#define N_SAVE_IMG 20
+
 using namespace std;
 
 class MLModel : public Parallel
