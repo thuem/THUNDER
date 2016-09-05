@@ -1101,7 +1101,12 @@ void MLOptimiser::initSigma()
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
     {
-        psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
+        psAvg(i) = ringAverage(i,
+                               avg,
+                               [](const Complex x)
+                               {
+                                   return REAL(x) + IMAG(x);
+                               });
         psAvg(i) = gsl_pow_2(psAvg(i));
     }
 
