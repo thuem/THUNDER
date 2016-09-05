@@ -180,6 +180,17 @@
  */
 #define WG_SINC(w, x0, x) WG_INTERP(SINC, w, x0, x)
 
+/**
+ * This macro determines the weights of four sampling points and the coordinate
+ * of the first sampling point during 2D interpolation given the coordinate of
+ * interpolation point.
+ *
+ * @param INTERP the type of interpolation
+ * @param w      2-2-array indicating the weights
+ * @param x0     2-array indicating the nearest grid point of the interpolation
+ *               point
+ * @param x      2-array indicating the interpolation point
+ */
 #define W_BI_INTERP(INTERP, w, xd) \
     [](double _w[2][2], const double _xd[2]) \
     { \
