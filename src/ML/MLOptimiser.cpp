@@ -565,7 +565,7 @@ void MLOptimiser::run()
             _model.setIncreaseR(false);
         }
 
-        if (_r > _model.rT)
+        if (_r > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
 
