@@ -442,7 +442,7 @@ void MLModel::updateR(const double thres)
             {
                 MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.5";
 
-                return determineIncreaseR(0.5);
+                return determineIncreaseR(0.3);
             }
         }())
     {
