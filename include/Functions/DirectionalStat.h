@@ -23,7 +23,8 @@
 using namespace std;
 
 /**
- * Probabilty Density Function of Angular Central Gaussian distribution.
+ * Probabilty Density Function of Angular Central Gaussian Distribution
+ *
  * @param x a quaternion
  * @param sig a symmetric positive definite parameter matrix
  */
