@@ -11,22 +11,22 @@
 #ifndef POINT_GROUP_H
 #define POINT_GROUP_H
 
-#define PG_CI  200
-#define PG_CS  201
-#define PG_CN  202
-#define PG_CNV 203
-#define PG_CNH 204
-#define PG_SN  205
-#define PG_DN  206
-#define PG_DNV 207
-#define PG_DNH 208
-#define PG_T   209
-#define PG_TD  210
-#define PG_TH  211
-#define PG_O   212
-#define PG_OH  213
-#define PG_I   214
-#define PG_IH  215
+#define PG_CI   200
+#define PG_CS   201
+#define PG_CN   202
+#define PG_CNV  203
+#define PG_CNH  204
+#define PG_SN   205
+#define PG_DN   206
+#define PG_DNV  207
+#define PG_DNH  208
+#define PG_T    209
+#define PG_TD   210
+#define PG_TH   211
+#define PG_O    212
+#define PG_OH   213
+#define PG_I    214
+#define PG_IH   215
 
 #define PG_I1   216 
 #define PG_I2   217
