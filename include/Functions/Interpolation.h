@@ -134,6 +134,11 @@
  * This macro determines the weights of two sampling points and the coordinate
  * of the first sampling point during 1D interpolation given the coordinate of
  * interpolation point.
+ *
+ * @param INTERP the type of interpolation
+ * @param w      2-array indicating the weights
+ * @param x0     the nearest grid point of the interpolation point
+ * @param x      the interpolation point
  */
 #define WG_INTERP(INTERP, w, x0, x) \
     [](double _w[2], int& _x0, const double _x) \
@@ -142,10 +147,37 @@
         W_##INTERP(_w, _x - _x0); \
     }(w, x0, x)
 
+/**
+ * This macro determines the weights of two sampling points and the coordinate
+ * of the first sampling point during 1D interpolation given the coordinate of
+ * interpolation point using nearest point interpolation.
+ *
+ * @param w      2-array indicating the weights
+ * @param x0     the nearest grid point of the interpolation point
+ * @param x      the interpolation point
+ */
 #define WG_NEAREST(w, x0, x) WG_INTERP(NEAREST, w, x0, x)
 
+/**
+ * This macro determines the weights of two sampling points and the coordinate
+ * of the first sampling point during 1D interpolation given the coordinate of
+ * interpolation point using linear interpolation.
+ *
+ * @param w      2-array indicating the weights
+ * @param x0     the nearest grid point of the interpolation point
+ * @param x      the interpolation point
+ */
 #define WG_LINEAR(w, x0, x) WG_INTERP(LINEAR, w, x0, x)
 
+/**
+ * This macro determines the weights of two sampling points and the coordinate
+ * of the first sampling point during 1D interpolation given the coordinate of
+ * interpolation point using sinc interpolation.
+ *
+ * @param w      2-array indicating the weights
+ * @param x0     the nearest grid point of the interpolation point
+ * @param x      the interpolation point
+ */
 #define WG_SINC(w, x0, x) WG_INTERP(SINC, w, x0, x)
 
 #define W_BI_INTERP(INTERP, w, xd) \
