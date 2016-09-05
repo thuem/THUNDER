@@ -563,6 +563,8 @@ void MLOptimiser::run()
             _model.resetRChange();
             _model.setNRChangeNoDecrease(0);
             _model.setIncreaseR(false);
+
+            _model.setRT(_r);
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "

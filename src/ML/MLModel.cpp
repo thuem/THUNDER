@@ -627,10 +627,7 @@ int MLModel::searchType()
             if (_increaseR)
             {
                 if (_r > _rT)
-                {
-                    _rT = _r;
                     _nRNoImprove = 0;
-                }
                 else
                     _nRNoImprove += 1;
 
