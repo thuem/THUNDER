@@ -164,7 +164,7 @@ class Reconstructor : public Parallel
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _a = 0.95;
+        double _a = 1.9;
 
         /**
          * The smoothness parameter. Parameter of modified Kaiser-Bessel Kernel.
@@ -177,7 +177,7 @@ class Reconstructor : public Parallel
         double _zeta = 0.15;
         
         /**
-         * NTD
+         * the blob kernel stored as a tabular function
          */
         TabFunction _kernel;
 
