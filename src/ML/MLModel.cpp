@@ -127,6 +127,16 @@ int MLModel::rPrev() const
     return _rPrev;
 }
 
+int MLModel::rT() const
+{
+    return _rT;
+}
+
+void MLModel::setRT(const int rT)
+{
+    _rT = rT;
+}
+
 int MLModel::rGlobal() const
 {
     return _rGlobal;

@@ -300,6 +300,18 @@ class MLModel : public Parallel
         int rPrev() const;
 
         /**
+         * This function returns the highest frequency ever reached.
+         */
+        int rT() const;
+
+        /**
+         * This function sets the highest frequency ever reached.
+         *
+         * @param rT the highest frequency ever reached
+         */
+        void setRT(const int rT);
+
+        /**
          * This function returns the upper boundary frequency during global
          * search before padding (in pixel).
          */
