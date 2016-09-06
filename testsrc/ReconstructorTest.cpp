@@ -17,7 +17,7 @@
 #include "Timer.h"
 
 #define N 256
-#define M 16
+#define M 32
 //#define M 16
 
 using namespace std;
