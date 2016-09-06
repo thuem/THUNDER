@@ -545,9 +545,32 @@ void MLOptimiser::run()
                                    << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency: ";
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
         _model.updateR();
         _r = _model.r();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+                                   << _model.increaseR()
+                                   << ", as the Rotation Change is "
+                                   << _model.rChange()
+                                   << " and the Previous Rotation Change is "
+                                   << _model.rChangePrev();
+
+        if (_r > _model.rPrev())
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
+
+            _model.resetRChange();
+            _model.setNRChangeNoDecrease(0);
+            _model.setIncreaseR(false);
+        }
+
+        if (_r > _model.rT())
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
+
+            _model.setRT(_r);
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
                                    << _r - 1
@@ -1085,7 +1108,12 @@ void MLOptimiser::initSigma()
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
     {
-        psAvg(i) = ringAverage(i, avg, [](const Complex x){ return REAL(x) + IMAG(x); });
+        psAvg(i) = ringAverage(i,
+                               avg,
+                               [](const Complex x)
+                               {
+                                   return REAL(x) + IMAG(x);
+                               });
         psAvg(i) = gsl_pow_2(psAvg(i));
     }
 
@@ -1315,7 +1343,7 @@ void MLOptimiser::saveBestProjections()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 100)
+        if (_ID[l] < N_SAVE_IMG)
         {
             SET_0_FT(result);
             SET_0_FT(diff);
@@ -1350,7 +1378,7 @@ void MLOptimiser::saveImages()
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 100)
+        if (_ID[l] < N_SAVE_IMG)
         {
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
@@ -1374,7 +1402,7 @@ void MLOptimiser::saveReduceCTFImages()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 100)
+        if (_ID[l] < N_SAVE_IMG)
         {
             reduceCTF(img, _img[l], _ctf[l], maxR());
 
@@ -1400,7 +1428,7 @@ void MLOptimiser::saveLowPassImages()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 100)
+        if (_ID[l] < N_SAVE_IMG)
         {
             lowPassFilter(img, _img[l], _para.pixelSize / 20, 1.0 / _para.size);
 
@@ -1426,7 +1454,7 @@ void MLOptimiser::saveLowPassReduceCTFImages()
 
     FOR_EACH_2D_IMAGE
     {
-        if (_ID[l] < 100)
+        if (_ID[l] < N_SAVE_IMG)
         {
             reduceCTF(img, _img[l], _ctf[l], maxR());
 

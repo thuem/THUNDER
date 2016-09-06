@@ -122,6 +122,21 @@ int MLModel::rU() const
     return _rU;
 }
 
+int MLModel::rPrev() const
+{
+    return _rPrev;
+}
+
+int MLModel::rT() const
+{
+    return _rT;
+}
+
+void MLModel::setRT(const int rT)
+{
+    _rT = rT;
+}
+
 int MLModel::rGlobal() const
 {
     return _rGlobal;
@@ -418,36 +433,49 @@ void MLModel::refreshReco()
 
 void MLModel::updateR(const double thres)
 {
-    FOR_EACH_CLASS
-        if (_FSC.col(i)(_pf * _rU - 1) > thres)
+    // record the frequency
+    _rPrev = _r;
+
+    if ([&]()
         {
-            _r = _rU;
+            MLOG(INFO, "LOGGER_SYS") << "_r = " << _r;
+            MLOG(INFO, "LOGGER_SYS") << "_searchType = " << _searchType;
 
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-                _r = GSL_MIN_INT(_rGlobal, _r);
-
-            updateRU();
-            /***
-            if (_searchType == SEARCH_TYPE_GLOBAL)
+            if ((_r == _rGlobal) &&
+                (_searchType == SEARCH_TYPE_GLOBAL))
             {
-                _r += GSL_MIN_INT(MAX_GAP_GLOBAL, AROUND(double(_size) / 16));
-                _r = GSL_MIN_INT(_rGlobal, _r);
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.05";
+
+                return determineIncreaseR(0.05);
             }
             else
-                _r += GSL_MIN_INT(MAX_GAP_LOCAL, AROUND(double(_size) / 16));
+            {
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.5";
 
-            _r = GSL_MIN_INT(_r, maxR());
-            ***/
+                return determineIncreaseR(0.3);
+            }
+        }())
+    {
+        FOR_EACH_CLASS
+            if (_FSC.col(i)(_pf * _rU - 1) > thres)
+            {
+                _r = _rU;
 
-            return;
-        }
+                if (_searchType == SEARCH_TYPE_GLOBAL)
+                    _r = GSL_MIN_INT(_rGlobal, _r);
 
-    _r = resolutionP(thres) + 1;
+                updateRU();
 
-    if (_searchType == SEARCH_TYPE_GLOBAL)
-        _r = GSL_MIN_INT(_rGlobal, _r);
+                return;
+            }
+
+        _r = resolutionP(thres) + 1;
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+            _r = GSL_MIN_INT(_rGlobal, _r);
     
-    updateRU();
+        updateRU();
+    }
 
     /***
     _rU += GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL);
@@ -541,6 +569,11 @@ double MLModel::rChange() const
     return _rChange;
 }
 
+double MLModel::rChangePrev() const
+{
+    return _rChangePrev;
+}
+
 double MLModel::stdRChange() const
 {
     return _stdRChange;
@@ -553,11 +586,30 @@ void MLModel::setRChange(const double rChange)
     _rChange = rChange;
 }
 
+void MLModel::resetRChange()
+{
+    _rChangePrev = 1;
+    
+    _rChange = 1;
+
+    _stdRChange = 0;
+}
+
 void MLModel::setStdRChange(const double stdRChange)
 {
     _stdRChangePrev = _stdRChange;
 
     _stdRChange = stdRChange;
+}
+
+int MLModel::nRChangeNoDecrease() const
+{
+    return _nRChangeNoDecrease;
+}
+
+void MLModel::setNRChangeNoDecrease(const int nRChangeNoDecrease)
+{
+    _nRChangeNoDecrease = nRChangeNoDecrease;
 }
 
 int MLModel::searchType()
@@ -572,17 +624,17 @@ int MLModel::searchType()
         // there is not, stop the search.
         IF_MASTER
         {
-            if (_r > _rT)
+            if (_increaseR)
             {
-                _rT = _r;
-                _nRNoImprove = 0;
-            }
-            else
-                _nRNoImprove += 1;
+                if (_r > _rT)
+                    _nRNoImprove = 0;
+                else
+                    _nRNoImprove += 1;
 
-            _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
-                        ? SEARCH_TYPE_STOP
-                        : SEARCH_TYPE_LOCAL;
+                _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
+                            ? SEARCH_TYPE_STOP
+                            : SEARCH_TYPE_LOCAL;
+            }
         }
     }
     else
@@ -591,14 +643,16 @@ int MLModel::searchType()
         // beteween iterations still gets room for improvement.
         IF_MASTER
         {
+            /***
             if ((_rChange > _rChangePrev - 0.02 * _stdRChangePrev) &&
                 (_r == _rGlobal) &&
                 (_rChange < 0.01))
                 _nRChangeNoDecrease += 1;
             else
                 _nRChangeNoDecrease = 0;
+            ***/
 
-            _searchType = (_nRChangeNoDecrease >= MAX_ITER_R_CHANGE_NO_DECREASE)
+            _searchType = ((_r == _rGlobal) && _increaseR)
                         ? SEARCH_TYPE_LOCAL
                         : SEARCH_TYPE_GLOBAL;
         }
@@ -615,12 +669,66 @@ int MLModel::searchType()
     return _searchType;
 }
 
+bool MLModel::increaseR() const
+{
+    return _increaseR;
+}
+
+void MLModel::setIncreaseR(const bool increaseR)
+{
+    _increaseR = increaseR;
+}
+
 void MLModel::clear()
 {
     _ref.clear();
 
     _proj.clear();
     _reco.clear();
+}
+
+bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
+{
+    IF_MASTER
+    {
+        if (_rChange > _rChangePrev
+                     - rChangeDecreaseFactor
+                     * _stdRChangePrev)
+        {
+            // When the frequency remains the same as the last iteration, check
+            // whether there is a decrease of rotation change.
+            _nRChangeNoDecrease += 1;
+        }
+        else
+            _nRChangeNoDecrease = 0;
+
+        switch (_searchType)
+        {
+            case SEARCH_TYPE_STOP:
+                _increaseR = false;
+                break;
+
+            case SEARCH_TYPE_GLOBAL:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL);
+                break;
+
+            case SEARCH_TYPE_LOCAL:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
+                break;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(&_increaseR,
+              1,
+              MPI_C_BOOL,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    return _increaseR;
 }
 
 void MLModel::updateRU()
@@ -630,4 +738,3 @@ void MLModel::updateRU()
                                   AROUND((double)_size / 32)),
                       maxR());
 }
-

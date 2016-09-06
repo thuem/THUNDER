@@ -137,7 +137,7 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < N_ITER_BALANCE; i++)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;

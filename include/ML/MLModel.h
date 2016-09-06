@@ -39,11 +39,15 @@
 
 #define A_B_AVERAGE_THRES 20 // Angstrom
 
-#define MAX_ITER_R_CHANGE_NO_DECREASE 2
+#define MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL 2
+
+#define MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL 1
 
 #define MAX_ITER_R_NO_IMPROVE 2
 
 #define PERTURB_FACTOR 100
+
+#define N_SAVE_IMG 20
 
 using namespace std;
 
@@ -106,6 +110,11 @@ class MLModel : public Parallel
          * frequency for reconstruction and calculating FSC, SNR 
          */
         int _rU;
+
+        /**
+         * frequency of the previous iteration
+         */
+        int _rPrev = 0;
 
         /**
          * the top frequency ever reached
@@ -196,6 +205,11 @@ class MLModel : public Parallel
          */
         int _searchType = 0;
 
+        /**
+         * whether the frequency should be increased or not
+         */
+        bool _increaseR = false;
+
     public:
 
         /**
@@ -280,6 +294,24 @@ class MLModel : public Parallel
          * calculating FSC, SNR.
          */
         int rU() const;
+
+        /**
+         * This function returns the frequency before padding (in pixel) of the
+         * previous iteration.
+         */
+        int rPrev() const;
+
+        /**
+         * This function returns the highest frequency ever reached.
+         */
+        int rT() const;
+
+        /**
+         * This function sets the highest frequency ever reached.
+         *
+         * @param rT the highest frequency ever reached
+         */
+        void setRT(const int rT);
 
         /**
          * This function returns the upper boundary frequency during global
@@ -470,6 +502,12 @@ class MLModel : public Parallel
         double rChange() const;
 
         /**
+         * This function returns the average rotation change between the
+         * previous two iterations.
+         */
+        double rChangePrev() const;
+
+        /**
          * This function returns the standard deviation of the rotation change
          * between iterations.
          */
@@ -485,6 +523,12 @@ class MLModel : public Parallel
         void setRChange(const double rChange);
 
         /**
+         * This function resets the mean value of rotation change and the
+         * previous rotation change to 1.
+         */
+        void resetRChange();
+
+        /**
          * This function sets the standard deviation of rotation change. This
          * function will automatically save the previous standard devation of
          * rotation change to another attribute.
@@ -494,9 +538,36 @@ class MLModel : public Parallel
         void setStdRChange(const double stdRChange);
 
         /**
+         * This function returns the number of iterations that rotation change
+         * between iterations does not decrease.
+         */
+        int nRChangeNoDecrease() const;
+
+        /**
+         * This function sets the number of iterations that rotation change
+         * between iterations does not decrease.
+         *
+         * @param nRChangeNoDecrease the number of iterations that rotation
+         *                           change between iterations does not decrease
+         */
+        void setNRChangeNoDecrease(const int nRChangeNoDecrease);
+
+        /**
          * This function returns the suggested search type.
          */
         int searchType();
+
+        /**
+         * This function returns whether to increase cutoff frequency or not.
+         */
+        bool increaseR() const;
+
+        /**
+         * This function sets whether to increase cutoff frequency or not.
+         *
+         * @param increaseR increase cutoff increase or not
+         */
+        void setIncreaseR(const bool increaseR);
 
         /**
          * This function clears up references, projectors and reconstructors.
@@ -504,6 +575,13 @@ class MLModel : public Parallel
         void clear();
 
     private:
+
+        /**
+         * This function checks whether rotation change has room for decreasing
+         * or not at current frequency. If there is still room, return false,
+         * otherwise, return true.
+         */
+        bool determineIncreaseR(const double rChangeDecreaseFactor = 0.02);
 
         /**
          * This function update the frequency for reconstruction and calculating

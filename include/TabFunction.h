@@ -25,6 +25,7 @@ class TabFunction
         std::unique_ptr<double[]> _tab;
 
         double _a = 0;
+
         double _b = 0;
 
         double _s = 0;
@@ -33,8 +34,14 @@ class TabFunction
 
 	public:
 
+        /**
+         * default constructor
+         */
         TabFunction();
         
+        /*
+         * default deconstructor
+         */
         ~TabFunction();
         
         TabFunction(function<double(const double)> func,
