@@ -40,9 +40,9 @@ void Reconstructor::init(const int size,
     _zeta = zeta;
 
     // initialise the interpolation kernel
-    _kernel.init(bind(MKB_FT, _1, _pf * _a, _alpha),
+    _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
                  0,
-                 _pf * _a,
+                 gsl_pow_2(_pf * _a),
                  1e5);
 
     _maxRadius = (_size / 2 - a);

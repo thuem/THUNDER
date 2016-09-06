@@ -96,7 +96,6 @@ double MKB_FT_R2(const double r2,
          / gsl_sf_bessel_In(2, alpha);
 }
 
-
 double MKB_RL(const double r,
               const double a,
               const double alpha)
