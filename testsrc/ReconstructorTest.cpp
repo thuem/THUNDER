@@ -16,7 +16,7 @@
 #include "ImageFile.h"
 #include "Timer.h"
 
-#define N 380
+#define N 256
 #define M 16
 //#define M 16
 
