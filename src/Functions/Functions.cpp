@@ -76,13 +76,26 @@ double MKB_FT(const double r,
 {
     double u = r / a;
 
-    if (u > 1)
-        return 0;
+    if (u > 1) return 0;
 
     return (1 - gsl_pow_2(u))
          * gsl_sf_bessel_In(2, alpha * sqrt(1 - gsl_pow_2(u)))
          / gsl_sf_bessel_In(2, alpha);
 }
+
+double MKB_FT_R2(const double r2,
+                 const double a,
+                 const double alpha)
+{
+    double u2 = r2 / gsl_pow_2(a);
+
+    if (u2 > 1) return 0;
+
+    return (1 - u2)
+         * gsl_sf_bessel_In(2, alpha * sqrt(1 - u2))
+         / gsl_sf_bessel_In(2, alpha);
+}
+
 
 double MKB_RL(const double r,
               const double a,

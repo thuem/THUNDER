@@ -230,10 +230,12 @@ void Volume::addFT(const Complex value,
                    const double a,
                    const TabFunction& kernel)
 {
+    double a2 = gsl_pow_2(a);
+
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-        if (r < a) addFT(value * kernel(r), i, j, k);
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < a2) addFT(value * kernel(r2), i, j, k);
     }
 }
 
@@ -244,10 +246,12 @@ void Volume::addFT(const double value,
                    const double a,
                    const TabFunction& kernel)
 {
+    double a2 = gsl_pow_2(a);
+
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-        if (r < a) addFT(value * kernel(r), i, j, k);
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < a2) addFT(value * kernel(r2), i, j, k);
     }
 }
 

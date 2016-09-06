@@ -390,7 +390,8 @@ class Volume : public ImageBase
          * @param iSlc the index of the slice of this unregular voxel in
          *             real space
          * @param a the radius of the blob
-         * @param kernel a tabular function indicating the kernel
+         * @param kernel a tabular function indicating the kernel which is a
+         *               function of only one parameter, the square of radius
          */
         void addFT(const Complex value,
                    const double iCol,
@@ -411,7 +412,8 @@ class Volume : public ImageBase
          * @param iSlc the index of the slice of this unregular voxel in
          *             real space
          * @param a the radius of the blob
-         * @param kernel a tabular function indicating the kernel
+         * @param kernel a tabular function indicating the kernel which is a
+         *               function of only one paramter, the square of radius
          */
         void addFT(const double value,
                    const double iCol,
