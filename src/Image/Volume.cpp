@@ -151,7 +151,7 @@ void Volume::addFT(const double value,
     int index = iFT(conj, iCol, iRow, iSlc);
 
     #pragma omp atomic
-    _dataFT[index].dat[0] += val;
+    _dataFT[index].dat[0] += value;
 }
 
 double Volume::getByInterpolationRL(const double iCol,
@@ -204,8 +204,8 @@ void Volume::addFT(const Complex value,
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
-        if (r2 < gsl_pow_2(a)) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
     }
 }
 
@@ -218,8 +218,8 @@ void Volume::addFT(const double value,
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
-        if (r2 < gsl_pow_2(a)) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
     }
 }
 
@@ -232,8 +232,8 @@ void Volume::addFT(const Complex value,
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
-        if (r2 < gsl_pow_2(a)) addFT(value * kernel(r), i, j, k);
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * kernel(r), i, j, k);
     }
 }
 
@@ -246,8 +246,8 @@ void Volume::addFT(const double value,
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
-        if (r2 < gsl_pow_2(a)) addFT(value * kernel(r), i, j, k);
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * kernel(r), i, j, k);
     }
 }
 
