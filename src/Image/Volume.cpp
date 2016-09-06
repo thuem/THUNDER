@@ -131,8 +131,6 @@ void Volume::addFT(const Complex value,
                    int iRow,
                    int iSlc)
 {
-    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
-
     bool conj;
     int index = iFT(conj, iCol, iRow, iSlc);
 
