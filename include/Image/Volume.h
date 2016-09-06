@@ -282,6 +282,20 @@ class Volume : public ImageBase
                    int iSlc);
 
         /**
+         * This function addes the real part on a voxel in Fourier space at a
+         * given coordinate.
+         *
+         * @param value the real part of the voxel
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in real space
+         */
+        void addFT(const double value,
+                   int iCol,
+                   int iRow,
+                   int iSlc);
+
+        /**
          * This function returns the value of an unregular voxel in speace spce
          * by interpolation.
          *
@@ -343,6 +357,28 @@ class Volume : public ImageBase
                    const double alpha);
 
         /**
+         * This function adds a certain value on the real part of an unregular
+         * voxel in Fourier space by a kernal of Modified Kaiser Bessel
+         * Function.
+         *
+         * @param value the value to be added
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param a the radius of Modified Kaiser Bessel Function
+         * @param alpha the smooth factor of Modified Kaiser Bessel Function
+         */
+        void addFT(const double value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const double alpha);
+
+        /**
          * This function adds a certain value on an unregualr voxel in Fourier
          * space by a certain kernel.
          *
@@ -357,6 +393,27 @@ class Volume : public ImageBase
          * @param kernel a tabular function indicating the kernel
          */
         void addFT(const Complex value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const TabFunction& kernel);
+
+        /**
+         * This function adds a certain value on the real part of an unregualr
+         * voxel in Fourier space by a certain kernel.
+         *
+         * @param value the value to be added
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param a the radius of the blob
+         * @param kernel a tabular function indicating the kernel
+         */
+        void addFT(const double value,
                    const double iCol,
                    const double iRow,
                    const double iSlc,

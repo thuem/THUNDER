@@ -142,6 +142,18 @@ void Volume::addFT(const Complex value,
     _dataFT[index].dat[1] += val.dat[1];
 }
 
+void Volume::addFT(const double value,
+                   int iCol,
+                   int iRow,
+                   int iSlc)
+{
+    bool conj;
+    int index = iFT(conj, iCol, iRow, iSlc);
+
+    #pragma omp atomic
+    _dataFT[index].dat[0] += val;
+}
+
 double Volume::getByInterpolationRL(const double iCol,
                                     const double iRow,
                                     const double iSlc,
@@ -192,8 +204,22 @@ void Volume::addFT(const Complex value,
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-        if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < gsl_pow_2(a)) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+    }
+}
+
+void Volume::addFT(const double value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const double alpha)
+{
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < gsl_pow_2(a)) addFT(value * MKB_FT(r, a, alpha), i, j, k);
     }
 }
 
@@ -206,8 +232,22 @@ void Volume::addFT(const Complex value,
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-        if (r < a) addFT(value * kernel(r), i, j, k);
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < gsl_pow_2(a)) addFT(value * kernel(r), i, j, k);
+    }
+}
+
+void Volume::addFT(const double value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const TabFunction& kernel)
+{
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < gsl_pow_2(a)) addFT(value * kernel(r), i, j, k);
     }
 }
 
