@@ -201,8 +201,12 @@ void MLOptimiser::expectation()
             {
                 // perform translation
 
+                /***
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
+                ***/
+                #pragma omp parallel for schedule(dynamic)
+                IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
                     {
@@ -250,6 +254,9 @@ void MLOptimiser::expectation()
 
             // shuffle
             _par[l].shuffle();
+            
+            // resample
+            _par[l].resample(_para.mG);
 
             if (_ID[l] < 20)
             {
