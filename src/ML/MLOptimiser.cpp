@@ -1538,53 +1538,24 @@ void MLOptimiser::saveReference()
 
 void MLOptimiser::saveFSC() const
 {
-    /***
-    if ((_commRank != HEMI_A_LEAD) &&
-        (_commRank != HEMI_B_LEAD))
-        return;
-    ***/
-
     NT_MASTER return;
 
     char filename[FILE_NAME_LENGTH];
 
-    //mat fsc = _model.fsc();
     vec fsc = _model.fsc(0);
 
-    /***
-    if (_commRank == HEMI_A_LEAD)
-    {
-    ***/
-        sprintf(filename, "FSC_Round_%03d.txt", _iter);
+    sprintf(filename, "FSC_Round_%03d.txt", _iter);
 
-        FILE* file = fopen(filename, "w");
+    FILE* file = fopen(filename, "w");
 
-        for (int i = 1; i < fsc.size(); i++)
-            fprintf(file,
-                    "%05d   %10.6lf   %10.6lf\n",
-                    i,
-                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
-                    fsc(i));
+    for (int i = 1; i < fsc.size(); i++)
+        fprintf(file,
+                "%05d   %10.6lf   %10.6lf\n",
+                i,
+                1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
+                fsc(i));
 
-        fclose(file);
-    /***
-    }
-    else if (_commRank == HEMI_B_LEAD)
-    {
-        sprintf(filename, "FSC_B_Round_%03d.txt", _iter);
-
-        FILE* file = fopen(filename, "w");
-
-        for (int i = 1; i < fsc.size(); i++)
-            fprintf(file,
-                    "%05d   %10.6lf   %10.6lf\n",
-                    i,
-                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
-                    fsc(i));
-
-        fclose(file);
-    }
-    ***/
+    fclose(file);
 }
 
 double logDataVSPrior(const Image& dat,
