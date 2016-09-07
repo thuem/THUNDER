@@ -202,7 +202,7 @@ void MLOptimiser::expectation()
                 // perform translation
 
                 #pragma omp parallel for schedule(dynamic)
-                IMAGE_FOR_EACH_PIXEL_FT(imgRot)
+                IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
                     {
@@ -313,13 +313,11 @@ void MLOptimiser::expectation()
             }
             ***/
 
-            if (phase == 0)
+            if ((phase == 0) &&
+                (_searchType == SEARCH_TYPE_LOCAL))
             {
-                if (_searchType == SEARCH_TYPE_LOCAL)
-                {
-                    // perturb with 5x confidence area
-                    _par[l].perturb(PERTURB_FACTOR);
-                }
+                // perturb with PERTURB_FACTORx confidence area
+                _par[l].perturb(PERTURB_FACTOR);
             }
             else
             {
@@ -1273,8 +1271,8 @@ void MLOptimiser::initParticles()
 {
     IF_MASTER return;
 
-    FOR_EACH_2D_IMAGE
-        _par.push_back(Particle());
+    _par.clear();
+    _par.resize(_ID.size());
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
