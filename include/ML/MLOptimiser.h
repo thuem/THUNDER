@@ -52,6 +52,16 @@
 
 #define TRANS_SEARCH_FACTOR 0.1
 
+#define PROCESS_LOGW(logW) \
+    [](const vec& _logW) \
+    { \
+        _logW.array() -= _logW.maxCoeff(); \
+        _logW.array() *= -1; \
+        _logW.array() += 1; \
+        _logW.array() = 1.0 / _logW.array(); \
+        _logW.array() -= _logW.minCoeff(); \
+    }(logW);
+
 using namespace std;
 
 typedef struct ML_OPTIMISER_PARA

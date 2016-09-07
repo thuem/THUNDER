@@ -151,6 +151,87 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
+        // initialse a particle filter
+
+        int nR = _para.mG;
+        int nT = GSL_MAX_INT(50,
+                             AROUND(M_PI
+                                  * gsl_pow_2(_para.transS
+                                            * gsl_cdf_chisq_Qinv(0.5, 2))
+                                  * TRANS_SEARCH_FACTOR));
+        _par[0].reset(nR, nT);
+
+        // copy the particle filter to the rest of particle filters
+
+        #pragma omp paralell for
+        for (int i = 1; i < (int)_ID.size(); i++)
+            _par[0].copy(_par[i]);
+
+        mat33 rot;
+        vec2 t;
+
+        // generate "translations"
+
+        vector<Image> trans;
+        trans.resize(nT);
+
+        #pragma omp paralell for
+        for (int m = 0; m < nT; m++)
+        {
+            trans[m].alloc(size(), size(), FT_SPACE);
+
+            _par[0].t(t, m);
+                    
+            translate(trans[m], _r, t(0), t(1));
+        }
+        
+        // perform expectations
+
+        Image imgRot(size(), size(), FT_SPACE);
+        Image imgAll(size(), size(), FT_SPACE);
+
+        mat logW(_ID.size(), m * nT + n);
+
+        for (int m = 0; m < nR; m++)
+        {
+            // perform projection
+
+            _par[l].rot(rot, m * nT);
+
+            _model.proj(0).projectMT(imgRot, rot);
+
+            for (int n = 0; n < nT; n++)
+            {
+                // perform translation
+
+                #pragma omp parallel for schedule(dynamic)
+                IMAGE_FOR_EACH_PIXEL_FT(imgRot)
+                {
+                    if (QUAD(i, j) < gsl_pow_2(_r))
+                    {
+                        int index = dat.iFTHalf(i, j);
+                        imgAll[index] = imgRot[index] * trans[n][index];
+                    }
+                }
+
+                #pragma omp parallel for schedule(dynamic)
+                FOR_EACH_2D_IMAGE
+                {
+                    vec logW(_par[l].n());
+                    logW(l, m * nT + n) = logDataVSPrior(_img[l],
+                                                         imgAll,
+                                                         _ctf[l],
+                                                         _sig.row(_groupID[l] - 1).head(_r).transpose(),
+                                                         _r);
+                }
+            }
+        }
+        
+        // process logW
+    }
+
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
@@ -167,9 +248,12 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
+            /***
             int nR = 0;
             int nT = 0;
+            ***/
 
+            /***
             if (phase == 0)
             {
                 if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -187,6 +271,7 @@ void MLOptimiser::expectation()
                     _par[l].resample(_para.mL,
                                      ALPHA_LOCAL_SEARCH);
             }
+            ***/
 
             if (phase == 0)
             {
@@ -223,8 +308,6 @@ void MLOptimiser::expectation()
             if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                 (phase == 0))
             {
-                // generate "translations"
-
                 vector<Image> trans;
                 trans.resize(nT);
 
@@ -237,22 +320,6 @@ void MLOptimiser::expectation()
                     translate(trans[m], _r, t(0), t(1));
                 }
 
-                // perform expectations
-
-                for (int m = 0; m < nR; m++)
-                {
-                    _par[l].rot(rot, m * nT);
-
-                    _model.proj(0).project(image, rot);
-
-                    for (int n = 0; n < nT; n++)
-                        logW(m * nT + n) = logDataVSPrior(_img[l], // dat
-                                                          image, // pri
-                                                          trans[n], // tra
-                                                          _ctf[l], // ctf
-                                                          _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
-                                                          _r);
-                }
             }
             else
             {
@@ -291,11 +358,15 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
                 ***/
 
+            /***
             logW.array() -= logW.maxCoeff();
             logW.array() *= -1;
             logW.array() += 1;
             logW.array() = 1.0 / logW.array();
             logW.array() -= logW.minCoeff();
+            ***/
+
+            PROCESS_LOGW(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
