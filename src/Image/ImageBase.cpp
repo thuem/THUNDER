@@ -73,6 +73,7 @@ void ImageBase::clearFT()
 void ImageBase::copyBase(ImageBase& other) const
 {
     other._sizeRL = _sizeRL;
+
     if (_dataRL)
     {
         other._dataRL.reset(new double[_sizeRL]);
@@ -82,6 +83,7 @@ void ImageBase::copyBase(ImageBase& other) const
         other._dataRL.reset();
 
     other._sizeFT = _sizeFT;
+
     if (_dataFT)
     {
         other._dataFT.reset(new Complex[_sizeFT]);
@@ -93,9 +95,11 @@ void ImageBase::copyBase(ImageBase& other) const
 
 ImageBase ImageBase::copyBase() const
 {
-    ImageBase res;
-    copyBase(res);
-    return res;
+    ImageBase that;
+
+    copyBase(that);
+
+    return that;
 }
 
 double norm(ImageBase& base)

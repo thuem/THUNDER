@@ -515,6 +515,25 @@ void Particle::shuffle()
     _w = w;
 }
 
+void Particle::copy(Particle& that) const
+{
+    that.setN(_n);
+    that.setTransS(_transS);
+    that.setTransQ(_transQ);
+    that.setR(_r);
+    that.setT(_t);
+    that.setW(_w);
+}
+
+Particle Particle::copy() const
+{
+    Particle that;
+
+    copy(that);
+
+    return that;
+}
+
 void Particle::symmetrise()
 {
     double phi, theta, psi;
