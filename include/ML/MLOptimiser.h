@@ -53,7 +53,7 @@
 #define TRANS_SEARCH_FACTOR 0.1
 
 #define PROCESS_LOGW(logW) \
-    [](const vec& _logW) \
+    [](vec& _logW) \
     { \
         _logW.array() -= _logW.maxCoeff(); \
         _logW.array() *= -1; \
