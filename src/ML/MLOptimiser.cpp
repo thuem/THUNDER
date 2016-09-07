@@ -316,6 +316,9 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
+                _par[l].resample(_para.mL,
+                                 ALPHA_LOCAL_SEARCH);
+
                 // perturb with PERTURB_FACTORx confidence area
                 _par[l].perturb(PERTURB_FACTOR);
             }
