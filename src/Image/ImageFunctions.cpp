@@ -87,6 +87,22 @@ void translate(Image& dst,
     }
 }
 
+void translateMT(Image& dst,
+                 const Image& src,
+                 const double nTransCol,
+                 const double nTransRow)
+{
+    double rCol = nTransCol / src.nColRL();
+    double rRow = nTransRow / src.nRowRL();
+
+    #pragma omp parallel for
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+    {
+        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
+    }
+}
+
 void translate(Image& dst,
                const Image& src,
                const double r,

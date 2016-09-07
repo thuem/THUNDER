@@ -442,6 +442,16 @@ class Volume : public ImageBase
                  + (i >= 0 ? i : i + _nCol);
         }
 
+        inline int iFT(int i,
+                       int j,
+                       int k) const
+        {
+            if (i >= 0)
+                return iFTHalf(i, j, k);
+            else
+                return iFTHalf(-i, -j, -k);
+        }
+
         inline int iFT(bool& conj,
                        int i,
                        int j,

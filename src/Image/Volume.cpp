@@ -147,8 +147,7 @@ void Volume::addFT(const double value,
                    int iRow,
                    int iSlc)
 {
-    bool conj;
-    int index = iFT(conj, iCol, iRow, iSlc);
+    int index = iFT(iCol, iRow, iSlc);
 
     #pragma omp atomic
     _dataFT[index].dat[0] += value;

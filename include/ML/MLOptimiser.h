@@ -176,6 +176,11 @@ class MLOptimiser : public Parallel
         vector<Image> _img;
 
         /**
+         * 2D images after reducing CTF using Wiener filter
+         */
+        vector<Image> _imgReduceCTF;
+
+        /**
          * a particle filter for each 2D image
          */
         vector<Particle> _par;
@@ -306,6 +311,8 @@ class MLOptimiser : public Parallel
         void bwImg();
 
         void initCTF();
+
+        void initImgReduceCTF();
 
         void correctScale();
 

@@ -109,6 +109,11 @@ void MLOptimiser::init()
 
         initCTF();
 
+        ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
+        BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
+
+        initImgReduceCTF();
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
@@ -970,6 +975,22 @@ void MLOptimiser::initCTF()
     }
 }
 
+void MLOptimiser::initImgReduceCTF()
+{
+    _imgReduceCTF.clear();
+    _imgReduceCTF.resize(_ID.size());
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        _imgReduceCTF[l].alloc(_para.size, _para.size, FT_SPACE);
+
+        reduceCTF(_imgReduceCTF[l],
+                  _img[l],
+                  _ctf[l],
+                  maxR());
+    }
+}
 void MLOptimiser::correctScale()
 {
     vec dc = vec::Zero(_nPar);
@@ -1261,7 +1282,7 @@ void MLOptimiser::reconstructRef()
         // reduce the CTF effect
         // reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
-        reduceCTF(img, _img[l], _ctf[l], maxR());
+        /// reduceCTF(img, _img[l], _ctf[l], maxR());
 
         /***
         if (_ID[l] < 20)
@@ -1312,7 +1333,7 @@ void MLOptimiser::reconstructRef()
         
         _par[l].rank1st(rot, tran);
 
-        _model.reco(0).insert(img, rot, tran, 1);
+        _model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
