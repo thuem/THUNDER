@@ -123,6 +123,28 @@ void Particle::reset(const int nR,
 
 int Particle::n() const { return _n; }
 
+void Particle::setN(const int n) { _n = n; }
+
+double Particle::transS() const { return _transS; }
+
+void Particle::setTransS(const double transS) { _transS = transS; }
+
+double Particle::transQ() const { return _transQ; }
+
+void Particle::setTransQ(const double transQ) { _transQ = transQ; }
+
+mat4 Particle::r() const { return _r; }
+
+void Particle::setR(const mat4& r) { _r = r; }
+
+mat2 Particle::t() const { return _t; }
+
+void Particle::setT(const mat2& t) { _t = t; }
+
+vec Particle::w() const { return _w; }
+
+void Particle::setW(const vec& w) { _w = w; }
+
 void Particle::vari(double& k0,
                     double& k1,
                     double& s0,

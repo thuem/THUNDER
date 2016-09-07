@@ -32,6 +32,8 @@ using namespace std;
 
 class Particle
 {
+    MAKE_DEFAULT_MOVE(Particle)
+
     private:
 
         /**
@@ -207,6 +209,33 @@ class Particle
          * filter.
          */
         int n() const;
+
+        /**
+         * This function sets the number of particles in this particle filter.
+         *
+         * @param n the number of particles in this particle fitler
+         */
+        void setN(const int n);
+
+        double transS() const;
+
+        void setTransS(const double transS);
+
+        double transQ() const;
+
+        void setTransQ(const double transQ);
+
+        mat4 r() const;
+
+        void setR(const mat4& r);
+
+        mat2 t() const;
+
+        void setT(const mat2& t);
+
+        vec w() const;
+
+        void setW(const vec& w);
 
         /**
          * This function returns the concentration parameters, including
@@ -441,6 +470,18 @@ class Particle
          * This function shuffles the sampling points.
          */
         void shuffle();
+
+        /**
+         * This function will copy the content to another Particle object.
+         *
+         * @param that the destination object
+         */
+        void copy(Particle& that) const;
+
+        /**
+         * This function will copy the content to another Particle object.
+         */
+        Particle copy() const;
     
     private:
 
