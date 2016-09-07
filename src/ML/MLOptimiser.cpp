@@ -1744,6 +1744,20 @@ double logDataVSPrior(const Image& dat,
     return result;
 }
 
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int r)
+{
+    int n = dat.size();
+
+    vec result = vec::Zero(n);
+
+    return result;
+}
+
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,

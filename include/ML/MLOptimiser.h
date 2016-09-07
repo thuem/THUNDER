@@ -375,6 +375,13 @@ double logDataVSPrior(const Image& dat,
                       const vec& sig,
                       const int r);
 
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int r);
+
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
