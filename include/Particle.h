@@ -237,6 +237,15 @@ class Particle
 
         void setW(const vec& w);
 
+        const Symmetry* symmetry() const;
+
+        /**
+         * This function sets the symmetry.
+         *
+         * @param sym a pointer points to the Symmetry object
+         */
+        void setSymmetry(const Symmetry* sym);
+
         /**
          * This function returns the concentration parameters, including
          * rotation and translation.
@@ -351,12 +360,6 @@ class Particle
          */
         void setQuaternion(const vec4& src,
                            const int i);
-        /**
-         * This function sets the symmetry.
-         *
-         * @param sym a pointer points to the Symmetry object
-         */
-        void setSymmetry(const Symmetry* sym);
 
         /**
          * This function calculates the concentration paramters, including

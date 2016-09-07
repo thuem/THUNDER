@@ -145,6 +145,10 @@ vec Particle::w() const { return _w; }
 
 void Particle::setW(const vec& w) { _w = w; }
 
+const Symmetry* Particle::symmetry() const { return _sym; }
+
+void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
+
 void Particle::vari(double& k0,
                     double& k1,
                     double& s0,
@@ -227,11 +231,6 @@ void Particle::setQuaternion(const vec4& src,
                              const int i) 
 {
     _r.row(i) = src.transpose();
-}
-
-void Particle::setSymmetry(const Symmetry* sym)
-{
-    _sym = sym;
 }
 
 void Particle::calVari()
@@ -523,6 +522,7 @@ void Particle::copy(Particle& that) const
     that.setR(_r);
     that.setT(_t);
     that.setW(_w);
+    that.setSymmetry(_sym);
 }
 
 Particle Particle::copy() const
