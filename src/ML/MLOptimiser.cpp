@@ -216,10 +216,9 @@ void MLOptimiser::expectation()
                     }
                 }
 
-                #pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for
                 FOR_EACH_2D_IMAGE
                 {
-                    vec logW(_par[l].n());
                     logW(l, m * nT + n) = logDataVSPrior(_img[l],
                                                          imgAll,
                                                          _ctf[l],
@@ -229,7 +228,24 @@ void MLOptimiser::expectation()
             }
         }
         
-        // process logW
+        // TODO process logW
+
+        // reset weights of particle filter
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(logW(l, m), m);
+
+            _par[l].normW();
+        }
+        
+        // sort
+        _par[l].sort(_para.mG);
+
+        // shuffle
+        _par[l].shuffle();
     }
 
     #pragma omp parallel for schedule(dynamic)
@@ -378,6 +394,7 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+            /***
             if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                 (phase == 0))
             {
@@ -387,6 +404,7 @@ void MLOptimiser::expectation()
                 // shuffle
                 _par[l].shuffle();
             }
+            ***/
 
             if (_ID[l] < 20)
             {
