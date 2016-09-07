@@ -30,6 +30,7 @@
 #include "Coordinate5D.h"
 #include "Transformation.h"
 
+/***
 #define VOLUME_SUB_SPHERE_FT(a) \
     for (int k = MAX(-_nSlc / 2, floor(iSlc - a)); \
              k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a)); \
@@ -40,12 +41,34 @@
             for (int i = MAX(-_nCol / 2, floor(iCol - a)); \
                      i <= MIN(_nCol / 2, ceil(iCol + a)); \
                      i++)
+***/
 
+#define VOLUME_SUB_SPHERE_FT(a) \
+    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
+             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
+             k++) \
+        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - a)); \
+                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + a)); \
+                 j++) \
+            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - a)); \
+                     i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + a)); \
+                     i++)
+
+/**
+ * This macro loops over each pixel of a volume in real space.
+ *
+ * @param that the volume
+ */
 #define VOLUME_FOR_EACH_PIXEL_RL(that) \
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
             for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
 
+/**
+ * This macro loops over each pixel of a volume in Fourier space.
+ *
+ * @param that the volume
+ */
 #define VOLUME_FOR_EACH_PIXEL_FT(that) \
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \

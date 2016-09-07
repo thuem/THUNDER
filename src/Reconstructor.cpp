@@ -108,7 +108,7 @@ void Reconstructor::insert(const Image& src,
                 vec3 newCor = {(double)i, (double)j, 0};
                 vec3 oldCor = sr[k] * newCor * _pf;
         
-                _F.addFT(transSrc.getFT(i, j) * w, 
+                _F.addFT(transSrc.getFTHalf(i, j) * w, 
                          oldCor[0], 
                          oldCor[1], 
                          oldCor[2], 

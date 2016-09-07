@@ -268,6 +268,7 @@ Volume Volume::copyVolume() const
     Volume out;
 
     copyBase(out);
+
     out._nCol = _nCol;
     out._nRow = _nRow;
     out._nSlc = _nSlc;

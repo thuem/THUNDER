@@ -140,6 +140,12 @@ Complex Image::getFT(int iCol,
     return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
+Complex Image::getFTHalf(const int iCol,
+                         const int iRow) const
+{
+    return _dataFT[iFTHalf(iCol, iRow)];
+}
+
 void Image::setFT(const Complex value,
                   int iCol,
                   int iRow)

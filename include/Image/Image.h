@@ -26,6 +26,7 @@
 
 /**
  * This macro loops over each pixel of an image in real space.
+ *
  * @param that the image
  */
 #define IMAGE_FOR_EACH_PIXEL_RL(that) \
@@ -34,6 +35,7 @@
 
 /**
  * This macro loops over each pixel of an image in Fourier space.
+ *
  * @param that the image
  */
 #define IMAGE_FOR_EACH_PIXEL_FT(that) \
@@ -43,6 +45,7 @@
 /**
  * This macro loops over the pixels of an image in a certain radius in real
  * space.
+ *
  * @param r the radius
  */
 #define IMAGE_FOR_PIXEL_R_RL(r) \
@@ -52,6 +55,7 @@
 /**
  * This macro loops over the pixels of an image in a certain radius in Fourier
  * space.
+ *
  * @param r the radius
  */
 #define IMAGE_FOR_PIXEL_R_FT(r) \
@@ -184,11 +188,15 @@ class Image : public ImageBase
         /**
          * This function returns the value of the pixel at the certain column
          * and row in Fourier space.
+         *
          * @param iCol index of the column
          * @param iRow index of the row
          */
         Complex getFT(int iCol,
                       int iRow) const;
+
+        Complex getFTHalf(const int iCol,
+                          const int iRow) const;
 
         /**
          * This function sets the value of the pixel at the certain column and
