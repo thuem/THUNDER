@@ -271,8 +271,8 @@ void translateMT(Image& dst,
  * This function translations an image with a given vector indicating by the number
  * of columns and the number of rows.
  *
- * @param dst the destination image (Fourier space)
- * @param src the source image (Fourier space)
+ * @param dst       the destination image (Fourier space)
+ * @param src       the source image (Fourier space)
  * @param nTransCol number of columns for translation
  * @param nTransRow number of rows for translation
  */
@@ -285,8 +285,8 @@ void translate(Image& dst,
  * This function translations an image with a given vector indicating by the number
  * of columns and the number of rows using multiple threads.
  *
- * @param dst the destination image (Fourier space)
- * @param src the source image (Fourier space)
+ * @param dst       the destination image (Fourier space)
+ * @param src       the source image (Fourier space)
  * @param nTransCol number of columns for translation
  * @param nTransRow number of rows for translation
  */
@@ -298,8 +298,10 @@ void translateMT(Image& dst,
 /**
  * This function translations an image in a certain frequency threshold with a 
  * given vector indicating by the number of columns and the number of rows.
- * @param dst the destination image (Fourier space)
- * @param src the source image (Fourier space)
+ *
+ * @param dst       the destination image (Fourier space)
+ * @param src       the source image (Fourier space)
+ * @param r         the resolution threshold
  * @param nTransCol number of columns for translation
  * @param nTransRow number of rows for translation
  */
@@ -308,6 +310,23 @@ void translate(Image& dst,
                const double r,
                const double nTransCol,
                const double nTransRow);
+
+/**
+ * This function translations an image in a certain frequency threshold with a 
+ * given vector indicating by the number of columns and the number of rows using
+ * multiple threads.
+ *
+ * @param dst       the destination image (Fourier space)
+ * @param src       the source image (Fourier space)
+ * @param r         the resolution threshold
+ * @param nTransCol number of columns for translation
+ * @param nTransRow number of rows for translation
+ */
+void translateMT(Image& dst,
+                 const Image& src,
+                 const double r,
+                 const double nTransCol,
+                 const double nTransRow);
 
 /**
  * This function calculates the cross-correlation image of two images in a

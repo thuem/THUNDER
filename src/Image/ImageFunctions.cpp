@@ -120,6 +120,24 @@ void translate(Image& dst,
         }
 }
 
+void translateMT(Image& dst,
+                 const Image& src,
+                 const double r,
+                 const double nTransCol,
+                 const double nTransRow)
+{
+    double rCol = nTransCol / src.nColRL();
+    double rRow = nTransRow / src.nRowRL();
+
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+        if (QUAD(i, j) < gsl_pow_2(r))
+        {
+            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
+        }
+}
+
 void crossCorrelation(Image& dst,
                       const Image& a,
                       const Image& b,
