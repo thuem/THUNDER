@@ -265,9 +265,6 @@ void MLOptimiser::expectation()
             // shuffle
             _par[l].shuffle();
             
-            // resample
-            _par[l].resample(_para.mG);
-
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -278,11 +275,14 @@ void MLOptimiser::expectation()
                          _iter);
                 save(filename, _par[l]);
             }
-        }
-    }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
-    BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+            // resample
+            _par[l].resample(_para.mG);
+        }
+
+        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+    }
 
     _nF = 0;
     _nI = 0;
