@@ -184,18 +184,19 @@ void MLOptimiser::expectation()
         
         // perform expectations
 
-        Image imgRot(size(), size(), FT_SPACE);
-        Image imgAll(size(), size(), FT_SPACE);
-
         mat logW(_par[0].n(), _ID.size());
 
+        #pragma omp parallel for
         for (int m = 0; m < nR; m++)
         {
+            Image imgRot(size(), size(), FT_SPACE);
+            Image imgAll(size(), size(), FT_SPACE);
+
             // perform projection
 
             _par[0].rot(rot, m * nT);
 
-            _model.proj(0).projectMT(imgRot, rot);
+            _model.proj(0).project(imgRot, rot);
 
             for (int n = 0; n < nT; n++)
             {
@@ -205,7 +206,7 @@ void MLOptimiser::expectation()
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 ***/
-                #pragma omp parallel for schedule(dynamic)
+                //#pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
@@ -215,6 +216,14 @@ void MLOptimiser::expectation()
                     }
                 }
 
+                logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
+                                                                  imgAll,
+                                                                  _ctf,
+                                                                  _groupID,
+                                                                  _sig,
+                                                                  _r);
+
+                /***
                 #pragma omp parallel for
                 FOR_EACH_2D_IMAGE
                 {
@@ -224,6 +233,7 @@ void MLOptimiser::expectation()
                                                          _sig.row(_groupID[l] - 1).head(_r).transpose(),
                                                          _r);
                 }
+                ***/
             }
         }
         
@@ -1761,6 +1771,31 @@ vec logDataVSPrior(const vector<Image>& dat,
     int n = dat.size();
 
     vec result = vec::Zero(n);
+
+    double r2 = gsl_pow_2(r);
+    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    {
+        double u = QUAD(i, j);
+
+        if ((u < r2) && (u > d2))
+        {
+            int v = AROUND(NORM(i, j));
+            if (v < r)
+            {
+                int index = dat[0].iFTHalf(i, j);
+
+                for (int l = 0; l < (int)dat.size(); l++)
+                {
+                    result(l) += ABS2(dat[l].iGetFT(index)
+                                    - REAL(ctf[l].iGetFT(index))
+                                    * pri.iGetFT(index))
+                               / (-2 * sig(groupID[l] - 1, v));
+                }
+            }
+        }
+    }
 
     return result;
 }
