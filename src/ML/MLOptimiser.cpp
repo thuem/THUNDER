@@ -270,7 +270,7 @@ void MLOptimiser::expectation()
             
             // resample
             //_par[l].resample(_para.mG);
-            _par[l].resample(_para.ML);
+            _par[l].resample(_para.mL);
 
             if (_ID[l] < 20)
             {
