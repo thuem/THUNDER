@@ -279,10 +279,10 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
         }
-    }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
-    BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+    }
 
     _nF = 0;
     _nI = 0;
