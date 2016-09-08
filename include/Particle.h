@@ -217,12 +217,30 @@ class Particle
          */
         void setN(const int n);
 
+        /**
+         * This function returns the standard deviation of translation, assuming
+         * the translation follows a 2D Gaussian distribution.
+         */
         double transS() const;
 
+        /**
+         * This function sets the standard deviation of translation, assuming
+         * the translation follows a 2D Gaussian distribution.
+         *
+         * @param transS the standard deviation of translation
+         */
         void setTransS(const double transS);
 
+        /**
+         * This function returns the re-center threshold of translation.
+         */
         double transQ() const;
 
+        /**
+         * This function sets the re-center theshold of translation.
+         *
+         * @param the re-center threshold of translation
+         */
         void setTransQ(const double transQ);
 
         mat4 r() const;
