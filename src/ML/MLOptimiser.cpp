@@ -259,11 +259,13 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+            /***
             // sort
             _par[l].sort(_para.mG);
 
             // shuffle
             _par[l].shuffle();
+            ***/
             
             // resample
             _par[l].resample(_para.mG);
