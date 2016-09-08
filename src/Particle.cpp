@@ -313,6 +313,7 @@ void Particle::resample(const double alpha)
 void Particle::resample(const int n,
                         const double alpha)
 {
+    /***
     // If resample to fewer particles, some extra procedure should be performed.
 
     if (n < _n)
@@ -321,6 +322,7 @@ void Particle::resample(const int n,
 
         shuffle();
     }
+    ***/
 
     // record the current most likely coordinate (highest weight)
 
