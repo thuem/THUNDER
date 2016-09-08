@@ -269,8 +269,8 @@ void MLOptimiser::expectation()
             ***/
             
             // resample
-            //_par[l].resample(_para.mG);
-            _par[l].resample(_para.mL);
+            _par[l].resample(_para.mG);
+            //_par[l].resample(_para.mL);
 
             if (_ID[l] < 20)
             {
@@ -456,7 +456,12 @@ void MLOptimiser::expectation()
             }
             ***/
 
-            _par[l].resample(_para.mL);
+            //_par[l].resample(_para.mL);
+
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].resample(_para.mG);
+            else
+                _par[l].resample(_para.mL);
 
             if (_ID[l] < 20)
             {
