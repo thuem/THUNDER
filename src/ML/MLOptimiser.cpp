@@ -186,17 +186,16 @@ void MLOptimiser::expectation()
 
         mat logW(_par[0].n(), _ID.size());
 
-        #pragma omp parallel for
+        Image imgRot(size(), size(), FT_SPACE);
+        Image imgAll(size(), size(), FT_SPACE);
+
         for (int m = 0; m < nR; m++)
         {
-            Image imgRot(size(), size(), FT_SPACE);
-            Image imgAll(size(), size(), FT_SPACE);
-
             // perform projection
 
             _par[0].rot(rot, m * nT);
 
-            _model.proj(0).project(imgRot, rot);
+            _model.proj(0).projectMT(imgRot, rot);
 
             for (int n = 0; n < nT; n++)
             {
@@ -206,7 +205,8 @@ void MLOptimiser::expectation()
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 ***/
-                //#pragma omp parallel for schedule(dynamic)
+
+                #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
@@ -1786,6 +1786,7 @@ vec logDataVSPrior(const vector<Image>& dat,
             {
                 int index = dat[0].iFTHalf(i, j);
 
+                #pragma omp parallel for
                 for (int l = 0; l < (int)dat.size(); l++)
                 {
                     result(l) += ABS2(dat[l].iGetFT(index)
