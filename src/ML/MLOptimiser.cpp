@@ -269,7 +269,8 @@ void MLOptimiser::expectation()
             ***/
             
             // resample
-            _par[l].resample(_para.mG);
+            //_par[l].resample(_para.mG);
+            _par[l].resample(_para.ML);
 
             if (_ID[l] < 20)
             {
@@ -455,6 +456,8 @@ void MLOptimiser::expectation()
             }
             ***/
 
+            _par[l].resample(_para.mL);
+
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -471,10 +474,14 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
             
+            /***
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 _par[l].resample(_para.mG);
             else
                 _par[l].resample(_para.mL);
+                ***/
+
+            //_par[l].resample(_para.mL);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
