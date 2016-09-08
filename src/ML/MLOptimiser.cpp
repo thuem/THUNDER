@@ -266,10 +266,6 @@ void MLOptimiser::expectation()
             // shuffle
             _par[l].shuffle();
             
-            // resample
-            _par[l].resample(_para.mG);
-            //_par[l].resample(_para.mL);
-
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -280,6 +276,9 @@ void MLOptimiser::expectation()
                          _iter);
                 save(filename, _par[l]);
             }
+
+            // resample
+            _par[l].resample(_para.mG);
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -456,11 +455,6 @@ void MLOptimiser::expectation()
 
             //_par[l].resample(_para.mL);
 
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-                _par[l].resample(_para.mG);
-            else
-                _par[l].resample(_para.mL);
-
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -476,6 +470,11 @@ void MLOptimiser::expectation()
 
             // Only after resampling, the current variance can be calculated
             // correctly.
+
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].resample(_para.mG);
+            else
+                _par[l].resample(_para.mL);
             
             /***
             if (_searchType == SEARCH_TYPE_GLOBAL)
