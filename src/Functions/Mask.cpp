@@ -59,20 +59,28 @@ double background(const Volume& vol,
 {
     double weightSum = 0;
     double sum = 0;
-
+    
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         double u = NORM_3(i, j, k);
 
         if (u > r + ew)
         {
+            #pragma omp critical
             weightSum += 1;
+
+            #pragma omp critical
             sum += vol.getRL(i, j, k);
         }
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
+
+            #pragma omp critical
             weightSum += w;
+
+            #pragma omp critical
             sum += vol.getRL(i, j, k) * w;
         }
     }
@@ -86,10 +94,15 @@ double background(const Volume& vol,
     double weightSum = 0;
     double sum = 0;
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         double w = 1 - alpha.getRL(i, j, k);
+
+        #pragma omp critical
         weightSum += w;
+
+        #pragma omp critical
         sum += vol.getRL(i, j, k) * w;
     }
 
@@ -169,6 +182,7 @@ void softMask(Volume& dst,
 {
     double bg = background(src, r, ew);
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
         double u = NORM_3(i, j, k);
@@ -191,6 +205,7 @@ void softMask(Volume& dst,
 {
     double bg = background(src, alpha);
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
         double w = 1 - alpha.getRL(i, j, k);
@@ -198,18 +213,19 @@ void softMask(Volume& dst,
     }
 }
 
-/***
 void generateMask(Volume& dst,
                   const Volume& src,
-                  const double densityThreshold)
+                  const double dt)
 {
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (src.get(i, j, k) > densityThreshold)
-            dst.set(1, i, j, k);
+        if (src.getRL(i, j, k) > dt)
+            dst.setRL(1, i, j, k);
         else
-            dst.set(0, i, j, k);
+            dst.setRL(0, i, j, k);
 }
 
+/***
 void generateMask(Volume& dst,
                   const Volume& src,
                   const double densityThreshold,

@@ -132,11 +132,11 @@ void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha);
 
-/***
 void generateMask(Volume& dst,
                   const Volume& src,
-                  const double densityThreshold);
+                  const double dt);
 
+/***
 void generateMask(Volume& dst,
                   const Volume& src,
                   const double densityThreshold,
