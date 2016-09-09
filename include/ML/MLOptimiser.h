@@ -344,6 +344,10 @@ class MLOptimiser : public Parallel
         // save images to BMP file
         void saveImages();
 
+        // debug
+        // save CTFs to BMP file
+        void saveCTFs();
+
         // for debug
         // save images after removing CTFs
         void saveReduceCTFImages();

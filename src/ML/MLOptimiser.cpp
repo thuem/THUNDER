@@ -1549,6 +1549,22 @@ void MLOptimiser::saveImages()
     }
 }
 
+void MLOptimiser::saveCTFs()
+{
+    IF_MASTER return;
+
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < N_SAVE_IMG)
+        {
+            sprintf(filename, "CTF_%04d.bmp", _ID[l]);
+
+            _ctf[l].saveFTToBMP(filename, 0.01);
+        }
+    }
+}
+
 void MLOptimiser::saveReduceCTFImages()
 {
     IF_MASTER return;
