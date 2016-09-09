@@ -67,20 +67,20 @@ double background(const Volume& vol,
 
         if (u > r + ew)
         {
-            #pragma omp critical
+            #pragma omp atomic
             weightSum += 1;
 
-            #pragma omp critical
+            #pragma omp atomic
             sum += vol.getRL(i, j, k);
         }
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
 
-            #pragma omp critical
+            #pragma omp atomic
             weightSum += w;
 
-            #pragma omp critical
+            #pragma omp atomic
             sum += vol.getRL(i, j, k) * w;
         }
     }
@@ -99,10 +99,10 @@ double background(const Volume& vol,
     {
         double w = 1 - alpha.getRL(i, j, k);
 
-        #pragma omp critical
+        #pragma omp atomic
         weightSum += w;
 
-        #pragma omp critical
+        #pragma omp atomic
         sum += vol.getRL(i, j, k) * w;
     }
 
