@@ -268,15 +268,15 @@ void genMask(Volume& dst,
     dst = move(dstTmp);
 }
 
-/***
-void generateMask(Volume& dst,
-                  const Volume& src,
-                  const double densityThreshold,
-                  const double extend,
-                  const double ew)
+void genMask(Volume& dst,
+             const Volume& src,
+             const double dt,
+             const double ext,
+             const double ew)
 {
-    generateMask(dst, src, densityThreshold, extend);
+    genMask(dst, src, dt, ext);
 
+    /***
     int ew = ceil(ew);
 
     auto distance = [&dst, ew](const double i,
@@ -301,5 +301,5 @@ void generateMask(Volume& dst,
         if ((dst.get(i, j, k) != 1) && (d < ew))
             dst.set(0.5 + 0.5 * cos(d / ew * M_PI), i, j, k);
     }
+    ***/
 }
-***/
