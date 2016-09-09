@@ -139,6 +139,11 @@ void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha);
 
+void softMask(Volume& dst,
+              const Volume& src,
+              const Volume& alpha,
+              const double bg);
+
 /**
  * This function generates a mask on a volume. The standard for generate mask is
  * that if the density of a voxel is larger than a threshold, the voxel of the

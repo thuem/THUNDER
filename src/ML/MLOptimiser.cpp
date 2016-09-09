@@ -1484,6 +1484,21 @@ void MLOptimiser::reconstructRef()
 
     _model.reco(0).reconstruct(_model.ref(0));
 
+    if (_searchType == SEARCH_TYPE_LOCAL)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+
+        Volume mask(_para.pf * _para.size,
+                    _para.pf * _para.size,
+                    _para.pf * _para.size,
+                    RL_SPACE);
+
+        genMask(mask, _model.ref(0), 0.02, 3);
+
+        softMask(_model.ref(0), _model.ref(0), mask, 0);
+    }
+
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
