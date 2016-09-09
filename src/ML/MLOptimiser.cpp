@@ -566,6 +566,7 @@ void MLOptimiser::run()
     init();
     
     saveImages();
+    saveCTFs();
     saveReduceCTFImages();
     saveLowPassImages();
     saveLowPassReduceCTFImages();
