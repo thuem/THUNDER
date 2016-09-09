@@ -151,11 +151,12 @@ void softMask(Volume& dst,
  *
  * @param dst destination volume
  * @param src source volume
- * @param dt  the density threshold (typyical value, 0.02)
+ * @param dt  the density threshold factor (typyical value, 10)
  */
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt);
+             const double dt,
+             const double r);
 
 /**
  *
@@ -165,17 +166,20 @@ void genMask(Volume& dst,
 void genMask(Volume& dst,
              const Volume& src,
              const double dt,
-             const double ext);
+             const double ext,
+             const double r);
 
 /**
  *
  *
  * @param ew the edge width of masking (typical value, 6)
  */
+/***
 void genMask(Volume& dst,
              const Volume& src,
              const double dt,
              const double ext,
              const double ew);
+             ***/
 
 #endif // MASK_H

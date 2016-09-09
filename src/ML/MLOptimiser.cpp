@@ -720,7 +720,19 @@ void MLOptimiser::run()
                                    << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
-        _searchType = _model.searchType();
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            _searchType = _model.searchType();
+
+            if (_searchType == SEARCH_TYPE_LOCAL)
+            {
+                MLOG(INFO, "LOGGER_ROUND") << "A Mask Should be Generated";
+
+                _genMask = true;
+            }
+        }
+        else
+            _searchType = _model.searchType();
 
         NT_MASTER
         {
@@ -1484,19 +1496,27 @@ void MLOptimiser::reconstructRef()
 
     _model.reco(0).reconstruct(_model.ref(0));
 
-    if (_searchType == SEARCH_TYPE_LOCAL)
+    if (_genMask)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+        ALOG(INFO, "LOGGER_ROUND") << "Generating Automask";
+        BLOG(INFO, "LOGGER_ROUND") << "Generating Automask";
 
-        Volume mask(_para.pf * _para.size,
+        _mask.alloc(_para.pf * _para.size,
                     _para.pf * _para.size,
                     _para.pf * _para.size,
                     RL_SPACE);
 
-        genMask(mask, _model.ref(0), 0.02, 3);
+        genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
 
-        softMask(_model.ref(0), _model.ref(0), mask, 0);
+        _genMask = false;
+    }
+
+    if (!_mask.isEmptyRL())
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+
+        softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";

@@ -236,6 +236,10 @@ class MLOptimiser : public Parallel
          */
         double _stdStdN = 0;
 
+        bool _genMask = false;
+
+        Volume _mask;
+
         /***
         double _noiseStddev = 0;
 

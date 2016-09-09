@@ -223,24 +223,59 @@ void softMask(Volume& dst,
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt)
+             const double dt,
+             const double r)
 {
-    double thres = gsl_stats_max(&src.iGetRL(0), 1, src.sizeRL()) * dt;
+    //double thres = gsl_stats_max(&src.iGetRL(0), 1, src.sizeRL()) * dt;
+    vector<double> bg;
+    VOLUME_FOR_EACH_PIXEL_RL(src)
+        if ((QUAD_3(i, j, k) < gsl_pow_2(r)) &&
+            (QUAD_3(i, j, k) > gsl_pow_2(r * 0.85)))
+        {
+            bg.push_back(src.getRL(i, j, k));
+            /***
+            dst.setRL(src.getRL(i, j, k),
+                      i, j, k);
+                      ***/
+        }
+    /***
+        else
+        {
+            dst.setRL(0,
+                      i, j, k);
+        }
+        ***/
+
+    //double mean = gsl_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
+    //double std = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
+
+    double mean = gsl_stats_mean(&bg[0], 1, bg.size());
+    double std = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+
+    cout << "mean = " << mean << endl;
+    cout << "std = " << std << endl;
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (src.getRL(i, j, k) > thres)
+        if (src.getRL(i, j, k) > mean + dt * std)
+        {
+            //cout << "yes, " << src.getRL(i, j, k);
             dst.setRL(1, i, j, k);
+        }
         else
+        {
+            //cout << "no, " << src.getRL(i, j, k);
             dst.setRL(0, i, j, k);
+        }
 }
 
 void genMask(Volume& dst,
              const Volume& src,
              const double dt,
-             const double ext)
+             const double ext,
+             const double r)
 {
-    genMask(dst, src, dt);
+    genMask(dst, src, dt, r);
 
     Volume dstTmp = dst.copyVolume();
 
@@ -268,15 +303,15 @@ void genMask(Volume& dst,
     dst = move(dstTmp);
 }
 
+/***
 void genMask(Volume& dst,
              const Volume& src,
              const double dt,
              const double ext,
              const double ew)
 {
-    genMask(dst, src, dt, ext);
+    //genMask(dst, src, dt, ext);
 
-    /***
     int ew = ceil(ew);
 
     auto distance = [&dst, ew](const double i,
@@ -301,5 +336,5 @@ void genMask(Volume& dst,
         if ((dst.get(i, j, k) != 1) && (d < ew))
             dst.set(0.5 + 0.5 * cos(d / ew * M_PI), i, j, k);
     }
-    ***/
 }
+***/
