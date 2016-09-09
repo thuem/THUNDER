@@ -140,7 +140,7 @@ void softMask(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
-        double w = 1 - alpha.getRL(i, j);
+        double w = alpha.getRL(i, j);
         dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
     }
 }
@@ -208,18 +208,20 @@ void softMask(Volume& dst,
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
-        double w = 1 - alpha.getRL(i, j, k);
+        double w = alpha.getRL(i, j, k);
         dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
     }
 }
 
-void generateMask(Volume& dst,
-                  const Volume& src,
-                  const double dt)
+void genMask(Volume& dst,
+             const Volume& src,
+             const double dt)
 {
+    double thres = gsl_stats_max(&src(0), 1, src.sizeRL()) * dt;
+
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (src.getRL(i, j, k) > dt)
+        if (src.getRL(i, j, k) > thres)
             dst.setRL(1, i, j, k);
         else
             dst.setRL(0, i, j, k);

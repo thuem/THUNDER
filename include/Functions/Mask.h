@@ -23,8 +23,8 @@
  * a certain radius.
  *
  * @param img the image to be calculated
- * @param r radius of the circle
- * @param ew edge width of the circle
+ * @param r   radius of the circle
+ * @param ew  edge width of the circle
  */
 double background(const Image& img,
                   const double r,
@@ -34,7 +34,7 @@ double background(const Image& img,
  * This function calculates the average value of pixels not belonging to a
  * certain layer.
  *
- * @param img the image to be calcualted
+ * @param img   the image to be calcualted
  * @param alpha the layer
  */
 double background(const Image& img,
@@ -45,8 +45,8 @@ double background(const Image& img,
  * a certain radius.
  *
  * @param vol the volume to be calculated
- * @param r radius of the sphere
- * @param ew edge width of the sphere
+ * @param r   radius of the sphere
+ * @param ew  edge width of the sphere
  */
 double background(const Volume& vol,
                   const double r,
@@ -56,7 +56,7 @@ double background(const Volume& vol,
  * This function calculates the average value of pixels not belonging to a
  * certain layer.
  *
- * @param vol the volume to be calculated
+ * @param vol   the volume to be calculated
  * @param alpha the layer
  */
 double background(const Volume& vol,
@@ -68,8 +68,8 @@ double background(const Volume& vol,
  *
  * @param dst destination image
  * @param src source image
- * @param r radius of the circle
- * @param ew edge width of the cirlce
+ * @param r   radius of the circle
+ * @param ew  edge width of the cirlce
  */
 void softMask(Image& dst,
               const Image& src,
@@ -80,8 +80,8 @@ void softMask(Image& dst,
  * This function applys a soft mask on an image. The soft mask is calculated
  * from the source image with a certain layer.
  *
- * @param dst destination image
- * @param src source image
+ * @param dst   destination image
+ * @param src   source image
  * @param alpha the layer
  */
 void softMask(Image& dst,
@@ -92,12 +92,12 @@ void softMask(Image& dst,
  * This function applys a soft mask on an image. The background will be
  * generated with given mean value and standard deviation.
  *
- * @param dst destination image
- * @param src source image
- * @param r radius of the circle
- * @param ew edge width of the cirlce
+ * @param dst    destination image
+ * @param src    source image
+ * @param r      radius of the circle
+ * @param ew     edge width of the cirlce
  * @param bgMean the mean value of the background
- * @param bgStd the standard devation of the background
+ * @param bgStd  the standard devation of the background
  */
 void softMask(Image& dst,
               const Image& src,
@@ -112,8 +112,8 @@ void softMask(Image& dst,
  *
  * @param dst destination volume
  * @param src source volume
- * @param radius of the sphere
- * @param ew edge width of the sphere
+ * @param r   radius of the sphere
+ * @param ew  edge width of the sphere
  */
 void softMask(Volume& dst,
               const Volume& src,
@@ -124,24 +124,33 @@ void softMask(Volume& dst,
  * This function applys a soft mask on a volume. The soft mask is calculated
  * from the source image with a certain layer.
  *
- * @param dst destination volume
- * @param src source volume
+ * @param dst   destination volume
+ * @param src   source volume
  * @param alpha the layer
  */
 void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha);
 
-void generateMask(Volume& dst,
-                  const Volume& src,
-                  const double dt);
+/**
+ * This function generates a mask on a volume. The standard for generate mask is
+ * that if the density of a voxel is larger than a threshold, the voxel of the
+ * layer will be set to 1, otherwise it will be set to 0.
+ *
+ * @param dst destination volume
+ * @param src source volume
+ * @param dt  the density threshold
+ */
+void genMask(Volume& dst,
+             const Volume& src,
+             const double dt = 0.02);
+
+void gen(Volume& dst,
+         const Volume& src,
+         const double dt,
+         const double ex);
 
 /***
-void generateMask(Volume& dst,
-                  const Volume& src,
-                  const double densityThreshold,
-                  const double extend);
-
 void generateMask(Volume& dst,
                   const Volume& src,
                   const double densityThreshold,
