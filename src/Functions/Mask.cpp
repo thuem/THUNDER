@@ -217,7 +217,7 @@ void genMask(Volume& dst,
              const Volume& src,
              const double dt)
 {
-    double thres = gsl_stats_max(&src(0), 1, src.sizeRL()) * dt;
+    double thres = gsl_stats_max(&src.iGetRL(0), 1, src.sizeRL()) * dt;
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
@@ -227,38 +227,40 @@ void genMask(Volume& dst,
             dst.setRL(0, i, j, k);
 }
 
-/***
-void generateMask(Volume& dst,
-                  const Volume& src,
-                  const double densityThreshold,
-                  const double extend)
+void genMask(Volume& dst,
+             const Volume& src,
+             const double dt,
+             const double ext)
 {
-    generateMask(dst, src, densityThreshold);
+    genMask(dst, src, dt);
 
-    Volume dstTmp = dst;
+    Volume dstTmp = dst.copyVolume();
 
-    int ext = ceil(abs(extend));
+    int a = CEIL(abs(ext));
 
-    if (extend > 0)
-        VOLUME_FOR_EACH_PIXEL(dst)
-            if (dst.get(i, j, k) == 1)
-                for (int z = -ext; z < ext; z++)
-                    for (int y = -ext; y < ext; y++)
-                        for (int x = -ext; x < ext; x++)
-                            if ((x * x + y * y + z * z) < extend * extend)
-                                dstTmp.setRL(1, i + x, j + y, k + z);
-    else if (extend < 0)
-        VOLUME_FOR_EACH_PIXEL(dst)
-            if (dst.get(i, j, k) == 0)
-                for (int z = -ext; z < ext; z++)
-                    for (int y = -ext; y < ext; y++)
-                        for (int x = -ext; x < ext; x++)
-                            if ((x * x + y * y + z * z) < extend * extend)
-                                dstTmp.setRL(0, i + x, j + y, k + z);
+    if (ext > 0)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(dst)
+            if (dst.getRL(i, j, k) == 1)
+                VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
+                    if (QUAD_3(x, y, z) < gsl_pow_2(a))
+                        dstTmp.setRL(1, i + x, j + y, k + z);
+    }
+    else if (ext < 0)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(dst)
+            if (dst.getRL(i, j, k) == 0)
+                VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
+                    if (QUAD_3(x, y, z) < gsl_pow_2(a))
+                        dstTmp.setRL(0, i + x, j + y, k + z);
+    }
 
-    dst = dstTmp;
+    dst = move(dstTmp);
 }
 
+/***
 void generateMask(Volume& dst,
                   const Volume& src,
                   const double densityThreshold,

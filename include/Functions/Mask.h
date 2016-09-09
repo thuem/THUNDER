@@ -18,6 +18,13 @@
 #include "Volume.h"
 #include "Interpolation.h"
 
+#define VOLUME_FOR_EACH_PIXEL_IN_GRID(a) \
+    for (int z = -a; z < a; z++) \
+        for (int y = -a; y < a; y++) \
+            for (int x = -a; x < a; x++)
+
+using namespace std;
+
 /**
  * This function calculates the average value of pixels outside the circle of
  * a certain radius.
@@ -139,23 +146,31 @@ void softMask(Volume& dst,
  *
  * @param dst destination volume
  * @param src source volume
- * @param dt  the density threshold
+ * @param dt  the density threshold (typyical value, 0.02)
  */
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt = 0.02);
+             const double dt);
 
-void gen(Volume& dst,
-         const Volume& src,
-         const double dt,
-         const double ex);
+/**
+ *
+ *
+ * @param ext the length of extending in pixel (typical value, 3)
+ */
+void genMask(Volume& dst,
+             const Volume& src,
+             const double dt,
+             const double ext);
 
-/***
-void generateMask(Volume& dst,
-                  const Volume& src,
-                  const double densityThreshold,
-                  const double extend,
-                  const double ew);
-                  ***/
+/**
+ *
+ *
+ * @param ew the edge width of masking (typical value, 6)
+ */
+void genMask(Volume& dst,
+             const Volume& src,
+             const double dt,
+             const double ext,
+             const double ew);
 
 #endif // MASK_H

@@ -54,6 +54,17 @@
                      i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + a)); \
                      i++)
 
+#define VOLUME_SUB_SPHERE_RL(a) \
+    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
+             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
+             k++) \
+        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - a)); \
+                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + a)); \
+                 j++) \
+            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - a)); \
+                     i <= GSL_MIN_INT(_nCol / 2 - 1, CEIL(iCol + a)); \
+                     i++)
+
 /**
  * This macro loops over each pixel of a volume in real space.
  *
