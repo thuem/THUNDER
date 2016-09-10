@@ -287,7 +287,7 @@ void genMask(Volume& dst,
         VOLUME_FOR_EACH_PIXEL_RL(dst)
             if (dst.getRL(i, j, k) == 1)
                 VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-                    if (QUAD_3(x, y, z) < gsl_pow_2(a))
+                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
                         dstTmp.setRL(1, i + x, j + y, k + z);
     }
     else if (ext < 0)
@@ -296,7 +296,7 @@ void genMask(Volume& dst,
         VOLUME_FOR_EACH_PIXEL_RL(dst)
             if (dst.getRL(i, j, k) == 0)
                 VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-                    if (QUAD_3(x, y, z) < gsl_pow_2(a))
+                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
                         dstTmp.setRL(0, i + x, j + y, k + z);
     }
 
@@ -323,6 +323,12 @@ void genMask(Volume& dst,
     FOR_EACH_PIXEL_RL(distance)
         distance(i) = FLT_MAX;
 
+    omp_lock_t* mtx = new omp_lock_t[dst.sizeRL()];
+
+    #pragma omp parallel for
+    for (int i = 0; i < (int)dst.sizeRL(); i++)
+        omp_init_lock(&mtx[i]);
+
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
         if (dst.getRL(i, j, k) == 1)
@@ -330,14 +336,28 @@ void genMask(Volume& dst,
             {
                 double d = NORM_3(x, y, z);
 
-                if ((d < a) &&
+                if (d < ew)
+                {
+                    int index = distance.iRL(i + x, j + y, k + z);
+                    omp_set_lock(&mtx[index]);
+                    if (distance(index) > d) distance(index) = d;
+                    omp_unset_lock(&mtx[index]);
+                }
+                /***
                     (distance.getRL(i + x, j + y, k + z) > d))
                     distance.setRL(d, i + x, j + y, k + z);
+                ***/
                 /***
                 if (QUAD_3(x, y, z) < gsl_pow_2(a))
                     dstTmp.setRL(1, i + x, j + y, k + z);
                 ***/
             }
+
+    #pragma omp parallel for
+    for (int i = 0; i < (int)dst.sizeRL(); i++)
+        omp_destroy_lock(&mtx[i]);
+
+    delete[] mtx;
 
     /***
     int ew = ceil(ew);
