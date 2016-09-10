@@ -174,12 +174,11 @@ void genMask(Volume& dst,
  *
  * @param ew the edge width of masking (typical value, 6)
  */
-/***
 void genMask(Volume& dst,
              const Volume& src,
              const double dt,
              const double ext,
-             const double ew);
-             ***/
+             const double ew,
+             const double r);
 
 #endif // MASK_H

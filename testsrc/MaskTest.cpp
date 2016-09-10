@@ -33,7 +33,8 @@ int main(int argc, char* argv[])
     Volume mask(N, N, N, RL_SPACE);
 
     //genMask(mask, ref, 0.1, 4);
-    genMask(mask, ref, 10, 3, N * 0.5);
+    genMask(mask, ref, 10, 3, 6, N * 0.5);
+    //genMask(mask, ref, 10, 3, N * 0.5);
 
     ImageFile out;
     out.readMetaData(mask);
