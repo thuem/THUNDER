@@ -1502,7 +1502,8 @@ void MLOptimiser::reconstructRef()
                     RL_SPACE);
 
         //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
-        genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
+        //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
+        genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
 
         _genMask = false;
     }
