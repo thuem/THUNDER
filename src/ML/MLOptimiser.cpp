@@ -697,17 +697,14 @@ void MLOptimiser::run()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
 
-        if (_r > _model.rPrev())
+        if (_r > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 
             _model.resetRChange();
             _model.setNRChangeNoDecrease(0);
             _model.setIncreaseR(false);
-        }
 
-        if (_r > _model.rT())
-        {
             MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
 
             _model.setRT(_r);
