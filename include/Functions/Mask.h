@@ -155,7 +155,7 @@ void softMask(Volume& dst,
               const double bg);
 
 /**
- * This function generates a mask on a volume. The standard for generate mask is
+ * This function generates a mask on a volume. The standard for generating mask is
  * that if the density of a voxel is larger than a threshold, the voxel of the
  * layer will be set to 1, otherwise it will be set to 0. The threshold is
  * calculated by the mean and stadard deviation of the background (3/4 radius to
@@ -172,9 +172,26 @@ void genMask(Volume& dst,
              const double r);
 
 /**
- * This function 
+ * This function generates a mask on a volume. The mask is generated in the
+ * following steps:
+ * 1. Generate the backbone of the mask which containing only 0 and 1. The
+ * standard for generating the backbone is that if the density of a voxel is
+ * larger than a threshold, the voxel of the layer will be set to 1, otherwise
+ * it will be set to 0. The threshold is calculated by the mean and stadard
+ * deviation of the background (3/4 radius to radius part).
+ * 2. Extend the backbone of the mask. For a voxel of the extended backbone, if
+ * there is a voxel in the original backone is 1, and the distance between them
+ * is smaller than a certain parameter, it will be assigned to 1. Meanwhile,
+ * when the extend paramter is smaller than 0, this step becomes shrinking the
+ * backbone of the mask. For a voxel of the shrinked backbone, if there is a
+ * voxel in the original backbone is 0, and the distance between them is smaller
+ * than a certain paramter, it will be assigned to 0.
  *
+ * @param dst destination volume
+ * @param src source volume
+ * @param dt  the density threshold factor (typical value, 10)
  * @param ext the length of extending in pixel (typical value, 3)
+ * @param r   the radius of the ball containing information
  */
 void genMask(Volume& dst,
              const Volume& src,
@@ -183,9 +200,28 @@ void genMask(Volume& dst,
              const double r);
 
 /**
+ * This function generates a mask on a volume. The mask is generated in the
+ * following steps:
+ * 1. Generate the backbone of the mask which containing only 0 and 1. The
+ * standard for generating the backbone is that if the density of a voxel is
+ * larger than a threshold, the voxel of the layer will be set to 1, otherwise
+ * it will be set to 0. The threshold is calculated by the mean and stadard
+ * deviation of the background (0.85 radius to radius part).
+ * 2. Extend the backbone of the mask. For a voxel of the extended backbone, if
+ * there is a voxel in the original backone is 1, and the distance between them
+ * is smaller than a certain parameter, it will be assigned to 1. Meanwhile,
+ * when the extend paramter is smaller than 0, this step becomes shrinking the
+ * backbone of the mask. For a voxel of the shrinked backbone, if there is a
+ * voxel in the original backbone is 0, and the distance between them is smaller
+ * than a certain paramter, it will be assigned to 0.
+ * 3. Make the mask have a soft cosine edge.
  *
- *
- * @param ew the edge width of masking (typical value, 6)
+ * @param dst destination volume
+ * @param src source volume
+ * @param dt  the density threshold factor (typical value, 10)
+ * @param ext the length of extending in pixel (typical value, 3)
+ * @param ew  the edge width of masking (typical value, 6)
+ * @param r   the radius of the ball containing information
  */
 void genMask(Volume& dst,
              const Volume& src,
