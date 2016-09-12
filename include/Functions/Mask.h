@@ -139,6 +139,16 @@ void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha);
 
+/**
+ * This function applys a softmask on a volume. The soft mask is calculated from
+ * the source image with a certain layer. The background is assigned with a
+ * parameter.
+ *
+ * @param dst   destination volume
+ * @param src   source volume
+ * @param alpha layer
+ * @param bg    background
+ */
 void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha,
@@ -147,11 +157,14 @@ void softMask(Volume& dst,
 /**
  * This function generates a mask on a volume. The standard for generate mask is
  * that if the density of a voxel is larger than a threshold, the voxel of the
- * layer will be set to 1, otherwise it will be set to 0.
+ * layer will be set to 1, otherwise it will be set to 0. The threshold is
+ * calculated by the mean and stadard deviation of the background (3/4 radius to
+ * radius part).
  *
  * @param dst destination volume
  * @param src source volume
  * @param dt  the density threshold factor (typyical value, 10)
+ * @param r   the radius of the ball containing information
  */
 void genMask(Volume& dst,
              const Volume& src,
@@ -159,7 +172,7 @@ void genMask(Volume& dst,
              const double r);
 
 /**
- *
+ * This function 
  *
  * @param ext the length of extending in pixel (typical value, 3)
  */
