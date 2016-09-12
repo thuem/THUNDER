@@ -202,6 +202,8 @@ void softMask(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
+        double w = alpha.getRL(i, j);
+
         double bg = bgMean + gsl_ran_gaussian(engine, bgStd);
 
         dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
