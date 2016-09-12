@@ -116,6 +116,15 @@ void softMask(Image& dst,
 {
     double bg = background(src, r, ew);
 
+    softMask(dst, src, r, ew, bg);
+}
+
+void softMask(Image& dst,
+              const Image& src,
+              const double r,
+              const double ew,
+              const double bg)
+{
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         double u = NORM(i, j);
@@ -129,19 +138,6 @@ void softMask(Image& dst,
         }
         else
             dst.setRL(src.getRL(i, j), i, j);
-    }
-}
-
-void softMask(Image& dst,
-              const Image& src,
-              const Image& alpha)
-{
-    double bg = background(src, alpha);
-
-    IMAGE_FOR_EACH_PIXEL_RL(src)
-    {
-        double w = alpha.getRL(i, j);
-        dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
     }
 }
 
@@ -172,6 +168,27 @@ void softMask(Image& dst,
                 dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
             }
         }
+    }
+}
+
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha)
+{
+    double bg = background(src, alpha);
+
+    softMask(dst, src, alpha, bg);
+}
+
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha,
+              const double bg)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+    {
+        double w = alpha.getRL(i, j);
+        dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
     }
 }
 

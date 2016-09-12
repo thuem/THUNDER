@@ -12,12 +12,15 @@
 #define MASK_H
 
 #include <cmath>
-#include <functional>
 
 #include "Random.h"
 #include "Volume.h"
-#include "Interpolation.h"
 
+/**
+ * This macro loops over all voxels in a grid of certain side length.
+ *
+ * @param a side length
+ */
 #define VOLUME_FOR_EACH_PIXEL_IN_GRID(a) \
     for (int z = -a; z < a; z++) \
         for (int y = -a; y < a; y++) \
@@ -85,15 +88,19 @@ void softMask(Image& dst,
 
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
- * from the source image with a certain layer.
+ * from the source image with a certain radius and edge width.
  *
- * @param dst   destination image
- * @param src   source image
- * @param alpha the layer
+ * @param dst destination image
+ * @param src source image
+ * @param r   radius of the circle
+ * @param ew  edge width of the cirlce
+ * @param bg  background
  */
 void softMask(Image& dst,
               const Image& src,
-              const Image& alpha);
+              const double r,
+              const double ew,
+              const double bg);
 
 /**
  * This function applys a soft mask on an image. The background will be
@@ -112,6 +119,31 @@ void softMask(Image& dst,
               const double ew,
               const double bgMean,
               const double bgStd);
+
+/**
+ * This function applys a soft mask on an image. The soft mask is calculated
+ * from the source image with a certain layer.
+ *
+ * @param dst   destination image
+ * @param src   source image
+ * @param alpha the layer
+ */
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha);
+
+/**
+ * This function applys a soft mask on an image. The soft mask is calculated
+ * from the source image with a certain layer.
+ *
+ * @param dst   destination image
+ * @param src   source image
+ * @param alpha the layer
+ */
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha,
+              const double bg);
 
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated
