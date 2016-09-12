@@ -133,17 +133,33 @@ void softMask(Image& dst,
               const Image& alpha);
 
 /**
- * This function applys a soft mask on an image. The soft mask is calculated
- * from the source image with a certain layer.
+ * This function applys a soft mask on an image.
  *
  * @param dst   destination image
  * @param src   source image
  * @param alpha the layer
+ * @param bg    background
  */
 void softMask(Image& dst,
               const Image& src,
               const Image& alpha,
               const double bg);
+
+/**
+ * This function applys a soft mask on an image. The background will be
+ * generated with given mean value and standard deviation.
+ *
+ * @param dst    destination image
+ * @param src    source image
+ * @param alpha  the layer
+ * @param bgMean mean value of background
+ * @param bgStd  standard deviation of background
+ */
+void softMask(Image& dst,
+              const Image& src,
+              const Image& alpha,
+              const double bgMean,
+              const double bgStd);
 
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated
