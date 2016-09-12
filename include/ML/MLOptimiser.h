@@ -366,6 +366,8 @@ class MLOptimiser : public Parallel
 
         void saveReference();
 
+        void saveMask();
+
         void saveFSC() const;
 };
 

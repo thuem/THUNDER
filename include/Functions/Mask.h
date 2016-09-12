@@ -17,6 +17,16 @@
 #include "Volume.h"
 
 /**
+ * recommended density threshold factor
+ */
+#define MASK_DENSITY_THRES_FACTOR 10
+
+/**
+ * recommended extension
+ */
+#define MASK_EXT 3
+
+/**
  * This macro loops over all voxels in a grid of certain side length.
  *
  * @param a side length

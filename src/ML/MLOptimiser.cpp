@@ -1500,7 +1500,15 @@ void MLOptimiser::reconstructRef()
 
         //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
         //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
-        genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
+        //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
+        genMask(_mask,
+                _model.ref(0),
+                MASK_DENSITY_THRES_FACTOR,
+                MASK_EXT,
+                EDGE_WIDTH_RL,
+                _para.size * 0.5);
+
+        saveMask();
 
         _genMask = false;
     }
@@ -1721,6 +1729,35 @@ void MLOptimiser::saveReference()
         imf.readMetaData(result);
         sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
         imf.writeVolume(filename, result);
+    }
+}
+
+void MLOptimiser::saveMask()
+{
+    ImageFile imf;
+    char filename[FILE_NAME_LENGTH];
+
+    Volume mask;
+
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Saving Mask(s)";
+
+        VOL_EXTRACT_RL(mask, _mask, 1.0 / _para.pf);
+
+        imf.readMetaData(mask);
+        sprintf(filename, "Mask_A.mrc");
+        imf.writeVolume(filename, mask);
+    }
+    else if (_commRank == HEMI_B_LEAD)
+    {
+        BLOG(INFO, "LOGGER_ROUND") << "Saving Mask(s)";
+
+        VOL_EXTRACT_RL(mask, _mask, 1.0 / _para.pf);
+
+        imf.readMetaData(mask);
+        sprintf(filename, "Mask_B.mrc");
+        imf.writeVolume(filename, mask);
     }
 }
 
