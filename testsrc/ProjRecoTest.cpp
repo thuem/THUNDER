@@ -32,8 +32,10 @@
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
-#define DEFOCUS_U 2e4
-#define DEFOCUS_V 2e4
+#define DEFOCUS_1 2e4
+#define DEFOCUS_2 1.9e4
+#define DEFOCUS_3 1.7e4
+#define DEFOCUS_4 1.5e4
 #define THETA 0
 #define CS 0
 
@@ -58,6 +60,43 @@ int main(int argc, char* argv[])
     FFT fft;
 
     Symmetry sym("C15");
+
+        Image ctf1(N, N, FT_SPACE);
+        Image ctf2(N, N, FT_SPACE);
+        Image ctf3(N, N, FT_SPACE);
+        Image ctf4(N, N, FT_SPACE);
+
+        CTF(ctf1,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_1,
+            DEFOCUS_1,
+            THETA,
+            CS);
+
+        CTF(ctf1,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_2,
+            DEFOCUS_2,
+            THETA,
+            CS);
+
+        CTF(ctf1,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_3,
+            DEFOCUS_3,
+            THETA,
+            CS);
+
+        CTF(ctf1,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_4,
+            DEFOCUS_4,
+            THETA,
+            CS);
 
     Projector projector;
 
@@ -107,18 +146,6 @@ int main(int argc, char* argv[])
         projector.setPf(PF);
         projector.setProjectee(padRef.copyVolume());
 
-        CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
-
-        Image ctf(N, N, FT_SPACE);
-
-        CTF(ctf,
-            PIXEL_SIZE,
-            VOLTAGE,
-            DEFOCUS_U,
-            DEFOCUS_V,
-            THETA,
-            CS);
-
         Coordinate5D coord;
         Image image(N, N, FT_SPACE);
         SET_0_FT(image);
@@ -148,8 +175,26 @@ int main(int argc, char* argv[])
             par.coord(coord, i);
             projector.project(image, coord);
 
-            FOR_EACH_PIXEL_FT(image)
-                image[i] *= REAL(ctf[i]);
+            if (i % 4 == 0)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf1[i]);
+            }
+            else if (i % 4 == 1)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf2[i]);
+            }
+            else if (i % 4 == 2)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf3[i]);
+            }
+            else
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf4[i]);
+            }
 
             fftThread.bw(image);
 
@@ -198,16 +243,6 @@ int main(int argc, char* argv[])
 
         CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
 
-        Image ctf(N, N, FT_SPACE);
-
-        CTF(ctf,
-            PIXEL_SIZE,
-            VOLTAGE,
-            DEFOCUS_U,
-            DEFOCUS_V,
-            THETA,
-            CS);
-
         for (int i = M / (commSize - 1) * (commRank - 1);
                  i < M / (commSize - 1) * commRank;
                  i++)
@@ -232,7 +267,14 @@ int main(int argc, char* argv[])
 
             par.coord(coord, i);
 
-            reduceCTF(insert, insert, ctf);
+            if (i % 4 == 0)
+                reduceCTF(insert, insert, ctf1);
+            else if (i % 4 == 1)
+                reduceCTF(insert, insert, ctf2);
+            else if (i % 4 == 2)
+                reduceCTF(insert, insert, ctf3);
+            else
+                reduceCTF(insert, insert, ctf4);
 
             reco.insert(insert, coord, 1);
 
@@ -271,6 +313,7 @@ int main(int argc, char* argv[])
         }
     }
 
+    /***
     MPI_Barrier(MPI_COMM_WORLD);
 
     if (commRank == MASTER_ID)
@@ -307,18 +350,6 @@ int main(int argc, char* argv[])
         Particle par(M, TRANS_S, 0.01, &sym);
         //Particle par(M, TRANS_S, 0.01, NULL);
         load(par, "SamplingPoints.par");
-
-        CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
-
-        Image ctf(N, N, FT_SPACE);
-
-        CTF(ctf,
-            PIXEL_SIZE,
-            VOLTAGE,
-            DEFOCUS_U,
-            DEFOCUS_V,
-            THETA,
-            CS);
 
         #pragma omp parallel for
         for (int i = 0; i < 100; i++)
@@ -373,6 +404,7 @@ int main(int argc, char* argv[])
             imageNew.saveRLToBMP(name);
         }
     }
+    ***/
     
     return 0;
 }
