@@ -41,7 +41,7 @@
 
 #define BLOB_A 1.9
 
-#define NOISE_FACTOR 10
+#define NOISE_FACTOR 0
 
 using namespace std;
 
