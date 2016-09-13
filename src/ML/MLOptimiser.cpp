@@ -172,7 +172,7 @@ void MLOptimiser::expectation()
         vector<Image> trans;
         trans.resize(nT);
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) private(t)
         for (int m = 0; m < nT; m++)
         {
             trans[m].alloc(size(), size(), FT_SPACE);
@@ -186,7 +186,7 @@ void MLOptimiser::expectation()
 
         mat logW(_par[0].n(), _ID.size());
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) private(rot)
         for (int m = 0; m < nR; m++)
         {
             Image imgRot(size(), size(), FT_SPACE);
