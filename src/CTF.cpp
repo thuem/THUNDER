@@ -74,13 +74,15 @@ void reduceCTF(Image& dst,
         //dst[i] = src.iGetFT(i) / (CTF_TAU + REAL(ctf.iGetFT(i)));
         double v = REAL(ctf.iGetFT(i));
 
-        //dst[i] = v * src.iGetFT(i) / (gsl_pow_2(v) + CTF_TAU);
+        dst[i] = v * src.iGetFT(i) / (gsl_pow_2(v) + CTF_TAU);
 
+        /***
         if (abs(v) > CTF_TAU)
             dst[i] = src.iGetFT(i) / v;
         else
             dst[i] = COMPLEX(0, 0);
             //dst[i] = src.iGetFT(i);
+        ***/
     }
 }
 
@@ -113,6 +115,7 @@ void reduceCTF(Image& dst,
                const vec& sigma,
                const vec& tau,
                const int pf,
+               const int snrR,
                const int r)
 {
     IMAGE_FOR_PIXEL_R_FT(r + 1)
@@ -129,10 +132,13 @@ void reduceCTF(Image& dst,
             CLOG(INFO, "LOGGER_SYS") << "sigma / tau" << sigma(u) / tau(pf * u) << endl;
             ***/
 
-            dst.setFT(v * src.getFT(i, j)
-                    / (gsl_pow_2(v) + sigma(u) / tau(pf * u)),
-                      i,
-                      j);
+            if (u < snrR)
+                dst.setFT(v * src.getFT(i, j)
+                        / (gsl_pow_2(v) + sigma(u) / tau(pf * u)),
+                          i,
+                          j);
+            else
+                dst.setFT(v * src.getFT(i, j) / (gsl_pow_2(v) + CTF_TAU), i, j);
 
             /***
             dst.setFT(v * src.getFT(i, j)
