@@ -266,20 +266,7 @@ void genMask(Volume& dst,
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if ((QUAD_3(i, j, k) < gsl_pow_2(r)) &&
             (QUAD_3(i, j, k) > gsl_pow_2(r * 0.85)))
-        {
             bg.push_back(src.getRL(i, j, k));
-            /***
-            dst.setRL(src.getRL(i, j, k),
-                      i, j, k);
-                      ***/
-        }
-    /***
-        else
-        {
-            dst.setRL(0,
-                      i, j, k);
-        }
-        ***/
 
     //double mean = gsl_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
     //double std = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
@@ -293,15 +280,38 @@ void genMask(Volume& dst,
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if (src.getRL(i, j, k) > mean + dt * std)
-        {
-            //cout << "yes, " << src.getRL(i, j, k);
             dst.setRL(1, i, j, k);
-        }
         else
-        {
-            //cout << "no, " << src.getRL(i, j, k);
             dst.setRL(0, i, j, k);
+
+    // remove isolated point
+
+    Volume dstTmp = dst.copyVolume();
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(dst)
+        if (dst.getRL(i, j, k) == 1)
+        {
+            bool isolated = true;
+
+            if (((i - 1 >= -dst.nColRL() / 2) &&
+                 (dst.getRL(i - 1, j, k) == 1)) ||
+                ((j - 1 >= -dst.nRowRL() / 2) &&
+                 (dst.getRL(i, j - 1, k) == 1)) ||
+                ((k - 1 >= -dst.nSlcRL() / 2) &&
+                 (dst.getRL(i, j, k - 1) == 1)) ||
+                ((i + 1 < dst.nColRL() / 2) &&
+                 (dst.getRL(i + 1, j, k) == 1)) ||
+                ((j + 1 < dst.nRowRL() / 2) &&
+                 (dst.getRL(i, j + 1, k) == 1)) ||
+                ((k + 1 < dst.nSlcRL() / 2) &&
+                 (dst.getRL(i, j, k + 1) == 1)))
+                isolated = false;
+
+            if (isolated) dstTmp.setRL(0, i, j, k);
         }
+
+    dst = move(dstTmp);
 }
 
 void genMask(Volume& dst,
