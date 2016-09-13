@@ -1513,6 +1513,7 @@ void MLOptimiser::reconstructRef()
         _genMask = false;
     }
 
+    /***
     if (!_mask.isEmptyRL())
     {
         ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
@@ -1520,6 +1521,7 @@ void MLOptimiser::reconstructRef()
 
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
+    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
