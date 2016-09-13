@@ -18,9 +18,10 @@
 #define CTF_A 0.1
 //#define CTF_A 0.07
 
-#define CTF_TAU 0.001
+//#define CTF_TAU 0.001
 //#define CTF_TAU 0.01
 //#define CTF_TAU 0.1
+#define CTF_TAU 0.05
 
 constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
 constexpr double w2 = CTF_A;
