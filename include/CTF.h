@@ -22,6 +22,14 @@
 #define CTF_TAU 0.01
 //#define CTF_TAU 0.1
 
+constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
+constexpr double w2 = CTF_A;
+
+double CTF(const double f,
+           const double voltage,
+           const double defocus,
+           const double CS);
+
 /**
  * This function generates a CTF using parameters given.
  *

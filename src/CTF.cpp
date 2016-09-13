@@ -8,6 +8,26 @@
 
 #include "CTF.h"
 
+double CTF(const double f,
+           const double voltage,
+           const double defocus,
+           const double Cs)
+{
+    double lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
+
+    double K1 = M_PI * lambda;
+    double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);
+
+    double ki = K1 * defocus * gsl_pow_2(f) + K2 * gsl_pow_4(f);
+
+    /***
+    constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
+    constexpr double w2 = CTF_A;
+    ***/
+
+    return w1 * sin(ki) - w2 * cos(ki);
+}
+
 void CTF(Image& dst,
          const double pixelSize,
          const double voltage,
@@ -34,8 +54,10 @@ void CTF(Image& dst,
 
         double ki = K1 * defocus * gsl_pow_2(u) + K2 * gsl_pow_4(u);
 
+        /***
         constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
         constexpr double w2 = CTF_A;
+        ***/
 
         //dst.setFT(COMPLEX(w1 * sin(ki) + w2 * cos(ki), 0),
         //dst.setFT(COMPLEX(w2 * cos(ki) - w1 * sin(ki), 0), // CORRECT_ONE
