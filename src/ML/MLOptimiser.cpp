@@ -172,7 +172,7 @@ void MLOptimiser::expectation()
         vector<Image> trans;
         trans.resize(nT);
 
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic)
         for (int m = 0; m < nT; m++)
         {
             trans[m].alloc(size(), size(), FT_SPACE);
@@ -186,7 +186,7 @@ void MLOptimiser::expectation()
 
         mat logW(_par[0].n(), _ID.size());
 
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic)
         for (int m = 0; m < nR; m++)
         {
             Image imgRot(size(), size(), FT_SPACE);
@@ -1878,7 +1878,7 @@ vec logDataVSPrior(const vector<Image>& dat,
             {
                 int index = dat[0].iFTHalf(i, j);
 
-                for (int l = 0; l < (int)dat.size(); l++)
+                for (int l = 0; l < n; l++)
                 {
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
