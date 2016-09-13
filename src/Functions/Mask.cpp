@@ -388,14 +388,6 @@ void genMask(Volume& dst,
                     if (distance(index) > d) distance(index) = d;
                     omp_unset_lock(&mtx[index]);
                 }
-                /***
-                    (distance.getRL(i + x, j + y, k + z) > d))
-                    distance.setRL(d, i + x, j + y, k + z);
-                ***/
-                /***
-                if (QUAD_3(x, y, z) < gsl_pow_2(a))
-                    dstTmp.setRL(1, i + x, j + y, k + z);
-                ***/
             }
 
     #pragma omp parallel for
@@ -404,26 +396,6 @@ void genMask(Volume& dst,
 
     delete[] mtx;
 
-    /***
-    int ew = ceil(ew);
-
-    auto distance = [&dst, ew](const double i,
-                               const double j,
-                               const double k)
-    {
-        double result = FLT_MAX;
-
-        for (int z = -ew; z < ew; z++)
-            for (int y = -ew; y < ew; y++)
-                for (int x = - ew; x < ew; x++)
-                    if (((x * x + y * y + z * z) < result * result) &&
-                        (dst.get(i + x, j + y, k + z) == 1))
-                        result = sqrt(x * x + y * y + z * z);
-
-        return result;
-    };
-    ***/
-
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_PIXEL_RL(dst)
     {
@@ -431,15 +403,4 @@ void genMask(Volume& dst,
         if ((d != 0) && (d < ew))
             dst(i) = 0.5 + 0.5 * cos(d / ew * M_PI);
     }
-
-    /***
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL(dst)
-    {
-        double d 
-        double d = distance(i, j, k);
-        if ((dst.get(i, j, k) != 1) && (d < ew))
-            dst.set(0.5 + 0.5 * cos(d / ew * M_PI), i, j, k);
-    }
-    ***/
 }
