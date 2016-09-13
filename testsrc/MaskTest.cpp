@@ -34,9 +34,9 @@ int main(int argc, char* argv[])
 
     //genMask(mask, ref, 0.1, 4);
     //genMask(mask, ref, 10, 3, 6, N * 0.5);
-    genMask(mask, ref, 10, 3, N * 0.5);
+    //genMask(mask, ref, 10, 3, N * 0.5);
     //genMask(mask, ref, 10, N * 0.5);
-    //genMask(mask, ref, 10, 3, 2, N * 0.5);
+    genMask(mask, ref, 10, 3, 2, N * 0.5);
     //genMask(mask, ref, 10, 1, 2, N * 0.5);
 
     ImageFile out;

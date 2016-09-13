@@ -107,8 +107,8 @@ int main(int argc, char* argv[])
         projector.setPf(PF);
         projector.setProjectee(padRef.copyVolume());
 
-        /***
         CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
+
         Image ctf(N, N, FT_SPACE);
 
         CTF(ctf,
@@ -118,7 +118,6 @@ int main(int argc, char* argv[])
             DEFOCUS_V,
             THETA,
             CS);
-        ***/
 
         Coordinate5D coord;
         Image image(N, N, FT_SPACE);
@@ -149,10 +148,8 @@ int main(int argc, char* argv[])
             par.coord(coord, i);
             projector.project(image, coord);
 
-            /***
             FOR_EACH_PIXEL_FT(image)
                 image[i] *= REAL(ctf[i]);
-            ***/
 
             fftThread.bw(image);
 
@@ -199,6 +196,18 @@ int main(int argc, char* argv[])
 
         Coordinate5D coord;
 
+        CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
+
+        Image ctf(N, N, FT_SPACE);
+
+        CTF(ctf,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_U,
+            DEFOCUS_V,
+            THETA,
+            CS);
+
         for (int i = M / (commSize - 1) * (commRank - 1);
                  i < M / (commSize - 1) * commRank;
                  i++)
@@ -222,6 +231,8 @@ int main(int argc, char* argv[])
             CLOG(INFO, "LOGGER_SYS") << nameInsert << " Fourier transformed";
 
             par.coord(coord, i);
+
+            reduceCTF(insert, insert, ctf);
 
             reco.insert(insert, coord, 1);
 
