@@ -308,6 +308,18 @@ int main(int argc, char* argv[])
         //Particle par(M, TRANS_S, 0.01, NULL);
         load(par, "SamplingPoints.par");
 
+        CLOG(INFO, "LOGGER_SYS") << "Setting CTF";
+
+        Image ctf(N, N, FT_SPACE);
+
+        CTF(ctf,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_U,
+            DEFOCUS_V,
+            THETA,
+            CS);
+
         #pragma omp parallel for
         for (int i = 0; i < 100; i++)
         {
@@ -330,6 +342,9 @@ int main(int argc, char* argv[])
             par.coord(coord, i);
 
             projectorNew.project(imageNew, coord);
+
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf[i]);
 
             Image diff(N, N, FT_SPACE);
             FOR_EACH_PIXEL_FT(diff)
