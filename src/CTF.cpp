@@ -18,7 +18,7 @@ double CTF(const double f,
     double K1 = M_PI * lambda;
     double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);
 
-    double ki = K1 * defocus * gsl_pow_2(f) + K2 * gsl_pow_4(f);
+    double ki = -K1 * defocus * gsl_pow_2(f) + K2 * gsl_pow_4(f);
 
     /***
     constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
