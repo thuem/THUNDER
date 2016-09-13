@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
             projectorNew.project(imageNew, coord);
 
             FOR_EACH_PIXEL_FT(image)
-                image[i] *= REAL(ctf[i]);
+                imageNew[i] *= REAL(ctf[i]);
 
             Image diff(N, N, FT_SPACE);
             FOR_EACH_PIXEL_FT(diff)
