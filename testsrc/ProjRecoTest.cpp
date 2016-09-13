@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
             THETA,
             CS);
 
-        CTF(ctf1,
+        CTF(ctf2,
             PIXEL_SIZE,
             VOLTAGE,
             DEFOCUS_2,
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
             THETA,
             CS);
 
-        CTF(ctf1,
+        CTF(ctf3,
             PIXEL_SIZE,
             VOLTAGE,
             DEFOCUS_3,
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
             THETA,
             CS);
 
-        CTF(ctf1,
+        CTF(ctf4,
             PIXEL_SIZE,
             VOLTAGE,
             DEFOCUS_4,
