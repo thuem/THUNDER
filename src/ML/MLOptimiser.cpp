@@ -1480,7 +1480,8 @@ void MLOptimiser::reconstructRef()
         
         _par[l].rank1st(rot, tran);
 
-        _model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
+        //_model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
+        _model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";

@@ -267,6 +267,7 @@ int main(int argc, char* argv[])
 
             par.coord(coord, i);
 
+            /***
             if (i % 4 == 0)
                 reduceCTF(insert, insert, ctf1);
             else if (i % 4 == 1)
@@ -275,8 +276,17 @@ int main(int argc, char* argv[])
                 reduceCTF(insert, insert, ctf3);
             else
                 reduceCTF(insert, insert, ctf4);
-
             reco.insert(insert, coord, 1);
+            ***/
+
+            if (i % 4 == 0)
+                reco.insert(insert, ctf1, coord, 1);
+            else if (i % 4 == 1)
+                reco.insert(insert, ctf2, coord, 1);
+            else if (i % 4 == 2)
+                reco.insert(insert, ctf3, coord, 1);
+            else
+                reco.insert(insert, ctf4, coord, 1);
 
             CLOG(INFO, "LOGGER_SYS") << nameInsert << " Inserted!";
         }
