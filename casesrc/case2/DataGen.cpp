@@ -32,8 +32,12 @@
 #define VOLTAGE 3e5
 #define DEFOCUS_U_1 2e4
 #define DEFOCUS_V_1 2e4
-#define DEFOCUS_U_2 1.5e4
-#define DEFOCUS_V_2 1.5e4
+#define DEFOCUS_U_2 1.8e4
+#define DEFOCUS_V_2 1.8e4
+#define DEFOCUS_U_3 1.7e4
+#define DEFOCUS_V_3 1.7e4
+#define DEFOCUS_U_4 1.5e4
+#define DEFOCUS_V_4 1.5e4
 #define THETA 0
 #define CS 0
 
@@ -149,12 +153,32 @@ int main(int argc, char* argv[])
         DEFOCUS_V_2,
         THETA,
         CS);
+    Image ctf_3(N, N, FT_SPACE);
+    CTF(ctf_3,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_3,
+        DEFOCUS_V_3,
+        THETA,
+        CS);
+    Image ctf_4(N, N, FT_SPACE);
+    CTF(ctf_4,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_4,
+        DEFOCUS_V_4,
+        THETA,
+        CS);
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Experiment";
     Experiment exp("C15.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_1, DEFOCUS_V_1, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_2, DEFOCUS_V_2, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_3, DEFOCUS_V_3, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_4, DEFOCUS_V_4, THETA, CS);
+    exp.appendGroup("");
+    exp.appendGroup("");
     exp.appendGroup("");
     exp.appendGroup("");
 
@@ -201,15 +225,25 @@ int main(int argc, char* argv[])
         powerSpectrum(ps, image, N / 2 - 1);
         ***/
 
-        if (i % 2 == 0)
+        if (i % 4 == 0)
         {
             FOR_EACH_PIXEL_FT(image)
                 image[i] *= REAL(ctf_1[i]);
         }
-        else
+        else if (i % 4 == 1)
         {
             FOR_EACH_PIXEL_FT(image)
                 image[i] *= REAL(ctf_2[i]);
+        }
+        else if (i % 4 == 2)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_3[i]);
+        }
+        else
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_4[i]);
         }
 
         /***
@@ -240,15 +274,25 @@ int main(int argc, char* argv[])
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         ***/
         
-        if (i % 2 == 0)
+        if (i % 4 == 0)
         {
             #pragma omp critical
             exp.appendParticle(name, 1, 1);
         }
-        else
+        else if (i % 4 == 1)
         {
             #pragma omp critical
             exp.appendParticle(name, 2, 2);
+        }
+        else if (i % 4 == 2)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 3, 3);
+        }
+        else
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 4, 4);
         }
 
         ImageFile imfThread;
