@@ -1504,9 +1504,8 @@ void MLOptimiser::reconstructRef()
         //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
         genMask(_mask,
                 _model.ref(0),
-                MASK_DENSITY_THRES_FACTOR,
-                MASK_EXT,
-                EDGE_WIDTH_RL,
+                GEN_MASK_EXT,
+                GEN_MASK_EDGE_WIDTH,
                 _para.size * 0.5);
 
         saveMask();
@@ -1514,7 +1513,6 @@ void MLOptimiser::reconstructRef()
         _genMask = false;
     }
 
-    /***
     if (!_mask.isEmptyRL())
     {
         ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
@@ -1522,7 +1520,6 @@ void MLOptimiser::reconstructRef()
 
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
