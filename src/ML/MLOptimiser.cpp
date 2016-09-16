@@ -1805,17 +1805,17 @@ double logDataVSPrior(const Image& dat,
             {
                 int index = dat.iFTHalf(i, j);
 
+                /***
                 result += gsl_pow_2(REAL(ctf.iGetFT(index)))
                         * ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
                         / (-2 * sig[v]);
-                /***
+                ***/
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
                         / (-2 * sig[v]);
-                ***/
             }
         }
     }
@@ -1846,19 +1846,19 @@ double logDataVSPrior(const Image& dat,
             {
                 int index = dat.iFTHalf(i, j);
 
-                /***
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         / (-2 * sig[v]);
-                ***/
+                /***
                 result += gsl_pow_2(REAL(ctf.iGetFT(index)))
                         * ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         / (-2 * sig[v]);
+                ***/
             }
         }
     }
@@ -1893,17 +1893,17 @@ vec logDataVSPrior(const vector<Image>& dat,
 
                 for (int l = 0; l < n; l++)
                 {
-                    /***
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
                                / (-2 * sig(groupID[l] - 1, v));
-                    ***/
+                    /***
                     result(l) += gsl_pow_2(REAL(ctf[l].iGetFT(index)))
                                * ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
                                / (-2 * sig(groupID[l] - 1, v));
+                    ***/
                 }
             }
         }

@@ -22,8 +22,8 @@
 /**
  * recommended extension
  */
-//#define GEN_MASK_EXT 1.5
-#define GEN_MASK_EXT 3
+#define GEN_MASK_EXT 1.5
+//#define GEN_MASK_EXT 3
 
 //#define GEN_MASK_EDGE_WIDTH 2
 #define GEN_MASK_EDGE_WIDTH 6
