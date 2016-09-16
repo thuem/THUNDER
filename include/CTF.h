@@ -16,15 +16,8 @@
 #include "Image.h"
 
 #define CTF_A 0.1
-//#define CTF_A 0.07
 
-//#define CTF_TAU 0.001
-//#define CTF_TAU 0.01
-#define CTF_TAU 0.05
-//#define CTF_TAU 0.1
-//#define CTF_TAU 0.2
-
-//constexpr double CTF_TAU = sqrt(2) / 2;
+#define CTF_TAU 0.01
 
 constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
 constexpr double w2 = CTF_A;
