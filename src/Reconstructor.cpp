@@ -29,6 +29,7 @@ void Reconstructor::init(const int size,
 {
     _rot.clear();
     _w.clear();
+    _ctf.clear();
 
     _size = size;
     _pf = pf;
