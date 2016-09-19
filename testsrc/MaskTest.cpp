@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     FFT fft;
     fft.fwMT(ref);
 
-    lowPassFilter(ref, ref, 1.32 / 20, 2.0 / N);
+    //lowPassFilter(ref, ref, 1.32 / 20, 2.0 / N);
 
     fft.bwMT(ref);
 

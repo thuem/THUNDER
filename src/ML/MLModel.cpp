@@ -209,8 +209,8 @@ void MLModel::BcastFSC()
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
                                            _size,
                                            _pixelSize) + 1) * _pf,
-                                   _rU * _pf);
-                                   //0.9 * (_r + 1) * _pf);
+                                   0.8 * (_r + 1) * _pf);
+                                   //_rU * _pf);
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
                                          << 1.0 / resP2A(r / _pf - 1, _size, _pixelSize)
@@ -734,7 +734,10 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 void MLModel::updateRU()
 {
     _rU = GSL_MIN_INT(_r
-                    + GSL_MIN_INT(SEARCH_RES_GAP,
-                                  AROUND((double)_size / 32)),
+                    + ((_searchType == SEARCH_TYPE_GLOBAL)
+                     ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
+                                   AROUND((double)_size / 64))
+                     : GSL_MIN_INT(SEARCH_RES_GAP_LOCAL,
+                                   AROUND((double)_size / 32))),
                       maxR());
 }

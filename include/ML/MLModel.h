@@ -29,7 +29,9 @@
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define SEARCH_RES_GAP 20
+#define SEARCH_RES_GAP_GLOBAL 20
+
+#define SEARCH_RES_GAP_LOCAL 5
 
 #define SEARCH_TYPE_STOP -1
 
