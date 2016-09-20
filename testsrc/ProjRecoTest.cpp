@@ -32,10 +32,14 @@
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
-#define DEFOCUS_1 2e4
-#define DEFOCUS_2 1.9e4
-#define DEFOCUS_3 1.7e4
-#define DEFOCUS_4 1.5e4
+#define DEFOCUS_1 1e4
+#define DEFOCUS_2 1.2e4
+#define DEFOCUS_3 1.4e4
+#define DEFOCUS_4 1.6e4
+#define DEFOCUS_5 1.8e4
+#define DEFOCUS_6 2.0e4
+#define DEFOCUS_7 2.2e4
+#define DEFOCUS_8 2.4e4
 #define THETA 0
 #define CS 0
 
@@ -65,6 +69,10 @@ int main(int argc, char* argv[])
         Image ctf2(N, N, FT_SPACE);
         Image ctf3(N, N, FT_SPACE);
         Image ctf4(N, N, FT_SPACE);
+        Image ctf5(N, N, FT_SPACE);
+        Image ctf6(N, N, FT_SPACE);
+        Image ctf7(N, N, FT_SPACE);
+        Image ctf8(N, N, FT_SPACE);
 
         CTF(ctf1,
             PIXEL_SIZE,
@@ -95,6 +103,38 @@ int main(int argc, char* argv[])
             VOLTAGE,
             DEFOCUS_4,
             DEFOCUS_4,
+            THETA,
+            CS);
+
+        CTF(ctf5,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_5,
+            DEFOCUS_5,
+            THETA,
+            CS);
+
+        CTF(ctf6,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_6,
+            DEFOCUS_6,
+            THETA,
+            CS);
+
+        CTF(ctf7,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_7,
+            DEFOCUS_7,
+            THETA,
+            CS);
+
+        CTF(ctf8,
+            PIXEL_SIZE,
+            VOLTAGE,
+            DEFOCUS_8,
+            DEFOCUS_8,
             THETA,
             CS);
 
@@ -175,25 +215,45 @@ int main(int argc, char* argv[])
             par.coord(coord, i);
             projector.project(image, coord);
 
-            if (i % 4 == 0)
+            if (i % 8 == 0)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf1[i]);
             }
-            else if (i % 4 == 1)
+            else if (i % 8 == 1)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf2[i]);
             }
-            else if (i % 4 == 2)
+            else if (i % 8 == 2)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf3[i]);
             }
-            else
+            else if (i % 8 == 3)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf4[i]);
+            }
+            else if (i % 8 == 4)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf5[i]);
+            }
+            else if (i % 8 == 5)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf6[i]);
+            }
+            else if (i % 8 == 6)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf7[i]);
+            }
+            else
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    image[i] *= REAL(ctf8[i]);
             }
 
             fftThread.bw(image);
@@ -279,14 +339,22 @@ int main(int argc, char* argv[])
             reco.insert(insert, coord, 1);
             ***/
 
-            if (i % 4 == 0)
+            if (i % 8 == 0)
                 reco.insert(insert, ctf1, coord, 1);
-            else if (i % 4 == 1)
+            else if (i % 8 == 1)
                 reco.insert(insert, ctf2, coord, 1);
-            else if (i % 4 == 2)
+            else if (i % 8 == 2)
                 reco.insert(insert, ctf3, coord, 1);
-            else
+            else if (i % 8 == 3)
                 reco.insert(insert, ctf4, coord, 1);
+            else if (i % 8 == 4)
+                reco.insert(insert, ctf5, coord, 1);
+            else if (i % 8 == 5)
+                reco.insert(insert, ctf6, coord, 1);
+            else if (i % 8 == 6)
+                reco.insert(insert, ctf7, coord, 1);
+            else
+                reco.insert(insert, ctf8, coord, 1);
 
             CLOG(INFO, "LOGGER_SYS") << nameInsert << " Inserted!";
         }
