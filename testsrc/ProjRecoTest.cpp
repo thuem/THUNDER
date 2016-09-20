@@ -285,7 +285,7 @@ int main(int argc, char* argv[])
     //Reconstructor reco(N, 2, &sym, 0.95);
     //Reconstructor reco(N, 2, NULL);
     reco.setMPIEnv();
-    reco.setMaxRadius(33);
+    //reco.setMaxRadius(33);
 
     if (commRank == MASTER_ID)
         CLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
