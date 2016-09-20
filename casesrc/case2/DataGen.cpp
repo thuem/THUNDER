@@ -49,7 +49,7 @@
 #define THETA 0
 #define CS 0
 
-#define NOISE_FACTOR 10
+#define NOISE_FACTOR 30
 
 using namespace std;
 
