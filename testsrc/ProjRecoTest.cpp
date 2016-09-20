@@ -45,7 +45,7 @@
 
 #define BLOB_A 1.9
 
-#define NOISE_FACTOR 10
+#define NOISE_FACTOR 1
 
 using namespace std;
 
@@ -391,7 +391,6 @@ int main(int argc, char* argv[])
         }
     }
 
-    /***
     MPI_Barrier(MPI_COMM_WORLD);
 
     if (commRank == MASTER_ID)
@@ -452,8 +451,46 @@ int main(int argc, char* argv[])
 
             projectorNew.project(imageNew, coord);
 
-            FOR_EACH_PIXEL_FT(image)
-                imageNew[i] *= REAL(ctf[i]);
+            if (i % 8 == 0)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf1[i]);
+            }
+            else if (i % 8 == 1)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf2[i]);
+            }
+            else if (i % 8 == 2)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf3[i]);
+            }
+            else if (i % 8 == 3)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf4[i]);
+            }
+            else if (i % 8 == 4)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf5[i]);
+            }
+            else if (i % 8 == 5)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf6[i]);
+            }
+            else if (i % 8 == 6)
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf7[i]);
+            }
+            else
+            {
+                FOR_EACH_PIXEL_FT(image)
+                    imageNew[i] *= REAL(ctf8[i]);
+            }
 
             Image diff(N, N, FT_SPACE);
             FOR_EACH_PIXEL_FT(diff)
@@ -482,7 +519,6 @@ int main(int argc, char* argv[])
             imageNew.saveRLToBMP(name);
         }
     }
-    ***/
     
     return 0;
 }
