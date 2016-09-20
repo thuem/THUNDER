@@ -262,9 +262,6 @@ void MLOptimiser::expectation()
             // sort
             _par[l].sort(_para.mG);
 
-            // shuffle
-            _par[l].shuffle();
-            
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -275,6 +272,9 @@ void MLOptimiser::expectation()
                          _iter);
                 save(filename, _par[l]);
             }
+
+            // shuffle
+            _par[l].shuffle();
 
             // resample
             _par[l].resample(_para.mG);
