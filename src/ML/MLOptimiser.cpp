@@ -786,6 +786,9 @@ int MLOptimiser::maxR() const
 void MLOptimiser::bcastGroupInfo()
 {
     ALOG(INFO, "LOGGER_INIT") << "Storing GroupID";
+
+    _groupID.clear();
+
     NT_MASTER
     {
         sql::Statement stmt("select GroupID from particles where ID = ?", -1, _exp.expose());
@@ -799,8 +802,7 @@ void MLOptimiser::bcastGroupInfo()
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Getting Number of Groups from Database";
-    IF_MASTER
-        _nGroup = _exp.nGroup();
+    IF_MASTER _nGroup = _exp.nGroup();
 
     MLOG(INFO, "LOGGER_INIT") << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
@@ -851,7 +853,10 @@ void MLOptimiser::initRef()
 
 void MLOptimiser::initID()
 {
+    _ID.clear();
+
     sql::Statement stmt("select ID from particles;", -1, _exp.expose());
+
     while (stmt.step())
         _ID.push_back(stmt.get_int(0));
 }
@@ -1074,6 +1079,8 @@ void MLOptimiser::bwImg()
 void MLOptimiser::initCTF()
 {
     IF_MASTER return;
+
+    _ctf.clear();
 
     // get CTF attributes from _exp
     CTFAttr ctfAttr;
