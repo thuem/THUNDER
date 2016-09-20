@@ -214,7 +214,6 @@ int main(int argc, char* argv[])
     Experiment exp("C15.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_1, DEFOCUS_V_1, THETA, CS);
-    /***
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_2, DEFOCUS_V_2, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_3, DEFOCUS_V_3, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_4, DEFOCUS_V_4, THETA, CS);
@@ -222,7 +221,7 @@ int main(int argc, char* argv[])
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_6, DEFOCUS_V_6, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_7, DEFOCUS_V_7, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_8, DEFOCUS_V_8, THETA, CS);
-    ***/
+
     exp.appendGroup("");
     /***
     exp.appendGroup("");
@@ -346,7 +345,6 @@ int main(int argc, char* argv[])
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         ***/
         
-        /***
         if (i % 8 == 0)
         {
             #pragma omp critical
@@ -355,40 +353,38 @@ int main(int argc, char* argv[])
         else if (i % 8 == 1)
         {
             #pragma omp critical
-            exp.appendParticle(name, 2, 2);
+            exp.appendParticle(name, 2, 1);
         }
         else if (i % 8 == 2)
         {
             #pragma omp critical
-            exp.appendParticle(name, 3, 3);
+            exp.appendParticle(name, 3, 1);
         }
         else if (i % 8 == 3)
         {
             #pragma omp critical
-            exp.appendParticle(name, 4, 4);
+            exp.appendParticle(name, 4, 1);
         }
         else if (i % 8 == 4)
         {
             #pragma omp critical
-            exp.appendParticle(name, 5, 5);
+            exp.appendParticle(name, 5, 1);
         }
         else if (i % 8 == 5)
         {
             #pragma omp critical
-            exp.appendParticle(name, 6, 6);
+            exp.appendParticle(name, 6, 1);
         }
         else if (i % 8 == 6)
         {
             #pragma omp critical
-            exp.appendParticle(name, 7, 7);
+            exp.appendParticle(name, 7, 1);
         }
         else
         {
             #pragma omp critical
-            exp.appendParticle(name, 8, 8);
+            exp.appendParticle(name, 8, 1);
         }
-        ***/
-        exp.appendParticle(name, 1, 1);
 
         ImageFile imfThread;
 
