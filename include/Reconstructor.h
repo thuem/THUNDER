@@ -36,7 +36,7 @@ using namespace placeholders;
 
 #define RECO_LOOSE_FACTOR 2
 
-#define N_ITER_BALANCE 3
+#define N_ITER_BALANCE 2
 
 /**
  * @ingroup Reconstructor

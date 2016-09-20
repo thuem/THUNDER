@@ -142,6 +142,17 @@ void Volume::addFT(const Complex value,
     _dataFT[index].dat[1] += val.dat[1];
 }
 
+void Volume::addFT(const double value,
+                   int iCol,
+                   int iRow,
+                   int iSlc)
+{
+    int index = iFT(iCol, iRow, iSlc);
+
+    #pragma omp atomic
+    _dataFT[index].dat[0] += value;
+}
+
 double Volume::getByInterpolationRL(const double iCol,
                                     const double iRow,
                                     const double iSlc,
@@ -197,6 +208,20 @@ void Volume::addFT(const Complex value,
     }
 }
 
+void Volume::addFT(const double value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const double alpha)
+{
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
+    }
+}
+
 void Volume::addFT(const Complex value,
                    const double iCol,
                    const double iRow,
@@ -204,10 +229,28 @@ void Volume::addFT(const Complex value,
                    const double a,
                    const TabFunction& kernel)
 {
+    double a2 = gsl_pow_2(a);
+
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
-        if (r < a) addFT(value * kernel(r), i, j, k);
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < a2) addFT(value * kernel(r2), i, j, k);
+    }
+}
+
+void Volume::addFT(const double value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const TabFunction& kernel)
+{
+    double a2 = gsl_pow_2(a);
+
+    VOLUME_SUB_SPHERE_FT(a)
+    {
+        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        if (r2 < a2) addFT(value * kernel(r2), i, j, k);
     }
 }
 
@@ -225,6 +268,7 @@ Volume Volume::copyVolume() const
     Volume out;
 
     copyBase(out);
+
     out._nCol = _nCol;
     out._nRow = _nRow;
     out._nSlc = _nSlc;

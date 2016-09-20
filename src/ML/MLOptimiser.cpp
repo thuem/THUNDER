@@ -109,6 +109,11 @@ void MLOptimiser::init()
 
         initCTF();
 
+        ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
+        BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
+
+        initImgReduceCTF();
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
@@ -141,6 +146,144 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
+        // initialse a particle filter
+
+        int nR = _para.mG;
+        int nT = GSL_MAX_INT(50,
+                             AROUND(M_PI
+                                  * gsl_pow_2(_para.transS
+                                            * gsl_cdf_chisq_Qinv(0.5, 2))
+                                  * TRANS_SEARCH_FACTOR));
+        _par[0].reset(nR, nT);
+
+        // copy the particle filter to the rest of particle filters
+
+        #pragma omp parallel for
+        for (int i = 1; i < (int)_ID.size(); i++)
+            _par[0].copy(_par[i]);
+
+        mat33 rot;
+        vec2 t;
+
+        // generate "translations"
+
+        vector<Image> trans;
+        trans.resize(nT);
+
+        #pragma omp parallel for schedule(dynamic) private(t)
+        for (int m = 0; m < nT; m++)
+        {
+            trans[m].alloc(size(), size(), FT_SPACE);
+
+            _par[0].t(t, m);
+                    
+            translate(trans[m], _r, t(0), t(1));
+        }
+        
+        // perform expectations
+
+        mat logW(_par[0].n(), _ID.size());
+
+        #pragma omp parallel for schedule(dynamic) private(rot)
+        for (int m = 0; m < nR; m++)
+        {
+            Image imgRot(size(), size(), FT_SPACE);
+            Image imgAll(size(), size(), FT_SPACE);
+
+            // perform projection
+
+            _par[0].rot(rot, m * nT);
+
+            _model.proj(0).project(imgRot, rot);
+
+            for (int n = 0; n < nT; n++)
+            {
+                // perform translation
+
+                /***
+                #pragma omp parallel for schedule(dynamic)
+                IMAGE_FOR_EACH_PIXEL_FT(imgAll)
+                ***/
+                //#pragma omp parallel for schedule(dynamic)
+                IMAGE_FOR_PIXEL_R_FT(_r)
+                {
+                    if (QUAD(i, j) < gsl_pow_2(_r))
+                    {
+                        int index = imgAll.iFTHalf(i, j);
+                        imgAll[index] = imgRot[index] * trans[n][index];
+                    }
+                }
+
+                logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
+                                                                  imgAll,
+                                                                  _ctf,
+                                                                  _groupID,
+                                                                  _sig,
+                                                                  _r);
+
+                /***
+                #pragma omp parallel for
+                FOR_EACH_2D_IMAGE
+                {
+                    logW(m * nT + n, l) = logDataVSPrior(_img[l],
+                                                         imgAll,
+                                                         _ctf[l],
+                                                         _sig.row(_groupID[l] - 1).head(_r).transpose(),
+                                                         _r);
+                }
+                ***/
+            }
+        }
+        
+        // process logW
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+            vec v = logW.col(l);
+
+            PROCESS_LOGW(v);
+
+            logW.col(l) = v;
+        }
+
+        // reset weights of particle filter
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+            for (int m = 0; m < _par[l].n(); m++)
+                _par[l].mulW(logW(m, l), m);
+
+            _par[l].normW();
+
+            // sort
+            _par[l].sort(_para.mG);
+
+            // shuffle
+            _par[l].shuffle();
+            
+            if (_ID[l] < 20)
+            {
+                char filename[FILE_NAME_LENGTH];
+                snprintf(filename,
+                         sizeof(filename),
+                         "Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l]);
+            }
+
+            // resample
+            _par[l].resample(_para.mG);
+        }
+
+        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+    }
+
     _nF = 0;
     _nI = 0;
 
@@ -162,9 +305,12 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
+            /***
             int nR = 0;
             int nT = 0;
+            ***/
 
+            /***
             if (phase == 0)
             {
                 if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -182,14 +328,16 @@ void MLOptimiser::expectation()
                     _par[l].resample(_para.mL,
                                      ALPHA_LOCAL_SEARCH);
             }
+            ***/
 
-            if (phase == 0)
+            if ((phase == 0) &&
+                (_searchType == SEARCH_TYPE_LOCAL))
             {
-                if (_searchType == SEARCH_TYPE_LOCAL)
-                {
-                    // perturb with 5x confidence area
-                    _par[l].perturb(PERTURB_FACTOR);
-                }
+                _par[l].resample(_para.mL,
+                                 ALPHA_LOCAL_SEARCH);
+
+                // perturb with PERTURB_FACTORx confidence area
+                _par[l].perturb(PERTURB_FACTOR);
             }
             else
             {
@@ -215,11 +363,10 @@ void MLOptimiser::expectation()
             mat33 rot;
             vec2 t;
 
+            /***
             if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                 (phase == 0))
             {
-                // generate "translations"
-
                 vector<Image> trans;
                 trans.resize(nT);
 
@@ -232,25 +379,10 @@ void MLOptimiser::expectation()
                     translate(trans[m], _r, t(0), t(1));
                 }
 
-                // perform expectations
-
-                for (int m = 0; m < nR; m++)
-                {
-                    _par[l].rot(rot, m * nT);
-
-                    _model.proj(0).project(image, rot);
-
-                    for (int n = 0; n < nT; n++)
-                        logW(m * nT + n) = logDataVSPrior(_img[l], // dat
-                                                          image, // pri
-                                                          trans[n], // tra
-                                                          _ctf[l], // ctf
-                                                          _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
-                                                          _r);
-                }
             }
             else
             {
+            ***/
                 for (int m = 0; m < _par[l].n(); m++)
                 {
                     _par[l].rot(rot, m);
@@ -263,7 +395,9 @@ void MLOptimiser::expectation()
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                              _r);
                 }
+            /***
             }
+            ***/
 
             /***
             logW.array() -= logW.maxCoeff(); // avoiding numerical error
@@ -286,11 +420,15 @@ void MLOptimiser::expectation()
                     _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
                 ***/
 
+            /***
             logW.array() -= logW.maxCoeff();
             logW.array() *= -1;
             logW.array() += 1;
             logW.array() = 1.0 / logW.array();
             logW.array() -= logW.minCoeff();
+            ***/
+
+            PROCESS_LOGW(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -302,6 +440,7 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+            /***
             if ((_searchType == SEARCH_TYPE_GLOBAL) &&
                 (phase == 0))
             {
@@ -311,6 +450,7 @@ void MLOptimiser::expectation()
                 // shuffle
                 _par[l].shuffle();
             }
+            ***/
 
             if (_ID[l] < 20)
             {
@@ -426,6 +566,7 @@ void MLOptimiser::run()
     init();
     
     saveImages();
+    saveCTFs();
     saveReduceCTFImages();
     saveLowPassImages();
     saveLowPassReduceCTFImages();
@@ -556,17 +697,14 @@ void MLOptimiser::run()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
 
-        if (_r > _model.rPrev())
+        if (_r > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 
             _model.resetRChange();
             _model.setNRChangeNoDecrease(0);
             _model.setIncreaseR(false);
-        }
 
-        if (_r > _model.rT())
-        {
             MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
 
             _model.setRT(_r);
@@ -579,7 +717,19 @@ void MLOptimiser::run()
                                    << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
-        _searchType = _model.searchType();
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            _searchType = _model.searchType();
+
+            if (_searchType == SEARCH_TYPE_LOCAL)
+            {
+                MLOG(INFO, "LOGGER_ROUND") << "A Mask Should be Generated";
+
+                _genMask = true;
+            }
+        }
+        else
+            _searchType = _model.searchType();
 
         NT_MASTER
         {
@@ -754,6 +904,7 @@ void MLOptimiser::initImg()
         }
     }
 
+    /***
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
@@ -783,6 +934,7 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
+    ***/
 
     /***
     statImg();
@@ -810,13 +962,13 @@ void MLOptimiser::statImg()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        #pragma omp critical
+        #pragma omp atomic
         _stdN += bgStddev(0, _img[l], size() * MASK_RATIO / 2);
 
-        #pragma omp critical
+        #pragma omp atomic
         _stdD += stddev(0, _img[l]);
 
-        #pragma omp critical
+        #pragma omp atomic
         _stdStdN += gsl_pow_2(bgStddev(0, _img[l], size() * MASK_RATIO / 2));
     }
 
@@ -970,6 +1122,22 @@ void MLOptimiser::initCTF()
     }
 }
 
+void MLOptimiser::initImgReduceCTF()
+{
+    _imgReduceCTF.clear();
+    _imgReduceCTF.resize(_ID.size());
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        _imgReduceCTF[l].alloc(_para.size, _para.size, FT_SPACE);
+
+        reduceCTF(_imgReduceCTF[l],
+                  _img[l],
+                  _ctf[l],
+                  maxR());
+    }
+}
 void MLOptimiser::correctScale()
 {
     vec dc = vec::Zero(_nPar);
@@ -1135,8 +1303,8 @@ void MLOptimiser::initParticles()
 {
     IF_MASTER return;
 
-    FOR_EACH_2D_IMAGE
-        _par.push_back(Particle());
+    _par.clear();
+    _par.resize(_ID.size());
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -1261,7 +1429,7 @@ void MLOptimiser::reconstructRef()
         // reduce the CTF effect
         // reduceCTF(img, _img[l], _ctf[l]);
         // reduceCTF(img, _img[l], _ctf[l], _r);
-        reduceCTF(img, _img[l], _ctf[l], maxR());
+        /// reduceCTF(img, _img[l], _ctf[l], maxR());
 
         /***
         if (_ID[l] < 20)
@@ -1312,13 +1480,46 @@ void MLOptimiser::reconstructRef()
         
         _par[l].rank1st(rot, tran);
 
-        _model.reco(0).insert(img, rot, tran, 1);
+        _model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
+
+    if (_genMask)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Generating Automask";
+        BLOG(INFO, "LOGGER_ROUND") << "Generating Automask";
+
+        _mask.alloc(_para.pf * _para.size,
+                    _para.pf * _para.size,
+                    _para.pf * _para.size,
+                    RL_SPACE);
+
+        //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
+        //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
+        //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
+        genMask(_mask,
+                _model.ref(0),
+                MASK_DENSITY_THRES_FACTOR,
+                MASK_EXT,
+                EDGE_WIDTH_RL,
+                _para.size * 0.5);
+
+        saveMask();
+
+        _genMask = false;
+    }
+
+    if (!_mask.isEmptyRL())
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+
+        softMask(_model.ref(0), _model.ref(0), _mask, 0);
+    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
@@ -1385,6 +1586,22 @@ void MLOptimiser::saveImages()
             fft.bw(_img[l]);
             _img[l].saveRLToBMP(filename);
             fft.fw(_img[l]);
+        }
+    }
+}
+
+void MLOptimiser::saveCTFs()
+{
+    IF_MASTER return;
+
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < N_SAVE_IMG)
+        {
+            sprintf(filename, "CTF_%04d.bmp", _ID[l]);
+
+            _ctf[l].saveFTToBMP(filename, 0.01);
         }
     }
 }
@@ -1515,55 +1732,55 @@ void MLOptimiser::saveReference()
     }
 }
 
+void MLOptimiser::saveMask()
+{
+    ImageFile imf;
+    char filename[FILE_NAME_LENGTH];
+
+    Volume mask;
+
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Saving Mask(s)";
+
+        VOL_EXTRACT_RL(mask, _mask, 1.0 / _para.pf);
+
+        imf.readMetaData(mask);
+        sprintf(filename, "Mask_A.mrc");
+        imf.writeVolume(filename, mask);
+    }
+    else if (_commRank == HEMI_B_LEAD)
+    {
+        BLOG(INFO, "LOGGER_ROUND") << "Saving Mask(s)";
+
+        VOL_EXTRACT_RL(mask, _mask, 1.0 / _para.pf);
+
+        imf.readMetaData(mask);
+        sprintf(filename, "Mask_B.mrc");
+        imf.writeVolume(filename, mask);
+    }
+}
+
 void MLOptimiser::saveFSC() const
 {
-    /***
-    if ((_commRank != HEMI_A_LEAD) &&
-        (_commRank != HEMI_B_LEAD))
-        return;
-    ***/
-
     NT_MASTER return;
 
     char filename[FILE_NAME_LENGTH];
 
-    //mat fsc = _model.fsc();
     vec fsc = _model.fsc(0);
 
-    /***
-    if (_commRank == HEMI_A_LEAD)
-    {
-    ***/
-        sprintf(filename, "FSC_Round_%03d.txt", _iter);
+    sprintf(filename, "FSC_Round_%03d.txt", _iter);
 
-        FILE* file = fopen(filename, "w");
+    FILE* file = fopen(filename, "w");
 
-        for (int i = 1; i < fsc.size(); i++)
-            fprintf(file,
-                    "%05d   %10.6lf   %10.6lf\n",
-                    i,
-                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
-                    fsc(i));
+    for (int i = 1; i < fsc.size(); i++)
+        fprintf(file,
+                "%05d   %10.6lf   %10.6lf\n",
+                i,
+                1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
+                fsc(i));
 
-        fclose(file);
-    /***
-    }
-    else if (_commRank == HEMI_B_LEAD)
-    {
-        sprintf(filename, "FSC_B_Round_%03d.txt", _iter);
-
-        FILE* file = fopen(filename, "w");
-
-        for (int i = 1; i < fsc.size(); i++)
-            fprintf(file,
-                    "%05d   %10.6lf   %10.6lf\n",
-                    i,
-                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
-                    fsc(i));
-
-        fclose(file);
-    }
-    ***/
+    fclose(file);
 }
 
 double logDataVSPrior(const Image& dat,
@@ -1627,6 +1844,45 @@ double logDataVSPrior(const Image& dat,
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         / (-2 * sig[v]);
+            }
+        }
+    }
+
+    return result;
+}
+
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int r)
+{
+    int n = dat.size();
+
+    vec result = vec::Zero(n);
+
+    double r2 = gsl_pow_2(r);
+    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    {
+        double u = QUAD(i, j);
+
+        if ((u < r2) && (u > d2))
+        {
+            int v = AROUND(NORM(i, j));
+            if (v < r)
+            {
+                int index = dat[0].iFTHalf(i, j);
+
+                for (int l = 0; l < n; l++)
+                {
+                    result(l) += ABS2(dat[l].iGetFT(index)
+                                    - REAL(ctf[l].iGetFT(index))
+                                    * pri.iGetFT(index))
+                               / (-2 * sig(groupID[l] - 1, v));
+                }
             }
         }
     }

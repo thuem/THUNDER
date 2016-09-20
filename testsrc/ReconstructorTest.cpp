@@ -16,8 +16,8 @@
 #include "ImageFile.h"
 #include "Timer.h"
 
-#define N 64
-#define M 16
+#define N 256
+#define M 32
 //#define M 16
 
 using namespace std;
@@ -181,7 +181,13 @@ int main(int argc, char* argv[])
     Volume result;
     if (commRank != MASTER_ID)
     {
+        if (commRank == HEMI_A_LEAD)
+            CLOG(INFO, "LOGGER_SYS") << "Start Reconstruction";
+
         reconstructor.reconstruct(result);
+
+        if (commRank == HEMI_A_LEAD)
+            CLOG(INFO, "LOGGER_SYS") << "End Reconstruction";
 
         printf("result: mean = %f, stddev = %f, maxValue = %f\n",
                gsl_stats_mean(&result(0), 1, result.sizeRL()),

@@ -41,8 +41,8 @@
 #define FREQ_DOWN_CUTOFF 1.5
 #define ALPHA_GLOBAL_SEARCH 1.0
 #define ALPHA_LOCAL_SEARCH 0
-//#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 15 // Angstrom
-#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
+#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 15 // Angstrom
+//#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
 //#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 50 // Angstrom
 
 #define MIN_N_PHASE_PER_ITER 3
@@ -51,6 +51,16 @@
 #define MASK_RATIO 1.0
 
 #define TRANS_SEARCH_FACTOR 0.1
+
+#define PROCESS_LOGW(logW) \
+    [](vec& _logW) \
+    { \
+        _logW.array() -= _logW.maxCoeff(); \
+        _logW.array() *= -1; \
+        _logW.array() += 1; \
+        _logW.array() = 1.0 / _logW.array(); \
+        _logW.array() -= _logW.minCoeff(); \
+    }(logW);
 
 using namespace std;
 
@@ -176,6 +186,11 @@ class MLOptimiser : public Parallel
         vector<Image> _img;
 
         /**
+         * 2D images after reducing CTF using Wiener filter
+         */
+        vector<Image> _imgReduceCTF;
+
+        /**
          * a particle filter for each 2D image
          */
         vector<Particle> _par;
@@ -220,6 +235,10 @@ class MLOptimiser : public Parallel
          * standard deviation of standard deviation of noise
          */
         double _stdStdN = 0;
+
+        bool _genMask = false;
+
+        Volume _mask;
 
         /***
         double _noiseStddev = 0;
@@ -307,6 +326,8 @@ class MLOptimiser : public Parallel
 
         void initCTF();
 
+        void initImgReduceCTF();
+
         void correctScale();
 
         void refreshRotationChange();
@@ -327,6 +348,10 @@ class MLOptimiser : public Parallel
         // save images to BMP file
         void saveImages();
 
+        // debug
+        // save CTFs to BMP file
+        void saveCTFs();
+
         // for debug
         // save images after removing CTFs
         void saveReduceCTFImages();
@@ -340,6 +365,8 @@ class MLOptimiser : public Parallel
         void saveLowPassReduceCTFImages();
 
         void saveReference();
+
+        void saveMask();
 
         void saveFSC() const;
 };
@@ -357,6 +384,13 @@ double logDataVSPrior(const Image& dat,
                       const Image& ctf,
                       const vec& sig,
                       const int r);
+
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int r);
 
 double dataVSPrior(const Image& dat,
                    const Image& pri,

@@ -30,6 +30,7 @@
 #include "Coordinate5D.h"
 #include "Transformation.h"
 
+/***
 #define VOLUME_SUB_SPHERE_FT(a) \
     for (int k = MAX(-_nSlc / 2, floor(iSlc - a)); \
              k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a)); \
@@ -40,12 +41,45 @@
             for (int i = MAX(-_nCol / 2, floor(iCol - a)); \
                      i <= MIN(_nCol / 2, ceil(iCol + a)); \
                      i++)
+***/
 
+#define VOLUME_SUB_SPHERE_FT(a) \
+    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
+             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
+             k++) \
+        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - a)); \
+                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + a)); \
+                 j++) \
+            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - a)); \
+                     i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + a)); \
+                     i++)
+
+#define VOLUME_SUB_SPHERE_RL(a) \
+    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
+             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
+             k++) \
+        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - a)); \
+                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + a)); \
+                 j++) \
+            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - a)); \
+                     i <= GSL_MIN_INT(_nCol / 2 - 1, CEIL(iCol + a)); \
+                     i++)
+
+/**
+ * This macro loops over each pixel of a volume in real space.
+ *
+ * @param that the volume
+ */
 #define VOLUME_FOR_EACH_PIXEL_RL(that) \
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
             for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
 
+/**
+ * This macro loops over each pixel of a volume in Fourier space.
+ *
+ * @param that the volume
+ */
 #define VOLUME_FOR_EACH_PIXEL_FT(that) \
     for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
@@ -282,6 +316,20 @@ class Volume : public ImageBase
                    int iSlc);
 
         /**
+         * This function addes the real part on a voxel in Fourier space at a
+         * given coordinate.
+         *
+         * @param value the real part of the voxel
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in real space
+         */
+        void addFT(const double value,
+                   int iCol,
+                   int iRow,
+                   int iSlc);
+
+        /**
          * This function returns the value of an unregular voxel in speace spce
          * by interpolation.
          *
@@ -343,6 +391,28 @@ class Volume : public ImageBase
                    const double alpha);
 
         /**
+         * This function adds a certain value on the real part of an unregular
+         * voxel in Fourier space by a kernal of Modified Kaiser Bessel
+         * Function.
+         *
+         * @param value the value to be added
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param a the radius of Modified Kaiser Bessel Function
+         * @param alpha the smooth factor of Modified Kaiser Bessel Function
+         */
+        void addFT(const double value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const double alpha);
+
+        /**
          * This function adds a certain value on an unregualr voxel in Fourier
          * space by a certain kernel.
          *
@@ -354,9 +424,32 @@ class Volume : public ImageBase
          * @param iSlc the index of the slice of this unregular voxel in
          *             real space
          * @param a the radius of the blob
-         * @param kernel a tabular function indicating the kernel
+         * @param kernel a tabular function indicating the kernel which is a
+         *               function of only one parameter, the square of radius
          */
         void addFT(const Complex value,
+                   const double iCol,
+                   const double iRow,
+                   const double iSlc,
+                   const double a,
+                   const TabFunction& kernel);
+
+        /**
+         * This function adds a certain value on the real part of an unregualr
+         * voxel in Fourier space by a certain kernel.
+         *
+         * @param value the value to be added
+         * @param iCol the index of the column of this unregular voxel in
+         *             real space
+         * @param iRow the index of the row of this unregular voxel in
+         *             real space
+         * @param iSlc the index of the slice of this unregular voxel in
+         *             real space
+         * @param a the radius of the blob
+         * @param kernel a tabular function indicating the kernel which is a
+         *               function of only one paramter, the square of radius
+         */
+        void addFT(const double value,
                    const double iCol,
                    const double iRow,
                    const double iSlc,
@@ -381,6 +474,16 @@ class Volume : public ImageBase
             return (k >= 0 ? k : k + _nSlc) * _nCol * _nRow
                  + (j >= 0 ? j : j + _nRow) * _nCol
                  + (i >= 0 ? i : i + _nCol);
+        }
+
+        inline int iFT(int i,
+                       int j,
+                       int k) const
+        {
+            if (i >= 0)
+                return iFTHalf(i, j, k);
+            else
+                return iFTHalf(-i, -j, -k);
         }
 
         inline int iFT(bool& conj,

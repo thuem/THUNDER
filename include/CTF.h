@@ -19,8 +19,20 @@
 //#define CTF_A 0.07
 
 //#define CTF_TAU 0.001
-#define CTF_TAU 0.01
+//#define CTF_TAU 0.01
+#define CTF_TAU 0.05
 //#define CTF_TAU 0.1
+//#define CTF_TAU 0.2
+
+//constexpr double CTF_TAU = sqrt(2) / 2;
+
+constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
+constexpr double w2 = CTF_A;
+
+double CTF(const double f,
+           const double voltage,
+           const double defocus,
+           const double CS);
 
 /**
  * This function generates a CTF using parameters given.
@@ -78,6 +90,7 @@ void reduceCTF(Image& dst,
  * @param sigma the power spectrum of the noise
  * @param tau the power spectrum of the signal
  * @param pf padding factor
+ * @param snrR frequency threshold for using sigma and tau
  * @param r frequency threshold
  */
 void reduceCTF(Image& dst,
@@ -86,6 +99,7 @@ void reduceCTF(Image& dst,
                const vec& sigma,
                const vec& tau,
                const int pf,
+               const int snrR,
                const int r);
 
 #endif // CTF_H

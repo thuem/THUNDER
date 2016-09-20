@@ -34,11 +34,13 @@ int main(int argc, char* argv[])
 
     double pixelSize = 1.32;
     double voltage = 3e5;
-    double defocusU = 20000;
-    double defocusV = 20000;
+    //double defocusU = 20000;
+    //double defocusV = 20000;
+    double defocusU = atof(argv[1]);
     double theta = 0;
     double Cs = 0;
 
+    /***
     Image img(N, N, FT_SPACE);
 
     CTF(img, pixelSize, voltage, defocusU, defocusV, theta, Cs);
@@ -56,6 +58,14 @@ int main(int argc, char* argv[])
              << "CTF = "
              << ringAverage(i, img, [](const Complex x){ return REAL(x); })
              << endl;
+    }
+    ***/
+
+    for (double f = 0; f < 0.5; f += 0.001)
+    {
+        printf("%12.6lf    %12.6f\n",
+               f,
+               CTF(f, voltage, defocusU, Cs));
     }
 
     return 0;

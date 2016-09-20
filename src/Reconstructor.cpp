@@ -40,9 +40,9 @@ void Reconstructor::init(const int size,
     _zeta = zeta;
 
     // initialise the interpolation kernel
-    _kernel.init(bind(MKB_FT, _1, _pf * _a, _alpha),
+    _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
                  0,
-                 _pf * _a,
+                 gsl_pow_2(_pf * _a),
                  1e5);
 
     _maxRadius = (_size / 2 - a);
@@ -90,7 +90,7 @@ void Reconstructor::insert(const Image& src,
                                   << ", nRow = " << src.nRowRL();
 
     Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, -t(0), -t(1));
+    translateMT(transSrc, src, -t(0), -t(1));
 
     vector<mat33> sr;
     symmetryRotation(sr, rot, _sym);
@@ -108,7 +108,7 @@ void Reconstructor::insert(const Image& src,
                 vec3 newCor = {(double)i, (double)j, 0};
                 vec3 oldCor = sr[k] * newCor * _pf;
         
-                _F.addFT(transSrc.getFT(i, j) * w, 
+                _F.addFT(transSrc.getFTHalf(i, j) * w, 
                          oldCor[0], 
                          oldCor[1], 
                          oldCor[2], 
@@ -248,10 +248,11 @@ void Reconstructor::allReduceW()
                     vec3 newCor = {(double)i, (double)j, 0};
                     vec3 oldCor = _rot[k] * newCor * _pf;
 
-                    _C.addFT(_W.getByInterpolationFT(oldCor[0],
-                                                     oldCor[1],
-                                                     oldCor[2],
-                                                     LINEAR_INTERP) * _w[k],
+                    _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
+                                                          oldCor[1],
+                                                          oldCor[2],
+                                                          LINEAR_INTERP))
+                           * _w[k],
                              oldCor[0],
                              oldCor[1],
                              oldCor[2],
@@ -286,11 +287,13 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
 
+    /***
     if (_pf * _a <= sqrt(3) / 2)
     {
         CLOG(FATAL, "LOGGER_SYS") << "Parameter a of MKB Kernel is Too Small.";
         __builtin_unreachable();
     }
+    ***/
 
     //double cThres = MKB_FT(sqrt(3) / 2, _pf * _a, _alpha);
     //double cThres = 0.2;
