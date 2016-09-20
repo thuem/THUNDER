@@ -214,6 +214,7 @@ int main(int argc, char* argv[])
     Experiment exp("C15.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_1, DEFOCUS_V_1, THETA, CS);
+    /***
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_2, DEFOCUS_V_2, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_3, DEFOCUS_V_3, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_4, DEFOCUS_V_4, THETA, CS);
@@ -221,6 +222,9 @@ int main(int argc, char* argv[])
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_6, DEFOCUS_V_6, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_7, DEFOCUS_V_7, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_8, DEFOCUS_V_8, THETA, CS);
+    ***/
+    exp.appendGroup("");
+    /***
     exp.appendGroup("");
     exp.appendGroup("");
     exp.appendGroup("");
@@ -228,7 +232,7 @@ int main(int argc, char* argv[])
     exp.appendGroup("");
     exp.appendGroup("");
     exp.appendGroup("");
-    exp.appendGroup("");
+    ***/
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
@@ -342,6 +346,7 @@ int main(int argc, char* argv[])
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         ***/
         
+        /***
         if (i % 8 == 0)
         {
             #pragma omp critical
@@ -382,6 +387,8 @@ int main(int argc, char* argv[])
             #pragma omp critical
             exp.appendParticle(name, 8, 8);
         }
+        ***/
+        exp.appendParticle(name, 1, 1);
 
         ImageFile imfThread;
 
