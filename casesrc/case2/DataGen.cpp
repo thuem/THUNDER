@@ -353,37 +353,37 @@ int main(int argc, char* argv[])
         else if (i % 8 == 1)
         {
             #pragma omp critical
-            exp.appendParticle(name, 2, 1);
+            exp.appendParticle(name, 1, 2);
         }
         else if (i % 8 == 2)
         {
             #pragma omp critical
-            exp.appendParticle(name, 3, 1);
+            exp.appendParticle(name, 1, 3);
         }
         else if (i % 8 == 3)
         {
             #pragma omp critical
-            exp.appendParticle(name, 4, 1);
+            exp.appendParticle(name, 1, 4);
         }
         else if (i % 8 == 4)
         {
             #pragma omp critical
-            exp.appendParticle(name, 5, 1);
+            exp.appendParticle(name, 1, 5);
         }
         else if (i % 8 == 5)
         {
             #pragma omp critical
-            exp.appendParticle(name, 6, 1);
+            exp.appendParticle(name, 1, 6);
         }
         else if (i % 8 == 6)
         {
             #pragma omp critical
-            exp.appendParticle(name, 7, 1);
+            exp.appendParticle(name, 1, 7);
         }
         else
         {
             #pragma omp critical
-            exp.appendParticle(name, 8, 1);
+            exp.appendParticle(name, 1, 8);
         }
 
         ImageFile imfThread;
