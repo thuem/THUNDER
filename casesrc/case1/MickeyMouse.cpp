@@ -49,6 +49,7 @@ int main(int argc, char* argv[])
     para.mG = MG;
     para.mL = ML;
     para.transS = TRANS_S;
+    para.initRes = 60;
     sprintf(para.sym, "C2");
     sprintf(para.initModel, "sphere.mrc");
     sprintf(para.db, "MickeyMouse.db");
