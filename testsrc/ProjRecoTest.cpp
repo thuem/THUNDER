@@ -32,14 +32,14 @@
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
-#define DEFOCUS_1 1e4
-#define DEFOCUS_2 1.2e4
-#define DEFOCUS_3 1.4e4
+#define DEFOCUS_1 1.3e4
+#define DEFOCUS_2 1.4e4
+#define DEFOCUS_3 1.5e4
 #define DEFOCUS_4 1.6e4
 #define DEFOCUS_5 1.8e4
 #define DEFOCUS_6 2.0e4
-#define DEFOCUS_7 2.2e4
-#define DEFOCUS_8 2.4e4
+#define DEFOCUS_7 2.1e4
+#define DEFOCUS_8 2.2e4
 #define THETA 0
 #define CS 0
 
