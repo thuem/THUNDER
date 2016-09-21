@@ -34,8 +34,6 @@ int main(int argc, char* argv[])
 
     double pixelSize = 1.32;
     double voltage = 3e5;
-    //double defocusU = 20000;
-    //double defocusV = 20000;
     double defocusU = atof(argv[1]);
     double theta = 0;
     double Cs = 0;
@@ -61,10 +59,12 @@ int main(int argc, char* argv[])
     }
     ***/
 
-    for (double f = 0; f < 0.5; f += 0.001)
+    for (int i = 0; i < N / 2; i++)
     {
+        double f = i / (pixelSize * N);
+
         printf("%12.6lf    %12.6f\n",
-               f,
+               i,
                CTF(f, voltage, defocusU, Cs));
     }
 
