@@ -375,7 +375,8 @@ double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sig,
-                      const int r);
+                      const double rU,
+                      const double rL);
 // dat -> data, pri -> prior, ctf
 
 double logDataVSPrior(const Image& dat,
@@ -383,26 +384,30 @@ double logDataVSPrior(const Image& dat,
                       const Image& tra,
                       const Image& ctf,
                       const vec& sig,
-                      const int r);
+                      const double rU,
+                      const double rL);
 
 vec logDataVSPrior(const vector<Image>& dat,
                    const Image& pri,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
                    const mat& sig,
-                   const int r);
+                   const double rU,
+                   const double rL);
 
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sig,
-                   const int r);
+                   const double rU,
+                   const double rL);
 
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& tra,
                    const Image& ctf,
                    const vec& sig,
-                   const int r);
+                   const double rU,
+                   const double rL);
 
 #endif // ML_OPTIMSER_H

@@ -221,7 +221,8 @@ void MLOptimiser::expectation()
                                                                   _ctf,
                                                                   _groupID,
                                                                   _sig,
-                                                                  _r);
+                                                                  _r,
+                                                                  (double)_r / 3);
 
                 /***
                 #pragma omp parallel for
@@ -393,7 +394,8 @@ void MLOptimiser::expectation()
                                              image, // pri
                                              _ctf[l], // ctf
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
-                                             _r);
+                                             _r,
+                                             (double)_r / 3);
                 }
             /***
             }
@@ -1794,21 +1796,22 @@ double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sig,
-                      const int r)
+                      const double rU,
+                      const double rL)
 {
     double result = 0;
 
-    double r2 = gsl_pow_2(r);
-    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
 
-    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
         double u = QUAD(i, j);
 
-        if ((u < r2) && (u > d2))
+        if ((u < rU2) && (u > rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < r)
+            if (v < rU)
             {
                 int index = dat.iFTHalf(i, j);
 
@@ -1835,21 +1838,22 @@ double logDataVSPrior(const Image& dat,
                       const Image& tra,
                       const Image& ctf,
                       const vec& sig,
-                      const int r)
+                      const double rU,
+                      const double rL)
 {
     double result = 0;
 
-    double r2 = gsl_pow_2(r);
-    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
 
-    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
         double u = QUAD(i, j);
 
-        if ((u < r2) && (u > d2))
+        if ((u < rU2) && (u > rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < r)
+            if (v < rU)
             {
                 int index = dat.iFTHalf(i, j);
 
@@ -1878,23 +1882,24 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
                    const mat& sig,
-                   const int r)
+                   const double rU,
+                   const double rL)
 {
     int n = dat.size();
 
     vec result = vec::Zero(n);
 
-    double r2 = gsl_pow_2(r);
-    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
 
-    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
         double u = QUAD(i, j);
 
-        if ((u < r2) && (u > d2))
+        if ((u < rU2) && (u > rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < r)
+            if (v < rU)
             {
                 int index = dat[0].iFTHalf(i, j);
 
@@ -1923,9 +1928,10 @@ double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sig,
-                   const int r)
+                   const double rU,
+                   const double rL)
 {
-    return exp(logDataVSPrior(dat, pri, ctf, sig, r));
+    return exp(logDataVSPrior(dat, pri, ctf, sig, rU, rL));
 }
 
 double dataVSPrior(const Image& dat,
@@ -1933,7 +1939,8 @@ double dataVSPrior(const Image& dat,
                    const Image& tra,
                    const Image& ctf,
                    const vec& sig,
-                   const int r)
+                   const double rU,
+                   const double rL)
 {
-    return exp(logDataVSPrior(dat, pri, tra, ctf, sig, r));
+    return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
 }
