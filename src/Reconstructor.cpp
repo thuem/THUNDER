@@ -14,10 +14,9 @@ Reconstructor::Reconstructor(const int size,
                              const int pf,
                              const Symmetry* sym,
                              const double a,
-                             const double alpha,
-                             const double zeta)
+                             const double alpha)
 {
-    init(size, pf, sym, a, alpha, zeta);
+    init(size, pf, sym, a, alpha);
 }
 
 Reconstructor::~Reconstructor() {}
@@ -26,18 +25,17 @@ void Reconstructor::init(const int size,
                          const int pf,
                          const Symmetry* sym,
                          const double a,
-                         const double alpha,
-                         const double zeta)
+                         const double alpha)
 {
     _rot.clear();
     _w.clear();
+    _ctf.clear();
 
     _size = size;
     _pf = pf;
     _sym = sym;
     _a = a;
     _alpha = alpha;
-    _zeta = zeta;
 
     // initialise the interpolation kernel
     _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
@@ -72,6 +70,7 @@ void Reconstructor::setMaxRadius(const int maxRadius)
 }
 
 void Reconstructor::insert(const Image& src,
+                           const Image& ctf,
                            const mat33& rot,
                            const vec2& t,
                            const double w)
@@ -83,7 +82,9 @@ void Reconstructor::insert(const Image& src,
     }
 
     if ((src.nColRL() != _size) ||
-        (src.nRowRL() != _size))
+        (src.nRowRL() != _size) ||
+        (ctf.nColRL() != _size) ||
+        (ctf.nRowRL() != _size))
         CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Inserting Image"
                                   << ": _size = " << _size
                                   << ", nCol = " << src.nColRL()
@@ -99,6 +100,7 @@ void Reconstructor::insert(const Image& src,
     {
         _rot.push_back(sr[k]);
         _w.push_back(w);
+        _ctf.push_back(&ctf);
 
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(transSrc)
@@ -108,7 +110,9 @@ void Reconstructor::insert(const Image& src,
                 vec3 newCor = {(double)i, (double)j, 0};
                 vec3 oldCor = sr[k] * newCor * _pf;
         
-                _F.addFT(transSrc.getFTHalf(i, j) * w, 
+                _F.addFT(transSrc.getFTHalf(i, j)
+                       * REAL(ctf.getFTHalf(i, j))
+                       * w, 
                          oldCor[0], 
                          oldCor[1], 
                          oldCor[2], 
@@ -122,6 +126,7 @@ void Reconstructor::insert(const Image& src,
 }
 
 void Reconstructor::insert(const Image& src,
+                           const Image& ctf,
                            const Coordinate5D coord,
                            const double w)
 {
@@ -130,7 +135,7 @@ void Reconstructor::insert(const Image& src,
 
     vec2 t = {(double)coord.x, (double)coord.y};
 
-    insert(src, rot, t, w);
+    insert(src, ctf, rot, t, w);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
@@ -252,6 +257,7 @@ void Reconstructor::allReduceW()
                                                           oldCor[1],
                                                           oldCor[2],
                                                           LINEAR_INTERP))
+                           * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
                            * _w[k],
                              oldCor[0],
                              oldCor[1],

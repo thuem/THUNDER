@@ -133,6 +133,8 @@ class Reconstructor : public Parallel
          * 5D coordinates in a single image. 
          */
         vector<mat33> _rot;
+
+        vector<const Image*> _ctf;
         
         /**
          * The vector to save the weight values of each insertion with image, 
@@ -172,11 +174,6 @@ class Reconstructor : public Parallel
         double _alpha = 10;
         
         /**
-         * NTD
-         */
-        double _zeta = 0.15;
-        
-        /**
          * the blob kernel stored as a tabular function
          */
         TabFunction _kernel;
@@ -198,14 +195,12 @@ class Reconstructor : public Parallel
          *              default value is 1.9.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
          *              Kernel. By default is 10.
-         * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
          */
         Reconstructor(const int size,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
                       const double a = 1.9,
-                      const double alpha = 10,
-                      const double zeta = 0.15);
+                      const double alpha = 10);
 
         /**
          * default deconstructor
@@ -222,14 +217,12 @@ class Reconstructor : public Parallel
          *              default is 0.95.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
          *              kernel. By default is 10.
-         * @param zeta &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
          */
         void init(const int size,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
                   const double a = 1.9,
-                  const double alpha = 10,
-                  const double zeta = 0.15);
+                  const double alpha = 10);
 
         /** 
          * set the symmetry mark of the model to be reconstructed. 
@@ -269,6 +262,7 @@ class Reconstructor : public Parallel
          * matrix and translation vector.
          */
         void insert(const Image& src,
+                    const Image& ctf,
                     const mat33& rot,
                     const vec2& t,
                     const double w);
@@ -286,6 +280,7 @@ class Reconstructor : public Parallel
          * @param w The weight values to measure the possibility of 5D coordinate.
          */
        void insert(const Image& src,
+                   const Image& ctf,
                    const Coordinate5D coord,
                    const double w);
 

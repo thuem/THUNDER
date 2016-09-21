@@ -262,9 +262,6 @@ void MLOptimiser::expectation()
             // sort
             _par[l].sort(_para.mG);
 
-            // shuffle
-            _par[l].shuffle();
-            
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -275,6 +272,9 @@ void MLOptimiser::expectation()
                          _iter);
                 save(filename, _par[l]);
             }
+
+            // shuffle
+            _par[l].shuffle();
 
             // resample
             _par[l].resample(_para.mG);
@@ -786,6 +786,9 @@ int MLOptimiser::maxR() const
 void MLOptimiser::bcastGroupInfo()
 {
     ALOG(INFO, "LOGGER_INIT") << "Storing GroupID";
+
+    _groupID.clear();
+
     NT_MASTER
     {
         sql::Statement stmt("select GroupID from particles where ID = ?", -1, _exp.expose());
@@ -799,8 +802,7 @@ void MLOptimiser::bcastGroupInfo()
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Getting Number of Groups from Database";
-    IF_MASTER
-        _nGroup = _exp.nGroup();
+    IF_MASTER _nGroup = _exp.nGroup();
 
     MLOG(INFO, "LOGGER_INIT") << "Broadcasting Number of Groups";
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
@@ -851,7 +853,10 @@ void MLOptimiser::initRef()
 
 void MLOptimiser::initID()
 {
+    _ID.clear();
+
     sql::Statement stmt("select ID from particles;", -1, _exp.expose());
+
     while (stmt.step())
         _ID.push_back(stmt.get_int(0));
 }
@@ -1074,6 +1079,8 @@ void MLOptimiser::bwImg()
 void MLOptimiser::initCTF()
 {
     IF_MASTER return;
+
+    _ctf.clear();
 
     // get CTF attributes from _exp
     CTFAttr ctfAttr;
@@ -1480,7 +1487,8 @@ void MLOptimiser::reconstructRef()
         
         _par[l].rank1st(rot, tran);
 
-        _model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
+        //_model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
+        _model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
@@ -1503,9 +1511,8 @@ void MLOptimiser::reconstructRef()
         //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
         genMask(_mask,
                 _model.ref(0),
-                MASK_DENSITY_THRES_FACTOR,
-                MASK_EXT,
-                EDGE_WIDTH_RL,
+                GEN_MASK_EXT,
+                GEN_MASK_EDGE_WIDTH,
                 _para.size * 0.5);
 
         saveMask();
@@ -1805,6 +1812,13 @@ double logDataVSPrior(const Image& dat,
             {
                 int index = dat.iFTHalf(i, j);
 
+                /***
+                result += gsl_pow_2(REAL(ctf.iGetFT(index)))
+                        * ABS2(dat.iGetFT(index)
+                             - REAL(ctf.iGetFT(index))
+                             * pri.iGetFT(index))
+                        / (-2 * sig[v]);
+                ***/
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
@@ -1844,6 +1858,14 @@ double logDataVSPrior(const Image& dat,
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         / (-2 * sig[v]);
+                /***
+                result += gsl_pow_2(REAL(ctf.iGetFT(index)))
+                        * ABS2(dat.iGetFT(index)
+                             - REAL(ctf.iGetFT(index))
+                             * pri.iGetFT(index)
+                             * tra.iGetFT(index))
+                        / (-2 * sig[v]);
+                ***/
             }
         }
     }
@@ -1882,6 +1904,13 @@ vec logDataVSPrior(const vector<Image>& dat,
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
                                / (-2 * sig(groupID[l] - 1, v));
+                    /***
+                    result(l) += gsl_pow_2(REAL(ctf[l].iGetFT(index)))
+                               * ABS2(dat[l].iGetFT(index)
+                                    - REAL(ctf[l].iGetFT(index))
+                                    * pri.iGetFT(index))
+                               / (-2 * sig(groupID[l] - 1, v));
+                    ***/
                 }
             }
         }

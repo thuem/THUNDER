@@ -258,28 +258,85 @@ void softMask(Volume& dst,
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt,
              const double r)
 {
-    //double thres = gsl_stats_max(&src.iGetRL(0), 1, src.sizeRL()) * dt;
+    /***
     vector<double> bg;
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if ((QUAD_3(i, j, k) < gsl_pow_2(r)) &&
             (QUAD_3(i, j, k) > gsl_pow_2(r * 0.85)))
             bg.push_back(src.getRL(i, j, k));
 
-    //double mean = gsl_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
-    //double std = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
-
     double mean = gsl_stats_mean(&bg[0], 1, bg.size());
     double std = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
 
     cout << "mean = " << mean << endl;
     cout << "std = " << std << endl;
+    ***/
+
+    vector<double> data;
+    VOLUME_FOR_EACH_PIXEL_RL(src)
+        if (QUAD_3(i, j, k) < gsl_pow_2(r))
+            data.push_back(GSL_MAX_DBL(0, src.getRL(i, j, k)));
+
+    size_t n = data.size();
+
+    // sort data
+    //gsl_sort(&data[0], 1, n);
+    //gsl_sort_largest(&data[0], n, 
+    sort(&data[0],
+         &data[0] + n,
+         [](const double x, const double y) { return x > y; });
+
+    vector<double> partialSum(n);
+    partial_sum(&data[0], &data[0] + n, &partialSum[0]);
+
+    double totalSum = partialSum[n - 1];
+
+    size_t start;
+    for (start = 0; start < n; start++)
+        if (partialSum[start + 1] > totalSum * GEN_MASK_INIT_STEP)
+            break;
+
+    //cout << "start = " << start << endl;
+    //cout << "startThres = " << data[start] << endl;
+
+    double thres = 0;
+
+    double step = GEN_MASK_INIT_STEP + GEN_MASK_GAP;
+    double gap = GEN_MASK_GAP;
+    int nPrevBin = 0;
+    int prev = 0;
+    int bin = 0;
+
+    for (size_t i = start; i < n; i++)
+    {
+        if (partialSum[i] < totalSum * step)
+            bin += 1;
+        else
+        {
+            if ((nPrevBin != 0) &&
+                (prev * 2 < bin * nPrevBin))
+                break;
+            else
+            {
+                step += gap;
+
+                nPrevBin += 1;
+                prev += bin;
+
+                bin = 0;
+
+                thres = data[i];
+            }
+        }
+    }
+
+    //cout << "thres = " << thres << endl;
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (src.getRL(i, j, k) > mean + dt * std)
+        if (src.getRL(i, j, k) > thres)
             dst.setRL(1, i, j, k);
         else
             dst.setRL(0, i, j, k);
@@ -316,11 +373,10 @@ void genMask(Volume& dst,
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt,
              const double ext,
              const double r)
 {
-    genMask(dst, src, dt, r);
+    genMask(dst, src, r);
 
     Volume dstTmp = dst.copyVolume();
 
@@ -350,12 +406,11 @@ void genMask(Volume& dst,
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt,
              const double ext,
              const double ew,
              const double r)
 {
-    genMask(dst, src, dt, ext, r);
+    genMask(dst, src, ext, r);
 
     int a = CEIL(ew);
 

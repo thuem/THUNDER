@@ -26,6 +26,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    /***
     loggerInit(argc, argv);
 
     MPI_Init(&argc, &argv);
@@ -102,11 +103,6 @@ int main(int argc, char* argv[])
             timing();
 
         printf("Projection and Insertion\n");
-        /***
-        for (int k = M / 2 / numworkers * workerid;
-                 k < M / 2 / numworkers * (workerid + 1);
-                 k++)
-                 ***/
 
         for (int k = M / (commSize - 1) * (commRank - 1);
                  k < M / (commSize - 1) * commRank;
@@ -135,36 +131,8 @@ int main(int argc, char* argv[])
                     fft.fw(image);
 
                     reconstructor.insert(image, coord, 1);
-
-                    /***
-                    FFT fft;
-                    fft.fw(image);
-                    fft.bw(image);
-                    ***/
-                    /***
-                    R2R_FT(image, sin(2));
-                    ***/
-                    /***
-                    R2R_FT(image, image, projector.project(image,
-                                                    2 * M_PI * i / M,
-                                                    M_PI * j / M,
-                                                    2 * M_PI * k / M));
-                                                    ***/
-                    /***
-                    fft.bw(image);
-                    image.saveRLToBMP(name);
-                    fft.fw(image);
-                    ***/
-                    // image.saveFTToBMP(name, 0.1);
                 }
-
-        /***
-        for (int i = 0; i < 3; i++) {
-            reconstructor.allReduceW();
-            std::cout << "Round-" << i << ":       worker-" << commRank - 1 << "    :finised allreduce" << std::endl;
-            std::cout << "checkC = " << reconstructor.checkC() << std::endl;
         }
-        ***/
         if (commRank == 1)
             timing();
     }
@@ -173,10 +141,6 @@ int main(int argc, char* argv[])
     {
         cout << err << endl;
     }
-
-    /***
-    reconstructor.allReduceF();
-    ***/
 
     Volume result;
     if (commRank != MASTER_ID)
@@ -244,4 +208,5 @@ int main(int argc, char* argv[])
 
     MPI_Finalize();
     return 0;
+    ***/
 }

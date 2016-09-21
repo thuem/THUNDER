@@ -30,10 +30,43 @@
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
+
+/***
+#define DEFOCUS_U_1 1e4
+#define DEFOCUS_V_1 1e4
+#define DEFOCUS_U_2 1.2e4
+#define DEFOCUS_V_2 1.2e4
+#define DEFOCUS_U_3 1.4e4
+#define DEFOCUS_V_3 1.4e4
+#define DEFOCUS_U_4 1.6e4
+#define DEFOCUS_V_4 1.6e4
+#define DEFOCUS_U_5 1.8e4
+#define DEFOCUS_V_5 1.8e4
+#define DEFOCUS_U_6 2.0e4
+#define DEFOCUS_V_6 2.0e4
+#define DEFOCUS_U_7 2.2e4
+#define DEFOCUS_V_7 2.2e4
+#define DEFOCUS_U_8 2.4e4
+#define DEFOCUS_V_8 2.4e4
+***/
+
 #define DEFOCUS_U_1 2e4
 #define DEFOCUS_V_1 2e4
-#define DEFOCUS_U_2 1.5e4
-#define DEFOCUS_V_2 1.5e4
+#define DEFOCUS_U_2 2.2e4
+#define DEFOCUS_V_2 2.2e4
+#define DEFOCUS_U_3 2.4e4
+#define DEFOCUS_V_3 2.4e4
+#define DEFOCUS_U_4 2.6e4
+#define DEFOCUS_V_4 2.6e4
+#define DEFOCUS_U_5 2.8e4
+#define DEFOCUS_V_5 2.8e4
+#define DEFOCUS_U_6 3.0e4
+#define DEFOCUS_V_6 3.0e4
+#define DEFOCUS_U_7 3.2e4
+#define DEFOCUS_V_7 3.2e4
+#define DEFOCUS_U_8 3.4e4
+#define DEFOCUS_V_8 3.4e4
+
 #define THETA 0
 #define CS 0
 
@@ -149,14 +182,77 @@ int main(int argc, char* argv[])
         DEFOCUS_V_2,
         THETA,
         CS);
+    Image ctf_3(N, N, FT_SPACE);
+    CTF(ctf_3,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_3,
+        DEFOCUS_V_3,
+        THETA,
+        CS);
+    Image ctf_4(N, N, FT_SPACE);
+    CTF(ctf_4,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_4,
+        DEFOCUS_V_4,
+        THETA,
+        CS);
+    Image ctf_5(N, N, FT_SPACE);
+    CTF(ctf_5,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_5,
+        DEFOCUS_V_5,
+        THETA,
+        CS);
+    Image ctf_6(N, N, FT_SPACE);
+    CTF(ctf_6,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_6,
+        DEFOCUS_V_6,
+        THETA,
+        CS);
+    Image ctf_7(N, N, FT_SPACE);
+    CTF(ctf_7,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_7,
+        DEFOCUS_V_7,
+        THETA,
+        CS);
+    Image ctf_8(N, N, FT_SPACE);
+    CTF(ctf_8,
+        PIXEL_SIZE,
+        VOLTAGE,
+        DEFOCUS_U_8,
+        DEFOCUS_V_8,
+        THETA,
+        CS);
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Experiment";
     Experiment exp("C15.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_1, DEFOCUS_V_1, THETA, CS);
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_2, DEFOCUS_V_2, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_3, DEFOCUS_V_3, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_4, DEFOCUS_V_4, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_5, DEFOCUS_V_5, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_6, DEFOCUS_V_6, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_7, DEFOCUS_V_7, THETA, CS);
+    exp.appendMicrograph("", VOLTAGE, DEFOCUS_U_8, DEFOCUS_V_8, THETA, CS);
+
+    exp.appendGroup("");
+    /***
     exp.appendGroup("");
     exp.appendGroup("");
+    exp.appendGroup("");
+    exp.appendGroup("");
+    exp.appendGroup("");
+    exp.appendGroup("");
+    exp.appendGroup("");
+    ***/
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
@@ -201,15 +297,45 @@ int main(int argc, char* argv[])
         powerSpectrum(ps, image, N / 2 - 1);
         ***/
 
-        if (i % 2 == 0)
+        if (i % 8 == 0)
         {
             FOR_EACH_PIXEL_FT(image)
                 image[i] *= REAL(ctf_1[i]);
         }
-        else
+        else if (i % 8 == 1)
         {
             FOR_EACH_PIXEL_FT(image)
                 image[i] *= REAL(ctf_2[i]);
+        }
+        else if (i % 8 == 2)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_3[i]);
+        }
+        else if (i % 8 == 3)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_4[i]);
+        }
+        else if (i % 8 == 4)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_5[i]);
+        }
+        else if (i % 8 == 5)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_6[i]);
+        }
+        else if (i % 8 == 6)
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_7[i]);
+        }
+        else
+        {
+            FOR_EACH_PIXEL_FT(image)
+                image[i] *= REAL(ctf_8[i]);
         }
 
         /***
@@ -240,15 +366,45 @@ int main(int argc, char* argv[])
                image(cblas_idamax(image.sizeRL(), &image(0), 1)));
         ***/
         
-        if (i % 2 == 0)
+        if (i % 8 == 0)
         {
             #pragma omp critical
             exp.appendParticle(name, 1, 1);
         }
+        else if (i % 8 == 1)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 2);
+        }
+        else if (i % 8 == 2)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 3);
+        }
+        else if (i % 8 == 3)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 4);
+        }
+        else if (i % 8 == 4)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 5);
+        }
+        else if (i % 8 == 5)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 6);
+        }
+        else if (i % 8 == 6)
+        {
+            #pragma omp critical
+            exp.appendParticle(name, 1, 7);
+        }
         else
         {
             #pragma omp critical
-            exp.appendParticle(name, 2, 2);
+            exp.appendParticle(name, 1, 8);
         }
 
         ImageFile imfThread;

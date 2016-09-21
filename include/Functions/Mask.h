@@ -12,19 +12,27 @@
 #define MASK_H
 
 #include <cmath>
+#include <numeric>
+#include <functional>
+#include <algorithm>
 
 #include "Random.h"
 #include "Volume.h"
 
 /**
- * recommended density threshold factor
- */
-#define MASK_DENSITY_THRES_FACTOR 10
-
-/**
  * recommended extension
  */
-#define MASK_EXT 3
+//#define GEN_MASK_EXT 1.5
+#define GEN_MASK_EXT 3
+
+//#define GEN_MASK_EDGE_WIDTH 2
+#define GEN_MASK_EDGE_WIDTH 6
+
+#define GEN_MASK_INIT_STEP 0.2
+
+//#define GEN_MASK_RESOLUTION 20
+
+#define GEN_MASK_GAP 0.05
 
 /**
  * This macro loops over all voxels in a grid of certain side length.
@@ -226,7 +234,6 @@ void softMask(Volume& dst,
  */
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt,
              const double r);
 
 /**
@@ -253,7 +260,6 @@ void genMask(Volume& dst,
  */
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt,
              const double ext,
              const double r);
 
@@ -283,7 +289,6 @@ void genMask(Volume& dst,
  */
 void genMask(Volume& dst,
              const Volume& src,
-             const double dt,
              const double ext,
              const double ew,
              const double r);
