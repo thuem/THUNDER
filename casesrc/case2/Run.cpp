@@ -24,7 +24,7 @@
 
 #define PIXEL_SIZE 1.32
 
-#define MG 10000
+#define MG 1000
 #define ML 100
 
 using namespace std;
