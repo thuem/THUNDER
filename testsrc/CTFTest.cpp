@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
     {
         double f = i / (pixelSize * N);
 
-        printf("%12.6lf    %12.6f\n",
+        printf("%04d    %12.6f\n",
                i,
                CTF(f, voltage, defocusU, Cs));
     }
