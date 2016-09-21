@@ -222,7 +222,8 @@ void MLOptimiser::expectation()
                                                                   _groupID,
                                                                   _sig,
                                                                   _r,
-                                                                  (double)_r / 3);
+                                                                  FREQ_DOWN_CUTOFF);
+                                                                  //(double)_r / 3);
 
                 /***
                 #pragma omp parallel for
@@ -395,7 +396,8 @@ void MLOptimiser::expectation()
                                              _ctf[l], // ctf
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                              _r,
-                                             (double)_r / 3);
+                                             FREQ_DOWN_CUTOFF);
+                                             //(double)_r / 3);
                 }
             /***
             }
