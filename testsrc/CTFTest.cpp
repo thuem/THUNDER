@@ -38,6 +38,8 @@ int main(int argc, char* argv[])
     double theta = 0;
     double Cs = 0;
 
+    // cout << "200 Angstrom = " << resA2P(1.0 / 200, N, pixelSize) << endl;
+
     /***
     Image img(N, N, FT_SPACE);
 
