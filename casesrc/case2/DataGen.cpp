@@ -30,6 +30,8 @@
 
 #define PIXEL_SIZE 1.32
 #define VOLTAGE 3e5
+
+/***
 #define DEFOCUS_U_1 1e4
 #define DEFOCUS_V_1 1e4
 #define DEFOCUS_U_2 1.2e4
@@ -46,6 +48,25 @@
 #define DEFOCUS_V_7 2.2e4
 #define DEFOCUS_U_8 2.4e4
 #define DEFOCUS_V_8 2.4e4
+***/
+
+#define DEFOCUS_U_1 2e4
+#define DEFOCUS_V_1 2e4
+#define DEFOCUS_U_2 2.2e4
+#define DEFOCUS_V_2 2.2e4
+#define DEFOCUS_U_3 2.4e4
+#define DEFOCUS_V_3 2.4e4
+#define DEFOCUS_U_4 2.6e4
+#define DEFOCUS_V_4 2.6e4
+#define DEFOCUS_U_5 2.8e4
+#define DEFOCUS_V_5 2.8e4
+#define DEFOCUS_U_6 3.0e4
+#define DEFOCUS_V_6 3.0e4
+#define DEFOCUS_U_7 3.2e4
+#define DEFOCUS_V_7 3.2e4
+#define DEFOCUS_U_8 3.4e4
+#define DEFOCUS_V_8 3.4e4
+
 #define THETA 0
 #define CS 0
 
