@@ -1429,69 +1429,16 @@ void MLOptimiser::reconstructRef()
 {
     IF_MASTER return;
 
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
     {
-        // reduce the CTF effect
-        // reduceCTF(img, _img[l], _ctf[l]);
-        // reduceCTF(img, _img[l], _ctf[l], _r);
-        /// reduceCTF(img, _img[l], _ctf[l], maxR());
-
-        /***
-        if (_ID[l] < 20)
-        {
-            Image lp(_para.size, _para.size, FT_SPACE);
-            lp = img.copyImage();
-            FFT fft;
-            fft.bw(lp);
-            
-            char filename[FILE_NAME_LENGTH];
-            sprintf(filename, "Insert_%04d_Round_%03d.bmp", _ID[l], _iter);
-            lp.saveRLToBMP(filename);
-        }
-        ***/
-
-        /***
-        if (_ID[l] == 1) // debug
-        {
-            vec sig = _sig.row(_groupID[l] - 1).head(maxR()).transpose();
-            vec tau = _model.tau(0) / gsl_pow_3(_para.pf) / _para.size;
-
-            for (int i = 0; i < maxR(); i++)
-                CLOG(INFO, "LOGGER_SYS") << "i = "
-                                         << i
-                                         << ", sig = "
-                                         << sig[i]
-                                         << ", tau = "
-                                         << tau[_para.pf * i];
-        }
-        ***/
-
-        /***
-        reduceCTF(img,
-                  _img[l],
-                  _ctf[l],
-                  _sig.row(_groupID[l] - 1).head(maxR()).transpose(), // noise
-                  //_sig.row(l).transpose(),
-                  //_model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
-                  _model.tau(0) / gsl_pow_3(_para.pf) /_para.size, // signal
-                  _para.pf,
-                  maxR());
-        ***/
-
-        //uvec iSort = _par[l].iSort();
-
         mat33 rot;
         vec2 tran;
         
         _par[l].rank1st(rot, tran);
 
-        //_model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
         _model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
     }
 
