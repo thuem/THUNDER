@@ -349,12 +349,10 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
-                // perturb with PERTURB_FACTORx confidence area
                 _par[l].perturb(PERTURB_FACTOR);
             }
             else
             {
-                // pertrub with 0.2x confidence area
                 _par[l].perturb(0.01);
             }
 
