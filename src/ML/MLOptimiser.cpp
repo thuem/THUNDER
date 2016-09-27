@@ -557,10 +557,12 @@ void MLOptimiser::maximization()
 
     allReduceSigma();
 
+    /***
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
     reconstructRef();
+    ***/
 }
 
 void MLOptimiser::run()
@@ -663,8 +665,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC";
         _model.BcastFSC();
