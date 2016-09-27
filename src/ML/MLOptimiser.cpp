@@ -232,7 +232,8 @@ void MLOptimiser::expectation()
                                                                   _groupID,
                                                                   _sig,
                                                                   _r,
-                                                                  FREQ_DOWN_CUTOFF);
+                                                                  _rL);
+                                                                  //FREQ_DOWN_CUTOFF);
                                                                   //(double)_r / 3);
 
                 /***
@@ -406,7 +407,8 @@ void MLOptimiser::expectation()
                                              _ctf[l], // ctf
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                              _r,
-                                             FREQ_DOWN_CUTOFF);
+                                             _rL);
+                                             //FREQ_DOWN_CUTOFF);
                                              //(double)_r / 3);
                 }
             /***
