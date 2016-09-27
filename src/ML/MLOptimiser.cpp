@@ -221,7 +221,9 @@ void MLOptimiser::expectation()
                                                                   _ctf,
                                                                   _groupID,
                                                                   _sig,
-                                                                  _r);
+                                                                  _r,
+                                                                  FREQ_DOWN_CUTOFF);
+                                                                  //(double)_r / 3);
 
                 /***
                 #pragma omp parallel for
@@ -393,7 +395,9 @@ void MLOptimiser::expectation()
                                              image, // pri
                                              _ctf[l], // ctf
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
-                                             _r);
+                                             _r,
+                                             FREQ_DOWN_CUTOFF);
+                                             //(double)_r / 3);
                 }
             /***
             }
@@ -1425,69 +1429,16 @@ void MLOptimiser::reconstructRef()
 {
     IF_MASTER return;
 
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
     FOR_EACH_2D_IMAGE
     {
-        // reduce the CTF effect
-        // reduceCTF(img, _img[l], _ctf[l]);
-        // reduceCTF(img, _img[l], _ctf[l], _r);
-        /// reduceCTF(img, _img[l], _ctf[l], maxR());
-
-        /***
-        if (_ID[l] < 20)
-        {
-            Image lp(_para.size, _para.size, FT_SPACE);
-            lp = img.copyImage();
-            FFT fft;
-            fft.bw(lp);
-            
-            char filename[FILE_NAME_LENGTH];
-            sprintf(filename, "Insert_%04d_Round_%03d.bmp", _ID[l], _iter);
-            lp.saveRLToBMP(filename);
-        }
-        ***/
-
-        /***
-        if (_ID[l] == 1) // debug
-        {
-            vec sig = _sig.row(_groupID[l] - 1).head(maxR()).transpose();
-            vec tau = _model.tau(0) / gsl_pow_3(_para.pf) / _para.size;
-
-            for (int i = 0; i < maxR(); i++)
-                CLOG(INFO, "LOGGER_SYS") << "i = "
-                                         << i
-                                         << ", sig = "
-                                         << sig[i]
-                                         << ", tau = "
-                                         << tau[_para.pf * i];
-        }
-        ***/
-
-        /***
-        reduceCTF(img,
-                  _img[l],
-                  _ctf[l],
-                  _sig.row(_groupID[l] - 1).head(maxR()).transpose(), // noise
-                  //_sig.row(l).transpose(),
-                  //_model.tau(0) / _para.pf / sqrt(_para.pf * _para.size),
-                  _model.tau(0) / gsl_pow_3(_para.pf) /_para.size, // signal
-                  _para.pf,
-                  maxR());
-        ***/
-
-        //uvec iSort = _par[l].iSort();
-
         mat33 rot;
         vec2 tran;
         
         _par[l].rank1st(rot, tran);
 
-        //_model.reco(0).insert(_imgReduceCTF[l], rot, tran, 1);
         _model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
     }
 
@@ -1794,21 +1745,22 @@ double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sig,
-                      const int r)
+                      const double rU,
+                      const double rL)
 {
     double result = 0;
 
-    double r2 = gsl_pow_2(r);
-    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
 
-    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
         double u = QUAD(i, j);
 
-        if ((u < r2) && (u > d2))
+        if ((u < rU2) && (u > rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < r)
+            if (v < rU)
             {
                 int index = dat.iFTHalf(i, j);
 
@@ -1835,21 +1787,22 @@ double logDataVSPrior(const Image& dat,
                       const Image& tra,
                       const Image& ctf,
                       const vec& sig,
-                      const int r)
+                      const double rU,
+                      const double rL)
 {
     double result = 0;
 
-    double r2 = gsl_pow_2(r);
-    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
 
-    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
         double u = QUAD(i, j);
 
-        if ((u < r2) && (u > d2))
+        if ((u < rU2) && (u > rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < r)
+            if (v < rU)
             {
                 int index = dat.iFTHalf(i, j);
 
@@ -1878,23 +1831,24 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
                    const mat& sig,
-                   const int r)
+                   const double rU,
+                   const double rL)
 {
     int n = dat.size();
 
     vec result = vec::Zero(n);
 
-    double r2 = gsl_pow_2(r);
-    double d2 = gsl_pow_2(FREQ_DOWN_CUTOFF);
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
 
-    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
         double u = QUAD(i, j);
 
-        if ((u < r2) && (u > d2))
+        if ((u < rU2) && (u > rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < r)
+            if (v < rU)
             {
                 int index = dat[0].iFTHalf(i, j);
 
@@ -1923,9 +1877,10 @@ double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sig,
-                   const int r)
+                   const double rU,
+                   const double rL)
 {
-    return exp(logDataVSPrior(dat, pri, ctf, sig, r));
+    return exp(logDataVSPrior(dat, pri, ctf, sig, rU, rL));
 }
 
 double dataVSPrior(const Image& dat,
@@ -1933,7 +1888,8 @@ double dataVSPrior(const Image& dat,
                    const Image& tra,
                    const Image& ctf,
                    const vec& sig,
-                   const int r)
+                   const double rU,
+                   const double rL)
 {
-    return exp(logDataVSPrior(dat, pri, tra, ctf, sig, r));
+    return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
 }
