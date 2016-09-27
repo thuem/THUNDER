@@ -355,7 +355,7 @@ void MLOptimiser::expectation()
             else
             {
                 // pertrub with 0.2x confidence area
-                _par[l].perturb();
+                _par[l].perturb(0.01);
             }
 
             /***
