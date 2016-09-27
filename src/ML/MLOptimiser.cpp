@@ -349,11 +349,11 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
-                _par[l].perturb(PERTURB_FACTOR);
+                _par[l].perturb(PERTURB_FACTOR_L);
             }
             else
             {
-                _par[l].perturb(0.01);
+                _par[l].perturb(PERTURB_FACTOR_S);
             }
 
             /***

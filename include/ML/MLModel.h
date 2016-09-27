@@ -47,8 +47,6 @@
 
 #define MAX_ITER_R_NO_IMPROVE 2
 
-#define PERTURB_FACTOR 100
-
 #define N_SAVE_IMG 20
 
 using namespace std;
