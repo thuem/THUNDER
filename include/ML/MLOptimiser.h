@@ -98,6 +98,9 @@ typedef struct ML_OPTIMISER_PARA
     // initial estimated resolution (Angstrom)
     double initRes;
 
+    // the information below this resolution will be ignored
+    double ignoreRes;
+
     char sym[SYM_ID_LENGTH];
 
     char initModel[FILE_NAME_LENGTH];
@@ -142,6 +145,12 @@ class MLOptimiser : public Parallel
          * cutoff frequency (in pixels)
          */
         int _r;
+
+        /**
+         * the information below this frequency will be ignored during
+         * comparison
+         */
+        double _rL;
 
         /**
          * current number of iterations

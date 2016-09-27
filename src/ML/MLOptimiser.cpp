@@ -52,6 +52,16 @@ void MLOptimiser::init()
 
     _iter = 0;
 
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _para.ignoreRes
+                              << " Angstrom will be Ingored during Comparison";
+
+    _rL = resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize);
+
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _rL
+                              << " (Pixel) will be Ingored during Comparison";
+
     MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
     _model.setRGlobal(AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
