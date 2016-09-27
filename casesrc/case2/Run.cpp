@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     para.mG = MG;
     para.mL = ML;
     para.transS = TRANS_S;
-    para.initRes = 60;
+    para.initRes = 40;
     para.ignoreRes = 200;
     sprintf(para.sym, "C15");
     // sprintf(para.initModel, "padCylinder.mrc");
