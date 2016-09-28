@@ -119,6 +119,8 @@ void Particle::reset(const int nR,
 
             _w(j * nT + i) = 1.0 / _n;
         }
+
+    symmetrise();
 }
 
 int Particle::n() const { return _n; }
