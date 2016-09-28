@@ -51,11 +51,9 @@ void CTF(Image& dst,
 
         //dst.setFT(COMPLEX(w1 * sin(ki) + w2 * cos(ki), 0),
         //dst.setFT(COMPLEX(w2 * cos(ki) - w1 * sin(ki), 0), // CORRECT_ONE
-        /***
         dst.setFT(COMPLEX(w1 * sin(ki) - w2 * cos(ki), 0), // CORRECT_ONE
                   i,
                   j);
-                  ***/
         /***
         dst.setFT(COMPLEX(cos(K1 * defocus * gsl_pow_2(u)
                             + K2 * gsl_pow_4(u)),
@@ -63,7 +61,7 @@ void CTF(Image& dst,
                   i,
                   j);
         ***/
-        dst.setFT(COMPLEX(1, 0), i, j); // for debug
+        //dst.setFT(COMPLEX(1, 0), i, j); // for debug
     }
 }
 
