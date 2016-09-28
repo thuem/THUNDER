@@ -52,6 +52,7 @@
 #define PERTURB_FACTOR_S 0.01
 
 #define MASK_RATIO 1.0
+#define GEN_MASK_RES 30
 
 #define TRANS_SEARCH_FACTOR 0.1
 

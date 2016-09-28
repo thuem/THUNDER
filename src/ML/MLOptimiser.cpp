@@ -1467,11 +1467,29 @@ void MLOptimiser::reconstructRef()
                     _para.pf * _para.size,
                     RL_SPACE);
 
+        Volume lowPassRef(_para.pf * _para.size,
+                          _para.pf * _para.size,
+                          _para.pf * _para.size,
+                          RL_SPACE);
+
+        lowPassRef = _model.ref(0).copyVolume();
+
+        FFT fft;
+
+        fft.fwMT(lowPassRef);
+
+        lowPassFilter(lowPassRef,
+                      lowPassRef,
+                      _para.pixelSize / GEN_MASK_RES,
+                      (double)EDGE_WIDTH_FT / _para.pf / _para.size);
+
+        fft.bwMT(lowPassRef);
+
         //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
         //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
         //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
         genMask(_mask,
-                _model.ref(0),
+                lowPassRef,
                 GEN_MASK_EXT,
                 GEN_MASK_EDGE_WIDTH,
                 _para.size * 0.5);
