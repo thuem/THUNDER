@@ -385,3 +385,15 @@ void symmetryRotation(vector<mat33>& sr,
         sr.push_back(R * rot);
     }
 }
+
+void rotate3DSymmetryC(mat33& dst,
+                       const vec4& src,
+                       const int fold)
+{
+}
+
+void rotate3DSymmetryD(mat33& dst,
+                       const vec4& src,
+                       const int fold)
+{
+}
