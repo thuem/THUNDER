@@ -64,9 +64,15 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
-    _model.setRGlobal(AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
+    _model.setRGlobal(AROUND(resA2P(1.0 / _para.globalSearchRes,
                              _para.size,
                              _para.pixelSize)) + 1);
+
+    MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
+                              << _para.globalSearchRes
+                              << " (Angstrom), "
+                              << _model.rGlobal()
+                              << " (Pixel)";
 
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _exp.openDatabase(_para.db);
