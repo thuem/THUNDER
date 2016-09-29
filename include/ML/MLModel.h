@@ -150,23 +150,23 @@ class MLModel : public Parallel
         /**
          * the concentration parameter of the rotation
          */
-        double _rVari;
+        double _rVari = 0;
 
         /**
          * variance of 2D Gaussian distribution of the translation in X
          */
-        double _tVariS0;
+        double _tVariS0 = 0;
 
         /**
          * variance of 2D Gaussian distribution of the translation in Y
          */
-        double _tVariS1;
+        double _tVariS1 = 0;
 
-        double _stdRVari;
+        double _stdRVari = 0;
 
-        double _stdTVariS0;
+        double _stdTVariS0 = 0;
         
-        double _stdTVariS1;
+        double _stdTVariS1 = 0;
 
         /**
          * a parameter indicating the change of rotation between iterations
