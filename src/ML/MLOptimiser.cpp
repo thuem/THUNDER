@@ -635,34 +635,21 @@ void MLOptimiser::run()
         saveBestProjections();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
-        NT_MASTER
-        {
-            refreshVariance();
 
-            //_model.allReduceVari(_par, _N);
+        refreshVariance();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
-            BLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+        MLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
-                                       << ", " << _model.tVariS1();
-            BLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
-                                       << ", " << _model.tVariS1();
+        MLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
+                                   << ", " << _model.tVariS1();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
-                                       << _model.stdRVari();
-            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
-                                       << _model.stdRVari();
+        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
+                                   << _model.stdRVari();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
-                                       << _model.stdTVariS0()
-                                       << ", "
-                                       << _model.stdTVariS1();
-            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
-                                       << _model.stdTVariS0()
-                                       << ", "
-                                       << _model.stdTVariS1();
-        }
+        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
+                                   << _model.stdTVariS0()
+                                   << ", "
+                                   << _model.stdTVariS1();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
         refreshRotationChange();
