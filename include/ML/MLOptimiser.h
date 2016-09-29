@@ -212,6 +212,8 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _ctf;
 
+        vector<bool> _switch;
+
         /**
          * Each row stands for sigma^2 of a certain group, thus the size of this
          * matrix is _nGroup x (maxR() + 1)
@@ -338,6 +340,8 @@ class MLOptimiser : public Parallel
 
         void initCTF();
 
+        void initSwitch();
+
         void initImgReduceCTF();
 
         void correctScale();
@@ -345,6 +349,8 @@ class MLOptimiser : public Parallel
         void refreshRotationChange();
 
         void refreshVariance();
+
+        void refreshSwitch();
 
         void initSigma();
 

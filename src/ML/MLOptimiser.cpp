@@ -654,6 +654,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
         refreshRotationChange();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Determining Which Images Unsuited for Reconstruction";
+        refreshSwitch();
+
         MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
@@ -1152,6 +1155,14 @@ void MLOptimiser::initCTF()
     }
 }
 
+void MLOptimiser::initSwitch()
+{
+    IF_MASTER return;
+
+    _switch.clear();
+    _switch.resize(_ID.size());
+}
+
 void MLOptimiser::initImgReduceCTF()
 {
     _imgReduceCTF.clear();
@@ -1302,6 +1313,51 @@ void MLOptimiser::refreshVariance()
 
     _model.setTVariS1(mean);
     _model.setStdTVariS1(std);
+}
+
+void MLOptimiser::refreshSwitch()
+{
+    int nFail = 0;
+
+    NT_MASTER
+    {
+        double rVariThres = _model.rVari() + 3 * _model.stdRVari();
+        double tVariS0Thres = _model.tVariS0() + 3 * _model.stdTVariS0();
+        double tVariS1Thres = _model.tVariS1() + 3 * _model.stdTVariS1();
+
+        double rVari, tVariS0, tVariS1;
+
+        FOR_EACH_2D_IMAGE
+        {
+            _par[l].vari(rVari,
+                         tVariS0,
+                         tVariS1);
+
+            if ((rVari > rVariThres) ||
+                (tVariS0 > tVariS0Thres) ||
+                (tVariS1 > tVariS1Thres))
+            {
+                _switch[l] = false;
+                nFail += 1;
+            }
+            else
+                _switch[l] = true;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &nFail,
+                  1,
+                  MPI_INT,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << (double)nFail / _nPar * 100
+                               << "\% of Images are Unsuited for Reconstruction";
 }
 
 void MLOptimiser::initSigma()
