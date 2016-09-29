@@ -1486,6 +1486,8 @@ void MLOptimiser::allReduceSigma()
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
+        if (!_switch[l]) continue;
+
         mat33 rot;
         vec2 tran;
         Image img(size(), size(), FT_SPACE);
@@ -1574,6 +1576,8 @@ void MLOptimiser::reconstructRef()
 
     FOR_EACH_2D_IMAGE
     {
+        if (!_switch[l]) continue;
+
         mat33 rot;
         vec2 tran;
         
