@@ -490,6 +490,12 @@ class MLModel : public Parallel
          */
         double tVariS1() const;
 
+        double stdRVari() const;
+
+        double stdTVariS0() const;
+
+        double stdTVariS1() const;
+
         /**
          * This function calculates the variance paramters and averages those in
          * the same hemisphere. The variance paramters include the concentration

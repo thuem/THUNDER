@@ -510,6 +510,21 @@ double MLModel::tVariS1() const
     return _tVariS1;
 }
 
+double MLModel::stdRVari() const
+{
+    return _stdRVari;
+}
+
+double MLModel::stdTVariS0() const
+{
+    return _stdTVariS0;
+}
+
+double MLModel::stdTVariS1() const
+{
+    return _stdTVariS1;
+}
+
 void MLModel::allReduceVari(const vector<Particle>& par,
                             const int n)
 {
