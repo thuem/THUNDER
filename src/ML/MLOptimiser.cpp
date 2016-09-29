@@ -125,6 +125,11 @@ void MLOptimiser::init()
 
         initCTF();
 
+        ALOG(INFO, "LOGGER_INIT") << "Initialising Switch";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising Switch";
+
+        initSwitch();
+
         ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
         BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
 
