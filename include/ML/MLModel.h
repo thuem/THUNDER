@@ -496,6 +496,18 @@ class MLModel : public Parallel
 
         double stdTVariS1() const;
 
+        void setRVari(const double rVari);
+
+        void setTVariS0(const double tVariS0);
+
+        void setTVariS1(const double tVariS1);
+
+        void setStdRVari(const double stdRVari);
+
+        void setStdTVariS0(const double stdTVariS0);
+
+        void setStdTVariS1(const double stdTVariS1);
+
         /**
          * This function calculates the variance paramters and averages those in
          * the same hemisphere. The variance paramters include the concentration
@@ -505,8 +517,10 @@ class MLModel : public Parallel
          * @param par a vector of Particle
          * @param n   number of images in the hemisphere
          */
+        /***
         void allReduceVari(const vector<Particle>& par,
                            const int n);
+                           ***/
 
         /**
          * This function returns the average rotation change between iterations.

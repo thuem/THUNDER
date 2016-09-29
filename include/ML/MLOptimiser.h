@@ -346,6 +346,8 @@ class MLOptimiser : public Parallel
 
         void refreshRotationChange();
 
+        void refreshVariance();
+
         void initSigma();
 
         void initParticles();

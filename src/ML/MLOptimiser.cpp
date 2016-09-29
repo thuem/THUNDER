@@ -631,7 +631,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
         NT_MASTER
         {
-            _model.allReduceVari(_par, _N);
+            refreshVariance();
+
+            //_model.allReduceVari(_par, _N);
 
             ALOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
             BLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
@@ -1237,16 +1239,76 @@ void MLOptimiser::refreshRotationChange()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /***
-    double mean = gsl_stats_mean(rc.data(), 1, rc.size());
-    double std = gsl_stats_sd_m(rc.data(), 1, rc.size(), mean);
-    ***/
-
     double mean, std;
     stat_MAS(mean, std, rc, _nPar);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
+}
+
+void MLOptimiser::refreshVariance()
+{
+    vec rv = vec::Zero(_nPar);
+    vec t0v = vec::Zero(_nPar);
+    vec t1v = vec::Zero(_nPar);
+
+    NT_MASTER
+    {
+        double rVari, tVariS0, tVariS1;
+
+        FOR_EACH_2D_IMAGE
+        {
+            _par[l].vari(rVari,
+                         tVariS0,
+                         tVariS1);
+
+            rv(_ID[l] - 1) = rVari;
+            t0v(_ID[l] - 1) = tVariS0;
+            t1v(_ID[l] - 1) = tVariS1;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  rv.data(),
+                  rv.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  t0v.data(),
+                  t0v.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  t1v.data(),
+                  t1v.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    double mean, std;
+
+    stat_MAS(mean, std, rv, _nPar);
+
+    _model.setRVari(mean);
+    _model.setStdRVari(std);
+
+    stat_MAS(mean, std, t0v, _nPar);
+
+    _model.setTVariS0(mean);
+    _model.setStdTVariS0(std);
+
+    stat_MAS(mean, std, t0v, _nPar);
+
+    _model.setTVariS1(mean);
+    _model.setStdTVariS1(std);
 }
 
 void MLOptimiser::initSigma()

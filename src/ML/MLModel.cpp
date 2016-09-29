@@ -525,6 +525,37 @@ double MLModel::stdTVariS1() const
     return _stdTVariS1;
 }
 
+void MLModel::setRVari(const double rVari)
+{
+    _rVari = rVari;
+}
+
+void MLModel::setTVariS0(const double tVariS0)
+{
+    _tVariS0 = tVariS0;
+}
+
+void MLModel::setTVariS1(const double tVariS1)
+{
+    _tVariS1 = tVariS1;
+}
+
+void MLModel::setStdRVari(const double stdRVari)
+{
+    _stdRVari = stdRVari;
+}
+
+void MLModel::setStdTVariS0(const double stdTVariS0)
+{
+    _stdTVariS0 = stdTVariS0;
+}
+
+void MLModel::setStdTVariS1(const double stdTVariS1)
+{
+    _stdTVariS1 = stdTVariS1;
+}
+
+/***
 void MLModel::allReduceVari(const vector<Particle>& par,
                             const int n)
 {
@@ -611,6 +642,7 @@ void MLModel::allReduceVari(const vector<Particle>& par,
     _stdTVariS0 = sqrt(_stdTVariS0 - gsl_pow_2(_tVariS0));
     _stdTVariS1 = sqrt(_stdTVariS1 - gsl_pow_2(_tVariS1));
 }
+***/
 
 double MLModel::rChange() const
 {
