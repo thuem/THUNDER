@@ -53,6 +53,8 @@
 
 #define TRANS_SEARCH_FACTOR 0.1
 
+#define SWITCH_FACTOR 2
+
 #define PROCESS_LOGW(logW) \
     [](vec& _logW) \
     { \

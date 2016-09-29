@@ -1326,9 +1326,17 @@ void MLOptimiser::refreshSwitch()
 
     NT_MASTER
     {
-        double rVariThres = _model.rVari() + 3 * _model.stdRVari();
-        double tVariS0Thres = _model.tVariS0() + 3 * _model.stdTVariS0();
-        double tVariS1Thres = _model.tVariS1() + 3 * _model.stdTVariS1();
+        double rVariThres = _model.rVari()
+                          + SWITCH_FACTOR
+                          * _model.stdRVari();
+
+        double tVariS0Thres = _model.tVariS0()
+                            + SWITCH_FACTOR
+                            * _model.stdTVariS0();
+
+        double tVariS1Thres = _model.tVariS1() +
+                            + SWITCH_FACTOR
+                            * _model.stdTVariS1();
 
         double rVari, tVariS0, tVariS1;
 
