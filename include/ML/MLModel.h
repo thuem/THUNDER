@@ -162,6 +162,12 @@ class MLModel : public Parallel
          */
         double _tVariS1;
 
+        double _stdRVari;
+
+        double _stdTVariS0;
+        
+        double _stdTVariS1;
+
         /**
          * a parameter indicating the change of rotation between iterations
          */
