@@ -640,6 +640,20 @@ void MLOptimiser::run()
                                        << ", " << _model.tVariS1();
             BLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
                                        << ", " << _model.tVariS1();
+
+            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
+                                       << _model.stdRVari();
+            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
+                                       << _model.stdRVari();
+
+            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
+                                       << _model.stdTVariS0()
+                                       << ", "
+                                       << _model.stdTVariS1();
+            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
+                                       << _model.stdTVariS0()
+                                       << ", "
+                                       << _model.stdTVariS1();
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
