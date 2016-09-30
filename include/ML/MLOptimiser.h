@@ -38,19 +38,22 @@
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
-#define FREQ_DOWN_CUTOFF 1.5
 #define ALPHA_GLOBAL_SEARCH 1.0
 #define ALPHA_LOCAL_SEARCH 0
-#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 15 // Angstrom
-//#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 20 // Angstrom
-//#define TOTAL_GLOBAL_SEARCH_RES_LIMIT 50 // Angstrom
 
 #define MIN_N_PHASE_PER_ITER 3
 #define MAX_N_PHASE_PER_ITER 100
 
+#define PERTURB_FACTOR_L 100
+#define PERTURB_FACTOR_S 0.01
+//#define PERTURB_FACTOR_S 0.2
+
 #define MASK_RATIO 1.0
+#define GEN_MASK_RES 30
 
 #define TRANS_SEARCH_FACTOR 0.1
+
+#define SWITCH_FACTOR 2
 
 #define PROCESS_LOGW(logW) \
     [](vec& _logW) \
@@ -98,6 +101,11 @@ typedef struct ML_OPTIMISER_PARA
     // initial estimated resolution (Angstrom)
     double initRes;
 
+    // the information below this resolution will be ignored
+    double ignoreRes;
+
+    double globalSearchRes;
+
     char sym[SYM_ID_LENGTH];
 
     char initModel[FILE_NAME_LENGTH];
@@ -142,6 +150,12 @@ class MLOptimiser : public Parallel
          * cutoff frequency (in pixels)
          */
         int _r;
+
+        /**
+         * the information below this frequency will be ignored during
+         * comparison
+         */
+        double _rL;
 
         /**
          * current number of iterations
@@ -199,6 +213,8 @@ class MLOptimiser : public Parallel
          * a CTF for each 2D image
          */
         vector<Image> _ctf;
+
+        vector<bool> _switch;
 
         /**
          * Each row stands for sigma^2 of a certain group, thus the size of this
@@ -326,11 +342,17 @@ class MLOptimiser : public Parallel
 
         void initCTF();
 
+        void initSwitch();
+
         void initImgReduceCTF();
 
         void correctScale();
 
         void refreshRotationChange();
+
+        void refreshVariance();
+
+        void refreshSwitch();
 
         void initSigma();
 

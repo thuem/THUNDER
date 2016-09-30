@@ -52,11 +52,27 @@ void MLOptimiser::init()
 
     _iter = 0;
 
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _para.ignoreRes
+                              << " Angstrom will be Ingored during Comparison";
+
+    _rL = resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize);
+
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _rL
+                              << " (Pixel) will be Ingored during Comparison";
+
     MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
-    _model.setRGlobal(AROUND(resA2P(1.0 / TOTAL_GLOBAL_SEARCH_RES_LIMIT,
+    _model.setRGlobal(AROUND(resA2P(1.0 / _para.globalSearchRes,
                              _para.size,
                              _para.pixelSize)) + 1);
+
+    MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
+                              << _para.globalSearchRes
+                              << " (Angstrom), "
+                              << _model.rGlobal()
+                              << " (Pixel)";
 
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _exp.openDatabase(_para.db);
@@ -108,6 +124,11 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
         initCTF();
+
+        ALOG(INFO, "LOGGER_INIT") << "Initialising Switch";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising Switch";
+
+        initSwitch();
 
         ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
         BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
@@ -222,7 +243,8 @@ void MLOptimiser::expectation()
                                                                   _groupID,
                                                                   _sig,
                                                                   _r,
-                                                                  FREQ_DOWN_CUTOFF);
+                                                                  _rL);
+                                                                  //FREQ_DOWN_CUTOFF);
                                                                   //(double)_r / 3);
 
                 /***
@@ -338,13 +360,11 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
-                // perturb with PERTURB_FACTORx confidence area
-                _par[l].perturb(PERTURB_FACTOR);
+                _par[l].perturb(PERTURB_FACTOR_L);
             }
             else
             {
-                // pertrub with 0.2x confidence area
-                _par[l].perturb();
+                _par[l].perturb(PERTURB_FACTOR_S);
             }
 
             /***
@@ -396,7 +416,8 @@ void MLOptimiser::expectation()
                                              _ctf[l], // ctf
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                              _r,
-                                             FREQ_DOWN_CUTOFF);
+                                             _rL);
+                                             //FREQ_DOWN_CUTOFF);
                                              //(double)_r / 3);
                 }
             /***
@@ -619,21 +640,27 @@ void MLOptimiser::run()
         saveBestProjections();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
-        NT_MASTER
-        {
-            _model.allReduceVari(_par, _N);
 
-            ALOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
-            BLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+        refreshVariance();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
-                                       << ", " << _model.tVariS1();
-            BLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
-                                       << ", " << _model.tVariS1();
-        }
+        MLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Translation Variance : " << _model.tVariS0()
+                                   << ", " << _model.tVariS1();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
+                                   << _model.stdRVari();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
+                                   << _model.stdTVariS0()
+                                   << ", "
+                                   << _model.stdTVariS1();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
         refreshRotationChange();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Determining Which Images Unsuited for Reconstruction";
+        refreshSwitch();
 
         MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
@@ -1133,6 +1160,14 @@ void MLOptimiser::initCTF()
     }
 }
 
+void MLOptimiser::initSwitch()
+{
+    IF_MASTER return;
+
+    _switch.clear();
+    _switch.resize(_ID.size());
+}
+
 void MLOptimiser::initImgReduceCTF()
 {
     _imgReduceCTF.clear();
@@ -1213,16 +1248,129 @@ void MLOptimiser::refreshRotationChange()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /***
-    double mean = gsl_stats_mean(rc.data(), 1, rc.size());
-    double std = gsl_stats_sd_m(rc.data(), 1, rc.size(), mean);
-    ***/
-
     double mean, std;
     stat_MAS(mean, std, rc, _nPar);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
+}
+
+void MLOptimiser::refreshVariance()
+{
+    vec rv = vec::Zero(_nPar);
+    vec t0v = vec::Zero(_nPar);
+    vec t1v = vec::Zero(_nPar);
+
+    NT_MASTER
+    {
+        double rVari, tVariS0, tVariS1;
+
+        FOR_EACH_2D_IMAGE
+        {
+            _par[l].vari(rVari,
+                         tVariS0,
+                         tVariS1);
+
+            rv(_ID[l] - 1) = rVari;
+            t0v(_ID[l] - 1) = tVariS0;
+            t1v(_ID[l] - 1) = tVariS1;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  rv.data(),
+                  rv.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  t0v.data(),
+                  t0v.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  t1v.data(),
+                  t1v.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    double mean, std;
+
+    stat_MAS(mean, std, rv, _nPar);
+
+    _model.setRVari(mean);
+    _model.setStdRVari(std);
+
+    stat_MAS(mean, std, t0v, _nPar);
+
+    _model.setTVariS0(mean);
+    _model.setStdTVariS0(std);
+
+    stat_MAS(mean, std, t0v, _nPar);
+
+    _model.setTVariS1(mean);
+    _model.setStdTVariS1(std);
+}
+
+void MLOptimiser::refreshSwitch()
+{
+    int nFail = 0;
+
+    NT_MASTER
+    {
+        double rVariThres = _model.rVari()
+                          + SWITCH_FACTOR
+                          * _model.stdRVari();
+
+        double tVariS0Thres = _model.tVariS0()
+                            + SWITCH_FACTOR
+                            * _model.stdTVariS0();
+
+        double tVariS1Thres = _model.tVariS1() +
+                            + SWITCH_FACTOR
+                            * _model.stdTVariS1();
+
+        double rVari, tVariS0, tVariS1;
+
+        FOR_EACH_2D_IMAGE
+        {
+            _par[l].vari(rVari,
+                         tVariS0,
+                         tVariS1);
+
+            if ((rVari > rVariThres) ||
+                (tVariS0 > tVariS0Thres) ||
+                (tVariS1 > tVariS1Thres))
+            {
+                _switch[l] = false;
+                nFail += 1;
+            }
+            else
+                _switch[l] = true;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &nFail,
+                  1,
+                  MPI_INT,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << (double)nFail / _nPar * 100
+                               << "\% of Images are Unsuited for Reconstruction";
 }
 
 void MLOptimiser::initSigma()
@@ -1346,6 +1494,8 @@ void MLOptimiser::allReduceSigma()
     // loop over 2D images
     FOR_EACH_2D_IMAGE
     {
+        if (!_switch[l]) continue;
+
         mat33 rot;
         vec2 tran;
         Image img(size(), size(), FT_SPACE);
@@ -1434,6 +1584,8 @@ void MLOptimiser::reconstructRef()
 
     FOR_EACH_2D_IMAGE
     {
+        if (!_switch[l]) continue;
+
         mat33 rot;
         vec2 tran;
         
@@ -1457,11 +1609,29 @@ void MLOptimiser::reconstructRef()
                     _para.pf * _para.size,
                     RL_SPACE);
 
+        Volume lowPassRef(_para.pf * _para.size,
+                          _para.pf * _para.size,
+                          _para.pf * _para.size,
+                          RL_SPACE);
+
+        lowPassRef = _model.ref(0).copyVolume();
+
+        FFT fft;
+
+        fft.fwMT(lowPassRef);
+
+        lowPassFilter(lowPassRef,
+                      lowPassRef,
+                      _para.pixelSize / GEN_MASK_RES,
+                      (double)EDGE_WIDTH_FT / _para.pf / _para.size);
+
+        fft.bwMT(lowPassRef);
+
         //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
         //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
         //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
         genMask(_mask,
-                _model.ref(0),
+                lowPassRef,
                 GEN_MASK_EXT,
                 GEN_MASK_EDGE_WIDTH,
                 _para.size * 0.5);

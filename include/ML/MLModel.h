@@ -47,8 +47,6 @@
 
 #define MAX_ITER_R_NO_IMPROVE 2
 
-#define PERTURB_FACTOR 100
-
 #define N_SAVE_IMG 20
 
 using namespace std;
@@ -152,17 +150,23 @@ class MLModel : public Parallel
         /**
          * the concentration parameter of the rotation
          */
-        double _rVari;
+        double _rVari = 0;
 
         /**
          * variance of 2D Gaussian distribution of the translation in X
          */
-        double _tVariS0;
+        double _tVariS0 = 0;
 
         /**
          * variance of 2D Gaussian distribution of the translation in Y
          */
-        double _tVariS1;
+        double _tVariS1 = 0;
+
+        double _stdRVari = 0;
+
+        double _stdTVariS0 = 0;
+        
+        double _stdTVariS1 = 0;
 
         /**
          * a parameter indicating the change of rotation between iterations
@@ -486,6 +490,24 @@ class MLModel : public Parallel
          */
         double tVariS1() const;
 
+        double stdRVari() const;
+
+        double stdTVariS0() const;
+
+        double stdTVariS1() const;
+
+        void setRVari(const double rVari);
+
+        void setTVariS0(const double tVariS0);
+
+        void setTVariS1(const double tVariS1);
+
+        void setStdRVari(const double stdRVari);
+
+        void setStdTVariS0(const double stdTVariS0);
+
+        void setStdTVariS1(const double stdTVariS1);
+
         /**
          * This function calculates the variance paramters and averages those in
          * the same hemisphere. The variance paramters include the concentration
@@ -495,8 +517,10 @@ class MLModel : public Parallel
          * @param par a vector of Particle
          * @param n   number of images in the hemisphere
          */
+        /***
         void allReduceVari(const vector<Particle>& par,
                            const int n);
+                           ***/
 
         /**
          * This function returns the average rotation change between iterations.

@@ -385,3 +385,43 @@ void symmetryRotation(vector<mat33>& sr,
         sr.push_back(R * rot);
     }
 }
+
+void angleSymmetryC(double& phi,
+                    double& theta,
+                    double& psi,
+                    const vec4& src,
+                    const int fold)
+{
+    angle(phi, theta, psi, src);
+
+    phi /= fold;
+}
+
+void angleSymmetryD(double& phi,
+                    double& theta,
+                    double& psi,
+                    const vec4& src,
+                    const int fold)
+{
+    //TODO
+}
+
+void rotate3DSymmetryC(mat33& dst,
+                       const vec4& src,
+                       const int fold)
+{
+    double phi, theta, psi;
+    angleSymmetryC(phi, theta, psi, src, fold);
+
+    rotate3D(dst, phi, theta, psi);
+}
+
+void rotate3DSymmetryD(mat33& dst,
+                       const vec4& src,
+                       const int fold)
+{
+    double phi, theta, psi;
+    angleSymmetryD(phi, theta, psi, src, fold);
+
+    rotate3D(dst, phi, theta, psi);
+}

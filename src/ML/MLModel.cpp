@@ -510,6 +510,52 @@ double MLModel::tVariS1() const
     return _tVariS1;
 }
 
+double MLModel::stdRVari() const
+{
+    return _stdRVari;
+}
+
+double MLModel::stdTVariS0() const
+{
+    return _stdTVariS0;
+}
+
+double MLModel::stdTVariS1() const
+{
+    return _stdTVariS1;
+}
+
+void MLModel::setRVari(const double rVari)
+{
+    _rVari = rVari;
+}
+
+void MLModel::setTVariS0(const double tVariS0)
+{
+    _tVariS0 = tVariS0;
+}
+
+void MLModel::setTVariS1(const double tVariS1)
+{
+    _tVariS1 = tVariS1;
+}
+
+void MLModel::setStdRVari(const double stdRVari)
+{
+    _stdRVari = stdRVari;
+}
+
+void MLModel::setStdTVariS0(const double stdTVariS0)
+{
+    _stdTVariS0 = stdTVariS0;
+}
+
+void MLModel::setStdTVariS1(const double stdTVariS1)
+{
+    _stdTVariS1 = stdTVariS1;
+}
+
+/***
 void MLModel::allReduceVari(const vector<Particle>& par,
                             const int n)
 {
@@ -518,6 +564,10 @@ void MLModel::allReduceVari(const vector<Particle>& par,
     _rVari = 0;
     _tVariS0 = 0;
     _tVariS1 = 0;
+
+    _stdRVari = 0;
+    _stdTVariS0 = 0;
+    _stdTVariS1 = 0;
 
     double rVari, tVariS0, tVariS1;
 
@@ -530,6 +580,10 @@ void MLModel::allReduceVari(const vector<Particle>& par,
         _rVari += rVari;
         _tVariS0 += tVariS0;
         _tVariS1 += tVariS1;
+
+        _stdRVari += gsl_pow_2(rVari);
+        _stdTVariS0 += gsl_pow_2(tVariS0);
+        _stdTVariS1 += gsl_pow_2(tVariS1);
     }
 
     MPI_Barrier(_hemi);
@@ -541,16 +595,12 @@ void MLModel::allReduceVari(const vector<Particle>& par,
                   MPI_SUM,
                   _hemi);
 
-    MPI_Barrier(_hemi);
-
     MPI_Allreduce(MPI_IN_PLACE,
                   &_tVariS0,
                   1,
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
-
-    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &_tVariS1,
@@ -559,10 +609,40 @@ void MLModel::allReduceVari(const vector<Particle>& par,
                   MPI_SUM,
                   _hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_stdRVari,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_stdTVariS0,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_stdTVariS1,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
     _rVari /= n;
     _tVariS0 /= n;
     _tVariS1 /= n;
+
+    _stdRVari /= n;
+    _stdTVariS0 /= n;
+    _stdTVariS1 /= n;
+
+    _stdRVari = sqrt(_stdRVari - gsl_pow_2(_rVari));
+    _stdTVariS0 = sqrt(_stdTVariS0 - gsl_pow_2(_tVariS0));
+    _stdTVariS1 = sqrt(_stdTVariS1 - gsl_pow_2(_tVariS1));
 }
+***/
 
 double MLModel::rChange() const
 {

@@ -305,4 +305,24 @@ void symmetryRotation(vector<mat33>& sr,
                       const mat33 rot,
                       const Symmetry* sym = NULL);
 
+void angleSymmetryC(double& phi,
+                    double& theta,
+                    double& psi,
+                    const vec4& src,
+                    const int fold);
+
+void angleSymmetryD(double& phi,
+                    double& theta,
+                    double& psi,
+                    const vec4& src,
+                    const int fold);
+
+void rotate3DSymmetryC(mat33& dst,
+                       const vec4& src,
+                       const int fold);
+
+void rotate3DSymmetryD(mat33& dst,
+                       const vec4& src,
+                       const int fold);
+
 #endif // SYMMETRY_H
