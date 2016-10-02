@@ -205,7 +205,7 @@ class Projector
                      const Coordinate5D& coordinate5D) const;
 
         void projectMT(Image& dst,
-                       const Coordinate5D& coordiante5D) const;
+                       const Coordinate5D& coordinate5D) const;
 
         void project(Image& dst,
                      const mat33& rot,
