@@ -222,6 +222,11 @@ class MLOptimiser : public Parallel
         mat _sig;
 
         /**
+         * intensity scale of each group
+         */
+        vec _scale;
+
+        /**
          * number of groups
          */
         int _nGroup;
@@ -347,15 +352,17 @@ class MLOptimiser : public Parallel
 
         void correctScale();
 
+        void initSigma();
+
+        void initParticles();
+
         void refreshRotationChange();
 
         void refreshVariance();
 
         void refreshSwitch();
 
-        void initSigma();
-
-        void initParticles();
+        void refreshScale();
 
         void allReduceSigma();
 
@@ -430,5 +437,18 @@ double dataVSPrior(const Image& dat,
                    const vec& sig,
                    const double rU,
                    const double rL);
+
+void scaleDataVSPrior(Complex& datCTF,
+                      Complex& priCTF2,
+                      const Image& pri,
+                      const Image& ctf,
+                      const double rU,
+                      const double rL);
+
+double scaleDataVSPrior(const Image& dat,
+                        const Image& pri,
+                        const Image& ctf,
+                        const double rU,
+                        const double rL);
 
 #endif // ML_OPTIMSER_H

@@ -578,6 +578,11 @@ void MLOptimiser::maximization()
 
     allReduceSigma();
 
+    ALOG(INFO, "LOGGER_ROUND") << "Re-calculating Intensity Scale for Each Group";
+    BLOG(INFO, "LOGGER_ROUND") << "Re-calculating Intensity Scale for Each Group";
+
+    refreshScale();
+
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
@@ -1227,6 +1232,105 @@ void MLOptimiser::correctScale()
     SCALE_FT(_model.ref(0), sf);
 }
 
+void MLOptimiser::initSigma()
+{
+    IF_MASTER return;
+
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+
+    Image avg = _img[0].copyImage();
+
+    for (size_t l = 1; l < _ID.size(); l++)
+    {
+        #pragma omp parallel for
+        ADD_FT(avg, _img[l]);
+    }
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &avg[0],
+                  avg.sizeFT(),
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    #pragma omp parallel for
+    SCALE_FT(avg, 1.0 / _N);
+
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
+
+    vec avgPs = vec::Zero(maxR());
+
+    FOR_EACH_2D_IMAGE
+    {
+        vec ps(maxR());
+
+        powerSpectrum(ps, _img[l], maxR());
+
+        avgPs += ps;
+    }
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  avgPs.data(),
+                  maxR(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    avgPs /= _N;
+
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
+
+    vec psAvg(maxR());
+    for (int i = 0; i < maxR(); i++)
+    {
+        psAvg(i) = ringAverage(i,
+                               avg,
+                               [](const Complex x)
+                               {
+                                   return REAL(x) + IMAG(x);
+                               });
+        psAvg(i) = gsl_pow_2(psAvg(i));
+    }
+
+    // avgPs -> average power spectrum
+    // psAvg -> expectation of pixels
+    ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
+    BLOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
+
+    _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
+
+    /***
+    ALOG(INFO) << "Saving Initial Sigma";
+    if (_commRank == HEMI_A_LEAD)
+        _sig.save("Sigma_000.txt", raw_ascii);
+        ***/
+}
+
+void MLOptimiser::initParticles()
+{
+    IF_MASTER return;
+
+    _par.clear();
+    _par.resize(_ID.size());
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+        _par[l].init(_para.transS,
+                     0.01,
+                     &_sym);
+}
+
 void MLOptimiser::refreshRotationChange()
 {
     vec rc = vec::Zero(_nPar);
@@ -1373,103 +1477,31 @@ void MLOptimiser::refreshSwitch()
                                << "\% of Images are Unsuited for Reconstruction";
 }
 
-void MLOptimiser::initSigma()
+void MLOptimiser::refreshScale()
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
-    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
-
-    Image avg = _img[0].copyImage();
-
-    for (size_t l = 1; l < _ID.size(); l++)
-    {
-        #pragma omp parallel for
-        ADD_FT(avg, _img[l]);
-    }
-
-    MPI_Barrier(_hemi);
-
-    MPI_Allreduce(MPI_IN_PLACE,
-                  &avg[0],
-                  avg.sizeFT(),
-                  MPI_DOUBLE_COMPLEX,
-                  MPI_SUM,
-                  _hemi);
-
-    MPI_Barrier(_hemi);
-
-    #pragma omp parallel for
-    SCALE_FT(avg, 1.0 / _N);
-
-    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
-    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
-
-    vec avgPs = vec::Zero(maxR());
-
-    FOR_EACH_2D_IMAGE
-    {
-        vec ps(maxR());
-
-        powerSpectrum(ps, _img[l], maxR());
-
-        avgPs += ps;
-    }
-
-    MPI_Barrier(_hemi);
-
-    MPI_Allreduce(MPI_IN_PLACE,
-                  avgPs.data(),
-                  maxR(),
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-
-    MPI_Barrier(_hemi);
-
-    avgPs /= _N;
-
-    ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
-    BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
-
-    vec psAvg(maxR());
-    for (int i = 0; i < maxR(); i++)
-    {
-        psAvg(i) = ringAverage(i,
-                               avg,
-                               [](const Complex x)
-                               {
-                                   return REAL(x) + IMAG(x);
-                               });
-        psAvg(i) = gsl_pow_2(psAvg(i));
-    }
-
-    // avgPs -> average power spectrum
-    // psAvg -> expectation of pixels
-    ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
-    BLOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
-
-    _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
-
-    /***
-    ALOG(INFO) << "Saving Initial Sigma";
-    if (_commRank == HEMI_A_LEAD)
-        _sig.save("Sigma_000.txt", raw_ascii);
-        ***/
-}
-
-void MLOptimiser::initParticles()
-{
-    IF_MASTER return;
-
-    _par.clear();
-    _par.resize(_ID.size());
-
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.transS,
-                     0.01,
-                     &_sym);
+    {
+        if (!_switch[l]) continue;
+
+        Image img(size(), size(), FT_SPACE);
+
+        mat33 rot;
+        vec2 tran;
+
+        _model.proj(0).project(img, rot, tran);
+
+        double scale = scaleDataVSPrior(_img[l],
+                                        img,
+                                        _ctf[l],
+                                        _r,
+                                        _rL);
+
+        if (_ID[l] < N_SAVE_IMG)
+            CLOG(INFO, "LOGGER_ROUND") << "Scale = " << scale;
+    }
 }
 
 void MLOptimiser::allReduceSigma()
@@ -1486,28 +1518,23 @@ void MLOptimiser::allReduceSigma()
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
-    /***
-    // project references with all frequency
-    _model.setProjMaxRadius(maxR());
-    ***/
+    Image img(size(), size(), FT_SPACE);
 
-    // loop over 2D images
+    mat33 rot;
+    vec2 tran;
+
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
 
-        mat33 rot;
-        vec2 tran;
-        Image img(size(), size(), FT_SPACE);
-
-        //vec sig(maxR());
         vec sig(_r);
 
         _par[l].rank1st(rot, tran);
 
         // calculate differences
 
-        _model.proj(0).project(img, rot, tran);
+        _model.proj(0).projectMT(img, rot, tran);
+        //_model.proj(0).project(img, rot, tran);
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(img)
@@ -2062,4 +2089,47 @@ double dataVSPrior(const Image& dat,
                    const double rL)
 {
     return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
+}
+
+void scaleDataVSPrior(Complex& datCTF,
+                      Complex& priCTF2,
+                      const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const double rU,
+                      const double rL)
+{
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
+
+    datCTF = COMPLEX(0, 0);
+    priCTF2 = COMPLEX(0, 0);
+
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
+    {
+        double u = QUAD(i, j);
+
+        if ((u < rU2) && (u > rL2))
+        {
+            int index = dat.iFTHalf(i, j);
+
+            datCTF += dat.iGetFT(index)
+                    * REAL(ctf.iGetFT(index));
+            priCTF2 += pri.iGetFT(index)
+                     * gsl_pow_2(REAL(ctf.iGetFT(index)));
+        }
+    }
+}
+
+double scaleDataVSPrior(const Image& dat,
+                        const Image& pri,
+                        const Image& ctf,
+                        const double rU,
+                        const double rL)
+{
+    Complex datCTF, priCTF2;
+
+    scaleDataVSPrior(datCTF, priCTF2, dat, pri, ctf, rU, rL);
+
+    return ABS(datCTF) / ABS(priCTF2);
 }

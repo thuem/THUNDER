@@ -187,6 +187,13 @@ class Projector
                      const double x,
                      const double y) const;
 
+        void projectMT(Image& dst,
+                       const double phi,
+                       const double theta,
+                       const double psi,
+                       const double x,
+                       const double y) const;
+
         /**
          * This function projects given a 5D coordinate.
          *
@@ -197,9 +204,16 @@ class Projector
         void project(Image& dst,
                      const Coordinate5D& coordinate5D) const;
 
+        void projectMT(Image& dst,
+                       const Coordinate5D& coordiante5D) const;
+
         void project(Image& dst,
                      const mat33& rot,
                      const vec2& t) const;
+
+        void projectMT(Image& dst,
+                       const mat33& rot,
+                       const vec2& t) const;
 
     private:
 

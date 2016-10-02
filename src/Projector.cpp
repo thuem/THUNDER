@@ -141,6 +141,17 @@ void Projector::project(Image& dst,
     translate(dst, dst, _maxRadius, x, y);
 }
 
+void Projector::projectMT(Image& dst,
+                          const double phi,
+                          const double theta,
+                          const double psi,
+                          const double x,
+                          const double y) const
+{
+    projectMT(dst, phi, theta, psi);
+    translateMT(dst, dst, _maxRadius, x, y);
+}
+
 void Projector::project(Image& dst,
                         const Coordinate5D& coordinate5D) const
 {
@@ -152,12 +163,31 @@ void Projector::project(Image& dst,
             coordinate5D.y);
 }
 
+void Projector::projectMT(Image& dst,
+                          const Coordinate5D& coordinate5D) const
+{
+    projectMT(dst,
+              coordinate5D.phi,
+              coordinate5D.theta,
+              coordinate5D.psi,
+              coordinate5D.x,
+              coordinate5D.y);
+}
+
 void Projector::project(Image& dst,
                         const mat33& rot,
                         const vec2& t) const
 {
     project(dst, rot);
     translate(dst, dst, _maxRadius, t(0), t(1));
+}
+
+void Projector::projectMT(Image& dst,
+                          const mat33& rot,
+                          const vec2& t) const
+{
+    projectMT(dst, rot);
+    translateMT(dst, dst, _maxRadius, t(0), t(1));
 }
 
 void Projector::gridCorrection()
