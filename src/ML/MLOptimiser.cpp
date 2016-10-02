@@ -1489,11 +1489,6 @@ void MLOptimiser::refreshScale()
 {
     IF_MASTER return;
 
-    Image img(size(), size(), FT_SPACE);
-
-    mat33 rot;
-    vec2 tran;
-
     vector<Complex> sumDatCTF, sumPriCTF2;
 
     sumDatCTF.resize(_nGroup);
@@ -1506,6 +1501,11 @@ void MLOptimiser::refreshScale()
     }
 
     Complex datCTF, priCTF2;
+
+    Image img(size(), size(), FT_SPACE);
+
+    mat33 rot;
+    vec2 tran;
 
     FOR_EACH_2D_IMAGE
     {
@@ -1521,8 +1521,11 @@ void MLOptimiser::refreshScale()
                          _r,
                          _rL);
 
-        sumDatCTF[_groupID[l] - 1] += datCTF;
-        sumPriCTF2[_groupID[l] - 1] += priCTF2;
+        //sumDatCTF[_groupID[l] - 1] += datCTF;
+        //sumPriCTF2[_groupID[l] - 1] += priCTF2;
+
+        sumDatCTF[0] += datCTF;
+        sumPriCTF2[0] += priCTF2;
         /***
         scale += scaleDataVSPrior(_img[l],
                                   img,
@@ -1532,6 +1535,7 @@ void MLOptimiser::refreshScale()
                                   ***/
     }
 
+    /***
     MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
@@ -1550,6 +1554,7 @@ void MLOptimiser::refreshScale()
                   MPI_DOUBLE_COMPLEX,
                   MPI_SUM,
                   _hemi);
+                  ***/
 
     double scale = ABS(sumDatCTF[0]) / ABS(sumPriCTF2[0]);
 
