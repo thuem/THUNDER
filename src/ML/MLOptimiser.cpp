@@ -1486,21 +1486,39 @@ void MLOptimiser::refreshScale()
     mat33 rot;
     vec2 tran;
 
+    Complex sumDatCTF = 0;
+    Complex sumPriCTF2 = 0;
+
+    Complex datCTF, sumPriCTF2;
+
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
 
         _model.proj(0).projectMT(img, rot, tran);
 
-        double scale = scaleDataVSPrior(_img[l],
-                                        img,
-                                        _ctf[l],
-                                        _r,
-                                        _rL);
+        scaleDataVSPrior(datCTF,
+                         priCTF2,
+                         _img[l],
+                         img,
+                         _ctf[l],
+                         _r
+                         _rL);
 
-        if (_ID[l] < N_SAVE_IMG)
-            CLOG(INFO, "LOGGER_ROUND") << "Scale = " << scale;
+        sumDatCTF += datCTF;
+        sumPriCTF2 += priCTF2;
+        /***
+        scale += scaleDataVSPrior(_img[l],
+                                  img,
+                                  _ctf[l],
+                                  _r,
+                                  _rL);
+                                  ***/
     }
+
+    double scale = ABS(datCTF) / ABS(priCTF2);
+
+    CLOG(INFO, "LOGGER_ROUND") << "Scale = " << scale;
 }
 
 void MLOptimiser::allReduceSigma()
