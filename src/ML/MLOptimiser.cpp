@@ -1486,10 +1486,10 @@ void MLOptimiser::refreshScale()
     mat33 rot;
     vec2 tran;
 
-    Complex sumDatCTF = 0;
-    Complex sumPriCTF2 = 0;
+    Complex sumDatCTF = COMPLEX(0, 0);
+    Complex sumPriCTF2 = COMPLEX(0, 0);
 
-    Complex datCTF, sumPriCTF2;
+    Complex datCTF, priCTF2;
 
     FOR_EACH_2D_IMAGE
     {
@@ -1502,7 +1502,7 @@ void MLOptimiser::refreshScale()
                          _img[l],
                          img,
                          _ctf[l],
-                         _r
+                         _r,
                          _rL);
 
         sumDatCTF += datCTF;

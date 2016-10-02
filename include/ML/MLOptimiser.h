@@ -440,6 +440,7 @@ double dataVSPrior(const Image& dat,
 
 void scaleDataVSPrior(Complex& datCTF,
                       Complex& priCTF2,
+                      const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const double rU,
