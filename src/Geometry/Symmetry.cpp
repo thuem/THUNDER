@@ -386,6 +386,7 @@ void symmetryRotation(vector<mat33>& sr,
     }
 }
 
+/***
 void angleSymmetryC(double& phi,
                     double& theta,
                     double& psi,
@@ -425,3 +426,4 @@ void rotate3DSymmetryD(mat33& dst,
 
     rotate3D(dst, phi, theta, psi);
 }
+***/
