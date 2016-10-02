@@ -1481,17 +1481,16 @@ void MLOptimiser::refreshScale()
 {
     IF_MASTER return;
 
-    #pragma omp parallel for
+    Image img(size(), size(), FT_SPACE);
+
+    mat33 rot;
+    vec2 tran;
+
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
 
-        Image img(size(), size(), FT_SPACE);
-
-        mat33 rot;
-        vec2 tran;
-
-        _model.proj(0).project(img, rot, tran);
+        _model.proj(0).projectMT(img, rot, tran);
 
         double scale = scaleDataVSPrior(_img[l],
                                         img,
