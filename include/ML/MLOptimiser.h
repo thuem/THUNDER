@@ -46,14 +46,13 @@
 
 #define PERTURB_FACTOR_L 100
 #define PERTURB_FACTOR_S 0.01
-//#define PERTURB_FACTOR_S 0.2
 
 #define MASK_RATIO 1.0
 #define GEN_MASK_RES 30
 
 #define TRANS_SEARCH_FACTOR 0.1
 
-#define SWITCH_FACTOR 2
+#define SWITCH_FACTOR 3
 
 #define PROCESS_LOGW(logW) \
     [](vec& _logW) \
