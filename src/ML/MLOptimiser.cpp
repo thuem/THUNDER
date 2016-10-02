@@ -847,6 +847,9 @@ void MLOptimiser::bcastGroupInfo()
 
     ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.resize(_nGroup, maxR() + 1);
+
+    ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Intensity Scale";
+    NT_MASTER _scale.resize(_nGroup);
 }
 
 void MLOptimiser::initRef()
@@ -1331,6 +1334,11 @@ void MLOptimiser::initParticles()
                      &_sym);
 }
 
+void MLOptimiser::initScale()
+{
+    IF_MASTER return;
+}
+
 void MLOptimiser::refreshRotationChange()
 {
     vec rc = vec::Zero(_nPar);
@@ -1486,8 +1494,16 @@ void MLOptimiser::refreshScale()
     mat33 rot;
     vec2 tran;
 
-    Complex sumDatCTF = COMPLEX(0, 0);
-    Complex sumPriCTF2 = COMPLEX(0, 0);
+    vector<Complex> sumDatCTF, sumPriCTF2;
+
+    sumDatCTF.resize(_nGroup);
+    sumPriCTF2.resize(_nGroup);
+
+    for (int i = 0; i < _nGroup; i++)
+    {
+        sumDatCTF[i] = COMPLEX(0, 0);
+        sumPriCTF2[i] = COMPLEX(0, 0);
+    }
 
     Complex datCTF, priCTF2;
 
@@ -1505,8 +1521,8 @@ void MLOptimiser::refreshScale()
                          _r,
                          _rL);
 
-        sumDatCTF += datCTF;
-        sumPriCTF2 += priCTF2;
+        sumDatCTF[_groupID[l] - 1] += datCTF;
+        sumPriCTF2[_groupID[l] - 1] += priCTF2;
         /***
         scale += scaleDataVSPrior(_img[l],
                                   img,
@@ -1516,7 +1532,26 @@ void MLOptimiser::refreshScale()
                                   ***/
     }
 
-    double scale = ABS(datCTF) / ABS(priCTF2);
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
+    BLOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &sumDatCTF[0],
+                  _nGroup,
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &sumPriCTF2[0],
+                  _nGroup,
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
+                  _hemi);
+
+    double scale = ABS(sumDatCTF[0]) / ABS(sumPriCTF2[0]);
 
     CLOG(INFO, "LOGGER_ROUND") << "Scale = " << scale;
 }
