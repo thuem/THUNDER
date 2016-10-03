@@ -1614,8 +1614,8 @@ void MLOptimiser::refreshScale(const bool init)
                                        << r
                                        << " XA = "
                                        << mXA(0, r)
-                                       << " XX = "
-                                       << mXX(0, r);
+                                       << " AA = "
+                                       << mAA(0, r);
         }
 
     for (int i = 0; i < _nGroup; i++)
