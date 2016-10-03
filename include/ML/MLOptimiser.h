@@ -350,7 +350,7 @@ class MLOptimiser : public Parallel
 
         void initImgReduceCTF();
 
-        void correctScale();
+        void correctScale(const bool init = false);
 
         void initSigma();
 
@@ -364,7 +364,7 @@ class MLOptimiser : public Parallel
 
         void refreshSwitch();
 
-        void refreshScale();
+        void refreshScale(const bool init = false);
 
         void allReduceSigma();
 

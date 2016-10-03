@@ -162,6 +162,11 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
         initSigma();
+
+        ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
+        ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
+
+        correctScale(true);
     }
 }
 
@@ -575,15 +580,15 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+    BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+
+    correctScale(false);
+
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
     allReduceSigma();
-
-    ALOG(INFO, "LOGGER_ROUND") << "Re-calculating Intensity Scale for Each Group";
-    BLOG(INFO, "LOGGER_ROUND") << "Re-calculating Intensity Scale for Each Group";
-
-    refreshScale();
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
@@ -1194,8 +1199,21 @@ void MLOptimiser::initImgReduceCTF()
                   maxR());
     }
 }
-void MLOptimiser::correctScale()
+
+void MLOptimiser::correctScale(const bool init)
 {
+    IF_MASTER return;
+
+    refreshScale(init);
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        FOR_EACH_PIXEL_FT(_img[l])
+            _img[l][i] /= _scale(_groupID[l] - 1);
+    }
+
+    /***
     vec dc = vec::Zero(_nPar);
 
     NT_MASTER
@@ -1235,6 +1253,7 @@ void MLOptimiser::correctScale()
     MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
 
     SCALE_FT(_model.ref(0), sf);
+    ***/
 }
 
 void MLOptimiser::initSigma()
@@ -1487,7 +1506,7 @@ void MLOptimiser::refreshSwitch()
                                << "\% of Images are Unsuited for Reconstruction";
 }
 
-void MLOptimiser::refreshScale()
+void MLOptimiser::refreshScale(const bool init)
 {
     IF_MASTER return;
 
@@ -1519,9 +1538,19 @@ void MLOptimiser::refreshScale()
     {
         if (!_switch[l]) continue;
 
-        _par[l].rank1st(rot, tran);
+        if (init)
+        {
+            mat33 rot;
+            randRotate3D(rot);
 
-        _model.proj(0).projectMT(img, rot, tran);
+            _model.proj(0).projectMT(img, rot);
+        }
+        else
+        {
+            _par[l].rank1st(rot, tran);
+
+            _model.proj(0).projectMT(img, rot, tran);
+        }
 
         scaleDataVSPrior(sXA,
                          sAA,
