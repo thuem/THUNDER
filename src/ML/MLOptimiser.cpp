@@ -141,9 +141,11 @@ void MLOptimiser::init()
         initParticles();
     }
 
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
 
     correctScale();
+    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
@@ -1487,20 +1489,21 @@ void MLOptimiser::refreshSwitch()
 
 void MLOptimiser::refreshScale()
 {
+    /***
     IF_MASTER return;
 
-    vector<Complex> sumDatCTF, sumPriCTF2;
-
-    sumDatCTF.resize(_nGroup);
-    sumPriCTF2.resize(_nGroup);
+    cmat sumDatCTF = cmat(_nGroup, _r);
+    cmat priDatCTF2 = cmat(_nGroup, _r);
 
     for (int i = 0; i < _nGroup; i++)
-    {
-        sumDatCTF[i] = COMPLEX(0, 0);
-        sumPriCTF2[i] = COMPLEX(0, 0);
-    }
+        for (int j = 0; j < _r; j++)
+        {
+            sumDatCTF(i, j) = COMPLEX(0, 0);
+            sumPriCTF2(i, j) = COMPLEX(0, 0);
+        }
 
-    Complex datCTF, priCTF2;
+    cvec datCTF(_r);
+    cvec priCTF2(_r);
 
     Image img(size(), size(), FT_SPACE);
 
@@ -1521,44 +1524,51 @@ void MLOptimiser::refreshScale()
                          _r,
                          _rL);
 
+        sumDataCTF.row(_groupID[l] - 1) += datCTF.transpose();
+        priDataCTF2.row(_groupID[l] - 1) += priCTF2.transpose();
+
         //sumDatCTF[_groupID[l] - 1] += datCTF;
         //sumPriCTF2[_groupID[l] - 1] += priCTF2;
 
-        sumDatCTF[0] += datCTF;
-        sumPriCTF2[0] += priCTF2;
-        /***
+        //sumDatCTF[0] += datCTF;
+        //sumPriCTF2[0] += priCTF2;
         scale += scaleDataVSPrior(_img[l],
                                   img,
                                   _ctf[l],
                                   _r,
                                   _rL);
-                                  ***/
     }
 
-    /***
     MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
     BLOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  &sumDatCTF[0],
-                  _nGroup,
+                  sumDatCTF.data(),
+                  sumDatCTF.size(),
                   MPI_DOUBLE_COMPLEX,
                   MPI_SUM,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  &sumPriCTF2[0],
-                  _nGroup,
+                  symPriCTF2.data(),
+                  symPriCTF2.size(),
                   MPI_DOUBLE_COMPLEX,
                   MPI_SUM,
                   _hemi);
-                  ***/
-
-    double scale = ABS(sumDatCTF[0]) / ABS(sumPriCTF2[0]);
-
-    CLOG(INFO, "LOGGER_ROUND") << "Scale = " << scale;
+    
+    if (_commRank == HEMI_A_LEAD)
+    {
+        for (int i = CEIL(_rL); i < _r; i++)
+        {
+            double scale = ABS(sumDatCTF(0, i))
+                         / ABS(sumPriCTF2(0, i));
+            //double scale = ABS(sumDatCTF[0]) / ABS(sumPriCTF2[0]);
+            CLOG(INFO, "LOGGER_ROUND") << "i = ", i << ", Scale = " << scale;
+        }
+    }
+    ***/
 }
 
 void MLOptimiser::allReduceSigma()
@@ -2148,19 +2158,23 @@ double dataVSPrior(const Image& dat,
     return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
 }
 
-void scaleDataVSPrior(Complex& datCTF,
-                      Complex& priCTF2,
+void scaleDataVSPrior(cvec& datcTF,
+                      cvec& priCTF2,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const double rU,
                       const double rL)
 {
+    /***
     double rU2 = gsl_pow_2(rU);
     double rL2 = gsl_pow_2(rL);
 
-    datCTF = COMPLEX(0, 0);
-    priCTF2 = COMPLEX(0, 0);
+    for (int i = 0; i < rU; i++)
+    {
+        datCTF(i) = COMPLEX(0, 0);
+        priCTF2(i) = COMPLEX(0, 0);
+    }
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
@@ -2168,16 +2182,22 @@ void scaleDataVSPrior(Complex& datCTF,
 
         if ((u < rU2) && (u > rL2))
         {
-            int index = dat.iFTHalf(i, j);
+            int v = AROUND(NORM(i, j));
+            if (v < rU)
+            {
+                int index = dat.iFTHalf(i, j);
 
-            datCTF += dat.iGetFT(index)
-                    * REAL(ctf.iGetFT(index));
-            priCTF2 += pri.iGetFT(index)
-                     * gsl_pow_2(REAL(ctf.iGetFT(index)));
+                datCTF(v) += dat.iGetFT(index)
+                           * REAL(ctf.iGetFT(index));
+                priCTF2(v) += pri.iGetFT(index)
+                            * gsl_pow_2(REAL(ctf.iGetFT(index)));
+            }
         }
     }
+    ***/
 }
 
+/***
 double scaleDataVSPrior(const Image& dat,
                         const Image& pri,
                         const Image& ctf,
@@ -2190,3 +2210,4 @@ double scaleDataVSPrior(const Image& dat,
 
     return ABS(datCTF) / ABS(priCTF2);
 }
+***/

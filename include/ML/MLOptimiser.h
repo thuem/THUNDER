@@ -441,18 +441,20 @@ double dataVSPrior(const Image& dat,
                    const double rU,
                    const double rL);
 
-void scaleDataVSPrior(Complex& datCTF,
-                      Complex& priCTF2,
+void scaleDataVSPrior(cvec& datCTF,
+                      cvec& priCTF2,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const double rU,
                       const double rL);
 
+/***
 double scaleDataVSPrior(const Image& dat,
                         const Image& pri,
                         const Image& ctf,
                         const double rU,
                         const double rL);
+                        ***/
 
 #endif // ML_OPTIMSER_H
