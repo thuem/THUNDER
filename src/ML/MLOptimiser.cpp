@@ -1607,6 +1607,17 @@ void MLOptimiser::refreshScale(const bool init)
                   _hemi);
                   ***/
 
+    for (int r = 0; r < _r; r++)
+        if (r > _rL)
+        {
+            CLOG(INFO, "LOGGER_ROUND") << "r = "
+                                       << r
+                                       << " XA = "
+                                       << mXA(0, r)
+                                       << " XX = "
+                                       << mXX(0, r);
+        }
+
     for (int i = 0; i < _nGroup; i++)
     {
         double sum = 0;
