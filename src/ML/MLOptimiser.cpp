@@ -1536,17 +1536,16 @@ void MLOptimiser::refreshScale(const bool init)
 
     FOR_EACH_2D_IMAGE
     {
-        if (!_switch[l]) continue;
-
         if (init)
         {
-            mat33 rot;
             randRotate3D(rot);
 
             _model.proj(0).projectMT(img, rot);
         }
         else
         {
+            if (!_switch[l]) continue;
+
             _par[l].rank1st(rot, tran);
 
             _model.proj(0).projectMT(img, rot, tran);
