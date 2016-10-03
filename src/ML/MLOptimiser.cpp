@@ -1578,13 +1578,12 @@ void MLOptimiser::refreshScale()
                   _hemi);
                   ***/
 
-    /***
     for (int i = 0; i < _nGroup; i++)
     {
         double sum = 0;
         int count = 0;
 
-        for (int r = 0; i < _r; i++)
+        for (int r = 0; r < _r; r++)
             if (r > _rL)
             {
                 sum += mXA(i, r) / mAA(i, r);
@@ -1593,7 +1592,6 @@ void MLOptimiser::refreshScale()
 
         _scale(i) = sum / count;
     }
-    ***/
     
     if (_commRank == HEMI_A_LEAD)
     {
