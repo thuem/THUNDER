@@ -29,9 +29,11 @@
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define SEARCH_RES_GAP_GLOBAL 5
+//#define SEARCH_RES_GAP_GLOBAL 5
+#define SEARCH_RES_GAP_GLOBAL 10
 
-#define SEARCH_RES_GAP_LOCAL 20
+//#define SEARCH_RES_GAP_LOCAL 20
+#define SEARCH_RES_GAP_LOCAL 40
 
 #define SEARCH_TYPE_STOP -1
 
