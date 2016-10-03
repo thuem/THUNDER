@@ -1491,15 +1491,24 @@ void MLOptimiser::refreshScale()
 {
     IF_MASTER return;
 
+    /***
     mat mXAReal = mat::Zero(_nGroup, _r);
     mat mXAImag = mat::Zero(_nGroup, _r);
     mat mAAReal = mat::Zero(_nGroup, _r);
     mat mAAImag = mat::Zero(_nGroup, _r);
+    ***/
+    mat mXA = mat::Zero(_nGroup, _r);
+    mat mAA = mat::Zero(_nGroup, _r);
 
+    /***
     vec sXAReal = vec::Zero(_r);
     vec sXAImag = vec::Zero(_r);
     vec sAAReal = vec::Zero(_r);
     vec sAAImag = vec::Zero(_r);
+    ***/
+
+    vec sXA = vec::Zero(_r);
+    vec sAA = vec::Zero(_r);
 
     Image img(size(), size(), FT_SPACE);
 
@@ -1514,20 +1523,22 @@ void MLOptimiser::refreshScale()
 
         _model.proj(0).projectMT(img, rot, tran);
 
-        scaleDataVSPrior(sXAReal,
-                         sXAImag,
-                         sAAReal,
-                         sAAImag,
+        scaleDataVSPrior(sXA,
+                         sAA,
                          _img[l],
                          img,
                          _ctf[l],
                          _r,
                          _rL);
 
+        mXA.row(_groupID[l] - 1) += sXA.transpose();
+        mAA.row(_groupID[l] - 1) += sAA.transpose();
+        /***
         mXAReal.row(_groupID[l] - 1) += sXAReal.transpose();
         mXAImag.row(_groupID[l] - 1) += sXAImag.transpose();
         mAAReal.row(_groupID[l] - 1) += sAAReal.transpose();
         mAAImag.row(_groupID[l] - 1) += sAAImag.transpose();
+        ***/
     }
 
     MPI_Barrier(_hemi);
@@ -1536,38 +1547,42 @@ void MLOptimiser::refreshScale()
     BLOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  mXAReal.data(),
-                  mXAReal.size(),
+                  mXA.data(),
+                  mXA.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   mXAImag.data(),
                   mXAImag.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
+                  ***/
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  mAAReal.data(),
-                  mAAReal.size(),
+                  mAA.data(),
+                  mAA.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
+    /***
     MPI_Allreduce(MPI_IN_PLACE,
                   mAAImag.data(),
                   mAAImag.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
+                  ***/
     
     if (_commRank == HEMI_A_LEAD)
     {
         for (int i = CEIL(_rL); i < _r; i++)
         {
-            double scale = mXAReal(0, i) / mAAReal(0, i);
+            double scale = mXA(0, i) / mAA(0, i);
             CLOG(INFO, "LOGGER_ROUND") << "i = " << i << ", Scale = " << scale;
         }
     }
@@ -2160,10 +2175,8 @@ double dataVSPrior(const Image& dat,
     return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
 }
 
-void scaleDataVSPrior(vec& sXAReal,
-                      vec& sXAImag,
-                      vec& sAAReal,
-                      vec& sAAImag,
+void scaleDataVSPrior(vec& sXA,
+                      vec& sAA,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,
@@ -2175,10 +2188,8 @@ void scaleDataVSPrior(vec& sXAReal,
 
     for (int i = 0; i < rU; i++)
     {
-        sXAReal(i) = 0;
-        sXAImag(i) = 0;
-        sAAReal(i) = 0;
-        sAAImag(i) = 0;
+        sXA(i) = 0;
+        sAA(i) = 0;
     }
     
     Complex XA, AA;
@@ -2194,17 +2205,13 @@ void scaleDataVSPrior(vec& sXAReal,
             {
                 int index = dat.iFTHalf(i, j);
 
-                XA = dat.iGetFT(index)
-                   * pri.iGetFT(index)
-                   * REAL(ctf.iGetFT(index));
-                AA = pri.iGetFT(index)
-                   * pri.iGetFT(index)
-                   * gsl_pow_2(REAL(ctf.iGetFT(index)));
+                sXA(i) += REAL(dat.iGetFT(index)
+                             * pri.iGetFT(index)
+                             * REAL(ctf.iGetFT(index)));
 
-                sXAReal(v) += REAL(XA);
-                sXAImag(v) += IMAG(XA);
-                sAAReal(v) += REAL(AA);
-                sAAImag(v) += IMAG(AA);
+                sAA(i) += REAL(pri.iGetFT(index)
+                             * pri.iGetFT(index)
+                             * gsl_pow_2(REAL(ctf.iGetFT(index))));
             }
         }
     }
