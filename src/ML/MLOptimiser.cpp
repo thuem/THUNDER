@@ -1606,6 +1606,7 @@ void MLOptimiser::refreshScale(const bool init)
                   _hemi);
                   ***/
 
+    /***
     for (int r = 0; r < _r; r++)
         if (r > _rL)
         {
@@ -1616,6 +1617,7 @@ void MLOptimiser::refreshScale(const bool init)
                                        << " AA = "
                                        << mAA(0, r);
         }
+        ***/
 
     for (int i = 0; i < _nGroup; i++)
     {
