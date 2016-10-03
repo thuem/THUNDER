@@ -222,8 +222,7 @@ class MLOptimiser : public Parallel
         mat _sig;
 
         /**
-         * each row stands for intensity scale of a certain group, thus the
-         * sizeo of this matrix is _nGroup x (maxR() + 1)
+         * intensity scale of a certain group
          */
         vec _scale;
 

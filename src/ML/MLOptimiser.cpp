@@ -1577,14 +1577,36 @@ void MLOptimiser::refreshScale()
                   MPI_SUM,
                   _hemi);
                   ***/
+
+    for (int i = 0; i < _nGroup; i++)
+    {
+        double sum = 0;
+        int count = 0;
+
+        for (int r = 0; i < _r; i++)
+            if (r > _rL)
+            {
+                sum += mXA(i, r) / mAA(i, r);
+                count += 1;
+            }
+
+        _scale(i) = sum / count;
+    }
     
     if (_commRank == HEMI_A_LEAD)
     {
+        /***
         for (int i = CEIL(_rL); i < _r; i++)
         {
             double scale = mXA(0, i) / mAA(0, i);
             CLOG(INFO, "LOGGER_ROUND") << "i = " << i << ", Scale = " << scale;
         }
+        ***/
+        for (int i = 0; i < _nGroup; i++)
+            CLOG(INFO, "LOGGER_ROUND") << "Group "
+                                       << i
+                                       << ": Scale = "
+                                       << _scale(i);
     }
 }
 
@@ -2192,9 +2214,8 @@ void scaleDataVSPrior(vec& sXA,
         sAA(i) = 0;
     }
     
-    Complex XA, AA;
-
-    IMAGE_FOR_PIXEL_R_FT(rU + 1)
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_PIXEL_R_FT(CEIL(rU) + 1)
     {
         double u = QUAD(i, j);
 
@@ -2205,10 +2226,12 @@ void scaleDataVSPrior(vec& sXA,
             {
                 int index = dat.iFTHalf(i, j);
 
+                #pragma omp critical
                 sXA(i) += REAL(dat.iGetFT(index)
                              * pri.iGetFT(index)
                              * REAL(ctf.iGetFT(index)));
 
+                #pragma omp critical
                 sAA(i) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)
                              * gsl_pow_2(REAL(ctf.iGetFT(index))));
