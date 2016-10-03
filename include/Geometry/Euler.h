@@ -17,6 +17,7 @@
 
 #include "Macro.h"
 #include "Typedef.h"
+#include "Random.h"
 
 /**
  * This function calculates phi and theta given a certain direction indicated by
@@ -182,5 +183,9 @@ void translate3D(mat44& dst,
  */
 void scale3D(mat33& dst,
              const vec3& vec);
+
+void randQuaternion(vec4& quat);
+
+void randRotate3D(mat33& rot);
 
 #endif // EULER_H 

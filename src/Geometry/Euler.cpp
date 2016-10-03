@@ -276,3 +276,22 @@ void scale3D(mat33& dst,
     dst(1, 1) = vec(1);
     dst(2, 2) = vec(2);
 }
+
+void randQuaternion(vec4& quat)
+{
+    auto engine = get_random_engine();
+
+    for (int j = 0; j < 4; j++)
+        quat(j) = gsl_ran_gaussian(engine, 1);
+
+    quat /= quat.norm();
+}
+
+void randRotate3D(mat33& rot)
+{
+    vec4 quat;
+
+    randQuaternion(quat);
+
+    rotate3D(rot, quat);
+}

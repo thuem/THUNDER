@@ -10,7 +10,11 @@
 
 #include "Euler.h"
 
-int main(int argc, const char* argv[])
+using namespace std;
+
+INITIALIZE_EASYLOGGINGPP
+
+int main(int argc, char* argv[])
 {
     vec3 axis = {0, 0, 1};
 
