@@ -441,8 +441,10 @@ double dataVSPrior(const Image& dat,
                    const double rU,
                    const double rL);
 
-void scaleDataVSPrior(cvec& datCTF,
-                      cvec& priCTF2,
+void scaleDataVSPrior(vec& sXAReal,
+                      vec& sXAImag,
+                      vec& sAAReal,
+                      vec& sAAImag,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,

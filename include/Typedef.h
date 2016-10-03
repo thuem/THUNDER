@@ -14,6 +14,8 @@
 #include <gsl/gsl_complex.h>
 #include <Eigen/Dense>
 
+using namespace std;
+
 using namespace Eigen;
 
 typedef unsigned long size_t;
@@ -22,9 +24,6 @@ typedef gsl_complex Complex;
 
 typedef Matrix<double, Dynamic, Dynamic> mat;
 typedef Matrix<double, Dynamic, 1> vec;
-
-typedef Matrix<Complex, Dynamic, Dynamic> cmat;
-typedef Matrix<Complex, Dynamic, 1> cvec;
 
 typedef Matrix<unsigned int, Dynamic, Dynamic> umat;
 typedef Matrix<unsigned int, Dynamic, 1> uvec;

@@ -1489,21 +1489,17 @@ void MLOptimiser::refreshSwitch()
 
 void MLOptimiser::refreshScale()
 {
-    /***
     IF_MASTER return;
 
-    cmat sumDatCTF = cmat(_nGroup, _r);
-    cmat priDatCTF2 = cmat(_nGroup, _r);
+    mat mXAReal = mat::Zero(_nGroup, _r);
+    mat mXAImag = mat::Zero(_nGroup, _r);
+    mat mAAReal = mat::Zero(_nGroup, _r);
+    mat mAAImag = mat::Zero(_nGroup, _r);
 
-    for (int i = 0; i < _nGroup; i++)
-        for (int j = 0; j < _r; j++)
-        {
-            sumDatCTF(i, j) = COMPLEX(0, 0);
-            sumPriCTF2(i, j) = COMPLEX(0, 0);
-        }
-
-    cvec datCTF(_r);
-    cvec priCTF2(_r);
+    vec sXAReal = vec::Zero(_r);
+    vec sXAImag = vec::Zero(_r);
+    vec sAAReal = vec::Zero(_r);
+    vec sAAImag = vec::Zero(_r);
 
     Image img(size(), size(), FT_SPACE);
 
@@ -1514,29 +1510,24 @@ void MLOptimiser::refreshScale()
     {
         if (!_switch[l]) continue;
 
+        _par[l].rank1st(rot, tran);
+
         _model.proj(0).projectMT(img, rot, tran);
 
-        scaleDataVSPrior(datCTF,
-                         priCTF2,
+        scaleDataVSPrior(sXAReal,
+                         sXAImag,
+                         sAAReal,
+                         sAAImag,
                          _img[l],
                          img,
                          _ctf[l],
                          _r,
                          _rL);
 
-        sumDataCTF.row(_groupID[l] - 1) += datCTF.transpose();
-        priDataCTF2.row(_groupID[l] - 1) += priCTF2.transpose();
-
-        //sumDatCTF[_groupID[l] - 1] += datCTF;
-        //sumPriCTF2[_groupID[l] - 1] += priCTF2;
-
-        //sumDatCTF[0] += datCTF;
-        //sumPriCTF2[0] += priCTF2;
-        scale += scaleDataVSPrior(_img[l],
-                                  img,
-                                  _ctf[l],
-                                  _r,
-                                  _rL);
+        mXAReal.row(_groupID[l] - 1) += sXAReal.transpose();
+        mXAImag.row(_groupID[l] - 1) += sXAImag.transpose();
+        mAAReal.row(_groupID[l] - 1) += sAAReal.transpose();
+        mAAImag.row(_groupID[l] - 1) += sAAImag.transpose();
     }
 
     MPI_Barrier(_hemi);
@@ -1545,16 +1536,30 @@ void MLOptimiser::refreshScale()
     BLOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  sumDatCTF.data(),
-                  sumDatCTF.size(),
-                  MPI_DOUBLE_COMPLEX,
+                  mXAReal.data(),
+                  mXAReal.size(),
+                  MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  symPriCTF2.data(),
-                  symPriCTF2.size(),
-                  MPI_DOUBLE_COMPLEX,
+                  mXAImag.data(),
+                  mXAImag.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  mAAReal.data(),
+                  mAAReal.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  mAAImag.data(),
+                  mAAImag.size(),
+                  MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
     
@@ -1562,13 +1567,10 @@ void MLOptimiser::refreshScale()
     {
         for (int i = CEIL(_rL); i < _r; i++)
         {
-            double scale = ABS(sumDatCTF(0, i))
-                         / ABS(sumPriCTF2(0, i));
-            //double scale = ABS(sumDatCTF[0]) / ABS(sumPriCTF2[0]);
-            CLOG(INFO, "LOGGER_ROUND") << "i = ", i << ", Scale = " << scale;
+            double scale = mXAReal(0, i) / mAAReal(0, i);
+            CLOG(INFO, "LOGGER_ROUND") << "i = " << i << ", Scale = " << scale;
         }
     }
-    ***/
 }
 
 void MLOptimiser::allReduceSigma()
@@ -2158,23 +2160,28 @@ double dataVSPrior(const Image& dat,
     return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
 }
 
-void scaleDataVSPrior(cvec& datcTF,
-                      cvec& priCTF2,
+void scaleDataVSPrior(vec& sXAReal,
+                      vec& sXAImag,
+                      vec& sAAReal,
+                      vec& sAAImag,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const double rU,
                       const double rL)
 {
-    /***
     double rU2 = gsl_pow_2(rU);
     double rL2 = gsl_pow_2(rL);
 
     for (int i = 0; i < rU; i++)
     {
-        datCTF(i) = COMPLEX(0, 0);
-        priCTF2(i) = COMPLEX(0, 0);
+        sXAReal(i) = 0;
+        sXAImag(i) = 0;
+        sAAReal(i) = 0;
+        sAAImag(i) = 0;
     }
+    
+    Complex XA, AA;
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
@@ -2187,14 +2194,20 @@ void scaleDataVSPrior(cvec& datcTF,
             {
                 int index = dat.iFTHalf(i, j);
 
-                datCTF(v) += dat.iGetFT(index)
-                           * REAL(ctf.iGetFT(index));
-                priCTF2(v) += pri.iGetFT(index)
-                            * gsl_pow_2(REAL(ctf.iGetFT(index)));
+                XA = dat.iGetFT(index)
+                   * pri.iGetFT(index)
+                   * REAL(ctf.iGetFT(index));
+                AA = pri.iGetFT(index)
+                   * pri.iGetFT(index)
+                   * gsl_pow_2(REAL(ctf.iGetFT(index)));
+
+                sXAReal(v) += REAL(XA);
+                sXAImag(v) += IMAG(XA);
+                sAAReal(v) += REAL(AA);
+                sAAImag(v) += IMAG(AA);
             }
         }
     }
-    ***/
 }
 
 /***
