@@ -151,12 +151,6 @@ void MLOptimiser::init()
         initParticles();
     }
 
-    /***
-    MLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
-
-    correctScale();
-    ***/
-
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
     bcastGroupInfo();
@@ -590,10 +584,13 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
-    BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+        BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
-    correctScale(false);
+        correctScale(false);
+    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
