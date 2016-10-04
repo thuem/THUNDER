@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
     para.transS = TRANS_S;
     para.initRes = 40;
     para.ignoreRes = 200;
+    para.sclCorRes = 50;
     para.globalSearchRes = 10;
     sprintf(para.sym, "C15");
     // sprintf(para.initModel, "padCylinder.mrc");

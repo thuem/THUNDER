@@ -62,6 +62,16 @@ void MLOptimiser::init()
                               << _rL
                               << " (Pixel) will be Ingored during Comparison";
 
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _par.sclCorRes
+                              << " Angstrom will be Used for Performing Intensity Scale Correction";
+
+    _rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
+
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _rS
+                              << " (Pixel) will be Used for Performing Intensity Scale Correction";
+
     MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
     _model.setRGlobal(AROUND(resA2P(1.0 / _para.globalSearchRes,
@@ -1510,14 +1520,16 @@ void MLOptimiser::refreshScale(const bool init)
 {
     IF_MASTER return;
 
+    if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
+
     /***
     mat mXAReal = mat::Zero(_nGroup, _r);
     mat mXAImag = mat::Zero(_nGroup, _r);
     mat mAAReal = mat::Zero(_nGroup, _r);
     mat mAAImag = mat::Zero(_nGroup, _r);
     ***/
-    mat mXA = mat::Zero(_nGroup, _r);
-    mat mAA = mat::Zero(_nGroup, _r);
+    mat mXA = mat::Zero(_nGroup, _rS);
+    mat mAA = mat::Zero(_nGroup, _rS);
 
     /***
     vec sXAReal = vec::Zero(_r);
@@ -1526,8 +1538,8 @@ void MLOptimiser::refreshScale(const bool init)
     vec sAAImag = vec::Zero(_r);
     ***/
 
-    vec sXA = vec::Zero(_r);
-    vec sAA = vec::Zero(_r);
+    vec sXA = vec::Zero(_rS);
+    vec sAA = vec::Zero(_rS);
 
     Image img(size(), size(), FT_SPACE);
 
@@ -1556,7 +1568,7 @@ void MLOptimiser::refreshScale(const bool init)
                          _img[l],
                          img,
                          _ctf[l],
-                         _r,
+                         _rS,
                          _rL);
 
         mXA.row(_groupID[l] - 1) += sXA.transpose();
@@ -1624,7 +1636,7 @@ void MLOptimiser::refreshScale(const bool init)
         double sum = 0;
         int count = 0;
 
-        for (int r = 0; r < _r; r++)
+        for (int r = 0; r < _rS; r++)
             if (r > _rL)
             {
                 sum += mXA(i, r) / mAA(i, r);

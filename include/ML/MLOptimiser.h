@@ -103,6 +103,9 @@ typedef struct ML_OPTIMISER_PARA
     // the information below this resolution will be ignored
     double ignoreRes;
 
+    // the resolution boundary for performing intensity scale correction
+    double sclCorRes;
+
     double globalSearchRes;
 
     char sym[SYM_ID_LENGTH];
@@ -155,6 +158,12 @@ class MLOptimiser : public Parallel
          * comparison
          */
         double _rL;
+
+        /**
+         * the information below this frequency will be used for performing
+         * intensity scale correction
+         */
+        int _rS;
 
         /**
          * current number of iterations
