@@ -63,7 +63,7 @@ void MLOptimiser::init()
                               << " (Pixel) will be Ingored during Comparison";
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
-                              << _par.sclCorRes
+                              << _para.sclCorRes
                               << " Angstrom will be Used for Performing Intensity Scale Correction";
 
     _rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
