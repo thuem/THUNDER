@@ -381,7 +381,7 @@ int MLModel::resolutionP(const int i,
     for (result = 0; result < _SNR.rows(); result++)
         if (_SNR(result, i) < thres / (1 - thres)) break;
 
-    return result / _pf;
+    return (result - 1) / _pf;
 }
 
 int MLModel::resolutionP(const double thres) const
