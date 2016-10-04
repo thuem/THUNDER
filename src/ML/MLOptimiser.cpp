@@ -2280,12 +2280,12 @@ void scaleDataVSPrior(vec& sXA,
                 int index = dat.iFTHalf(i, j);
 
                 #pragma omp critical
-                sXA(i) += REAL(dat.iGetFT(index)
+                sXA(v) += REAL(dat.iGetFT(index)
                              * pri.iGetFT(index)
                              * REAL(ctf.iGetFT(index)));
 
                 #pragma omp critical
-                sAA(i) += REAL(pri.iGetFT(index)
+                sAA(v) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)
                              * gsl_pow_2(REAL(ctf.iGetFT(index))));
             }
