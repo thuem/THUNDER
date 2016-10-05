@@ -1536,8 +1536,8 @@ void MLOptimiser::refreshScale(const bool init)
 
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
-    BLOG(INFO, "LOGGER_ROUND") << "Accumulating Scale Intensity Information";
+    ALOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
+    BLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mXA.data(),
