@@ -24,7 +24,7 @@
 
 #define PIXEL_SIZE 1.32
 
-#define MG 300
+#define MG 1000
 #define ML 100
 
 using namespace std;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     para.initRes = 40;
     para.ignoreRes = 200;
     para.sclCorRes = 50;
-    para.globalSearchRes = 10;
+    para.globalSearchRes = 15;
     sprintf(para.sym, "C15");
     // sprintf(para.initModel, "padCylinder.mrc");
     sprintf(para.initModel, "padRef.mrc");
