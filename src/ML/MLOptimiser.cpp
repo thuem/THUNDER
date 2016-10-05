@@ -1217,48 +1217,6 @@ void MLOptimiser::correctScale(const bool init)
         FOR_EACH_PIXEL_FT(_img[l])
             _img[l][i] /= _scale(_groupID[l] - 1);
     }
-
-    /***
-    vec dc = vec::Zero(_nPar);
-
-    NT_MASTER
-    {
-        FOR_EACH_2D_IMAGE
-            dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    MPI_Allreduce(MPI_IN_PLACE,
-                  dc.data(),
-                  dc.size(),
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  MPI_COMM_WORLD); 
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    double median, std;
-    stat_MAS(median, std, dc, _nPar);
-
-    MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
-
-    // double modelScale = abs(median) + 2 * std;
-    double modelScale = abs(median);
-
-    MLOG(INFO, "LOGGER_SYS") << "modelScale = " << modelScale;
-
-    if (std > abs(median) * 0.05)
-        MLOG(WARNING, "LOGGER_SYS") << "DC Component Has a High Standard Deviation, It May Be Inaccurate!";
-
-    MLOG(INFO, "LOGGER_SYS") << "Sum of Reference = " << REAL(_model.ref(0)[0]);
-
-    double sf = modelScale / REAL(_model.ref(0)[0]);
-    
-    MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
-
-    SCALE_FT(_model.ref(0), sf);
-    ***/
 }
 
 void MLOptimiser::initSigma()
