@@ -612,12 +612,14 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Initialising MLOptimiser";
 
     init();
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
     saveImages();
     saveCTFs();
-    saveReduceCTFImages();
+    //saveReduceCTFImages();
     saveLowPassImages();
-    saveLowPassReduceCTFImages();
+    //saveLowPassReduceCTFImages();
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -1886,6 +1888,7 @@ void MLOptimiser::saveCTFs()
     }
 }
 
+/***
 void MLOptimiser::saveReduceCTFImages()
 {
     IF_MASTER return;
@@ -1911,6 +1914,7 @@ void MLOptimiser::saveReduceCTFImages()
         }
     }
 }
+***/
 
 void MLOptimiser::saveLowPassImages()
 {
@@ -1938,6 +1942,7 @@ void MLOptimiser::saveLowPassImages()
     }
 }
 
+/***
 void MLOptimiser::saveLowPassReduceCTFImages()
 {
     IF_MASTER return;
@@ -1965,6 +1970,7 @@ void MLOptimiser::saveLowPassReduceCTFImages()
         }
     }
 }
+***/
 
 void MLOptimiser::saveReference()
 {
