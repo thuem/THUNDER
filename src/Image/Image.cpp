@@ -55,19 +55,34 @@ void Image::alloc(const int nCol,
 
 void Image::saveRLToBMP(const char* filename) const
 {
-    float* image = new float[_sizeRL];
+    int nRowBMP = _nRow / 4 * 4;
+    int nColBMP = _nCol / 4 * 4;
 
+    //float* image = new float[_sizeRL];
+
+    float* image = new float[nRowBMP * nColBMP];
+
+    /***
     for (int i = 0; i < _nRow; i++)
         for (int j = 0; j < _nCol; j++)
             image[(i + _nRow / 2) % _nRow * _nCol
                  +(j + _nCol / 2) % _nCol] = _dataRL[i * _nCol + j];
+                 ***/
+
+    for (int i = -nRowBMP / 2; i < nRowBMP / 2; i++)
+        for (int j = -nColBMP / 2; j < nColBMP / 2; j++)
+            image[(i + nRowBMP / 2)
+                * nColBMP
+                + (j + nColBMP / 2)] = _dataRL[(i > 0 ? i : i + _nRow)
+                                             * _nCol
+                                             + j];
 
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
         REPORT_ERROR("Fail to open bitcamp file.");
 
-    if (bmp.createBMP(image, _nCol, _nRow) == false)
+    if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
         REPORT_ERROR("Fail to create BMP image.");
 
     bmp.close();
