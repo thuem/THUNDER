@@ -36,15 +36,19 @@ void Image::alloc(const int nCol,
     if (space == RL_SPACE)
     {
         clearRL();
+
         _sizeRL = nCol * nRow;
         _sizeFT = (nCol / 2 + 1) * nRow;
+
         _dataRL.reset(new double[_sizeRL]);
     }
     else if (space == FT_SPACE)
     {
         clearFT();
+
         _sizeRL = nCol * nRow;
         _sizeFT = (nCol / 2 + 1) * nRow;
+
         _dataFT.reset(new Complex[_sizeFT]);
     }
 }

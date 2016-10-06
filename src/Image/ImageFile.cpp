@@ -203,6 +203,9 @@ void ImageFile::readImageMRC(Image& dst,
 {
     readSymmetryData();
 
+    CLOG(INFO, "LOGER_SYS") << "nCol = " << nCol()
+                            << "nRow = " << nRow();
+
 	dst.alloc(nCol(), nRow(), RL_SPACE);
 
     size_t size = dst.sizeRL();
