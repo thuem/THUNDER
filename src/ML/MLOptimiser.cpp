@@ -1964,7 +1964,7 @@ void MLOptimiser::saveLowPassImages()
     {
         if (_ID[l] < N_SAVE_IMG)
         {
-            lowPassFilter(img, _img[l], _para.pixelSize / 20, 1.0 / _para.size);
+            lowPassFilter(img, _img[l], _para.pixelSize / 40, 1.0 / _para.size);
 
             sprintf(filename, "Image_LowPass_%04d.bmp", _ID[l]);
 
