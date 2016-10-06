@@ -140,10 +140,12 @@ void MLOptimiser::init()
 
         initSwitch();
 
+        /***
         ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
         BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
 
         initImgReduceCTF();
+        ***/
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
@@ -966,6 +968,7 @@ void MLOptimiser::initImg()
         }
     }
 
+    /***
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
@@ -995,6 +998,7 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
+    ***/
 
     /***
     statImg();
@@ -1192,6 +1196,7 @@ void MLOptimiser::initSwitch()
     _switch.resize(_ID.size());
 }
 
+/***
 void MLOptimiser::initImgReduceCTF()
 {
     _imgReduceCTF.clear();
@@ -1208,6 +1213,7 @@ void MLOptimiser::initImgReduceCTF()
                   maxR());
     }
 }
+***/
 
 void MLOptimiser::correctScale(const bool init)
 {
@@ -1852,6 +1858,9 @@ void MLOptimiser::saveImages()
     {
         if (_ID[l] < N_SAVE_IMG)
         {
+            sprintf(filename, "Fourier_Image_%04d.bmp", _ID[l]);
+            _img[l].saveFTToBMP(filename, 0.01);
+
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
             fft.bw(_img[l]);
