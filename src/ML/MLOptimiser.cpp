@@ -977,7 +977,6 @@ void MLOptimiser::initImg()
         }
     }
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
@@ -1007,7 +1006,6 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
-    ***/
 
     /***
     statImg();
