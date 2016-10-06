@@ -1543,8 +1543,16 @@ void MLOptimiser::refreshScale(const bool init)
                          _rS,
                          _rL);
 
-        mXA.row(_groupID[l] - 1) += sXA.transpose();
-        mAA.row(_groupID[l] - 1) += sAA.transpose();
+        if (init)
+        {
+            mXA.row(0) += sXA.transpose();
+            mAA.row(0) += sAA.transpose();
+        }
+        else
+        {
+            mXA.row(_groupID[l] - 1) += sXA.transpose();
+            mAA.row(_groupID[l] - 1) += sAA.transpose();
+        }
         /***
         mXAReal.row(_groupID[l] - 1) += sXAReal.transpose();
         mXAImag.row(_groupID[l] - 1) += sXAImag.transpose();
@@ -1602,8 +1610,7 @@ void MLOptimiser::refreshScale(const bool init)
                                        << mAA(0, r);
         }
         ***/
-
-    for (int i = 0; i < _nGroup; i++)
+    if (init)
     {
         double sum = 0;
         int count = 0;
@@ -1611,11 +1618,29 @@ void MLOptimiser::refreshScale(const bool init)
         for (int r = 0; r < _rS; r++)
             if (r > _rL)
             {
-                sum += mXA(i, r) / mAA(i, r);
+                sum += mXA(0, r) / mAA(0, r);
                 count += 1;
             }
+        
+        for (int i = 0; i < _nGroup; i++)
+            _scale(i) = sum / count;
+    }
+    else
+    {
+        for (int i = 0; i < _nGroup; i++)
+        {
+            double sum = 0;
+            int count = 0;
 
-        _scale(i) = sum / count;
+            for (int r = 0; r < _rS; r++)
+                if (r > _rL)
+                {
+                    sum += mXA(i, r) / mAA(i, r);
+                    count += 1;
+                }
+
+            _scale(i) = sum / count;
+        }
     }
     
     if (_commRank == HEMI_A_LEAD)
