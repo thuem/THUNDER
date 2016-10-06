@@ -149,7 +149,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
 
     if (bmp.open(filename, "wb") == 0)
         REPORT_ERROR("Fail to open bitcamp file.");
-    if (bmp.createBMP(image, _nCol, _nRow) == false)
+    if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
         REPORT_ERROR("Fail to create BMP image.");
     bmp.close();
 
