@@ -1336,11 +1336,6 @@ void MLOptimiser::initParticles()
                      &_sym);
 }
 
-void MLOptimiser::initScale()
-{
-    IF_MASTER return;
-}
-
 void MLOptimiser::refreshRotationChange()
 {
     vec rc = vec::Zero(_nPar);
