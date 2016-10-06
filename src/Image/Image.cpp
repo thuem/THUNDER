@@ -92,12 +92,17 @@ void Image::saveRLToBMP(const char* filename) const
 
 void Image::saveFTToBMP(const char* filename, double c) const
 {
+    int nRowBMP = _nRow / 4 * 4;
+    int nColBMP = _nCol / 4 * 4;
+
     // CLOG(INFO, "LOGGER_SYS") << "_sizeRL = " << _sizeRL;
 
-    float* image = new float[_sizeRL];
+    //float* image = new float[_sizeRL];
+    float* image = new float[nRowBMP * nColBMP];
 
     // CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
 
+    /***
     for (int i = 0; i < _nRow; i++)
         for (int j = 0; j <= _nCol / 2; j++)
         {
@@ -108,23 +113,35 @@ void Image::saveFTToBMP(const char* filename, double c) const
             int jImage = (j + _nCol / 2 ) % _nCol;
             image[_nCol * iImage + jImage] = value;
         }
+        ***/
+
+    for (int i = 0; i < nRowBMP; i++)
+        for (int j = 0; j <= nColBMP / 2; j++)
+        {
+            double value = gsl_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
+            value = log(1 + value * c);
+
+            int iImage = (i + nRowBMP / 2) % nRowBMP;
+            int jImage = (j + nColBMP / 2) % nColBMP;
+            image[nColBMP * iImage + jImage] = value;
+        }
 
     // CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
 
-    for (int i = 1; i < _nRow; i++)
-        for (int j = 1; j < _nCol / 2; j++)
+    for (int i = 1; i < nRowBMP; i++)
+        for (int j = 1; j < nColBMP / 2; j++)
         {
-            size_t iDst = i * _nCol + j;
-            size_t iSrc = (_nRow - i + 1) * _nCol - j;
+            size_t iDst = i * nColBMP + j;
+            size_t iSrc = (nRowBMP - i + 1) * nColBMP - j;
             image[iDst] = image[iSrc];
         }
 
     // CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
 
-    for (int j = 1; j < _nCol / 2; j++)
+    for (int j = 1; j < nColBMP / 2; j++)
     {
         int iDst = j;
-        int iSrc = _nCol - j;
+        int iSrc = nColBMP - j;
         image[iDst] = image[iSrc];
     }
 
