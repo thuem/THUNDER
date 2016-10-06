@@ -172,7 +172,7 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
         ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
-        correctScale(true);
+        correctScale(true, false);
     }
 }
 
@@ -591,7 +591,7 @@ void MLOptimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
         BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
-        correctScale(false);
+        correctScale(false, false);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
@@ -1222,11 +1222,12 @@ void MLOptimiser::initImgReduceCTF()
 }
 ***/
 
-void MLOptimiser::correctScale(const bool init)
+void MLOptimiser::correctScale(const bool init,
+                               const bool group)
 {
     IF_MASTER return;
 
-    refreshScale(init);
+    refreshScale(init, group);
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -1486,7 +1487,8 @@ void MLOptimiser::refreshSwitch()
                                << "\% of Images are Unsuited for Reconstruction";
 }
 
-void MLOptimiser::refreshScale(const bool init)
+void MLOptimiser::refreshScale(const bool init,
+                               const bool group)
 {
     IF_MASTER return;
 
@@ -1541,15 +1543,15 @@ void MLOptimiser::refreshScale(const bool init)
                          _rS,
                          _rL);
 
-        if (init)
-        {
-            mXA.row(0) += sXA.transpose();
-            mAA.row(0) += sAA.transpose();
-        }
-        else
+        if (group)
         {
             mXA.row(_groupID[l] - 1) += sXA.transpose();
             mAA.row(_groupID[l] - 1) += sAA.transpose();
+        }
+        else
+        {
+            mXA.row(0) += sXA.transpose();
+            mAA.row(0) += sAA.transpose();
         }
         /***
         mXAReal.row(_groupID[l] - 1) += sXAReal.transpose();
@@ -1608,22 +1610,8 @@ void MLOptimiser::refreshScale(const bool init)
                                        << mAA(0, r);
         }
         ***/
-    if (init)
-    {
-        double sum = 0;
-        int count = 0;
 
-        for (int r = 0; r < _rS; r++)
-            if (r > _rL)
-            {
-                sum += mXA(0, r) / mAA(0, r);
-                count += 1;
-            }
-        
-        for (int i = 0; i < _nGroup; i++)
-            _scale(i) = sum / count;
-    }
-    else
+    if (group)
     {
         for (int i = 0; i < _nGroup; i++)
         {
@@ -1639,6 +1627,21 @@ void MLOptimiser::refreshScale(const bool init)
 
             _scale(i) = sum / count;
         }
+    }
+    else
+    {
+        double sum = 0;
+        int count = 0;
+
+        for (int r = 0; r < _rS; r++)
+            if (r > _rL)
+            {
+                sum += mXA(0, r) / mAA(0, r);
+                count += 1;
+            }
+        
+        for (int i = 0; i < _nGroup; i++)
+            _scale(i) = sum / count;
     }
     
     if (_commRank == HEMI_A_LEAD)
