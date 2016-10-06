@@ -616,6 +616,7 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
     saveImages();
+    saveBinImages();
     saveCTFs();
     //saveReduceCTFImages();
     saveLowPassImages();
@@ -1877,6 +1878,31 @@ void MLOptimiser::saveImages()
             fft.fw(_img[l]);
         }
     }
+}
+
+void MLOptimiser::saveBinImages()
+{
+    IF_MASTER return;
+
+    FFT fft;
+
+    Image bin;
+
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < N_SAVE_IMG)
+        {
+            sprintf(filename, "Image_Bin_4_%04d.bmp", _ID[l]);
+
+            fft.bw(_img[l]);
+            binning(bin, _img[l], 4);
+            fft.fw(_img[l]);
+
+            bin.saveRLToBMP(filename);
+        }
+    }
+            
 }
 
 void MLOptimiser::saveCTFs()
