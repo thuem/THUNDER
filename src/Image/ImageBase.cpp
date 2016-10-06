@@ -61,13 +61,11 @@ void ImageBase::clear()
 void ImageBase::clearRL()
 {
     _dataRL.reset();
-    _sizeRL = 0;
 }
 
 void ImageBase::clearFT()
 {
     _dataFT.reset();
-    _sizeFT = 0;
 }
 
 void ImageBase::copyBase(ImageBase& other) const
