@@ -75,7 +75,7 @@ void Image::saveRLToBMP(const char* filename) const
                 * nColBMP
                 + (j + nColBMP / 2)] = _dataRL[(i > 0 ? i : i + _nRow)
                                              * _nCol
-                                             + j];
+                                             + (j > 0 ? j : j + _nSlc)];
 
     BMP bmp;
 
