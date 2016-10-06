@@ -426,10 +426,11 @@ void removeDust(Image& img,
 /**
  * This fucntion normalises the image according to the mean and stddev of the
  * background dust points are removed according to wDust and bDust.
- * @param img the image to be processed
+ *
+ * @param img   the image to be processed
  * @param wDust the factor of white dust
  * @param bDust the factor of black dust
- * @param r the radius
+ * @param r     the radius
  */
 void normalise(Image& img,
                const double wDust,
@@ -438,8 +439,9 @@ void normalise(Image& img,
 
 /**
  * This function extracts a sub-image from an image.
- * @param dst the destination image
- * @param src the source image
+ *
+ * @param dst  the destination image
+ * @param src  the source image
  * @param xOff the column shift
  * @param yOff the row shift
  */
@@ -447,5 +449,16 @@ void extract(Image& dst,
              const Image& src,
              const int xOff,
              const int yOff);
+
+/**
+ * This function performs binning on an image.
+ *
+ * @param dst the destination image
+ * @param src the source image
+ * @param bf  the binning factor
+ */
+void binning(Image& dst,
+             const Image& src,
+             const int bf);
 
 #endif // IMAGE_FUNCTIONS_H

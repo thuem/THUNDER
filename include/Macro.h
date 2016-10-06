@@ -31,4 +31,18 @@
 #define SAVE_DELETE(p) \
     if (p != NULL) { delete[] p; p = NULL; }
 
+#define IMAGE_FOR_EACH_PIXEL_IN_GRID(a) \
+    for (int y = -a; y < a; y++) \
+        for (int x = -a; x < a; x++)
+
+/**
+ * This macro loops over all voxels in a grid of certain side length.
+ *
+ * @param a side length
+ */
+#define VOLUME_FOR_EACH_PIXEL_IN_GRID(a) \
+    for (int z = -a; z < a; z++) \
+        for (int y = -a; y < a; y++) \
+            for (int x = -a; x < a; x++)
+
 #endif // MACRO_H

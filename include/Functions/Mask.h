@@ -18,6 +18,7 @@
 
 #include "Random.h"
 #include "Volume.h"
+#include "Macro.h"
 
 /**
  * recommended extension
@@ -33,16 +34,6 @@
 //#define GEN_MASK_RESOLUTION 20
 
 #define GEN_MASK_GAP 0.05
-
-/**
- * This macro loops over all voxels in a grid of certain side length.
- *
- * @param a side length
- */
-#define VOLUME_FOR_EACH_PIXEL_IN_GRID(a) \
-    for (int z = -a; z < a; z++) \
-        for (int y = -a; y < a; y++) \
-            for (int x = -a; x < a; x++)
 
 using namespace std;
 
