@@ -1893,10 +1893,10 @@ void MLOptimiser::saveBinImages()
     {
         if (_ID[l] < N_SAVE_IMG)
         {
-            sprintf(filename, "Image_Bin_4_%04d.bmp", _ID[l]);
+            sprintf(filename, "Image_Bin_16_%04d.bmp", _ID[l]);
 
             fft.bw(_img[l]);
-            binning(bin, _img[l], 4);
+            binning(bin, _img[l], 16);
             fft.fw(_img[l]);
 
             bin.saveRLToBMP(filename);
