@@ -943,14 +943,15 @@ void MLOptimiser::initImg()
 
         stmt.reset();
 
-	    Image& currentImg = _img[l];
+	    //Image& currentImg = _img[l];
 
         // read the image fromm hard disk
         if (imgName.find('@') == string::npos)
         {
             ImageFile imf(imgName.c_str(), "rb");
             imf.readMetaData();
-            imf.readImage(currentImg);
+            //imf.readImage(currentImg);
+            imf.readImage(_img[l]);
         }
         else
         {
@@ -959,11 +960,16 @@ void MLOptimiser::initImg()
 
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
-            imf.readImage(currentImg, nSlc);
+            //imf.readImage(currentImg, nSlc);
+            imf.readImage(_img[l], nSlc);
         }
 
+        /***
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
+            ***/
+        if ((_img[l].nColRL() != _para.size) ||
+            (_img[l].nRowRL() != _para.size))
         {
             CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
             __builtin_unreachable();
