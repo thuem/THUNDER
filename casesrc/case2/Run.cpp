@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
     para.transS = TRANS_S;
     para.initRes = 40;
     //para.ignoreRes = 200;
-    para.ignoreRes = 100;
-    para.sclCorRes = 50;
+    para.ignoreRes = 200;
+    para.sclCorRes = 80;
     //para.globalSearchRes = 15;
     para.globalSearchRes = 10;
     sprintf(para.sym, "C15");
