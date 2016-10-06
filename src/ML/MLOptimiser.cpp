@@ -1861,6 +1861,7 @@ void MLOptimiser::saveImages()
         if (_ID[l] < N_SAVE_IMG)
         {
             sprintf(filename, "Fourier_Image_%04d.bmp", _ID[l]);
+
             _img[l].saveFTToBMP(filename, 0.01);
 
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
