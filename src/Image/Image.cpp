@@ -77,11 +77,11 @@ void Image::saveRLToBMP(const char* filename) const
 
 void Image::saveFTToBMP(const char* filename, double c) const
 {
-    CLOG(INFO, "LOGGER_SYS") << "_sizeRL = " << _sizeRL;
+    // CLOG(INFO, "LOGGER_SYS") << "_sizeRL = " << _sizeRL;
 
     float* image = new float[_sizeRL];
 
-    CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
+    // CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
 
     for (int i = 0; i < _nRow; i++)
         for (int j = 0; j <= _nCol / 2; j++)
@@ -94,7 +94,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
             image[_nCol * iImage + jImage] = value;
         }
 
-    CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
+    // CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
 
     for (int i = 1; i < _nRow; i++)
         for (int j = 1; j < _nCol / 2; j++)
@@ -104,7 +104,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
             image[iDst] = image[iSrc];
         }
 
-    CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
+    // CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
 
     for (int j = 1; j < _nCol / 2; j++)
     {
