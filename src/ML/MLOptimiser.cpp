@@ -591,13 +591,13 @@ void MLOptimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
         BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
-        correctScale(false, false);
+        correctScale(false, _para.groupScl);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
-    allReduceSigma();
+    allReduceSigma(_para.groupSig);
 
     /***
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
@@ -1656,7 +1656,7 @@ void MLOptimiser::refreshScale(const bool init,
     }
 }
 
-void MLOptimiser::allReduceSigma()
+void MLOptimiser::allReduceSigma(const bool group)
 {
     IF_MASTER return;
 
@@ -1699,9 +1699,18 @@ void MLOptimiser::allReduceSigma()
 
         powerSpectrum(sig, img, _r);
 
-        _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
+        if (group)
+        {
+            _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
 
-        _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+            _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+        }
+        else
+        {
+            _sig.row(0).head(_r) += sig.transpose() / 2;
+
+            _sig(0, _sig.cols() - 1) += 1;
+        }
     }
 
     MPI_Barrier(_hemi);
@@ -1739,9 +1748,18 @@ void MLOptimiser::allReduceSigma()
         _sig.row(i).head(maxR()) /= _sig(i, _sig.cols() - 1);
         ***/
     
-    for (int i = 0; i < _sig.rows(); i++)
-        _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
+    if (group)
+    {
+        for (int i = 0; i < _sig.rows(); i++)
+            _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
+    }
+    else
+    {
+        _sig.row(0).head(_r) /= _sig(0, _sig.cols() - 1);
 
+        for (int i = 1; i < _sig.rows(); i++)
+            _sig.row(i).head(_r) = _sig.row(0).head(_r);
+    }
 
     /***
     ALOG(INFO) << "Saving Sigma";

@@ -60,6 +60,8 @@ int main(int argc, char* argv[])
     // sprintf(para.initModel, "padCylinder.mrc");
     sprintf(para.initModel, "padRef.mrc");
     sprintf(para.db, "C15.db");
+    para.groupSig = true;
+    para.groupScl = false;
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;

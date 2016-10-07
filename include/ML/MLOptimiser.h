@@ -115,6 +115,12 @@ typedef struct ML_OPTIMISER_PARA
 
     char db[FILE_NAME_LENGTH];
 
+    // grouping or not when calculating sigma
+    bool groupSig;
+
+    // grouping or not when calculating intensity scale
+    bool groupScl;
+
 } MLOptimiserPara;
 
 typedef struct CTF_ATTR
@@ -375,7 +381,7 @@ class MLOptimiser : public Parallel
         void refreshScale(const bool init = false,
                           const bool group = true);
 
-        void allReduceSigma();
+        void allReduceSigma(const bool group = true);
 
         void reconstructRef();
 
