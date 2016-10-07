@@ -469,12 +469,4 @@ void scaleDataVSPrior(vec& sXA,
                       const double rU,
                       const double rL);
 
-/***
-double scaleDataVSPrior(const Image& dat,
-                        const Image& pri,
-                        const Image& ctf,
-                        const double rU,
-                        const double rL);
-                        ***/
-
 #endif // ML_OPTIMSER_H

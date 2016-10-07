@@ -1489,21 +1489,8 @@ void MLOptimiser::refreshScale(const bool init,
 
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
 
-    /***
-    mat mXAReal = mat::Zero(_nGroup, _r);
-    mat mXAImag = mat::Zero(_nGroup, _r);
-    mat mAAReal = mat::Zero(_nGroup, _r);
-    mat mAAImag = mat::Zero(_nGroup, _r);
-    ***/
     mat mXA = mat::Zero(_nGroup, _rS);
     mat mAA = mat::Zero(_nGroup, _rS);
-
-    /***
-    vec sXAReal = vec::Zero(_r);
-    vec sXAImag = vec::Zero(_r);
-    vec sAAReal = vec::Zero(_r);
-    vec sAAImag = vec::Zero(_r);
-    ***/
 
     vec sXA = vec::Zero(_rS);
     vec sAA = vec::Zero(_rS);
@@ -1548,12 +1535,6 @@ void MLOptimiser::refreshScale(const bool init,
             mXA.row(0) += sXA.transpose();
             mAA.row(0) += sAA.transpose();
         }
-        /***
-        mXAReal.row(_groupID[l] - 1) += sXAReal.transpose();
-        mXAImag.row(_groupID[l] - 1) += sXAImag.transpose();
-        mAAReal.row(_groupID[l] - 1) += sAAReal.transpose();
-        mAAImag.row(_groupID[l] - 1) += sAAImag.transpose();
-        ***/
     }
 
     MPI_Barrier(_hemi);
@@ -1568,43 +1549,12 @@ void MLOptimiser::refreshScale(const bool init,
                   MPI_SUM,
                   _hemi);
 
-    /***
-    MPI_Allreduce(MPI_IN_PLACE,
-                  mXAImag.data(),
-                  mXAImag.size(),
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-                  ***/
-
     MPI_Allreduce(MPI_IN_PLACE,
                   mAA.data(),
                   mAA.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
-
-    /***
-    MPI_Allreduce(MPI_IN_PLACE,
-                  mAAImag.data(),
-                  mAAImag.size(),
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-                  ***/
-
-    /***
-    for (int r = 0; r < _r; r++)
-        if (r > _rL)
-        {
-            CLOG(INFO, "LOGGER_ROUND") << "r = "
-                                       << r
-                                       << " XA = "
-                                       << mXA(0, r)
-                                       << " AA = "
-                                       << mAA(0, r);
-        }
-        ***/
 
     if (group)
     {
@@ -1639,21 +1589,16 @@ void MLOptimiser::refreshScale(const bool init,
             _scale(i) = sum / count;
     }
     
-    if (_commRank == HEMI_A_LEAD)
-    {
-        /***
-        for (int i = CEIL(_rL); i < _r; i++)
-        {
-            double scale = mXA(0, i) / mAA(0, i);
-            CLOG(INFO, "LOGGER_ROUND") << "i = " << i << ", Scale = " << scale;
-        }
-        ***/
+    ALOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
+    BLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
+
+    /***
         for (int i = 0; i < _nGroup; i++)
             CLOG(INFO, "LOGGER_ROUND") << "Group "
                                        << i
                                        << ": Scale = "
                                        << _scale(i);
-    }
+                                       ***/
 }
 
 void MLOptimiser::allReduceSigma(const bool group)
@@ -2336,18 +2281,3 @@ void scaleDataVSPrior(vec& sXA,
         }
     }
 }
-
-/***
-double scaleDataVSPrior(const Image& dat,
-                        const Image& pri,
-                        const Image& ctf,
-                        const double rU,
-                        const double rL)
-{
-    Complex datCTF, priCTF2;
-
-    scaleDataVSPrior(datCTF, priCTF2, dat, pri, ctf, rU, rL);
-
-    return ABS(datCTF) / ABS(priCTF2);
-}
-***/
