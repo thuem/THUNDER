@@ -164,15 +164,15 @@ void MLOptimiser::init()
 
         _model.initProjReco();
 
-        ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
-        BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
-
-        initSigma();
-
         ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
         ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
         correctScale(true, false);
+
+        ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
+        BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
+
+        initSigma();
     }
 }
 
