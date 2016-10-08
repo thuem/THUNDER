@@ -799,6 +799,20 @@ void MLOptimiser::run()
             _model.refreshReco();
         }
     }
+
+    MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
+
+    MLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit";
+    _model.setR(maxR());
+
+    MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+    NT_MASTER _model.refreshReco();
+
+    MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
+    reconstructRef();
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final References()";
+    saveReference(true);
 }
 
 void MLOptimiser::clear()
@@ -1998,7 +2012,9 @@ void MLOptimiser::saveReference(const bool finished)
 
     FFT fft;
 
-    if (!finished)
+    if (finished)
+        fft.bwMT(_model.ref(0));
+    else
     {
         lowPassFilter(lowPass,
                       _model.ref(0),
@@ -2006,9 +2022,6 @@ void MLOptimiser::saveReference(const bool finished)
                       (double)EDGE_WIDTH_FT / _para.size);
         fft.bwMT(lowPass);
     }
-    else
-        fft.bwMT(_model.ref(0));
-
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];
@@ -2022,6 +2035,9 @@ void MLOptimiser::saveReference(const bool finished)
         if (finished)
         {
             VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+            fft.fw(_model.ref(0));
+
             sprintf(filename, "Reference_A_Final.mrc");
         }
         else
@@ -2041,7 +2057,10 @@ void MLOptimiser::saveReference(const bool finished)
         if (finished)
         {
             VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
-            sprintf(filename, "Reference_A_Final.mrc");
+
+            fft.fw(_model.ref(0));
+
+            sprintf(filename, "Reference_B_Final.mrc");
         }
         else
         {
