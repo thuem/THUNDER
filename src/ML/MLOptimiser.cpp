@@ -1985,7 +1985,7 @@ void MLOptimiser::saveLowPassReduceCTFImages()
 }
 ***/
 
-void MLOptimiser::saveReference()
+void MLOptimiser::saveReference(const bool finished)
 {
     if ((_commRank != HEMI_A_LEAD) &&
         (_commRank != HEMI_B_LEAD))
@@ -1996,13 +1996,19 @@ void MLOptimiser::saveReference()
                    _para.size * _para.pf,
                    FT_SPACE);
 
-    lowPassFilter(lowPass,
-                  _model.ref(0),
-                  (double)_r / _para.size,
-                  (double)EDGE_WIDTH_FT / _para.size);
-
     FFT fft;
-    fft.bwMT(lowPass);
+
+    if (!finished)
+    {
+        lowPassFilter(lowPass,
+                      _model.ref(0),
+                      (double)_r / _para.size,
+                      (double)EDGE_WIDTH_FT / _para.size);
+        fft.bwMT(lowPass);
+    }
+    else
+        fft.bwMT(_model.ref(0));
+
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];
@@ -2013,20 +2019,38 @@ void MLOptimiser::saveReference()
     {
         ALOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
-        VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+        if (finished)
+        {
+            VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+            sprintf(filename, "Reference_A_Final.mrc");
+        }
+        else
+        {
+            VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+            sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+        }
 
         imf.readMetaData(result);
-        sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+
         imf.writeVolume(filename, result);
     }
     else if (_commRank == HEMI_B_LEAD)
     {
         BLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
-        VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+        if (finished)
+        {
+            VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+            sprintf(filename, "Reference_A_Final.mrc");
+        }
+        else
+        {
+            VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+            sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+        }
 
         imf.readMetaData(result);
-        sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+
         imf.writeVolume(filename, result);
     }
 }

@@ -415,7 +415,7 @@ class MLOptimiser : public Parallel
         void saveLowPassReduceCTFImages();
         ***/
 
-        void saveReference();
+        void saveReference(const bool finished = false);
 
         void saveMask();
 
