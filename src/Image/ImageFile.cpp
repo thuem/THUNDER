@@ -150,20 +150,33 @@ void ImageFile::clear()
 
 void ImageFile::fillMRCHeader(MRCHeader& header) const
 {
+    memset(&header, 0, sizeof(MRCHeader));
+
     header.mode = _metaData.mode;
+
     header.nx = _metaData.nCol;
     header.ny = _metaData.nRow;
     header.nz = _metaData.nSlc;
+
     header.mx = _metaData.nCol;
     header.my = _metaData.nRow;
     header.mz = _metaData.nSlc;
-    header.cella[0] = 1;
-    header.cella[1] = 1;
-    header.cella[2] = 1;
+
+    header.cella[0] = header.nx;
+    header.cella[1] = header.ny;
+    header.cella[2] = header.nz;
+
     header.cellb[0] = 90;
     header.cellb[1] = 90;
     header.cellb[2] = 90;
+
     header.nsymbt = _metaData.symmetryDataSize;
+
+    header.mapc = 1;
+    header.mapr = 2;
+    header.maps = 3;
+
+    header.ispg = 1;
 }
 
 void ImageFile::readMetaDataMRC()
