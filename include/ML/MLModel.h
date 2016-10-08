@@ -475,6 +475,8 @@ class MLModel : public Parallel
          */
         void updateR(const double thres = 0.143);
 
+        void elevateR(const double thres = 0.143);
+
         /**
          * This function returns the concentration parameter of the rotation.
          */
