@@ -813,7 +813,7 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
     reconstructRef();
 
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Final References()";
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
 }
 
