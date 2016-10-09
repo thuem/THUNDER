@@ -2036,7 +2036,7 @@ void MLOptimiser::saveReference(const bool finished)
         {
             VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
 
-            fft.fw(_model.ref(0));
+            fft.fwMT(_model.ref(0));
             _model.ref(0).clearRL();
 
             sprintf(filename, "Reference_A_Final.mrc");
@@ -2059,7 +2059,7 @@ void MLOptimiser::saveReference(const bool finished)
         {
             VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
 
-            fft.fw(_model.ref(0));
+            fft.fwMT(_model.ref(0));
             _model.ref(0).clearRL();
 
             sprintf(filename, "Reference_B_Final.mrc");
