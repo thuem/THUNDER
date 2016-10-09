@@ -12,6 +12,7 @@
 #define SPECTRUM_H
 
 #include <functional>
+#include <gsl/gsl_randist.h>
 
 #include "Error.h"
 #include "Typedef.h"
@@ -147,9 +148,13 @@ void FSC(vec& dst,
          const Volume& A,
          const Volume& B);
 
-int resolutionP(const vec& dst,
-                const double thres,
-                const int pf = 1);
+int resP(const vec& dst,
+         const double thres,
+         const int pf = 1);
+
+void randomPhase(Volume& dst,
+                 const Volume& src,
+                 const int r);
 
 /***
 void wilsonPlot(std::map<double, double>& dst,

@@ -173,7 +173,16 @@ void FRC(vec& dst,
         }
     }
 
-    dst = vecS.array() / sqrt(vecA.array() * vecB.array());
+    //dst = vecS.array() / sqrt(vecA.array() * vecB.array());
+
+    for (int i = 0; i < dst.size(); i++)
+    {
+        double AB = sqrt(vecA(i) * vecB(i));
+        if (AB == 0)
+            dst(i) = 0;
+        else
+            dst(i) = vecS(i) / AB;
+    }
 }
 
 void FSC(vec& dst,
@@ -195,12 +204,21 @@ void FSC(vec& dst,
         }
     }
 
-    dst = vecS.array() / sqrt(vecA.array() * vecB.array());
+    for (int i = 0; i < dst.size(); i++)
+    {
+        double AB = sqrt(vecA(i) * vecB(i));
+        if (AB == 0)
+            dst(i) = 0;
+        else
+            dst(i) = vecS(i) / AB;
+    }
+
+    //dst = vecS.array() / sqrt(vecA.array() * vecB.array());
 }
 
-int resolutionP(const vec& dst,
-                const double thres,
-                const int pf)
+int resP(const vec& dst,
+         const double thres,
+         const int pf)
 {
     int result;
 
@@ -210,6 +228,28 @@ int resolutionP(const vec& dst,
     }
 
     return (result - 1) / pf;
+}
+
+void randomPhase(Volume& dst,
+                 const Volume& src,
+                 const int r)
+{
+    auto engine = get_random_engine();
+
+    VOLUME_FOR_EACH_PIXEL_FT(dst)
+    {
+        int u = AROUND(NORM_3(i, j, k));
+
+        if (u > r)
+        {
+            double norm = ABS(src.getFT(i, j, k));
+            double phase = gsl_ran_flat(engine, 0, 2 * M_PI);
+
+            dst.setFT(gsl_complex_polar(norm, phase), i, j, k);
+        }
+        else
+            dst.setFT(src.getFT(i, j, k), i, j, k);
+    }
 }
 
 /***

@@ -17,6 +17,10 @@
 #include "Image.h"
 #include "Volume.h"
 #include "Spectrum.h"
+#include "FFT.h"
+#include "Mask.h"
+
+#define RANDOM_PHASE_THRES 0.8
 
 using namespace std;
 
@@ -25,6 +29,8 @@ class Postprocess
     private:
 
         int _size;
+
+        double _pixelSize;
 
         Volume _mapA;
 
@@ -67,7 +73,8 @@ class Postprocess
         Postprocess();
 
         Postprocess(const char mapAFilename[],
-                    const char mapBFilename[]);
+                    const char mapBFilename[],
+                    const double pixelSize);
 
         void run();
 

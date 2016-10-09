@@ -369,12 +369,15 @@ vec MLModel::tau(const int i) const
 int MLModel::resolutionP(const int i,
                          const double thres) const
 {
+    return resP(_FSC.col(i), thres, _pf);
+    /***
     int result;
 
     for (result = 1; result < _FSC.rows(); result++)
         if (_FSC(result, i) < thres) break;
 
     return (result - 1) / _pf;
+    ***/
 }
 
 int MLModel::resolutionP(const double thres) const

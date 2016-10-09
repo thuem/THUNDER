@@ -11,8 +11,11 @@
 Postprocess::Postprocess() {}
 
 Postprocess::Postprocess(const char mapAFilename[],
-                         const char mapBFilename[])
+                         const char mapBFilename[],
+                         const double pixelSize)
 {
+    _pixelSize = pixelSize;
+
     ImageFile imfA(mapAFilename, "rb");
     ImageFile imfB(mapBFilename, "rb");
 
@@ -36,6 +39,15 @@ Postprocess::Postprocess(const char mapAFilename[],
 
 void Postprocess::run()
 {
+    FFT fft;
+
+    ImageFile imf;
+
+    CLOG(INFO, "LOGGER_SYS") << "Performing Fourier Transform";
+
+    fft.fwMT(_mapA);
+    fft.fwMT(_mapB);
+
     CLOG(INFO, "LOGGER_SYS") << "Determining FSC of Unmasked Half Maps";
 
     _fscU.resize(maxR());
@@ -43,7 +55,37 @@ void Postprocess::run()
     FSC(_fscU, _mapA, _mapB);
 
     CLOG(INFO, "LOGGER_SYS") << "Resolution of Unmasked Half Maps : "
-                             << 1.0;
+                             << 1.0 / resP2A(resP(_fscU, 0.143),
+                                             _size,
+                                             _pixelSize);
+
+    CLOG(INFO, "LOGGER_SYS") << "Averaging Half Maps";
+
+    _mapI.alloc(_size, _size, _size, RL_SPACE);
+
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_RL(_mapI)
+        _mapI(i) = (_mapA(i) + _mapB(i)) / 2;
+
+    CLOG(INFO, "LOGGER_SYS") << "Generating Mask";
+
+    _mask.alloc(_size, _size, _size, RL_SPACE);
+
+    genMask(_mask, _mapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
+
+    CLOG(INFO, "LOGGER_SYS") << "Saving Mask";
+
+    imf.readMetaData(_mask);
+    imf.writeVolume("Postprocess_Mask", _mask);
+
+    CLOG(INFO, "LOGGER_SYS") << "Determing Random Phase Resolution";
+
+    int randomPhaseRes = resP(_fscU, RANDOM_PHASE_THRES);
+
+    CLOG(INFO, "LOGGER_SYS") << "Performing Random Phase Above Frequency "
+                             << 1.0 / resP2A(randomPhaseRes,
+                                             _size,
+                                             _pixelSize);
 }
 
 int Postprocess::maxR()
