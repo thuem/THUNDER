@@ -147,6 +147,10 @@ void FSC(vec& dst,
          const Volume& A,
          const Volume& B);
 
+int resolutionP(const vec& dst,
+                const double thres,
+                const int pf = 1);
+
 /***
 void wilsonPlot(std::map<double, double>& dst,
                 const int imageSize,

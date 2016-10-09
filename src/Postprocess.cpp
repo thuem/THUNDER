@@ -36,4 +36,17 @@ Postprocess::Postprocess(const char mapAFilename[],
 
 void Postprocess::run()
 {
+    CLOG(INFO, "LOGGER_SYS") << "Determining FSC of Unmasked Half Maps";
+
+    _fscU.resize(maxR());
+
+    FSC(_fscU, _mapA, _mapB);
+
+    CLOG(INFO, "LOGGER_SYS") << "Resolution of Unmasked Half Maps : "
+                             << 1.0;
+}
+
+int Postprocess::maxR()
+{
+    return _size / 2 - 1;
 }

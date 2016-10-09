@@ -198,6 +198,20 @@ void FSC(vec& dst,
     dst = vecS.array() / sqrt(vecA.array() * vecB.array());
 }
 
+int resolutionP(const vec& dst,
+                const double thres,
+                const int pf)
+{
+    int result;
+
+    for (result = 1; result < dst.size(); result++)
+    {
+        if (dst(result) < thres) break;
+    }
+
+    return (result - 1) / pf;
+}
+
 /***
 void wilsonPlot(std::map<double, double>& dst,
                 const int imageSize,

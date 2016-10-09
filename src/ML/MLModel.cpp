@@ -371,16 +371,6 @@ int MLModel::resolutionP(const int i,
 {
     int result;
 
-    /***
-    for (result = _SNR.rows() - 1;
-         result >= 0;
-         result--)
-        if (_SNR(result, i) > thres / (1 - thres)) break;
-
-    for (result = 0; result < _SNR.rows(); result++)
-        if (_SNR(result, i) < thres / (1 - thres)) break;
-        ***/
-
     for (result = 1; result < _FSC.rows(); result++)
         if (_FSC(result, i) < thres) break;
 

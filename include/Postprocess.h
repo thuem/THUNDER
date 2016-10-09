@@ -16,6 +16,7 @@
 #include "ImageFile.h"
 #include "Image.h"
 #include "Volume.h"
+#include "Spectrum.h"
 
 using namespace std;
 
@@ -69,6 +70,10 @@ class Postprocess
                     const char mapBFilename[]);
 
         void run();
+
+    private:
+
+        int maxR();
 };
 
 #endif // PREPROCESS_H
