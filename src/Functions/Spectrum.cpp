@@ -216,16 +216,16 @@ void FSC(vec& dst,
     //dst = vecS.array() / sqrt(vecA.array() * vecB.array());
 }
 
-int resP(const vec& dst,
+int resP(const vec& fsc,
          const double thres,
          const int pf,
          const int rL)
 {
     int result;
 
-    for (result = rL; result < dst.size(); result++)
+    for (result = rL; result < fsc.size(); result++)
     {
-        if (dst(result) < thres) break;
+        if (fsc(result) < thres) break;
     }
 
     return (result - 1) / pf;
