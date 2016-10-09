@@ -41,11 +41,25 @@ class Postprocess
 
         Volume _mask;
 
-        vec _fsc;
+        /**
+         * FSC of two unmasked half maps
+         */
+        vec _fscU;
 
-        vec _fscMask;
+        /**
+         * FSC of two masked half maps
+         */
+        vec _fscM;
 
-        vec _fscRFMask;
+        /**
+         * FSC of two random-phase masked half maps
+         */
+        vec _fscR;
+
+        /**
+         * true FSC
+         */
+        vec _fscT;
 
     public:        
 
