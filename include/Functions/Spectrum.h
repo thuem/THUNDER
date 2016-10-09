@@ -24,6 +24,7 @@ using namespace std;
 
 /**
  * This function returns the Nyquist resolution limit in Angstrom(-1).
+ *
  * @param pixelSize pixel size in Angstrom
  */
 double nyquist(const double pixelSize);
@@ -174,6 +175,14 @@ int resP(const vec& fsc,
          const int pf = 1,
          const int rL = 1);
 
+/**
+ * This function randomizes the phase of a given volume above a certain
+ * frequency.
+ *
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param r   the lower boundary of frequency for randomizing phase
+ */
 void randomPhase(Volume& dst,
                  const Volume& src,
                  const int r);
