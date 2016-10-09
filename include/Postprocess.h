@@ -23,6 +23,8 @@ class Postprocess
 {
     private:
 
+        int _size;
+
         Volume _mapA;
 
         Volume _mapB;

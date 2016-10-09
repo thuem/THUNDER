@@ -14,7 +14,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {   
-    loggerInit();
+    loggerInit(argc, argv);
 
     Postprocess pp(argv[1], argv[2]);
 
