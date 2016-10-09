@@ -218,11 +218,12 @@ void FSC(vec& dst,
 
 int resP(const vec& dst,
          const double thres,
-         const int pf)
+         const int pf,
+         const int rL)
 {
     int result;
 
-    for (result = 1; result < dst.size(); result++)
+    for (result = rL; result < dst.size(); result++)
     {
         if (dst(result) < thres) break;
     }

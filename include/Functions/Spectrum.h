@@ -150,7 +150,8 @@ void FSC(vec& dst,
 
 int resP(const vec& dst,
          const double thres,
-         const int pf = 1);
+         const int pf = 1,
+         const int rL = 1);
 
 void randomPhase(Volume& dst,
                  const Volume& src,
