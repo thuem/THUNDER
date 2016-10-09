@@ -741,9 +741,8 @@ void MLOptimiser::run()
                                    << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
         _model.updateR();
-        _r = _model.r();
 
         MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
@@ -752,7 +751,7 @@ void MLOptimiser::run()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
 
-        if (_r > _model.rT())
+        if (_model.r() > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 
@@ -762,14 +761,8 @@ void MLOptimiser::run()
 
             MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
 
-            _model.setRT(_r);
+            _model.setRT(_model.r());
         }
-
-        MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
-                                   << _r - 1
-                                   << " (Spatial), "
-                                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
-                                   << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
         if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -785,6 +778,15 @@ void MLOptimiser::run()
         }
         else
             _searchType = _model.searchType();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
+        _r = _model.r();
+
+        MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
+                                   << _r - 1
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
+                                   << " (Angstrom)";
 
         NT_MASTER
         {
