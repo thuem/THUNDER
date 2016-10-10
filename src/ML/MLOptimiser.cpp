@@ -1097,7 +1097,8 @@ void MLOptimiser::substractBgImg()
     FOR_EACH_2D_IMAGE
     {
         double bg = background(_img[l],
-                               size() * MASK_RATIO / 2,
+                               _para.maskRadius / _para.pixelSize,
+                               //size() * MASK_RATIO / 2,
                                EDGE_WIDTH_RL);
 
         FOR_EACH_PIXEL_RL(_img[l])
