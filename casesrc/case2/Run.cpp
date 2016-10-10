@@ -20,7 +20,7 @@
 #define PF 2
 
 #define N 380
-#define TRANS_S 20
+#define TRANS_S 10
 
 //#define PIXEL_SIZE 1.32
 #define PIXEL_SIZE 1.30654
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
     para.mG = MG;
     para.mL = ML;
     para.transS = TRANS_S;
-    para.initRes = 40;
+    para.initRes = 20;
     //para.ignoreRes = 200;
     para.ignoreRes = 200;
     para.sclCorRes = 80;
