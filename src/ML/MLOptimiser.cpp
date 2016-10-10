@@ -1111,7 +1111,8 @@ void MLOptimiser::maskImg()
     FOR_EACH_2D_IMAGE
         softMask(_img[l],
                  _img[l],
-                 size() * MASK_RATIO / 2,
+                 _para.maskRadius / _para.pixelSize,
+                 //size() * MASK_RATIO / 2,
                  EDGE_WIDTH_RL,
                  0,
                  0);

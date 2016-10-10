@@ -36,7 +36,8 @@ void readPara(MLOptimiserPara& dst,
 {
     dst.k = src["Number of Classes"].asInt();
     dst.size = src["Size of Image"].asInt();
-    dst.pixelSize = src["PixelS Size (Angstrom)"].asFloat();
+    dst.pixelSize = src["Pixel Size (Angstrom)"].asFloat();
+    dst.maskRadius = src["Radius of Mask on Images (Angstrom)"].asFloat();
     dst.transS = src["Estimated Translation (Pixel)"].asFloat();
     dst.initRes = src["Initial Resolution (Angstrom)"].asFloat();
     dst.globalSearchRes = src["Perform Global Search Under (Angstrom)"].asFloat();

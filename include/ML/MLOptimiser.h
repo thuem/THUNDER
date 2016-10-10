@@ -89,6 +89,9 @@ typedef struct ML_OPTIMISER_PARA
     double pixelSize;
     // pixel size of 2D images
 
+    double maskRadius;
+    // radius of mask on 2D Images (Angstrom)
+
     int mG;
     // number of samplings in particle filter
 
