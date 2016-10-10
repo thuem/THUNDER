@@ -383,7 +383,7 @@ class MLOptimiser : public Parallel
 
         void allReduceSigma(const bool group = true);
 
-        void reconstructRef();
+        void reconstructRef(const bool mask = true);
 
         // for debug
         // save the best projections to BMP file

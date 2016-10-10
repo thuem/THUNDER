@@ -811,7 +811,7 @@ void MLOptimiser::run()
     NT_MASTER _model.refreshReco();
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef();
+    reconstructRef(false);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
@@ -1729,7 +1729,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     ***/
 }
 
-void MLOptimiser::reconstructRef()
+void MLOptimiser::reconstructRef(const bool mask)
 {
     IF_MASTER return;
 
@@ -1795,7 +1795,7 @@ void MLOptimiser::reconstructRef()
         _genMask = false;
     }
 
-    if (!_mask.isEmptyRL())
+    if (mask && !_mask.isEmptyRL())
     {
         ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
         BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";

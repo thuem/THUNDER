@@ -19,8 +19,10 @@
 #include "Spectrum.h"
 #include "FFT.h"
 #include "Mask.h"
+#include "Filter.h"
 
 #define RANDOM_PHASE_THRES 0.8
+#define GEN_MASK_RES 10
 
 using namespace std;
 

@@ -71,7 +71,22 @@ void Postprocess::run()
 
     _mask.alloc(_size, _size, _size, RL_SPACE);
 
-    genMask(_mask, _mapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
+    fft.fw(_mapI);
+
+    Volume lowPassMapI(_size, _size, _size, FT_SPACE);
+    lowPassFilter(lowPassMapI,
+                  _mapI,
+                  _pixelSize / GEN_MASK_RES,
+                  (double)EDGE_WIDTH_FT / _size);
+
+    fft.bw(lowPassMapI);
+
+    lowPassMapI.clearFT();
+
+    //genMask(_mask, _mapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
+    genMask(_mask, lowPassMapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
+
+    lowPassMapI.clearRL();
 
     CLOG(INFO, "LOGGER_SYS") << "Saving Mask";
 
