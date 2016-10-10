@@ -56,9 +56,9 @@ int main(int argc, char* argv[])
     para.ignoreRes = 200;
     para.sclCorRes = 80;
     //para.globalSearchRes = 15;
-    para.globalSearchRes = 10;
+    //para.globalSearchRes = 10;
     //para.globalSearchRes = 40;
-    //para.globalSearchRes = 12;
+    para.globalSearchRes = 12;
     sprintf(para.sym, "C15");
     // sprintf(para.initModel, "padCylinder.mrc");
     sprintf(para.initModel, "padRef.mrc");
