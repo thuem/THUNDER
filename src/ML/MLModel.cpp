@@ -716,44 +716,11 @@ int MLModel::searchType()
         // beteween iterations still gets room for improvement.
         IF_MASTER
         {
-            /***
-            if ((_rChange > _rChangePrev - 0.02 * _stdRChangePrev) &&
-                (_r == _rGlobal) &&
-                (_rChange < 0.01))
-                _nRChangeNoDecrease += 1;
-            else
-                _nRChangeNoDecrease = 0;
-            ***/
-
-            /***
-            _searchType = ((_r == _rGlobal) && _increaseR)
-                        ? SEARCH_TYPE_LOCAL
-                        : SEARCH_TYPE_GLOBAL;
-                        ***/
-
             if ((_r == _rGlobal) && _increaseR)
             {
                 _searchType = SEARCH_TYPE_LOCAL;
 
-                //increaseR();
-
                 elevateR();
-
-                /***
-                bool reachBoundary = false;
-                FOR_EACH_CLASS
-                    if (_FSC.col(i)(_pf * _rU - 1) > thres)
-                    {
-                        _r = _rU;
-
-                        reachBoundary = true;
-
-                    }
-
-                if (!reachBoundary) _r = resolutionP(thres) + 1;
-
-                updateRU();
-                ***/
             }
         }
     }
@@ -761,6 +728,18 @@ int MLModel::searchType()
     MPI_Barrier(MPI_COMM_WORLD);
 
     MPI_Bcast(&_searchType,
+              1,
+              MPI_INT,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    MPI_Bcast(&_r,
+              1,
+              MPI_INT,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    MPI_Bcast(&_rU,
               1,
               MPI_INT,
               MASTER_ID,
