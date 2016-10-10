@@ -81,6 +81,7 @@ using namespace std;
 
 /**
  * This function calculates the cumulative summation over v.
+ *
  * @param v a vector to be cumulative added
  */
 vec cumsum(const vec& v);
@@ -88,6 +89,7 @@ vec cumsum(const vec& v);
 /**
  * This function sorts a vector in ascending order and stores the result by its
  * indices.
+ *
  * @param v the vector to be sorted
  */
 uvec index_sort_ascend(const vec& v);
@@ -95,6 +97,7 @@ uvec index_sort_ascend(const vec& v);
 /**
  * This function sorts a vector in descending order and stores the result by its
  * indices.
+ *
  * @param v the vector to be sorted
  */
 uvec index_sort_descend(const vec& v);
@@ -103,6 +106,7 @@ uvec index_sort_descend(const vec& v);
  * If x is peroidic and has a period of p, change x to the counterpart in [0, p)
  * and return how many periods there are between x and the counterpart in [0,
  * p).
+ *
  * @param x the period value
  * @param p the period (should be positive)
  */
@@ -111,9 +115,10 @@ int periodic(double& x,
 
 /**
  * Multiplication between two quaterions.
+ *
  * @param dst result
- * @param a left multiplier
- * @param b right multiplier
+ * @param a   left multiplier
+ * @param b   right multiplier
  */
 void quaternion_mul(vec4& dst,
                     const vec4& a,
@@ -154,6 +159,7 @@ double MKB_RL(const double r,
 
 /**
  * Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function
+ *
  * @param r radius
  */
 double TIK_RL(const double r);
@@ -162,9 +168,9 @@ double TIK_RL(const double r);
  * Calculcuate the Median Absolute Deviation
  *
  * @param mean the mean value
- * @param std the standard devation
- * @param src the input data
- * @param n the length of the the data
+ * @param std  the standard devation
+ * @param src  the input data
+ * @param n    the length of the the data
  */
 void stat_MAS(double& mean,
               double& std,
