@@ -52,7 +52,8 @@ int main(int argc, char* argv[])
     para.mG = MG;
     para.mL = ML;
     para.transS = TRANS_S;
-    para.initRes = 20;
+    //para.initRes = 20;
+    para.initRes = 40;
     //para.ignoreRes = 200;
     para.ignoreRes = 200;
     para.sclCorRes = 80;
