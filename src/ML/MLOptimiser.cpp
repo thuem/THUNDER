@@ -586,12 +586,13 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    if (_searchType == SEARCH_TYPE_GLOBAL)
+    if ((_searchType == SEARCH_TYPE_GLOBAL) &&
+        (_para.groupScl))
     {
         ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
         BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
-        correctScale(false, _para.groupScl);
+        correctScale(false, true);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
@@ -1263,6 +1264,13 @@ void MLOptimiser::correctScale(const bool init,
         FOR_EACH_PIXEL_FT(_img[l])
             _img[l][i] /= _scale(_groupID[l] - 1);
     }
+
+    if (!init)
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < _nGroup; i++)
+            _sig.row(i) /= gsl_pow_2(_scale(_groupID[l] - 1));
+    }
 }
 
 void MLOptimiser::initSigma()
@@ -1739,10 +1747,12 @@ void MLOptimiser::allReduceSigma(const bool group)
             _sig.row(i).head(_r) = _sig.row(0).head(_r);
     }
 
+    /***
     // make sigma above cutoff frequency the same as the sigma at the cutoff
     // frequency
     for (int i = _r; i < _sig.cols() - 1; i++)
         _sig.col(i) = _sig.col(_r - 1);
+        ***/
 
     /***
     ALOG(INFO) << "Saving Sigma";
