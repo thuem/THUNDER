@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     para.initRes = 40;
     //para.ignoreRes = 200;
     para.ignoreRes = 200;
-    para.sclCorRes = 80;
+    para.sclCorRes = 100;
     //para.globalSearchRes = 15;
     //para.globalSearchRes = 10;
     //para.globalSearchRes = 40;
@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
     sprintf(para.initModel, "padRef.mrc");
     sprintf(para.db, "C15.db");
     para.groupSig = true;
-    //para.groupScl = false;
-    para.groupScl = true;
+    para.groupScl = false;
+    //para.groupScl = true;
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;
