@@ -10,6 +10,23 @@
 
 #include "MLOptimiser.h"
 
+void display(const MLOptimiserPara& para)
+{
+    printf("Number of Classes:                             %6d\n", para.k);
+    printf("Size of Image:                                 %6d\n", para.size);
+    printf("Pixel Size (Angstrom):                         %6.3lf\n", para.pixelSize); 
+    printf("Radius of Mask on Images (Angstrom):           %6.3lf\n", para.maskRadius);
+    printf("Estimated Translation (Pixel):                 %6.3lf\n", para.transS);
+    printf("Initial Resolution (Angstrom):                 %6.3lf\n", para.initRes);
+    printf("Perform Global Search Under (Angstrom):        %6.3lf\n", para.globalSearchRes);
+    printf("Symmetry:                                      %s\n", para.sym);
+    printf("Initial Model:                                 %s\n", para.initModel);
+    printf("Sqlite3 File Storing Paths and CTFs of Images: %s\n", para.db);
+
+    printf("Max Number of Iteration:                       %6d\n", para.iterMax);
+    printf("Padding Factor:                                %6d\n", para.pf);
+}
+
 MLOptimiser::MLOptimiser() {}
 
 MLOptimiser::~MLOptimiser()

@@ -68,14 +68,62 @@ using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
 {
-    int iterMax;
-    // max number of iterations
-    
+    /**
+     * number of classes
+     */
     int k;
-    // number of references
 
+    /**
+     * size of image (pixel)
+     */
     int size;
-    // size of references and images
+
+    /**
+     * pixel size (Angstrom)
+     */
+    double pixelSize;
+
+    /**
+     * radius of mask on images (Angstrom)
+     */
+    double maskRadius;
+
+    /**
+     * estimated translation (pixel)
+     */
+    double transS;
+
+    /**
+     * initial resolution (Angstrom)
+     */
+    double initRes;
+
+    /**
+     * resolution threshold for performing global search
+     */
+    double globalSearchRes;
+
+    /**
+     * symmetry
+     */
+    char sym[SYM_ID_LENGTH];
+
+    /**
+     * initial model
+     */
+    char initModel[FILE_NAME_LENGTH];
+
+    /**
+     * sqlite3 file storing paths and CTFs of images
+     */
+    char db[FILE_NAME_LENGTH];
+
+    /**
+     * max number of iteration
+     */
+    int iterMax;
+    
+
 
     int pf;
     // pading factor
@@ -86,11 +134,7 @@ typedef struct ML_OPTIMISER_PARA
     double alpha;
     // parameter of the kernel MKB_FT
 
-    double pixelSize;
-    // pixel size of 2D images
 
-    double maskRadius;
-    // radius of mask on 2D Images (Angstrom)
 
     int mG;
     // number of samplings in particle filter
@@ -98,10 +142,7 @@ typedef struct ML_OPTIMISER_PARA
     int mL;
     // number of samplings in particle filter
 
-    double transS;
 
-    // initial estimated resolution (Angstrom)
-    double initRes;
 
     // the information below this resolution will be ignored
     double ignoreRes;
@@ -109,14 +150,9 @@ typedef struct ML_OPTIMISER_PARA
     // the resolution boundary for performing intensity scale correction
     double sclCorRes;
 
-    double globalSearchRes;
 
-    char sym[SYM_ID_LENGTH];
 
-    char initModel[FILE_NAME_LENGTH];
-    // the initial model for this iteration
 
-    char db[FILE_NAME_LENGTH];
 
     // grouping or not when calculating sigma
     bool groupSig;
@@ -125,6 +161,8 @@ typedef struct ML_OPTIMISER_PARA
     bool groupScl;
 
 } MLOptimiserPara;
+
+void display(const MLOptimiserPara& para);
 
 typedef struct CTF_ATTR
 {
