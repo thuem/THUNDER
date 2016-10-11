@@ -159,6 +159,16 @@ typedef struct ML_OPTIMISER_PARA
     double sclCorRes;
 
     /**
+     * the FSC threshold for determining cutoff frequency
+     */
+    double thresCutoffFSC = 0.5;
+
+    /**
+     * the FSC threshold for reporting resolution
+     */
+    double thresReportFSC = 0.143;
+
+    /**
      * grouping or not when calculating sigma
      */
     bool groupSig;

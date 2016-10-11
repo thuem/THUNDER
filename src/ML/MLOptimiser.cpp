@@ -31,6 +31,8 @@ void display(const MLOptimiserPara& para)
     printf("Number of Sampling Points in Local Search:             %12d\n", para.mL);
     printf("Ignore Signal Under (Angstrom):                        %12.6lf\n", para.ignoreRes);
     printf("Correct Intensity Scale Using Signal Under (Angstrom): %12.6lf\n", para.sclCorRes);
+    printf("FSC Threshold for Cutoff Frequency:                    %12.6lf\n", para.thresCutoffFSC);
+    printf("FSC Threshold for Reporting Resolution:                %12.6lf\n", para.thresReportFSC);
     printf("Grouping when Calculating Sigma:                       %12d\n", para.groupSig);
     printf("Grouping when Correcting Intensity Scale:              %12d\n", para.groupScl);
     printf("Mask Images with Zero Noise:                           %12d\n", para.zeroMask);
@@ -753,8 +755,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
         saveFSC();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
-        _res = _model.resolutionP();
         MLOG(INFO, "LOGGER_ROUND") << "Current Cutoff Frequency: "
                                    << _r - 1
                                    << " (Spatial), "
@@ -762,14 +762,28 @@ void MLOptimiser::run()
                                                    _para.size,
                                                    _para.pixelSize)
                                    << " (Angstrom)";
-        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution: "
+
+        MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
+
+        _res = _model.resolutionP(_para.thresReportFSC);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
+                                   << _res
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
+                                   << " (Angstrom)";
+
+        _res = _model.resolutionP(_para.thresCutoffFSC);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "
                                    << _res
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
-        _model.updateR();
+
+        _model.updateR(_para.thresCutoffFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
