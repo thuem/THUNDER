@@ -24,7 +24,7 @@
 #define FILE_LINE_LENGTH 1024
 
 #define EDGE_WIDTH_FT 2 // edge width in filtering
-#define EDGE_WIDTH_RL 2 // edge width in mask
+#define EDGE_WIDTH_RL 6 // edge width in mask
 
 #define EQUAL_ACCURACY 0.0001
 
