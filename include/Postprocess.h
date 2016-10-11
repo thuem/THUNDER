@@ -22,7 +22,7 @@
 #include "Filter.h"
 
 #define RANDOM_PHASE_THRES 0.8
-#define GEN_MASK_RES 10
+#define GEN_MASK_RES 30
 
 using namespace std;
 
