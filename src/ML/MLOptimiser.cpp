@@ -1046,13 +1046,19 @@ void MLOptimiser::statImg()
     FOR_EACH_2D_IMAGE
     {
         #pragma omp atomic
-        _stdN += bgStddev(0, _img[l], size() * MASK_RATIO / 2);
+        _stdN += bgStddev(0,
+                         _img[l],
+                         //size() * MASK_RATIO / 2);
+                         _para.maskRadius / _para.pixelSize);
 
         #pragma omp atomic
         _stdD += stddev(0, _img[l]);
 
         #pragma omp atomic
-        _stdStdN += gsl_pow_2(bgStddev(0, _img[l], size() * MASK_RATIO / 2));
+        _stdStdN += gsl_pow_2(bgStddev(0,
+                                       _img[l],
+                                       //size() * MASK_RATIO / 2));
+                                       _para.maskRadius / _para.pixelSize));
     }
 
     MPI_Barrier(_hemi);
