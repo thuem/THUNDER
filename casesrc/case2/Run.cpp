@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
     para.a = 1.9;
     para.alpha = 10;
     para.pixelSize = PIXEL_SIZE;
-    para.maskRadius = 250;
+    //para.maskRadius = 250;
+    para.maskRadius = 130;
     para.mG = MG;
     para.mL = ML;
     para.transS = TRANS_S;
