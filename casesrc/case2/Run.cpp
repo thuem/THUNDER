@@ -56,7 +56,8 @@ int main(int argc, char* argv[])
     para.initRes = 40;
     //para.ignoreRes = 200;
     para.ignoreRes = 200;
-    para.sclCorRes = 40;
+    //para.sclCorRes = 40;
+    para.sclCorRes = 80;
     //para.globalSearchRes = 15;
     //para.globalSearchRes = 10;
     //para.globalSearchRes = 40;
