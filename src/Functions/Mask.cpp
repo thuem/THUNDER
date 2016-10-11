@@ -29,6 +29,7 @@ double background(const Image& img,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
+            //double w = 0.5 + 0.5 * cos((u - r) / ew * M_PI);
             weightSum += w;
             sum += img.getRL(i, j) * w;
         }
@@ -76,6 +77,7 @@ double background(const Volume& vol,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
+            //double w = 0.5 + 0.5 * cos((u - r) / ew * M_PI);
 
             #pragma omp atomic
             weightSum += w;
@@ -134,7 +136,8 @@ void softMask(Image& dst,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
-            dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
+            //dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
+            dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
         }
         else
             dst.setRL(src.getRL(i, j), i, j);
@@ -165,7 +168,8 @@ void softMask(Image& dst,
             else
             {
                 double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
-                dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
+                //dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
+                dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
             }
         }
     }
@@ -187,8 +191,9 @@ void softMask(Image& dst,
 {
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
-        double w = alpha.getRL(i, j);
-        dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
+        double w = 1 - alpha.getRL(i, j);
+        //dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
+        dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
     }
 }
 
@@ -202,11 +207,12 @@ void softMask(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
-        double w = alpha.getRL(i, j);
+        double w = 1 - alpha.getRL(i, j);
 
         double bg = bgMean + gsl_ran_gaussian(engine, bgStd);
 
-        dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
+        //dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
+        dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
     }
 }
 
@@ -227,7 +233,8 @@ void softMask(Volume& dst,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI);
-            dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
+            //dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
+            dst.setRL(bg * w + src.getRL(i, j, k) * (1 - w), i, j, k);
         }
         else
             dst.setRL(src.getRL(i, j, k), i, j, k);
@@ -251,8 +258,9 @@ void softMask(Volume& dst,
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
-        double w = alpha.getRL(i, j, k);
-        dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
+        double w = 1 - alpha.getRL(i, j, k);
+        //dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
+        dst.setRL(bg * w + src.getRL(i, j, k) * (1 - w), i, j, k);
     }
 }
 

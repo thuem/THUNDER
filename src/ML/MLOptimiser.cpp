@@ -1109,6 +1109,7 @@ void MLOptimiser::substractBgImg()
 void MLOptimiser::maskImg()
 {
     #pragma omp parallel for
+    /***
     FOR_EACH_2D_IMAGE
         softMask(_img[l],
                  _img[l],
@@ -1116,6 +1117,13 @@ void MLOptimiser::maskImg()
                  //size() * MASK_RATIO / 2,
                  EDGE_WIDTH_RL,
                  0,
+                 0);
+                 ***/
+    FOR_EACH_2D_IMAGE
+        softMask(_img[l],
+                 _img[l],
+                 _para.maskRadius / _para.pixelSize,
+                 EDGE_WIDTH_RL,
                  0);
 }
 
