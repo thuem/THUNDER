@@ -1728,6 +1728,11 @@ void MLOptimiser::allReduceSigma(const bool group)
             _sig.row(i).head(_r) = _sig.row(0).head(_r);
     }
 
+    // make sigma above cutoff frequency the same as the sigma at the cutoff
+    // frequency
+    for (int i = _r + 1; i < _sig.cols() - 1; i++)
+        _sig.col(i) = _sig.col(_r);
+
     /***
     ALOG(INFO) << "Saving Sigma";
     if (_commRank == HEMI_A_LEAD)
