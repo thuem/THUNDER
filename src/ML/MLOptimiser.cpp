@@ -1730,8 +1730,8 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     // make sigma above cutoff frequency the same as the sigma at the cutoff
     // frequency
-    for (int i = _r + 1; i < _sig.cols() - 1; i++)
-        _sig.col(i) = _sig.col(_r);
+    for (int i = _r; i < _sig.cols() - 1; i++)
+        _sig.col(i) = _sig.col(_r - 1);
 
     /***
     ALOG(INFO) << "Saving Sigma";
