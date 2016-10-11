@@ -1614,6 +1614,11 @@ void MLOptimiser::refreshScale(const bool init,
     ALOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
     BLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
 
+    ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
+                               << gsl_stats_sd(_scale.data(), 1, _scale.size());
+    BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
+                               << gsl_stats_sd(_scale.data(), 1, _scale.size());
+
     /***
         for (int i = 0; i < _nGroup; i++)
             CLOG(INFO, "LOGGER_ROUND") << "Group "
