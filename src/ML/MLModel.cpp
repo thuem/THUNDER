@@ -720,7 +720,7 @@ int MLModel::searchType()
             {
                 _searchType = SEARCH_TYPE_LOCAL;
 
-                elevateR();
+                //elevateR();
             }
         }
     }
@@ -733,6 +733,7 @@ int MLModel::searchType()
               MASTER_ID,
               MPI_COMM_WORLD);
 
+    /***
     MPI_Bcast(&_r,
               1,
               MPI_INT,
@@ -744,6 +745,7 @@ int MLModel::searchType()
               MPI_INT,
               MASTER_ID,
               MPI_COMM_WORLD);
+              ***/
 
     return _searchType;
 }
