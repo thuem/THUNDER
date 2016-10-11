@@ -55,6 +55,7 @@ void readPara(MLOptimiserPara& dst,
     dst.sclCorRes = src["Advanced"]["Correct Intensity Scale Using Signal Under (Angstrom)"].asFloat();
     dst.groupSig = src["Advanced"]["Grouping when Calculating Sigma"].asBool();
     dst.groupScl = src["Advanced"]["Grouping when Correcting Intensity Scale"].asBool();
+    dst.zeroMask = src["Advanced"]["Mask Images with Zero Noise"].asBool();
 };
 
 INITIALIZE_EASYLOGGINGPP
@@ -88,38 +89,10 @@ int main(int argc, char* argv[])
         __builtin_unreachable();
     }
 
-    /***
-    cout << "Initialising Parameters" << endl;
-    para.iterMax = atoi(argv[1]);
-    para.k = 1;
-    para.size = N;
-    para.pf = PF;
-    //para.a = 0.95;
-    para.a = 1.9;
-    para.alpha = 10;
-    para.pixelSize = PIXEL_SIZE;
-    para.mG = MG;
-    para.mL = ML;
-    para.transS = TRANS_S;
-    para.initRes = 40;
-    //para.ignoreRes = 200;
-    para.ignoreRes = 200;
-    para.sclCorRes = 80;
-    //para.globalSearchRes = 15;
-    para.globalSearchRes = 10;
-    //para.globalSearchRes = 40;
-    //para.globalSearchRes = 12;
-    sprintf(para.sym, "C15");
-    // sprintf(para.initModel, "padCylinder.mrc");
-    sprintf(para.initModel, "padRef.mrc");
-    sprintf(para.db, "C15.db");
-    para.groupSig = true;
-    para.groupScl = false;
-    ***/
+    display(para);
 
     MPI_Init(&argc, &argv);
 
-    /***
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;
     opt.setPara(para);
@@ -129,7 +102,6 @@ int main(int argc, char* argv[])
 
     cout << "Run" << endl;
     opt.run();
-    ***/
 
     MPI_Finalize();
 }

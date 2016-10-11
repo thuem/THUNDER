@@ -12,27 +12,28 @@
 
 void display(const MLOptimiserPara& para)
 {
-    printf("Number of Classes:                                     %6d\n", para.k);
-    printf("Size of Image:                                         %6d\n", para.size);
-    printf("Pixel Size (Angstrom):                                 %6.3lf\n", para.pixelSize); 
-    printf("Radius of Mask on Images (Angstrom):                   %6.3lf\n", para.maskRadius);
-    printf("Estimated Translation (Pixel):                         %6.3lf\n", para.transS);
-    printf("Initial Resolution (Angstrom):                         %6.3lf\n", para.initRes);
-    printf("Perform Global Search Under (Angstrom):                %6.3lf\n", para.globalSearchRes);
-    printf("Symmetry:                                              %s\n", para.sym);
-    printf("Initial Model:                                         %s\n", para.initModel);
-    printf("Sqlite3 File Storing Paths and CTFs of Images:         %s\n", para.db);
+    printf("Number of Classes:                                     %12d\n", para.k);
+    printf("Size of Image:                                         %12d\n", para.size);
+    printf("Pixel Size (Angstrom):                                 %12.6lf\n", para.pixelSize); 
+    printf("Radius of Mask on Images (Angstrom):                   %12.6lf\n", para.maskRadius);
+    printf("Estimated Translation (Pixel):                         %12.6lf\n", para.transS);
+    printf("Initial Resolution (Angstrom):                         %12.6lf\n", para.initRes);
+    printf("Perform Global Search Under (Angstrom):                %12.6lf\n", para.globalSearchRes);
+    printf("Symmetry:                                              %12s\n", para.sym);
+    printf("Initial Model:                                         %12s\n", para.initModel);
+    printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
 
-    printf("Max Number of Iteration:                               %6d\n", para.iterMax);
-    printf("Padding Factor:                                        %6d\n", para.pf);
-    printf("MKB Kernel Radius:                                     %6.3lf\n", para.a);
-    printf("MKB Kernel Smooth Factor:                              %6.3lf\n", para.alpha);
-    printf("Number of Sampling Points in Global Search:            %6d\n", para.mG);
-    printf("Number of Sampling Points in Local Search:             %6d\n", para.mL);
-    printf("Ignore Signal Under (Angstrom):                        %6.3lf\n", para.ignoreRes);
-    printf("Correct Intensity Scale Using Signal Under (Angstrom): %6.3lf\n", para.sclCorRes);
-    printf("Grouping when Calculating Sigma:                       %d\n", para.groupSig);
-    printf("Grouping when Correcting Intensity Scale:              %d\n", para.groupScl);
+    printf("Max Number of Iteration:                               %12d\n", para.iterMax);
+    printf("Padding Factor:                                        %12d\n", para.pf);
+    printf("MKB Kernel Radius:                                     %12.6lf\n", para.a);
+    printf("MKB Kernel Smooth Factor:                              %12.6lf\n", para.alpha);
+    printf("Number of Sampling Points in Global Search:            %12d\n", para.mG);
+    printf("Number of Sampling Points in Local Search:             %12d\n", para.mL);
+    printf("Ignore Signal Under (Angstrom):                        %12.6lf\n", para.ignoreRes);
+    printf("Correct Intensity Scale Using Signal Under (Angstrom): %12.6lf\n", para.sclCorRes);
+    printf("Grouping when Calculating Sigma:                       %12d\n", para.groupSig);
+    printf("Grouping when Correcting Intensity Scale:              %12d\n", para.groupScl);
+    printf("Mask Images with Zero Noise:                           %12d\n", para.zeroMask);
 }
 
 MLOptimiser::MLOptimiser() {}
@@ -1151,23 +1152,27 @@ void MLOptimiser::maskImg()
                  0,
                  0);
                  ***/
-    /***
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-        softMask(_img[l],
-                 _img[l],
-                 _para.maskRadius / _para.pixelSize,
-                 EDGE_WIDTH_RL,
-                 0);
-                 ****/
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-        softMask(_img[l],
-                 _img[l],
-                 _para.maskRadius / _para.pixelSize,
-                 EDGE_WIDTH_RL,
-                 0,
-                 _stdN);
+    if (_para.zeroMask)
+    {
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+            softMask(_img[l],
+                     _img[l],
+                     _para.maskRadius / _para.pixelSize,
+                     EDGE_WIDTH_RL,
+                     0);
+    }
+    else
+    {
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+            softMask(_img[l],
+                     _img[l],
+                     _para.maskRadius / _para.pixelSize,
+                     EDGE_WIDTH_RL,
+                     0,
+                     _stdN);
+    }
 }
 
 void MLOptimiser::normaliseImg()

@@ -168,6 +168,11 @@ typedef struct ML_OPTIMISER_PARA
      */
     bool groupScl;
 
+    /**
+     * mask the 2D images with zero background or gaussian noise
+     */
+    bool zeroMask;
+
 } MLOptimiserPara;
 
 void display(const MLOptimiserPara& para);

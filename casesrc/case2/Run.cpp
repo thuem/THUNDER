@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
     para.groupSig = true;
     para.groupScl = false;
     //para.groupScl = true;
+    para.zeroMask = false;
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;
