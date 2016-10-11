@@ -123,41 +123,49 @@ typedef struct ML_OPTIMISER_PARA
      */
     int iterMax;
     
-
-
+    /**
+     * padding factor
+     */
     int pf;
-    // pading factor
     
+    /**
+     * MKB kernel radius
+     */
     double a;
-    // parameter of the kernel MKB_FT
 
+    /**
+     * MKB kernel smooth factor
+     */
     double alpha;
-    // parameter of the kernel MKB_FT
 
-
-
+    /**
+     * number of sampling points in global search
+     */
     int mG;
-    // number of samplings in particle filter
 
+    /**
+     * number of sampling points in local search
+     */
     int mL;
-    // number of samplings in particle filter
 
-
-
-    // the information below this resolution will be ignored
+    /**
+     * the information below this resolution will be ignored
+     */
     double ignoreRes;
 
-    // the resolution boundary for performing intensity scale correction
+    /**
+     * the resolution boundary for performing intensity scale correction
+     */
     double sclCorRes;
 
-
-
-
-
-    // grouping or not when calculating sigma
+    /**
+     * grouping or not when calculating sigma
+     */
     bool groupSig;
 
-    // grouping or not when calculating intensity scale
+    /**
+     * grouping or not when calculating intensity scale
+     */
     bool groupScl;
 
 } MLOptimiserPara;
