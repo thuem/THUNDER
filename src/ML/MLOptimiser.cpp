@@ -765,20 +765,20 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
 
-        _res = _model.resolutionP(_para.thresReportFSC);
+        _resReport = _model.resolutionP(_para.thresReportFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
-                                   << _res
+                                   << _resReport
                                    << " (Spatial), "
-                                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
+                                   << 1.0 / resP2A(_resReport, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        _res = _model.resolutionP(_para.thresCutoffFSC);
+        _resCutoff = _model.resolutionP(_para.thresCutoffFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "
-                                   << _res
+                                   << _resCutoff
                                    << " (Spatial), "
-                                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
+                                   << 1.0 / resP2A(_resCutoff, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
@@ -2111,7 +2111,7 @@ void MLOptimiser::saveReference(const bool finished)
     {
         lowPassFilter(lowPass,
                       _model.ref(0),
-                      (double)_r / _para.size,
+                      (double)_resReport / _para.size,
                       (double)EDGE_WIDTH_FT / _para.size);
         fft.bwMT(lowPass);
     }

@@ -241,9 +241,14 @@ class MLOptimiser : public Parallel
         int _iter;
 
         /**
-         * current resolution (in Angstrom)
+         * current cutoff resolution (Angstrom)
          */
-        double _res;
+        double _resCutoff;
+
+        /**
+         * current report resolution (Angstrom)
+         */
+        double _resReport;
 
         /**
          * current search type
