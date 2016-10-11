@@ -1269,7 +1269,7 @@ void MLOptimiser::correctScale(const bool init,
     {
         #pragma omp parallel for
         for (int i = 0; i < _nGroup; i++)
-            _sig.row(i) /= gsl_pow_2(_scale(_groupID[l] - 1));
+            _sig.row(i) /= gsl_pow_2(_scale(i));
     }
 }
 
