@@ -430,38 +430,86 @@ class MLOptimiser : public Parallel
          */
         void displayStatImg();
 
+        /**
+         * substract the mean of background from the images, make the noise of
+         * the images has zero mean
+         */
         void substractBgImg();
 
+        /**
+         * mask the images
+         */
         void maskImg();
 
-        /* normlise 2D images */
+        /**
+         * normlise the images, make the noise of the images has a standard
+         * deviation equals to 1
+         */
         void normaliseImg();
 
-        /* perform Fourier transform */
+        /**
+         * perform Fourier transform on images
+         */
         void fwImg();
 
-        /* perform inverse Fourier transform */
+        /**
+         * perform inverse Fourier transform on images
+         */
         void bwImg();
 
+        /**
+         * initialise CTFs
+         */
         void initCTF();
 
+        /**
+         * initialise the switches on images which determine whether an image
+         * will be used in calculating sigma and recosntruction or not
+         */
         void initSwitch();
 
-        void initImgReduceCTF();
-
+        /**
+         * correct the intensity scale
+         *
+         * @param init  whether it is an initial correction or not
+         * @param group grouping or not
+         */
         void correctScale(const bool init = false,
                           const bool group = true);
 
+        /**
+         * initialise sigma
+         */
         void initSigma();
 
+        /**
+         * initialise particle filters
+         */
         void initParticles();
 
+        /**
+         * re-calculate the rotation change between this iteration and the
+         * previous one
+         */
         void refreshRotationChange();
 
+        /**
+         * re-calculate the rotation and translation variance
+         */
         void refreshVariance();
 
+        /**
+         * re-determine whether to use an image in calculating sigma and
+         * reconstruction or not
+         */
         void refreshSwitch();
 
+        /**
+         * re-calculate the intensity scale
+         *
+         * @param init  whether it is an initial correction or not
+         * @param group grouping or not
+         */
         void refreshScale(const bool init = false,
                           const bool group = true);
 
