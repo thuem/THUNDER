@@ -513,55 +513,93 @@ class MLOptimiser : public Parallel
         void refreshScale(const bool init = false,
                           const bool group = true);
 
+        /**
+         * re-calculate sigma
+         *
+         * @param group grouping or not
+         */
         void allReduceSigma(const bool group = true);
 
+        /**
+         * reconstruct reference
+         *
+         * @param mask whether mask on the reference is allowed or not
+         */
         void reconstructRef(const bool mask = true);
 
-        // for debug
-        // save the best projections to BMP file
+        /**
+         * for debug, save the best projections
+         */
         void saveBestProjections();
 
-        // for debug
-        // save images to BMP file
+        /**
+         * for debug, save the images
+         */
         void saveImages();
 
+        /**
+         * for debug, save the binning images
+         */
         void saveBinImages();
 
-        // debug
-        // save CTFs to BMP file
+        /**
+         * for debug, save the CTFs
+         */
         void saveCTFs();
 
-        /***
-        // for debug
-        // save images after removing CTFs
-        void saveReduceCTFImages();
-        ***/
-
-        // for debug
-        // save low pass filtered images
+        /**
+         * for debug, save the low pass filtered images
+         */
         void saveLowPassImages();
 
-        /***
-        // for debug
-        // save low pass filtered images after removing CTFs
-        void saveLowPassReduceCTFImages();
-        ***/
-
+        /**
+         * save the reference(s)
+         *
+         * @param finished whether it is the final round or not
+         */
         void saveReference(const bool finished = false);
 
+        /**
+         * save the mask
+         */
         void saveMask();
 
+        /**
+         * save FSC
+         */
         void saveFSC() const;
 };
 
+/**
+ * This function calculates the logarithm of the possibility that the image is
+ * from the projection.
+ *
+ * @param dat image
+ * @param pri projection
+ * @param ctf CTF
+ * @param sig sigma of noise
+ * @param rU  the upper boundary of frequency of the signal for comparison
+ * @param rL  the lower boundary of frequency of the signal for comparison
+ */
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sig,
                       const double rU,
                       const double rL);
-// dat -> data, pri -> prior, ctf
 
+/**
+ * This function calculates the logarithm of the possibility that the image is
+ * from the projection translation couple.
+ *
+ * @param dat image
+ * @param pri projection
+ * @param tra translation
+ * @param ctf CTF
+ * @param sig sigma of noise
+ * @param rU  the upper boundary of frequency of the signal for comparison
+ * @param rL  the lower boundary of frequency of the signal for comparison
+ */
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
@@ -570,6 +608,18 @@ double logDataVSPrior(const Image& dat,
                       const double rU,
                       const double rL);
 
+/**
+ * This function calculates the logarithm of the possibilities of a series of
+ * images is from a certain projection.
+ *
+ * @param dat     a series of images
+ * @param pri     a certain projection
+ * @param ctf     a series of CTFs corresponding to the images
+ * @param groupID the group the corresponding image belongs to
+ * @param sig     sigma of noise
+ * @param rU  the upper boundary of frequency of the signal for comparison
+ * @param rL  the lower boundary of frequency of the signal for comparison
+ */
 vec logDataVSPrior(const vector<Image>& dat,
                    const Image& pri,
                    const vector<Image>& ctf,
