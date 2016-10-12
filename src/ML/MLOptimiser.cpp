@@ -153,11 +153,6 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
         BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
 
-        /***
-        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
-        _model.lowPassRef(_r, EDGE_WIDTH_FT);
-        ***/
-
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
@@ -167,13 +162,6 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Initialising Switch";
 
         initSwitch();
-
-        /***
-        ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
-        BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
-
-        initImgReduceCTF();
-        ***/
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
@@ -1297,25 +1285,6 @@ void MLOptimiser::initSwitch()
     _switch.clear();
     _switch.resize(_ID.size());
 }
-
-/***
-void MLOptimiser::initImgReduceCTF()
-{
-    _imgReduceCTF.clear();
-    _imgReduceCTF.resize(_ID.size());
-
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-    {
-        _imgReduceCTF[l].alloc(_para.size, _para.size, FT_SPACE);
-
-        reduceCTF(_imgReduceCTF[l],
-                  _img[l],
-                  _ctf[l],
-                  maxR());
-    }
-}
-***/
 
 void MLOptimiser::correctScale(const bool init,
                                const bool group)
