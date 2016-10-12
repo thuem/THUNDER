@@ -647,9 +647,7 @@ void MLOptimiser::run()
     saveImages();
     saveBinImages();
     saveCTFs();
-    //saveReduceCTFImages();
     saveLowPassImages();
-    //saveLowPassReduceCTFImages();
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -1740,7 +1738,6 @@ void MLOptimiser::allReduceSigma(const bool group)
         // calculate differences
 
         _model.proj(0).projectMT(img, rot, tran);
-        //_model.proj(0).project(img, rot, tran);
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(img)
@@ -1772,15 +1769,6 @@ void MLOptimiser::allReduceSigma(const bool group)
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
-    /***
-    MPI_Allreduce(MPI_IN_PLACE,
-                  _sig.data(),
-                  (maxR() + 1) * _nGroup,
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-                  ***/
-
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
                   _r * _nGroup,
@@ -1797,11 +1785,6 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     MPI_Barrier(_hemi);
 
-    /***
-    for (int i = 0; i < _sig.rows(); i++)
-        _sig.row(i).head(maxR()) /= _sig(i, _sig.cols() - 1);
-        ***/
-    
     if (group)
     {
         for (int i = 0; i < _sig.rows(); i++)
@@ -1814,23 +1797,6 @@ void MLOptimiser::allReduceSigma(const bool group)
         for (int i = 1; i < _sig.rows(); i++)
             _sig.row(i).head(_r) = _sig.row(0).head(_r);
     }
-
-    /***
-    // make sigma above cutoff frequency the same as the sigma at the cutoff
-    // frequency
-    for (int i = _r; i < _sig.cols() - 1; i++)
-        _sig.col(i) = _sig.col(_r - 1);
-        ***/
-
-    /***
-    ALOG(INFO) << "Saving Sigma";
-    if (_commRank == HEMI_A_LEAD)
-    {
-        char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Sigma_%03d.txt", _iter + 1);
-        _sig.save(filename, raw_ascii);
-    }
-    ***/
 }
 
 void MLOptimiser::reconstructRef(const bool mask)
@@ -1885,9 +1851,6 @@ void MLOptimiser::reconstructRef(const bool mask)
 
         fft.bwMT(lowPassRef);
 
-        //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
-        //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
-        //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
         genMask(_mask,
                 lowPassRef,
                 GEN_MASK_EXT,
@@ -2021,34 +1984,6 @@ void MLOptimiser::saveCTFs()
     }
 }
 
-/***
-void MLOptimiser::saveReduceCTFImages()
-{
-    IF_MASTER return;
-
-    FFT fft;
-
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
-    char filename[FILE_NAME_LENGTH];
-
-    FOR_EACH_2D_IMAGE
-    {
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            reduceCTF(img, _img[l], _ctf[l], maxR());
-
-            sprintf(filename, "Image_ReduceCTF_%04d.bmp", _ID[l]);
-
-            fft.bw(img);
-            img.saveRLToBMP(filename);
-            fft.fw(img);
-        }
-    }
-}
-***/
-
 void MLOptimiser::saveLowPassImages()
 {
     IF_MASTER return;
@@ -2074,36 +2009,6 @@ void MLOptimiser::saveLowPassImages()
         }
     }
 }
-
-/***
-void MLOptimiser::saveLowPassReduceCTFImages()
-{
-    IF_MASTER return;
-
-    FFT fft;
-
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
-    char filename[FILE_NAME_LENGTH];
-
-    FOR_EACH_2D_IMAGE
-    {
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            reduceCTF(img, _img[l], _ctf[l], maxR());
-
-            lowPassFilter(img, _img[l], _para.pixelSize / 20, 1.0 / _para.size);
-
-            sprintf(filename, "Image_LowPass_ReduceCTF_%04d.bmp", _ID[l]);
-
-            fft.bw(img);
-            img.saveRLToBMP(filename);
-            fft.fw(img);
-        }
-    }
-}
-***/
 
 void MLOptimiser::saveReference(const bool finished)
 {
