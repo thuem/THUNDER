@@ -935,23 +935,34 @@ void MLOptimiser::initRef()
     ALOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
     BLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
+    Volume ref;
+
     ImageFile imf(_para.initModel, "rb");
     imf.readMetaData();
-    imf.readVolume(_model.ref(0));
+    //imf.readVolume(_model.ref(0));
+    imf.readVolume(ref);
 
-    /***
-    // perform normalise
-    normalise(_model.ref(0));
-    ***/
+    if ((ref.nColRL() != _para.size) ||
+        (ref.nRowRL() != _para.size) ||
+        (ref.nSlcRL() != _para.size))
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
+                                  << ": size = " << _para.size
+                                  << ", nCol = " << ref.nColRL()
+                                  << ", nRow = " << ref.nRowRL()
+                                  << ", nSlc = " << ref.nSlcRL();
 
-    /***
-    ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
-                              << _model.ref(0).nColRL()
-                              << " X "
-                              << _model.ref(0).nRowRL()
-                              << " X "
-                              << _model.ref(0).nSlcRL();
-    ***/
+        __builtin_unreachable();
+    }
+    
+    ALOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
+    BLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
+
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_RL(ref)
+        if (ref(i) < 0) ref(i) = 0;
+
+    VOL_PAD_RL(_model.ref(0), ref, 2);
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";

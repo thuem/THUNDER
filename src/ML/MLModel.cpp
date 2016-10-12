@@ -78,15 +78,6 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(Volume ref)
 {
-    if (((ref.nColRL() != _size * _pf) && (ref.nColRL() != 0)) ||
-        ((ref.nRowRL() != _size * _pf) && (ref.nRowRL() != 0)) ||
-        ((ref.nSlcRL() != _size * _pf) && (ref.nSlcRL() != 0)))
-        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
-                                  << ": _size = " << _size
-                                  << ", nCol = " << ref.nColRL()
-                                  << ", nRow = " << ref.nRowRL()
-                                  << ", nSlc = " << ref.nSlcRL();
-
     _ref.push_back(move(ref));
 }
 
