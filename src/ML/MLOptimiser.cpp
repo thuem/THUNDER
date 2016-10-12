@@ -196,6 +196,8 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    int nPer = 0;
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         // initialse a particle filter
@@ -235,6 +237,8 @@ void MLOptimiser::expectation()
         // perform expectations
 
         mat logW(_par[0].n(), _ID.size());
+
+        _nR = 0;
 
         #pragma omp parallel for schedule(dynamic) private(rot)
         for (int m = 0; m < nR; m++)
@@ -288,6 +292,22 @@ void MLOptimiser::expectation()
                 }
                 ***/
             }
+
+            #pragma omp atomic
+            _nR += 1;
+
+            #pragma omp critical
+            if (_nR > (int)(nR / 10))
+            {
+                _nR = 0;
+
+                nPer += 1;
+
+                ALOG(INFO, "LOGGER_ROUND") << nPer * 10
+                                           << "\% Initial Phase of Global Search Performed";
+                BLOG(INFO, "LOGGER_ROUND") << nPer * 10
+                                           << "\% Initial Phase of Global Search Performed";
+            }
         }
         
         // process logW
@@ -340,7 +360,7 @@ void MLOptimiser::expectation()
     _nF = 0;
     _nI = 0;
 
-    int nPer = 0;
+    nPer = 0;
 
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE

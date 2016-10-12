@@ -363,6 +363,8 @@ class MLOptimiser : public Parallel
          */
         int _nI = 0;
 
+        int _nR = 0;
+
     public:
         
         MLOptimiser();
