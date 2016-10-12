@@ -88,6 +88,11 @@ typedef struct ML_OPTIMISER_PARA
     double maskRadius;
 
     /**
+     * number of sampling points for scanning in global search
+     */
+    int mS;
+
+    /**
      * estimated translation (pixel)
      */
     double transS;
