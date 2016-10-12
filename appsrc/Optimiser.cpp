@@ -91,8 +91,6 @@ int main(int argc, char* argv[])
         __builtin_unreachable();
     }
 
-    display(para);
-
     MPI_Init(&argc, &argv);
 
     cout << "Setting Parameters" << endl;

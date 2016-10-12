@@ -636,6 +636,8 @@ void MLOptimiser::maximization()
 
 void MLOptimiser::run()
 {
+    IF_MASTER display(_para);
+
     MLOG(INFO, "LOGGER_ROUND") << "Initialising MLOptimiser";
 
     init();
