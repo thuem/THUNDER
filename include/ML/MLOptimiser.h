@@ -282,11 +282,6 @@ class MLOptimiser : public Parallel
         vector<Image> _img;
 
         /**
-         * 2D images after reducing CTF using Wiener filter
-         */
-        //vector<Image> _imgReduceCTF;
-
-        /**
          * a particle filter for each 2D image
          */
         vector<Particle> _par;
@@ -296,6 +291,10 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _ctf;
 
+        /**
+         * whether to use the image in calculating sigma and reconstruction or
+         * not
+         */
         vector<bool> _switch;
 
         /**
@@ -339,17 +338,15 @@ class MLOptimiser : public Parallel
          */
         double _stdStdN = 0;
 
+        /**
+         * whether to generate mask or not
+         */
         bool _genMask = false;
 
+        /**
+         * mask
+         */
         Volume _mask;
-
-        /***
-        double _noiseStddev = 0;
-
-        double _dataStddev = 0;
-
-        double _signalStddev = 0;
-        ***/
 
         /**
          * number of performed filtering in an iteration of a process
@@ -372,15 +369,9 @@ class MLOptimiser : public Parallel
         void setPara(const MLOptimiserPara& para);
 
         void init();
-        /* set parameters of _model
-         * setMPIEnv of _model
-         * read in images from hard-disk
-         * generate corresponding CTF */
 
-        //Yu Hongkun ,Wang Kunpeng
         void expectation();
 
-        //Guo Heng, Li Bing
         void maximization();
 
         void run();
@@ -389,29 +380,54 @@ class MLOptimiser : public Parallel
 
     private:
 
+        /**
+         * broadcast the number of images in each hemisphere
+         */
         void bCastNPar();
 
+        /**
+         * allreduce the total number of images
+         */
         void allReduceN();
 
+        /**
+         * the size of the image
+         */
         int size() const;
-        /* size of 2D image */
         
+        /**
+         * maximum frequency (pixel)
+         */
         int maxR() const;
-        /* max value of _r */
 
+        /**
+         * broadcast the group information
+         */
         void bcastGroupInfo();
-        /* broadcast information of groups */
 
+        /**
+         * initialise the reference
+         */
         void initRef();
 
+        /**
+         * initialise the ID of each image
+         */
         void initID();
-        /* save IDs from database */
 
-        /* read 2D images from hard disk */
+        /*
+         * read 2D images from hard disk and perform a series of processing
+         */
         void initImg();
 
+        /**
+         * do statistics on the signal and noise of the images
+         */
         void statImg();
 
+        /**
+         * display the statistics result of the signal and noise of the images
+         */
         void displayStatImg();
 
         void substractBgImg();
