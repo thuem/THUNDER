@@ -1868,8 +1868,8 @@ void MLOptimiser::reconstructRef(const bool mask)
 
     if (mask && !_mask.isEmptyRL())
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
