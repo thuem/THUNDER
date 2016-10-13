@@ -2244,16 +2244,29 @@ vec logDataVSPrior(const vector<Image>& dat,
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
                                / (-2 * sig(groupID[l] - 1, v));
-                    /***
-                    result(l) += gsl_pow_2(REAL(ctf[l].iGetFT(index)))
-                               * ABS2(dat[l].iGetFT(index)
-                                    - REAL(ctf[l].iGetFT(index))
-                                    * pri.iGetFT(index))
-                               / (-2 * sig(groupID[l] - 1, v));
-                    ***/
                 }
             }
         }
+    }
+
+    return result;
+}
+
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int* iPxl,
+                   const int* iSig,
+                   const int m)
+{
+    int n = dat.size();
+
+    vec result = vec::Zero(n);
+
+    for (int l = 0; l < n; l++)
+    {
     }
 
     return result;
