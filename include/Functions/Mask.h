@@ -221,6 +221,17 @@ void genMask(Volume& dst,
              const Volume& src,
              const double thres);
 
+void genMask(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ext);
+
+void genMask(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ext,
+             const double ew);
+
 /**
  * This function generates a mask on a volume. The standard for generating mask is
  * that if the density of a voxel is larger than a threshold.

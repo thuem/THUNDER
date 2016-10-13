@@ -381,6 +381,27 @@ void genMask(Volume& dst,
     removeIsolatedPoint(dst);
 }
 
+void genMask(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ext)
+{
+    genMask(dst, src, thres);
+
+    extMask(dst, ext);
+}
+
+void genMask(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ext,
+             const double ew)
+{
+    genMask(dst, src, thres, ext);
+
+    softEdge(dst, ew);
+}
+
 void autoMask(Volume& dst,
               const Volume& src,
               const double r)

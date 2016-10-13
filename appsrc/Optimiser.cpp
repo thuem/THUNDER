@@ -19,16 +19,6 @@
 #include "Experiment.h"
 #include "MLOptimiser.h"
 
-#define PF 2
-
-#define N 380
-#define TRANS_S 20
-
-#define PIXEL_SIZE 1.30654
-
-#define MG 1000
-#define ML 100
-
 using namespace std;
 
 void readPara(MLOptimiserPara& dst,
