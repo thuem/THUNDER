@@ -83,8 +83,7 @@ void Postprocess::run()
 
     lowPassMapI.clearFT();
 
-    //genMask(_mask, _mapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
-    genMask(_mask, lowPassMapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
+    autoMask(_mask, lowPassMapI, GEN_MASK_EXT, GEN_MASK_EDGE_WIDTH, _size * 0.5);
 
     lowPassMapI.clearRL();
 

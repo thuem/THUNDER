@@ -29,7 +29,6 @@ double background(const Image& img,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
-            //double w = 0.5 + 0.5 * cos((u - r) / ew * M_PI);
             weightSum += w;
             sum += img.getRL(i, j) * w;
         }
@@ -77,7 +76,6 @@ double background(const Volume& vol,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
-            //double w = 0.5 + 0.5 * cos((u - r) / ew * M_PI);
 
             #pragma omp atomic
             weightSum += w;
@@ -136,7 +134,6 @@ void softMask(Image& dst,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
-            //dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
             dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
         }
         else
@@ -168,7 +165,6 @@ void softMask(Image& dst,
             else
             {
                 double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
-                //dst.setRL(bg * (1 - w) + src.getRL(i, j) * w, i, j);
                 dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
             }
         }
@@ -192,7 +188,6 @@ void softMask(Image& dst,
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         double w = 1 - alpha.getRL(i, j); // portion of background
-        //dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
         dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
     }
 }
@@ -211,7 +206,6 @@ void softMask(Image& dst,
 
         double bg = bgMean + gsl_ran_gaussian(engine, bgStd);
 
-        //dst.setRL(bg * (1 - w) + w * src.getRL(i, j), i, j);
         dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
     }
 }
@@ -233,7 +227,6 @@ void softMask(Volume& dst,
         else if (u >= r)
         {
             double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
-            //dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
             dst.setRL(bg * w + src.getRL(i, j, k) * (1 - w), i, j, k);
         }
         else
@@ -259,29 +252,139 @@ void softMask(Volume& dst,
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
         double w = 1 - alpha.getRL(i, j, k); // portion of background
-        //dst.setRL(bg * (1 - w) + w * src.getRL(i, j, k), i, j, k);
         dst.setRL(bg * w + src.getRL(i, j, k) * (1 - w), i, j, k);
+    }
+}
+
+void removeIsolatedPoint(Volume& vol)
+{
+    Volume volTmp = vol.copyVolume();
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
+        if (vol.getRL(i, j, k) == 1)
+        {
+            bool isolated = true;
+
+            if (((i - 1 >= -vol.nColRL() / 2) &&
+                 (vol.getRL(i - 1, j, k) == 1)) ||
+                ((j - 1 >= -vol.nRowRL() / 2) &&
+                 (vol.getRL(i, j - 1, k) == 1)) ||
+                ((k - 1 >= -vol.nSlcRL() / 2) &&
+                 (vol.getRL(i, j, k - 1) == 1)) ||
+                ((i + 1 < vol.nColRL() / 2) &&
+                 (vol.getRL(i + 1, j, k) == 1)) ||
+                ((j + 1 < vol.nRowRL() / 2) &&
+                 (vol.getRL(i, j + 1, k) == 1)) ||
+                ((k + 1 < vol.nSlcRL() / 2) &&
+                 (vol.getRL(i, j, k + 1) == 1)))
+                isolated = false;
+
+            if (isolated) volTmp.setRL(0, i, j, k);
+        }
+
+    vol = move(volTmp);
+}
+
+void extMask(Volume& vol,
+             const double ext)
+{
+    Volume volTmp = vol.copyVolume();
+
+    int a = CEIL(abs(ext));
+
+    if (ext > 0)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(vol)
+            if (vol.getRL(i, j, k) == 1)
+                VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
+                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
+                        volTmp.setRL(1, i + x, j + y, k + z);
+    }
+    else if (ext < 0)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(vol)
+            if (vol.getRL(i, j, k) == 0)
+                VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
+                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
+                        volTmp.setRL(0, i + x, j + y, k + z);
+    }
+
+    vol = move(volTmp);
+}
+
+void softEdge(Volume& vol,
+              const double ew)
+{
+    int a = CEIL(ew);
+
+    Volume distance(vol.nColRL(),
+                    vol.nRowRL(),
+                    vol.nSlcRL(),
+                    RL_SPACE);
+
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_RL(distance)
+        distance(i) = FLT_MAX;
+
+    omp_lock_t* mtx = new omp_lock_t[vol.sizeRL()];
+
+    #pragma omp parallel for
+    for (int i = 0; i < (int)vol.sizeRL(); i++)
+        omp_init_lock(&mtx[i]);
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
+        if (vol.getRL(i, j, k) == 1)
+            VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
+            {
+                double d = NORM_3(x, y, z);
+
+                if (d < ew)
+                {
+                    int index = distance.iRL(i + x, j + y, k + z);
+                    omp_set_lock(&mtx[index]);
+                    if (distance(index) > d) distance(index) = d;
+                    omp_unset_lock(&mtx[index]);
+                }
+            }
+
+    #pragma omp parallel for
+    for (int i = 0; i < (int)vol.sizeRL(); i++)
+        omp_destroy_lock(&mtx[i]);
+
+    delete[] mtx;
+
+    #pragma omp parallel for schedule(dynamic)
+    FOR_EACH_PIXEL_RL(vol)
+    {
+        double d = distance(i);
+        if ((d != 0) && (d < ew))
+            vol(i) = 0.5 + 0.5 * cos(d / ew * M_PI);
     }
 }
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double r)
+             const double thres)
 {
-    /***
-    vector<double> bg;
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if ((QUAD_3(i, j, k) < gsl_pow_2(r)) &&
-            (QUAD_3(i, j, k) > gsl_pow_2(r * 0.85)))
-            bg.push_back(src.getRL(i, j, k));
+        if (src.getRL(i, j, k) > thres)
+            dst.setRL(1, i, j, k);
+        else
+            dst.setRL(0, i, j, k);
 
-    double mean = gsl_stats_mean(&bg[0], 1, bg.size());
-    double std = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+    // remove isolated point
+    removeIsolatedPoint(dst);
+}
 
-    cout << "mean = " << mean << endl;
-    cout << "std = " << std << endl;
-    ***/
-
+void autoMask(Volume& dst,
+              const Volume& src,
+              const double r)
+{
     vector<double> data;
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if (QUAD_3(i, j, k) < gsl_pow_2(r))
@@ -289,9 +392,6 @@ void genMask(Volume& dst,
 
     size_t n = data.size();
 
-    // sort data
-    //gsl_sort(&data[0], 1, n);
-    //gsl_sort_largest(&data[0], n, 
     sort(&data[0],
          &data[0] + n,
          [](const double x, const double y) { return x > y; });
@@ -305,9 +405,6 @@ void genMask(Volume& dst,
     for (start = 0; start < n; start++)
         if (partialSum[start + 1] > totalSum * GEN_MASK_INIT_STEP)
             break;
-
-    //cout << "start = " << start << endl;
-    //cout << "startThres = " << data[start] << endl;
 
     double thres = 0;
 
@@ -340,130 +437,26 @@ void genMask(Volume& dst,
         }
     }
 
-    //cout << "thres = " << thres << endl;
-
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (src.getRL(i, j, k) > thres)
-            dst.setRL(1, i, j, k);
-        else
-            dst.setRL(0, i, j, k);
-
-    // remove isolated point
-
-    Volume dstTmp = dst.copyVolume();
-
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_RL(dst)
-        if (dst.getRL(i, j, k) == 1)
-        {
-            bool isolated = true;
-
-            if (((i - 1 >= -dst.nColRL() / 2) &&
-                 (dst.getRL(i - 1, j, k) == 1)) ||
-                ((j - 1 >= -dst.nRowRL() / 2) &&
-                 (dst.getRL(i, j - 1, k) == 1)) ||
-                ((k - 1 >= -dst.nSlcRL() / 2) &&
-                 (dst.getRL(i, j, k - 1) == 1)) ||
-                ((i + 1 < dst.nColRL() / 2) &&
-                 (dst.getRL(i + 1, j, k) == 1)) ||
-                ((j + 1 < dst.nRowRL() / 2) &&
-                 (dst.getRL(i, j + 1, k) == 1)) ||
-                ((k + 1 < dst.nSlcRL() / 2) &&
-                 (dst.getRL(i, j, k + 1) == 1)))
-                isolated = false;
-
-            if (isolated) dstTmp.setRL(0, i, j, k);
-        }
-
-    dst = move(dstTmp);
+    genMask(dst, src, thres);
 }
 
-void genMask(Volume& dst,
-             const Volume& src,
-             const double ext,
-             const double r)
+void autoMask(Volume& dst,
+              const Volume& src,
+              const double ext,
+              const double r)
 {
-    genMask(dst, src, r);
+    autoMask(dst, src, r);
 
-    Volume dstTmp = dst.copyVolume();
-
-    int a = CEIL(abs(ext));
-
-    if (ext > 0)
-    {
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(dst)
-            if (dst.getRL(i, j, k) == 1)
-                VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
-                        dstTmp.setRL(1, i + x, j + y, k + z);
-    }
-    else if (ext < 0)
-    {
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(dst)
-            if (dst.getRL(i, j, k) == 0)
-                VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
-                        dstTmp.setRL(0, i + x, j + y, k + z);
-    }
-
-    dst = move(dstTmp);
+    extMask(dst, ext);
 }
 
-void genMask(Volume& dst,
-             const Volume& src,
-             const double ext,
-             const double ew,
-             const double r)
+void autoMask(Volume& dst,
+              const Volume& src,
+              const double ext,
+              const double ew,
+              const double r)
 {
-    genMask(dst, src, ext, r);
+    autoMask(dst, src, ext, r);
 
-    int a = CEIL(ew);
-
-    Volume distance(dst.nColRL(),
-                    dst.nRowRL(),
-                    dst.nSlcRL(),
-                    RL_SPACE);
-
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_RL(distance)
-        distance(i) = FLT_MAX;
-
-    omp_lock_t* mtx = new omp_lock_t[dst.sizeRL()];
-
-    #pragma omp parallel for
-    for (int i = 0; i < (int)dst.sizeRL(); i++)
-        omp_init_lock(&mtx[i]);
-
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_RL(dst)
-        if (dst.getRL(i, j, k) == 1)
-            VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-            {
-                double d = NORM_3(x, y, z);
-
-                if (d < ew)
-                {
-                    int index = distance.iRL(i + x, j + y, k + z);
-                    omp_set_lock(&mtx[index]);
-                    if (distance(index) > d) distance(index) = d;
-                    omp_unset_lock(&mtx[index]);
-                }
-            }
-
-    #pragma omp parallel for
-    for (int i = 0; i < (int)dst.sizeRL(); i++)
-        omp_destroy_lock(&mtx[i]);
-
-    delete[] mtx;
-
-    #pragma omp parallel for schedule(dynamic)
-    FOR_EACH_PIXEL_RL(dst)
-    {
-        double d = distance(i);
-        if ((d != 0) && (d < ew))
-            dst(i) = 0.5 + 0.5 * cos(d / ew * M_PI);
-    }
+    softEdge(dst, ew);
 }

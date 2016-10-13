@@ -209,21 +209,30 @@ void softMask(Volume& dst,
               const Volume& alpha,
               const double bg);
 
+void removeIsolatedPoint(Volume& vol);
+
+void extMask(Volume& vol,
+             const double ext);
+
+void softEdge(Volume& vol,
+              const double ew);
+
+void genMask(Volume& dst,
+             const Volume& src,
+             const double thres);
+
 /**
  * This function generates a mask on a volume. The standard for generating mask is
- * that if the density of a voxel is larger than a threshold, the voxel of the
- * layer will be set to 1, otherwise it will be set to 0. The threshold is
- * calculated by the mean and stadard deviation of the background (3/4 radius to
- * radius part).
+ * that if the density of a voxel is larger than a threshold.
  *
  * @param dst destination volume
  * @param src source volume
  * @param dt  the density threshold factor (typyical value, 10)
  * @param r   the radius of the ball containing information
  */
-void genMask(Volume& dst,
-             const Volume& src,
-             const double r);
+void autoMask(Volume& dst,
+              const Volume& src,
+              const double r);
 
 /**
  * This function generates a mask on a volume. The mask is generated in the
@@ -247,10 +256,10 @@ void genMask(Volume& dst,
  * @param ext the length of extending in pixel (typical value, 3)
  * @param r   the radius of the ball containing information
  */
-void genMask(Volume& dst,
-             const Volume& src,
-             const double ext,
-             const double r);
+void autoMask(Volume& dst,
+              const Volume& src,
+              const double ext,
+              const double r);
 
 /**
  * This function generates a mask on a volume. The mask is generated in the
@@ -276,10 +285,10 @@ void genMask(Volume& dst,
  * @param ew  the edge width of masking (typical value, 6)
  * @param r   the radius of the ball containing information
  */
-void genMask(Volume& dst,
-             const Volume& src,
-             const double ext,
-             const double ew,
-             const double r);
+void autoMask(Volume& dst,
+              const Volume& src,
+              const double ext,
+              const double ew,
+              const double r);
 
 #endif // MASK_H

@@ -1840,11 +1840,11 @@ void MLOptimiser::reconstructRef(const bool mask)
 
         fft.bwMT(lowPassRef);
 
-        genMask(_mask,
-                lowPassRef,
-                GEN_MASK_EXT,
-                GEN_MASK_EDGE_WIDTH,
-                _para.size * 0.5);
+        autoMask(_mask,
+                 lowPassRef,
+                 GEN_MASK_EXT,
+                 GEN_MASK_EDGE_WIDTH,
+                 _para.size * 0.5);
 
         saveMask();
 
