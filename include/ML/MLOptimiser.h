@@ -122,9 +122,9 @@ typedef struct ML_OPTIMISER_PARA
      */
     char db[FILE_NAME_LENGTH];
 
-    bool performMask;
+    bool performMask = true;
 
-    bool autoMask;
+    bool autoMask = true;
 
     char mask[FILE_NAME_LENGTH];
 
@@ -136,17 +136,17 @@ typedef struct ML_OPTIMISER_PARA
     /**
      * padding factor
      */
-    int pf;
+    int pf = 2;
     
     /**
      * MKB kernel radius
      */
-    double a;
+    double a = 1.9;
 
     /**
      * MKB kernel smooth factor
      */
-    double alpha;
+    double alpha = 10;
 
     /**
      * number of sampling points in global search
