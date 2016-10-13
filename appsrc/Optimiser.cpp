@@ -36,6 +36,10 @@ void readPara(MLOptimiserPara& dst,
     sprintf(dst.initModel, src["Initial Model"].asString().c_str());
     sprintf(dst.db, src["Sqlite3 File Storing Paths and CTFs of Images"].asString().c_str());
 
+    dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
+    dst.autoMask = src["Reference Mask"]["Automask"].asBool();
+    sprintf(dst.mask, src["Reference Mask"]["Provided Mask"].asString().c_str());
+
     dst.iterMax = src["Advanced"]["Max Number of Iteration"].asInt();
     dst.pf = src["Advanced"]["Padding Factor"].asInt();
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();

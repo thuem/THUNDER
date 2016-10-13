@@ -22,6 +22,10 @@ void display(const MLOptimiserPara& para)
     printf("Symmetry:                                              %12s\n", para.sym);
     printf("Initial Model:                                         %12s\n", para.initModel);
     printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
+    
+    printf("Perform Reference Mask:                                %12d\n", para.performMask);
+    printf("Automask:                                              %12d\n", para.autoMask);
+    printf("Mask:                                                  %12s\n", para.mask);
 
     printf("Max Number of Iteration:                               %12d\n", para.iterMax);
     printf("Padding Factor:                                        %12d\n", para.pf);
@@ -135,6 +139,14 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
+        if (_para.performMask && !_para.autoMask)
+        {
+            ALOG(INFO, "LOGGER_INIT") << "Reading Mask";
+            BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
+
+            initMask();
+        }
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
         BLOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
 
@@ -639,7 +651,7 @@ void MLOptimiser::maximization()
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-    reconstructRef();
+    reconstructRef(_para.performMask);
 }
 
 void MLOptimiser::run()
@@ -818,7 +830,9 @@ void MLOptimiser::run()
         {
             _searchType = _model.searchType();
 
-            if (_searchType == SEARCH_TYPE_LOCAL)
+            if (_para.performMask &&
+                _para.autoMask &&
+                (_searchType == SEARCH_TYPE_LOCAL))
             {
                 MLOG(INFO, "LOGGER_ROUND") << "A Mask Should be Generated";
 
@@ -947,7 +961,6 @@ void MLOptimiser::initRef()
 
     ImageFile imf(_para.initModel, "rb");
     imf.readMetaData();
-    //imf.readVolume(_model.ref(0));
     imf.readVolume(ref);
 
     if ((ref.nColRL() != _para.size) ||
@@ -978,11 +991,13 @@ void MLOptimiser::initRef()
     FFT fft;
     fft.fwMT(_model.ref(0));
     _model.ref(0).clearRL();
-    /***
-    fft.bw(_model.ref(0));
-    fft.fw(_model.ref(0));
-    _model.ref(0).clearRL();
-    ***/
+}
+
+void MLOptimiser::initMask()
+{
+    ImageFile imf(_para.mask, "rb");
+    imf.readMetaData();
+    imf.readVolume(_mask);
 }
 
 void MLOptimiser::initID()

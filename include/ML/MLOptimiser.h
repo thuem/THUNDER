@@ -122,6 +122,12 @@ typedef struct ML_OPTIMISER_PARA
      */
     char db[FILE_NAME_LENGTH];
 
+    bool performMask;
+
+    bool autoMask;
+
+    char mask[FILE_NAME_LENGTH];
+
     /**
      * max number of iteration
      */
@@ -416,6 +422,11 @@ class MLOptimiser : public Parallel
          * initialise the reference
          */
         void initRef();
+
+        /**
+         * read mask
+         */
+        void initMask();
 
         /**
          * initialise the ID of each image
