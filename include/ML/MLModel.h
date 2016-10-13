@@ -29,9 +29,11 @@
 #define FOR_EACH_CLASS \
     for (int i = 0; i < _k; i++)
 
-#define SEARCH_RES_GAP_GLOBAL 5
+//#define SEARCH_RES_GAP_GLOBAL 5
+#define SEARCH_RES_GAP_GLOBAL 10
 
-#define SEARCH_RES_GAP_LOCAL 20
+//#define SEARCH_RES_GAP_LOCAL 20
+#define SEARCH_RES_GAP_LOCAL 40
 
 #define SEARCH_TYPE_STOP -1
 
@@ -39,7 +41,8 @@
 
 #define SEARCH_TYPE_LOCAL 1
 
-#define A_B_AVERAGE_THRES 20 // Angstrom
+//#define A_B_AVERAGE_THRES 20 // Angstrom
+#define A_B_AVERAGE_THRES 15 // Angstrom
 
 #define MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL 2
 
@@ -472,6 +475,8 @@ class MLModel : public Parallel
          * @param thres the threshold for determining resolution
          */
         void updateR(const double thres = 0.143);
+
+        void elevateR(const double thres = 0.143);
 
         /**
          * This function returns the concentration parameter of the rotation.

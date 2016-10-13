@@ -61,6 +61,13 @@ foreach (TSTSRC ${TEST_SOURCES})
     add_executable(${TSTNAME} ${TSTSRC})
 endforeach()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/app)
+file(GLOB APP_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
+foreach (APPSRC ${APP_SOURCES})
+    get_filename_component(APPNAME ${APPSRC} NAME_WE)
+    add_executable(${APPNAME} ${APPSRC})
+endforeach()
+
 file(GLOB_RECURSE CASE_SOURCES ${PROJECT_SOURCE_DIR}/casesrc/*.cpp)
 foreach (CASESRC ${CASE_SOURCES})
     get_filename_component(CASENAME ${CASESRC} NAME_WE)

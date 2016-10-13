@@ -270,3 +270,27 @@ void extract(Image& dst,
     IMAGE_FOR_EACH_PIXEL_RL(dst)
         dst.setRL(src.getRL(i + xOff, j + yOff), i, j);
 }
+
+void binning(Image& dst,
+             const Image& src,
+             const int bf)
+{
+    int nCol = src.nColRL() / bf;
+    int nRow = src.nRowRL() / bf;
+
+    dst.alloc(nCol, nRow, RL_SPACE);
+
+    IMAGE_FOR_EACH_PIXEL_RL(dst)
+    {
+        double sum = 0;
+
+        for (int y = 0; y < bf; y++)
+            for (int x = 0; x < bf; x++)
+                sum += src.getRL(bf * i + x,
+                                 bf * j + y);
+
+        dst.setRL(sum / gsl_pow_2(bf),
+                  i,
+                  j);
+    }
+}

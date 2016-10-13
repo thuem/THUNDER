@@ -36,34 +36,53 @@ void Image::alloc(const int nCol,
     if (space == RL_SPACE)
     {
         clearRL();
+
         _sizeRL = nCol * nRow;
         _sizeFT = (nCol / 2 + 1) * nRow;
+
         _dataRL.reset(new double[_sizeRL]);
     }
     else if (space == FT_SPACE)
     {
         clearFT();
+
         _sizeRL = nCol * nRow;
         _sizeFT = (nCol / 2 + 1) * nRow;
+
         _dataFT.reset(new Complex[_sizeFT]);
     }
 }
 
 void Image::saveRLToBMP(const char* filename) const
 {
-    float* image = new float[_sizeRL];
+    int nRowBMP = _nRow / 4 * 4;
+    int nColBMP = _nCol / 4 * 4;
 
+    //float* image = new float[_sizeRL];
+
+    float* image = new float[nRowBMP * nColBMP];
+
+    /***
     for (int i = 0; i < _nRow; i++)
         for (int j = 0; j < _nCol; j++)
             image[(i + _nRow / 2) % _nRow * _nCol
                  +(j + _nCol / 2) % _nCol] = _dataRL[i * _nCol + j];
+                 ***/
+
+    for (int i = -nRowBMP / 2; i < nRowBMP / 2; i++)
+        for (int j = -nColBMP / 2; j < nColBMP / 2; j++)
+            image[(i + nRowBMP / 2)
+                * nColBMP
+                + (j + nColBMP / 2)] = _dataRL[(i >= 0 ? i : i + _nRow)
+                                             * _nCol
+                                             + (j >= 0 ? j : j + _nCol)];
 
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
         REPORT_ERROR("Fail to open bitcamp file.");
 
-    if (bmp.createBMP(image, _nCol, _nRow) == false)
+    if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
         REPORT_ERROR("Fail to create BMP image.");
 
     bmp.close();
@@ -73,8 +92,17 @@ void Image::saveRLToBMP(const char* filename) const
 
 void Image::saveFTToBMP(const char* filename, double c) const
 {
-    float* image = new float[_sizeRL];
+    int nRowBMP = _nRow / 4 * 4;
+    int nColBMP = _nCol / 4 * 4;
 
+    // CLOG(INFO, "LOGGER_SYS") << "_sizeRL = " << _sizeRL;
+
+    //float* image = new float[_sizeRL];
+    float* image = new float[nRowBMP * nColBMP];
+
+    // CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
+
+    /***
     for (int i = 0; i < _nRow; i++)
         for (int j = 0; j <= _nCol / 2; j++)
         {
@@ -85,19 +113,35 @@ void Image::saveFTToBMP(const char* filename, double c) const
             int jImage = (j + _nCol / 2 ) % _nCol;
             image[_nCol * iImage + jImage] = value;
         }
+        ***/
 
-    for (int i = 1; i < _nRow; i++)
-        for (int j = 1; j < _nCol / 2; j++)
+    for (int i = 0; i < nRowBMP; i++)
+        for (int j = 0; j <= nColBMP / 2; j++)
         {
-            size_t iDst = i * _nCol + j;
-            size_t iSrc = (_nRow - i + 1) * _nCol - j;
+            double value = gsl_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
+            value = log(1 + value * c);
+
+            int iImage = (i + nRowBMP / 2) % nRowBMP;
+            int jImage = (j + nColBMP / 2) % nColBMP;
+            image[nColBMP * iImage + jImage] = value;
+        }
+
+    // CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
+
+    for (int i = 1; i < nRowBMP; i++)
+        for (int j = 1; j < nColBMP / 2; j++)
+        {
+            size_t iDst = i * nColBMP + j;
+            size_t iSrc = (nRowBMP - i + 1) * nColBMP - j;
             image[iDst] = image[iSrc];
         }
 
-    for (int j = 1; j < _nCol / 2; j++)
+    // CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
+
+    for (int j = 1; j < nColBMP / 2; j++)
     {
         int iDst = j;
-        int iSrc = _nCol - j;
+        int iSrc = nColBMP - j;
         image[iDst] = image[iSrc];
     }
 
@@ -105,7 +149,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
 
     if (bmp.open(filename, "wb") == 0)
         REPORT_ERROR("Fail to open bitcamp file.");
-    if (bmp.createBMP(image, _nCol, _nRow) == false)
+    if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
         REPORT_ERROR("Fail to create BMP image.");
     bmp.close();
 

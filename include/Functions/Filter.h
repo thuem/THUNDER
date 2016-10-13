@@ -18,8 +18,9 @@
 
 /**
  * This function performs a B-factor filtering on an image.
- * @param dst destination image in Fourier space
- * @param src source image in Fourier space
+ *
+ * @param dst     destination image in Fourier space
+ * @param src     source image in Fourier space
  * @param bFactor B-factor in spatial frequency
  */
 void bFactorFilter(Image& dst,
@@ -28,8 +29,9 @@ void bFactorFilter(Image& dst,
 
 /**
  * This function performs a B-factor filtering on a volume.
- * @param dst destination volume in Fourier space
- * @param src source volume in Fourier space
+ *
+ * @param dst     destination volume in Fourier space
+ * @param src     source volume in Fourier space
  * @param bFactor B-factor in spatial frequency
  */
 void bFactorFilter(Volume& dst,
@@ -38,10 +40,11 @@ void bFactorFilter(Volume& dst,
 
 /**
  * This function performs a low pass filtering on an image.
- * @param dst destination image in Fourier space
- * @param src source image in Fourier space
+ * 
+ * @param dst   destination image in Fourier space
+ * @param src   source image in Fourier space
  * @param thres threshold of spatial frequency
- * @param ew edge width
+ * @param ew    edge width
  */
 void lowPassFilter(Image& dst,
                    const Image& src,
@@ -50,10 +53,11 @@ void lowPassFilter(Image& dst,
 
 /**
  * This function performs a low pass filtering on a volume.
- * @param dst destination volume in Fourier space
- * @param src source volume in Fourier space
+ *
+ * @param dst   destination volume in Fourier space
+ * @param src   source volume in Fourier space
  * @param thres threshold of spatial frequency
- * @param ew edge width
+ * @param ew    edge width
  */
 void lowPassFilter(Volume& dst,
                    const Volume& src,
@@ -62,10 +66,11 @@ void lowPassFilter(Volume& dst,
 
 /**
  * This function performs a high pass filtering on an image.
- * @param dst destination image in Fourier space
- * @param src source image in Fourier space
+ *
+ * @param dst   destination image in Fourier space
+ * @param src   source image in Fourier space
  * @param thres threshold of spatial frequency
- * @param ew edge width
+ * @param ew    edge width
  */
 void highPassFilter(Image& dst,
                     const Image& src,
@@ -74,10 +79,11 @@ void highPassFilter(Image& dst,
 
 /**
  * This function performs a high pass filtering on a volume.
- * @param dst destination volume in Fourier space
- * @param src source volume in Fourier space
+ *
+ * @param dst   destination volume in Fourier space
+ * @param src   source volume in Fourier space
  * @param thres threshold of spatial frequency
- * @param ew edge width
+ * @param ew    edge width
  */
 void highPassFilter(Volume& dst,
                     const Volume& src,
@@ -86,6 +92,7 @@ void highPassFilter(Volume& dst,
 
 /**
  * This functions performs a weighting filtering on a volume based on FSC.
+ *
  * @param dst destination volume in Fourier space
  * @param src source volume in Fourier space
  * @param fsc FSC (Fourier Ring Coefficient) on which the weighting filtering

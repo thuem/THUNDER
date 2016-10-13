@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Ice
  * Dependecy:
  * Test:
  * Execution:
@@ -8,25 +8,19 @@
 
 #include <iostream>
 
-#include "Euler.h"
-
-using namespace std;
+#include "Postprocess.h"
 
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
-{
-    /***
-    vec3 axis = {0, 0, 1};
+{   
+    loggerInit(argc, argv);
 
-    mat33 mat;
-    alignZ(mat, axis);
-    ***/
+    Postprocess pp(argv[1],
+                   argv[2],
+                   atof(argv[3]));
 
-    mat33 rot;
-    randRotate3D(rot);
-
-    cout << rot << endl;
+    pp.run();
 
     return 0;
 }

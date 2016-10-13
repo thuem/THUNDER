@@ -10,6 +10,38 @@
 
 #include "MLOptimiser.h"
 
+void display(const MLOptimiserPara& para)
+{
+    printf("Number of Classes:                                     %12d\n", para.k);
+    printf("Size of Image:                                         %12d\n", para.size);
+    printf("Pixel Size (Angstrom):                                 %12.6lf\n", para.pixelSize); 
+    printf("Radius of Mask on Images (Angstrom):                   %12.6lf\n", para.maskRadius);
+    printf("Estimated Translation (Pixel):                         %12.6lf\n", para.transS);
+    printf("Initial Resolution (Angstrom):                         %12.6lf\n", para.initRes);
+    printf("Perform Global Search Under (Angstrom):                %12.6lf\n", para.globalSearchRes);
+    printf("Symmetry:                                              %12s\n", para.sym);
+    printf("Initial Model:                                         %12s\n", para.initModel);
+    printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
+    
+    printf("Perform Reference Mask:                                %12d\n", para.performMask);
+    printf("Automask:                                              %12d\n", para.autoMask);
+    printf("Mask:                                                  %12s\n", para.mask);
+
+    printf("Max Number of Iteration:                               %12d\n", para.iterMax);
+    printf("Padding Factor:                                        %12d\n", para.pf);
+    printf("MKB Kernel Radius:                                     %12.6lf\n", para.a);
+    printf("MKB Kernel Smooth Factor:                              %12.6lf\n", para.alpha);
+    printf("Number of Sampling Points in Global Search:            %12d\n", para.mG);
+    printf("Number of Sampling Points in Local Search:             %12d\n", para.mL);
+    printf("Ignore Signal Under (Angstrom):                        %12.6lf\n", para.ignoreRes);
+    printf("Correct Intensity Scale Using Signal Under (Angstrom): %12.6lf\n", para.sclCorRes);
+    printf("FSC Threshold for Cutoff Frequency:                    %12.6lf\n", para.thresCutoffFSC);
+    printf("FSC Threshold for Reporting Resolution:                %12.6lf\n", para.thresReportFSC);
+    printf("Grouping when Calculating Sigma:                       %12d\n", para.groupSig);
+    printf("Grouping when Correcting Intensity Scale:              %12d\n", para.groupScl);
+    printf("Mask Images with Zero Noise:                           %12d\n", para.zeroMask);
+}
+
 MLOptimiser::MLOptimiser() {}
 
 MLOptimiser::~MLOptimiser()
@@ -62,6 +94,16 @@ void MLOptimiser::init()
                               << _rL
                               << " (Pixel) will be Ingored during Comparison";
 
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _para.sclCorRes
+                              << " Angstrom will be Used for Performing Intensity Scale Correction";
+
+    _rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
+
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _rS
+                              << " (Pixel) will be Used for Performing Intensity Scale Correction";
+
     MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
     _model.setRGlobal(AROUND(resA2P(1.0 / _para.globalSearchRes,
@@ -97,6 +139,14 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
+        if (_para.performMask && !_para.autoMask)
+        {
+            ALOG(INFO, "LOGGER_INIT") << "Reading Mask";
+            BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
+
+            initMask();
+        }
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
         BLOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
 
@@ -115,11 +165,6 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
         BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
 
-        /***
-        ALOG(INFO) << "Applying Low Pass Filter on Initial References";
-        _model.lowPassRef(_r, EDGE_WIDTH_FT);
-        ***/
-
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
@@ -130,20 +175,11 @@ void MLOptimiser::init()
 
         initSwitch();
 
-        ALOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
-        BLOG(INFO, "LOGGER_INIT") << "Reducing CTF using Wiener Filter";
-
-        initImgReduceCTF();
-
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
         initParticles();
     }
-
-    MLOG(INFO, "LOGGER_INIT") << "Correcting Scale";
-
-    correctScale();
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
@@ -156,6 +192,11 @@ void MLOptimiser::init()
 
         _model.initProjReco();
 
+        ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
+        ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
+
+        correctScale(true, false);
+
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
@@ -167,12 +208,14 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    int nPer = 0;
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         // initialse a particle filter
 
-        int nR = _para.mG;
-        int nT = GSL_MAX_INT(50,
+        int nR = _para.mS;
+        int nT = GSL_MAX_INT(10,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
@@ -206,6 +249,8 @@ void MLOptimiser::expectation()
         // perform expectations
 
         mat logW(_par[0].n(), _ID.size());
+
+        _nR = 0;
 
         #pragma omp parallel for schedule(dynamic) private(rot)
         for (int m = 0; m < nR; m++)
@@ -259,6 +304,22 @@ void MLOptimiser::expectation()
                 }
                 ***/
             }
+
+            #pragma omp atomic
+            _nR += 1;
+
+            #pragma omp critical
+            if (_nR > (int)(nR / 10))
+            {
+                _nR = 0;
+
+                nPer += 1;
+
+                ALOG(INFO, "LOGGER_ROUND") << nPer * 10
+                                           << "\% Initial Phase of Global Search Performed";
+                BLOG(INFO, "LOGGER_ROUND") << nPer * 10
+                                           << "\% Initial Phase of Global Search Performed";
+            }
         }
         
         // process logW
@@ -311,7 +372,7 @@ void MLOptimiser::expectation()
     _nF = 0;
     _nI = 0;
 
-    int nPer = 0;
+    nPer = 0;
 
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
@@ -573,28 +634,40 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    if ((_searchType == SEARCH_TYPE_GLOBAL) &&
+        (_para.groupScl))
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+        BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+
+        correctScale(false, true);
+    }
+
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
-    allReduceSigma();
+    allReduceSigma(_para.groupSig);
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-    reconstructRef();
+    reconstructRef(_para.performMask);
 }
 
 void MLOptimiser::run()
 {
+    IF_MASTER display(_para);
+
     MLOG(INFO, "LOGGER_ROUND") << "Initialising MLOptimiser";
 
     init();
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
     saveImages();
+    saveBinImages();
     saveCTFs();
-    saveReduceCTFImages();
     saveLowPassImages();
-    saveLowPassReduceCTFImages();
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -702,8 +775,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
         saveFSC();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
-        _res = _model.resolutionP();
         MLOG(INFO, "LOGGER_ROUND") << "Current Cutoff Frequency: "
                                    << _r - 1
                                    << " (Spatial), "
@@ -711,15 +782,28 @@ void MLOptimiser::run()
                                                    _para.size,
                                                    _para.pixelSize)
                                    << " (Angstrom)";
-        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution: "
-                                   << _res
+
+        MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
+
+        _resReport = _model.resolutionP(_para.thresReportFSC);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
+                                   << _resReport
                                    << " (Spatial), "
-                                   << 1.0 / resP2A(_res, _para.size, _para.pixelSize)
+                                   << 1.0 / resP2A(_resReport, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
-        _model.updateR();
-        _r = _model.r();
+        _resCutoff = _model.resolutionP(_para.thresCutoffFSC);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "
+                                   << _resCutoff
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_resCutoff, _para.size, _para.pixelSize)
+                                   << " (Angstrom)";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
+
+        _model.updateR(_para.thresCutoffFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
@@ -728,7 +812,7 @@ void MLOptimiser::run()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
 
-        if (_r > _model.rT())
+        if (_model.r() > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 
@@ -738,21 +822,17 @@ void MLOptimiser::run()
 
             MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
 
-            _model.setRT(_r);
+            _model.setRT(_model.r());
         }
-
-        MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
-                                   << _r - 1
-                                   << " (Spatial), "
-                                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
-                                   << " (Angstrom)";
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
             _searchType = _model.searchType();
 
-            if (_searchType == SEARCH_TYPE_LOCAL)
+            if (_para.performMask &&
+                _para.autoMask &&
+                (_searchType == SEARCH_TYPE_LOCAL))
             {
                 MLOG(INFO, "LOGGER_ROUND") << "A Mask Should be Generated";
 
@@ -761,6 +841,15 @@ void MLOptimiser::run()
         }
         else
             _searchType = _model.searchType();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
+        _r = _model.r();
+
+        MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
+                                   << _r - 1
+                                   << " (Spatial), "
+                                   << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
+                                   << " (Angstrom)";
 
         NT_MASTER
         {
@@ -775,6 +864,20 @@ void MLOptimiser::run()
             _model.refreshReco();
         }
     }
+
+    MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
+
+    MLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit";
+    _model.setR(maxR());
+
+    MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+    NT_MASTER _model.refreshReco();
+
+    MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
+    reconstructRef(false);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
+    saveReference(true);
 }
 
 void MLOptimiser::clear()
@@ -842,6 +945,9 @@ void MLOptimiser::bcastGroupInfo()
 
     ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.resize(_nGroup, maxR() + 1);
+
+    ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Intensity Scale";
+    NT_MASTER _scale.resize(_nGroup);
 }
 
 void MLOptimiser::initRef()
@@ -851,23 +957,33 @@ void MLOptimiser::initRef()
     ALOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
     BLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
+    Volume ref;
+
     ImageFile imf(_para.initModel, "rb");
     imf.readMetaData();
-    imf.readVolume(_model.ref(0));
+    imf.readVolume(ref);
 
-    /***
-    // perform normalise
-    normalise(_model.ref(0));
-    ***/
+    if ((ref.nColRL() != _para.size) ||
+        (ref.nRowRL() != _para.size) ||
+        (ref.nSlcRL() != _para.size))
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
+                                  << ": size = " << _para.size
+                                  << ", nCol = " << ref.nColRL()
+                                  << ", nRow = " << ref.nRowRL()
+                                  << ", nSlc = " << ref.nSlcRL();
 
-    /***
-    ALOG(INFO, "LOGGER_INIT") << "Size of the Initial Model is: "
-                              << _model.ref(0).nColRL()
-                              << " X "
-                              << _model.ref(0).nRowRL()
-                              << " X "
-                              << _model.ref(0).nSlcRL();
-    ***/
+        __builtin_unreachable();
+    }
+    
+    ALOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
+    BLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
+
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_RL(ref)
+        if (ref(i) < 0) ref(i) = 0;
+
+    VOL_PAD_RL(_model.ref(0), ref, 2);
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
@@ -875,11 +991,13 @@ void MLOptimiser::initRef()
     FFT fft;
     fft.fwMT(_model.ref(0));
     _model.ref(0).clearRL();
-    /***
-    fft.bw(_model.ref(0));
-    fft.fw(_model.ref(0));
-    _model.ref(0).clearRL();
-    ***/
+}
+
+void MLOptimiser::initMask()
+{
+    ImageFile imf(_para.mask, "rb");
+    imf.readMetaData();
+    imf.readVolume(_mask);
 }
 
 void MLOptimiser::initID()
@@ -913,14 +1031,15 @@ void MLOptimiser::initImg()
 
         stmt.reset();
 
-	    Image& currentImg = _img[l];
+	    //Image& currentImg = _img[l];
 
         // read the image fromm hard disk
         if (imgName.find('@') == string::npos)
         {
             ImageFile imf(imgName.c_str(), "rb");
             imf.readMetaData();
-            imf.readImage(currentImg);
+            //imf.readImage(currentImg);
+            imf.readImage(_img[l]);
         }
         else
         {
@@ -929,18 +1048,22 @@ void MLOptimiser::initImg()
 
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
-            imf.readImage(currentImg, nSlc);
+            //imf.readImage(currentImg, nSlc);
+            imf.readImage(_img[l], nSlc);
         }
 
+        /***
         if ((currentImg.nColRL() != _para.size) ||
             (currentImg.nRowRL() != _para.size))
+            ***/
+        if ((_img[l].nColRL() != _para.size) ||
+            (_img[l].nRowRL() != _para.size))
         {
             CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
             __builtin_unreachable();
         }
     }
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
@@ -970,7 +1093,6 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
-    ***/
 
     /***
     statImg();
@@ -999,13 +1121,19 @@ void MLOptimiser::statImg()
     FOR_EACH_2D_IMAGE
     {
         #pragma omp atomic
-        _stdN += bgStddev(0, _img[l], size() * MASK_RATIO / 2);
+        _stdN += bgStddev(0,
+                         _img[l],
+                         //size() * MASK_RATIO / 2);
+                         _para.maskRadius / _para.pixelSize);
 
         #pragma omp atomic
         _stdD += stddev(0, _img[l]);
 
         #pragma omp atomic
-        _stdStdN += gsl_pow_2(bgStddev(0, _img[l], size() * MASK_RATIO / 2));
+        _stdStdN += gsl_pow_2(bgStddev(0,
+                                       _img[l],
+                                       //size() * MASK_RATIO / 2));
+                                       _para.maskRadius / _para.pixelSize));
     }
 
     MPI_Barrier(_hemi);
@@ -1050,7 +1178,8 @@ void MLOptimiser::substractBgImg()
     FOR_EACH_2D_IMAGE
     {
         double bg = background(_img[l],
-                               size() * MASK_RATIO / 2,
+                               _para.maskRadius / _para.pixelSize,
+                               //size() * MASK_RATIO / 2,
                                EDGE_WIDTH_RL);
 
         FOR_EACH_PIXEL_RL(_img[l])
@@ -1060,14 +1189,38 @@ void MLOptimiser::substractBgImg()
 
 void MLOptimiser::maskImg()
 {
+    /***
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
         softMask(_img[l],
                  _img[l],
-                 size() * MASK_RATIO / 2,
+                 _para.maskRadius / _para.pixelSize,
+                 //size() * MASK_RATIO / 2,
                  EDGE_WIDTH_RL,
                  0,
                  0);
+                 ***/
+    if (_para.zeroMask)
+    {
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+            softMask(_img[l],
+                     _img[l],
+                     _para.maskRadius / _para.pixelSize,
+                     EDGE_WIDTH_RL,
+                     0);
+    }
+    else
+    {
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+            softMask(_img[l],
+                     _img[l],
+                     _para.maskRadius / _para.pixelSize,
+                     EDGE_WIDTH_RL,
+                     0,
+                     _stdN);
+    }
 }
 
 void MLOptimiser::normaliseImg()
@@ -1168,63 +1321,125 @@ void MLOptimiser::initSwitch()
     _switch.resize(_ID.size());
 }
 
-void MLOptimiser::initImgReduceCTF()
+void MLOptimiser::correctScale(const bool init,
+                               const bool group)
 {
-    _imgReduceCTF.clear();
-    _imgReduceCTF.resize(_ID.size());
+    IF_MASTER return;
+
+    refreshScale(init, group);
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        _imgReduceCTF[l].alloc(_para.size, _para.size, FT_SPACE);
+        FOR_EACH_PIXEL_FT(_img[l])
+            _img[l][i] /= _scale(_groupID[l] - 1);
+    }
 
-        reduceCTF(_imgReduceCTF[l],
-                  _img[l],
-                  _ctf[l],
-                  maxR());
+    if (!init)
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < _nGroup; i++)
+            _sig.row(i) /= gsl_pow_2(_scale(i));
     }
 }
-void MLOptimiser::correctScale()
-{
-    vec dc = vec::Zero(_nPar);
 
-    NT_MASTER
+void MLOptimiser::initSigma()
+{
+    IF_MASTER return;
+
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+
+    Image avg = _img[0].copyImage();
+
+    for (size_t l = 1; l < _ID.size(); l++)
     {
-        FOR_EACH_2D_IMAGE
-            dc(_ID[l] - 1) = REAL(_img[l][0]) / REAL(_ctf[l][0]);
+        #pragma omp parallel for
+        ADD_FT(avg, _img[l]);
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  dc.data(),
-                  dc.size(),
+                  &avg[0],
+                  avg.sizeFT(),
+                  MPI_DOUBLE_COMPLEX,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Barrier(_hemi);
+
+    #pragma omp parallel for
+    SCALE_FT(avg, 1.0 / _N);
+
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
+
+    vec avgPs = vec::Zero(maxR());
+
+    FOR_EACH_2D_IMAGE
+    {
+        vec ps(maxR());
+
+        powerSpectrum(ps, _img[l], maxR());
+
+        avgPs += ps;
+    }
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  avgPs.data(),
+                  maxR(),
                   MPI_DOUBLE,
                   MPI_SUM,
-                  MPI_COMM_WORLD); 
+                  _hemi);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Barrier(_hemi);
 
-    double median, std;
-    stat_MAS(median, std, dc, _nPar);
+    avgPs /= _N;
 
-    MLOG(INFO, "LOGGER_SYS") << "median = " << median << ", std = " << std;
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
 
-    // double modelScale = abs(median) + 2 * std;
-    double modelScale = abs(median);
+    vec psAvg(maxR());
+    for (int i = 0; i < maxR(); i++)
+    {
+        psAvg(i) = ringAverage(i,
+                               avg,
+                               [](const Complex x)
+                               {
+                                   return REAL(x) + IMAG(x);
+                               });
+        psAvg(i) = gsl_pow_2(psAvg(i));
+    }
 
-    MLOG(INFO, "LOGGER_SYS") << "modelScale = " << modelScale;
+    // avgPs -> average power spectrum
+    // psAvg -> expectation of pixels
+    ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
+    BLOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
 
-    if (std > abs(median) * 0.05)
-        MLOG(WARNING, "LOGGER_SYS") << "DC Component Has a High Standard Deviation, It May Be Inaccurate!";
+    _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
 
-    MLOG(INFO, "LOGGER_SYS") << "Sum of Reference = " << REAL(_model.ref(0)[0]);
+    /***
+    ALOG(INFO) << "Saving Initial Sigma";
+    if (_commRank == HEMI_A_LEAD)
+        _sig.save("Sigma_000.txt", raw_ascii);
+        ***/
+}
 
-    double sf = modelScale / REAL(_model.ref(0)[0]);
-    
-    MLOG(INFO, "LOGGER_SYS") << "Scaling Factor = " << sf;
+void MLOptimiser::initParticles()
+{
+    IF_MASTER return;
 
-    SCALE_FT(_model.ref(0), sf);
+    _par.clear();
+    _par.resize(_ID.size());
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+        _par[l].init(_para.transS,
+                     0.01,
+                     &_sym);
 }
 
 void MLOptimiser::refreshRotationChange()
@@ -1373,106 +1588,131 @@ void MLOptimiser::refreshSwitch()
                                << "\% of Images are Unsuited for Reconstruction";
 }
 
-void MLOptimiser::initSigma()
+void MLOptimiser::refreshScale(const bool init,
+                               const bool group)
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
-    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
+    if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
 
-    Image avg = _img[0].copyImage();
+    mat mXA = mat::Zero(_nGroup, _rS);
+    mat mAA = mat::Zero(_nGroup, _rS);
 
-    for (size_t l = 1; l < _ID.size(); l++)
-    {
-        #pragma omp parallel for
-        ADD_FT(avg, _img[l]);
-    }
+    vec sXA = vec::Zero(_rS);
+    vec sAA = vec::Zero(_rS);
 
-    MPI_Barrier(_hemi);
+    Image img(size(), size(), FT_SPACE);
 
-    MPI_Allreduce(MPI_IN_PLACE,
-                  &avg[0],
-                  avg.sizeFT(),
-                  MPI_DOUBLE_COMPLEX,
-                  MPI_SUM,
-                  _hemi);
-
-    MPI_Barrier(_hemi);
-
-    #pragma omp parallel for
-    SCALE_FT(avg, 1.0 / _N);
-
-    ALOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
-    BLOG(INFO, "LOGGER_INIT") << "Calculating Average Power Spectrum";
-
-    vec avgPs = vec::Zero(maxR());
+    mat33 rot;
+    vec2 tran;
 
     FOR_EACH_2D_IMAGE
     {
-        vec ps(maxR());
+        if (init)
+        {
+            randRotate3D(rot);
 
-        powerSpectrum(ps, _img[l], maxR());
+            _model.proj(0).projectMT(img, rot);
+        }
+        else
+        {
+            if (!_switch[l]) continue;
 
-        avgPs += ps;
+            _par[l].rank1st(rot, tran);
+
+            _model.proj(0).projectMT(img, rot, tran);
+        }
+
+        scaleDataVSPrior(sXA,
+                         sAA,
+                         _img[l],
+                         img,
+                         _ctf[l],
+                         _rS,
+                         _rL);
+
+        if (group)
+        {
+            mXA.row(_groupID[l] - 1) += sXA.transpose();
+            mAA.row(_groupID[l] - 1) += sAA.transpose();
+        }
+        else
+        {
+            mXA.row(0) += sXA.transpose();
+            mAA.row(0) += sAA.transpose();
+        }
     }
 
     MPI_Barrier(_hemi);
 
+    ALOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
+    BLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
+
     MPI_Allreduce(MPI_IN_PLACE,
-                  avgPs.data(),
-                  maxR(),
+                  mXA.data(),
+                  mXA.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
-    MPI_Barrier(_hemi);
+    MPI_Allreduce(MPI_IN_PLACE,
+                  mAA.data(),
+                  mAA.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
 
-    avgPs /= _N;
-
-    ALOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
-    BLOG(INFO, "LOGGER_INIT") << "Calculating Expectation for Initializing Sigma";
-
-    vec psAvg(maxR());
-    for (int i = 0; i < maxR(); i++)
+    if (group)
     {
-        psAvg(i) = ringAverage(i,
-                               avg,
-                               [](const Complex x)
-                               {
-                                   return REAL(x) + IMAG(x);
-                               });
-        psAvg(i) = gsl_pow_2(psAvg(i));
+        for (int i = 0; i < _nGroup; i++)
+        {
+            double sum = 0;
+            int count = 0;
+
+            for (int r = 0; r < _rS; r++)
+                if (r > _rL)
+                {
+                    sum += mXA(i, r) / mAA(i, r);
+                    count += 1;
+                }
+
+            _scale(i) = sum / count;
+        }
     }
+    else
+    {
+        double sum = 0;
+        int count = 0;
 
-    // avgPs -> average power spectrum
-    // psAvg -> expectation of pixels
-    ALOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
-    BLOG(INFO, "LOGGER_INIT") << "Substract avgPs and psAvg for _sig";
+        for (int r = 0; r < _rS; r++)
+            if (r > _rL)
+            {
+                sum += mXA(0, r) / mAA(0, r);
+                count += 1;
+            }
+        
+        for (int i = 0; i < _nGroup; i++)
+            _scale(i) = sum / count;
+    }
+    
+    ALOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
+    BLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
 
-    _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
+    ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
+                               << gsl_stats_sd(_scale.data(), 1, _scale.size());
+    BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
+                               << gsl_stats_sd(_scale.data(), 1, _scale.size());
 
     /***
-    ALOG(INFO) << "Saving Initial Sigma";
-    if (_commRank == HEMI_A_LEAD)
-        _sig.save("Sigma_000.txt", raw_ascii);
-        ***/
+        for (int i = 0; i < _nGroup; i++)
+            CLOG(INFO, "LOGGER_ROUND") << "Group "
+                                       << i
+                                       << ": Scale = "
+                                       << _scale(i);
+                                       ***/
 }
 
-void MLOptimiser::initParticles()
-{
-    IF_MASTER return;
-
-    _par.clear();
-    _par.resize(_ID.size());
-
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-        _par[l].init(_para.transS,
-                     0.01,
-                     &_sym);
-}
-
-void MLOptimiser::allReduceSigma()
+void MLOptimiser::allReduceSigma(const bool group)
 {
     IF_MASTER return;
 
@@ -1486,28 +1726,22 @@ void MLOptimiser::allReduceSigma()
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
-    /***
-    // project references with all frequency
-    _model.setProjMaxRadius(maxR());
-    ***/
+    Image img(size(), size(), FT_SPACE);
 
-    // loop over 2D images
+    mat33 rot;
+    vec2 tran;
+
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
 
-        mat33 rot;
-        vec2 tran;
-        Image img(size(), size(), FT_SPACE);
-
-        //vec sig(maxR());
         vec sig(_r);
 
         _par[l].rank1st(rot, tran);
 
         // calculate differences
 
-        _model.proj(0).project(img, rot, tran);
+        _model.proj(0).projectMT(img, rot, tran);
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(img)
@@ -1520,24 +1754,24 @@ void MLOptimiser::allReduceSigma()
 
         powerSpectrum(sig, img, _r);
 
-        _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
+        if (group)
+        {
+            _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
 
-        _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+            _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+        }
+        else
+        {
+            _sig.row(0).head(_r) += sig.transpose() / 2;
+
+            _sig(0, _sig.cols() - 1) += 1;
+        }
     }
 
     MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
-
-    /***
-    MPI_Allreduce(MPI_IN_PLACE,
-                  _sig.data(),
-                  (maxR() + 1) * _nGroup,
-                  MPI_DOUBLE,
-                  MPI_SUM,
-                  _hemi);
-                  ***/
 
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
@@ -1555,27 +1789,21 @@ void MLOptimiser::allReduceSigma()
 
     MPI_Barrier(_hemi);
 
-    /***
-    for (int i = 0; i < _sig.rows(); i++)
-        _sig.row(i).head(maxR()) /= _sig(i, _sig.cols() - 1);
-        ***/
-    
-    for (int i = 0; i < _sig.rows(); i++)
-        _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
-
-
-    /***
-    ALOG(INFO) << "Saving Sigma";
-    if (_commRank == HEMI_A_LEAD)
+    if (group)
     {
-        char filename[FILE_NAME_LENGTH];
-        sprintf(filename, "Sigma_%03d.txt", _iter + 1);
-        _sig.save(filename, raw_ascii);
+        for (int i = 0; i < _sig.rows(); i++)
+            _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
     }
-    ***/
+    else
+    {
+        _sig.row(0).head(_r) /= _sig(0, _sig.cols() - 1);
+
+        for (int i = 1; i < _sig.rows(); i++)
+            _sig.row(i).head(_r) = _sig.row(0).head(_r);
+    }
 }
 
-void MLOptimiser::reconstructRef()
+void MLOptimiser::reconstructRef(const bool mask)
 {
     IF_MASTER return;
 
@@ -1627,24 +1855,21 @@ void MLOptimiser::reconstructRef()
 
         fft.bwMT(lowPassRef);
 
-        //genMask(_mask, _model.ref(0), 10, 3, _para.size * 0.5);
-        //genMask(_mask, _model.ref(0), 10, 3, 6, _para.size * 0.5);
-        //genMask(_mask, _model.ref(0), 10, 3, 2, _para.size * 0.5);
-        genMask(_mask,
-                lowPassRef,
-                GEN_MASK_EXT,
-                GEN_MASK_EDGE_WIDTH,
-                _para.size * 0.5);
+        autoMask(_mask,
+                 lowPassRef,
+                 GEN_MASK_EXT,
+                 GEN_MASK_EDGE_WIDTH,
+                 _para.size * 0.5);
 
         saveMask();
 
         _genMask = false;
     }
 
-    if (!_mask.isEmptyRL())
+    if (mask && !_mask.isEmptyRL())
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Automask";
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Automask";
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
@@ -1709,6 +1934,10 @@ void MLOptimiser::saveImages()
     {
         if (_ID[l] < N_SAVE_IMG)
         {
+            sprintf(filename, "Fourier_Image_%04d.bmp", _ID[l]);
+
+            _img[l].saveFTToBMP(filename, 0.01);
+
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
             fft.bw(_img[l]);
@@ -1716,6 +1945,31 @@ void MLOptimiser::saveImages()
             fft.fw(_img[l]);
         }
     }
+}
+
+void MLOptimiser::saveBinImages()
+{
+    IF_MASTER return;
+
+    FFT fft;
+
+    Image bin;
+
+    char filename[FILE_NAME_LENGTH];
+    FOR_EACH_2D_IMAGE
+    {
+        if (_ID[l] < N_SAVE_IMG)
+        {
+            sprintf(filename, "Image_Bin_8_%04d.bmp", _ID[l]);
+
+            fft.bw(_img[l]);
+            binning(bin, _img[l], 8);
+            fft.fw(_img[l]);
+
+            bin.saveRLToBMP(filename);
+        }
+    }
+            
 }
 
 void MLOptimiser::saveCTFs()
@@ -1730,32 +1984,6 @@ void MLOptimiser::saveCTFs()
             sprintf(filename, "CTF_%04d.bmp", _ID[l]);
 
             _ctf[l].saveFTToBMP(filename, 0.01);
-        }
-    }
-}
-
-void MLOptimiser::saveReduceCTFImages()
-{
-    IF_MASTER return;
-
-    FFT fft;
-
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
-    char filename[FILE_NAME_LENGTH];
-
-    FOR_EACH_2D_IMAGE
-    {
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            reduceCTF(img, _img[l], _ctf[l], maxR());
-
-            sprintf(filename, "Image_ReduceCTF_%04d.bmp", _ID[l]);
-
-            fft.bw(img);
-            img.saveRLToBMP(filename);
-            fft.fw(img);
         }
     }
 }
@@ -1775,7 +2003,7 @@ void MLOptimiser::saveLowPassImages()
     {
         if (_ID[l] < N_SAVE_IMG)
         {
-            lowPassFilter(img, _img[l], _para.pixelSize / 20, 1.0 / _para.size);
+            lowPassFilter(img, _img[l], _para.pixelSize / 40, 1.0 / _para.size);
 
             sprintf(filename, "Image_LowPass_%04d.bmp", _ID[l]);
 
@@ -1786,35 +2014,7 @@ void MLOptimiser::saveLowPassImages()
     }
 }
 
-void MLOptimiser::saveLowPassReduceCTFImages()
-{
-    IF_MASTER return;
-
-    FFT fft;
-
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
-    char filename[FILE_NAME_LENGTH];
-
-    FOR_EACH_2D_IMAGE
-    {
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            reduceCTF(img, _img[l], _ctf[l], maxR());
-
-            lowPassFilter(img, _img[l], _para.pixelSize / 20, 1.0 / _para.size);
-
-            sprintf(filename, "Image_LowPass_ReduceCTF_%04d.bmp", _ID[l]);
-
-            fft.bw(img);
-            img.saveRLToBMP(filename);
-            fft.fw(img);
-        }
-    }
-}
-
-void MLOptimiser::saveReference()
+void MLOptimiser::saveReference(const bool finished)
 {
     if ((_commRank != HEMI_A_LEAD) &&
         (_commRank != HEMI_B_LEAD))
@@ -1825,13 +2025,18 @@ void MLOptimiser::saveReference()
                    _para.size * _para.pf,
                    FT_SPACE);
 
-    lowPassFilter(lowPass,
-                  _model.ref(0),
-                  (double)_r / _para.size,
-                  (double)EDGE_WIDTH_FT / _para.size);
-
     FFT fft;
-    fft.bwMT(lowPass);
+
+    if (finished)
+        fft.bwMT(_model.ref(0));
+    else
+    {
+        lowPassFilter(lowPass,
+                      _model.ref(0),
+                      (double)_resReport / _para.size,
+                      (double)EDGE_WIDTH_FT / _para.size);
+        fft.bwMT(lowPass);
+    }
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];
@@ -1842,20 +2047,46 @@ void MLOptimiser::saveReference()
     {
         ALOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
-        VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+        if (finished)
+        {
+            VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+            fft.fwMT(_model.ref(0));
+            _model.ref(0).clearRL();
+
+            sprintf(filename, "Reference_A_Final.mrc");
+        }
+        else
+        {
+            VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+            sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+        }
 
         imf.readMetaData(result);
-        sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+
         imf.writeVolume(filename, result);
     }
     else if (_commRank == HEMI_B_LEAD)
     {
         BLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
-        VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+        if (finished)
+        {
+            VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+            fft.fwMT(_model.ref(0));
+            _model.ref(0).clearRL();
+
+            sprintf(filename, "Reference_B_Final.mrc");
+        }
+        else
+        {
+            VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+            sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+        }
 
         imf.readMetaData(result);
-        sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+
         imf.writeVolume(filename, result);
     }
 }
@@ -2028,16 +2259,35 @@ vec logDataVSPrior(const vector<Image>& dat,
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
                                / (-2 * sig(groupID[l] - 1, v));
-                    /***
-                    result(l) += gsl_pow_2(REAL(ctf[l].iGetFT(index)))
-                               * ABS2(dat[l].iGetFT(index)
-                                    - REAL(ctf[l].iGetFT(index))
-                                    * pri.iGetFT(index))
-                               / (-2 * sig(groupID[l] - 1, v));
-                    ***/
                 }
             }
         }
+    }
+
+    return result;
+}
+
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int* iPxl,
+                   const int* iSig,
+                   const int m)
+{
+    int n = dat.size();
+
+    vec result = vec::Zero(n);
+
+    for (int l = 0; l < n; l++)
+    {
+        for (int i = 0; i < m; i++)
+            result(l) += ABS2(dat[l].iGetFT(iPxl[i])
+                            - REAL(ctf[l].iGetFT(iPxl[i]))
+                            * pri.iGetFT(iPxl[i]))
+                       / (-2 * sig(groupID[l] - 1, iSig[i]));
+                         
     }
 
     return result;
@@ -2062,4 +2312,47 @@ double dataVSPrior(const Image& dat,
                    const double rL)
 {
     return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
+}
+
+void scaleDataVSPrior(vec& sXA,
+                      vec& sAA,
+                      const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const double rU,
+                      const double rL)
+{
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
+
+    for (int i = 0; i < rU; i++)
+    {
+        sXA(i) = 0;
+        sAA(i) = 0;
+    }
+    
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_PIXEL_R_FT(CEIL(rU) + 1)
+    {
+        double u = QUAD(i, j);
+
+        if ((u < rU2) && (u > rL2))
+        {
+            int v = AROUND(NORM(i, j));
+            if (v < rU)
+            {
+                int index = dat.iFTHalf(i, j);
+
+                #pragma omp critical
+                sXA(v) += REAL(dat.iGetFT(index)
+                             * pri.iGetFT(index)
+                             * REAL(ctf.iGetFT(index)));
+
+                #pragma omp critical
+                sAA(v) += REAL(pri.iGetFT(index)
+                             * pri.iGetFT(index)
+                             * gsl_pow_2(REAL(ctf.iGetFT(index))));
+            }
+        }
+    }
 }

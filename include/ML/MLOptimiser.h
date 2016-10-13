@@ -46,14 +46,12 @@
 
 #define PERTURB_FACTOR_L 100
 #define PERTURB_FACTOR_S 0.01
-//#define PERTURB_FACTOR_S 0.2
 
-#define MASK_RATIO 1.0
 #define GEN_MASK_RES 30
 
 #define TRANS_SEARCH_FACTOR 0.1
 
-#define SWITCH_FACTOR 2
+#define SWITCH_FACTOR 3
 
 #define PROCESS_LOGW(logW) \
     [](vec& _logW) \
@@ -69,51 +67,135 @@ using namespace std;
 
 typedef struct ML_OPTIMISER_PARA
 {
-    int iterMax;
-    // max number of iterations
-    
+    /**
+     * number of classes
+     */
     int k;
-    // number of references
 
+    /**
+     * size of image (pixel)
+     */
     int size;
-    // size of references and images
 
-    int pf;
-    // pading factor
-    
-    double a;
-    // parameter of the kernel MKB_FT
-
-    double alpha;
-    // parameter of the kernel MKB_FT
-
+    /**
+     * pixel size (Angstrom)
+     */
     double pixelSize;
-    // pixel size of 2D images
 
-    int mG;
-    // number of samplings in particle filter
+    /**
+     * radius of mask on images (Angstrom)
+     */
+    double maskRadius;
 
-    int mL;
-    // number of samplings in particle filter
+    /**
+     * number of sampling points for scanning in global search
+     */
+    int mS;
 
+    /**
+     * estimated translation (pixel)
+     */
     double transS;
 
-    // initial estimated resolution (Angstrom)
+    /**
+     * initial resolution (Angstrom)
+     */
     double initRes;
 
-    // the information below this resolution will be ignored
-    double ignoreRes;
-
+    /**
+     * resolution threshold for performing global search
+     */
     double globalSearchRes;
 
+    /**
+     * symmetry
+     */
     char sym[SYM_ID_LENGTH];
 
+    /**
+     * initial model
+     */
     char initModel[FILE_NAME_LENGTH];
-    // the initial model for this iteration
 
+    /**
+     * sqlite3 file storing paths and CTFs of images
+     */
     char db[FILE_NAME_LENGTH];
 
+    bool performMask = true;
+
+    bool autoMask = true;
+
+    char mask[FILE_NAME_LENGTH];
+
+    /**
+     * max number of iteration
+     */
+    int iterMax;
+    
+    /**
+     * padding factor
+     */
+    int pf = 2;
+    
+    /**
+     * MKB kernel radius
+     */
+    double a = 1.9;
+
+    /**
+     * MKB kernel smooth factor
+     */
+    double alpha = 10;
+
+    /**
+     * number of sampling points in global search
+     */
+    int mG;
+
+    /**
+     * number of sampling points in local search
+     */
+    int mL;
+
+    /**
+     * the information below this resolution will be ignored
+     */
+    double ignoreRes;
+
+    /**
+     * the resolution boundary for performing intensity scale correction
+     */
+    double sclCorRes;
+
+    /**
+     * the FSC threshold for determining cutoff frequency
+     */
+    double thresCutoffFSC = 0.5;
+
+    /**
+     * the FSC threshold for reporting resolution
+     */
+    double thresReportFSC = 0.143;
+
+    /**
+     * grouping or not when calculating sigma
+     */
+    bool groupSig;
+
+    /**
+     * grouping or not when calculating intensity scale
+     */
+    bool groupScl;
+
+    /**
+     * mask the 2D images with zero background or gaussian noise
+     */
+    bool zeroMask;
+
 } MLOptimiserPara;
+
+void display(const MLOptimiserPara& para);
 
 typedef struct CTF_ATTR
 {
@@ -158,14 +240,25 @@ class MLOptimiser : public Parallel
         double _rL;
 
         /**
+         * the information below this frequency will be used for performing
+         * intensity scale correction
+         */
+        int _rS;
+
+        /**
          * current number of iterations
          */
         int _iter;
 
         /**
-         * current resolution (in Angstrom)
+         * current cutoff resolution (Angstrom)
          */
-        double _res;
+        double _resCutoff;
+
+        /**
+         * current report resolution (Angstrom)
+         */
+        double _resReport;
 
         /**
          * current search type
@@ -200,11 +293,6 @@ class MLOptimiser : public Parallel
         vector<Image> _img;
 
         /**
-         * 2D images after reducing CTF using Wiener filter
-         */
-        vector<Image> _imgReduceCTF;
-
-        /**
          * a particle filter for each 2D image
          */
         vector<Particle> _par;
@@ -214,6 +302,10 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _ctf;
 
+        /**
+         * whether to use the image in calculating sigma and reconstruction or
+         * not
+         */
         vector<bool> _switch;
 
         /**
@@ -221,6 +313,11 @@ class MLOptimiser : public Parallel
          * matrix is _nGroup x (maxR() + 1)
          */
         mat _sig;
+
+        /**
+         * intensity scale of a certain group
+         */
+        vec _scale;
 
         /**
          * number of groups
@@ -252,17 +349,15 @@ class MLOptimiser : public Parallel
          */
         double _stdStdN = 0;
 
+        /**
+         * whether to generate mask or not
+         */
         bool _genMask = false;
 
+        /**
+         * mask
+         */
         Volume _mask;
-
-        /***
-        double _noiseStddev = 0;
-
-        double _dataStddev = 0;
-
-        double _signalStddev = 0;
-        ***/
 
         /**
          * number of performed filtering in an iteration of a process
@@ -273,6 +368,8 @@ class MLOptimiser : public Parallel
          * number of performed images in an iteration of a process
          */
         int _nI = 0;
+
+        int _nR = 0;
 
     public:
         
@@ -285,15 +382,9 @@ class MLOptimiser : public Parallel
         void setPara(const MLOptimiserPara& para);
 
         void init();
-        /* set parameters of _model
-         * setMPIEnv of _model
-         * read in images from hard-disk
-         * generate corresponding CTF */
 
-        //Yu Hongkun ,Wang Kunpeng
         void expectation();
 
-        //Guo Heng, Li Bing
         void maximization();
 
         void run();
@@ -302,105 +393,231 @@ class MLOptimiser : public Parallel
 
     private:
 
+        /**
+         * broadcast the number of images in each hemisphere
+         */
         void bCastNPar();
 
+        /**
+         * allreduce the total number of images
+         */
         void allReduceN();
 
+        /**
+         * the size of the image
+         */
         int size() const;
-        /* size of 2D image */
         
+        /**
+         * maximum frequency (pixel)
+         */
         int maxR() const;
-        /* max value of _r */
 
+        /**
+         * broadcast the group information
+         */
         void bcastGroupInfo();
-        /* broadcast information of groups */
 
+        /**
+         * initialise the reference
+         */
         void initRef();
 
-        void initID();
-        /* save IDs from database */
+        /**
+         * read mask
+         */
+        void initMask();
 
-        /* read 2D images from hard disk */
+        /**
+         * initialise the ID of each image
+         */
+        void initID();
+
+        /*
+         * read 2D images from hard disk and perform a series of processing
+         */
         void initImg();
 
+        /**
+         * do statistics on the signal and noise of the images
+         */
         void statImg();
 
+        /**
+         * display the statistics result of the signal and noise of the images
+         */
         void displayStatImg();
 
+        /**
+         * substract the mean of background from the images, make the noise of
+         * the images has zero mean
+         */
         void substractBgImg();
 
+        /**
+         * mask the images
+         */
         void maskImg();
 
-        /* normlise 2D images */
+        /**
+         * normlise the images, make the noise of the images has a standard
+         * deviation equals to 1
+         */
         void normaliseImg();
 
-        /* perform Fourier transform */
+        /**
+         * perform Fourier transform on images
+         */
         void fwImg();
 
-        /* perform inverse Fourier transform */
+        /**
+         * perform inverse Fourier transform on images
+         */
         void bwImg();
 
+        /**
+         * initialise CTFs
+         */
         void initCTF();
 
+        /**
+         * initialise the switches on images which determine whether an image
+         * will be used in calculating sigma and recosntruction or not
+         */
         void initSwitch();
 
-        void initImgReduceCTF();
+        /**
+         * correct the intensity scale
+         *
+         * @param init  whether it is an initial correction or not
+         * @param group grouping or not
+         */
+        void correctScale(const bool init = false,
+                          const bool group = true);
 
-        void correctScale();
-
-        void refreshRotationChange();
-
-        void refreshVariance();
-
-        void refreshSwitch();
-
+        /**
+         * initialise sigma
+         */
         void initSigma();
 
+        /**
+         * initialise particle filters
+         */
         void initParticles();
 
-        void allReduceSigma();
+        /**
+         * re-calculate the rotation change between this iteration and the
+         * previous one
+         */
+        void refreshRotationChange();
 
-        void reconstructRef();
+        /**
+         * re-calculate the rotation and translation variance
+         */
+        void refreshVariance();
 
-        // for debug
-        // save the best projections to BMP file
+        /**
+         * re-determine whether to use an image in calculating sigma and
+         * reconstruction or not
+         */
+        void refreshSwitch();
+
+        /**
+         * re-calculate the intensity scale
+         *
+         * @param init  whether it is an initial correction or not
+         * @param group grouping or not
+         */
+        void refreshScale(const bool init = false,
+                          const bool group = true);
+
+        /**
+         * re-calculate sigma
+         *
+         * @param group grouping or not
+         */
+        void allReduceSigma(const bool group = true);
+
+        /**
+         * reconstruct reference
+         *
+         * @param mask whether mask on the reference is allowed or not
+         */
+        void reconstructRef(const bool mask = true);
+
+        /**
+         * for debug, save the best projections
+         */
         void saveBestProjections();
 
-        // for debug
-        // save images to BMP file
+        /**
+         * for debug, save the images
+         */
         void saveImages();
 
-        // debug
-        // save CTFs to BMP file
+        /**
+         * for debug, save the binning images
+         */
+        void saveBinImages();
+
+        /**
+         * for debug, save the CTFs
+         */
         void saveCTFs();
 
-        // for debug
-        // save images after removing CTFs
-        void saveReduceCTFImages();
-
-        // for debug
-        // save low pass filtered images
+        /**
+         * for debug, save the low pass filtered images
+         */
         void saveLowPassImages();
 
-        // for debug
-        // save low pass filtered images after removing CTFs
-        void saveLowPassReduceCTFImages();
+        /**
+         * save the reference(s)
+         *
+         * @param finished whether it is the final round or not
+         */
+        void saveReference(const bool finished = false);
 
-        void saveReference();
-
+        /**
+         * save the mask
+         */
         void saveMask();
 
+        /**
+         * save FSC
+         */
         void saveFSC() const;
 };
 
+/**
+ * This function calculates the logarithm of the possibility that the image is
+ * from the projection.
+ *
+ * @param dat image
+ * @param pri projection
+ * @param ctf CTF
+ * @param sig sigma of noise
+ * @param rU  the upper boundary of frequency of the signal for comparison
+ * @param rL  the lower boundary of frequency of the signal for comparison
+ */
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sig,
                       const double rU,
                       const double rL);
-// dat -> data, pri -> prior, ctf
 
+/**
+ * This function calculates the logarithm of the possibility that the image is
+ * from the projection translation couple.
+ *
+ * @param dat image
+ * @param pri projection
+ * @param tra translation
+ * @param ctf CTF
+ * @param sig sigma of noise
+ * @param rU  the upper boundary of frequency of the signal for comparison
+ * @param rL  the lower boundary of frequency of the signal for comparison
+ */
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
@@ -409,6 +626,18 @@ double logDataVSPrior(const Image& dat,
                       const double rU,
                       const double rL);
 
+/**
+ * This function calculates the logarithm of the possibilities of a series of
+ * images is from a certain projection.
+ *
+ * @param dat     a series of images
+ * @param pri     a certain projection
+ * @param ctf     a series of CTFs corresponding to the images
+ * @param groupID the group the corresponding image belongs to
+ * @param sig     sigma of noise
+ * @param rU  the upper boundary of frequency of the signal for comparison
+ * @param rL  the lower boundary of frequency of the signal for comparison
+ */
 vec logDataVSPrior(const vector<Image>& dat,
                    const Image& pri,
                    const vector<Image>& ctf,
@@ -416,6 +645,15 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const mat& sig,
                    const double rU,
                    const double rL);
+
+vec logDataVSPrior(const vector<Image>& dat,
+                   const Image& pri,
+                   const vector<Image>& ctf,
+                   const vector<int>& groupID,
+                   const mat& sig,
+                   const int* iPxl,
+                   const int* iSig,
+                   const int m);
 
 double dataVSPrior(const Image& dat,
                    const Image& pri,
@@ -431,5 +669,13 @@ double dataVSPrior(const Image& dat,
                    const vec& sig,
                    const double rU,
                    const double rL);
+
+void scaleDataVSPrior(vec& sXA,
+                      vec& sAA,
+                      const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const double rU,
+                      const double rL);
 
 #endif // ML_OPTIMSER_H

@@ -20,9 +20,10 @@
 #define PF 2
 
 #define N 380
-#define TRANS_S 20
+#define TRANS_S 10
 
-#define PIXEL_SIZE 1.32
+//#define PIXEL_SIZE 1.32
+#define PIXEL_SIZE 1.30654
 
 #define MG 1000
 #define ML 100
@@ -47,16 +48,29 @@ int main(int argc, char* argv[])
     para.a = 1.9;
     para.alpha = 10;
     para.pixelSize = PIXEL_SIZE;
+    //para.maskRadius = 250;
+    para.maskRadius = 130;
     para.mG = MG;
     para.mL = ML;
     para.transS = TRANS_S;
+    //para.initRes = 20;
     para.initRes = 40;
+    //para.ignoreRes = 200;
     para.ignoreRes = 200;
-    para.globalSearchRes = 15;
+    //para.sclCorRes = 40;
+    para.sclCorRes = 80;
+    //para.globalSearchRes = 15;
+    //para.globalSearchRes = 10;
+    //para.globalSearchRes = 40;
+    para.globalSearchRes = 12;
     sprintf(para.sym, "C15");
     // sprintf(para.initModel, "padCylinder.mrc");
     sprintf(para.initModel, "padRef.mrc");
     sprintf(para.db, "C15.db");
+    para.groupSig = true;
+    para.groupScl = false;
+    //para.groupScl = true;
+    para.zeroMask = false;
 
     cout << "Setting Parameters" << endl;
     MLOptimiser opt;

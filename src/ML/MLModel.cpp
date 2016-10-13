@@ -78,15 +78,6 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(Volume ref)
 {
-    if (((ref.nColRL() != _size * _pf) && (ref.nColRL() != 0)) ||
-        ((ref.nRowRL() != _size * _pf) && (ref.nRowRL() != 0)) ||
-        ((ref.nSlcRL() != _size * _pf) && (ref.nSlcRL() != 0)))
-        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
-                                  << ": _size = " << _size
-                                  << ", nCol = " << ref.nColRL()
-                                  << ", nRow = " << ref.nRowRL()
-                                  << ", nSlc = " << ref.nSlcRL();
-
     _ref.push_back(move(ref));
 }
 
@@ -369,14 +360,15 @@ vec MLModel::tau(const int i) const
 int MLModel::resolutionP(const int i,
                          const double thres) const
 {
+    return resP(_FSC.col(i), thres, _pf);
+    /***
     int result;
 
-    for (result = _SNR.rows() - 1;
-         result >= 0;
-         result--)
-        if (_SNR(result, i) > thres / (1 - thres)) break;
+    for (result = 1; result < _FSC.rows(); result++)
+        if (_FSC(result, i) < thres) break;
 
-    return result / _pf;
+    return (result - 1) / _pf;
+    ***/
 }
 
 int MLModel::resolutionP(const double thres) const
@@ -450,49 +442,37 @@ void MLModel::updateR(const double thres)
             }
             else
             {
-                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.5";
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.3";
 
                 return determineIncreaseR(0.3);
             }
         }())
     {
-        FOR_EACH_CLASS
-            if (_FSC.col(i)(_pf * _rU - 1) > thres)
-            {
-                _r = _rU;
-
-                if (_searchType == SEARCH_TYPE_GLOBAL)
-                    _r = GSL_MIN_INT(_rGlobal, _r);
-
-                updateRU();
-
-                return;
-            }
-
-        _r = resolutionP(thres) + 1;
-
-        if (_searchType == SEARCH_TYPE_GLOBAL)
-            _r = GSL_MIN_INT(_rGlobal, _r);
-    
-        updateRU();
+        elevateR(thres);
     }
+}
 
-    /***
-    _rU += GSL_MAX_INT(MAX_GAP_GLOBAL, MAX_GAP_LOCAL);
-    _rU = GSL_MIN_INT(_rU, maxR());
-    ***/
-    
-    /***
+void MLModel::elevateR(const double thres)
+{
+    FOR_EACH_CLASS
+        if (_FSC.col(i)(_pf * _rU - 1) > thres)
+        {
+            _r = _rU;
+
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _r = GSL_MIN_INT(_rGlobal, _r);
+
+            updateRU();
+
+            return;
+        }
+
+    _r = resolutionP(thres) + 1;
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
-    {
-        _r += MIN_GAP_GLOBAL;
         _r = GSL_MIN_INT(_rGlobal, _r);
-    }
-    else
-        _r += MIN_GAP_LOCAL;
-
-    _r = GSL_MIN_INT(_r, maxR());
-    ***/
+    
+    updateRU();
 }
 
 double MLModel::rVari() const
@@ -711,9 +691,13 @@ int MLModel::searchType()
                 else
                     _nRNoImprove += 1;
 
+                /***
                 _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
                             ? SEARCH_TYPE_STOP
                             : SEARCH_TYPE_LOCAL;
+                ***/
+                if (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
+                    _searchType = SEARCH_TYPE_STOP;
             }
         }
     }
@@ -723,18 +707,12 @@ int MLModel::searchType()
         // beteween iterations still gets room for improvement.
         IF_MASTER
         {
-            /***
-            if ((_rChange > _rChangePrev - 0.02 * _stdRChangePrev) &&
-                (_r == _rGlobal) &&
-                (_rChange < 0.01))
-                _nRChangeNoDecrease += 1;
-            else
-                _nRChangeNoDecrease = 0;
-            ***/
+            if ((_r == _rGlobal) && _increaseR)
+            {
+                _searchType = SEARCH_TYPE_LOCAL;
 
-            _searchType = ((_r == _rGlobal) && _increaseR)
-                        ? SEARCH_TYPE_LOCAL
-                        : SEARCH_TYPE_GLOBAL;
+                //elevateR();
+            }
         }
     }
 
@@ -745,6 +723,20 @@ int MLModel::searchType()
               MPI_INT,
               MASTER_ID,
               MPI_COMM_WORLD);
+
+    /***
+    MPI_Bcast(&_r,
+              1,
+              MPI_INT,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    MPI_Bcast(&_rU,
+              1,
+              MPI_INT,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+              ***/
 
     return _searchType;
 }
@@ -813,11 +805,20 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 
 void MLModel::updateRU()
 {
+    /***
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
                                    AROUND((double)_size / 64))
                      : GSL_MIN_INT(SEARCH_RES_GAP_LOCAL,
                                    AROUND((double)_size / 32))),
+                      maxR());
+                      ***/
+    _rU = GSL_MIN_INT(_r
+                    + ((_searchType == SEARCH_TYPE_GLOBAL)
+                     ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
+                                   AROUND((double)_size / 32))
+                     : GSL_MIN_INT(SEARCH_RES_GAP_LOCAL,
+                                   AROUND((double)_size / 16))),
                       maxR());
 }

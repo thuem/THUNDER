@@ -14,6 +14,8 @@
 #include <gsl/gsl_complex.h>
 #include <Eigen/Dense>
 
+using namespace std;
+
 using namespace Eigen;
 
 typedef unsigned long size_t;
