@@ -2267,6 +2267,12 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     for (int l = 0; l < n; l++)
     {
+        for (int i = 0; i < m; i++)
+            result(l) += ABS2(dat[l].iGetFT(iPxl[i])
+                            - REAL(ctf[l].iGetFT(iPxl[i]))
+                            * pri.iGetFT(iPxl[i]))
+                       / (-2 * sig(groupID[l] - 1, iSig[i]));
+                         
     }
 
     return result;
