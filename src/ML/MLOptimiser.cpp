@@ -2165,13 +2165,6 @@ double logDataVSPrior(const Image& dat,
             {
                 int index = dat.iFTHalf(i, j);
 
-                /***
-                result += gsl_pow_2(REAL(ctf.iGetFT(index)))
-                        * ABS2(dat.iGetFT(index)
-                             - REAL(ctf.iGetFT(index))
-                             * pri.iGetFT(index))
-                        / (-2 * sig[v]);
-                ***/
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
@@ -2212,19 +2205,30 @@ double logDataVSPrior(const Image& dat,
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         / (-2 * sig[v]);
-                /***
-                result += gsl_pow_2(REAL(ctf.iGetFT(index)))
-                        * ABS2(dat.iGetFT(index)
-                             - REAL(ctf.iGetFT(index))
-                             * pri.iGetFT(index)
-                             * tra.iGetFT(index))
-                        / (-2 * sig[v]);
-                ***/
             }
         }
     }
 
     return result;
+}
+
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& tra,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int* iPxl,
+                      const int* iSig,
+                      const int m)
+{
+    double result = 0;
+
+    for (int i = 0; i < m; i++)
+        result += ABS2(dat.iGetFT(iPxl[i])
+                     - REAL(ctf.iGetFT(iPxl[i]))
+                     * pri.iGetFT(iPxl[i]))
+                / (-2 * sig(iSig[i]));
+
 }
 
 vec logDataVSPrior(const vector<Image>& dat,

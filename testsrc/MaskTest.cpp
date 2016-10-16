@@ -28,10 +28,22 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char* argv[])
 {
     Volume ref;
-    ImageFile imf("ref.mrc", "r");
-    imf.readMetaData();
-    imf.readVolume(ref);
+    ImageFile imfR(argv[1], "rb");
+    imfR.readMetaData();
+    imfR.readVolume(ref);
 
+    Volume mask;
+    ImageFile imfM(argv[2], "rb");
+    imfM.readMetaData();
+    imfM.readVolume(mask);
+
+    FOR_EACH_PIXEL_RL(ref)
+        ref(i) *= mask(i);
+
+    imfR.readMetaData(ref);
+    imfR.writeVolume("masked_ref.mrc", ref);
+
+    /***
     FFT fft;
     fft.fwMT(ref);
 
@@ -46,4 +58,5 @@ int main(int argc, char* argv[])
     ImageFile out;
     out.readMetaData(mask);
     out.writeVolume("mask.mrc", mask);
+    ***/
 }
