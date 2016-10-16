@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
  * Test:
  * Execution:
@@ -12,8 +12,10 @@
 #define LOGGING_H
 
 #include <string>
-
+#include <unistd.h>
 #include "easylogging++.h"
+
+#include "Macro.h"
 
 using namespace std;
 
@@ -53,14 +55,23 @@ inline void loggerInit()
 
 inline void loggerInit(int argc, char* argv[])
 {
-    string logger(argv[0]);
-    loggerInit(loggerConf, "LOGGER_SYS", (logger + ".log").c_str());
-    loggerInit(loggerConf, "LOGGER_INIT", (logger + ".log").c_str());
-    loggerInit(loggerConf, "LOGGER_ROUND", (logger + ".log").c_str());
-    loggerInit(loggerConf, "LOGGER_COMPARE", (logger + ".log").c_str());
-    loggerInit(loggerConf, "LOGGER_RECO", (logger + ".log").c_str());
-    loggerInit(loggerConf, "LOGGER_MPI", (logger + ".log").c_str());
-    loggerInit(loggerConf, "LOGGER_FFT", (logger + ".log").c_str());
+    string loggername;
+
+    char buf[FILE_NAME_LENGTH];
+    getcwd(buf, sizeof(buf));
+    loggername = buf;
+
+    string appname(argv[0]);
+
+    loggername += appname.substr(appname.rfind('/')) + ".log";
+
+    loggerInit(loggerConf, "LOGGER_SYS", loggername.c_str());
+    loggerInit(loggerConf, "LOGGER_INIT", loggername.c_str());
+    loggerInit(loggerConf, "LOGGER_ROUND", loggername.c_str());
+    loggerInit(loggerConf, "LOGGER_COMPARE", loggername.c_str());
+    loggerInit(loggerConf, "LOGGER_RECO", loggername.c_str());
+    loggerInit(loggerConf, "LOGGER_MPI", loggername.c_str());
+    loggerInit(loggerConf, "LOGGER_FFT", loggername.c_str());
 }
 
 #endif // LOGGING_H
