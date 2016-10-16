@@ -619,6 +619,14 @@ double logDataVSPrior(const Image& dat,
                       const double rU,
                       const double rL);
 
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int* iPxl,
+                      const int* iSig,
+                      const int m);
+
 /**
  * This function calculates the logarithm of the possibility that the image is
  * from the projection translation couple.
@@ -639,6 +647,19 @@ double logDataVSPrior(const Image& dat,
                       const double rU,
                       const double rL);
 
+/**
+ * This function calculates th logarithm of possibility that images is from the
+ * projection translation couple. The pixels needed for calculation are assigned
+ * by an array.
+ *
+ * @param dat  image
+ * @param pri  projection
+ * @param tra  translation
+ * @param ctf  CTF
+ * @param sig  sigma of noise
+ * @param iPxl the indices of the pixels
+ * @param iSig the indices of the sigma of the corresponding pixels
+ */
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
