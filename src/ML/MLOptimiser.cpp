@@ -272,6 +272,7 @@ void MLOptimiser::expectation()
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 ***/
+
                 //#pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
@@ -553,12 +554,12 @@ void MLOptimiser::expectation()
 
             // Only after resampling, the current variance can be calculated
             // correctly.
-            
+
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 _par[l].resample(_para.mG);
             else
                 _par[l].resample(_para.mL);
-
+            
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
                 double tVariS0Cur;
