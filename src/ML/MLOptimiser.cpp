@@ -215,7 +215,7 @@ void MLOptimiser::expectation()
         // initialse a particle filter
 
         int nR = _para.mS;
-        int nT = GSL_MAX_INT(10,
+        int nT = GSL_MAX_INT(50,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
@@ -2165,13 +2165,6 @@ double logDataVSPrior(const Image& dat,
             {
                 int index = dat.iFTHalf(i, j);
 
-                /***
-                result += gsl_pow_2(REAL(ctf.iGetFT(index)))
-                        * ABS2(dat.iGetFT(index)
-                             - REAL(ctf.iGetFT(index))
-                             * pri.iGetFT(index))
-                        / (-2 * sig[v]);
-                ***/
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
@@ -2179,6 +2172,25 @@ double logDataVSPrior(const Image& dat,
             }
         }
     }
+
+    return result;
+}
+
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int* iPxl,
+                      const int* iSig,
+                      const int m)
+{
+    double result = 0;
+
+    for (int i = 0; i < m; i++)
+        result += ABS2(dat.iGetFT(iPxl[i])
+                     - REAL(ctf.iGetFT(iPxl[i]))
+                     * pri.iGetFT(iPxl[i]))
+                / (-2 * sig(iSig[i]));
 
     return result;
 }
@@ -2212,17 +2224,30 @@ double logDataVSPrior(const Image& dat,
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         / (-2 * sig[v]);
-                /***
-                result += gsl_pow_2(REAL(ctf.iGetFT(index)))
-                        * ABS2(dat.iGetFT(index)
-                             - REAL(ctf.iGetFT(index))
-                             * pri.iGetFT(index)
-                             * tra.iGetFT(index))
-                        / (-2 * sig[v]);
-                ***/
             }
         }
     }
+
+    return result;
+}
+
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& tra,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int* iPxl,
+                      const int* iSig,
+                      const int m)
+{
+    double result = 0;
+
+    for (int i = 0; i < m; i++)
+        result += ABS2(dat.iGetFT(iPxl[i])
+                     - REAL(ctf.iGetFT(iPxl[i]))
+                     * pri.iGetFT(iPxl[i])
+                     * tra.iGetFT(iPxl[i]))
+                / (-2 * sig(iSig[i]));
 
     return result;
 }

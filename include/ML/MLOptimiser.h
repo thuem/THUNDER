@@ -122,10 +122,19 @@ typedef struct ML_OPTIMISER_PARA
      */
     char db[FILE_NAME_LENGTH];
 
+    /**
+     * whether to perform masking on the reference
+     */
     bool performMask = true;
 
+    /**
+     * whether to automatically generate a mask
+     */
     bool autoMask = true;
 
+    /**
+     * mask
+     */
     char mask[FILE_NAME_LENGTH];
 
     /**
@@ -369,6 +378,10 @@ class MLOptimiser : public Parallel
          */
         int _nI = 0;
 
+        /**
+         * number of performed rotations in the scanning phase of the global
+         * search stage
+         */
         int _nR = 0;
 
     public:
@@ -606,6 +619,14 @@ double logDataVSPrior(const Image& dat,
                       const double rU,
                       const double rL);
 
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int* iPxl,
+                      const int* iSig,
+                      const int m);
+
 /**
  * This function calculates the logarithm of the possibility that the image is
  * from the projection translation couple.
@@ -625,6 +646,28 @@ double logDataVSPrior(const Image& dat,
                       const vec& sig,
                       const double rU,
                       const double rL);
+
+/**
+ * This function calculates th logarithm of possibility that images is from the
+ * projection translation couple. The pixels needed for calculation are assigned
+ * by an array.
+ *
+ * @param dat  image
+ * @param pri  projection
+ * @param tra  translation
+ * @param ctf  CTF
+ * @param sig  sigma of noise
+ * @param iPxl the indices of the pixels
+ * @param iSig the indices of the sigma of the corresponding pixels
+ */
+double logDataVSPrior(const Image& dat,
+                      const Image& pri,
+                      const Image& tra,
+                      const Image& ctf,
+                      const vec& sig,
+                      const int* iPxl,
+                      const int* iSig,
+                      const int m);
 
 /**
  * This function calculates the logarithm of the possibilities of a series of
