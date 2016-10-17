@@ -49,8 +49,13 @@ void Reconstructor::init(const int size,
     _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
 
+    #pragma omp parallel for
     SET_0_FT(_F);
+
+    #pragma omp parallel for
     SET_1_FT(_W);
+
+    #pragma omp parallel for
     SET_0_FT(_C);
 }
 

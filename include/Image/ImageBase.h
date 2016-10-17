@@ -50,14 +50,18 @@ using namespace std;
  * @param base an Image / Volume
  */
 #define SET_0_RL(base) \
-    memset(&base(0), 0, sizeof(double) * base.sizeRL());
+    FOR_EACH_PIXEL_RL(base) \
+        base(i) = 0
+    //memset(&base(0), 0, sizeof(double) * base.sizeRL());
 
 /**
  * This macro sets each pixel of an Image / Volume to 0 in Fourier space.
  * @param base an Image / Volume
  */
 #define SET_0_FT(base) \
-    memset(&base[0], 0, sizeof(Complex) * base.sizeFT());
+    FOR_EACH_PIXEL_RL(base) \
+        base[i] = COMPLEX(0, 0);
+    //memset(&base[0], 0, sizeof(Complex) * base.sizeFT());
 
 /**
  * This macro sets each pixel of an Image / Volume to 1 in real space.
