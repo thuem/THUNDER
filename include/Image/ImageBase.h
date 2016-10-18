@@ -59,8 +59,8 @@ using namespace std;
  * @param base an Image / Volume
  */
 #define SET_0_FT(base) \
-    FOR_EACH_PIXEL_RL(base) \
-        base[i] = COMPLEX(0, 0);
+    FOR_EACH_PIXEL_FT(base) \
+        base[i] = COMPLEX(0, 0)
     //memset(&base[0], 0, sizeof(Complex) * base.sizeFT());
 
 /**
