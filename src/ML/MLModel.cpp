@@ -795,7 +795,7 @@ void MLModel::updateRU()
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
                                    AROUND((double)_size / 32))
-                     : AROUND((double)_size / 8)),
+                     : AROUND((double)_size / 16)),
                      /***
                      : GSL_MIN_INT(SEARCH_RES_GAP_LOCAL,
                                    AROUND((double)_size / 8))),
