@@ -243,18 +243,51 @@ class Particle
          */
         void setTransQ(const double transQ);
 
+        /**
+         * This function returns the table storing the rotation information
+         * with each row storing a quaternion.
+         */
         mat4 r() const;
 
+        /**
+         * This function sets the table storing the rotation information with
+         * each row storing a quaternion.
+         *
+         * @param r the table storing the rotation information with each row
+         * storing a quaternion
+         */
         void setR(const mat4& r);
 
+        /**
+         * This function returns the table storing the translation information
+         * with each row storing a 2-vector with x and y respectively.
+         */
         mat2 t() const;
 
+        /**
+         * This function sets the table storing the translation information
+         * with each row storing a 2-vector with x and y respectively.
+         *
+         * @param t the table storing the translation information with each row
+         * storing a 2-vector with x and y respectively
+         */
         void setT(const mat2& t);
 
+        /**
+         * This function returns the vector storing the weight of each particle.
+         */
         vec w() const;
 
+        /**
+         * This function sets the vector storing the weight of each particle.
+         *
+         * @param w the vector storing the weight of each particle
+         */
         void setW(const vec& w);
 
+        /**
+         * This function returns the symmetry.
+         */
         const Symmetry* symmetry() const;
 
         /**
