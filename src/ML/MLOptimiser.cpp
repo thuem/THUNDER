@@ -767,10 +767,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC";
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR";
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
@@ -875,10 +875,16 @@ void MLOptimiser::run()
     NT_MASTER _model.refreshReco();
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(false);
+    reconstructRef(_para.performMask);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
+    _model.BcastFSC();
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
+    saveFSC(true);
 }
 
 void MLOptimiser::clear()
@@ -2121,7 +2127,7 @@ void MLOptimiser::saveMask()
     }
 }
 
-void MLOptimiser::saveFSC() const
+void MLOptimiser::saveFSC(const bool finished) const
 {
     NT_MASTER return;
 
@@ -2129,7 +2135,10 @@ void MLOptimiser::saveFSC() const
 
     vec fsc = _model.fsc(0);
 
-    sprintf(filename, "FSC_Round_%03d.txt", _iter);
+    if (finished)
+        sprintf(filename, "FSC_Round_%03d.txt", _iter);
+    else
+        sprintf(filename, "FSC_Round_Final.txt");
 
     FILE* file = fopen(filename, "w");
 
