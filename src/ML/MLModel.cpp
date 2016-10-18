@@ -467,7 +467,8 @@ void MLModel::elevateR(const double thres)
             return;
         }
 
-    _r = resolutionP(thres) + 1;
+    _r = GSL_MAX_INT(_r, resolutionP(thres) + 1);
+    //_r = resolutionP(thres) + 1;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
