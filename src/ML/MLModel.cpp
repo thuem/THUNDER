@@ -636,7 +636,7 @@ int MLModel::searchType()
                     _nRNoImprove += 1;
                     ***/
 
-                if (_nTopResNoImprove >= MAX_ITER_R_NO_IMPROVE)
+                if (_nTopResNoImprove >= MAX_ITER_RES_NO_IMPROVE)
                     _searchType = SEARCH_TYPE_STOP;
             }
         }
