@@ -985,8 +985,7 @@ void MLOptimiser::initRef()
 {
     _model.appendRef(Volume());
 
-    ALOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
-    BLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
+    MLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
     Volume ref;
 
@@ -1007,17 +1006,15 @@ void MLOptimiser::initRef()
         __builtin_unreachable();
     }
     
-    ALOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
-    BLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
+    MLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_RL(ref)
         if (ref(i) < 0) ref(i) = 0;
 
-    VOL_PAD_RL(_model.ref(0), ref, 2);
+    VOL_PAD_RL(_model.ref(0), ref, _para.pf);
 
-    ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
-    BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
+    MLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
 
     FFT fft;
     fft.fwMT(_model.ref(0));

@@ -27,7 +27,7 @@
 #include "Particle.h"
 
 #define FOR_EACH_CLASS \
-    for (int i = 0; i < _k; i++)
+    for (int l = 0; l < _k; l++)
 
 #define SEARCH_RES_GAP_GLOBAL 10
 
@@ -622,6 +622,8 @@ class MLModel : public Parallel
          */
         void setIncreaseR(const bool increaseR);
 
+        void sharpenUp(const bool fscWeighting);
+
         /**
          * This function clears up references, projectors and reconstructors.
          */
@@ -641,6 +643,8 @@ class MLModel : public Parallel
          * FSC, SNR by the frequency before padding (in pixel).
          */
         void updateRU();
+
+        void avgHemi();
 };
 
 #endif // ML_MODEL_H

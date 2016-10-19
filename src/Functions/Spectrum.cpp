@@ -260,6 +260,19 @@ void randomPhase(Volume& dst,
     }
 }
 
+void sharpen(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ew)
+{
+    double bFactor;
+    bFactorEst(bFactor, src);
+
+    bFactorFilter(dst, src, bFactor);
+
+    lowPassFilter(dst, dst, thres, ew);
+}
+
 void bFactorEst(double& bFactor,
                 const Volume& vol)
 {

@@ -193,7 +193,8 @@ void randomPhase(Volume& dst,
 
 void sharpen(Volume& dst,
              const Volume& src,
-             const int r);
+             const double thres,
+             const double ew);
 
 void bFactorEst(double& bFactor,
                 const Volume& vol);
