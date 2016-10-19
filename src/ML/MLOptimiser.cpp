@@ -794,6 +794,8 @@ void MLOptimiser::run()
                                    << 1.0 / resP2A(_resReport, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
+        _model.setRes(_resReport);
+
         _resCutoff = _model.resolutionP(_para.thresCutoffFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "

@@ -123,6 +123,16 @@ class MLModel : public Parallel
          */
         int _rT = 0;
 
+        /*
+         * resolution before padding (in pixel)
+         */
+        int _res;
+
+        /**
+         * the top resolution ever reached
+         */
+        int _resT = 0;
+
         /**
          * padding factor
          */
@@ -199,9 +209,9 @@ class MLModel : public Parallel
         int _nRChangeNoDecrease = 0;
 
         /**
-         * number of iterations without frequency improvement
+         * number of iterations without top resolution improvement
          */
-        int _nRNoImprove = 0;
+        int _nTopResNoImprove = 0;
 
         /**
          * the symmetry information
@@ -320,6 +330,12 @@ class MLModel : public Parallel
          * @param rT the highest frequency ever reached
          */
         void setRT(const int rT);
+
+        int res() const;
+
+        int resT() const;
+
+        void setRes(const int res);
 
         /**
          * This function returns the upper boundary frequency during global

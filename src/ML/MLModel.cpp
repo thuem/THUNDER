@@ -128,6 +128,23 @@ void MLModel::setRT(const int rT)
     _rT = rT;
 }
 
+int MLModel::res() const
+{
+    return _res;
+}
+
+int MLModel::resT() const
+{
+    return _resT;
+}
+
+void MLModel::setRes(const int res)
+{
+    if (_resT < _res) _resT = _res;
+
+    _res = res;
+}
+
 int MLModel::rGlobal() const
 {
     return _rGlobal;
@@ -361,14 +378,6 @@ int MLModel::resolutionP(const int i,
                          const double thres) const
 {
     return resP(_FSC.col(i), thres, _pf);
-    /***
-    int result;
-
-    for (result = 1; result < _FSC.rows(); result++)
-        if (_FSC(result, i) < thres) break;
-
-    return (result - 1) / _pf;
-    ***/
 }
 
 int MLModel::resolutionP(const double thres) const
@@ -468,7 +477,6 @@ void MLModel::elevateR(const double thres)
         }
 
     _r = GSL_MAX_INT(_r, resolutionP(thres) + 1);
-    //_r = resolutionP(thres) + 1;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
@@ -687,17 +695,30 @@ int MLModel::searchType()
         {
             if (_increaseR)
             {
+                if ((_r > _rT) ||
+                    (_res > _resT))
+                    _nTopResNoImprove = 0;
+                else
+                {
+                    _nTopResNoImprove += 1;
+
+                    MLOG(INFO, "LOGGER_SYS") << "Top Resolution (Pixel): "
+                                             << _resT
+                                             << ", Current Resolution (Pixel): "
+                                             << _res;
+
+                    MLOG(INFO, "LGGGER_SYS") << "Number of Iterations without Top Resolution Elevating : "
+                                             << _nTopResNoImprove;
+                }
+
+                /***
                 if (_r > _rT)
                     _nRNoImprove = 0;
                 else
                     _nRNoImprove += 1;
+                    ***/
 
-                /***
-                _searchType = (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
-                            ? SEARCH_TYPE_STOP
-                            : SEARCH_TYPE_LOCAL;
-                ***/
-                if (_nRNoImprove >= MAX_ITER_R_NO_IMPROVE)
+                if (_nTopResNoImprove >= MAX_ITER_R_NO_IMPROVE)
                     _searchType = SEARCH_TYPE_STOP;
             }
         }
@@ -796,7 +817,7 @@ void MLModel::updateRU()
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
                                    AROUND((double)_size / 32))
-                     : AROUND((double)_size / 16)),
+                     : AROUND((double)_size / 8)),
                      /***
                      : GSL_MIN_INT(SEARCH_RES_GAP_LOCAL,
                                    AROUND((double)_size / 8))),
