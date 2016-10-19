@@ -19,7 +19,7 @@ void bFactorFilter(Image& dst,
         double f = gsl_pow_2(double(i) / src.nColRL())
                  + gsl_pow_2(double(j) / src.nRowRL());
 
-        dst.setFT(src.getFT(i, j) * exp(-0.5 * bFactor * f), i, j);
+        dst.setFT(src.getFT(i, j) * exp(-0.25 * bFactor * f), i, j);
     }
 }
 
@@ -34,7 +34,7 @@ void bFactorFilter(Volume& dst,
                  + gsl_pow_2(double(j) / src.nRowRL())
                  + gsl_pow_2(double(k) / src.nSlcRL());
 
-        dst.setFT(src.getFT(i, j, k) * exp(-0.5 * bFactor * f), i, j, k);
+        dst.setFT(src.getFT(i, j, k) * exp(-0.25 * bFactor * f), i, j, k);
     }
 }
 
@@ -145,7 +145,7 @@ void fscWeightingFilter(Volume& dst,
 
         if (idx < fsc.size())
             dst.setFT(src.getFT(i, j, k)
-                    * sqrt(2 * fsc(idx) / (1 + fsc(idx))),
+                    * sqrt(GSL_MAX_DBL(0, 2 * fsc(idx) / (1 + fsc(idx)))),
                       i,
                       j,
                       k);

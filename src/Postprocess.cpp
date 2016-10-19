@@ -48,6 +48,7 @@ void Postprocess::run()
     fft.fwMT(_mapA);
     fft.fwMT(_mapB);
 
+    /***
     CLOG(INFO, "LOGGER_SYS") << "Determining FSC of Unmasked Half Maps";
 
     _fscU.resize(maxR());
@@ -131,13 +132,6 @@ void Postprocess::run()
     fft.bwMT(_mapARFMask);
     fft.bwMT(_mapBRFMask);
 
-    /***
-    imf.readMetaData(_mapARFMask);
-    imf.writeVolume("mapARF.mrc", _mapARFMask);
-    imf.readMetaData(_mapBRFMask);
-    imf.writeVolume("mapBRF.mrc", _mapBRFMask);
-    ***/
-
     CLOG(INFO, "LOGGER_SYS") << "Performing Mask on Random Phase Maps";
 
     #pragma omp parallel for
@@ -177,6 +171,7 @@ void Postprocess::run()
                                                   randomPhaseRes + 2),
                                              _size,
                                              _pixelSize);
+    ***/
 }
 
 int Postprocess::maxR()

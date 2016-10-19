@@ -13,12 +13,14 @@
 
 #include <functional>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_fit.h>
 
 #include "Error.h"
 #include "Typedef.h"
 
 #include "Image.h"
 #include "Volume.h"
+#include "Filter.h"
 
 using namespace std;
 
@@ -188,6 +190,13 @@ int resP(const vec& fsc,
 void randomPhase(Volume& dst,
                  const Volume& src,
                  const int r);
+
+void sharpen(Volume& dst,
+             const Volume& src,
+             const int r);
+
+void bFactorEst(double& bFactor,
+                const Volume& vol);
 
 /***
 void wilsonPlot(std::map<double, double>& dst,

@@ -260,6 +260,46 @@ void randomPhase(Volume& dst,
     }
 }
 
+void bFactorEst(double& bFactor,
+                const Volume& vol)
+{
+    int n = vol.nColRL() / 2 - 1;
+
+    vec I = vec::Zero(n);
+    vec C = vec::Zero(n);
+
+    VOLUME_FOR_EACH_PIXEL_FT(vol)
+    {
+        int u = AROUND(NORM_3(i, j, k));
+        if (u < n)
+        {
+            I[u] += ABS(vol.getFT(i, j, k));
+            C[u] += 1;
+        }
+    }
+    
+    for (int i = 0; i < n; i++)
+    {
+        I[i] = log(I[i] / C[i]);
+        C[i] = gsl_pow_2((double)i / vol.nColRL());
+    }
+
+    double c0, c1, cov00, cov01, cov11, sumsq;
+
+    gsl_fit_linear(C.data(),
+                   1,
+                   I.data(),
+                   1,
+                   n, 
+                   &c0,
+                   &c1,
+                   &cov00,
+                   &cov01,
+                   &cov11,
+                   &sumsq);
+
+    bFactor = 4 * c1;
+}
 /***
 void wilsonPlot(std::map<double, double>& dst,
                 const int imageSize,
