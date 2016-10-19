@@ -384,6 +384,10 @@ class MLOptimiser : public Parallel
          */
         int _nR = 0;
 
+        int* _iPxl = NULL;
+
+        int* _iSig = NULL;
+
     public:
         
         MLOptimiser();
@@ -557,6 +561,12 @@ class MLOptimiser : public Parallel
          * @param mask whether mask on the reference is allowed or not
          */
         void reconstructRef(const bool mask = true);
+
+        void allocPreCal(int& nPxl,
+                         const double rU,
+                         const double rL);
+
+        void freePreCal();
 
         /**
          * for debug, save the best projections

@@ -208,6 +208,9 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
+    int nPxl;
+    allocPreCal(nPxl, _r, _rL);
+
     int nPer = 0;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -283,6 +286,7 @@ void MLOptimiser::expectation()
                     }
                 }
 
+                /***
                 logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
                                                                   imgAll,
                                                                   _ctf,
@@ -290,8 +294,16 @@ void MLOptimiser::expectation()
                                                                   _sig,
                                                                   _r,
                                                                   _rL);
-                                                                  //FREQ_DOWN_CUTOFF);
-                                                                  //(double)_r / 3);
+                                                                  ***/
+                logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
+                                                                  imgAll,
+                                                                  _ctf,
+                                                                  _groupID,
+                                                                  _sig,
+                                                                  _iPxl,
+                                                                  _iSig,
+                                                                  nPxl);
+
 
                 /***
                 #pragma omp parallel for
@@ -473,14 +485,21 @@ void MLOptimiser::expectation()
                     _par[l].t(t, m);
                     _model.proj(0).project(image, rot, t);
 
+                    /***
                     logW(m) = logDataVSPrior(_img[l], // dat
                                              image, // pri
                                              _ctf[l], // ctf
                                              _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                              _r,
                                              _rL);
-                                             //FREQ_DOWN_CUTOFF);
-                                             //(double)_r / 3);
+                                             ***/
+                    logW(m) = logDataVSPrior(_img[l], // dat
+                                             image, // pri
+                                             _ctf[l], // ctf
+                                             _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
+                                             _iPxl,
+                                             _iSig,
+                                             nPxl);
                 }
             /***
             }
@@ -631,6 +650,8 @@ void MLOptimiser::expectation()
             save(filename, _par[l]);
         }
     }
+
+    freePreCal();
 }
 
 void MLOptimiser::maximization()
@@ -1890,6 +1911,47 @@ void MLOptimiser::reconstructRef(const bool mask)
     FFT fft;
     fft.fwMT(_model.ref(0));
     _model.ref(0).clearRL();
+}
+
+void MLOptimiser::allocPreCal(int& nPxl,
+                              const double rU,
+                              const double rL)
+{
+    IF_MASTER return;
+
+    _iPxl = new int[_img[0].sizeFT()];
+    _iSig = new int[_img[0].sizeFT()];
+
+    double rU2 = gsl_pow_2(rU);
+    double rL2 = gsl_pow_2(rL);
+
+    nPxl = 0;
+
+    IMAGE_FOR_PIXEL_R_FT(rU + 1)
+    {
+        double u = QUAD(i, j);
+
+        if ((u < rU2) && (u > rL2))
+        {
+            int v = AROUND(NORM(i, j));
+
+            if (v < rU)
+            {
+                _iPxl[nPxl] = _img[0].iFTHalf(i, j);
+                _iSig[nPxl] = v;
+
+                nPxl++;
+            }
+        }
+    }
+}
+
+void MLOptimiser::freePreCal()
+{
+    IF_MASTER return;
+
+    delete[] _iPxl;
+    delete[] _iSig;
 }
 
 void MLOptimiser::saveBestProjections()
