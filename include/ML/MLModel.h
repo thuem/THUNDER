@@ -590,6 +590,19 @@ class MLModel : public Parallel
          */
         void setNRChangeNoDecrease(const int nRChangeNoDecrease);
 
+        /**
+         * This function returns the number of iterations that the resolution
+         * does not elevate.
+         */
+        int nTopResNoImprove() const;
+
+        /**
+         * This function set the number of iterations that the resolution does
+         * not elevate.
+         *
+         * @param nTopResNoImprove the number of iterations that the resolution
+         *                         does not elevate
+         */
         void setNTopResNoImprove(const int nTopResNoImprove);
 
         /**

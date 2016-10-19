@@ -594,6 +594,11 @@ void MLModel::setNRChangeNoDecrease(const int nRChangeNoDecrease)
     _nRChangeNoDecrease = nRChangeNoDecrease;
 }
 
+int MLModel::nTopResNoImprove() const
+{
+    return _nTopResNoImprove;
+}
+
 void MLModel::setNTopResNoImprove(const int nTopResNoImprove)
 {
     _nTopResNoImprove = nTopResNoImprove;
