@@ -529,20 +529,6 @@ class MLModel : public Parallel
         void setStdTVariS1(const double stdTVariS1);
 
         /**
-         * This function calculates the variance paramters and averages those in
-         * the same hemisphere. The variance paramters include the concentration
-         * parameter of the rotation, the variances of 2D Guassian distribution
-         * of the translation in X and Y.
-         *
-         * @param par a vector of Particle
-         * @param n   number of images in the hemisphere
-         */
-        /***
-        void allReduceVari(const vector<Particle>& par,
-                           const int n);
-                           ***/
-
-        /**
          * This function returns the average rotation change between iterations.
          */
         double rChange() const;
