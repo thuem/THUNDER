@@ -909,6 +909,9 @@ void MLOptimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Sharpening Reference(s)";
+    _model.sharpenUp(true);
 }
 
 void MLOptimiser::clear()
@@ -2158,6 +2161,19 @@ void MLOptimiser::saveReference(const bool finished)
 
         imf.writeVolume(filename, result);
     }
+}
+
+void MLOptimiser::saveSharpReference()
+{
+    NT_MASTER return;
+
+    FFT fft;
+
+    fft.bw(_model.ref(0));
+
+    ImageFile imf;
+    imf.readMetaData(_model.ref(0));
+    imf.writeVolume("Reference_Sharp.mrc", _model.ref(0));
 }
 
 void MLOptimiser::saveMask()
