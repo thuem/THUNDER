@@ -375,18 +375,20 @@ vec MLModel::tau(const int i) const
 }
 
 int MLModel::resolutionP(const int i,
-                         const double thres) const
+                         const double thres,
+                         const bool inverse) const
 {
-    return resP(_FSC.col(i), thres, _pf);
+    return resP(_FSC.col(i), thres, _pf, inverse);
 }
 
-int MLModel::resolutionP(const double thres) const
+int MLModel::resolutionP(const double thres,
+                         const bool inverse) const
 {
     int result = 0;
 
     FOR_EACH_CLASS
-        if (result < resolutionP(i, thres))
-            result = resolutionP(i, thres);
+        if (result < resolutionP(i, thres, inverse))
+            result = resolutionP(i, thres, inverse);
 
     return result;
 }
@@ -476,7 +478,7 @@ void MLModel::elevateR(const double thres)
             return;
         }
 
-    _r = GSL_MAX_INT(_r, resolutionP(thres) + 1);
+    _r = GSL_MAX_INT(_r, resolutionP(thres, true) + 1);
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);

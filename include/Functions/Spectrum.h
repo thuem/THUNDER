@@ -165,15 +165,17 @@ void FSC(vec& dst,
 /**
  * This function determines the resolution based on FSC given.
  *
- * @param fsc   Fourier shell coefficient
- * @param thres threshold of resolution
- * @param pf    the padding factor
- * @param rL    the lower boundary of frequency for searching resolution
+ * @param fsc     Fourier shell coefficient
+ * @param thres   threshold of resolution
+ * @param pf      the padding factor
+ * @param rL      the lower boundary of frequency for searching resolution
+ * @param inverse whether to search from high frequency to low frequency
  */
 int resP(const vec& fsc,
          const double thres,
          const int pf = 1,
-         const int rL = 1);
+         const int rL = 1,
+         const bool inverse = false);
 
 /**
  * This function randomizes the phase of a given volume above a certain

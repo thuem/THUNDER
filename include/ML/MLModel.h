@@ -126,7 +126,7 @@ class MLModel : public Parallel
         /*
          * resolution before padding (in pixel)
          */
-        int _res;
+        int _res = 0;
 
         /**
          * the top resolution ever reached
@@ -432,19 +432,25 @@ class MLModel : public Parallel
          * This function returns the resolution in pixel of the i-th
          * reference.
          *
-         * @param i     the index of the reference
-         * @param thres the threshold for determining resolution
+         * @param i       the index of the reference
+         * @param thres   the threshold for determining resolution
+         * @param inverse whether to search from high frequency to low frequency
+         *                or not
          */
         int resolutionP(const int i,
-                        const double thres = 0.143) const;
+                        const double thres = 0.143,
+                        const bool inverse = false) const;
 
         /**
          * This function returns the highest resolution in pixel of the
          * references.
          *
          * @param thres the threshold for determining resolution
+         * @param inverse whether to search from high frequency to low frequency
+         *                or not
          */
-        int resolutionP(const double thres = 0.143) const;
+        int resolutionP(const double thres = 0.143,
+                        const bool inverse = false) const;
 
         /**
          * This function returns the resolution in Angstrom(-1) of the i-th

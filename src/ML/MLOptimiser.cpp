@@ -786,7 +786,7 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
 
-        _resReport = _model.resolutionP(_para.thresReportFSC);
+        _resReport = _model.resolutionP(_para.thresReportFSC, false);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
                                    << _resReport
@@ -796,7 +796,7 @@ void MLOptimiser::run()
 
         _model.setRes(_resReport);
 
-        _resCutoff = _model.resolutionP(_para.thresCutoffFSC);
+        _resCutoff = _model.resolutionP(_para.thresCutoffFSC, true);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "
                                    << _resCutoff

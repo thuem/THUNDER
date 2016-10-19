@@ -173,8 +173,6 @@ void FRC(vec& dst,
         }
     }
 
-    //dst = vecS.array() / sqrt(vecA.array() * vecB.array());
-
     for (int i = 0; i < dst.size(); i++)
     {
         double AB = sqrt(vecA(i) * vecB(i));
@@ -212,23 +210,32 @@ void FSC(vec& dst,
         else
             dst(i) = vecS(i) / AB;
     }
-
-    //dst = vecS.array() / sqrt(vecA.array() * vecB.array());
 }
 
 int resP(const vec& fsc,
          const double thres,
          const int pf,
-         const int rL)
+         const int rL,
+         const bool inverse)
 {
     int result;
 
-    for (result = rL; result < fsc.size(); result++)
+    if (inverse)
     {
-        if (fsc(result) < thres) break;
+        for (result = fsc.size() - 1; result >= rL; result--)
+            if (fsc(result) > thres) break;
+    }
+    else
+    {
+        for (result = rL; result < fsc.size(); result++)
+        {
+            if (fsc(result) < thres) break;
+        }
+
+        result--;
     }
 
-    return (result - 1) / pf;
+    return result / pf;
 }
 
 void randomPhase(Volume& dst,
