@@ -598,6 +598,8 @@ class MLModel : public Parallel
          */
         void setNRChangeNoDecrease(const int nRChangeNoDecrease);
 
+        void setNTopResNoImprove(const int nTopResNoImprove);
+
         /**
          * This function returns the suggested search type.
          */

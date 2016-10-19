@@ -681,6 +681,11 @@ void MLModel::setNRChangeNoDecrease(const int nRChangeNoDecrease)
     _nRChangeNoDecrease = nRChangeNoDecrease;
 }
 
+void MLModel::setNTopResNoImprove(const int nTopResNoImprove)
+{
+    _nTopResNoImprove = nTopResNoImprove;
+}
+
 int MLModel::searchType()
 {
     // If the searching needs to stop, return the stop signal.
