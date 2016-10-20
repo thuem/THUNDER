@@ -218,7 +218,7 @@ void MLOptimiser::expectation()
         // initialse a particle filter
 
         int nR = _para.mS;
-        int nT = GSL_MAX_INT(500,
+        int nT = GSL_MAX_INT(100,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
