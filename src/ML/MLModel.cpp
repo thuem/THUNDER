@@ -507,7 +507,7 @@ void MLModel::elevateR(const double thres)
                                  _r + AROUND((double)_size / 16)));
                                  ***/
 
-    MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency When FSC at Upper Boundary Frequency Below"
+    MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency When FSC at Upper Boundary Frequency Below "
                              << thres;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -796,16 +796,14 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 
 void MLModel::updateRU()
 {
-    /***
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
                                    AROUND((double)_size / 32))
                      : AROUND((double)_size / 8)),
                       maxR());
-                      ***/
 
-    _rU = GSL_MIN_INT(_r + AROUND((double)_size / 8), maxR());
+    //_rU = GSL_MIN_INT(_r + AROUND((double)_size / 8), maxR());
 }
 
 void MLModel::avgHemi()
