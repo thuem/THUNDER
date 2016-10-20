@@ -214,11 +214,19 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
+            /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
                                            _size,
                                            _pixelSize) + 1) * _pf,
                                    0.8 * (_r + 1) * _pf);
+                                   ***/
+            double r = 0.8 * _r * _pf;
+            /***
+            double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
+                                           _size,
+                                           _pixelSize) + 1) * _pf,
                                    //_rU * _pf);
+                                   ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
                                          << 1.0 / resP2A(r / _pf - 1, _size, _pixelSize)
@@ -790,10 +798,17 @@ void MLModel::updateRU()
 {
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
+                     ? AROUND((double)_size / 32)
+                     : AROUND((double)_size / 8)),
+                      maxR());
+    /***
+    _rU = GSL_MIN_INT(_r
+                    + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
                                    AROUND((double)_size / 32))
                      : AROUND((double)_size / 8)),
                       maxR());
+                     ***/
 
     //_rU = GSL_MIN_INT(_r + AROUND((double)_size / 8), maxR());
 }
