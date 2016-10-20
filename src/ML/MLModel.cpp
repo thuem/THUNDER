@@ -481,15 +481,7 @@ void MLModel::elevateR(const double thres)
             //_r = GSL_MIN_INT(_rU, AROUND(s * _r));
             
             if (_searchType == SEARCH_TYPE_GLOBAL)
-            {
-                ALOG(INFO, "LOGGER_SYS") << "_rGlobal = " << _rGlobal;
-                ALOG(INFO, "LOGGER_SYS") << "areaGlb = " << areaGlb;
-                ALOG(INFO, "LOGGER_SYS") << "Increase = "
-                                         << AROUND(areaGlb / (2 * M_PI * _r) / 8);
-                ALOG(INFO, "LOGGER_SYS") << "_rU = " << _rU;
-
                 _r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 8));
-            }
             else
                 _r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
 
@@ -511,13 +503,13 @@ void MLModel::elevateR(const double thres)
                              << thres;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
-        GSL_MAX_INT(_r,
-                    GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                _r + AROUND(areaGlb / (2 * M_PI * _r) / 8)));
+        _r = GSL_MAX_INT(_r,
+                         GSL_MIN_INT(resolutionP(thres, true) + 1,
+                                     _r + AROUND(areaGlb / (2 * M_PI * _r) / 8)));
     else
-        GSL_MAX_INT(_r,
-                    GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                _r + AROUND(areaTtl / (2 * M_PI * _r) / 16)));
+        _r = GSL_MAX_INT(_r,
+                         GSL_MIN_INT(resolutionP(thres, true) + 1,
+                                     _r + AROUND(areaTtl / (2 * M_PI * _r) / 16)));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
