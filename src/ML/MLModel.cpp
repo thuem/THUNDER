@@ -465,10 +465,20 @@ void MLModel::updateR(const double thres)
 
 void MLModel::elevateR(const double thres)
 {
+    double areaTtl = M_PI * gsl_pow_2(maxR());
+    double areaGlb = M_PI * gsl_pow_2(_rGlobal);
+
     FOR_EACH_CLASS
         if (_FSC.col(l)(_pf * _rU - 1) > thres)
         {
-            _r = GSL_MIN_INT(_rU, _r + AROUND((double)_size / 16));
+            //_r = GSL_MIN_INT(_rU, _r + AROUND((double)_size / 16));
+
+            //_r = GSL_MIN_INT(_rU, AROUND(s * _r));
+            
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                _r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 8));
+            else
+                _r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 _r = GSL_MIN_INT(_rGlobal, _r);
@@ -478,9 +488,20 @@ void MLModel::elevateR(const double thres)
             return;
         }
 
+    /***
     _r = GSL_MAX_INT(_r,
                      GSL_MIN_INT(resolutionP(thres, true) + 1,
                                  _r + AROUND((double)_size / 16)));
+                                 ***/
+
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+        GSL_MAX_INT(_r,
+                    GSL_MIN_INT(resolutionP(thres, true) + 1,
+                                _r + AROUND(areaGlb / (2 * M_PI * _r) / 8)));
+    else
+        GSL_MAX_INT(_r,
+                    GSL_MIN_INT(resolutionP(thres, true) + 1,
+                                _r + AROUND(areaTtl / (2 * M_PI * _r) / 16)));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
@@ -759,16 +780,16 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 
 void MLModel::updateRU()
 {
+    /***
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
                                    AROUND((double)_size / 32))
                      : AROUND((double)_size / 8)),
-                     /***
-                     : GSL_MIN_INT(SEARCH_RES_GAP_LOCAL,
-                                   AROUND((double)_size / 8))),
-                                   ***/
                       maxR());
+                      ***/
+
+    _rU = GSL_MIN_INT(_r + AROUND((double)_size / 8), maxR());
 }
 
 void MLModel::avgHemi()
