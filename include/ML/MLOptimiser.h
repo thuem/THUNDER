@@ -49,7 +49,7 @@
 
 #define GEN_MASK_RES 30
 
-#define TRANS_SEARCH_FACTOR 0.1
+#define TRANS_SEARCH_FACTOR 1
 
 #define SWITCH_FACTOR 3
 

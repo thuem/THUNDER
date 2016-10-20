@@ -218,7 +218,7 @@ void MLOptimiser::expectation()
         // initialse a particle filter
 
         int nR = _para.mS;
-        int nT = GSL_MAX_INT(50,
+        int nT = GSL_MAX_INT(500,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
@@ -1586,6 +1586,7 @@ void MLOptimiser::refreshSwitch()
 
         double rVari, tVariS0, tVariS1;
 
+        #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
         {
             _par[l].vari(rVari,
@@ -1597,6 +1598,7 @@ void MLOptimiser::refreshSwitch()
                 (tVariS1 > tVariS1Thres))
             {
                 _switch[l] = false;
+                #pragma omp atomic
                 nFail += 1;
             }
             else
