@@ -16,6 +16,10 @@ ImageFile::ImageFile(const char* filename,
                      const char* option)
 {
     _file = fopen(filename, option);
+
+    if (_file == NULL)
+        CLOG(FATAL, "LOGGER_SYS") << "File Does not Exist: "
+                                  << filename;
 }
 
 ImageFile::~ImageFile()

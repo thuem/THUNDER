@@ -38,6 +38,7 @@ struct ImageMetaData
 #include <iostream>
 
 #include "Error.h"
+#include "Logging.h"
 
 #include "MRCHeader.h"
 #include "Image.h"

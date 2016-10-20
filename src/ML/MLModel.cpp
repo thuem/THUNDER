@@ -468,7 +468,7 @@ void MLModel::elevateR(const double thres)
     FOR_EACH_CLASS
         if (_FSC.col(l)(_pf * _rU - 1) > thres)
         {
-            _r = _rU;
+            _r = GSL_MIN_INT(_rU, _r + AROUND((double)_size / 16));
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 _r = GSL_MIN_INT(_rGlobal, _r);

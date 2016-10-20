@@ -19,7 +19,8 @@ int main(int argc, const char* argv[])
 
     try
     {
-        Symmetry sym("C15");
+        //Symmetry sym("C15");
+        Symmetry sym("C1");
         display(sym);
 
         vector<mat33> sr;
@@ -30,6 +31,8 @@ int main(int argc, const char* argv[])
                0, 0, 1;
 
         symmetryRotation(sr, rot, &sym);
+
+        cout << "pgOrder = " << sym.pgOrder() << endl;
 
         for (int i = 0; i < (int)sr.size(); i++)
             cout << sr[i] << endl;
