@@ -912,6 +912,9 @@ void MLOptimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Sharpening Reference(s)";
     _model.sharpenUp(true);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Sharp Reference(s)";
+    saveSharpReference();
 }
 
 void MLOptimiser::clear()

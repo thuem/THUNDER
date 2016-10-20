@@ -727,6 +727,8 @@ void MLModel::sharpenUp(const bool fscWeighting)
 
     avgHemi();
 
+    MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference(s)";
+
     IF_MASTER
     {
         FOR_EACH_CLASS
