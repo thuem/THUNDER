@@ -481,7 +481,7 @@ void MLModel::elevateR(const double thres)
             //_r = GSL_MIN_INT(_rU, AROUND(s * _r));
             
             if (_searchType == SEARCH_TYPE_GLOBAL)
-                _r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 8));
+                _r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 4));
             else
                 _r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
 
@@ -505,7 +505,7 @@ void MLModel::elevateR(const double thres)
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                     _r + AROUND(areaGlb / (2 * M_PI * _r) / 8)));
+                                     _r + AROUND(areaGlb / (2 * M_PI * _r) / 4)));
     else
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
