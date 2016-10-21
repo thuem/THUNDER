@@ -227,13 +227,18 @@ void MLOptimiser::expectation()
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * TRANS_SEARCH_FACTOR));
-        _par[0].reset(nR, nT);
+
+        Particle par;
+        par.init(_para.transS, 0.01, &_sym);
+        par.reset(nR, nT);
 
         // copy the particle filter to the rest of particle filters
 
+        /***
         #pragma omp parallel for
         for (int i = 1; i < (int)_ID.size(); i++)
             _par[0].copy(_par[i]);
+            ***/
 
         mat33 rot;
         vec2 t;
@@ -244,34 +249,42 @@ void MLOptimiser::expectation()
         trans.resize(nT);
 
         #pragma omp parallel for schedule(dynamic) private(t)
-        for (int m = 0; m < nT; m++)
+        for (unsigned int m = 0; m < (unsigned int)nT; m++)
         {
             trans[m].alloc(size(), size(), FT_SPACE);
 
-            _par[0].t(t, m);
+            par.t(t, m);
                     
             translate(trans[m], _r, t(0), t(1));
         }
         
         // perform expectations
 
-        mat logW(_par[0].n(), _ID.size());
+        //mat topW(_par[0].n(), _ID.size());
+
+        mat topW(_para.mG, _ID.size());
+        for (int i = 0; i < _para.mG; i++)
+            for (int j = 0; j < (int)_ID.size(); j++)
+                topW(i, j) = -DBL_MAX;
+
+        umat iTopR(_para.mG, _ID.size());
+        umat iTopT(_para.mG, _ID.size());
 
         _nR = 0;
 
         #pragma omp parallel for schedule(dynamic) private(rot)
-        for (int m = 0; m < nR; m++)
+        for (unsigned int m = 0; m < (unsigned int)nR; m++)
         {
             Image imgRot(size(), size(), FT_SPACE);
             Image imgAll(size(), size(), FT_SPACE);
 
             // perform projection
 
-            _par[0].rot(rot, m * nT);
+            par.rot(rot, m * nT);
 
             _model.proj(0).project(imgRot, rot);
 
-            for (int n = 0; n < nT; n++)
+            for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
                 // perform translation
 
@@ -299,6 +312,7 @@ void MLOptimiser::expectation()
                                                                   _r,
                                                                   _rL);
                                                                   ***/
+                /***
                 logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
                                                                   imgAll,
                                                                   _ctf,
@@ -307,6 +321,25 @@ void MLOptimiser::expectation()
                                                                   _iPxl,
                                                                   _iSig,
                                                                   nPxl);
+                                                                  ***/
+
+                vec dvp = logDataVSPrior(_img,
+                                         imgAll,
+                                         _ctf,
+                                         _groupID,
+                                         _sig,
+                                         _iPxl,
+                                         _iSig,
+                                         nPxl);
+
+                FOR_EACH_2D_IMAGE
+                    recordTopK(topW.col(l).data(),
+                               iTopR.col(l).data(),
+                               iTopT.col(l).data(),
+                               dvp[l],
+                               m,
+                               n,
+                               _para.mG);
 
 
                 /***
@@ -344,11 +377,12 @@ void MLOptimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            vec v = logW.col(l);
+            //vec v = logW.col(l);
+            vec v = topW.col(l);
 
             PROCESS_LOGW(v);
 
-            logW.col(l) = v;
+            topW.col(l) = v;
         }
 
         // reset weights of particle filter
@@ -356,13 +390,32 @@ void MLOptimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+            /***
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m, l), m);
+            ***/
+
+            _par[l].reset(_para.mG);
+
+            vec4 quat;
+            vec2 t;
+            for (int m = 0; m < _para.mG; m++)
+            {
+                par.quaternion(quat, iTopR(m) * nT);
+                par.t(t, iTopT(m));
+
+                _par[l].setQuaternion(quat, m);
+                _par[l].setT(t, m);
+
+                _par[l].mulW(topW(m, l), m);
+            }
 
             _par[l].normW();
 
+            /***
             // sort
             _par[l].sort(_para.mG);
+            ***/
 
             if (_ID[l] < 20)
             {
@@ -2263,11 +2316,11 @@ int searchPlace(double* topW,
 }
 
 void recordTopK(double* topW,
-                int* iTopR,
-                int* iTopT,
+                unsigned int* iTopR,
+                unsigned int* iTopT,
                 const double w,
-                const int iR,
-                const int iT,
+                const unsigned int iR,
+                const unsigned int iT,
                 const int k)
 {
     int place = searchPlace(topW, w, 0, k);

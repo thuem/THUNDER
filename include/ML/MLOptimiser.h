@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <string>
+#include <climits>
 
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
@@ -625,11 +626,11 @@ int searchPlace(double* topW,
                 const int r);
 
 void recordTopK(double* topW,
-                int* iTopR,
-                int* iTopT,
+                unsigned int* iTopR,
+                unsigned int* iTopT,
                 const double w,
-                const int iR,
-                const int iT,
+                const unsigned int iR,
+                const unsigned int iT,
                 const int k);
 
 /**
