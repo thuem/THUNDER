@@ -750,6 +750,31 @@ void MLModel::sharpenUp(const bool fscWeighting)
     }
 }
 
+void MLModel::sharpenUp(const double bFactor,
+                        const bool fscWeighting)
+{
+    MLOG(INFO, "LOGGER_SYS") << "Averaging Reference(s) from Two Hemispheres";
+
+    avgHemi();
+
+    MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference(s)";
+
+    IF_MASTER
+    {
+        FOR_EACH_CLASS
+        {
+            if (fscWeighting)
+                fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
+
+            sharpen(_ref[l],
+                    _ref[l],
+                    (double)_resT / _size,
+                    EDGE_WIDTH_FT / _size,
+                    bFactor);
+        }
+    }
+}
+
 void MLModel::clear()
 {
     _ref.clear();

@@ -137,6 +137,12 @@ typedef struct ML_OPTIMISER_PARA
      */
     char mask[FILE_NAME_LENGTH];
 
+    bool performSharpen = true;
+
+    bool estBFactor = false;
+
+    double bFactor = 200;
+
     /**
      * max number of iteration
      */

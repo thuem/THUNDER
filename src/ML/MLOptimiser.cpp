@@ -27,6 +27,10 @@ void display(const MLOptimiserPara& para)
     printf("Automask:                                              %12d\n", para.autoMask);
     printf("Mask:                                                  %12s\n", para.mask);
 
+    printf("Perform Sharpening:                                    %12d\n", para.performSharpen);
+    printf("Auto Estimate B-factor:                                %12d\n", para.estBFactor);
+    printf("B-Factor:                                              %12.6lf\n", para.bFactor);
+
     printf("Max Number of Iteration:                               %12d\n", para.iterMax);
     printf("Padding Factor:                                        %12d\n", para.pf);
     printf("MKB Kernel Radius:                                     %12.6lf\n", para.a);
@@ -910,11 +914,18 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Sharpening Reference(s)";
-    _model.sharpenUp(true);
+    if (_para.performSharpen)
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Sharpening Reference(s)";
 
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Sharp Reference(s)";
-    saveSharpReference();
+        if (_para.estBFactor)
+            _model.sharpenUp(true);
+        else
+            _model.sharpenUp(-_para.bFactor / gsl_pow_2(_para.pixelSize), true);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Sharp Reference(s)";
+        saveSharpReference();
+    }
 }
 
 void MLOptimiser::clear()

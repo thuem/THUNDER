@@ -89,6 +89,8 @@ int main(int argc, char* argv[])
 
     bFactorEst(bFactor, map, atoi(argv[3]));
 
+    bFactor = -111;
+
     cout << "B-Factor = " << bFactor << endl;
 
     bFactorFilter(map, map, bFactor);

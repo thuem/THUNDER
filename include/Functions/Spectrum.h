@@ -197,6 +197,12 @@ void sharpen(Volume& dst,
              const double ew,
              const int r);
 
+void sharpen(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ew,
+             const double bFactor);
+
 void bFactorEst(double& bFactor,
                 const Volume& vol,
                 const int r);

@@ -269,6 +269,15 @@ void sharpen(Volume& dst,
     double bFactor;
     bFactorEst(bFactor, src, r);
 
+    sharpen(dst, src, thres, ew, bFactor);
+}
+
+void sharpen(Volume& dst,
+             const Volume& src,
+             const double thres,
+             const double ew,
+             const double bFactor)
+{
     bFactorFilter(dst, src, bFactor);
 
     lowPassFilter(dst, dst, thres, ew);

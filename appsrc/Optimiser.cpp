@@ -40,6 +40,10 @@ void readPara(MLOptimiserPara& dst,
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();
     sprintf(dst.mask, src["Reference Mask"]["Provided Mask"].asString().c_str());
 
+    dst.performSharpen = src["Sharpening"]["Perform Sharpening"].asBool();
+    dst.estBFactor = src["Sharpening"]["Auto Estimate B-Factor"].asBool();
+    dst.bFactor = src["Sharpening"]["B-Factor (Angstrom^2)"].asFloat();
+
     dst.iterMax = src["Advanced"]["Max Number of Iteration"].asInt();
     dst.pf = src["Advanced"]["Padding Factor"].asInt();
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();

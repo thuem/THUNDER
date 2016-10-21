@@ -626,6 +626,9 @@ class MLModel : public Parallel
 
         void sharpenUp(const bool fscWeighting);
 
+        void sharpenUp(const double bFactor,
+                       const bool fscWeighting);
+
         /**
          * This function clears up references, projectors and reconstructors.
          */
