@@ -113,6 +113,11 @@ int MLModel::rU() const
     return _rU;
 }
 
+void MLModel::setRU(const int rU)
+{
+    _rU = rU;
+}
+
 int MLModel::rPrev() const
 {
     return _rPrev;
@@ -739,7 +744,8 @@ void MLModel::sharpenUp(const bool fscWeighting)
             sharpen(_ref[l],
                     _ref[l],
                     (double)_resT / _size,
-                    EDGE_WIDTH_FT / _size);
+                    EDGE_WIDTH_FT / _size,
+                    _rT * _pf);
         }
     }
 }

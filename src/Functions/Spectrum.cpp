@@ -263,10 +263,11 @@ void randomPhase(Volume& dst,
 void sharpen(Volume& dst,
              const Volume& src,
              const double thres,
-             const double ew)
+             const double ew,
+             const int r)
 {
     double bFactor;
-    bFactorEst(bFactor, src);
+    bFactorEst(bFactor, src, r);
 
     bFactorFilter(dst, src, bFactor);
 
@@ -274,24 +275,23 @@ void sharpen(Volume& dst,
 }
 
 void bFactorEst(double& bFactor,
-                const Volume& vol)
+                const Volume& vol,
+                const int r)
 {
-    int n = vol.nColRL() / 2 - 1;
-
-    vec I = vec::Zero(n);
-    vec C = vec::Zero(n);
+    vec I = vec::Zero(r);
+    vec C = vec::Zero(r);
 
     VOLUME_FOR_EACH_PIXEL_FT(vol)
     {
         int u = AROUND(NORM_3(i, j, k));
-        if (u < n)
+        if (u < r)
         {
             I[u] += ABS(vol.getFT(i, j, k));
             C[u] += 1;
         }
     }
     
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < 1; i++)
     {
         I[i] = log(I[i] / C[i]);
         C[i] = gsl_pow_2((double)i / vol.nColRL());
@@ -303,7 +303,7 @@ void bFactorEst(double& bFactor,
                    1,
                    I.data(),
                    1,
-                   n, 
+                   r, 
                    &c0,
                    &c1,
                    &cov00,
@@ -313,6 +313,7 @@ void bFactorEst(double& bFactor,
 
     bFactor = 4 * c1;
 }
+
 /***
 void wilsonPlot(std::map<double, double>& dst,
                 const int imageSize,

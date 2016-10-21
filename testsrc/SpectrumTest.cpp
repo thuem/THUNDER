@@ -43,9 +43,51 @@ int main(int argc, char* argv[])
     FOR_EACH_PIXEL_FT(map)
         map[i] = (mapA[i] + mapB[i]) / 2;
 
+    cout << "Open FSC File" << endl;
+
+    FILE* file = fopen(argv[4], "r");
+
+    if (file != NULL)
+        cout << "Open FSC Succced!" << endl;
+
+    char buf[FILE_LINE_LENGTH];
+
+    int nLine = 0;
+    while (fgets(buf, FILE_LINE_LENGTH, file)) nLine++;
+
+    rewind(file);
+
+    cout << "nLine = " << nLine << endl;
+    
+    vec fsc(nLine / 2 + 1);
+    fsc(0) = 1;
+    int idx;
+    double res;
+    double val;
+    for (int i = 0; i < nLine; i++)
+    {
+        fscanf(file, "%d %lf %lf", &idx, &res, &val);
+        //cout << val << endl;
+        fsc(i / 2) = val;
+    }
+    
+    for (int i = 0; i < fsc.size(); i++)
+        cout << i << ", " << fsc(i) << endl;
+
+    cout << "FSC Weighting Fitler" << endl;
+    fscWeightingFilter(map, map, fsc);
+
+    fft.bw(map);
+
+    ImageFile imf;
+    imf.readMetaData(map);
+    imf.writeVolume("Reference_FSC_Weighting.mrc", map);
+
+    fft.fw(map);
+
     double bFactor;
 
-    bFactorEst(bFactor, map);
+    bFactorEst(bFactor, map, atoi(argv[3]));
 
     cout << "B-Factor = " << bFactor << endl;
 
@@ -58,7 +100,6 @@ int main(int argc, char* argv[])
 
     fft.bw(map);
 
-    ImageFile imf;
     imf.readMetaData(map);
     imf.writeVolume("Reference_Sharpen.mrc", map);
 

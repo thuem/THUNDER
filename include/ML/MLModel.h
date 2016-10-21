@@ -313,6 +313,8 @@ class MLModel : public Parallel
          */
         int rU() const;
 
+        void setRU(const int rU);
+
         /**
          * This function returns the frequency before padding (in pixel) of the
          * previous iteration.

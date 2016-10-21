@@ -194,10 +194,12 @@ void randomPhase(Volume& dst,
 void sharpen(Volume& dst,
              const Volume& src,
              const double thres,
-             const double ew);
+             const double ew,
+             const int r);
 
 void bFactorEst(double& bFactor,
-                const Volume& vol);
+                const Volume& vol,
+                const int r);
 
 /***
 void wilsonPlot(std::map<double, double>& dst,

@@ -893,7 +893,7 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
 
     MLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit";
-    _model.setR(maxR());
+    _model.setRU(maxR());
 
     MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
     NT_MASTER _model.refreshReco();
@@ -2174,7 +2174,7 @@ void MLOptimiser::saveSharpReference()
 
     FFT fft;
 
-    fft.bw(_model.ref(0));
+    fft.bwMT(_model.ref(0));
 
     ImageFile imf;
     imf.readMetaData(_model.ref(0));
