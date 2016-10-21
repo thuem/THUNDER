@@ -336,7 +336,7 @@ void MLOptimiser::expectation()
                     recordTopK(topW.col(l).data(),
                                iTopR.col(l).data(),
                                iTopT.col(l).data(),
-                               dvp[l],
+                               dvp(l),
                                m,
                                n,
                                _para.mG);
@@ -399,10 +399,11 @@ void MLOptimiser::expectation()
 
             vec4 quat;
             vec2 t;
+
             for (int m = 0; m < _para.mG; m++)
             {
-                par.quaternion(quat, iTopR(m) * nT);
-                par.t(t, iTopT(m));
+                par.quaternion(quat, iTopR(m, l) * nT);
+                par.t(t, iTopT(m, l));
 
                 _par[l].setQuaternion(quat, m);
                 _par[l].setT(t, m);
