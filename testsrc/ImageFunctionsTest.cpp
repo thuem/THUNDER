@@ -21,6 +21,24 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    ImageFile imf(argv[1], "rb");
+    imf.readMetaData();
+
+    Volume src;
+    imf.readVolume(src);
+
+    FFT fft;
+    fft.fw(src);
+
+    Volume dst;
+    VOL_PAD_FT(dst, src, 2);
+
+    fft.bw(dst);
+
+    imf.readMetaData(dst);
+    imf.writeVolume(argv[2], dst);
+    
+    /***
     loggerInit(argc, argv);
 
     Image image(N, N, RL_SPACE);
@@ -70,4 +88,5 @@ int main(int argc, char* argv[])
     fft.bw(image);
 
     image.saveRLToBMP("trans3.bmp");
+    ***/
 }
