@@ -2246,6 +2246,46 @@ void MLOptimiser::saveFSC(const bool finished) const
     fclose(file);
 }
 
+int searchPlace(double* topW,
+                const double w,
+                const int l,
+                const int r)
+{
+    if (l < r)
+    {
+        if (topW[(l + r) / 2] < w)
+            return searchPlace(topW, w, l, (l + r) / 2);
+        else
+            return searchPlace(topW, w, (l + r) / 2 + 1, r);
+    }
+    else
+        return r;
+}
+
+void recordTopK(double* topW,
+                int* iTopR,
+                int* iTopT,
+                const double w,
+                const int iR,
+                const int iT,
+                const int k)
+{
+    int place = searchPlace(topW, w, 0, k);
+
+    for (int i = k - 1; i > place; i--)
+    {
+        topW[i] = topW[i - 1];
+
+        iTopR[i] = iTopR[i - 1];
+        iTopT[i] = iTopT[i - 1];
+    }
+
+    topW[place] = w;
+
+    iTopR[place] = iR;
+    iTopT[place] = iT;
+}
+
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,

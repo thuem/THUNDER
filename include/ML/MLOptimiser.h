@@ -619,6 +619,19 @@ class MLOptimiser : public Parallel
         void saveFSC(const bool finished = false) const;
 };
 
+int searchPlace(double* topW,
+                const double w,
+                const int l,
+                const int r);
+
+void recordTopK(double* topW,
+                int* iTopR,
+                int* iTopT,
+                const double w,
+                const int iR,
+                const int iT,
+                const int k);
+
 /**
  * This function calculates the logarithm of the possibility that the image is
  * from the projection.
