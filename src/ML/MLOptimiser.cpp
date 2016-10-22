@@ -268,6 +268,7 @@ void MLOptimiser::expectation()
 
         //mat topW(_par[0].n(), _ID.size());
 
+        /***
         mat topW(_para.mG, _ID.size());
         for (int i = 0; i < _para.mG; i++)
             for (int j = 0; j < (int)_ID.size(); j++)
@@ -275,18 +276,19 @@ void MLOptimiser::expectation()
 
         umat iTopR(_para.mG, _ID.size());
         umat iTopT(_para.mG, _ID.size());
+        ***/
 
         struct Sp
         {
             double _w = -DBL_MAX;
-            int _iR = 0;
-            int _iT = 0;
+            unsigned int _iR = 0;
+            unsigned int _iT = 0;
 
             Sp() {};
 
             Sp(const double w,
-               const int iR,
-               const int iT)
+               const unsigned int iR,
+               const unsigned int iT)
             {
                 _w = w;
                 _iR = iR;
@@ -296,11 +298,38 @@ void MLOptimiser::expectation()
 
         auto cmpSp = [](const Sp a, const Sp b){ return a._w > b._w; };
 
+        //typedef priority_queue<Sp, vector<Sp>, decltype(cmpSp)> LeaderBoard;
+
+        //LeaderBoard* ld = new LeaderBoard[_ID.size()](cmpSp);
         vector<priority_queue<Sp, vector<Sp>, decltype(cmpSp)>> leaderBoard;
+
+        //vector<LeaderBoard> lb;
+
+        FOR_EACH_2D_IMAGE
+        {
+            /***
+            LeaderBoard lbPerImg(cmpSp);
+            lb.push_back(lbPerImg);
+            ***/
+            //lb.push_back(LeaderBoard(cmpSp));
+            leaderBoard.push_back(priority_queue<Sp, vector<Sp>, decltype(cmpSp)>(cmpSp));
+        }
+
+        /***
+        //leaderBoard.resize(_ID.size());
+        FOR_EACH_2D_IMAGE
+            leaderBoard.push_back(priority_queue<Sp, vector<Sp>, decltype(cmpSp)> sp(cmpSp));
+            ***/
 
         _nR = 0;
 
-        //#pragma omp parallel for schedule(dynamic) private(rot)
+        omp_lock_t* mtx = new omp_lock_t[_ID.size()];
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+            omp_init_lock(&mtx[l]);
+
+        #pragma omp parallel for schedule(dynamic) private(rot)
         for (unsigned int m = 0; m < (unsigned int)nR; m++)
         {
             Image imgRot(size(), size(), FT_SPACE);
@@ -310,8 +339,8 @@ void MLOptimiser::expectation()
 
             par.rot(rot, m * nT);
 
-            //_model.proj(0).project(imgRot, rot);
-            _model.proj(0).projectMT(imgRot, rot);
+            _model.proj(0).project(imgRot, rot);
+            //_model.proj(0).projectMT(imgRot, rot);
 
             for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
@@ -322,7 +351,7 @@ void MLOptimiser::expectation()
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 ***/
 
-                #pragma omp parallel for schedule(dynamic)
+                //#pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
@@ -361,9 +390,21 @@ void MLOptimiser::expectation()
                                          _iSig,
                                          nPxl);
 
-                #pragma omp parallel for schedule(dynamic)
+                //#pragma omp parallel for schedule(dynamic)
                 FOR_EACH_2D_IMAGE
                 {
+                    omp_set_lock(&mtx[l]);
+
+                    if ((int)leaderBoard[l].size() < _para.mG)
+                        leaderBoard[l].push(Sp(dvp(l), m ,n));
+                    else if (leaderBoard[l].top()._w < dvp(l))
+                    {
+                        leaderBoard[l].pop();
+                        leaderBoard[l].push(Sp(dvp(l), m, n));
+                    };
+
+                    omp_unset_lock(&mtx[l]);
+                    /***
                     //#pragma omp critical
                     recordTopK(topW.col(l).data(),
                                iTopR.col(l).data(),
@@ -372,8 +413,8 @@ void MLOptimiser::expectation()
                                m,
                                n,
                                _para.mG);
+                               ***/
                 }
-
 
                 /***
                 #pragma omp parallel for
@@ -388,10 +429,10 @@ void MLOptimiser::expectation()
                 ***/
             }
 
-            //#pragma omp atomic
+            #pragma omp atomic
             _nR += 1;
 
-            //#pragma omp critical
+            #pragma omp critical
             if (_nR > (int)(nR / 10))
             {
                 _nR = 0;
@@ -404,13 +445,28 @@ void MLOptimiser::expectation()
                                            << "\% Initial Phase of Global Search Performed";
             }
         }
+
+        delete[] mtx;
         
-        // process logW
+        mat topW(_para.mG, _ID.size());
+
+        umat iTopR(_para.mG, _ID.size());
+        umat iTopT(_para.mG, _ID.size());
+
+        for (int i = 0; i < _para.mG; i++)
+            for (int j = 0; j < (int)_ID.size(); j++)
+            {
+                topW(i, j) = leaderBoard[j].top()._w;
+
+                iTopR(i, j) = leaderBoard[j].top()._iR;
+                iTopT(i, j) = leaderBoard[j].top()._iT;
+
+                leaderBoard[j].pop();
+            }
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            //vec v = logW.col(l);
             vec v = topW.col(l);
 
             PROCESS_LOGW(v);
@@ -435,13 +491,27 @@ void MLOptimiser::expectation()
 
             for (int m = 0; m < _para.mG; m++)
             {
+                /***
+                double w = leaderBoard[l].top()._w;
+                int iR = leaderBoard[l].top()._iR;
+                int iT = leaderBoard[l].top()._iT;
+
+                leaderBoard[l].pop();
+                ***/
+
                 par.quaternion(quat, iTopR(m, l) * nT);
                 par.t(t, iTopT(m, l));
+
+                /***
+                par.quaternion(quat, iR * nT);
+                par.t(t, iT);;
+                ***/
 
                 _par[l].setQuaternion(quat, m);
                 _par[l].setT(t, m);
 
                 _par[l].mulW(topW(m, l), m);
+                //_par[l].mulW(w, m);
             }
 
             _par[l].normW();
@@ -2517,7 +2587,7 @@ vec logDataVSPrior(const vector<Image>& dat,
             {
                 int index = dat[0].iFTHalf(i, j);
 
-                #pragma omp parallel for
+                //#pragma omp parallel for
                 for (int l = 0; l < n; l++)
                 {
                     result(l) += ABS2(dat[l].iGetFT(index)
@@ -2545,7 +2615,7 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     vec result = vec::Zero(n);
 
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int l = 0; l < n; l++)
     {
         for (int i = 0; i < m; i++)
