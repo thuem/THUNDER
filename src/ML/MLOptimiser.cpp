@@ -453,8 +453,9 @@ void MLOptimiser::expectation()
         umat iTopR(_para.mG, _ID.size());
         umat iTopT(_para.mG, _ID.size());
 
-        for (int i = 0; i < _para.mG; i++)
-            for (int j = 0; j < (int)_ID.size(); j++)
+        #pragma omp parallel for
+        for (int j = 0; j < (int)_ID.size(); j++)
+            for (int i = 0; i < _para.mG; i++)
             {
                 topW(i, j) = leaderBoard[j].top()._w;
 
