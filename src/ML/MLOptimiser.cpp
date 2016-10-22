@@ -1743,7 +1743,8 @@ void MLOptimiser::refreshScale(const bool init,
                          _img[l],
                          img,
                          _ctf[l],
-                         _rS,
+                         1,
+                         //_rS,
                          0);
                          //_rL);
 
