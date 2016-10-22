@@ -2479,6 +2479,7 @@ vec logDataVSPrior(const vector<Image>& dat,
             {
                 int index = dat[0].iFTHalf(i, j);
 
+                #pragma omp parallel for
                 for (int l = 0; l < n; l++)
                 {
                     result(l) += ABS2(dat[l].iGetFT(index)
@@ -2506,6 +2507,7 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     vec result = vec::Zero(n);
 
+    #pragma omp parallel for
     for (int l = 0; l < n; l++)
     {
         for (int i = 0; i < m; i++)
