@@ -649,7 +649,6 @@ class MLModel : public Parallel
          */
         void updateRU();
 
-
         void avgHemi();
 };
 
