@@ -88,9 +88,11 @@ void MLOptimiser::init()
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
     _model.setR(_r);
 
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
 
     _model.updateRU();
+    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.ignoreRes
@@ -337,7 +339,7 @@ void MLOptimiser::expectation()
                                          _iSig,
                                          nPxl);
 
-                #pragma omp parallel for
+                #pragma omp parallel for schedule(dynamic)
                 FOR_EACH_2D_IMAGE
                 {
                     //#pragma omp critical
@@ -1440,14 +1442,16 @@ void MLOptimiser::correctScale(const bool init,
     FOR_EACH_2D_IMAGE
     {
         FOR_EACH_PIXEL_FT(_img[l])
-            _img[l][i] /= _scale(_groupID[l] - 1);
+            _img[l][i] *= _scale(_groupID[l] - 1);
+            //_img[l][i] /= _scale(_groupID[l] - 1);
     }
 
     if (!init)
     {
         #pragma omp parallel for
         for (int i = 0; i < _nGroup; i++)
-            _sig.row(i) /= gsl_pow_2(_scale(i));
+            _sig.row(i) *= gsl_pow_2(_scale(i));
+            //_sig.row(i) /= gsl_pow_2(_scale(i));
     }
 }
 
@@ -2051,13 +2055,17 @@ void MLOptimiser::saveBestProjections()
     {
         if (_ID[l] < N_SAVE_IMG)
         {
+            #pragma omp parallel for
             SET_0_FT(result);
+
+            #pragma omp parallel for
             SET_0_FT(diff);
 
             _par[l].rank1st(rot, tran);
 
-            _model.proj(0).project(result, rot, tran);
+            _model.proj(0).projectMT(result, rot, tran);
 
+            #pragma omp parallel for
             FOR_EACH_PIXEL_FT(diff)
                 diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
 
@@ -2584,9 +2592,13 @@ void scaleDataVSPrior(vec& sXA,
                              * REAL(ctf.iGetFT(index)));
 
                 #pragma omp atomic
+                sAA(v) += REAL(dat.iGetFT(index)
+                             * dat.iGetFT(index));
+                /***
                 sAA(v) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)
                              * gsl_pow_2(REAL(ctf.iGetFT(index))));
+                ***/
             }
         }
     }
