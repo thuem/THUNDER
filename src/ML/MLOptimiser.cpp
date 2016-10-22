@@ -1442,16 +1442,16 @@ void MLOptimiser::correctScale(const bool init,
     FOR_EACH_2D_IMAGE
     {
         FOR_EACH_PIXEL_FT(_img[l])
-            _img[l][i] *= _scale(_groupID[l] - 1);
-            //_img[l][i] /= _scale(_groupID[l] - 1);
+            _img[l][i] /= _scale(_groupID[l] - 1);
+            //_img[l][i] *= _scale(_groupID[l] - 1);
     }
 
     if (!init)
     {
         #pragma omp parallel for
         for (int i = 0; i < _nGroup; i++)
-            _sig.row(i) *= gsl_pow_2(_scale(i));
-            //_sig.row(i) /= gsl_pow_2(_scale(i));
+            _sig.row(i) /= gsl_pow_2(_scale(i));
+            //_sig.row(i) *= gsl_pow_2(_scale(i));
     }
 }
 
@@ -2592,13 +2592,13 @@ void scaleDataVSPrior(vec& sXA,
                              * REAL(ctf.iGetFT(index)));
 
                 #pragma omp atomic
+                /***
                 sAA(v) += REAL(dat.iGetFT(index)
                              * dat.iGetFT(index));
-                /***
+                             ***/
                 sAA(v) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)
                              * gsl_pow_2(REAL(ctf.iGetFT(index))));
-                ***/
             }
         }
     }
