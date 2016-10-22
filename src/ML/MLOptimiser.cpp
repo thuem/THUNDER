@@ -1708,8 +1708,6 @@ void MLOptimiser::refreshScale(const bool init,
 {
     IF_MASTER return;
 
-    _rS = 1;
-
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
 
     mat mXA = mat::Zero(_nGroup, _rS);
@@ -1746,8 +1744,7 @@ void MLOptimiser::refreshScale(const bool init,
                          img,
                          _ctf[l],
                          _rS,
-                         0);
-                         //_rL);
+                         _rL);
 
         if (group)
         {
@@ -1788,17 +1785,11 @@ void MLOptimiser::refreshScale(const bool init,
             int count = 0;
 
             for (int r = 0; r < _rS; r++)
-            {
-                sum += mXA(i, r) / mAA(i, r);
-                count += 1;
-            }
-            /***
                 if (r > _rL)
                 {
                     sum += mXA(i, r) / mAA(i, r);
                     count += 1;
                 }
-                ***/
 
             _scale(i) = sum / count;
         }
@@ -1809,17 +1800,11 @@ void MLOptimiser::refreshScale(const bool init,
         int count = 0;
 
         for (int r = 0; r < _rS; r++)
-        {
-            sum += mXA(0, r) / mAA(0, r);
-            count += 1;
-        }
-        /***
             if (r > _rL)
             {
                 sum += mXA(0, r) / mAA(0, r);
                 count += 1;
             }
-            ***/
         
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = sum / count;
