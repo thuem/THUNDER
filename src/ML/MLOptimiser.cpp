@@ -98,7 +98,8 @@ void MLOptimiser::init()
                               << _para.ignoreRes
                               << " Angstrom will be Ingored during Comparison";
 
-    _rL = resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize);
+    //_rL = resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize);
+    _rL = 2.5;
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
@@ -695,10 +696,14 @@ void MLOptimiser::expectation()
             logW.array() = 1.0 / logW.array();
             logW.array() -= logW.minCoeff();
             ***/
+            /***
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 PROCESS_LOGW_SOFT(logW);
             else
                 PROCESS_LOGW_HARD(logW);
+            ***/
+            
+            PROCESS_LOGW_SOFT(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
