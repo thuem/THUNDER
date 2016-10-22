@@ -56,6 +56,7 @@
 
 #define SWITCH_FACTOR 3
 
+/***
 #define PROCESS_LOGW(logW) \
     [](vec& _logW) \
     { \
@@ -64,7 +65,14 @@
         _logW.array() += 1; \
         _logW.array() = 1.0 / _logW.array(); \
     }(logW);
-//_logW.array() -= _logW.minCoeff(); \
+    ***/
+
+#define PROCESS_LOGW(logW) \
+    [](vec& _logW) \
+    { \
+        _logW.array() -= _logW.maxCoeff(); \
+        _logW.array() = exp(_logW.array()); \
+    }(logW);
 
 using namespace std;
 
