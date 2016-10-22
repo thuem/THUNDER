@@ -276,6 +276,28 @@ void MLOptimiser::expectation()
         umat iTopR(_para.mG, _ID.size());
         umat iTopT(_para.mG, _ID.size());
 
+        struct Sp
+        {
+            double _w = -DBL_MAX;
+            int _iR = 0;
+            int _iT = 0;
+
+            Sp() {};
+
+            Sp(const double w,
+               const int iR,
+               const int iT)
+            {
+                _w = w;
+                _iR = iR;
+                _iT = iT;
+            };
+        };
+
+        auto cmpSp = [](const Sp a, const Sp b){ return a._w > b._w; };
+
+        vector<priority_queue<Sp, vector<Sp>, decltype(cmpSp)>> leaderBoard;
+
         _nR = 0;
 
         //#pragma omp parallel for schedule(dynamic) private(rot)

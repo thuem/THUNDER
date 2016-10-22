@@ -16,6 +16,8 @@
 #include <sstream>
 #include <string>
 #include <climits>
+#include <queue>
+#include <functional>
 
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
