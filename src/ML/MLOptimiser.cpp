@@ -2685,11 +2685,11 @@ void scaleDataVSPrior(vec& sXA,
                              * pri.iGetFT(index)
                              * REAL(ctf.iGetFT(index)));
 
-                #pragma omp atomic
                 /***
                 sAA(v) += REAL(dat.iGetFT(index)
                              * dat.iGetFT(index));
                              ***/
+                #pragma omp atomic
                 sAA(v) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)
                              * gsl_pow_2(REAL(ctf.iGetFT(index))));
