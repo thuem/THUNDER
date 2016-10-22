@@ -56,8 +56,7 @@
 
 #define SWITCH_FACTOR 3
 
-/***
-#define PROCESS_LOGW(logW) \
+#define PROCESS_LOGW_SOFT(logW) \
     [](vec& _logW) \
     { \
         _logW.array() -= _logW.maxCoeff(); \
@@ -65,9 +64,8 @@
         _logW.array() += 1; \
         _logW.array() = 1.0 / _logW.array(); \
     }(logW);
-    ***/
 
-#define PROCESS_LOGW(logW) \
+#define PROCESS_LOGW_HARD(logW) \
     [](vec& _logW) \
     { \
         _logW.array() -= _logW.maxCoeff(); \
