@@ -63,14 +63,14 @@
         _logW.array() *= -1; \
         _logW.array() += 1; \
         _logW.array() = 1.0 / _logW.array(); \
-    }(logW);
+    }(logW)
 
 #define PROCESS_LOGW_HARD(logW) \
     [](vec& _logW) \
     { \
         _logW.array() -= _logW.maxCoeff(); \
         _logW.array() = exp(_logW.array()); \
-    }(logW);
+    }(logW)
 
 using namespace std;
 
