@@ -435,6 +435,11 @@ void MLModel::refreshProj()
 
 void MLModel::refreshReco()
 {
+    ALOG(INFO, "LOGGER_SYS") << "Refreshing Reconstructor(s) with Frequency Upper Boundary : "
+                             << _rU;
+    BLOG(INFO, "LOGGER_SYS") << "Refreshing Reconstructor(s) with Frequency Upper Boundary : "
+                             << _rU;
+
     FOR_EACH_CLASS
     {
         _reco[l]->init(_size,
