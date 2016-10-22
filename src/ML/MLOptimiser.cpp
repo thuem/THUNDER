@@ -272,7 +272,7 @@ void MLOptimiser::expectation()
 
         _nR = 0;
 
-        #pragma omp parallel for schedule(dynamic) private(rot)
+        //#pragma omp parallel for schedule(dynamic) private(rot)
         for (unsigned int m = 0; m < (unsigned int)nR; m++)
         {
             Image imgRot(size(), size(), FT_SPACE);
@@ -282,7 +282,8 @@ void MLOptimiser::expectation()
 
             par.rot(rot, m * nT);
 
-            _model.proj(0).project(imgRot, rot);
+            //_model.proj(0).project(imgRot, rot);
+            _model.proj(0).projectMT(imgRot, rot);
 
             for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
@@ -293,7 +294,7 @@ void MLOptimiser::expectation()
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 ***/
 
-                //#pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
@@ -332,6 +333,7 @@ void MLOptimiser::expectation()
                                          _iSig,
                                          nPxl);
 
+                #pragma omp parallel for
                 FOR_EACH_2D_IMAGE
                     recordTopK(topW.col(l).data(),
                                iTopR.col(l).data(),
@@ -355,10 +357,10 @@ void MLOptimiser::expectation()
                 ***/
             }
 
-            #pragma omp atomic
+            //#pragma omp atomic
             _nR += 1;
 
-            #pragma omp critical
+            //#pragma omp critical
             if (_nR > (int)(nR / 10))
             {
                 _nR = 0;
@@ -1579,6 +1581,7 @@ void MLOptimiser::refreshVariance()
     {
         double rVari, tVariS0, tVariS1;
 
+        #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
         {
             _par[l].vari(rVari,
