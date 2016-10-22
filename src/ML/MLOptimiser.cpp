@@ -282,8 +282,8 @@ void MLOptimiser::expectation()
 
             par.rot(rot, m * nT);
 
-            //_model.proj(0).project(imgRot, rot);
-            _model.proj(0).projectMT(imgRot, rot);
+            _model.proj(0).project(imgRot, rot);
+            //_model.proj(0).projectMT(imgRot, rot);
 
             for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
@@ -294,7 +294,7 @@ void MLOptimiser::expectation()
                 IMAGE_FOR_EACH_PIXEL_FT(imgAll)
                 ***/
 
-                #pragma omp parallel for schedule(dynamic)
+                //#pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
@@ -2482,7 +2482,7 @@ vec logDataVSPrior(const vector<Image>& dat,
             {
                 int index = dat[0].iFTHalf(i, j);
 
-                #pragma omp parallel for
+                //#pragma omp parallel for
                 for (int l = 0; l < n; l++)
                 {
                     result(l) += ABS2(dat[l].iGetFT(index)
@@ -2510,7 +2510,7 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     vec result = vec::Zero(n);
 
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for (int l = 0; l < n; l++)
     {
         for (int i = 0; i < m; i++)
