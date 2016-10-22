@@ -106,12 +106,12 @@ class MLModel : public Parallel
         /**
          * frequency before padding (in pixel)
          */
-        int _r;
+        int _r = 0;
 
         /**
          * frequency for reconstruction and calculating FSC, SNR 
          */
-        int _rU;
+        int _rU = 0;
 
         /**
          * frequency of the previous iteration
@@ -136,7 +136,7 @@ class MLModel : public Parallel
         /**
          * padding factor
          */
-        int _pf;
+        int _pf = 2;
 
         /**
          * pixel size of 2D images (in Angstrom)
@@ -221,7 +221,7 @@ class MLModel : public Parallel
         /**
          * the suggest search type
          */
-        int _searchType = 0;
+        int _searchType = SEARCH_TYPE_GLOBAL;
 
         /**
          * whether the frequency should be increased or not
@@ -630,6 +630,12 @@ class MLModel : public Parallel
                        const bool fscWeighting);
 
         /**
+         * This function update the frequency for reconstruction and calculating
+         * FSC, SNR by the frequency before padding (in pixel).
+         */
+        void updateRU();
+
+        /**
          * This function clears up references, projectors and reconstructors.
          */
         void clear();
@@ -642,12 +648,6 @@ class MLModel : public Parallel
          * otherwise, return true.
          */
         bool determineIncreaseR(const double rChangeDecreaseFactor = 0.02);
-
-        /**
-         * This function update the frequency for reconstruction and calculating
-         * FSC, SNR by the frequency before padding (in pixel).
-         */
-        void updateRU();
 
         void avgHemi();
 };
