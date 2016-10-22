@@ -83,10 +83,14 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
 
+    _iter = 0;
+
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
     _model.setR(_r);
 
-    _iter = 0;
+    MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
+
+    _model.updateRU();
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.ignoreRes
