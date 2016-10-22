@@ -2028,7 +2028,7 @@ void MLOptimiser::allocPreCal(int& nPxl,
     {
         double u = QUAD(i, j);
 
-        if ((u < rU2) && (u > rL2))
+        if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
 
@@ -2387,7 +2387,7 @@ double logDataVSPrior(const Image& dat,
     {
         double u = QUAD(i, j);
 
-        if ((u < rU2) && (u > rL2))
+        if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
             if (v < rU)
@@ -2441,7 +2441,7 @@ double logDataVSPrior(const Image& dat,
     {
         double u = QUAD(i, j);
 
-        if ((u < rU2) && (u > rL2))
+        if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
             if (v < rU)
@@ -2500,7 +2500,7 @@ vec logDataVSPrior(const vector<Image>& dat,
     {
         double u = QUAD(i, j);
 
-        if ((u < rU2) && (u > rL2))
+        if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
             if (v < rU)
@@ -2592,7 +2592,7 @@ void scaleDataVSPrior(vec& sXA,
     {
         double u = QUAD(i, j);
 
-        if ((u < rU2) && (u > rL2))
+        if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
             if (v < rU)
