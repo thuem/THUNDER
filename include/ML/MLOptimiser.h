@@ -63,8 +63,8 @@
         _logW.array() *= -1; \
         _logW.array() += 1; \
         _logW.array() = 1.0 / _logW.array(); \
-        _logW.array() -= _logW.minCoeff(); \
     }(logW);
+//_logW.array() -= _logW.minCoeff(); \
 
 using namespace std;
 
