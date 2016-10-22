@@ -1708,6 +1708,8 @@ void MLOptimiser::refreshScale(const bool init,
 {
     IF_MASTER return;
 
+    _rS = 1;
+
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
 
     mat mXA = mat::Zero(_nGroup, _rS);
@@ -1743,8 +1745,7 @@ void MLOptimiser::refreshScale(const bool init,
                          _img[l],
                          img,
                          _ctf[l],
-                         1,
-                         //_rS,
+                         _rS,
                          0);
                          //_rL);
 
