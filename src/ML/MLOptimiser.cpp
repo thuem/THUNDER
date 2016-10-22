@@ -1785,7 +1785,7 @@ void MLOptimiser::refreshScale(const bool init,
             int count = 0;
 
             for (int r = 0; r < _rS; r++)
-                if (r > _rL)
+                if (r >= _rL)
                 {
                     sum += mXA(i, r) / mAA(i, r);
                     count += 1;
@@ -1800,7 +1800,7 @@ void MLOptimiser::refreshScale(const bool init,
         int count = 0;
 
         for (int r = 0; r < _rS; r++)
-            if (r > _rL)
+            if (r >= _rL)
             {
                 sum += mXA(0, r) / mAA(0, r);
                 count += 1;
