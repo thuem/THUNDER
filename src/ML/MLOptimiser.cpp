@@ -782,6 +782,7 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
+        /***
         switch (_searchType)
         {
             case SEARCH_TYPE_GLOBAL:
@@ -804,8 +805,8 @@ void MLOptimiser::run()
                 CLOG(FATAL, "LOGGER_ROUND") << "Invalid Search Type";
                 break;
         }
+        ***/
 
-        /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
@@ -814,6 +815,10 @@ void MLOptimiser::run()
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
         }
+        else if (_searchType == SEARCH_TYPE_HARSH)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Harsh Search";
+        }
         else
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Stop Search";
@@ -821,7 +826,6 @@ void MLOptimiser::run()
 
             break;
         }
-        ***/
 
         MPI_Barrier(MPI_COMM_WORLD);
 
