@@ -131,6 +131,8 @@ typedef struct ML_OPTIMISER_PARA
      */
     char db[FILE_NAME_LENGTH];
 
+    bool autoSelection;
+
     /**
      * whether to perform masking on the reference
      */

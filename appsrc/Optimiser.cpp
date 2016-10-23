@@ -35,6 +35,7 @@ void readPara(MLOptimiserPara& dst,
     sprintf(dst.sym, src["Symmetry"].asString().c_str());
     sprintf(dst.initModel, src["Initial Model"].asString().c_str());
     sprintf(dst.db, src["Sqlite3 File Storing Paths and CTFs of Images"].asString().c_str());
+    dst.autoSelection = src["Auto Selection"].asBool();
 
     dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();

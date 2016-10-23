@@ -22,6 +22,7 @@ void display(const MLOptimiserPara& para)
     printf("Symmetry:                                              %12s\n", para.sym);
     printf("Initial Model:                                         %12s\n", para.initModel);
     printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
+    printf("Auto Selection:                                        %12s\n", para.autoSelection);
     
     printf("Perform Reference Mask:                                %12d\n", para.performMask);
     printf("Automask:                                              %12d\n", para.autoMask);
@@ -856,8 +857,11 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
         refreshRotationChange();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Determining Which Images Unsuited for Reconstruction";
-        refreshSwitch();
+        if (_para.autoSelection)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Determining Which Images Unsuited for Reconstruction";
+            refreshSwitch();
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
@@ -893,10 +897,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
+        /***
         ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
         BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
@@ -1470,6 +1476,9 @@ void MLOptimiser::initSwitch()
 
     _switch.clear();
     _switch.resize(_ID.size());
+
+    for (int i = 0; (int)_ID.size(); i++)
+        _switch[i] = true;
 }
 
 void MLOptimiser::correctScale(const bool init,
