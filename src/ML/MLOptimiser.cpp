@@ -202,12 +202,14 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
 
         _model.initProjReco();
+    }
 
-        ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
-        ALOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
+    MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
-        correctScale(true, false);
+    correctScale(true, false);
 
+    NT_MASTER
+    {
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
