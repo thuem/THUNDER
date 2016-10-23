@@ -774,12 +774,17 @@ void MLModel::sharpenUp(const double bFactor,
     {
         FOR_EACH_CLASS
         {
-            MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference "
-                                     << i;
+            MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference " << i;
 
             /***
+
+            MLOG(INFO, "LOGGER_SYS") << "FSC Weighting Reference " << i;
+
             if (fscWeighting)
                 fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
+
+            MLOG(INFO, "LOGGER_SYS") << "B-Factor and Low-Pass Filter Reference "
+                                     << i;
 
             sharpen(_ref[l],
                     _ref[l],
