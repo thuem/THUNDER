@@ -554,19 +554,13 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
-                // phase 0 of local search
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
                 _par[l].perturb(PERTURB_FACTOR_L);
             }
             else
-            {
-                // global search
-                // phase 1+ of local search
-                // harsh search
                 _par[l].perturb(PERTURB_FACTOR_S);
-            }
 
             /***
             if ((_searchType == SEARCH_TYPE_LOCAL) &&
@@ -629,10 +623,7 @@ void MLOptimiser::expectation()
                                              nPxl);
                 }
 
-            if (_searchType == SEARCH_TYPE_HARSH)
-                PROCESS_LOGW_HARD(logW);
-            else
-                PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_SOFT(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -814,10 +805,6 @@ void MLOptimiser::run()
         else if (_searchType == SEARCH_TYPE_LOCAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
-        }
-        else if (_searchType == SEARCH_TYPE_HARSH)
-        {
-            MLOG(INFO, "LOGGER_ROUND") << "Search Type : Harsh Search";
         }
         else
         {

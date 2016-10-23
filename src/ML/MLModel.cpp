@@ -658,8 +658,7 @@ int MLModel::searchType()
     // If the searching needs to stop, return the stop signal.
     if (_searchType == SEARCH_TYPE_STOP) return SEARCH_TYPE_STOP;
 
-    if ((_searchType == SEARCH_TYPE_LOCAL) ||
-        (_searchType == SEARCH_TYPE_HARSH))
+    if (_searchType == SEARCH_TYPE_LOCAL)
     {
         // If it is local search, check whether there is no space for
         // improvement or not. If there is, perform further local search, if
@@ -684,20 +683,8 @@ int MLModel::searchType()
                                              << _nTopResNoImprove;
                 }
 
-                /***
-                if (_r > _rT)
-                    _nRNoImprove = 0;
-                else
-                    _nRNoImprove += 1;
-                    ***/
-
                 if (_nTopResNoImprove >= MAX_ITER_RES_NO_IMPROVE)
-                {
-                    if (_searchType == SEARCH_TYPE_LOCAL)
-                        _searchType = SEARCH_TYPE_HARSH;
-                    else
                         _searchType = SEARCH_TYPE_STOP;
-                }
             }
         }
     }
@@ -706,14 +693,8 @@ int MLModel::searchType()
         // If it is global search now, make sure the change of rotations
         // beteween iterations still gets room for improvement.
         IF_MASTER
-        {
             if ((_r == _rGlobal) && _increaseR)
-            {
                 _searchType = SEARCH_TYPE_LOCAL;
-
-                //elevateR();
-            }
-        }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -831,7 +812,6 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
                 break;
 
             case SEARCH_TYPE_LOCAL:
-            case SEARCH_TYPE_HARSH:
                 _increaseR = (_nRChangeNoDecrease
                            >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
                 break;
