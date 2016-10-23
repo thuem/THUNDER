@@ -888,6 +888,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
+        MPI_Barrier(MPI_COMM_WORLD);
+        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
 
