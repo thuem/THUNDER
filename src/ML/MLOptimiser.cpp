@@ -887,13 +887,16 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
+        MPI_Barrier(MPI_COMM_WORLD);
+        MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
+
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
         ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
         BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
         MPI_Barrier(MPI_COMM_WORLD);
-        BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
+        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
@@ -1977,6 +1980,11 @@ void MLOptimiser::reconstructRef(const bool mask)
     BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
+
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
+    BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
 
     if (_genMask)
     {
