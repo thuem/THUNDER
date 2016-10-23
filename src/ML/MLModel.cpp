@@ -774,6 +774,10 @@ void MLModel::sharpenUp(const double bFactor,
     {
         FOR_EACH_CLASS
         {
+            MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference "
+                                     << i;
+
+            /***
             if (fscWeighting)
                 fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
 
@@ -782,6 +786,7 @@ void MLModel::sharpenUp(const double bFactor,
                     (double)_resT / _size,
                     EDGE_WIDTH_FT / _size,
                     bFactor);
+                    ***/
         }
     }
 }
