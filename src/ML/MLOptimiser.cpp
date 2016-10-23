@@ -239,14 +239,6 @@ void MLOptimiser::expectation()
         par.init(_para.transS, 0.01, &_sym);
         par.reset(nR, nT);
 
-        // copy the particle filter to the rest of particle filters
-
-        /***
-        #pragma omp parallel for
-        for (int i = 1; i < (int)_ID.size(); i++)
-            _par[0].copy(_par[i]);
-            ***/
-
         mat33 rot;
         vec2 t;
 
@@ -265,20 +257,6 @@ void MLOptimiser::expectation()
             translate(trans[m], _r, t(0), t(1));
         }
         
-        // perform expectations
-
-        //mat topW(_par[0].n(), _ID.size());
-
-        /***
-        mat topW(_para.mG, _ID.size());
-        for (int i = 0; i < _para.mG; i++)
-            for (int j = 0; j < (int)_ID.size(); j++)
-                topW(i, j) = -DBL_MAX;
-
-        umat iTopR(_para.mG, _ID.size());
-        umat iTopT(_para.mG, _ID.size());
-        ***/
-
         struct Sp
         {
             double _w = -DBL_MAX;
@@ -299,28 +277,10 @@ void MLOptimiser::expectation()
 
         auto cmpSp = [](const Sp a, const Sp b){ return a._w > b._w; };
 
-        //typedef priority_queue<Sp, vector<Sp>, decltype(cmpSp)> LeaderBoard;
-
-        //LeaderBoard* ld = new LeaderBoard[_ID.size()](cmpSp);
         vector<priority_queue<Sp, vector<Sp>, decltype(cmpSp)>> leaderBoard;
 
-        //vector<LeaderBoard> lb;
-
         FOR_EACH_2D_IMAGE
-        {
-            /***
-            LeaderBoard lbPerImg(cmpSp);
-            lb.push_back(lbPerImg);
-            ***/
-            //lb.push_back(LeaderBoard(cmpSp));
             leaderBoard.push_back(priority_queue<Sp, vector<Sp>, decltype(cmpSp)>(cmpSp));
-        }
-
-        /***
-        //leaderBoard.resize(_ID.size());
-        FOR_EACH_2D_IMAGE
-            leaderBoard.push_back(priority_queue<Sp, vector<Sp>, decltype(cmpSp)> sp(cmpSp));
-            ***/
 
         _nR = 0;
 
@@ -592,7 +552,8 @@ void MLOptimiser::expectation()
             ***/
 
             if ((phase == 0) &&
-                (_searchType == SEARCH_TYPE_LOCAL))
+                ((_searchType == SEARCH_TYPE_LOCAL) ||
+                 (_searchType == SEARCH_TYPE_HARSH)))
             {
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
@@ -703,7 +664,10 @@ void MLOptimiser::expectation()
                 PROCESS_LOGW_HARD(logW);
             ***/
             
-            PROCESS_LOGW_SOFT(logW);
+            if (_searchType == SEARCH_TYPE_LOCAL)
+                PROCESS_LOGW_SOFT(logW);
+            else
+                PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -747,12 +711,15 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mG);
             else
                 _par[l].resample(_para.mL);
-            
+
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
+                _par[l].calVari();
+
                 double tVariS0Cur;
                 double tVariS1Cur;
                 double rVariCur;
+
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
 
                 /***
@@ -867,6 +834,30 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
+        switch (_searchType)
+        {
+            case SEARCH_TYPE_GLOBAL:
+                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
+                break;
+
+            case SEARCH_TYPE_LOCAL:
+                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
+                break;
+
+            case SEARCH_TYPE_HARSH:
+                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Harsh Search";
+                break;
+
+            case SEARCH_TYPE_STOP:
+                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Stop Search";
+                break;
+
+            default:
+                CLOG(FATAL, "LOGGER_ROUND") << "Invalid Search Type";
+                break;
+        }
+
+        /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
@@ -882,6 +873,7 @@ void MLOptimiser::run()
 
             break;
         }
+        ***/
 
         MPI_Barrier(MPI_COMM_WORLD);
 

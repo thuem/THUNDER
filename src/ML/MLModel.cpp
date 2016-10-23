@@ -658,7 +658,8 @@ int MLModel::searchType()
     // If the searching needs to stop, return the stop signal.
     if (_searchType == SEARCH_TYPE_STOP) return SEARCH_TYPE_STOP;
 
-    if (_searchType == SEARCH_TYPE_LOCAL)
+    if ((_searchType == SEARCH_TYPE_LOCAL) ||
+        (_searchType == SEARCH_TYPE_HARSH))
     {
         // If it is local search, check whether there is no space for
         // improvement or not. If there is, perform further local search, if
@@ -691,7 +692,12 @@ int MLModel::searchType()
                     ***/
 
                 if (_nTopResNoImprove >= MAX_ITER_RES_NO_IMPROVE)
-                    _searchType = SEARCH_TYPE_STOP;
+                {
+                    if (_searchType == SEARCH_TYPE_LOCAL)
+                        _searchType = SEARCH_TYPE_HARSH;
+                    else
+                        _searchType = SEARCH_TYPE_STOP;
+                }
             }
         }
     }
@@ -815,6 +821,7 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
                 break;
 
             case SEARCH_TYPE_LOCAL:
+            case SEARCH_TYPE_HARSH:
                 _increaseR = (_nRChangeNoDecrease
                            >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
                 break;

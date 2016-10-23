@@ -237,7 +237,12 @@ void Particle::setQuaternion(const vec4& src,
 
 void Particle::calVari()
 {
-    //TODO: gsl_stats_sd
+    _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
+    _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
+
+    _rho = 0;
+
+    /***
     _s0 = sqrt(gsl_stats_covariance(_t.col(0).data(),
                                     1,
                                     _t.col(0).data(),
@@ -248,14 +253,12 @@ void Particle::calVari()
                                     _t.col(1).data(),
                                     1,
                                     _t.rows()));
-    /***
     _rho = gsl_stats_covariance(_t.colptr(0),
                                 1,
                                 _t.colptr(1),
                                 1,
                                 _t.n_rows) / _s0 / _s1;
                                 ***/
-    _rho = 0;
 
     inferACG(_k0, _k1, _r);
 }

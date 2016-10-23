@@ -40,6 +40,8 @@
 
 #define SEARCH_TYPE_LOCAL 1
 
+#define SEARCH_TYPE_HARSH 2
+
 //#define A_B_AVERAGE_THRES 20 // Angstrom
 #define A_B_AVERAGE_THRES 15 // Angstrom
 
