@@ -1477,7 +1477,7 @@ void MLOptimiser::initSwitch()
     _switch.clear();
     _switch.resize(_ID.size());
 
-    for (int i = 0; (int)_ID.size(); i++)
+    for (int i = 0; i < (int)_ID.size(); i++)
         _switch[i] = true;
 }
 
