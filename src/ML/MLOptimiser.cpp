@@ -22,7 +22,7 @@ void display(const MLOptimiserPara& para)
     printf("Symmetry:                                              %12s\n", para.sym);
     printf("Initial Model:                                         %12s\n", para.initModel);
     printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
-    printf("Auto Selection:                                        %12s\n", para.autoSelection);
+    printf("Auto Selection:                                        %12d\n", para.autoSelection);
     
     printf("Perform Reference Mask:                                %12d\n", para.performMask);
     printf("Automask:                                              %12d\n", para.autoMask);
