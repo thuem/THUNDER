@@ -552,9 +552,9 @@ void MLOptimiser::expectation()
             ***/
 
             if ((phase == 0) &&
-                ((_searchType == SEARCH_TYPE_LOCAL) ||
-                 (_searchType == SEARCH_TYPE_HARSH)))
+                (_searchType == SEARCH_TYPE_LOCAL))
             {
+                // phase 0 of local search
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
@@ -562,6 +562,9 @@ void MLOptimiser::expectation()
             }
             else
             {
+                // global search
+                // phase 1+ of local search
+                // harsh search
                 _par[l].perturb(PERTURB_FACTOR_S);
             }
 
@@ -625,71 +628,16 @@ void MLOptimiser::expectation()
                                              _iSig,
                                              nPxl);
                 }
-            /***
-            }
-            ***/
 
-            /***
-            logW.array() -= logW.maxCoeff(); // avoiding numerical error
-
-            for (int m = 0; m < _par[l].n(); m++)
-                _par[l].mulW(exp(logW(m)), m);
-            ***/
-
-                /***
-                logW.array() -= logW.minCoeff();
-
-                for (int m = 0; m < _par[l].n(); m++)
-                    _par[l].mulW(logW(m), m);
-                ***/
-
-                /***
-                logW.array() -= logW.maxCoeff();
-
-                for (int m = 0; m < _par[l].n(); m++)
-                    _par[l].mulW(logW(m) < -logThres ? 0 : logW(m) + logThres, m);
-                ***/
-
-            /***
-            logW.array() -= logW.maxCoeff();
-            logW.array() *= -1;
-            logW.array() += 1;
-            logW.array() = 1.0 / logW.array();
-            logW.array() -= logW.minCoeff();
-            ***/
-            /***
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-                PROCESS_LOGW_SOFT(logW);
-            else
+            if (_searchType == SEARCH_TYPE_HARSH)
                 PROCESS_LOGW_HARD(logW);
-            ***/
-            
-            if (_searchType == SEARCH_TYPE_LOCAL)
-                PROCESS_LOGW_SOFT(logW);
             else
-                PROCESS_LOGW_HARD(logW);
+                PROCESS_LOGW_SOFT(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
 
-            /***
-            for (int m = 0; m < _par[l].n(); m++)
-                _par[l].mulW(1.0 / logW(m), m);
-            ***/
-
             _par[l].normW();
-
-            /***
-            if ((_searchType == SEARCH_TYPE_GLOBAL) &&
-                (phase == 0))
-            {
-                // sort
-                _par[l].sort(_para.mG);
-
-                // shuffle
-                _par[l].shuffle();
-            }
-            ***/
 
             if (_ID[l] < 20)
             {
