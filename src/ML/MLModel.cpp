@@ -774,11 +774,11 @@ void MLModel::sharpenUp(const double bFactor,
     {
         FOR_EACH_CLASS
         {
-            MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference " << i;
+            MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference " << l;
 
             /***
 
-            MLOG(INFO, "LOGGER_SYS") << "FSC Weighting Reference " << i;
+            MLOG(INFO, "LOGGER_SYS") << "FSC Weighting Reference " << l;
 
             if (fscWeighting)
                 fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
