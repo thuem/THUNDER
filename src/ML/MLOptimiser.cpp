@@ -888,8 +888,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
+        ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
+        BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
         MPI_Barrier(MPI_COMM_WORLD);
-        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
+        BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
@@ -1090,11 +1092,11 @@ void MLOptimiser::bcastGroupInfo()
 
     MLOG(INFO, "LOGGER_INIT") << "Number of Group: " << _nGroup;
 
-    ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
+    MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER _sig.resize(_nGroup, maxR() + 1);
 
-    ALOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Intensity Scale";
-    NT_MASTER _scale.resize(_nGroup);
+    MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Intensity Scale";
+    _scale.resize(_nGroup);
 }
 
 void MLOptimiser::initRef()
@@ -1468,9 +1470,9 @@ void MLOptimiser::initSwitch()
 void MLOptimiser::correctScale(const bool init,
                                const bool group)
 {
-    IF_MASTER return;
-
     refreshScale(init, group);
+
+    IF_MASTER return;
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -1740,8 +1742,6 @@ void MLOptimiser::refreshSwitch()
 void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
-    IF_MASTER return;
-
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
     if (_rL > _rS) MLOG(FATAL, "LOGGER_SYS") << "_rL is Larger than _rS";
 
@@ -1751,66 +1751,68 @@ void MLOptimiser::refreshScale(const bool init,
     vec sXA = vec::Zero(_rS);
     vec sAA = vec::Zero(_rS);
 
-    Image img(size(), size(), FT_SPACE);
-
-    mat33 rot;
-    vec2 tran;
-
-    FOR_EACH_2D_IMAGE
+    NT_MASTER
     {
-        if (init)
+        Image img(size(), size(), FT_SPACE);
+
+        mat33 rot;
+        vec2 tran;
+
+        FOR_EACH_2D_IMAGE
         {
-            randRotate3D(rot);
+            if (init)
+            {
+                randRotate3D(rot);
 
-            _model.proj(0).projectMT(img, rot);
-        }
-        else
-        {
-            if (!_switch[l]) continue;
+                _model.proj(0).projectMT(img, rot);
+            }
+            else
+            {
+                if (!_switch[l]) continue;
 
-            _par[l].rank1st(rot, tran);
+                _par[l].rank1st(rot, tran);
 
-            _model.proj(0).projectMT(img, rot, tran);
-        }
+                _model.proj(0).projectMT(img, rot, tran);
+            }
 
-        scaleDataVSPrior(sXA,
-                         sAA,
-                         _img[l],
-                         img,
-                         _ctf[l],
-                         _rS,
-                         _rL);
+            scaleDataVSPrior(sXA,
+                             sAA,
+                             _img[l],
+                             img,
+                             _ctf[l],
+                             _rS,
+                             _rL);
 
-        if (group)
-        {
-            mXA.row(_groupID[l] - 1) += sXA.transpose();
-            mAA.row(_groupID[l] - 1) += sAA.transpose();
-        }
-        else
-        {
-            mXA.row(0) += sXA.transpose();
-            mAA.row(0) += sAA.transpose();
+            if (group)
+            {
+                mXA.row(_groupID[l] - 1) += sXA.transpose();
+                mAA.row(_groupID[l] - 1) += sAA.transpose();
+            }
+            else
+            {
+                mXA.row(0) += sXA.transpose();
+                mAA.row(0) += sAA.transpose();
+            }
         }
     }
 
-    MPI_Barrier(_hemi);
+    MPI_Barrier(MPI_COMM_WORLD);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
-    BLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
+    MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mXA.data(),
                   mXA.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
-                  _hemi);
+                  MPI_COMM_WORLD);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mAA.data(),
                   mAA.size(),
                   MPI_DOUBLE,
                   MPI_SUM,
-                  _hemi);
+                  MPI_COMM_WORLD);
 
     if (group)
     {
@@ -1845,12 +1847,9 @@ void MLOptimiser::refreshScale(const bool init,
             _scale(i) = sum / count;
     }
     
-    ALOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
-    BLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
+    MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
 
-    ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
-                               << gsl_stats_sd(_scale.data(), 1, _scale.size());
-    BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
+    MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
 
     /***
