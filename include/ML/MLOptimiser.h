@@ -56,6 +56,8 @@
 
 #define SWITCH_FACTOR 3
 
+#define N_SAVE_IMG 20
+
 #define PROCESS_LOGW_SOFT(logW) \
     [](vec& _logW) \
     { \
@@ -65,12 +67,14 @@
         _logW.array() = 1.0 / _logW.array(); \
     }(logW)
 
+/***
 #define PROCESS_LOGW_HARD(logW) \
     [](vec& _logW) \
     { \
         _logW.array() -= _logW.maxCoeff(); \
         _logW.array() = exp(_logW.array()); \
     }(logW)
+    ***/
 
 using namespace std;
 

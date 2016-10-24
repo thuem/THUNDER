@@ -264,10 +264,11 @@ void sharpen(Volume& dst,
              const Volume& src,
              const double thres,
              const double ew,
-             const int r)
+             const int rU,
+             const int rL)
 {
     double bFactor;
-    bFactorEst(bFactor, src, r);
+    bFactorEst(bFactor, src, rU, rL);
 
     sharpen(dst, src, thres, ew, bFactor);
 }
@@ -285,25 +286,26 @@ void sharpen(Volume& dst,
 
 void bFactorEst(double& bFactor,
                 const Volume& vol,
-                const int r)
+                const int rU,
+                const int rL)
 {
-    vec I = vec::Zero(r);
-    vec C = vec::Zero(r);
+    vec I = vec::Zero(rU - rL);
+    vec C = vec::Zero(rU - rL);
 
     VOLUME_FOR_EACH_PIXEL_FT(vol)
     {
         int u = AROUND(NORM_3(i, j, k));
-        if (u < r)
+        if ((u < rU) && (u >= rL))
         {
-            I[u] += ABS(vol.getFT(i, j, k));
-            C[u] += 1;
+            I[u - rL] += ABS(vol.getFT(i, j, k));
+            C[u - rL] += 1;
         }
     }
     
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < rU - rL; i++)
     {
         I[i] = log(I[i] / C[i]);
-        C[i] = gsl_pow_2((double)i / vol.nColRL());
+        C[i] = gsl_pow_2((double)(i + rL) / vol.nColRL());
     }
 
     double c0, c1, cov00, cov01, cov11, sumsq;
@@ -312,7 +314,7 @@ void bFactorEst(double& bFactor,
                    1,
                    I.data(),
                    1,
-                   r, 
+                   rU - rL, 
                    &c0,
                    &c1,
                    &cov00,

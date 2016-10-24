@@ -12,20 +12,24 @@ Postprocess::Postprocess() {}
 
 Postprocess::Postprocess(const char mapAFilename[],
                          const char mapBFilename[],
+                         const char maskFilename[],
                          const double pixelSize)
 {
     _pixelSize = pixelSize;
 
     ImageFile imfA(mapAFilename, "rb");
     ImageFile imfB(mapBFilename, "rb");
+    ImageFile imfM(maskFilename, "rb");
 
     imfA.readMetaData();
     imfB.readMetaData();
+    imfM.readMetaData();
 
     CLOG(INFO, "LOGGER_SYS") << "Reading Two Half Maps";
 
     imfA.readVolume(_mapA);
     imfB.readVolume(_mapB);
+    imfM.readVolume(_mask);
 
     _size = _mapA.nColRL();
 
@@ -33,7 +37,10 @@ Postprocess::Postprocess(const char mapAFilename[],
         (_size != _mapA.nSlcRL()) ||
         (_size != _mapB.nColRL()) ||
         (_size != _mapB.nRowRL()) ||
-        (_size != _mapB.nSlcRL()))
+        (_size != _mapB.nSlcRL()) ||
+        (_size != _mask.nColRL()) ||
+        (_size != _mask.nRowRL()) ||
+        (_size != _mask.nSlcRL()))
         CLOG(FATAL, "LOGGER_SYS") << "Invalid Input Half Maps in Postprocessing";
 }
 
@@ -43,10 +50,64 @@ void Postprocess::run()
 
     ImageFile imf;
 
+    CLOG(INFO, "LOGGER_SYS") << "Masking Reference A and B";
+
+    maskAB();
+
+    imf.readMetaData(_mapA);
+    imf.writeVolume("Reference_A_Masked.mrc", _mapA);
+    imf.readMetaData(_mapB);
+    imf.writeVolume("Reference_B_Masked.mrc", _mapB);
+
     CLOG(INFO, "LOGGER_SYS") << "Performing Fourier Transform";
 
     fft.fwMT(_mapA);
     fft.fwMT(_mapB);
+
+    CLOG(INFO, "LOGGER_SYS") << "Determining FSC";
+
+    _FSC.resize(maxR());
+
+    FSC(_FSC, _mapA, _mapB);
+
+    _res = resP(_FSC, 0.143);
+
+    CLOG(INFO, "LOGGER_SYS") << "Resolution: "
+                             << 1.0 / resP2A(_res,
+                                             _size,
+                                             _pixelSize);
+
+    CLOG(INFO, "LOGGER_SYS") << "Merging Two References";
+    
+    mergeAB();
+
+    CLOG(INFO, "LOGGER_SYS") << "Applying FSC Weighting";
+
+    fscWeightingFilter(_mapI, _mapI, _FSC);
+
+    CLOG(INFO, "LOGGER_SYS") << "Estimating B-Factor";
+
+    double bFactor;
+    bFactorEst(bFactor,
+               _mapI,
+               _res,
+               AROUND(resA2P(1.0 / B_FACTOR_EST_LOWER_THRES, _size, _pixelSize)));
+
+    CLOG(INFO, "LOGGER_SYS") << "B-Factor : " << bFactor;
+
+    CLOG(INFO, "LOGGER_SYS") << "Performing Sharpening";
+    
+    sharpen(_mapI,
+            _mapI,
+            (double)_res / _size,
+            (double)EDGE_WIDTH_FT / _size,
+            bFactor);
+
+    CLOG(INFO, "LOGGER_SYS") << "Saving Result";
+
+    fft.bw(_mapI);
+    imf.readMetaData(_mapI);
+    imf.writeVolume("Reference_Sharp.mrc", _mapI);
 
     /***
     CLOG(INFO, "LOGGER_SYS") << "Determining FSC of Unmasked Half Maps";
@@ -172,6 +233,20 @@ void Postprocess::run()
                                              _size,
                                              _pixelSize);
     ***/
+}
+
+void Postprocess::maskAB()
+{
+    softMask(_mapA, _mapA, _mask, 0);
+    softMask(_mapB, _mapB, _mask, 0);
+}
+
+void Postprocess::mergeAB()
+{
+    _mapI.alloc(_size, _size, _size, FT_SPACE);
+
+    FOR_EACH_PIXEL_FT(_mapI)
+        _mapI[i] = (_mapA[i] + _mapB[i]) / 2;
 }
 
 int Postprocess::maxR()

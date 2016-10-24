@@ -18,6 +18,8 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    ImageFile imf;
+
     loggerInit(argc, argv);
 
     ImageFile imfA(argv[1], "rb");
@@ -45,7 +47,7 @@ int main(int argc, char* argv[])
 
     cout << "Open FSC File" << endl;
 
-    FILE* file = fopen(argv[4], "r");
+    FILE* file = fopen(argv[5], "r");
 
     if (file != NULL)
         cout << "Open FSC Succced!" << endl;
@@ -79,7 +81,6 @@ int main(int argc, char* argv[])
 
     fft.bw(map);
 
-    ImageFile imf;
     imf.readMetaData(map);
     imf.writeVolume("Reference_FSC_Weighting.mrc", map);
 
@@ -87,9 +88,12 @@ int main(int argc, char* argv[])
 
     double bFactor;
 
-    bFactorEst(bFactor, map, atoi(argv[3]));
+    bFactorEst(bFactor,
+               map,
+               atoi(argv[3]),
+               atoi(argv[4]));
 
-    bFactor = -111;
+    // bFactor = -111;
 
     cout << "B-Factor = " << bFactor << endl;
 

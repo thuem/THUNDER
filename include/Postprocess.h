@@ -38,37 +38,25 @@ class Postprocess
 
         Volume _mapB;
 
-        Volume _mapI;
-
+        /***
         Volume _mapAMask;
 
         Volume _mapBMask;
+        ***/
 
+        Volume _mapI;
+
+        /***
         Volume _mapARFMask;
 
         Volume _mapBRFMask;
+        ***/
 
         Volume _mask;
 
-        /**
-         * FSC of two unmasked half maps
-         */
-        vec _fscU;
-
-        /**
-         * FSC of two masked half maps
-         */
-        vec _fscM;
-
-        /**
-         * FSC of two random-phase masked half maps
-         */
-        vec _fscR;
-
-        /**
-         * true FSC
-         */
-        vec _fscT;
+        vec _FSC;
+        
+        int _res;
 
     public:        
 
@@ -76,11 +64,19 @@ class Postprocess
 
         Postprocess(const char mapAFilename[],
                     const char mapBFilename[],
+                    const char maskFilename[],
                     const double pixelSize);
 
         void run();
 
     private:
+
+        /**
+         * perform masking on reference A and reference B
+         */
+        void maskAB();
+
+        void mergeAB();
 
         int maxR();
 };

@@ -48,8 +48,6 @@
 
 #define MAX_ITER_RES_NO_IMPROVE 3
 
-#define N_SAVE_IMG 20
-
 using namespace std;
 
 class MLModel : public Parallel

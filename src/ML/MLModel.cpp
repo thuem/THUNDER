@@ -737,7 +737,10 @@ void MLModel::sharpenUp(const bool fscWeighting)
                     _ref[l],
                     (double)_resT / _size,
                     EDGE_WIDTH_FT / _size,
-                    _rT * _pf);
+                    _rT * _pf,
+                    (AROUND(resA2P(1.0 / B_FACTOR_EST_LOWER_THRES,
+                                  _size,
+                                  _pixelSize)) + 1) * _pf);
         }
     }
 }
@@ -771,7 +774,7 @@ void MLModel::sharpenUp(const double bFactor,
             sharpen(_ref[l],
                     _ref[l],
                     (double)_resT / _size,
-                    EDGE_WIDTH_FT / _size,
+                    (double)EDGE_WIDTH_FT / _size,
                     bFactor);
                     ***/
         }

@@ -195,7 +195,8 @@ void sharpen(Volume& dst,
              const Volume& src,
              const double thres,
              const double ew,
-             const int r);
+             const int rU,
+             const int rL);
 
 void sharpen(Volume& dst,
              const Volume& src,
@@ -205,7 +206,8 @@ void sharpen(Volume& dst,
 
 void bFactorEst(double& bFactor,
                 const Volume& vol,
-                const int r);
+                const int rU,
+                const int rL);
 
 /***
 void wilsonPlot(std::map<double, double>& dst,
