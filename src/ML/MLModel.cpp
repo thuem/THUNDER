@@ -770,13 +770,11 @@ void MLModel::sharpenUp(const double bFactor,
 
             MLOG(INFO, "LOGGER_SYS") << "B-Factor is : " << bFactor << " Angtrom^2";
 
-            /***
             sharpen(_ref[l],
                     _ref[l],
                     (double)_resT / _size,
                     (double)EDGE_WIDTH_FT / _size,
                     bFactor);
-                    ***/
         }
     }
 }
