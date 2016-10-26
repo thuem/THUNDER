@@ -167,6 +167,10 @@ using namespace std;
     FOR_EACH_PIXEL_FT(a) \
         (a)[i] /= (b)[i]
 
+#define REMOVE_NEG(base) \
+    FOR_EACH_PIXEL_RL(base) \
+        if (base(i) < 0) base(i) = 0
+
 class ImageBase
 {
     MAKE_DEFAULT_MOVE(ImageBase)

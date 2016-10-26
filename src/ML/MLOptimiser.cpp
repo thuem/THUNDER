@@ -2275,6 +2275,8 @@ void MLOptimiser::saveReference(const bool finished)
             sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
         }
 
+        REMOVE_NEG(result);
+
         imf.readMetaData(result);
 
         imf.writeVolume(filename, result, _para.pixelSize);
@@ -2298,6 +2300,8 @@ void MLOptimiser::saveReference(const bool finished)
             sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
         }
 
+        REMOVE_NEG(result);
+
         imf.readMetaData(result);
 
         imf.writeVolume(filename, result, _para.pixelSize);
@@ -2315,6 +2319,8 @@ void MLOptimiser::saveSharpReference()
     Volume result;
 
     VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
+    REMOVE_NEG(result);
 
     ImageFile imf;
     imf.readMetaData(result);
