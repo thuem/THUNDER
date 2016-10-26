@@ -207,10 +207,12 @@ class ImageFile
                         const char* fileType = "MRC");
 
         void writeImage(const char dst[],
-                        const Image& src);
+                        const Image& src,
+                        const double pixelSize = 1);
 
         void writeVolume(const char dst[],
-                         const Volume& src);
+                         const Volume& src,
+                         const double pixelSize = 1);
 
         void clear();
 
@@ -230,10 +232,12 @@ class ImageFile
         void readVolumeMRC(Volume& dst);
 
         void writeImageMRC(const char dst[],
-                           const Image& src);
+                           const Image& src,
+                           const double pixelSize);
 
         void writeVolumeMRC(const char dst[],
-                            const Volume& src);
+                            const Volume& src,
+                            const double pixelSize);
 };
 
 #endif // IMAGE_FILE_H

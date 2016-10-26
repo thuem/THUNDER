@@ -126,15 +126,17 @@ void ImageFile::readVolume(Volume& dst,
 }
 
 void ImageFile::writeImage(const char dst[],
-                           const Image& src)
+                           const Image& src,
+                           const double pixelSize)
 {
-    writeImageMRC(dst, src);
+    writeImageMRC(dst, src, pixelSize);
 }
 
 void ImageFile::writeVolume(const char dst[],
-                            const Volume& src)
+                            const Volume& src,
+                            const double pixelSize)
 {
-    writeVolumeMRC(dst, src);
+    writeVolumeMRC(dst, src, pixelSize);
 }
 
 void ImageFile::clear()
@@ -275,12 +277,16 @@ void ImageFile::readVolumeMRC(Volume& dst)
 }
 
 void ImageFile::writeImageMRC(const char dst[],
-                              const Image& src)
+                              const Image& src,
+                              const double pixelSize)
 {
     _file = fopen(dst, "w");
 
     MRCHeader header;
     fillMRCHeader(header);
+
+    header.cella[0] *= pixelSize;
+    header.cella[1] *= pixelSize;
 
     rewind(_file);
     if (fwrite(&header, 1, 1024, _file) == 0 ||
@@ -295,12 +301,17 @@ void ImageFile::writeImageMRC(const char dst[],
 }
 
 void ImageFile::writeVolumeMRC(const char dst[],
-                               const Volume& src)
+                               const Volume& src,
+                               const double pixelSize)
 {
     _file = fopen(dst, "w");
 
     MRCHeader header;
     fillMRCHeader(header);
+
+    header.cella[0] *= pixelSize;
+    header.cella[1] *= pixelSize;
+    header.cella[2] *= pixelSize;
 
     rewind(_file);
     if (fwrite(&header, 1, 1024, _file) == 0 ||
