@@ -1449,7 +1449,7 @@ void MLOptimiser::initCTF()
                                       DefocusV, \
                                       DefocusAngle, \
                                       Cs \
-                               from particles;",
+                               from particles where particles.ID = ?;",
                                -1,
                                _exp.expose());
     }
