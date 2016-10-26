@@ -45,6 +45,6 @@
         for (int y = -a; y < a; y++) \
             for (int x = -a; x < a; x++)
 
-#define B_FACTOR_EST_LOWER_THRES 10 // Angstrom
+#define A_B_AVERAGE_THRES 10 // Angstrom
 
 #endif // MACRO_H

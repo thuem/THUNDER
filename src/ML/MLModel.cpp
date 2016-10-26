@@ -219,13 +219,11 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
-            /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
                                            _size,
                                            _pixelSize) + 1) * _pf,
                                    0.8 * (_r + 1) * _pf);
-                                   ***/
-            double r = 0.8 * _r * _pf;
+            //double r = 0.8 * _r * _pf;
             /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
                                            _size,
@@ -738,7 +736,7 @@ void MLModel::sharpenUp(const bool fscWeighting)
                     (double)_resT / _size,
                     EDGE_WIDTH_FT / _size,
                     _rT * _pf,
-                    (AROUND(resA2P(1.0 / B_FACTOR_EST_LOWER_THRES,
+                    (AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
                                   _size,
                                   _pixelSize)) + 1) * _pf);
         }
