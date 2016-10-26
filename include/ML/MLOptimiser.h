@@ -137,6 +137,8 @@ typedef struct ML_OPTIMISER_PARA
 
     bool autoSelection = false;
 
+    bool localCTF = false;
+
     /**
      * whether to perform masking on the reference
      */

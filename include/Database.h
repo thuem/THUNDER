@@ -43,7 +43,8 @@
 #define WRITE_FILE(filename, buf, len) \
     [&filename, &buf, &len]() \
     {\
-        FILE* fd = fopen(filename, "w"); /* TODO Error Checking */ \
+        FILE* fd = fopen(filename, "w"); \
+        if (fd == NULL) CLOG(FATAL, "LOGGER_SYS") << "Can Not Open Sqlite3 File"; \
         fwrite(buf, len, 1, fd); /* TODO Error Checking */ \
         fclose(fd); \
     }()
@@ -51,7 +52,8 @@
 #define READ_FILE(filename, buf) \
     [&filename, &buf]() \
     {\
-        FILE* fd = fopen(filename, "r"); /* TODO Error Checking */ \
+        FILE* fd = fopen(filename, "r"); \
+        if (fd == NULL) CLOG(FATAL, "LOGGER_SYS") << "Can Not Open Sqlite3 File"; \
         fseek(fd, 0, SEEK_SET); \
         int size = fread(buf, 1, MAX_LENGTH, fd); /* TODO Error Checking */ \
         fclose(fd); \
@@ -77,7 +79,8 @@ class Database : public Parallel
 
         sql::Statement _stmtAppendGroup;
         sql::Statement _stmtAppendMicrograph;
-        sql::Statement _stmtAppendParticle;
+        sql::Statement _stmtAppendParticleS;
+        sql::Statement _stmtAppendParticleL;
 
     protected:
 
@@ -130,6 +133,15 @@ class Database : public Parallel
         void appendParticle(const char name[],
                             const int groupID,
                             const int micrographID);
+
+        void appendParticle(const char name[],
+                            const int groupId,
+                            const int micrographId,
+                            const double voltage,
+                            const double defocusU,
+                            const double defocusV,
+                            const double defocusAngle,
+                            const double Cs);
         
         int nParticle() const;
         /* number of particles */

@@ -186,11 +186,28 @@ void Database::createTableParticles()
                                   ID integer primary key, \
                                   Name text, \
                                   GroupID integer not null, \
-                                  MicrographID integer not null);");
+                                  MicrographID integer not null, \
+                                  Voltage real, \
+                                  DefocusU real, \
+                                  DefocusV real, \
+                                  DefocusAngle real, \
+                                  Cs real);");
 
-    const char* sql = "insert into particles (Name, GroupID, MicrographID) \
+    const char* sqlS = "insert into particles (Name, GroupID, MicrographID) \
                         values (?, ?, ?)";
-    _stmtAppendParticle = sql::Statement(sql, strlen(sql), _db);
+    _stmtAppendParticleS = sql::Statement(sqlS, strlen(sqlS), _db);
+
+    const char* sqlL = "insert into particles (Name, \
+                                               GroupID, \
+                                               MicrographID, \
+                                               Voltage, \
+                                               DefocusU, \
+                                               DefocusV, \
+                                               DefocusAngle, \
+                                               Cs) \
+                        values (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    _stmtAppendParticleL = sql::Statement(sqlL, strlen(sqlL), _db);
 }
 
 void Database::appendGroup(const char name[],
@@ -242,12 +259,34 @@ void Database::appendParticle(const char name[],
                               const int groupID,
                               const int micrographID)
 {
-    _stmtAppendParticle.reset();
-    _stmtAppendParticle.bind_text(1, name, strlen(name), true);
-    _stmtAppendParticle.bind_int(2, groupID);
-    _stmtAppendParticle.bind_int(3, micrographID);
-    _stmtAppendParticle.step();
-    _stmtAppendParticle.reset();
+    _stmtAppendParticleS.reset();
+    _stmtAppendParticleS.bind_text(1, name, strlen(name), true);
+    _stmtAppendParticleS.bind_int(2, groupID);
+    _stmtAppendParticleS.bind_int(3, micrographID);
+    _stmtAppendParticleS.step();
+    _stmtAppendParticleS.reset();
+}
+
+void Database::appendParticle(const char name[],
+                              const int groupID,
+                              const int micrographID,
+                              const double voltage,
+                              const double defocusU,
+                              const double defocusV,
+                              const double defocusAngle,
+                              const double Cs)
+{
+    _stmtAppendParticleL.reset();
+    _stmtAppendParticleL.bind_text(1, name, strlen(name), true);
+    _stmtAppendParticleL.bind_int(2, groupID);
+    _stmtAppendParticleL.bind_int(3, micrographID);
+    _stmtAppendParticleL.bind_double(4, voltage);
+    _stmtAppendParticleL.bind_double(5, defocusU);
+    _stmtAppendParticleL.bind_double(6, defocusV);
+    _stmtAppendParticleL.bind_double(7, defocusAngle);
+    _stmtAppendParticleL.bind_double(8, Cs);
+    _stmtAppendParticleL.step();
+    _stmtAppendParticleL.reset();
 }
 
 int Database::nParticle() const

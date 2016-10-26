@@ -23,6 +23,7 @@ void display(const MLOptimiserPara& para)
     printf("Initial Model:                                         %12s\n", para.initModel);
     printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
     printf("Auto Selection:                                        %12d\n", para.autoSelection);
+    printf("Local CTF:                                             %12d\n", para.localCTF);
     
     printf("Perform Reference Mask:                                %12d\n", para.performMask);
     printf("Automask:                                              %12d\n", para.autoMask);
@@ -1426,13 +1427,29 @@ void MLOptimiser::initCTF()
     // get CTF attributes from _exp
     CTFAttr ctfAttr;
 
-    sql::Statement stmt(
-            "select Voltage, DefocusU, DefocusV, DefocusAngle, CS from \
-             micrographs, particles where \
-             particles.micrographID = micrographs.ID and \
-             particles.ID = ?;",
-             -1,
-             _exp.expose());
+    sql::Statement stmt;
+
+    if (_para.localCTF)
+        stmt = sql::Statement("select Voltage, \
+                                      DefocusU, \
+                                      DefocusV, \
+                                      DefocusAngle, \
+                                      Cs \
+                               from particles;",
+                               -1,
+                               _exp.expose());
+    else
+        stmt = sql::Statement("select Voltage, \
+                                      DefocusU, \
+                                      DefocusV, \
+                                      DefocusAngle, \
+                                      CS \
+                               from micrographs, \
+                                    particles \
+                               where particles.micrographID = micrographs.ID \
+                               and particles.ID = ?;",
+                               -1,
+                               _exp.expose());
 
     FOR_EACH_2D_IMAGE
     {
