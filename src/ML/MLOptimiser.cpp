@@ -1440,6 +1440,10 @@ void MLOptimiser::initCTF()
     sql::Statement stmt;
 
     if (_para.localCTF)
+    {
+        ALOG(INFO, "LOGGER_INIT") << "Local CTF Enable";
+        BLOG(INFO, "LOGGER_INIT") << "Local CTF Enable";
+
         stmt = sql::Statement("select Voltage, \
                                       DefocusU, \
                                       DefocusV, \
@@ -1448,7 +1452,12 @@ void MLOptimiser::initCTF()
                                from particles;",
                                -1,
                                _exp.expose());
+    }
     else
+    {
+        ALOG(INFO, "LOGGER_INIT") << "Local CTF Disable";
+        BLOG(INFO, "LOGGER_INIT") << "Local CTF Disable";
+
         stmt = sql::Statement("select Voltage, \
                                       DefocusU, \
                                       DefocusV, \
@@ -1460,6 +1469,7 @@ void MLOptimiser::initCTF()
                                and particles.ID = ?;",
                                -1,
                                _exp.expose());
+    }
 
     FOR_EACH_2D_IMAGE
     {
