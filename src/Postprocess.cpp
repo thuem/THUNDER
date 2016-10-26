@@ -105,11 +105,12 @@ void Postprocess::run()
 
     CLOG(INFO, "LOGGER_SYS") << "Saving Result";
 
+    fft.bw(_mapI);
     REMOVE_NEG(_mapI);
 
-    fft.bw(_mapI);
     imf.readMetaData(_mapI);
     imf.writeVolume("Reference_Sharp.mrc", _mapI, _pixelSize);
+    //imf.writeVolume("Reference_Sharp.mrc", _mapI, _pixelSize);
 
     /***
     CLOG(INFO, "LOGGER_SYS") << "Determining FSC of Unmasked Half Maps";
