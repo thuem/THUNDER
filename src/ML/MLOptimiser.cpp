@@ -1217,7 +1217,17 @@ void MLOptimiser::initImg()
         if ((_img[l].nColRL() != _para.size) ||
             (_img[l].nRowRL() != _para.size))
         {
-            CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images";
+            CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of 2D Images, 
+                                      << "Should be "
+                                      << _para.size
+                                      << " x "
+                                      << _para.size
+                                      << ", but "
+                                      << _img[l].nColRL()
+                                      << " x "
+                                      << _img[l].nRowRL()
+                                      << " Input."
+
             __builtin_unreachable();
         }
     }
