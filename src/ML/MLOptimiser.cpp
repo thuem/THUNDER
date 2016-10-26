@@ -923,7 +923,7 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
 
-        _resReport = _model.resolutionP(_para.thresReportFSC, false);
+        _resReport = _model.resolutionP(_para.thresReportFSC, true);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
                                    << _resReport

@@ -768,7 +768,9 @@ void MLModel::sharpenUp(const double bFactor,
             MLOG(INFO, "LOGGER_SYS") << "B-Factor and Low-Pass Filter Reference "
                                      << l;
 
-            MLOG(INFO, "LOGGER_SYS") << "B-Factor is : " << bFactor << " Angtrom^2";
+            MLOG(INFO, "LOGGER_SYS") << "B-Factor is : "
+                                     << bFactor * gsl_pow_2(_pixelSize)
+                                     << " Angtrom^2";
 
             sharpen(_ref[l],
                     _ref[l],
