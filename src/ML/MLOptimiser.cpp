@@ -1796,6 +1796,9 @@ void MLOptimiser::refreshScale(const bool init,
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
     if (_rL > _rS) MLOG(FATAL, "LOGGER_SYS") << "_rL is Larger than _rS";
 
+    _rS = 3;
+    _rL = 0;
+
     mat mXA = mat::Zero(_nGroup, _rS);
     mat mAA = mat::Zero(_nGroup, _rS);
 
