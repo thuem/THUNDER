@@ -156,7 +156,7 @@ void FRC(vec& dst,
  * volumes.
  *
  * @param dst vector for storing the FSC size of which is the upper boundary of
- *        spatial frequency in pixel
+ *            spatial frequency in pixel
  * @param A   volume in Fourier space
  * @param B   volume in Fourier space
  */
@@ -191,6 +191,17 @@ void randomPhase(Volume& dst,
                  const Volume& src,
                  const int r);
 
+/**
+ * This function sharpens up a volume by three steps: estimating B-factor,
+ * performing B-factor filtering and performing low-pass filtering.
+ *
+ * @param dst   the destination volume
+ * @param src   the source volume
+ * @param thres threshold of spatial frequency
+ * @param ew    edge width
+ * @param rU    the upper boundary for B-factor estimation
+ * @param rL    the lower boundary for B-factor estimation
+ */
 void sharpen(Volume& dst,
              const Volume& src,
              const double thres,
@@ -198,31 +209,33 @@ void sharpen(Volume& dst,
              const int rU,
              const int rL);
 
+/**
+ * This function sharpens up a volume by two steps: performing B-factor
+ * filtering and performing low-pass filtering.
+ *
+ * @param dst     the destination volume
+ * @param src     the source volume
+ * @param thres   threshold of spatial frequency
+ * @param ew      edge width
+ * @param bFactor B-factor
+ */
 void sharpen(Volume& dst,
              const Volume& src,
              const double thres,
              const double ew,
              const double bFactor);
 
+/**
+ * This function estimates B-factor by least-square regression method.
+ *
+ * @param bFactor B-factor
+ * @param vol     the volume
+ * @param rU      the upper boundary for B-factor estimation
+ * @param rL      the lower boundary for B-factor estimation
+ */
 void bFactorEst(double& bFactor,
                 const Volume& vol,
                 const int rU,
                 const int rL);
-
-/***
-void wilsonPlot(std::map<double, double>& dst,
-                const int imageSize,
-                const double pixelSize,
-                const double upperResA,
-                const double lowerResA,
-                const Vector<double>& ps,
-                const int step = 1);
-
-void wilsonPlot(std::map<double, double>& dst,
-                const Volume& volume,
-                const double pixelSize,
-                const double upperResA,
-                const double lowerResA);
-                ***/
 
 #endif // SPECTRUM_H
