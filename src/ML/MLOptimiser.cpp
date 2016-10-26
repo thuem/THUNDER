@@ -2277,7 +2277,7 @@ void MLOptimiser::saveReference(const bool finished)
 
         imf.readMetaData(result);
 
-        imf.writeVolume(filename, result);
+        imf.writeVolume(filename, result, _para.pixelSize);
     }
     else if (_commRank == HEMI_B_LEAD)
     {
@@ -2300,7 +2300,7 @@ void MLOptimiser::saveReference(const bool finished)
 
         imf.readMetaData(result);
 
-        imf.writeVolume(filename, result);
+        imf.writeVolume(filename, result, _para.pixelSize);
     }
 }
 
@@ -2312,9 +2312,13 @@ void MLOptimiser::saveSharpReference()
 
     fft.bwMT(_model.ref(0));
 
+    Volume result;
+
+    VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+
     ImageFile imf;
-    imf.readMetaData(_model.ref(0));
-    imf.writeVolume("Reference_Sharp.mrc", _model.ref(0));
+    imf.readMetaData(result);
+    imf.writeVolume("Reference_Sharp.mrc", result, _para.pixelSize);
 }
 
 void MLOptimiser::saveMask()
@@ -2332,7 +2336,7 @@ void MLOptimiser::saveMask()
 
         imf.readMetaData(mask);
         sprintf(filename, "Mask_A.mrc");
-        imf.writeVolume(filename, mask);
+        imf.writeVolume(filename, mask, _para.pixelSize);
     }
     else if (_commRank == HEMI_B_LEAD)
     {
@@ -2342,7 +2346,7 @@ void MLOptimiser::saveMask()
 
         imf.readMetaData(mask);
         sprintf(filename, "Mask_B.mrc");
-        imf.writeVolume(filename, mask);
+        imf.writeVolume(filename, mask, _para.pixelSize);
     }
 }
 
