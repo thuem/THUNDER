@@ -37,5 +37,5 @@ int main(int argc, char* argv[])
 
     imf.readMetaData(mask);
 
-    imf.writeVolume(argv[1], mask);
+    imf.writeVolume(argv[1], mask, atof(argv[6]));
 }
