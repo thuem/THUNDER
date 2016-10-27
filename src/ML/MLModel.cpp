@@ -731,6 +731,7 @@ void MLModel::sharpenUp(const bool fscWeighting)
             if (fscWeighting)
                 fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
 
+            /***
             sharpen(_ref[l],
                     _ref[l],
                     (double)_resT / _size,
@@ -739,6 +740,7 @@ void MLModel::sharpenUp(const bool fscWeighting)
                     (AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
                                   _size,
                                   _pixelSize)) + 1) * _pf);
+                                  ***/
         }
     }
 }
