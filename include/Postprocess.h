@@ -24,6 +24,8 @@
 #define RANDOM_PHASE_THRES 0.8
 #define GEN_MASK_RES 30
 
+#define COMPENSATE_B_FACTOR 80 // Angstrom
+
 using namespace std;
 
 class Postprocess

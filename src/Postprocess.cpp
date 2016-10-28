@@ -103,6 +103,10 @@ void Postprocess::run()
             (double)EDGE_WIDTH_FT / _size,
             bFactor);
 
+    CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";
+
+    bFactorFilter(_mapI, _mapI, COMPENSATE_B_FACTOR / gsl_pow_2(_pixelSize));
+
     CLOG(INFO, "LOGGER_SYS") << "Saving Result";
 
     fft.bw(_mapI);
