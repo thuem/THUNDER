@@ -14,12 +14,12 @@
 /**
  * 2D mode
  */
-#define 2D_MODE 0
+#define MODE_2D 0
 
 /**
  * 3D mode
  */
-#define 3D_MODE 1
+#define MODE_3D 1
 
 /**
  * 1 KB
