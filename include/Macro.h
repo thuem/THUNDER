@@ -11,26 +11,70 @@
 #ifndef MACRO_H
 #define MACRO_H
 
+/**
+ * 2D mode
+ */
+#define 2D_MODE 0
+
+/**
+ * 3D mode
+ */
+#define 3D_MODE 1
+
+/**
+ * 1 KB
+ */
 #define KILOBYTE 1024
+
+/**
+ * 1 MB
+ */
 #define MEGABYTE (1024 * 1024)
 
 #define BLOCKSIZE 1024
+
 #define BLOCKSIZE_1D 1024
+
 #define BLOCKSIZE_2D 32
 
-#define FILE_NAME_LENGTH 256
-#define SQL_COMMAND_LENGTH 256
+/**
+ * maximum length of filename
+ */
+#define FILE_NAME_LENGTH 512
 
+/**
+ * maximum length of SQL command
+ */
+#define SQL_COMMAND_LENGTH 512
+
+/**
+ * maximum length of a line in a file
+ */
 #define FILE_LINE_LENGTH 1024
 
-#define EDGE_WIDTH_FT 2 // edge width in filtering
-#define EDGE_WIDTH_RL 6 // edge width in mask
+/**
+ * edge width in Fourier space
+ */
+#define EDGE_WIDTH_FT 2
 
+/**
+ * edge width in real space
+ */
+#define EDGE_WIDTH_RL 6
+
+/**
+ * threshold for determining that one is equal to another
+ */
 #define EQUAL_ACCURACY 0.0001
 
 #define SAVE_DELETE(p) \
     if (p != NULL) { delete[] p; p = NULL; }
 
+/**
+ * This macro loops over all pixels in a grid of certain side length.
+ *
+ * @param a side length
+ */
 #define IMAGE_FOR_EACH_PIXEL_IN_GRID(a) \
     for (int y = -a; y < a; y++) \
         for (int x = -a; x < a; x++)
@@ -45,6 +89,10 @@
         for (int y = -a; y < a; y++) \
             for (int x = -a; x < a; x++)
 
-#define A_B_AVERAGE_THRES 10 // Angstrom
+/**
+ * resolution resolution for averaging reference(s) from A hemisphere and B
+ * hemisphere
+ */
+#define A_B_AVERAGE_THRES 10
 
 #endif // MACRO_H
