@@ -175,6 +175,8 @@ void Reconstructor::reconstruct(Volume& dst)
                                             * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
     ***/
 
+    MPI_Barrier(_hemi);
+
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 

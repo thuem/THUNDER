@@ -2025,6 +2025,8 @@ void MLOptimiser::reconstructRef(const bool mask)
         _model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
     }
 
+    MPI_Barrier(_hemi);
+
     ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
