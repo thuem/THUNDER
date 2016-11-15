@@ -70,6 +70,10 @@ void Postprocess::run()
 
     FSC(_FSC, _mapA, _mapB);
 
+    CLOG(INFO, "LOGGER_SYS") << "Saving FSC";
+
+    saveFSC();
+
     _res = resP(_FSC, 0.143);
 
     CLOG(INFO, "LOGGER_SYS") << "Resolution: "
@@ -103,9 +107,11 @@ void Postprocess::run()
             (double)EDGE_WIDTH_FT / _size,
             bFactor);
 
+    /***
     CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";
 
     bFactorFilter(_mapI, _mapI, COMPENSATE_B_FACTOR / gsl_pow_2(_pixelSize));
+    ***/
 
     CLOG(INFO, "LOGGER_SYS") << "Saving Result";
 
@@ -259,4 +265,18 @@ void Postprocess::mergeAB()
 int Postprocess::maxR()
 {
     return _size / 2 - 1;
+}
+
+void Postprocess::saveFSC() const
+{
+    FILE* file = fopen("Postprocess_FSC.txt", "w");
+
+    for (int i = 1; i < _FSC.size(); i++)
+        fprintf(file,
+                "%05d   %10.6lf   %10.6lf\n",
+                i,
+                1.0 / resP2A(i, _size, _pixelSize),
+                _FSC(i));
+
+    fclose(file);
 }

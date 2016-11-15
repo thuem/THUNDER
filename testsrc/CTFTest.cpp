@@ -61,12 +61,13 @@ int main(int argc, char* argv[])
     }
     ***/
 
-    for (int i = 0; i < N / 2; i++)
+    for (double i = 0.01; i < N / 2; i += 0.01)
     {
         double f = i / (pixelSize * N);
 
-        printf("%04d    %12.6f\n",
+        printf("%12.6f    %12.6f    %12.6f\n",
                i,
+               pixelSize * N / i,
                CTF(f, voltage, defocusU, Cs));
     }
 
