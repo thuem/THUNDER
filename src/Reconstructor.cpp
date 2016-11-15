@@ -160,12 +160,13 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceF();
 
-    // make sure the scale correct
-    // SCALE_FT(_F, _pf * sqrt(_pf * _size));
+    ALOG(INFO, "LOGGER_RECO") << "Copying F";
+    BLOG(INFO, "LOGGER_RECO") << "Copying F";
 
     dst = _F.copyVolume();
 
-    //CLOG(INFO, "LOGGER_SYS") << "dst[0] = " << REAL(dst[0]);
+    ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
+    BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
 
     FFT fft;
     fft.bwMT(dst);
