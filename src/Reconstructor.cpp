@@ -167,11 +167,17 @@ void Reconstructor::reconstruct(Volume& dst)
 
     MPI_Barrier(_hemi);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
     BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
+    ***/
+
+    ILOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
 
     FFT fft;
     fft.bwMT(dst);
+
+    ILOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F Accomplished";
 
     MPI_Barrier(_hemi);
 
