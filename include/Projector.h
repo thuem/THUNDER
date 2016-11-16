@@ -187,6 +187,17 @@ class Projector
                      const double x,
                      const double y) const;
 
+        /**
+         * This function projects given three Euler angles, and then translate
+         * given a vector using multiple threads.
+         *
+         * @param dst   the destination image
+         * @param phi   phi
+         * @param theta theta
+         * @param psi   psi
+         * @param x     x
+         * @param y     y
+         */
         void projectMT(Image& dst,
                        const double phi,
                        const double theta,
@@ -204,21 +215,46 @@ class Projector
         void project(Image& dst,
                      const Coordinate5D& coordinate5D) const;
 
+        /**
+         * This function projects given a 5D coordinate using multiple threads.
+         *
+         * @param dst          the destination image
+         * @param coordinate5D the 5D coordiante, containing three Euler angles
+         *                     and a translation vector
+         */
         void projectMT(Image& dst,
                        const Coordinate5D& coordinate5D) const;
 
+        /**
+         * This function projects given a rotation matrix and a translation
+         * vector.
+         *
+         * @param dst the destination image
+         * @param rot the rotation matrix
+         * @param t   the translation vector
+         */
         void project(Image& dst,
                      const mat33& rot,
                      const vec2& t) const;
 
+        /**
+         * This function projects given a rotation matrix and a translation
+         * vector using multiple threads.
+         *
+         * @param dst the destination image
+         * @param rot the rotation matrix
+         * @param t   the translation vector
+         */
         void projectMT(Image& dst,
                        const mat33& rot,
                        const vec2& t) const;
 
     private:
 
+        /**
+         * This function performs gridding correction on projectee.
+         */
         void gridCorrection();
-        /* perform gridding correction on _projectee */
 };
 
 #endif // PROJECTOR_H
