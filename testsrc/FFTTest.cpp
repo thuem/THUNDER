@@ -43,15 +43,19 @@ int main(int argc, char* argv[])
             head.setRL(0, i, j, k);
     }
 
+    /***
     ImageFile imf;
 
     imf.readMetaData(head);
     imf.writeVolume("head.mrc", head);
+    ***/
 
     FFT fft;
     fft.fwMT(head);
     fft.bwMT(head);
 
+    /***
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
+    ***/
 }
