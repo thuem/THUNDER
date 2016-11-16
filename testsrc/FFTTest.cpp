@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <mpi.h>
+
 #include "FFT.h"
 #include "ImageFile.h"
 
@@ -20,6 +22,8 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
+
+    MPI_Init(&argc, &argv);
 
     std::cout << "Define a head." << std::endl;
 
@@ -58,4 +62,6 @@ int main(int argc, char* argv[])
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
     ***/
+
+    MPI_Finalize();
 }
