@@ -165,16 +165,13 @@ void Reconstructor::reconstruct(Volume& dst)
 
     dst = _F.copyVolume();
 
+    MPI_Barrier(_hemi);
+
     ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
     BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
 
     FFT fft;
     fft.bwMT(dst);
-
-    /***
-    CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
-                                            * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
-    ***/
 
     MPI_Barrier(_hemi);
 
