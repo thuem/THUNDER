@@ -12,40 +12,41 @@
 
 void display(const MLOptimiserPara& para)
 {
-    printf("Number of Classes:                                     %12d\n", para.k);
-    printf("Size of Image:                                         %12d\n", para.size);
-    printf("Pixel Size (Angstrom):                                 %12.6lf\n", para.pixelSize); 
-    printf("Radius of Mask on Images (Angstrom):                   %12.6lf\n", para.maskRadius);
-    printf("Estimated Translation (Pixel):                         %12.6lf\n", para.transS);
-    printf("Initial Resolution (Angstrom):                         %12.6lf\n", para.initRes);
-    printf("Perform Global Search Under (Angstrom):                %12.6lf\n", para.globalSearchRes);
-    printf("Symmetry:                                              %12s\n", para.sym);
-    printf("Initial Model:                                         %12s\n", para.initModel);
-    printf("Sqlite3 File Storing Paths and CTFs of Images:         %12s\n", para.db);
-    printf("Auto Selection:                                        %12d\n", para.autoSelection);
-    printf("Local CTF:                                             %12d\n", para.localCTF);
+    printf("Number of Classes:                                       %12d\n", para.k);
+    printf("Size of Image:                                           %12d\n", para.size);
+    printf("Pixel Size (Angstrom):                                   %12.6lf\n", para.pixelSize); 
+    printf("Radius of Mask on Images (Angstrom):                     %12.6lf\n", para.maskRadius);
+    printf("Number of Sampling Points for Scanning in Global Search: %12d\n", para.mS);
+    printf("Estimated Translation (Pixel):                           %12.6lf\n", para.transS);
+    printf("Initial Resolution (Angstrom):                           %12.6lf\n", para.initRes);
+    printf("Perform Global Search Under (Angstrom):                  %12.6lf\n", para.globalSearchRes);
+    printf("Symmetry:                                                %12s\n", para.sym);
+    printf("Initial Model:                                           %12s\n", para.initModel);
+    printf("Sqlite3 File Storing Paths and CTFs of Images:           %12s\n", para.db);
+    printf("Auto Selection:                                          %12d\n", para.autoSelection);
+    printf("Local CTF:                                               %12d\n", para.localCTF);
     
-    printf("Perform Reference Mask:                                %12d\n", para.performMask);
-    printf("Automask:                                              %12d\n", para.autoMask);
-    printf("Mask:                                                  %12s\n", para.mask);
+    printf("Perform Reference Mask:                                  %12d\n", para.performMask);
+    printf("Automask:                                                %12d\n", para.autoMask);
+    printf("Mask:                                                    %12s\n", para.mask);
 
-    printf("Perform Sharpening:                                    %12d\n", para.performSharpen);
-    printf("Auto Estimate B-factor:                                %12d\n", para.estBFactor);
-    printf("B-Factor:                                              %12.6lf\n", para.bFactor);
+    printf("Perform Sharpening:                                      %12d\n", para.performSharpen);
+    printf("Auto Estimate B-factor:                                  %12d\n", para.estBFactor);
+    printf("B-Factor:                                                %12.6lf\n", para.bFactor);
 
-    printf("Max Number of Iteration:                               %12d\n", para.iterMax);
-    printf("Padding Factor:                                        %12d\n", para.pf);
-    printf("MKB Kernel Radius:                                     %12.6lf\n", para.a);
-    printf("MKB Kernel Smooth Factor:                              %12.6lf\n", para.alpha);
-    printf("Number of Sampling Points in Global Search:            %12d\n", para.mG);
-    printf("Number of Sampling Points in Local Search:             %12d\n", para.mL);
-    printf("Ignore Signal Under (Angstrom):                        %12.6lf\n", para.ignoreRes);
-    printf("Correct Intensity Scale Using Signal Under (Angstrom): %12.6lf\n", para.sclCorRes);
-    printf("FSC Threshold for Cutoff Frequency:                    %12.6lf\n", para.thresCutoffFSC);
-    printf("FSC Threshold for Reporting Resolution:                %12.6lf\n", para.thresReportFSC);
-    printf("Grouping when Calculating Sigma:                       %12d\n", para.groupSig);
-    printf("Grouping when Correcting Intensity Scale:              %12d\n", para.groupScl);
-    printf("Mask Images with Zero Noise:                           %12d\n", para.zeroMask);
+    printf("Max Number of Iteration:                                 %12d\n", para.iterMax);
+    printf("Padding Factor:                                          %12d\n", para.pf);
+    printf("MKB Kernel Radius:                                       %12.6lf\n", para.a);
+    printf("MKB Kernel Smooth Factor:                                %12.6lf\n", para.alpha);
+    printf("Number of Sampling Points in Global Search:              %12d\n", para.mG);
+    printf("Number of Sampling Points in Local Search:               %12d\n", para.mL);
+    printf("Ignore Signal Under (Angstrom):                          %12.6lf\n", para.ignoreRes);
+    printf("Correct Intensity Scale Using Signal Under (Angstrom):   %12.6lf\n", para.sclCorRes);
+    printf("FSC Threshold for Cutoff Frequency:                      %12.6lf\n", para.thresCutoffFSC);
+    printf("FSC Threshold for Reporting Resolution:                  %12.6lf\n", para.thresReportFSC);
+    printf("Grouping when Calculating Sigma:                         %12d\n", para.groupSig);
+    printf("Grouping when Correcting Intensity Scale:                %12d\n", para.groupScl);
+    printf("Mask Images with Zero Noise:                             %12d\n", para.zeroMask);
 }
 
 MLOptimiser::MLOptimiser() {}
