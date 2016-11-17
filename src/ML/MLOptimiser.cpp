@@ -318,6 +318,7 @@ void MLOptimiser::expectation()
                 ***/
 
                 //#pragma omp parallel for schedule(dynamic)
+                /***
                 IMAGE_FOR_PIXEL_R_FT(_r)
                 {
                     if (QUAD(i, j) < gsl_pow_2(_r))
@@ -326,6 +327,9 @@ void MLOptimiser::expectation()
                         imgAll[index] = imgRot[index] * trans[n][index];
                     }
                 }
+                ***/
+
+                mul(imgAll, imgRot, trans[n], _iPxl, nPxl);
 
                 /***
                 logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
@@ -2633,11 +2637,13 @@ vec logDataVSPrior(const vector<Image>& dat,
     for (int l = 0; l < n; l++)
     {
         for (int i = 0; i < m; i++)
-            result(l) += ABS2(dat[l].iGetFT(iPxl[i])
-                            - REAL(ctf[l].iGetFT(iPxl[i]))
-                            * pri.iGetFT(iPxl[i]))
+        {
+            int index = iPxl[i];
+            result(l) += ABS2(dat[l].iGetFT(index)
+                            - REAL(ctf[l].iGetFT(index))
+                            * pri.iGetFT(index))
                        / (-2 * sig(groupID[l] - 1, iSig[i]));
-                         
+        }
     }
 
     return result;

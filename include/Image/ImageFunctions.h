@@ -208,6 +208,17 @@ using namespace std;
             _dst.set##SP(_src.get##SP(i, j, _k), i, j); \
     }(dst, src, k)
 
+void mul(Image& dst,
+         const Image& a,
+         const Image& b,
+         const int r);
+
+void mul(Image& dst,
+         const Image& a,
+         const Image& b,
+         const int* iPxl,
+         const int nPxl);
+
 /**
  * This function generates a "translation image" with a given vector indicating
  * the number of columns and the number of rows. An image can be tranlated by

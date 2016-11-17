@@ -10,6 +10,36 @@
 
 #include "ImageFunctions.h"
 
+void mul(Image& dst,
+         const Image& a,
+         const Image& b,
+         const int r)
+{
+    IMAGE_FOR_PIXEL_R_FT(r)
+    {
+        if (QUAD(i, j) < gsl_pow_2(r))
+        {
+            int index = dst.iFTHalf(i, j);
+
+            dst[index] = a.iGetFT(index) * b.iGetFT(index);
+        }
+    }
+}
+
+void mul(Image& dst,
+         const Image& a,
+         const Image& b,
+         const int* iPxl,
+         const int nPxl)
+{
+    for (int i = 0; i < nPxl; i++)
+    {
+        int index = iPxl[i];
+
+        dst[index] = a.iGetFT(index) * b.iGetFT(index);
+    }
+}
+
 void translate(Image& dst,
                const double nTransCol,
                const double nTransRow)
