@@ -192,6 +192,12 @@ void Projector::project(Image& dst,
                         const int* iPxl,
                         const int nPxl) const
 {
+    mat33 mat;
+    rotate3D(mat, phi, theta, psi);
+
+    project(dst, mat, iCol, iRow, iPxl, nPxl);
+
+    translate(dst, dst, x, y, iCol, iRow, iPxl, nPxl);
 }
 
 void Projector::projectMT(Image& dst,
@@ -217,6 +223,12 @@ void Projector::projectMT(Image& dst,
                           const int* iPxl,
                           const int nPxl) const
 {
+    mat33 mat;
+    rotate3D(mat, phi, theta, psi);
+
+    projectMT(dst, mat, iCol, iRow, iPxl, nPxl);
+
+    translateMT(dst, dst, x, y, iCol, iRow, iPxl, nPxl);
 }
 
 void Projector::project(Image& dst,

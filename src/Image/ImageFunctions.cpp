@@ -85,6 +85,24 @@ void translate(Image& dst,
         }
 }
 
+void translate(Image& dst,
+               const double nTransCol,
+               const double nTransRow,
+               const int* iCol,
+               const int* iRow,
+               const int* iPxl,
+               const int nPxl)
+{
+    double rCol = nTransCol / dst.nColRL();
+    double rRow = nTransRow / dst.nRowRL();
+
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        dst[iPxl[i]] = COMPLEX_POLAR(-phase);
+    }
+}
+
 void translateMT(Image& dst,
                  const double r,
                  const double nTransCol,
@@ -100,6 +118,25 @@ void translateMT(Image& dst,
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
         }
+}
+
+void translateMT(Image& dst,
+                 const double nTransCol,
+                 const double nTransRow,
+                 const int* iCol,
+                 const int* iRow,
+                 const int* iPxl,
+                 const int nPxl)
+{
+    double rCol = nTransCol / dst.nColRL();
+    double rRow = nTransRow / dst.nRowRL();
+
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        dst[iPxl[i]] = COMPLEX_POLAR(-phase);
+    }
 }
 
 void translate(Image& dst,
@@ -150,6 +187,26 @@ void translate(Image& dst,
         }
 }
 
+void translate(Image& dst,
+               const Image& src,
+               const double nTransCol,
+               const double nTransRow,
+               const int* iCol,
+               const int* iRow,
+               const int* iPxl,
+               const int nPxl)
+{
+    double rCol = nTransCol / src.nColRL();
+    double rRow = nTransRow / src.nRowRL();
+
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+
+        dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
+    }
+}
+
 void translateMT(Image& dst,
                  const Image& src,
                  const double r,
@@ -166,6 +223,27 @@ void translateMT(Image& dst,
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
+}
+
+void translateMT(Image& dst,
+                 const Image& src,
+                 const double nTransCol,
+                 const double nTransRow,
+                 const int* iCol,
+                 const int* iRow,
+                 const int* iPxl,
+                 const int nPxl)
+{
+    double rCol = nTransCol / src.nColRL();
+    double rRow = nTransRow / src.nRowRL();
+
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+
+        dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
+    }
 }
 
 void crossCorrelation(Image& dst,
