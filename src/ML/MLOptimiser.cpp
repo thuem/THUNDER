@@ -305,8 +305,9 @@ void MLOptimiser::expectation()
 
             par.rot(rot, m * nT);
 
-            _model.proj(0).project(imgRot, rot);
+            //_model.proj(0).project(imgRot, rot);
             //_model.proj(0).projectMT(imgRot, rot);
+            _model.proj(0).project(imgRot, rot, _iCol, _iRow, _iPxl, nPxl);
 
             for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
@@ -2105,6 +2106,11 @@ void MLOptimiser::allocPreCal(int& nPxl,
     IF_MASTER return;
 
     _iPxl = new int[_img[0].sizeFT()];
+
+    _iCol = new int[_img[0].sizeFT()];
+
+    _iRow = new int[_img[0].sizeFT()];
+
     _iSig = new int[_img[0].sizeFT()];
 
     double rU2 = gsl_pow_2(rU);
@@ -2123,6 +2129,11 @@ void MLOptimiser::allocPreCal(int& nPxl,
             if (v < rU)
             {
                 _iPxl[nPxl] = _img[0].iFTHalf(i, j);
+
+                _iCol[nPxl] = i;
+
+                _iRow[nPxl] = j;
+
                 _iSig[nPxl] = v;
 
                 nPxl++;
@@ -2136,6 +2147,8 @@ void MLOptimiser::freePreCal()
     IF_MASTER return;
 
     delete[] _iPxl;
+    delete[] _iCol;
+    delete[] _iRow;
     delete[] _iSig;
 }
 
@@ -2429,6 +2442,7 @@ void MLOptimiser::saveFSC(const bool finished) const
     fclose(file);
 }
 
+/***
 int searchPlace(double* topW,
                 const double w,
                 const int l,
@@ -2468,6 +2482,7 @@ void recordTopK(double* topW,
     iTopR[place] = iR;
     iTopT[place] = iT;
 }
+***/
 
 double logDataVSPrior(const Image& dat,
                       const Image& pri,

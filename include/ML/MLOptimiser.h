@@ -407,6 +407,10 @@ class MLOptimiser : public Parallel
 
         int* _iPxl = NULL;
 
+        int* _iCol = NULL;
+        
+        int* _iRow = NULL;
+
         int* _iSig = NULL;
 
     public:
@@ -634,6 +638,7 @@ class MLOptimiser : public Parallel
         void saveFSC(const bool finished = false) const;
 };
 
+/***
 int searchPlace(double* topW,
                 const double w,
                 const int l,
@@ -646,6 +651,7 @@ void recordTopK(double* topW,
                 const unsigned int iR,
                 const unsigned int iT,
                 const int k);
+                ***/
 
 /**
  * This function calculates the logarithm of the possibility that the image is
