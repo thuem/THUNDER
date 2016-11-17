@@ -223,6 +223,17 @@ class Projector
                      const double x,
                      const double y) const;
 
+        void project(Image& dst,
+                     const double phi,
+                     const double theta,
+                     const double psi,
+                     const double x,
+                     const double y,
+                     const int* iCol,
+                     const int* iRow,
+                     const int* iPxl,
+                     const int nPxl) const;
+
         /**
          * This function projects given three Euler angles, and then translate
          * given a vector using multiple threads.
@@ -240,6 +251,17 @@ class Projector
                        const double psi,
                        const double x,
                        const double y) const;
+
+        void projectMT(Image& dst,
+                       const double phi,
+                       const double theta,
+                       const double psi,
+                       const double x,
+                       const double y,
+                       const int* iCol,
+                       const int* iRow,
+                       const int* iPxl,
+                       const int nPxl) const;
 
         /**
          * This function projects given a 5D coordinate.

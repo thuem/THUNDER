@@ -177,7 +177,21 @@ void Projector::project(Image& dst,
                         const double y) const
 {
     project(dst, phi, theta, psi);
+
     translate(dst, dst, _maxRadius, x, y);
+}
+
+void Projector::project(Image& dst,
+                        const double phi,
+                        const double theta,
+                        const double psi,
+                        const double x,
+                        const double y,
+                        const int* iCol,
+                        const int* iRow,
+                        const int* iPxl,
+                        const int nPxl) const
+{
 }
 
 void Projector::projectMT(Image& dst,
@@ -188,7 +202,21 @@ void Projector::projectMT(Image& dst,
                           const double y) const
 {
     projectMT(dst, phi, theta, psi);
+
     translateMT(dst, dst, _maxRadius, x, y);
+}
+
+void Projector::projectMT(Image& dst,
+                          const double phi,
+                          const double theta,
+                          const double psi,
+                          const double x,
+                          const double y,
+                          const int* iCol,
+                          const int* iRow,
+                          const int* iPxl,
+                          const int nPxl) const
+{
 }
 
 void Projector::project(Image& dst,
