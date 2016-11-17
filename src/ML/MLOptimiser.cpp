@@ -441,8 +441,8 @@ void MLOptimiser::expectation()
         {
             vec v = topW.col(l);
 
-            //PROCESS_LOGW_SOFT(v);
-            PROCESS_LOGW_HARD(v);
+            PROCESS_LOGW_SOFT(v);
+            //PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
