@@ -133,6 +133,24 @@ class Projector
                      const mat33& mat) const;
 
         /**
+         * This function projects given the rotation matrix and pre-determined
+         * pixel indices.
+         *
+         * @param dst  the destination image
+         * @param mat  the rotation matrix
+         * @param iCol the index of column
+         * @param iRow the index of row
+         * @param iPxl the pixel index
+         * @param nPxl the number of pixels
+         */
+        void project(Image& dst,
+                     const mat33& mat,
+                     const int* iCol,
+                     const int* iRow,
+                     const int* iPxl,
+                     const int nPxl) const;
+
+        /**
          * This function projects given the rotation matrix using multiple
          * threads.
          *
@@ -141,6 +159,24 @@ class Projector
          */
         void projectMT(Image& dst,
                        const mat33& mat) const;
+
+        /**
+         * This function projects given the rotation matrix and pre-determined
+         * pixel indices using multiple threads.
+         *
+         * @param dst  the destination image
+         * @param mat  the rotation matrix
+         * @param iCol the index of column
+         * @param iRow the index of row
+         * @param iPxl the pixel index
+         * @param nPxl the number of pixels
+         */
+        void projectMT(Image& dst,
+                       const mat33& mat,
+                       const int* iCol,
+                       const int* iRow,
+                       const int* iPxl,
+                       const int nPxl) const;
 
         /**
          * This function projects given three Euler angles.

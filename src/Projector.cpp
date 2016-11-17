@@ -89,6 +89,25 @@ void Projector::project(Image& dst,
         }
 }
 
+void Projector::project(Image& dst,
+                        const mat33& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int* iPxl,
+                        const int nPxl) const
+{
+    for (int i = 0; i < nPxl; i++)
+    {
+        vec3 newCor = {(double)iCol[i], (double)iRow[i], 0};
+        vec3 oldCor = mat * newCor * _pf;
+
+        dst[iPxl[i]] = _projectee.getByInterpolationFT(oldCor(0),
+                                                       oldCor(1),
+                                                       oldCor(2),
+                                                       _interp);
+    }
+}
+
 void Projector::projectMT(Image& dst,
                           const mat33& mat) const
 {
@@ -106,6 +125,26 @@ void Projector::projectMT(Image& dst,
                       i,
                       j);
         }
+}
+
+void Projector::projectMT(Image& dst,
+                          const mat33& mat,
+                          const int* iCol,
+                          const int* iRow,
+                          const int* iPxl,
+                          const int nPxl) const
+{
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        vec3 newCor = {(double)iCol[i], (double)iRow[i], 0};
+        vec3 oldCor = mat * newCor * _pf;
+
+        dst[iPxl[i]] = _projectee.getByInterpolationFT(oldCor(0),
+                                                       oldCor(1),
+                                                       oldCor(2),
+                                                       _interp);
+    }
 }
 
 void Projector::project(Image& dst,

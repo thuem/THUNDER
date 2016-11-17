@@ -11,7 +11,9 @@
 #ifndef TYPEDEF_H
 #define TYPEDEF_H
 
+#define EIGEN_NO_DEBUG
 #include <gsl/gsl_complex.h>
+
 #include <Eigen/Dense>
 
 using namespace std;
