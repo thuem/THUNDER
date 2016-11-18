@@ -615,7 +615,8 @@ void MLOptimiser::expectation()
                 {
                     _par[l].rot(rot, m);
                     _par[l].t(t, m);
-                    _model.proj(0).project(image, rot, t);
+                    //_model.proj(0).project(image, rot, t);
+                    _model.proj(0).project(image, rot, t, _iCol, _iRow, _iPxl, nPxl);
 
                     /***
                     logW(m) = logDataVSPrior(_img[l], // dat
