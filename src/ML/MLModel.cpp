@@ -463,15 +463,17 @@ void MLModel::updateR(const double thres)
             if ((_r == _rGlobal) &&
                 (_searchType == SEARCH_TYPE_GLOBAL))
             {
-                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.05";
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
+                                         << R_CHANGE_DECREASE_STUN;
 
-                return determineIncreaseR(0.05);
+                return determineIncreaseR(R_CHANGE_DECREASE_STUN);
             }
             else
             {
-                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor 0.3";
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
+                                         << R_CHANGE_DECREASE_NORM;
 
-                return determineIncreaseR(0.3);
+                return determineIncreaseR(R_CHANGE_DECREASE_NORM);
             }
         }())
     {

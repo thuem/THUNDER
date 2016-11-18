@@ -46,6 +46,10 @@
 
 #define MAX_ITER_RES_NO_IMPROVE 3
 
+#define R_CHANGE_DECREASE_NORM 0.3
+
+#define R_CHANGE_DECREASE_STUN 0.05
+
 using namespace std;
 
 class MLModel : public Parallel
