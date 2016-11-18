@@ -6,8 +6,7 @@
  * Description:
  *
  * Manual:
- * ****************************************************************************/
-
+ * ****************************************************************************/ 
 #include "MLModel.h"
 
 MLModel::MLModel() {}
@@ -473,12 +472,19 @@ void MLModel::updateR(const double thres)
 
                 return determineIncreaseR(R_CHANGE_DECREASE_STUN);
             }
+            else if (_r == _rGlobal)
+            {
+                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
+                                         << R_CHANGE_DECREASE_GLOBAL;
+
+                return determineIncreaseR(R_CHANGE_DECREASE_NORM);
+            }
             else
             {
                 MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
-                                         << R_CHANGE_DECREASE_NORM;
+                                         << R_CHANGE_DECREASE_LOCAL;
 
-                return determineIncreaseR(R_CHANGE_DECREASE_NORM);
+                return determineIncreaseR(R_CHANGE_DECREASE_LOCAL);
             }
         }())
     {
