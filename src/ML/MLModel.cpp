@@ -472,7 +472,7 @@ void MLModel::updateR(const double thres)
 
                 return determineIncreaseR(R_CHANGE_DECREASE_STUN);
             }
-            else if (_r == _rGlobal)
+            else if (_searchType == SEARCH_TYPE_GLOBAL)
             {
                 MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                          << R_CHANGE_DECREASE_GLOBAL;
