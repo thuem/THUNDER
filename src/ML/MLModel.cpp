@@ -477,7 +477,7 @@ void MLModel::updateR(const double thres)
                 MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                          << R_CHANGE_DECREASE_GLOBAL;
 
-                return determineIncreaseR(R_CHANGE_DECREASE_NORM);
+                return determineIncreaseR(R_CHANGE_DECREASE_GLOBAL);
             }
             else
             {
