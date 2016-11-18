@@ -2656,16 +2656,25 @@ vec logDataVSPrior(const vector<Image>& dat,
     //#pragma omp parallel for
     for (int l = 0; l < n; l++)
     {
-        int gID = groupID[l] -1 ;
+        int gL = groupID[l] -1 ;
+
+        const Image& datL = dat[l];
+        const Image& ctfL = ctf[l];
 
         for (int i = 0; i < m; i++)
         {
             int index = iPxl[i];
 
+            /***
             result(l) += ABS2(dat[l].iGetFT(index)
                             - REAL(ctf[l].iGetFT(index))
                             * pri.iGetFT(index))
                        / (-2 * sig(gID, iSig[i]));
+                       ***/
+            result(l) += ABS2(datL.iGetFT(index)
+                            - REAL(ctfL.iGetFT(index))
+                            * pri.iGetFT(index))
+                       / (-2 * sig(gL, iSig[i]));
         }
     }
 
