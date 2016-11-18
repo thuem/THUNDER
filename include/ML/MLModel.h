@@ -50,6 +50,10 @@
 
 #define R_CHANGE_DECREASE_STUN 0.05
 
+#define INTERP_TYPE_GLOBAL NEAREST_INTERP
+
+#define INTERP_TYPE_LOCAL LINEAR_INTERP
+
 using namespace std;
 
 class MLModel : public Parallel

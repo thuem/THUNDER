@@ -36,7 +36,7 @@ int Projector::interp() const
 
 void Projector::setInterp(const int interp)
 {
-    _interp= interp;
+    _interp = interp;
 }
 
 int Projector::pf() const

@@ -428,6 +428,11 @@ void MLModel::refreshProj()
         _proj[l].setProjectee(_ref[l].copyVolume());
         _proj[l].setMaxRadius(_r);
         _proj[l].setPf(_pf);
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+            _proj[l].setInterp(INTERP_TYPE_GLOBAL);
+        else
+            _proj[l].setInterp(INTERP_TYPE_LOCAL);
     }
 }
 
