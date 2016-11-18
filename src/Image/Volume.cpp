@@ -158,12 +158,15 @@ double Volume::getByInterpolationRL(const double iCol,
                                     const double iSlc,
                                     const int interp) const
 {
+    if (interp == NEAREST_INTERP)
+        return getRL(AROUND(iCol), AROUND(iRow), AROUND(iSlc));
+
     double w[2][2][2];
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
+
     switch (interp)
     {
-        case NEAREST_INTERP: WG_TRI_NEAREST(w, x0, x); break;
         case LINEAR_INTERP: WG_TRI_LINEAR(w, x0, x); break;
         case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
     }
@@ -178,13 +181,19 @@ Complex Volume::getByInterpolationFT(double iCol,
 {
     bool conj = conjHalf(iCol, iRow, iSlc);
 
+    if (interp == NEAREST_INTERP)
+    {
+        Complex result = getFTHalf(AROUND(iCol), AROUND(iRow), AROUND(iSlc));
+
+        return conj ? CONJUGATE(result) : result;
+    }
+
     double w[2][2][2];
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
     switch (interp)
     {
-        case NEAREST_INTERP: WG_TRI_NEAREST(w, x0, x); break;
         case LINEAR_INTERP: WG_TRI_LINEAR(w, x0, x); break;
         case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
     }
