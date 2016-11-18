@@ -2586,11 +2586,15 @@ double logDataVSPrior(const Image& dat,
     double result = 0;
 
     for (int i = 0; i < m; i++)
-        result += ABS2(dat.iGetFT(iPxl[i])
-                     - REAL(ctf.iGetFT(iPxl[i]))
-                     * pri.iGetFT(iPxl[i])
-                     * tra.iGetFT(iPxl[i]))
+    {
+        int index = iPxl[i];
+
+        result += ABS2(dat.iGetFT(index)
+                     - REAL(ctf.iGetFT(index))
+                     * pri.iGetFT(index)
+                     * tra.iGetFT(index))
                 / (-2 * sig(iSig[i]));
+    }
 
     return result;
 }
@@ -2655,6 +2659,7 @@ vec logDataVSPrior(const vector<Image>& dat,
         for (int i = 0; i < m; i++)
         {
             int index = iPxl[i];
+
             result(l) += ABS2(dat[l].iGetFT(index)
                             - REAL(ctf[l].iGetFT(index))
                             * pri.iGetFT(index))
