@@ -1113,7 +1113,11 @@ void MLOptimiser::bcastGroupInfo()
     MLOG(INFO, "LOGGER_INIT") << "Number of Group: " << _nGroup;
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
-    NT_MASTER _sig.resize(_nGroup, maxR() + 1);
+    NT_MASTER
+    {
+        _sig.resize(_nGroup, maxR() + 1);
+        _sigRcp.resize(_nGroup, maxR());
+    }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Intensity Scale";
     _scale.resize(_nGroup);
@@ -1628,6 +1632,13 @@ void MLOptimiser::initSigma()
 
     _sig.leftCols(_sig.cols() - 1).rowwise() = (avgPs - psAvg).transpose() / 2;
 
+    ALOG(INFO, "LOGGER_INIT") << "Calculating Reciprocal of Sigma";
+    BLOG(INFO, "LOGGER_INIT") << "Calculating Reciprocal of Sigma";
+
+    for (int i = 0; i < _nGroup; i++)
+        for (int j = 0; j < maxR(); j++)
+            _sigRcp(i, j) = 1.0 / _sig(i, j);
+
     /***
     ALOG(INFO) << "Saving Initial Sigma";
     if (_commRank == HEMI_A_LEAD)
@@ -2012,6 +2023,10 @@ void MLOptimiser::allReduceSigma(const bool group)
         for (int i = 1; i < _sig.rows(); i++)
             _sig.row(i).head(_r) = _sig.row(0).head(_r);
     }
+
+    for (int i = 0; i < _nGroup; i++)
+        for (int j = 0; j < _r; j++)
+            _sigRcp(i, j) = 1.0 / _sig(i, j);
 }
 
 void MLOptimiser::reconstructRef(const bool mask)

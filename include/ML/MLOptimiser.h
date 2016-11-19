@@ -345,6 +345,12 @@ class MLOptimiser : public Parallel
         mat _sig;
 
         /**
+         * Each row stands for 0.5 / sigma^2 of a certain group, thus the size
+         * of this matrix is _nGroup x maxR()
+         */
+        mat _sigRcp;
+
+        /**
          * intensity scale of a certain group
          */
         vec _scale;
