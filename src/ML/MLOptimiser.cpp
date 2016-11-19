@@ -356,7 +356,7 @@ void MLOptimiser::expectation()
                                          imgAll,
                                          _ctf,
                                          _groupID,
-                                         _sig,
+                                         _sigRcp,
                                          _iPxl,
                                          _iSig,
                                          nPxl);
@@ -629,7 +629,7 @@ void MLOptimiser::expectation()
                     logW(m) = logDataVSPrior(_img[l], // dat
                                              image, // pri
                                              _ctf[l], // ctf
-                                             _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
+                                             _sigRcp.row(_groupID[l] - 1).head(_r).transpose(), // sig
                                              _iPxl,
                                              _iSig,
                                              nPxl);
@@ -2503,7 +2503,7 @@ void recordTopK(double* topW,
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
-                      const vec& sig,
+                      const vec& sigRcp,
                       const double rU,
                       const double rL)
 {
@@ -2526,7 +2526,8 @@ double logDataVSPrior(const Image& dat,
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
-                        / (-2 * sig[v]);
+                        * sigRcp(v);
+                        /// (-2 * sig[v]);
             }
         }
     }
@@ -2537,7 +2538,7 @@ double logDataVSPrior(const Image& dat,
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
-                      const vec& sig,
+                      const vec& sigRcp,
                       const int* iPxl,
                       const int* iSig,
                       const int m)
@@ -2548,7 +2549,8 @@ double logDataVSPrior(const Image& dat,
         result += ABS2(dat.iGetFT(iPxl[i])
                      - REAL(ctf.iGetFT(iPxl[i]))
                      * pri.iGetFT(iPxl[i]))
-                / (-2 * sig(iSig[i]));
+                * sigRcp(iSig[i]);
+                /// (-2 * sig(iSig[i]));
 
     return result;
 }
@@ -2557,7 +2559,7 @@ double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
                       const Image& ctf,
-                      const vec& sig,
+                      const vec& sigRcp,
                       const double rU,
                       const double rL)
 {
@@ -2581,7 +2583,8 @@ double logDataVSPrior(const Image& dat,
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
-                        / (-2 * sig[v]);
+                        * sigRcp(v);
+                        /// (-2 * sig[v]);
             }
         }
     }
@@ -2593,7 +2596,7 @@ double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
                       const Image& ctf,
-                      const vec& sig,
+                      const vec& sigRcp,
                       const int* iPxl,
                       const int* iSig,
                       const int m)
@@ -2608,7 +2611,8 @@ double logDataVSPrior(const Image& dat,
                      - REAL(ctf.iGetFT(index))
                      * pri.iGetFT(index)
                      * tra.iGetFT(index))
-                / (-2 * sig(iSig[i]));
+                * sigRcp(iSig[i]);
+                /// (-2 * sig(iSig[i]));
     }
 
     return result;
@@ -2618,7 +2622,7 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const Image& pri,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
-                   const mat& sig,
+                   const mat& sigRcp,
                    const double rU,
                    const double rL)
 {
@@ -2646,7 +2650,8 @@ vec logDataVSPrior(const vector<Image>& dat,
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
-                               / (-2 * sig(groupID[l] - 1, v));
+                               * sigRcp(groupID[l] - 1, v);
+                               /// (-2 * sig(groupID[l] - 1, v));
                 }
             }
         }
@@ -2659,7 +2664,7 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const Image& pri,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
-                   const mat& sig,
+                   const mat& sigRcp,
                    const int* iPxl,
                    const int* iSig,
                    const int m)
@@ -2689,7 +2694,8 @@ vec logDataVSPrior(const vector<Image>& dat,
             result(l) += ABS2(datL.iGetFT(index)
                             - REAL(ctfL.iGetFT(index))
                             * pri.iGetFT(index))
-                       / (-2 * sig(gL, iSig[i]));
+                       * sigRcp(gL, iSig[i]);
+                       /// (-2 * sig(gL, iSig[i]));
         }
     }
 
@@ -2699,22 +2705,22 @@ vec logDataVSPrior(const vector<Image>& dat,
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
-                   const vec& sig,
+                   const vec& sigRcp,
                    const double rU,
                    const double rL)
 {
-    return exp(logDataVSPrior(dat, pri, ctf, sig, rU, rL));
+    return exp(logDataVSPrior(dat, pri, ctf, sigRcp, rU, rL));
 }
 
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& tra,
                    const Image& ctf,
-                   const vec& sig,
+                   const vec& sigRcp,
                    const double rU,
                    const double rL)
 {
-    return exp(logDataVSPrior(dat, pri, tra, ctf, sig, rU, rL));
+    return exp(logDataVSPrior(dat, pri, tra, ctf, sigRcp, rU, rL));
 }
 
 void scaleDataVSPrior(vec& sXA,
