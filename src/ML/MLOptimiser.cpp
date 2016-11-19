@@ -364,7 +364,7 @@ void MLOptimiser::expectation()
                 //#pragma omp parallel for schedule(dynamic)
                 FOR_EACH_2D_IMAGE
                 {
-                    while (omp_test_lock(&mtx[l])) {};
+                    while (omp_test_lock(&mtx[l])) {}
 
                     if ((int)leaderBoard[l].size() < _para.mG)
                     {
@@ -384,7 +384,7 @@ void MLOptimiser::expectation()
                         leaderBoard[l].emplace(Sp(dvp(l), m, n));
 
                         omp_unset_lock(&mtx[l]);
-                    };
+                    }
                     /***
                     //#pragma omp critical
                     recordTopK(topW.col(l).data(),
