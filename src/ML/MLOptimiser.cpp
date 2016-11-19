@@ -1637,7 +1637,7 @@ void MLOptimiser::initSigma()
 
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < maxR(); j++)
-            _sigRcp(i, j) = 0.5 / _sig(i, j);
+            _sigRcp(i, j) = -0.5 / _sig(i, j);
 
     /***
     ALOG(INFO) << "Saving Initial Sigma";
@@ -2026,7 +2026,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < _r; j++)
-            _sigRcp(i, j) = 0.5 / _sig(i, j);
+            _sigRcp(i, j) = -0.5 / _sig(i, j);
 }
 
 void MLOptimiser::reconstructRef(const bool mask)
