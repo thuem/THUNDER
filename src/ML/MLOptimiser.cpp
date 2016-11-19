@@ -364,7 +364,7 @@ void MLOptimiser::expectation()
                 //#pragma omp parallel for schedule(dynamic)
                 FOR_EACH_2D_IMAGE
                 {
-                    while (omp_test_lock(&mtx[l])) {}
+                    while (!omp_test_lock(&mtx[l])) {}
 
                     if ((int)leaderBoard[l].size() < _para.mG)
                     {
