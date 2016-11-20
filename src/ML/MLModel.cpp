@@ -808,9 +808,12 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 {
     IF_MASTER
     {
+        /***
         if (_rChange > _rChangePrev
                      - rChangeDecreaseFactor
                      * _stdRChangePrev)
+                     ***/
+        if (_rChange > (1 - rChangeDecreaseFactor) * _rChangePrev)
         {
             // When the frequency remains the same as the last iteration, check
             // whether there is a decrease of rotation change.
