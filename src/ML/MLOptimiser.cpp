@@ -234,18 +234,18 @@ void MLOptimiser::expectation()
         // initialse a particle filter
 
         int nR = _para.mS;
-        /***
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * TRANS_SEARCH_FACTOR));
-                                  ***/
 
+        /***
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS)
                                   * TRANS_SEARCH_FACTOR));
+                                  ***/
 
         Particle par;
         par.init(_para.transS, 0.01, &_sym);

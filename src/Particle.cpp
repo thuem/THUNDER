@@ -59,7 +59,6 @@ void Particle::reset()
 
     auto engine = get_random_engine();
 
-    /***
     // sample from 2D Gaussian Distribution
     for (int i = 0; i < _n; i++)
     {
@@ -72,8 +71,8 @@ void Particle::reset()
                 
         _w(i) = 1.0 / _n;
     }
-    ***/
 
+    /***
     // sample for 2D Flat Distribution in a Circle
     for (int i = 0; i < _n; i++)
     {
@@ -85,6 +84,7 @@ void Particle::reset()
 
         _w(i) = 1.0 / _n;
     }
+    ***/
 
     symmetrise();
 }
