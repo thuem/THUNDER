@@ -84,13 +84,6 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
-    MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
-
-    _iter = 0;
-
-    _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
-    _model.setR(_r);
-
     /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
 
@@ -129,6 +122,13 @@ void MLOptimiser::init()
                               << " (Angstrom), "
                               << _model.rGlobal()
                               << " (Pixel)";
+
+    MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
+
+    _iter = 0;
+
+    _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
+    _model.setR(_r);
 
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _exp.openDatabase(_para.db);
