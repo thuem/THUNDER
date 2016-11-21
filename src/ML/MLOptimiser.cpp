@@ -1908,47 +1908,61 @@ void MLOptimiser::allReduceSigma(const bool group)
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
-    Image img(size(), size(), FT_SPACE);
-
     mat33 rot;
     vec2 tran;
 
+    omp_lock_t* mtx = new omp_lock_t[_nGroup];
+
+    #pragma omp parallel for
+    for (int l = 0; l < _nGroup; l++)
+        omp_init_lock(&mtx[l]);
+
+    #pragma omp parallel for private(rot, tran) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        if (!_switch[l]) continue;
-
-        vec sig(_r);
-
-        _par[l].rank1st(rot, tran);
-
-        // calculate differences
-
-        _model.proj(0).projectMT(img, rot, tran);
-
-        #pragma omp parallel for
-        FOR_EACH_PIXEL_FT(img)
-            img[i] *= REAL(_ctf[l][i]);
-
-        #pragma omp parallel for
-        NEG_FT(img);
-        #pragma omp parallel for
-        ADD_FT(img, _img[l]);
-
-        powerSpectrum(sig, img, _r);
-
-        if (group)
+        if (_switch[l])
         {
-            _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
+            Image img(size(), size(), FT_SPACE);
 
-            _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
-        }
-        else
-        {
-            _sig.row(0).head(_r) += sig.transpose() / 2;
+            vec sig(_r);
 
-            _sig(0, _sig.cols() - 1) += 1;
+            _par[l].rank1st(rot, tran);
+
+            _model.proj(0).project(img, rot, tran);
+
+            FOR_EACH_PIXEL_FT(img)
+                img[i] *= REAL(_ctf[l][i]);
+
+            NEG_FT(img);
+
+            ADD_FT(img, _img[l]);
+
+            powerSpectrum(sig, img, _r);
+
+            if (group)
+            {
+                omp_set_lock(&mtx[_groupID[l] - 1]);
+
+                _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
+
+                _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+
+                omp_unset_lock(&mtx[_groupID[l] - 1]);
+            }
+            else
+            {
+                omp_set_lock(&mtx[0]);
+
+                _sig.row(0).head(_r) += sig.transpose() / 2;
+
+                _sig(0, _sig.cols() - 1) += 1;
+
+                omp_unset_lock(&mtx[0]);
+            }
         }
     }
+
+    delete[] mtx;
 
     MPI_Barrier(_hemi);
 
@@ -1973,6 +1987,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     if (group)
     {
+        #pragma omp parallel for
         for (int i = 0; i < _sig.rows(); i++)
             _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
     }
@@ -1980,10 +1995,12 @@ void MLOptimiser::allReduceSigma(const bool group)
     {
         _sig.row(0).head(_r) /= _sig(0, _sig.cols() - 1);
 
+        #pragma omp parallel for
         for (int i = 1; i < _sig.rows(); i++)
             _sig.row(i).head(_r) = _sig.row(0).head(_r);
     }
 
+    #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < _r; j++)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
