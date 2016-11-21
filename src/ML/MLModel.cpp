@@ -520,7 +520,7 @@ void MLModel::elevateR(const double thres)
             }
             else
             {
-                _r = GSL_MIN_INT(_rU, _r + maxR() / 4);
+                _r = GSL_MIN_INT(_rU, _r + maxR() / 8);
                 //_r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
             }
 
@@ -561,7 +561,7 @@ void MLModel::elevateR(const double thres)
                                      ***/
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                     _r + maxR() / 4));
+                                     _r + maxR() / 8));
     }
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
