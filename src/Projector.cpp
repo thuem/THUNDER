@@ -344,7 +344,6 @@ void Projector::projectMT(Image& dst,
 {
     projectMT(dst, rot, iCol, iRow, iPxl, nPxl);
 
-    //translateMT(dst, dst, _maxRadius, t(0), t(1));
     translateMT(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
 }
 

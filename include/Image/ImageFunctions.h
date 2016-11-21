@@ -262,14 +262,6 @@ void translate(Image& dst,
                const double nTransCol,
                const double nTransRow);
 
-void translate(Image& dst,
-               const double nTransCol,
-               const double nTransRow,
-               const int* iCol,
-               const int* iRow,
-               const int* iPxl,
-               const int nPxl);
-
 /**
  * This function generates a "translation image" in a certain frequency
  * threshold with a given vector indicating the number of columns and the number
@@ -285,6 +277,14 @@ void translateMT(Image& dst,
                  const double r,
                  const double nTransCol,
                  const double nTransRow);
+
+void translate(Image& dst,
+               const double nTransCol,
+               const double nTransRow,
+               const int* iCol,
+               const int* iRow,
+               const int* iPxl,
+               const int nPxl);
 
 void translateMT(Image& dst,
                  const double nTransCol,
@@ -338,25 +338,6 @@ void translate(Image& dst,
                const double nTransCol,
                const double nTransRow);
 
-void translate(Image& dst,
-               const Image& src,
-               const double nTransCol,
-               const double nTransRow,
-               const int* iCol,
-               const int* iRow,
-               const int* iPxl,
-               const int nPxl);
-
-void translate(Complex* dst,
-               const Complex* src,
-               const double nTransCol,
-               const double nTransRow,
-               const int nCol,
-               const int nRow,
-               const int* iCol,
-               const int* iRow,
-               const int nPxl);
-
 /**
  * This function translations an image in a certain frequency threshold with a 
  * given vector indicating by the number of columns and the number of rows using
@@ -374,6 +355,15 @@ void translateMT(Image& dst,
                  const double nTransCol,
                  const double nTransRow);
 
+void translate(Image& dst,
+               const Image& src,
+               const double nTransCol,
+               const double nTransRow,
+               const int* iCol,
+               const int* iRow,
+               const int* iPxl,
+               const int nPxl);
+
 void translateMT(Image& dst,
                  const Image& src,
                  const double nTransCol,
@@ -382,6 +372,17 @@ void translateMT(Image& dst,
                  const int* iRow,
                  const int* iPxl,
                  const int nPxl);
+
+void translate(Complex* dst,
+               const Complex* src,
+               const double nTransCol,
+               const double nTransRow,
+               const int nCol,
+               const int nRow,
+               const int* iCol,
+               const int* iRow,
+               const int nPxl);
+
 
 void translateMT(Complex* dst,
                  const Complex* src,
