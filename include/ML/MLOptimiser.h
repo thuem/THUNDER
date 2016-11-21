@@ -412,6 +412,8 @@ class MLOptimiser : public Parallel
          */
         int _nR = 0;
 
+        int _nPxl = 0;
+
         int* _iPxl = NULL;
 
         int* _iCol = NULL;

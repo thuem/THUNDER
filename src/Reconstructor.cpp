@@ -30,7 +30,12 @@ void Reconstructor::init(const int size,
     _rot.clear();
     _w.clear();
     _ctf.clear();
+    _ctfP.clear();
 
+    _iCol = NULL;
+    _iRow = NULL;
+
+    _calMode = POST_CAL_MODE;
     _size = size;
     _pf = pf;
     _sym = sym;
@@ -74,6 +79,28 @@ void Reconstructor::setMaxRadius(const int maxRadius)
     _maxRadius = maxRadius;
 }
 
+void Reconstructor::preCal(int& nPxl,
+                           const int* iCol,
+                           const int* iRow) const
+{
+    nPxl = _nPxl;
+
+    iCol = _iCol;
+    iRow = _iRow;
+}
+
+void Reconstructor::setPreCal(const int nPxl,
+                              const int* iCol,
+                              const int* iRow)
+{
+    _calMode = PRE_CAL_MODE;
+
+    _nPxl = nPxl;
+
+    _iCol = iCol;
+    _iRow = iRow;
+}
+
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
                            const mat33& rot,
@@ -82,8 +109,12 @@ void Reconstructor::insert(const Image& src,
 {
     IF_MASTER
     {
-        CLOG(WARNING, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
-        return;
+        CLOG(FATAL, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
+    }
+
+    if (_calMode != POST_CAL_MODE)
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Wrong Pre(Post) Calculation Mode in Reconstructor";
     }
 
     if ((src.nColRL() != _size) ||
@@ -128,6 +159,53 @@ void Reconstructor::insert(const Image& src,
     }
 
     //CLOG(INFO, "LOGGER_SYS") << "Partial : _F[0] = " << REAL(_F[0]);
+}
+
+void Reconstructor::insert(const Complex* src,
+                           const double* ctf,
+                           const mat33& rot,
+                           const vec2& t,
+                           const double w)
+{
+    IF_MASTER
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
+    }
+
+    if (_calMode != PRE_CAL_MODE)
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Wrong Pre(Post) Calculation Mode in Reconstructor";
+    }
+
+    Complex* transSrc = new Complex[_nPxl];
+
+    translateMT(transSrc, src, -t(0), -t(1), _size, _size, _iCol, _iRow, _nPxl);
+
+    vector<mat33> sr;
+    symmetryRotation(sr, rot, _sym);
+
+    for (int k = 0; k < int(sr.size()); k++)
+    {
+        _rot.push_back(sr[k]);
+        _w.push_back(w);
+        _ctfP.push_back(ctf);
+
+        #pragma omp parallel for
+        for (int i = 0; i < _nPxl; i++)
+        {
+            vec3 newCor = {(double)_iCol[i], (double)_iRow[i], 0};
+            vec3 oldCor = sr[k] * newCor * _pf;
+        
+             _F.addFT(transSrc[i] * ctf[i] * w,
+                      oldCor[0], 
+                      oldCor[1], 
+                      oldCor[2], 
+                      _pf * _a, 
+                      _kernel);
+        }
+    }
+
+    delete[] transSrc;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -210,29 +288,58 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating C";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating C";
 
-    #pragma omp parallel for
-    for (int k = 0; k < int(_rot.size()); k++)
-        for (int j = -_size / 2; j < _size / 2; j++)
-            for (int i = 0; i <= _size / 2; i++)
-            {
-                if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+    if (_calMode == POST_CAL_MODE)
+    {
+        #pragma omp parallel for
+        for (int k = 0; k < int(_rot.size()); k++)
+            for (int j = -_size / 2; j < _size / 2; j++)
+                for (int i = 0; i <= _size / 2; i++)
                 {
-                    vec3 newCor = {(double)i, (double)j, 0};
-                    vec3 oldCor = _rot[k] * newCor * _pf;
+                    if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+                    {
+                        vec3 newCor = {(double)i, (double)j, 0};
+                        vec3 oldCor = _rot[k] * newCor * _pf;
 
-                    _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
-                                                          oldCor[1],
-                                                          oldCor[2],
-                                                          LINEAR_INTERP))
-                           * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                           * _w[k],
-                             oldCor[0],
-                             oldCor[1],
-                             oldCor[2],
-                             _pf * _a,
-                             _kernel);
+                        _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
+                                                              oldCor[1],
+                                                              oldCor[2],
+                                                              LINEAR_INTERP))
+                               * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
+                               * _w[k],
+                                 oldCor[0],
+                                 oldCor[1],
+                                 oldCor[2],
+                                 _pf * _a,
+                                 _kernel);
+                    }
                 }
+    }
+    else if (_calMode == PRE_CAL_MODE)
+    {
+        #pragma omp parallel for
+        for (int k = 0; k < int(_rot.size()); k++)
+            for (int i = 0; i < _nPxl; i++)
+            {
+                vec3 newCor = {(double)_iCol[i], (double)_iRow[i], 0};
+                vec3 oldCor = _rot[k] * newCor * _pf;
+
+                _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
+                                                      oldCor[1],
+                                                      oldCor[2],
+                                                      LINEAR_INTERP))
+                       * gsl_pow_2(_ctfP[k][i])
+                       * _w[k],
+                         oldCor[0],
+                         oldCor[1],
+                         oldCor[2],
+                         _pf * _a,
+                         _kernel);
             }
+    }
+    else
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Invalid Pre(Post) Calculation Mode in Reconstructor";
+    }
     
     ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
     BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";

@@ -224,10 +224,9 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    int nPxl;
-    allocPreCal(nPxl, _r, _rL);
-
     int nPer = 0;
+    
+    allocPreCal(_nPxl, _r, _rL);
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
@@ -314,7 +313,7 @@ void MLOptimiser::expectation()
 
             //_model.proj(0).project(imgRot, rot);
             //_model.proj(0).projectMT(imgRot, rot);
-            _model.proj(0).project(imgRot, rot, _iCol, _iRow, _iPxl, nPxl);
+            _model.proj(0).project(imgRot, rot, _iCol, _iRow, _iPxl, _nPxl);
 
             for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
@@ -337,11 +336,11 @@ void MLOptimiser::expectation()
                 }
                 ***/
 
-                mul(imgAll, imgRot, trans[n], _iPxl, nPxl);
+                mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
 
-                Complex* priP = new Complex[nPxl];
+                Complex* priP = new Complex[_nPxl];
 
-                for (int i = 0; i < nPxl; i++)
+                for (int i = 0; i < _nPxl; i++)
                     priP[i] = imgAll.iGetFT(_iPxl[i]);
 
                 /***
@@ -380,7 +379,7 @@ void MLOptimiser::expectation()
                                          _ctfP,
                                          _sigRcpP,
                                          (int)_ID.size(),
-                                         nPxl);
+                                         _nPxl);
 
                 delete[] priP;
 
@@ -525,7 +524,7 @@ void MLOptimiser::expectation()
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        Complex* priP = new Complex[nPxl];
+        Complex* priP = new Complex[_nPxl];
         //Image image(size(), size(), FT_SPACE);
 
         // number of sampling for the next phase searching
@@ -567,7 +566,7 @@ void MLOptimiser::expectation()
                                        _para.size,
                                        _iCol,
                                        _iRow,
-                                       nPxl);
+                                       _nPxl);
 
                     /***
                     logW(m) = logDataVSPrior(_img[l], // dat
@@ -590,7 +589,7 @@ void MLOptimiser::expectation()
                                          priP,
                                          _ctfP[l],
                                          _sigRcpP[l],
-                                         nPxl);
+                                         _nPxl);
             }
 
             PROCESS_LOGW_SOFT(logW);
@@ -2009,6 +2008,8 @@ void MLOptimiser::allReduceSigma(const bool group)
 void MLOptimiser::reconstructRef(const bool mask)
 {
     IF_MASTER return;
+    
+    allocPreCal(_nPxl, _model.rU(), 0);
 
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
@@ -2031,6 +2032,8 @@ void MLOptimiser::reconstructRef(const bool mask)
     BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
+
+    freePreCal();
 
     MPI_Barrier(_hemi);
 

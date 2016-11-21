@@ -139,6 +139,45 @@ void translateMT(Image& dst,
     }
 }
 
+void translate(Complex* dst,
+               const double nTransCol,
+               const double nTransRow,
+               const int nCol,
+               const int nRow,
+               const int* iCol,
+               const int* iRow,
+               const int nPxl)
+{
+    double rCol = nTransCol / nCol;
+    double rRow = nTransRow / nRow;
+
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        dst[i] = COMPLEX_POLAR(-phase);
+    }
+}
+
+void translateMT(Complex* dst,
+                 const double nTransCol,
+                 const double nTransRow,
+                 const int nCol,
+                 const int nRow,
+                 const int* iCol,
+                 const int* iRow,
+                 const int nPxl)
+{
+    double rCol = nTransCol / nCol;
+    double rRow = nTransRow / nRow;
+
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        dst[i] = COMPLEX_POLAR(-phase);
+    }
+}
+
 void translate(Image& dst,
                const Image& src,
                const double nTransCol,

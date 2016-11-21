@@ -32,6 +32,10 @@
 using namespace std;
 using namespace placeholders;
 
+#define PRE_CAL_MODE 0
+
+#define POST_CAL_MODE 1
+
 #define PAD_SIZE (_pf * _size)
 
 #define RECO_LOOSE_FACTOR 2
@@ -69,6 +73,8 @@ class Reconstructor : public Parallel
     MAKE_DEFAULT_MOVE(Reconstructor)
 
     private:
+
+        int _calMode = POST_CAL_MODE;
 
         /**
          * The real size of the 3D Fourier reconstructor space that is used to
@@ -135,6 +141,14 @@ class Reconstructor : public Parallel
         vector<mat33> _rot;
 
         vector<const Image*> _ctf;
+
+        vector<const double*> _ctfP;
+
+        int _nPxl;
+
+        const int* _iCol = NULL;
+
+        const int* _iRow = NULL;
         
         /**
          * The vector to save the weight values of each insertion with image, 
@@ -245,6 +259,14 @@ class Reconstructor : public Parallel
          */
         void setMaxRadius(const int maxRadius);
 
+        void preCal(int& nPxl,
+                    const int* iCol,
+                    const int* iRow) const;
+
+        void setPreCal(const int nPxl,
+                       const int* iCol,
+                       const int* iRow);
+
         /**
          * Insert a 2D Fourier transform of image pixel data with associated
          * 3D rotated matrix, 2D translation vector and weight into member 
@@ -263,6 +285,12 @@ class Reconstructor : public Parallel
          */
         void insert(const Image& src,
                     const Image& ctf,
+                    const mat33& rot,
+                    const vec2& t,
+                    const double w);
+
+        void insert(const Complex* src,
+                    const double* ctf,
                     const mat33& rot,
                     const vec2& t,
                     const double w);

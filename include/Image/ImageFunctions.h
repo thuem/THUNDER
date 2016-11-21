@@ -294,6 +294,24 @@ void translateMT(Image& dst,
                  const int* iPxl,
                  const int nPxl);
 
+void translate(Complex* dst,
+               const double nTransCol,
+               const double nTransRow,
+               const int nCol,
+               const int nRow,
+               const int* iCol,
+               const int* iRow,
+               const int nPxl);
+
+void translateMT(Complex* dst,
+                 const double nTransCol,
+                 const double nTransRow,
+                 const int nCol,
+                 const int nRow,
+                 const int* iCol,
+                 const int* iRow,
+                 const int nPxl);
+
 /**
  * This function translations an image with a given vector indicating by the number
  * of columns and the number of rows.
