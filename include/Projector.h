@@ -150,6 +150,12 @@ class Projector
                      const int* iPxl,
                      const int nPxl) const;
 
+        void project(Complex* dst,
+                     const mat33& mat,
+                     const int* iCol,
+                     const int* iRow,
+                     const int nPxl) const;
+
         /**
          * This function projects given the rotation matrix using multiple
          * threads.
@@ -176,6 +182,12 @@ class Projector
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
+                       const int nPxl) const;
+
+        void projectMT(Complex* dst,
+                       const mat33& mat,
+                       const int* iCol,
+                       const int* iRow,
                        const int nPxl) const;
 
         /**
