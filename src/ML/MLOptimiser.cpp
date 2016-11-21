@@ -339,6 +339,11 @@ void MLOptimiser::expectation()
 
                 mul(imgAll, imgRot, trans[n], _iPxl, nPxl);
 
+                Complex* priP = new Complex[nPxl];
+
+                for (int i = 0; i < nPxl; i++)
+                    priP[i] = imgAll.iGetFT(_iPxl[i]);
+
                 /***
                 logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
                                                                   imgAll,
@@ -359,6 +364,7 @@ void MLOptimiser::expectation()
                                                                   nPxl);
                                                                   ***/
 
+                /***
                 vec dvp = logDataVSPrior(_img,
                                          imgAll,
                                          _ctf,
@@ -367,52 +373,32 @@ void MLOptimiser::expectation()
                                          _iPxl,
                                          _iSig,
                                          nPxl);
+                                         ***/
 
-                //#pragma omp parallel for schedule(dynamic)
+                vec dvp = logDataVSPrior(_datP,
+                                         priP,
+                                         _ctfP,
+                                         _sigRcpP,
+                                         (int)_ID.size(),
+                                         nPxl);
+
+                delete[] priP;
+
                 FOR_EACH_2D_IMAGE
                 {
-                    //while (!omp_test_lock(&mtx[l])) {}
                     omp_set_lock(&mtx[l]);
 
                     if ((int)leaderBoard[l].size() < _para.mG)
-                    {
-
-                        //leaderBoard[l].push(Sp(dvp(l), m, n));
                         leaderBoard[l].emplace(Sp(dvp(l), m, n));
-
-                    }
                     else if (leaderBoard[l].top()._w < dvp(l))
                     {
                         leaderBoard[l].pop();
 
-                        //leaderBoard[l].push(Sp(dvp(l), m, n));
                         leaderBoard[l].emplace(Sp(dvp(l), m, n));
                     }
 
                     omp_unset_lock(&mtx[l]);
-                    /***
-                    //#pragma omp critical
-                    recordTopK(topW.col(l).data(),
-                               iTopR.col(l).data(),
-                               iTopT.col(l).data(),
-                               dvp(l),
-                               m,
-                               n,
-                               _para.mG);
-                               ***/
                 }
-
-                /***
-                #pragma omp parallel for
-                FOR_EACH_2D_IMAGE
-                {
-                    logW(m * nT + n, l) = logDataVSPrior(_img[l],
-                                                         imgAll,
-                                                         _ctf[l],
-                                                         _sig.row(_groupID[l] - 1).head(_r).transpose(),
-                                                         _r);
-                }
-                ***/
             }
 
             #pragma omp atomic
@@ -2171,6 +2157,35 @@ void MLOptimiser::allocPreCal(int& nPxl,
             }
         }
     }
+
+    _datP = new Complex*[_ID.size()];
+
+    _ctfP = new double*[_ID.size()];
+
+    _sigRcpP = new double*[_ID.size()];
+
+    #pragma omp parallel for
+    for (int i = 0; i < (int)_ID.size(); i++)
+    {
+        _datP[i] = new Complex[nPxl];
+        
+        _ctfP[i] = new double[nPxl];
+
+        _sigRcpP[i] = new double[nPxl];
+    }
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        for (int i = 0; i < nPxl; i++)
+        {
+            _datP[l][i] = _img[l].iGetFT(_iPxl[i]);
+
+            _ctfP[l][i] = REAL(_ctf[l].iGetFT(_iPxl[i]));
+
+            _sigRcpP[l][i] = _sigRcp(_groupID[l] - 1, _iSig[i]);
+        }
+    }
 }
 
 void MLOptimiser::freePreCal()
@@ -2181,6 +2196,17 @@ void MLOptimiser::freePreCal()
     delete[] _iCol;
     delete[] _iRow;
     delete[] _iSig;
+
+    for (int i = 0; i < (int)_ID.size(); i++)
+    {
+        delete[] _datP[i];
+        delete[] _ctfP[i];
+        delete[] _sigRcpP[i];
+    }
+
+    delete[] _datP;
+    delete[] _ctfP;
+    delete[] _sigRcpP;
 }
 
 void MLOptimiser::saveBestProjections()
@@ -2703,10 +2729,10 @@ vec logDataVSPrior(const vector<Image>& dat,
     return result;
 }
 
-vec logDataVSPrior(const Complex** dat,
+vec logDataVSPrior(const Complex* const* dat,
                    const Complex* pri,
-                   const double** ctf,
-                   const double** sigRcp,
+                   const double* const* ctf,
+                   const double* const* sigRcp,
                    const int n,
                    const int m)
 {
@@ -2777,10 +2803,6 @@ void scaleDataVSPrior(vec& sXA,
                              * pri.iGetFT(index)
                              * REAL(ctf.iGetFT(index)));
 
-                /***
-                sAA(v) += REAL(dat.iGetFT(index)
-                             * dat.iGetFT(index));
-                             ***/
                 #pragma omp atomic
                 sAA(v) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)

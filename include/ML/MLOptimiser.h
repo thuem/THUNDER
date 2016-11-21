@@ -420,6 +420,12 @@ class MLOptimiser : public Parallel
 
         int* _iSig = NULL;
 
+        Complex** _datP = NULL;
+
+        double** _ctfP = NULL;
+
+        double** _sigRcpP = NULL;
+
     public:
         
         MLOptimiser();
@@ -757,10 +763,10 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const int* iSig,
                    const int m);
 
-vec logDataVSPrior(const Complex** dat,
+vec logDataVSPrior(const Complex* const* dat,
                    const Complex* pri,
-                   const double** ctf,
-                   const double** sigRcp,
+                   const double* const* ctf,
+                   const double* const* sigRcp,
                    const int n,
                    const int m);
 
