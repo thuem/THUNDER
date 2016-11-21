@@ -308,8 +308,21 @@ void Projector::project(Image& dst,
 {
     project(dst, rot, iCol, iRow, iPxl, nPxl);
 
-    //translate(dst, dst, _maxRadius, t(0), t(1));
     translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
+}
+
+void Projector::project(Complex* dst,
+                        const mat33& rot,
+                        const vec2& t,
+                        const int nCol,
+                        const int nRow,
+                        const int* iCol,
+                        const int* iRow,
+                        const int nPxl) const
+{
+    project(dst, rot, iCol, iRow, nPxl);
+
+    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
 }
 
 void Projector::projectMT(Image& dst,
@@ -333,6 +346,20 @@ void Projector::projectMT(Image& dst,
 
     //translateMT(dst, dst, _maxRadius, t(0), t(1));
     translateMT(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
+}
+
+void Projector::projectMT(Complex* dst,
+                          const mat33& rot,
+                          const vec2& t,
+                          const int nCol,
+                          const int nRow,
+                          const int* iCol,
+                          const int* iRow,
+                          const int nPxl) const
+{
+    projectMT(dst, rot, iCol, iRow, nPxl);
+
+    translateMT(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
 }
 
 void Projector::gridCorrection()

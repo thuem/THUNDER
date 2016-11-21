@@ -207,6 +207,27 @@ void translate(Image& dst,
     }
 }
 
+void translate(Complex* dst,
+               const Complex* src,
+               const double nTransCol,
+               const double nTransRow,
+               const int nCol,
+               const int nRow,
+               const int* iCol,
+               const int* iRow,
+               const int nPxl)
+{
+    double rCol = nTransCol / nCol;
+    double rRow = nTransRow / nRow;
+
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+
+        dst[i] = src[i] * COMPLEX_POLAR(-phase);
+    }
+}
+
 void translateMT(Image& dst,
                  const Image& src,
                  const double r,
@@ -243,6 +264,28 @@ void translateMT(Image& dst,
         double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
+    }
+}
+
+void translateMT(Complex* dst,
+                 const Complex* src,
+                 const double nTransCol,
+                 const double nTransRow,
+                 const int nCol,
+                 const int nRow,
+                 const int* iCol,
+                 const int* iRow,
+                 const int nPxl)
+{
+    double rCol = nTransCol / nCol;
+    double rRow = nTransRow / nRow;
+
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+
+        dst[i] = src[i] * COMPLEX_POLAR(-phase);
     }
 }
 

@@ -315,6 +315,15 @@ class Projector
                      const int* iPxl,
                      const int nPxl) const;
 
+        void project(Complex* dst,
+                     const mat33& rot,
+                     const vec2& t,
+                     const int nCol,
+                     const int nRow,
+                     const int* iCol,
+                     const int* iRow,
+                     const int nPxl) const;
+
         /**
          * This function projects given a rotation matrix and a translation
          * vector using multiple threads.
@@ -333,6 +342,15 @@ class Projector
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
+                       const int nPxl) const;
+
+        void projectMT(Complex* dst,
+                       const mat33& rot,
+                       const vec2& t,
+                       const int nCol,
+                       const int nRow,
+                       const int* iCol,
+                       const int* iRow,
                        const int nPxl) const;
 
     private:
