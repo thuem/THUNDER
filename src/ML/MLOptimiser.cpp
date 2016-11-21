@@ -2014,6 +2014,8 @@ void MLOptimiser::reconstructRef(const bool mask)
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
+    _model.reco(0).setPreCal(_nPxl, _iCol, _iRow);
+
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
@@ -2023,7 +2025,8 @@ void MLOptimiser::reconstructRef(const bool mask)
         
         _par[l].rank1st(rot, tran);
 
-        _model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
+        //_model.reco(0).insert(_img[l], _ctf[l], rot, tran, 1);
+        _model.reco(0).insert(_datP[l], _ctfP[l], rot, tran, 1);
     }
 
     MPI_Barrier(_hemi);

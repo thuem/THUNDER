@@ -494,6 +494,8 @@ void MLModel::updateR(const double thres)
 
         elevateR(thres);
     }
+
+    updateRU();
 }
 
 void MLModel::elevateR(const double thres)
@@ -515,19 +517,17 @@ void MLModel::elevateR(const double thres)
             
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-                _r = GSL_MIN_INT(_rU, _r + _rGlobal / 4);
+                _r = GSL_MIN_INT(_rU, _r + AROUND((double)_rGlobal / 4));
                 //_r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 4));
             }
             else
             {
-                _r = GSL_MIN_INT(_rU, _r + maxR() / 8);
+                _r = GSL_MIN_INT(_rU, _r + AROUND((double)maxR() / 8));
                 //_r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
             }
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 _r = GSL_MIN_INT(_rGlobal, _r);
-
-            updateRU();
 
             return;
         }
@@ -550,7 +550,7 @@ void MLModel::elevateR(const double thres)
                                      ***/
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                     _r + _rGlobal / 4));
+                                     _r + AROUND((double)_rGlobal / 4)));
     }
     else
     {
@@ -561,13 +561,11 @@ void MLModel::elevateR(const double thres)
                                      ***/
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                     _r + maxR() / 8));
+                                     _r + AROUND((double)maxR() / 8)));
     }
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
-    
-    updateRU();
 }
 
 double MLModel::rVari() const
@@ -877,8 +875,8 @@ void MLModel::updateRU()
 {
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
-                     ? AROUND((double)_size / 32)
-                     : AROUND((double)_size / 8)),
+                     ? AROUND((double)_rGlobal / 4)
+                     : AROUND((double)maxR() / 8)),
                       maxR());
     /***
     _rU = GSL_MIN_INT(_r
