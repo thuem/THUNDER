@@ -525,7 +525,8 @@ void MLOptimiser::expectation()
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        Image image(size(), size(), FT_SPACE);
+        Complex* priP = new Complex[nPxl];
+        //Image image(size(), size(), FT_SPACE);
 
         // number of sampling for the next phase searching
         // int nSamplingNextPhase = 0;
@@ -538,31 +539,6 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            /***
-            int nR = 0;
-            int nT = 0;
-            ***/
-
-            /***
-            if (phase == 0)
-            {
-                if (_searchType == SEARCH_TYPE_GLOBAL)
-                {
-                    nR = _para.mG;
-                    nT = GSL_MAX_INT(50,
-                                     AROUND(M_PI
-                                          * gsl_pow_2(_para.transS
-                                                    * gsl_cdf_chisq_Qinv(0.5, 2))
-                                          * TRANS_SEARCH_FACTOR));
-                    
-                    _par[l].reset(nR, nT);
-                }
-                else
-                    _par[l].resample(_para.mL,
-                                     ALPHA_LOCAL_SEARCH);
-            }
-            ***/
-
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
@@ -574,50 +550,24 @@ void MLOptimiser::expectation()
             else
                 _par[l].perturb(PERTURB_FACTOR_S);
 
-            /***
-            if ((_searchType == SEARCH_TYPE_LOCAL) &&
-                (phase == 0))
-            {
-                // perturb with 5x confidence area
-                _par[l].perturb(5);
-            }
-            else if (phase != 0)
-            {
-                // pertrub with 0.2x confidence area
-                _par[l].perturb();
-            }
-            ***/
-
             vec logW(_par[l].n());
             mat33 rot;
             vec2 t;
 
-            /***
-            if ((_searchType == SEARCH_TYPE_GLOBAL) &&
-                (phase == 0))
+            for (int m = 0; m < _par[l].n(); m++)
             {
-                vector<Image> trans;
-                trans.resize(nT);
-
-                for (int m = 0; m < nT; m++)
-                {
-                    trans[m].alloc(size(), size(), FT_SPACE);
-
-                    _par[l].t(t, m);
-                    
-                    translate(trans[m], _r, t(0), t(1));
-                }
-
-            }
-            else
-            {
-            ***/
-                for (int m = 0; m < _par[l].n(); m++)
-                {
-                    _par[l].rot(rot, m);
-                    _par[l].t(t, m);
+                _par[l].rot(rot, m);
+                _par[l].t(t, m);
                     //_model.proj(0).project(image, rot, t);
-                    _model.proj(0).project(image, rot, t, _iCol, _iRow, _iPxl, nPxl);
+                    //_model.proj(0).project(image, rot, t, _iCol, _iRow, _iPxl, nPxl);
+                _model.proj(0).project(priP,
+                                       rot,
+                                       t,
+                                       _para.size,
+                                       _para.size,
+                                       _iCol,
+                                       _iRow,
+                                       nPxl);
 
                     /***
                     logW(m) = logDataVSPrior(_img[l], // dat
@@ -627,6 +577,7 @@ void MLOptimiser::expectation()
                                              _r,
                                              _rL);
                                              ***/
+                    /***
                     logW(m) = logDataVSPrior(_img[l], // dat
                                              image, // pri
                                              _ctf[l], // ctf
@@ -634,7 +585,13 @@ void MLOptimiser::expectation()
                                              _iPxl,
                                              _iSig,
                                              nPxl);
-                }
+                                             ***/
+                logW(m) = logDataVSPrior(_datP[l],
+                                         priP,
+                                         _ctfP[l],
+                                         _sigRcpP[l],
+                                         nPxl);
+            }
 
             PROCESS_LOGW_SOFT(logW);
 
@@ -737,6 +694,8 @@ void MLOptimiser::expectation()
                      _iter);
             save(filename, _par[l]);
         }
+
+        delete[] priP;
     }
 
     freePreCal();
@@ -2590,6 +2549,20 @@ double logDataVSPrior(const Image& dat,
                      - REAL(ctf.iGetFT(iPxl[i]))
                      * pri.iGetFT(iPxl[i]))
                 * sigRcp(iSig[i]);
+
+    return result;
+}
+
+double logDataVSPrior(const Complex* dat,
+                      const Complex* pri,
+                      const double* ctf,
+                      const double* sigRcp,
+                      const int m)
+{
+    double result = 0;
+
+    for (int i = 0; i < m; i++)
+        result += ABS2(dat[i] - ctf[i] * pri[i]) * sigRcp[i];
 
     return result;
 }

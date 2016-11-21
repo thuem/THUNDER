@@ -692,6 +692,12 @@ double logDataVSPrior(const Image& dat,
                       const int* iSig,
                       const int m);
 
+double logDataVSPrior(const Complex* dat,
+                      const Complex* pri,
+                      const double* ctf,
+                      const double* sigRcp,
+                      const int m);
+
 /**
  * This function calculates the logarithm of the possibility that the image is
  * from the projection translation couple.

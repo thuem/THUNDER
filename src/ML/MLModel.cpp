@@ -498,8 +498,10 @@ void MLModel::updateR(const double thres)
 
 void MLModel::elevateR(const double thres)
 {
+    /***
     double areaTtl = M_PI * gsl_pow_2(maxR());
     double areaGlb = M_PI * gsl_pow_2(_rGlobal);
+    ***/
 
     FOR_EACH_CLASS
         if (_FSC.col(l)(_pf * _rU - 1) > thres)
@@ -512,9 +514,15 @@ void MLModel::elevateR(const double thres)
             //_r = GSL_MIN_INT(_rU, AROUND(s * _r));
             
             if (_searchType == SEARCH_TYPE_GLOBAL)
-                _r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 4));
+            {
+                _r = GSL_MIN_INT(_rU, _r + _rGlobal / 4);
+                //_r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 4));
+            }
             else
-                _r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
+            {
+                _r = GSL_MIN_INT(_rU, _r + maxR() / 4);
+                //_r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
+            }
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
                 _r = GSL_MIN_INT(_rGlobal, _r);
@@ -534,13 +542,27 @@ void MLModel::elevateR(const double thres)
                              << thres;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
+        /***
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
                                      _r + AROUND(areaGlb / (2 * M_PI * _r) / 4)));
+                                     ***/
+        _r = GSL_MAX_INT(_r,
+                         GSL_MIN_INT(resolutionP(thres, true) + 1,
+                                     _r + _rGlobal / 4));
+    }
     else
+    {
+        /***
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, true) + 1,
                                      _r + AROUND(areaTtl / (2 * M_PI * _r) / 16)));
+                                     ***/
+        _r = GSL_MAX_INT(_r,
+                         GSL_MIN_INT(resolutionP(thres, true) + 1,
+                                     _r + maxR() / 4));
+    }
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
