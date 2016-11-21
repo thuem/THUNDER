@@ -224,9 +224,12 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    int nPer = 0;
-    
+    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+
     allocPreCal(_nPxl, _r, _rL);
+
+    int nPer = 0;
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
@@ -696,6 +699,9 @@ void MLOptimiser::expectation()
 
         delete[] priP;
     }
+
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
 
     freePreCal();
 }
@@ -1547,12 +1553,14 @@ void MLOptimiser::initSigma()
 
     vec avgPs = vec::Zero(maxR());
 
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         vec ps(maxR());
 
         powerSpectrum(ps, _img[l], maxR());
 
+        #pragma omp critical
         avgPs += ps;
     }
 
@@ -2008,6 +2016,9 @@ void MLOptimiser::allReduceSigma(const bool group)
 void MLOptimiser::reconstructRef(const bool mask)
 {
     IF_MASTER return;
+
+    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
     
     allocPreCal(_nPxl, _model.rU(), 0);
 
@@ -2035,6 +2046,9 @@ void MLOptimiser::reconstructRef(const bool mask)
     BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
 
     _model.reco(0).reconstruct(_model.ref(0));
+
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
 
     freePreCal();
 
@@ -2179,6 +2193,7 @@ void MLOptimiser::freePreCal()
     delete[] _iRow;
     delete[] _iSig;
 
+    #pragma omp parallel for
     for (int i = 0; i < (int)_ID.size(); i++)
     {
         delete[] _datP[i];
