@@ -602,9 +602,12 @@ class MLOptimiser : public Parallel
          */
         void reconstructRef(const bool mask = true);
 
-        void allocPreCal(int& nPxl,
-                         const double rU,
-                         const double rL);
+        void allocPreCalIdx(const double rU,
+                            const double rL);
+
+        void allocPreCal();
+
+        void freePreCalIdx();
 
         void freePreCal();
 

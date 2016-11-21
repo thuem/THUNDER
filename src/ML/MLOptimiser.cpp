@@ -227,7 +227,9 @@ void MLOptimiser::expectation()
     ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
 
-    allocPreCal(_nPxl, _r, _rL);
+    allocPreCalIdx(_r, _rL);
+
+    allocPreCal();
 
     int nPer = 0;
 
@@ -704,6 +706,8 @@ void MLOptimiser::expectation()
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
 
     freePreCal();
+
+    freePreCalIdx();
 }
 
 void MLOptimiser::maximization()
@@ -2020,7 +2024,9 @@ void MLOptimiser::reconstructRef(const bool mask)
     ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
     
-    allocPreCal(_nPxl, _model.rU(), 0);
+    allocPreCalIdx(_model.rU(), 0);
+
+    allocPreCal();
 
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
@@ -2051,6 +2057,8 @@ void MLOptimiser::reconstructRef(const bool mask)
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
 
     freePreCal();
+
+    freePreCalIdx();
 
     MPI_Barrier(_hemi);
 
@@ -2112,9 +2120,8 @@ void MLOptimiser::reconstructRef(const bool mask)
     _model.ref(0).clearRL();
 }
 
-void MLOptimiser::allocPreCal(int& nPxl,
-                              const double rU,
-                              const double rL)
+void MLOptimiser::allocPreCalIdx(const double rU,
+                                 const double rL)
 {
     IF_MASTER return;
 
@@ -2129,7 +2136,7 @@ void MLOptimiser::allocPreCal(int& nPxl,
     double rU2 = gsl_pow_2(rU);
     double rL2 = gsl_pow_2(rL);
 
-    nPxl = 0;
+    _nPxl = 0;
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
@@ -2141,18 +2148,23 @@ void MLOptimiser::allocPreCal(int& nPxl,
 
             if (v < rU)
             {
-                _iPxl[nPxl] = _img[0].iFTHalf(i, j);
+                _iPxl[_nPxl] = _img[0].iFTHalf(i, j);
 
-                _iCol[nPxl] = i;
+                _iCol[_nPxl] = i;
 
-                _iRow[nPxl] = j;
+                _iRow[_nPxl] = j;
 
-                _iSig[nPxl] = v;
+                _iSig[_nPxl] = v;
 
-                nPxl++;
+                _nPxl++;
             }
         }
     }
+}
+
+void MLOptimiser::allocPreCal()
+{
+    IF_MASTER return;
 
     _datP = new Complex*[_ID.size()];
 
@@ -2163,17 +2175,17 @@ void MLOptimiser::allocPreCal(int& nPxl,
     #pragma omp parallel for
     for (int i = 0; i < (int)_ID.size(); i++)
     {
-        _datP[i] = new Complex[nPxl];
+        _datP[i] = new Complex[_nPxl];
         
-        _ctfP[i] = new double[nPxl];
+        _ctfP[i] = new double[_nPxl];
 
-        _sigRcpP[i] = new double[nPxl];
+        _sigRcpP[i] = new double[_nPxl];
     }
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        for (int i = 0; i < nPxl; i++)
+        for (int i = 0; i < _nPxl; i++)
         {
             _datP[l][i] = _img[l].iGetFT(_iPxl[i]);
 
@@ -2184,7 +2196,7 @@ void MLOptimiser::allocPreCal(int& nPxl,
     }
 }
 
-void MLOptimiser::freePreCal()
+void MLOptimiser::freePreCalIdx()
 {
     IF_MASTER return;
 
@@ -2192,6 +2204,11 @@ void MLOptimiser::freePreCal()
     delete[] _iCol;
     delete[] _iRow;
     delete[] _iSig;
+}
+
+void MLOptimiser::freePreCal()
+{
+    IF_MASTER return;
 
     #pragma omp parallel for
     for (int i = 0; i < (int)_ID.size(); i++)
