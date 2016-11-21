@@ -717,7 +717,7 @@ int MLModel::searchType()
                 }
 
                 if (_nTopResNoImprove >= MAX_ITER_RES_NO_IMPROVE)
-                        _searchType = SEARCH_TYPE_STOP;
+                    _searchType = SEARCH_TYPE_STOP;
             }
         }
     }
@@ -876,8 +876,11 @@ void MLModel::updateRU()
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? AROUND((double)_rGlobal / 4)
-                     : AROUND((double)maxR() / 8)),
+                     : AROUND((double)maxR() / 4)),
                       maxR());
+
+    MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "
+                             << _rU;
     /***
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
