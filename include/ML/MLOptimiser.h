@@ -757,6 +757,13 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const int* iSig,
                    const int m);
 
+vec logDataVSPrior(const Complex** dat,
+                   const Complex* pri,
+                   const double** ctf,
+                   const double** sigRcp,
+                   const int n,
+                   const int m);
+
 double dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,

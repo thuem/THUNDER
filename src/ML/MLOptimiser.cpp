@@ -2542,7 +2542,6 @@ double logDataVSPrior(const Image& dat,
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
                         * sigRcp(v);
-                        /// (-2 * sig[v]);
             }
         }
     }
@@ -2565,7 +2564,6 @@ double logDataVSPrior(const Image& dat,
                      - REAL(ctf.iGetFT(iPxl[i]))
                      * pri.iGetFT(iPxl[i]))
                 * sigRcp(iSig[i]);
-                /// (-2 * sig(iSig[i]));
 
     return result;
 }
@@ -2599,7 +2597,6 @@ double logDataVSPrior(const Image& dat,
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
                         * sigRcp(v);
-                        /// (-2 * sig[v]);
             }
         }
     }
@@ -2627,7 +2624,6 @@ double logDataVSPrior(const Image& dat,
                      * pri.iGetFT(index)
                      * tra.iGetFT(index))
                 * sigRcp(iSig[i]);
-                /// (-2 * sig(iSig[i]));
     }
 
     return result;
@@ -2659,14 +2655,12 @@ vec logDataVSPrior(const vector<Image>& dat,
             {
                 int index = dat[0].iFTHalf(i, j);
 
-                //#pragma omp parallel for
                 for (int l = 0; l < n; l++)
                 {
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
                                * sigRcp(groupID[l] - 1, v);
-                               /// (-2 * sig(groupID[l] - 1, v));
                 }
             }
         }
@@ -2688,7 +2682,6 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     vec result = vec::Zero(n);
 
-    //#pragma omp parallel for
     for (int l = 0; l < n; l++)
     {
         int gL = groupID[l] -1 ;
@@ -2700,20 +2693,32 @@ vec logDataVSPrior(const vector<Image>& dat,
         {
             int index = iPxl[i];
 
-            /***
-            result(l) += ABS2(dat[l].iGetFT(index)
-                            - REAL(ctf[l].iGetFT(index))
-                            * pri.iGetFT(index))
-                       / (-2 * sig(gID, iSig[i]));
-                       ***/
             result(l) += ABS2(datL.iGetFT(index)
                             - REAL(ctfL.iGetFT(index))
                             * pri.iGetFT(index))
                        * sigRcp(gL, iSig[i]);
-                       /// (-2 * sig(gL, iSig[i]));
         }
     }
 
+    return result;
+}
+
+vec logDataVSPrior(const Complex** dat,
+                   const Complex* pri,
+                   const double** ctf,
+                   const double** sigRcp,
+                   const int n,
+                   const int m)
+{
+    vec result = vec::Zero(n);
+
+    for (int l = 0; l < n; l++)
+        for (int i = 0; i < m; i++)
+            result(l) += ABS2(dat[l][i]
+                            - ctf[l][i]
+                            * pri[i])
+                       * sigRcp[l][i];
+    
     return result;
 }
 
