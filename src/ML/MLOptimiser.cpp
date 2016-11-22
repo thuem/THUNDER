@@ -970,6 +970,9 @@ void MLOptimiser::run()
                                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
+        MLOG(INFO, "LOGGER_SYS") << "Updating Frequency Boundary of Reconstructor";
+        _model.updateRU();
+
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";

@@ -494,10 +494,6 @@ void MLModel::updateR(const double thres)
 
         elevateR(thres);
     }
-
-    MLOG(INFO, "LOGGER_SYS") << "Updating Frequency Boundary of Reconstructor";
-
-    updateRU();
 }
 
 void MLModel::elevateR(const double thres)
