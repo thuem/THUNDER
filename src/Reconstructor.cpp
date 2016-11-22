@@ -131,7 +131,7 @@ void Reconstructor::insert(const Image& src,
                                   << ", nRow = " << src.nRowRL();
 
     Image transSrc(_size, _size, FT_SPACE);
-    translateMT(transSrc, src, -t(0), -t(1));
+    translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
 
     vector<mat33> sr;
     symmetryRotation(sr, rot, _sym);
