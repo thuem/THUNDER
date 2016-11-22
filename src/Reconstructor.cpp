@@ -147,8 +147,8 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
-                vec3 newCor = {(double)i, (double)j, 0};
-                vec3 oldCor = sr[k] * newCor * _pf;
+                vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+                vec3 oldCor = sr[k] * newCor;
         
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
@@ -202,8 +202,8 @@ void Reconstructor::insertP(const Image& src,
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
-            vec3 newCor = {(double)_iCol[i], (double)_iRow[i], 0};
-            vec3 oldCor = sr[k] * newCor * _pf;
+            vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
+            vec3 oldCor = sr[k] * newCor;
         
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
@@ -306,8 +306,8 @@ void Reconstructor::allReduceW()
                 {
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius))
                     {
-                        vec3 newCor = {(double)i, (double)j, 0};
-                        vec3 oldCor = _rot[k] * newCor * _pf;
+                        vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+                        vec3 oldCor = _rot[k] * newCor;
 
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
@@ -329,8 +329,8 @@ void Reconstructor::allReduceW()
         for (int k = 0; k < int(_rot.size()); k++)
             for (int i = 0; i < _nPxl; i++)
             {
-                vec3 newCor = {(double)_iCol[i], (double)_iRow[i], 0};
-                vec3 oldCor = _rot[k] * newCor * _pf;
+                vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
+                vec3 oldCor = _rot[k] * newCor;
 
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
