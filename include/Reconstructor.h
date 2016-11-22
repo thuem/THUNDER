@@ -142,13 +142,15 @@ class Reconstructor : public Parallel
 
         vector<const Image*> _ctf;
 
-        vector<const double*> _ctfP;
+        //vector<const double*> _ctfP;
 
         int _nPxl;
 
         const int* _iCol = NULL;
 
         const int* _iRow = NULL;
+
+        const int* _iPxl = NULL;
         
         /**
          * The vector to save the weight values of each insertion with image, 
@@ -261,11 +263,13 @@ class Reconstructor : public Parallel
 
         void preCal(int& nPxl,
                     const int* iCol,
-                    const int* iRow) const;
+                    const int* iRow,
+                    const int* iPxl) const;
 
         void setPreCal(const int nPxl,
                        const int* iCol,
-                       const int* iRow);
+                       const int* iRow,
+                       const int* iPxl);
 
         /**
          * Insert a 2D Fourier transform of image pixel data with associated
@@ -289,11 +293,19 @@ class Reconstructor : public Parallel
                     const vec2& t,
                     const double w);
 
+        /***
         void insert(const Complex* src,
                     const double* ctf,
                     const mat33& rot,
                     const vec2& t,
                     const double w);
+                    ***/
+
+        void insertP(const Image& src,
+                     const Image& ctf,
+                     const mat33& rot,
+                     const vec2& t,
+                     const double w);
 
         /**
          * Insert a 2D Fourier transform of image pixel data with associated

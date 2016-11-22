@@ -30,10 +30,10 @@ void Reconstructor::init(const int size,
     _rot.clear();
     _w.clear();
     _ctf.clear();
-    _ctfP.clear();
 
     _iCol = NULL;
     _iRow = NULL;
+    _iPxl = NULL;
 
     _calMode = POST_CAL_MODE;
     _size = size;
@@ -81,17 +81,20 @@ void Reconstructor::setMaxRadius(const int maxRadius)
 
 void Reconstructor::preCal(int& nPxl,
                            const int* iCol,
-                           const int* iRow) const
+                           const int* iRow,
+                           const int* iPxl) const
 {
     nPxl = _nPxl;
 
     iCol = _iCol;
     iRow = _iRow;
+    iPxl = _iPxl;
 }
 
 void Reconstructor::setPreCal(const int nPxl,
                               const int* iCol,
-                              const int* iRow)
+                              const int* iRow,
+                              const int* iPxl)
 {
     _calMode = PRE_CAL_MODE;
 
@@ -99,6 +102,7 @@ void Reconstructor::setPreCal(const int nPxl,
 
     _iCol = iCol;
     _iRow = iRow;
+    _iPxl = iPxl;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -149,9 +153,9 @@ void Reconstructor::insert(const Image& src,
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
-                         oldCor[0], 
-                         oldCor[1], 
-                         oldCor[2], 
+                         oldCor(0), 
+                         oldCor(1), 
+                         oldCor(2), 
                          _pf * _a, 
                          _kernel);
             }
@@ -161,11 +165,11 @@ void Reconstructor::insert(const Image& src,
     //CLOG(INFO, "LOGGER_SYS") << "Partial : _F[0] = " << REAL(_F[0]);
 }
 
-void Reconstructor::insert(const Complex* src,
-                           const double* ctf,
-                           const mat33& rot,
-                           const vec2& t,
-                           const double w)
+void Reconstructor::insertP(const Image& src,
+                            const Image& ctf,
+                            const mat33& rot,
+                            const vec2& t,
+                            const double w)
 {
     IF_MASTER
     {
@@ -177,9 +181,14 @@ void Reconstructor::insert(const Complex* src,
         CLOG(FATAL, "LOGGER_SYS") << "Wrong Pre(Post) Calculation Mode in Reconstructor";
     }
 
+    /***
     Complex* transSrc = new Complex[_nPxl];
 
     translateMT(transSrc, src, -t(0), -t(1), _size, _size, _iCol, _iRow, _nPxl);
+    ***/
+
+    Image transSrc(_size, _size, FT_SPACE);
+    translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
     vector<mat33> sr;
     symmetryRotation(sr, rot, _sym);
@@ -188,7 +197,7 @@ void Reconstructor::insert(const Complex* src,
     {
         _rot.push_back(sr[k]);
         _w.push_back(w);
-        _ctfP.push_back(ctf);
+        _ctf.push_back(&ctf);
 
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
@@ -196,16 +205,16 @@ void Reconstructor::insert(const Complex* src,
             vec3 newCor = {(double)_iCol[i], (double)_iRow[i], 0};
             vec3 oldCor = sr[k] * newCor * _pf;
         
-             _F.addFT(transSrc[i] * ctf[i] * w,
-                      oldCor[0], 
-                      oldCor[1], 
-                      oldCor[2], 
-                      _pf * _a, 
-                      _kernel);
+            _F.addFT(transSrc[_iPxl[i]]
+                   * REAL(ctf.iGetFT(_iPxl[i]))
+                   * w,
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2), 
+                     _pf * _a, 
+                     _kernel);
         }
     }
-
-    delete[] transSrc;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -327,7 +336,7 @@ void Reconstructor::allReduceW()
                                                       oldCor[1],
                                                       oldCor[2],
                                                       LINEAR_INTERP))
-                       * gsl_pow_2(_ctfP[k][i])
+                       * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
                        * _w[k],
                          oldCor[0],
                          oldCor[1],
