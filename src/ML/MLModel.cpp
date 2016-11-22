@@ -814,6 +814,18 @@ void MLModel::sharpenUp(const double bFactor,
     }
 }
 
+void MLModel::updateRU()
+{
+    _rU = GSL_MIN_INT(_r
+                    + ((_searchType == SEARCH_TYPE_GLOBAL)
+                     ? AROUND((double)_rGlobal / 4)
+                     : AROUND((double)maxR() / 4)),
+                      maxR());
+
+    MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "
+                             << _rU;
+}
+
 void MLModel::clear()
 {
     _ref.clear();
@@ -867,28 +879,6 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
               MPI_COMM_WORLD);
 
     return _increaseR;
-}
-
-void MLModel::updateRU()
-{
-    _rU = GSL_MIN_INT(_r
-                    + ((_searchType == SEARCH_TYPE_GLOBAL)
-                     ? AROUND((double)_rGlobal / 4)
-                     : AROUND((double)maxR() / 4)),
-                      maxR());
-
-    MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "
-                             << _rU;
-    /***
-    _rU = GSL_MIN_INT(_r
-                    + ((_searchType == SEARCH_TYPE_GLOBAL)
-                     ? GSL_MIN_INT(SEARCH_RES_GAP_GLOBAL,
-                                   AROUND((double)_size / 32))
-                     : AROUND((double)_size / 8)),
-                      maxR());
-                     ***/
-
-    //_rU = GSL_MIN_INT(_r + AROUND((double)_size / 8), maxR());
 }
 
 void MLModel::avgHemi()

@@ -643,6 +643,12 @@ class MLModel : public Parallel
                        const bool fscWeighting);
 
         /**
+         * This function update the frequency for reconstruction and calculating
+         * FSC, SNR by the frequency before padding (in pixel).
+         */
+        void updateRU();
+
+        /**
          * This function clears up references, projectors and reconstructors.
          */
         void clear();
@@ -655,12 +661,6 @@ class MLModel : public Parallel
          * otherwise, return true.
          */
         bool determineIncreaseR(const double rChangeDecreaseFactor = 0.02);
-
-        /**
-         * This function update the frequency for reconstruction and calculating
-         * FSC, SNR by the frequency before padding (in pixel).
-         */
-        void updateRU();
 
         void avgHemi();
 };
