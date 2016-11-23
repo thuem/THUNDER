@@ -36,6 +36,7 @@ void Reconstructor::init(const int size,
     _iPxl = NULL;
 
     _calMode = POST_CAL_MODE;
+
     _size = size;
     _pf = pf;
     _sym = sym;
@@ -44,8 +45,6 @@ void Reconstructor::init(const int size,
 
     _a = a;
     _alpha = alpha;
-
-    _nW = 0;
 
     // initialise the interpolation kernel
     _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
@@ -376,6 +375,8 @@ void Reconstructor::allReduceT()
         int u = AROUND(NORM_3(i, j, k));
 
         //int index = _T.iFTHalf(i, j);
+        CLOG(INFO, "LOGGER_SYS") << _FSC;
+        CLOG(INFO, "LOGGER_SYS") << _FSC.size();
         
         double fsc = (u >= _FSC.size())
                    ? _FSC(_FSC.size() - 1)

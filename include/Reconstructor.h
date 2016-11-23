@@ -200,11 +200,6 @@ class Reconstructor : public Parallel
          */
         TabFunction _kernel;
 
-        /**
-         * number of iterations of weighting
-         */
-        int _nW = 0;
-
     public:
 
         /**
