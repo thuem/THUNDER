@@ -41,7 +41,7 @@ void Reconstructor::init(const int size,
     _pf = pf;
     _sym = sym;
 
-    _FSC = vec({1});
+    _FSC = vec::Constant(1, 1);
 
     _a = a;
     _alpha = alpha;
@@ -374,9 +374,10 @@ void Reconstructor::allReduceT()
     {
         int u = AROUND(NORM_3(i, j, k));
 
-        //int index = _T.iFTHalf(i, j);
+        /***
         CLOG(INFO, "LOGGER_SYS") << _FSC;
         CLOG(INFO, "LOGGER_SYS") << _FSC.size();
+        ***/
         
         double fsc = (u >= _FSC.size())
                    ? _FSC(_FSC.size() - 1)

@@ -183,7 +183,7 @@ class Reconstructor : public Parallel
          */
         const Symmetry* _sym = NULL;
 
-        vec _FSC = vec({1});
+        vec _FSC = vec::Constant(1, 1);
 
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
