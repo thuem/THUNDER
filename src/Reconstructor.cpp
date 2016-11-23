@@ -39,8 +39,13 @@ void Reconstructor::init(const int size,
     _size = size;
     _pf = pf;
     _sym = sym;
+
+    _FSC = vec({1});
+
     _a = a;
     _alpha = alpha;
+
+    _nW = 0;
 
     // initialise the interpolation kernel
     _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
@@ -53,6 +58,7 @@ void Reconstructor::init(const int size,
     _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _T.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
 
     #pragma omp parallel for
     SET_0_FT(_F);
@@ -62,6 +68,9 @@ void Reconstructor::init(const int size,
 
     #pragma omp parallel for
     SET_0_FT(_C);
+
+    #pragma omp parallel for
+    SET_0_FT(_T);
 }
 
 void Reconstructor::setSymmetry(const Symmetry* sym)
@@ -290,6 +299,93 @@ void Reconstructor::reconstruct(Volume& dst)
     ***/
 }
 
+void Reconstructor::allReduceT()
+{
+    ALOG(INFO, "LOGGER_RECO") << "Calculating T";
+    BLOG(INFO, "LOGGER_RECO") << "Calculating T";
+
+    if (_calMode == POST_CAL_MODE)
+    {
+        #pragma omp parallel for
+        for (int k = 0; k < int(_rot.size()); k++)
+            for (int j = -_size / 2; j < _size / 2; j++)
+                for (int i = 0; i <= _size / 2; i++)
+                {
+                    if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+                    {
+                        vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+                        vec3 oldCor = _rot[k] * newCor;
+
+                        _T.addFT(gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
+                               * _w[k],
+                                 oldCor[0],
+                                 oldCor[1],
+                                 oldCor[2],
+                                 _pf * _a,
+                                 _kernel);
+                    }
+                }
+    }
+    else if (_calMode == PRE_CAL_MODE)
+    {
+        #pragma omp parallel for
+        for (int k = 0; k < int(_rot.size()); k++)
+            for (int i = 0; i < _nPxl; i++)
+            {
+                vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
+                vec3 oldCor = _rot[k] * newCor;
+
+                _T.addFT(gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
+                       * _w[k],
+                         oldCor[0],
+                         oldCor[1],
+                         oldCor[2],
+                         _pf * _a,
+                         _kernel);
+            }
+    }
+    else
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "Invalid Pre(Post) Calculation Mode in Reconstructor";
+    }
+    
+    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
+    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
+
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
+
+    MPI_Allreduce_Large(&_T[0],
+                        _T.sizeFT(),
+                        MPI_DOUBLE_COMPLEX,
+                        MPI_SUM,
+                        _hemi);
+
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
+    BLOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
+
+    #pragma omp parallel for
+    VOLUME_FOR_PIXEL_R_FT(_maxRadius * _pf)
+    {
+        int u = AROUND(NORM_3(i, j, k));
+
+        //int index = _T.iFTHalf(i, j);
+        
+        double fsc = (u >= _FSC.size())
+                   ? _FSC(_FSC.size() - 1)
+                   : _FSC(u);
+
+        _T.setFTHalf(_T.getFTHalf(i, j, k) * (1 - fsc) / fsc,
+                     i,
+                     j,
+                     k);
+    }
+}
+
 void Reconstructor::allReduceW()
 {
     SET_0_FT(_C);
@@ -366,12 +462,12 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
-    /***
-    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
-    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing C";
+    ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
+    BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
-    symmetrizeC();
-    ***/
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_FT(_C)
+        _C[i] += _W[i] * _T[i];
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";

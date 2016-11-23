@@ -127,6 +127,8 @@ class Reconstructor : public Parallel
          */
         Volume _C;
 
+        Volume _T;
+
         /**
          * The vector to save the rotate matrixs of each insertion with image 
          * and associated 5D coordinate. Since each 2D Fourier transformsof 
@@ -151,6 +153,8 @@ class Reconstructor : public Parallel
         const int* _iRow = NULL;
 
         const int* _iPxl = NULL;
+
+        const int* _iSig = NULL;
         
         /**
          * The vector to save the weight values of each insertion with image, 
@@ -179,6 +183,8 @@ class Reconstructor : public Parallel
          */
         const Symmetry* _sym = NULL;
 
+        vec _FSC = vec({1});
+
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
@@ -193,6 +199,11 @@ class Reconstructor : public Parallel
          * the blob kernel stored as a tabular function
          */
         TabFunction _kernel;
+
+        /**
+         * number of iterations of weighting
+         */
+        int _nW = 0;
 
     public:
 
@@ -333,6 +344,8 @@ class Reconstructor : public Parallel
         void reconstruct(Volume& dst);
 
     private:
+
+        void allReduceT();
 
         /**
          * The size of the reconstructor area that is used to determine the

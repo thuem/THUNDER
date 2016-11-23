@@ -85,6 +85,22 @@
         for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
             for (int i = 0; i <= that.nColRL() / 2; i++)
 
+#define VOLUME_FOR_PIXEL_R_RL(r) \
+    for (int k = -r; k < r; k++) \
+        for (int j = -r; j < r; j++) \
+            for (int i = -r; i < r; i++)
+
+/**
+ * This macro loops over the pixels of an image in a certain radius in Fourier
+ * space.
+ *
+ * @param r the radius
+ */
+#define VOLUME_FOR_PIXEL_R_FT(r) \
+    for (int k = -r; k < r; k++) \
+        for (int j = -r; j < r; j++) \
+            for (int i = 0; i <= r; i++)
+
 inline bool conjHalf(int& iCol,
                      int& iRow,
                      int& iSlc)
