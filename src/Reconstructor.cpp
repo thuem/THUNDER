@@ -243,6 +243,8 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
+    allReduceT();
+
     for (int i = 0; i < N_ITER_BALANCE; i++)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
