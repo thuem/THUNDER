@@ -381,6 +381,8 @@ void Reconstructor::allReduceT()
                    ? _FSC(_FSC.size() - 1)
                    : _FSC(u);
 
+        if (fsc != 1) CLOG(FATAL, "LOGGER_SYS") << "DEBUG!";
+
         _T.setFTHalf(_T.getFTHalf(i, j, k) * (1 - fsc) / fsc,
                      i,
                      j,
