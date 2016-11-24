@@ -93,6 +93,6 @@
  * resolution resolution for averaging reference(s) from A hemisphere and B
  * hemisphere
  */
-#define A_B_AVERAGE_THRES 20
+#define A_B_AVERAGE_THRES 40
 
 #endif // MACRO_H
