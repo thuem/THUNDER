@@ -42,7 +42,9 @@ using namespace placeholders;
 
 #define N_ITER_BALANCE 2
 
-#define TAU_FACTOR 0.1
+//#define TAU_FACTOR 0.1
+
+constexpr double TAU_FACTOR = 1.0 / 6;
 
 /**
  * @ingroup Reconstructor
