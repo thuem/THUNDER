@@ -95,7 +95,9 @@ void Postprocess::run()
     bFactorEst(bFactor,
                _mapI,
                _res,
-               AROUND(resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)));
+               AROUND(resA2P(1.0 / 5, _size, _pixelSize)));
+
+    //bFactor = -100;
 
     CLOG(INFO, "LOGGER_SYS") << "B-Factor : " << bFactor;
 

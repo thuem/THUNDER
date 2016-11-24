@@ -95,19 +95,22 @@ void Reconstructor::setMaxRadius(const int maxRadius)
 void Reconstructor::preCal(int& nPxl,
                            const int* iCol,
                            const int* iRow,
-                           const int* iPxl) const
+                           const int* iPxl,
+                           const int* iSig) const
 {
     nPxl = _nPxl;
 
     iCol = _iCol;
     iRow = _iRow;
     iPxl = _iPxl;
+    iSig = _iSig;
 }
 
 void Reconstructor::setPreCal(const int nPxl,
                               const int* iCol,
                               const int* iRow,
-                              const int* iPxl)
+                              const int* iPxl,
+                              const int* iSig)
 {
     _calMode = PRE_CAL_MODE;
 
@@ -116,6 +119,7 @@ void Reconstructor::setPreCal(const int nPxl,
     _iCol = iCol;
     _iRow = iRow;
     _iPxl = iPxl;
+    _iSig = iSig;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -247,7 +251,7 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    allReduceT();
+    //allReduceT();
 
     for (int i = 0; i < N_ITER_BALANCE; i++)
     {
@@ -417,11 +421,25 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
+                        int u = AROUND(NORM(i * _pf, j * _pf));
+
+                        /***
+                        double fsc = GSL_MAX_DBL((u >= _FSC.size())
+                                               ? _FSC(_FSC.size() - 1)
+                                               : _FSC(u),
+                                                 0.5);
+                                                 ***/
+
+                        double fsc = (u >= _FSC.size())
+                                   ? _FSC(_FSC.size() - 1)
+                                   : _FSC(u);
+
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
                                                               LINEAR_INTERP))
                                * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
+                               * (1 + TAU_FACTOR * (1 - fsc) / fsc)
                                * _w[k],
                                  oldCor[0],
                                  oldCor[1],
@@ -440,11 +458,25 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
+                int u = _iSig[i] * _pf;
+
+                /***
+                double fsc = GSL_MAX_DBL((u >= _FSC.size())
+                                       ? _FSC(_FSC.size() - 1)
+                                       : _FSC(u),
+                                         0.5);
+                                         ***/
+
+                        double fsc = (u >= _FSC.size())
+                                   ? _FSC(_FSC.size() - 1)
+                                   : _FSC(u);
+
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
                                                       LINEAR_INTERP))
                        * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
+                       * (1 + TAU_FACTOR * (1 - fsc) / fsc)
                        * _w[k],
                          oldCor[0],
                          oldCor[1],
@@ -474,12 +506,14 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _W[i] * _T[i];
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";

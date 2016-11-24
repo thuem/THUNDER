@@ -42,6 +42,8 @@ using namespace placeholders;
 
 #define N_ITER_BALANCE 2
 
+#define TAU_FACTOR 1
+
 /**
  * @ingroup Reconstructor
  * @brief The 3D model reconstruction class.
@@ -272,12 +274,14 @@ class Reconstructor : public Parallel
         void preCal(int& nPxl,
                     const int* iCol,
                     const int* iRow,
-                    const int* iPxl) const;
+                    const int* iPxl,
+                    const int* iSig) const;
 
         void setPreCal(const int nPxl,
                        const int* iCol,
                        const int* iRow,
-                       const int* iPxl);
+                       const int* iPxl,
+                       const int* iSig);
 
         /**
          * Insert a 2D Fourier transform of image pixel data with associated

@@ -1791,7 +1791,6 @@ void MLOptimiser::refreshScale(const bool init,
     if (_rL > _rS) MLOG(FATAL, "LOGGER_SYS") << "_rL is Larger than _rS";
 
     _rS = 3;
-    _rL = 0;
 
     mat mXA = mat::Zero(_nGroup, _rS);
     mat mAA = mat::Zero(_nGroup, _rS);
@@ -1829,7 +1828,7 @@ void MLOptimiser::refreshScale(const bool init,
                              img,
                              _ctf[l],
                              _rS,
-                             _rL);
+                             0);
 
             if (group)
             {
@@ -1870,11 +1869,10 @@ void MLOptimiser::refreshScale(const bool init,
             int count = 0;
 
             for (int r = 0; r < _rS; r++)
-                if (r >= _rL)
-                {
-                    sum += mXA(i, r) / mAA(i, r);
-                    count += 1;
-                }
+            {
+                sum += mXA(i, r) / mAA(i, r);
+                count += 1;
+            }
 
             _scale(i) = sum / count;
         }
@@ -1885,11 +1883,10 @@ void MLOptimiser::refreshScale(const bool init,
         int count = 0;
 
         for (int r = 0; r < _rS; r++)
-            if (r >= _rL)
-            {
-                sum += mXA(0, r) / mAA(0, r);
-                count += 1;
-            }
+        {
+            sum += mXA(0, r) / mAA(0, r);
+            count += 1;
+        }
         
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = sum / count;
@@ -2033,7 +2030,7 @@ void MLOptimiser::reconstructRef(const bool mask)
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
-    _model.reco(0).setPreCal(_nPxl, _iCol, _iRow, _iPxl);
+    _model.reco(0).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
     FOR_EACH_2D_IMAGE
     {
