@@ -251,7 +251,7 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    //allReduceT();
+    allReduceT();
 
     for (int i = 0; i < N_ITER_BALANCE; i++)
     {
@@ -378,27 +378,59 @@ void Reconstructor::allReduceT()
     ALOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
     BLOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
 
+    /***
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_T)
     {
         int u = AROUND(NORM_3(i, j, k));
 
-        /***
-        CLOG(INFO, "LOGGER_SYS") << _FSC;
-        CLOG(INFO, "LOGGER_SYS") << _FSC.size();
-        ***/
-        
         double fsc = GSL_MAX_DBL((u >= _FSC.size())
                                ? _FSC(_FSC.size() - 1)
                                : _FSC(u),
                                  0.5);
 
-        //if (fsc != 1) CLOG(FATAL, "LOGGER_SYS") << "DEBUG!";
-
         _T.setFTHalf(_T.getFTHalf(i, j, k) * (1 - fsc) / fsc,
                      i,
                      j,
                      k);
+    }
+    ***/
+
+    vec tau = vec::Zero(_maxRadius * _pf);
+    uvec counter = uvec::Zero(_maxRadius * _pf);
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(_T)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+        {
+            int u = AROUND(NORM_3(i, j, k));
+
+            tau(u) += REAL(_T.getFTHalf(i, j, k));
+
+            counter(u) += 1;
+        }
+
+    #pragma omp parallel for
+    for (int i = 0; i < _maxRadius * _pf; i++)
+    {
+        tau(i) /= counter(i);
+
+        double fsc = (i >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(i);
+
+        tau(i) *= (1 - fsc) / fsc;
+    }
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(_T)
+    {
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+        {
+            int u = AROUND(NORM_3(i, j, k));
+
+            _T.setFTHalf(COMPLEX(tau(u), 0), i, j, k);
+        }
+        else
+            _T.setFTHalf(COMPLEX(0, 0), i, j, k);
     }
 }
 
@@ -421,7 +453,7 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
-                        int u = AROUND(NORM(i * _pf, j * _pf));
+                        //int u = AROUND(NORM(i * _pf, j * _pf));
 
                         /***
                         double fsc = GSL_MAX_DBL((u >= _FSC.size())
@@ -430,16 +462,18 @@ void Reconstructor::allReduceW()
                                                  0.5);
                                                  ***/
 
+                        /***
                         double fsc = (u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u);
+                                   ***/
 
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
                                                               LINEAR_INTERP))
                                * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                               * (1 + TAU_FACTOR * (1 - fsc) / fsc)
+                               //* (1 + TAU_FACTOR * (1 - fsc) / fsc)
                                * _w[k],
                                  oldCor[0],
                                  oldCor[1],
@@ -458,7 +492,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
-                int u = _iSig[i] * _pf;
+                //int u = _iSig[i] * _pf;
 
                 /***
                 double fsc = GSL_MAX_DBL((u >= _FSC.size())
@@ -467,16 +501,18 @@ void Reconstructor::allReduceW()
                                          0.5);
                                          ***/
 
+                /***
                         double fsc = (u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u);
+                                   ***/
 
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
                                                       LINEAR_INTERP))
                        * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
-                       * (1 + TAU_FACTOR * (1 - fsc) / fsc)
+                       //* (1 + TAU_FACTOR * (1 - fsc) / fsc)
                        * _w[k],
                          oldCor[0],
                          oldCor[1],
@@ -506,14 +542,12 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _W[i] * _T[i];
-    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
@@ -542,19 +576,20 @@ void Reconstructor::allReduceW()
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
-            if (c >= cThres)
-            {
-                /***
-                _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
+
+                _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
-                ***/
+                /***
+            if (c >= cThres)
+            {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
             }
+            ***/
             /***
             else if (c == 0)
                 _W.setFTHalf(COMPLEX(0, 0), i, j, k);
