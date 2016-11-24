@@ -384,9 +384,10 @@ void Reconstructor::allReduceT()
         CLOG(INFO, "LOGGER_SYS") << _FSC.size();
         ***/
         
-        double fsc = (u >= _FSC.size())
-                   ? _FSC(_FSC.size() - 1)
-                   : _FSC(u);
+        double fsc = GSL_MAX_DBL((u >= _FSC.size())
+                               ? _FSC(_FSC.size() - 1)
+                               : _FSC(u),
+                                 0.5);
 
         //if (fsc != 1) CLOG(FATAL, "LOGGER_SYS") << "DEBUG!";
 
