@@ -253,6 +253,8 @@ class Reconstructor : public Parallel
          */
         void setSymmetry(const Symmetry* sym);
 
+        void setFSC(const vec FSC);
+
         /**
          * get the max radius that points can affect each other 
          * during interpolation         

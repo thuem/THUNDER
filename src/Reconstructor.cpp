@@ -77,6 +77,11 @@ void Reconstructor::setSymmetry(const Symmetry* sym)
     _sym = sym;
 }
 
+void Reconstructor::setFSC(const vec FSC)
+{
+    _FSC = FSC;
+}
+
 int Reconstructor::maxRadius() const
 {
     return _maxRadius;
