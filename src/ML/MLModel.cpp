@@ -33,6 +33,8 @@ void MLModel::init(const int k,
     _a = a;
     _alpha = alpha;
     _sym = sym;
+
+    _FSC = mat::Constant(1, _k, 1);
 }
 
 void MLModel::initProjReco()
