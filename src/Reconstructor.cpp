@@ -375,7 +375,7 @@ void Reconstructor::allReduceT()
     BLOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
 
     #pragma omp parallel for
-    VOLUME_FOR_PIXEL_R_FT(_maxRadius * _pf)
+    VOLUME_FOR_EACH_PIXEL(_T)
     {
         int u = AROUND(NORM_3(i, j, k));
 
