@@ -441,7 +441,7 @@ void Reconstructor::allReduceT()
     {
         int u = AROUND(NORM_3(i, j, k));
 
-        double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(i);
+        double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(u);
 
         _T.setFTHalf(COMPLEX((1 - fsc) / fsc, 0), i, j, k);
     }
