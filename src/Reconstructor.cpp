@@ -251,7 +251,7 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    allReduceT();
+    //allReduceT();
 
     for (int i = 0; i < N_ITER_BALANCE; i++)
     {
@@ -396,8 +396,8 @@ void Reconstructor::allReduceT()
     }
     ***/
 
-    vec tau = vec::Zero(_maxRadius * _pf);
-    uvec counter = uvec::Zero(_maxRadius * _pf);
+    vec tau = vec::Zero(_maxRadius * _pf + 1);
+    uvec counter = uvec::Zero(_maxRadius * _pf + 1);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
@@ -406,12 +406,11 @@ void Reconstructor::allReduceT()
             int u = AROUND(NORM_3(i, j, k));
 
             tau(u) += REAL(_T.getFTHalf(i, j, k));
-
             counter(u) += 1;
         }
 
     #pragma omp parallel for
-    for (int i = 0; i < _maxRadius * _pf; i++)
+    for (int i = 0; i < _maxRadius * _pf + 1; i++)
     {
         tau(i) /= counter(i);
 
@@ -453,7 +452,7 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
-                        //int u = AROUND(NORM(i * _pf, j * _pf));
+                        int u = AROUND(NORM(i * _pf, j * _pf));
 
                         /***
                         double fsc = GSL_MAX_DBL((u >= _FSC.size())
@@ -462,18 +461,16 @@ void Reconstructor::allReduceW()
                                                  0.5);
                                                  ***/
 
-                        /***
                         double fsc = (u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u);
-                                   ***/
 
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
                                                               LINEAR_INTERP))
                                * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                               //* (1 + TAU_FACTOR * (1 - fsc) / fsc)
+                               * (1 + TAU_FACTOR * (1 - fsc) / fsc)
                                * _w[k],
                                  oldCor[0],
                                  oldCor[1],
@@ -492,7 +489,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
-                //int u = _iSig[i] * _pf;
+                int u = _iSig[i] * _pf;
 
                 /***
                 double fsc = GSL_MAX_DBL((u >= _FSC.size())
@@ -501,18 +498,16 @@ void Reconstructor::allReduceW()
                                          0.5);
                                          ***/
 
-                /***
                         double fsc = (u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u);
-                                   ***/
 
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
                                                       LINEAR_INTERP))
                        * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
-                       //* (1 + TAU_FACTOR * (1 - fsc) / fsc)
+                       * (1 + TAU_FACTOR * (1 - fsc) / fsc)
                        * _w[k],
                          oldCor[0],
                          oldCor[1],
@@ -577,11 +572,12 @@ void Reconstructor::allReduceW()
         {
             double c = REAL(_C.getFTHalf(i, j, k));
 
+            /***
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
-                /***
+                             ***/
             if (c >= cThres)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
@@ -589,7 +585,6 @@ void Reconstructor::allReduceW()
                              j,
                              k);
             }
-            ***/
             /***
             else if (c == 0)
                 _W.setFTHalf(COMPLEX(0, 0), i, j, k);
