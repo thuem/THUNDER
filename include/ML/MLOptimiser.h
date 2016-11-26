@@ -654,6 +654,10 @@ class MLOptimiser : public Parallel
          * save FSC
          */
         void saveFSC(const bool finished = false) const;
+
+        void saveSig() const;
+
+        void saveTau() const;
 };
 
 /***

@@ -726,6 +726,9 @@ void MLOptimiser::maximization()
 
     allReduceSigma(_para.groupSig);
 
+    saveSig();
+    saveTau();
+
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
@@ -2512,6 +2515,56 @@ void MLOptimiser::saveFSC(const bool finished) const
                 i,
                 1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
                 fsc(i));
+
+    fclose(file);
+}
+
+void MLOptimiser::saveSig() const
+{
+    if ((_commRank != HEMI_A_LEAD) &&
+        (_commRank != HEMI_B_LEAD))
+        return;
+
+    char filename[FILE_NAME_LENGTH];
+
+    if (_commRank == HEMI_A_LEAD)
+        sprintf(filename, "Sig_A_Round_%03d.txt", _iter);
+    else
+        sprintf(filename, "Sig_B_Round_%03d.txt", _iter);
+
+    FILE* file = fopen(filename, "w");
+
+    for (int i = 1; i <_r; i++)
+        fprintf(file,
+                "%05d   %10.6lf   %10.6lf\n",
+                i,
+                1.0 / resP2A(i, _para.size, _para.pixelSize),
+                _sig(0, i));
+
+    fclose(file);
+}
+
+void MLOptimiser::saveTau() const
+{
+    if ((_commRank != HEMI_A_LEAD) &&
+        (_commRank != HEMI_B_LEAD))
+        return;
+
+    char filename[FILE_NAME_LENGTH];
+
+    if (_commRank == HEMI_A_LEAD)
+        sprintf(filename, "Tau_A_Round_%03d.txt", _iter);
+    else if (_commRank == HEMI_B_LEAD)
+        sprintf(filename, "Tau_B_Round_%03d.txt", _iter);
+
+    FILE* file = fopen(filename, "w");
+
+    for (int i = 1; i < _model.rU() * _para.pf - 1; i++)
+        fprintf(file,
+                "%05d   %10.6lf   %10.6lf\n",
+                i,
+                1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
+                _model.tau(0)(i));
 
     fclose(file);
 }
