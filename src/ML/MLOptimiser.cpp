@@ -868,6 +868,10 @@ void MLOptimiser::run()
         {
             _model.refreshTau();
 
+            _model.refreshSig(_sig.row(0).head(_r));
+
+            _model.refreshRecoSigTau();
+            //_model.reco(0).setSig(_sig.row(0).head(_r));
             /***
             if (_iter == 0)
                 _model.resetTau(_sig.row(0).head(_model.rU() * _para.pf - 1));
@@ -2540,8 +2544,8 @@ void MLOptimiser::saveSig() const
 
     FILE* file = fopen(filename, "w");
 
-    //for (int i = 1; i <_r; i++)
-    for (int i = 1; i <_model.rU(); i++)
+    for (int i = 1; i <_r; i++)
+    //for (int i = 1; i <_model.rU(); i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
                 i,

@@ -267,6 +267,8 @@ class Reconstructor : public Parallel
 
         void setTau(const vec& tau);
 
+        void setSig(const vec& sig);
+
         /**
          * get the max radius that points can affect each other 
          * during interpolation         
@@ -311,7 +313,7 @@ class Reconstructor : public Parallel
          */
         void insert(const Image& src,
                     const Image& ctf,
-                    const vec& sig,
+                    //const vec& sig,
                     const mat33& rot,
                     const vec2& t,
                     const double w);
@@ -326,7 +328,7 @@ class Reconstructor : public Parallel
 
         void insertP(const Image& src,
                      const Image& ctf,
-                     const vec& sig,
+                     //const vec& sig,
                      const mat33& rot,
                      const vec2& t,
                      const double w);
@@ -345,7 +347,7 @@ class Reconstructor : public Parallel
          */
        void insert(const Image& src,
                    const Image& ctf,
-                   const vec& sig,
+                   //const vec& sig,
                    const Coordinate5D coord,
                    const double w);
 

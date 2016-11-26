@@ -97,6 +97,12 @@ class MLModel : public Parallel
         mat _tau;
 
         /**
+         * sig^2
+         * average power spectrum of noise
+         */
+        vec _sig;
+
+        /**
          * projectors
          */
         vector<Projector> _proj;
@@ -435,9 +441,13 @@ class MLModel : public Parallel
          */
         void refreshTau();
 
+        void refreshSig(const vec& sig);
+
+        /***
         void resetTau();
 
         void resetTau(const vec tau);
+        ***/
 
         /**
          * This function returns the tau^2 (power spectrum) of the i-th
@@ -507,6 +517,8 @@ class MLModel : public Parallel
          * respectively.
          */
         void refreshReco();
+
+        void refreshRecoSigTau();
 
         /** 
          * This function increases _r according to wether FSC is high than 0.2

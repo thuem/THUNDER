@@ -382,6 +382,12 @@ void MLModel::refreshTau()
     }
 }
 
+void MLModel::refreshSig(const vec& sig)
+{
+    _sig = sig;
+}
+
+/***
 void MLModel::resetTau()
 {
     _tau = mat::Constant(_tau.rows(), _tau.rows(), DBL_MAX);
@@ -392,6 +398,7 @@ void MLModel::resetTau(const vec tau)
     FOR_EACH_CLASS
         _tau.col(l) = tau;
 }
+***/
 
 vec MLModel::tau(const int i) const
 {
@@ -465,9 +472,17 @@ void MLModel::refreshReco()
                        _alpha);
 
         _reco[l]->setFSC(_FSC.col(l));
-        _reco[l]->setTau(_tau.col(l));
 
         _reco[l]->setMaxRadius(_rU);
+    }
+}
+
+void MLModel::refreshRecoSigTau()
+{
+    FOR_EACH_CLASS
+    {
+        _reco[l]->setTau(_tau.col(l));
+        _reco[l]->setSig(_sig);
     }
 }
 

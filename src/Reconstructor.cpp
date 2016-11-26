@@ -30,7 +30,7 @@ void Reconstructor::init(const int size,
     _rot.clear();
     _w.clear();
     _ctf.clear();
-    _sig.clear();
+    //_sig.clear();
 
     _iCol = NULL;
     _iRow = NULL;
@@ -268,7 +268,7 @@ void Reconstructor::insertP(const Image& src,
 
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
-                           const vec& sig,
+                           //const vec& sig,
                            const Coordinate5D coord,
                            const double w)
 {
@@ -277,7 +277,7 @@ void Reconstructor::insert(const Image& src,
 
     vec2 t = {(double)coord.x, (double)coord.y};
 
-    insert(src, ctf, sig, rot, t, w);
+    insert(src, ctf, rot, t, w);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
