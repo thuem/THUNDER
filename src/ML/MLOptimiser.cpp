@@ -868,8 +868,10 @@ void MLOptimiser::run()
         {
             _model.refreshTau();
 
+            /***
             if (_iter == 0)
                 _model.resetTau(_sig.row(0).head(_model.rU() * _para.pf - 1));
+                ***/
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
@@ -2050,7 +2052,7 @@ void MLOptimiser::reconstructRef(const bool mask)
         _model.reco(0).insertP(_img[l],
                                _ctf[l],
                                //_sig.row(_groupID[l] - 1).head(_r),
-                               _sig.row(_groupID[l] - 1).head(_model.rU()),
+                               //_sig.row(_groupID[l] - 1).head(_model.rU()),
                                rot,
                                tran,
                                1);

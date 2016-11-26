@@ -148,7 +148,7 @@ class Reconstructor : public Parallel
 
         vector<const Image*> _ctf;
 
-        vector<vec> _sig;
+        //vector<vec> _sig;
 
         //vector<const double*> _ctfP;
 
@@ -191,7 +191,8 @@ class Reconstructor : public Parallel
 
         vec _FSC = vec::Constant(1, 1);
 
-        //vec _sig = vec::Zero(1);
+        vec _sig = vec::Zero(1);
+
         vec _tau = vec::Constant(1, 1);
 
         /**
