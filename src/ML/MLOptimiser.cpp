@@ -867,6 +867,9 @@ void MLOptimiser::run()
         NT_MASTER
         {
             _model.refreshTau();
+
+            if (_iter == 0)
+                _model.resetTau();
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";

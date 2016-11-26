@@ -35,7 +35,7 @@ void MLModel::init(const int k,
     _sym = sym;
 
     _FSC = mat::Constant(1, _k, 1);
-    _tau = mat::Constant(1, _k, 1);
+    _tau = mat::Constant(1, _k, DBL_MAX);
 }
 
 void MLModel::initProjReco()
@@ -380,6 +380,14 @@ void MLModel::refreshTau()
         powerSpectrum(ps, _ref[l], _rU * _pf - 1);
         _tau.col(l) = ps / 2;
     }
+}
+
+void MLModel::resetTau()
+{
+    int n = _tau.rows();
+    int m = _tau.cols();
+
+    _tau = mat::Constant(n, m, DBL_MAX);
 }
 
 vec MLModel::tau(const int i) const
