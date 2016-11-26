@@ -477,12 +477,14 @@ void MLModel::refreshReco()
     }
 }
 
-void MLModel::refreshRecoSigTau()
+void MLModel::refreshRecoSigTau(const int rSig,
+                                const int rTau)
 {
     FOR_EACH_CLASS
     {
-        _reco[l]->setTau(_tau.col(l));
-        _reco[l]->setSig(_sig);
+        _reco[l]->setSig(_sig.head(rSig));
+
+        _reco[l]->setTau(_tau.col(l).head(rTau * _pf - 1));
     }
 }
 
