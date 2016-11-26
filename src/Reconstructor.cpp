@@ -246,6 +246,7 @@ void Reconstructor::insertP(const Image& src,
         
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
+                   * sigRcp
                    * w,
                      oldCor(0), 
                      oldCor(1), 
