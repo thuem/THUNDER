@@ -869,7 +869,7 @@ void MLOptimiser::run()
             _model.refreshTau();
 
             if (_iter == 0)
-                _model.resetTau();
+                _model.resetTau(_sig.row(0).head(_model.rU() * _para.pf - 1));
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";

@@ -437,6 +437,8 @@ class MLModel : public Parallel
 
         void resetTau();
 
+        void resetTau(const vec tau);
+
         /**
          * This function returns the tau^2 (power spectrum) of the i-th
          * reference.

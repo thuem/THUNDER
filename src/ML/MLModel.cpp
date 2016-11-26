@@ -384,10 +384,13 @@ void MLModel::refreshTau()
 
 void MLModel::resetTau()
 {
-    int n = _tau.rows();
-    int m = _tau.cols();
+    _tau = mat::Constant(_tau.rows(), _tau.rows(), DBL_MAX);
+}
 
-    _tau = mat::Constant(n, m, DBL_MAX);
+void MLModel::resetTau(const vec tau)
+{
+    FOR_EACH_CLASS
+        _tau.col(l) = tau;
 }
 
 vec MLModel::tau(const int i) const
