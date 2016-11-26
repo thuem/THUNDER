@@ -148,6 +148,8 @@ class Reconstructor : public Parallel
 
         vector<const Image*> _ctf;
 
+        vector<vec> _sig;
+
         //vector<const double*> _ctfP;
 
         int _nPxl;
@@ -188,6 +190,9 @@ class Reconstructor : public Parallel
         const Symmetry* _sym = NULL;
 
         vec _FSC = vec::Constant(1, 1);
+
+        //vec _sig = vec::Zero(1);
+        vec _tau = vec::Constant(1, 1);
 
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
@@ -257,7 +262,9 @@ class Reconstructor : public Parallel
          */
         void setSymmetry(const Symmetry* sym);
 
-        void setFSC(const vec FSC);
+        void setFSC(const vec& FSC);
+
+        void setTau(const vec& tau);
 
         /**
          * get the max radius that points can affect each other 
@@ -303,6 +310,7 @@ class Reconstructor : public Parallel
          */
         void insert(const Image& src,
                     const Image& ctf,
+                    const vec& sig,
                     const mat33& rot,
                     const vec2& t,
                     const double w);
@@ -317,6 +325,7 @@ class Reconstructor : public Parallel
 
         void insertP(const Image& src,
                      const Image& ctf,
+                     const vec& sig,
                      const mat33& rot,
                      const vec2& t,
                      const double w);
@@ -335,6 +344,7 @@ class Reconstructor : public Parallel
          */
        void insert(const Image& src,
                    const Image& ctf,
+                   const vec& sig,
                    const Coordinate5D coord,
                    const double w);
 

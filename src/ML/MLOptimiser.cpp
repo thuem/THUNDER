@@ -2041,7 +2041,13 @@ void MLOptimiser::reconstructRef(const bool mask)
         
         _par[l].rank1st(rot, tran);
 
-        _model.reco(0).insertP(_img[l], _ctf[l], rot, tran, 1);
+        _model.reco(0).insertP(_img[l],
+                               _ctf[l],
+                               _sig.row(_groupID[l] - 1).head(_r),
+                               rot,
+                               tran,
+                               1);
+            //_sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
         //_model.reco(0).insert(_datP[l], _ctfP[l], rot, tran, 1);
     }
 

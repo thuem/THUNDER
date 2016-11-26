@@ -53,6 +53,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    /***
     loggerInit(argc, argv);
 
     MPI_Init(&argc, &argv);
@@ -328,18 +329,6 @@ int main(int argc, char* argv[])
 
             par.coord(coord, i);
 
-            /***
-            if (i % 4 == 0)
-                reduceCTF(insert, insert, ctf1);
-            else if (i % 4 == 1)
-                reduceCTF(insert, insert, ctf2);
-            else if (i % 4 == 2)
-                reduceCTF(insert, insert, ctf3);
-            else
-                reduceCTF(insert, insert, ctf4);
-            reco.insert(insert, coord, 1);
-            ***/
-
             if (i % 8 == 0)
                 reco.insert(insert, ctf1, coord, 1);
             else if (i % 8 == 1)
@@ -522,4 +511,5 @@ int main(int argc, char* argv[])
     }
     
     return 0;
+    ***/
 }

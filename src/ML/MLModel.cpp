@@ -35,6 +35,7 @@ void MLModel::init(const int k,
     _sym = sym;
 
     _FSC = mat::Constant(1, _k, 1);
+    _tau = mat::Constant(1, _k, 1);
 }
 
 void MLModel::initProjReco()
@@ -371,12 +372,12 @@ void MLModel::refreshSNR()
 
 void MLModel::refreshTau()
 {
-    _tau.resize(_size * _pf / 2 - 1, _k);
+    _tau.resize(_rU * _pf / 2 - 1, _k);
 
     FOR_EACH_CLASS
     {
-        vec ps(_size * _pf / 2 - 1);
-        powerSpectrum(ps, _ref[l], _size * _pf / 2 - 1);
+        vec ps(_rU * _pf / 2 - 1);
+        powerSpectrum(ps, _ref[l], _rU * _pf / 2 - 1);
         _tau.col(l) = ps / 2;
     }
 }
@@ -453,6 +454,7 @@ void MLModel::refreshReco()
                        _alpha);
 
         _reco[l]->setFSC(_FSC.col(l));
+        _reco[l]->setTau(_tau.col(l));
 
         _reco[l]->setMaxRadius(_rU);
     }
