@@ -868,7 +868,7 @@ void MLOptimiser::run()
         {
             _model.refreshTau();
 
-            _model.refreshSig(_sig.row(0).head(_r));
+            _model.refreshSig(_sig.row(_groupID[0] - 1).head(_r));
 
             _model.refreshRecoSigTau();
             //_model.reco(0).setSig(_sig.row(0).head(_r));
@@ -2550,7 +2550,7 @@ void MLOptimiser::saveSig() const
                 "%05d   %10.6lf   %10.6lf\n",
                 i,
                 1.0 / resP2A(i, _para.size, _para.pixelSize),
-                _sig(0, i));
+                _sig(_groupID[0] - 1, i));
 
     fclose(file);
 }
