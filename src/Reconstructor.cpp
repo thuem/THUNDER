@@ -34,6 +34,7 @@ void Reconstructor::init(const int size,
     _iCol = NULL;
     _iRow = NULL;
     _iPxl = NULL;
+    _iSig = NULL;
 
     _calMode = POST_CAL_MODE;
 
