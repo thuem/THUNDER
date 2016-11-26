@@ -372,12 +372,12 @@ void MLModel::refreshSNR()
 
 void MLModel::refreshTau()
 {
-    _tau.resize(_rU * _pf / 2 - 1, _k);
+    _tau.resize(_rU * _pf - 1, _k);
 
     FOR_EACH_CLASS
     {
-        vec ps(_rU * _pf / 2 - 1);
-        powerSpectrum(ps, _ref[l], _rU * _pf / 2 - 1);
+        vec ps(_rU * _pf - 1);
+        powerSpectrum(ps, _ref[l], _rU * _pf - 1);
         _tau.col(l) = ps / 2;
     }
 }
