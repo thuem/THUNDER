@@ -2046,7 +2046,8 @@ void MLOptimiser::reconstructRef(const bool mask)
 
         _model.reco(0).insertP(_img[l],
                                _ctf[l],
-                               _sig.row(_groupID[l] - 1).head(_r),
+                               //_sig.row(_groupID[l] - 1).head(_r),
+                               _sig.row(_groupID[l] - 1).head(_model.rU()),
                                rot,
                                tran,
                                1);
@@ -2534,7 +2535,8 @@ void MLOptimiser::saveSig() const
 
     FILE* file = fopen(filename, "w");
 
-    for (int i = 1; i <_r; i++)
+    //for (int i = 1; i <_r; i++)
+    for (int i = 1; i <_model.rU(); i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
                 i,
