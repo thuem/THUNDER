@@ -284,12 +284,14 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    allReduceT();
+    //allReduceT();
 
     for (int i = 0; i < N_ITER_BALANCE; i++)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
+
+        allReduceT();
 
         allReduceW();
     }
@@ -486,6 +488,8 @@ void Reconstructor::allReduceT()
     }
     ***/
 
+    SET_0_FT(_T);
+
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_T)
     {
@@ -505,6 +509,13 @@ void Reconstructor::allReduceT()
         //_T.setFTHalf(COMPLEX((1 - fsc) / fsc, 0), i, j, k);
         //_T.setFTHalf(COMPLEX(tauRcp, 0), i, j, k);
         _T.setFTHalf(COMPLEX(sig / tau, 0), i, j, k);
+
+        _T.addFT(sig / tau * REAL(_W.getFTHalf(i, j, k)),
+                 i,
+                 j,
+                 k,
+                 _pf * _a,
+                 _kernel);
     }
 }
 
@@ -635,7 +646,12 @@ void Reconstructor::allReduceW()
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
+        _C[i] += _T[i];
+    /***
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_FT(_C)
         _C[i] += _W[i] * _T[i];
+        ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
