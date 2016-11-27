@@ -508,7 +508,7 @@ void Reconstructor::allReduceT()
 
         //_T.setFTHalf(COMPLEX((1 - fsc) / fsc, 0), i, j, k);
         //_T.setFTHalf(COMPLEX(tauRcp, 0), i, j, k);
-        _T.setFTHalf(COMPLEX(sig / tau, 0), i, j, k);
+        //_T.setFTHalf(COMPLEX(sig / tau, 0), i, j, k);
 
         _T.addFT(sig / tau * REAL(_W.getFTHalf(i, j, k)),
                  i,
