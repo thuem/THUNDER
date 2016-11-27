@@ -488,6 +488,7 @@ void Reconstructor::allReduceT()
     }
     ***/
 
+    #pragma omp parallel for
     SET_0_FT(_T);
 
     #pragma omp parallel for
@@ -521,6 +522,7 @@ void Reconstructor::allReduceT()
 
 void Reconstructor::allReduceW()
 {
+    #pragma omp parallel for
     SET_0_FT(_C);
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating C";
