@@ -880,7 +880,8 @@ void MLOptimiser::run()
             _model.refreshSig(_sig.row(_groupID[0] - 1));
 
             //_model.refreshRecoSigTau(_model.rPrev(), _model.rUPrev());
-            _model.refreshRecoSigTau(_r, _model.rU());
+            //_model.refreshRecoSigTau(_r, _model.rU());
+            _model.refreshRecoSigTau(maxR(), _model.rU());
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
@@ -2551,8 +2552,9 @@ void MLOptimiser::saveSig() const
 
     FILE* file = fopen(filename, "w");
 
-    for (int i = 1; i <_r; i++)
-    //for (int i = 1; i <_model.rU(); i++)
+    for (int i = 1; i < maxR(); i++)
+    //for (int i = 1; i < _r; i++)
+    //for (int i = 1; i < _model.rU(); i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
                 i,
@@ -2577,8 +2579,9 @@ void MLOptimiser::saveTau() const
 
     FILE* file = fopen(filename, "w");
 
-    for (int i = 1; i < _model.rU() * _para.pf - 1; i++)
+    //for (int i = 1; i < _model.rU() * _para.pf - 1; i++)
     //for (int i = 1; i < _r * _para.pf - 1; i++)
+    for (int i = 1; i < maxR() * _para.pf - 1; i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
                 i,

@@ -381,12 +381,23 @@ void MLModel::refreshSNR()
 
 void MLModel::refreshTau()
 {
+    /***
     _tau.resize(_rU * _pf - 1, _k);
 
     FOR_EACH_CLASS
     {
         vec ps(_rU * _pf - 1);
         powerSpectrum(ps, _ref[l], _rU * _pf - 1);
+        _tau.col(l) = ps / 2;
+    }
+    ***/
+
+    _tau.resize(maxR() * _pf - 1, _k);
+
+    FOR_EACH_CLASS
+    {
+        vec ps(maxR() * _pf - 1);
+        powerSpectrum(ps, _ref[l], maxR() * _pf - 1);
         _tau.col(l) = ps / 2;
     }
 }
