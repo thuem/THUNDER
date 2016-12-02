@@ -291,7 +291,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
 
-        allReduceT();
+        //allReduceT();
 
         allReduceW();
     }
@@ -651,12 +651,14 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
+        ***/
     /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
@@ -674,17 +676,6 @@ void Reconstructor::allReduceW()
     }
     ***/
 
-    //double cThres = MKB_FT(sqrt(3) / 2, _pf * _a, _alpha);
-    //double cThres = 0.2;
-    //double cThres = 0.5;
-    double cThres = 1;
-    //double cThres = MKB_FT(1, _pf * _a, _alpha);
-    /***
-    double cThres = MKB_FT(_pf * _a * 0.2,
-                           _pf * _a,
-                           _alpha);
-                           ***/
-
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         //if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a) * _pf))
@@ -692,11 +683,12 @@ void Reconstructor::allReduceW()
         {
             double c = REAL(_C.getFTHalf(i, j, k));
 
+            /***
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
-            /***
+                             ***/
             if (c >= cThres)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
@@ -704,21 +696,6 @@ void Reconstructor::allReduceW()
                              j,
                              k);
             }
-            ***/
-            /***
-            else if (c == 0)
-                _W.setFTHalf(COMPLEX(0, 0), i, j, k);
-            ***/
-            /***
-            else
-            {
-                //_W.setFTHalf(COMPLEX(0, 0), i, j, k);
-                _W.setFTHalf(2 * c * _W.getFTHalf(i, j, k) / (1 + gsl_pow_2(c)),
-                             i,
-                             j,
-                             k);
-            }
-            ***/
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
