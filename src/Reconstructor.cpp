@@ -689,7 +689,7 @@ void Reconstructor::allReduceW()
                              j,
                              k);
                              ***/
-            if (c >= cThres)
+            if (c > 1)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
