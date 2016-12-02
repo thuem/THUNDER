@@ -504,7 +504,9 @@ void MLModel::refreshRecoSigTau(const int rSig,
     {
         _reco[l]->setSig(_sig.head(rSig));
 
-        _reco[l]->setTau(_tau.col(l).head(rTau * _pf - 1));
+        //_reco[l]->setTau(_tau.col(l).head(rTau * _pf - 1));
+        // the last value of _tau can be inaccurate
+        _reco[l]->setTau(_tau.col(l).head((rTau - 1) * _pf));
     }
 }
 
