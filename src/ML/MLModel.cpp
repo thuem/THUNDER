@@ -105,6 +105,8 @@ int MLModel::r() const
 
 void MLModel::setR(const int r)
 {
+    _rPrev = _r;
+
     _r = r;
 
     updateRU();
@@ -117,12 +119,19 @@ int MLModel::rU() const
 
 void MLModel::setRU(const int rU)
 {
+    _rUPrev = _rU;
+
     _rU = rU;
 }
 
 int MLModel::rPrev() const
 {
     return _rPrev;
+}
+
+int MLModel::rUPrev() const
+{
+    return _rUPrev;
 }
 
 int MLModel::rT() const
@@ -848,6 +857,8 @@ void MLModel::sharpenUp(const double bFactor,
 
 void MLModel::updateRU()
 {
+    _rUPrev = _rU;
+
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
                      ? AROUND((double)_rGlobal / 4)

@@ -125,32 +125,34 @@ class MLModel : public Parallel
         /**
          * frequency before padding (in pixel)
          */
-        int _r = 0;
+        int _r = 1;
 
         /**
          * frequency for reconstruction and calculating FSC, SNR 
          */
-        int _rU = 0;
+        int _rU = 1;
 
         /**
          * frequency of the previous iteration
          */
-        int _rPrev = 0;
+        int _rPrev = 1;
+
+        int _rUPrev = 1;
 
         /**
          * the top frequency ever reached
          */
-        int _rT = 0;
+        int _rT = 1;
 
         /*
          * resolution before padding (in pixel)
          */
-        int _res = 0;
+        int _res = 1;
 
         /**
          * the top resolution ever reached
          */
-        int _resT = 0;
+        int _resT = 1;
 
         /**
          * padding factor
@@ -339,6 +341,8 @@ class MLModel : public Parallel
          * previous iteration.
          */
         int rPrev() const;
+
+        int rUPrev() const;
 
         /**
          * This function returns the highest frequency ever reached.
