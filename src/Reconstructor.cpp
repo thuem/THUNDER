@@ -291,7 +291,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
 
-        //allReduceT();
+        allReduceT();
 
         allReduceW();
     }
@@ -651,14 +651,12 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
-        ***/
     /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
