@@ -492,8 +492,10 @@ void Reconstructor::allReduceT()
     SET_0_FT(_T);
 
     #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
+    VOLUME_FOR_PIXEL_R_FT(CEIL((_maxRadius + _a) * _pf))
     {
+        if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a) * _pf))
+        {
         int u = AROUND(NORM_3(i, j, k));
 
         //double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(u);
@@ -517,6 +519,7 @@ void Reconstructor::allReduceT()
                  k,
                  _pf * _a,
                  _kernel);
+        }
     }
 }
 
