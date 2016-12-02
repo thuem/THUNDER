@@ -491,8 +491,9 @@ void Reconstructor::allReduceT()
     #pragma omp parallel for
     SET_0_FT(_T);
 
+    //VOLUME_FOR_PIXEL_R_FT(CEIL((_maxRadius + _a) * _pf))
     #pragma omp parallel for
-    VOLUME_FOR_PIXEL_R_FT(CEIL((_maxRadius + _a) * _pf))
+    VOLUME_FOR_EACH_PIXEL_FT(_T)
     {
         if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a) * _pf))
         {
@@ -682,7 +683,7 @@ void Reconstructor::allReduceW()
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
-        if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a)* _pf))
+        if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a) * _pf))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
 
