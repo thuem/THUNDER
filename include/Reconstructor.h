@@ -10,7 +10,7 @@
 #define RECONSTRUCTOR_H
 
 #include <utility>
-#include <vector>
+
 #include <functional>
 
 #include <mpi.h>

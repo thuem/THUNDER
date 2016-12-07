@@ -13,7 +13,7 @@
 #include <string>
 #include <cstring>
 #include <sys/stat.h>
-#include <vector>
+
 #include <cerrno>
 #include <cstdio>
 

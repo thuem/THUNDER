@@ -12,7 +12,7 @@
 #define IMAGE_FUNCTIONS_H
 
 #include <cmath>
-#include <vector>
+
 #include <iostream>
 
 #ifdef _OPENMP

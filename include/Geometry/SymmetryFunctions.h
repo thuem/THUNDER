@@ -12,7 +12,7 @@
 #define SYMMETRY_FUNCTIONS_H
 
 #include <cstdlib>
-#include <vector>
+
 
 #include "Macro.h"
 #include "Typedef.h"
