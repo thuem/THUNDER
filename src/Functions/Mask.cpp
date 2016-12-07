@@ -293,7 +293,7 @@ void extMask(Volume& vol,
 {
     Volume volTmp = vol.copyVolume();
 
-    int a = CEIL(abs(ext));
+    int a = CEIL(std::abs(ext));
 
     if (ext > 0)
     {

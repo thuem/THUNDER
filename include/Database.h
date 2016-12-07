@@ -58,7 +58,7 @@ inline int READ_FILE(const char* filename, void* buf)
     return size;
  }
 
-using namespace std;
+
 
 enum Table
 {

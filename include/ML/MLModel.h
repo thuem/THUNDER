@@ -54,7 +54,7 @@
 
 #define INTERP_TYPE_LOCAL LINEAR_INTERP
 
-using namespace std;
+
 
 class MLModel : public Parallel
 {

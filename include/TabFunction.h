@@ -10,14 +10,14 @@
 #define TAB_FUNCTION_H
 
 #include <cmath>
-#include <functional>
 
 #include <boost/move/make_unique.hpp>
+#include <boost/function.hpp>
 
 #include "Macro.h"
 #include "Functions.h"
 
-using namespace std;
+using boost::function;
 
 class TabFunction
 {

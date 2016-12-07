@@ -1,3 +1,4 @@
+.DS_Store
 *.h.swp
 *.o
 *.exe

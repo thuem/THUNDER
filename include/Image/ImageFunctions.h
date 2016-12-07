@@ -27,7 +27,7 @@
 #include "Image.h"
 #include "Volume.h"
 
-using namespace std;
+
 
 /**
  * This macro extracts the centre block out of a volume in real space.

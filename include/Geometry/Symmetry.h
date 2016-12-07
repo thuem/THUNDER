@@ -25,7 +25,7 @@
 #include "SymmetryOperation.h"
 #include "SymmetryFunctions.h"
 
-using namespace std;
+
 
 /**
  * Maximum ID Length of Symmetry

@@ -26,7 +26,7 @@
 
 #include "Parallel.h"
 
-using namespace std;
+
 
 typedef struct X_Y
 {

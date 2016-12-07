@@ -20,7 +20,7 @@
 #include "Typedef.h"
 #include "Random.h"
 
-using namespace std;
+
 
 /**
  * Probabilty Density Function of Angular Central Gaussian Distribution

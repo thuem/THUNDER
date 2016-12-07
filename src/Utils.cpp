@@ -6,7 +6,6 @@
 
 namespace {
 class Regex {
-    DISABLE_COPY_MOVE(Regex);
 private:
     regex_t regex;
 

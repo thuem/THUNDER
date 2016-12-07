@@ -74,7 +74,7 @@
         _logW.array() = exp(_logW.array()); \
     }(logW)
 
-using namespace std;
+
 
 typedef struct ML_OPTIMISER_PARA
 {

@@ -49,7 +49,7 @@ void Experiment::add_column(const char* table, const char* column, const char* a
     _db.exec(cmd);
 }
 
-void Experiment::get_id(std::vector<int>& dst, const char* table, const char* column, int value)
+void Experiment::get_id(vector<int>& dst, const char* table, const char* column, int value)
 {
     dst.clear();
     char cmd[128];

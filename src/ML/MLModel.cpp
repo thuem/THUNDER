@@ -49,7 +49,7 @@ void MLModel::initProjReco()
         ALOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << l;
         BLOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << l;
 
-        _reco.push_back(unique_ptr<Reconstructor>(new Reconstructor()));
+        _reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
     ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";

@@ -17,7 +17,7 @@
 
 #include "Macro.h"
 
-using namespace std;
+
 
 // Compatibility settings for
 namespace el = easyloggingpp;
@@ -59,6 +59,7 @@ inline void loggerInit()
 
 inline void loggerInit(int argc, char* argv[])
 {
+    using std::string;
     string loggername;
 
     char buf[FILE_NAME_LENGTH];

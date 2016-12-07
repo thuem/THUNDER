@@ -29,7 +29,7 @@
 #include "Transformation.h"
 #include "TabFunction.h"
 
-using namespace std;
+
 using namespace placeholders;
 
 #define PAD_SIZE (_pf * _size)
