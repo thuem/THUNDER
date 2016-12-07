@@ -3,11 +3,15 @@
 #include <sqlite3.h>
 #include <stddef.h>
 #include <exception>
-#include <memory>
 #include <string>
+#include <cstddef>
+#include <algorithm>
+
+#include <boost/move/core.hpp>
 
 namespace sql {
-class Exception : public std::exception {
+class Exception : public std::exception
+{
 private:
     char description[128];
     int code;
@@ -16,30 +20,53 @@ public:
     explicit Exception(int code);
     explicit Exception(int code, const char* msg);
     explicit Exception(sqlite3* db);
-    int getCode() const noexcept
+    int getCode() const
     {
         return code;
     }
-    const char* what() const noexcept override
+    const char* what() const throw()
     {
         return description;
     }
+    ~Exception() throw() {}
 };
 
-class DB {
+class DB
+{
 private:
-    std::shared_ptr<sqlite3> handle;
+    struct InternalHandle
+    {
+        sqlite3* sqlDB;
+        ptrdiff_t refcount;
+    };
+    InternalHandle* handle;
 
 public:
-    explicit DB()
+    explicit DB() : handle(NULL)
     {
     }
     explicit DB(const char* path, int flags);
-    ~DB();
-    DB(const DB&) = default;
-    DB(DB&&) = default;
-    DB& operator=(const DB&) = default;
-    DB& operator=(DB&&) = default;
+    ~DB() { clear(); }
+    void clear();
+    DB(const DB& other) : handle(other.handle)
+    {
+        if (handle)
+            ++handle->refcount;
+    }
+    DB& operator=(const DB& other)
+    {
+        if (this == &other || this->handle == other.handle)
+            return *this;
+        clear();
+        handle = other.handle;
+        if (handle)
+            ++handle->refcount;
+        return *this;
+    }
+    void swap(DB& other)
+    {
+        std::swap(handle, other.handle);
+    }
     void exec(const char* cmd);
     void beginTransaction()
     {
@@ -53,44 +80,60 @@ public:
     {
         exec("rollback transaction");
     }
-    sqlite3* getNativeHandle() noexcept
+    sqlite3* getNativeHandle()
     {
-        return handle.get();
+        return handle == NULL ? NULL : handle->sqlDB;
     }
     bool empty() const
     {
-        return !handle;
+        return handle == NULL || handle->sqlDB == NULL;
     }
 };
 
-class Statement {
+class Statement
+{
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(Statement)
 private:
     DB db;
-    std::unique_ptr<sqlite3_stmt, decltype(&sqlite3_finalize)> stmt;
+    sqlite3_stmt* stmt;
 
     void check(int code);
 
 public:
     explicit Statement()
-        : stmt(nullptr, &sqlite3_finalize)
+        : stmt(nullptr)
     {
     }
-    explicit Statement(const char* command, int nByte, DB db);
+    explicit Statement(const char* command, int nByte, DB& db);
     ~Statement();
-    Statement(Statement&&) = default;
-    Statement& operator=(Statement&&) = default;
+
+    Statement(BOOST_RV_REF(Statement) other) : db(other.db), stmt(other.stmt)
+    {
+        other.db.clear();
+        other.stmt = NULL;
+    }
+
+    Statement&operator=(BOOST_RV_REF(Statement) other)
+    {
+        if (this == &other)
+            return *this;
+        db.swap(other.db);
+        std::swap(stmt, other.stmt);
+        return *this;
+    }
+
     bool empty()
     {
         return !stmt;
     }
     void reset()
     {
-        sqlite3_reset(stmt.get());
+        sqlite3_reset(stmt);
     }
     bool step();
-    sqlite3_stmt* getNativeHandle() noexcept
+    sqlite3_stmt* getNativeHandle()
     {
-        return stmt.get();
+        return stmt;
     }
     void bind_null(int index)
     {

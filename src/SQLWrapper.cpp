@@ -35,18 +35,27 @@ DB::DB(const char* path, int flags)
     int rc = sqlite3_open_v2(path, &db, flags, nullptr);
     if (rc != SQLITE_OK)
         throw Exception(rc);
-    handle.reset(db, &sqlite3_close);
+    handle = new InternalHandle;
+    handle->sqlDB = db;
+    handle->refcount = 1;
 }
 
-DB::~DB()
+void DB::clear()
 {
+    if (!handle)
+        return;
+    if (--handle->refcount <= 0)
+    {
+        sqlite3_close(handle->sqlDB);
+        delete handle;
+    }
 }
 
 void DB::exec(const char* cmd)
 {
-    int rc = sqlite3_exec(handle.get(), cmd, nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(getNativeHandle(), cmd, nullptr, nullptr, nullptr);
     if (!isOK(rc))
-        throw Exception(handle.get());
+        throw Exception(getNativeHandle());
 }
 
 void Statement::check(int rc)
@@ -54,21 +63,21 @@ void Statement::check(int rc)
     if (!isOK(rc))
         throw Exception(db.getNativeHandle());
 }
-Statement::Statement(const char* command, int nByte, DB _db)
-    : db(std::move(_db))
-    , stmt(nullptr, &sqlite3_finalize)
+Statement::Statement(const char* command, int nByte, DB& _db)
+    : db(_db)
+    , stmt(nullptr)
 {
-    sqlite3_stmt* tmp = nullptr;
-    int rc = sqlite3_prepare_v2(db.getNativeHandle(), command, nByte, &tmp, nullptr);
+    int rc = sqlite3_prepare_v2(db.getNativeHandle(), command, nByte, &stmt, nullptr);
     check(rc);
-    stmt.reset(tmp);
 }
 Statement::~Statement()
 {
+    if (stmt)
+        sqlite3_finalize(stmt);
 }
 bool Statement::step()
 {
-    int rc = sqlite3_step(stmt.get());
+    int rc = sqlite3_step(stmt);
     if (rc == SQLITE_OK || rc == SQLITE_DONE)
         return false;
     if (rc == SQLITE_ROW)

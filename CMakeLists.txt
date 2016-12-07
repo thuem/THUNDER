@@ -3,7 +3,7 @@ project(thuem)
 
 set (CMAKE_C_FLAGS "-Wall -Wno-deprecated-declarations -Wsign-compare")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
+set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -ansi")
 set (CMAKE_BUILD_TYPE Release)
 
 option (SANITIZE "Turn on sanitization" OFF)
