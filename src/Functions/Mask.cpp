@@ -285,7 +285,7 @@ void removeIsolatedPoint(Volume& vol)
             if (isolated) volTmp.setRL(0, i, j, k);
         }
 
-    vol = move(volTmp);
+    vol.swap(volTmp);
 }
 
 void extMask(Volume& vol,
@@ -314,7 +314,7 @@ void extMask(Volume& vol,
                         volTmp.setRL(0, i + x, j + y, k + z);
     }
 
-    vol = move(volTmp);
+    vol.swap(volTmp);
 }
 
 void softEdge(Volume& vol,

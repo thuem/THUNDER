@@ -14,10 +14,14 @@
 #include <functional>
 #include <cstring>
 #include <cstdio>
+#include <algorithm>
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
+
+#include <boost/move/core.hpp>
+#include <boost/move/make_unique.hpp>
 
 #include "Complex.h"
 #include "Typedef.h"
@@ -173,13 +177,13 @@ using namespace std;
 
 class ImageBase
 {
-    MAKE_DEFAULT_MOVE(ImageBase)
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(ImageBase)
 
     protected:
 
-        unique_ptr<double[]> _dataRL;
+        boost::movelib::unique_ptr<double[]> _dataRL;
 
-        unique_ptr<Complex[]> _dataFT;
+        boost::movelib::unique_ptr<Complex[]> _dataFT;
 
         size_t _sizeRL = 0;
 
@@ -190,6 +194,24 @@ class ImageBase
         ~ImageBase();
 
     public:
+
+        ImageBase(BOOST_RV_REF(ImageBase) other):
+                _dataRL(boost::move(other._dataRL)),
+                _dataFT(boost::move(other._dataFT)),
+                _sizeRL(other._sizeRL),
+                _sizeFT(other._sizeFT)
+        {
+            other._sizeRL = 0;
+            other._sizeFT = 0;
+        }
+
+        void swap(ImageBase& other)
+        {
+            _dataRL.swap(other._dataRL);
+            _dataFT.swap(other._dataFT);
+            std::swap(_sizeRL, other._sizeRL);
+            std::swap(_sizeFT, other._sizeFT);
+        }
 
         /**
          * return a const pointer which points to the i-th element in real space
@@ -241,7 +263,7 @@ class ImageBase
          * return the number of pixels in Fourier space
          */
         size_t sizeFT() const;
-        
+
         /**
          * free the allocated space both in real space and Fouier space
          */

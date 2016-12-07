@@ -10,7 +10,7 @@
 
 #include "Volume.h"
 
-Volume::Volume() {}
+Volume::Volume() : _nCol(0), _nRow(0), _nSlc(0) {}
 
 Volume::Volume(const int nCol,
                const int nRow,

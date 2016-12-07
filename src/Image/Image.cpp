@@ -10,7 +10,7 @@
 
 #include "Image.h"
 
-Image::Image() {}
+Image::Image() : _nCol(0), _nRow(0) {}
 
 Image::~Image() {}
 

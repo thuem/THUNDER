@@ -163,7 +163,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Copying F";
     BLOG(INFO, "LOGGER_RECO") << "Copying F";
 
-    dst = _F.copyVolume();
+    _F.copyVolume().swap(dst);
 
     MPI_Barrier(_hemi);
 

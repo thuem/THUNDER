@@ -56,7 +56,7 @@ const Volume& Projector::projectee() const
 
 void Projector::setProjectee(Volume src)
 {
-    _projectee = std::move(src);
+    _projectee.swap(src);
 
     // make sure the scale correct
     // SCALE_FT(_projectee, 1.0 / _pf);
