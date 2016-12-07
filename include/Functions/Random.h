@@ -25,7 +25,7 @@
 
 #include "Logging.h"
 
-using namespace std;
+
 
 gsl_rng* get_random_engine();
 

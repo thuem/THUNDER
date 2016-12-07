@@ -10,6 +10,9 @@
 
 #include "Symmetry.h"
 
+using std::cout;
+using std::endl;
+
 Symmetry::Symmetry() {}
 
 Symmetry::Symmetry(const char sym[])
@@ -346,7 +349,7 @@ void symmetryCounterpart(double& ex,
                          double& ez,
                          const Symmetry& sym)
 {
-    vec3 dir = {ex, ey, ez};
+    vec3 dir(ex, ey, ez);
     if (asymmetryUnit(dir, sym)) return;
 
     mat33 L, R;

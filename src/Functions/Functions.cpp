@@ -10,11 +10,13 @@
 
 #include "Functions.h"
 
+using std::sort;
+
 vec cumsum(const vec& v)
 {
     vec sum(v.size());
 
-    partial_sum(v.data(), v.data() + v.size(), sum.data());
+    std::partial_sum(v.data(), v.data() + v.size(), sum.data());
 
     return sum;
 }

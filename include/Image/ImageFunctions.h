@@ -12,7 +12,7 @@
 #define IMAGE_FUNCTIONS_H
 
 #include <cmath>
-#include <vector>
+
 #include <iostream>
 
 #ifdef _OPENMP
@@ -27,7 +27,7 @@
 #include "Image.h"
 #include "Volume.h"
 
-using namespace std;
+
 
 /**
  * This macro extracts the centre block out of a volume in real space.
@@ -309,14 +309,14 @@ inline void SLC_REPLACE_FT(Volume& _dst, const Image& _src, const int _k)
 */
 
 
-inline SLC_EXTRACT_RL(Image& _dst, const Volume& _src, const int _k) 
+inline void SLC_EXTRACT_RL(Image& _dst, const Volume& _src, const int _k)
     { 
         IMAGE_FOR_EACH_PIXEL_RL(_dst) 
             _dst.setRL(_src.getRL(i, j, _k), i, j); 
     }
 
 
-inline SLC_EXTRACT_FT(Image& _dst, const Volume& _src, const int _k) 
+inline void SLC_EXTRACT_FT(Image& _dst, const Volume& _src, const int _k)
     { 
         IMAGE_FOR_EACH_PIXEL_FT(_dst) 
             _dst.setFT(_src.getFT(i, j, _k), i, j); 
@@ -324,7 +324,6 @@ inline SLC_EXTRACT_FT(Image& _dst, const Volume& _src, const int _k)
 
 
 
-void mul(Image& dst,
 void mul(Image& dst,
          const Image& a,
          const Image& b,

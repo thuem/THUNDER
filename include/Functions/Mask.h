@@ -33,7 +33,7 @@
 
 #define GEN_MASK_GAP 0.05
 
-using namespace std;
+
 
 /**
  * This function calculates the average value of pixels outside the circle of

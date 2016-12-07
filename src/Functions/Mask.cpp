@@ -293,7 +293,7 @@ void extMask(Volume& vol,
 {
     Volume volTmp = vol.copyVolume();
 
-    int a = CEIL(abs(ext));
+    int a = CEIL(std::abs(ext));
 
     if (ext > 0)
     {
@@ -420,7 +420,7 @@ void autoMask(Volume& dst,
          std::greater<double>());
 
     vector<double> partialSum(n);
-    partial_sum(&data[0], &data[0] + n, &partialSum[0]);
+    std::partial_sum(&data[0], &data[0] + n, &partialSum[0]);
 
     double totalSum = partialSum[n - 1];
 

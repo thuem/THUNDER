@@ -50,7 +50,7 @@ void sampleACG(mat4& dst,
     LLT<mat44> llt(src);
     mat44 L = llt.matrixL();
 
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     for (int i = 0; i < n; i++)
     {

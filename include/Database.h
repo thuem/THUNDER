@@ -13,7 +13,7 @@
 #include <string>
 #include <cstring>
 #include <sys/stat.h>
-#include <vector>
+
 #include <cerrno>
 #include <cstdio>
 
@@ -58,7 +58,7 @@ inline int READ_FILE(const char* filename, void* buf)
     return size;
  }
 
-using namespace std;
+
 
 enum Table
 {
@@ -92,7 +92,7 @@ class Database : public Parallel
 
         ~Database();
 
-        sql::DB expose() { return _db; }
+        sql::DB& expose() { return _db; }
 
         void bcastID();
         /* generate and broadcast an unique ID */

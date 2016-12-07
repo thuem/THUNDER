@@ -8,6 +8,8 @@
 
 #include "Reconstructor.h"
 
+#include <boost/bind.hpp>
+
 Reconstructor::Reconstructor() {}
 
 Reconstructor::Reconstructor(const int size,
@@ -38,7 +40,7 @@ void Reconstructor::init(const int size,
     _alpha = alpha;
 
     // initialise the interpolation kernel
-    _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
+    _kernel.init(boost::bind(MKB_FT_R2, boost::placeholders::_1, _pf * _a, _alpha),
                  0,
                  gsl_pow_2(_pf * _a),
                  1e5);
@@ -112,7 +114,7 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
-                vec3 newCor = {(double)i, (double)j, 0};
+                vec3 newCor((double)i, (double)j, 0);
                 vec3 oldCor = sr[k] * newCor * _pf;
         
                 _F.addFT(transSrc.getFTHalf(i, j)
@@ -138,7 +140,7 @@ void Reconstructor::insert(const Image& src,
     mat33 rot;
     rotate3D(rot, coord.phi, coord.theta, coord.psi);
 
-    vec2 t = {(double)coord.x, (double)coord.y};
+    vec2 t((double)coord.x, (double)coord.y);
 
     insert(src, ctf, rot, t, w);
 }
@@ -217,7 +219,7 @@ void Reconstructor::allReduceW()
             {
                 if (QUAD(i, j) < gsl_pow_2(_maxRadius))
                 {
-                    vec3 newCor = {(double)i, (double)j, 0};
+                    vec3 newCor((double)i, (double)j, 0);
                     vec3 oldCor = _rot[k] * newCor * _pf;
 
                     _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],

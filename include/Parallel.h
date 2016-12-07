@@ -15,6 +15,8 @@
 
 #include "Logging.h"
 
+#include <boost/noncopyable.hpp>
+
 /**
  * The maximum buf size used in MPI environment. It is just a little bit smaller
  * than INT_MAX, and it can be divided by 2, 4, 8 and 16.
@@ -90,7 +92,7 @@
 #define ILOG(LEVEL, LOGGER) \
     NT_MASTER CLOG(LEVEL, LOGGER) << "RANK " << _commRank << ": "
 
-class Parallel
+class Parallel: private boost::noncopyable
 {
     protected:
 

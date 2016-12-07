@@ -22,7 +22,7 @@
 #include "Volume.h"
 #include "Filter.h"
 
-using namespace std;
+
 
 /**
  * This function returns the Nyquist resolution limit in Angstrom(-1).

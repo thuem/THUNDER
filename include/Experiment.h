@@ -9,15 +9,15 @@
 #ifndef EXPERIMENT_H
 #define EXPERIMENT_H
 
-#include <vector>
 
+#include "Utils.h"
 #include "Database.h"
 
 class Experiment : public Database
 {
     private:
         void add_column(const char* table, const char* column, const char* attr);
-        void get_id(std::vector<int>& dst, const char* table, const char* column, int value);
+        void get_id(vector<int>& dst, const char* table, const char* column, int value);
 
     public:
 
