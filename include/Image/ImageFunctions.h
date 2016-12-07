@@ -91,7 +91,7 @@ inline void  VOL_EXTRACT_FT(Volume& _dst, const Volume& _src, const double _ef)
                    AROUND(_ef * _src.nSlcRL()), 
                    FT_SPACE); 
         _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_FFT(_dst) 
+        VOLUME_FOR_EACH_PIXEL_FT(_dst) 
             _dst.setFT(_src.getFT(i, j, k), i, j, k); 
     }
 
@@ -101,8 +101,8 @@ inline void  VOL_EXTRACT_FT(Volume& _dst, const Volume& _src, const double _ef)
  * @param dst the destination volume
  * @param src the source volume
  */
-#define VOL_REPLACE_RL(dst, src) \
-    VOL_REPLACE(RL, dst, src)
+//#define VOL_REPLACE_RL(dst, src) \
+//    VOL_REPLACE(RL, dst, src)
 
 /**
  * This macro replaces the centre block of a volume with another volume in
@@ -110,8 +110,8 @@ inline void  VOL_EXTRACT_FT(Volume& _dst, const Volume& _src, const double _ef)
  * @param dst the destination volume
  * @param src the source volume
  */
-#define VOL_REPLACE_FT(dst, src) \
-    VOL_REPLACE(FT, dst, src)
+//#define VOL_REPLACE_FT(dst, src) \
+//    VOL_REPLACE(FT, dst, src)
 
 /**
  * This macro replaces the centre block of a volume with another volume.
@@ -255,13 +255,13 @@ inline void  VOL_PAD_FT(Volume& _dst, const Volume& _src, const int _pf)
 */
 
 
-inline SLC_REPLACE_RL(Volume& _dst, const Image& _src, const int _k) 
+inline void SLC_REPLACE_RL(Volume& _dst, const Image& _src, const int _k) 
     { 
         IMAGE_FOR_EACH_PIXEL_RL(_src) 
             _dst.setRL(_src.getRL(i, j), i, j, _k); 
     }
 
-inline SLC_REPLACE_FT(Volume& _dst, const Image& _src, const int _k) 
+inline void SLC_REPLACE_FT(Volume& _dst, const Image& _src, const int _k) 
     { 
         IMAGE_FOR_EACH_PIXEL_FT(_src) 
             _dst.setFT(_src.getFT(i, j), i, j, _k); 
