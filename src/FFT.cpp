@@ -18,7 +18,10 @@ FFT::~FFT() {}
 
 void FFT::fw(Image& img)
 {
-    FW_EXTRACT_P(img);
+    img.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&img[0];
+    _srcR = &img(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_2d(img.nRowRL(),
@@ -34,7 +37,10 @@ void FFT::fw(Image& img)
 
 void FFT::bw(Image& img)
 {
-    BW_EXTRACT_P(img);
+    img.alloc(RL_SPACE);
+    _dstR = &img(0);
+    _srcC = (fftw_complex*)&img[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(img.nRowRL(),
@@ -52,7 +58,10 @@ void FFT::bw(Image& img)
 
 void FFT::fw(Volume& vol)
 {
-    FW_EXTRACT_P(vol);
+    vol.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&vol[0];
+    _srcR = &vol(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
@@ -69,7 +78,10 @@ void FFT::fw(Volume& vol)
 
 void FFT::bw(Volume& vol)
 {
-    BW_EXTRACT_P(vol);
+    vol.alloc(RL_SPACE);
+    _dstR = &vol(0);
+    _srcC = (fftw_complex*)&vol[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
@@ -88,7 +100,10 @@ void FFT::bw(Volume& vol)
 
 void FFT::fwMT(Image& img)
 {
-    FW_EXTRACT_P(img);
+    img.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&img[0];
+    _srcR = &img(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     fftw_init_threads();
 
@@ -102,14 +117,17 @@ void FFT::fwMT(Image& img)
 
     fftw_execute(fwPlan);
 
-    FW_CLEAN_UP;
+    FWMT_CLEAN_UP;
 
     fftw_cleanup_threads();
 }
 
 void FFT::bwMT(Image& img)
 {
-    BW_EXTRACT_P(img);
+    img.alloc(RL_SPACE);
+    _dstR = &img(0);
+    _srcC = (fftw_complex*)&img[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     fftw_init_threads();
 
@@ -123,17 +141,20 @@ void FFT::bwMT(Image& img)
 
     fftw_execute(bwPlan);
 
-    #pragma omp parallel for
-    SCALE_RL(img, 1.0 / img.sizeRL());
-
-    BW_CLEAN_UP(img);
+    BWMT_CLEAN_UP(img);
 
     fftw_cleanup_threads();
+    
+    #pragma omp parallel for
+    SCALE_RL(img, 1.0 / img.sizeRL());
 }
 
 void FFT::fwMT(Volume& vol)
 {
-    FW_EXTRACT_P(vol);
+    vol.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&vol[0];
+    _srcR = &vol(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     fftw_init_threads();
 
@@ -148,14 +169,17 @@ void FFT::fwMT(Volume& vol)
 
     fftw_execute(fwPlan);
 
-    FW_CLEAN_UP;
+    FWMT_CLEAN_UP;
 
     fftw_cleanup_threads();
 }
 
 void FFT::bwMT(Volume& vol)
 {
-    BW_EXTRACT_P(vol);
+    vol.alloc(RL_SPACE);
+    _dstR = &vol(0);
+    _srcC = (fftw_complex*)&vol[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     fftw_init_threads();
 
@@ -170,10 +194,10 @@ void FFT::bwMT(Volume& vol)
 
     fftw_execute(bwPlan);
 
-    #pragma omp parallel for
-    SCALE_RL(vol, 1.0 / vol.sizeRL());
-
-    BW_CLEAN_UP(vol);
+    BWMT_CLEAN_UP(vol);
 
     fftw_cleanup_threads();
+    
+    #pragma omp parallel for
+    SCALE_RL(vol, 1.0 / vol.sizeRL());
 }
