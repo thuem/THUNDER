@@ -12,7 +12,7 @@
 
 #include <omp.h>
 
-FFT::FFT() {}
+FFT::FFT() : _srcR(NULL), _srcC(NULL), _dstR(NULL), _dstC(NULL)  {}
 
 FFT::~FFT() {}
 

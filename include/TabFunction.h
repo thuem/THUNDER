@@ -11,7 +11,8 @@
 
 #include <cmath>
 #include <functional>
-#include <memory>
+
+#include <boost/move/make_unique.hpp>
 
 #include "Macro.h"
 #include "Functions.h"
@@ -22,15 +23,15 @@ class TabFunction
 {
 	private:
 
-        std::unique_ptr<double[]> _tab;
+        boost::movelib::unique_ptr<double[]> _tab;
 
-        double _a = 0;
+        double _a;
 
-        double _b = 0;
+        double _b;
 
-        double _s = 0;
+        double _s;
 
-        int _n = 0;
+        int _n;
 
 	public:
 

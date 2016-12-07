@@ -213,22 +213,22 @@ class FFT
         /**
          * a pointer points to the source of the Fourier transform
          */
-        double* _srcR = NULL;
+        double* _srcR;
 
         /**
          * a pointer points to the source of the inverse Fourier transform
          */
-        fftw_complex* _srcC = NULL;
+        fftw_complex* _srcC;
 
         /**
          * a pointer points to the destination of the inverse Fourier transform
          */
-        double* _dstR = NULL;
+        double* _dstR;
 
         /**
          * a pointer points to the destination of the Fourier transform
          */
-        fftw_complex* _dstC = NULL;
+        fftw_complex* _dstC;
 
         /**
          * the plan of Fourier transform

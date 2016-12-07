@@ -150,7 +150,7 @@ void softMask(Image& dst,
               const double bgMean,
               const double bgStd)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
@@ -200,7 +200,7 @@ void softMask(Image& dst,
               const double bgMean,
               const double bgStd)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
@@ -417,7 +417,7 @@ void autoMask(Volume& dst,
 
     sort(&data[0],
          &data[0] + n,
-         [](const double x, const double y) { return x > y; });
+         std::greater<double>());
 
     vector<double> partialSum(n);
     partial_sum(&data[0], &data[0] + n, &partialSum[0]);

@@ -185,9 +185,9 @@ class ImageBase
 
         boost::movelib::unique_ptr<Complex[]> _dataFT;
 
-        size_t _sizeRL = 0;
+        size_t _sizeRL;
 
-        size_t _sizeFT = 0;
+        size_t _sizeFT;
 
         ImageBase();
 

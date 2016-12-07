@@ -10,7 +10,7 @@
 
 #include "ImageFile.h"
 
-ImageFile::ImageFile() {}
+ImageFile::ImageFile() : _file(NULL), _symmetryData(NULL) {}
 
 ImageFile::ImageFile(const char* filename,
                      const char* option)

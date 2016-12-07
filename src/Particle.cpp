@@ -8,13 +8,14 @@
 
 #include "Particle.h"
 
-Particle::Particle() {}
+Particle::Particle() { basic_init(); }
 
 Particle::Particle(const int n,
                    const double transS,
                    const double transQ,
                    const Symmetry* sym)
-{    
+{
+    basic_init();
     init(n, transS, transQ, sym);
 }
 
