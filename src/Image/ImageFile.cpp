@@ -231,13 +231,15 @@ void ImageFile::readImageMRC(Image& dst,
 
     size_t size = dst.sizeRL();
 
+
     SKIP_HEAD(size * iSlc * BYTE_MODE(mode()));
-	
+    
+
     switch (mode())
     {
-        case 0: IMAGE_READ_CAST(dst, char); break;
-        case 1: IMAGE_READ_CAST(dst, short); break;
-        case 2: IMAGE_READ_CAST(dst, float); break;
+        case 0: IMAGE_READ_CAST<char>(_file, dst); break;
+        case 1: IMAGE_READ_CAST<short>(_file, dst); break;
+        case 2: IMAGE_READ_CAST<float>(_file, dst); break;
     }
 }
 
@@ -270,9 +272,9 @@ void ImageFile::readVolumeMRC(Volume& dst)
 	
     switch (mode())
     {
-        case 0: VOLUME_READ_CAST(dst, char); break;
-        case 1: VOLUME_READ_CAST(dst, short); break;
-        case 2: VOLUME_READ_CAST(dst, float); break;
+        case 0: VOLUME_READ_CAST<char>(_file,  dst ); break;
+        case 1: VOLUME_READ_CAST<short>(_file, dst ); break;
+        case 2: VOLUME_READ_CAST<float>(_file, dst ); break;
     }
 }
 
@@ -294,7 +296,7 @@ void ImageFile::writeImageMRC(const char dst[],
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
-    IMAGE_WRITE_CAST(src, float);
+    IMAGE_WRITE_CAST<float>(_file, src);
 
     fclose(_file);
     _file = NULL;
@@ -319,7 +321,7 @@ void ImageFile::writeVolumeMRC(const char dst[],
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
-    VOLUME_WRITE_CAST(src, float);
+    VOLUME_WRITE_CAST<float>(_file, src);
 
     fclose(_file);
     _file = NULL;
