@@ -27,7 +27,7 @@
 
 class Projector
 {
-    MAKE_DEFAULT_MOVE(Projector)
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(Projector)
 
     private:
 
@@ -37,17 +37,17 @@ class Projector
          * projectee. When projectee is set, max radius will be properly set as
          * well. However, it can be overwrited.
          */
-        int _maxRadius = -1;
+        int _maxRadius;
 
         /**
          * the interpolation type (SINC_INTERP, LINEAR_INTERP, NEAREST_INTERP)
          */
-        int _interp = LINEAR_INTERP;
+        int _interp;
 
         /**
          * padding factor
          */
-        int _pf = 2;
+        int _pf;
 
         /**
          * the volume to be projected
@@ -59,12 +59,37 @@ class Projector
         /**
          * default constructor
          */
-        Projector();
+        Projector()
+        {
+            _maxRadius = -1;
+            _interp = LINEAR_INTERP;
+            _pf = 2;
+        }
 
         /**
          * default deconstructor
          */
         ~Projector();
+
+        void swap(Projector& other)
+        {
+            std::swap(this->_maxRadius, other._maxRadius);
+            std::swap(this->_interp, other._interp);
+            std::swap(this->_pf, other._pf);
+            _projectee.swap(other._projectee);
+        }
+
+        Projector(BOOST_RV_REF(Projector) other)
+        {
+            swap(other);
+        }
+
+        Projector&operator=(BOOST_RV_REF(Projector) other)
+        {
+            if (this != &other)
+                swap(other);
+            return *this;
+        }
 
         /**
          * If there is a volume to be projected, return false, otherwise return

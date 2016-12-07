@@ -279,6 +279,7 @@ class Image : public ImageBase
             return *this;
         }
 
+    protected:
         void swap(Image& other)
         {
             ImageBase::swap(other);

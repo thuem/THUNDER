@@ -183,27 +183,29 @@ bool Symmetry::novo(const mat33& L,
     return true;
 }
 
+static bool completePointGroupHelper(umat& table, int& i, int& j)
+{
+    for (int row = 0; row < table.rows(); row++) {
+        for (int col = 0; col < table.cols(); col++) {
+            if (table(row, col) == 0) {
+                i = row;
+                j = col;
+                table(row, col) = 1;
+
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void Symmetry::completePointGroup()
 {
     umat table = umat::Zero(nSymmetryElement(),
                             nSymmetryElement());
 
-    int i, j;
-    while ([&]
-           {
-                for (int row = 0; row < table.rows(); row++)
-                    for (int col = 0; col < table.cols(); col++)
-                        if (table(row, col) == 0)
-                        {
-                            i = row;
-                            j = col;
-                            table(row, col) = 1;
-                    
-                            return true;
-                        }
-                return false;
-           }())
-
+    int i = -1, j = -1;
+    while (completePointGroupHelper(table, i, j))
     {
         mat33 L = _L[i] * _L[j];
         mat33 R = _R[i] * _R[j];

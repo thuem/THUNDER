@@ -49,14 +49,15 @@ using namespace std;
  * @param theta theta
  */
 #define ASY(PG, phi, theta) \
-    [](const double _phi, const double _theta) \
-    { \
+    ({ \
+        double _phi = (phi), _theta = (theta); \
         vec3 norm; \
         direction(norm, _phi, _theta); \
-        return ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
+        ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
                 (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
                 (norm.dot(vec3(pg_##PG##_a3)) >= 0)); \
-    }(phi, theta)
+    })
+
 
 /**
  * @ingroup Symmetry

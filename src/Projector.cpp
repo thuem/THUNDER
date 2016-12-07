@@ -10,8 +10,6 @@
 
 #include "Projector.h"
 
-Projector::Projector() {}
-
 Projector::~Projector() {}
 
 bool Projector::isEmpty() const
