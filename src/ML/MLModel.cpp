@@ -10,8 +10,6 @@
 
 #include "MLModel.h"
 
-MLModel::MLModel() {}
-
 MLModel::~MLModel()
 {
     clear();

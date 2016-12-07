@@ -11,9 +11,6 @@
 #ifndef ML_MODEL_H
 #define ML_MODEL_H
 
-#include <memory>
-#include <vector>
-
 #include "Typedef.h"
 
 #include "Image.h"
@@ -25,6 +22,9 @@
 #include "Symmetry.h"
 #include "Reconstructor.h"
 #include "Particle.h"
+
+#include <boost/container/vector.hpp>
+#include <boost/move/make_unique.hpp>
 
 #define FOR_EACH_CLASS \
     for (int l = 0; l < _k; l++)
@@ -63,7 +63,7 @@ class MLModel : public Parallel
         /**
          * references in Fourier space
          */
-        vector<Volume> _ref;
+        boost::container::vector<Volume> _ref;
 
         /**
          * Fourier Shell Coefficient
@@ -89,12 +89,12 @@ class MLModel : public Parallel
         /**
          * projectors
          */
-        vector<Projector> _proj;
+        boost::container::vector<Projector> _proj;
 
         /**
          * reconstructors
          */
-        vector<unique_ptr<Reconstructor>> _reco;
+        boost::container::vector<boost::movelib::unique_ptr<Reconstructor> > _reco;
 
         /**
          * number of references
@@ -109,37 +109,37 @@ class MLModel : public Parallel
         /**
          * frequency before padding (in pixel)
          */
-        int _r = 0;
+        int _r;
 
         /**
          * frequency for reconstruction and calculating FSC, SNR 
          */
-        int _rU = 0;
+        int _rU;
 
         /**
          * frequency of the previous iteration
          */
-        int _rPrev = 0;
+        int _rPrev;
 
         /**
          * the top frequency ever reached
          */
-        int _rT = 0;
+        int _rT;
 
         /*
          * resolution before padding (in pixel)
          */
-        int _res = 0;
+        int _res;
 
         /**
          * the top resolution ever reached
          */
-        int _resT = 0;
+        int _resT;
 
         /**
          * padding factor
          */
-        int _pf = 2;
+        int _pf;
 
         /**
          * pixel size of 2D images (in Angstrom)
@@ -155,7 +155,7 @@ class MLModel : public Parallel
         /**
          * width of modified Kaiser-Bessel function
          */
-        double _a = 1.9;
+        double _a;
 
         /**
          * smoothness parameter of modified Kaiser-Bessel function
@@ -165,78 +165,103 @@ class MLModel : public Parallel
         /**
          * the concentration parameter of the rotation
          */
-        double _rVari = 0;
+        double _rVari;
 
         /**
          * variance of 2D Gaussian distribution of the translation in X
          */
-        double _tVariS0 = 0;
+        double _tVariS0;
 
         /**
          * variance of 2D Gaussian distribution of the translation in Y
          */
-        double _tVariS1 = 0;
+        double _tVariS1;
 
-        double _stdRVari = 0;
+        double _stdRVari;
 
-        double _stdTVariS0 = 0;
+        double _stdTVariS0;
         
-        double _stdTVariS1 = 0;
+        double _stdTVariS1;
 
         /**
          * a parameter indicating the change of rotation between iterations
          */
-        double _rChange = 1;
+        double _rChange;
 
         /**
          * a parameter indicating the change of rotation between iterations of
          * the previous
          */
-        double _rChangePrev = 1;
+        double _rChangePrev;
 
         /**
          * a parameter indicating the standard deviation of rotation between
          * iterations
          */
-        double _stdRChange = 0;
+        double _stdRChange;
 
         /**
          * a parameter indicating the standard deviation of rotation between
          * iteration of the previous
          */
-        double _stdRChangePrev = 0;
+        double _stdRChangePrev;
 
         /**
          * number of iterations without decreasing in rotation change
          */
-        int _nRChangeNoDecrease = 0;
+        int _nRChangeNoDecrease;
 
         /**
          * number of iterations without top resolution improvement
          */
-        int _nTopResNoImprove = 0;
+        int _nTopResNoImprove;
 
         /**
          * the symmetry information
          */
-        const Symmetry* _sym = NULL;
+        const Symmetry* _sym;
 
         /**
          * the suggest search type
          */
-        int _searchType = SEARCH_TYPE_GLOBAL;
+        int _searchType;
 
         /**
          * whether the frequency should be increased or not
          */
-        bool _increaseR = false;
+        bool _increaseR;
 
     public:
 
         /**
          * default constructor
          */
-        MLModel();
+        MLModel()
+        {
+            _r = 0;
+            _rU = 0;
+            _rPrev = 0;
+            _rT = 0;
+            _res = 0;
+            _resT = 0;
+            _pf = 2;
+            _a = 1.9;
+            _rVari = 0;
+            _tVariS0 = 0;
+            _tVariS1 = 0;
+            _stdRVari = 0;
+            _stdTVariS0 = 0;
+            _stdTVariS1 = 0;
+            _rChange = 1;
+            _rChangePrev = 1;
+            _stdRChange = 0;
+            _stdRChangePrev = 0;
+            _nRChangeNoDecrease = 0;
+            _nTopResNoImprove = 0;
+            _sym = NULL;
+            _searchType = SEARCH_TYPE_GLOBAL;
+            _increaseR = false;
+        }
 
         /**
          * default deconstructor
