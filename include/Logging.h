@@ -19,6 +19,10 @@
 
 using namespace std;
 
+// Compatibility settings for
+namespace el = easyloggingpp;
+#define INITIALIZE_EASYLOGGINGPP _INITIALIZE_EASYLOGGINGPP
+
 static el::Configurations loggerConf;
 
 inline void loggerInit(el::Configurations conf,
@@ -27,7 +31,7 @@ inline void loggerInit(el::Configurations conf,
 {
     conf.setToDefault();
 
-    conf.set(el::Level::Global,
+    conf.set(el::Level::All,
              el::ConfigurationType::Filename,
              loggerFile);
 
