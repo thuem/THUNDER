@@ -27,7 +27,6 @@ unittest/
 gpu/gpuunittest/
 bin/
 gpu/
-autom4te.cache/
 case/
 case/case1
 case/case2
