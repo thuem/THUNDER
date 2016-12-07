@@ -26,7 +26,7 @@
 
 #define COMPENSATE_B_FACTOR 50 // Angstrom
 
-using namespace std;
+
 
 class Postprocess
 {

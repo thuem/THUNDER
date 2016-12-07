@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
         {
             FFT fftThread;
 
-            auto engine = get_random_engine();
+            gsl_rng* engine = get_random_engine();
 
             char name[256];
             Coordinate5D coord;

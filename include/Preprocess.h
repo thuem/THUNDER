@@ -11,7 +11,7 @@
 
 #include <unistd.h>
 #include <iostream>
-#include <vector>
+
 #include <string>
 
 #include "Macro.h"
@@ -26,7 +26,7 @@
 
 #include "Parallel.h"
 
-using namespace std;
+
 
 typedef struct X_Y
 {

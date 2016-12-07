@@ -11,14 +11,13 @@
 #ifndef SYMMETRY_OPERATION_H
 #define SYMMETRY_OPERATION_H
 
-#include <vector>
 #include <cstdio>
 
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
+#include "Utils.h"
 
-using namespace std;
 
 /**
  * @ingroup SymmetryOperation

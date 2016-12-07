@@ -12,7 +12,7 @@
 #define SYMMETRY_H
 
 #include <cstdlib>
-#include <vector>
+
 #include <iostream>
 
 #include "Macro.h"
@@ -25,7 +25,7 @@
 #include "SymmetryOperation.h"
 #include "SymmetryFunctions.h"
 
-using namespace std;
+
 
 /**
  * Maximum ID Length of Symmetry

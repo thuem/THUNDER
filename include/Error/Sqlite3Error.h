@@ -18,7 +18,7 @@
 
 #include "Logging.h"
 
-using namespace std;
+
 
 #define SQLITE3_HANDLE_ERROR(err) \
     [](const int _err) \

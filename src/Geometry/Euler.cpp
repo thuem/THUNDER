@@ -279,7 +279,7 @@ void scale3D(mat33& dst,
 
 void randQuaternion(vec4& quat)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     for (int j = 0; j < 4; j++)
         quat(j) = gsl_ran_gaussian(engine, 1);

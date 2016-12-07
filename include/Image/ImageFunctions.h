@@ -12,7 +12,7 @@
 #define IMAGE_FUNCTIONS_H
 
 #include <cmath>
-#include <vector>
+
 #include <iostream>
 
 #ifdef _OPENMP
@@ -27,7 +27,7 @@
 #include "Image.h"
 #include "Volume.h"
 
-using namespace std;
+
 
 /**
  * This macro extracts the centre block out of a volume in real space.

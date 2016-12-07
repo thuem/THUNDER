@@ -13,7 +13,7 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <vector>
+
 
 #include "omp_if.h"
 #include "Typedef.h"

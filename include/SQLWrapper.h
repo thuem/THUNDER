@@ -16,6 +16,7 @@ private:
     char description[128];
     int code;
 
+    void init(int code, const char* msg);
 public:
     explicit Exception(int code);
     explicit Exception(int code, const char* msg);

@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
             head.setRL(0, i, j, k);
     }
 
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     Volume noise(N, N, N, RL_SPACE);
     FOR_EACH_PIXEL_RL(noise)

@@ -12,7 +12,7 @@
 #define SYMMETRY_FUNCTIONS_H
 
 #include <cstdlib>
-#include <vector>
+
 
 #include "Macro.h"
 #include "Typedef.h"
@@ -24,7 +24,7 @@
 #include "SymmetryOperation.h"
 #include "Utils.h"
 
-using namespace std;
+
 
 /**
  * This function translates a string indicating the symmetry group to the code

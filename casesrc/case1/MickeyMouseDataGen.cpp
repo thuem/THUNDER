@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     /***
     cout << "Adding Noise" << endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(engine, 20);
     ADD_RL(padHead, noise);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
     save("Sampling_Points.par", par);
 
     Coordinate5D coord;
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     for (int i = 0; i < M; i++)
     {
         SET_0_FT(image);

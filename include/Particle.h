@@ -28,7 +28,7 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
-using namespace std;
+
 
 class Particle
 {
