@@ -161,7 +161,7 @@ public:
     }
     std::string get_text(int col)
     {
-        auto str = reinterpret_cast<const char*>(sqlite3_column_text(getNativeHandle(), col));
+        const char* str = reinterpret_cast<const char*>(sqlite3_column_text(getNativeHandle(), col));
         return std::string(str, str + sqlite3_column_bytes(getNativeHandle(), col));
     }
 };

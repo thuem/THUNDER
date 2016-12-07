@@ -12,13 +12,15 @@
 
 static pthread_key_t key;
 
+static void tls_deallocate(void* p)
+{
+    if (p)
+        gsl_rng_free(static_cast<gsl_rng*>(p));
+}
+
 static int module_init()
 {
-    pthread_key_create(&key,
-                       [](void* p)
-                       {
-                           if (p) gsl_rng_free(static_cast<gsl_rng*>(p));
-                       });
+    pthread_key_create(&key, &tls_deallocate);
     return 0;
 }
 
@@ -46,7 +48,7 @@ gsl_rng* get_random_engine()
     // Supress warnings about unused variable
     (void)MODULE_INITED; 
 
-    auto engine = static_cast<gsl_rng*>(pthread_getspecific(key));
+    gsl_rng* engine = static_cast<gsl_rng*>(pthread_getspecific(key));
 
     if (engine) return engine;
 
