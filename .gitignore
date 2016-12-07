@@ -22,12 +22,6 @@
 .dirstamp
 .deps/
 
-config*
-!configure.ac
-
-Makefile
-Makefile.in
-
 unittest/
 gpu/gpuunittest/
 bin/
@@ -40,28 +34,8 @@ app/
 build/
 build*/
 
-!unittest/Makefile.am
-!gpu/gpuunittest/Makefile.am
-!bin/Makefile.am
-
-!case/Makefile.am
-!case/case1/Makefile.am
-!case/case2/Makefile.am
-!app/Makefile.am
-
 *.dSYM/
 
-depcomp
-compile
 *.log
-*.m4
-ar-lib
-install-sh
-libtool
-missing
-stamp-h1
-tags
-
-
 doc/html
 doc/latex
