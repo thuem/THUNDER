@@ -21,6 +21,17 @@
 
 using namespace std;
 
+template <size_t N>
+static inline void copy_string(char (&array)[N], const std::string& source)
+{
+    if (source.size() + 1 >= N)
+    {
+        CLOG(FATAL, "LOGGER_SYS") << "String too large to fit in parameter";
+        return;
+    }
+    memcpy(array, source.c_str(), source.size()+1);
+}
+
 void readPara(MLOptimiserPara& dst,
               const Json::Value src)
 {
@@ -32,15 +43,15 @@ void readPara(MLOptimiserPara& dst,
     dst.transS = src["Estimated Translation (Pixel)"].asFloat();
     dst.initRes = src["Initial Resolution (Angstrom)"].asFloat();
     dst.globalSearchRes = src["Perform Global Search Under (Angstrom)"].asFloat();
-    sprintf(dst.sym, src["Symmetry"].asString().c_str());
-    sprintf(dst.initModel, src["Initial Model"].asString().c_str());
-    sprintf(dst.db, src["Sqlite3 File Storing Paths and CTFs of Images"].asString().c_str());
+    copy_string(dst.sym, src["Symmetry"].asString());
+    copy_string(dst.initModel, src["Initial Model"].asString());
+    copy_string(dst.db, src["Sqlite3 File Storing Paths and CTFs of Images"].asString());
     dst.autoSelection = src["Auto Selection"].asBool();
     dst.localCTF = src["Local CTF"].asBool();
 
     dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();
-    sprintf(dst.mask, src["Reference Mask"]["Provided Mask"].asString().c_str());
+    copy_string(dst.mask, src["Reference Mask"]["Provided Mask"].asString());
 
     dst.performSharpen = src["Sharpening"]["Perform Sharpening"].asBool();
     dst.estBFactor = src["Sharpening"]["Auto Estimate B-Factor"].asBool();

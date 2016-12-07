@@ -10,6 +10,8 @@
 
 #include "MLOptimiser.h"
 
+#include <omp.h>
+
 void display(const MLOptimiserPara& para)
 {
     printf("Number of Classes:                                       %12d\n", para.k);

@@ -10,6 +10,8 @@
 
 #include "FFT.h"
 
+#include <omp.h>
+
 FFT::FFT() {}
 
 FFT::~FFT() {}
