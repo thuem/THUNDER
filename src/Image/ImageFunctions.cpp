@@ -342,7 +342,7 @@ void removeDust(Image& img,
                 const double mean,
                 const double stddev)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     IMAGE_FOR_EACH_PIXEL_RL(img)
         if ((img.getRL(i, j) > mean + wDust * stddev) ||
