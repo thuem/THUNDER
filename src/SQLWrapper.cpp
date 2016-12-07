@@ -12,19 +12,24 @@ static bool isOK(int code)
 }
 
 Exception::Exception(int _code, const char* _msg)
-    : code(_code)
 {
-    snprintf(description, sizeof(description), "SQLite3 error %d: %s", _code, _msg);
+    init(_code, _msg);
 }
 
 Exception::Exception(int _code)
-    : Exception(_code, sqlite3_errstr(_code))
 {
+    init(_code, sqlite3_errstr(_code));
 }
 
 Exception::Exception(sqlite3* db)
-    : Exception(sqlite3_errcode(db), sqlite3_errmsg(db))
 {
+    init(sqlite3_errcode(db), sqlite3_errmsg(db));
+}
+
+void Exception::init(int code, const char *msg)
+{
+    this->code = code;
+    snprintf(description, sizeof(description), "SQLite3 error %d: %s", code, msg);
 }
 
 DB::DB(const char* path, int flags)

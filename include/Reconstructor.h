@@ -10,9 +10,6 @@
 #define RECONSTRUCTOR_H
 
 #include <utility>
-
-#include <functional>
-
 #include <mpi.h>
 
 #include "omp_if.h"
@@ -29,8 +26,7 @@
 #include "Transformation.h"
 #include "TabFunction.h"
 
-
-using namespace placeholders;
+#include <boost/function.hpp>
 
 #define PAD_SIZE (_pf * _size)
 
@@ -66,8 +62,6 @@ using namespace placeholders;
 
 class Reconstructor : public Parallel
 {
-    MAKE_DEFAULT_MOVE(Reconstructor)
-
     private:
 
         /**

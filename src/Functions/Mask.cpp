@@ -420,7 +420,7 @@ void autoMask(Volume& dst,
          std::greater<double>());
 
     vector<double> partialSum(n);
-    partial_sum(&data[0], &data[0] + n, &partialSum[0]);
+    std::partial_sum(&data[0], &data[0] + n, &partialSum[0]);
 
     double totalSum = partialSum[n - 1];
 
