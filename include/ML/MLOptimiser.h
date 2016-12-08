@@ -74,7 +74,7 @@ inline void PROCESS_LOGW_HARD(vec& _logW)
 }
 
 
-typedef struct ML_OPTIMISER_PARA
+struct MLOptimiserPara
 {
     /**
      * number of classes
@@ -238,7 +238,7 @@ typedef struct ML_OPTIMISER_PARA
      */
     bool zeroMask;
 
-} MLOptimiserPara;
+};
 
 void display(const MLOptimiserPara& para);
 
@@ -308,7 +308,7 @@ class MLOptimiser : public Parallel
         /**
          * current search type
          */
-        int _searchType = SEARCH_TYPE_GLOBAL;
+        int _searchType;
 
         /**
          * model containting references, projectors, reconstruuctors, information 
@@ -444,6 +444,7 @@ class MLOptimiser : public Parallel
             _iCol = NULL;
             _iRow = NULL;
             _iSig = NULL;
+            _searchType = SEARCH_TYPE_GLOBAL;
         }
 
         ~MLOptimiser();

@@ -3,6 +3,7 @@
 #include "SQLWrapper.h"
 
 #include <utility>
+#include <cstdio>
 
 namespace sql
 {
@@ -36,8 +37,8 @@ DB::DB(const char* path, int flags)
 {
     if (flags == 0)
         flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE; // default behavior
-    sqlite3* db = nullptr;
-    int rc = sqlite3_open_v2(path, &db, flags, nullptr);
+    sqlite3* db = NULL;
+    int rc = sqlite3_open_v2(path, &db, flags, NULL);
     if (rc != SQLITE_OK)
         throw Exception(rc);
     handle = new InternalHandle;
@@ -58,7 +59,7 @@ void DB::clear()
 
 void DB::exec(const char* cmd)
 {
-    int rc = sqlite3_exec(getNativeHandle(), cmd, nullptr, nullptr, nullptr);
+    int rc = sqlite3_exec(getNativeHandle(), cmd, NULL, NULL, NULL);
     if (!isOK(rc))
         throw Exception(getNativeHandle());
 }
@@ -70,9 +71,9 @@ void Statement::check(int rc)
 }
 Statement::Statement(const char* command, int nByte, DB& _db)
     : db(_db)
-    , stmt(nullptr)
+    , stmt(NULL)
 {
-    int rc = sqlite3_prepare_v2(db.getNativeHandle(), command, nByte, &stmt, nullptr);
+    int rc = sqlite3_prepare_v2(db.getNativeHandle(), command, nByte, &stmt, NULL);
     check(rc);
 }
 Statement::~Statement()

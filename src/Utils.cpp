@@ -15,7 +15,7 @@ public:
         int rc = regcomp(&regex, pattern, flags);
         if (rc != 0) {
             char buf[3000];
-            regerror(rc, nullptr, buf, sizeof(buf));
+            regerror(rc, NULL, buf, sizeof(buf));
             throw std::invalid_argument(buf);
         }
     }
@@ -35,7 +35,7 @@ public:
 bool regexMatches(const char* str, const char* pattern)
 {
     Regex regex(pattern, REG_EXTENDED | REG_NOSUB);
-    int rc = regexec(regex.getInternal(), str, 0, nullptr, 0);
+    int rc = regexec(regex.getInternal(), str, 0, NULL, 0);
     if (rc == 0)
         return true;
     if (rc == REG_NOMATCH)

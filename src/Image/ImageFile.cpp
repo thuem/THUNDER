@@ -187,7 +187,8 @@ void ImageFile::fillMRCHeader(MRCHeader& header) const
 
 void ImageFile::readMetaDataMRC()
 {
-    CHECK_FILE_VALID;
+    if (_file == NULL)
+        REPORT_ERROR("Null file");
 
     rewind(_file);
 

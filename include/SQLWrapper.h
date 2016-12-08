@@ -102,7 +102,7 @@ private:
 
 public:
     explicit Statement()
-        : stmt(nullptr)
+        : stmt(NULL)
     {
     }
     explicit Statement(const char* command, int nByte, DB& db);
