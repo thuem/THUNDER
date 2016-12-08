@@ -257,7 +257,7 @@ void ImageFile::readImageBMP(Image& dst)
     fseek(_file, bmp.getHeaderSize(), 0);
 
     if (bmp.getBitCount() == 8)
-        IMAGE_READ_CAST(dst, unsigned char);
+        IMAGE_READ_CAST<unsigned char>(_file, dst);
     else
         REPORT_ERROR("Unsupported BMP coding mode.");
 }
