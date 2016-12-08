@@ -165,11 +165,7 @@ double Volume::getByInterpolationRL(const double iCol,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    switch (interp)
-    {
-        case LINEAR_INTERP: WG_TRI_LINEAR(w, x0, x); break;
-        case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
-    }
+    WG_TRI_INTERP(w, x0, x, interp);
 
     return getRL(w, x0);
 }
@@ -192,11 +188,7 @@ Complex Volume::getByInterpolationFT(double iCol,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    switch (interp)
-    {
-        case LINEAR_INTERP: WG_TRI_LINEAR(w, x0, x); break;
-        case SINC_INTERP: WG_TRI_SINC(w, x0, x); break;
-    }
+    WG_TRI_INTERP(w, x0, x, interp);
 
     Complex result = getFTHalf(w, x0);
 
