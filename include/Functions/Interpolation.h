@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
  * Test:
  * Execution:
@@ -135,15 +135,16 @@ inline void W_INTERP_SINC(double w[2],
     w[1] = gsl_sf_sinc(1 - xd);
 }
 
-
 /**
- * This template function determines the weights of two sampling points and
- * the coordinate of the first sampling point during 1D interpolation given
- * the coordinate of interpolation point using <Template class InterpolaType>.
+ * This function determines the weights of two sampling points during 1D
+ * interpolation given the distance between the interpolation point and the
+ * first sampling point with an interpolation type flag to select an 
+ * interpolation algorithm among NEAREST, LINEAR and SINC methods.
  *
  * @param w  2-array indicating the weights
- * @param x0 the nearest grid point of the interpolation point
- * @param x  the interpolation point
+ * @param xd the distance between the interpolation point and the first sampling
+ *           point
+ * @param interpType the interpolation algorithms selection flag
  */
 inline void W_INTERP(double w[2], 
                      const double x, 
@@ -157,6 +158,18 @@ inline void W_INTERP(double w[2],
         default             :   __builtin_unreachable();
     }
 }
+
+/**
+ * This function determines the weights of two sampling points and
+ * the coordinate of the first sampling point during 1D interpolation given
+ * the coordinate of interpolation with an interpolation type flag to select an 
+ * interpolation algorithm among NEAREST, LINEAR and SINC methods.
+ *
+ * @param w  2-array indicating the weights
+ * @param x0 the nearest grid point of the interpolation point
+ * @param x  the interpolation point
+ * @param interpType the interpolation algorithms selection flag
+ */
 
 inline void WG_INTERP(double w[2],
                       int& x0,
