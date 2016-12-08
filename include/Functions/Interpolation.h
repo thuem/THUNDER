@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
  * Test:
  * Execution:
@@ -81,13 +81,6 @@
 #define TRI_LINEAR(v, xd) (BI_LINEAR(v[0], xd) * (1 - (xd[2])) \
                          + BI_LINEAR(v[1], xd) * (xd[2]))
 
-/**
- * These empty structs are used as tag classes for interpolation algorithm 
- * selection with Template classes
- */
-struct InterpolaTypeNearest{};
-struct InterpolaTypeLinear{};
-struct InterpolaTypeSinc{};
 
 /**
  * This function determines the weights of two sampling points during 1D nearest
@@ -99,9 +92,8 @@ struct InterpolaTypeSinc{};
  *           point
  */
 
-inline void Weight_Interpolation(double w[2], 
-                                const double xd, 
-                                InterpolaTypeNearest)
+inline void W_INTERP_NEAREST(double w[2], 
+                            const double xd)
 {
     w[0] = 0;
     w[1] = 0;
@@ -120,9 +112,8 @@ inline void Weight_Interpolation(double w[2],
  * @param xd the distance between the interpolation point and the first sampling
  *           point
  */
-inline void Weight_Interpolation(double w[2], 
-                                const double xd, 
-                                InterpolaTypeLinear)
+inline void W_INTERP_LINEAR(double w[2], 
+                            const double xd) 
 {
     w[0] = 1 - xd;
     w[1] = xd;
@@ -137,143 +128,110 @@ inline void Weight_Interpolation(double w[2],
  * @param xd the distance between the interpolation point and the first sampling
  *           point
  */
-inline void Weight_Interpolation(double w[2], 
-                                const double xd, 
-                                InterpolaTypeSinc)
+inline void W_INTERP_SINC(double w[2], 
+                          const double xd) 
 {
-    w[0] = gsl_sf_sinc(_xd);
-    w[1] = gsl_sf_sinc(1 - _xd);
+    w[0] = gsl_sf_sinc(xd);
+    w[1] = gsl_sf_sinc(1 - xd);
 }
 
+/**
+ * This function determines the weights of two sampling points during 1D
+ * interpolation given the distance between the interpolation point and the
+ * first sampling point with an interpolation type flag to select an 
+ * interpolation algorithm among NEAREST, LINEAR and SINC methods.
+ *
+ * @param w  2-array indicating the weights
+ * @param xd the distance between the interpolation point and the first sampling
+ *           point
+ * @param interpType the interpolation algorithms selection flag
+ */
+inline void W_INTERP(double w[2], 
+                     const double x, 
+                     const int interpType)
+{   
+    switch (interpType)
+    {
+        case NEAREST_INTERP :   W_INTERP_NEAREST(w, x);     break;
+        case LINEAR_INTERP  :   W_INTERP_LINEAR(w, x);      break;
+        case SINC_INTERP    :   W_INTERP_SINC(w, x);        break;
+        default             :   __builtin_unreachable();
+    }
+}
 
 /**
- * This template function determines the weights of two sampling points and
+ * This function determines the weights of two sampling points and
  * the coordinate of the first sampling point during 1D interpolation given
- * the coordinate of interpolation point using <Template class InterpolaType>.
+ * the coordinate of interpolation with an interpolation type flag to select an 
+ * interpolation algorithm among NEAREST, LINEAR and SINC methods.
  *
  * @param w  2-array indicating the weights
  * @param x0 the nearest grid point of the interpolation point
  * @param x  the interpolation point
+ * @param interpType the interpolation algorithms selection flag
  */
-template <class InterpolaType> 
-inline void WeightGpoint_Interpola(double w[2], int& x0, const double x);
+
+inline void WG_INTERP(double w[2],
+                      int& x0,
+                      const double x,
+                      const int interpType)
 {   
     x0 = floor(x);
-    Weight_Interpolation(w, x - x0, InterpolaType());
+    W_INTERP(w, x - x0, interpType);
 }
 
 
-
-
-//#define W_BI_INTERP(INTERP, w, xd) \
-//    [](double _w[2][2], const double _xd[2]) \
-//    { \
-//        double v[2][2]; \
-//        for (int i = 0; i < 2; i++) W_##INTERP(v[i], _xd[i]); \
-//        FOR_CELL_DIM_2 _w[i][j] = v[0][i] * v[1][j]; \
-//    }(w, xd)
-//
-//#define W_BI_NEAREST(w, xd) W_BI_INTERP(NEAREST, w, xd)
-//
-//#define W_BI_LINEAR(w, xd) W_BI_INTERP(LINEAR, w, xd)
-//
-//#define W_BI_SINC(w, xd) W_BI_INTERP(SINC, w, xd)
-
-template <class InterpolaType>
-inline void Weight_BI_Interpola(double w[2][2], const double xd[2])
+inline void W_BI_INTERP(double w[2][2], 
+                        const double xd[2],
+                        const int interpType)
 {
     double v[2][2];
-    for (int i = 0; i < 2; i++) {
-        Weight_Interpolation(v[i], xd[i], InterpolaType());
+    for (int i = 0; i < 2; i++) 
+    {
+        W_INTERP(v[i], xd[i], interpType);
     }
-    FOR_CELL_DIM_2 w[i][j] = v[0][i] * v[1][j];
+    FOR_CELL_DIM_2
+        w[i][j] = v[0][i] * v[1][j];
 }
 
-//#define WG_BI_INTERP(INTERP, w, x0, x) \
-//    [](double _w[2][2], int _x0[2], const double _x[2]) \
-//    { \
-//        double xd[2]; \
-//        for (int i = 0; i < 2; i++) \
-//        { \
-//            _x0[i] = floor(_x[i]); \
-//            xd[i] = _x[i] - _x0[i]; \
-//        } \
-//        W_BI_##INTERP(_w, xd); \
-//    }(w, x0, x)
-//
-//#define WG_BI_NEAREST(w, x0, x) WG_BI_INTERP(NEAREST, w, x0, x)
-//
-//#define WG_BI_LINEAR(w, x0, x) WG_BI_INTERP(LINEAR, w, x0, x)
-//
-//#define WG_BI_SINC(w, x0, x) WG_BI_INTERP(SINC, w, x0, x)
-
-template <class InterpolaType>
-inline void WeightGpoint_BI_Interpola(double w[2][2], 
-                                      int x0[2], 
-                                      const double x[2])
+inline void WG_BI_INTERP(double w[2][2], 
+                         int x0[2], 
+                         const double x[2],
+                         const int interpType)
 {
     double xd[2];
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) 
+    {
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];
     }
-    Weight_BI_Interpolation<InterpolaType>(w, xd);
+    W_BI_INTERP(w, xd, interpType);
 }
 
-
-//#define W_TRI_INTERP(INTERP, w, xd) \
-//    [](double _w[2][2][2], const double _xd[3]) \
-//    { \
-//        double v[3][2]; \
-//        for (int i = 0; i < 3; i++) W_##INTERP(v[i], _xd[i]); \
-//        FOR_CELL_DIM_3 _w[i][j][k] = v[0][i] * v[1][j] * v[2][k]; \
-//    }(w, xd)
-//
-//#define W_TRI_NEAREST(w, xd) W_TRI_INTERP(NEAREST, w, xd)
-//
-//#define W_TRI_LINEAR(w, xd) W_TRI_INTERP(LINEAR, w, xd)
-//
-//#define W_TRI_SINC(w, xd) W_TRI_INTERP(SINC, w, xd)
-
-template <class InterpolaType>
-inline void Weight_TRI_Interpola(double w[2][2][2], const double xd[3])
+inline void W_TRI_INTERP(double w[2][2][2], 
+                         const double xd[3],
+                         const int interpType)
 {
     double v[3][2];
-    for (int i = 0; i < 3; i++) {
-        Weight_Interpolation(v[i], xd[i], InterpolaType());
+    for (int i = 0; i < 3; i++) 
+    {
+        W_INTERP(v[i], xd[i], interpType);
     }
-    FOR_CELL_DIM_3 w[i][j][k] = v[0][i] * v[1][j] * v[2][k];
+    FOR_CELL_DIM_3 
+        w[i][j][k] = v[0][i] * v[1][j] * v[2][k];
 }
 
-//#define WG_TRI_INTERP(INTERP, w, x0, x) \
-//    [](double _w[2][2][2], int _x0[3], const double _x[3]) \
-//    { \
-//        double xd[3]; \
-//        for (int i = 0; i < 3; i++) \
-//        { \
-//            _x0[i] = floor(_x[i]); \
-//            xd[i] = _x[i] - _x0[i]; \
-//        } \
-//        W_TRI_##INTERP(_w, xd); \
-//    }(w, x0, x)
-//
-//#define WG_TRI_NEAREST(w, x0, x) WG_TRI_INTERP(NEAREST, w, x0, x)
-//
-//#define WG_TRI_LINEAR(w, x0, x) WG_TRI_INTERP(LINEAR, w, x0, x)
-//
-//#define WG_TRI_SINC(w, x0, x) WG_TRI_INTERP(SINC, w, x0, x)
-
-template <class InterpolaType>
-inline void WeightGpoint_BI_Interpola(double w[2][2][2], 
-                                      int x0[3], 
-                                      const double x[3])
+inline void WG_TRI_INTERP(double w[2][2][2],
+                          int x0[3], 
+                          const double x[3],
+                          const int interpType)
 {
     double xd[3];
     for (int i = 0; i < 3; i++) {
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];
     }
-    Weight_TRI_Interpolation<InterpolaType>(w, xd);
+    W_TRI_INTERP(w, xd, interpType);
 }
 
 
