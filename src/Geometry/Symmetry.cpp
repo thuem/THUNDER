@@ -232,8 +232,8 @@ void display(const Symmetry& sym)
 
         sym.get(L, R, i);
 
-        cout << "L matrix:\n" << L << endl << endl;
-        cout << "R matrix:\n" << R << endl << endl;
+        std::cout << "L matrix:\n" << L << std::endl << std::endl;
+        std::cout << "R matrix:\n" << R << std::endl << std::endl;
     }
 }
 

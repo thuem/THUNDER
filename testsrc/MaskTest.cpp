@@ -21,7 +21,7 @@
 
 #define N 380
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 

@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
     rotate3D(rot, 0.3, 0.3, 0.3);
     mat33 rot2;
     rotate3D(rot2, 0, 0, M_PI);
-    cout << rot2 << endl;
+    std::cout << rot2 << std::endl;
 
     R2R_FT(image,
            image,
@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
     }
     catch (Error& err)
     {
-        cout << err << endl;
+        std::cout << err << std::endl;
     }
 
     CLOG(INFO, "LOGGER_SYS") << "END";

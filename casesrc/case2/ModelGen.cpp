@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    cout << "Read-in Volume" << endl;
+    std::cout << "Read-in Volume" << std::endl;
     Volume vol;
     ImageFile imf("ref.mrc", "r");
     imf.readVolume(vol);

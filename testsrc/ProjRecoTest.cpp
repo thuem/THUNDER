@@ -47,7 +47,7 @@
 
 #define NOISE_FACTOR 10
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 

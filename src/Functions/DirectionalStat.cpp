@@ -14,12 +14,12 @@ double pdfACG(const vec4& x,
               const mat44& sig)
 {
     /***
-    cout << sig.determinant() << endl;
-    cout << sig.inverse() << endl;
+    std::cout << sig.determinant() << std::endl;
+    std::cout << sig.inverse() << std::endl;
     ***/
     /***
-    cout << pow(sig.determinant(), -0.5) << endl;
-    cout << pow(x.transpose() * sig.inverse() * x, -2) << endl;
+    std::cout << pow(sig.determinant(), -0.5) << std::endl;
+    std::cout << pow(x.transpose() * sig.inverse() * x, -2) << std::endl;
     ***/
     return pow(sig.determinant(), -0.5)
          * pow(x.transpose() * sig.inverse() * x, -2);
@@ -105,8 +105,8 @@ void inferACG(mat44& dst,
             double u = src.row(i) * A.inverse() * src.row(i).transpose();
 
             /***
-            cout << tensor << endl << endl;
-            cout << u << endl << endl;
+            std::cout << tensor << std::endl << std::endl;
+            std::cout << u << std::endl << std::endl;
             ***/
 
             B += tensor / u;

@@ -12,7 +12,7 @@
 
 #define N 1000
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -34,8 +34,8 @@ int main(int argc, const char* argv[])
     vector<int> partIDs;
     exp.particleIDsMicrograph(partIDs, 0);
     for (size_t i = 0; i < partIDs.size(); i++)
-        cout << partIDs[i] << endl;
+        std::cout << partIDs[i] << std::endl;
     exp.particleIDsGroup(partIDs, 0);
     for (size_t i = 0; i < partIDs.size(); i++)
-        cout << partIDs[i] << endl;
+        std::cout << partIDs[i] << std::endl;
 }

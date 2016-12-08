@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    cout << "Initialising Parameters" << endl;
+    std::cout << "Initialising Parameters" << std::endl;
     MLOptimiserPara para;
     para.iterMax = atoi(argv[1]);
     para.k = 1;
@@ -54,14 +54,14 @@ int main(int argc, char* argv[])
     sprintf(para.initModel, "sphere.mrc");
     sprintf(para.db, "MickeyMouse.db");
 
-    cout << "Setting Parameters" << endl;
+    std::cout << "Setting Parameters" << std::endl;
     MLOptimiser opt;
     opt.setPara(para);
 
-    cout << "MPISetting" << endl;
+    std::cout << "MPISetting" << std::endl;
     opt.setMPIEnv();
 
-    cout << "Run" << endl;
+    std::cout << "Run" << std::endl;
     opt.run();
 
     MPI_Finalize();

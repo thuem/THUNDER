@@ -45,12 +45,12 @@ int main(int argc, char* argv[])
     FOR_EACH_PIXEL_FT(map)
         map[i] = (mapA[i] + mapB[i]) / 2;
 
-    cout << "Open FSC File" << endl;
+    std::cout << "Open FSC File" << std::endl;
 
     FILE* file = fopen(argv[5], "r");
 
     if (file != NULL)
-        cout << "Open FSC Succced!" << endl;
+        std::cout << "Open FSC Succced!" << std::endl;
 
     char buf[FILE_LINE_LENGTH];
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 
     rewind(file);
 
-    cout << "nLine = " << nLine << endl;
+    std::cout << "nLine = " << nLine << std::endl;
     
     vec fsc(nLine / 2 + 1);
     fsc(0) = 1;
@@ -69,14 +69,14 @@ int main(int argc, char* argv[])
     for (int i = 0; i < nLine; i++)
     {
         fscanf(file, "%d %lf %lf", &idx, &res, &val);
-        //cout << val << endl;
+        //std::cout << val << std::endl;
         fsc(i / 2) = val;
     }
     
     for (int i = 0; i < fsc.size(); i++)
-        cout << i << ", " << fsc(i) << endl;
+        std::cout << i << ", " << fsc(i) << std::endl;
 
-    cout << "FSC Weighting Fitler" << endl;
+    std::cout << "FSC Weighting Fitler" << std::endl;
     fscWeightingFilter(map, map, fsc);
 
     fft.bw(map);
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
 
     // bFactor = -111;
 
-    cout << "B-Factor = " << bFactor << endl;
+    std::cout << "B-Factor = " << bFactor << std::endl;
 
     bFactorFilter(map, map, bFactor);
     

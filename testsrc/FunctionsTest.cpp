@@ -15,31 +15,31 @@
 
 #define PF 2
 
-using namespace std;
+
 
 int main(int argc, const char* argv[])
 {
-    // cout << atoi(argv[1]) << endl;
+    // std::cout << atoi(argv[1]) << std::endl;
     /***
     for (double i = 0; i <= 2.5; i += 0.01)
-        cout << i << " " << MKB_FT(i, 2, atoi(argv[1])) << endl;
+        std::cout << i << " " << MKB_FT(i, 2, atoi(argv[1])) << std::endl;
     ***/
 
     /***
     for (double i = 0; i <= 1.5; i += 0.01)
-        cout << i << " " << MKB_RL(i, 2, 0.5) << endl;
+        std::cout << i << " " << MKB_RL(i, 2, 0.5) << std::endl;
     ***/
     
     /***
     for (double i = 0; i <= BLOB_A * PF; i += 0.01)
-        cout << i << " " << MKB_RL(i, PF * BLOB_A, BLOB_ALPHA) << endl;
+        std::cout << i << " " << MKB_RL(i, PF * BLOB_A, BLOB_ALPHA) << std::endl;
     ***/
 
     for (double i = 0; i <= 1.; i += 0.01)
-        cout << i << " " << TIK_RL(i) << endl;
+        std::cout << i << " " << TIK_RL(i) << std::endl;
 
     /***
     for (double i = 0; i <= BLOB_A * PF; i += 0.01)
-        cout << i << " " << MKB_FT(i, BLOB_A * PF, BLOB_ALPHA) << endl;
+        std::cout << i << " " << MKB_FT(i, BLOB_A * PF, BLOB_ALPHA) << std::endl;
         ***/
 }

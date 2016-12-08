@@ -10,7 +10,7 @@
 
 #include "Euler.h"
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     mat33 rot;
     randRotate3D(rot);
 
-    cout << rot << endl;
+    std::cout << rot << std::endl;
 
     return 0;
 }

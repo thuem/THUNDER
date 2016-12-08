@@ -24,24 +24,24 @@ int main(int argc, char* argv[])
 
     Volume obj;
 
-    cout << "Reading in Object" << endl;
+    std::cout << "Reading in Object" << std::endl;
 
     ImageFile imf(argv[1], "r");
     imf.readMetaData();
     imf.readVolume(obj);
 
-    cout << "Size: " << obj.nColRL() << " x "
+    std::cout << "Size: " << obj.nColRL() << " x "
                      << obj.nRowRL() << " x "
-                     << obj.nSlcRL() << endl;
+                     << obj.nSlcRL() << std::endl;
 
     int N = obj.nColRL();
 
-    cout << "Padding" << endl;
+    std::cout << "Padding" << std::endl;
 
     Volume padObj;
     VOL_PAD_RL(padObj, obj, 2);
     
-    cout << "Performing Fourier Transform" << endl;
+    std::cout << "Performing Fourier Transform" << std::endl;
 
     FFT fft;
     fft.fw(padObj);
@@ -70,12 +70,12 @@ int main(int argc, char* argv[])
         word >> x;
         word >> y;
 
-        cout << "phi = " << phi
+        std::cout << "phi = " << phi
              << ", theta = " << theta
              << ", psi = " << psi
              << ", x = " << x
              << ", y = " << y
-             << endl;
+             << std::endl;
 
         fft.fw(image);
         SET_0_FT(image);

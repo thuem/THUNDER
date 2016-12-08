@@ -33,7 +33,7 @@ void CTF(Image& dst,
 {
     double lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
-    //cout << "lambda = " << lambda << endl;
+    //std::cout << "lambda = " << lambda << std::endl;
 
     double K1 = M_PI * lambda;
     double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);

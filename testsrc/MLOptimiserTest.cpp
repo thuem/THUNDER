@@ -10,7 +10,7 @@
 
 #include "MLOptimiser.h"
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -24,12 +24,12 @@ int main(int argc, char* argv[])
 
     double b = atof(argv[1]);
 
-    cout << searchPlace(a, b, 0, 10) << endl;
+    std::cout << searchPlace(a, b, 0, 10) << std::endl;
 
     recordTopK(a, r, t, b, 100, 100, 10);
 
     for (int i = 0; i < 10; i++)
-        cout << i << ": " << a[i] << ", " << r[i] << ", " << t[i] << endl;
+        std::cout << i << ": " << a[i] << ", " << r[i] << ", " << t[i] << std::endl;
         ***/
 
     return 0;

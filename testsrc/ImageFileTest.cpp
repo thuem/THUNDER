@@ -17,7 +17,7 @@
 #define PIXEL_SIZE 1.32
 #define EW 3.0
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
