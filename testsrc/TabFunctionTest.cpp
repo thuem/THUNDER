@@ -10,13 +10,11 @@
 
 #include "TabFunction.h"
 
-
-
-using namespace placeholders;
+#include <boost/bind.hpp>
 
 int main(int argc, const char* argv[])
 {
-    TabFunction tab(bind(MKB_FT, _1, 2, atoi(argv[1])), 0, 2.5, 100000);
+    TabFunction tab(boost::bind(MKB_FT, boost::placeholders::_1, 2, atoi(argv[1])), 0, 2.5, 100000);
 
     // std::cout << atoi(argv[1]) << std::endl;
     for (double i = 0; i <= 2.5; i += 0.01)
