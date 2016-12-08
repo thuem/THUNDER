@@ -30,7 +30,7 @@ std::ostream & print_matrix(std::ostream & s, const Derived& _m, const IOFormat&
   * List of available parameters:
   *  - \b precision number of digits for floating point values, or one of the special constants \c StreamPrecision and \c FullPrecision.
   *                 The default is the special value \c StreamPrecision which means to use the
-  *                 stream's own precision setting, as set for instance using \c cout.precision(3). The other special value
+  *                 stream's own precision setting, as set for instance using \c std::cout.precision(3). The other special value
   *                 \c FullPrecision means that the number of digits will be computed to match the full precision of each floating-point
   *                 type.
   *  - \b flags an OR-ed combination of flags, the default value is 0, the only currently available flag is \c DontAlignCols which

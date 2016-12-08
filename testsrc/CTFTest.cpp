@@ -13,7 +13,7 @@
 
 #define N 380
 
-using namespace std;
+
 
 /***
 #define PIXEL_SIZE 1.32
@@ -24,7 +24,7 @@ using namespace std;
 #define CS 0
 ***/
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
     double theta = 0;
     double Cs = 0;
 
-    // cout << "200 Angstrom = " << resA2P(1.0 / 200, N, pixelSize) << endl;
+    // std::cout << "200 Angstrom = " << resA2P(1.0 / 200, N, pixelSize) << std::endl;
 
     /***
     Image img(N, N, FT_SPACE);
@@ -49,15 +49,15 @@ int main(int argc, char* argv[])
 
     for (int i = 1; i < img.nColRL() / 2; i++)
     {
-        cout << "Pixel = "
+        std::cout << "Pixel = "
              << i - 1
-             << endl
+             << std::endl
              << "Resolution = "
              << 1.0 / resP2A(i, img.nColRL(), pixelSize)
-             << endl
+             << std::endl
              << "CTF = "
              << ringAverage(i, img, [](const Complex x){ return REAL(x); })
-             << endl;
+             << std::endl;
     }
     ***/
 

@@ -18,7 +18,7 @@
 #define MICROGRAPH_PATH "/home/humingxu/Micrographs"
 #define STAR_PATH        "/home/humingxu/Star"
 
-using namespace std;
+
 
 void initPara(PREPROCESS_PARA* para)
 {
@@ -214,11 +214,11 @@ int main(int argc, char* argv[])
     exp.particleIDsMicrograph(partIDs, 0);
     #if 0
     for (int i = 0; i < partIDs.size(); i++)
-        cout << partIDs[i] << endl;
+        std::cout << partIDs[i] << std::endl;
 
     exp.particleIDsGroup(partIDs, 0);
     for (int i = 0; i < partIDs.size(); i++)
-        cout << partIDs[i] << endl;
+        std::cout << partIDs[i] << std::endl;
     #endif
     ***/
 
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
     }
     catch (Error& err)
     {
-        cout << err;
+        std::cout << err;
     }
 
     MPI_Finalize();

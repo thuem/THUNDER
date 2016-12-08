@@ -105,14 +105,14 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    cout << "Setting Parameters" << endl;
+    std::cout << "Setting Parameters" << std::endl;
     MLOptimiser opt;
     opt.setPara(para);
 
-    cout << "MPISetting" << endl;
+    std::cout << "MPISetting" << std::endl;
     opt.setMPIEnv();
 
-    cout << "Run" << endl;
+    std::cout << "Run" << std::endl;
     opt.run();
 
     MPI_Finalize();

@@ -32,10 +32,10 @@ int main(int argc, const char* argv[])
 
         symmetryRotation(sr, rot, &sym);
 
-        cout << "pgOrder = " << sym.pgOrder() << endl;
+        std::cout << "pgOrder = " << sym.pgOrder() << std::endl;
 
         for (int i = 0; i < (int)sr.size(); i++)
-            cout << sr[i] << endl;
+            std::cout << sr[i] << std::endl;
     }
     catch (Error& error)
     {

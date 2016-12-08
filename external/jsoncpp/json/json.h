@@ -1543,7 +1543,7 @@ bool JSON_API parseFromStream(
  \code
  Json::Value root;
  cin >> root["dir"]["file"];
- cout << root;
+ std::cout << root;
  \endcode
  Result:
  \verbatim
