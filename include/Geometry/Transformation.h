@@ -65,6 +65,8 @@
  * @param MAT_GEN code for generating transformation matrix
  * @param r the upper boundary of radius
  */
+
+
 #define VOL_TRANSFORM(SPACE, dst, src, MAT, MAT_GEN, r) \
 [](Volume& _dst, const Volume& _src, const double _r) \
 { \
@@ -82,8 +84,8 @@
  * @param mat the transformation matrix
  * @param r the upper boundary of radius
  */
-#define VOL_TRANSFORM_MAT_RL(dst, src, mat, r) \
-    VOL_TRANSFORM_MAT(RL, dst, src, mat, r)
+//#define VOL_TRANSFORM_MAT_RL(dst, src, mat, r) \
+//    VOL_TRANSFORM_MAT(RL, dst, src, mat, r)
 
 /**
  * This marco performs a transformation on a volume in Fourier space given a
@@ -128,6 +130,27 @@
     } \
 }(dst, src, mat, r)
 
+inline void VOL_TRANSFORM_MAT_RL(Volume& dst, 
+                                const Volume& src, 
+                                const mat33 mat, 
+                                const double r)
+{ 
+    SET_0_RL(dst); 
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(dst) 
+    { 
+        vec3 newCor((double)i, (double)j, (double)k);
+        vec3 oldCor = mat * newCor; 
+        if (oldCor.squaredNorm() < gsl_pow_2(r))
+            dst.setRL(src.getByInterpolationRL(oldCor(0),
+                                               oldCor(1),
+                                               oldCor(2),
+                                               LINEAR_INTERP),
+                            i, 
+                            j, 
+                            k); 
+    } 
+}
 /**
  * This macro symmetrizes a symmetry unit in real space.
  *
