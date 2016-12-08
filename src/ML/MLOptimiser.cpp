@@ -51,8 +51,6 @@ void display(const MLOptimiserPara& para)
     printf("Mask Images with Zero Noise:                             %12d\n", para.zeroMask);
 }
 
-MLOptimiser::MLOptimiser() {}
-
 MLOptimiser::~MLOptimiser()
 {
     clear();

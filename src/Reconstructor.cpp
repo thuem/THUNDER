@@ -10,7 +10,7 @@
 
 #include <boost/bind.hpp>
 
-Reconstructor::Reconstructor() {}
+Reconstructor::Reconstructor() { default_init(); }
 
 Reconstructor::Reconstructor(const int size,
                              const int pf,
@@ -18,6 +18,7 @@ Reconstructor::Reconstructor(const int size,
                              const double a,
                              const double alpha)
 {
+    default_init();
     init(size, pf, sym, a, alpha);
 }
 

@@ -182,9 +182,6 @@ class ImageFile
     if (fseek(_file, 1024 + symmetryDataSize() + i, 0) != 0) \
         REPORT_ERROR("Fail to read in an image.");
 
-#define CHECK_FILE_VALID \
-    if (_file == NULL) \
-        REPORT_ERROR("Image file does not exist.");
 
 #define IMAGE_INDEX(i, j, nCol) \
     j * (nCol) + i

@@ -150,27 +150,35 @@ class Reconstructor : public Parallel
          * The padding factor which defined the PAD_SIZE (_pf * _size).
          * See @ref _size. By default, _pf = 2.
          */
-        int _pf = 2;
+        int _pf;
 
         /**
          * The symmetry mark of the model, which is used to reduce computation.
          */
-        const Symmetry* _sym = NULL;
+        const Symmetry* _sym;
 
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _a = 1.9;
+        double _a;
 
         /**
          * The smoothness parameter. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _alpha = 10;
+        double _alpha;
         
         /**
          * the blob kernel stored as a tabular function
          */
         TabFunction _kernel;
+
+        void default_init()
+        {
+            _pf = 2;
+            _sym = NULL;
+            _a = 1.9;
+            _alpha = 10;
+        }
 
     public:
 
