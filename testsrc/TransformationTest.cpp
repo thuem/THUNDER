@@ -45,7 +45,11 @@ int main(int argc, const char* argv[])
     imf.writeVolume("head.mrc", head);
 
     Volume vol(N, N, N, RL_SPACE);
-    VOL_TRANSFORM_RL(vol, head, mat, rotate3D(mat, M_PI / 2, 'Z'), N / 2 - 1);
+    {
+        mat33 mat;
+        rotate3D(mat, M_PI / 2, 'Z');
+        VOL_TRANSFORM_MAT_RL(vol, head, mat, N / 2 - 1);
+    }
     imf.readMetaData(vol);
     imf.writeVolume("rotate1.mrc", vol);
 

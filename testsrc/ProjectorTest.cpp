@@ -14,6 +14,7 @@
 #include "ImageFile.h"
 #include "FFT.h"
 #include "Random.h"
+#include "Transformation.h"
 
 #define N 128
 #define M 10
