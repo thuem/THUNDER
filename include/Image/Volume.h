@@ -28,7 +28,6 @@
 #include "Functions.h"
 #include "TabFunction.h"
 #include "Coordinate5D.h"
-#include "Transformation.h"
 
 /***
 #define VOLUME_SUB_SPHERE_FT(a) \

@@ -9,6 +9,7 @@
  * ****************************************************************************/
 
 #include "Spectrum.h"
+#include "Functions/Random.h"
 
 double nyquist(const double pixelSize)
 {

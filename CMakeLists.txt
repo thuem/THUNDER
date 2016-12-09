@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
-set (CMAKE_C_FLAGS "-Wall -Wno-deprecated-declarations -Wsign-compare")
+set (CMAKE_C_FLAGS "-Wall -Wno-deprecated-declarations -Wsign-compare ${ADDITIONAL_C_FLAGS}")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -ansi")
-set (CMAKE_BUILD_TYPE Release)
+set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++98")
+
+if(NOT CMAKE_BUILD_TYPE)
+    set (CMAKE_BUILD_TYPE Release)
+endif()
 
 option (SANITIZE "Turn on sanitization" OFF)
 if (SANITIZE)
@@ -35,6 +38,10 @@ endif()
 include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${MPI_INCLUDE_PATH})
 
 link_libraries(${FFTW_LIBRARIES} ${FFTWOMP_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${MPI_LIBRARIES} ${CMAKE_DL_LIBS})
+
+if (ADDITIONAL_LINKER_FLAGS)
+    link_libraries(${ADDITIONAL_LINKER_FLAGS})
+endif()
 
 set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})

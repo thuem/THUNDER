@@ -137,7 +137,7 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,
 { 
     SET_0_RL(dst); 
     #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_RL(dst) 
+    VOLUME_FOR_EACH_PIXEL_RL(dst)
     { 
         vec3 newCor((double)i, (double)j, (double)k);
         vec3 oldCor = mat * newCor; 
@@ -151,6 +151,7 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,
                             k); 
     } 
 }
+
 /**
  * This macro symmetrizes a symmetry unit in real space.
  *
