@@ -102,6 +102,107 @@
 }
 
 
+/**
+ * This macro executes a function in real space and performs Fourier transform
+ * on the destination image (volume).
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
+#define R2C_RL(dst, src, function) \
+    do \
+    { \
+        function; \
+        FFT fft; \
+        fft.fw(dst); \
+    } while (0)
+
+/**
+ * This macro performs inverse Fourier transform on the source image (volume)
+ * and executes a function in real space.
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
+#define C2R_RL(dst, src, function) \
+    do \
+    { \
+        FFT fft; \
+        fft.bw(src); \
+        function; \
+    } while (0)
+
+/**
+ * This macro performs inverse Fourier transform on the source image (volume),
+ * executes a function in real space and performs Fourier transform on the
+ * destination image (volume).
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
+#define C2C_RL(dst, src, function) \
+    do \
+    { \
+        FFT fft; \
+        fft.bw(src); \
+        function; \
+        fft.fw(dst); \
+    } while (0)
+
+/**
+ * This macro performs Fourier transform on the source image (volume), executes
+ * a function in Fourier space and perform inverse Fourier transform on the
+ * destination image (volume).
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
+#define R2R_FT(dst, src, function) \
+    do \
+    { \
+        FFT fft; \
+        fft.fw(src); \
+        function; \
+        fft.bw(dst); \
+    } while (0)
+
+/**
+ * This macro performs Fourier transform on the source image (volume) and
+ * excutes a function in Fourier space.
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
+#define R2C_FT(dst, src, function) \
+    do \
+    { \
+        FFT fft; \
+        fft.fw(src); \
+        function; \
+    } while (0)
+
+/**
+ * This macro executes a function in Fourier space and performs an inverse
+ * Fourier transform on the destination image (volume).
+ *
+ * @param dst the destination image (volume)
+ * @param src the source image (volume)
+ * @param function the function to be executed
+ */
+#define C2R_FT(dst, src, function) \
+    do \
+    { \
+        function; \
+        FFT fft; \
+        fft.bw(dst); \
+    } while (0)
+
+
 
 class FFT
 {
