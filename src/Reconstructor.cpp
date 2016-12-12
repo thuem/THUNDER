@@ -45,6 +45,10 @@ void Reconstructor::init(const int size,
 
     _FSC = vec::Constant(1, 1);
 
+    _sig = vec::Zero(1);
+
+    _tau = vec::Constant(1, 1);
+
     _a = a;
     _alpha = alpha;
 

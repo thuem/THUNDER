@@ -881,7 +881,6 @@ void MLOptimiser::run()
 
             //_model.refreshRecoSigTau(_model.rPrev(), _model.rUPrev());
             //_model.refreshRecoSigTau(_r, _model.rU());
-            _model.refreshRecoSigTau(maxR(), _model.rU());
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
@@ -1004,6 +1003,8 @@ void MLOptimiser::run()
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
 
             _model.refreshReco();
+
+            _model.refreshRecoSigTau(maxR(), _model.rUPrev());
         }
     }
 
