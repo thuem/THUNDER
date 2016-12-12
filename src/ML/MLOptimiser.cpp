@@ -1004,7 +1004,8 @@ void MLOptimiser::run()
 
             _model.refreshReco();
 
-            _model.refreshRecoSigTau(maxR(), _model.rUPrev());
+            //_model.refreshRecoSigTau(maxR(), _model.rUPrev());
+            _model.refreshRecoSigTau(maxR(), _resReport);
         }
     }
 
