@@ -522,7 +522,7 @@ void Reconstructor::allReduceT()
 
         _T.addFT(sig / tau
                * REAL(_W.getFTHalf(i, j, k))
-               / u,
+               / _size,
             // / gsl_pow_3(_pf)
                  i,
                  j,
