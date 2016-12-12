@@ -522,7 +522,8 @@ void Reconstructor::allReduceT()
 
         _T.addFT(sig / tau
                * REAL(_W.getFTHalf(i, j, k))
-               / gsl_pow_3(_pf),
+               / u,
+            // / gsl_pow_3(_pf)
                  i,
                  j,
                  k,
@@ -685,12 +686,11 @@ void Reconstructor::allReduceW()
         {
             double c = REAL(_C.getFTHalf(i, j, k));
 
-            /***
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
                              i,
                              j,
                              k);
-                             ***/
+            /***
             if (c > 1)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
@@ -698,6 +698,7 @@ void Reconstructor::allReduceW()
                              j,
                              k);
             }
+            ***/
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
