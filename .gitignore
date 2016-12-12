@@ -33,6 +33,7 @@ case/case2
 app/
 build/
 build*/
+tags
 
 *.dSYM/
 

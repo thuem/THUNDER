@@ -20,6 +20,7 @@ ImageFile::ImageFile(const char* filename,
     if (_file == NULL)
         CLOG(FATAL, "LOGGER_SYS") << "File Does not Exist: "
                                   << filename;
+    _symmetryData = NULL;
 }
 
 ImageFile::~ImageFile()
