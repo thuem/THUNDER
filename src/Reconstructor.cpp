@@ -520,15 +520,21 @@ void Reconstructor::allReduceT()
         //_T.setFTHalf(COMPLEX(tauRcp, 0), i, j, k);
         //_T.setFTHalf(COMPLEX(sig / tau, 0), i, j, k);
 
+        /***
         _T.addFT(sig / tau
                * REAL(_W.getFTHalf(i, j, k))
                / _size,
-            // / gsl_pow_3(_pf)
                  i,
                  j,
                  k,
                  _pf * _a,
                  _kernel);
+                 ***/
+
+        _T.setFTHalf(COMPLEX(sig / tau * REAL(_W.getFTHalf(i, j, k) / _size), 0),
+                     i,
+                     j,
+                     k);
         //}
     }
 }
