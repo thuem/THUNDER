@@ -108,7 +108,9 @@ double MKB_RL(const double r,
     double w = pow(2 * M_PI, 1.5)
              * gsl_pow_3(a)
              * gsl_pow_2(alpha)
-             / gsl_sf_bessel_In(2, alpha)
+             /// gsl_sf_bessel_In(2, alpha)
+             /// gsl_sf_bessel_In(0, alpha)
+             / gsl_sf_bessel_I0(alpha)
              / pow(v, 3.5);
 
     if (u <= alpha)

@@ -53,7 +53,6 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    /***
     loggerInit(argc, argv);
 
     MPI_Init(&argc, &argv);
@@ -511,5 +510,4 @@ int main(int argc, char* argv[])
     }
     
     return 0;
-    ***/
 }

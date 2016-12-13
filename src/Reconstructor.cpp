@@ -295,7 +295,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
 
-        allReduceT();
+        //allReduceT();
 
         allReduceW();
     }
@@ -329,6 +329,8 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
+    double nf = MKB_RL(0, _a * _pf, _alpha);
+
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
@@ -340,7 +342,15 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(0, i, j, k);
             ***/
 
-        if (r > 0.25 / _pf * RECO_LOOSE_FACTOR)
+        if (r < 0.25 / _pf * RECO_LOOSE_FACTOR)
+            dst.setRL(dst.getRL(i, j, k)
+                    / TIK_RL(r)
+                    / MKB_RL(r, _a * _pf, _alpha)
+                    * nf,
+                      i,
+                      j,
+                      k);
+        else
             dst.setRL(0, i, j, k);
     }
 
