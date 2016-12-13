@@ -21,10 +21,15 @@
 #include "Mask.h"
 #include "Filter.h"
 
-#define RANDOM_PHASE_THRES 0.8
-#define GEN_MASK_RES 30
+//#define RANDOM_PHASE_THRES 0.8
+//#define GEN_MASK_RES 30
 
-#define COMPENSATE_B_FACTOR 80 // Angstrom
+//#define COMPENSATE_B_FACTOR 80 // Angstrom
+
+/**
+ * lower resolution limit for estimating B-factor in Angstrom
+ */
+#define B_FACTOR_EST_LOW_RES 10
 
 using namespace std;
 

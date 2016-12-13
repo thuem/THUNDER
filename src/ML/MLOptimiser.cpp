@@ -1015,7 +1015,12 @@ void MLOptimiser::run()
     _model.setRU(maxR());
 
     MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
-    NT_MASTER _model.refreshReco();
+    NT_MASTER
+    {
+        _model.refreshReco();
+
+        _model.refreshRecoSigTau(maxR(), _resReport);
+    }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
     reconstructRef(_para.performMask);

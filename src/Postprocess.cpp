@@ -95,8 +95,8 @@ void Postprocess::run()
     bFactorEst(bFactor,
                _mapI,
                _res,
-               //AROUND(resA2P(1.0 / 10, _size, _pixelSize)));
-               AROUND(resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)));
+               AROUND(resA2P(1.0 / B_FACTOR_EST_LOW_RES, _size, _pixelSize)));
+               //AROUND(resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)));
 
     //bFactor = -100;
 
@@ -110,9 +110,9 @@ void Postprocess::run()
             (double)EDGE_WIDTH_FT / _size,
             bFactor);
 
-    CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";
+    //CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";
 
-    bFactorFilter(_mapI, _mapI, COMPENSATE_B_FACTOR / gsl_pow_2(_pixelSize));
+    //bFactorFilter(_mapI, _mapI, COMPENSATE_B_FACTOR / gsl_pow_2(_pixelSize));
 
     CLOG(INFO, "LOGGER_SYS") << "Saving Result";
 
