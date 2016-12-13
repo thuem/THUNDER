@@ -24,7 +24,7 @@
 
 #define PF 2
 
-#define N 380
+#define N 200
 #define M 5000
 //#define M 40000
 //#define M 10
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
-    Symmetry sym("C15");
+    Symmetry sym("C7");
 
         Image ctf1(N, N, FT_SPACE);
         Image ctf2(N, N, FT_SPACE);
