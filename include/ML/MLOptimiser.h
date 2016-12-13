@@ -324,6 +324,11 @@ class MLOptimiser : public Parallel
         vector<Image> _img;
 
         /**
+         * unmasked 2D images
+         */
+        vector<Image> _imgOri;
+
+        /**
          * a particle filter for each 2D image
          */
         vector<Particle> _par;

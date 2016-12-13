@@ -1369,17 +1369,13 @@ void MLOptimiser::substractBgImg()
 
 void MLOptimiser::maskImg()
 {
-    /***
-    #pragma omp parallel for
+    //_imgOri = _img;
+
+    _imgOri.clear();
+
     FOR_EACH_2D_IMAGE
-        softMask(_img[l],
-                 _img[l],
-                 _para.maskRadius / _para.pixelSize,
-                 //size() * MASK_RATIO / 2,
-                 EDGE_WIDTH_RL,
-                 0,
-                 0);
-                 ***/
+        _imgOri.push_back(_img[l].copyImage());
+
     if (_para.zeroMask)
     {
         #pragma omp parallel for
@@ -1409,7 +1405,10 @@ void MLOptimiser::normaliseImg()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
+    {
         SCALE_RL(_img[l], scale);
+        SCALE_RL(_imgOri[l], scale);
+    }
 
     _stdN *= scale;
     _stdD *= scale;
@@ -1423,8 +1422,12 @@ void MLOptimiser::fwImg()
     FOR_EACH_2D_IMAGE
     {
         FFT fft;
+
         fft.fw(_img[l]);
         _img[l].clearRL();
+
+        fft.fw(_imgOri[l]);
+        _imgOri[l].clearRL();
     }
 }
 
@@ -1435,8 +1438,12 @@ void MLOptimiser::bwImg()
     FOR_EACH_2D_IMAGE
     {
         FFT fft;
+
         fft.bw(_img[l]);
         _img[l].clearFT();
+
+        fft.bw(_imgOri[l]);
+        _imgOri[l].clearFT();
     }
 }
 
@@ -2068,15 +2075,19 @@ void MLOptimiser::reconstructRef(const bool mask)
         
         _par[l].rank1st(rot, tran);
 
+        /***
         _model.reco(0).insertP(_img[l],
                                _ctf[l],
-                               //_sig.row(_groupID[l] - 1).head(_r),
-                               //_sig.row(_groupID[l] - 1).head(_model.rU()),
                                rot,
                                tran,
                                1);
-            //_sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
-        //_model.reco(0).insert(_datP[l], _ctfP[l], rot, tran, 1);
+                               ***/
+
+        _model.reco(0).insertP(_imgOri[l],
+                               _ctf[l],
+                               rot,
+                               tran,
+                               1);
     }
 
     MPI_Barrier(_hemi);
