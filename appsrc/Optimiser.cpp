@@ -76,6 +76,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    MPI_Init(&argc, &argv);
     loggerInit(argc, argv);
 
     Json::Reader reader;
@@ -102,8 +103,6 @@ int main(int argc, char* argv[])
 
         abort();
     }
-
-    MPI_Init(&argc, &argv);
 
     std::cout << "Setting Parameters" << std::endl;
     MLOptimiser opt;

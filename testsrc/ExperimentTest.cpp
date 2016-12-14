@@ -18,7 +18,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, const char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     Experiment exp("test.db");
 

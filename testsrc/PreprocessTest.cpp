@@ -178,7 +178,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {   
-    loggerInit();
+    loggerInit(argc, argv);
 
 /***
     system("cp test.db  /dev/shm/test.db");

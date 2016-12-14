@@ -6,6 +6,7 @@
  * Description:
  * ****************************************************************************/
 
+#include <Error.h>
 #include "Database.h"
 #include "Utils.h"
 
@@ -421,6 +422,13 @@ void Database::finalizeStatement()
     // no-op
 }
 
+static void executeCommand(const char* cmd)
+{
+    int rc = system(cmd);
+    if (rc != 0)
+        CLOG(FATAL, "LOGGER_SYS") << "Failure executing command \"" << cmd << "\" with exit status " << rc;
+}
+
 void Database::masterPrepareTmpFile()
 {
     if (_commRank != 0)
@@ -430,20 +438,14 @@ void Database::masterPrepareTmpFile()
 
     char die[256];
     char cast[256];
-    char cmd[128];
+    char cmd[1024];
 
-    sprintf(cmd, "mkdir /tmp/%s", _ID);
-    system(cmd);
-    sprintf(cmd, "mkdir /tmp/%s/m", _ID);
-    system(cmd);
-    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
-    system(cmd);
+    snprintf(cmd, sizeof(cmd), "mkdir -p ./tmp/%s/m ./tmp/%s/s", _ID, _ID);
+    executeCommand(cmd);
 
     MASTER_TMP_FILE(die, 0);
-    sprintf(cmd, "rm -f %s", die);
-    system(cmd);
-    sprintf(cmd, "touch %s", die);
-    system(cmd);
+    snprintf(cmd, sizeof(cmd), "rm -f %s && touch %s", die, die);
+    executeCommand(cmd);
 
     string sql;
     // create a database struct for each node
@@ -473,9 +475,9 @@ void Database::masterPrepareTmpFile()
 
     for (int i = 1; i < _commSize; i++) {
         MASTER_TMP_FILE(cast, i);
-        system(cmd);
-        sprintf(cmd, "cp %s %s", die, cast);
-        system(cmd);
+        executeCommand(cmd);
+        snprintf(cmd, sizeof(cmd), "cp %s %s", die, cast);
+        executeCommand(cmd);
     }
 }
 
@@ -483,11 +485,9 @@ void Database::slavePrepareTmpFile()
 {
     if (_commRank == 0) return;
 
-    char cmd[128];
-    sprintf(cmd, "mkdir /tmp/%s", _ID);
-    system(cmd); 
-    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
-    system(cmd); 
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "mkdir -p ./tmp/%s/s", _ID);
+    executeCommand(cmd);
 }
 
 void Database::masterReceive(const int rank)

@@ -21,7 +21,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, const char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     std::cout << "Define a head." << std::endl;
 

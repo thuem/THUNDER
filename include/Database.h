@@ -30,9 +30,9 @@
 
 #define SQLITE3_CALLBACK [](void* data, int ncols, char** values, char** header)
 
-#define MASTER_TMP_FILE(database, rank) snprintf((database), sizeof(database), "/tmp/%s/m/%04d.db", _ID, (rank))
+#define MASTER_TMP_FILE(database, rank) snprintf((database), sizeof(database), "./tmp/%s/m/%04d.db", _ID, (rank))
 
-#define SLAVE_TMP_FILE(database) snprintf(database, sizeof(database), "/tmp/%s/s/%04d.db", _ID, _commRank)
+#define SLAVE_TMP_FILE(database) snprintf(database, sizeof(database), "./tmp/%s/s/%04d.db", _ID, _commRank)
 
 inline void WRITE_FILE(const char* filename, void* buf, size_t len)
 {

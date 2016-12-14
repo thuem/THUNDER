@@ -35,7 +35,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     ImageFile imf;
 
