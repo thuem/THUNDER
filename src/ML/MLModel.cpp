@@ -491,7 +491,7 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
 
-        _reco[l]->setFSC(_FSC.col(l));
+        //_reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);
     }

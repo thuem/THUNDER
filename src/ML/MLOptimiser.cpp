@@ -872,6 +872,7 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Refreshing Tau";
         NT_MASTER
         {
@@ -887,6 +888,7 @@ void MLOptimiser::run()
 
         saveSig();
         saveTau();
+        ***/
 
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
@@ -1004,8 +1006,10 @@ void MLOptimiser::run()
 
             _model.refreshReco();
 
+            /***
             //_model.refreshRecoSigTau(maxR(), _model.rUPrev());
             _model.refreshRecoSigTau(maxR(), _resReport);
+            ***/
         }
     }
 
