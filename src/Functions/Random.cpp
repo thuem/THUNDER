@@ -9,60 +9,85 @@
  * ****************************************************************************/
 
 #include "Random.h"
+#include "Logging.h"
 
-static pthread_key_t key;
+#include <string.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <time.h>
+#include <stdint.h>
+#include <unistd.h>
 
-static void tls_deallocate(void* p)
-{
-    if (p)
-        gsl_rng_free(static_cast<gsl_rng*>(p));
-}
-
-static int module_init()
-{
-    pthread_key_create(&key, &tls_deallocate);
-    return 0;
-}
-
-static const int MODULE_INITED = module_init();
-
-static unsigned long urandom()
-{
-    int fd = open("/dev/urandom", O_RDONLY);
-
-    if (fd < 0) CLOG(FATAL, "LOGGER_SYS") << "No /dev/urandom";
-
-    unsigned long res;
-    if (read(fd, &res, sizeof(res)) != sizeof(res))
+namespace {
+    class ThreadLocalRNG
     {
-        close(fd);
-        CLOG(FATAL, "LOGGER_SYS") << "Insufficient Read";
-    }
+    private:
+        pthread_key_t key;
 
-    close(fd);
-    return res;
+        static void deallocate(void* p)
+        {
+            if (p)
+                gsl_rng_free(static_cast<gsl_rng*>(p));
+        }
+
+    public:
+        ThreadLocalRNG()
+        {
+            int rc = pthread_key_create(&key, &ThreadLocalRNG::deallocate);
+            if (rc)
+                CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__ << ": " << strerror(rc);
+        }
+        ~ThreadLocalRNG()
+        {
+            pthread_key_delete(key);
+        }
+        gsl_rng* get()
+        {
+            gsl_rng* engine = static_cast<gsl_rng*>(pthread_getspecific(key));
+            if (engine)
+                return engine;
+            engine = gsl_rng_alloc(gsl_rng_mt19937);
+            if (!engine)
+                CLOG(FATAL, "LOGGER_SYS") << "Failure to allocate Random Engine";
+            unsigned long seed;
+            (void)(seed_from_urandom(&seed) || seed_from_time(&seed));
+            gsl_rng_set(engine, seed);
+            int rc = pthread_setspecific(key, engine);
+            if (rc)
+                CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__ << ": " << strerror(rc);
+            return engine;
+        }
+
+        static bool seed_from_time(unsigned long* out)
+        {
+            *out = 0xc96a3ea3d89ceb52UL;
+            struct timeval tm;
+            gettimeofday(&tm, NULL);
+            *out ^= (unsigned long)tm.tv_sec;
+            *out ^= (unsigned long)tm.tv_usec << 7;
+            *out ^= (unsigned long)(uintptr_t)&tm;
+            *out ^= (unsigned long)getpid() << 3;
+            return true;
+        }
+
+        static bool seed_from_urandom(unsigned long* out)
+        {
+            int fd = open("/dev/urandom", O_RDONLY);
+            if (fd < 0) return false;
+
+            if (read(fd, out, sizeof(*out)) != sizeof(*out))
+            {
+                close(fd);
+                return false;
+            }
+            close(fd);
+            return true;
+        }
+    };
 }
 
 gsl_rng* get_random_engine()
 {
-    // Supress warnings about unused variable
-    (void)MODULE_INITED; 
-
-    gsl_rng* engine = static_cast<gsl_rng*>(pthread_getspecific(key));
-
-    if (engine) return engine;
-
-    engine = gsl_rng_alloc(gsl_rng_mt19937);
-
-    if (!engine) CLOG(FATAL, "LOGGER_SYS") << "Failure to Allocate Random Engine";
-
-    gsl_rng_set(engine, urandom());
-
-    if (pthread_setspecific(key, engine) != 0)
-    {
-        gsl_rng_free(engine);
-        CLOG(FATAL, "LOGGER_SYS") << "Failure to Set Thread Local Storage";
-    }
-
-    return engine;
+    static ThreadLocalRNG rng;
+    return rng.get();
 }
