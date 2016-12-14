@@ -335,7 +335,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
-    //double nf = MKB_RL(0, _a * _pf, _alpha);
+    double nf = MKB_RL(0, _a * _pf, _alpha);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
