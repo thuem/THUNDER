@@ -27,27 +27,17 @@ void Reconstructor::init(const int size,
                          const double a,
                          const double alpha)
 {
-    _rot.clear();
-    _w.clear();
-    _ctf.clear();
-    //_sig.clear();
-
-    _iCol = NULL;
-    _iRow = NULL;
-    _iPxl = NULL;
-    _iSig = NULL;
-
-    _calMode = POST_CAL_MODE;
-
     _size = size;
     _pf = pf;
     _sym = sym;
 
+    /***
     _FSC = vec::Constant(1, 1);
 
     _sig = vec::Zero(1);
 
     _tau = vec::Constant(1, 1);
+    ***/
 
     _a = a;
     _alpha = alpha;
@@ -64,6 +54,22 @@ void Reconstructor::init(const int size,
     _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _T.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+
+    reset();
+}
+
+void Reconstructor::reset()
+{
+    _rot.clear();
+    _w.clear();
+    _ctf.clear();
+
+    _iCol = NULL;
+    _iRow = NULL;
+    _iPxl = NULL;
+    _iSig = NULL;
+
+    _calMode = POST_CAL_MODE;
 
     #pragma omp parallel for
     SET_0_FT(_F);

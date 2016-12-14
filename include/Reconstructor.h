@@ -256,6 +256,8 @@ class Reconstructor : public Parallel
                   const double a = 1.9,
                   const double alpha = 10);
 
+        void reset();
+
         /** 
          * set the symmetry mark of the model to be reconstructed. 
          *

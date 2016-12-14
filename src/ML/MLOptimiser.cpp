@@ -1001,10 +1001,17 @@ void MLOptimiser::run()
 
             _model.refreshProj();
 
+            ALOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
+            BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
+
+            _model.resetReco();
+
+            /***
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
 
             _model.refreshReco();
+            ***/
 
             /***
             //_model.refreshRecoSigTau(maxR(), _model.rUPrev());
@@ -1021,9 +1028,10 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
     NT_MASTER
     {
-        _model.refreshReco();
+        //_model.refreshReco();
+        _model.resetReco();
 
-        _model.refreshRecoSigTau(maxR(), _resReport);
+        //_model.refreshRecoSigTau(maxR(), _resReport);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";

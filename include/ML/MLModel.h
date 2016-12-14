@@ -525,8 +525,12 @@ class MLModel : public Parallel
          */
         void refreshReco();
 
+        void resetReco();
+
+        /***
         void refreshRecoSigTau(const int rSig,
                                const int rTau);
+                               ***/
 
         /** 
          * This function increases _r according to wether FSC is high than 0.2

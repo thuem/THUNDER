@@ -497,6 +497,24 @@ void MLModel::refreshReco()
     }
 }
 
+void MLModel::resetReco()
+{
+    ALOG(INFO, "LOGGER_SYS") << "Resetting Reconstructor(s) with Frequency Upper Boundary : "
+                             << _rU;
+    BLOG(INFO, "LOGGER_SYS") << "Resetting Reconstructor(s) with Frequency Upper Boundary : "
+                             << _rU;
+
+    FOR_EACH_CLASS
+    {
+        _reco[l]->reset();
+
+        //_reco[l]->setFSC(_FSC.col(l));
+
+        _reco[l]->setMaxRadius(_rU);
+    }
+}
+
+/***
 void MLModel::refreshRecoSigTau(const int rSig,
                                 const int rTau)
 {
@@ -509,6 +527,7 @@ void MLModel::refreshRecoSigTau(const int rSig,
         _reco[l]->setTau(_tau.col(l).head((rTau - 1) * _pf));
     }
 }
+***/
 
 void MLModel::updateR(const double thres)
 {
