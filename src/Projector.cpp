@@ -375,7 +375,8 @@ void Projector::gridCorrection()
         {
             double r = NORM_3(i, j, k) / (_projectee.nColRL() * _pf);
 
-            if (r < 0.25 / _pf * PROJ_LOOSE_FACTOR)
+            //if (r < 0.25 / _pf * PROJ_LOOSE_FACTOR)
+            if (r < 0.5 / _pf * PROJ_LOOSE_FACTOR)
                 _projectee.setRL(_projectee.getRL(i, j, k)
                                / TIK_RL(r),
                                  i,

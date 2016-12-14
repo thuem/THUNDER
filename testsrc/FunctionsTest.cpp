@@ -23,7 +23,7 @@ int main(int argc, const char* argv[])
     /***
     for (double i = 0; i <= 2.5; i += 0.01)
         cout << i << " " << MKB_FT(i, 2, atoi(argv[1])) << endl;
-    ***/
+        ***/
 
     /***
     for (double i = 0; i <= 1.5; i += 0.01)
