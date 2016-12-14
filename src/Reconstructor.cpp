@@ -526,9 +526,9 @@ void Reconstructor::allReduceT()
         ***/
         int u = AROUND(NORM_3(i, j, k));
 
-        //double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(u);
-        //
+        double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(u);
         
+        /***
         double sig = (u / _pf >= _sig.size())
                    ? _sig(_sig.size() - 1)
                    : _sig(u / _pf);
@@ -537,26 +537,19 @@ void Reconstructor::allReduceT()
                    ? _tau(_tau.size() - 1)
                    : _tau(u);
 
-        //_T.setFTHalf(COMPLEX((1 - fsc) / fsc, 0), i, j, k);
-        //_T.setFTHalf(COMPLEX(tauRcp, 0), i, j, k);
-        //_T.setFTHalf(COMPLEX(sig / tau, 0), i, j, k);
-
-        /***
-        _T.addFT(sig / tau
-               * REAL(_W.getFTHalf(i, j, k))
-               / _size,
-                 i,
-                 j,
-                 k,
-                 _pf * _a,
-                 _kernel);
-                 ***/
-
         _T.setFTHalf(COMPLEX(sig / tau * REAL(_W.getFTHalf(i, j, k) / _size), 0),
                      i,
                      j,
                      k);
-        //}
+                     ***/
+
+        _T.setFTHalf(COMPLEX((1 - fsc) / fsc
+                           * REAL(_W.getFTHalf(i, j, k))
+                           / gsl_pow_2(_pf),
+                             0),
+                     i,
+                     j,
+                     k);
     }
 }
 
@@ -686,11 +679,9 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
-    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
-        ***/
 
     /***
     #pragma omp parallel for

@@ -322,6 +322,6 @@ void bFactorEst(double& bFactor,
                    &cov11,
                    &sumsq);
 
-    //bFactor = 2 * c1;
-    bFactor = c1;
+    bFactor = 2 * c1;
+    //bFactor = c1;
 }
