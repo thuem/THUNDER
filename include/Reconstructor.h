@@ -38,7 +38,7 @@ using namespace placeholders;
 
 #define PAD_SIZE (_pf * _size)
 
-#define RECO_LOOSE_FACTOR 2
+#define RECO_LOOSE_FACTOR 1
 
 #define N_ITER_BALANCE 2
 

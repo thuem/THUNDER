@@ -23,7 +23,7 @@
 
 #include "ImageFunctions.h"
 
-#define PROJ_LOOSE_FACTOR 2
+#define PROJ_LOOSE_FACTOR 1
 
 class Projector
 {
