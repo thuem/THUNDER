@@ -331,7 +331,7 @@ bool asymmetryUnit(const double phi,
             CLOG(FATAL, "LOGGER_SYS") << "Point Group has not been implemented.";
     }
 
-    __builtin_unreachable();
+    abort();
 }
 
 void symmetryCounterpart(double& phi,

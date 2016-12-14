@@ -10,7 +10,7 @@
 
 #include "MLOptimiser.h"
 
-#include <omp.h>
+#include <omp_compat.h>
 
 void display(const MLOptimiserPara& para)
 {
@@ -1145,7 +1145,7 @@ void MLOptimiser::initRef()
                                   << ", nRow = " << ref.nRowRL()
                                   << ", nSlc = " << ref.nSlcRL();
 
-        __builtin_unreachable();
+        abort();
     }
     
     MLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
@@ -1240,7 +1240,7 @@ void MLOptimiser::initImg()
                                       << _img[l].nRowRL()
                                       << " Input.";
 
-            __builtin_unreachable();
+            abort();
         }
     }
 
@@ -1500,7 +1500,7 @@ void MLOptimiser::initCTF()
         {
             CLOG(FATAL, "LOGGER_SYS") << "No Data";
 
-            __builtin_unreachable();
+            abort();
         }
 
         stmt.reset();

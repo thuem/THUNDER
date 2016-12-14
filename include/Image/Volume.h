@@ -15,7 +15,7 @@
 #include <cstdlib>
 
 
-#include "omp_if.h"
+#include "omp_compat.h"
 #include "Typedef.h"
 #include "Error.h"
 #include "Complex.h"

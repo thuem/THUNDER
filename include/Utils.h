@@ -3,6 +3,9 @@
 
 #include <boost/container/vector.hpp>
 #include <string>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
 
 using std::string;
 using boost::container::vector;

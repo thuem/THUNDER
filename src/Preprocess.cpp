@@ -72,7 +72,7 @@ std::string Preprocess::getMicName(const int micID)
         return stmt.get_text(0);
     else
         CLOG(FATAL, "LOGGER_SYS") << "No Micrograph Name";
-    __builtin_unreachable();
+    abort();
 }
 
 void Preprocess::getParXOffYOff(int& xOff,

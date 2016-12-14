@@ -12,7 +12,7 @@
 #include <utility>
 #include <mpi.h>
 
-#include "omp_if.h"
+#include "omp_compat.h"
 #include "Typedef.h"
 #include "Parallel.h"
 #include "Coordinate5D.h"

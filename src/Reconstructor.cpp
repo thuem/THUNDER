@@ -267,7 +267,7 @@ void Reconstructor::allReduceW()
     if (_pf * _a <= sqrt(3) / 2)
     {
         CLOG(FATAL, "LOGGER_SYS") << "Parameter a of MKB Kernel is Too Small.";
-        __builtin_unreachable();
+        abort();
     }
     ***/
 

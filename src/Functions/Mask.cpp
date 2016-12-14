@@ -10,7 +10,7 @@
 
 #include "Mask.h"
 
-#include <omp.h>
+#include <omp_compat.h>
 
 double background(const Image& img,
                   const double r,

@@ -155,7 +155,7 @@ inline void W_INTERP(double w[2],
         case NEAREST_INTERP :   W_INTERP_NEAREST(w, x);     break;
         case LINEAR_INTERP  :   W_INTERP_LINEAR(w, x);      break;
         case SINC_INTERP    :   W_INTERP_SINC(w, x);        break;
-        default             :   __builtin_unreachable();
+        default             :   abort();
     }
 }
 

@@ -10,7 +10,7 @@
 
 #include "FFT.h"
 
-#include <omp.h>
+#include <omp_compat.h>
 
 FFT::FFT() : _srcR(NULL), _srcC(NULL), _dstR(NULL), _dstC(NULL)  {}
 

@@ -44,7 +44,7 @@ inline void loggerInit(el::Configurations conf,
              "false");
 
     el::Loggers::reconfigureLogger(loggerName, conf);
-};
+}
 
 inline void loggerInit()
 {

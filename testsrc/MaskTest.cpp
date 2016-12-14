@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <omp.h>
+#include <omp_compat.h>
 
 #include <gsl/gsl_statistics.h>
 

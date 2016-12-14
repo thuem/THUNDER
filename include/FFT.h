@@ -15,9 +15,7 @@
 
 #include "Logging.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+#include <omp_compat.h>
 
 #include "Complex.h"
 #include "Error.h"
@@ -37,12 +35,12 @@
     if (src == NULL) \
     { \
         CLOG(FATAL, "LOGGER_FFT") << "FFT Needs Input Data."; \
-        __builtin_unreachable(); \
+        abort(); \
     } \
     if (dst == NULL) \
     { \
         CLOG(FATAL, "LOGGER_FFT") << "FFT Needs Ouput Space."; \
-        __builtin_unreachable(); \
+        abort(); \
     } \
 }
 

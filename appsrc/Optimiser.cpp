@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     {
         CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Parameter File";
 
-        __builtin_unreachable();
+        abort();
     }
 
     MLOptimiserPara para;
@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     {
         CLOG(FATAL, "LOGGER_SYS") << "Fail to Parse Parameter File";
 
-        __builtin_unreachable();
+        abort();
     }
 
     MPI_Init(&argc, &argv);
