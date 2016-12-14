@@ -31,9 +31,6 @@
 
 #define SEARCH_RES_GAP_GLOBAL 10
 
-//#define SEARCH_RES_GAP_LOCAL 40
-//#define SEARCH_RES_GAP_LOCAL 80
-
 #define SEARCH_TYPE_STOP -1
 
 #define SEARCH_TYPE_GLOBAL 0
@@ -63,6 +60,12 @@
 #define INTERP_TYPE_GLOBAL LINEAR_INTERP
 
 #define INTERP_TYPE_LOCAL LINEAR_INTERP
+
+/**
+ * resolution resolution for averaging reference(s) from A hemisphere and B
+ * hemisphere
+ */
+#define A_B_AVERAGE_THRES 10
 
 using namespace std;
 
