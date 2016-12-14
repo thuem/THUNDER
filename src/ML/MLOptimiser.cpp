@@ -2087,19 +2087,19 @@ void MLOptimiser::reconstructRef(const bool mask)
         
         _par[l].rank1st(rot, tran);
 
+        /***
         _model.reco(0).insertP(_img[l],
                                _ctf[l],
                                rot,
                                tran,
                                1);
+                               ***/
 
-        /***
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
                                tran,
                                1);
-                               ***/
     }
 
     MPI_Barrier(_hemi);
