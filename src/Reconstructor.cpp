@@ -366,7 +366,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ***/
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
-                  //  / TIK_RL(r)
+                    / TIK_RL(r)
                     * MKB_RL(r, _a * _pf, _alpha)
                     / nf,
                       i,
