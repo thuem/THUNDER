@@ -301,7 +301,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
 
-        //allReduceT();
+        allReduceT();
 
         allReduceW();
     }
