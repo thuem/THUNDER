@@ -293,6 +293,16 @@ void Reconstructor::reconstruct(Volume& dst)
         //allReduceT();
 
         allReduceW();
+
+        ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+        BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+
+        double diffC = checkC();
+
+        ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
+        BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
+
+        if (diffC < DIFF_C_THRES) break;
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Reducing F";
@@ -695,22 +705,25 @@ void Reconstructor::allReduceW()
         _C[i] += _W[i] * _T[i];
         ***/
 
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_FT(_C)
+        _C[i] += _W[i];
+
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
-        //if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a) * _pf))
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             double c = REAL(_C.getFTHalf(i, j, k));
 
-            /***
-                _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
-                             i,
-                             j,
-                             k);
-                             ***/
+            _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
+                         i,
+                         j,
+                         k);
+
+                /***
             if (c > 1)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
@@ -718,6 +731,7 @@ void Reconstructor::allReduceW()
                              j,
                              k);
             }
+            ***/
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
@@ -751,6 +765,24 @@ void Reconstructor::allReduceF()
 
     symmetrizeF();
     ***/
+}
+
+double Reconstructor::checkC() const
+{
+    double diff = 0;
+    int counter = 0;
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(_C)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+        {
+            #pragma omp critical
+            diff += abs(REAL(_C.getFT(i, j, k)) - 1);
+            #pragma omp critical
+            counter += 1;
+        }
+
+    return diff / counter;
 }
 
 /***

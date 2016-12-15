@@ -40,7 +40,9 @@ using namespace placeholders;
 
 #define RECO_LOOSE_FACTOR 1
 
-#define N_ITER_BALANCE 2
+#define N_ITER_BALANCE 10
+
+#define DIFF_C_THRES 0.01
 
 //#define TAU_FACTOR 0.1
 
@@ -376,6 +378,8 @@ class Reconstructor : public Parallel
          * size of Volume in 3 dimension xyz.
          */
         void allReduceF();
+
+        double checkC() const;
 
         /**
          * The size of the reconstructor area that is used to determine the
