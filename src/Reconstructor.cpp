@@ -582,7 +582,6 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
-                        /***
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -594,8 +593,8 @@ void Reconstructor::allReduceW()
                                  oldCor[2],
                                  _pf * _a,
                                  _kernel);
-                        ***/
 
+                        /***
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -605,6 +604,7 @@ void Reconstructor::allReduceW()
                                  oldCor[0],
                                  oldCor[1],
                                  oldCor[2]);
+                        ***/
                     }
                 }
     }
@@ -617,7 +617,6 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
-                /***
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -629,8 +628,8 @@ void Reconstructor::allReduceW()
                          oldCor[2],
                          _pf * _a,
                          _kernel);
-                ***/
 
+                /***
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -640,6 +639,7 @@ void Reconstructor::allReduceW()
                          oldCor[0],
                          oldCor[1],
                          oldCor[2]);
+                ***/
             }
     }
     else
