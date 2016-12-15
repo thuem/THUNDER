@@ -324,7 +324,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
-    double nf = MKB_RL(0, _a * _pf, _alpha);
+    //double nf = MKB_RL(0, _a * _pf, _alpha);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
@@ -353,11 +353,10 @@ void Reconstructor::reconstruct(Volume& dst)
                       j,
                       k);
         ***/
+
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
-                    /// TIK_RL(r)
-                    / MKB_RL(r, _a * _pf, _alpha)
-                    * nf,
+                    / TIK_RL(r),
                       i,
                       j,
                       k);
@@ -654,6 +653,7 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
 
@@ -678,6 +678,7 @@ void Reconstructor::allReduceW()
 
     fft.fwMT(_C);
     _C.clearRL();
+    ***/
 
     /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
@@ -696,14 +697,6 @@ void Reconstructor::allReduceW()
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
-
-    /***
-    if (_pf * _a <= sqrt(3) / 2)
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Parameter a of MKB Kernel is Too Small.";
-        __builtin_unreachable();
-    }
-    ***/
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
@@ -728,9 +721,6 @@ void Reconstructor::allReduceW()
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
-
-    //DEBUG
-    //CLOG(INFO, "LOGGER_SYS") << "_W[0] = " << REAL(_W[0]);
 }
 
 void Reconstructor::allReduceF()
