@@ -444,8 +444,6 @@ void Database::masterPrepareTmpFile()
     executeCommand(cmd);
 
     MASTER_TMP_FILE(die, 0);
-    snprintf(cmd, sizeof(cmd), "rm -f %s && touch %s", die, die);
-    executeCommand(cmd);
 
     string sql;
     // create a database struct for each node
@@ -475,7 +473,6 @@ void Database::masterPrepareTmpFile()
 
     for (int i = 1; i < _commSize; i++) {
         MASTER_TMP_FILE(cast, i);
-        executeCommand(cmd);
         snprintf(cmd, sizeof(cmd), "cp %s %s", die, cast);
         executeCommand(cmd);
     }
