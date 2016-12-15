@@ -366,9 +366,9 @@ void Reconstructor::reconstruct(Volume& dst)
         ***/
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
-                    / TIK_RL(r)
-                    * MKB_RL(r, _a * _pf, _alpha)
-                    / nf,
+                    /// TIK_RL(r)
+                    / MKB_RL(r, _a * _pf, _alpha)
+                    * nf,
                       i,
                       j,
                       k);
@@ -686,6 +686,31 @@ void Reconstructor::allReduceW()
                         _hemi);
 
     MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
+    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
+
+    FFT fft;
+    fft.bwMT(_C);
+
+    double nf = MKB_RL(0, _a * _pf, _alpha);
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(_C)
+    {
+        double r = NORM_3(i, j, k) / PAD_SIZE;
+
+        _C.setRL(_C.getRL(i, j, k)
+               / TIK_RL(r)
+               / MKB_RL(r, _a * _pf, _alpha)
+               * nf,
+                 i,
+                 j,
+                 k);
+    }
+
+    fft.fwMT(_C);
+    _C.clearRL();
 
     /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
