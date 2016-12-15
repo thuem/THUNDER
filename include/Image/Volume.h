@@ -331,6 +331,11 @@ class Volume : public ImageBase
                    int iRow,
                    int iSlc);
 
+        void addFTHalf(const Complex value,
+                       const int iCol,
+                       const int iRow,
+                       const int iSlc);
+
         /**
          * This function addes the real part on a voxel in Fourier space at a
          * given coordinate.
@@ -344,6 +349,11 @@ class Volume : public ImageBase
                    int iCol,
                    int iRow,
                    int iSlc);
+
+        void addFTHalf(const double value,
+                       const int iCol,
+                       const int iRow,
+                       const int iSlc);
 
         /**
          * This function returns the value of an unregular voxel in speace spce
@@ -384,6 +394,16 @@ class Volume : public ImageBase
                                      double iRow,
                                      double iSlc,
                                      const int interp) const;
+
+        void addFT(const Complex value,
+                   double iCol,
+                   double iRow,
+                   double iSlc);
+
+        void addFT(const double value,
+                   double iCol,
+                   double iRow,
+                   double iSlc);
 
         /**
          * This function adds a certain value on an unregular voxel in Fourier
@@ -556,6 +576,14 @@ class Volume : public ImageBase
 
         Complex getFTHalf(const double w[2][2][2],
                           const int x0[3]) const;
+
+        void addFTHalf(const Complex value,
+                       const double w[2][2][2],
+                       const int x0[3]);
+
+        void addFTHalf(const double value,
+                       const double w[2][2][2],
+                       const int x0[3]);
 };
 
 #endif // VOLUME_H

@@ -142,15 +142,33 @@ void Volume::addFT(const Complex value,
     _dataFT[index].dat[1] += val.dat[1];
 }
 
+void Volume::addFTHalf(const Complex value,
+                       const int iCol,
+                       const int iRow,
+                       const int iSlc)
+{
+    #pragma omp atomic
+    _dataFT[iFTHalf(iCol, iRow, iSlc)].dat[0] += value.dat[0];
+    #pragma omp atomic
+    _dataFT[iFTHalf(iCol, iRow, iSlc)].dat[1] += value.dat[1];
+}
+
 void Volume::addFT(const double value,
                    int iCol,
                    int iRow,
                    int iSlc)
 {
-    int index = iFT(iCol, iRow, iSlc);
-
     #pragma omp atomic
-    _dataFT[index].dat[0] += value;
+    _dataFT[iFT(iCol, iRow, iSlc)].dat[0] += value;
+}
+
+void Volume::addFTHalf(const double value,
+                       const int iCol,
+                       const int iRow,
+                       const int iSlc)
+{
+    #pragma omp atomic
+    _dataFT[iFTHalf(iCol, iRow, iSlc)].dat[0] += value;
 }
 
 double Volume::getByInterpolationRL(const double iCol,
@@ -201,6 +219,40 @@ Complex Volume::getByInterpolationFT(double iCol,
     Complex result = getFTHalf(w, x0);
 
     return conj ? CONJUGATE(result) : result;
+}
+
+void Volume::addFT(const Complex value,
+                   double iCol,
+                   double iRow,
+                   double iSlc)
+{
+    bool conj = conjHalf(iCol, iRow, iSlc);
+
+    double w[2][2][2];
+    int x0[3];
+    double x[3] = {iCol, iRow, iSlc};
+
+    WG_TRI_LINEAR(w, x0, x);
+
+    addFTHalf(conj ? CONJUGATE(value) : value,
+              w,
+              x0);
+}
+
+void Volume::addFT(const double value,
+                   double iCol,
+                   double iRow,
+                   double iSlc)
+{
+    conjHalf(iCol, iRow, iSlc);
+
+    double w[2][2][2];
+    int x0[3];
+    double x[3] = {iCol, iRow, iSlc};
+
+    WG_TRI_LINEAR(w, x0, x);
+
+    addFTHalf(value, w, x0);
 }
 
 void Volume::addFT(const Complex value,
@@ -323,4 +375,26 @@ Complex Volume::getFTHalf(const double w[2][2][2],
                                        x0[2] + k)
                            * w[i][j][k];
     return result;
+}
+
+void Volume::addFTHalf(const Complex value,
+                       const double w[2][2][2],
+                       const int x0[3])
+{
+    FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
+                             x0[0] + i,
+                             x0[1] + j,
+                             x0[2] + k);
+                             
+}
+
+void Volume::addFTHalf(const double value,
+                       const double w[2][2][2],
+                       const int x0[3])
+{
+    FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
+                             x0[0] + i,
+                             x0[1] + j,
+                             x0[2] + k);
+                             
 }
