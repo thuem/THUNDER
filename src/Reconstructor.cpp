@@ -206,6 +206,12 @@ void Reconstructor::insert(const Image& src,
                          oldCor(0), 
                          oldCor(1), 
                          oldCor(2));
+
+                _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                       * w, 
+                         oldCor(0), 
+                         oldCor(1), 
+                         oldCor(2));
             }
         }
     }
@@ -262,6 +268,12 @@ void Reconstructor::insertP(const Image& src,
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2));
+
+            _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                   * w,
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2));
         }
     }
 }
@@ -283,16 +295,30 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    //allReduceT();
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
 
-    for (int i = 0; i < N_ITER_BALANCE; i++)
+    allReduceT();
+
+    FOR_EACH_PIXEL_FT(_T)
+        _T[i] += COMPLEX(1, 0);
+
+    for (int m = 0; m < N_ITER_BALANCE; m++)
     {
-        ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
-        BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << i;
+        ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
+        BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
 
         //allReduceT();
 
-        allReduceW();
+        //allReduceW();
+
+        ALOG(INFO, "LOGGER_RECO") << "Determining C";
+        BLOG(INFO, "LOGGER_RECO") << "Determining C";
+        
+        FOR_EACH_PIXEL_FT(_C)
+            _C[i] *= _T[i] * _W[i];
+
+        convoluteC();
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
@@ -303,10 +329,18 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
 
         if (diffC < DIFF_C_THRES) break;
+        else
+            VOLUME_FOR_EACH_PIXEL_FT(_W)
+                if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                    _W.setFTHalf(_W.getFTHalf(i, j, k)
+                               / REAL(_C.getFTHalf(i, j, k)),
+                                 i,
+                                 j,
+                                 k);
     }
 
-    ALOG(INFO, "LOGGER_RECO") << "Reducing F";
-    BLOG(INFO, "LOGGER_RECO") << "Reducing F";
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
 
     allReduceF();
 
@@ -381,185 +415,6 @@ void Reconstructor::reconstruct(Volume& dst)
     CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
                                             * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
     ***/
-}
-
-void Reconstructor::allReduceT()
-{
-    /***
-    ALOG(INFO, "LOGGER_RECO") << "Calculating T";
-    BLOG(INFO, "LOGGER_RECO") << "Calculating T";
-
-    if (_calMode == POST_CAL_MODE)
-    {
-        #pragma omp parallel for
-        for (int k = 0; k < int(_rot.size()); k++)
-            for (int j = -_size / 2; j < _size / 2; j++)
-                for (int i = 0; i <= _size / 2; i++)
-                {
-                    if (QUAD(i, j) < gsl_pow_2(_maxRadius))
-                    {
-                        vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
-                        vec3 oldCor = _rot[k] * newCor;
-
-                        _T.addFT(gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                               * _w[k],
-                                 oldCor[0],
-                                 oldCor[1],
-                                 oldCor[2],
-                                 _pf * _a,
-                                 _kernel);
-                    }
-                }
-    }
-    else if (_calMode == PRE_CAL_MODE)
-    {
-        #pragma omp parallel for
-        for (int k = 0; k < int(_rot.size()); k++)
-            for (int i = 0; i < _nPxl; i++)
-            {
-                vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
-                vec3 oldCor = _rot[k] * newCor;
-
-                _T.addFT(gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
-                       * _w[k],
-                         oldCor[0],
-                         oldCor[1],
-                         oldCor[2],
-                         _pf * _a,
-                         _kernel);
-            }
-    }
-    else
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Invalid Pre(Post) Calculation Mode in Reconstructor";
-    }
-    
-    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
-    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
-
-    MPI_Barrier(_hemi);
-
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
-
-    MPI_Allreduce_Large(&_T[0],
-                        _T.sizeFT(),
-                        MPI_DOUBLE_COMPLEX,
-                        MPI_SUM,
-                        _hemi);
-
-    MPI_Barrier(_hemi);
-
-    ALOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
-    BLOG(INFO, "LOGGER_RECO") << "Weighting T Using FSC";
-    ***/
-
-    /***
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-    {
-        int u = AROUND(NORM_3(i, j, k));
-
-        double fsc = GSL_MAX_DBL((u >= _FSC.size())
-                               ? _FSC(_FSC.size() - 1)
-                               : _FSC(u),
-                                 0.5);
-
-        _T.setFTHalf(_T.getFTHalf(i, j, k) * (1 - fsc) / fsc,
-                     i,
-                     j,
-                     k);
-    }
-    ***/
-
-    /***
-    vec tau = vec::Zero(_maxRadius * _pf + 1);
-    uvec counter = uvec::Zero(_maxRadius * _pf + 1);
-
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-        {
-            int u = AROUND(NORM_3(i, j, k));
-
-            tau(u) += REAL(_T.getFTHalf(i, j, k));
-            counter(u) += 1;
-        }
-
-    #pragma omp parallel for
-    for (int i = 0; i < _maxRadius * _pf + 1; i++)
-    {
-        tau(i) /= counter(i);
-
-        double fsc = (i >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(i);
-
-        tau(i) *= (1 - fsc) / fsc;
-    }
-
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-    {
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-        {
-            int u = AROUND(NORM_3(i, j, k));
-
-            _T.setFTHalf(COMPLEX(tau(u), 0), i, j, k);
-        }
-        else
-            _T.setFTHalf(COMPLEX(0, 0), i, j, k);
-    }
-    ***/
-
-    /***
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-    {
-        int u = AROUND(NORM_3(i, j, k));
-
-        double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(u);
-
-        _T.setFTHalf(COMPLEX((1 - fsc) / fsc, 0), i, j, k);
-    }
-    ***/
-
-    #pragma omp parallel for
-    SET_0_FT(_T);
-
-    //VOLUME_FOR_PIXEL_R_FT(CEIL((_maxRadius + _a) * _pf))
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-    {
-        /***
-        if (QUAD_3(i, j, k) < gsl_pow_2((_maxRadius + _a) * _pf))
-        {
-        ***/
-        int u = AROUND(NORM_3(i, j, k));
-
-        double fsc = (u >= _FSC.size()) ? _FSC(_FSC.size() - 1) : _FSC(u);
-        
-        /***
-        double sig = (u / _pf >= _sig.size())
-                   ? _sig(_sig.size() - 1)
-                   : _sig(u / _pf);
-
-        double tau = (u >= _tau.size())
-                   ? _tau(_tau.size() - 1)
-                   : _tau(u);
-
-        _T.setFTHalf(COMPLEX(sig / tau * REAL(_W.getFTHalf(i, j, k) / _size), 0),
-                     i,
-                     j,
-                     k);
-                     ***/
-
-        _T.setFTHalf(COMPLEX((1 - fsc) / fsc
-                           * REAL(_W.getFTHalf(i, j, k))
-                           / gsl_pow_2(_pf),
-                             0),
-                     i,
-                     j,
-                     k);
-    }
 }
 
 void Reconstructor::allReduceW()
@@ -756,15 +611,22 @@ void Reconstructor::allReduceF()
                         _hemi);
 
     MPI_Barrier(_hemi);
+}
 
-    //CLOG(INFO, "LOGGER_SYS") << "Total : _F[0] = " << REAL(_F[0]);
+void Reconstructor::allReduceT()
+{
+    MPI_Barrier(_hemi);
 
-    /***
-    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
-    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
 
-    symmetrizeF();
-    ***/
+    MPI_Allreduce_Large(&_T[0],
+                        _T.sizeFT(),
+                        MPI_DOUBLE_COMPLEX,
+                        MPI_SUM,
+                        _hemi);
+
+    MPI_Barrier(_hemi);
 }
 
 double Reconstructor::checkC() const
@@ -783,6 +645,32 @@ double Reconstructor::checkC() const
         }
 
     return diff / counter;
+}
+
+void Reconstructor::convoluteC()
+{
+    FFT fft;
+
+    fft.bwMT(_C);
+    _C.clearFT();
+
+    double nf = MKB_RL(0, _a * _pf, _alpha);
+
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(_C)
+    {
+        double r = NORM_3(i, j, k) / PAD_SIZE;
+
+        _C.setRL(_C.getRL(i, j, k)
+               * MKB_RL(r, _a * _pf, _alpha)
+               / nf,
+                 i,
+                 j,
+                 k);
+    }
+
+    fft.fwMT(_C);
+    _C.clearRL();
 }
 
 /***

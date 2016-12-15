@@ -365,8 +365,6 @@ class Reconstructor : public Parallel
 
     private:
 
-        void allReduceT();
-
         /**
          * The size of the reconstructor area that is used to determine the
          * size of Volume in 3 dimension xyz.
@@ -379,7 +377,11 @@ class Reconstructor : public Parallel
          */
         void allReduceF();
 
+        void allReduceT();
+
         double checkC() const;
+
+        void convoluteC();
 
         /**
          * The size of the reconstructor area that is used to determine the
