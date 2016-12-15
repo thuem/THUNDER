@@ -146,7 +146,6 @@ void Reconstructor::setPreCal(const int nPxl,
 
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
-                           //const vec& sig,
                            const mat33& rot,
                            const vec2& t,
                            const double w)
@@ -181,7 +180,6 @@ void Reconstructor::insert(const Image& src,
         _rot.push_back(sr[k]);
         _w.push_back(w);
         _ctf.push_back(&ctf);
-        //_sig.push_back(sig);
 
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(transSrc)
@@ -192,32 +190,29 @@ void Reconstructor::insert(const Image& src,
                 vec3 oldCor = sr[k] * newCor;
 
                 /***
-                int u = AROUND(NORM(i, j));
-
-                double sigRcp = 1.0 / ((u >= sig.size())
-                                     ? sig(sig.size() - 1)
-                                     : sig(u));
-                                     ***/
-
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
-                       //* sigRcp
                        * w, 
                          oldCor(0), 
                          oldCor(1), 
                          oldCor(2), 
                          _pf * _a, 
                          _kernel);
+                ***/
+
+                _F.addFT(transSrc.getFTHalf(i, j)
+                       * REAL(ctf.getFTHalf(i, j))
+                       * w, 
+                         oldCor(0), 
+                         oldCor(1), 
+                         oldCor(2));
             }
         }
     }
-
-    //CLOG(INFO, "LOGGER_SYS") << "Partial : _F[0] = " << REAL(_F[0]);
 }
 
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
-                    //        const vec& sig,
                             const mat33& rot,
                             const vec2& t,
                             const double w)
@@ -232,12 +227,6 @@ void Reconstructor::insertP(const Image& src,
         CLOG(FATAL, "LOGGER_SYS") << "Wrong Pre(Post) Calculation Mode in Reconstructor";
     }
 
-    /***
-    Complex* transSrc = new Complex[_nPxl];
-
-    translateMT(transSrc, src, -t(0), -t(1), _size, _size, _iCol, _iRow, _nPxl);
-    ***/
-
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
@@ -249,7 +238,6 @@ void Reconstructor::insertP(const Image& src,
         _rot.push_back(sr[k]);
         _w.push_back(w);
         _ctf.push_back(&ctf);
-        //_sig.push_back(sig);
 
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
@@ -258,27 +246,28 @@ void Reconstructor::insertP(const Image& src,
             vec3 oldCor = sr[k] * newCor;
 
             /***
-            double sigRcp = 1.0 / ((_iSig[i] >= sig.size())
-                                 ? sig(sig.size() - 1)
-                                 : sig(_iSig[i]));
-                                 ***/
-        
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
-                   //* sigRcp
                    * w,
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2), 
                      _pf * _a, 
                      _kernel);
+            ***/
+
+            _F.addFT(transSrc[_iPxl[i]]
+                   * REAL(ctf.iGetFT(_iPxl[i]))
+                   * w,
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2));
         }
     }
 }
 
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
-                           //const vec& sig,
                            const Coordinate5D coord,
                            const double w)
 {
@@ -584,41 +573,29 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
-                        //int u = AROUND(NORM(i * _pf, j * _pf));
-
                         /***
-                        double fsc = GSL_MAX_DBL((u >= _FSC.size())
-                                               ? _FSC(_FSC.size() - 1)
-                                               : _FSC(u),
-                                                 0.5);
-                                                 ***/
-
-                        /***
-                        double fsc = (u >= _FSC.size())
-                                   ? _FSC(_FSC.size() - 1)
-                                   : _FSC(u);
-                                   ***/
-                        /***
-                        int u = AROUND(NORM(i, j));
-
-                        double sigRcp = 1.0 / ((u >= _sig[k].size())
-                                             ? _sig[k](_sig[k].size() - 1)
-                                             : _sig[k](u));
-                                             ***/
-
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
                                                               LINEAR_INTERP))
                                * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                               //* sigRcp
-                               //* (1 + TAU_FACTOR * (1 - fsc) / fsc)
                                * _w[k],
                                  oldCor[0],
                                  oldCor[1],
                                  oldCor[2],
                                  _pf * _a,
                                  _kernel);
+                        ***/
+
+                        _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
+                                                              oldCor[1],
+                                                              oldCor[2],
+                                                              LINEAR_INTERP))
+                               * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
+                               * _w[k],
+                                 oldCor[0],
+                                 oldCor[1],
+                                 oldCor[2]);
                     }
                 }
     }
@@ -631,39 +608,29 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
-                //int u = _iSig[i] * _pf;
-
                 /***
-                double fsc = GSL_MAX_DBL((u >= _FSC.size())
-                                       ? _FSC(_FSC.size() - 1)
-                                       : _FSC(u),
-                                         0.5);
-                                         ***/
-
-                /***
-                        double fsc = (u >= _FSC.size())
-                                   ? _FSC(_FSC.size() - 1)
-                                   : _FSC(u);
-                                   ***/
-                /***
-                double sigRcp = 1.0 / ((_iSig[i] >= _sig[k].size())
-                                     ? _sig[k](_sig[k].size() - 1)
-                                     : _sig[k](_iSig[i]));
-                                     ***/
-
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
                                                       LINEAR_INTERP))
                        * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
-                       //* sigRcp
-                       //* (1 + TAU_FACTOR * (1 - fsc) / fsc)
                        * _w[k],
                          oldCor[0],
                          oldCor[1],
                          oldCor[2],
                          _pf * _a,
                          _kernel);
+                ***/
+
+                _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
+                                                      oldCor[1],
+                                                      oldCor[2],
+                                                      LINEAR_INTERP))
+                       * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
+                       * _w[k],
+                         oldCor[0],
+                         oldCor[1],
+                         oldCor[2]);
             }
     }
     else
