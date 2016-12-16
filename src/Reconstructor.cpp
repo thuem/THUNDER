@@ -587,7 +587,7 @@ void Reconstructor::allReduceW()
     BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
 
     #pragma omp parallel for
-    SET_0_FT(_T)
+    SET_0_FT(_T);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
