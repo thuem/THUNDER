@@ -303,6 +303,15 @@ void Reconstructor::reconstruct(Volume& dst)
     FOR_EACH_PIXEL_FT(_T)
         _T[i] += COMPLEX(1, 0);
 
+    ALOG(INFO, "LOGGER_RECO") << "Initialising W";
+    BLOG(INFO, "LOGGER_RECO") << "Initialising W";
+
+    VOLUME_FOR_EACH_PIXEL_FT(_W)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            _W.setFTHalf(COMPLEX(1, 0), i, j, k);
+        else
+            _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+
     for (int m = 0; m < N_ITER_BALANCE; m++)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
@@ -652,6 +661,8 @@ double Reconstructor::checkC() const
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
             diff = GSL_MAX_DBL(diff, REAL(_C.getFT(i, j, k)));
+
+    return diff;
 }
 
 void Reconstructor::convoluteC()
