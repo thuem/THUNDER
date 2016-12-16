@@ -316,7 +316,7 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
         
         FOR_EACH_PIXEL_FT(_C)
-            _C[i] *= _T[i] * _W[i];
+            _C[i] = _T[i] * _W[i];
 
         convoluteC();
 
