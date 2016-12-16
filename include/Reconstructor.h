@@ -40,7 +40,7 @@ using namespace placeholders;
 
 #define RECO_LOOSE_FACTOR 1
 
-#define N_ITER_BALANCE 100
+#define N_ITER_BALANCE 10
 
 #define DIFF_C_THRES 0.1
 
