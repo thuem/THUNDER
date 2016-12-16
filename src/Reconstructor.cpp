@@ -578,10 +578,32 @@ void Reconstructor::allReduceW()
     fft.fwMT(_C);
     _C.clearRL();
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
 
+    _T = _W.copyVolume();
+
+    fft.bwMT(_T);
+
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(_T)
+    {
+        _T.setRL(_T.getRL(i, j, k)
+               * MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
+                        _a * _pf,
+                        _alpha),
+                 i,
+                 j,
+                 k);
+    }
+
+    fft.fwMT(_T);
+
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_FT(_C)
+        _C[i] += _T[i];
+
+    /***
     double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
 
     #pragma omp parallel for
@@ -589,12 +611,14 @@ void Reconstructor::allReduceW()
         _C[i] += blobVol * _W[i];
     ***/
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
+    ***/
 
     /***
     #pragma omp parallel for
