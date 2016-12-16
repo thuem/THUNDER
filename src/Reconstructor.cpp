@@ -615,26 +615,25 @@ void Reconstructor::allReduceW()
         {
             //double c = REAL(_C.getFTHalf(i, j, k));
 
+            /***
             _W.setFTHalf(_W.getFTHalf(i, j, k)
                        / REAL(_C.getFTHalf(i, j, k)),
                          i,
                          j,
                          k);
+            ***/
 
-            /***
             if (c > 1)
             {
-                _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
+                _W.setFTHalf(_W.getFTHalf(i, j, k)
+                           / REAL(_C.getFTHalf(i, j, k)),
                              i,
                              j,
                              k);
             }
-            ***/
         }
-        /***
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
-            ***/
 }
 
 void Reconstructor::allReduceF()
