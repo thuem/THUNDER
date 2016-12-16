@@ -632,6 +632,7 @@ void Reconstructor::allReduceT()
 double Reconstructor::checkC() const
 {
     double diff = 0;
+    /***
     int counter = 0;
 
     #pragma omp parallel for schedule(dynamic)
@@ -645,6 +646,12 @@ double Reconstructor::checkC() const
         }
 
     return diff / counter;
+    ***/
+
+    #pragma omp parallel for schedule(dynamic) reduction(max:diff)
+    VOLUME_FOR_EACH_PIXEL_FT(_C)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            diff = GSL_MAX_DBL(diff, REAL(_C.getFT(i, j, k)));
 }
 
 void Reconstructor::convoluteC()
