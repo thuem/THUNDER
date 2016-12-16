@@ -316,7 +316,6 @@ void Reconstructor::reconstruct(Volume& dst)
         _T[i] += COMPLEX(1, 0);
     ***/
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
@@ -326,7 +325,6 @@ void Reconstructor::reconstruct(Volume& dst)
             _W.setFTHalf(COMPLEX(1, 0), i, j, k);
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
-    ***/
 
     for (int m = 0; m < N_ITER_BALANCE; m++)
     {
@@ -588,6 +586,18 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
 
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_FT(_T)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+        {
+            _T.addFT(_W.getFTHalf(i, j, k),
+                     i,
+                     j,
+                     k,
+                     _pf * _a,
+                     _kernel);
+        }
+
     /***
     _T = _W.copyVolume();
 
@@ -613,20 +623,17 @@ void Reconstructor::allReduceW()
         _C[i] += _T[i];
     ***/
 
+    /***
     double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += blobVol * _W[i];
-
-    /***
-    ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
-    BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
+    ***/
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
-    ***/
 
     /***
     #pragma omp parallel for
@@ -637,11 +644,12 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
 
+    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_W)
         _W[i] /= REAL(_C[i]);
+    ***/
 
-    /***
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
@@ -651,7 +659,7 @@ void Reconstructor::allReduceW()
                          i,
                          j,
                          k);
-                         ***/
+        }
 
             /***
             if (REAL(_C.getFTHalf(i, j, k)) > 1)
