@@ -9,6 +9,9 @@
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
+#define MKB_KERNEL
+//#define TRILINEAR_KERNEL
+
 #include <utility>
 #include <vector>
 #include <functional>

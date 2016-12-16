@@ -189,7 +189,7 @@ void Reconstructor::insert(const Image& src,
                 vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                 vec3 oldCor = sr[k] * newCor;
 
-                /***
+#ifdef MKB_KERNEL
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
@@ -198,20 +198,24 @@ void Reconstructor::insert(const Image& src,
                          oldCor(2), 
                          _pf * _a, 
                          _kernel);
-                ***/
+#endif
 
+#ifdef TRILINEAR_KERNEL
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
                          oldCor(0), 
                          oldCor(1), 
                          oldCor(2));
+#endif
 
+                /***
                 _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                        * w, 
                          oldCor(0), 
                          oldCor(1), 
                          oldCor(2));
+                         ***/
             }
         }
     }
@@ -251,7 +255,7 @@ void Reconstructor::insertP(const Image& src,
             vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
             vec3 oldCor = sr[k] * newCor;
 
-            /***
+#ifdef MKB_KERNEL
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
                    * w,
@@ -260,20 +264,24 @@ void Reconstructor::insertP(const Image& src,
                      oldCor(2), 
                      _pf * _a, 
                      _kernel);
-            ***/
+#endif
 
+#ifdef TRILINEAR_KERNEL
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
                    * w,
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2));
+#endif
 
+            /***
             _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                    * w,
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2));
+            ***/
         }
     }
 }
@@ -308,6 +316,7 @@ void Reconstructor::reconstruct(Volume& dst)
         _T[i] += COMPLEX(1, 0);
     ***/
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
@@ -317,6 +326,7 @@ void Reconstructor::reconstruct(Volume& dst)
             _W.setFTHalf(COMPLEX(1, 0), i, j, k);
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+    ***/
 
     for (int m = 0; m < N_ITER_BALANCE; m++)
     {
@@ -463,7 +473,7 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
-                        /***
+#ifdef MKB_KERNEL
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -475,8 +485,9 @@ void Reconstructor::allReduceW()
                                  oldCor[2],
                                  _pf * _a,
                                  _kernel);
-                        ***/
+#endif
 
+#ifdef TRILINEAR_KERNEL
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -486,6 +497,7 @@ void Reconstructor::allReduceW()
                                  oldCor[0],
                                  oldCor[1],
                                  oldCor[2]);
+#endif
                     }
                 }
     }
@@ -498,7 +510,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
-                /***
+#ifdef MKB_KERNEL
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -510,8 +522,9 @@ void Reconstructor::allReduceW()
                          oldCor[2],
                          _pf * _a,
                          _kernel);
-                ***/
+#endif
 
+#ifdef TRILINEAR_KERNEL
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -521,6 +534,7 @@ void Reconstructor::allReduceW()
                          oldCor[0],
                          oldCor[1],
                          oldCor[2]);
+#endif
             }
     }
     else
@@ -586,9 +600,11 @@ void Reconstructor::allReduceW()
         _C[i] += _W[i] * _T[i];
         ***/
 
+    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _W[i];
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
