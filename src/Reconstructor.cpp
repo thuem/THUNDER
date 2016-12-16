@@ -573,7 +573,7 @@ void Reconstructor::allReduceW()
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
         _C.setRL(_C.getRL(i, j, k)
-               / TIK_RL(r)
+               / TIK_RL(r),
      //          / MKB_RL(r, _a * _pf, _alpha)
       //         * nf,
                  i,
