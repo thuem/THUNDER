@@ -42,7 +42,7 @@ using namespace placeholders;
 
 #define N_ITER_BALANCE 100
 
-#define DIFF_C_THRES 0.01
+#define DIFF_C_THRES 0.1
 
 //#define TAU_FACTOR 0.1
 
