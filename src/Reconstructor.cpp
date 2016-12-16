@@ -590,7 +590,6 @@ void Reconstructor::allReduceW()
 
     _T = _W.copyVolume();
 
-    /***
     fft.bwMT(_T);
 
     #pragma omp parallel for
@@ -607,7 +606,6 @@ void Reconstructor::allReduceW()
 
     fft.fwMT(_T);
     _T.clearRL();
-    ***/
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
