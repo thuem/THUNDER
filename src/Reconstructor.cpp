@@ -588,6 +588,7 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
 
+    /***
     _T = _W.copyVolume();
 
     fft.bwMT(_T);
@@ -610,14 +611,13 @@ void Reconstructor::allReduceW()
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
+    ***/
 
-    /***
     double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += blobVol * _W[i];
-    ***/
 
     /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
