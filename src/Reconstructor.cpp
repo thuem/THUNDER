@@ -303,6 +303,7 @@ void Reconstructor::reconstruct(Volume& dst)
     FOR_EACH_PIXEL_FT(_T)
         _T[i] += COMPLEX(1, 0);
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
@@ -311,6 +312,7 @@ void Reconstructor::reconstruct(Volume& dst)
             _W.setFTHalf(COMPLEX(1, 0), i, j, k);
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+    ***/
 
     for (int m = 0; m < N_ITER_BALANCE; m++)
     {
