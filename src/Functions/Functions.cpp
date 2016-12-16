@@ -181,6 +181,24 @@ double MKB_RL_R2(const double r2,
 #endif
 }
 
+double MKB_BLOB_VOL(const double a,
+                    const double alpha)
+{
+#ifdef MKB_ORDER_2
+    return pow(2 * M_PI / alpha, 1.5)
+         * gsl_sf_bessel_Inu(3.5, alpha)
+         / gsl_sf_bessel_In(2, alpha)
+         * gsl_pow_3(a);
+#endif
+
+#ifdef MKB_ORDER_0
+    return pow(2 * M_PI / alpha, 1.5)
+         * gsl_sf_bessel_Inu(1.5, alpha)
+         / gsl_sf_bessel_I0(alpha)
+         * gsl_pow_3(a);
+#endif
+}
+
 double TIK_RL(const double r)
 {
     return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));

@@ -11,7 +11,7 @@
 #include "Functions.h"
 
 #define BLOB_A 1.9
-#define BLOB_ALPHA 10
+#define BLOB_ALPHA 15
 
 #define PF 2
 
@@ -42,4 +42,6 @@ int main(int argc, const char* argv[])
     for (double i = 0; i <= BLOB_A * PF; i += 0.01)
         cout << i << " " << MKB_FT(i, BLOB_A * PF, BLOB_ALPHA) << endl;
         ***/
+
+    //cout << MKB_BLOB_VOL(BLOB_A * PF, BLOB_ALPHA) << endl;
 }

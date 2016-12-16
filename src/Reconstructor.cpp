@@ -599,11 +599,16 @@ void Reconstructor::allReduceW()
         _C[i] += _W[i] * _T[i];
         ***/
 
+    double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
+
     /***
+    #pragma omp paralle for
+        _C[i] /= blobVol
+    ***/
+
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
-        _C[i] += _W[i];
-    ***/
+        _C[i] += blobVol * _W[i];
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
@@ -614,14 +619,13 @@ void Reconstructor::allReduceW()
         {
             //double c = REAL(_C.getFTHalf(i, j, k));
 
-            /***
             _W.setFTHalf(_W.getFTHalf(i, j, k)
                        / REAL(_C.getFTHalf(i, j, k)),
                          i,
                          j,
                          k);
-            ***/
 
+            /***
             if (REAL(_C.getFTHalf(i, j, k)) > 1)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k)
@@ -630,6 +634,7 @@ void Reconstructor::allReduceW()
                              j,
                              k);
             }
+            ***/
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);

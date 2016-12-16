@@ -164,6 +164,9 @@ double MKB_RL_R2(const double r2,
                  const double a,
                  const double alpha);
 
+double MKB_BLOB_VOL(const double a,
+                    const double alpha);
+
 /**
  * Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function
  *
