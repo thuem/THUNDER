@@ -316,6 +316,7 @@ void Reconstructor::reconstruct(Volume& dst)
         _T[i] += COMPLEX(1, 0);
     ***/
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
@@ -325,6 +326,7 @@ void Reconstructor::reconstruct(Volume& dst)
             _W.setFTHalf(COMPLEX(1, 0), i, j, k);
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+    ***/
 
     for (int m = 0; m < N_ITER_BALANCE; m++)
     {
@@ -583,7 +585,6 @@ void Reconstructor::allReduceW()
     fft.fwMT(_C);
     _C.clearRL();
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
 
@@ -609,7 +610,6 @@ void Reconstructor::allReduceW()
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
-    ***/
 
     /***
     double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
