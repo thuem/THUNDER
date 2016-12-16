@@ -560,10 +560,12 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
 
+    /***
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) >= gsl_pow_2(_maxRadius * _pf))
             _C.setFTHalf(COMPLEX(0, 0), i, j, k);
+    ***/
 
     FFT fft;
     fft.bwMT(_C);
@@ -635,12 +637,11 @@ void Reconstructor::allReduceW()
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
 
-    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_W)
         _W[i] /= REAL(_C[i]);
-    ***/
 
+    /***
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
@@ -650,6 +651,7 @@ void Reconstructor::allReduceW()
                          i,
                          j,
                          k);
+                         ***/
 
             /***
             if (REAL(_C.getFTHalf(i, j, k)) > 1)
@@ -661,9 +663,11 @@ void Reconstructor::allReduceW()
                              k);
             }
             ***/
+    /***
         }
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+            ***/
 }
 
 void Reconstructor::allReduceF()
