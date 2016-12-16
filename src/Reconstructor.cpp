@@ -589,14 +589,12 @@ void Reconstructor::allReduceW()
         _C[i] += blobVol * _W[i];
     ***/
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
     BLOG(INFO, "LOGGER_RECO") << "Adding T to C";
 
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _T[i];
-        ***/
 
     /***
     #pragma omp parallel for
