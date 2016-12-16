@@ -586,11 +586,9 @@ void Reconstructor::allReduceW()
         _C[i] += _W[i] * _T[i];
         ***/
 
-    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _W[i];
-    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
@@ -599,7 +597,7 @@ void Reconstructor::allReduceW()
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
-            double c = REAL(_C.getFTHalf(i, j, k));
+            //double c = REAL(_C.getFTHalf(i, j, k));
 
             _W.setFTHalf(_W.getFTHalf(i, j, k)
                        / REAL(_C.getFTHalf(i, j, k)),
