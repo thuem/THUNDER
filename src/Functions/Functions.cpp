@@ -155,6 +155,19 @@ double MKB_RL_R2(const double r2,
              ? sqrt(gsl_pow_2(alpha) - u2)
              : sqrt(u2 - gsl_pow_2(alpha));
 
+#ifdef MKB_ORDER_2
+    double w = pow(2 * M_PI, 1.5)
+             * gsl_pow_3(a)
+             * gsl_pow_2(alpha)
+             / gsl_sf_bessel_In(2, alpha)
+             / pow(v, 3.5);
+
+    if (u2 <= gsl_pow_2(alpha))
+        return w * gsl_sf_bessel_Inu(3.5, v);
+    else
+        return w * gsl_sf_bessel_Jnu(3.5, v);
+#endif
+
 #ifdef MKB_ORDER_0
     double w = pow(2 * M_PI, 1.5)
              * gsl_pow_3(a)

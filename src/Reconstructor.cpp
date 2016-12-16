@@ -295,10 +295,12 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
+    /***
     ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
 
     allReduceT();
+    ***/
 
     /***
     #pragma omp parallel for
@@ -323,8 +325,12 @@ void Reconstructor::reconstruct(Volume& dst)
 
         //allReduceT();
 
-        //allReduceW();
+        ALOG(INFO, "LOGGER_RECO") << "Allreducing W";
+        BLOG(INFO, "LOGGER_RECO") << "Allreducing W";
 
+        allReduceW();
+
+        /***
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
         
@@ -333,6 +339,7 @@ void Reconstructor::reconstruct(Volume& dst)
             _C[i] = _T[i] * _W[i];
 
         convoluteC();
+        ***/
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
@@ -342,6 +349,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
 
+        /***
         if (diffC < DIFF_C_THRES) break;
         else
         {
@@ -354,6 +362,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                  j,
                                  k);
         }
+        ***/
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
@@ -454,6 +463,7 @@ void Reconstructor::allReduceW()
                         vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
                         vec3 oldCor = _rot[k] * newCor;
 
+                        /***
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -465,8 +475,8 @@ void Reconstructor::allReduceW()
                                  oldCor[2],
                                  _pf * _a,
                                  _kernel);
+                        ***/
 
-                        /***
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -476,7 +486,6 @@ void Reconstructor::allReduceW()
                                  oldCor[0],
                                  oldCor[1],
                                  oldCor[2]);
-                        ***/
                     }
                 }
     }
@@ -489,6 +498,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
                 vec3 oldCor = _rot[k] * newCor;
 
+                /***
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -500,8 +510,8 @@ void Reconstructor::allReduceW()
                          oldCor[2],
                          _pf * _a,
                          _kernel);
+                ***/
 
-                /***
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -511,7 +521,6 @@ void Reconstructor::allReduceW()
                          oldCor[0],
                          oldCor[1],
                          oldCor[2]);
-                ***/
             }
     }
     else
@@ -577,9 +586,11 @@ void Reconstructor::allReduceW()
         _C[i] += _W[i] * _T[i];
         ***/
 
+    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_C)
         _C[i] += _W[i];
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
     BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
@@ -590,12 +601,13 @@ void Reconstructor::allReduceW()
         {
             double c = REAL(_C.getFTHalf(i, j, k));
 
-            _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
+            _W.setFTHalf(_W.getFTHalf(i, j, k)
+                       / REAL(_C.getFTHalf(i, j, k)),
                          i,
                          j,
                          k);
 
-                /***
+            /***
             if (c > 1)
             {
                 _W.setFTHalf(_W.getFTHalf(i, j, k) / c,
@@ -605,8 +617,10 @@ void Reconstructor::allReduceW()
             }
             ***/
         }
+        /***
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+            ***/
 }
 
 void Reconstructor::allReduceF()
@@ -698,25 +712,3 @@ void Reconstructor::convoluteC()
     fft.fwMT(_C);
     _C.clearRL();
 }
-
-/***
-void Reconstructor::symmetrizeF()
-{
-    if (_sym == NULL) return;
-
-    Volume symF;
-    SYMMETRIZE_FT(symF, _F, *_sym, _maxRadius * _pf);
-
-    _F = std::move(symF);
-}
-
-void Reconstructor::symmetrizeC()
-{
-    if (_sym == NULL) return;
-
-    Volume symC;
-    SYMMETRIZE_FT(symC, _C, *_sym, _maxRadius * _pf);
-
-    _C = std::move(symC);
-}
-***/

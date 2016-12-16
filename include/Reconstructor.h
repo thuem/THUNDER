@@ -378,18 +378,6 @@ class Reconstructor : public Parallel
         double checkC() const;
 
         void convoluteC();
-
-        /**
-         * The size of the reconstructor area that is used to determine the
-         * size of Volume in 3 dimension xyz.
-         */
-        //void symmetrizeF();
-
-        /**
-         * The size of the reconstructor area that is used to determine the
-         * size of Volume in 3 dimension xyz.
-         */
-        //void symmetrizeC();
 };
 
 #endif //RECONSTRUCTOR_H
