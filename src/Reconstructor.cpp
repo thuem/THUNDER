@@ -590,12 +590,15 @@ void Reconstructor::allReduceW()
     VOLUME_FOR_EACH_PIXEL_FT(_T)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
-            _T.addFT(_W.getFTHalf(i, j, k),
-                     i,
-                     j,
-                     k,
-                     _pf * _a,
-                     _kernel);
+            if ((i % _pf == 0) &&
+                (j % _pf == 0) &&
+                (k % _pf == 0))
+                _T.addFT(_W.getFTHalf(i, j, k),
+                         i,
+                         j,
+                         k,
+                         _pf * _a,
+                         _kernel);
         }
 
     /***
