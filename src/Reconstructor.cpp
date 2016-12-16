@@ -559,15 +559,6 @@ void Reconstructor::allReduceW()
 
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
-    BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
-
-    double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
-
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_FT(_C)
-        _C[i] += blobVol * _W[i];
-
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
 
@@ -586,6 +577,15 @@ void Reconstructor::allReduceW()
 
     fft.fwMT(_C);
     _C.clearRL();
+
+    ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
+    BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
+
+    double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
+
+    #pragma omp parallel for
+    FOR_EACH_PIXEL_FT(_C)
+        _C[i] += blobVol * _W[i];
 
     /***
     ALOG(INFO, "LOGGER_RECO") << "Adding T to C";
