@@ -44,10 +44,6 @@ using namespace placeholders;
 
 #define DIFF_C_THRES 0.1
 
-//#define TAU_FACTOR 0.1
-
-constexpr double TAU_FACTOR = 1.0 / 6;
-
 /**
  * @ingroup Reconstructor
  * @brief The 3D model reconstruction class.

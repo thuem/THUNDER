@@ -300,9 +300,11 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceT();
 
+    /***
     #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_T)
         _T[i] += COMPLEX(1, 0);
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";

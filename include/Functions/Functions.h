@@ -11,6 +11,8 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#define MKB_ORDER_0
+
 #include <cmath>
 #include <numeric>
 
@@ -156,6 +158,10 @@ double MKB_FT_R2(const double r2,
 double MKB_RL(const double r,
               const double a,
               const double alpha);
+
+double MKB_RL_R2(const double r2,
+                 const double a,
+                 const double alpha);
 
 /**
  * Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function

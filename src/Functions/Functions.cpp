@@ -78,15 +78,16 @@ double MKB_FT(const double r,
 
     if (u > 1) return 0;
 
-    /*** ORDER = 2
+#ifdef MKB_ORDER_2
     return (1 - gsl_pow_2(u))
          * gsl_sf_bessel_In(2, alpha * sqrt(1 - gsl_pow_2(u)))
          / gsl_sf_bessel_In(2, alpha);
-    ***/
+#endif
 
-    // ORDER = 0
+#ifdef MKB_ORDER_0
     return gsl_sf_bessel_I0(alpha * sqrt(1 - gsl_pow_2(u)))
          / gsl_sf_bessel_I0(alpha);
+#endif
 }
 
 double MKB_FT_R2(const double r2,
@@ -97,28 +98,28 @@ double MKB_FT_R2(const double r2,
 
     if (u2 > 1) return 0;
 
-    /*** ORDER = 2
+#ifdef MKB_ORDER_2
     return (1 - u2)
          * gsl_sf_bessel_In(2, alpha * sqrt(1 - u2))
          / gsl_sf_bessel_In(2, alpha);
-    ***/
+#endif
 
-    // ORDER = 0
+#ifdef MKB_ORDER_0
     return gsl_sf_bessel_I0(alpha * sqrt(1 - u2))
          / gsl_sf_bessel_I0(alpha);
+#endif
 }
 
 double MKB_RL(const double r,
               const double a,
               const double alpha)
 {
-    // ORDER = 2
     double u = 2 * M_PI * a * r;
 
     double v = (u <= alpha) ? sqrt(gsl_pow_2(alpha) - gsl_pow_2(u))
                             : sqrt(gsl_pow_2(u) - gsl_pow_2(alpha));
 
-    /***
+#ifdef MKB_ORDER_2
     double w = pow(2 * M_PI, 1.5)
              * gsl_pow_3(a)
              * gsl_pow_2(alpha)
@@ -129,8 +130,9 @@ double MKB_RL(const double r,
         return w * gsl_sf_bessel_Inu(3.5, v);
     else
         return w * gsl_sf_bessel_Jnu(3.5, v);
-    ***/
+#endif
 
+#ifdef MKB_ORDER_0
     double w = pow(2 * M_PI, 1.5)
              * gsl_pow_3(a)
              / gsl_sf_bessel_I0(alpha)
@@ -140,6 +142,30 @@ double MKB_RL(const double r,
         return w * gsl_sf_bessel_Inu(1.5, v);
     else
         return w * gsl_sf_bessel_Jnu(1.5, v);
+#endif
+}
+
+double MKB_RL_R2(const double r2,
+                 const double a,
+                 const double alpha)
+{
+    double u2 = gsl_pow_2(2 * M_PI * a) * r2;
+
+    double v = (u2 <= gsl_pow_2(alpha))
+             ? sqrt(gsl_pow_2(alpha) - u2)
+             : sqrt(u2 - gsl_pow_2(alpha));
+
+#ifdef MKB_ORDER_0
+    double w = pow(2 * M_PI, 1.5)
+             * gsl_pow_3(a)
+             / gsl_sf_bessel_I0(alpha)
+             / pow(v, 1.5);
+
+    if (u2 <= gsl_pow_2(alpha))
+        return w * gsl_sf_bessel_Inu(1.5, v);
+    else
+        return w * gsl_sf_bessel_Jnu(1.5, v);
+#endif
 }
 
 double TIK_RL(const double r)
