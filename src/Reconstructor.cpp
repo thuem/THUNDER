@@ -300,19 +300,19 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceT();
 
+    #pragma omp parallel for
     FOR_EACH_PIXEL_FT(_T)
         _T[i] += COMPLEX(1, 0);
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(_W)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
             _W.setFTHalf(COMPLEX(1, 0), i, j, k);
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
-    ***/
 
     for (int m = 0; m < N_ITER_BALANCE; m++)
     {
@@ -326,6 +326,7 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
         
+        #pragma omp parallel for
         FOR_EACH_PIXEL_FT(_C)
             _C[i] = _T[i] * _W[i];
 
@@ -341,6 +342,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
         if (diffC < DIFF_C_THRES) break;
         else
+        {
+            #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(_W)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                     _W.setFTHalf(_W.getFTHalf(i, j, k)
@@ -348,6 +351,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                  i,
                                  j,
                                  k);
+        }
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
