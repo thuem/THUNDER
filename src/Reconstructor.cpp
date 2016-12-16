@@ -660,7 +660,7 @@ double Reconstructor::checkC() const
     #pragma omp parallel for schedule(dynamic) reduction(max:diff)
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            diff = GSL_MAX_DBL(diff, REAL(_C.getFT(i, j, k)));
+            diff = GSL_MAX_DBL(diff, abs(REAL(_C.getFT(i, j, k)) - 1));
 
     return diff;
 }
