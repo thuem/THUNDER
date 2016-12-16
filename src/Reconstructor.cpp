@@ -417,11 +417,10 @@ void Reconstructor::reconstruct(Volume& dst)
         ***/
 
         //if ((r > 0.25 / _pf * RECO_LOOSE_FACTOR) ||
-        /***
+
         if ((r > 0.5 / _pf * RECO_LOOSE_FACTOR) ||
             (dst.getRL(i, j, k) < 0))
             dst.setRL(0, i, j, k);
-            ***/
 
         /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
@@ -434,6 +433,7 @@ void Reconstructor::reconstruct(Volume& dst)
                       k);
         ***/
 
+        /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
                     / TIK_RL(r),
@@ -442,6 +442,7 @@ void Reconstructor::reconstruct(Volume& dst)
                       k);
         else
             dst.setRL(0, i, j, k);
+        ***/
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
