@@ -1492,7 +1492,12 @@ public:
 #   if _ELPP_NDK
         setAll(ConfigurationType::Filename, "/data/local/tmp/myeasylog.txt");
 #   else
-        setAll(ConfigurationType::Filename, "/tmp/logs/myeasylog.log");
+        //modified by yhk 2016-12-17
+#       if SHENWEI
+            setAll(ConfigurationType::Filename, "./tmp/logs/myeasylog.log");
+#       else
+            setAll(ConfigurationType::Filename, "/tmp/logs/myeasylog.log");
+#       endif // SHENWEI
 #   endif // _ELPP_NDK
 #elif _ELPP_OS_WINDOWS
         setAll(ConfigurationType::Filename, "logs\\myeasylog.log");
