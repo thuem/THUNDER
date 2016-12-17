@@ -128,7 +128,7 @@ void quaternion_mul(vec4& dst,
                     const vec4& b);
 
 /**
- * Modified Kaiser Bessel Function with m = 2 and n = 3.
+ * Modified Kaiser Bessel Function with n = 3.
  *
  * @param r     radius
  * @param a     maximum radius
@@ -139,9 +139,9 @@ double MKB_FT(const double r,
               const double alpha);
 
 /**
- * Modified Kaiser Bessel Function with m = 2 and n = 3.
+ * Modified Kaiser Bessel Function with n = 3.
  *
- * @param r     square of radius
+ * @param r2    square of radius
  * @param a     maximum radius
  * @param alpha smooth factor
  */
@@ -150,7 +150,7 @@ double MKB_FT_R2(const double r2,
                  const double alpha);
 
 /**
- * Inverse Fourier Transform of Modified Kaiser Bessel Function, m = 2, n = 3.
+ * Inverse Fourier Transform of Modified Kaiser Bessel Function with n = 3.
  *
  * @param r     radius
  * @param a     maximum radius
@@ -160,10 +160,23 @@ double MKB_RL(const double r,
               const double a,
               const double alpha);
 
+/**
+ * Inverse Fourier Transform of Modified Kaiser Bessel Function with n = 3.
+ *
+ * @param r2    square of radius
+ * @param a     maximum radius
+ * @param alpha smooth factor
+ */
 double MKB_RL_R2(const double r2,
                  const double a,
                  const double alpha);
 
+/**
+ * Volume of a 3D Modified Kaiser Bessel Function Blob.
+ *
+ * @param a     maximum radius
+ * @param alpha smooth factor
+ */
 double MKB_BLOB_VOL(const double a,
                     const double alpha);
 
