@@ -451,6 +451,8 @@ void Reconstructor::reconstruct(Volume& dst)
                       i,
                       j,
                       k);
+        else
+            dst.setRL(0, i, j, k);
 
         /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
