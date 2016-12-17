@@ -431,7 +431,7 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        if (r > 0.25 / _pf * RECO_LOOSE_FACTOR)
+        if (r > 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(0, i, j, k);
 
         //if ((r > 0.25 / _pf * RECO_LOOSE_FACTOR) ||
