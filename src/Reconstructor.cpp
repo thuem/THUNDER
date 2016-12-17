@@ -342,11 +342,11 @@ void Reconstructor::reconstruct(Volume& dst)
         _T[i] += COMPLEX(1, 0);
     ***/
 
-    vec avg = vec::Zero(_maxRadius * _pf);
+    vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
                  _T,
                  [](const Complex x){ return REAL(x); },
-                 _maxRadius * _pf);
+                 _maxRadius * _pf + 1);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
