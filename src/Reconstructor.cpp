@@ -366,8 +366,8 @@ void Reconstructor::reconstruct(Volume& dst)
                              ***/
 
             _T[i] += COMPLEX((1 - FSC) / FSC
-                           * avg(u)
-                           / gsl_pow_3(_pf),
+                           * avg(u),
+                           /// gsl_pow_3(_pf),
                              0);
         }
 
