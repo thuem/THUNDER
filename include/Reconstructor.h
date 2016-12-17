@@ -12,6 +12,8 @@
 #define MKB_KERNEL
 //#define TRILINEAR_KERNEL
 
+#define ADD_T_DURING_INSERT
+
 #include <utility>
 #include <vector>
 #include <functional>

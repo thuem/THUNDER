@@ -209,13 +209,27 @@ void Reconstructor::insert(const Image& src,
                          oldCor(2));
 #endif
 
-                /***
+#ifdef ADD_T_DURING_INSERT
+
+#ifdef MKB_KERNEL
+                _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                       * w, 
+                         oldCor(0), 
+                         oldCor(1), 
+                         oldCor(2),
+                         _pf * _a,
+                         _kernel);
+#endif
+
+#ifdef TRILINEAR_KERNEL
                 _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                        * w, 
                          oldCor(0), 
                          oldCor(1), 
                          oldCor(2));
-                         ***/
+#endif
+
+#endif
             }
         }
     }
@@ -275,13 +289,27 @@ void Reconstructor::insertP(const Image& src,
                      oldCor(2));
 #endif
 
-            /***
+#ifdef ADD_T_DURING_INSERT
+
+#ifdef MKB_KERNEL
+            _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                   * w,
+                     oldCor(0), 
+                     oldCor(1), 
+                     oldCor(2),
+                     _pf * _a,
+                     _kernel);
+#endif
+
+#ifdef TRILINEAR_KERNEL
             _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                    * w,
                      oldCor(0), 
                      oldCor(1), 
                      oldCor(2));
-            ***/
+#endif
+
+#endif
         }
     }
 }
@@ -331,14 +359,13 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
 
-        //allReduceT();
-
+        /***
         ALOG(INFO, "LOGGER_RECO") << "Allreducing W";
         BLOG(INFO, "LOGGER_RECO") << "Allreducing W";
 
         allReduceW();
+        ***/
 
-        /***
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
         
@@ -347,7 +374,6 @@ void Reconstructor::reconstruct(Volume& dst)
             _C[i] = _T[i] * _W[i];
 
         convoluteC();
-        ***/
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
@@ -357,7 +383,6 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
 
-        /***
         if (diffC < DIFF_C_THRES) break;
         else
         {
@@ -370,7 +395,6 @@ void Reconstructor::reconstruct(Volume& dst)
                                  j,
                                  k);
         }
-        ***/
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
