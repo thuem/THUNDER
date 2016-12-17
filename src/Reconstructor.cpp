@@ -331,12 +331,10 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
-    /***
     ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
 
     allReduceT();
-    ***/
 
     /***
     #pragma omp parallel for
