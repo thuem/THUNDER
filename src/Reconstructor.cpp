@@ -342,6 +342,12 @@ void Reconstructor::reconstruct(Volume& dst)
         _T[i] += COMPLEX(1, 0);
     ***/
 
+    vec avg = vec::Zero(_maxRadius * _pf);
+    shellAverage(avg,
+                 _T,
+                 [](const Complex x){ return REAL(x); },
+                 _maxRadius * _pf);
+
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
@@ -352,8 +358,15 @@ void Reconstructor::reconstruct(Volume& dst)
                        ? _FSC(_FSC.size() - 1)
                        : _FSC(u);
 
+            /***
             _T[i] += COMPLEX((1 - FSC) / FSC
                            * MKB_BLOB_VOL(_pf * _a, _alpha)
+                           / gsl_pow_3(_pf),
+                             0);
+                             ***/
+
+            _T[i] += COMPLEX((1 - FSC) / FSC
+                           * avg(u)
                            / gsl_pow_3(_pf),
                              0);
         }

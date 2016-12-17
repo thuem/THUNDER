@@ -36,6 +36,7 @@
 #include "Symmetry.h"
 #include "Transformation.h"
 #include "TabFunction.h"
+#include "Spectrum.h"
 
 using namespace std;
 using namespace placeholders;

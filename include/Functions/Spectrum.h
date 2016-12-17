@@ -114,6 +114,11 @@ double shellAverage(const int resP,
                     const Volume& vol,
                     const function<double(const Complex)> func);
 
+void shellAverage(vec& dst,
+                  const Volume& src,
+                  const function<double(const Complex)> func,
+                  const int r);
+
 /**
  * This function calculates the power spectrum of a certain image within a
  * given spatial frequency.

@@ -94,6 +94,37 @@ double shellAverage(const int resP,
     return result / counter;
 }
 
+void shellAverage(vec& dst,
+                  const Volume& src,
+                  const function<double(const Complex)> func,
+                  const int r)
+{
+    dst.setZero();
+
+    uvec counter = uvec::Zero(dst.size());
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(src)
+    {
+        if (QUAD_3(i, j, k) < gsl_pow_2(r))
+        {
+            int u = AROUND(NORM_3(i, j, k));
+
+            if (u < r)
+            {
+                #pragma omp atomic
+                dst(u) += func(src.getFT(i, j, k));
+                #pragma omp atomic
+                counter(u) += 1;
+            }
+        }
+    }
+
+    #pragma omp parallel for
+    for (int i = 0; i < r; i++)
+        dst(i) /= counter(i);
+}
+
 void powerSpectrum(vec& dst,
                    const Image& src,
                    const int r)
