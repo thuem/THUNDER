@@ -355,7 +355,7 @@ void Reconstructor::reconstruct(Volume& dst)
             _T[i] += COMPLEX((1 - FSC) / FSC
                            * MKB_BLOB_VOL(_pf * _a, _alpha)
                            / gsl_pow_3(_pf),
-                             0)
+                             0);
         }
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
