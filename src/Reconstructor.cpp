@@ -342,6 +342,22 @@ void Reconstructor::reconstruct(Volume& dst)
         _T[i] += COMPLEX(1, 0);
     ***/
 
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(_T)
+        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+        {
+            int u = AROUND(NORM_3(i, j, k));
+
+            double FSC = (u >= _FSC.size())
+                       ? _FSC(_FSC.size() - 1)
+                       : _FSC(u);
+
+            _T[i] += COMPLEX((1 - FSC) / FSC
+                           * MKB_BLOB_VOL(_pf * _a, _alpha)
+                           / gsl_pow_3(_pf),
+                             0)
+        }
+
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
