@@ -14,6 +14,9 @@
 
 #define ADD_T_DURING_INSERT
 
+//#define CHECK_C_AVERAGE
+#define CHECK_C_MAX
+
 #include <utility>
 #include <vector>
 #include <functional>

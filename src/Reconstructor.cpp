@@ -426,7 +426,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
-    //double nf = MKB_RL(0, _a * _pf, _alpha);
+    double nf = MKB_RL(0, _a * _pf, _alpha);
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
@@ -440,20 +440,19 @@ void Reconstructor::reconstruct(Volume& dst)
 
         //if ((r > 0.25 / _pf * RECO_LOOSE_FACTOR) ||
 
+        /***
         if ((r > 0.5 / _pf * RECO_LOOSE_FACTOR) ||
             (dst.getRL(i, j, k) < 0))
             dst.setRL(0, i, j, k);
+        ***/
 
-        /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
-                    / TIK_RL(r)
                     / MKB_RL(r, _a * _pf, _alpha)
                     * nf,
                       i,
                       j,
                       k);
-        ***/
 
         /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
@@ -744,7 +743,8 @@ void Reconstructor::allReduceT()
 double Reconstructor::checkC() const
 {
     double diff = 0;
-    /***
+
+#ifdef CHECK_C_AVERAGE
     int counter = 0;
 
     #pragma omp parallel for schedule(dynamic)
@@ -758,14 +758,16 @@ double Reconstructor::checkC() const
         }
 
     return diff / counter;
-    ***/
+#endif
 
+#ifdef CHECK_C_MAX
     #pragma omp parallel for schedule(dynamic) reduction(max:diff)
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
             diff = GSL_MAX_DBL(diff, abs(REAL(_C.getFT(i, j, k)) - 1));
 
     return diff;
+#endif
 }
 
 void Reconstructor::convoluteC()
