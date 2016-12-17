@@ -440,7 +440,8 @@ void Database::masterPrepareTmpFile()
     char cast[256];
     char cmd[1024];
 
-    snprintf(cmd, sizeof(cmd), "mkdir -p ./tmp/%s/m ./tmp/%s/s", _ID, _ID);
+    snprintf(cmd, sizeof(cmd), "mkdir -p  %s/%s/m %s/%s/s", getTempDirectory(), _ID, 
+            getTempDirectory(), _ID);
     executeCommand(cmd);
 
     MASTER_TMP_FILE(die, 0);
@@ -483,7 +484,7 @@ void Database::slavePrepareTmpFile()
     if (_commRank == 0) return;
 
     char cmd[512];
-    snprintf(cmd, sizeof(cmd), "mkdir -p ./tmp/%s/s", _ID);
+    snprintf(cmd, sizeof(cmd), "mkdir -p %s/%s/s", getTempDirectory(), _ID);
     executeCommand(cmd);
 }
 

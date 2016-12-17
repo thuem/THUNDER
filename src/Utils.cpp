@@ -3,6 +3,8 @@
 #include <stdexcept>
 #include <regex.h>
 #include <sys/types.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
 namespace {
 class Regex {
@@ -44,4 +46,18 @@ bool regexMatches(const char* str, const char* pattern)
     char buf[3000];
     regerror(rc, regex.getInternal(), buf, sizeof(buf));
     throw std::runtime_error(buf);
+}
+
+const char* getTempDirectory(void)
+{
+    static const char* tmp = NULL;
+    if (tmp)
+        return tmp;
+    if (access("/tmp", R_OK | W_OK | X_OK) == 0) {
+        tmp = "/tmp";
+        return tmp;
+    }
+    tmp = "./tmp";
+    mkdir(tmp, 0755);
+    return tmp;
 }

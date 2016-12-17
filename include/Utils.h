@@ -12,4 +12,6 @@ using boost::container::vector;
 
 bool regexMatches(const char* str, const char* pattern);
 
+const char* getTempDirectory(void);
+
 #endif // UTILS_H
