@@ -363,7 +363,7 @@ void Reconstructor::reconstruct(Volume& dst)
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u),
-                                     0.001);
+                                     0.01);
 
             /***
             _T[i] += COMPLEX((1 - FSC) / FSC
