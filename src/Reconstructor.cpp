@@ -481,8 +481,10 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
+        /***
         if (r > 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(0, i, j, k);
+        ***/
 
         //if ((r > 0.25 / _pf * RECO_LOOSE_FACTOR) ||
 
@@ -492,7 +494,6 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(0, i, j, k);
         ***/
 
-        /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
                     / MKB_RL(r, _a * _pf, _alpha)
@@ -502,7 +503,6 @@ void Reconstructor::reconstruct(Volume& dst)
                       k);
         else
             dst.setRL(0, i, j, k);
-        ***/
 
         /***
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
