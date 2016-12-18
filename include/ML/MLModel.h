@@ -65,7 +65,7 @@
  * resolution resolution for averaging reference(s) from A hemisphere and B
  * hemisphere
  */
-#define A_B_AVERAGE_THRES 10
+#define A_B_AVERAGE_THRES 20
 
 using namespace std;
 
