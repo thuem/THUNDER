@@ -369,7 +369,7 @@ void Reconstructor::reconstruct(Volume& dst)
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u),
-                                     0.1);
+                                     0.001);
 
             /***
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
@@ -437,7 +437,7 @@ void Reconstructor::reconstruct(Volume& dst)
             VOLUME_FOR_EACH_PIXEL_FT(_W)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                     _W.setFTHalf(_W.getFTHalf(i, j, k)
-                               / GSL_MAX_DBL(REAL(_C.getFTHalf(i, j, k)),
+                               / GSL_MAX_DBL(abs(REAL(_C.getFTHalf(i, j, k))),
                                              1e-3),
                                  i,
                                  j,
