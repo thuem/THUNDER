@@ -348,6 +348,12 @@ void Reconstructor::reconstruct(Volume& dst)
                  [](const Complex x){ return REAL(x); },
                  _maxRadius * _pf + 1);
 
+    ALOG(INFO, "LOGGER_SYS") << "End of Avg = " << avg(avg.size() - 1);
+    BLOG(INFO, "LOGGER_SYS") << "End of Avg = " << avg(avg.size() - 1);
+
+    ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
+    BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
+
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
@@ -363,7 +369,7 @@ void Reconstructor::reconstruct(Volume& dst)
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u),
-                                     0.01);
+                                     0.001);
 
             /***
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
@@ -431,7 +437,8 @@ void Reconstructor::reconstruct(Volume& dst)
             VOLUME_FOR_EACH_PIXEL_FT(_W)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                     _W.setFTHalf(_W.getFTHalf(i, j, k)
-                               / REAL(_C.getFTHalf(i, j, k)),
+                               / GSL_MAX_DBL(REAL(_C.getFTHalf(i, j, k)),
+                                             1e-6),
                                  i,
                                  j,
                                  k);
