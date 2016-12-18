@@ -92,13 +92,13 @@ void Postprocess::run()
     CLOG(INFO, "LOGGER_SYS") << "Estimating B-Factor";
 
     double bFactor;
+    
     bFactorEst(bFactor,
                _mapI,
                _res,
                AROUND(resA2P(1.0 / B_FACTOR_EST_LOW_RES, _size, _pixelSize)));
-               //AROUND(resA2P(1.0 / A_B_AVERAGE_THRES, _size, _pixelSize)));
 
-    //bFactor = -100;
+    //bFactor = -40;
 
     CLOG(INFO, "LOGGER_SYS") << "B-Factor : " << bFactor;
 
