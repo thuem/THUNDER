@@ -217,6 +217,15 @@ void softMask(Volume& dst,
 {
     double bg = background(src, r, ew);
 
+    softMask(dst, src, r, ew, bg);
+}
+
+void softMask(Volume& dst,
+              const Volume& src,
+              const double r,
+              const double ew,
+              const double bg)
+{
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {

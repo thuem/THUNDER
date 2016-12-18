@@ -2170,6 +2170,12 @@ void MLOptimiser::reconstructRef(const bool mask)
 
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
+    else
+        softMask(_model.ref(0),
+                 _model.ref(0),
+                 _para.size / 4,
+                 GEN_MASK_EDGE_WIDTH,
+                 0);
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";

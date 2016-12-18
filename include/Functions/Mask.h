@@ -182,6 +182,12 @@ void softMask(Volume& dst,
               const double r,
               const double ew);
 
+void softMask(Volume& dst,
+              const Volume& src,
+              const double r,
+              const double ew,
+              const double bg);
+
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated
  * from the source image with a certain layer.
