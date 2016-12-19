@@ -66,7 +66,7 @@
  * hemisphere
  */
 //#define A_B_AVERAGE_THRES 40
-#define A_B_AVERAGE_THRES 10
+#define A_B_AVERAGE_THRES 20
 
 using namespace std;
 
