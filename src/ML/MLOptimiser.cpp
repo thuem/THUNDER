@@ -1035,7 +1035,7 @@ void MLOptimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(_para.performMask);
+    reconstructRef(false);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
