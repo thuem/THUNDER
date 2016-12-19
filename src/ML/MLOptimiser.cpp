@@ -2173,7 +2173,7 @@ void MLOptimiser::reconstructRef(const bool mask)
     else
         softMask(_model.ref(0),
                  _model.ref(0),
-                 _para.size / 4,
+                 SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
                  GEN_MASK_EDGE_WIDTH,
                  0);
 
