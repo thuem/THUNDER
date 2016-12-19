@@ -437,7 +437,7 @@ void Reconstructor::reconstruct(Volume& dst)
             VOLUME_FOR_EACH_PIXEL_FT(_W)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                     _W.setFTHalf(_W.getFTHalf(i, j, k)
-                               / GSL_MAX_DBL(abs(REAL(_C.getFTHalf(i, j, k))),
+                               / GSL_MAX_DBL(ABS(_C.getFTHalf(i, j, k)),
                                              1e-6),
                                  i,
                                  j,
