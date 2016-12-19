@@ -798,7 +798,7 @@ double Reconstructor::checkC() const
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             #pragma omp critical
-            diff += abs(REAL(_C.getFT(i, j, k)) - 1);
+            diff += abs(ABS(_C.getFT(i, j, k)) - 1);
             #pragma omp critical
             counter += 1;
         }
@@ -810,7 +810,7 @@ double Reconstructor::checkC() const
     #pragma omp parallel for schedule(dynamic) reduction(max:diff)
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            diff = GSL_MAX_DBL(diff, abs(REAL(_C.getFT(i, j, k)) - 1));
+            diff = GSL_MAX_DBL(diff, abs(ABS(_C.getFT(i, j, k)) - 1));
 
     return diff;
 #endif
