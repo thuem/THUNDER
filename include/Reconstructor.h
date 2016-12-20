@@ -215,7 +215,9 @@ class Reconstructor : public Parallel
         /**
          * the blob kernel stored as a tabular function
          */
-        TabFunction _kernel;
+        TabFunction _kernelFT;
+
+        TabFunction _kernelRL;
 
     public:
 

@@ -43,10 +43,15 @@ void Reconstructor::init(const int size,
     _alpha = alpha;
 
     // initialise the interpolation kernel
-    _kernel.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
-                 0,
-                 gsl_pow_2(_pf * _a),
-                 1e5);
+    _kernelFT.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
+                   0,
+                   gsl_pow_2(_pf * _a),
+                   1e5);
+
+    _kernelRL.init(bind(MKB_RL_R2, _1, _pf * _a, _alpha),
+                   0,
+                   0.25,
+                   1e5);
 
     _maxRadius = (_size / 2 - a);
 
@@ -197,7 +202,7 @@ void Reconstructor::insert(const Image& src,
                          oldCor(1), 
                          oldCor(2), 
                          _pf * _a, 
-                         _kernel);
+                         _kernelFT);
 #endif
 
 #ifdef TRILINEAR_KERNEL
@@ -218,7 +223,7 @@ void Reconstructor::insert(const Image& src,
                          oldCor(1), 
                          oldCor(2),
                          _pf * _a,
-                         _kernel);
+                         _kernelFT);
 #endif
 
 #ifdef TRILINEAR_KERNEL
@@ -277,7 +282,7 @@ void Reconstructor::insertP(const Image& src,
                      oldCor(1), 
                      oldCor(2), 
                      _pf * _a, 
-                     _kernel);
+                     _kernelFT);
 #endif
 
 #ifdef TRILINEAR_KERNEL
@@ -298,7 +303,7 @@ void Reconstructor::insertP(const Image& src,
                      oldCor(1), 
                      oldCor(2),
                      _pf * _a,
-                     _kernel);
+                     _kernelFT);
 #endif
 
 #ifdef TRILINEAR_KERNEL
@@ -571,7 +576,7 @@ void Reconstructor::allReduceW()
                                  oldCor[1],
                                  oldCor[2],
                                  _pf * _a,
-                                 _kernel);
+                                 _kernelFT);
 #endif
 
 #ifdef TRILINEAR_KERNEL
@@ -608,7 +613,7 @@ void Reconstructor::allReduceW()
                          oldCor[1],
                          oldCor[2],
                          _pf * _a,
-                         _kernel);
+                         _kernelFT);
 #endif
 
 #ifdef TRILINEAR_KERNEL
@@ -690,7 +695,7 @@ void Reconstructor::allReduceW()
                          j,
                          k,
                          _pf * _a,
-                         _kernel);
+                         _kernelFT);
         }
     ***/
 

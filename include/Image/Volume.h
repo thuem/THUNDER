@@ -279,12 +279,20 @@ class Volume : public ImageBase
          *
          * @param iCol the index of the column of this voxel in Fourier space
          * @param iRow the index of the row of this voxel in Fourier space
-         * @param iSlc the index of the slice of this voxel in real space
+         * @param iSlc the index of the slice of this voxel in Fourier space
          */
         Complex getFT(int iCol,
                       int iRow,
                       int iSlc) const;
 
+        /**
+         * This function gets the value of the voxel in Fourier space at a given
+         * cooridnate.
+         *
+         * @param iCol the index of the column of this voxel in Fourier space
+         * @param iRow the index of the row of this voxel in Fourier space
+         * @param iSlc the index of the slice of this voxel in Fourier space
+         */
         Complex getFTHalf(const int iCol,
                           const int iRow,
                           const int iSlc) const;
@@ -308,9 +316,9 @@ class Volume : public ImageBase
          * coordinate.
          *
          * @param value the value of the voxel in Fourier space
-         * @param iCol the index of the column of this voxel in Fourier space
-         * @param iRow the index of the row of this voxel in Fourier space
-         * @param iSlc the index of the slice of this voxel in real space
+         * @param iCol  the index of the column of this voxel in Fourier space
+         * @param iRow  the index of the row of this voxel in Fourier space
+         * @param iSlc  the index of the slice of this voxel in real space
          */
         void setFTHalf(const Complex value,
                        const int iCol,
@@ -322,15 +330,24 @@ class Volume : public ImageBase
          * given coordinate.
          *
          * @param value the value of the voxel
-         * @param iCol the index of the column of this voxel in Fourier space
-         * @param iRow the index of the row of this voxel in Fourier space
-         * @param iSlc the index of the slice of this voxel in real space
+         * @param iCol  the index of the column of this voxel in Fourier space
+         * @param iRow  the index of the row of this voxel in Fourier space
+         * @param iSlc  the index of the slice of this voxel in real space
          */
         void addFT(const Complex value,
                    int iCol,
                    int iRow,
                    int iSlc);
 
+        /**
+         * This function adds a certain value on a voxel in Fourier space at a
+         * given coordiante.
+         *
+         * @param value the value of value
+         * @param iCol  the index of the column of this voxel in Fourier space
+         * @param iRow  the index of the row of this voxel in Fourier space
+         * @param iSlc  the index of the slice of this voxel in real space
+         */
         void addFTHalf(const Complex value,
                        const int iCol,
                        const int iRow,
@@ -341,15 +358,24 @@ class Volume : public ImageBase
          * given coordinate.
          *
          * @param value the real part of the voxel
-         * @param iCol the index of the column of this voxel in Fourier space
-         * @param iRow the index of the row of this voxel in Fourier space
-         * @param iSlc the index of the slice of this voxel in real space
+         * @param iCol  the index of the column of this voxel in Fourier space
+         * @param iRow  the index of the row of this voxel in Fourier space
+         * @param iSlc  the index of the slice of this voxel in real space
          */
         void addFT(const double value,
                    int iCol,
                    int iRow,
                    int iSlc);
 
+        /**
+         * This function addes the real part on a voxel in Fourier space at a
+         * given coordinate.
+         *
+         * @param value the real part of the voxel
+         * @param iCol  the index of the column of this voxel in Fourier space
+         * @param iRow  the index of the row of this voxel in Fourier space
+         * @param iSlc  the index of the slice of this voxel in real space
+         */
         void addFTHalf(const double value,
                        const int iCol,
                        const int iRow,
@@ -359,12 +385,12 @@ class Volume : public ImageBase
          * This function returns the value of an unregular voxel in speace spce
          * by interpolation.
          *
-         * @param iCol the index of the column of this unregular voxel in
-         *             Fourier space
-         * @param iRow the index of the row of this unregular voxel in
-         *             Fourier space
-         * @param iSlc the index of the slice of this unregular voxel in
-         *             Fourier space
+         * @param iCol   the index of the column of this unregular voxel in
+         *               Fourier space
+         * @param iRow   the index of the row of this unregular voxel in
+         *               Fourier space
+         * @param iSlc   the index of the slice of this unregular voxel in
+         *               Fourier space
          * @param interp indicate the type of interpolation, where INTERP_NEAREST
          *               stands for the nearest point interpolation,
          *               INTERP_LINEAR stands for the trilinear interpolation
@@ -379,12 +405,12 @@ class Volume : public ImageBase
          * This function returns the value of an unregular voxel in Fourier
          * space by interpolation.
          *
-         * @param iCol the index of the column of this unregular voxel in
-         *             real space
-         * @param iRow the index of the row of this unregular voxel in
-         *             real space
-         * @param iSlc the index of the slice of this unregular voxel in
-         *             real space
+         * @param iCol   the index of the column of this unregular voxel in
+         *               real space
+         * @param iRow   the index of the row of this unregular voxel in
+         *               real space
+         * @param iSlc   the index of the slice of this unregular voxel in
+         *               real space
          * @param interp indicate the type of interpolation, where INTERP_NEAREST
          *               stands for the nearest point interpolation,
          *               INTERP_LINEAR stands for the trilinear interpolation
