@@ -346,7 +346,8 @@ void Reconstructor::reconstruct(Volume& dst)
     shellAverage(avg,
                  _T,
                  [](const Complex x){ return REAL(x); },
-                 _maxRadius * _pf + 1);
+                 _maxRadius * _pf);
+    avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 1);
 
     ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
                              << avg(avg.size() - 3) << ", "
