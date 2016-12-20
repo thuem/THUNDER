@@ -852,7 +852,6 @@ void Reconstructor::convoluteC()
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(_C)
     {
-        /***
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
         _C.setRL(_C.getRL(i, j, k)
@@ -861,14 +860,15 @@ void Reconstructor::convoluteC()
                  i,
                  j,
                  k);
-        ****/
 
+        /***
         _C.setRL(_C.getRL(i, j, k)
                * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                / nf,
                  i,
                  j,
                  k);
+        ***/
     }
 
     fft.fwMT(_C);
