@@ -429,7 +429,7 @@ int MLModel::resolutionP(const int i,
                          const double thres,
                          const bool inverse) const
 {
-    return resP(_FSC.col(i), thres, _pf, inverse);
+    return resP(_FSC.col(i), thres, _pf, 1, inverse);
 }
 
 int MLModel::resolutionP(const double thres,
