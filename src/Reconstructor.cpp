@@ -50,7 +50,7 @@ void Reconstructor::init(const int size,
 
     _kernelRL.init(bind(MKB_RL_R2, _1, _pf * _a, _alpha),
                    0,
-                   0.25,
+                   1,
                    1e5);
 
     _maxRadius = (_size / 2 - a);
