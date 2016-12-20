@@ -51,7 +51,7 @@ using namespace placeholders;
 
 #define N_ITER_BALANCE 10
 
-#define DIFF_C_THRES 0.1
+#define DIFF_C_DECREASE_THRES 0.95
 
 /**
  * @ingroup Reconstructor

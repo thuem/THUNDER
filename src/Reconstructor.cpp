@@ -348,8 +348,14 @@ void Reconstructor::reconstruct(Volume& dst)
                  [](const Complex x){ return REAL(x); },
                  _maxRadius * _pf + 1);
 
-    ALOG(INFO, "LOGGER_SYS") << "End of Avg = " << avg(avg.size() - 1);
-    BLOG(INFO, "LOGGER_SYS") << "End of Avg = " << avg(avg.size() - 1);
+    ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
+                             << avg(avg.size() - 3) << ", "
+                             << avg(avg.size() - 2) << ", "
+                             << avg(avg.size() - 1);
+    BLOG(INFO, "LOGGER_SYS") << "End of Avg = "
+                             << avg(avg.size() - 3) << ", "
+                             << avg(avg.size() - 2) << ", "
+                             << avg(avg.size() - 1);
 
     ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
     BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
@@ -401,7 +407,10 @@ void Reconstructor::reconstruct(Volume& dst)
         else
             _W.setFTHalf(COMPLEX(0, 0), i, j, k);
 
-    for (int m = 0; m < N_ITER_BALANCE; m++)
+    double diffC = DBL_MAX;
+    double diffCPrev = DBL_MAX;
+
+    for (int m = 0; ; m++)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
@@ -424,13 +433,16 @@ void Reconstructor::reconstruct(Volume& dst)
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+        
+        diffCPrev = diffC;
 
-        double diffC = checkC();
+        diffC = checkC();
 
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
 
-        if (diffC < DIFF_C_THRES) break;
+        if ((m >= N_ITER_BALANCE) &&
+            (diffC > diffCPrev * DIFF_C_DECREASE_THRES)) break;
         else
         {
             #pragma omp parallel for schedule(dynamic)
