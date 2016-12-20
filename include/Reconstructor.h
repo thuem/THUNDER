@@ -9,8 +9,8 @@
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
-//#define MKB_KERNEL
-#define TRILINEAR_KERNEL
+#define MKB_KERNEL
+//#define TRILINEAR_KERNEL
 
 #define ADD_T_DURING_INSERT
 
