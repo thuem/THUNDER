@@ -387,7 +387,7 @@ void Reconstructor::reconstruct(Volume& dst)
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
                                    ? _FSC(_FSC.size() - 1)
                                    : _FSC(u),
-                                     0.001);
+                                     0.143);
 
             /***
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
@@ -852,10 +852,19 @@ void Reconstructor::convoluteC()
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(_C)
     {
+        /***
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
         _C.setRL(_C.getRL(i, j, k)
                * MKB_RL(r, _a * _pf, _alpha)
+               / nf,
+                 i,
+                 j,
+                 k);
+        ****/
+
+        _C.setRL(_C.getRL(i, j, k)
+               * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                / nf,
                  i,
                  j,
