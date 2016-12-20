@@ -507,11 +507,10 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
-        /***
         if (r >= 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(0, i, j, k);
-        ***/
 
+        /***
 #ifdef MKB_KERNEL
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
@@ -534,6 +533,7 @@ void Reconstructor::reconstruct(Volume& dst)
         else
             dst.setRL(0, i, j, k);
 #endif
+        ***/
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
