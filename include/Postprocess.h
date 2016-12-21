@@ -45,11 +45,9 @@ class Postprocess
 
         Volume _mapB;
 
-        /***
-        Volume _mapAMask;
+        Volume _mapAMasked;
 
-        Volume _mapBMask;
-        ***/
+        Volume _mapBMasked;
 
         Volume _mapI;
 
