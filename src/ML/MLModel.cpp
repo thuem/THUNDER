@@ -780,8 +780,11 @@ int MLModel::searchType()
         {
             if (_increaseR)
             {
+                /***
                 if ((_r > _rT) ||
                     (_res > _resT))
+                ***/
+                if (_res > _resT)
                     _nTopResNoImprove = 0;
                 else
                 {
