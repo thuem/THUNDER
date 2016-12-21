@@ -17,6 +17,8 @@
 //#define CHECK_C_AVERAGE
 #define CHECK_C_MAX
 
+#define CORRECT_CONVOLUTION_KERNEL
+
 #include <utility>
 #include <vector>
 #include <functional>

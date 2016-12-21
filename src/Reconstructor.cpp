@@ -497,14 +497,16 @@ void Reconstructor::reconstruct(Volume& dst)
 
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
-    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
-
     softMask(dst,
              dst,
              sqrt(3) / 2 * _size,
              GEN_MASK_EDGE_WIDTH,
              0);
+
+#ifdef CORRECT_CONVOLUTION_KERNEL
+
+    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
 #ifdef MKB_KERNEL
     double nf = MKB_RL(0, _a * _pf, _alpha);
@@ -535,6 +537,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
+
+#endif
 }
 
 void Reconstructor::allReduceW()
