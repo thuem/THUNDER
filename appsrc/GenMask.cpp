@@ -24,6 +24,11 @@ int main(int argc, char* argv[])
     Volume ref;
     imf.readVolume(ref);
 
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(ref)
+        if (QUAD_3(i, j, k) >= gsl_pow_2(ref.nColRL() / 2))
+            ref.setRL(0, i, j, k);
+
     Volume mask(ref.nColRL(),
                 ref.nRowRL(),
                 ref.nSlcRL(),
