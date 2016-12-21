@@ -1035,7 +1035,7 @@ void MLOptimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(false);
+    reconstructRef(false, false);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
@@ -2069,7 +2069,8 @@ void MLOptimiser::allReduceSigma(const bool group)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
 }
 
-void MLOptimiser::reconstructRef(const bool mask)
+void MLOptimiser::reconstructRef(const bool mask,
+                                 const bool solventFlatten)
 {
     IF_MASTER return;
 
@@ -2170,7 +2171,7 @@ void MLOptimiser::reconstructRef(const bool mask)
 
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
-    else
+    else if (solventFlatten)
         softMask(_model.ref(0),
                  _model.ref(0),
                  SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,

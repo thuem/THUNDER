@@ -606,9 +606,13 @@ class MLOptimiser : public Parallel
         /**
          * reconstruct reference
          *
-         * @param mask whether mask on the reference is allowed or not
+         * @param mask           whether mask on the reference is allowed or
+         *                       not
+         * @param solventFlatten whether solvent flatten on the reference is
+         *                       allowed or not when mask is off
          */
-        void reconstructRef(const bool mask = true);
+        void reconstructRef(const bool mask = true,
+                            const bool solventFlatten = true);
 
         void allocPreCalIdx(const double rU,
                             const double rL);
