@@ -374,7 +374,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+        if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+            (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
         {
             int u = AROUND(NORM_3(i, j, k));
 
@@ -384,10 +385,11 @@ void Reconstructor::reconstruct(Volume& dst)
                        : _FSC(u);
                        ***/
 
-            double FSC = GSL_MAX_DBL((u >= _FSC.size())
-                                   ? _FSC(_FSC.size() - 1)
-                                   : _FSC(u),
-                                     0.143);
+            double FSC = (u >= _FSC.size())
+                       ? _FSC(_FSC.size() - 1)
+                       : _FSC(u);
+
+            FSC = GSL_MAX_DBL(0.001, GSL_MIN_DBL(0.999, FSC));
 
             /***
             double FSC = GSL_MAX_DBL((u >= _FSC.size())
@@ -498,6 +500,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
+    /***
 #ifdef MKB_KERNEL
     double nf = MKB_RL(0, _a * _pf, _alpha);
 #endif
@@ -510,7 +513,6 @@ void Reconstructor::reconstruct(Volume& dst)
         if (r >= 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(0, i, j, k);
 
-        /***
 #ifdef MKB_KERNEL
         if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
@@ -533,16 +535,11 @@ void Reconstructor::reconstruct(Volume& dst)
         else
             dst.setRL(0, i, j, k);
 #endif
-        ***/
     }
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
-
-    /***
-    CLOG(INFO, "LOGGER_SYS") << "sum(dst)" << dst.sizeRL()
-                                            * gsl_stats_mean(&dst(0), 1, dst.sizeRL());
-    ***/
 }
 
 void Reconstructor::allReduceW()
@@ -854,21 +851,21 @@ void Reconstructor::convoluteC()
     {
         double r = NORM_3(i, j, k) / PAD_SIZE;
 
+        /***
         _C.setRL(_C.getRL(i, j, k)
                * MKB_RL(r, _a * _pf, _alpha)
                / nf,
                  i,
                  j,
                  k);
+        ***/
 
-        /***
         _C.setRL(_C.getRL(i, j, k)
                * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                / nf,
                  i,
                  j,
                  k);
-        ***/
     }
 
     fft.fwMT(_C);
