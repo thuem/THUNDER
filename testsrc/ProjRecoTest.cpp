@@ -358,7 +358,8 @@ int main(int argc, char* argv[])
             CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
 
             Volume resultA;
-            VOL_EXTRACT_RL(resultA, result, 0.5);
+            //VOL_EXTRACT_RL(resultA, result, 0.5);
+            VOL_EXTRACT_RL(resultA, result, 1);
 
             ImageFile imf;
 
@@ -371,7 +372,8 @@ int main(int argc, char* argv[])
             CLOG(INFO, "LOGGER_SYS") << "Saving Result!";
 
             Volume resultB;
-            VOL_EXTRACT_RL(resultB, result, 0.5);
+            //VOL_EXTRACT_RL(resultB, result, 0.5);
+            VOL_EXTRACT_RL(resultB, result, 1);
 
             ImageFile imf;
 
