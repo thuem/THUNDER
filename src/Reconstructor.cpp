@@ -500,7 +500,12 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
-    /***
+    softMask(dst,
+             dst,
+             sqrt(3) / 2 * _size,
+             GEN_MASK_EDGE_WIDTH,
+             0);
+
 #ifdef MKB_KERNEL
     double nf = MKB_RL(0, _a * _pf, _alpha);
 #endif
@@ -508,35 +513,25 @@ void Reconstructor::reconstruct(Volume& dst)
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
-        double r = NORM_3(i, j, k) / PAD_SIZE;
-
-        if (r >= 0.5 / _pf * RECO_LOOSE_FACTOR)
-            dst.setRL(0, i, j, k);
-
 #ifdef MKB_KERNEL
-        if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
-                    / MKB_RL(r, _a * _pf, _alpha)
+                    / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
+                             _a * _pf,
+                             _alpha)
                     * nf,
                       i,
                       j,
                       k);
-        else
-            dst.setRL(0, i, j, k);
 #endif
 
 #ifdef TRILINEAR_KERNEL
-        if (r < 0.5 / _pf * RECO_LOOSE_FACTOR)
             dst.setRL(dst.getRL(i, j, k)
-                    / TIK_RL(r),
+                    / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
                       i,
                       j,
                       k);
-        else
-            dst.setRL(0, i, j, k);
 #endif
     }
-    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";

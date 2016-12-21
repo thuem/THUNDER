@@ -37,6 +37,7 @@
 #include "Transformation.h"
 #include "TabFunction.h"
 #include "Spectrum.h"
+#include "Mask.h"
 
 using namespace std;
 using namespace placeholders;

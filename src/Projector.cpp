@@ -372,19 +372,12 @@ void Projector::gridCorrection()
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_RL(_projectee)
-        {
-            double r = NORM_3(i, j, k) / (_projectee.nColRL() * _pf);
-
-            //if (r < 0.25 / _pf * PROJ_LOOSE_FACTOR)
-            if (r < 0.5 / _pf * PROJ_LOOSE_FACTOR)
-                _projectee.setRL(_projectee.getRL(i, j, k)
-                               / TIK_RL(r),
-                                 i,
-                                 j,
-                                 k);
-            else
-                _projectee.setRL(0, i, j, k);
-        }
+            _projectee.setRL(_projectee.getRL(i, j, k)
+                           / TIK_RL(NORM_3(i, j, k)
+                                  / (_projectee.nColRL() * _pf)),
+                             i,
+                             j,
+                             k);
 
         fft.fwMT(_projectee);
     }
