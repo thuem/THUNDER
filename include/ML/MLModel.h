@@ -148,10 +148,12 @@ class MLModel : public Parallel
          */
         int _rT = 1;
 
+        //int _resCutoff = 1;
+
         /*
          * resolution before padding (in pixel)
          */
-        int _res = 1;
+        int _resReport = 1;
 
         /**
          * the top resolution ever reached
