@@ -208,8 +208,8 @@ void FFT::bwCreatePlan(const int nCol,
     _dstR = fftw_alloc_real(nCol * nRow * nSlc);
     ***/
 
-    _srcC = (Complex*)fftw_alloc_complex((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
-    _dstR = (double*)fftw_alloc_real(nCol * nRow * nSlc * sizeof(double));
+    _srcC = (Complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
+    _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(nRow,
@@ -259,8 +259,8 @@ void FFT::bwCreatePlanMT(const int nCol,
     _dstR = fftw_alloc_real(nCol * nRow * nSlc);
     ***/
 
-    _srcC = (Complex*)fftw_alloc_complex((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
-    _dstR = (double*)fftw_alloc_real(nCol * nRow * nSlc * sizeof(double));
+    _srcC = (Complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
+    _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
 
     fftw_init_threads();
 
