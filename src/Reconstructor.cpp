@@ -386,35 +386,14 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             int u = AROUND(NORM_3(i, j, k));
 
-            /***
-            double FSC = (u >= _FSC.size())
-                       ? _FSC(_FSC.size() - 1)
-                       : _FSC(u);
-                       ***/
-
             double FSC = (u >= _FSC.size())
                        ? _FSC(_FSC.size() - 1)
                        : _FSC(u);
 
             FSC = GSL_MAX_DBL(0.001, GSL_MIN_DBL(0.999, FSC));
 
-            /***
-            double FSC = GSL_MAX_DBL((u >= _FSC.size())
-                                   ? _FSC(_FSC.size() - 1)
-                                   : _FSC(u),
-                                     0.01);
-                                     ***/
-
-            /***
-            _T[i] += COMPLEX((1 - FSC) / FSC
-                           * MKB_BLOB_VOL(_pf * _a, _alpha)
-                           / gsl_pow_3(_pf),
-                             0);
-                             ***/
-
             _T[i] += COMPLEX((1 - FSC) / FSC
                            * avg(u),
-                           /// gsl_pow_3(_pf),
                              0);
         }
 
@@ -483,25 +462,9 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceF();
 
-    ALOG(INFO, "LOGGER_RECO") << "Copying F";
-    BLOG(INFO, "LOGGER_RECO") << "Copying F";
-
     dst = _F.copyVolume();
 
-    MPI_Barrier(_hemi);
-
-    /***
-    ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
-    BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
-    ***/
-
-    ILOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
-
     _fft.bwExecutePlan(dst);
-
-    ILOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F Accomplished";
-
-    MPI_Barrier(_hemi);
 
     softMask(dst,
              dst,
