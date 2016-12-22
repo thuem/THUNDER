@@ -13,9 +13,8 @@
 #include "FFT.h"
 #include "ImageFile.h"
 
-#define N 760
+#define N 256
 #define M 10
-#define PF 4
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -23,7 +22,7 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    MPI_Init(&argc, &argv);
+    //MPI_Init(&argc, &argv);
 
     std::cout << "Define a head." << std::endl;
 
@@ -47,21 +46,33 @@ int main(int argc, char* argv[])
             head.setRL(0, i, j, k);
     }
 
-    /***
     ImageFile imf;
 
     imf.readMetaData(head);
     imf.writeVolume("head.mrc", head);
-    ***/
 
     FFT fft;
-    fft.fwMT(head);
-    fft.bwMT(head);
 
-    /***
+    CLOG(INFO, "LOGGER_SYS") << "Creating Plan";
+
+    fft.fwCreatePlanMT(N, N, N);
+    fft.bwCreatePlanMT(N, N, N);
+
+    for (int i = 0; i < 100; i++)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Executing Plan, Round " << i;
+
+        fft.fwExecutePlanMT(head);
+        fft.bwExecutePlanMT(head);
+    }
+
+    CLOG(INFO, "LOGGER_SYS") << "Destroying Plan";
+
+    fft.fwDestroyPlanMT();
+    fft.bwDestroyPlanMT();
+
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
-    ***/
 
-    MPI_Finalize();
+    //MPI_Finalize();
 }

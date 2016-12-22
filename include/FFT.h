@@ -311,6 +311,38 @@ class FFT
          * @param vol the volume to be transformed
          */
         void bwMT(Volume& vol);
+
+        void fwCreatePlan(const int nCol,
+                          const int nRow,
+                          const int nSlc);
+
+        void bwCreatePlan(const int nCol,
+                          const int nRow,
+                          const int nSlc);
+
+        void fwCreatePlanMT(const int nCol,
+                            const int nRow,
+                            const int nSlc);
+
+        void bwCreatePlanMT(const int nCol,
+                            const int nRow,
+                            const int nSlc);
+
+        void fwExecutePlan(Volume& vol);
+
+        void bwExecutePlan(Volume& vol);
+
+        void fwExecutePlanMT(Volume& vol);
+
+        void bwExecutePlanMT(Volume& vol);
+
+        void fwDestroyPlan();
+
+        void bwDestroyPlan();
+
+        void fwDestroyPlanMT();
+
+        void bwDestroyPlanMT();
 };
 
 #endif // FFT_H 
