@@ -97,7 +97,8 @@ void ImageBase::copyBase(ImageBase& other) const
 #endif
 
 #ifdef FFTW_PTR
-        other._dataRL = fftw_alloc_real(_sizeRL);
+        //other._dataRL = fftw_alloc_real(_sizeRL);
+        other._dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
 
         memcpy(other._dataRL, _dataRL, _sizeRL * sizeof(double));
 #endif
@@ -124,7 +125,8 @@ void ImageBase::copyBase(ImageBase& other) const
 #endif
 
 #ifdef FFTW_PTR
-        other._dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
+        //other._dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
+        other._dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
         
         memcpy(other._dataFT, _dataFT, _sizeFT * sizeof(Complex));
 #endif

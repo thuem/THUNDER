@@ -45,7 +45,8 @@ void Image::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
-        _dataRL = fftw_alloc_real(_sizeRL);
+        //_dataRL = fftw_alloc_real(_sizeRL);
+        _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
 #endif
     }
     else if (space == FT_SPACE)
@@ -60,7 +61,8 @@ void Image::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
-        _dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
+        //_dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
+        _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
 }
