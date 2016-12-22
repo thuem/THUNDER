@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    //MPI_Init(&argc, &argv);
+    fftw_init_threads();
 
     std::cout << "Define a head." << std::endl;
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     fft.fwCreatePlanMT(N, N, N);
     fft.bwCreatePlanMT(N, N, N);
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < M; i++)
     {
         CLOG(INFO, "LOGGER_SYS") << "Executing Plan, Round " << i;
 
@@ -68,11 +68,13 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Destroying Plan";
 
-    fft.fwDestroyPlanMT();
-    fft.bwDestroyPlanMT();
+    fft.fwDestroyPlan();
+    fft.bwDestroyPlan();
 
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
 
-    //MPI_Finalize();
+    fftw_cleanup_threads();
+
+    return 0;
 }

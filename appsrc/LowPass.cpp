@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
+    fftw_init_threads();
+
     ImageFile imf(argv[2], "rb");
     imf.readMetaData();
 
@@ -33,9 +35,13 @@ int main(int argc, char* argv[])
                   atof(argv[4]) / atof(argv[3]),
                   2.0 / ref.nColRL());
 
-    fft.bw(ref);
+    fft.bwMT(ref);
 
     imf.readMetaData(ref);
 
     imf.writeVolume(argv[1], ref);
+
+    fftw_cleanup_threads();
+
+    return 0;
 }

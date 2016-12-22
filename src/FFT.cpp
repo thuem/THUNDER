@@ -88,7 +88,7 @@ void FFT::fwMT(Image& img)
 {
     FW_EXTRACT_P(img);
 
-    fftw_init_threads();
+    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -98,18 +98,20 @@ void FFT::fwMT(Image& img)
                                   _dstC,
                                   FFTW_ESTIMATE);
 
+    fftw_plan_with_nthreads(1);
+
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
 
-    fftw_cleanup_threads();
+    //fftw_cleanup_threads();
 }
 
 void FFT::bwMT(Image& img)
 {
     BW_EXTRACT_P(img);
 
-    fftw_init_threads();
+    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -119,6 +121,8 @@ void FFT::bwMT(Image& img)
                                   _dstR,
                                   FFTW_ESTIMATE);
 
+    fftw_plan_with_nthreads(1);
+
     fftw_execute(bwPlan);
 
     #pragma omp parallel for
@@ -126,14 +130,14 @@ void FFT::bwMT(Image& img)
 
     BW_CLEAN_UP(img);
 
-    fftw_cleanup_threads();
+    //fftw_cleanup_threads();
 }
 
 void FFT::fwMT(Volume& vol)
 {
     FW_EXTRACT_P(vol);
 
-    fftw_init_threads();
+    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -143,6 +147,8 @@ void FFT::fwMT(Volume& vol)
                                   _srcR,
                                   _dstC,
                                   FFTW_ESTIMATE);
+
+    fftw_plan_with_nthreads(1);
 
     fftw_execute(fwPlan);
 
@@ -155,7 +161,7 @@ void FFT::bwMT(Volume& vol)
 {
     BW_EXTRACT_P(vol);
 
-    fftw_init_threads();
+    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -165,6 +171,8 @@ void FFT::bwMT(Volume& vol)
                                   _srcC,
                                   _dstR,
                                   FFTW_ESTIMATE);
+
+    fftw_plan_with_nthreads(1);
 
     fftw_execute(bwPlan);
 
@@ -235,8 +243,6 @@ void FFT::fwCreatePlanMT(const int nCol,
     _srcR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
-    fftw_init_threads();
-
     fftw_plan_with_nthreads(omp_get_max_threads());
 
     fwPlan = fftw_plan_dft_r2c_3d(nRow,
@@ -245,6 +251,8 @@ void FFT::fwCreatePlanMT(const int nCol,
                                   _srcR,
                                   _dstC,
                                   FFTW_MEASURE);
+
+    fftw_plan_with_nthreads(1);
 
     fftw_free(_srcR);
     fftw_free(_dstC);
@@ -262,8 +270,6 @@ void FFT::bwCreatePlanMT(const int nCol,
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
 
-    fftw_init_threads();
-
     fftw_plan_with_nthreads(omp_get_max_threads());
 
     bwPlan = fftw_plan_dft_c2r_3d(nRow,
@@ -272,6 +278,8 @@ void FFT::bwCreatePlanMT(const int nCol,
                                   _srcC,
                                   _dstR,
                                   FFTW_MEASURE);
+
+    fftw_plan_with_nthreads(1);
 
     fftw_free(_srcC);
     fftw_free(_dstR);
@@ -328,26 +336,23 @@ void FFT::bwExecutePlanMT(Volume& vol)
 
 void FFT::fwDestroyPlan()
 {
-    #pragma omp critical
     fftw_destroy_plan(fwPlan);
 }
 
 void FFT::bwDestroyPlan()
 {
-    #pragma omp critical
     fftw_destroy_plan(bwPlan);
 }
 
+/***
 void FFT::fwDestroyPlanMT()
 {
     fftw_destroy_plan(fwPlan);
-
-    fftw_cleanup_threads();
 }
 
 void FFT::bwDestroyPlanMT()
 {
     fftw_destroy_plan(bwPlan);
-
     fftw_cleanup_threads();
 }
+***/

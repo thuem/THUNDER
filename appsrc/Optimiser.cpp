@@ -67,6 +67,8 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
+    fftw_init_threads();
+
     Json::Reader reader;
     Json::Value root;
 
@@ -105,4 +107,8 @@ int main(int argc, char* argv[])
     opt.run();
 
     MPI_Finalize();
+
+    fftw_cleanup_threads();
+
+    return 0;
 }

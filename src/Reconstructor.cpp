@@ -21,8 +21,8 @@ Reconstructor::Reconstructor(const int size,
 
 Reconstructor::~Reconstructor()
 {
-    _fft.fwDestroyPlanMT();
-    _fft.bwDestroyPlanMT();
+    _fft.fwDestroyPlan();
+    _fft.bwDestroyPlan();
 }
 
 void Reconstructor::init(const int size,
