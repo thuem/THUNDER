@@ -795,7 +795,7 @@ int MLModel::searchType()
                                              << ", Current Resolution (Pixel): "
                                              << _res;
 
-                    MLOG(INFO, "LGGGER_SYS") << "Number of Iterations without Top Resolution Elevating : "
+                    MLOG(INFO, "LOGGER_SYS") << "Number of Iterations without Top Resolution Elevating : "
                                              << _nTopResNoImprove;
                 }
 
