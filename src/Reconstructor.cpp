@@ -19,7 +19,11 @@ Reconstructor::Reconstructor(const int size,
     init(size, pf, sym, a, alpha);
 }
 
-Reconstructor::~Reconstructor() {}
+Reconstructor::~Reconstructor()
+{
+    _fft.fwDestroyPlanMT();
+    _fft.bwDestroyPlanMT();
+}
 
 void Reconstructor::init(const int size,
                          const int pf,
@@ -59,6 +63,9 @@ void Reconstructor::init(const int size,
     _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
     _T.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+
+    _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+    _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
 
     reset();
 }
@@ -490,8 +497,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
     ILOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F";
 
-    FFT fft;
-    fft.bwMT(dst);
+    _fft.bwExecutePlan(dst);
 
     ILOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming F Accomplished";
 
@@ -656,8 +662,7 @@ void Reconstructor::allReduceW()
             _C.setFTHalf(COMPLEX(0, 0), i, j, k);
     ***/
 
-    FFT fft;
-    fft.bwMT(_C);
+    _fft.bwExecutePlanMT(_C);
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(_C)
@@ -669,7 +674,8 @@ void Reconstructor::allReduceW()
                  k);
     }
 
-    fft.fwMT(_C);
+    _fft.fwExecutePlanMT(_C);
+
     _C.clearRL();
 
     ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
@@ -697,7 +703,7 @@ void Reconstructor::allReduceW()
 
     _T = _W.copyVolume();
 
-    fft.bwMT(_T);
+    _fft.bwExecutePlanMT(_T);
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(_T)
@@ -711,7 +717,7 @@ void Reconstructor::allReduceW()
                  k);
     }
 
-    fft.fwMT(_T);
+    _fft.fwExecutePlanMT(_T);
     _T.clearRL();
 
     #pragma omp parallel for
@@ -838,27 +844,13 @@ double Reconstructor::checkC() const
 
 void Reconstructor::convoluteC()
 {
-    FFT fft;
-
-    fft.bwMT(_C);
-    _C.clearFT();
+    _fft.bwExecutePlanMT(_C);
 
     double nf = MKB_RL(0, _a * _pf, _alpha);
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(_C)
     {
-        /***
-        double r = NORM_3(i, j, k) / PAD_SIZE;
-
-        _C.setRL(_C.getRL(i, j, k)
-               * MKB_RL(r, _a * _pf, _alpha)
-               / nf,
-                 i,
-                 j,
-                 k);
-        ***/
-
         _C.setRL(_C.getRL(i, j, k)
                * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                / nf,
@@ -867,6 +859,7 @@ void Reconstructor::convoluteC()
                  k);
     }
 
-    fft.fwMT(_C);
+    _fft.fwExecutePlanMT(_C);
+
     _C.clearRL();
 }

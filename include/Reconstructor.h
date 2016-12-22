@@ -224,6 +224,8 @@ class Reconstructor : public Parallel
 
         TabFunction _kernelRL;
 
+        FFT _fft;
+
     public:
 
         /**
