@@ -60,12 +60,28 @@ void ImageBase::clear()
 
 void ImageBase::clearRL()
 {
+#ifdef CXX11_PTR
     _dataRL.reset();
+#endif
+    
+#ifdef FFTW_PTR
+    fftw_free(_dataRL);
+
+    _dataRL = NULL;
+#endif
 }
 
 void ImageBase::clearFT()
 {
+#ifdef CXX11_PTR
     _dataFT.reset();
+#endif
+    
+#ifdef FFTW_PTR
+    fftw_free(_dataFT);
+
+    _dataFT = NULL;
+#endif
 }
 
 void ImageBase::copyBase(ImageBase& other) const
@@ -74,21 +90,55 @@ void ImageBase::copyBase(ImageBase& other) const
 
     if (_dataRL)
     {
+#ifdef CXX11_PTR
         other._dataRL.reset(new double[_sizeRL]);
+
         memcpy(other._dataRL.get(), _dataRL.get(), _sizeRL * sizeof(_dataRL[0]));
+#endif
+
+#ifdef FFTW_PTR
+        other._dataRL = fftw_alloc_real(_sizeRL);
+
+        memcpy(other._dataRL, _dataRL, _sizeRL * sizeof(double));
+#endif
     }
     else
+    {
+#ifdef CXX11_PTR
         other._dataRL.reset();
+#endif
+
+#ifdef FFTW_PTR
+        other._dataRL = NULL;
+#endif
+    }
 
     other._sizeFT = _sizeFT;
 
     if (_dataFT)
     {
+#ifdef CXX11_PTR
         other._dataFT.reset(new Complex[_sizeFT]);
+
         memcpy(other._dataFT.get(), _dataFT.get(), _sizeFT * sizeof(_dataFT[0]));
+#endif
+
+#ifdef FFTW_PTR
+        other._dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
+        
+        memcpy(other._dataFT, _dataFT, _sizeFT * sizeof(Complex));
+#endif
     }
     else
+    {
+#ifdef CXX11_PTR
         other._dataFT.reset();
+#endif
+
+#ifdef FFTW_PTR
+        other._dataFT = NULL;
+#endif
+    }
 }
 
 ImageBase ImageBase::copyBase() const

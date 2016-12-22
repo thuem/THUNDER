@@ -43,7 +43,13 @@ void Volume::alloc(const int nCol,
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
+#ifdef CXX11_PTR
         _dataRL.reset(new double[_sizeRL]);
+#endif
+
+#ifdef FFTW_PTR
+        _dataRL = fftw_alloc_real(_sizeRL);
+#endif
     }
     else if (space == FT_SPACE)
     {
@@ -52,7 +58,13 @@ void Volume::alloc(const int nCol,
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
+#ifdef CXX11_PTR
         _dataFT.reset(new Complex[_sizeFT]);
+#endif
+
+#ifdef FFTW_PTR
+        _dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
+#endif
     }
 }
 

@@ -11,9 +11,14 @@
 #ifndef IMAGE_BASE
 #define IMAGE_BASE
 
+//#define CXX11_PTR
+#define FFTW_PTR
+
 #include <functional>
 #include <cstring>
 #include <cstdio>
+
+#include <fftw3.h>
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_complex.h>
@@ -177,9 +182,17 @@ class ImageBase
 
     protected:
 
+#ifdef CXX11_PTR
         unique_ptr<double[]> _dataRL;
 
         unique_ptr<Complex[]> _dataFT;
+#endif
+
+#ifdef FFTW_PTR
+        double* _dataRL = NULL;
+
+        Complex* _dataFT = NULL;
+#endif
 
         size_t _sizeRL = 0;
 
