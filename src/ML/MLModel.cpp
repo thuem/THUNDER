@@ -1014,7 +1014,7 @@ void MLModel::avgHemi()
                 ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere A";
-                BLOG(INFO, "LOGGER_COMPARE") << "Snding Reference "
+                BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere B";
 

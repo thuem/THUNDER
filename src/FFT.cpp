@@ -88,8 +88,6 @@ void FFT::fwMT(Image& img)
 {
     FW_EXTRACT_P(img);
 
-    //fftw_init_threads();
-
     fftw_plan_with_nthreads(omp_get_max_threads());
 
     fwPlan = fftw_plan_dft_r2c_2d(img.nRowRL(),
@@ -103,15 +101,11 @@ void FFT::fwMT(Image& img)
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
-
-    //fftw_cleanup_threads();
 }
 
 void FFT::bwMT(Image& img)
 {
     BW_EXTRACT_P(img);
-
-    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -129,15 +123,11 @@ void FFT::bwMT(Image& img)
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
-
-    //fftw_cleanup_threads();
 }
 
 void FFT::fwMT(Volume& vol)
 {
     FW_EXTRACT_P(vol);
-
-    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -153,15 +143,11 @@ void FFT::fwMT(Volume& vol)
     fftw_execute(fwPlan);
 
     FW_CLEAN_UP;
-
-    fftw_cleanup_threads();
 }
 
 void FFT::bwMT(Volume& vol)
 {
     BW_EXTRACT_P(vol);
-
-    //fftw_init_threads();
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -180,8 +166,6 @@ void FFT::bwMT(Volume& vol)
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);
-
-    fftw_cleanup_threads();
 }
 
 void FFT::fwCreatePlan(const int nCol,
