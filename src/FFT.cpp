@@ -121,12 +121,12 @@ void FFT::bwMT(Image& img)
 
     fftw_execute(bwPlan);
 
-    fftw_cleanup_threads();
-
     #pragma omp parallel for
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
+
+    fftw_cleanup_threads();
 }
 
 void FFT::fwMT(Volume& vol)
@@ -168,12 +168,12 @@ void FFT::bwMT(Volume& vol)
 
     fftw_execute(bwPlan);
 
-    fftw_cleanup_threads();
-
     #pragma omp parallel for
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);
+
+    fftw_cleanup_threads();
 }
 
 void FFT::fwCreatePlan(const int nCol,
