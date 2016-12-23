@@ -36,7 +36,9 @@ class Error : public std::exception
 
         friend std::ostream& operator<<(std::ostream& os, const Error& error);
 
-        const char* what() const noexcept override;
+        const char* what() const throw();
+
+        ~Error() throw() {}
 };
 
 #endif // ERROR_H

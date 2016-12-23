@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <omp.h>
+#include <omp_compat.h>
 
 #include <gsl/gsl_statistics.h>
 
@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
     Particle par(M, TRANS_S, 0.01, &sym);
-    cout << "Saving Sampling Points" << endl;
+    std::cout << "Saving Sampling Points" << std::endl;
     save("Sampling_Points.par", par);
 
     Image image(N, N, FT_SPACE);
@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
 
         FFT fftThread;
 
-        auto engine = get_random_engine();
+        gsl_rng* engine = get_random_engine();
 
         char name[256];
         Coordinate5D coord;

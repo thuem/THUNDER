@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    cout << "Defining Sphere" << endl;
+    std::cout << "Defining Sphere" << std::endl;
     Volume sphere(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(sphere)
     {

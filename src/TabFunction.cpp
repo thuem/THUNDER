@@ -8,7 +8,7 @@
 
 #include "TabFunction.h"
 
-TabFunction::TabFunction() {}
+TabFunction::TabFunction() : _a(0), _b(0), _s(0), _n(0) {}
 
 TabFunction::~TabFunction()
 {

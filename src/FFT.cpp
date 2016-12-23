@@ -10,13 +10,18 @@
 
 #include "FFT.h"
 
-FFT::FFT() {}
+#include <omp_compat.h>
+
+FFT::FFT() : _srcR(NULL), _srcC(NULL), _dstR(NULL), _dstC(NULL)  {}
 
 FFT::~FFT() {}
 
 void FFT::fw(Image& img)
 {
-    FW_EXTRACT_P(img);
+    img.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&img[0];
+    _srcR = &img(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_2d(img.nRowRL(),
@@ -32,7 +37,10 @@ void FFT::fw(Image& img)
 
 void FFT::bw(Image& img)
 {
-    BW_EXTRACT_P(img);
+    img.alloc(RL_SPACE);
+    _dstR = &img(0);
+    _srcC = (fftw_complex*)&img[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(img.nRowRL(),
@@ -50,7 +58,10 @@ void FFT::bw(Image& img)
 
 void FFT::fw(Volume& vol)
 {
-    FW_EXTRACT_P(vol);
+    vol.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&vol[0];
+    _srcR = &vol(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
@@ -67,7 +78,10 @@ void FFT::fw(Volume& vol)
 
 void FFT::bw(Volume& vol)
 {
-    BW_EXTRACT_P(vol);
+    vol.alloc(RL_SPACE);
+    _dstR = &vol(0);
+    _srcC = (fftw_complex*)&vol[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
@@ -86,7 +100,10 @@ void FFT::bw(Volume& vol)
 
 void FFT::fwMT(Image& img)
 {
-    FW_EXTRACT_P(img);
+    img.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&img[0];
+    _srcR = &img(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -100,12 +117,21 @@ void FFT::fwMT(Image& img)
 
     fftw_execute(fwPlan);
 
+<<<<<<< HEAD
     FW_CLEAN_UP;
+=======
+    FWMT_CLEAN_UP;
+
+    fftw_cleanup_threads();
+>>>>>>> sqlite
 }
 
 void FFT::bwMT(Image& img)
 {
-    BW_EXTRACT_P(img);
+    img.alloc(RL_SPACE);
+    _dstR = &img(0);
+    _srcC = (fftw_complex*)&img[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -119,15 +145,27 @@ void FFT::bwMT(Image& img)
 
     fftw_execute(bwPlan);
 
+<<<<<<< HEAD
     #pragma omp parallel for
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
+=======
+    BWMT_CLEAN_UP(img);
+
+    fftw_cleanup_threads();
+    
+    #pragma omp parallel for
+    SCALE_RL(img, 1.0 / img.sizeRL());
+>>>>>>> sqlite
 }
 
 void FFT::fwMT(Volume& vol)
 {
-    FW_EXTRACT_P(vol);
+    vol.alloc(FT_SPACE);
+    _dstC = (fftw_complex*)&vol[0];
+    _srcR = &vol(0);
+    CHECK_SPACE_VALID(_dstC, _srcR);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -142,12 +180,21 @@ void FFT::fwMT(Volume& vol)
 
     fftw_execute(fwPlan);
 
+<<<<<<< HEAD
     FW_CLEAN_UP;
+=======
+    FWMT_CLEAN_UP;
+
+    fftw_cleanup_threads();
+>>>>>>> sqlite
 }
 
 void FFT::bwMT(Volume& vol)
 {
-    BW_EXTRACT_P(vol);
+    vol.alloc(RL_SPACE);
+    _dstR = &vol(0);
+    _srcC = (fftw_complex*)&vol[0];
+    CHECK_SPACE_VALID(_dstR, _srcC);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -162,6 +209,7 @@ void FFT::bwMT(Volume& vol)
 
     fftw_execute(bwPlan);
 
+<<<<<<< HEAD
     #pragma omp parallel for
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
@@ -255,6 +303,9 @@ void FFT::bwCreatePlanMT(const int nCol,
     _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
 
     fftw_plan_with_nthreads(omp_get_max_threads());
+=======
+    BWMT_CLEAN_UP(vol);
+>>>>>>> sqlite
 
     bwPlan = fftw_plan_dft_c2r_3d(nRow,
                                   nCol,
@@ -338,5 +389,8 @@ void FFT::bwDestroyPlanMT()
 {
     fftw_destroy_plan(bwPlan);
     fftw_cleanup_threads();
+    
+    #pragma omp parallel for
+    SCALE_RL(vol, 1.0 / vol.sizeRL());
 }
 ***/

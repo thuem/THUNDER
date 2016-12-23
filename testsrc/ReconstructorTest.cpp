@@ -20,7 +20,7 @@
 #define M 32
 //#define M 16
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
 
-    // cout << "0: commRank = " << commRank << endl;
+    // std::cout << "0: commRank = " << commRank << std::endl;
     Volume head(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
     VOL_PAD_RL(padHead, head, 2);
     normalise(padHead);
 
-    cout << "Adding Noise" << endl;
+    std::cout << "Adding Noise" << std::endl;
     Volume noise(2 * N, 2 * N, 2 * N, RL_SPACE);
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(engine, 5);
     ADD_RL(padHead, noise);
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
     }
     catch (Error& err)
     {
-        cout << err << endl;
+        std::cout << err << std::endl;
     }
 
     Volume result;

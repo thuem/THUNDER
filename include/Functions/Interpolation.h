@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Author: Mingxu Hu
+ * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
  * Test:
  * Execution:
@@ -81,8 +81,9 @@
 #define TRI_LINEAR(v, xd) (BI_LINEAR(v[0], xd) * (1 - (xd[2])) \
                          + BI_LINEAR(v[1], xd) * (xd[2]))
 
+
 /**
- * This macro determines the weights of two sampling points during 1D nearest
+ * This function determines the weights of two sampling points during 1D nearest
  * point interpolation given the distance between the interpolation point and
  * the first sampling point.
  *
@@ -90,16 +91,20 @@
  * @param xd the distance between the interpolation point and the first sampling
  *           point
  */
-#define W_NEAREST(w, xd) \
-    [](double _w[2], const double _xd) \
-    { \
-        _w[0] = 0; \
-        _w[1] = 0; \
-        (_xd < 0.5) ? _w[0]++ : _w[1]++; \
-    }(w, xd)
+
+inline void W_INTERP_NEAREST(double w[2], 
+                            const double xd)
+{
+    w[0] = 0;
+    w[1] = 0;
+    if (xd < 0.5) 
+        w[0] = 1;
+    else
+        w[1] = 1;
+}
 
 /**
- * This macro determines the weights of two sampling points during 1D linear
+ * This function determines the weights of two sampling points during 1D linear
  * interpolation given the distance between the interpolation point and the
  * first sampling point.
  *
@@ -107,15 +112,15 @@
  * @param xd the distance between the interpolation point and the first sampling
  *           point
  */
-#define W_LINEAR(w, xd) \
-    [](double _w[2], const double _xd) \
-    { \
-        _w[0] = 1 - _xd; \
-        _w[1] = _xd; \
-    }(w, xd)
+inline void W_INTERP_LINEAR(double w[2], 
+                            const double xd) 
+{
+    w[0] = 1 - xd;
+    w[1] = xd;
+}
 
 /**
- * This macro determines the weights of two sampling points during 1D sinc
+ * This function determines the weights of two sampling points during 1D sinc
  * interpolation given the distance between the interpolation point and the
  * first sampling point.
  *
@@ -123,125 +128,111 @@
  * @param xd the distance between the interpolation point and the first sampling
  *           point
  */
-#define W_SINC(w, xd) \
-    [](double _w[2], const double _xd) \
-    { \
-        _w[0] = gsl_sf_sinc(_xd); \
-        _w[1] = gsl_sf_sinc(1 - _xd); \
-    }(w, xd)
+inline void W_INTERP_SINC(double w[2], 
+                          const double xd) 
+{
+    w[0] = gsl_sf_sinc(xd);
+    w[1] = gsl_sf_sinc(1 - xd);
+}
 
 /**
- * This macro determines the weights of two sampling points and the coordinate
- * of the first sampling point during 1D interpolation given the coordinate of
- * interpolation point.
+ * This function determines the weights of two sampling points during 1D
+ * interpolation given the distance between the interpolation point and the
+ * first sampling point with an interpolation type flag to select an 
+ * interpolation algorithm among NEAREST, LINEAR and SINC methods.
  *
- * @param INTERP the type of interpolation
- * @param w      2-array indicating the weights
- * @param x0     the nearest grid point of the interpolation point
- * @param x      the interpolation point
+ * @param w  2-array indicating the weights
+ * @param xd the distance between the interpolation point and the first sampling
+ *           point
+ * @param interpType the interpolation algorithms selection flag
  */
-#define WG_INTERP(INTERP, w, x0, x) \
-    [](double _w[2], int& _x0, const double _x) \
-    { \
-        _x0 = floor(_x); \
-        W_##INTERP(_w, _x - _x0); \
-    }(w, x0, x)
+inline void W_INTERP(double w[2], 
+                     const double x, 
+                     const int interpType)
+{   
+    switch (interpType)
+    {
+        case NEAREST_INTERP :   W_INTERP_NEAREST(w, x);     break;
+        case LINEAR_INTERP  :   W_INTERP_LINEAR(w, x);      break;
+        case SINC_INTERP    :   W_INTERP_SINC(w, x);        break;
+        default             :   abort();
+    }
+}
 
 /**
- * This macro determines the weights of two sampling points and the coordinate
- * of the first sampling point during 1D interpolation given the coordinate of
- * interpolation point using nearest point interpolation.
+ * This function determines the weights of two sampling points and
+ * the coordinate of the first sampling point during 1D interpolation given
+ * the coordinate of interpolation with an interpolation type flag to select an 
+ * interpolation algorithm among NEAREST, LINEAR and SINC methods.
  *
  * @param w  2-array indicating the weights
  * @param x0 the nearest grid point of the interpolation point
  * @param x  the interpolation point
+ * @param interpType the interpolation algorithms selection flag
  */
-#define WG_NEAREST(w, x0, x) WG_INTERP(NEAREST, w, x0, x)
 
-/**
- * This macro determines the weights of two sampling points and the coordinate
- * of the first sampling point during 1D interpolation given the coordinate of
- * interpolation point using linear interpolation.
- *
- * @param w  2-array indicating the weights
- * @param x0 the nearest grid point of the interpolation point
- * @param x  the interpolation point
- */
-#define WG_LINEAR(w, x0, x) WG_INTERP(LINEAR, w, x0, x)
+inline void WG_INTERP(double w[2],
+                      int& x0,
+                      const double x,
+                      const int interpType)
+{   
+    x0 = floor(x);
+    W_INTERP(w, x - x0, interpType);
+}
 
-/**
- * This macro determines the weights of two sampling points and the coordinate
- * of the first sampling point during 1D interpolation given the coordinate of
- * interpolation point using sinc interpolation.
- *
- * @param w  2-array indicating the weights
- * @param x0 the nearest grid point of the interpolation point
- * @param x  the interpolation point
- */
-#define WG_SINC(w, x0, x) WG_INTERP(SINC, w, x0, x)
 
-#define W_BI_INTERP(INTERP, w, xd) \
-    [](double _w[2][2], const double _xd[2]) \
-    { \
-        double v[2][2]; \
-        for (int i = 0; i < 2; i++) W_##INTERP(v[i], _xd[i]); \
-        FOR_CELL_DIM_2 _w[i][j] = v[0][i] * v[1][j]; \
-    }(w, xd)
+inline void W_BI_INTERP(double w[2][2], 
+                        const double xd[2],
+                        const int interpType)
+{
+    double v[2][2];
+    for (int i = 0; i < 2; i++) 
+    {
+        W_INTERP(v[i], xd[i], interpType);
+    }
+    FOR_CELL_DIM_2
+        w[i][j] = v[0][i] * v[1][j];
+}
 
-#define W_BI_NEAREST(w, xd) W_BI_INTERP(NEAREST, w, xd)
+inline void WG_BI_INTERP(double w[2][2], 
+                         int x0[2], 
+                         const double x[2],
+                         const int interpType)
+{
+    double xd[2];
+    for (int i = 0; i < 2; i++) 
+    {
+        x0[i] = floor(x[i]);
+        xd[i] = x[i] - x0[i];
+    }
+    W_BI_INTERP(w, xd, interpType);
+}
 
-#define W_BI_LINEAR(w, xd) W_BI_INTERP(LINEAR, w, xd)
+inline void W_TRI_INTERP(double w[2][2][2], 
+                         const double xd[3],
+                         const int interpType)
+{
+    double v[3][2];
+    for (int i = 0; i < 3; i++) 
+    {
+        W_INTERP(v[i], xd[i], interpType);
+    }
+    FOR_CELL_DIM_3 
+        w[i][j][k] = v[0][i] * v[1][j] * v[2][k];
+}
 
-#define W_BI_SINC(w, xd) W_BI_INTERP(SINC, w, xd)
+inline void WG_TRI_INTERP(double w[2][2][2],
+                          int x0[3], 
+                          const double x[3],
+                          const int interpType)
+{
+    double xd[3];
+    for (int i = 0; i < 3; i++) {
+        x0[i] = floor(x[i]);
+        xd[i] = x[i] - x0[i];
+    }
+    W_TRI_INTERP(w, xd, interpType);
+}
 
-#define WG_BI_INTERP(INTERP, w, x0, x) \
-    [](double _w[2][2], int _x0[2], const double _x[2]) \
-    { \
-        double xd[2]; \
-        for (int i = 0; i < 2; i++) \
-        { \
-            _x0[i] = floor(_x[i]); \
-            xd[i] = _x[i] - _x0[i]; \
-        } \
-        W_BI_##INTERP(_w, xd); \
-    }(w, x0, x)
-
-#define WG_BI_NEAREST(w, x0, x) WG_BI_INTERP(NEAREST, w, x0, x)
-
-#define WG_BI_LINEAR(w, x0, x) WG_BI_INTERP(LINEAR, w, x0, x)
-
-#define WG_BI_SINC(w, x0, x) WG_BI_INTERP(SINC, w, x0, x)
-
-#define W_TRI_INTERP(INTERP, w, xd) \
-    [](double _w[2][2][2], const double _xd[3]) \
-    { \
-        double v[3][2]; \
-        for (int i = 0; i < 3; i++) W_##INTERP(v[i], _xd[i]); \
-        FOR_CELL_DIM_3 _w[i][j][k] = v[0][i] * v[1][j] * v[2][k]; \
-    }(w, xd)
-
-#define W_TRI_NEAREST(w, xd) W_TRI_INTERP(NEAREST, w, xd)
-
-#define W_TRI_LINEAR(w, xd) W_TRI_INTERP(LINEAR, w, xd)
-
-#define W_TRI_SINC(w, xd) W_TRI_INTERP(SINC, w, xd)
-
-#define WG_TRI_INTERP(INTERP, w, x0, x) \
-    [](double _w[2][2][2], int _x0[3], const double _x[3]) \
-    { \
-        double xd[3]; \
-        for (int i = 0; i < 3; i++) \
-        { \
-            _x0[i] = floor(_x[i]); \
-            xd[i] = _x[i] - _x0[i]; \
-        } \
-        W_TRI_##INTERP(_w, xd); \
-    }(w, x0, x)
-
-#define WG_TRI_NEAREST(w, x0, x) WG_TRI_INTERP(NEAREST, w, x0, x)
-
-#define WG_TRI_LINEAR(w, x0, x) WG_TRI_INTERP(LINEAR, w, x0, x)
-
-#define WG_TRI_SINC(w, x0, x) WG_TRI_INTERP(SINC, w, x0, x)
 
 #endif // INTERPOLATION_H

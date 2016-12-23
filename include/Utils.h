@@ -1,20 +1,17 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <memory>
+#include <boost/container/vector.hpp>
+#include <string>
+#include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
 
-#define DISABLE_COPY_MOVE(cls) public: \
-                               cls(const cls&) = delete; \
-                               cls(cls&&) = delete; \
-                               cls& operator=(const cls&) = delete; \
-                               cls& operator=(cls&&) = delete;
-
-#define MAKE_DEFAULT_MOVE(cls) public: \
-                               cls(const cls&) = delete; \
-                               cls(cls&&) = default; \
-                               cls& operator=(const cls&) = delete; \
-                               cls& operator=(cls&&) = default;
+using std::string;
+using boost::container::vector;
 
 bool regexMatches(const char* str, const char* pattern);
+
+const char* getTempDirectory(void);
 
 #endif // UTILS_H

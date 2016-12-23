@@ -25,7 +25,7 @@
 
 #include "Typedef.h"
 
-using namespace std;
+
 
 /**
  * This macros returns the nearest integer number of a.

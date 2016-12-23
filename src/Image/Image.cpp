@@ -10,7 +10,7 @@
 
 #include "Image.h"
 
-Image::Image() {}
+Image::Image() : _nCol(0), _nRow(0) {}
 
 Image::~Image() {}
 
@@ -222,8 +222,7 @@ double Image::getBiLinearRL(const double iCol,
     double w[2][2];
     int x0[2];
     double x[2] = {iCol, iRow};
-    WG_BI_LINEAR(w, x0, x);
-
+    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
     // coordinatesInBoundaryRL(x0[0], x0[1]);
     // coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
 
@@ -238,7 +237,7 @@ Complex Image::getBiLinearFT(const double iCol,
     double w[2][2];
     int x0[2];
     double x[2] = {iCol, iRow};
-    WG_BI_LINEAR(w, x0, x);
+    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
 
     // coordinatesInBoundaryFT(x0[0], x0[1]);
     // coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);

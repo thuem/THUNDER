@@ -6,16 +6,18 @@
  * Description:
  * ****************************************************************************/
 
+#include <Error.h>
 #include "Database.h"
+#include "Utils.h"
 
-Database::Database()
+Database::Database() : _mode(PARTICLE_MODE)
 {
     _db = sql::DB(":memory:", 0);
 
     setTempInMemory();
 }
 
-Database::Database(const char database[])
+Database::Database(const char database[]): _mode(PARTICLE_MODE)
 {
     openDatabase(database);
 }
@@ -24,7 +26,7 @@ Database::~Database() {}
 
 void Database::bcastID()
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     MLOG(INFO, "LOGGER_INIT") << "Generating an Unique ID of Database";
     IF_MASTER
     {
@@ -102,25 +104,28 @@ void Database::saveDatabase(const int rank)
 
     vector<const char*> sqls;
 
-    if (_mode == PARTICLE_MODE)
-        sqls = { "insert into dst.groups select distinct groups.* from \
+    if (_mode == PARTICLE_MODE) {
+        sqls.push_back("insert into dst.groups select distinct groups.* from \
                   groups, particles where \
                   (particles.groupID = groups.ID) and \
-                  (particles.ID >= ?1) and (particles.ID <= ?2);",
-                 "insert into dst.micrographs \
+                  (particles.ID >= ?1) and (particles.ID <= ?2);");
+        sqls.push_back("insert into dst.micrographs \
                   select distinct micrographs.* from \
                   micrographs, particles where \
                   particles.micrographID = micrographs.ID and \
-                  (particles.ID >= ?1) and (particles.ID <= ?2);",
-                 "insert into dst.particles select * from particles \
-                  where (ID >= ?1) and (ID <= ?2);" };
+                  (particles.ID >= ?1) and (particles.ID <= ?2);");
+        sqls.push_back("insert into dst.particles select * from particles \
+                  where (ID >= ?1) and (ID <= ?2);");
+    }
     else if (_mode == MICROGRAPH_MODE)
-        sqls = { "insert into dst.micrographs select * from micrographs \
-                  where (ID >= ?1) and (ID <= ?2);",
-                 "insert into dst.particles select particles.* from \
+    {
+        sqls.push_back("insert into dst.micrographs select * from micrographs \
+                  where (ID >= ?1) and (ID <= ?2);");
+        sqls.push_back("insert into dst.particles select particles.* from \
                   micrographs, particles where \
                   particles.micrographID = micrographs.ID and \
-                  (micrographs.ID >= ?1) and (micrographs.ID <= ?2);" };
+                  (micrographs.ID >= ?1) and (micrographs.ID <= ?2);");
+    }
 
     _db.exec(("attach database '" + string(database) + "' as dst;").c_str());
 
@@ -128,9 +133,9 @@ void Database::saveDatabase(const int rank)
     {
         _db.beginTransaction();
 
-        for (const char* sql : sqls)
+        for (size_t i = 0; i < sqls.size(); ++i)
         {
-            sql::Statement stmt(sql, -1, _db);
+            sql::Statement stmt(sqls[i], -1, _db);
             stmt.bind_int(1, start);
             stmt.bind_int(2, end);
             stmt.step();
@@ -289,7 +294,7 @@ void Database::appendParticle(const char name[],
     _stmtAppendParticleL.reset();
 }
 
-int Database::nParticle() const
+int Database::nParticle()
 {
     sql::Statement count("select count(*) from particles", -1, _db);
     if (count.step())
@@ -297,7 +302,7 @@ int Database::nParticle() const
     return 0;
 }
 
-int Database::nMicrograph() const
+int Database::nMicrograph()
 {
     sql::Statement count("select count(*) from micrographs", -1, _db);
     if (count.step())
@@ -305,7 +310,7 @@ int Database::nMicrograph() const
     return 0;
 }
 
-int Database::nGroup() const
+int Database::nGroup()
 {
     sql::Statement count("select count(*) from groups", -1, _db);
     if (count.step())
@@ -384,7 +389,7 @@ void Database::scatter()
 
 void Database::split(int& start,
                      int& end,
-                     const int commRank) const
+                     const int commRank)
 {
     int size;
     if (_mode == PARTICLE_MODE)
@@ -392,7 +397,7 @@ void Database::split(int& start,
     else if (_mode == MICROGRAPH_MODE)
         size = nMicrograph();
     else
-        __builtin_unreachable();
+        abort();
 
     int piece = size / (_commSize - 1);
 
@@ -417,6 +422,13 @@ void Database::finalizeStatement()
     // no-op
 }
 
+static void executeCommand(const char* cmd)
+{
+    int rc = system(cmd);
+    if (rc != 0)
+        CLOG(FATAL, "LOGGER_SYS") << "Failure executing command \"" << cmd << "\" with exit status " << rc;
+}
+
 void Database::masterPrepareTmpFile()
 {
     if (_commRank != 0)
@@ -426,20 +438,13 @@ void Database::masterPrepareTmpFile()
 
     char die[256];
     char cast[256];
-    char cmd[128];
+    char cmd[1024];
 
-    sprintf(cmd, "mkdir /tmp/%s", _ID);
-    system(cmd);
-    sprintf(cmd, "mkdir /tmp/%s/m", _ID);
-    system(cmd);
-    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
-    system(cmd);
+    snprintf(cmd, sizeof(cmd), "mkdir -p  %s/%s/m %s/%s/s", getTempDirectory(), _ID, 
+            getTempDirectory(), _ID);
+    executeCommand(cmd);
 
     MASTER_TMP_FILE(die, 0);
-    sprintf(cmd, "rm -f %s", die);
-    system(cmd);
-    sprintf(cmd, "touch %s", die);
-    system(cmd);
 
     string sql;
     // create a database struct for each node
@@ -469,9 +474,8 @@ void Database::masterPrepareTmpFile()
 
     for (int i = 1; i < _commSize; i++) {
         MASTER_TMP_FILE(cast, i);
-        system(cmd);
-        sprintf(cmd, "cp %s %s", die, cast);
-        system(cmd);
+        snprintf(cmd, sizeof(cmd), "cp %s %s", die, cast);
+        executeCommand(cmd);
     }
 }
 
@@ -479,11 +483,9 @@ void Database::slavePrepareTmpFile()
 {
     if (_commRank == 0) return;
 
-    char cmd[128];
-    sprintf(cmd, "mkdir /tmp/%s", _ID);
-    system(cmd); 
-    sprintf(cmd, "mkdir /tmp/%s/s", _ID);
-    system(cmd); 
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "mkdir -p %s/%s/s", getTempDirectory(), _ID);
+    executeCommand(cmd);
 }
 
 void Database::masterReceive(const int rank)

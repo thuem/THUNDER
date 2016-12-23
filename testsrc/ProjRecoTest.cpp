@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <omp.h>
+#include <omp_compat.h>
 
 #include <gsl/gsl_statistics.h>
 
@@ -47,7 +47,7 @@
 
 #define NOISE_FACTOR 0.1
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -202,7 +202,7 @@ int main(int argc, char* argv[])
         {
             FFT fftThread;
 
-            auto engine = get_random_engine();
+            gsl_rng* engine = get_random_engine();
 
             char name[256];
             Coordinate5D coord;

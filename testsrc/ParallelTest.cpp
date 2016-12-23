@@ -68,13 +68,13 @@ int main(int argc, char* argv[])
                     if ((REAL(vol[j]) != 2) ||
                         (IMAG(vol[j]) != 0))
                         {
-                            cout << "Error!" << endl;
-                            cout << j << " : ( " << REAL(vol[j])
-                                 << ", " << IMAG(vol[j]) << endl;
+                            std::cout << "Error!" << std::endl;
+                            std::cout << j << " : ( " << REAL(vol[j])
+                                 << ", " << IMAG(vol[j]) << std::endl;
                             break;
                         }
             }
-            cout << endl;
+            std::cout << std::endl;
             ***/
         }
     }

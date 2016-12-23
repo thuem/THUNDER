@@ -74,19 +74,19 @@ inline bool conjHalf(int& iCol, int& iRow)
 
 class Image : public ImageBase
 {
-    MAKE_DEFAULT_MOVE(Image)
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(Image)
 
     protected:
 
         /**
          * number of columns
          */
-        int _nCol = 0;
+        int _nCol;
 
         /**
          * number of rows
          */
-        int _nRow = 0;
+        int _nRow;
 
     public:
 
@@ -263,6 +263,28 @@ class Image : public ImageBase
                            const int j) const
         {
             return (j >= 0 ? j : j + _nRow) * (_nCol / 2 + 1) + i;
+        }
+
+        Image(BOOST_RV_REF(Image) other) : ImageBase(BOOST_MOVE_BASE(ImageBase, other)),
+                                           _nCol(other._nCol), _nRow(other._nRow)
+        {
+            other._nCol = 0;
+            other._nRow = 0;
+        }
+
+        Image& operator=(BOOST_RV_REF(Image) other)
+        {
+            if (this != &other)
+                swap(other);
+            return *this;
+        }
+
+    protected:
+        void swap(Image& other)
+        {
+            ImageBase::swap(other);
+            std::swap(_nCol, other._nCol);
+            std::swap(_nRow, other._nRow);
         }
 
     private:

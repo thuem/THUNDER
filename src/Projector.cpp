@@ -10,9 +10,37 @@
 
 #include "Projector.h"
 
-Projector::Projector() {}
+Projector::Projector()
+{
+    _maxRadius = -1;
+
+    _interp = LINEAR_INTERP;
+
+    _pf = 2;
+}
+
+Projector::Projector(BOOST_RV_REF(Projector) that)
+{
+    swap(that);
+}
 
 Projector::~Projector() {}
+
+void Projector::swap(Projector& that)
+{
+    std::swap(_maxRadius, that._maxRadius);
+    std::swap(_interp, that._interp);
+    std::swap(_pf, that._pf);
+    
+    _projectee.swap(that._projectee);
+}
+
+Projector& Projector::operator=(BOOST_RV_REF(Projector) that)
+{
+    if (this != &other) swap(other);
+
+    return *this;
+}
 
 bool Projector::isEmpty() const
 {
@@ -56,12 +84,7 @@ const Volume& Projector::projectee() const
 
 void Projector::setProjectee(Volume src)
 {
-    _projectee = std::move(src);
-
-    // make sure the scale correct
-    // SCALE_FT(_projectee, 1.0 / _pf);
-    // SCALE_FT(_projectee, 1.0 / _pf / sqrt(_pf * _projectee.nColRL()));
-    // SCALE_FT(_projectee, 1.0 / _pf / sqrt(_projectee.nColRL()));
+    _projectee.swap(src);
 
     _maxRadius = floor(MIN_3(_projectee.nColRL(),
                              _projectee.nRowRL(),
@@ -77,7 +100,7 @@ void Projector::project(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
-            vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+            vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
             vec3 oldCor = mat * newCor;
 
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
@@ -98,7 +121,7 @@ void Projector::project(Image& dst,
 {
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor = {(double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0};
+        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[iPxl[i]] = _projectee.getByInterpolationFT(oldCor(0),
@@ -133,7 +156,7 @@ void Projector::projectMT(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
-            vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+            vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
             vec3 oldCor = mat * newCor;
 
             dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
@@ -155,7 +178,7 @@ void Projector::projectMT(Image& dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor = {(double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0};
+        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[iPxl[i]] = _projectee.getByInterpolationFT(oldCor(0),

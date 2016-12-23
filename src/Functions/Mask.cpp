@@ -10,6 +10,8 @@
 
 #include "Mask.h"
 
+#include <omp_compat.h>
+
 double background(const Image& img,
                   const double r,
                   const double ew)
@@ -148,7 +150,7 @@ void softMask(Image& dst,
               const double bgMean,
               const double bgStd)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
@@ -198,7 +200,7 @@ void softMask(Image& dst,
               const double bgMean,
               const double bgStd)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
@@ -292,7 +294,7 @@ void removeIsolatedPoint(Volume& vol)
             if (isolated) volTmp.setRL(0, i, j, k);
         }
 
-    vol = move(volTmp);
+    vol.swap(volTmp);
 }
 
 void extMask(Volume& vol,
@@ -300,7 +302,7 @@ void extMask(Volume& vol,
 {
     Volume volTmp = vol.copyVolume();
 
-    int a = CEIL(abs(ext));
+    int a = CEIL(std::abs(ext));
 
     if (ext > 0)
     {
@@ -321,7 +323,7 @@ void extMask(Volume& vol,
                         volTmp.setRL(0, i + x, j + y, k + z);
     }
 
-    vol = move(volTmp);
+    vol.swap(volTmp);
 }
 
 void softEdge(Volume& vol,
@@ -424,10 +426,10 @@ void autoMask(Volume& dst,
 
     sort(&data[0],
          &data[0] + n,
-         [](const double x, const double y) { return x > y; });
+         std::greater<double>());
 
     vector<double> partialSum(n);
-    partial_sum(&data[0], &data[0] + n, &partialSum[0]);
+    std::partial_sum(&data[0], &data[0] + n, &partialSum[0]);
 
     double totalSum = partialSum[n - 1];
 

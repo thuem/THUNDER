@@ -13,9 +13,9 @@
 
 #include <cmath>
 #include <cstdlib>
-#include <vector>
 
-#include "omp_if.h"
+
+#include "omp_compat.h"
 #include "Typedef.h"
 #include "Error.h"
 #include "Complex.h"
@@ -28,7 +28,6 @@
 #include "Functions.h"
 #include "TabFunction.h"
 #include "Coordinate5D.h"
-#include "Transformation.h"
 
 /***
 #define VOLUME_SUB_SPHERE_FT(a) \
@@ -129,24 +128,24 @@ inline bool conjHalf(double& iCol,
 
 class Volume : public ImageBase
 {
-    MAKE_DEFAULT_MOVE(Volume)
+    BOOST_MOVABLE_BUT_NOT_COPYABLE(Volume)
 
     public:
 
         /**
          * number of columns of this volume
          */
-        int _nCol = 0;
+        int _nCol;
 
         /**
          * number of rows of this volume
          */
-        int _nRow = 0;
+        int _nRow;
 
         /**
          * number of slices of this volume
          */
-        int _nSlc = 0;
+        int _nSlc;
 
     public:
 
@@ -567,6 +566,29 @@ class Volume : public ImageBase
             return (k >= 0 ? k : k + _nSlc) * nColFT * _nRow
                  + (j >= 0 ? j : j + _nRow) * nColFT 
                  + i;
+        }
+
+        Volume(BOOST_RV_REF(Volume) other) : ImageBase(BOOST_MOVE_BASE(ImageBase, other)),
+                                             _nCol(other._nCol), _nRow(other._nRow), _nSlc(other._nSlc)
+        {
+            other._nCol = 0;
+            other._nRow = 0;
+            other._nSlc = 0;
+        }
+
+        Volume& operator=(BOOST_RV_REF(Volume) other)
+        {
+            if (this != &other)
+                swap(other);
+            return *this;
+        }
+
+        void swap(Volume& other)
+        {
+            ImageBase::swap(other);
+            std::swap(_nCol, other._nCol);
+            std::swap(_nRow, other._nRow);
+            std::swap(_nSlc, other._nSlc);
         }
 
     private:

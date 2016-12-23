@@ -65,13 +65,15 @@
  * @param MAT_GEN code for generating transformation matrix
  * @param r the upper boundary of radius
  */
+
+
 #define VOL_TRANSFORM(SPACE, dst, src, MAT, MAT_GEN, r) \
-[](Volume& _dst, const Volume& _src, const double _r) \
+do \
 { \
     mat33 MAT; \
     MAT_GEN; \
-    VOL_TRANSFORM_MAT(SPACE, _dst, _src, MAT, _r); \
-}(dst, src, r)
+    VOL_TRANSFORM_MAT(SPACE, dst, src, MAT, r); \
+} while (0)
 
 /**
  * This marco performs a transformation on a volume in real space given a
@@ -82,8 +84,8 @@
  * @param mat the transformation matrix
  * @param r the upper boundary of radius
  */
-#define VOL_TRANSFORM_MAT_RL(dst, src, mat, r) \
-    VOL_TRANSFORM_MAT(RL, dst, src, mat, r)
+//#define VOL_TRANSFORM_MAT_RL(dst, src, mat, r) \
+//    VOL_TRANSFORM_MAT(RL, dst, src, mat, r)
 
 /**
  * This marco performs a transformation on a volume in Fourier space given a
@@ -128,16 +130,38 @@
     } \
 }(dst, src, mat, r)
 
-/**
- * This macro symmetrizes a symmetry unit in real space.
- *
- * @param dst the destination volume
- * @param src the source volume
- * @param sym a list of transformation matrices of a symmetry group
- * @param r the upper boundary of radius
- */
-#define SYMMETRIZE_RL(dst, src, sym, r) \
-    SYMMETRIZE(RL, dst, src, sym, r)
+inline void VOL_TRANSFORM_MAT_RL(Volume& dst, 
+                                const Volume& src, 
+                                const mat33 mat, 
+                                const double r)
+{ 
+    SET_0_RL(dst); 
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(dst)
+    { 
+        vec3 newCor((double)i, (double)j, (double)k);
+        vec3 oldCor = mat * newCor; 
+        if (oldCor.squaredNorm() < gsl_pow_2(r))
+            dst.setRL(src.getByInterpolationRL(oldCor(0),
+                                               oldCor(1),
+                                               oldCor(2),
+                                               LINEAR_INTERP),
+                            i, 
+                            j, 
+                            k); 
+    } 
+}
+
+///**
+// * This macro symmetrizes a symmetry unit in real space.
+// *
+// * @param dst the destination volume
+// * @param src the source volume
+// * @param sym a list of transformation matrices of a symmetry group
+// * @param r the upper boundary of radius
+// */
+//#define SYMMETRIZE_RL(dst, src, sym, r) \
+//    SYMMETRIZE(RL, dst, src, sym, r)
 
 /**
  * This macro symmetrizes a symmetry unit in Fourier space.
@@ -174,5 +198,19 @@
         ADD_##SP(_dst, se); \
     } \
 }(dst, src, sym, r)
+
+inline void SYMMETRIZE_RL(Volume& _dst, const Volume& _src, const Symmetry& _sym, const double _r)
+{
+    _dst = _src.copyVolume();
+    mat33 L, R;
+    Volume se(_src.nColRL(), _src.nRowRL(), _src.nSlcRL(), RL_SPACE);
+    for (int i = 0; i < _sym.nSymmetryElement(); i++)
+    {
+        _sym.get(L, R, i);
+        VOL_TRANSFORM_MAT_RL(se, _src, R, _r);
+        _Pragma("omp parallel for")
+        ADD_RL(_dst, se);
+    }
+}
 
 #endif // TRANSFORMATION_H

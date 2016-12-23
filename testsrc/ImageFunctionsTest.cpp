@@ -15,7 +15,7 @@
 
 #define N 380
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
             image.setRL(0, i, j);
     }
 
-    cout << "****** transalte ******" << endl;
+    std::cout << "****** transalte ******" << std::endl;
 
     R2R_FT(image, image, translate(image, image, 0, 0));
     image.saveRLToBMP("trans0.bmp");
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     R2R_FT(image, image, translate(image, image, N / 4, N / 4));
     image.saveRLToBMP("trans2.bmp");
 
-    cout << "****** translate ******" << endl;
+    std::cout << "****** translate ******" << std::endl;
 
     FFT fft;
     fft.fw(image);
@@ -72,13 +72,13 @@ int main(int argc, char* argv[])
 
     int nTransCol, nTransRow;
 
-    cout << "Translating, " << N / 8 << ", " << N / 8 << endl;
+    std::cout << "Translating, " << N / 8 << ", " << N / 8 << std::endl;
 
     translate(nTransCol, nTransRow, image, trans, N / 2, N / 4, N / 4);
 
-    cout << "nTransCol = " << nTransCol << ", nTranRow = " << nTransRow << endl;
+    std::cout << "nTransCol = " << nTransCol << ", nTranRow = " << nTransRow << std::endl;
 
-    cout << "****** translate ******" << endl;
+    std::cout << "****** translate ******" << std::endl;
 
     Image transImg(N, N, FT_SPACE);
     translate(transImg, N / 8, N / 8);

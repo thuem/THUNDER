@@ -10,6 +10,9 @@
 
 #include "Symmetry.h"
 
+using std::cout;
+using std::endl;
+
 Symmetry::Symmetry() {}
 
 Symmetry::Symmetry(const char sym[])
@@ -183,27 +186,29 @@ bool Symmetry::novo(const mat33& L,
     return true;
 }
 
+static bool completePointGroupHelper(umat& table, int& i, int& j)
+{
+    for (int row = 0; row < table.rows(); row++) {
+        for (int col = 0; col < table.cols(); col++) {
+            if (table(row, col) == 0) {
+                i = row;
+                j = col;
+                table(row, col) = 1;
+
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void Symmetry::completePointGroup()
 {
     umat table = umat::Zero(nSymmetryElement(),
                             nSymmetryElement());
 
-    int i, j;
-    while ([&]
-           {
-                for (int row = 0; row < table.rows(); row++)
-                    for (int col = 0; col < table.cols(); col++)
-                        if (table(row, col) == 0)
-                        {
-                            i = row;
-                            j = col;
-                            table(row, col) = 1;
-                    
-                            return true;
-                        }
-                return false;
-           }())
-
+    int i = -1, j = -1;
+    while (completePointGroupHelper(table, i, j))
     {
         mat33 L = _L[i] * _L[j];
         mat33 R = _R[i] * _R[j];
@@ -227,8 +232,8 @@ void display(const Symmetry& sym)
 
         sym.get(L, R, i);
 
-        cout << "L matrix:\n" << L << endl << endl;
-        cout << "R matrix:\n" << R << endl << endl;
+        std::cout << "L matrix:\n" << L << std::endl << std::endl;
+        std::cout << "R matrix:\n" << R << std::endl << std::endl;
     }
 }
 
@@ -326,7 +331,7 @@ bool asymmetryUnit(const double phi,
             CLOG(FATAL, "LOGGER_SYS") << "Point Group has not been implemented.";
     }
 
-    __builtin_unreachable();
+    abort();
 }
 
 void symmetryCounterpart(double& phi,
@@ -344,7 +349,7 @@ void symmetryCounterpart(double& ex,
                          double& ez,
                          const Symmetry& sym)
 {
-    vec3 dir = {ex, ey, ez};
+    vec3 dir(ex, ey, ez);
     if (asymmetryUnit(dir, sym)) return;
 
     mat33 L, R;

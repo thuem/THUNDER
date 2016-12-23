@@ -20,12 +20,9 @@
 #define CORRECT_CONVOLUTION_KERNEL
 
 #include <utility>
-#include <vector>
-#include <functional>
-
 #include <mpi.h>
 
-#include "omp_if.h"
+#include "omp_compat.h"
 #include "Typedef.h"
 #include "Parallel.h"
 #include "Coordinate5D.h"
@@ -41,8 +38,7 @@
 #include "Spectrum.h"
 #include "Mask.h"
 
-using namespace std;
-using namespace placeholders;
+#include <boost/function.hpp>
 
 #define PRE_CAL_MODE 0
 
@@ -86,8 +82,6 @@ using namespace placeholders;
 
 class Reconstructor : public Parallel
 {
-    MAKE_DEFAULT_MOVE(Reconstructor)
-
     private:
 
         int _calMode = POST_CAL_MODE;
@@ -194,12 +188,12 @@ class Reconstructor : public Parallel
          * The padding factor which defined the PAD_SIZE (_pf * _size).
          * See @ref _size. By default, _pf = 2.
          */
-        int _pf = 2;
+        int _pf;
 
         /**
          * The symmetry mark of the model, which is used to reduce computation.
          */
-        const Symmetry* _sym = NULL;
+        const Symmetry* _sym;
 
         vec _FSC = vec::Constant(1, 1);
 
@@ -210,12 +204,12 @@ class Reconstructor : public Parallel
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _a = 1.9;
+        double _a;
 
         /**
          * The smoothness parameter. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _alpha = 10;
+        double _alpha;
         
         /**
          * the blob kernel stored as a tabular function
@@ -225,6 +219,14 @@ class Reconstructor : public Parallel
         TabFunction _kernelRL;
 
         FFT _fft;
+
+        void defaultInit()
+        {
+            _pf = 2;
+            _sym = NULL;
+            _a = 1.9;
+            _alpha = 15;
+        }
 
     public:
 

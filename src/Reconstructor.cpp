@@ -8,7 +8,12 @@
 
 #include "Reconstructor.h"
 
-Reconstructor::Reconstructor() {}
+#include <boost/bind.hpp>
+
+Reconstructor::Reconstructor()
+{
+    defaultInit();
+}
 
 Reconstructor::Reconstructor(const int size,
                              const int pf,
@@ -16,6 +21,8 @@ Reconstructor::Reconstructor(const int size,
                              const double a,
                              const double alpha)
 {
+    defaultInit();
+
     init(size, pf, sym, a, alpha);
 }
 
@@ -47,12 +54,19 @@ void Reconstructor::init(const int size,
     _alpha = alpha;
 
     // initialise the interpolation kernel
-    _kernelFT.init(bind(MKB_FT_R2, _1, _pf * _a, _alpha),
+
+    _kernelFT.init(boost::bind(MKB_FT_R2,
+                               boost::placeholders::_1,
+                               _pf * _a,
+                               _alpha),
                    0,
                    gsl_pow_2(_pf * _a),
                    1e5);
 
-    _kernelRL.init(bind(MKB_RL_R2, _1, _pf * _a, _alpha),
+    _kernelRL.init(boost::bind(MKB_RL_R2,
+                               boost::placeholders::_1,
+                               _pf * _a,
+                               _alpha),
                    0,
                    1,
                    1e5);
@@ -198,10 +212,10 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
-                vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+#ifdef MKB_KERNEL
+                vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                 vec3 oldCor = sr[k] * newCor;
 
-#ifdef MKB_KERNEL
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
@@ -278,7 +292,7 @@ void Reconstructor::insertP(const Image& src,
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
-            vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
+            vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
             vec3 oldCor = sr[k] * newCor;
 
 #ifdef MKB_KERNEL
@@ -334,7 +348,7 @@ void Reconstructor::insert(const Image& src,
     mat33 rot;
     rotate3D(rot, coord.phi, coord.theta, coord.psi);
 
-    vec2 t = {(double)coord.x, (double)coord.y};
+    vec2 t((double)coord.x, (double)coord.y);
 
     insert(src, ctf, rot, t, w);
 }
@@ -463,6 +477,7 @@ void Reconstructor::reconstruct(Volume& dst)
     allReduceF();
 
     dst = _F.copyVolume();
+    //_F.copyVolume().swap(dst);
 
     _fft.bwExecutePlan(dst);
 
@@ -527,7 +542,7 @@ void Reconstructor::allReduceW()
                 {
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius))
                     {
-                        vec3 newCor = {(double)(i * _pf), (double)(j * _pf), 0};
+                        vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                         vec3 oldCor = _rot[k] * newCor;
 
 #ifdef MKB_KERNEL
@@ -564,7 +579,7 @@ void Reconstructor::allReduceW()
         for (int k = 0; k < int(_rot.size()); k++)
             for (int i = 0; i < _nPxl; i++)
             {
-                vec3 newCor = {(double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0};
+                vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
                 vec3 oldCor = _rot[k] * newCor;
 
 #ifdef MKB_KERNEL

@@ -10,7 +10,7 @@
 
 #include "ImageFile.h"
 
-ImageFile::ImageFile() {}
+ImageFile::ImageFile() : _file(NULL), _symmetryData(NULL) {}
 
 ImageFile::ImageFile(const char* filename,
                      const char* option)
@@ -20,6 +20,7 @@ ImageFile::ImageFile(const char* filename,
     if (_file == NULL)
         CLOG(FATAL, "LOGGER_SYS") << "File Does not Exist: "
                                   << filename;
+    _symmetryData = NULL;
 }
 
 ImageFile::~ImageFile()
@@ -187,7 +188,8 @@ void ImageFile::fillMRCHeader(MRCHeader& header) const
 
 void ImageFile::readMetaDataMRC()
 {
-    CHECK_FILE_VALID;
+    if (_file == NULL)
+        REPORT_ERROR("Null file");
 
     rewind(_file);
 
@@ -231,19 +233,22 @@ void ImageFile::readImageMRC(Image& dst,
 
     size_t size = dst.sizeRL();
 
+
     SKIP_HEAD(size * iSlc * BYTE_MODE(mode()));
-	
+    
+
     switch (mode())
     {
-        case 0: IMAGE_READ_CAST(dst, char); break;
-        case 1: IMAGE_READ_CAST(dst, short); break;
-        case 2: IMAGE_READ_CAST(dst, float); break;
+        case 0: IMAGE_READ_CAST<char>(_file, dst); break;
+        case 1: IMAGE_READ_CAST<short>(_file, dst); break;
+        case 2: IMAGE_READ_CAST<float>(_file, dst); break;
     }
 }
 
 void ImageFile::readImageBMP(Image& dst)
 {
-    CHECK_FILE_VALID(_file);
+    if (_file == NULL) \
+        REPORT_ERROR("Image file does not exist.");
 
     BMP bmp;
     bmp.open(_file);
@@ -255,7 +260,7 @@ void ImageFile::readImageBMP(Image& dst)
     fseek(_file, bmp.getHeaderSize(), 0);
 
     if (bmp.getBitCount() == 8)
-        IMAGE_READ_CAST(dst, unsigned char);
+        IMAGE_READ_CAST<unsigned char>(_file, dst);
     else
         REPORT_ERROR("Unsupported BMP coding mode.");
 }
@@ -270,9 +275,9 @@ void ImageFile::readVolumeMRC(Volume& dst)
 	
     switch (mode())
     {
-        case 0: VOLUME_READ_CAST(dst, char); break;
-        case 1: VOLUME_READ_CAST(dst, short); break;
-        case 2: VOLUME_READ_CAST(dst, float); break;
+        case 0: VOLUME_READ_CAST<char>(_file,  dst ); break;
+        case 1: VOLUME_READ_CAST<short>(_file, dst ); break;
+        case 2: VOLUME_READ_CAST<float>(_file, dst ); break;
     }
 }
 
@@ -294,7 +299,7 @@ void ImageFile::writeImageMRC(const char dst[],
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
-    IMAGE_WRITE_CAST(src, float);
+    IMAGE_WRITE_CAST<float>(_file, src);
 
     fclose(_file);
     _file = NULL;
@@ -319,7 +324,7 @@ void ImageFile::writeVolumeMRC(const char dst[],
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
         REPORT_ERROR("Fail to write out an image.");
 
-    VOLUME_WRITE_CAST(src, float);
+    VOLUME_WRITE_CAST<float>(_file, src);
 
     fclose(_file);
     _file = NULL;

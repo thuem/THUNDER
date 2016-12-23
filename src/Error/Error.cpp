@@ -28,7 +28,7 @@ std::ostream& operator<<(std::ostream& os, const Error& error)
     return os;
 }
 
-const char* Error::what() const noexcept
+const char* Error::what() const throw()
 {
     if (_totalMsg.empty())
     {

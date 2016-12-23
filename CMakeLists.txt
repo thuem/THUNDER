@@ -1,10 +1,13 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
-set (CMAKE_C_FLAGS "-Wall -Wno-deprecated-declarations -Wsign-compare")
+set (COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
+set (CMAKE_C_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing")
+set (CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++0x")
-set (CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE)
+    set (CMAKE_BUILD_TYPE Release)
+endif()
 
 option (SANITIZE "Turn on sanitization" OFF)
 if (SANITIZE)
@@ -14,45 +17,47 @@ if (SANITIZE)
     endif()
 endif()
 
+option (SHENWEI "Build for SHENWEI architecture" OFF)
+if (SHENWEI)
+    add_definitions(-DSHENWEI=1)
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(FFTW REQUIRED)
 find_package(GSL REQUIRED)
-find_package(MPI REQUIRED)
-# Compiler settings
-set (CMAKE_C_COMPILER ${MPI_C_COMPILER})
-set (CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-message("-- CMAKE_CXX_COMPILER: ${MPI_CXX_COMPILER}")
 
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-fopenmp" HAS_OPENMP)
-
-if (${HAS_OPENMP})
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+if (NOT SHENWEI)
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-fopenmp" HAS_OPENMP)
+    
+    if (${HAS_OPENMP})
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    endif()
 endif()
 
 # includes and linker flags
-include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS} ${MPI_INCLUDE_PATH})
+include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS})
 
-link_libraries(${FFTW_LIBRARIES} ${FFTWOMP_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${MPI_LIBRARIES} ${CMAKE_DL_LIBS})
+link_libraries(${FFTW_LIBRARIES} ${FFTWOMP_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${CMAKE_DL_LIBS})
+
+if (ADDITIONAL_LINKER_FLAGS)
+    link_libraries(${ADDITIONAL_LINKER_FLAGS})
+endif()
 
 set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
 include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
 
 set (EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external)
 file (GLOB EXTERNAL_SUBDIR ${EXTERNAL_DIR}/*)
-foreach (A ${EXTERNAL_SUBDIR})
-    include_directories(${A})
-endforeach()
+include_directories(${EXTERNAL_SUBDIR})
 
 file(GLOB_RECURSE SOURCES ${EXTERNAL_DIR}/*.c ${EXTERNAL_DIR}/*.cpp ${PROJECT_SOURCE_DIR}/src/*.cpp)
 add_library(thuem STATIC ${SOURCES})
 
 # Libraries are compiled. Now compile the programs
 
-#find_library (FFTWMTR_LIBRARIES NAMES fftw3)
 link_libraries(thuem)
-#link_libraries(thuem ${FFTW_LIBRARIES}) 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/unittest)
 file(GLOB TEST_SOURCES ${PROJECT_SOURCE_DIR}/testsrc/*.cpp)

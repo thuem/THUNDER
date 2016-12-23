@@ -9,6 +9,7 @@
  * ****************************************************************************/
 
 #include "Spectrum.h"
+#include "Functions/Random.h"
 
 double nyquist(const double pixelSize)
 {
@@ -273,7 +274,7 @@ void randomPhase(Volume& dst,
                  const Volume& src,
                  const int r)
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     VOLUME_FOR_EACH_PIXEL_FT(dst)
     {

@@ -15,9 +15,7 @@
 
 #include "Logging.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+#include <omp_compat.h>
 
 #include "Complex.h"
 #include "Error.h"
@@ -37,46 +35,15 @@
     if (src == NULL) \
     { \
         CLOG(FATAL, "LOGGER_FFT") << "FFT Needs Input Data."; \
-        __builtin_unreachable(); \
+        abort(); \
     } \
     if (dst == NULL) \
     { \
         CLOG(FATAL, "LOGGER_FFT") << "FFT Needs Ouput Space."; \
-        __builtin_unreachable(); \
+        abort(); \
     } \
 }
 
-/**
- * This macro allocates the Fourier space of the image (volume), assigns the
- * pointers for performing Fourier transform and checks the validation of the
- * pointers.
- *
- * @param obj the image (volume) for performing Fourier transform
- */
-#define FW_EXTRACT_P(obj) \
-    [this, &obj]() \
-    { \
-        obj.alloc(FT_SPACE); \
-        _dstC = (fftw_complex*)&obj[0]; \
-        _srcR = &obj(0); \
-        CHECK_SPACE_VALID(_dstC, _srcR); \
-    }()
-
-/**
- * This macro allocates the real space of the image (volume), assigns the
- * pointers for performing inverse Fourier transform and checks the validation
- * of the pointers.
- *
- * @param obj the image (volume) for performing inverse Fourier transform
- */
-#define BW_EXTRACT_P(obj) \
-    [this, &obj]() \
-    { \
-        obj.alloc(RL_SPACE); \
-        _dstR = &obj(0); \
-        _srcC = (fftw_complex*)&obj[0]; \
-        CHECK_SPACE_VALID(_dstR, _srcC); \
-    }()
 
 /**
  * This macro destroys the plan for performing Fourier transform and assigns
@@ -85,6 +52,17 @@
 #define FW_CLEAN_UP \
 { \
     _Pragma("omp critical"); \
+    fftw_destroy_plan(fwPlan); \
+    _dstC = NULL; \
+    _srcR = NULL; \
+}
+
+/**
+ * This macro destroys the plan for performing multi-thread Fourier transform 
+ * and assigns the pointers to NULL.
+ */
+#define FWMT_CLEAN_UP \
+{ \
     fftw_destroy_plan(fwPlan); \
     _dstC = NULL; \
     _srcR = NULL; \
@@ -107,6 +85,22 @@
 }
 
 /**
+ * This macro destroys the plan for performing multi-threaded inverse Fourier 
+ * transform, assigns the pointers to NULL and clear up the Fourier space of 
+ * the image (volume).
+ *
+ * @param obj the image (volume) performed inverse Fourier transform.
+ */
+#define BWMT_CLEAN_UP(obj) \
+{ \
+    fftw_destroy_plan(bwPlan); \
+    _dstR = NULL; \
+    _srcC = NULL; \
+    obj.clearFT(); \
+}
+
+
+/**
  * This macro executes a function in real space and performs Fourier transform
  * on the destination image (volume).
  *
@@ -115,12 +109,12 @@
  * @param function the function to be executed
  */
 #define R2C_RL(dst, src, function) \
-    [&]() mutable \
+    do \
     { \
         function; \
         FFT fft; \
         fft.fw(dst); \
-    }()
+    } while (0)
 
 /**
  * This macro performs inverse Fourier transform on the source image (volume)
@@ -131,12 +125,12 @@
  * @param function the function to be executed
  */
 #define C2R_RL(dst, src, function) \
-    [&]() mutable \
+    do \
     { \
         FFT fft; \
         fft.bw(src); \
         function; \
-    }()
+    } while (0)
 
 /**
  * This macro performs inverse Fourier transform on the source image (volume),
@@ -148,13 +142,13 @@
  * @param function the function to be executed
  */
 #define C2C_RL(dst, src, function) \
-    [&]() mutable \
+    do \
     { \
         FFT fft; \
         fft.bw(src); \
         function; \
         fft.fw(dst); \
-    }()
+    } while (0)
 
 /**
  * This macro performs Fourier transform on the source image (volume), executes
@@ -166,13 +160,13 @@
  * @param function the function to be executed
  */
 #define R2R_FT(dst, src, function) \
-    [&]() mutable \
+    do \
     { \
         FFT fft; \
         fft.fw(src); \
         function; \
         fft.bw(dst); \
-    }()
+    } while (0)
 
 /**
  * This macro performs Fourier transform on the source image (volume) and
@@ -183,12 +177,12 @@
  * @param function the function to be executed
  */
 #define R2C_FT(dst, src, function) \
-    [&]() mutable \
+    do \
     { \
         FFT fft; \
         fft.fw(src); \
         function; \
-    }()
+    } while (0)
 
 /**
  * This macro executes a function in Fourier space and performs an inverse
@@ -199,12 +193,14 @@
  * @param function the function to be executed
  */
 #define C2R_FT(dst, src, function) \
-    [&]() mutable \
+    do \
     { \
         function; \
         FFT fft; \
         fft.bw(dst); \
-    }()
+    } while (0)
+
+
 
 class FFT
 {
@@ -213,22 +209,22 @@ class FFT
         /**
          * a pointer points to the source of the Fourier transform
          */
-        double* _srcR = NULL;
+        double* _srcR;
 
         /**
          * a pointer points to the source of the inverse Fourier transform
          */
-        fftw_complex* _srcC = NULL;
+        fftw_complex* _srcC;
 
         /**
          * a pointer points to the destination of the inverse Fourier transform
          */
-        double* _dstR = NULL;
+        double* _dstR;
 
         /**
          * a pointer points to the destination of the Fourier transform
          */
-        fftw_complex* _dstC = NULL;
+        fftw_complex* _dstC;
 
         /**
          * the plan of Fourier transform

@@ -8,13 +8,14 @@
 
 #include "Particle.h"
 
-Particle::Particle() {}
+Particle::Particle() { basic_init(); }
 
 Particle::Particle(const int n,
                    const double transS,
                    const double transQ,
                    const Symmetry* sym)
-{    
+{
+    basic_init();
     init(n, transS, transQ, sym);
 }
 
@@ -57,9 +58,14 @@ void Particle::reset()
     // sample from Angular Central Gaussian Distribution with identity matrix
     sampleACG(_r, 1, 1, _n);
 
+<<<<<<< HEAD
     auto engine = get_random_engine();
 
     // sample from 2D Gaussian Distribution
+=======
+    // sample from 2D Gaussian Distribution
+    gsl_rng* engine = get_random_engine();
+>>>>>>> sqlite
     for (int i = 0; i < _n; i++)
     {
         gsl_ran_bivariate_gaussian(engine,
@@ -117,7 +123,7 @@ void Particle::reset(const int nR,
     mat2 t(nT, 2);
 
     // sample from 2D Gaussian Distribution
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     for (int i = 0; i < nT; i++)
         gsl_ran_bivariate_gaussian(engine,
                                    _transS,
@@ -291,7 +297,7 @@ void Particle::perturb(const double pf)
 
     // translation perturbation
 
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     for (int i = 0; i < _t.rows(); i++)
     {
@@ -364,7 +370,7 @@ void Particle::resample(const int n,
 
     sampleACG(r, 1, 1, nG);
 
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     
     for (int i = 0; i < nG; i++)
     {
@@ -450,7 +456,7 @@ uvec Particle::iSort() const
 
 double Particle::diffTopR()
 {
-    double diff = 1 - abs(_topRPrev.dot(_topR));
+    double diff = 1 - std::abs(_topRPrev.dot(_topR));
 
     _topRPrev = _topR;
 
@@ -491,7 +497,7 @@ void Particle::rank1st(mat33& rot,
 void Particle::rand(vec4& quat,
                     vec2& tran) const
 {
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     size_t u = gsl_rng_uniform_int(engine, _n);
 
@@ -514,7 +520,7 @@ void Particle::shuffle()
 
     for (int i = 0; i < _n; i++) s(i) = i;
 
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     gsl_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
 
@@ -577,7 +583,7 @@ void Particle::reCentre()
 
     //CLOG(INFO, "LOGGER_SYS") << "transM = " << transM;
 
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
 
     for (int i = 0; i < _n; i++)
         if (NORM(_t(i, 0), _t(i, 1)) > transM)

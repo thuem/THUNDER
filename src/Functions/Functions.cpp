@@ -10,14 +10,22 @@
 
 #include "Functions.h"
 
+using std::sort;
+
 vec cumsum(const vec& v)
 {
     vec sum(v.size());
 
-    partial_sum(v.data(), v.data() + v.size(), sum.data());
+    std::partial_sum(v.data(), v.data() + v.size(), sum.data());
 
     return sum;
 }
+
+struct IndexSortAscendComparator
+{
+    const vec* pv;
+    bool operator()(unsigned int i, unsigned int j) const { return (*pv)(i) < (*pv)(j); }
+};
 
 uvec index_sort_ascend(const vec& v)
 {
@@ -26,12 +34,18 @@ uvec index_sort_ascend(const vec& v)
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
 
-    sort(idx.data(),
-         idx.data() + idx.size(),
-         [&v](unsigned int i, unsigned int j){ return v(i) < v(j); });
+    IndexSortAscendComparator cmp;
+    cmp.pv = &v;
+    sort(idx.data(), idx.data() + idx.size(), cmp);
 
     return idx;
 }
+
+struct IndexSortDescendComparator
+{
+    const vec* pv;
+    bool operator()(unsigned int i, unsigned int j) const { return (*pv)(i) > (*pv)(j); }
+};
 
 uvec index_sort_descend(const vec& v)
 {
@@ -40,9 +54,9 @@ uvec index_sort_descend(const vec& v)
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
 
-    sort(idx.data(),
-         idx.data() + idx.size(),
-         [&v](unsigned int i, unsigned int j){ return v(i) > v(j); });
+    IndexSortDescendComparator cmp;
+    cmp.pv = &v;
+    sort(idx.data(), idx.data() + idx.size(), cmp);
 
     return idx;
 }

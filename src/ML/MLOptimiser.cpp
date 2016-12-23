@@ -10,6 +10,8 @@
 
 #include "MLOptimiser.h"
 
+#include <omp_compat.h>
+
 void display(const MLOptimiserPara& para)
 {
     printf("Number of Classes:                                       %12d\n", para.k);
@@ -48,8 +50,6 @@ void display(const MLOptimiserPara& para)
     printf("Grouping when Correcting Intensity Scale:                %12d\n", para.groupScl);
     printf("Mask Images with Zero Noise:                             %12d\n", para.zeroMask);
 }
-
-MLOptimiser::MLOptimiser() {}
 
 MLOptimiser::~MLOptimiser()
 {
@@ -220,6 +220,33 @@ void MLOptimiser::init()
     }
 }
 
+
+struct Sp
+{
+    double _w;
+    unsigned int _iR;
+    unsigned int _iT;
+
+    Sp() : _w(-DBL_MAX), _iR(0), _iT(0) {};
+
+    Sp(const double w,
+       const unsigned int iR,
+       const unsigned int iT)
+    {
+        _w = w;
+        _iR = iR;
+        _iT = iT;
+    };
+};
+
+struct SpWeightComparator
+{
+    bool operator()(const Sp& a, const Sp& b) const
+    {
+        return a._w > b._w;
+    }
+};
+
 void MLOptimiser::expectation()
 {
     IF_MASTER return;
@@ -272,31 +299,8 @@ void MLOptimiser::expectation()
                     
             translate(trans[m], _r, t(0), t(1));
         }
-        
-        struct Sp
-        {
-            double _w = -DBL_MAX;
-            unsigned int _iR = 0;
-            unsigned int _iT = 0;
 
-            Sp() {};
-
-            Sp(const double w,
-               const unsigned int iR,
-               const unsigned int iT)
-            {
-                _w = w;
-                _iR = iR;
-                _iT = iT;
-            };
-        };
-
-        auto cmpSp = [](const Sp a, const Sp b){ return a._w > b._w; };
-
-        vector<priority_queue<Sp, vector<Sp>, decltype(cmpSp)>> leaderBoard;
-
-        FOR_EACH_2D_IMAGE
-            leaderBoard.push_back(priority_queue<Sp, vector<Sp>, decltype(cmpSp)>(cmpSp));
+        vector<std::priority_queue<Sp, vector<Sp>, SpWeightComparator> > leaderBoard(_ID.size());
 
         _nR = 0;
 
@@ -1156,7 +1160,7 @@ void MLOptimiser::initRef()
                                   << ", nRow = " << ref.nRowRL()
                                   << ", nSlc = " << ref.nSlcRL();
 
-        __builtin_unreachable();
+        abort();
     }
     
     MLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
@@ -1251,7 +1255,7 @@ void MLOptimiser::initImg()
                                       << _img[l].nRowRL()
                                       << " Input.";
 
-            __builtin_unreachable();
+            abort();
         }
     }
 
@@ -1519,7 +1523,7 @@ void MLOptimiser::initCTF()
         {
             CLOG(FATAL, "LOGGER_SYS") << "No Data";
 
-            __builtin_unreachable();
+            abort();
         }
 
         stmt.reset();
@@ -1576,6 +1580,11 @@ void MLOptimiser::correctScale(const bool init,
             //_sig.row(i) *= gsl_pow_2(_scale(i));
         }
     }
+}
+
+static inline double complex_real_imag_sum(const Complex x)
+{
+    return REAL(x) + IMAG(x);
 }
 
 void MLOptimiser::initSigma()
@@ -1642,12 +1651,7 @@ void MLOptimiser::initSigma()
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
     {
-        psAvg(i) = ringAverage(i,
-                               avg,
-                               [](const Complex x)
-                               {
-                                   return REAL(x) + IMAG(x);
-                               });
+        psAvg(i) = ringAverage(i, avg, function<double(const Complex)>(&complex_real_imag_sum));
         psAvg(i) = gsl_pow_2(psAvg(i));
     }
 

@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include <omp.h>
+#include <omp_compat.h>
 
 #include <gsl/gsl_statistics.h>
 
@@ -21,7 +21,7 @@
 
 #define N 380
 
-using namespace std;
+
 
 INITIALIZE_EASYLOGGINGPP
 

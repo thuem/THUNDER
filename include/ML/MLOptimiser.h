@@ -11,7 +11,7 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
-#include <vector>
+
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -62,25 +62,23 @@
 
 #define N_SAVE_IMG 20
 
-#define PROCESS_LOGW_SOFT(logW) \
-    [](vec& _logW) \
-    { \
-        _logW.array() -= _logW.maxCoeff(); \
-        _logW.array() *= -1; \
-        _logW.array() += 1; \
-        _logW.array() = 1.0 / _logW.array(); \
-    }(logW)
 
-#define PROCESS_LOGW_HARD(logW) \
-    [](vec& _logW) \
-    { \
-        _logW.array() -= _logW.maxCoeff(); \
-        _logW.array() = exp(_logW.array()); \
-    }(logW)
+inline void PROCESS_LOGW_SOFT(vec& _logW)
+{
+    _logW.array() -= _logW.maxCoeff();
+    _logW.array() *= -1;
+    _logW.array() += 1;
+    _logW.array() = 1.0 / _logW.array();
+}
 
-using namespace std;
+inline void PROCESS_LOGW_HARD(vec& _logW)
+{
+    _logW.array() -= _logW.maxCoeff();
+    _logW.array() = exp(_logW.array());
+}
 
-typedef struct ML_OPTIMISER_PARA
+
+struct MLOptimiserPara
 {
     /**
      * number of classes
@@ -137,30 +135,47 @@ typedef struct ML_OPTIMISER_PARA
      */
     char db[FILE_NAME_LENGTH];
 
-    bool autoSelection = false;
 
-    bool localCTF = false;
+    MLOptimiserPara()
+    {
+        autoSelection = false;
+        localCTF = false;
+        performMask = true;
+        autoMask = true;
+        performSharpen = true;
+        estBFactor = false;
+        bFactor = 200;
+        pf = 2;
+        a = 1.9;
+        alpha = 10;
+        thresCutoffFSC = 0.5;
+        thresReportFSC = 0.143;
+    }
+
+    bool autoSelection;
+
+    bool localCTF;
 
     /**
      * whether to perform masking on the reference
      */
-    bool performMask = true;
+    bool performMask;
 
     /**
      * whether to automatically generate a mask
      */
-    bool autoMask = true;
+    bool autoMask;
 
     /**
      * mask
      */
     char mask[FILE_NAME_LENGTH];
 
-    bool performSharpen = true;
+    bool performSharpen;
 
-    bool estBFactor = false;
+    bool estBFactor;
 
-    double bFactor = 200;
+    double bFactor;
 
     /**
      * max number of iteration
@@ -170,17 +185,17 @@ typedef struct ML_OPTIMISER_PARA
     /**
      * padding factor
      */
-    int pf = 2;
+    int pf;
     
     /**
      * MKB kernel radius
      */
-    double a = 1.9;
+    double a;
 
     /**
      * MKB kernel smooth factor
      */
-    double alpha = 10;
+    double alpha;
 
     /**
      * number of sampling points in global search
@@ -205,12 +220,12 @@ typedef struct ML_OPTIMISER_PARA
     /**
      * the FSC threshold for determining cutoff frequency
      */
-    double thresCutoffFSC = 0.5;
+    double thresCutoffFSC;
 
     /**
      * the FSC threshold for reporting resolution
      */
-    double thresReportFSC = 0.143;
+    double thresReportFSC;
 
     /**
      * grouping or not when calculating sigma
@@ -227,7 +242,7 @@ typedef struct ML_OPTIMISER_PARA
      */
     bool zeroMask;
 
-} MLOptimiserPara;
+};
 
 void display(const MLOptimiserPara& para);
 
@@ -297,7 +312,7 @@ class MLOptimiser : public Parallel
         /**
          * current search type
          */
-        int _searchType = SEARCH_TYPE_GLOBAL;
+        int _searchType;
 
         /**
          * model containting references, projectors, reconstruuctors, information 
@@ -377,27 +392,27 @@ class MLOptimiser : public Parallel
         /*
          * standard deviation of noise
          */
-        double _stdN = 0;
+        double _stdN;
 
         /*
          * standard deviation of data
          */
-        double _stdD = 0;
+        double _stdD;
 
         /*
          * standard deviation of signal
          */
-        double _stdS = 0;
+        double _stdS;
 
         /*
          * standard deviation of standard deviation of noise
          */
-        double _stdStdN = 0;
+        double _stdStdN;
 
         /**
          * whether to generate mask or not
          */
-        bool _genMask = false;
+        bool _genMask;
 
         /**
          * mask
@@ -407,28 +422,32 @@ class MLOptimiser : public Parallel
         /**
          * number of performed filtering in an iteration of a process
          */
-        int _nF = 0;
+        int _nF;
 
         /**
          * number of performed images in an iteration of a process
          */
-        int _nI = 0;
+        int _nI;
 
         /**
          * number of performed rotations in the scanning phase of the global
          * search stage
          */
-        int _nR = 0;
+        int _nR;
 
+<<<<<<< HEAD
         int _nPxl = 0;
 
         int* _iPxl = NULL;
+=======
+        int* _iPxl;
+>>>>>>> sqlite
 
-        int* _iCol = NULL;
+        int* _iCol;
         
-        int* _iRow = NULL;
+        int* _iRow;
 
-        int* _iSig = NULL;
+        int* _iSig;
 
         Complex** _datP = NULL;
 
@@ -438,7 +457,22 @@ class MLOptimiser : public Parallel
 
     public:
         
-        MLOptimiser();
+        MLOptimiser()
+        {
+            _stdN = 0;
+            _stdD = 0;
+            _stdS = 0;
+            _stdStdN = 0;
+            _genMask = false;
+            _nF = 0;
+            _nI = 0;
+            _nR = 0;
+            _iPxl = NULL;
+            _iCol = NULL;
+            _iRow = NULL;
+            _iSig = NULL;
+            _searchType = SEARCH_TYPE_GLOBAL;
+        }
 
         ~MLOptimiser();
 

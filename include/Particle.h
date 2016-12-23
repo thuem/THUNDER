@@ -28,12 +28,10 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
-using namespace std;
+
 
 class Particle
 {
-    MAKE_DEFAULT_MOVE(Particle)
-
     private:
 
         /**
@@ -75,57 +73,67 @@ class Particle
         /**
          * a pointer points to a Symmetry object which indicating the symmetry
          */
-        const Symmetry* _sym = NULL;
+        const Symmetry* _sym;
 
         /**
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
          */
-        double _k0 = 0;
+        double _k0;
 
         /**
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
          */
-        double _k1 = 0;
+        double _k1;
 
         /**
          * sigma0 of 2D Gaussian distribution of translation
          */
-        double _s0 = 0;
+        double _s0;
 
         /**
          * sigma1 of 2D Gaussian distribution of translation
          */
-        double _s1 = 0;
+        double _s1;
 
         /**
          * rho of 2D Gaussian distribution of translation
          */
-        double _rho = 0;
+        double _rho;
 
         /**
          * quaternion of the previous most likely rotation
          */
-        vec4 _topRPrev = vec4({1, 0, 0, 0});
+        vec4 _topRPrev;
 
         /**
          * quaternion of the most likely rotation
          * it will be refreshed by resampling
          */
-        vec4 _topR = vec4({1, 0, 0, 0});
+        vec4 _topR;
 
         /**
          * the previous most likely translation
          */
-        vec2 _topTPrev = vec2({0, 0});
+        vec2 _topTPrev;
 
         /**
          * the most likely translation
          * it will be refreshed by resampling
          */
-        vec2 _topT = vec2({0, 0});
+        vec2 _topT;
 
+    private:
+        void basic_init()
+        {
+                _sym = NULL;
+                _k0 = 0; _k1 = 0; _s0 = 0; _s1 = 0; _rho = 0;
+                _topRPrev = vec4(1, 0, 0, 0);
+                _topR = vec4(1, 0, 0, 0);
+                _topT = vec2(0, 0);
+                _topTPrev = vec2(0, 0);
+        }
     public:
 
         /**

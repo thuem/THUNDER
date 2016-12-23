@@ -46,7 +46,7 @@ void Preprocess::run()
 
         for (size_t i = 0; i < _micIDs.size(); i++)
         {
-            cout << _micIDs[i] << endl;
+            std::cout << _micIDs[i] << std::endl;
             extractParticles(_micIDs[i]);
         }
     }
@@ -72,7 +72,7 @@ std::string Preprocess::getMicName(const int micID)
         return stmt.get_text(0);
     else
         CLOG(FATAL, "LOGGER_SYS") << "No Micrograph Name";
-    __builtin_unreachable();
+    abort();
 }
 
 void Preprocess::getParXOffYOff(int& xOff,

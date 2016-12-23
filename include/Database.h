@@ -13,11 +13,14 @@
 #include <string>
 #include <cstring>
 #include <sys/stat.h>
-#include <vector>
+
+#include <cerrno>
+#include <cstdio>
 
 #include "Random.h"
 #include "Parallel.h"
 #include "SQLWrapper.h"
+#include "Utils.h"
 
 #define PARTICLE_MODE 0
 #define MICROGRAPH_MODE 1
@@ -28,39 +31,35 @@
 
 #define SQLITE3_CALLBACK [](void* data, int ncols, char** values, char** header)
 
-#define MASTER_TMP_FILE(database, rank) \
-    [this, &database](const int _rank) mutable \
-    { \
-        sprintf(database, "/tmp/%s/m/%04d.db", _ID, _rank); \
-    }(rank)
+#define MASTER_TMP_FILE(database, rank) snprintf((database), sizeof(database), "%s/%s/m/%04d.db", getTempDirectory(), _ID, (rank))
 
-#define SLAVE_TMP_FILE(database) \
-    [this, &database]() mutable \
-    { \
-        sprintf(database, "/tmp/%s/s/%04d.db", _ID, _commRank); \
-    }()
+#define SLAVE_TMP_FILE(database) snprintf(database, sizeof(database), "%s/%s/s/%04d.db", getTempDirectory(), _ID, _commRank)
 
-#define WRITE_FILE(filename, buf, len) \
-    [&filename, &buf, &len]() \
-    {\
-        FILE* fd = fopen(filename, "w"); \
-        if (fd == NULL) CLOG(FATAL, "LOGGER_SYS") << "Can Not Open Sqlite3 File"; \
-        fwrite(buf, len, 1, fd); /* TODO Error Checking */ \
-        fclose(fd); \
-    }()
+inline void WRITE_FILE(const char* filename, void* buf, size_t len)
+{
+    FILE* fd = fopen(filename, "w");
+    if (fd == NULL)
+        CLOG(FATAL, "LOGGER_SYS") << "Can Not Open Sqlite3 File : "  << filename << strerror(errno);
+    if (fwrite(buf, len, 1, fd) != 1)
+        CLOG(FATAL, "LOGGER_SYS") << "Write " << filename << " failed: " << strerror(errno);
+    fclose(fd);
+}
 
-#define READ_FILE(filename, buf) \
-    [&filename, &buf]() \
-    {\
-        FILE* fd = fopen(filename, "r"); \
-        if (fd == NULL) CLOG(FATAL, "LOGGER_SYS") << "Can Not Open Sqlite3 File"; \
-        fseek(fd, 0, SEEK_SET); \
-        int size = fread(buf, 1, MAX_LENGTH, fd); /* TODO Error Checking */ \
-        fclose(fd); \
-        return size; \
-    }()
+inline int READ_FILE(const char* filename, void* buf)
+{
+    FILE* fd = fopen(filename, "r");
+    if (fd == NULL)
+        CLOG(FATAL, "LOGGER_SYS") << "Can Not Open Sqlite3 File : "  << filename << strerror(errno);
+    int size = fread(buf, 1, MAX_LENGTH, fd);
+    if (size <= 0)
+        CLOG(FATAL, "LOGGER_SYS") << "Read " << filename << " failed: " << strerror(errno);
+    if (size >= MAX_LENGTH)
+        CLOG(FATAL, "LOGGER_SYS") << "Sqlite3 file " << filename << " exceeds maximum length " << MAX_LENGTH;
+    fclose(fd);
+    return size;
+ }
 
-using namespace std;
+
 
 enum Table
 {
@@ -75,7 +74,7 @@ class Database : public Parallel
 
         char _ID[DB_ID_LENGTH + 1];
 
-        int _mode = PARTICLE_MODE;
+        int _mode;
 
         sql::Statement _stmtAppendGroup;
         sql::Statement _stmtAppendMicrograph;
@@ -94,7 +93,7 @@ class Database : public Parallel
 
         ~Database();
 
-        sql::DB expose() { return _db; }
+        sql::DB& expose() { return _db; }
 
         void bcastID();
         /* generate and broadcast an unique ID */
@@ -143,13 +142,13 @@ class Database : public Parallel
                             const double defocusAngle,
                             const double Cs);
         
-        int nParticle() const;
+        int nParticle();
         /* number of particles */
 
-        int nMicrograph() const;
+        int nMicrograph();
         /* number of micrographs */
 
-        int nGroup() const;
+        int nGroup();
 
         void update(const char database[],
                     const Table table);
@@ -164,7 +163,7 @@ class Database : public Parallel
 
         void split(int& start,
                    int& end,
-                   int commRank) const;
+                   int commRank);
 
     private:
         

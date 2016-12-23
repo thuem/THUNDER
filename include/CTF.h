@@ -19,8 +19,8 @@
 
 #define CTF_TAU 0.01
 
-constexpr double w1 = sqrt(1 - CTF_A * CTF_A);
-constexpr double w2 = CTF_A;
+const double w1 = sqrt(1 - CTF_A * CTF_A);
+const double w2 = CTF_A;
 
 double CTF(const double f,
            const double voltage,

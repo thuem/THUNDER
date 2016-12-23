@@ -35,13 +35,13 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    loggerInit();
+    loggerInit(argc, argv);
 
     ImageFile imf;
 
     FFT fft;
 
-    cout << "Defining Head" << endl;
+    std::cout << "Defining Head" << std::endl;
     Volume head(N, N, N, RL_SPACE);
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
            gsl_stats_sd(&head(0), 1, head.sizeRL()));
     ***/
 
-    cout << "Padding Head" << endl;
+    std::cout << "Padding Head" << std::endl;
     Volume padHead;
     VOL_PAD_RL(padHead, head, PF);
     normalise(padHead);
@@ -86,15 +86,15 @@ int main(int argc, char* argv[])
     imf.readMetaData(padHead);
     imf.writeVolume("padHead.mrc", padHead);
 
-    cout << "Reading from Hard-disk" << endl;
+    std::cout << "Reading from Hard-disk" << std::endl;
     ImageFile imf2("padHead.mrc", "rb");
     imf2.readMetaData();
     imf2.readVolume(padHead);
 
     /***
-    cout << "Adding Noise" << endl;
+    std::cout << "Adding Noise" << std::endl;
     Volume noise(PF * N, PF * N, PF * N, RL_SPACE);
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     FOR_EACH_PIXEL_RL(noise)
         noise(i) = gsl_ran_gaussian(engine, 20);
     ADD_RL(padHead, noise);
@@ -105,15 +105,15 @@ int main(int argc, char* argv[])
            gsl_stats_sd(&padHead(0), 1, padHead.sizeRL()),
            padHead(cblas_idamax(padHead.sizeRL(), &padHead(0), 1)));
 
-    cout << "Fourier Transforming Head" << endl;
+    std::cout << "Fourier Transforming Head" << std::endl;
     fft.fw(padHead);
 
-    cout << "Setting Projectee" << endl;
+    std::cout << "Setting Projectee" << std::endl;
     Projector projector;
     projector.setPf(PF);
     projector.setProjectee(padHead.copyVolume());
 
-    cout << "Setting CTF" << endl;
+    std::cout << "Setting CTF" << std::endl;
     Image ctf(N, N, FT_SPACE);
     CTF(ctf,
         PIXEL_SIZE,
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
         THETA,
         CS);
 
-    cout << "Initialising Experiment" << endl;
+    std::cout << "Initialising Experiment" << std::endl;
     Experiment exp("MickeyMouse.db");
     exp.createTables();
     exp.appendMicrograph("", VOLTAGE, DEFOCUS_U, DEFOCUS_V, THETA, CS);
@@ -133,14 +133,14 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
-    cout << "Initialising Random Sampling Points" << endl;
+    std::cout << "Initialising Random Sampling Points" << std::endl;
     Symmetry sym("C2");
     Particle par(M, TRANS_S, 0.01, &sym);
-    cout << "Saving Sampling Points" << endl;
+    std::cout << "Saving Sampling Points" << std::endl;
     save("Sampling_Points.par", par);
 
     Coordinate5D coord;
-    auto engine = get_random_engine();
+    gsl_rng* engine = get_random_engine();
     for (int i = 0; i < M; i++)
     {
         SET_0_FT(image);

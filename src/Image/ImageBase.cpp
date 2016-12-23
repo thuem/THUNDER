@@ -10,7 +10,7 @@
 
 #include "ImageBase.h"
 
-ImageBase::ImageBase() {}
+ImageBase::ImageBase() : _sizeRL(0), _sizeFT(0) {}
 
 ImageBase::~ImageBase() {}
 

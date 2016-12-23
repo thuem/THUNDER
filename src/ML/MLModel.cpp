@@ -9,8 +9,6 @@
  * ****************************************************************************/ 
 #include "MLModel.h"
 
-MLModel::MLModel() {}
-
 MLModel::~MLModel()
 {
     clear();
@@ -53,7 +51,7 @@ void MLModel::initProjReco()
         ALOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << l;
         BLOG(INFO, "LOGGER_INIT") << "Appending Reconstructor of Reference " << l;
 
-        _reco.push_back(unique_ptr<Reconstructor>(new Reconstructor()));
+        _reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
     ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
@@ -80,7 +78,7 @@ Volume& MLModel::ref(const int i)
 
 void MLModel::appendRef(Volume ref)
 {
-    _ref.push_back(move(ref));
+    _ref.push_back(boost::move(ref));
 }
 
 int MLModel::k() const
@@ -543,17 +541,12 @@ void MLModel::updateR(const double thres)
     // record the frequency
     _rPrev = _r;
 
-    if ([&]()
-        {
-            MLOG(INFO, "LOGGER_SYS") << "_r = " << _r;
-            MLOG(INFO, "LOGGER_SYS") << "_searchType = " << _searchType;
+    bool shouldElevate = false;
 
-            if ((_r == _rGlobal) &&
-                (_searchType == SEARCH_TYPE_GLOBAL))
-            {
-                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
-                                         << R_CHANGE_DECREASE_STUN;
+    MLOG(INFO, "LOGGER_SYS") << "_r = " << _r;
+    MLOG(INFO, "LOGGER_SYS") << "_searchType = " << _searchType;
 
+<<<<<<< HEAD
                 return determineIncreaseR(R_CHANGE_DECREASE_STUN);
             }
             else if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -571,6 +564,26 @@ void MLModel::updateR(const double thres)
                 return determineIncreaseR(R_CHANGE_DECREASE_LOCAL);
             }
         }())
+=======
+    if ((_r == _rGlobal) &&
+        (_searchType == SEARCH_TYPE_GLOBAL))
+    {
+        MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
+                                 << R_CHANGE_DECREASE_STUN;
+
+        shouldElevate = determineIncreaseR(R_CHANGE_DECREASE_STUN);
+    }
+    else
+    {
+        MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
+                                 << R_CHANGE_DECREASE_NORM;
+
+        shouldElevate = determineIncreaseR(R_CHANGE_DECREASE_NORM);
+    }
+
+
+    if (shouldElevate)
+>>>>>>> sqlite
     {
         MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency";
 

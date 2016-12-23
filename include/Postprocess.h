@@ -31,7 +31,7 @@
  */
 #define B_FACTOR_EST_LOW_RES 10
 
-using namespace std;
+
 
 class Postprocess
 {
