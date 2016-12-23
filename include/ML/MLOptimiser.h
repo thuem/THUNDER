@@ -11,7 +11,6 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
-
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -22,6 +21,8 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_cdf.h>
+
+#include <omp_compat.h>
 
 #include "Typedef.h"
 

@@ -9,6 +9,9 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
+#define TRANS_INIT_GAUSSIAN
+//#define TRANS_INIT_FLAT
+
 #include <iostream>
 #include <numeric>
 #include <cmath>
@@ -27,8 +30,6 @@
 #include "Functions.h"
 #include "Symmetry.h"
 #include "DirectionalStat.h"
-
-
 
 class Particle
 {
@@ -124,16 +125,23 @@ class Particle
          */
         vec2 _topT;
 
-    private:
-        void basic_init()
+        void defaultInit();
         {
-                _sym = NULL;
-                _k0 = 0; _k1 = 0; _s0 = 0; _s1 = 0; _rho = 0;
-                _topRPrev = vec4(1, 0, 0, 0);
-                _topR = vec4(1, 0, 0, 0);
-                _topT = vec2(0, 0);
-                _topTPrev = vec2(0, 0);
+            _sym = NULL;
+
+            _k0 = 0;
+            _k1 = 0;
+            _s0 = 0;
+            _s1 = 0;
+            _rho = 0;
+
+            _topRPrev = vec4(1, 0, 0, 0);
+            _topR = vec4(1, 0, 0, 0);
+
+            _topTPrev = vec2(0, 0);
+            _topT = vec2(0, 0);
         }
+
     public:
 
         /**

@@ -10,8 +10,6 @@
 
 #include "MLOptimiser.h"
 
-#include <omp_compat.h>
-
 void display(const MLOptimiserPara& para)
 {
     printf("Number of Classes:                                       %12d\n", para.k);
@@ -219,7 +217,6 @@ void MLOptimiser::init()
         initSigma();
     }
 }
-
 
 struct Sp
 {

@@ -8,14 +8,18 @@
 
 #include "Particle.h"
 
-Particle::Particle() { basic_init(); }
+Particle::Particle()
+{
+    defaultInit();
+}
 
 Particle::Particle(const int n,
                    const double transS,
                    const double transQ,
                    const Symmetry* sym)
 {
-    basic_init();
+    defaultInit();
+
     init(n, transS, transQ, sym);
 }
 
@@ -58,14 +62,10 @@ void Particle::reset()
     // sample from Angular Central Gaussian Distribution with identity matrix
     sampleACG(_r, 1, 1, _n);
 
-<<<<<<< HEAD
-    auto engine = get_random_engine();
-
-    // sample from 2D Gaussian Distribution
-=======
     // sample from 2D Gaussian Distribution
     gsl_rng* engine = get_random_engine();
->>>>>>> sqlite
+
+#ifdef TRANS_INIT_GAUSSIAN
     for (int i = 0; i < _n; i++)
     {
         gsl_ran_bivariate_gaussian(engine,
@@ -77,8 +77,9 @@ void Particle::reset()
                 
         _w(i) = 1.0 / _n;
     }
+#endif
 
-    /***
+#ifdef TRANS_INIT_FLAT
     // sample for 2D Flat Distribution in a Circle
     for (int i = 0; i < _n; i++)
     {
@@ -90,7 +91,7 @@ void Particle::reset()
 
         _w(i) = 1.0 / _n;
     }
-    ***/
+#endif
 
     symmetrise();
 }
