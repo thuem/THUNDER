@@ -12,14 +12,22 @@
 
 Image::Image() : _nCol(0), _nRow(0) {}
 
-Image::~Image() {}
-
 Image::Image(const int nCol,
              const int nRow,
              const int space)
 {
     alloc(nCol, nRow, space);
 }
+
+Image::Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
+                                         _nCol(that._nCol),
+                                         _nRow(that._nRow)
+{
+    that._nCol = 0;
+    that._nRow = 0;
+}
+
+Image::~Image() {}
 
 void Image::alloc(const int space)
 {

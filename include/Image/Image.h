@@ -107,6 +107,8 @@ class Image : public ImageBase
               const int nRow,
               const int space);
 
+        Image(BOOST_RV_REF(Image) that);
+
         /**
          * deconstructor
          */
@@ -263,13 +265,6 @@ class Image : public ImageBase
                            const int j) const
         {
             return (j >= 0 ? j : j + _nRow) * (_nCol / 2 + 1) + i;
-        }
-
-        Image(BOOST_RV_REF(Image) other) : ImageBase(BOOST_MOVE_BASE(ImageBase, other)),
-                                           _nCol(other._nCol), _nRow(other._nRow)
-        {
-            other._nCol = 0;
-            other._nRow = 0;
         }
 
         Image& operator=(BOOST_RV_REF(Image) other)
