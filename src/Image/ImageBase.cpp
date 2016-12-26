@@ -43,7 +43,7 @@ ImageBase::~ImageBase()
 
     if (_dataFT != NULL)
     {
-        fftw_free(_dataRL);
+        fftw_free(_dataFT);
         _dataFT = NULL;
     }
 #endif
