@@ -12,7 +12,10 @@
 
 #include <omp_compat.h>
 
-FFT::FFT() : _srcR(NULL), _srcC(NULL), _dstR(NULL), _dstC(NULL)  {}
+FFT::FFT() : _srcR(NULL),
+             _srcC(NULL),
+             _dstR(NULL),
+             _dstC(NULL)  {}
 
 FFT::~FFT() {}
 
@@ -117,13 +120,7 @@ void FFT::fwMT(Image& img)
 
     fftw_execute(fwPlan);
 
-<<<<<<< HEAD
     FW_CLEAN_UP;
-=======
-    FWMT_CLEAN_UP;
-
-    fftw_cleanup_threads();
->>>>>>> sqlite
 }
 
 void FFT::bwMT(Image& img)
@@ -145,19 +142,10 @@ void FFT::bwMT(Image& img)
 
     fftw_execute(bwPlan);
 
-<<<<<<< HEAD
     #pragma omp parallel for
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP(img);
-=======
-    BWMT_CLEAN_UP(img);
-
-    fftw_cleanup_threads();
-    
-    #pragma omp parallel for
-    SCALE_RL(img, 1.0 / img.sizeRL());
->>>>>>> sqlite
 }
 
 void FFT::fwMT(Volume& vol)
@@ -180,13 +168,7 @@ void FFT::fwMT(Volume& vol)
 
     fftw_execute(fwPlan);
 
-<<<<<<< HEAD
     FW_CLEAN_UP;
-=======
-    FWMT_CLEAN_UP;
-
-    fftw_cleanup_threads();
->>>>>>> sqlite
 }
 
 void FFT::bwMT(Volume& vol)
@@ -209,7 +191,6 @@ void FFT::bwMT(Volume& vol)
 
     fftw_execute(bwPlan);
 
-<<<<<<< HEAD
     #pragma omp parallel for
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
@@ -267,11 +248,6 @@ void FFT::fwCreatePlanMT(const int nCol,
                          const int nRow,
                          const int nSlc)
 {
-    /***
-    _srcR = fftw_alloc_real(nCol * nRow * nSlc);
-    _dstC = fftw_alloc_complex((nCol / 2 + 1) * nRow * nSlc);
-    ***/
-
     _srcR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
@@ -294,18 +270,10 @@ void FFT::bwCreatePlanMT(const int nCol,
                          const int nRow,
                          const int nSlc)
 {
-    /***
-    _srcC = fftw_alloc_complex((nCol / 2 + 1) * nRow * nSlc);
-    _dstR = fftw_alloc_real(nCol * nRow * nSlc);
-    ***/
-
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
 
     fftw_plan_with_nthreads(omp_get_max_threads());
-=======
-    BWMT_CLEAN_UP(vol);
->>>>>>> sqlite
 
     bwPlan = fftw_plan_dft_c2r_3d(nRow,
                                   nCol,

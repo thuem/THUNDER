@@ -160,13 +160,13 @@ class Reconstructor : public Parallel
 
         int _nPxl;
 
-        const int* _iCol = NULL;
+        const int* _iCol;
 
-        const int* _iRow = NULL;
+        const int* _iRow;
 
-        const int* _iPxl = NULL;
+        const int* _iPxl;
 
-        const int* _iSig = NULL;
+        const int* _iSig;
         
         /**
          * The vector to save the weight values of each insertion with image, 
@@ -195,11 +195,11 @@ class Reconstructor : public Parallel
          */
         const Symmetry* _sym;
 
-        vec _FSC = vec::Constant(1, 1);
+        vec _FSC;
 
-        vec _sig = vec::Zero(1);
+        vec _sig;
 
-        vec _tau = vec::Constant(1, 1);
+        vec _tau;
 
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
@@ -226,6 +226,15 @@ class Reconstructor : public Parallel
             _sym = NULL;
             _a = 1.9;
             _alpha = 15;
+
+            _iCol = NULL;
+            _iRow = NULL;
+            _iPxl = NULL;
+            _iSig = NULL;
+
+            _FSC = vec::Constant(1, 1);
+            _sig = vec::Zero(1);
+            _tau = vec::Constant(1, 1);
         }
 
     public:
