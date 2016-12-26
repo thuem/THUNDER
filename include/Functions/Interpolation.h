@@ -227,7 +227,8 @@ inline void WG_TRI_INTERP(double w[2][2][2],
                           const int interpType)
 {
     double xd[3];
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; i++)
+    {
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];
     }

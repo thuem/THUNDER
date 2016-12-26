@@ -394,12 +394,12 @@ void MLOptimiser::expectation()
                     omp_set_lock(&mtx[l]);
 
                     if ((int)leaderBoard[l].size() < _para.mG)
-                        leaderBoard[l].emplace(Sp(dvp(l), m, n));
+                        leaderBoard[l].push(Sp(dvp(l), m, n));
                     else if (leaderBoard[l].top()._w < dvp(l))
                     {
                         leaderBoard[l].pop();
 
-                        leaderBoard[l].emplace(Sp(dvp(l), m, n));
+                        leaderBoard[l].push(Sp(dvp(l), m, n));
                     }
 
                     omp_unset_lock(&mtx[l]);

@@ -111,7 +111,7 @@ class MLModel : public Parallel
         /**
          * reconstructors
          */
-        boost::container::vector<boost::movelib::unique_ptr<Reconstructor>> _reco;
+        boost::container::vector< boost::movelib::unique_ptr<Reconstructor> > _reco;
 
         /**
          * number of references

@@ -125,7 +125,7 @@ class Particle
          */
         vec2 _topT;
 
-        void defaultInit();
+        void defaultInit()
         {
             _sym = NULL;
 

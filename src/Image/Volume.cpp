@@ -20,6 +20,7 @@ Volume::Volume(const int nCol,
     alloc(nCol, nRow, nSlc, space);
 }
 
+/***
 Volume::Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                             _nCol(that._nCol),
                                             _nRow(that._nRow),
@@ -29,15 +30,18 @@ Volume::Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase,
     that._nRow = 0;
     that._nSlc = 0;
 }
+***/
 
 Volume::~Volume() {}
 
+/***
 Volume& Volume::operator=(BOOST_RV_REF(Volume) that)
 {
     if (this != &that) swap(that);
 
     return *this;
 }
+***/
 
 void Volume::swap(Volume& that)
 {
@@ -277,7 +281,7 @@ void Volume::addFT(const Complex value,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    WG_TRI_LINEAR(w, x0, x);
+    WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
 
     addFTHalf(conj ? CONJUGATE(value) : value,
               w,
@@ -295,7 +299,7 @@ void Volume::addFT(const double value,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    WG_TRI_LINEAR(w, x0, x);
+    WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
 
     addFTHalf(value, w, x0);
 }

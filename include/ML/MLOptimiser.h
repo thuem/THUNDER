@@ -445,11 +445,11 @@ class MLOptimiser : public Parallel
 
         int* _iSig;
 
-        Complex** _datP = NULL;
+        Complex** _datP;
 
-        double** _ctfP = NULL;
+        double** _ctfP;
 
-        double** _sigRcpP = NULL;
+        double** _sigRcpP;
 
     public:
         
@@ -463,12 +463,18 @@ class MLOptimiser : public Parallel
             _nF = 0;
             _nI = 0;
             _nR = 0;
+
+            _searchType = SEARCH_TYPE_GLOBAL;
+
             _nPxl = 0;
             _iPxl = NULL;
             _iCol = NULL;
             _iRow = NULL;
             _iSig = NULL;
-            _searchType = SEARCH_TYPE_GLOBAL;
+
+            _datP = NULL;
+            _ctfP = NULL;
+            _sigRcpP = NULL;
         }
 
         ~MLOptimiser();

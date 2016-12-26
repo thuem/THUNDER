@@ -42,7 +42,7 @@ inline void VOL_EXTRACT_RL(Volume& dst,
               RL_SPACE); 
 
     #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_RL(_dst) 
+    VOLUME_FOR_EACH_PIXEL_RL(dst) 
         dst.setRL(src.getRL(i, j, k), i, j, k); 
 }
  
@@ -91,7 +91,7 @@ inline void VOL_REPLACE_RL(Volume& dst, const Volume& src)
 inline void VOL_REPLACE_FT(Volume& dst, const Volume& src) 
 { 
     #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_src) 
+    VOLUME_FOR_EACH_PIXEL_FT(src) 
         dst.setFT(src.getFT(i, j, k), i, j, k); 
 }
 

@@ -204,7 +204,19 @@ class ImageBase
 
         ImageBase();
 
-        ImageBase(BOOST_RV_REF(ImageBase) that); 
+        ImageBase(BOOST_RV_REF(ImageBase) that) : _dataRL(boost::move(that._dataRL)),
+                                                  _dataFT(boost::move(that._dataFT)),
+                                                  _sizeRL(that._sizeRL),
+                                                  _sizeFT(that._sizeFT)
+        {
+            that._sizeRL = 0;
+            that._sizeFT = 0;
+
+#ifdef FFTW_PTR
+            that._dataRL = NULL;
+            that._dataFT = NULL;
+#endif
+        }
 
         ~ImageBase();
 

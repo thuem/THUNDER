@@ -61,7 +61,10 @@ class Projector
          */
         Projector();
 
-        Projector(BOOST_RV_REF(Projector) that);
+        Projector(BOOST_RV_REF(Projector) that)
+        {
+            swap(that);
+        }
 
         /**
          * default deconstructor
@@ -70,7 +73,11 @@ class Projector
 
         void swap(Projector& that);
 
-        Projector& operator=(BOOST_RV_REF(Projector) that);
+        inline Projector& operator=(BOOST_RV_REF(Projector) that)
+        {
+            if (this != &that) swap(that);
+            return *this;
+        }
 
         /**
          * If there is a volume to be projected, return false, otherwise return

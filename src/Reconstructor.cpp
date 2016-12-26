@@ -212,10 +212,10 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
-#ifdef MKB_KERNEL
                 vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                 vec3 oldCor = sr[k] * newCor;
 
+#ifdef MKB_KERNEL
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
@@ -371,7 +371,7 @@ void Reconstructor::reconstruct(Volume& dst)
     vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
                  _T,
-                 [](const Complex x){ return REAL(x); },
+                 gsl_real,
                  _maxRadius * _pf - 1);
     // the last two elements have low fidelity
     avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
@@ -792,9 +792,10 @@ void Reconstructor::allReduceT()
 
 double Reconstructor::checkC() const
 {
-    double diff = 0;
 
 #ifdef CHECK_C_AVERAGE
+    double diff = 0;
+
     int counter = 0;
 
     #pragma omp parallel for schedule(dynamic)
@@ -811,12 +812,14 @@ double Reconstructor::checkC() const
 #endif
 
 #ifdef CHECK_C_MAX
-    #pragma omp parallel for schedule(dynamic) reduction(max:diff)
+    vector<double> diff(_C.sizeFT(), 0);
+
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            diff = GSL_MAX_DBL(diff, abs(ABS(_C.getFT(i, j, k)) - 1));
+            diff[_C.iFTHalf(i, j, k)] = abs(ABS(_C.getFT(i, j, k)) - 1);
 
-    return diff;
+    return *std::max_element(diff.begin(), diff.end());
 #endif
 }
 

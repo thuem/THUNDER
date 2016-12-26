@@ -19,10 +19,12 @@ Projector::Projector()
     _pf = 2;
 }
 
+/***
 Projector::Projector(BOOST_RV_REF(Projector) that)
 {
     swap(that);
 }
+***/
 
 Projector::~Projector() {}
 
@@ -35,12 +37,14 @@ void Projector::swap(Projector& that)
     _projectee.swap(that._projectee);
 }
 
+/***
 Projector& Projector::operator=(BOOST_RV_REF(Projector) that)
 {
     if (this != &other) swap(other);
 
     return *this;
 }
+***/
 
 bool Projector::isEmpty() const
 {
@@ -139,7 +143,7 @@ void Projector::project(Complex* dst,
 {
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor = {(double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0};
+        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[i] = _projectee.getByInterpolationFT(oldCor(0),
@@ -197,7 +201,7 @@ void Projector::projectMT(Complex* dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor = {(double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0};
+        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[i] = _projectee.getByInterpolationFT(oldCor(0),

@@ -107,15 +107,24 @@ class Image : public ImageBase
               const int nRow,
               const int space);
 
-        //Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that));
-        Image(BOOST_RV_REF(Image) that);
+        Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
+                                          _nCol(that._nCol),
+                                          _nRow(that._nRow)
+        {
+            that._nCol = 0;
+            that._nRow = 0;
+        }
 
         /**
          * deconstructor
          */
         ~Image();
 
-        Image& operator=(BOOST_RV_REF(Image) that);
+        inline Image& operator=(BOOST_RV_REF(Image) that)
+        {
+            if (this != &that) swap(that);
+            return *this;
+        }
 
         void swap(Image& that);
 

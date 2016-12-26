@@ -174,14 +174,26 @@ class Volume : public ImageBase
          *
          * @param that the original volume
          */
-        Volume(BOOST_RV_REF(Volume) that);
+        Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
+                                            _nCol(that._nCol),
+                                            _nRow(that._nRow),
+                                            _nSlc(that._nSlc)
+        {
+            that._nCol = 0;
+            that._nRow = 0;
+            that._nSlc = 0;
+        }
 
         /**
          * The deconstructor will automatically free all allocated space.
          */
         ~Volume();
 
-        Volume& operator=(BOOST_RV_REF(Volume) that);
+        inline Volume& operator=(BOOST_RV_REF(Volume) that)
+        {
+            if (this != &that) swap(that);
+            return *this;
+        }
 
         void swap(Volume& that);
 

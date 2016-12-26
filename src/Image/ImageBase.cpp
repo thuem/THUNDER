@@ -12,6 +12,7 @@
 
 ImageBase::ImageBase() : _sizeRL(0), _sizeFT(0) {}
 
+/***
 ImageBase::ImageBase(BOOST_RV_REF(ImageBase) that) : _dataRL(boost::move(that._dataRL)),
                                                      _dataFT(boost::move(that._dataFT)),
                                                      _sizeRL(that._sizeRL),
@@ -25,6 +26,7 @@ ImageBase::ImageBase(BOOST_RV_REF(ImageBase) that) : _dataRL(boost::move(that._d
     that._dataFT = NULL;
 #endif
 }
+***/
 
 ImageBase::~ImageBase()
 {

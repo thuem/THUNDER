@@ -28,6 +28,16 @@
 
 #define IMAG(a) GSL_IMAG(a)
 
+inline double gsl_real(const Complex a)
+{
+    return REAL(a);
+};
+
+inline double gsl_imag(const Complex a)
+{
+    return IMAG(a);
+};
+
 inline Complex operator-(const Complex a)
 {
     return COMPLEX(-REAL(a), -IMAG(a));

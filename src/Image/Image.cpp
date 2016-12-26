@@ -19,6 +19,7 @@ Image::Image(const int nCol,
     alloc(nCol, nRow, space);
 }
 
+/***
 Image::Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                          _nCol(that._nCol),
                                          _nRow(that._nRow)
@@ -26,15 +27,18 @@ Image::Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, th
     that._nCol = 0;
     that._nRow = 0;
 }
+***/
 
 Image::~Image() {}
 
+/***
 Image& Image::operator=(BOOST_RV_REF(Image) that)
 {
     if (this != &that) swap(that);
 
     return *this;
 }
+***/
 
 void Image::swap(Image& that)
 {

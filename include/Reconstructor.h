@@ -84,7 +84,7 @@ class Reconstructor : public Parallel
 {
     private:
 
-        int _calMode = POST_CAL_MODE;
+        int _calMode;
 
         /**
          * The real size of the 3D Fourier reconstructor space that is used to
@@ -222,6 +222,8 @@ class Reconstructor : public Parallel
 
         void defaultInit()
         {
+            _calMode = POST_CAL_MODE;
+
             _pf = 2;
             _sym = NULL;
             _a = 1.9;
