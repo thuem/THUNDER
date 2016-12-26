@@ -29,6 +29,33 @@ Image::Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, th
 
 Image::~Image() {}
 
+Image& Image::operator=(BOOST_RV_REF(Image) that)
+{
+    if (this != &that) swap(that);
+
+    return *this;
+}
+
+void Image::swap(Image& that)
+{
+    ImageBase::swap(that);
+
+    std::swap(_nCol, that._nCol);
+    std::swap(_nRow, that._nRow);
+}
+
+Image Image::copyImage() const
+{
+    Image out;
+    
+    copyBase(out);
+
+    out._nCol = _nCol;
+    out._nRow = _nRow;
+
+    return out;
+}
+
 void Image::alloc(const int space)
 {
     alloc(_nCol, _nRow, space);

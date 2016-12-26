@@ -114,6 +114,12 @@ class Image : public ImageBase
          */
         ~Image();
 
+        Image& Image::operator=(BOOST_RV_REF(Image) that);
+
+        void swap(Image& that);
+
+        Image copyImage() const;
+
         /**
          * This function allocates memory space in a certain space.
          * @param space the space (RL_SPACE: real space, FT: Fourier space)
@@ -236,15 +242,6 @@ class Image : public ImageBase
             _nCol = 0;
         }
 
-        Image copyImage() const
-        {
-            Image out;
-            copyBase(out);
-            out._nRow = _nRow;
-            out._nCol = _nCol;
-            return out;
-        }
-
         inline int iRL(const int i,
                        const int j) const
         {
@@ -265,21 +262,6 @@ class Image : public ImageBase
                            const int j) const
         {
             return (j >= 0 ? j : j + _nRow) * (_nCol / 2 + 1) + i;
-        }
-
-        Image& operator=(BOOST_RV_REF(Image) other)
-        {
-            if (this != &other)
-                swap(other);
-            return *this;
-        }
-
-    protected:
-        void swap(Image& other)
-        {
-            ImageBase::swap(other);
-            std::swap(_nCol, other._nCol);
-            std::swap(_nRow, other._nRow);
         }
 
     private:
