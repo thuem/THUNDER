@@ -186,23 +186,17 @@ class ImageBase
 
     protected:
 
-<<<<<<< HEAD
 #ifdef CXX11_PTR
-        unique_ptr<double[]> _dataRL;
-
-        unique_ptr<Complex[]> _dataFT;
-#endif
-
-#ifdef FFTW_PTR
-        double* _dataRL = NULL;
-
-        Complex* _dataFT = NULL;
-#endif
-=======
         boost::movelib::unique_ptr<double[]> _dataRL;
 
         boost::movelib::unique_ptr<Complex[]> _dataFT;
->>>>>>> sqlite
+#endif
+
+#ifdef FFTW_PTR
+        double* _dataRL;
+
+        Complex* _dataFT;
+#endif
 
         size_t _sizeRL;
 
