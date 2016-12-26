@@ -20,6 +20,16 @@ Volume::Volume(const int nCol,
     alloc(nCol, nRow, nSlc, space);
 }
 
+Volume::Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
+                                            _nCol(that._nCol),
+                                            _nRow(that._nRow),
+                                            _nSlc(that._nSlc)
+{
+    that._nCol = 0;
+    that._nRow = 0;
+    that._nSlc = 0;
+}
+
 Volume::~Volume() {}
 
 void Volume::alloc(int space)
