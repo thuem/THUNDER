@@ -18,6 +18,20 @@ ImageBase::ImageBase() : _sizeRL(0), _sizeFT(0) {}
 ImageBase::ImageBase() : _sizeRL(NULL), _sizeFT(NULL) {}
 #endif
 
+ImageBase::ImageBase(BOOST_RV_REF(ImageBase) that) : _dataRL(boost::move(that._dataRL)),
+                                                     _dataFT(boost::move(that._dataFT)),
+                                                     _sizeRL(that._sizeRL),
+                                                     _sizeFT(that._sizeFT)
+{
+    that._sizeRL = 0;
+    that._sizeFT = 0;
+
+#ifdef FFTW_PTR
+    that._dataRL = NULL;
+    that._dataFT = NULL;
+#endif
+}
+
 ImageBase::~ImageBase()
 {
 #ifdef FFTW_PTR
@@ -35,29 +49,21 @@ ImageBase::~ImageBase()
 #endif
 }
 
-/***
-const double& ImageBase::iGetRL(const size_t i) const
+void ImageBase::swap(ImageBase& that)
 {
-    return _dataRL[i];
-};
+#ifdef CXX11_PTR
+    _dataRL.swap(that._dataRL);
+    _dataFT.swap(that._dataFT);
+#endif
 
-const Complex& ImageBase::iGetFT(const size_t i) const
-{
-    return _dataFT[i];
-};
-***/
+#ifdef FFTW_TPR
+    std::swap(_dataRL, that._dataRL);
+    std::swap(_dataFT, that._dataFT);
+#endif
 
-/***
-double& ImageBase::operator()(const size_t i)
-{
-    return _dataRL[i];
+    std::swap(_sizeRL, that._sizeRL);
+    std::swap(_sizeFT, that._sizeFT);
 }
-
-Complex& ImageBase::operator[](const size_t i)
-{
-    return _dataFT[i];
-}
-***/
 
 bool ImageBase::isEmptyRL() const
 {
@@ -118,7 +124,6 @@ void ImageBase::copyBase(ImageBase& other) const
 #endif
 
 #ifdef FFTW_PTR
-        //other._dataRL = fftw_alloc_real(_sizeRL);
         other._dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
 
         memcpy(other._dataRL, _dataRL, _sizeRL * sizeof(double));
@@ -146,7 +151,6 @@ void ImageBase::copyBase(ImageBase& other) const
 #endif
 
 #ifdef FFTW_PTR
-        //other._dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
         other._dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
         
         memcpy(other._dataFT, _dataFT, _sizeFT * sizeof(Complex));

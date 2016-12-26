@@ -204,27 +204,13 @@ class ImageBase
 
         ImageBase();
 
+        ImageBase(BOOST_RV_REF(ImageBase) that); 
+
         ~ImageBase();
 
     public:
 
-        ImageBase(BOOST_RV_REF(ImageBase) other):
-                _dataRL(boost::move(other._dataRL)),
-                _dataFT(boost::move(other._dataFT)),
-                _sizeRL(other._sizeRL),
-                _sizeFT(other._sizeFT)
-        {
-            other._sizeRL = 0;
-            other._sizeFT = 0;
-        }
-
-        void swap(ImageBase& other)
-        {
-            _dataRL.swap(other._dataRL);
-            _dataFT.swap(other._dataFT);
-            std::swap(_sizeRL, other._sizeRL);
-            std::swap(_sizeFT, other._sizeFT);
-        }
+        void swap(ImageBase& that);
 
         /**
          * return a const pointer which points to the i-th element in real space
