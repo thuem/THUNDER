@@ -44,6 +44,14 @@
     } \
 }
 
+#define FW_EXTRACT_P(obj) \
+{ \
+    obj.alloc(FT_SPACE); \
+    _dstC = (fftw_complex*)&obj[0]; \
+    _srcR = &obj(0); \
+    CHECK_SPACE_VALID(_dstC, _srcR); \
+}
+
 /**
  * This macro destroys the plan for performing Fourier transform and assigns
  * the pointers to NULL.
@@ -67,6 +75,14 @@
     _srcR = NULL; \
 }
 ***/
+
+#define BW_EXTRACT_P(obj) \
+{ \
+    obj.alloc(RL_SPACE); \
+    _dstR = &obj(0); \
+    _srcC = (fftw_complex*)&obj[0]; \
+    CHECK_SPACE_VALID(_dstR, _srcC); \
+}
 
 /**
  * This macro destroys the plan for performing inverse Fourier transform,

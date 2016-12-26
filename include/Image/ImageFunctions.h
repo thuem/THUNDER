@@ -62,7 +62,7 @@ inline void VOL_EXTRACT_FT(Volume& dst,
               AROUND(ef * src.nSlcRL()), 
               FT_SPACE); 
 
-    #pragma omp paralle for
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(dst)
         dst.setFT(src.getFT(i, j, k), i, j, k); 
 }
@@ -112,7 +112,7 @@ inline void VOL_PAD_RL(Volume& dst, const Volume& src, const int pf)
     #pragma omp parallel for
     SET_0_RL(dst); 
 
-    #pragma omp paralel for
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src) 
         dst.setRL(src.getRL(i, j, k), i, j, k); 
 }

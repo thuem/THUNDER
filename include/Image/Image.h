@@ -107,6 +107,7 @@ class Image : public ImageBase
               const int nRow,
               const int space);
 
+        //Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that));
         Image(BOOST_RV_REF(Image) that);
 
         /**
@@ -114,7 +115,7 @@ class Image : public ImageBase
          */
         ~Image();
 
-        Image& Image::operator=(BOOST_RV_REF(Image) that);
+        Image& operator=(BOOST_RV_REF(Image) that);
 
         void swap(Image& that);
 

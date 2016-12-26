@@ -541,49 +541,34 @@ void MLModel::updateR(const double thres)
     // record the frequency
     _rPrev = _r;
 
-    bool shouldElevate = false;
+    bool elevate = false;
 
     MLOG(INFO, "LOGGER_SYS") << "_r = " << _r;
     MLOG(INFO, "LOGGER_SYS") << "_searchType = " << _searchType;
 
-<<<<<<< HEAD
-                return determineIncreaseR(R_CHANGE_DECREASE_STUN);
-            }
-            else if (_searchType == SEARCH_TYPE_GLOBAL)
-            {
-                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
-                                         << R_CHANGE_DECREASE_GLOBAL;
-
-                return determineIncreaseR(R_CHANGE_DECREASE_GLOBAL);
-            }
-            else
-            {
-                MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
-                                         << R_CHANGE_DECREASE_LOCAL;
-
-                return determineIncreaseR(R_CHANGE_DECREASE_LOCAL);
-            }
-        }())
-=======
     if ((_r == _rGlobal) &&
         (_searchType == SEARCH_TYPE_GLOBAL))
     {
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_STUN;
+        elevate = determineIncreaseR(R_CHANGE_DECREASE_STUN);
+    }
+    else if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
+        MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
+                                 << R_CHANGE_DECREASE_GLOBAL;
 
-        shouldElevate = determineIncreaseR(R_CHANGE_DECREASE_STUN);
+        elevate = etermineIncreaseR(R_CHANGE_DECREASE_GLOBAL);
     }
     else
     {
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
-                                 << R_CHANGE_DECREASE_NORM;
+                                 << R_CHANGE_DECREASE_LOCAL;
 
-        shouldElevate = determineIncreaseR(R_CHANGE_DECREASE_NORM);
+        elevate = determineIncreaseR(R_CHANGE_DECREASE_LOCAL);
     }
 
-
-    if (shouldElevate)
->>>>>>> sqlite
+    if (elevate)
     {
         MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency";
 

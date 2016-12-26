@@ -21,10 +21,13 @@ FFT::~FFT() {}
 
 void FFT::fw(Image& img)
 {
+    FW_EXTRACT_P(img);
+    /***
     img.alloc(FT_SPACE);
     _dstC = (fftw_complex*)&img[0];
     _srcR = &img(0);
     CHECK_SPACE_VALID(_dstC, _srcR);
+    ***/
 
     #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_2d(img.nRowRL(),
@@ -40,10 +43,14 @@ void FFT::fw(Image& img)
 
 void FFT::bw(Image& img)
 {
+    BW_EXTRACT_P(img);
+    /***
     img.alloc(RL_SPACE);
     _dstR = &img(0);
     _srcC = (fftw_complex*)&img[0];
     CHECK_SPACE_VALID(_dstR, _srcC);
+    ***/
+
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(img.nRowRL(),
@@ -61,10 +68,14 @@ void FFT::bw(Image& img)
 
 void FFT::fw(Volume& vol)
 {
+    /***
     vol.alloc(FT_SPACE);
     _dstC = (fftw_complex*)&vol[0];
     _srcR = &vol(0);
+
     CHECK_SPACE_VALID(_dstC, _srcR);
+    ***/
+    FW_EXTRACT_P(vol);
 
     #pragma omp critical
     fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
@@ -81,10 +92,13 @@ void FFT::fw(Volume& vol)
 
 void FFT::bw(Volume& vol)
 {
+    /***
     vol.alloc(RL_SPACE);
     _dstR = &vol(0);
     _srcC = (fftw_complex*)&vol[0];
     CHECK_SPACE_VALID(_dstR, _srcC);
+    ***/
+    BW_EXTRACT_P(vol);
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
@@ -103,10 +117,13 @@ void FFT::bw(Volume& vol)
 
 void FFT::fwMT(Image& img)
 {
+    /***
     img.alloc(FT_SPACE);
     _dstC = (fftw_complex*)&img[0];
     _srcR = &img(0);
     CHECK_SPACE_VALID(_dstC, _srcR);
+    ***/
+    FW_EXTRACT_P(img);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -125,10 +142,13 @@ void FFT::fwMT(Image& img)
 
 void FFT::bwMT(Image& img)
 {
+    /***
     img.alloc(RL_SPACE);
     _dstR = &img(0);
     _srcC = (fftw_complex*)&img[0];
     CHECK_SPACE_VALID(_dstR, _srcC);
+    ***/
+    BW_EXTRACT_P(img);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -150,10 +170,13 @@ void FFT::bwMT(Image& img)
 
 void FFT::fwMT(Volume& vol)
 {
+    /***
     vol.alloc(FT_SPACE);
     _dstC = (fftw_complex*)&vol[0];
     _srcR = &vol(0);
     CHECK_SPACE_VALID(_dstC, _srcR);
+    ***/
+    FW_EXTRACT_P(vol);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -173,10 +196,13 @@ void FFT::fwMT(Volume& vol)
 
 void FFT::bwMT(Volume& vol)
 {
+    /****
     vol.alloc(RL_SPACE);
     _dstR = &vol(0);
     _srcC = (fftw_complex*)&vol[0];
     CHECK_SPACE_VALID(_dstR, _srcC);
+    ***/
+    BW_EXTRACT_P(vol);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
