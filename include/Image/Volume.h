@@ -170,6 +170,13 @@ class Volume : public ImageBase
                const int space);
 
         /**
+         * move constructor
+         *
+         * @param that the original volume
+         */
+        Volume(BOOST_RV_REF(Volume) that);
+
+        /**
          * The deconstructor will automatically free all allocated space.
          */
         ~Volume();
@@ -566,14 +573,6 @@ class Volume : public ImageBase
             return (k >= 0 ? k : k + _nSlc) * nColFT * _nRow
                  + (j >= 0 ? j : j + _nRow) * nColFT 
                  + i;
-        }
-
-        Volume(BOOST_RV_REF(Volume) other) : ImageBase(BOOST_MOVE_BASE(ImageBase, other)),
-                                             _nCol(other._nCol), _nRow(other._nRow), _nSlc(other._nSlc)
-        {
-            other._nCol = 0;
-            other._nRow = 0;
-            other._nSlc = 0;
         }
 
         Volume& operator=(BOOST_RV_REF(Volume) other)

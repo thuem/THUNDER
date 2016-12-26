@@ -56,7 +56,7 @@ void ImageBase::swap(ImageBase& that)
     _dataFT.swap(that._dataFT);
 #endif
 
-#ifdef FFTW_TPR
+#ifdef FFTW_PTR
     std::swap(_dataRL, that._dataRL);
     std::swap(_dataFT, that._dataFT);
 #endif
