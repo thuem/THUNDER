@@ -181,6 +181,12 @@ class Volume : public ImageBase
          */
         ~Volume();
 
+        Volume& operator=(BOOST_RV_REF(Volume) that);
+
+        void swap(Volume& that);
+
+        Volume copyVolume() const;
+
         /**
          * This function allocates a piece of memory in a certain space.
          * @param space the space this volume allocating, where RL_SPACE stands
@@ -530,11 +536,6 @@ class Volume : public ImageBase
          */
         void clear();
 
-        /**
-         * This function returns a copy of itself.
-         */
-        Volume copyVolume() const;
-
         inline int iRL(const int i,
                        const int j,
                        const int k) const
@@ -573,21 +574,6 @@ class Volume : public ImageBase
             return (k >= 0 ? k : k + _nSlc) * nColFT * _nRow
                  + (j >= 0 ? j : j + _nRow) * nColFT 
                  + i;
-        }
-
-        Volume& operator=(BOOST_RV_REF(Volume) other)
-        {
-            if (this != &other)
-                swap(other);
-            return *this;
-        }
-
-        void swap(Volume& other)
-        {
-            ImageBase::swap(other);
-            std::swap(_nCol, other._nCol);
-            std::swap(_nRow, other._nRow);
-            std::swap(_nSlc, other._nSlc);
         }
 
     private:

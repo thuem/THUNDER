@@ -32,6 +32,35 @@ Volume::Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase,
 
 Volume::~Volume() {}
 
+Volume& Volume::operator=(BOOST_RV_REF(Volume) that)
+{
+    if (this != &that) swap(that);
+
+    return *this;
+}
+
+void Volume::swap(Volume& that)
+{
+    ImageBase::swap(that);
+
+    std::swap(_nCol, that._nCol);
+    std::swap(_nRow, that._nRow);
+    std::swap(_nSlc, that._nSlc);
+}
+
+Volume Volume::copyVolume() const
+{
+    Volume out;
+
+    copyBase(out);
+
+    out._nCol = _nCol;
+    out._nRow = _nRow;
+    out._nSlc = _nSlc;
+
+    return out;
+}
+
 void Volume::alloc(int space)
 {
     alloc(_nCol, _nRow, _nSlc, space);
@@ -338,19 +367,6 @@ void Volume::clear()
     _nCol = 0;
     _nRow = 0;
     _nSlc = 0;
-}
-
-Volume Volume::copyVolume() const
-{
-    Volume out;
-
-    copyBase(out);
-
-    out._nCol = _nCol;
-    out._nRow = _nRow;
-    out._nSlc = _nSlc;
-
-    return out;
 }
 
 void Volume::coordinatesInBoundaryRL(const int iCol,
