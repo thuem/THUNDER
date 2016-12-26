@@ -12,7 +12,22 @@
 
 ImageBase::ImageBase() {}
 
-ImageBase::~ImageBase() {}
+ImageBase::~ImageBase()
+{
+#ifdef FFTW_PTR
+    if (_dataRL != NULL)
+    {
+        delete[] _dataRL;
+        _dataRL = NULL;
+    }
+
+    if (_dataFT != NULL)
+    {
+        delete[] _dataFT;
+        _dataFT = NULL;
+    }
+#endif
+}
 
 /***
 const double& ImageBase::iGetRL(const size_t i) const
