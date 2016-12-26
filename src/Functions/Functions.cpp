@@ -10,8 +10,6 @@
 
 #include "Functions.h"
 
-using std::sort;
-
 vec cumsum(const vec& v)
 {
     vec sum(v.size());
@@ -24,7 +22,10 @@ vec cumsum(const vec& v)
 struct IndexSortAscendComparator
 {
     const vec* pv;
-    bool operator()(unsigned int i, unsigned int j) const { return (*pv)(i) < (*pv)(j); }
+    bool operator()(unsigned int i, unsigned int j) const
+    {
+        return (*pv)(i) < (*pv)(j);
+    }
 };
 
 uvec index_sort_ascend(const vec& v)
@@ -44,7 +45,10 @@ uvec index_sort_ascend(const vec& v)
 struct IndexSortDescendComparator
 {
     const vec* pv;
-    bool operator()(unsigned int i, unsigned int j) const { return (*pv)(i) > (*pv)(j); }
+    bool operator()(unsigned int i, unsigned int j) const
+    {
+        return (*pv)(i) > (*pv)(j);
+    }
 };
 
 uvec index_sort_descend(const vec& v)

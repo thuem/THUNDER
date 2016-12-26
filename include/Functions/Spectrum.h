@@ -22,8 +22,6 @@
 #include "Volume.h"
 #include "Filter.h"
 
-
-
 /**
  * This function returns the Nyquist resolution limit in Angstrom(-1).
  *

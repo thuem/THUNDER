@@ -25,301 +25,174 @@
 #include "Image.h"
 #include "Volume.h"
 
-
-
 /**
- * This macro extracts the centre block out of a volume in real space.
+ * This function extracts the centre block out of a volume in real space.
+ *
  * @param dst the destination volume
  * @param src the source volume
- * @param ef the extraction factor (0 < ef <= 1)
+ * @param ef  the extraction factor (0 < ef <= 1)
  */
-/*
- * #define VOL_EXTRACT_RL(dst, src, ef) \
-    VOL_EXTRACT(RL, dst, src, ef) 
-*/
-/**
- * This macro extracts the centre block out of a volume in Fourier space.
- * @param dst the destination volume
- * @param src the source volume
- * @param ef the extraction factor (0 < ef <= 1)
- */
-/*
- * #define VOL_EXTRACT_FT(dst, src, ef) \
-    VOL_EXTRACT(FT, dst, src, ef)
-*/
-
-/**
- * This macro extracts the centre block out of a volume.
- * @param SP the space in which the extraction perfroms (RL: real space, FT:
- * Fourier space)
- * @param dst the destination volume
- * @param src the source volume
- * @param ef the extraction factor (0 < ef <= 1)
- */
-/*
-#define VOL_EXTRACT(SP, dst, src, ef) \
-    [](Volume& _dst, const Volume& _src, const double _ef) \
-    { \
-        _dst.alloc(AROUND(_ef * _src.nColRL()), \
-                   AROUND(_ef * _src.nRowRL()), \
-                   AROUND(_ef * _src.nSlcRL()), \
-                   SP##_SPACE); \
-        _Pragma("omp parallel for") \
-        VOLUME_FOR_EACH_PIXEL_##SP(_dst) \
-            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
-    }(dst, src, ef)
- */
- 
-inline void  VOL_EXTRACT_RL(Volume& _dst, const Volume& _src, const double _ef) 
+inline void VOL_EXTRACT_RL(Volume& dst,
+                           const Volume& src,
+                           const double ef) 
 { 
-        _dst.alloc(AROUND(_ef * _src.nColRL()), 
-                   AROUND(_ef * _src.nRowRL()), 
-                   AROUND(_ef * _src.nSlcRL()), 
-                   RL_SPACE); 
-        _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_RL(_dst) 
-            _dst.setRL(_src.getRL(i, j, k), i, j, k); 
+    dst.alloc(AROUND(ef * src.nColRL()), 
+              AROUND(ef * src.nRowRL()), 
+              AROUND(ef * src.nSlcRL()), 
+              RL_SPACE); 
+
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(_dst) 
+        dst.setRL(src.getRL(i, j, k), i, j, k); 
 }
-
  
-inline void  VOL_EXTRACT_FT(Volume& _dst, const Volume& _src, const double _ef) 
+/**
+ * This function extracts the centre block out of a volume in Fourier space.
+ *
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param ef  the extraction factor (0 < ef <= 1)
+ */
+inline void VOL_EXTRACT_FT(Volume& dst,
+                           const Volume& src,
+                           const double ef) 
 { 
-        _dst.alloc(AROUND(_ef * _src.nColRL()), 
-                   AROUND(_ef * _src.nRowRL()), 
-                   AROUND(_ef * _src.nSlcRL()), 
-                   FT_SPACE); 
-        _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_FT(_dst) 
-            _dst.setFT(_src.getFT(i, j, k), i, j, k); 
+    dst.alloc(AROUND(ef * src.nColRL()), 
+              AROUND(ef * src.nRowRL()), 
+              AROUND(ef * src.nSlcRL()), 
+              FT_SPACE); 
+
+    #pragma omp paralle for
+    VOLUME_FOR_EACH_PIXEL_FT(dst)
+        dst.setFT(src.getFT(i, j, k), i, j, k); 
 }
 
 /**
- * This macro replaces the centre block of a volume with another volume in real
- * space.
+ * This function replaces the centre block of a volume with another volume in
+ * real space.
+ *
  * @param dst the destination volume
  * @param src the source volume
  */
-//#define VOL_REPLACE_RL(dst, src) 
-//    VOL_REPLACE(RL, dst, src)
+inline void VOL_REPLACE_RL(Volume& dst, const Volume& src) 
+{ 
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(src) 
+        dst.setRL(src.getRL(i, j, k), i, j, k); 
+}
 
 /**
- * This macro replaces the centre block of a volume with another volume in
+ * This function replaces the centre block of a volume with another volume in
  * Fourier space.
+ *
  * @param dst the destination volume
  * @param src the source volume
  */
-//#define VOL_REPLACE_FT(dst, src) 
-//    VOL_REPLACE(FT, dst, src)
-
-/**
- * This macro replaces the centre block of a volume with another volume.
- * @param SP the space in which the extraction perfroms (RL: real space, FT:
- * Fourier space)
- * @param dst the destination volume
- * @param src the source volume
- */
-/*
-   #define VOL_REPLACE(SP, dst, src) \
-    [](Volume& _dst, const Volume& _src) \
-    { \
-        _Pragma("omp parallel for") \
-        VOLUME_FOR_EACH_PIXEL_##SP(_src) \
-            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
-    }(dst, src)
-*/
-
-inline void  VOL_REPLACE_RL(Volume& _dst, const Volume& _src) 
+inline void VOL_REPLACE_FT(Volume& dst, const Volume& src) 
 { 
-        _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_RL(_src) 
-            _dst.setRL(_src.getRL(i, j, k), i, j, k); 
-}
-
-inline void  VOL_REPLACE_FT(Volume& _dst, const Volume& _src) 
-{ 
-        _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_FT(_src) 
-            _dst.setFT(_src.getFT(i, j, k), i, j, k); 
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_FT(_src) 
+        dst.setFT(src.getFT(i, j, k), i, j, k); 
 }
 
 /**
- * This macro pads a volumen in real space.
+ * This function pads a volume in real space.
+ *
  * @param dst the destination volume
  * @param src the source volume
- * @param pf the padding factor
+ * @param pf  the padding factor
  */
-/*
-#define VOL_PAD_RL(dst, src, pf) \
-    VOL_PAD(RL, dst, src, pf)
-*/
-/**
- * This macro pads a volumen in Fourier space.
- * @param dst the destination volume
- * @param src the source volume
- * @param pf the padding factor
- */
-/*
-#define VOL_PAD_FT(dst, src, pf) \
-    VOL_PAD(FT, dst, src, pf)
-*/
-/**
- * This macro pads a volume.
- * @param SP the space in which the extraction perfroms (RL: real space, FT:
- * Fourier space)
- * @param dst the destination volume
- * @param src the source volume
- * @param pf the padding factor
- */
-/*
- #define VOL_PAD(SP, dst, src, pf) \
-    [](Volume& _dst, const Volume& _src, const int _pf) \
-    { \
-        _dst.alloc(_pf * _src.nColRL(), \
-                   _pf * _src.nRowRL(), \
-                   _pf * _src.nSlcRL(), \
-                    SP##_SPACE); \
-        SET_0_##SP(_dst); \
-        _Pragma("omp parallel for") \
-        VOLUME_FOR_EACH_PIXEL_##SP(_src) \
-            _dst.set##SP(_src.get##SP(i, j, k), i, j, k); \
-    }(dst, src, pf)
-*/
-
-
-inline void  VOL_PAD_RL(Volume& _dst, const Volume& _src, const int _pf) 
+inline void VOL_PAD_RL(Volume& dst, const Volume& src, const int pf) 
 { 
-        _dst.alloc(_pf * _src.nColRL(), 
-                   _pf * _src.nRowRL(), 
-                   _pf * _src.nSlcRL(), 
-                    RL_SPACE); 
-        SET_0_RL(_dst); 
-        _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_RL(_src) 
-            _dst.setRL(_src.getRL(i, j, k), i, j, k); 
+    dst.alloc(pf * src.nColRL(), 
+              pf * src.nRowRL(), 
+              pf * src.nSlcRL(), 
+              RL_SPACE); 
+
+    #pragma omp parallel for
+    SET_0_RL(dst); 
+
+    #pragma omp paralel for
+    VOLUME_FOR_EACH_PIXEL_RL(src) 
+        dst.setRL(src.getRL(i, j, k), i, j, k); 
 }
 
-
-inline void  VOL_PAD_FT(Volume& _dst, const Volume& _src, const int _pf) 
+/**
+ * This function pads a volume in Fourier space.
+ *
+ * @param dst the destination volume
+ * @param src the source volume
+ * @param pf  the padding factor
+ */
+inline void VOL_PAD_FT(Volume& dst, const Volume& src, const int pf) 
 { 
-        _dst.alloc(_pf * _src.nColRL(), 
-                   _pf * _src.nRowRL(), 
-                   _pf * _src.nSlcRL(), 
-                    FT_SPACE); 
-        SET_0_FT(_dst); 
-        _Pragma("omp parallel for") 
-        VOLUME_FOR_EACH_PIXEL_FT(_src) 
-            _dst.setFT(_src.getFT(i, j, k), i, j, k); 
+    dst.alloc(pf * src.nColRL(), 
+              pf * src.nRowRL(), 
+              pf * src.nSlcRL(), 
+              FT_SPACE); 
+
+    #pragma omp parallel for
+    SET_0_FT(dst); 
+
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_FT(src) 
+        dst.setFT(src.getFT(i, j, k), i, j, k); 
 }
 
-
 /**
- * This macro replaces a slice of a volume with an image given in real space.
+ * This function replaces a slice of a volume with an image given in real space.
+ *
  * @param dst the destination volume
  * @param src the source image
- * @param k the index of the slice
+ * @param k   the index of the slice
  */
-/*
-  #define SLC_REPLACE_RL(dst, src, k) \
-    SLC_REPLACE(RL, dst, src, k)
-*/
+inline void SLC_REPLACE_RL(Volume& dst, const Image& src, const int k) 
+{ 
+    IMAGE_FOR_EACH_PIXEL_RL(src) 
+        dst.setRL(src.getRL(i, j), i, j, k); 
+}
 
 /**
- * This macro replaces a slice of a volume with an image given in Fourier
+ * This function replaces a slice of a volume with an image given in Fourier
  * space.
+ *
  * @param dst the destination volume
  * @param src the source image
- * @param k the index of the slice
+ * @param k   the index of the slice
  */
-/*
- #define SLC_REPLACE_FT(dst, src, k) \
-    SLC_REPLACE(FT, dst, src, k)
-*/
-
-/**
- * This macro replaces a slice of a volume with an image given.
- * @param SP the space in which the extraction perfroms (RL: real space, FT:
- * Fourier space)
- * @param dst the destination volume
- * @param src the source image
- * @param k the index of the slice
- */
-/*
-#define SLC_REPLACE(SP, dst, src, k) \
-    [](Volume& _dst, const Image& _src, const int _k) \
-    { \
-        IMAGE_FOR_EACH_PIXEL_##SP(_src) \
-            _dst.set##SP(_src.get##SP(i, j), i, j, _k); \
-    }(dst, src, k)
-*/
-
-
-inline void SLC_REPLACE_RL(Volume& _dst, const Image& _src, const int _k) 
+inline void SLC_REPLACE_FT(Volume& dst, const Image& src, const int k) 
 { 
-        IMAGE_FOR_EACH_PIXEL_RL(_src) 
-            _dst.setRL(_src.getRL(i, j), i, j, _k); 
-}
-
-inline void SLC_REPLACE_FT(Volume& _dst, const Image& _src, const int _k) 
-{ 
-        IMAGE_FOR_EACH_PIXEL_FT(_src) 
-            _dst.setFT(_src.getFT(i, j), i, j, _k); 
+    IMAGE_FOR_EACH_PIXEL_FT(src) 
+        dst.setFT(src.getFT(i, j), i, j, k); 
 }
 
 /**
- * This macro extracts a slice out of a volume and stores it in an image in real
- * space.
+ * This macro extracts a slice out of a volume and stores it in an image in
+ * real space.
+ *
  * @param dst the destination image
  * @param src the source volume
- * @param k the index of the slice
+ * @param k   the index of the slice
  */
-/*
-#define SLC_EXTRACT_RL(dst, src, k) \
-    SLC_EXTRACT(RL, dst, src, k)
-*/
+inline void SLC_EXTRACT_RL(Image& dst, const Volume& src, const int k) 
+{ 
+    IMAGE_FOR_EACH_PIXEL_RL(dst) 
+        dst.setRL(src.getRL(i, j, k), i, j); 
+}
+
 /**
  * This macro extracts a slice out of a volume and stores it in an image in
  * Fourier space.
+ *
  * @param dst the destination image
  * @param src the source volume
- * @param k the index of the slice
+ * @param k   the index of the slice
  */
-/*
-#define SLC_EXTRACT_FT(dst, src, k) \
-    SLC_EXTRACT(FT, dst, src, k)
-*/
-
-/**
- * This macro extracts a slice out of a volume and stores it in an image.
- * @param SP the space in which the extraction perfroms (RL: real space, FT:
- * Fourier space)
- * @param dst the destination image
- * @param src the source volume
- * @param k the index of the slice
- */
-/*
- #define SLC_EXTRACT(SP, dst, src, k) \
-    [](Image& _dst, const Volume& _src, const int _k) \
-    { \
-        IMAGE_FOR_EACH_PIXEL_##SP(_dst) \
-            _dst.set##SP(_src.get##SP(i, j, _k), i, j); \
-    }(dst, src, k)
-*/
-
-
-inline void  SLC_EXTRACT_RL(Image& _dst, const Volume& _src, const int _k) 
+inline void SLC_EXTRACT_FT(Image& dst, const Volume& src, const int k) 
 { 
-        IMAGE_FOR_EACH_PIXEL_RL(_dst) 
-            _dst.setRL(_src.getRL(i, j, _k), i, j); 
+    IMAGE_FOR_EACH_PIXEL_FT(dst) 
+        dst.setFT(src.getFT(i, j, k), i, j); 
 }
-
-
-inline void  SLC_EXTRACT_FT(Image& _dst, const Volume& _src, const int _k) 
-{ 
-        IMAGE_FOR_EACH_PIXEL_FT(_dst) 
-            _dst.setFT(_src.getFT(i, j, _k), i, j); 
-}
-
-
 
 void mul(Image& dst,
          const Image& a,
