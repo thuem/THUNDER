@@ -37,13 +37,13 @@ ImageBase::~ImageBase()
 #ifdef FFTW_PTR
     if (_dataRL != NULL)
     {
-        delete[] _dataRL;
+        fftw_free(_dataRL);
         _dataRL = NULL;
     }
 
     if (_dataFT != NULL)
     {
-        delete[] _dataFT;
+        fftw_free(_dataRL);
         _dataFT = NULL;
     }
 #endif
