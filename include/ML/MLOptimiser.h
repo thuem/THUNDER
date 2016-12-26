@@ -137,22 +137,6 @@ struct MLOptimiserPara
     char db[FILE_NAME_LENGTH];
 
 
-    MLOptimiserPara()
-    {
-        autoSelection = false;
-        localCTF = false;
-        performMask = true;
-        autoMask = true;
-        performSharpen = true;
-        estBFactor = false;
-        bFactor = 200;
-        pf = 2;
-        a = 1.9;
-        alpha = 10;
-        thresCutoffFSC = 0.5;
-        thresReportFSC = 0.143;
-    }
-
     bool autoSelection;
 
     bool localCTF;
@@ -243,6 +227,21 @@ struct MLOptimiserPara
      */
     bool zeroMask;
 
+    MLOptimiserPara()
+    {
+        autoSelection = false;
+        localCTF = false;
+        performMask = true;
+        autoMask = true;
+        performSharpen = true;
+        estBFactor = false;
+        bFactor = 200;
+        pf = 2;
+        a = 1.9;
+        alpha = 10;
+        thresCutoffFSC = 0.5;
+        thresReportFSC = 0.143;
+    }
 };
 
 void display(const MLOptimiserPara& para);
@@ -436,13 +435,9 @@ class MLOptimiser : public Parallel
          */
         int _nR;
 
-<<<<<<< HEAD
-        int _nPxl = 0;
+        int _nPxl;
 
-        int* _iPxl = NULL;
-=======
         int* _iPxl;
->>>>>>> sqlite
 
         int* _iCol;
         
@@ -468,6 +463,7 @@ class MLOptimiser : public Parallel
             _nF = 0;
             _nI = 0;
             _nR = 0;
+            _nPxl = 0;
             _iPxl = NULL;
             _iCol = NULL;
             _iRow = NULL;

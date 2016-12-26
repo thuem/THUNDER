@@ -61,18 +61,11 @@
 
 #define INTERP_TYPE_LOCAL LINEAR_INTERP
 
-<<<<<<< HEAD
 /**
  * resolution resolution for averaging reference(s) from A hemisphere and B
  * hemisphere
  */
-//#define A_B_AVERAGE_THRES 40
 #define A_B_AVERAGE_THRES 10
-
-using namespace std;
-=======
-
->>>>>>> sqlite
 
 class MLModel : public Parallel
 {
@@ -118,7 +111,7 @@ class MLModel : public Parallel
         /**
          * reconstructors
          */
-        boost::container::vector<boost::movelib::unique_ptr<Reconstructor> > _reco;
+        boost::container::vector<boost::movelib::unique_ptr<Reconstructor>> _reco;
 
         /**
          * number of references
@@ -133,58 +126,34 @@ class MLModel : public Parallel
         /**
          * frequency before padding (in pixel)
          */
-<<<<<<< HEAD
-        int _r = 1;
-=======
         int _r;
->>>>>>> sqlite
 
         /**
          * frequency for reconstruction and calculating FSC, SNR 
          */
-<<<<<<< HEAD
-        int _rU = 1;
-=======
         int _rU;
->>>>>>> sqlite
 
         /**
          * frequency of the previous iteration
          */
-<<<<<<< HEAD
-        int _rPrev = 1;
-
-        int _rUPrev = 1;
-=======
         int _rPrev;
->>>>>>> sqlite
+
+        int _rUPrev;
 
         /**
          * the top frequency ever reached
          */
-<<<<<<< HEAD
-        int _rT = 1;
-=======
         int _rT;
->>>>>>> sqlite
 
         /*
          * resolution before padding (in pixel)
          */
-<<<<<<< HEAD
-        int _res = 1;
-=======
         int _res;
->>>>>>> sqlite
 
         /**
          * the top resolution ever reached
          */
-<<<<<<< HEAD
-        int _resT = 1;
-=======
         int _resT;
->>>>>>> sqlite
 
         /**
          * padding factor
@@ -288,12 +257,13 @@ class MLModel : public Parallel
          */
         MLModel()
         {
-            _r = 0;
-            _rU = 0;
-            _rPrev = 0;
-            _rT = 0;
-            _res = 0;
-            _resT = 0;
+            _r = 1;
+            _rU = 1;
+            _rPrev = 1;
+            _rUPrev = 1;
+            _rT = 1;
+            _res = 1;
+            _resT = 1;
             _pf = 2;
             _a = 1.9;
             _rVari = 0;
