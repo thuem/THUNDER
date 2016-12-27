@@ -10,7 +10,13 @@
 
 #include "ImageBase.h"
 
-ImageBase::ImageBase() : _sizeRL(0), _sizeFT(0) {}
+ImageBase::ImageBase() : _sizeRL(0), _sizeFT(0)
+{
+#ifdef FFTW_PTR
+    _dataRL = NULL;
+    _dataFT = NULL;
+#endif
+}
 
 /***
 ImageBase::ImageBase(BOOST_RV_REF(ImageBase) that) : _dataRL(boost::move(that._dataRL)),

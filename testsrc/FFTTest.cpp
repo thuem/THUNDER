@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
             head.setRL(0, i, j, k);
     }
 
+    /***
     ImageFile imf;
 
     imf.readMetaData(head);
@@ -73,6 +74,7 @@ int main(int argc, char* argv[])
 
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
+    ***/
 
     fftw_cleanup_threads();
 
