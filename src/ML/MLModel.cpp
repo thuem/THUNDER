@@ -493,11 +493,25 @@ void MLModel::refreshReco()
 
     FOR_EACH_CLASS
     {
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Initialising";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Initialising";
+
         _reco[l]->init(_size,
                        _pf,
                        _sym,
                        _a,
                        _alpha);
+
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up Max Radius";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up Max Radius";
 
         _reco[l]->setMaxRadius(_rU);
     }
