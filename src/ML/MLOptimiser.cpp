@@ -2249,14 +2249,14 @@ void MLOptimiser::reconstructRef(const bool mask,
 #else
         Volume vol;
 
-        VOL_EXTRACT_RL(vol, dst, 0.5);
+        VOL_EXTRACT_RL(vol, dst, 1.0 / _para.pf);
 
         softMask(_model.ref(0),
                  _model.ref(0),
                  SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
                  EDGE_WIDTH_RL);
 
-        VOL_PAD_RL(dst, vol, 2);
+        VOL_PAD_RL(dst, vol, _para.pf);
 #endif
     }
 

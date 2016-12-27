@@ -491,11 +491,11 @@ void Reconstructor::reconstruct(Volume& dst)
 #else
     Volume vol;
 
-    VOL_EXTRACT_RL(vol, dst, 0.5);
+    VOL_EXTRACT_RL(vol, dst, 1.0 / _pf);
 
     softMask(vol, vol, 0.5 * _size, EDGE_WIDTH_RL);
 
-    VOL_PAD_RL(dst, vol, 2);
+    VOL_PAD_RL(dst, vol, pf);
 #endif
 
 #ifdef CORRECT_CONVOLUTION_KERNEL
