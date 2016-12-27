@@ -87,10 +87,13 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
+    ***/
 
     Symmetry sym("C2");
 
     Reconstructor reconstructor(N, 2, &sym);
+
+    /***
     reconstructor.setMPIEnv();
 
     printf("Set Symmetry Done\n");

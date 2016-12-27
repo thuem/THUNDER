@@ -65,10 +65,16 @@ void MLModel::initProjReco()
 
     refreshProj();
 
+    ALOG(INFO, "LOGGER_INIT") << "Projectors Refreshed";
+    BLOG(INFO, "LOGGER_INIT") << "Projectors Refreshed";
+
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
 
     refreshReco();
+
+    ALOG(INFO, "LOGGER_INIT") << "Reconstructors Refreshed";
+    BLOG(INFO, "LOGGER_INIT") << "Reconstructors Refreshed";
 }
 
 Volume& MLModel::ref(const int i)
@@ -493,8 +499,6 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
 
-        //_reco[l]->setFSC(_FSC.col(l));
-
         _reco[l]->setMaxRadius(_rU);
     }
 }
@@ -512,7 +516,6 @@ void MLModel::resetReco()
     {
         _reco[l]->reset();
 
-        //_reco[l]->setFSC(_FSC.col(l).head(_res * _pf));
         _reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);
