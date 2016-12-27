@@ -473,17 +473,29 @@ double Particle::diffTopT()
     return diff;
 }
 
+void Particle::rank1st(vec4& quat) const
+{
+    quat = _topR;
+}
+
+void Particle::rank1st(mat33& rot) const
+{
+    vec4 quat;
+    rank1st(quat);
+
+    rotate3D(rot, quat);
+}
+
+void Particle::rank1st(vec2& tran) const
+{
+    tran = _topT;
+}
+
 void Particle::rank1st(vec4& quat,
                        vec2& tran) const
 {
     quat = _topR;
     tran = _topT;
-    /***
-    uvec rank = iSort();
-
-    quaternion(quat, rank[0]);
-    t(tran, rank[0]);
-    ***/
 }
 
 void Particle::rank1st(mat33& rot,

@@ -870,6 +870,9 @@ void MLOptimiser::run()
             //_model.reco(0).setSig(_sig.row(0).head(_r));
         }
 
+        MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
+        reCentreImg();
+
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
@@ -1255,6 +1258,12 @@ void MLOptimiser::initImg()
             abort();
         }
     }
+
+    ALOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
+    BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
+
+    //_offSet = vec::Zero(_img.size());
+    _offset = vector<vec2>(_img.size(), vec2(0, 0));
 
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
@@ -1966,6 +1975,44 @@ void MLOptimiser::refreshScale(const bool init,
                                        ***/
 }
 
+void MLOptimiser::reCentreImg()
+{
+    IF_MASTER return;
+
+    vec2 tran;
+
+    #pragma omp parallel for private(tran)
+    FOR_EACH_2D_IMAGE
+    {
+        _par[l].rank1st(tran);
+
+        _offset[l](0) -= tran(0);
+        _offset[l](1) -= tran(1);
+
+        translate(_img[l],
+                  _imgOri[l],
+                  _offset[l](0),
+                  _offset[l](1));
+    }
+
+    if (_para.zeroMask)
+    {
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+            C2C_RL(_img[l],
+                   _img[l],
+                   softMask(_img[l],
+                            _img[l],
+                            _para.maskRadius / _para.pixelSize,
+                            EDGE_WIDTH_RL,
+                            0));
+    }
+    else
+    {
+        //TODO Make the background a noise with PowerSpectrum of sigma2
+    }
+}
+
 void MLOptimiser::allReduceSigma(const bool group)
 {
     IF_MASTER return;
@@ -1981,7 +2028,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
     mat33 rot;
-    vec2 tran;
+    //vec2 tran;
 
     omp_lock_t* mtx = new omp_lock_t[_nGroup];
 
@@ -1989,7 +2036,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     for (int l = 0; l < _nGroup; l++)
         omp_init_lock(&mtx[l]);
 
-    #pragma omp parallel for private(rot, tran) schedule(dynamic)
+    #pragma omp parallel for private(rot) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         if (_switch[l])
@@ -1998,9 +2045,11 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             vec sig(_r);
 
-            _par[l].rank1st(rot, tran);
+            //_par[l].rank1st(rot, tran);
+            _par[l].rank1st(rot);
 
-            _model.proj(0).project(img, rot, tran);
+            //_model.proj(0).project(img, rot, tran);
+            _model.proj(0).project(img, rot);
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
@@ -2098,9 +2147,10 @@ void MLOptimiser::reconstructRef(const bool mask,
         if (!_switch[l]) continue;
 
         mat33 rot;
-        vec2 tran;
+        //vec2 tran;
         
-        _par[l].rank1st(rot, tran);
+        //_par[l].rank1st(rot, tran);
+        _par[l].rank1st(rot);
 
         /***
         _model.reco(0).insertP(_img[l],
@@ -2110,10 +2160,18 @@ void MLOptimiser::reconstructRef(const bool mask,
                                1);
                                ***/
 
+        /***
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
                                tran,
+                               1);
+                               ***/
+
+        _model.reco(0).insertP(_imgOri[l],
+                               _ctf[l],
+                               rot,
+                               -_offset[l],
                                1);
     }
 

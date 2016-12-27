@@ -499,6 +499,12 @@ class Particle
          * most likely translation.
          */
         double diffTopT();
+        
+        void rank1st(vec4& quat) const;
+
+        void rank1st(mat33& rot) const;
+
+        void rank1st(vec2& tran) const;
 
         /**
          * This function reports the 1-st rank coordinate by parameters.
