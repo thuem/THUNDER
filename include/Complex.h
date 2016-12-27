@@ -38,6 +38,11 @@ inline double gsl_imag(const Complex a)
     return IMAG(a);
 };
 
+inline double gsl_real_imag_sum(const Complex a)
+{
+    return REAL(a) + IMAG(a);
+};
+
 inline Complex operator-(const Complex a)
 {
     return COMPLEX(-REAL(a), -IMAG(a));

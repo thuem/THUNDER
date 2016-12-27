@@ -1579,10 +1579,12 @@ void MLOptimiser::correctScale(const bool init,
     }
 }
 
+/***
 static inline double complex_real_imag_sum(const Complex x)
 {
     return REAL(x) + IMAG(x);
 }
+***/
 
 void MLOptimiser::initSigma()
 {
@@ -1591,12 +1593,14 @@ void MLOptimiser::initSigma()
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
     BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
 
-    Image avg = _img[0].copyImage();
+    //Image avg = _img[0].copyImage();
+    Image avg = _imgOri[0].copyImage();
 
     for (size_t l = 1; l < _ID.size(); l++)
     {
         #pragma omp parallel for
-        ADD_FT(avg, _img[l]);
+        ADD_FT(avg, _imgOri[l]);
+        //ADD_FT(avg, _img[l]);
     }
 
     MPI_Barrier(_hemi);
@@ -1623,7 +1627,8 @@ void MLOptimiser::initSigma()
     {
         vec ps(maxR());
 
-        powerSpectrum(ps, _img[l], maxR());
+        //powerSpectrum(ps, _img[l], maxR());
+        powerSpectrum(ps, _imgOri[l], maxR());
 
         #pragma omp critical
         avgPs += ps;
@@ -1648,7 +1653,10 @@ void MLOptimiser::initSigma()
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
     {
-        psAvg(i) = ringAverage(i, avg, function<double(const Complex)>(&complex_real_imag_sum));
+        //psAvg(i) = ringAverage(i, avg, function<double(const Complex)>(&complex_real_imag_sum));
+        psAvg(i) = ringAverage(i,
+                               avg,
+                               function<double(const Complex)>(&gsl_real_imag_sum));
         psAvg(i) = gsl_pow_2(psAvg(i));
     }
 
