@@ -1553,6 +1553,9 @@ void MLOptimiser::initSwitch()
 void MLOptimiser::correctScale(const bool init,
                                const bool group)
 {
+    ALOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
+    BLOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
+
     refreshScale(init, group);
 
     IF_MASTER return;

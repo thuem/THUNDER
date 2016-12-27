@@ -91,7 +91,12 @@ int main(int argc, char* argv[])
 
     Symmetry sym("C2");
 
-    Reconstructor reconstructor(N, 2, &sym);
+    boost::container::vector< boost::movelib::unique_ptr<Reconstructor> > reco;
+
+    reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
+    reco[0]->init(N, 2, &sym);
+
+    //Reconstructor reconstructor(N, 2, &sym);
 
     /***
     reconstructor.setMPIEnv();
