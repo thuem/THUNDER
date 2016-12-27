@@ -67,9 +67,6 @@
  */
 #define EQUAL_ACCURACY 0.0001
 
-#define SAVE_DELETE(p) \
-    if (p != NULL) { delete[] p; p = NULL; }
-
 /**
  * This macro loops over all pixels in a grid of certain side length.
  *

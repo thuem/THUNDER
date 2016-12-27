@@ -11,6 +11,8 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
+#define SOLVENT_FLATTEN_ZERO_MASK
+
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -63,7 +65,6 @@
 
 #define N_SAVE_IMG 20
 
-
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
     _logW.array() -= _logW.maxCoeff();
@@ -77,7 +78,6 @@ inline void PROCESS_LOGW_HARD(vec& _logW)
     _logW.array() -= _logW.maxCoeff();
     _logW.array() = exp(_logW.array());
 }
-
 
 struct MLOptimiserPara
 {

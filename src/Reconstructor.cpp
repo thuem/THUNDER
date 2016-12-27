@@ -481,11 +481,22 @@ void Reconstructor::reconstruct(Volume& dst)
 
     _fft.bwExecutePlan(dst);
 
+#ifdef RECO_ZERO_MASK
     softMask(dst,
              dst,
-             sqrt(3) / 2 * _size,
-             GEN_MASK_EDGE_WIDTH,
+             0.5 * _size,
+             //sqrt(3) / 2 * _size,
+             EDGE_WIDTH_RL,
              0);
+#else
+    Volume vol;
+
+    VOL_EXTRACT_RL(vol, dst, 0.5);
+
+    softMask(vol, vol, 0.5 * _size, EDGE_WIDTH_RL);
+
+    VOL_PAD_RL(dst, vol, 2);
+#endif
 
 #ifdef CORRECT_CONVOLUTION_KERNEL
 

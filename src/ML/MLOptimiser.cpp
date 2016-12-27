@@ -2239,11 +2239,26 @@ void MLOptimiser::reconstructRef(const bool mask,
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
     }
     else if (solventFlatten)
+    {
+#ifdef SOLVENT_FLATTEN_ZERO_MASK
         softMask(_model.ref(0),
                  _model.ref(0),
                  SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
-                 GEN_MASK_EDGE_WIDTH,
+                 EDGE_WIDTH_RL,
                  0);
+#else
+        Volume vol;
+
+        VOL_EXTRACT_RL(vol, dst, 0.5);
+
+        softMask(_model.ref(0),
+                 _model.ref(0),
+                 SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
+                 EDGE_WIDTH_RL);
+
+        VOL_PAD_RL(dst, vol, 2);
+#endif
+    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";

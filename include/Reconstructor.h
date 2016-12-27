@@ -19,6 +19,8 @@
 
 #define CORRECT_CONVOLUTION_KERNEL
 
+#define RECO_ZERO_MASK
+
 #include <utility>
 #include <mpi.h>
 
