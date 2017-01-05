@@ -1360,8 +1360,8 @@ void MLOptimiser::initImg()
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed"
-    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed"
+    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
 #endif
 
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
@@ -1380,6 +1380,13 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
 
     normaliseImg();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "2D Images Normalised";
+    BLOG(INFO, "LOGGER_INIT") << "2D Images Normalised";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
