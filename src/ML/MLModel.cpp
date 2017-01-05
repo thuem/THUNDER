@@ -54,27 +54,49 @@ void MLModel::initProjReco()
         _reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Appended";
+    BLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Appended";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
 
     FOR_EACH_CLASS
         _reco[l]->setMPIEnv(_commSize, _commRank, _hemi);
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "MPI Environment of Reconstructors Set Up";
+    BLOG(INFO, "LOGGER_INIT") << "MPI Environment of Reconstructors Set Up";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
     BLOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
 
     refreshProj();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
     ALOG(INFO, "LOGGER_INIT") << "Projectors Refreshed";
     BLOG(INFO, "LOGGER_INIT") << "Projectors Refreshed";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
 
     refreshReco();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
     ALOG(INFO, "LOGGER_INIT") << "Reconstructors Refreshed";
     BLOG(INFO, "LOGGER_INIT") << "Reconstructors Refreshed";
+#endif
 }
 
 Volume& MLModel::ref(const int i)
