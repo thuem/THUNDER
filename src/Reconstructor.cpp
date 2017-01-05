@@ -443,7 +443,17 @@ void Reconstructor::reconstruct(Volume& dst)
         FOR_EACH_PIXEL_FT(_C)
             _C[i] = _T[i] * _W[i];
 
+        ALOG(INFO, "LOGGER_SYS") << "B, _C[0] = " << _C[0];
+        ALOG(INFO, "LOGGER_SYS") << "B, _C[1] = " << _C[1];
+        ALOG(INFO, "LOGGER_SYS") << "B, _C[2] = " << _C[2];
+        ALOG(INFO, "LOGGER_SYS") << "B, _C[3] = " << _C[3];
+
         convoluteC();
+
+        ALOG(INFO, "LOGGER_SYS") << "A, _C[0] = " << _C[0];
+        ALOG(INFO, "LOGGER_SYS") << "A, _C[1] = " << _C[1];
+        ALOG(INFO, "LOGGER_SYS") << "A, _C[2] = " << _C[2];
+        ALOG(INFO, "LOGGER_SYS") << "A, _C[3] = " << _C[3];
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
@@ -824,9 +834,11 @@ double Reconstructor::checkC() const
 
 void Reconstructor::convoluteC()
 {
-    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0" << _kernelRL(0);
-    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.1" << _kernelRL(0.1);
-    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.2" << _kernelRL(0.2);
+    /***
+    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0 " << _kernelRL(0);
+    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.1 " << _kernelRL(0.1);
+    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.2 " << _kernelRL(0.2);
+    ***/
 
     _fft.bwExecutePlanMT(_C);
 
