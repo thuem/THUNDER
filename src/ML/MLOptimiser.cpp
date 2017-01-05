@@ -1267,6 +1267,9 @@ void MLOptimiser::initID()
 
 void MLOptimiser::initImg()
 {
+    ALOG(INFO, "LOGGER_INIT") << "Reading Images from Disk";
+    BLOG(INFO, "LOGGER_INIT") << "Reading Images from Disk";
+
     _img.clear();
     _img.resize(_ID.size());
 
@@ -1277,8 +1280,6 @@ void MLOptimiser::initImg()
     FOR_EACH_2D_IMAGE
     {
         stmt.bind_int(1, _ID[l]);
-        // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
-        // get the filename of the image from database
         if (stmt.step())
             imgName = stmt.get_text(0);
         else
@@ -1286,14 +1287,10 @@ void MLOptimiser::initImg()
 
         stmt.reset();
 
-	    //Image& currentImg = _img[l];
-
-        // read the image fromm hard disk
         if (imgName.find('@') == string::npos)
         {
             ImageFile imf(imgName.c_str(), "rb");
             imf.readMetaData();
-            //imf.readImage(currentImg);
             imf.readImage(_img[l]);
         }
         else
@@ -1303,14 +1300,9 @@ void MLOptimiser::initImg()
 
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
-            //imf.readImage(currentImg, nSlc);
             imf.readImage(_img[l], nSlc);
         }
 
-        /***
-        if ((currentImg.nColRL() != _para.size) ||
-            (currentImg.nRowRL() != _para.size))
-            ***/
         if ((_img[l].nColRL() != _para.size) ||
             (_img[l].nRowRL() != _para.size))
         {
@@ -1329,15 +1321,36 @@ void MLOptimiser::initImg()
         }
     }
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
+    BLOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
     substractBgImg();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise Substructed";
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise Substructed";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
 
     statImg();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Statistics Performed of 2D Images";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics Performed of 2D Images";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images Before Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images Before Normalising";
