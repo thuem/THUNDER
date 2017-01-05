@@ -1914,6 +1914,10 @@ void MLOptimiser::refreshScale(const bool init,
         }
     }
 
+#ifdef VERBOSE_LEVEL_2
+    ILOG(INFO, "LOGGER_SYS") << "Intensity Scale Information Calculated";
+#endif
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information from All Processes";
