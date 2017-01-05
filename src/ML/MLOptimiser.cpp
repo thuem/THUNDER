@@ -1393,19 +1393,24 @@ void MLOptimiser::initImg()
 
     displayStatImg();
 
-    /***
-    statImg();
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
-    BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
-
-    displayStatImg();
-    ***/
+    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images After Normalising Displayed";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images After Normalising Displayed";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
 
     fwImg();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Fourier Transform on 2D Images Performed";
+    BLOG(INFO, "LOGGER_INIT") << "Fourier Transform on 2D Images Performed";
+#endif
 }
 
 void MLOptimiser::statImg()
