@@ -457,7 +457,7 @@ uvec Particle::iSort() const
 
 double Particle::diffTopR()
 {
-    double diff = 1 - std::abs(_topRPrev.dot(_topR));
+    double diff = 1 - fabs(_topRPrev.dot(_topR));
 
     _topRPrev = _topR;
 
