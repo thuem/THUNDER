@@ -14,8 +14,8 @@
 
 #define ADD_T_DURING_INSERT
 
-//#define CHECK_C_AVERAGE
-#define CHECK_C_MAX
+#define CHECK_C_AVERAGE
+//#define CHECK_C_MAX
 
 #define CORRECT_CONVOLUTION_KERNEL
 

@@ -792,7 +792,6 @@ void Reconstructor::allReduceT()
 
 double Reconstructor::checkC() const
 {
-
 #ifdef CHECK_C_AVERAGE
     double diff = 0;
 
