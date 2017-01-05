@@ -205,9 +205,21 @@ void MLOptimiser::init()
         _model.initProjReco();
     }
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Set Up";
+#endif
+
     MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
     correctScale(true, false);
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    MLOG(INFO, "LOGGER_INIT") << "Intensity Scale Re-balanced";
+#endif
 
     NT_MASTER
     {
@@ -216,6 +228,12 @@ void MLOptimiser::init()
 
         initSigma();
     }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_INIT") << "Sigma Initialised";
+#endif
 }
 
 struct Sp
@@ -1843,6 +1861,7 @@ void MLOptimiser::refreshSwitch()
 void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
+    /***
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
     if (_rL > _rS) MLOG(FATAL, "LOGGER_SYS") << "_rL is Larger than _rS";
 
@@ -1854,7 +1873,6 @@ void MLOptimiser::refreshScale(const bool init,
     vec sXA = vec::Zero(_rS);
     vec sAA = vec::Zero(_rS);
 
-    /***
     NT_MASTER
     {
         Image img(size(), size(), FT_SPACE);
@@ -1919,7 +1937,6 @@ void MLOptimiser::refreshScale(const bool init,
             }
         }
     }
-    ***/
 
 #ifdef VERBOSE_LEVEL_2
     ILOG(INFO, "LOGGER_SYS") << "Intensity Scale Information Calculated";
@@ -1979,13 +1996,11 @@ void MLOptimiser::refreshScale(const bool init,
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
 
-    /***
-        for (int i = 0; i < _nGroup; i++)
-            CLOG(INFO, "LOGGER_ROUND") << "Group "
-                                       << i
-                                       << ": Scale = "
-                                       << _scale(i);
-                                       ***/
+#ifdef VERBOSE_LEVEL_2
+    for (int i = 0; i < _nGroup; i++)
+        CLOG(INFO, "LOGGER_ROUND") << "Scale of Group " << i << " is " << _scale(i);
+#endif
+    ***/
 }
 
 void MLOptimiser::allReduceSigma(const bool group)
