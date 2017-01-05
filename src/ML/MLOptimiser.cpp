@@ -1560,6 +1560,9 @@ void MLOptimiser::correctScale(const bool init,
 
     IF_MASTER return;
 
+    ALOG(INFO, "LOGGER_SYS") << "Correcting Scale";
+    BLOG(INFO, "LOGGER_SYS") << "Correcting Scale";
+
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -1567,7 +1570,6 @@ void MLOptimiser::correctScale(const bool init,
         {
             _img[l][i] /= _scale(_groupID[l] - 1);
             _imgOri[l][i] /= _scale(_groupID[l] - 1);
-            //_img[l][i] *= _scale(_groupID[l] - 1);
         }
     }
 
@@ -1577,7 +1579,6 @@ void MLOptimiser::correctScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
         {
             _sig.row(i) /= gsl_pow_2(_scale(i));
-            //_sig.row(i) *= gsl_pow_2(_scale(i));
         }
     }
 }
