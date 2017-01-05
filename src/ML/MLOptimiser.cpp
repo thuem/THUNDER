@@ -1872,7 +1872,14 @@ void MLOptimiser::refreshScale(const bool init,
             {
                 randRotate3D(rot);
 
+#ifdef VERBOSE_LEVEL_3
+                ALOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
+                BLOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
+#endif
+
+                /***
                 _model.proj(0).projectMT(img, rot);
+                ***/
             }
             else
             {
