@@ -824,6 +824,10 @@ double Reconstructor::checkC() const
 
 void Reconstructor::convoluteC()
 {
+    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0" << _kernelRL(0);
+    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.1" << _kernelRL(0.1);
+    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.2" << _kernelRL(0.2);
+
     _fft.bwExecutePlanMT(_C);
 
     double nf = MKB_RL(0, _a * _pf, _alpha);
