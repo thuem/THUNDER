@@ -443,17 +443,7 @@ void Reconstructor::reconstruct(Volume& dst)
         FOR_EACH_PIXEL_FT(_C)
             _C[i] = _T[i] * _W[i];
 
-        ALOG(INFO, "LOGGER_SYS") << "B, _C[0] = " << REAL(_C[0]);
-        ALOG(INFO, "LOGGER_SYS") << "B, _C[1] = " << REAL(_C[1]);
-        ALOG(INFO, "LOGGER_SYS") << "B, _C[2] = " << REAL(_C[2]);
-        ALOG(INFO, "LOGGER_SYS") << "B, _C[3] = " << REAL(_C[3]);
-
         convoluteC();
-
-        ALOG(INFO, "LOGGER_SYS") << "A, _C[0] = " << REAL(_C[0]);
-        ALOG(INFO, "LOGGER_SYS") << "A, _C[1] = " << REAL(_C[1]);
-        ALOG(INFO, "LOGGER_SYS") << "A, _C[2] = " << REAL(_C[2]);
-        ALOG(INFO, "LOGGER_SYS") << "A, _C[3] = " << REAL(_C[3]);
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
@@ -811,13 +801,6 @@ double Reconstructor::checkC() const
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
-            /***
-            ALOG(INFO, "LOGGER_SYS") << "REAL(_C) = " << REAL(_C.getFT(i, j, k));
-            ALOG(INFO, "LOGGER_SYS") << "IMAG(_C) = " << IMAG(_C.getFT(i, j, k));
-            ALOG(INFO, "LOGGER_SYS") << "ABS(_C) = " << ABS(_C.getFT(i, j, k));
-            ALOG(INFO, "LOGGER_SYS") << "distance = " << abs(ABS(_C.getFT(i, j, k)) - 1);
-            ***/
-
             #pragma omp critical
             diff += fabs(ABS(_C.getFT(i, j, k)) - 1);
             #pragma omp critical
@@ -844,12 +827,6 @@ double Reconstructor::checkC() const
 
 void Reconstructor::convoluteC()
 {
-    /***
-    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0 " << _kernelRL(0);
-    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.1 " << _kernelRL(0.1);
-    ALOG(INFO, "LOGGER_SYS") << "Kernel Real, 0.2 " << _kernelRL(0.2);
-    ***/
-
     _fft.bwExecutePlanMT(_C);
 
     double nf = MKB_RL(0, _a * _pf, _alpha);
