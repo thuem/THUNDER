@@ -58,7 +58,14 @@
  */
 #define FW_CLEAN_UP \
 { \
-    _Pragma(omp critical); \
+    _Pragma("omp critical"); \
+    fftw_destroy_plan(fwPlan); \
+    _dstC = NULL; \
+    _srcR = NULL; \
+}
+
+#define FW_CLEAN_UP_MT \
+{ \
     fftw_destroy_plan(fwPlan); \
     _dstC = NULL; \
     _srcR = NULL; \
@@ -94,7 +101,15 @@
  */
 #define BW_CLEAN_UP(obj) \
 { \
-    _Pragma(omp critical); \
+    _Pragma("omp critical"); \
+    fftw_destroy_plan(bwPlan); \
+    _dstR = NULL; \
+    _srcC = NULL; \
+    obj.clearFT(); \
+}
+
+#define BW_CLEAN_UP_MT(obj) \
+{ \
     fftw_destroy_plan(bwPlan); \
     _dstR = NULL; \
     _srcC = NULL; \

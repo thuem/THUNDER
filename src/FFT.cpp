@@ -15,7 +15,7 @@
 FFT::FFT() : _srcR(NULL),
              _srcC(NULL),
              _dstR(NULL),
-             _dstC(NULL)  {}
+             _dstC(NULL) {}
 
 FFT::~FFT() {}
 
@@ -137,7 +137,7 @@ void FFT::fwMT(Image& img)
 
     fftw_execute(fwPlan);
 
-    FW_CLEAN_UP;
+    FW_CLEAN_UP_MT;
 }
 
 void FFT::bwMT(Image& img)
@@ -165,7 +165,7 @@ void FFT::bwMT(Image& img)
     #pragma omp parallel for
     SCALE_RL(img, 1.0 / img.sizeRL());
 
-    BW_CLEAN_UP(img);
+    BW_CLEAN_UP_MT(img);
 }
 
 void FFT::fwMT(Volume& vol)
@@ -191,7 +191,7 @@ void FFT::fwMT(Volume& vol)
 
     fftw_execute(fwPlan);
 
-    FW_CLEAN_UP;
+    FW_CLEAN_UP_MT;
 }
 
 void FFT::bwMT(Volume& vol)
@@ -220,7 +220,7 @@ void FFT::bwMT(Volume& vol)
     #pragma omp parallel for
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
-    BW_CLEAN_UP(vol);
+    BW_CLEAN_UP_MT(vol);
 }
 
 void FFT::fwCreatePlan(const int nCol,
