@@ -1895,6 +1895,7 @@ void MLOptimiser::refreshScale(const bool init,
                              _ctf[l],
                              _rS,
                              0);
+
 #ifdef VERBOSE_LEVEL_3
             ALOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
             BLOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
