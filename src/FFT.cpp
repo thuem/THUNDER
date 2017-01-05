@@ -365,15 +365,16 @@ void FFT::bwExecutePlanMT(Volume& vol)
 
 void FFT::fwDestroyPlan()
 {
+    #pragma omp critical
     fftw_destroy_plan(fwPlan);
 }
 
 void FFT::bwDestroyPlan()
 {
+    #pragma omp critical
     fftw_destroy_plan(bwPlan);
 }
 
-/***
 void FFT::fwDestroyPlanMT()
 {
     fftw_destroy_plan(fwPlan);
@@ -382,9 +383,4 @@ void FFT::fwDestroyPlanMT()
 void FFT::bwDestroyPlanMT()
 {
     fftw_destroy_plan(bwPlan);
-    fftw_cleanup_threads();
-    
-    #pragma omp parallel for
-    SCALE_RL(vol, 1.0 / vol.sizeRL());
 }
-***/

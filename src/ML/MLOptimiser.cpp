@@ -1494,8 +1494,6 @@ void MLOptimiser::substractBgImg()
 
 void MLOptimiser::maskImg()
 {
-    //_imgOri = _img;
-
     _imgOri.clear();
 
     FOR_EACH_2D_IMAGE
@@ -1955,7 +1953,6 @@ void MLOptimiser::refreshSwitch()
 void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
-    /***
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
     if (_rL > _rS) MLOG(FATAL, "LOGGER_SYS") << "_rL is Larger than _rS";
 
@@ -2094,7 +2091,6 @@ void MLOptimiser::refreshScale(const bool init,
     for (int i = 0; i < _nGroup; i++)
         CLOG(INFO, "LOGGER_ROUND") << "Scale of Group " << i << " is " << _scale(i);
 #endif
-    ***/
 }
 
 void MLOptimiser::allReduceSigma(const bool group)

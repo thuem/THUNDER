@@ -368,11 +368,9 @@ class FFT
 
         void bwDestroyPlan();
 
-        /***
         void fwDestroyPlanMT();
 
         void bwDestroyPlanMT();
-        ***/
 };
 
 #endif // FFT_H 
