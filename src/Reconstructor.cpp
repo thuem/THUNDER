@@ -811,6 +811,11 @@ double Reconstructor::checkC() const
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
+            ALOG(INFO, "LOGGER_SYS") << "REAL(_C) = " << REAL(_C.getFT(i, j, k));
+            ALOG(INFO, "LOGGER_SYS") << "IMAG(_C) = " << IMAG(_C.getFT(i, j, k));
+            ALOG(INFO, "LOGGER_SYS") << "ABS(_C) = " << ABS(_C.getFT(i, j, k));
+            ALOG(INFO, "LOGGER_SYS") << "distance = " << abs(ABS(_C.getFT(i, j, k)) - 1);
+
             #pragma omp critical
             diff += abs(ABS(_C.getFT(i, j, k)) - 1);
             #pragma omp critical
