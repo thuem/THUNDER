@@ -11,6 +11,10 @@
 #ifndef MACRO_H
 #define MACRO_H
 
+#define VERBOSE_LEVEL_1
+#define VERBOSE_LEVEL_2
+#define VERBOSE_LEVEL_3
+
 /**
  * 2D mode
  */

@@ -1863,6 +1863,11 @@ void MLOptimiser::refreshScale(const bool init,
 
         FOR_EACH_2D_IMAGE
         {
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << l;
+            BLOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << l;
+#endif
+
             if (init)
             {
                 randRotate3D(rot);
@@ -1878,6 +1883,11 @@ void MLOptimiser::refreshScale(const bool init,
                 _model.proj(0).projectMT(img, rot, tran);
             }
 
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image" << l;
+            BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image" << l;
+#endif
+
             scaleDataVSPrior(sXA,
                              sAA,
                              _img[l],
@@ -1885,6 +1895,10 @@ void MLOptimiser::refreshScale(const bool init,
                              _ctf[l],
                              _rS,
                              0);
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
+            BLOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
+#endif
 
             if (group)
             {
@@ -1901,7 +1915,7 @@ void MLOptimiser::refreshScale(const bool init,
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
+    MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information from All Processes";
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mXA.data(),
