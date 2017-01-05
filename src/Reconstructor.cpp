@@ -817,6 +817,9 @@ double Reconstructor::checkC() const
             counter += 1;
         }
 
+    ALOG(INFO, "LOGGER_SYS") << "diff = " << diff;
+    ALOG(INFO, "LOGGER_SYS") << "counter = " << counter;
+
     return diff / counter;
 #endif
 
