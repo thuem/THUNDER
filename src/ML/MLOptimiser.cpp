@@ -1854,6 +1854,7 @@ void MLOptimiser::refreshScale(const bool init,
     vec sXA = vec::Zero(_rS);
     vec sAA = vec::Zero(_rS);
 
+    /***
     NT_MASTER
     {
         Image img(size(), size(), FT_SPACE);
@@ -1877,9 +1878,7 @@ void MLOptimiser::refreshScale(const bool init,
                 BLOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
 #endif
 
-                /***
                 _model.proj(0).projectMT(img, rot);
-                ***/
             }
             else
             {
@@ -1890,7 +1889,6 @@ void MLOptimiser::refreshScale(const bool init,
                 _model.proj(0).projectMT(img, rot, tran);
             }
 
-            /***
 #ifdef VERBOSE_LEVEL_3
             ALOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
             BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
@@ -1919,9 +1917,9 @@ void MLOptimiser::refreshScale(const bool init,
                 mXA.row(0) += sXA.transpose();
                 mAA.row(0) += sAA.transpose();
             }
-            ***/
         }
     }
+    ***/
 
 #ifdef VERBOSE_LEVEL_2
     ILOG(INFO, "LOGGER_SYS") << "Intensity Scale Information Calculated";
