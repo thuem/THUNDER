@@ -12,9 +12,16 @@
 #define MACRO_H
 
 #define VERBOSE_LEVEL_0
+
 #define VERBOSE_LEVEL_1
+
 #define VERBOSE_LEVEL_2
+
 #define VERBOSE_LEVEL_3
+
+#define IMG_VOL_BOUNDARY_NO_CHECK
+
+#define MATRIX_BOUNDARY_NO_CHECK
 
 /**
  * 2D mode
@@ -71,9 +78,6 @@
  * threshold for determining that one is equal to another
  */
 #define EQUAL_ACCURACY 0.0001
-
-#define SAVE_DELETE(p) \
-    if (p != NULL) { delete[] p; p = NULL; }
 
 /**
  * This macro loops over all pixels in a grid of certain side length.
