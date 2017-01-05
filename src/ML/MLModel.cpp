@@ -41,7 +41,6 @@ void MLModel::initProjReco()
     ALOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
 
-    /***
     FOR_EACH_CLASS
     {
         ALOG(INFO, "LOGGER_INIT") << "Appending Projector of Reference " << l;
@@ -54,7 +53,6 @@ void MLModel::initProjReco()
 
         _reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
     }
-    ***/
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);

@@ -146,7 +146,7 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Appending Initial References into _model";
     initRef();
 
-    MLOG(INFO, "LOGGER_INIT") << "Bcasting Total Number of 2D Images";
+    MLOG(INFO, "LOGGER_INIT") << "Broadcasting Total Number of 2D Images";
     bCastNPar();
 
     NT_MASTER
@@ -157,6 +157,13 @@ void MLOptimiser::init()
             BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
 
             initMask();
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_INIT") << "Mask Read";
+            BLOG(INFO, "LOGGER_INIT") << "Mask Read";
+#endif
         }
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
@@ -164,38 +171,86 @@ void MLOptimiser::init()
 
         initID();
 
-        ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
-        BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "IDs of 2D Images Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "IDs of 2D Images Initialised";
+#endif
+
+        ALOG(INFO, "LOGGER_INIT") << "Setting Parameter _N";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Parameter _N";
 
         allReduceN();
 
         ALOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere B: " << _N;
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "Parameter _N Set";
+        BLOG(INFO, "LOGGER_INIT") << "Parameter _N Set";
+#endif
+
+        ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+
         initImg();
 
-        ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
-        BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "2D Images Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "2D Images Initialised";
+#endif
 
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
         initCTF();
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "CTFs Generated";
+        BLOG(INFO, "LOGGER_INIT") << "CTFs Generated";
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising Switch";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Switch";
 
         initSwitch();
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "Switch Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "Switch Initialised";
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
         initParticles();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
+#endif
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
     bcastGroupInfo();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_INIT") << "Information of Groups Broadcasted";
+#endif
 
     NT_MASTER
     {
