@@ -1883,9 +1883,10 @@ void MLOptimiser::refreshScale(const bool init,
                 _model.proj(0).projectMT(img, rot, tran);
             }
 
+            /***
 #ifdef VERBOSE_LEVEL_3
-            ALOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image" << l;
-            BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image" << l;
+            ALOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
+            BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
 #endif
 
             scaleDataVSPrior(sXA,
@@ -1911,6 +1912,7 @@ void MLOptimiser::refreshScale(const bool init,
                 mXA.row(0) += sXA.transpose();
                 mAA.row(0) += sAA.transpose();
             }
+            ***/
         }
     }
 
