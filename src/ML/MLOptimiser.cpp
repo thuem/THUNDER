@@ -598,6 +598,9 @@ void MLOptimiser::expectation()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
     }
 
+    ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
+                               << _par[0].compress(_para.transS);
+
     _nF = 0;
     _nI = 0;
 
@@ -713,6 +716,12 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mG);
             else
                 _par[l].resample(_para.mL);
+
+            if (l == 0)
+                ALOG(INFO, "LOGGER_ROUND") << "Compress Level of Phase "
+                                           << phase
+                                           << ": "
+                                           << _par[0].compress(_para.transS);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {

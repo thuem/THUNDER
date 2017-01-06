@@ -343,6 +343,8 @@ class Particle
                   double& s0,
                   double& s1) const;
 
+        double compress(const double transS) const;
+
         /**
          * This function returns the weight of the i-th particle in this
          * particle filter.

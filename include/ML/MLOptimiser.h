@@ -13,7 +13,7 @@
 
 #define SOLVENT_FLATTEN_ZERO_MASK
 
-//#define SCAN_SOFT_PROCESS
+#define SCAN_SOFT_PROCESS
 #define DEEP_SOFT_PROCESS
 
 #include <cstdlib>

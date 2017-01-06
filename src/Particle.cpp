@@ -195,6 +195,15 @@ void Particle::vari(double& rVari,
     s1 = _s1;
 }
 
+double Particle::compress(const double transS) const
+{
+    double rVari, s0, s1;
+
+    vari(rVari, s0, s1);
+
+    return gsl_pow_3(rVari) * s0 * s1 / gsl_pow_2(transS);
+}
+
 double Particle::w(const int i) const { return _w(i); }
 
 void Particle::setW(const double w,
