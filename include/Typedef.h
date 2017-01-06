@@ -11,10 +11,15 @@
 #ifndef TYPEDEF_H
 #define TYPEDEF_H
 
-//#define EIGEN_NO_DEBUG
 #include <gsl/gsl_complex.h>
 
 #include <Eigen/Dense>
+
+#include "Macro.h"
+
+#ifdef MATRIX_BOUNDARY_NO_CHECK
+#define EIGEN_NO_DEBUG
+#endif
 
 using namespace Eigen;
 

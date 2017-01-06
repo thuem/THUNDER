@@ -14,8 +14,9 @@
 #include <cmath>
 #include <cstdlib>
 
-
 #include "omp_compat.h"
+
+#include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"
 #include "Complex.h"

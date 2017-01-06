@@ -259,28 +259,15 @@ void Particle::setQuaternion(const vec4& src,
 
 void Particle::calVari()
 {
+#ifdef CAL_VARI_TRANS_ZERO_MEAN
+    _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
+    _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
+#else
     _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
     _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
+#endif
 
     _rho = 0;
-
-    /***
-    _s0 = sqrt(gsl_stats_covariance(_t.col(0).data(),
-                                    1,
-                                    _t.col(0).data(),
-                                    1,
-                                    _t.rows()));
-    _s1 = sqrt(gsl_stats_covariance(_t.col(1).data(),
-                                    1,
-                                    _t.col(1).data(),
-                                    1,
-                                    _t.rows()));
-    _rho = gsl_stats_covariance(_t.colptr(0),
-                                1,
-                                _t.colptr(1),
-                                1,
-                                _t.n_rows) / _s0 / _s1;
-                                ***/
 
     inferACG(_k0, _k1, _r);
 }
@@ -289,14 +276,9 @@ void Particle::perturb(const double pf)
 {
     calVari();
 
-    /***
-    CLOG(WARNING, "LOGGER_SYS") << "_k0 = " << _k0
-                                << ", _k1 = " << _k1
-                                << ", _s0 = " << _s0
-                                << ", _s1 = " << _s1;
-    ***/
-
-    // translation perturbation
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Translation Perturbation";
+#endif
 
     gsl_rng* engine = get_random_engine();
 
@@ -304,19 +286,15 @@ void Particle::perturb(const double pf)
     {
         double x, y;
         gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-        //_t(i, 0) += x / sqrt(PERTURB_FACTOR);
-        //_t(i, 1) += y / sqrt(PERTURB_FACTOR);
-        //_t(i, 0) += x / PERTURB_FACTOR;
-        //_t(i, 1) += y / PERTURB_FACTOR;
         _t(i, 0) += x * sqrt(pf);
         _t(i, 1) += y * sqrt(pf);
     }
 
-    // rotation perturbation
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Rotation Perturbation";
+#endif
 
     mat4 d(_n, 4);
-    //sampleACG(d, pow(PERTURB_FACTOR, 1.0 / 3) * _k0, _k1, _n);
-    //sampleACG(d, pow(PERTURB_FACTOR, 2.0 / 3) * _k0, _k1, _n);
     sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
 
     for (int i = 0; i < _n; i++)
@@ -593,8 +571,6 @@ void Particle::symmetrise()
 void Particle::reCentre()
 {
     double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
-
-    //CLOG(INFO, "LOGGER_SYS") << "transM = " << transM;
 
     gsl_rng* engine = get_random_engine();
 

@@ -12,6 +12,8 @@
 #define TRANS_INIT_GAUSSIAN
 //#define TRANS_INIT_FLAT
 
+#define CAL_VARI_TRANS_ZERO_MEAN
+
 #include <iostream>
 #include <numeric>
 #include <cmath>
@@ -20,8 +22,8 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_cdf.h>
 
-#include "Typedef.h"
 #include "Macro.h"
+#include "Typedef.h"
 #include "Logging.h"
 
 #include "Coordinate5D.h"

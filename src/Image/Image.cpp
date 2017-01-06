@@ -148,25 +148,11 @@ void Image::saveFTToBMP(const char* filename, double c) const
     int nRowBMP = _nRow / 4 * 4;
     int nColBMP = _nCol / 4 * 4;
 
-    // CLOG(INFO, "LOGGER_SYS") << "_sizeRL = " << _sizeRL;
-
-    //float* image = new float[_sizeRL];
     float* image = new float[nRowBMP * nColBMP];
 
-    // CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
-
-    /***
-    for (int i = 0; i < _nRow; i++)
-        for (int j = 0; j <= _nCol / 2; j++)
-        {
-            double value = gsl_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
-            value = log(1 + value * c);
-
-            int iImage = (i + _nRow / 2 ) % _nRow;
-            int jImage = (j + _nCol / 2 ) % _nCol;
-            image[_nCol * iImage + jImage] = value;
-        }
-        ***/
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
+#endif
 
     for (int i = 0; i < nRowBMP; i++)
         for (int j = 0; j <= nColBMP / 2; j++)
@@ -179,7 +165,9 @@ void Image::saveFTToBMP(const char* filename, double c) const
             image[nColBMP * iImage + jImage] = value;
         }
 
-    // CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
+#endif
 
     for (int i = 1; i < nRowBMP; i++)
         for (int j = 1; j < nColBMP / 2; j++)
@@ -189,7 +177,9 @@ void Image::saveFTToBMP(const char* filename, double c) const
             image[iDst] = image[iSrc];
         }
 
-    // CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
+#endif
 
     for (int j = 1; j < nColBMP / 2; j++)
     {
@@ -212,7 +202,9 @@ void Image::saveFTToBMP(const char* filename, double c) const
 double Image::getRL(const int iCol,
                     const int iRow) const
 {
-    // coordinatesInBoundaryRL(iCol, iRow);
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryRL(iCol, iRow);
+#endif
 
     return _dataRL[iRL(iCol, iRow)];
 }
@@ -221,7 +213,9 @@ void Image::setRL(const double value,
                   const int iCol,
                   const int iRow)
 {
-    // coordinatesInBoundaryRL(iCol, iRow);
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryRL(iCol, iRow);
+#endif
 
     _dataRL[iRL(iCol, iRow)] = value;
 }
@@ -229,7 +223,9 @@ void Image::setRL(const double value,
 Complex Image::getFT(int iCol,
                      int iRow) const
 {
-    // coordinatesInBoundaryFT(iCol, iRow);
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow);
+#endif
     
     bool conj;
     int index = iFT(conj, iCol, iRow);
@@ -247,7 +243,9 @@ void Image::setFT(const Complex value,
                   int iCol,
                   int iRow)
 {
-    // coordinatesInBoundaryFT(iCol, iRow);
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow);
+#endif
 
     bool conj;
     int index = iFT(conj, iCol, iRow);
@@ -262,8 +260,11 @@ double Image::getBiLinearRL(const double iCol,
     int x0[2];
     double x[2] = {iCol, iRow};
     WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
-    // coordinatesInBoundaryRL(x0[0], x0[1]);
-    // coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryRL(x0[0], x0[1]);
+    coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
+#endif
 
     double result = 0;
     FOR_CELL_DIM_3 result += w[i][j] * getRL(x0[0] + i, x0[1] + j);
@@ -278,8 +279,10 @@ Complex Image::getBiLinearFT(const double iCol,
     double x[2] = {iCol, iRow};
     WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
 
-    // coordinatesInBoundaryFT(x0[0], x0[1]);
-    // coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(x0[0], x0[1]);
+    coordinatesInBoundaryFT(x0[0] + 1, x0[1] + 1);
+#endif
 
     Complex result = COMPLEX(0, 0);
     FOR_CELL_DIM_2 result += w[i][j] * getFT(x0[0] + i , x0[1] + j);

@@ -91,7 +91,6 @@ void Volume::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
-        //_dataRL = fftw_alloc_real(_sizeRL);
         _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
 #endif
     }
@@ -107,7 +106,6 @@ void Volume::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
-        //_dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
         _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
@@ -117,7 +115,9 @@ double Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
 {
-    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+#endif
     
     return _dataRL[iRL(iCol, iRow, iSlc)];
 }
@@ -127,7 +127,9 @@ void Volume::setRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+#endif
 
     _dataRL[iRL(iCol, iRow, iSlc)] = value;
 }
@@ -137,7 +139,9 @@ void Volume::addRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    // coordinatesInBoundaryRL(iCol, iRow, iSlc);
+#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+#endif
 
     #pragma omp atomic
     _dataRL[iRL(iCol, iRow, iSlc)] += value;
@@ -147,7 +151,9 @@ Complex Volume::getFT(int iCol,
                       int iRow,
                       int iSlc) const
 {
-    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
+#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+#endif
 
     bool conj;
     int index = iFT(conj, iCol, iRow, iSlc);
@@ -167,7 +173,9 @@ void Volume::setFT(const Complex value,
                    int iRow,
                    int iSlc)
 {
-    // coordinatesInBoundaryFT(iCol, iRow, iSlc);
+#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+#endif
 
     bool conj;
     int index = iFT(conj, iCol, iRow, iSlc);

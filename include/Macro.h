@@ -19,6 +19,8 @@
 
 //#define VERBOSE_LEVEL_3
 
+//#define VERBOSE_LEVEL_4
+
 #define IMG_VOL_BOUNDARY_NO_CHECK
 
 #define MATRIX_BOUNDARY_NO_CHECK

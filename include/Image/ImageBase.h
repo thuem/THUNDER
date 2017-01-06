@@ -28,13 +28,12 @@
 #include <boost/move/core.hpp>
 #include <boost/move/make_unique.hpp>
 
+#include "Macro.h"
 #include "Complex.h"
 #include "Typedef.h"
 #include "Functions.h"
 #include "Utils.h"
 #include "Logging.h"
-
-
 
 #define RL_SPACE 0
 
