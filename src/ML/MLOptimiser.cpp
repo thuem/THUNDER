@@ -330,16 +330,21 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
+    int nSampleWholeSpace = 0;
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         // initialse a particle filter
 
-        int nR = _para.mS;
+        int nR = _para.mS / (1 + _sym.nSymmetryElement());
+
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * TRANS_SEARCH_FACTOR));
+
+        nSampleWholeSpace = _para.mS * nT;
 
         /***
         int nT = GSL_MAX_INT(30,
@@ -594,12 +599,33 @@ void MLOptimiser::expectation()
             _par[l].resample(_para.mG);
         }
 
+#ifdef VERBOSE_LEVEL_1
+        ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
+#endif
+
+        FOR_EACH_2D_IMAGE
+        {
+            _par[l].calVari();
+
+            if (l == 0)
+            {
+                ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
+                                           << _par[0].compress(_para.transS);
+                ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
+                                           << AROUND(nSampleWholeSpace
+                                                   * sqrt(_par[0].compress(_para.transS)));
+            }
+
+            _par[l].resample(GSL_MAX_INT(_para.mL,
+                                         GSL_MIN_INT(_para.mG,
+                                                     AROUND(nSampleWholeSpace
+                                                          * sqrt(_par[l].compress(_para.transS))))));
+        }
+
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
-    }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
-                               << _par[0].compress(_para.transS);
+    }
 
     _nF = 0;
     _nI = 0;
@@ -712,8 +738,23 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
 
+            _par[l].calVari();
+
             if (_searchType == SEARCH_TYPE_GLOBAL)
-                _par[l].resample(_para.mG);
+            {
+                if (l == 0)
+                {
+                    ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
+                                               << _par[0].compress(_para.transS);
+                    ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
+                                               << AROUND(nSampleWholeSpace
+                                                       * sqrt(_par[0].compress(_para.transS)));
+                }
+                _par[l].resample(GSL_MAX_INT(_para.mL,
+                                             GSL_MIN_INT(_para.mG,
+                                                         AROUND(nSampleWholeSpace
+                                                              * sqrt(_par[l].compress(_para.transS))))));
+            }
             else
                 _par[l].resample(_para.mL);
 
@@ -725,8 +766,6 @@ void MLOptimiser::expectation()
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
-                _par[l].calVari();
-
                 double tVariS0Cur;
                 double tVariS1Cur;
                 double rVariCur;
