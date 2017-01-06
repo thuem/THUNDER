@@ -2271,7 +2271,11 @@ void MLOptimiser::allReduceSigma(const bool group)
     for (int l = 0; l < _nGroup; l++)
         omp_init_lock(&mtx[l]);
 
+#ifndef RECENTRE_IMAGE_PER_ITERTATION
     #pragma omp parallel for private(rot) schedule(dynamic)
+#else
+    #pragma omp parallel for private(rot, tran) schedule(dynamic)
+#endif
     FOR_EACH_2D_IMAGE
     {
         if (_switch[l])
