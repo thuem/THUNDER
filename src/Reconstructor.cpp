@@ -28,8 +28,8 @@ Reconstructor::Reconstructor(const int size,
 
 Reconstructor::~Reconstructor()
 {
-    _fft.fwDestroyPlan();
-    _fft.bwDestroyPlan();
+    _fft.fwDestroyPlanMT();
+    _fft.bwDestroyPlanMT();
 }
 
 void Reconstructor::init(const int size,
@@ -803,7 +803,6 @@ void Reconstructor::allReduceT()
 
 double Reconstructor::checkC() const
 {
-
 #ifdef CHECK_C_AVERAGE
     double diff = 0;
 
@@ -814,7 +813,7 @@ double Reconstructor::checkC() const
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             #pragma omp critical
-            diff += abs(ABS(_C.getFT(i, j, k)) - 1);
+            diff += fabs(ABS(_C.getFT(i, j, k)) - 1);
             #pragma omp critical
             counter += 1;
         }
@@ -828,7 +827,7 @@ double Reconstructor::checkC() const
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(_C)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            diff[_C.iFTHalf(i, j, k)] = abs(ABS(_C.getFT(i, j, k)) - 1);
+            diff[_C.iFTHalf(i, j, k)] = fabs(ABS(_C.getFT(i, j, k)) - 1);
 
     return *std::max_element(diff.begin(), diff.end());
 #endif

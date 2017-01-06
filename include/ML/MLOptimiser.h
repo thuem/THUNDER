@@ -26,6 +26,7 @@
 
 #include <omp_compat.h>
 
+#include "Macro.h"
 #include "Typedef.h"
 
 #include "Image.h"

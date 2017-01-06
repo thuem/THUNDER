@@ -146,7 +146,7 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Appending Initial References into _model";
     initRef();
 
-    MLOG(INFO, "LOGGER_INIT") << "Bcasting Total Number of 2D Images";
+    MLOG(INFO, "LOGGER_INIT") << "Broadcasting Total Number of 2D Images";
     bCastNPar();
 
     NT_MASTER
@@ -157,6 +157,13 @@ void MLOptimiser::init()
             BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
 
             initMask();
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_INIT") << "Mask Read";
+            BLOG(INFO, "LOGGER_INIT") << "Mask Read";
+#endif
         }
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
@@ -164,38 +171,86 @@ void MLOptimiser::init()
 
         initID();
 
-        ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
-        BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "IDs of 2D Images Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "IDs of 2D Images Initialised";
+#endif
+
+        ALOG(INFO, "LOGGER_INIT") << "Setting Parameter _N";
+        BLOG(INFO, "LOGGER_INIT") << "Setting Parameter _N";
 
         allReduceN();
 
         ALOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere A: " << _N;
         BLOG(INFO, "LOGGER_INIT") << "Number of Images in Hemisphere B: " << _N;
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "Parameter _N Set";
+        BLOG(INFO, "LOGGER_INIT") << "Parameter _N Set";
+#endif
+
+        ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+        BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
+
         initImg();
 
-        ALOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
-        BLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _N";
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "2D Images Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "2D Images Initialised";
+#endif
 
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
         initCTF();
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "CTFs Generated";
+        BLOG(INFO, "LOGGER_INIT") << "CTFs Generated";
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising Switch";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Switch";
 
         initSwitch();
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "Switch Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "Switch Initialised";
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
         initParticles();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
+        BLOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
+#endif
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
 
     bcastGroupInfo();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_INIT") << "Information of Groups Broadcasted";
+#endif
 
     NT_MASTER
     {
@@ -205,9 +260,21 @@ void MLOptimiser::init()
         _model.initProjReco();
     }
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Set Up";
+#endif
+
     MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
     correctScale(true, false);
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    MLOG(INFO, "LOGGER_INIT") << "Intensity Scale Re-balanced";
+#endif
 
     NT_MASTER
     {
@@ -216,6 +283,12 @@ void MLOptimiser::init()
 
         initSigma();
     }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_INIT") << "Sigma Initialised";
+#endif
 }
 
 struct Sp
@@ -1197,6 +1270,9 @@ void MLOptimiser::initID()
 
 void MLOptimiser::initImg()
 {
+    ALOG(INFO, "LOGGER_INIT") << "Reading Images from Disk";
+    BLOG(INFO, "LOGGER_INIT") << "Reading Images from Disk";
+
     _img.clear();
     _img.resize(_ID.size());
 
@@ -1207,8 +1283,6 @@ void MLOptimiser::initImg()
     FOR_EACH_2D_IMAGE
     {
         stmt.bind_int(1, _ID[l]);
-        // ILOG(INFO) << "Read 2D Image ID of Which is " << _ID[i];
-        // get the filename of the image from database
         if (stmt.step())
             imgName = stmt.get_text(0);
         else
@@ -1216,14 +1290,10 @@ void MLOptimiser::initImg()
 
         stmt.reset();
 
-	    //Image& currentImg = _img[l];
-
-        // read the image fromm hard disk
         if (imgName.find('@') == string::npos)
         {
             ImageFile imf(imgName.c_str(), "rb");
             imf.readMetaData();
-            //imf.readImage(currentImg);
             imf.readImage(_img[l]);
         }
         else
@@ -1233,14 +1303,9 @@ void MLOptimiser::initImg()
 
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
-            //imf.readImage(currentImg, nSlc);
             imf.readImage(_img[l], nSlc);
         }
 
-        /***
-        if ((currentImg.nColRL() != _para.size) ||
-            (currentImg.nRowRL() != _para.size))
-            ***/
         if ((_img[l].nColRL() != _para.size) ||
             (_img[l].nRowRL() != _para.size))
         {
@@ -1259,55 +1324,108 @@ void MLOptimiser::initImg()
         }
     }
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
+    BLOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
     BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
 
-    //_offSet = vec::Zero(_img.size());
     _offset = vector<vec2>(_img.size(), vec2(0, 0));
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Offset between Images and Original Images are Set to 0";
+    BLOG(INFO, "LOGGER_INIT") << "Offset between Images and Original Images are Set to 0";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
     substractBgImg();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise Substructed";
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise Substructed";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
 
     statImg();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Statistics Performed of 2D Images";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics Performed of 2D Images";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images Before Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images Before Normalising";
 
     displayStatImg();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
 
     maskImg();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "2D Images Masked";
+    BLOG(INFO, "LOGGER_INIT") << "2D Images Masked";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
     BLOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
 
     normaliseImg();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "2D Images Normalised";
+    BLOG(INFO, "LOGGER_INIT") << "2D Images Normalised";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
     BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
 
     displayStatImg();
 
-    /***
-    statImg();
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
-    BLOG(INFO, "LOGGER_INIT") << "Displaying Statistics of 2D Images After Normalising";
-
-    displayStatImg();
-    ***/
+    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images After Normalising Displayed";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images After Normalising Displayed";
+#endif
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
 
     fwImg();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Fourier Transform on 2D Images Performed";
+    BLOG(INFO, "LOGGER_INIT") << "Fourier Transform on 2D Images Performed";
+#endif
 }
 
 void MLOptimiser::statImg()
@@ -1391,8 +1509,6 @@ void MLOptimiser::substractBgImg()
 
 void MLOptimiser::maskImg()
 {
-    //_imgOri = _img;
-
     _imgOri.clear();
 
     FOR_EACH_2D_IMAGE
@@ -1562,9 +1678,15 @@ void MLOptimiser::initSwitch()
 void MLOptimiser::correctScale(const bool init,
                                const bool group)
 {
+    ALOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
+    BLOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
+
     refreshScale(init, group);
 
     IF_MASTER return;
+
+    ALOG(INFO, "LOGGER_SYS") << "Correcting Scale";
+    BLOG(INFO, "LOGGER_SYS") << "Correcting Scale";
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -1573,7 +1695,6 @@ void MLOptimiser::correctScale(const bool init,
         {
             _img[l][i] /= _scale(_groupID[l] - 1);
             _imgOri[l][i] /= _scale(_groupID[l] - 1);
-            //_img[l][i] *= _scale(_groupID[l] - 1);
         }
     }
 
@@ -1583,7 +1704,6 @@ void MLOptimiser::correctScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
         {
             _sig.row(i) /= gsl_pow_2(_scale(i));
-            //_sig.row(i) *= gsl_pow_2(_scale(i));
         }
     }
 }
@@ -1876,9 +1996,19 @@ void MLOptimiser::refreshScale(const bool init,
 
         FOR_EACH_2D_IMAGE
         {
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << l;
+            BLOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << l;
+#endif
+
             if (init)
             {
                 randRotate3D(rot);
+
+#ifdef VERBOSE_LEVEL_3
+                ALOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
+                BLOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
+#endif
 
                 _model.proj(0).projectMT(img, rot);
             }
@@ -1891,6 +2021,11 @@ void MLOptimiser::refreshScale(const bool init,
                 _model.proj(0).projectMT(img, rot, tran);
             }
 
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
+            BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
+#endif
+
             scaleDataVSPrior(sXA,
                              sAA,
                              _img[l],
@@ -1898,6 +2033,11 @@ void MLOptimiser::refreshScale(const bool init,
                              _ctf[l],
                              _rS,
                              0);
+
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
+            BLOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
+#endif
 
             if (group)
             {
@@ -1912,9 +2052,13 @@ void MLOptimiser::refreshScale(const bool init,
         }
     }
 
+#ifdef VERBOSE_LEVEL_2
+    ILOG(INFO, "LOGGER_SYS") << "Intensity Scale Information Calculated";
+#endif
+
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information";
+    MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information from All Processes";
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mXA.data(),
@@ -1966,13 +2110,10 @@ void MLOptimiser::refreshScale(const bool init,
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
 
-    /***
-        for (int i = 0; i < _nGroup; i++)
-            CLOG(INFO, "LOGGER_ROUND") << "Group "
-                                       << i
-                                       << ": Scale = "
-                                       << _scale(i);
-                                       ***/
+#ifdef VERBOSE_LEVEL_2
+    for (int i = 0; i < _nGroup; i++)
+        CLOG(INFO, "LOGGER_ROUND") << "Scale of Group " << i << " is " << _scale(i);
+#endif
 }
 
 void MLOptimiser::reCentreImg()

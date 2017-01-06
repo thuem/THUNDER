@@ -54,21 +54,49 @@ void MLModel::initProjReco()
         _reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
     }
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Appended";
+    BLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Appended";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
 
     FOR_EACH_CLASS
         _reco[l]->setMPIEnv(_commSize, _commRank, _hemi);
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "MPI Environment of Reconstructors Set Up";
+    BLOG(INFO, "LOGGER_INIT") << "MPI Environment of Reconstructors Set Up";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
     BLOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
 
     refreshProj();
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Projectors Refreshed";
+    BLOG(INFO, "LOGGER_INIT") << "Projectors Refreshed";
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Refreshing Reconstructors";
 
     refreshReco();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_INIT") << "Reconstructors Refreshed";
+    BLOG(INFO, "LOGGER_INIT") << "Reconstructors Refreshed";
+#endif
 }
 
 Volume& MLModel::ref(const int i)
@@ -487,13 +515,25 @@ void MLModel::refreshReco()
 
     FOR_EACH_CLASS
     {
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Initialising";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Initialising";
+
         _reco[l]->init(_size,
                        _pf,
                        _sym,
                        _a,
                        _alpha);
 
-        //_reco[l]->setFSC(_FSC.col(l));
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up Max Radius";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up Max Radius";
 
         _reco[l]->setMaxRadius(_rU);
     }
@@ -512,7 +552,6 @@ void MLModel::resetReco()
     {
         _reco[l]->reset();
 
-        //_reco[l]->setFSC(_FSC.col(l).head(_res * _pf));
         _reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);

@@ -87,10 +87,18 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
     // Image image(N, N, RL_SPACE);
+    ***/
 
     Symmetry sym("C2");
 
-    Reconstructor reconstructor(N, 2, &sym);
+    boost::container::vector< boost::movelib::unique_ptr<Reconstructor> > reco;
+
+    reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
+    reco[0]->init(N, 2, &sym);
+
+    //Reconstructor reconstructor(N, 2, &sym);
+
+    /***
     reconstructor.setMPIEnv();
 
     printf("Set Symmetry Done\n");
