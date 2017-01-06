@@ -1806,8 +1806,8 @@ void MLOptimiser::initSigma()
     for (size_t l = 1; l < _ID.size(); l++)
     {
         #pragma omp parallel for
-        ADD_FT(avg, _imgOri[l]);
-        //ADD_FT(avg, _img[l]);
+        //ADD_FT(avg, _imgOri[l]);
+        ADD_FT(avg, _img[l]);
     }
 
     MPI_Barrier(_hemi);
@@ -1834,8 +1834,8 @@ void MLOptimiser::initSigma()
     {
         vec ps(maxR());
 
-        //powerSpectrum(ps, _img[l], maxR());
-        powerSpectrum(ps, _imgOri[l], maxR());
+        powerSpectrum(ps, _img[l], maxR());
+        //powerSpectrum(ps, _imgOri[l], maxR());
 
         #pragma omp critical
         avgPs += ps;
