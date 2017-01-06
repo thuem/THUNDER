@@ -753,11 +753,12 @@ void MLOptimiser::expectation()
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-                /***
 #ifdef DYNAMIC_NUM_SAMPLE
                 if (l == 0)
                 {
-                    ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
+                    ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
+                                               << phase
+                                               << ": "
                                                << _par[0].compress(_para.transS);
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                                << AROUND(nSampleWholeSpace
@@ -770,16 +771,9 @@ void MLOptimiser::expectation()
 #else
                 _par[l].resample();
 #endif
-***/
             }
             else
                 _par[l].resample();
-
-            if (l == 0)
-                ALOG(INFO, "LOGGER_ROUND") << "Compress Level of Phase "
-                                           << phase
-                                           << ": "
-                                           << _par[0].compress(_para.transS);
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
