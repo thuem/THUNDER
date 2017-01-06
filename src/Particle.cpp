@@ -404,6 +404,18 @@ void Particle::resample(const int n,
     symmetrise();
 }
 
+void Particle::downSample(const int n,
+                          const double alpha)
+{
+    if (n < _n)
+    {
+        sort(n);
+        shuffle();
+    }
+
+    resample(n, alpha);
+}
+
 double Particle::neff() const
 {
     return 1.0 / _w.squaredNorm();

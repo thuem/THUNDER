@@ -19,9 +19,10 @@ int main(int argc, const char* argv[])
 
     try
     {
-        //Symmetry sym("C15");
-        Symmetry sym("C1");
+        Symmetry sym("C15");
         display(sym);
+
+        std::cout << "nSymmetryElement = " << sym.nSymmetryElement() << std::endl;
 
         vector<mat33> sr;
 

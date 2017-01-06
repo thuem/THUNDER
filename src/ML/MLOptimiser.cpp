@@ -332,6 +332,10 @@ void MLOptimiser::expectation()
 
     int nSampleWholeSpace = 0;
 
+    int nSampleMax = _para.mG / (1 + _sym.nSymmetryElement());
+
+    int nSampleMin = _para.mL;
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         // initialse a particle filter
@@ -616,10 +620,10 @@ void MLOptimiser::expectation()
                                                    * sqrt(_par[0].compress(_para.transS)));
             }
 
-            _par[l].resample(GSL_MAX_INT(_para.mL,
-                                         GSL_MIN_INT(_para.mG,
-                                                     AROUND(nSampleWholeSpace
-                                                          * sqrt(_par[l].compress(_para.transS))))));
+            _par[l].downSample(GSL_MAX_INT(nSampleMin,
+                                           GSL_MIN_INT(nSampleMax,
+                                                       AROUND(nSampleWholeSpace
+                                                            * sqrt(_par[l].compress(_para.transS))))));
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -750,10 +754,10 @@ void MLOptimiser::expectation()
                                                << AROUND(nSampleWholeSpace
                                                        * sqrt(_par[0].compress(_para.transS)));
                 }
-                _par[l].resample(GSL_MAX_INT(_para.mL,
-                                             GSL_MIN_INT(_para.mG,
-                                                         AROUND(nSampleWholeSpace
-                                                              * sqrt(_par[l].compress(_para.transS))))));
+                _par[l].downSample(GSL_MAX_INT(nSampleMin,
+                                               GSL_MIN_INT(nSampleMax,
+                                                           AROUND(nSampleWholeSpace
+                                                                * sqrt(_par[l].compress(_para.transS))))));
             }
             else
                 _par[l].resample(_para.mL);
@@ -2192,6 +2196,15 @@ void MLOptimiser::reCentreImg()
 
         _offset[l](0) -= tran(0);
         _offset[l](1) -= tran(1);
+
+        if ((fabs(_offset[l](0)) > gsl_cdf_chisq_Qinv(0.25, 2) * _para.transS) ||
+            (fabs(_offset[l](1)) > gsl_cdf_chisq_Qinv(0.25, 2) * _para.transS))
+        {
+            CLOG(WARNING, "LOGGER_SYS") << "One Image Moves Too Far durint Re-Centring";
+
+            _offset[l](0) = 0;
+            _offset[l](1) = 0;
+        }
 
         translate(_img[l],
                   _imgOri[l],
