@@ -661,11 +661,13 @@ class MLOptimiser : public Parallel
         void refreshScale(const bool init = false,
                           const bool group = true);
 
+#ifdef RECENTRE_IMAGE_PER_ITERATION
         /**
          * re-centre images according to translation expectationn of the last
          * ieration; mask if neccessary
          */
         void reCentreImg();
+#endif
 
         /**
          * re-calculate sigma
