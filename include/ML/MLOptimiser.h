@@ -453,11 +453,19 @@ class MLOptimiser : public Parallel
 
         int* _iSig;
 
+        /***
         Complex** _datP;
 
         double** _ctfP;
 
         double** _sigRcpP;
+        ***/
+        
+        Complex* _datP;
+
+        double* _ctfP;
+
+        double* _sigRcpP;
 
     public:
         
@@ -841,10 +849,33 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const int* iSig,
                    const int m);
 
+/***
 vec logDataVSPrior(const Complex* const* dat,
                    const Complex* pri,
                    const double* const* ctf,
                    const double* const* sigRcp,
+                   const int n,
+                   const int m);
+***/
+
+/**
+ * This function calculates the logarithm of the possibilities of a series of
+ * images is from a certain projection. The series of images have been packed in
+ * a continous allocated memory. Besides, the corresponding CTF value and
+ * reciprocal of sigma of noise of each pixel have also been packed in a 
+ * continous allocated memory.
+ *
+ * @param dat    a series of images
+ * @param pri    a certain projection
+ * @param ctf    CTF values of each pixel correspondingly
+ * @param sigRcp the reciprocal of sigma of noise of each pixel correspondingly
+ * @param n      the number of images
+ * @param m      the number of pixels in each image
+ */
+vec logDataVSPrior(const Complex* dat,
+                   const Complex* pri,
+                   const double* ctf,
+                   const double* sigRcp,
                    const int n,
                    const int m);
 

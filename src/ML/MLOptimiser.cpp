@@ -664,10 +664,18 @@ void MLOptimiser::expectation()
                                              _iSig,
                                              nPxl);
                                              ***/
+                /***
                 logW(m) = logDataVSPrior(_datP[l],
                                          priP,
                                          _ctfP[l],
                                          _sigRcpP[l],
+                                         _nPxl);
+                                         ***/
+
+                logW(m) = logDataVSPrior(_datP + l * _nPxl,
+                                         priP,
+                                         _ctfP + l * _nPxl,
+                                         _sigRcpP + l * _nPxl,
                                          _nPxl);
             }
 
@@ -2455,6 +2463,7 @@ void MLOptimiser::allocPreCal()
 {
     IF_MASTER return;
 
+    /***
     _datP = new Complex*[_ID.size()];
 
     _ctfP = new double*[_ID.size()];
@@ -2470,7 +2479,15 @@ void MLOptimiser::allocPreCal()
 
         _sigRcpP[i] = new double[_nPxl];
     }
+    ***/
 
+    _datP = new Complex[_ID.size() * _nPxl];
+
+    _ctfP = new double[_ID.size() * _nPxl];
+
+    _sigRcpP = new double[_ID.size() * _nPxl];
+
+    /***
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -2481,6 +2498,20 @@ void MLOptimiser::allocPreCal()
             _ctfP[l][i] = REAL(_ctf[l].iGetFT(_iPxl[i]));
 
             _sigRcpP[l][i] = _sigRcp(_groupID[l] - 1, _iSig[i]);
+        }
+    }
+    ***/
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        for (int i = 0; i < _nPxl; i++)
+        {
+            _datP[_nPxl * l + i] = _img[l].iGetFT(_iPxl[i]);
+
+            _ctfP[_nPxl * l + i] = REAL(_ctf[l].iGetFT(_iPxl[i]));
+
+            _sigRcpP[_nPxl * l + i] = _sigRcp(_groupID[l] - 1, _iSig[i]);
         }
     }
 }
@@ -2499,6 +2530,7 @@ void MLOptimiser::freePreCal()
 {
     IF_MASTER return;
 
+    /***
     #pragma omp parallel for
     for (int i = 0; i < (int)_ID.size(); i++)
     {
@@ -2506,6 +2538,7 @@ void MLOptimiser::freePreCal()
         delete[] _ctfP[i];
         delete[] _sigRcpP[i];
     }
+    ***/
 
     delete[] _datP;
     delete[] _ctfP;
@@ -3100,6 +3133,7 @@ vec logDataVSPrior(const vector<Image>& dat,
     return result;
 }
 
+/***
 vec logDataVSPrior(const Complex* const* dat,
                    const Complex* pri,
                    const double* const* ctf,
@@ -3116,6 +3150,22 @@ vec logDataVSPrior(const Complex* const* dat,
                             * pri[i])
                        * sigRcp[l][i];
     
+    return result;
+}
+***/
+
+vec logDataVSPrior(const Complex* dat,
+                   const Complex* pri,
+                   const double* ctf,
+                   const double* sigRcp,
+                   const int n,
+                   const int m)
+{
+    vec result = vec::Zero(n);
+
+    for (int i = 0; i < n * m; i++)
+        result(i / m) += ABS2(dat[i] - ctf[i] * pri[i]) * sigRcp[i];
+
     return result;
 }
 
