@@ -3171,7 +3171,7 @@ vec logDataVSPrior(const Complex* dat,
     vec result = vec::Zero(n);
 
     for (int i = 0; i < n * m; i++)
-        result(i / m) += ABS2(dat[i] - ctf[i] * pri[i]) * sigRcp[i];
+        result(i / m) += ABS2(dat[i] - ctf[i] * pri[i % m]) * sigRcp[i];
 
     return result;
 }
