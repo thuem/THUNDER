@@ -69,6 +69,8 @@
 
 #define N_SAVE_IMG 20
 
+#define TRANS_Q 0.25
+
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
     _logW.array() -= _logW.maxCoeff();

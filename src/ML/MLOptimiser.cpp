@@ -1887,7 +1887,7 @@ void MLOptimiser::initParticles()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
         _par[l].init(_para.transS,
-                     0.01,
+                     TRANS_Q,
                      &_sym);
 }
 
@@ -2197,8 +2197,8 @@ void MLOptimiser::reCentreImg()
         _offset[l](0) -= tran(0);
         _offset[l](1) -= tran(1);
 
-        if ((fabs(_offset[l](0)) > gsl_cdf_chisq_Qinv(0.25, 2) * _para.transS) ||
-            (fabs(_offset[l](1)) > gsl_cdf_chisq_Qinv(0.25, 2) * _para.transS))
+        if ((fabs(_offset[l](0)) > gsl_cdf_chisq_Qinv(TRANS_Q, 2) * _para.transS) ||
+            (fabs(_offset[l](1)) > gsl_cdf_chisq_Qinv(TRANS_Q, 2) * _para.transS))
         {
 #ifdef VERBOSE_LEVEL_4
             CLOG(WARNING, "LOGGER_SYS") << "One Image Moves Too Far during Re-Centring";
