@@ -73,7 +73,8 @@
 
 #define N_SAVE_IMG 20
 
-#define TRANS_Q 0.25
+//#define TRANS_Q 0.25
+#define TRANS_Q 0.01
 
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
