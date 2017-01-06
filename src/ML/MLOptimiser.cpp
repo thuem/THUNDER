@@ -2200,7 +2200,9 @@ void MLOptimiser::reCentreImg()
         if ((fabs(_offset[l](0)) > gsl_cdf_chisq_Qinv(0.25, 2) * _para.transS) ||
             (fabs(_offset[l](1)) > gsl_cdf_chisq_Qinv(0.25, 2) * _para.transS))
         {
-            CLOG(WARNING, "LOGGER_SYS") << "One Image Moves Too Far durint Re-Centring";
+#ifdef VERBOSE_LEVEL_4
+            CLOG(WARNING, "LOGGER_SYS") << "One Image Moves Too Far during Re-Centring";
+#endif
 
             _offset[l](0) = 0;
             _offset[l](1) = 0;
