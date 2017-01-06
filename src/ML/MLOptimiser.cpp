@@ -1010,8 +1010,10 @@ void MLOptimiser::run()
             //_model.reco(0).setSig(_sig.row(0).head(_r));
         }
 
+#ifdef RECENTRE_IMAGE_PER_ITERATION
         MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
         reCentreImg();
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
@@ -1398,10 +1400,12 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
 #endif
 
+#ifdef RECENTRE_IMAGE_PER_ITERATION
     ALOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
     BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
 
     _offset = vector<vec2>(_img.size(), vec2(0, 0));
+#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -2183,6 +2187,7 @@ void MLOptimiser::refreshScale(const bool init,
 #endif
 }
 
+#ifdef RECENTRE_IMAGE_PER_ITERATION
 void MLOptimiser::reCentreImg()
 {
     IF_MASTER return;
@@ -2231,6 +2236,7 @@ void MLOptimiser::reCentreImg()
         //TODO Make the background a noise with PowerSpectrum of sigma2
     }
 }
+#endif
 
 void MLOptimiser::allReduceSigma(const bool group)
 {
@@ -2247,7 +2253,10 @@ void MLOptimiser::allReduceSigma(const bool group)
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
     mat33 rot;
-    //vec2 tran;
+
+#ifndef RECENTRE_IMAGE_PER_ITERATION
+    vec2 tran;
+#endif
 
     omp_lock_t* mtx = new omp_lock_t[_nGroup];
 
@@ -2264,11 +2273,17 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             vec sig(_r);
 
-            //_par[l].rank1st(rot, tran);
             _par[l].rank1st(rot);
 
-            //_model.proj(0).project(img, rot, tran);
+#ifndef RECENTRE_IMAGE_PER_ITERATION
+            _par[l].rank1st(rot, tran);
+#endif
+
+#ifdef RECENTRE_IMAGE_PER_ITERATION
             _model.proj(0).project(img, rot);
+#else
+            _model.proj(0).project(img, rot, tran);
+#endif
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
@@ -2366,32 +2381,30 @@ void MLOptimiser::reconstructRef(const bool mask,
         if (!_switch[l]) continue;
 
         mat33 rot;
-        //vec2 tran;
+
+#ifndef RECENTRE_IMAGE_EACH_ITERATION
+        vec2 tran;
+#endif
         
-        //_par[l].rank1st(rot, tran);
         _par[l].rank1st(rot);
 
-        /***
-        _model.reco(0).insertP(_img[l],
-                               _ctf[l],
-                               rot,
-                               tran,
-                               1);
-                               ***/
+#ifndef RECENTRE_IMAGE_EACH_ITERATION
+        _par[l].rank1st(rot, tran);
+#endif
 
-        /***
-        _model.reco(0).insertP(_imgOri[l],
-                               _ctf[l],
-                               rot,
-                               tran,
-                               1);
-                               ***/
-
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
                                -_offset[l],
                                1);
+#else
+        _model.reco(0).insertP(_imgOri[l],
+                               _ctf[l],
+                               rot,
+                               tran,
+                               1);
+#endif
     }
 
     MPI_Barrier(_hemi);

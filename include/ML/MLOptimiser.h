@@ -16,6 +16,8 @@
 #define SCAN_SOFT_PROCESS
 #define DEEP_SOFT_PROCESS
 
+//#define RECENTRE_IMAGE_PER_ITERATION
+
 #include <cstdlib>
 #include <sstream>
 #include <string>
@@ -352,12 +354,14 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _imgOri;
 
+#ifdef RECENTRE_IMAGE_PER_ITERATION
         /**
          * the offset between images and original images
          * an original image will become the corresponding image by this
          * translation
          */
         vector<vec2> _offset;
+#endif
 
         /**
          * a particle filter for each 2D image

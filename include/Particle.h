@@ -12,7 +12,7 @@
 #define TRANS_INIT_GAUSSIAN
 //#define TRANS_INIT_FLAT
 
-#define CAL_VARI_TRANS_ZERO_MEAN
+//#define CAL_VARI_TRANS_ZERO_MEAN
 
 #include <iostream>
 #include <numeric>
