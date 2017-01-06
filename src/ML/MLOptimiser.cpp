@@ -330,11 +330,13 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    int nSampleWholeSpace = 0;
-
     int nSampleMax = _para.mG / (1 + _sym.nSymmetryElement());
 
+#ifdef DYNMAIC_NUM_SAMPLE
+    int nSampleWholeSpace = 0;
+
     int nSampleMin = _para.mL;
+#endif
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
@@ -348,7 +350,9 @@ void MLOptimiser::expectation()
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * TRANS_SEARCH_FACTOR));
 
+#ifdef DYNMAIC_NUM_SAMPLE
         nSampleWholeSpace = _para.mS * nT;
+#endif
 
         /***
         int nT = GSL_MAX_INT(30,
@@ -358,7 +362,7 @@ void MLOptimiser::expectation()
                                   ***/
 
         Particle par;
-        par.init(_para.transS, 0.01, &_sym);
+        par.init(_para.transS, TRANS_Q, &_sym);
         par.reset(nR, nT);
 
         mat33 rot;
@@ -475,7 +479,7 @@ void MLOptimiser::expectation()
                 {
                     omp_set_lock(&mtx[l]);
 
-                    if ((int)leaderBoard[l].size() < _para.mG)
+                    if ((int)leaderBoard[l].size() < nSampleMax)
                         leaderBoard[l].push(Sp(dvp(l), m, n));
                     else if (leaderBoard[l].top()._w < dvp(l))
                     {
@@ -514,7 +518,7 @@ void MLOptimiser::expectation()
 
         #pragma omp parallel for
         for (int j = 0; j < (int)_ID.size(); j++)
-            for (int i = 0; i < _para.mG; i++)
+            for (int i = 0; i < nSampleMax; i++)
             {
                 topW(i, j) = leaderBoard[j].top()._w;
 
@@ -548,12 +552,12 @@ void MLOptimiser::expectation()
                 _par[l].mulW(logW(m, l), m);
             ***/
 
-            _par[l].reset(_para.mG);
+            _par[l].reset(nSampleMax);
 
             vec4 quat;
             vec2 t;
 
-            for (int m = 0; m < _para.mG; m++)
+            for (int m = 0; m < nSampleMax; m++)
             {
                 /***
                 double w = leaderBoard[l].top()._w;
@@ -600,8 +604,10 @@ void MLOptimiser::expectation()
             _par[l].shuffle();
 
             // resample
-            _par[l].resample(_para.mG);
+            _par[l].resample();
         }
+
+#ifdef DYNAMIC_NUM_SAMPLE
 
 #ifdef VERBOSE_LEVEL_1
         ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
@@ -629,6 +635,7 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
 
+#endif
     }
 
     _nF = 0;
@@ -746,6 +753,8 @@ void MLOptimiser::expectation()
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
+                /***
+#ifdef DYNAMIC_NUM_SAMPLE
                 if (l == 0)
                 {
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
@@ -758,9 +767,13 @@ void MLOptimiser::expectation()
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
                                                                 * sqrt(_par[l].compress(_para.transS))))));
+#else
+                _par[l].resample();
+#endif
+***/
             }
             else
-                _par[l].resample(_para.mL);
+                _par[l].resample();
 
             if (l == 0)
                 ALOG(INFO, "LOGGER_ROUND") << "Compress Level of Phase "

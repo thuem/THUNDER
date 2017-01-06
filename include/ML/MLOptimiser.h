@@ -16,6 +16,8 @@
 #define SCAN_SOFT_PROCESS
 #define DEEP_SOFT_PROCESS
 
+//#define DYNAMIC_NUM_SAMPLE
+
 //#define RECENTRE_IMAGE_PER_ITERATION
 
 #include <cstdlib>
