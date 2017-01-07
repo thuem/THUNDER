@@ -350,7 +350,7 @@ void MLOptimiser::expectation()
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * TRANS_SEARCH_FACTOR));
 
-#ifdef DYNMAIC_NUM_SAMPLE
+#ifdef DYNAMIC_NUM_SAMPLE
         nSampleWholeSpace = _para.mS * nT;
 #endif
 
