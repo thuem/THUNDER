@@ -332,7 +332,7 @@ void MLOptimiser::expectation()
 
     int nSampleMax = _para.mG / (1 + _sym.nSymmetryElement());
 
-#ifdef DYNMAIC_NUM_SAMPLE
+#ifdef DYNAMIC_NUM_SAMPLE
     int nSampleWholeSpace = 0;
 
     int nSampleMin = _para.mL;
