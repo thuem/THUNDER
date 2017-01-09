@@ -19,26 +19,7 @@ Image::Image(const int nCol,
     alloc(nCol, nRow, space);
 }
 
-/***
-Image::Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
-                                         _nCol(that._nCol),
-                                         _nRow(that._nRow)
-{
-    that._nCol = 0;
-    that._nRow = 0;
-}
-***/
-
 Image::~Image() {}
-
-/***
-Image& Image::operator=(BOOST_RV_REF(Image) that)
-{
-    if (this != &that) swap(that);
-
-    return *this;
-}
-***/
 
 void Image::swap(Image& that)
 {
@@ -84,7 +65,6 @@ void Image::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
-        //_dataRL = fftw_alloc_real(_sizeRL);
         _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
 #endif
     }
@@ -100,7 +80,6 @@ void Image::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
-        //_dataFT = (Complex*)fftw_alloc_complex(_sizeFT);
         _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
@@ -111,16 +90,11 @@ void Image::saveRLToBMP(const char* filename) const
     int nRowBMP = _nRow / 4 * 4;
     int nColBMP = _nCol / 4 * 4;
 
-    //float* image = new float[_sizeRL];
-
     float* image = new float[nRowBMP * nColBMP];
 
-    /***
-    for (int i = 0; i < _nRow; i++)
-        for (int j = 0; j < _nCol; j++)
-            image[(i + _nRow / 2) % _nRow * _nCol
-                 +(j + _nCol / 2) % _nCol] = _dataRL[i * _nCol + j];
-                 ***/
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Calculating Values in RL_BMP";
+#endif
 
     for (int i = -nRowBMP / 2; i < nRowBMP / 2; i++)
         for (int j = -nColBMP / 2; j < nColBMP / 2; j++)
@@ -133,10 +107,10 @@ void Image::saveRLToBMP(const char* filename) const
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
-        REPORT_ERROR("Fail to open bitcamp file.");
+        CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Bitcamp File.";
 
     if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
-        REPORT_ERROR("Fail to create BMP image.");
+        CLOG(FATAL, "LOGGER_SYS") << "Fail to Create BMP Image.";
 
     bmp.close();
 
@@ -191,9 +165,10 @@ void Image::saveFTToBMP(const char* filename, double c) const
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
-        REPORT_ERROR("Fail to open bitcamp file.");
+        CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Bitcamp File.";
     if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
-        REPORT_ERROR("Fail to create BMP image.");
+        CLOG(FATAL, "LOGGER_SYS") << "Fail to Create BMP Image.";
+
     bmp.close();
 
     delete[] image;
@@ -236,6 +211,10 @@ Complex Image::getFT(int iCol,
 Complex Image::getFTHalf(const int iCol,
                          const int iRow) const
 {
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow);
+#endif
+
     return _dataFT[iFTHalf(iCol, iRow)];
 }
 
