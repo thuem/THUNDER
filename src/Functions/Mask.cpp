@@ -39,6 +39,7 @@ double regionMean(const Volume& vol,
     double weightSum = 0;
     double sum = 0;
 
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         double u = NORM_3(i, j, k);
@@ -46,7 +47,10 @@ double regionMean(const Volume& vol,
         if ((u < rU) &&
             (u >= rL))
         {
+            #pragma omp atomic
             weightSum += 1;
+
+            #pragma omp atomic
             sum += vol.getRL(i, j, k);
         }
     }

@@ -546,7 +546,9 @@ void MLModel::resetReco()
     BLOG(INFO, "LOGGER_SYS") << "Resetting Reconstructor(s) with Frequency Upper Boundary : "
                              << _rU;
 
-    ILOG(INFO, "LOGGER_SYS") << "Resetting Reco!";
+#ifdef VERBOSE_LEVEL_3
+    ILOG(INFO, "LOGGER_SYS") << "Resetting Reconstructor(s)";
+#endif
 
     FOR_EACH_CLASS
     {
@@ -557,7 +559,9 @@ void MLModel::resetReco()
         _reco[l]->setMaxRadius(_rU);
     }
 
-    ILOG(INFO, "LOGGER_SYS") << "Reco Reset!";
+#ifdef VERBOSE_LEVEL_3
+    ILOG(INFO, "LOGGER_SYS") << "Reconstructor(s) Reset";
+#endif
 }
 
 /***
