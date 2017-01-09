@@ -2497,10 +2497,19 @@ void MLOptimiser::reconstructRef(const bool mask,
                  EDGE_WIDTH_RL,
                  0);
 #else
+        /***
         softMask(_model.ref(0),
                  _model.ref(0),
                  SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
                  EDGE_WIDTH_RL);
+        ***/
+
+        regionBgSoftMask(_model.ref(0),
+                         _model.ref(0),
+                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
+                         EDGE_WIDTH_RL,
+                         SOLVENT_FLATTEN_LOOSE_FACTOR* _ para.size / 4 + EDGE_WIDTH_RL,
+                         SOLVENT_FLATTEN_LOOSE_FACTOR);
 #endif
     }
 

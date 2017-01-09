@@ -74,7 +74,7 @@
 /**
  * edge width in real space
  */
-#define EDGE_WIDTH_RL 6
+#define EDGE_WIDTH_RL 12
 
 /**
  * threshold for determining that one is equal to another
