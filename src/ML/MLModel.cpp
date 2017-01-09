@@ -182,7 +182,7 @@ int MLModel::resT() const
 
 void MLModel::setRes(const int res)
 {
-    if (_resT < _res) _resT = _res;
+    if (_resT < res) _resT = res;
 
     _res = res;
 }
