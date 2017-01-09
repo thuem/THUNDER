@@ -477,7 +477,6 @@ void Reconstructor::reconstruct(Volume& dst)
     allReduceF();
 
     dst = _F.copyVolume();
-    //_F.copyVolume().swap(dst);
 
     _fft.bwExecutePlan(dst);
 
@@ -485,10 +484,10 @@ void Reconstructor::reconstruct(Volume& dst)
     softMask(dst,
              dst,
              0.5 * _size,
-             //sqrt(3) / 2 * _size,
              EDGE_WIDTH_RL,
              0);
 #else
+    /***
     Volume vol;
 
     VOL_EXTRACT_RL(vol, dst, 1.0 / _pf);
@@ -496,6 +495,14 @@ void Reconstructor::reconstruct(Volume& dst)
     softMask(vol, vol, 0.5 * _size, EDGE_WIDTH_RL);
 
     VOL_PAD_RL(dst, vol, pf);
+    ***/
+
+    regionBgSoftMask(dst,
+                     dst,
+                     0.5 * _size,
+                     EDGE_WIDTH_RL,
+                     0.5 * _size, 
+                     0.5 * _size + EDGE_WIDTH_RL);
 #endif
 
 #ifdef CORRECT_CONVOLUTION_KERNEL
