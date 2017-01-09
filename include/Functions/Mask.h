@@ -16,6 +16,8 @@
 #include <functional>
 #include <algorithm>
 
+#include "omp_compat.h"
+
 #include "Random.h"
 #include "Volume.h"
 #include "Macro.h"
@@ -33,7 +35,13 @@
 
 #define GEN_MASK_GAP 0.05
 
+double regionMean(const Image& img,
+                  const double rU,
+                  const double rL);
 
+double regionMean(const Volume& vol,
+                  const double rU,
+                  const double rL);
 
 /**
  * This function calculates the average value of pixels outside the circle of
@@ -214,6 +222,20 @@ void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha,
               const double bg);
+
+void regionBgSoftMask(Image& dst,
+                      const Image& src,
+                      const double r,
+                      const double ew,
+                      const double rU,
+                      const double rL);
+
+void regionBgSoftMask(Volume& dst,
+                      const Volume& src,
+                      const double r,
+                      const double ew,
+                      const double rU,
+                      const double rL);
 
 void removeIsolatedPoint(Volume& vol);
 

@@ -10,7 +10,49 @@
 
 #include "Mask.h"
 
-#include <omp_compat.h>
+double regionMean(const Image& img,
+                  const double rU,
+                  const double rL)
+{
+    double weightSum = 0;
+    double sum = 0;
+
+    IMAGE_FOR_EACH_PIXEL_RL(img)
+    {
+        double u = NORM(i, j);
+
+        if ((u < rU) &&
+            (u >= rL))
+        {
+            weightSum += 1;
+            sum += img.getRL(i, j);
+        }
+    }
+
+    return sum / weightSum;
+}
+
+double regionMean(const Volume& vol,
+                  const double rU,
+                  const double rL)
+{
+    double weightSum = 0;
+    double sum = 0;
+
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
+    {
+        double u = NORM_3(i, j, k);
+
+        if ((u < rU) &&
+            (u >= rL))
+        {
+            weightSum += 1;
+            sum += vol.getRL(i, j, k);
+        }
+    }
+
+    return sum / weightSum;
+}
 
 double background(const Image& img,
                   const double r,
@@ -265,6 +307,30 @@ void softMask(Volume& dst,
         double w = 1 - alpha.getRL(i, j, k); // portion of background
         dst.setRL(bg * w + src.getRL(i, j, k) * (1 - w), i, j, k);
     }
+}
+
+void regionBgSoftMask(Image& dst,
+                      const Image& src,
+                      const double r,
+                      const double ew,
+                      const double rU,
+                      const double rL)
+{
+    double bg = regionMean(src, rU, rL);
+
+    softMask(dst, src, r, ew, bg);
+}
+
+void regionBgSotMask(Volume& dst,
+                     const Volume& src,
+                     const double r,
+                     const double ew,
+                     const double rU,
+                     const double rL)
+{
+    double bg = regionMean(src, rU, rL);
+
+    softMask(dst, src, r, ew, bg);
 }
 
 void removeIsolatedPoint(Volume& vol)
