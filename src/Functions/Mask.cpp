@@ -321,12 +321,12 @@ void regionBgSoftMask(Image& dst,
     softMask(dst, src, r, ew, bg);
 }
 
-void regionBgSotMask(Volume& dst,
-                     const Volume& src,
-                     const double r,
-                     const double ew,
-                     const double rU,
-                     const double rL)
+void regionBgSoftMask(Volume& dst,
+                      const Volume& src,
+                      const double r,
+                      const double ew,
+                      const double rU,
+                      const double rL)
 {
     double bg = regionMean(src, rU, rL);
 
