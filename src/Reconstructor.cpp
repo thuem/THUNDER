@@ -501,8 +501,8 @@ void Reconstructor::reconstruct(Volume& dst)
                      dst,
                      0.5 * _size,
                      EDGE_WIDTH_RL,
-                     0.5 * _size, 
-                     0.5 * _size + EDGE_WIDTH_RL);
+                     0.5 * _size + EDGE_WIDTH_RL,
+                     0.5 * _size);
 #endif
 
 #ifdef CORRECT_CONVOLUTION_KERNEL
