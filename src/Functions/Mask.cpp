@@ -157,6 +157,29 @@ double background(const Volume& vol,
     return sum / weightSum;
 }
 
+/***
+void directSoftMask(Image& dst,
+                    const Image& src,
+                    const double r,
+                    const double ew)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+    {
+        double u = NORM(i, j);
+
+        if (u > r + ew)
+            dst.setRL(bg, i, j);
+        else if (u >= r)
+        {
+            double w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
+            dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
+        }
+        else
+            dst.setRL(src.getRL(i, j), i, j);
+    }
+}
+***/
+
 void softMask(Image& dst,
               const Image& src,
               const double r,
