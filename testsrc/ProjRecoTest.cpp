@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
-    Symmetry sym("C7");
+    Symmetry sym("C4");
 
         Image ctf1(N, N, FT_SPACE);
         Image ctf2(N, N, FT_SPACE);
