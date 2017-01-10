@@ -18,7 +18,7 @@
 
 #define DYNAMIC_NUM_SAMPLE
 
-//#define RECENTRE_IMAGE_PER_ITERATION
+#define RECENTRE_IMAGE_EACH_ITERATION
 
 #include <cstdlib>
 #include <sstream>

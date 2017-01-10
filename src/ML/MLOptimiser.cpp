@@ -2393,17 +2393,17 @@ void MLOptimiser::reconstructRef(const bool mask,
 
         mat33 rot;
 
-#ifndef RECENTRE_IMAGE_EACH_ITERATION
+#ifndef RECENTRE_IMAGE_PER_ITERATION
         vec2 tran;
 #endif
         
         _par[l].rank1st(rot);
 
-#ifndef RECENTRE_IMAGE_EACH_ITERATION
+#ifndef RECENTRE_IMAGE_PER_ITERATION
         _par[l].rank1st(rot, tran);
 #endif
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef RECENTRE_IMAGE_PER_ITERATION
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
