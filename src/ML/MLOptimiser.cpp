@@ -2492,6 +2492,14 @@ void MLOptimiser::solventFlatten(const bool mask)
 {
     IF_MASTER return;
 
+    ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering on Reference(s)";
+    BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering on Reference(s)";
+
+    lowPassFilter(_model.ref(0),
+                  _model.ref(0),
+                  (double)_r / _para.size,
+                  (double)EDGE_WIDTH_FT / _para.size);
+
     ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
 
