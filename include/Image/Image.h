@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdlib>
 
+#include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"

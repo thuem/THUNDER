@@ -65,7 +65,7 @@ void Particle::reset()
     // sample from 2D Gaussian Distribution
     gsl_rng* engine = get_random_engine();
 
-#ifdef TRANS_INIT_GAUSSIAN
+#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
     for (int i = 0; i < _n; i++)
     {
         gsl_ran_bivariate_gaussian(engine,
@@ -79,7 +79,7 @@ void Particle::reset()
     }
 #endif
 
-#ifdef TRANS_INIT_FLAT
+#ifdef PARTICLE_TRANS_INIT_FLAT
     // sample for 2D Flat Distribution in a Circle
     for (int i = 0; i < _n; i++)
     {
@@ -268,7 +268,7 @@ void Particle::setQuaternion(const vec4& src,
 
 void Particle::calVari()
 {
-#ifdef CAL_VARI_TRANS_ZERO_MEAN
+#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
     _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
     _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
 #else

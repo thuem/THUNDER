@@ -28,6 +28,7 @@
 #include <boost/move/core.hpp>
 #include <boost/move/make_unique.hpp>
 
+#include "Config.h"
 #include "Macro.h"
 #include "Complex.h"
 #include "Typedef.h"

@@ -215,7 +215,7 @@ void Reconstructor::insert(const Image& src,
                 vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                 vec3 oldCor = sr[k] * newCor;
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
@@ -226,7 +226,7 @@ void Reconstructor::insert(const Image& src,
                          _kernelFT);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                 _F.addFT(transSrc.getFTHalf(i, j)
                        * REAL(ctf.getFTHalf(i, j))
                        * w, 
@@ -235,9 +235,9 @@ void Reconstructor::insert(const Image& src,
                          oldCor(2));
 #endif
 
-#ifdef ADD_T_DURING_INSERT
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
                 _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                        * w, 
                          oldCor(0), 
@@ -247,7 +247,7 @@ void Reconstructor::insert(const Image& src,
                          _kernelFT);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                 _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                        * w, 
                          oldCor(0), 
@@ -295,7 +295,7 @@ void Reconstructor::insertP(const Image& src,
             vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
             vec3 oldCor = sr[k] * newCor;
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
                    * w,
@@ -306,7 +306,7 @@ void Reconstructor::insertP(const Image& src,
                      _kernelFT);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F.addFT(transSrc[_iPxl[i]]
                    * REAL(ctf.iGetFT(_iPxl[i]))
                    * w,
@@ -315,9 +315,9 @@ void Reconstructor::insertP(const Image& src,
                      oldCor(2));
 #endif
 
-#ifdef ADD_T_DURING_INSERT
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
             _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                    * w,
                      oldCor(0), 
@@ -327,7 +327,7 @@ void Reconstructor::insertP(const Image& src,
                      _kernelFT);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                    * w,
                      oldCor(0), 
@@ -480,23 +480,13 @@ void Reconstructor::reconstruct(Volume& dst)
 
     _fft.bwExecutePlan(dst);
 
-#ifdef RECO_ZERO_MASK
+#ifdef RECONSTRUCTOR_ZERO_MASK
     softMask(dst,
              dst,
              0.5 * _size,
              EDGE_WIDTH_RL,
              0);
 #else
-    /***
-    Volume vol;
-
-    VOL_EXTRACT_RL(vol, dst, 1.0 / _pf);
-
-    softMask(vol, vol, 0.5 * _size, EDGE_WIDTH_RL);
-
-    VOL_PAD_RL(dst, vol, pf);
-    ***/
-
     regionBgSoftMask(dst,
                      dst,
                      0.5 * _size,
@@ -505,19 +495,19 @@ void Reconstructor::reconstruct(Volume& dst)
                      0.5 * _size);
 #endif
 
-#ifdef CORRECT_CONVOLUTION_KERNEL
+#ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
     double nf = MKB_RL(0, _a * _pf, _alpha);
 #endif
 
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
             dst.setRL(dst.getRL(i, j, k)
                     / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
                              _a * _pf,
@@ -528,7 +518,7 @@ void Reconstructor::reconstruct(Volume& dst)
                       k);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             dst.setRL(dst.getRL(i, j, k)
                     / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
                       i,
@@ -563,7 +553,7 @@ void Reconstructor::allReduceW()
                         vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                         vec3 oldCor = _rot[k] * newCor;
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -577,7 +567,7 @@ void Reconstructor::allReduceW()
                                  _kernelFT);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                         _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                               oldCor[1],
                                                               oldCor[2],
@@ -600,7 +590,7 @@ void Reconstructor::allReduceW()
                 vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
                 vec3 oldCor = _rot[k] * newCor;
 
-#ifdef MKB_KERNEL
+#ifdef RECONSTRUCTOR_MKB_KERNEL
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -614,7 +604,7 @@ void Reconstructor::allReduceW()
                          _kernelFT);
 #endif
 
-#ifdef TRILINEAR_KERNEL
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                 _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
                                                       oldCor[1],
                                                       oldCor[2],
@@ -810,7 +800,7 @@ void Reconstructor::allReduceT()
 
 double Reconstructor::checkC() const
 {
-#ifdef CHECK_C_AVERAGE
+#ifdef RECONSTRUCTOR_CHECK_C_AVERAGE
     double diff = 0;
 
     int counter = 0;
@@ -828,7 +818,7 @@ double Reconstructor::checkC() const
     return diff / counter;
 #endif
 
-#ifdef CHECK_C_MAX
+#ifdef RECONSTRUCTOR_CHECK_C_MAX
     vector<double> diff(_C.sizeFT(), 0);
 
     #pragma omp parallel for schedule(dynamic)

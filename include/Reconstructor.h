@@ -9,22 +9,17 @@
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 
-//#define MKB_KERNEL
-#define TRILINEAR_KERNEL
-
-#define ADD_T_DURING_INSERT
-
-//#define CHECK_C_AVERAGE
-#define CHECK_C_MAX
-
-#define CORRECT_CONVOLUTION_KERNEL
-
 //#define RECO_ZERO_MASK
 
 #include <utility>
 #include <mpi.h>
 
+#include <boost/function.hpp>
+
 #include "omp_compat.h"
+
+#include "Config.h"
+#include "Macro.h"
 #include "Typedef.h"
 #include "Parallel.h"
 #include "Coordinate5D.h"
@@ -39,8 +34,6 @@
 #include "TabFunction.h"
 #include "Spectrum.h"
 #include "Mask.h"
-
-#include <boost/function.hpp>
 
 #define PRE_CAL_MODE 0
 

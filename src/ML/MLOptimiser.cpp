@@ -1017,7 +1017,7 @@ void MLOptimiser::run()
             //_model.reco(0).setSig(_sig.row(0).head(_r));
         }
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
         reCentreImg();
 #endif
@@ -1407,7 +1407,7 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
 #endif
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
     ALOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
     BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
 
@@ -2194,7 +2194,7 @@ void MLOptimiser::refreshScale(const bool init,
 #endif
 }
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 void MLOptimiser::reCentreImg()
 {
     IF_MASTER return;
@@ -2261,7 +2261,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     mat33 rot;
 
-#ifndef RECENTRE_IMAGE_EACH_ITERATION
+#ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
     vec2 tran;
 #endif
 
@@ -2284,13 +2284,13 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             vec sig(_r);
 
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             _par[l].rank1st(rot);
-
-#ifndef RECENTRE_IMAGE_EACH_ITERATION
+#else
             _par[l].rank1st(rot, tran);
 #endif
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             _model.proj(0).project(img, rot);
 #else
             _model.proj(0).project(img, rot, tran);
@@ -2303,6 +2303,10 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             ADD_FT(img, _img[l]);
 
+#ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
+            _img[l][0] -= img[0];
+            _imgOri[l][0] -= img[0];
+#endif
             powerSpectrum(sig, img, _r);
 
             if (group)
@@ -2393,17 +2397,17 @@ void MLOptimiser::reconstructRef(const bool mask,
 
         mat33 rot;
 
-#ifndef RECENTRE_IMAGE_EACH_ITERATION
+#ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         vec2 tran;
 #endif
         
         _par[l].rank1st(rot);
 
-#ifndef RECENTRE_IMAGE_EACH_ITERATION
+#ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         _par[l].rank1st(rot, tran);
 #endif
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
@@ -2479,7 +2483,7 @@ void MLOptimiser::reconstructRef(const bool mask,
         ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
         BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
-#ifdef REFERENCE_ZERO_MASK
+#ifdef OPTIMISER_REFERENCE_ZERO_MASK
         softMask(_model.ref(0), _model.ref(0), _mask, 0);
 #else
         softMask(_model.ref(0), _model.ref(0), _mask);
@@ -2490,7 +2494,7 @@ void MLOptimiser::reconstructRef(const bool mask,
         ALOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten";
         BLOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten";
 
-#ifdef REFERENCE_ZERO_MASK
+#ifdef OPTIMISER_REFERENCE_ZERO_MASK
         softMask(_model.ref(0),
                  _model.ref(0),
                  SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,

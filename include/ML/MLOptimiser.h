@@ -11,14 +11,10 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
-#define REFERENCE_ZERO_MASK
-
 #define SCAN_SOFT_PROCESS
 #define DEEP_SOFT_PROCESS
 
 #define DYNAMIC_NUM_SAMPLE
-
-#define RECENTRE_IMAGE_EACH_ITERATION
 
 #include <cstdlib>
 #include <sstream>
@@ -33,6 +29,7 @@
 
 #include <omp_compat.h>
 
+#include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
 
@@ -354,7 +351,7 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _imgOri;
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         /**
          * the offset between images and original images
          * an original image will become the corresponding image by this
@@ -658,7 +655,7 @@ class MLOptimiser : public Parallel
         void refreshScale(const bool init = false,
                           const bool group = true);
 
-#ifdef RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         /**
          * re-centre images according to translation expectationn of the last
          * ieration; mask if neccessary

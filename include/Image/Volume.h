@@ -16,6 +16,7 @@
 
 #include "omp_compat.h"
 
+#include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
 #include "Error.h"

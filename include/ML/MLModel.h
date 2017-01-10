@@ -11,6 +11,8 @@
 #ifndef ML_MODEL_H
 #define ML_MODEL_H
 
+#include "Config.h"
+#include "Macro.h"
 #include "Typedef.h"
 
 #include "Image.h"

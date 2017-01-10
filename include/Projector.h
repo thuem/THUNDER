@@ -11,6 +11,8 @@
 #ifndef PROJECTOR_H
 #define PROJECTOR_H
 
+#include "Config.h"
+#include "Macro.h"
 #include "Complex.h"
 #include "Error.h"
 
@@ -22,8 +24,6 @@
 #include "Coordinate5D.h"
 
 #include "ImageFunctions.h"
-
-#define PROJ_LOOSE_FACTOR 1
 
 class Projector
 {
