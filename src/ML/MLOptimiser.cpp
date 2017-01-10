@@ -877,7 +877,7 @@ void MLOptimiser::maximization()
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-    reconstructRef(_para.performMask);
+    reconstructRef();
 }
 
 void MLOptimiser::run()
@@ -1144,8 +1144,11 @@ void MLOptimiser::run()
                                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_SYS") << "Updating Frequency Boundary of Reconstructor";
+        MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+        solventFlatten(_para.performMask);
 
         NT_MASTER
         {
@@ -1188,7 +1191,7 @@ void MLOptimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(false, false);
+    reconstructRef();
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
@@ -2376,8 +2379,7 @@ void MLOptimiser::allReduceSigma(const bool group)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
 }
 
-void MLOptimiser::reconstructRef(const bool mask,
-                                 const bool solventFlatten)
+void MLOptimiser::reconstructRef()
 {
     IF_MASTER return;
 
@@ -2478,6 +2480,24 @@ void MLOptimiser::reconstructRef(const bool mask,
         _genMask = false;
     }
 
+    ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
+    BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
+
+    FFT fft;
+    fft.fwMT(_model.ref(0));
+    _model.ref(0).clearRL();
+}
+
+void MLOptimiser::solventFlatten(const bool mask)
+{
+    IF_MASTER return;
+
+    ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
+    BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
+
+    FFT fft;
+    fft.bwMT(_model.ref(0));
+
     if (mask && !_mask.isEmptyRL())
     {
         ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
@@ -2489,7 +2509,7 @@ void MLOptimiser::reconstructRef(const bool mask,
         softMask(_model.ref(0), _model.ref(0), _mask);
 #endif
     }
-    else if (solventFlatten)
+    else
     {
         ALOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten";
         BLOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten";
@@ -2501,13 +2521,6 @@ void MLOptimiser::reconstructRef(const bool mask,
                  EDGE_WIDTH_RL,
                  0);
 #else
-        /***
-        softMask(_model.ref(0),
-                 _model.ref(0),
-                 SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
-                 EDGE_WIDTH_RL);
-        ***/
-
         regionBgSoftMask(_model.ref(0),
                          _model.ref(0),
                          SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
@@ -2520,7 +2533,6 @@ void MLOptimiser::reconstructRef(const bool mask,
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
-    FFT fft;
     fft.fwMT(_model.ref(0));
     _model.ref(0).clearRL();
 }
