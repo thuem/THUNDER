@@ -24,7 +24,7 @@
 
 #define PF 2
 
-#define N 200
+#define N 160
 #define M 5000
 //#define M 40000
 //#define M 10
