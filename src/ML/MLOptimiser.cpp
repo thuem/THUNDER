@@ -1017,7 +1017,7 @@ void MLOptimiser::run()
             //_model.reco(0).setSig(_sig.row(0).head(_r));
         }
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
         MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
         reCentreImg();
 #endif
@@ -1407,7 +1407,7 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
 #endif
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
     ALOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
     BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
 
@@ -2194,7 +2194,7 @@ void MLOptimiser::refreshScale(const bool init,
 #endif
 }
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
 void MLOptimiser::reCentreImg()
 {
     IF_MASTER return;
@@ -2261,7 +2261,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     mat33 rot;
 
-#ifndef RECENTRE_IMAGE_PER_ITERATION
+#ifndef RECENTRE_IMAGE_EACH_ITERATION
     vec2 tran;
 #endif
 
@@ -2286,11 +2286,11 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             _par[l].rank1st(rot);
 
-#ifndef RECENTRE_IMAGE_PER_ITERATION
+#ifndef RECENTRE_IMAGE_EACH_ITERATION
             _par[l].rank1st(rot, tran);
 #endif
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
             _model.proj(0).project(img, rot);
 #else
             _model.proj(0).project(img, rot, tran);
@@ -2393,17 +2393,17 @@ void MLOptimiser::reconstructRef(const bool mask,
 
         mat33 rot;
 
-#ifndef RECENTRE_IMAGE_PER_ITERATION
+#ifndef RECENTRE_IMAGE_EACH_ITERATION
         vec2 tran;
 #endif
         
         _par[l].rank1st(rot);
 
-#ifndef RECENTRE_IMAGE_PER_ITERATION
+#ifndef RECENTRE_IMAGE_EACH_ITERATION
         _par[l].rank1st(rot, tran);
 #endif
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,

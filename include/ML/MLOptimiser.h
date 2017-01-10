@@ -354,7 +354,7 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _imgOri;
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
         /**
          * the offset between images and original images
          * an original image will become the corresponding image by this
@@ -658,7 +658,7 @@ class MLOptimiser : public Parallel
         void refreshScale(const bool init = false,
                           const bool group = true);
 
-#ifdef RECENTRE_IMAGE_PER_ITERATION
+#ifdef RECENTRE_IMAGE_EACH_ITERATION
         /**
          * re-centre images according to translation expectationn of the last
          * ieration; mask if neccessary
