@@ -620,16 +620,16 @@ void MLOptimiser::expectation()
             if (l == 0)
             {
                 ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
-                                           << _par[0].compress(_para.transS);
+                                           << _par[0].compress();
                 ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                            << AROUND(nSampleWholeSpace
-                                                   * sqrt(_par[0].compress(_para.transS)));
+                                                   * sqrt(_par[0].compress()));
             }
 
             _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                            GSL_MIN_INT(nSampleMax,
                                                        AROUND(nSampleWholeSpace
-                                                            * sqrt(_par[l].compress(_para.transS))))));
+                                                            * sqrt(_par[l].compress())))));
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -759,15 +759,15 @@ void MLOptimiser::expectation()
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
                                                << phase
                                                << ": "
-                                               << _par[0].compress(_para.transS);
+                                               << _par[0].compress();
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                                << AROUND(nSampleWholeSpace
-                                                       * sqrt(_par[0].compress(_para.transS)));
+                                                       * sqrt(_par[0].compress()));
                 }
                 _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
-                                                                * sqrt(_par[l].compress(_para.transS))))));
+                                                                * sqrt(_par[l].compress())))));
 #else
                 _par[l].resample();
 #endif
@@ -2410,17 +2410,35 @@ void MLOptimiser::reconstructRef()
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_COMPRESS_WEIGHTING
+        _par[l].calVari();
+        _model.reco(0).insertP(_imgOri[l],
+                               _ctf[l],
+                               rot,
+                               -_offset[l],
+                               1.0 / _par[l].compress());
+#else
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
                                -_offset[l],
                                1);
+#endif
+#else
+#ifdef OPTIMISER_COMPRESS_WEIGHTING
+        _par[l].calVari();
+        _model.reco(0).insertP(_imgOri[l],
+                               _ctf[l],
+                               rot,
+                               tran,
+                               1.0 / _par[l].compress());
 #else
         _model.reco(0).insertP(_imgOri[l],
                                _ctf[l],
                                rot,
                                tran,
                                1);
+#endif
 #endif
     }
 
