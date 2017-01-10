@@ -70,6 +70,8 @@
 
 #define TRANS_Q 0.01
 
+#define NUM_SAMPLE_POINT_IN_RECONSTRUCTION 10
+
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
     _logW.array() -= _logW.maxCoeff();

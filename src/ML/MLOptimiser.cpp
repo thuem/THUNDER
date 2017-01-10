@@ -2397,49 +2397,54 @@ void MLOptimiser::reconstructRef()
     {
         if (!_switch[l]) continue;
 
-        mat33 rot;
+        for (int m = 0; m < NUM_SAMPLE_POINT_IN_RECONSTRUCTION; m++)
+        {
+            mat33 rot;
 
 #ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-        vec2 tran;
+            vec2 tran;
 #endif
         
-        _par[l].rank1st(rot);
-
-#ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-        _par[l].rank1st(rot, tran);
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+            _par[l].rand(rot);
+#else
+            _par[l].rand(rot, tran);
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_COMPRESS_WEIGHTING
-        _par[l].calVari();
-        _model.reco(0).insertP(_imgOri[l],
-                               _ctf[l],
-                               rot,
-                               -_offset[l],
-                               1.0 / _par[l].compress());
+            _par[l].calVari();
+            _model.reco(0).insertP(_imgOri[l],
+                                   _ctf[l],
+                                   rot,
+                                   -_offset[l],
+                                   1.0 / (NUM_SAMPLE_POINT_IN_RECONSTRUCTION
+                                        * _par[l].compress()));
 #else
-        _model.reco(0).insertP(_imgOri[l],
-                               _ctf[l],
-                               rot,
-                               -_offset[l],
-                               1);
+            _model.reco(0).insertP(_imgOri[l],
+                                   _ctf[l],
+                                   rot,
+                                   -_offset[l],
+                                   1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
 #else
 #ifdef OPTIMISER_COMPRESS_WEIGHTING
-        _par[l].calVari();
-        _model.reco(0).insertP(_imgOri[l],
-                               _ctf[l],
-                               rot,
-                               tran,
-                               1.0 / _par[l].compress());
+            _par[l].calVari();
+            _model.reco(0).insertP(_imgOri[l],
+                                   _ctf[l],
+                                    rot,
+                                    tran,
+                                    1.0 / (NUN_SAMPLE_POINT_IN_RECONSTRUCTION
+                                         * _par[l].compress()));
 #else
-        _model.reco(0).insertP(_imgOri[l],
-                               _ctf[l],
-                               rot,
-                               tran,
-                               1);
+            _model.reco(0).insertP(_imgOri[l],
+                                   _ctf[l],
+                                   rot,
+                                   tran,
+                                   1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
 #endif
+        }
     }
 
     MPI_Barrier(_hemi);

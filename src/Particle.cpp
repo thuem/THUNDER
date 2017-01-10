@@ -506,6 +506,33 @@ void Particle::rank1st(mat33& rot,
     rotate3D(rot, quat);
 }
 
+
+void Particle::rand(mat33& rot) const
+{
+    vec4 quat;
+    rand(quat);
+
+    rotate3D(rot, quat);
+}
+
+void Particle::rand(vec4& quat) const
+{
+    gsl_rng* engine = get_random_engine();
+
+    size_t u = gsl_rng_uniform_int(engine, _n);
+
+    quaternion(quat, u);
+}
+
+void Particle::rand(vec2& tran) const
+{
+    gsl_rng* engine = get_random_engine();
+
+    size_t u = gsl_rng_uniform_int(engine, _n);
+
+    t(tran, u);
+}
+
 void Particle::rand(vec4& quat,
                     vec2& tran) const
 {

@@ -527,6 +527,12 @@ class Particle
         void rank1st(mat33& rot,
                      vec2& tran) const;
 
+        void rand(vec4& quat) const;
+
+        void rand(mat33& rot) const;
+
+        void rand(vec2& tran) const;
+
         /**
          * This function randomly reports a coordinate by parameters.
          *
