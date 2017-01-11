@@ -69,7 +69,8 @@ int main(int argc, char* argv[])
     VOL_TRANSFORM_MAT_RL(centreHead,
                          head,
                          centre,
-                         centreHead.nColRL() / 2 -1);
+                         centreHead.nColRL() / 2 -1,
+                         LINEAR_INTERP);
 
     ImageFile imf;
     imf.readMetaData(head);

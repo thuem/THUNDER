@@ -48,7 +48,7 @@ int main(int argc, const char* argv[])
     {
         mat33 mat;
         rotate3D(mat, M_PI / 2, 'Z');
-        VOL_TRANSFORM_MAT_RL(vol, head, mat, N / 2 - 1);
+        VOL_TRANSFORM_MAT_RL(vol, head, mat, N / 2 - 1, LINEAR_INTERP);
     }
     imf.readMetaData(vol);
     imf.writeVolume("rotate1.mrc", vol);
@@ -56,7 +56,7 @@ int main(int argc, const char* argv[])
     Volume symVol;
     Symmetry sym("C4");
     // symmetryRL(symVol, head, sym, N / 2 - 1);
-    SYMMETRIZE_RL(symVol, head, sym, N / 2 - 1);
+    SYMMETRIZE_RL(symVol, head, sym, N / 2 - 1, LINEAR_INTERP);
     imf.readMetaData(symVol);
     imf.writeVolume("symVol.mrc", symVol);
 
