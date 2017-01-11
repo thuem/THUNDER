@@ -199,7 +199,11 @@ void Reconstructor::insert(const Image& src,
     translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
 
     vector<mat33> sr;
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
     symmetryRotation(sr, rot, _sym);
+#else
+    sr.push_back(rot);
+#endif
 
     for (int k = 0; k < int(sr.size()); k++)
     {
@@ -281,7 +285,11 @@ void Reconstructor::insertP(const Image& src,
     translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
     vector<mat33> sr;
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
     symmetryRotation(sr, rot, _sym);
+#else
+    sr.push_back(rot);
+#endif
 
     for (int k = 0; k < int(sr.size()); k++)
     {
@@ -362,11 +370,12 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceT();
 
-    /***
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_FT(_T)
-        _T[i] += COMPLEX(1, 0);
-    ***/
+#ifndef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+
+    symmetrizeT();
+#endif
 
     vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
@@ -476,11 +485,17 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceF();
 
+#ifndef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+
+    symmetrizeF();
+#endif
+
     dst = _F.copyVolume();
 
     _fft.bwExecutePlan(dst);
 
-    /***
 #ifdef RECONSTRUCTOR_ZERO_MASK
     softMask(dst,
              dst,
@@ -495,7 +510,6 @@ void Reconstructor::reconstruct(Volume& dst)
                      0.5 * _size + EDGE_WIDTH_RL,
                      0.5 * _size);
 #endif
-    ***/
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
@@ -852,4 +866,20 @@ void Reconstructor::convoluteC()
     _fft.fwExecutePlanMT(_C);
 
     _C.clearRL();
+}
+
+void Reconstructor::symmetrizeF()
+{
+    if (_sym != NULL)
+        SYMMETRIZE_FT(_F, _F, *_sym, _maxRadius * _pf + 1);
+    else
+        CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
+}
+
+void Reconstructor::symmetrizeT()
+{
+    if (_sym != NULL)
+        SYMMETRIZE_FT(_T, _T, *_sym, _maxRadius * _pf + 1);
+    else
+        CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }

@@ -404,6 +404,10 @@ class Reconstructor : public Parallel
         double checkC() const;
 
         void convoluteC();
+
+        void symmetrizeF();
+
+        void symmetrizeT();
 };
 
 #endif //RECONSTRUCTOR_H
