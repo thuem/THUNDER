@@ -11,9 +11,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-#define MKB_ORDER_0
-//#define MKB_ORDER_2
-
 #include <cmath>
 #include <numeric>
 
@@ -23,6 +20,7 @@
 #include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_sort.h>
 
+#include "Config.h"
 #include "Typedef.h"
 
 using std::sort;
