@@ -871,7 +871,7 @@ void Reconstructor::convoluteC()
 void Reconstructor::symmetrizeF()
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_F, _F, *_sym, _maxRadius * _pf + 1);
+        SYMMETRIZE_FT(_F, _F, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
@@ -879,7 +879,7 @@ void Reconstructor::symmetrizeF()
 void Reconstructor::symmetrizeT()
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_T, _T, *_sym, _maxRadius * _pf + 1);
+        SYMMETRIZE_FT(_T, _T, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }

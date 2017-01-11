@@ -31,7 +31,8 @@
 inline void VOL_TRANSFORM_MAT_RL(Volume& dst, 
                                  const Volume& src, 
                                  const mat33& mat, 
-                                 const double r)
+                                 const double r,
+                                 const int interp)
 { 
     #pragma omp parallel for
     SET_0_RL(dst); 
@@ -46,7 +47,7 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,
             dst.setRL(src.getByInterpolationRL(oldCor(0),
                                                oldCor(1),
                                                oldCor(2),
-                                               LINEAR_INTERP),
+                                               interp),
                       i, 
                       j, 
                       k); 
@@ -56,7 +57,8 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,
 inline void VOL_TRANSFORM_MAT_FT(Volume& dst, 
                                  const Volume& src, 
                                  const mat33& mat, 
-                                 const double r)
+                                 const double r,
+                                 const int interp)
 { 
     #pragma omp parallel for
     SET_0_FT(dst); 
@@ -71,7 +73,7 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,
             dst.setFT(src.getByInterpolationFT(oldCor(0),
                                                oldCor(1),
                                                oldCor(2),
-                                               LINEAR_INTERP),
+                                               interp),
                       i, 
                       j, 
                       k);
@@ -81,7 +83,8 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,
 inline void SYMMETRIZE_RL(Volume& dst,
                           const Volume& src,
                           const Symmetry& sym,
-                          const double r)
+                          const double r,
+                          const int interp)
 {
     Volume result = src.copyVolume();
 
@@ -92,7 +95,7 @@ inline void SYMMETRIZE_RL(Volume& dst,
     {
         sym.get(L, R, i);
 
-        VOL_TRANSFORM_MAT_RL(se, src, R, r);
+        VOL_TRANSFORM_MAT_RL(se, src, R, r, interp);
 
         #pragma omp parallel for
         ADD_RL(result, se);
@@ -104,7 +107,8 @@ inline void SYMMETRIZE_RL(Volume& dst,
 inline void SYMMETRIZE_FT(Volume& dst,
                           const Volume& src,
                           const Symmetry& sym,
-                          const double r)
+                          const double r,
+                          const int interp)
 {
     Volume result = src.copyVolume();
 
@@ -115,7 +119,7 @@ inline void SYMMETRIZE_FT(Volume& dst,
     {
         sym.get(L, R, i);
 
-        VOL_TRANSFORM_MAT_FT(se, src, R, r);
+        VOL_TRANSFORM_MAT_FT(se, src, R, r, interp);
 
         #pragma omp parallel for
         ADD_FT(result, se);
