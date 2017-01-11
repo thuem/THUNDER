@@ -786,9 +786,6 @@ void Reconstructor::allReduceF()
 
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
-
     MPI_Allreduce_Large(&_F[0],
                         _F.sizeFT(),
                         MPI_DOUBLE_COMPLEX,
@@ -800,10 +797,10 @@ void Reconstructor::allReduceF()
 
 void Reconstructor::allReduceT()
 {
-    MPI_Barrier(_hemi);
+    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
+    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
 
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
+    MPI_Barrier(_hemi);
 
     MPI_Allreduce_Large(&_T[0],
                         _T.sizeFT(),
