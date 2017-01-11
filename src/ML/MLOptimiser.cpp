@@ -1803,14 +1803,20 @@ void MLOptimiser::initSigma()
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
     BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
 
+#ifdef OPTIMISER_SIGMA_MASK
     Image avg = _img[0].copyImage();
-    //Image avg = _imgOri[0].copyImage();
+#else
+    Image avg = _imgOri[0].copyImage();
+#endif
 
     for (size_t l = 1; l < _ID.size(); l++)
     {
         #pragma omp parallel for
+#ifdef OPTIMISER_SIGMA_MASK
         ADD_FT(avg, _img[l]);
-        //ADD_FT(avg, _imgOri[l]);
+#else
+        ADD_FT(avg, _imgOri[l]);
+#endif
     }
 
     MPI_Barrier(_hemi);
@@ -1837,8 +1843,11 @@ void MLOptimiser::initSigma()
     {
         vec ps(maxR());
 
+#ifdef OPTMISER_SIGMA_MASK
         powerSpectrum(ps, _img[l], maxR());
-        //powerSpectrum(ps, _imgOri[l], maxR());
+#else
+        powerSpectrum(ps, _imgOri[l], maxR());
+#endif
 
         #pragma omp critical
         avgPs += ps;
@@ -1863,7 +1872,6 @@ void MLOptimiser::initSigma()
     vec psAvg(maxR());
     for (int i = 0; i < maxR(); i++)
     {
-        //psAvg(i) = ringAverage(i, avg, function<double(const Complex)>(&complex_real_imag_sum));
         psAvg(i) = ringAverage(i,
                                avg,
                                function<double(const Complex)>(&gsl_real_imag_sum));
@@ -1883,12 +1891,6 @@ void MLOptimiser::initSigma()
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < maxR(); j++)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
-
-    /***
-    ALOG(INFO) << "Saving Initial Sigma";
-    if (_commRank == HEMI_A_LEAD)
-        _sig.save("Sigma_000.txt", raw_ascii);
-        ***/
 }
 
 void MLOptimiser::initParticles()
@@ -2304,7 +2306,11 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             NEG_FT(img);
 
+#ifdef OPTIMISER_SIGMA_MASK
             ADD_FT(img, _img[l]);
+#else
+            ADD_FT(img, _imgOri[l]);
+#endif
 
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
             _img[l][0] -= img[0];
