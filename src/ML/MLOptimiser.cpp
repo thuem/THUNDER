@@ -1415,13 +1415,13 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
 
     _offset = vector<vec2>(_img.size(), vec2(0, 0));
-#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_INIT") << "Offset between Images and Original Images are Set to 0";
     BLOG(INFO, "LOGGER_INIT") << "Offset between Images and Original Images are Set to 0";
+#endif
 #endif
 
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
@@ -1601,7 +1601,7 @@ void MLOptimiser::maskImg()
         FOR_EACH_2D_IMAGE
             softMask(_img[l],
                      _img[l],
-                     _para.maskRadius / _para.pixelSize,
+                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                      EDGE_WIDTH_RL,
                      0);
     }
@@ -1611,7 +1611,7 @@ void MLOptimiser::maskImg()
         FOR_EACH_2D_IMAGE
             softMask(_img[l],
                      _img[l],
-                     _para.maskRadius / _para.pixelSize,
+                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                      EDGE_WIDTH_RL,
                      0,
                      _stdN);
@@ -1803,14 +1803,14 @@ void MLOptimiser::initSigma()
     ALOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
     BLOG(INFO, "LOGGER_INIT") << "Calculating Average Image";
 
-    //Image avg = _img[0].copyImage();
-    Image avg = _imgOri[0].copyImage();
+    Image avg = _img[0].copyImage();
+    //Image avg = _imgOri[0].copyImage();
 
     for (size_t l = 1; l < _ID.size(); l++)
     {
         #pragma omp parallel for
-        //ADD_FT(avg, _imgOri[l]);
         ADD_FT(avg, _img[l]);
+        //ADD_FT(avg, _imgOri[l]);
     }
 
     MPI_Barrier(_hemi);

@@ -499,16 +499,16 @@ void Reconstructor::reconstruct(Volume& dst)
 #ifdef RECONSTRUCTOR_ZERO_MASK
     softMask(dst,
              dst,
-             0.5 * _size,
+             0.5 * _size - EDGE_WIDTH_RL,
              EDGE_WIDTH_RL,
              0);
 #else
     regionBgSoftMask(dst,
                      dst,
-                     0.5 * _size,
+                     0.5 * _size - EDGE_WIDTH_RL,
                      EDGE_WIDTH_RL,
-                     0.5 * _size + EDGE_WIDTH_RL,
-                     0.5 * _size);
+                     0.5 * _size 
+                     0.5 * _size - EDGE_WIDTH_RL);
 #endif
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
