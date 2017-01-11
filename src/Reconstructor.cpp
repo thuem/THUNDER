@@ -486,8 +486,8 @@ void Reconstructor::reconstruct(Volume& dst)
     allReduceF();
 
 #ifndef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
-    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
-    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
     symmetrizeF();
 #endif
