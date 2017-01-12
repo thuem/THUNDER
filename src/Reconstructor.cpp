@@ -377,6 +377,9 @@ void Reconstructor::reconstruct(Volume& dst)
     symmetrizeT();
 #endif
 
+    // Obviously, wiener_filter with FSC can be wrong when dealing with
+    // preferrable orienation problem
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
     vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
                  _T,
@@ -419,6 +422,15 @@ void Reconstructor::reconstruct(Volume& dst)
                            * avg(u),
                              0);
         }
+#endif
+
+#ifdef RECONSTRUCTOR_WIENER_FILTER_CONST
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(_T)
+        if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+            (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
+            _T[i] += COMPLEX(1, 0);
+#endif
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
