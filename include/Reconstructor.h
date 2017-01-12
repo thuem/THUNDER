@@ -47,7 +47,7 @@
 
 #define DIFF_C_DECREASE_THRES 0.95
 
-#define WIENER_FACTOR_MIN_R 5
+#define WIENER_FACTOR_MIN_R 0
 
 /**
  * @ingroup Reconstructor
