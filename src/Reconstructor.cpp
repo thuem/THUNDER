@@ -377,7 +377,6 @@ void Reconstructor::reconstruct(Volume& dst)
     symmetrizeT();
 #endif
 
-    /***
     vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
                  _T,
@@ -414,13 +413,12 @@ void Reconstructor::reconstruct(Volume& dst)
                        ? _FSC(_FSC.size() - 1)
                        : _FSC(u);
 
-            FSC = GSL_MAX_DBL(0.001, GSL_MIN_DBL(0.999, FSC));
+            FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
 
             _T[i] += COMPLEX((1 - FSC) / FSC
                            * avg(u),
                              0);
         }
-    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
