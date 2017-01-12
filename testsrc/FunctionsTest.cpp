@@ -11,12 +11,12 @@
 #include "Functions.h"
 
 #define BLOB_A 1.9
-#define BLOB_ALPHA 10
+#define BLOB_ALPHA 15
 
 #define PF 2
 
-#define TEST_MKB_FT
-//#define TEST_MKB_RL
+//#define TEST_MKB_FT
+#define TEST_MKB_RL
 //#define TEST_TIL_RL
 //#define TEST_MKB_BLOB_VOL
 
