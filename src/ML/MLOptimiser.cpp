@@ -88,12 +88,13 @@ void MLOptimiser::init()
     _model.updateRU();
     ***/
 
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.ignoreRes
                               << " Angstrom will be Ingored during Comparison";
 
-    //_rL = resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize);
     _rL = 2.5;
+    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
@@ -944,6 +945,12 @@ void MLOptimiser::run()
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Determing Lower Boundary of Frequency for Expectation";
+        if (_searchTye == SEARCH_TYPE_GLOBAL)
+            _rL = 2.5;
+        else if (_searchType == SEARCH_TYPE_LOCAL)
+            _rL = _model.rGlobal();
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
