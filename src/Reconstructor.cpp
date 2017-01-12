@@ -377,6 +377,7 @@ void Reconstructor::reconstruct(Volume& dst)
     symmetrizeT();
 #endif
 
+    /***
     vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
                  _T,
@@ -419,6 +420,7 @@ void Reconstructor::reconstruct(Volume& dst)
                            * avg(u),
                              0);
         }
+    ***/
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
