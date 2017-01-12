@@ -380,6 +380,8 @@ void Reconstructor::reconstruct(Volume& dst)
     // Obviously, wiener_filter with FSC can be wrong when dealing with
     // preferrable orienation problem
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
+
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
     vec avg = vec::Zero(_maxRadius * _pf + 1);
     shellAverage(avg,
                  _T,
@@ -401,6 +403,7 @@ void Reconstructor::reconstruct(Volume& dst)
                              << avg(avg.size() - 3) << ", "
                              << avg(avg.size() - 2) << ", "
                              << avg(avg.size() - 1);
+#endif
 
     ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
     BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
@@ -418,9 +421,15 @@ void Reconstructor::reconstruct(Volume& dst)
 
             FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
 
-            _T[i] += COMPLEX((1 - FSC) / FSC
-                           * avg(u),
-                             0);
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
+            _T.setFT(_T.getFT(i, j, k)
+                   + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                     i,
+                     j,
+                     k);
+#else
+            _T.setFT(_T.getFT(i, j, k) / FSC, i, j, k);
+#endif
         }
 #endif
 
@@ -429,7 +438,7 @@ void Reconstructor::reconstruct(Volume& dst)
     VOLUME_FOR_EACH_PIXEL_FT(_T)
         if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
             (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-            _T[i] += COMPLEX(1, 0);
+            _T.setFT(_T.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
 #endif
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
