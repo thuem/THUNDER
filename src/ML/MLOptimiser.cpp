@@ -94,11 +94,11 @@ void MLOptimiser::init()
                               << " Angstrom will be Ingored during Comparison";
 
     _rL = 2.5;
-    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
                               << " (Pixel) will be Ingored during Comparison";
+                              ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.sclCorRes
