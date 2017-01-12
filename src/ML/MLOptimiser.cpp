@@ -947,7 +947,7 @@ void MLOptimiser::run()
         MPI_Barrier(MPI_COMM_WORLD);
 
         MLOG(INFO, "LOGGER_ROUND") << "Determing Lower Boundary of Frequency for Expectation";
-        if (_searchTye == SEARCH_TYPE_GLOBAL)
+        if (_searchType == SEARCH_TYPE_GLOBAL)
             _rL = 2.5;
         else if (_searchType == SEARCH_TYPE_LOCAL)
             _rL = _model.rGlobal();
