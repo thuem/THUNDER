@@ -2566,16 +2566,16 @@ void MLOptimiser::solventFlatten(const bool mask)
 #ifdef OPTIMISER_REFERENCE_ZERO_MASK
         softMask(_model.ref(0),
                  _model.ref(0),
-                 SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
+                 SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL,
                  EDGE_WIDTH_RL,
                  0);
 #else
         regionBgSoftMask(_model.ref(0),
                          _model.ref(0),
-                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
+                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL
                          EDGE_WIDTH_RL,
-                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 + EDGE_WIDTH_RL,
-                         SOLVENT_FLATTEN_LOOSE_FACTOR);
+                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4,
+                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGW_WIDTH_RL);
 #endif
     }
 
