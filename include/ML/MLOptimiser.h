@@ -665,6 +665,8 @@ class MLOptimiser : public Parallel
         void reCentreImg();
 #endif
 
+        void reMaskImg();
+
         /**
          * re-calculate sigma
          *

@@ -1028,13 +1028,21 @@ void MLOptimiser::run()
             //_model.reco(0).setSig(_sig.row(0).head(_r));
         }
 
+        MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
+        maximization();
+
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
         reCentreImg();
+#else
+        MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+        _img.clear();
+        FOR_EACH_2D_IMAGE
+            _img.push_back(_imgOri[l].copyImage());
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
-        maximization();
+        MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+        reMaskImg();
 
         /***
         MLOG(INFO, "LOGGER_ROUND") << "Refreshing Tau";
@@ -2241,7 +2249,11 @@ void MLOptimiser::reCentreImg()
                   _offset[l](0),
                   _offset[l](1));
     }
+}
+#endif
 
+void MLOptimiser::reMaskImg()
+{
     if (_para.zeroMask)
     {
         #pragma omp parallel for
@@ -2259,7 +2271,6 @@ void MLOptimiser::reCentreImg()
         //TODO Make the background a noise with PowerSpectrum of sigma2
     }
 }
-#endif
 
 void MLOptimiser::allReduceSigma(const bool group)
 {
@@ -2277,9 +2288,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     mat33 rot;
 
-#ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
     vec2 tran;
-#endif
 
     omp_lock_t* mtx = new omp_lock_t[_nGroup];
 
@@ -2287,11 +2296,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     for (int l = 0; l < _nGroup; l++)
         omp_init_lock(&mtx[l]);
 
-#ifndef RECENTRE_IMAGE_PER_ITERTATION
-    #pragma omp parallel for private(rot) schedule(dynamic)
-#else
     #pragma omp parallel for private(rot, tran) schedule(dynamic)
-#endif
     FOR_EACH_2D_IMAGE
     {
         if (_switch[l])
@@ -2300,14 +2305,10 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             vec sig(_r);
 
-#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-            _par[l].rank1st(rot);
-#else
             _par[l].rank1st(rot, tran);
-#endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-            _model.proj(0).project(img, rot);
+            _model.proj(0).project(img, rot, tran - _offset[l]);
 #else
             _model.proj(0).project(img, rot, tran);
 #endif
@@ -2324,7 +2325,6 @@ void MLOptimiser::allReduceSigma(const bool group)
 #endif
 
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
-            _img[l][0] -= img[0];
             _imgOri[l][0] -= img[0];
 #endif
             powerSpectrum(sig, img, _r);
@@ -2417,16 +2417,9 @@ void MLOptimiser::reconstructRef()
         for (int m = 0; m < NUM_SAMPLE_POINT_IN_RECONSTRUCTION; m++)
         {
             mat33 rot;
-
-#ifndef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             vec2 tran;
-#endif
-        
-#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-            _par[l].rand(rot);
-#else
+
             _par[l].rand(rot, tran);
-#endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_COMPRESS_WEIGHTING
@@ -2434,14 +2427,14 @@ void MLOptimiser::reconstructRef()
             _model.reco(0).insertP(_imgOri[l],
                                    _ctf[l],
                                    rot,
-                                   -_offset[l],
+                                   tran - _offset[l],
                                    1.0 / (NUM_SAMPLE_POINT_IN_RECONSTRUCTION
                                         * _par[l].compress()));
 #else
             _model.reco(0).insertP(_imgOri[l],
                                    _ctf[l],
                                    rot,
-                                   -_offset[l],
+                                   tran - _offset[l],
                                    1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
 #else
