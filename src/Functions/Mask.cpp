@@ -39,7 +39,7 @@ double regionMean(const Volume& vol,
     double weightSum = 0;
     double sum = 0;
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         double u = NORM_3(i, j, k);
