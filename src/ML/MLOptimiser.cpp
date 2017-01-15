@@ -2574,7 +2574,7 @@ void MLOptimiser::solventFlatten(const bool mask)
                          _model.ref(0),
                          SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL,
                          EDGE_WIDTH_RL,
-                         _para.size / 2 - EDGE_WIDTH_RL,
+                         _para.size / 2,
                          SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL);
 #endif
     }
