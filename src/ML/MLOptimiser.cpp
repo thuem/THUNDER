@@ -2310,7 +2310,11 @@ void MLOptimiser::allReduceSigma(const bool group)
             _par[l].rank1st(rot, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_SIGMA_MASK
+            _model.proj(0).project(img, rot, tran);
+#else
             _model.proj(0).project(img, rot, tran - _offset[l]);
+#endif
 #else
             _model.proj(0).project(img, rot, tran);
 #endif
