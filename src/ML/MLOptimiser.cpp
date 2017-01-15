@@ -2254,6 +2254,8 @@ void MLOptimiser::reCentreImg()
 
 void MLOptimiser::reMaskImg()
 {
+    IF_MASTER return;
+
     if (_para.zeroMask)
     {
         #pragma omp parallel for
