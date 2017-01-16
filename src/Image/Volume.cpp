@@ -127,7 +127,7 @@ void Volume::setRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
 #endif
 
@@ -139,7 +139,7 @@ void Volume::addRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryRL(iCol, iRow, iSlc);
 #endif
 
@@ -151,7 +151,7 @@ Complex Volume::getFT(int iCol,
                       int iRow,
                       int iSlc) const
 {
-#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
 #endif
 
@@ -173,7 +173,7 @@ void Volume::setFT(const Complex value,
                    int iRow,
                    int iSlc)
 {
-#ifdef IMG_VOL_BOUNDARY_NO_CHECK
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(iCol, iRow, iSlc);
 #endif
 
