@@ -2237,7 +2237,6 @@ void MLOptimiser::refreshScale(const bool init,
             _scale(i) = sum / count;
     }
 
-    /***
     double medianScale = median(_scale, _scale.size());
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
@@ -2254,6 +2253,7 @@ void MLOptimiser::refreshScale(const bool init,
     
     MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
+    /***
     if (medianScale * meanScale < 0)
         CLOG(FATAL, "LOGGER_SYS") << "Median and Mean of Intensity Scale Should Have the Same Sign";
 
