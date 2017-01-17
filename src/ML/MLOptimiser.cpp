@@ -2237,6 +2237,7 @@ void MLOptimiser::refreshScale(const bool init,
             _scale(i) = sum / count;
     }
 
+    /***
     double medianScale = median(_scale, _scale.size());
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
@@ -2266,6 +2267,7 @@ void MLOptimiser::refreshScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) /= fabs(meanScale);
     }
+    ***/
 
     IF_MASTER
     {
