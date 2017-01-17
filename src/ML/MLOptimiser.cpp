@@ -2243,19 +2243,18 @@ void MLOptimiser::refreshScale(const bool init,
 
     MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale: " << medianScale;
 
-    /***
     for (int i = 0; i < _nGroup; i++)
     {
-        if (_scale(i) > medianScale * 5) _scale(i) = medianScale * 5;
-        if (_scale(i) < medianScale / 5) _scale(i) = medianScale / 5;
+        if (fabs(_scale(i)) > fabs(medianScale * 5))
+            _scale(i) = medianScale * 5;
+        else if (fabs(_scale(i)) < fabs(medianScale / 5))
+            _scale(i) = medianScale / 5;
     }
-    ***/
 
     double meanScale = _scale.mean();
     
     MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
-    /***
     if (medianScale * meanScale < 0)
         CLOG(FATAL, "LOGGER_SYS") << "Median and Mean of Intensity Scale Should Have the Same Sign";
 
@@ -2269,7 +2268,6 @@ void MLOptimiser::refreshScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) /= fabs(meanScale);
     }
-    ***/
 
     IF_MASTER
     {
