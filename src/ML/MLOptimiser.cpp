@@ -2125,7 +2125,15 @@ void MLOptimiser::refreshScale(const bool init,
 
                 _par[l].rank1st(rot, tran);
 
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_SCALE_MASK
                 _model.proj(0).projectMT(img, rot, tran);
+#else
+                _model.proj(0).projectMT(img, rot, tran - _offset[l]);
+#endif
+#else
+                _model.proj(0).projectMT(img, rot, tran);
+#endif
             }
 
 #ifdef VERBOSE_LEVEL_3
@@ -2133,6 +2141,7 @@ void MLOptimiser::refreshScale(const bool init,
             BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
 #endif
 
+#ifdef OPTIMISER_SCALE_MASK
             scaleDataVSPrior(sXA,
                              sAA,
                              _img[l],
@@ -2140,6 +2149,15 @@ void MLOptimiser::refreshScale(const bool init,
                              _ctf[l],
                              _rS,
                              0);
+#else
+            scaleDataVSPrior(sXA,
+                             sAA,
+                             _imgOri[l],
+                             img,
+                             _ctf[l],
+                             _rS,
+                             0);
+#endif
 
 #ifdef VERBOSE_LEVEL_3
             ALOG(INFO, "LOGGER_SYS") << "Accumulating Intensity Scale Information from Image " << l;
@@ -2508,11 +2526,13 @@ void MLOptimiser::reconstructRef()
 
         lowPassRef = _model.ref(0).copyVolume();
 
+        /***
         softMask(lowPassRef,
                  lowPassRef,
                  _para.size / 2 - EDGE_WIDTH_RL,
                  EDGE_WIDTH_RL,
                  0);
+        ***/
 
         FFT fft;
 
