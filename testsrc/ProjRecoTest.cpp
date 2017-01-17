@@ -326,6 +326,7 @@ int main(int argc, char* argv[])
 
             par.coord(coord, i);
 
+            /***
             if (i % 8 == 0)
                 reco.insert(insert, ctf1, coord, 1);
             else if (i % 8 == 1)
@@ -342,6 +343,7 @@ int main(int argc, char* argv[])
                 reco.insert(insert, ctf7, coord, 1);
             else
                 reco.insert(insert, ctf8, coord, 1);
+            ***/
 
             CLOG(INFO, "LOGGER_SYS") << nameInsert << " Inserted!";
         }
