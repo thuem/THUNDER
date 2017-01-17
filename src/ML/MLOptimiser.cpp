@@ -2241,7 +2241,7 @@ void MLOptimiser::refreshScale(const bool init,
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
 
-    if (medianScale < 0) CLOG(FATAL, "LOGGER_SYS") << "Median of Intensity Scale Can Not Below Zero";
+    //if (medianScale < 0) CLOG(FATAL, "LOGGER_SYS") << "Median of Intensity Scale Can Not Below Zero";
 
     MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale: " << medianScale;
 
