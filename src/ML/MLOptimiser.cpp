@@ -2420,7 +2420,7 @@ void MLOptimiser::reconstructRef()
     {
         if (!_switch[l]) continue;
 
-        for (int m = 0; m < NUM_SAMPLE_POINT_IN_RECONSTRUCTION; m++)
+        for (int m = 0; m < _para.mReco; m++)
         {
             mat33 rot;
             vec2 tran;

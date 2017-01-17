@@ -110,11 +110,6 @@ struct MLOptimiserPara
     double maskRadius;
 
     /**
-     * number of sampling points for scanning in global search
-     */
-    int mS;
-
-    /**
      * estimated translation (pixel)
      */
     double transS;
@@ -191,6 +186,11 @@ struct MLOptimiserPara
     double alpha;
 
     /**
+     * number of sampling points for scanning in global search
+     */
+    int mS;
+
+    /**
      * number of sampling points in global search
      */
     int mG;
@@ -199,6 +199,11 @@ struct MLOptimiserPara
      * number of sampling points in local search
      */
     int mL;
+
+    /**
+     * number of sampling points used in reconstruction
+     */
+    int mReco;
 
     /**
      * the information below this resolution will be ignored

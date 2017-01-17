@@ -39,7 +39,6 @@ void readPara(MLOptimiserPara& dst,
     dst.size = src["Size of Image"].asInt();
     dst.pixelSize = src["Pixel Size (Angstrom)"].asFloat();
     dst.maskRadius = src["Radius of Mask on Images (Angstrom)"].asFloat();
-    dst.mS = src["Number of Sampling Points for Scanning in Global Search"].asInt();
     dst.transS = src["Estimated Translation (Pixel)"].asFloat();
     dst.initRes = src["Initial Resolution (Angstrom)"].asFloat();
     dst.globalSearchRes = src["Perform Global Search Under (Angstrom)"].asFloat();
@@ -61,8 +60,10 @@ void readPara(MLOptimiserPara& dst,
     dst.pf = src["Advanced"]["Padding Factor"].asInt();
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();
     dst.alpha = src["Advanced"]["MKB Kernel Smooth Factor"].asFloat();
+    dst.mS = src["Advanced"]["Number of Sampling Points for Scanning in Global Search"].asInt();
     dst.mG = src["Advanced"]["Number of Sampling Points in Global Search"].asInt();
     dst.mL = src["Advanced"]["Number of Sampling Points in Local Search"].asInt();
+    dst.mReco = src["Advanced"]["Number of Sampling Points Used in Reconstruction"].asInt();
     dst.ignoreRes = src["Advanced"]["Ignore Signal Under (Angstrom)"].asFloat();
     dst.sclCorRes = src["Advanced"]["Correct Intensity Scale Using Signal Under (Angstrom)"].asFloat();
     dst.thresCutoffFSC = src["Advanced"]["FSC Threshold for Cutoff Frequency"].asFloat();
