@@ -251,6 +251,7 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
 
+            /***
             Volume aA = A.copyVolume();
             Volume aB = B.copyVolume();
 
@@ -267,22 +268,27 @@ void MLModel::BcastFSC()
             fft.fwMT(bA);
             fft.fwMT(bB);
 
-            //vec fsc(_rU * _pf);
             vec fsc(_rU);
             FSC(fsc, bA, bB);
 
             for (int i = 0; i < _rU * _pf; i++)
                 _FSC(i, l) = fsc(i / _pf);
-            //_FSC.col(l) = fsc;
+            ***/
+
+            vec fsc(_rU * _pf);
+            FSC(fsc, A, B);
+            _FSC.col(l) = fsc;
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
+            /***
             double r = GSL_MIN_DBL(resA2P(1.0 / A_B_AVERAGE_THRES,
                                           _size,
                                           _pixelSize) * _pf,
                                    (_r - 1) * _pf);
+                                   ***/
 
-            //double r = (_r - 1) * _pf;
+            double r = (_r - 1) * _pf;
 
             /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
