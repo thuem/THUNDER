@@ -2243,11 +2243,13 @@ void MLOptimiser::refreshScale(const bool init,
 
     MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale: " << medianScale;
 
+    /***
     for (int i = 0; i < _nGroup; i++)
     {
         if (_scale(i) > medianScale * 5) _scale(i) = medianScale * 5;
         if (_scale(i) < medianScale / 5) _scale(i) = medianScale / 5;
     }
+    ***/
 
     double meanScale = _scale.mean();
     
