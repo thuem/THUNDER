@@ -1129,7 +1129,6 @@ void MLOptimiser::run()
 
             _model.resetRChange();
             _model.setNRChangeNoDecrease(0);
-            _model.setNTopResNoImprove(0);
             _model.setIncreaseR(false);
 
             MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";

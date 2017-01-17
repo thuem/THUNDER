@@ -182,7 +182,7 @@ int MLModel::resT() const
 
 void MLModel::setRes(const int res)
 {
-    if (_resT < res) _resT = res;
+    if (_resT < _res) _resT = _res;
 
     _res = res;
 }
@@ -250,9 +250,30 @@ void MLModel::BcastFSC()
                            MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
-            vec fsc(_rU * _pf);
-            FSC(fsc, A, B);
-            _FSC.col(l) = fsc;
+
+            Volume aA = A.copyVolume();
+            Volume aB = B.copyVolume();
+
+            FFT fft;
+            fft.bwMT(aA);
+            fft.bwMT(aB);
+
+            Volume bA;
+            Volume bB;
+
+            VOL_EXTRACT_RL(bA, aA, 1.0 / _pf);
+            VOL_EXTRACT_RL(bB, aB, 1.0 / _pf);
+
+            fft.fwMT(bA);
+            fft.fwMT(bB);
+
+            //vec fsc(_rU * _pf);
+            vec fsc(_rU);
+            FSC(fsc, bA, bB);
+
+            for (int i = 0; i < _rU * _pf; i++)
+                _FSC(i, l) = fsc(i / _pf);
+            //_FSC.col(l) = fsc;
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
