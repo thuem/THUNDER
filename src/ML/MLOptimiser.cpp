@@ -1153,6 +1153,10 @@ void MLOptimiser::run()
         else
             _searchType = _model.searchType();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Recording Top Resolution";
+        if (_resReport > _model.resT())
+            _model.setResT(_resReport);
+
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
         _r = _model.r();
 

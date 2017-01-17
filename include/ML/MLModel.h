@@ -387,9 +387,11 @@ class MLModel : public Parallel
 
         int res() const;
 
+        void setRes(const int res);
+
         int resT() const;
 
-        void setRes(const int res);
+        void setResT(const int resT);
 
         /**
          * This function returns the upper boundary frequency during global

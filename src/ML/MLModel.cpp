@@ -175,16 +175,21 @@ int MLModel::res() const
     return _res;
 }
 
+void MLModel::setRes(const int res)
+{
+    //if (_resT < _res) _resT = _res;
+
+    _res = res;
+}
+
 int MLModel::resT() const
 {
     return _resT;
 }
 
-void MLModel::setRes(const int res)
+void MLModel::setResT(const int resT)
 {
-    if (_resT < _res) _resT = _res;
-
-    _res = res;
+    _resT = resT;
 }
 
 int MLModel::rGlobal() const
