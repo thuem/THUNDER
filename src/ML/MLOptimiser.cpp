@@ -2241,10 +2241,13 @@ void MLOptimiser::refreshScale(const bool init,
     for (int i = 0; i < _nGroup; i++)
         _scale(i) /= mScale;
 
+    IF_MASTER
+    {
 #ifdef VERBOSE_LEVEL_2
-    for (int i = 0; i < _nGroup; i++)
-        CLOG(INFO, "LOGGER_ROUND") << "Scale of Group " << i << " is " << _scale(i);
+        for (int i = 0; i < _nGroup; i++)
+            MLOG(INFO, "LOGGER_ROUND") << "Scale of Group " << i << " is " << _scale(i);
 #endif
+    }
 }
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
