@@ -250,13 +250,13 @@ class Reconstructor : public Parallel
          * @param a     The width of the modified Kaiser-Bessel Kernel. The
          *              default value is 1.9.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
-         *              Kernel. By default is 10.
+         *              Kernel. By default is 15.
          */
         Reconstructor(const int size,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
                       const double a = 1.9,
-                      const double alpha = 10);
+                      const double alpha = 15);
 
         /**
          * default deconstructor
@@ -272,13 +272,13 @@ class Reconstructor : public Parallel
          * @param a     The width of the modified Kaiser-Bessel Kernel. By 
          *              default is 0.95.
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
-         *              kernel. By default is 10.
+         *              kernel. By default is 15.
          */
         void init(const int size,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
                   const double a = 1.9,
-                  const double alpha = 10);
+                  const double alpha = 15);
 
         void reset();
 
@@ -339,43 +339,17 @@ class Reconstructor : public Parallel
          */
         void insert(const Image& src,
                     const Image& ctf,
-                    //const vec& sig,
                     const mat33& rot,
                     const vec2& t,
-                    const double w);
-
-        /***
-        void insert(const Complex* src,
-                    const double* ctf,
-                    const mat33& rot,
-                    const vec2& t,
-                    const double w);
-                    ***/
+                    const double w,
+                    const vec* sig = NULL);
 
         void insertP(const Image& src,
                      const Image& ctf,
-                     //const vec& sig,
                      const mat33& rot,
                      const vec2& t,
-                     const double w);
-
-        /**
-         * Insert a 2D Fourier transform of image pixel data with associated
-         * 5D coordinate and weight into member data. The image data src will
-         * be accumulate into the relative grid points of volume @ref_F by 
-         * 5D coordinate and interpolation. Based on 5D coordinate, the rotate
-         * matrix can be solved and will be recorded into vector @ref_rot. The 
-         * weight values will be saved in vector @ref_w.
-         *
-         * @param src The image data that need to be inserted.
-         * @param coord The 5D coordinate of the image in the 5D sampling space.
-         * @param w The weight values to measure the possibility of 5D coordinate.
-         */
-       void insert(const Image& src,
-                   const Image& ctf,
-                   //const vec& sig,
-                   const Coordinate5D coord,
-                   const double w);
+                     const double w,
+                     const vec* sig = NULL);
 
         /**
          * reconstruct a 3D model and save it into a volume.

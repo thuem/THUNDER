@@ -174,7 +174,8 @@ void Reconstructor::insert(const Image& src,
                            const Image& ctf,
                            const mat33& rot,
                            const vec2& t,
-                           const double w)
+                           const double w,
+                           const vec* sig)
 {
     IF_MASTER
     {
@@ -269,7 +270,8 @@ void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat33& rot,
                             const vec2& t,
-                            const double w)
+                            const double w,
+                            const vec* sig)
 {
     IF_MASTER
     {
@@ -346,19 +348,6 @@ void Reconstructor::insertP(const Image& src,
 #endif
         }
     }
-}
-
-void Reconstructor::insert(const Image& src,
-                           const Image& ctf,
-                           const Coordinate5D coord,
-                           const double w)
-{
-    mat33 rot;
-    rotate3D(rot, coord.phi, coord.theta, coord.psi);
-
-    vec2 t((double)coord.x, (double)coord.y);
-
-    insert(src, ctf, rot, t, w);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
