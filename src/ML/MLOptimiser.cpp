@@ -2268,7 +2268,7 @@ void MLOptimiser::reMaskImg()
                    _img[l],
                    softMask(_img[l],
                             _img[l],
-                            _para.maskRadius / _para.pixelSize,
+                            _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                             EDGE_WIDTH_RL,
                             0));
     }
