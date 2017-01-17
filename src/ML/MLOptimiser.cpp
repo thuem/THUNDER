@@ -2079,14 +2079,18 @@ void MLOptimiser::refreshSwitch()
 void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
-    if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
-
     if (init)
         _rS = 3;
     else if (_iter == 0)
         CLOG(FATAL, "LOGGER_SYS") << "Intensity Scale Can Not be Correct in First Iteration";
     else
         _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+
+    if (_rS > _r)
+    {
+        MLOG(WARNING, "LOGGER_SYS") << "_rS is Larger than _r, Set _rS to _r";
+        _rS = _r;
+    }
 
     MLOG(INFO, "LOGGER_SYS") << "Upper Boundary Frequency for Scale Correction: "
                              << _rS;
