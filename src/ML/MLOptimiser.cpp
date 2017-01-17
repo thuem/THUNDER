@@ -861,6 +861,11 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+    BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+
+    allReduceSigma(_para.groupSig);
+
     if ((_searchType == SEARCH_TYPE_GLOBAL) &&
         (_para.groupScl))
     {
@@ -869,11 +874,6 @@ void MLOptimiser::maximization()
 
         correctScale(false, true);
     }
-
-    ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
-    BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
-
-    allReduceSigma(_para.groupSig);
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
@@ -1815,13 +1815,6 @@ void MLOptimiser::correctScale(const bool init,
     }
 }
 
-/***
-static inline double complex_real_imag_sum(const Complex x)
-{
-    return REAL(x) + IMAG(x);
-}
-***/
-
 void MLOptimiser::initSigma()
 {
     IF_MASTER return;
@@ -2086,9 +2079,14 @@ void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
-    if (_rL > _rS) MLOG(FATAL, "LOGGER_SYS") << "_rL is Larger than _rS";
 
-    _rS = 3;
+    if (init)
+        _rS = 3;
+    else
+        _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+
+    MLOG(INFO, "LOGGER_SYS") << "Upper Boundary Frequency for Scale Correction: "
+                             << _rS;
 
     mat mXA = mat::Zero(_nGroup, _rS);
     mat mAA = mat::Zero(_nGroup, _rS);
@@ -2213,11 +2211,17 @@ void MLOptimiser::refreshScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = sum / count;
     }
+
+    double mScale = _scale.mean();
     
-    MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << _scale.mean();
+    MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << mScale;
 
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
+
+    MLOG(INFO, "LOGGER_ROUND") << "Making Average Intensity Scale be 1";
+    for (int i = 0; i < _nGroup; i++)
+        _scale(i) /= mScale;
 
 #ifdef VERBOSE_LEVEL_2
     for (int i = 0; i < _nGroup; i++)
