@@ -185,6 +185,9 @@ double MKB_BLOB_VOL(const double a,
  */
 double TIK_RL(const double r);
 
+double median(vec src,
+              const int n);
+
 /**
  * Calculcuate the Median Absolute Deviation
  *

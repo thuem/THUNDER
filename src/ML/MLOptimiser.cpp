@@ -867,7 +867,8 @@ void MLOptimiser::maximization()
     allReduceSigma(_para.groupSig);
 
     if ((_searchType == SEARCH_TYPE_GLOBAL) &&
-        (_para.groupScl))
+        (_para.groupScl) &&
+        (_iter != 0))
     {
         ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
         BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
@@ -2080,8 +2081,10 @@ void MLOptimiser::refreshScale(const bool init,
 {
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
 
-    if (init || (_iter == 0))
+    if (init)
         _rS = 3;
+    else if (_iter == 0)
+        CLOG(FATAL, "LOGGER_SYS") << "Intensity Scale Can Not be Correct in First Iteration";
     else
         _rS = _model.resolutionP(_para.thresSclCorFSC, false);
 
@@ -2230,16 +2233,31 @@ void MLOptimiser::refreshScale(const bool init,
             _scale(i) = sum / count;
     }
 
-    double mScale = _scale.mean();
+    double medianScale = median(_scale, _scale.size());
+
+    MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
+
+    if (medianScale < 0) CLOG(FATAL, "LOGGER_SYS") << "Median of Intensity Scale Can Not Below Zero";
+
+    MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale: " << medianScale;
+
+    for (int i = 0; i < _nGroup; i++)
+    {
+        if (_scale(i) > medianScale * 5) _scale(i) = medianScale * 5;
+        if (_scale(i) < medianScale / 5) _scale(i) = medianScale / 5;
+    }
+
+    double meanScale = _scale.mean();
     
-    MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << mScale;
+    MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
 
     MLOG(INFO, "LOGGER_ROUND") << "Making Average Intensity Scale be 1";
+
     for (int i = 0; i < _nGroup; i++)
-        _scale(i) /= mScale;
+        _scale(i) /= meanScale;
 
     IF_MASTER
     {

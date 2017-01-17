@@ -222,6 +222,14 @@ double TIK_RL(const double r)
     return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));
 }
 
+double median(vec src,
+              const int n)
+{
+    gsl_sort(src.data(), 1, n);
+
+    return gsl_stats_quantile_from_sorted_data(src.data(), 1, n, 0.5);
+}
+
 void stat_MAS(double& mean,
               double& std,
               vec src,
