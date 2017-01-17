@@ -225,6 +225,8 @@ struct MLOptimiserPara
      */
     double thresReportFSC;
 
+    double thresSclCorFSC;
+
     /**
      * grouping or not when calculating sigma
      */

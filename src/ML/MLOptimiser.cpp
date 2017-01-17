@@ -2504,13 +2504,20 @@ void MLOptimiser::reconstructRef()
 
         lowPassRef = _model.ref(0).copyVolume();
 
+        softMask(lowPassRef,
+                 lowPassRef,
+                 _para.size / 2 - EDGE_WIDTH_RL,
+                 EDGE_WIDTH_RL,
+                 0);
+
         FFT fft;
 
         fft.fwMT(lowPassRef);
 
         lowPassFilter(lowPassRef,
                       lowPassRef,
-                      _para.pixelSize / GEN_MASK_RES,
+                      //_para.pixelSize / GEN_MASK_RES,
+                      _model.rGlobal() / _para.size,
                       (double)EDGE_WIDTH_FT / _para.pf / _para.size);
 
         fft.bwMT(lowPassRef);
@@ -2518,8 +2525,8 @@ void MLOptimiser::reconstructRef()
         autoMask(_mask,
                  lowPassRef,
                  GEN_MASK_EXT,
-                 GEN_MASK_EDGE_WIDTH,
-                 _para.size * 0.5);
+                 EDGE_WIDTH_RL,
+                 _para.size / 2);
 
         saveMask();
 

@@ -68,6 +68,7 @@ void readPara(MLOptimiserPara& dst,
     dst.sclCorRes = src["Advanced"]["Correct Intensity Scale Using Signal Under (Angstrom)"].asFloat();
     dst.thresCutoffFSC = src["Advanced"]["FSC Threshold for Cutoff Frequency"].asFloat();
     dst.thresReportFSC = src["Advanced"]["FSC Threshold for Reporting Resolution"].asFloat();
+    dst.thresSclCorFSC = src["Advanced"]["FSC Threshold for Scale Correction"].asFloat();
     dst.groupSig = src["Advanced"]["Grouping when Calculating Sigma"].asBool();
     dst.groupScl = src["Advanced"]["Grouping when Correcting Intensity Scale"].asBool();
     dst.zeroMask = src["Advanced"]["Mask Images with Zero Noise"].asBool();
