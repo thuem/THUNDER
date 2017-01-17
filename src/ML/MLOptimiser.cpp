@@ -2080,7 +2080,7 @@ void MLOptimiser::refreshScale(const bool init,
 {
     if (_rS > _r) MLOG(FATAL, "LOGGER_SYS") << "_rS is Larger than _r";
 
-    if (init)
+    if (init || (_iter == 0))
         _rS = 3;
     else
         _rS = _model.resolutionP(_para.thresSclCorFSC, false);
