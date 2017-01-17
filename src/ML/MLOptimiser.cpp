@@ -1094,7 +1094,7 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
 
-        _resReport = _model.resolutionP(_para.thresReportFSC, true);
+        _resReport = _model.resolutionP(_para.thresReportFSC, false);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
                                    << _resReport
@@ -1104,7 +1104,7 @@ void MLOptimiser::run()
 
         _model.setRes(_resReport);
 
-        _resCutoff = _model.resolutionP(_para.thresCutoffFSC, true);
+        _resCutoff = _model.resolutionP(_para.thresCutoffFSC, false);
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "
                                    << _resCutoff
@@ -1353,7 +1353,11 @@ void MLOptimiser::initMask()
 {
     ImageFile imf(_para.mask, "rb");
     imf.readMetaData();
-    imf.readVolume(_mask);
+
+    Volume mask;
+    imf.readVolume(mask);
+
+    VOL_PAD_RL(_mask, mask, _para.pf);
 }
 
 void MLOptimiser::initID()
@@ -2530,16 +2534,6 @@ void MLOptimiser::reconstructRef()
 void MLOptimiser::solventFlatten(const bool mask)
 {
     IF_MASTER return;
-
-    /***
-    ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering on Reference(s)";
-    BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering on Reference(s)";
-
-    lowPassFilter(_model.ref(0),
-                  _model.ref(0),
-                  (double)_r / _para.size,
-                  (double)EDGE_WIDTH_FT / _para.size);
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
