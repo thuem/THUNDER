@@ -286,14 +286,12 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
 
-            /***
             double r = GSL_MIN_DBL(resA2P(1.0 / A_B_AVERAGE_THRES,
                                           _size,
                                           _pixelSize) * _pf,
                                    (_r - 1) * _pf);
-                                   ***/
 
-            double r = (_r - 1) * _pf;
+            //double r = (_r - 1) * _pf;
 
             /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
@@ -700,7 +698,7 @@ void MLModel::elevateR(const double thres)
                                      _r + AROUND(areaGlb / (2 * M_PI * _r) / 4)));
                                      ***/
         _r = GSL_MAX_INT(_r,
-                         GSL_MIN_INT(resolutionP(thres, true) + 1,
+                         GSL_MIN_INT(resolutionP(thres, false) + 1,
                                      _r + AROUND((double)_rGlobal / 4)));
     }
     else
@@ -711,7 +709,7 @@ void MLModel::elevateR(const double thres)
                                      _r + AROUND(areaTtl / (2 * M_PI * _r) / 16)));
                                      ***/
         _r = GSL_MAX_INT(_r,
-                         GSL_MIN_INT(resolutionP(thres, true) + 1,
+                         GSL_MIN_INT(resolutionP(thres, false) + 1,
                                      _r + AROUND((double)maxR() / 8)));
     }
 

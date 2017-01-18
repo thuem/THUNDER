@@ -221,14 +221,25 @@ void Reconstructor::insert(const Image& src,
                 vec3 oldCor = sr[k] * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                _F.addFT(transSrc.getFTHalf(i, j)
-                       * REAL(ctf.getFTHalf(i, j))
-                       * w, 
-                         oldCor(0), 
-                         oldCor(1), 
-                         oldCor(2), 
-                         _pf * _a, 
-                         _kernelFT);
+                if (sig == NULL)
+                    _F.addFT(transSrc.getFTHalf(i, j)
+                           * REAL(ctf.getFTHalf(i, j))
+                           * w, 
+                             oldCor(0), 
+                             oldCor(1), 
+                             oldCor(2), 
+                             _pf * _a, 
+                             _kernelFT);
+                else
+                    _F.addFT(transSrc.getFTHalf(i, j)
+                           * REAL(ctf.getFTHalf(i, j))
+                           / sig(AROUND(NORM(i, j)))
+                           * w,
+                             oldCor(0),
+                             oldCor(1),
+                             oldCor(2),
+                             _pf * _a,
+                             _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
