@@ -80,7 +80,7 @@ void Postprocess::run()
 
     saveFSC();
 
-    _res = resP(_FSC, 0.143);
+    _res = resP(_FSC, 0.143, 1, 1, true);
 
     CLOG(INFO, "LOGGER_SYS") << "Resolution: "
                              << 1.0 / resP2A(_res,

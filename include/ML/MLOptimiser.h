@@ -55,7 +55,7 @@
 #define MIN_N_PHASE_PER_ITER 10
 #define MAX_N_PHASE_PER_ITER 100
 
-#define PERTURB_FACTOR_L 100
+#define PERTURB_FACTOR_L 10000
 #define PERTURB_FACTOR_S 0.01
 
 //#define GEN_MASK_RES 30
@@ -253,9 +253,10 @@ struct MLOptimiserPara
         bFactor = 200;
         pf = 2;
         a = 1.9;
-        alpha = 10;
+        alpha = 15;
         thresCutoffFSC = 0.5;
         thresReportFSC = 0.143;
+        thresSclCorFSC = 0.75;
     }
 };
 
