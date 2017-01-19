@@ -81,6 +81,8 @@ class Reconstructor : public Parallel
 
         int _calMode;
 
+        bool _MAP;
+
         /**
          * The real size of the 3D Fourier reconstructor space that is used to
          * determine the size (PAD_SIZE) of Volume in 3 dimensions(xyz).
@@ -219,6 +221,8 @@ class Reconstructor : public Parallel
         {
             _calMode = POST_CAL_MODE;
 
+            _MAP = true;
+
             _pf = 2;
             _sym = NULL;
             _a = 1.9;
@@ -281,6 +285,10 @@ class Reconstructor : public Parallel
                   const double alpha = 15);
 
         void reset();
+
+        bool MAP() const;
+
+        void setMAP(const bool MAP);
 
         /** 
          * set the symmetry mark of the model to be reconstructed. 

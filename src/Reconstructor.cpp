@@ -110,6 +110,16 @@ void Reconstructor::reset()
     SET_0_FT(_T);
 }
 
+bool Reconstructor::MAP() const
+{
+    return _MAP;
+}
+
+void Reconstructor::setMAP(const bool MAP)
+{
+    _MAP = MAP;
+}
+
 void Reconstructor::setSymmetry(const Symmetry* sym)
 {
     _sym = sym;
