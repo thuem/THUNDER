@@ -97,6 +97,8 @@ void Reconstructor::reset()
 
     _calMode = POST_CAL_MODE;
 
+    _MAP = true;
+
     #pragma omp parallel for
     SET_0_FT(_F);
 
@@ -387,69 +389,71 @@ void Reconstructor::reconstruct(Volume& dst)
     symmetrizeT();
 #endif
 
-    // Obviously, wiener_filter with FSC can be wrong when dealing with
-    // preferrable orienation problem
+    if (_MAP)
+    {
+        // Obviously, wiener_filter with FSC can be wrong when dealing with
+        // preferrable orienation problem
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-    vec avg = vec::Zero(_maxRadius * _pf + 1);
-    shellAverage(avg,
-                 _T,
-                 gsl_real,
-                 _maxRadius * _pf - 1);
-    // the last two elements have low fidelity
-    avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
-    avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
+        vec avg = vec::Zero(_maxRadius * _pf + 1);
+        shellAverage(avg,
+                     _T,
+                     gsl_real,
+                    _maxRadius * _pf - 1);
+        // the last two elements have low fidelity
+        avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
+        avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
 
-    ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
-                             << avg(avg.size() - 5) << ", "
-                             << avg(avg.size() - 4) << ", "
-                             << avg(avg.size() - 3) << ", "
-                             << avg(avg.size() - 2) << ", "
-                             << avg(avg.size() - 1);
-    BLOG(INFO, "LOGGER_SYS") << "End of Avg = "
-                             << avg(avg.size() - 5) << ", "
-                             << avg(avg.size() - 4) << ", "
-                             << avg(avg.size() - 3) << ", "
-                             << avg(avg.size() - 2) << ", "
-                             << avg(avg.size() - 1);
+        ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
+                                 << avg(avg.size() - 5) << ", "
+                                 << avg(avg.size() - 4) << ", "
+                                 << avg(avg.size() - 3) << ", "
+                                 << avg(avg.size() - 2) << ", "
+                                 << avg(avg.size() - 1);
+        BLOG(INFO, "LOGGER_SYS") << "End of Avg = "
+                                 << avg(avg.size() - 4) << ", "
+                                 << avg(avg.size() - 3) << ", "
+                                 << avg(avg.size() - 2) << ", "
+                                 << avg(avg.size() - 1);
 #endif
 
-    ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
-    BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
+        ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
+        BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
 
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-        if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-            (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-        {
-            int u = AROUND(NORM_3(i, j, k));
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_FT(_T)
+            if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
+            {
+                int u = AROUND(NORM_3(i, j, k));
 
-            double FSC = (u >= _FSC.size())
-                       ? _FSC(_FSC.size() - 1)
-                       : _FSC(u);
+                double FSC = (u >= _FSC.size())
+                           ? _FSC(_FSC.size() - 1)
+                           : _FSC(u);
 
-            FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
+                FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-            _T.setFT(_T.getFT(i, j, k)
-                   + COMPLEX((1 - FSC) / FSC * avg(u), 0),
-                     i,
-                     j,
-                     k);
+                _T.setFT(_T.getFT(i, j, k)
+                       + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                         i,
+                         j,
+                         k);
 #else
-            _T.setFT(_T.getFT(i, j, k) / FSC, i, j, k);
+                _T.setFT(_T.getFT(i, j, k) / FSC, i, j, k);
 #endif
-        }
+            }
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_CONST
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-        if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-            (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-            _T.setFT(_T.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_FT(_T)
+            if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
+                _T.setFT(_T.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
 #endif
+    }
 
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";

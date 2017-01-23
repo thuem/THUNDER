@@ -1207,10 +1207,9 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
     NT_MASTER
     {
-        //_model.refreshReco();
         _model.resetReco();
 
-        //_model.refreshRecoSigTau(maxR(), _resReport);
+        _model.reco(0).setMAP(false);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
