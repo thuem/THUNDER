@@ -2556,13 +2556,11 @@ void MLOptimiser::reconstructRef()
 
         lowPassRef = _model.ref(0).copyVolume();
 
-        /***
         softMask(lowPassRef,
                  lowPassRef,
                  _para.size / 2 - EDGE_WIDTH_RL,
                  EDGE_WIDTH_RL,
                  0);
-        ***/
 
         FFT fft;
 
@@ -2615,6 +2613,11 @@ void MLOptimiser::solventFlatten(const bool mask)
 #else
         softMask(_model.ref(0), _model.ref(0), _mask);
 #endif
+        /***
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_RL(_model.ref(0))
+            _model.ref(0)(i) *= _mask(i);
+        ***/
     }
     else
     {
