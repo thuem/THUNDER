@@ -1170,6 +1170,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
+        MLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s) to Cutoff Frequency";
+        lowPassFilter(_model.ref(0),
+                      _model.ref(0),
+                      (double)_r / _para.size,
+                      (double)EDGE_WIDTH_FT / _para.size);
+
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
 
@@ -2556,29 +2562,28 @@ void MLOptimiser::reconstructRef()
 
         lowPassRef = _model.ref(0).copyVolume();
 
-        softMask(lowPassRef,
-                 lowPassRef,
-                 _para.size / 2 - EDGE_WIDTH_RL,
-                 EDGE_WIDTH_RL,
-                 0);
-
         FFT fft;
 
         fft.fwMT(lowPassRef);
 
         lowPassFilter(lowPassRef,
                       lowPassRef,
-                      //_para.pixelSize / GEN_MASK_RES,
                       _model.rGlobal() / _para.size,
                       (double)EDGE_WIDTH_FT / _para.pf / _para.size);
 
         fft.bwMT(lowPassRef);
 
+        softMask(lowPassRef,
+                 lowPassRef,
+                 _para.size / 2 - EDGE_WIDTH_RL,
+                 EDGE_WIDTH_RL,
+                 0);
+
         autoMask(_mask,
                  lowPassRef,
                  GEN_MASK_EXT,
                  EDGE_WIDTH_RL,
-                 _para.size / 2);
+                 _para.size / 2 - EDGE_WIDTH_RL);
 
         saveMask();
 
