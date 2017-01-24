@@ -293,7 +293,9 @@ void MLModel::BcastFSC()
                                    (_r - 1) * _pf);
                                    ***/
 
-            double r = (_r - 1) * _pf;
+            //double r = (_r - 1) * _pf;
+
+            double r = _rU * _pf;
 
             /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
@@ -584,8 +586,8 @@ void MLModel::resetReco()
     {
         _reco[l]->reset();
 
-        _reco[l]->setFSC(_FSC.col(l).head(_r * _pf));
-        //_reco[l]->setFSC(_FSC.col(l));
+        //_reco[l]->setFSC(_FSC.col(l).head(_r * _pf));
+        _reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);
     }
