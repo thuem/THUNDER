@@ -355,13 +355,6 @@ void MLOptimiser::expectation()
         nSampleWholeSpace = _para.mS * nT;
 #endif
 
-        /***
-        int nT = GSL_MAX_INT(30,
-                             AROUND(M_PI
-                                  * gsl_pow_2(_para.transS)
-                                  * TRANS_SEARCH_FACTOR));
-                                  ***/
-
         Particle par;
         par.init(_para.transS, TRANS_Q, &_sym);
         par.reset(nR, nT);
@@ -404,68 +397,16 @@ void MLOptimiser::expectation()
 
             par.rot(rot, m * nT);
 
-            //_model.proj(0).project(imgRot, rot);
-            //_model.proj(0).projectMT(imgRot, rot);
             _model.proj(0).project(imgRot, rot, _iCol, _iRow, _iPxl, _nPxl);
 
             for (unsigned int n = 0; n < (unsigned int)nT; n++)
             {
-                // perform translation
-
-                /***
-                #pragma omp parallel for schedule(dynamic)
-                IMAGE_FOR_EACH_PIXEL_FT(imgAll)
-                ***/
-
-                //#pragma omp parallel for schedule(dynamic)
-                /***
-                IMAGE_FOR_PIXEL_R_FT(_r)
-                {
-                    if (QUAD(i, j) < gsl_pow_2(_r))
-                    {
-                        int index = imgAll.iFTHalf(i, j);
-                        imgAll[index] = imgRot[index] * trans[n][index];
-                    }
-                }
-                ***/
-
                 mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
 
                 Complex* priP = new Complex[_nPxl];
 
                 for (int i = 0; i < _nPxl; i++)
                     priP[i] = imgAll.iGetFT(_iPxl[i]);
-
-                /***
-                logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
-                                                                  imgAll,
-                                                                  _ctf,
-                                                                  _groupID,
-                                                                  _sig,
-                                                                  _r,
-                                                                  _rL);
-                                                                  ***/
-                /***
-                logW.row(m * nT + n).transpose() = logDataVSPrior(_img,
-                                                                  imgAll,
-                                                                  _ctf,
-                                                                  _groupID,
-                                                                  _sig,
-                                                                  _iPxl,
-                                                                  _iSig,
-                                                                  nPxl);
-                                                                  ***/
-
-                /***
-                vec dvp = logDataVSPrior(_img,
-                                         imgAll,
-                                         _ctf,
-                                         _groupID,
-                                         _sigRcp,
-                                         _iPxl,
-                                         _iSig,
-                                         nPxl);
-                                         ***/
 
                 vec dvp = logDataVSPrior(_datP,
                                          priP,
@@ -534,11 +475,7 @@ void MLOptimiser::expectation()
         {
             vec v = topW.col(l);
 
-#ifdef SCAN_SOFT_PROCESS
             PROCESS_LOGW_SOFT(v);
-#else
-            PROCESS_LOGW_HARD(v);
-#endif
 
             topW.col(l) = v;
         }
@@ -548,11 +485,6 @@ void MLOptimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            /***
-            for (int m = 0; m < _par[l].n(); m++)
-                _par[l].mulW(logW(m, l), m);
-            ***/
-
             _par[l].reset(nSampleMax);
 
             vec4 quat;
@@ -560,35 +492,16 @@ void MLOptimiser::expectation()
 
             for (int m = 0; m < nSampleMax; m++)
             {
-                /***
-                double w = leaderBoard[l].top()._w;
-                int iR = leaderBoard[l].top()._iR;
-                int iT = leaderBoard[l].top()._iT;
-
-                leaderBoard[l].pop();
-                ***/
-
                 par.quaternion(quat, iTopR(m, l) * nT);
                 par.t(t, iTopT(m, l));
-
-                /***
-                par.quaternion(quat, iR * nT);
-                par.t(t, iT);;
-                ***/
 
                 _par[l].setQuaternion(quat, m);
                 _par[l].setT(t, m);
 
                 _par[l].mulW(topW(m, l), m);
-                //_par[l].mulW(w, m);
             }
 
             _par[l].normW();
-
-            /***
-            // sort
-            _par[l].sort(_para.mG);
-            ***/
 
             if (_ID[l] < 20)
             {
@@ -648,10 +561,6 @@ void MLOptimiser::expectation()
     FOR_EACH_2D_IMAGE
     {
         Complex* priP = new Complex[_nPxl];
-        //Image image(size(), size(), FT_SPACE);
-
-        // number of sampling for the next phase searching
-        // int nSamplingNextPhase = 0;
 
         int nPhaseWithNoVariDecrease = 0;
 
@@ -680,8 +589,7 @@ void MLOptimiser::expectation()
             {
                 _par[l].rot(rot, m);
                 _par[l].t(t, m);
-                    //_model.proj(0).project(image, rot, t);
-                    //_model.proj(0).project(image, rot, t, _iCol, _iRow, _iPxl, nPxl);
+
                 _model.proj(0).project(priP,
                                        rot,
                                        t,
@@ -691,31 +599,6 @@ void MLOptimiser::expectation()
                                        _iRow,
                                        _nPxl);
 
-                    /***
-                    logW(m) = logDataVSPrior(_img[l], // dat
-                                             image, // pri
-                                             _ctf[l], // ctf
-                                             _sig.row(_groupID[l] - 1).head(_r).transpose(), // sig
-                                             _r,
-                                             _rL);
-                                             ***/
-                    /***
-                    logW(m) = logDataVSPrior(_img[l], // dat
-                                             image, // pri
-                                             _ctf[l], // ctf
-                                             _sigRcp.row(_groupID[l] - 1).head(_r).transpose(), // sig
-                                             _iPxl,
-                                             _iSig,
-                                             nPxl);
-                                             ***/
-                /***
-                logW(m) = logDataVSPrior(_datP[l],
-                                         priP,
-                                         _ctfP[l],
-                                         _sigRcpP[l],
-                                         _nPxl);
-                                         ***/
-
                 logW(m) = logDataVSPrior(_datP + l * _nPxl,
                                          priP,
                                          _ctfP + l * _nPxl,
@@ -723,11 +606,12 @@ void MLOptimiser::expectation()
                                          _nPxl);
             }
 
-#ifdef DEEP_SOFT_PROCESS
-            PROCESS_LOGW_SOFT(logW);
-#else
-            PROCESS_LOGW_HARD(logW);
-#endif
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                PROCESS_LOGW_SOFT(logW);
+            else
+                PROCESS_LOGW_HARD(logW);
+
+            // PROCESS_LOGW_SOFT(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -783,16 +667,6 @@ void MLOptimiser::expectation()
                 double rVariCur;
 
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
-
-                /***
-                CLOG(INFO, "LOGGER_SYS") << "phase = " << phase;
-                CLOG(INFO, "LOGGER_SYS") << "tVariS0 = " << tVariS0;
-                CLOG(INFO, "LOGGER_SYS") << "tVariS1 = " << tVariS1;
-                CLOG(INFO, "LOGGER_SYS") << "rVari = " << rVari;
-                CLOG(INFO, "LOGGER_SYS") << "tVariS0Cur = " << tVariS0Cur;
-                CLOG(INFO, "LOGGER_SYS") << "tVariS1Cur = " << tVariS1Cur;
-                CLOG(INFO, "LOGGER_SYS") << "rVariCur = " << rVariCur;
-                ***/
 
                 if ((tVariS0Cur < tVariS0 * 0.9) ||
                     (tVariS1Cur < tVariS1 * 0.9) ||

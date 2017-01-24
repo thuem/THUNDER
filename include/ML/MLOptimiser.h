@@ -11,9 +11,6 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
-#define SCAN_SOFT_PROCESS
-#define DEEP_SOFT_PROCESS
-
 #define DYNAMIC_NUM_SAMPLE
 
 #include <cstdlib>
