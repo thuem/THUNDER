@@ -256,35 +256,11 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
 
-            /***
-            Volume aA = A.copyVolume();
-            Volume aB = B.copyVolume();
-
-            FFT fft;
-            fft.bwMT(aA);
-            fft.bwMT(aB);
-
-            Volume bA;
-            Volume bB;
-
-            VOL_EXTRACT_RL(bA, aA, 1.0 / _pf);
-            VOL_EXTRACT_RL(bB, aB, 1.0 / _pf);
-
-            fft.fwMT(bA);
-            fft.fwMT(bB);
-
-            vec fsc(_rU);
-            FSC(fsc, bA, bB);
-
-            for (int i = 0; i < _rU * _pf; i++)
-                _FSC(i, l) = fsc(i / _pf);
-            ***/
-
             vec fsc(_rU * _pf);
             FSC(fsc, A, B);
             _FSC.col(l) = fsc;
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below a Certain Resolution";
+            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
             /***
             double r = GSL_MIN_DBL(resA2P(1.0 / A_B_AVERAGE_THRES,
@@ -295,14 +271,13 @@ void MLModel::BcastFSC()
 
             //double r = (_r - 1) * _pf;
 
-            double r = _rU * _pf;
+            //double r = _rU * _pf;
 
             /***
             double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
                                            _size,
                                            _pixelSize) + 1) * _pf,
                                    //_rU * _pf);
-                                   ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
                                          << 1.0 / resP2A(r, _size * _pf, _pixelSize)
@@ -316,6 +291,15 @@ void MLModel::BcastFSC()
                     A.setFT(avg, i, j, k);
                     B.setFT(avg, i, j, k);
                 }
+            ***/
+
+            #pragma omp parallel for
+            FOR_EACH_PIXEL_FT(A)
+            {
+                Complex avg = (A[i] + B[i]) / 2;
+                A[i] = avg;
+                B[i] = avg;
+            }
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << l
