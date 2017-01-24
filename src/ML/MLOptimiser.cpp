@@ -1044,11 +1044,13 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s) to Cutoff Frequency";
         lowPassFilter(_model.ref(0),
                       _model.ref(0),
                       (double)_r / _para.size,
                       (double)EDGE_WIDTH_FT / _para.pf / _para.size);
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
