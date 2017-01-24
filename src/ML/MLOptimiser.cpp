@@ -1174,7 +1174,7 @@ void MLOptimiser::run()
         lowPassFilter(_model.ref(0),
                       _model.ref(0),
                       (double)_r / _para.size,
-                      (double)EDGE_WIDTH_FT / _para.size);
+                      (double)EDGE_WIDTH_FT / _para.pf / _para.size);
 
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
