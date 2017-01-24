@@ -70,11 +70,50 @@ void Postprocess::run()
     fft.fwMT(_mapAMasked);
     fft.fwMT(_mapBMasked);
 
-    CLOG(INFO, "LOGGER_SYS") << "Determining FSC";
+    CLOG(INFO, "LOGGER_SYS") << "Determining FSCUnmask & FSCMask";
+
+    _FSCUnmask.resize(maxR());
+
+    _FSCMask.resize(maxR());
+
+    FSC(_FSCUnmask, _mapA, _mapB);
+
+    FSC(_FSCMask, _mapAMasked, _mapBMasked);
+
+    int randomPhaseThres = resP(_FSCUnmask, 0.8, 1, 1, false);
+
+    CLOG(INFO, "LOGGER_SYS") << "Performing Random Phase From "
+                             << 1.0 / resP2A(randomPhaseThres,
+                                             _size,
+                                             _pixelSize);
+
+    randomPhaseAB(randomPhaseThres);
+
+    CLOG(INFO, "LOGGER_SYS") << "Determing FSCRFMask";
+
+    fft.bwMT(_mapARFMask);
+    fft.bwMT(_mapBRFMask);
+
+    maskABRF();
+
+    fft.fwMT(_mapARFMask);
+    fft.fwMT(_mapBRFMask);
+
+    _FSCRFMask.resize(maxR());
+
+    FSC(_FSCRFMask, _mapARFMask, _mapBRFMask);
+
+    CLOG(INFO, "LOGGER_SYS") << "Calculating True FSC";
 
     _FSC.resize(maxR());
 
-    FSC(_FSC, _mapAMasked, _mapBMasked);
+    for (int i = 0; i < maxR(); i++)
+    {
+        if (i < randomPhaseThres + 2)
+            _FSC(i) = _FSCMask(i);
+        else
+            _FSC(i) = (_FSCMask(i) - _FSCRFMask(i)) / (1 - _FSCRFMask(i));
+    }
 
     CLOG(INFO, "LOGGER_SYS") << "Saving FSC";
 
@@ -136,6 +175,21 @@ void Postprocess::maskAB()
 {
     softMask(_mapAMasked, _mapA, _mask, 0);
     softMask(_mapBMasked, _mapB, _mask, 0);
+}
+
+void Postprocess::maskABRF()
+{
+    softMask(_mapARFMask, _mapARFMask, _mask, 0);
+    softMask(_mapBRFMask, _mapBRFMask, _mask, 0);
+}
+
+void Postprocess::randomPhaseAB(const int randomPhaseThres)
+{
+    _mapARFMask.alloc(_size, _size, _size, FT_SPACE);
+    _mapBRFMask.alloc(_size, _size, _size, FT_SPACE);
+
+    randomPhase(_mapARFMask, _mapA, randomPhaseThres);
+    randomPhase(_mapBRFMask, _mapB, randomPhaseThres);
 }
 
 void Postprocess::mergeAB()

@@ -276,17 +276,17 @@ void randomPhase(Volume& dst,
 {
     gsl_rng* engine = get_random_engine();
 
+    #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(dst)
     {
         int u = AROUND(NORM_3(i, j, k));
 
         if (u > r)
-        {
-            double norm = ABS(src.getFT(i, j, k));
-            double phase = gsl_ran_flat(engine, 0, 2 * M_PI);
-
-            dst.setFT(gsl_complex_polar(norm, phase), i, j, k);
-        }
+            dst.setFT(src.getFT(i, j, k)
+                    * COMPLEX_POLAR(gsl_ran_flat(engine, 0, 2 * M_PI)),
+                      i,
+                      j,
+                      k);
         else
             dst.setFT(src.getFT(i, j, k), i, j, k);
     }

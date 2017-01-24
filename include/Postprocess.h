@@ -44,13 +44,17 @@ class Postprocess
 
         Volume _mapI;
 
-        /***
         Volume _mapARFMask;
 
         Volume _mapBRFMask;
-        ***/
 
         Volume _mask;
+
+        vec _FSCUnmask;
+
+        vec _FSCMask;
+
+        vec _FSCRFMask;
 
         vec _FSC;
         
@@ -73,6 +77,10 @@ class Postprocess
          * perform masking on reference A and reference B
          */
         void maskAB();
+
+        void maskABRF();
+
+        void randomPhaseAB(const int randomPhaseThres);
 
         void mergeAB();
 
