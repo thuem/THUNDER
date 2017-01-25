@@ -2496,11 +2496,6 @@ void MLOptimiser::solventFlatten(const bool mask)
 #else
         softMask(_model.ref(0), _model.ref(0), _mask);
 #endif
-        /***
-        #pragma omp parallel for
-        FOR_EACH_PIXEL_RL(_model.ref(0))
-            _model.ref(0)(i) *= _mask(i);
-        ***/
     }
     else
     {
@@ -2510,16 +2505,22 @@ void MLOptimiser::solventFlatten(const bool mask)
 #ifdef OPTIMISER_REFERENCE_ZERO_MASK
         softMask(_model.ref(0),
                  _model.ref(0),
-                 SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL,
+                 _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                  EDGE_WIDTH_RL,
                  0);
 #else
+        softMask(_model.ref(0),
+                 _model.ref(0),
+                 _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                 EDGE_WIDTH_RL);
+        /***
         regionBgSoftMask(_model.ref(0),
                          _model.ref(0),
-                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL,
+                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                          EDGE_WIDTH_RL,
                          _para.size / 2,
-                         SOLVENT_FLATTEN_LOOSE_FACTOR * _para.size / 4 - EDGE_WIDTH_RL);
+                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
+        ***/
 #endif
     }
 
