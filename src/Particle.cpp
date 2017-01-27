@@ -14,13 +14,14 @@ Particle::Particle()
 }
 
 Particle::Particle(const int n,
+                   const int k,
                    const double transS,
                    const double transQ,
                    const Symmetry* sym)
 {
     defaultInit();
 
-    init(n, transS, transQ, sym);
+    init(n, k, transS, transQ, sym);
 }
 
 Particle::~Particle()
@@ -41,11 +42,14 @@ void Particle::init(const double transS,
 }
 
 void Particle::init(const int n,
+                    const int k,
                     const double transS,
                     const double transQ,
                     const Symmetry* sym)
 {
     init(transS, transQ, sym);
+
+    _k = k;
 
     _n = n;
 

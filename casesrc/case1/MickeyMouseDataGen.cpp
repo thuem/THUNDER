@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
     // Image image(N, N, RL_SPACE);
     std::cout << "Initialising Random Sampling Points" << std::endl;
     Symmetry sym("C2");
-    Particle par(M, TRANS_S, 0.01, &sym);
+    Particle par(M, 1, TRANS_S, 0.01, &sym);
     std::cout << "Saving Sampling Points" << std::endl;
     save("Sampling_Points.par", par);
 

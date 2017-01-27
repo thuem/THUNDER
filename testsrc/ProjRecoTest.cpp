@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
     if (commRank == MASTER_ID)
     {
         CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
-        Particle par(M, TRANS_S, 0.01, &sym);
+        Particle par(M, 1, TRANS_S, 0.01, &sym);
         //Particle par(M, TRANS_S, 0.01, NULL);
         save("SamplingPoints.par", par);
 
@@ -293,7 +293,7 @@ int main(int argc, char* argv[])
     if (commRank != MASTER_ID)
     {
         CLOG(INFO, "LOGGER_SYS") << "Loading Sampling Points";
-        Particle par(M, TRANS_S, 0.01, &sym);
+        Particle par(M, 1, TRANS_S, 0.01, &sym);
         load(par, "SamplingPoints.par");
 
         char nameInsert[256];
@@ -415,8 +415,7 @@ int main(int argc, char* argv[])
         projectorNew.setProjectee(padNewRef.copyVolume());
 
         CLOG(INFO, "LOGGER_SYS") << "Loading Sampling Points";
-        Particle par(M, TRANS_S, 0.01, &sym);
-        //Particle par(M, TRANS_S, 0.01, NULL);
+        Particle par(M, 1, TRANS_S, 0.01, &sym);
         load(par, "SamplingPoints.par");
 
         #pragma omp parallel for

@@ -29,14 +29,31 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
+#define MODE_2D 0
+#define MODE_3D 1
+
 class Particle
 {
     private:
 
         /**
+         * MODE_2D: the reference is a 2D image, and the perturbation in
+         * rotation is in 2D
+         *
+         * MODE_3D: the reference is a 3D volume, and the perturbation in
+         * rotation is in 2D
+         */
+        int _mode;
+
+        /**
          * numer of particles in this particle filter
          */
         int _n;
+
+        /**
+         * number of classes in this particle filter
+         */
+        int _k;
 
         /**
          * the standard deviation of translation, assuming the translation
@@ -53,8 +70,16 @@ class Particle
         double _transQ;
 
         /**
-         * a table storing the rotation information with each row storing a
-         * quaternion
+         * a vector storing the class of each particle
+         */
+        uvec _c;
+
+        /**
+         * MODE_2D: a table storing the rotation information as the first column
+         * standing for the rotation in radius and the other three are zero
+         *
+         * MODE_3D: a table storing the rotation information with each row
+         * storing a quaternion
          */
         mat4 _r;
 
@@ -102,12 +127,29 @@ class Particle
         double _rho;
 
         /**
-         * quaternion of the previous most likely rotation
+         * the previous most likely class
+         */
+        int _topCPrev;
+
+        /**
+         * the most likely class
+         * it will be refreshed by resampling
+         */
+        int _topC;
+
+        /**
+         * MODE_2D: the first element stands for the previous most likely
+         * rotation
+         *
+         * MODE_3D: quaternion of the previous most likely rotation
          */
         vec4 _topRPrev;
 
         /**
-         * quaternion of the most likely rotation
+         * MODE_2D: the first element stands for the most likely rotation
+         *
+         * MODE_3D: quaternion of the most likely rotation
+         *
          * it will be refreshed by resampling
          */
         vec4 _topR;
@@ -123,8 +165,15 @@ class Particle
          */
         vec2 _topT;
 
+        /**
+         * default initialiser
+         */
         void defaultInit()
         {
+            _mode = MODE_3D;
+
+            _k = 1;
+
             _sym = NULL;
 
             _k0 = 0;
@@ -156,6 +205,7 @@ class Particle
          * @param sym    symmetry of resampling space
          */
         Particle(const int n,
+                 const int k,
                  const double transS,
                  const double transQ = 0.01,
                  const Symmetry* sym = NULL);
@@ -185,6 +235,7 @@ class Particle
          * @param sym    symmetry of resampling space
          */
         void init(const int n,
+                  const int k,
                   const double transS,
                   const double transQ = 0.01,
                   const Symmetry* sym = NULL);

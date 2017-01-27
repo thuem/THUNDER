@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
     Symmetry sym("C15");
-    Particle par(M, TRANS_S, 0.01, &sym);
+    Particle par(M, 1, TRANS_S, 0.01, &sym);
     std::cout << "Saving Sampling Points" << std::endl;
     save("Sampling_Points.par", par);
 
