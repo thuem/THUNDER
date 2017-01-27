@@ -357,7 +357,7 @@ void MLOptimiser::expectation()
 
         Particle par;
         par.init(_para.transS, TRANS_Q, &_sym);
-        par.reset(nR, nT);
+        par.reset(1, nR, nT);
 
         mat33 rot;
         vec2 t;
@@ -485,7 +485,7 @@ void MLOptimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            _par[l].reset(nSampleMax);
+            _par[l].reset(1, nSampleMax);
 
             vec4 quat;
             vec2 t;

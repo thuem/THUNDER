@@ -415,7 +415,7 @@ int main(int argc, char* argv[])
         projectorNew.setProjectee(padNewRef.copyVolume());
 
         CLOG(INFO, "LOGGER_SYS") << "Loading Sampling Points";
-        Particle par(M, 1, TRANS_S, 0.01, &sym);
+        Particle par(1, M, TRANS_S, 0.01, &sym);
         load(par, "SamplingPoints.par");
 
         #pragma omp parallel for

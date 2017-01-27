@@ -13,15 +13,15 @@ Particle::Particle()
     defaultInit();
 }
 
-Particle::Particle(const int n,
-                   const int k,
+Particle::Particle(const int m,
+                   const int n,
                    const double transS,
                    const double transQ,
                    const Symmetry* sym)
 {
     defaultInit();
 
-    init(n, k, transS, transQ, sym);
+    init(m, n, transS, transQ, sym);
 }
 
 Particle::~Particle()
@@ -41,15 +41,15 @@ void Particle::init(const double transS,
     _sym = sym;
 }
 
-void Particle::init(const int n,
-                    const int k,
+void Particle::init(const int m,
+                    const int n,
                     const double transS,
                     const double transQ,
                     const Symmetry* sym)
 {
     init(transS, transQ, sym);
 
-    _k = k;
+    _m = m;
 
     _n = n;
 
@@ -63,13 +63,33 @@ void Particle::init(const int n,
 
 void Particle::reset()
 {
-    // sample from Angular Central Gaussian Distribution with identity matrix
-    sampleACG(_r, 1, 1, _n);
-
-    // sample from 2D Gaussian Distribution
     gsl_rng* engine = get_random_engine();
 
+    // class, sample from flat distribution
+    // TODO
+
+    switch (_mode)
+    {
+        // rotation, MODE_2D, sample from flat distribution (first element of
+        // _r)
+        case MODE_2D:
+            // TODO
+            break;
+
+        // rotation, MODE_3D, sample from Angular Central Gaussian Distribution
+        // with identity matrix
+        case MODE_3D:
+            sampleACG(_r, 1, 1, _n);
+            break;
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            break;
+    }
+
+
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
+    // sample from 2D Gaussian Distribution
     for (int i = 0; i < _n; i++)
     {
         gsl_ran_bivariate_gaussian(engine,
@@ -78,8 +98,6 @@ void Particle::reset()
                                    0,
                                    &_t(i, 0),
                                    &_t(i, 1));
-                
-        _w(i) = 1.0 / _n;
     }
 #endif
 
@@ -92,18 +110,24 @@ void Particle::reset()
 
         _t(i, 0) = r * cos(t);
         _t(i, 1) = r * sin(t);
-
-        _w(i) = 1.0 / _n;
     }
 #endif
+
+    // initialise weight
+    for (int i = 0; i < _n; i++)
+        _w(i) = 1.0 / _n;
 
     symmetrise();
 }
 
-void Particle::reset(const int n)
+void Particle::reset(const int m,
+                     const int n)
 {
+    _m = m;
+
     _n = n;
 
+    _c.resize(_n);
     _r.resize(_n, 4);
     _t.resize(_n, 2);
     _w.resize(_n);
@@ -111,14 +135,25 @@ void Particle::reset(const int n)
     reset();
 }
 
-void Particle::reset(const int nR,
+void Particle::reset(const int m,
+                     const int nR,
                      const int nT)
 {
-    _n = nR * nT;
+    gsl_rng* engine = get_random_engine();
 
+    _m = m;
+
+    _n = m * nR * nT;
+
+    _c.resize(_n);
     _r.resize(_n, 4);
     _t.resize(_n, 2);
     _w.resize(_n);
+
+    uvec c(m);
+
+    // sample from flat distribution
+    // TODO
 
     mat4 r(nR, 4);
 
@@ -127,8 +162,8 @@ void Particle::reset(const int nR,
     
     mat2 t(nT, 2);
 
+#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
     // sample from 2D Gaussian Distribution
-    gsl_rng* engine = get_random_engine();
     for (int i = 0; i < nT; i++)
         gsl_ran_bivariate_gaussian(engine,
                                    _transS,
@@ -136,18 +171,39 @@ void Particle::reset(const int nR,
                                    0,
                                    &t(i, 0),
                                    &t(i, 1));
+#endif
 
-    for (int j = 0; j < nR; j++)
-        for (int i = 0; i < nT; i++)
-        {
-            _r.row(j * nT + i) = r.row(j);
-            _t.row(j * nT + i) = t.row(i);
+#ifdef PARTICLE_TRANS_INIT_FLAT
+    // sample for 2D Flat Distribution in a Circle
+    for (int i = 0; i < nT; i++)
+    {
+        double r = gsl_ran_flat(engine, 0, _transS);
+        double t = gsl_ran_flat(engine, 0, 2 * M_PI);
 
-            _w(j * nT + i) = 1.0 / _n;
-        }
+        t(i, 0) = r * cos(t);
+        t(i, 1) = r * sin(t);
+    }
+#endif
+
+    for (int k = 0; k < m; k++)
+        for (int j = 0; j < nR; j++)
+            for (int i = 0; i < nT; i++)
+            {
+                _c(k * nR * nT + j * nT + i) = c(k);
+
+                _r.row(k * nR * nT + j * nT + i) = r.row(j);
+
+                _t.row(k * nR * nT + j * nT + i) = t.row(i);
+
+                _w(k * nR * nT + j * nT + i) = 1.0 / _n;
+            }
 
     symmetrise();
 }
+
+int Particle::m() const { return _m; }
+
+void Particle::setM(const int m) { _m = m; }
 
 int Particle::n() const { return _n; }
 
@@ -331,18 +387,25 @@ void Particle::resample(const double alpha)
 void Particle::resample(const int n,
                         const double alpha)
 {
-    // record the current most likely coordinate (highest weight)
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Recording the Current Most Likely Coordinate";
+#endif
 
     uvec rank = iSort();
 
+    // TODO
     quaternion(_topR, rank[0]);
     t(_topT, rank[0]);
 
-    // perform resampling
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Performing Resampling";
+#endif
 
     vec cdf = cumsum(_w);
 
-    // CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
+#endif
 
     _n = n;
     _w.resize(n);
@@ -353,16 +416,46 @@ void Particle::resample(const int n,
     // number of local sampling points
     int nL = n - nG;
 
-    // CLOG(INFO, "LOGGER_SYS") << "Allocating Temporary Storage";
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Allocating Temporary Storage";
+#endif
 
+    uvec c(n);
     mat4 r(n, 4);
     mat2 t(n, 2);
     
-    // CLOG(INFO, "LOGGER_SYS") << "Generate Global Sampling Points";
-
-    sampleACG(r, 1, 1, nG);
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points";
+#endif
 
     gsl_rng* engine = get_random_engine();
+
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Class";
+    // TODO
+#endif
+
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Rotation";
+#endif
+
+    switch (_mode)
+    {
+        case MODE_2D:
+            // TODO
+            break;
+
+        case MODE_3D:
+            sampleACG(r, 1, 1, nG);
+            break;
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+    }
+
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Translation";
+#endif
     
     for (int i = 0; i < nG; i++)
     {
@@ -373,11 +466,18 @@ void Particle::resample(const int n,
                                    &t(i, 0),
                                    &t(i, 1));
                 
-        _w(i) = 1.0 / n;
     }
 
-    // CLOG(INFO, "LOGGER_SYS") << "Generate Local Sampling Points";
-    // CLOG(INFO, "LOGGER_SYS") << "nL = " << nL << ", nG = " << nG;
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Weights for Global Sampling Points";
+#endif
+
+    for (int i = 0; i < nG; i++)
+        _w(i) = 1.0 / n;
+
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Local Sampling Points";
+#endif
 
     double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
 
@@ -389,21 +489,31 @@ void Particle::resample(const int n,
         while (uj > cdf[i])
             i++;
         
+        c(nG + j) = _c(i);
+
         r.row(nG + j) = _r.row(i);
+
         t.row(nG + j) = _t.row(i);
 
         _w(nG + j) = 1.0 / n;
     }
 
-    // CLOG(INFO, "LOGGER_SYS") << "Recording Results";
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Recording Results";
+#endif
+
+    _r.resize(n, 4);
+    _r = r;
 
     _t.resize(n, 2);
     _t = t;
 
-    _r.resize(n, 4);
-    _r = r;
+    _c.resize(n);
+    _c = c;
     
-    // CLOG(INFO, "LOGGER_SYS") << "Symmetrize";
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Symmetrizing";
+#endif
     
     symmetrise();
 }
@@ -685,7 +795,7 @@ void load(Particle& par,
     int nLine = 0;
     while (fgets(buf, FILE_LINE_LENGTH, file)) nLine++;
 
-    par.reset(nLine);
+    par.reset(1, nLine);
 
     rewind(file);
 

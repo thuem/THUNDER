@@ -46,14 +46,14 @@ class Particle
         int _mode;
 
         /**
-         * numer of particles in this particle filter
-         */
-        int _n;
-
-        /**
          * number of classes in this particle filter
          */
-        int _k;
+        int _m;
+
+        /**
+         * number of particles in this particle filter
+         */
+        int _n;
 
         /**
          * the standard deviation of translation, assuming the translation
@@ -172,7 +172,7 @@ class Particle
         {
             _mode = MODE_3D;
 
-            _k = 1;
+            _m = 1;
 
             _sym = NULL;
 
@@ -253,21 +253,32 @@ class Particle
          *
          * @param n number of particles in this particle filter
          */
-        void reset(const int n);
+        void reset(const int m,
+                   const int n);
 
         /**
          * This function resets the particles in this particle filter to a
          * uiform distribution in rotation with nR sampling points, and 2D
          * Gaussian distribution in translation with nT sampling points. The
-         * total number of particles in this particle will be nR x nT. The
-         * sampling points for the iR-th rotation and the iT-th translation will
-         * be at (iR * nT + iT) index of the particles in this particle filter.
+         * total number of particles in this particle will be k x nR x nT. The
+         * sampling points for the iR-th rotation and the iT-th translation of
+         * the k-th clas will be at (k * nR * nT + iR * nT + iT) index of the
+         * particles in this particle filter.
          *
+         * @param m  the number of classes in this particle filter
          * @param nR the number of rotation in this particle filter
          * @param nT the number of translation in this particle filter
          */
-        void reset(const int nR,
+        void reset(const int m,
+                   const int nR,
                    const int nT);
+
+        /**
+         * This function returns the number of classes in this particle fitler.
+         */
+        int m() const;
+
+        void setM(const int m);
 
         /**
          * This function returns the number of particles in this particle
