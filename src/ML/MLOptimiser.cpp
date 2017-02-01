@@ -440,10 +440,10 @@ void MLOptimiser::expectation()
                         omp_unset_lock(&mtx[l]);
                     }
                 }
-            }
 
-            #pragma omp atomic
-            _nR += 1;
+                #pragma omp atomic
+                _nR += 1;
+            }
 
             #pragma omp critical
             if (_nR > (int)(nR * _para.k / 10))
@@ -558,11 +558,11 @@ void MLOptimiser::expectation()
                                                        AROUND(nSampleWholeSpace
                                                             * sqrt(_par[l].compress())))));
         }
+#endif
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
 
-#endif
     }
 
     _nF = 0;
