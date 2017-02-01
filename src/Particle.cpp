@@ -446,8 +446,10 @@ void Particle::resample(const int n,
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Class";
-    // TODO
 #endif
+
+    for (int i = 0; i < nG; i++)
+        c(i) = gsl_rng_uniform_int(engine, _m);
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Rotation";
