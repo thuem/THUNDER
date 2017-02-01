@@ -445,6 +445,12 @@ class Particle
         void coord(Coordinate5D& dst,
                    const int i) const;
 
+        void c(int& dst,
+               const int i) const;
+
+        void setC(const int src,
+                  const int i);
+
         /**
          * This function returns the rotation matrix of the i-th particle.
          *

@@ -21,8 +21,6 @@
 
 #define N 380
 
-
-
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])

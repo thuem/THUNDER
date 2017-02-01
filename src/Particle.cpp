@@ -66,7 +66,8 @@ void Particle::reset()
     gsl_rng* engine = get_random_engine();
 
     // class, sample from flat distribution
-    // TODO
+    for (int i = 0; i < _n; i++)
+        _c(i) = gsl_rng_uniform_int(engine, _m);
 
     switch (_mode)
     {
@@ -152,8 +153,9 @@ void Particle::reset(const int m,
 
     uvec c(m);
 
-    // sample from flat distribution
-    // TODO
+    // sample from 0 to (m - 1)
+    for (int i = 0; i < m; i++)
+        c(i) = i;
 
     mat4 r(nR, 4);
 
@@ -296,6 +298,18 @@ void Particle::coord(Coordinate5D& dst,
     dst.y = _t(i, 1);
 }
 
+void Particle::c(int& dst,
+                 const int i) const
+{
+    dst = _c(i);
+}
+
+void Particle::setC(const int src,
+                    const int i)
+{
+    _c(i) = src;
+}
+
 void Particle::rot(mat33& dst,
                    const int i) const
 {
@@ -393,9 +407,9 @@ void Particle::resample(const int n,
 
     uvec rank = iSort();
 
-    // TODO
-    quaternion(_topR, rank[0]);
-    t(_topT, rank[0]);
+    c(_topC, rank(0));
+    quaternion(_topR, rank(0));
+    t(_topT, rank(0));
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Performing Resampling";
