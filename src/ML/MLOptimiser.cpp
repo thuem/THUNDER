@@ -72,6 +72,8 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Setting up Symmetry";
     _sym.init(_para.sym);
 
+    MLOG(INFO, "LOGGER_INIT") << "Number of Class(es): " << _para.k;
+
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.k,
                 _para.size,
@@ -307,7 +309,7 @@ struct Sp
        const unsigned int iT)
     {
         _w = w;
-        _w = k;
+        _k = k;
         _iR = iR;
         _iT = iT;
     };
@@ -459,11 +461,11 @@ void MLOptimiser::expectation()
 
         delete[] mtx;
         
-        mat topW(_para.mG, _ID.size());
+        mat topW(nSampleMax, _ID.size());
 
-        umat iTopC(_para.mG, _ID.size());
-        umat iTopR(_para.mG, _ID.size());
-        umat iTopT(_para.mG, _ID.size());
+        umat iTopC(nSampleMax, _ID.size());
+        umat iTopR(nSampleMax, _ID.size());
+        umat iTopT(nSampleMax, _ID.size());
 
         #pragma omp parallel for
         for (int j = 0; j < (int)_ID.size(); j++)
