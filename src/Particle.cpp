@@ -602,6 +602,11 @@ double Particle::diffTopT()
     return diff;
 }
 
+void Particle::rank1st(int& cls) const
+{
+    cls = _topC;
+}
+
 void Particle::rank1st(vec4& quat) const
 {
     quat = _topR;
@@ -620,29 +625,32 @@ void Particle::rank1st(vec2& tran) const
     tran = _topT;
 }
 
-void Particle::rank1st(vec4& quat,
+void Particle::rank1st(int& cls,
+                       vec4& quat,
                        vec2& tran) const
 {
+    cls = _topC;
     quat = _topR;
     tran = _topT;
 }
 
-void Particle::rank1st(mat33& rot,
+void Particle::rank1st(int& cls,
+                       mat33& rot,
                        vec2& tran) const
 {
     vec4 quat;
-    rank1st(quat, tran);
+    rank1st(cls, quat, tran);
 
     rotate3D(rot, quat);
 }
 
-
-void Particle::rand(mat33& rot) const
+void Particle::rand(int& cls) const
 {
-    vec4 quat;
-    rand(quat);
+    gsl_rng* engine = get_random_engine();
 
-    rotate3D(rot, quat);
+    size_t u = gsl_rng_uniform_int(engine, _n);
+
+    c(cls, u);
 }
 
 void Particle::rand(vec4& quat) const
@@ -654,6 +662,14 @@ void Particle::rand(vec4& quat) const
     quaternion(quat, u);
 }
 
+void Particle::rand(mat33& rot) const
+{
+    vec4 quat;
+    rand(quat);
+
+    rotate3D(rot, quat);
+}
+
 void Particle::rand(vec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
@@ -663,22 +679,25 @@ void Particle::rand(vec2& tran) const
     t(tran, u);
 }
 
-void Particle::rand(vec4& quat,
+void Particle::rand(int& cls,
+                    vec4& quat,
                     vec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
 
     size_t u = gsl_rng_uniform_int(engine, _n);
 
+    c(cls, u);
     quaternion(quat, u);
     t(tran, u);
 }
 
-void Particle::rand(mat33& rot,
+void Particle::rand(int& cls,
+                    mat33& rot,
                     vec2& tran) const
 {
     vec4 quat;
-    rand(quat, tran);
+    rand(cls, quat, tran);
 
     rotate3D(rot, quat);
 }

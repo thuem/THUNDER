@@ -1207,8 +1207,6 @@ void MLOptimiser::bcastGroupInfo()
 
 void MLOptimiser::initRef()
 {
-    _model.appendRef(Volume());
-
     MLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
     Volume ref;
@@ -1236,13 +1234,15 @@ void MLOptimiser::initRef()
     FOR_EACH_PIXEL_RL(ref)
         if (ref(i) < 0) ref(i) = 0;
 
-    VOL_PAD_RL(_model.ref(0), ref, _para.pf);
-
-    MLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform";
-
     FFT fft;
-    fft.fwMT(_model.ref(0));
-    _model.ref(0).clearRL();
+    for (int t = 0; t < _para.k; t++)
+    {
+        _model.appendRef(Volume());
+        VOL_PAD_RL(_model.ref(t), ref, _para.pf);
+
+        fft.fwMT(_model.ref(t));
+        _model.ref(t).clearRL();
+    }
 }
 
 void MLOptimiser::initMask()
@@ -1997,6 +1997,7 @@ void MLOptimiser::refreshScale(const bool init,
     {
         Image img(size(), size(), FT_SPACE);
 
+        int cls;
         mat33 rot;
         vec2 tran;
 
@@ -2022,16 +2023,16 @@ void MLOptimiser::refreshScale(const bool init,
             {
                 if (!_switch[l]) continue;
 
-                _par[l].rank1st(rot, tran);
+                _par[l].rank1st(cls, rot, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SCALE_MASK
-                _model.proj(0).projectMT(img, rot, tran);
+                _model.proj(cls).projectMT(img, rot, tran);
 #else
-                _model.proj(0).projectMT(img, rot, tran - _offset[l]);
+                _model.proj(cls).projectMT(img, rot, tran - _offset[l]);
 #endif
 #else
-                _model.proj(0).projectMT(img, rot, tran);
+                _model.proj(cls).projectMT(img, rot, tran);
 #endif
             }
 
@@ -2240,6 +2241,8 @@ void MLOptimiser::allReduceSigma(const bool group)
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
+    int cls;
+
     mat33 rot;
 
     vec2 tran;
@@ -2259,16 +2262,16 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             vec sig(_r);
 
-            _par[l].rank1st(rot, tran);
+            _par[l].rank1st(cls, rot, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SIGMA_MASK
-            _model.proj(0).project(img, rot, tran);
+            _model.proj(cls).project(img, rot, tran);
 #else
-            _model.proj(0).project(img, rot, tran - _offset[l]);
+            _model.proj(cls).project(img, rot, tran - _offset[l]);
 #endif
 #else
-            _model.proj(0).project(img, rot, tran);
+            _model.proj(cls).project(img, rot, tran);
 #endif
 
             FOR_EACH_PIXEL_FT(img)
@@ -2366,7 +2369,8 @@ void MLOptimiser::reconstructRef()
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
-    _model.reco(0).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
+    for (int t = 0; t < _para.k; t++)
+        _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
     FOR_EACH_2D_IMAGE
     {
@@ -2374,42 +2378,43 @@ void MLOptimiser::reconstructRef()
 
         for (int m = 0; m < _para.mReco; m++)
         {
+            int cls;
             mat33 rot;
             vec2 tran;
 
-            _par[l].rand(rot, tran);
+            _par[l].rand(cls, rot, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_COMPRESS_WEIGHTING
             _par[l].calVari();
-            _model.reco(0).insertP(_imgOri[l],
-                                   _ctf[l],
-                                   rot,
-                                   tran - _offset[l],
-                                   1.0 / (NUM_SAMPLE_POINT_IN_RECONSTRUCTION
-                                        * _par[l].compress()));
+            _model.reco(cls).insertP(_imgOri[l],
+                                     _ctf[l],
+                                     rot,
+                                     tran - _offset[l],
+                                     1.0 / (NUM_SAMPLE_POINT_IN_RECONSTRUCTION
+                                          * _par[l].compress()));
 #else
-            _model.reco(0).insertP(_imgOri[l],
-                                   _ctf[l],
-                                   rot,
-                                   tran - _offset[l],
-                                   1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+            _model.reco(cls).insertP(_imgOri[l],
+                                     _ctf[l],
+                                     rot,
+                                     tran - _offset[l],
+                                     1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
 #else
 #ifdef OPTIMISER_COMPRESS_WEIGHTING
             _par[l].calVari();
-            _model.reco(0).insertP(_imgOri[l],
-                                   _ctf[l],
-                                    rot,
-                                    tran,
-                                    1.0 / (NUN_SAMPLE_POINT_IN_RECONSTRUCTION
-                                         * _par[l].compress()));
+            _model.reco(cls).insertP(_imgOri[l],
+                                     _ctf[l],
+                                     rot,
+                                     tran,
+                                     1.0 / (NUN_SAMPLE_POINT_IN_RECONSTRUCTION
+                                          * _par[l].compress()));
 #else
-            _model.reco(0).insertP(_imgOri[l],
-                                   _ctf[l],
-                                   rot,
-                                   tran,
-                                   1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+            _model.reco(cls).insertP(_imgOri[l],
+                                     _ctf[l],
+                                     rot,
+                                     tran,
+                                     1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
 #endif
         }
@@ -2417,10 +2422,17 @@ void MLOptimiser::reconstructRef()
 
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
-    BLOG(INFO, "LOGGER_ROUND") << "Reconstructing References for Next Iteration";
+    for (int t = 0; t < _para.k; t++)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                   << t
+                                   << " for Next Iteration";
+        BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                   << t
+                                   << " for Next Iteration";
 
-    _model.reco(0).reconstruct(_model.ref(0));
+        _model.reco(t).reconstruct(_model.ref(t));
+    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
@@ -2432,6 +2444,7 @@ void MLOptimiser::reconstructRef()
     ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
     BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
 
+    /***
     if (_genMask)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Generating Automask";
@@ -2476,68 +2489,67 @@ void MLOptimiser::reconstructRef()
 
         _genMask = false;
     }
+    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
     FFT fft;
-    fft.fwMT(_model.ref(0));
-    _model.ref(0).clearRL();
+    for (int t = 0; t < _para.k; t++)
+    {
+        fft.fwMT(_model.ref(t));
+        _model.ref(t).clearRL();
+    }
 }
 
 void MLOptimiser::solventFlatten(const bool mask)
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
-    BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming References";
-
-    FFT fft;
-    fft.bwMT(_model.ref(0));
-
-    if (mask && !_mask.isEmptyRL())
+    for (int t = 0; t < _para.k; t++)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
+        ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
+
+        FFT fft;
+        fft.bwMT(_model.ref(t));
+
+        if (mask && !_mask.isEmptyRL())
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
+            BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
 #ifdef OPTIMISER_REFERENCE_ZERO_MASK
-        softMask(_model.ref(0), _model.ref(0), _mask, 0);
+            softMask(_model.ref(t), _model.ref(t), _mask, 0);
 #else
-        softMask(_model.ref(0), _model.ref(0), _mask);
+            softMask(_model.ref(t), _model.ref(t), _mask);
 #endif
-    }
-    else
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten";
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten";
+        }
+        else
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten of Reference " << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten of Reference " << t;
 
 #ifdef OPTIMISER_REFERENCE_ZERO_MASK
-        softMask(_model.ref(0),
-                 _model.ref(0),
-                 _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
-                 EDGE_WIDTH_RL,
-                 0);
+            softMask(_model.ref(t),
+                     _model.ref(t),
+                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                     EDGE_WIDTH_RL,
+                     0);
 #else
-        softMask(_model.ref(0),
-                 _model.ref(0),
-                 _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
-                 EDGE_WIDTH_RL);
-        /***
-        regionBgSoftMask(_model.ref(0),
-                         _model.ref(0),
-                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
-                         EDGE_WIDTH_RL,
-                         _para.size / 2,
-                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
-        ***/
+            softMask(_model.ref(0),
+                     _model.ref(0),
+                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                     EDGE_WIDTH_RL);
 #endif
+        }
+
+        ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+
+        fft.fwMT(_model.ref(t));
+        _model.ref(t).clearRL();
     }
-
-    ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
-    BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
-
-    fft.fwMT(_model.ref(0));
-    _model.ref(0).clearRL();
 }
 
 void MLOptimiser::allocPreCalIdx(const double rU,
@@ -2678,6 +2690,7 @@ void MLOptimiser::saveBestProjections()
     Image diff(_para.size, _para.size, FT_SPACE);
     char filename[FILE_NAME_LENGTH];
 
+    int cls;
     mat33 rot;
     vec2 tran;
 
@@ -2691,9 +2704,9 @@ void MLOptimiser::saveBestProjections()
             #pragma omp parallel for
             SET_0_FT(diff);
 
-            _par[l].rank1st(rot, tran);
+            _par[l].rank1st(cls, rot, tran);
 
-            _model.proj(0).projectMT(result, rot, tran);
+            _model.proj(cls).projectMT(result, rot, tran);
 
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(diff)
@@ -2810,78 +2823,79 @@ void MLOptimiser::saveReference(const bool finished)
         (_commRank != HEMI_B_LEAD))
         return;
 
-    Volume lowPass(_para.size * _para.pf,
-                   _para.size * _para.pf,
-                   _para.size * _para.pf,
-                   FT_SPACE);
-
     FFT fft;
-
-    if (finished)
-        fft.bwMT(_model.ref(0));
-    else
-    {
-        lowPassFilter(lowPass,
-                      _model.ref(0),
-                      (double)_resReport / _para.size,
-                      (double)EDGE_WIDTH_FT / _para.size);
-        fft.bwMT(lowPass);
-    }
 
     ImageFile imf;
     char filename[FILE_NAME_LENGTH];
 
-    Volume result;
-
-    if (_commRank == HEMI_A_LEAD)
+    for (int t = 0; t < _para.k; t++)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+        Volume lowPass(_para.size * _para.pf,
+                       _para.size * _para.pf,
+                       _para.size * _para.pf,
+                       FT_SPACE);
+
 
         if (finished)
-        {
-            VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
-
-            fft.fwMT(_model.ref(0));
-            _model.ref(0).clearRL();
-
-            sprintf(filename, "Reference_A_Final.mrc");
-        }
+            fft.bwMT(_model.ref(t));
         else
         {
-            VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
-            sprintf(filename, "Reference_A_Round_%03d.mrc", _iter);
+            lowPassFilter(lowPass,
+                          _model.ref(0),
+                          (double)_resReport / _para.size,
+                          (double)EDGE_WIDTH_FT / _para.size);
+            fft.bwMT(lowPass);
         }
 
-        REMOVE_NEG(result);
+        Volume result;
 
-        imf.readMetaData(result);
-
-        imf.writeVolume(filename, result, _para.pixelSize);
-    }
-    else if (_commRank == HEMI_B_LEAD)
-    {
-        BLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-
-        if (finished)
+        if (_commRank == HEMI_A_LEAD)
         {
-            VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
+            ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
 
-            fft.fwMT(_model.ref(0));
-            _model.ref(0).clearRL();
+            if (finished)
+            {
+                VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
 
-            sprintf(filename, "Reference_B_Final.mrc");
+                fft.fwMT(_model.ref(t));
+                _model.ref(t).clearRL();
+
+                sprintf(filename, "Reference_%03d_A_Final.mrc", t);
+            }
+            else
+            {
+                VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+                sprintf(filename, "Reference_%03d_A_Round_%03d.mrc", t, _iter);
+            }
+
+            imf.readMetaData(result);
+
+            imf.writeVolume(filename, result, _para.pixelSize);
         }
-        else
+
+        else if (_commRank == HEMI_B_LEAD)
         {
-            VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
-            sprintf(filename, "Reference_B_Round_%03d.mrc", _iter);
+            BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+
+            if (finished)
+            {
+                VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
+
+                fft.fwMT(_model.ref(t));
+                _model.ref(t).clearRL();
+
+                sprintf(filename, "Reference_%03d_B_Final.mrc", t);
+            }
+            else
+            {
+                VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+                sprintf(filename, "Reference_%03d_B_Round_%03d.mrc", t, _iter);
+            }
+
+            imf.readMetaData(result);
+
+            imf.writeVolume(filename, result, _para.pixelSize);
         }
-
-        REMOVE_NEG(result);
-
-        imf.readMetaData(result);
-
-        imf.writeVolume(filename, result, _para.pixelSize);
     }
 }
 
@@ -2939,23 +2953,26 @@ void MLOptimiser::saveFSC(const bool finished) const
 
     char filename[FILE_NAME_LENGTH];
 
-    vec fsc = _model.fsc(0);
+    for (int t = 0; t < _para.k; t++)
+    {
+        vec fsc = _model.fsc(0);
 
-    if (finished)
-        sprintf(filename, "FSC_Final.txt");
-    else
-        sprintf(filename, "FSC_Round_%03d.txt", _iter);
+        if (finished)
+            sprintf(filename, "FSC_%03d_Final.txt", t);
+        else
+            sprintf(filename, "FSC_%03d_Round_%03d.txt", t, _iter);
 
-    FILE* file = fopen(filename, "w");
+        FILE* file = fopen(filename, "w");
 
-    for (int i = 1; i < fsc.size(); i++)
-        fprintf(file,
-                "%05d   %10.6lf   %10.6lf\n",
-                i,
-                1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
-                fsc(i));
+        for (int i = 1; i < fsc.size(); i++)
+            fprintf(file,
+                    "%05d   %10.6lf   %10.6lf\n",
+                    i,
+                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
+                    fsc(i));
 
-    fclose(file);
+        fclose(file);
+    }
 }
 
 void MLOptimiser::saveSig() const
@@ -2974,8 +2991,6 @@ void MLOptimiser::saveSig() const
     FILE* file = fopen(filename, "w");
 
     for (int i = 1; i < maxR(); i++)
-    //for (int i = 1; i < _r; i++)
-    //for (int i = 1; i < _model.rU(); i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
                 i,
@@ -3000,8 +3015,6 @@ void MLOptimiser::saveTau() const
 
     FILE* file = fopen(filename, "w");
 
-    //for (int i = 1; i < _model.rU() * _para.pf - 1; i++)
-    //for (int i = 1; i < _r * _para.pf - 1; i++)
     for (int i = 1; i < maxR() * _para.pf - 1; i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
