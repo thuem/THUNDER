@@ -295,16 +295,19 @@ void MLOptimiser::init()
 struct Sp
 {
     double _w;
+    unsigned int _k;
     unsigned int _iR;
     unsigned int _iT;
 
-    Sp() : _w(-DBL_MAX), _iR(0), _iT(0) {};
+    Sp() : _w(-DBL_MAX), _k(0), _iR(0), _iT(0) {};
 
     Sp(const double w,
+       const unsigned int k,
        const unsigned int iR,
        const unsigned int iT)
     {
         _w = w;
+        _w = k;
         _iR = iR;
         _iT = iT;
     };
@@ -331,7 +334,7 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    int nSampleMax = _para.mG / (1 + _sym.nSymmetryElement());
+    int nSampleMax = _para.k * _para.mG / (1 + _sym.nSymmetryElement());
 
 #ifdef DYNAMIC_NUM_SAMPLE
     int nSampleWholeSpace = 0;
@@ -352,12 +355,12 @@ void MLOptimiser::expectation()
                                   * TRANS_SEARCH_FACTOR));
 
 #ifdef DYNAMIC_NUM_SAMPLE
-        nSampleWholeSpace = _para.mS * nT;
+        nSampleWholeSpace = _para.k * _para.mS * nT;
 #endif
 
         Particle par;
         par.init(_para.transS, TRANS_Q, &_sym);
-        par.reset(1, nR, nT);
+        par.reset(_para.k, nR, nT);
 
         mat33 rot;
         vec2 t;
@@ -387,50 +390,53 @@ void MLOptimiser::expectation()
         FOR_EACH_2D_IMAGE
             omp_init_lock(&mtx[l]);
 
-        #pragma omp parallel for schedule(dynamic) private(rot)
-        for (unsigned int m = 0; m < (unsigned int)nR; m++)
+        for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
-            Image imgRot(size(), size(), FT_SPACE);
-            Image imgAll(size(), size(), FT_SPACE);
-
-            // perform projection
-
-            par.rot(rot, m * nT);
-
-            _model.proj(0).project(imgRot, rot, _iCol, _iRow, _iPxl, _nPxl);
-
-            for (unsigned int n = 0; n < (unsigned int)nT; n++)
+            #pragma omp parallel for schedule(dynamic) private(rot)
+            for (unsigned int m = 0; m < (unsigned int)nR; m++)
             {
-                mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
+                Image imgRot(size(), size(), FT_SPACE);
+                Image imgAll(size(), size(), FT_SPACE);
 
-                Complex* priP = new Complex[_nPxl];
+                // perform projection
 
-                for (int i = 0; i < _nPxl; i++)
-                    priP[i] = imgAll.iGetFT(_iPxl[i]);
+                par.rot(rot, t * nR * nT + m * nT);
 
-                vec dvp = logDataVSPrior(_datP,
-                                         priP,
-                                         _ctfP,
-                                         _sigRcpP,
-                                         (int)_ID.size(),
-                                         _nPxl);
+                _model.proj(t).project(imgRot, rot, _iCol, _iRow, _iPxl, _nPxl);
 
-                delete[] priP;
-
-                FOR_EACH_2D_IMAGE
+                for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
-                    omp_set_lock(&mtx[l]);
+                    mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
 
-                    if ((int)leaderBoard[l].size() < nSampleMax)
-                        leaderBoard[l].push(Sp(dvp(l), m, n));
-                    else if (leaderBoard[l].top()._w < dvp(l))
+                    Complex* priP = new Complex[_nPxl];
+
+                    for (int i = 0; i < _nPxl; i++)
+                        priP[i] = imgAll.iGetFT(_iPxl[i]);
+
+                    vec dvp = logDataVSPrior(_datP,
+                                             priP,
+                                             _ctfP,
+                                             _sigRcpP,
+                                             (int)_ID.size(),
+                                             _nPxl);
+
+                    delete[] priP;
+
+                    FOR_EACH_2D_IMAGE
                     {
-                        leaderBoard[l].pop();
+                        omp_set_lock(&mtx[l]);
 
-                        leaderBoard[l].push(Sp(dvp(l), m, n));
+                        if ((int)leaderBoard[l].size() < nSampleMax)
+                            leaderBoard[l].push(Sp(dvp(l), t, m, n));
+                        else if (leaderBoard[l].top()._w < dvp(l))
+                        {
+                            leaderBoard[l].pop();
+
+                            leaderBoard[l].push(Sp(dvp(l), t, m, n));
+                        }
+
+                        omp_unset_lock(&mtx[l]);
                     }
-
-                    omp_unset_lock(&mtx[l]);
                 }
             }
 
@@ -438,7 +444,7 @@ void MLOptimiser::expectation()
             _nR += 1;
 
             #pragma omp critical
-            if (_nR > (int)(nR / 10))
+            if (_nR > (int)(nR * _para.k / 10))
             {
                 _nR = 0;
 
@@ -455,6 +461,7 @@ void MLOptimiser::expectation()
         
         mat topW(_para.mG, _ID.size());
 
+        umat iTopC(_para.mG, _ID.size());
         umat iTopR(_para.mG, _ID.size());
         umat iTopT(_para.mG, _ID.size());
 
@@ -464,6 +471,7 @@ void MLOptimiser::expectation()
             {
                 topW(i, j) = leaderBoard[j].top()._w;
 
+                iTopC(i, j) = leaderBoard[j].top()._k;
                 iTopR(i, j) = leaderBoard[j].top()._iR;
                 iTopT(i, j) = leaderBoard[j].top()._iT;
 
@@ -485,16 +493,19 @@ void MLOptimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            _par[l].reset(1, nSampleMax);
+            _par[l].reset(_para.k, nSampleMax);
 
+            int c;
             vec4 quat;
             vec2 t;
 
             for (int m = 0; m < nSampleMax; m++)
             {
+                par.c(c, iTopC(m, l) * nR * nT);
                 par.quaternion(quat, iTopR(m, l) * nT);
                 par.t(t, iTopT(m, l));
 
+                _par[l].setC(c, m);
                 _par[l].setQuaternion(quat, m);
                 _par[l].setT(t, m);
 
@@ -582,15 +593,18 @@ void MLOptimiser::expectation()
                 _par[l].perturb(PERTURB_FACTOR_S);
 
             vec logW(_par[l].n());
+
+            int c;
             mat33 rot;
             vec2 t;
 
             for (int m = 0; m < _par[l].n(); m++)
             {
+                _par[l].c(c, m);
                 _par[l].rot(rot, m);
                 _par[l].t(t, m);
 
-                _model.proj(0).project(priP,
+                _model.proj(c).project(priP,
                                        rot,
                                        t,
                                        _para.size,
@@ -605,13 +619,6 @@ void MLOptimiser::expectation()
                                          _sigRcpP + l * _nPxl,
                                          _nPxl);
             }
-
-            /***
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-                PROCESS_LOGW_SOFT(logW);
-            else
-                PROCESS_LOGW_HARD(logW);
-            ***/
 
             PROCESS_LOGW_SOFT(logW);
 
