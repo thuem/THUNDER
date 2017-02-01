@@ -800,14 +800,17 @@ void save(const char filename[],
 {
     FILE* file = fopen(filename, "w");
 
+    int c;
     vec4 q;
     vec2 t;
     for (int i = 0; i < par.n(); i++)
     {
+        par.c(c, i);
         par.quaternion(q, i);
         par.t(t, i);
         fprintf(file,
-                "%15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                c,
                 q(0), q(1), q(2), q(3),
                 t(0), t(1),
                 par.w(i));
@@ -821,6 +824,7 @@ void load(Particle& par,
 {
     FILE* file = fopen(filename, "r");
 
+    int c;
     vec4 q;
     vec2 t;
     double w;
@@ -837,11 +841,13 @@ void load(Particle& par,
     for (int i = 0; i < nLine; i++) 
     {
         fscanf(file,
-               "%lf %lf %lf %lf %lf %lf %lf",
+               "%d %lf %lf %lf %lf %lf %lf %lf",
+               &c,
                &q(0), &q(1), &q(2), &q(3),
                &t(0), &t(1),
                &w);
 
+        par.setC(c, i);
         par.setQuaternion(q, i);
         par.setT(t, i);
         par.setW(w, i);
