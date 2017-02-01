@@ -25,8 +25,6 @@
 
 #include "Logging.h"
 
-
-
 gsl_rng* get_random_engine();
 
 #endif // RANDOM_H
