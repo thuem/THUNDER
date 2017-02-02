@@ -159,9 +159,23 @@ void Particle::reset(const int m,
 
     mat4 r(nR, 4);
 
-    // sample from Angular Central Gaussian Distribution with identity matrix
-    sampleACG(r, 1, 1, nR);
-    
+    switch (_mode)
+    {
+        case MODE_2D:
+            // sample from von Mises Distribution with kappa = 0
+            //TODO
+            break;
+
+        case MODE_3D:
+            // sample from Angular Central Gaussian Distribution with identity matrix
+            sampleACG(r, 1, 1, nR);
+            break;
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            break;
+    }
+
     mat2 t(nT, 2);
 
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
