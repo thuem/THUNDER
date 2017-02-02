@@ -20,16 +20,17 @@
 #include "Typedef.h"
 #include "Random.h"
 
-
-
 /**
  * Probabilty Density Function of Angular Central Gaussian Distribution
  *
- * @param x a quaternion
+ * @param x   a quaternion
  * @param sig a symmetric positive definite parameter matrix
  */
 double pdfACG(const vec4& x,
               const mat44& sig);
+
+double pdfACG(const vec2& x,
+              const mat22& sig);
 
 double pdfACG(const vec4& x,
               const double k0,
