@@ -866,7 +866,7 @@ void MLOptimiser::run()
 
         for (int t = 0; t < _para.k; t++)
             MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
-                                       << "\% Percentage of Images Belong to Class "
+                                       << "\% Percentage of Images Belonging to Class "
                                        << t;
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
