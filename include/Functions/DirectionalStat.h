@@ -32,22 +32,71 @@
 double pdfACG(const vec4& x,
               const mat44& sig);
 
+/**
+ * Probability Density Function of Angular Central Gaussian Distribution
+ *
+ * paramter matrxix:
+ * k0 0  0  0
+ * 0  k1 0  0
+ * 0  0  k1 0
+ * 0  0  0  k1 
+ *
+ * @param x q quaterion
+ * @param k0 the first paramter
+ * @param k1 the second parameter
+ */
 double pdfACG(const vec4& x,
               const double k0,
               const double k1);
 
+/**
+ * Sample from an Angular Central Gaussian Distribution
+ *
+ * @param dst the destination table
+ * @param src the symmetric positive definite parameter matrix
+ * @param n   the number of samples
+ */
 void sampleACG(mat4& dst,
                const mat44& src,
                const int n);
 
+/**
+ * Sample from an Angular Central Gaussian Distribution
+ *
+ * paramter matrxix:
+ * k0 0  0  0
+ * 0  k1 0  0
+ * 0  0  k1 0
+ * 0  0  0  k1 
+ *
+ * @param dst the destination table
+ * @param k0  the first parameter
+ * @param k1  the second parameter
+ * @param n   the number of samples
+ */
 void sampleACG(mat4& dst,
                const double k0,
                const double k1,
                const int n);
 
+/**
+ * Paramter Matrix Inference from Data Assuming the Distribution Follows an
+ * Angular Central Gaussian Distribution
+ *
+ * @param dst the paramter matrix
+ * @param src the data
+ */
 void inferACG(mat44& dst,
               const mat4& src);
 
+/**
+ * Parameter Inference from Data Assuming the Distribution Follows an Angular
+ * Central Gaussian Distribution
+ *
+ * @param k0  the first parameter
+ * @param k1  the second paramter
+ * @param src the data
+ */
 void inferACG(double& k0,
               double& k1,
               const mat4& src);
@@ -77,6 +126,14 @@ void sampleVMS(mat2& dst,
                const double kappa,
                const double n);
 
+/**
+ * Mode and Concentration Paramter Inference from Data Assuming the Distribution
+ * Follows a von Mises Distribution
+ *
+ * @param mu    the mode of the von Mises distribution
+ * @param kappa the concentration paramter of the von Mises distribution
+ * @param src    the data
+ */
 void inferVMS(vec2& mu,
               double& kappa,
               const mat2& src);
