@@ -16,7 +16,10 @@
 
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_math.h>
+#include <gsl/gsl_sf_bessel.h>
 
+#include "Config.h"
+#include "Macro.h"
 #include "Typedef.h"
 #include "Random.h"
 
@@ -28,9 +31,6 @@
  */
 double pdfACG(const vec4& x,
               const mat44& sig);
-
-double pdfACG(const vec2& x,
-              const mat22& sig);
 
 double pdfACG(const vec4& x,
               const double k0,
@@ -51,5 +51,16 @@ void inferACG(mat44& dst,
 void inferACG(double& k0,
               double& k1,
               const mat4& src);
+
+/**
+ * Probabilty Density Function of von Mises Distribution M(mu, kappa)
+ *
+ * @param theta the angle
+ * @param mu    the mode of the von Mises Distribution
+ * @param kappa the concnetration parameter of the von Mises Distribution
+ */
+double pdfVMS(const double theta,
+              const double mu,
+              const double kappa);
 
 #endif // DIRECTIONAL_STAT_H

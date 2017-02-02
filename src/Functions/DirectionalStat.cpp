@@ -121,3 +121,10 @@ void inferACG(double& k0,
     k0 = eigenSolver.eigenvalues().maxCoeff();
     k1 = eigenSolver.eigenvalues().minCoeff();
 }
+
+double pdfVMS(const double theta,
+              const double mu,
+              const double kappa)
+{
+    return exp(kappa * cos(theta - mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+}
