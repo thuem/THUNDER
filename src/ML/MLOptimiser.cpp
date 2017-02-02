@@ -443,19 +443,19 @@ void MLOptimiser::expectation()
 
                 #pragma omp atomic
                 _nR += 1;
-            }
 
-            #pragma omp critical
-            if (_nR > (int)(nR * _para.k / 10))
-            {
-                _nR = 0;
+                #pragma omp critical
+                if (_nR > (int)(nR * _para.k / 10))
+                {
+                    _nR = 0;
 
-                nPer += 1;
+                    nPer += 1;
 
-                ALOG(INFO, "LOGGER_ROUND") << nPer * 10
-                                           << "\% Initial Phase of Global Search Performed";
-                BLOG(INFO, "LOGGER_ROUND") << nPer * 10
-                                           << "\% Initial Phase of Global Search Performed";
+                    ALOG(INFO, "LOGGER_ROUND") << nPer * 10
+                                               << "\% Initial Phase of Global Search Performed";
+                    BLOG(INFO, "LOGGER_ROUND") << nPer * 10
+                                               << "\% Initial Phase of Global Search Performed";
+                }
             }
         }
 
