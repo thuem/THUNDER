@@ -518,15 +518,15 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Recording Results";
 #endif
 
+    _c.resize(n);
+    _c = c;
+
     _r.resize(n, 4);
     _r = r;
 
     _t.resize(n, 2);
     _t = t;
 
-    _c.resize(n);
-    _c = c;
-    
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Symmetrizing";
 #endif

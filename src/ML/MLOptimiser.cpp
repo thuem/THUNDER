@@ -2955,7 +2955,7 @@ void MLOptimiser::saveFSC(const bool finished) const
 
     for (int t = 0; t < _para.k; t++)
     {
-        vec fsc = _model.fsc(0);
+        vec fsc = _model.fsc(t);
 
         if (finished)
             sprintf(filename, "FSC_%03d_Final.txt", t);
