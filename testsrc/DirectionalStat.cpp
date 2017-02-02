@@ -25,7 +25,9 @@
 
 //#define TEST_PDF_VMS
 
-#define TEST_SAMPLE_VMS
+//#define TEST_SAMPLE_VMS
+
+#define TEST_INFER_VMS
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -35,41 +37,71 @@ int main(int argc, const char* argv[])
     for (double theta = -M_PI; theta < M_PI; theta += 0.01)
         printf("%6f   %6f   %6f   %6f   %6f   %6f\n",
                theta,
-               pdfVMS(theta, MU, KAPPA_0),
-               pdfVMS(theta, MU, KAPPA_1),
-               pdfVMS(theta, MU, KAPPA_2),
-               pdfVMS(theta, MU, KAPPA_3),
-               pdfVMS(theta, MU, KAPPA_4));
+               pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_0),
+               pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_1),
+               pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_2),
+               pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_3),
+               pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_4));
 #endif
 
+    mat2 VMS_0 = mat2::Zero(N, 2);
+    mat2 VMS_1 = mat2::Zero(N, 2);
+    mat2 VMS_2 = mat2::Zero(N, 2);
+    mat2 VMS_3 = mat2::Zero(N, 2);
+    mat2 VMS_4 = mat2::Zero(N, 2);
+    mat2 VMS_5 = mat2::Zero(N, 2);
+    mat2 VMS_6 = mat2::Zero(N, 2);
+    mat2 VMS_7 = mat2::Zero(N, 2);
+
+    sampleVMS(VMS_0, vec2(cos(MU), sin(MU)), KAPPA_0, N);
+    sampleVMS(VMS_1, vec2(cos(MU), sin(MU)), KAPPA_1, N);
+    sampleVMS(VMS_2, vec2(cos(MU), sin(MU)), KAPPA_2, N);
+    sampleVMS(VMS_3, vec2(cos(MU), sin(MU)), KAPPA_3, N);
+    sampleVMS(VMS_4, vec2(cos(MU), sin(MU)), KAPPA_4, N);
+    sampleVMS(VMS_5, vec2(cos(MU), sin(MU)), KAPPA_5, N);
+    sampleVMS(VMS_6, vec2(cos(MU), sin(MU)), KAPPA_6, N);
+    sampleVMS(VMS_7, vec2(cos(MU), sin(MU)), KAPPA_7, N);
+
 #ifdef TEST_SAMPLE_VMS
-    vec VMS_0 = vec::Zero(N);
-    vec VMS_1 = vec::Zero(N);
-    vec VMS_2 = vec::Zero(N);
-    vec VMS_3 = vec::Zero(N);
-    vec VMS_4 = vec::Zero(N);
-    vec VMS_5 = vec::Zero(N);
-    vec VMS_6 = vec::Zero(N);
-    vec VMS_7 = vec::Zero(N);
-
-    sampleVMS(VMS_0, MU, KAPPA_0, N);
-    sampleVMS(VMS_1, MU, KAPPA_1, N);
-    sampleVMS(VMS_2, MU, KAPPA_2, N);
-    sampleVMS(VMS_3, MU, KAPPA_3, N);
-    sampleVMS(VMS_4, MU, KAPPA_4, N);
-    sampleVMS(VMS_5, MU, KAPPA_5, N);
-    sampleVMS(VMS_6, MU, KAPPA_6, N);
-    sampleVMS(VMS_7, MU, KAPPA_7, N);
-
     for (int i = 0; i < N; i++)
-        printf("%15.6lf   %15.6lf   %15.6lf   %15.6lf   %15.6lf   %15.6lf   %15.6lf   %15.6lf\n",
-               VMS_0(i),
-               VMS_1(i),
-               VMS_2(i),
-               VMS_3(i),
-               VMS_4(i),
-               VMS_5(i),
-               VMS_6(i),
-               VMS_7(i));
+        printf("%15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6f   %15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6lf\n",
+               VMS_0(i, 0),
+               VMS_0(i, 1),
+               VMS_1(i, 0),
+               VMS_1(i, 1),
+               VMS_2(i, 0),
+               VMS_2(i, 1),
+               VMS_3(i, 0),
+               VMS_3(i, 1),
+               VMS_4(i, 0),
+               VMS_4(i, 1),
+               VMS_5(i, 0),
+               VMS_5(i, 1),
+               VMS_6(i, 0),
+               VMS_6(i, 1),
+               VMS_7(i, 0),
+               VMS_7(i, 1));
+#endif
+
+#ifdef TEST_INFER_VMS
+    vec2 mu;
+    double kappa;
+
+    inferVMS(mu, kappa, VMS_0);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_1);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_2);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_3);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_4);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_5);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_6);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, kappa, VMS_7);
+    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
 #endif
 }

@@ -122,15 +122,15 @@ void inferACG(double& k0,
     k1 = eigenSolver.eigenvalues().minCoeff();
 }
 
-double pdfVMS(const double theta,
-              const double mu,
+double pdfVMS(const vec2& x,
+              const vec2& mu,
               const double kappa)
 {
-    return exp(kappa * cos(theta - mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+    return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
 }
 
-void sampleVMS(vec& dst,
-               const double mu,
+void sampleVMS(mat2& dst,
+               const vec2& mu,
                const double kappa,
                const double n)
 {
@@ -139,7 +139,7 @@ void sampleVMS(vec& dst,
     if (kappa == 0)
     {
         for (int i = 0; i < n; i++)
-            dst(i) = gsl_ran_flat(engine, -M_PI, M_PI);
+            gsl_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
     }
     else
     {
@@ -166,7 +166,38 @@ void sampleVMS(vec& dst,
                 if (log(c / u2) + 1 - c >= 0) break;
             }
 
-            dst(i) = mu + GSL_SIGN(gsl_rng_uniform(engine) - 0.5) * acos(f);
+            double delta0 = sqrt((1 - f) * (f + 1)) * mu(1);
+            double delta1 = sqrt((1 - f) * (f + 1)) * mu(0);
+
+            if (gsl_rng_uniform(engine) > 0.5)
+            {
+                dst(i, 0) = mu(0) * f + delta0;
+                dst(i, 1) = mu(1) * f - delta1;
+            }
+            else
+            {
+                dst(i, 0) = mu(0) * f - delta0;
+                dst(i, 1) = mu(1) * f + delta1;
+            }
         }
     }
+}
+
+void inferVMS(vec2& mu,
+              double& kappa,
+              const mat2& src)
+{
+    mu = vec2::Zero();
+
+    for (int i = 0; i < src.rows(); i++)
+    {
+        mu(0) += src(i, 0);
+        mu(1) += src(i, 1);
+    }
+
+    double R = mu.norm() / src.rows();
+
+    mu /= mu.norm();
+
+    kappa = R * (2 - gsl_pow_2(R)) / (1 - gsl_pow_2(R));
 }
