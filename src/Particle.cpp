@@ -233,6 +233,10 @@ double Particle::transQ() const { return _transQ; }
 
 void Particle::setTransQ(const double transQ) { _transQ = transQ; }
 
+uvec Particle::c() const { return _c; }
+
+void Particle::setC(const uvec& c) { _c = c; }
+
 mat4 Particle::r() const { return _r; }
 
 void Particle::setR(const mat4& r) { _r = r; }
@@ -747,6 +751,7 @@ void Particle::copy(Particle& that) const
     that.setN(_n);
     that.setTransS(_transS);
     that.setTransQ(_transQ);
+    that.setC(_c);
     that.setR(_r);
     that.setT(_t);
     that.setW(_w);

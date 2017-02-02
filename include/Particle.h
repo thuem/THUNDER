@@ -319,6 +319,10 @@ class Particle
          */
         void setTransQ(const double transQ);
 
+        uvec c() const;
+
+        void setC(const uvec& c);
+
         /**
          * This function returns the table storing the rotation information
          * with each row storing a quaternion.
