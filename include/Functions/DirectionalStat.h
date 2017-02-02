@@ -56,11 +56,25 @@ void inferACG(double& k0,
  * Probabilty Density Function of von Mises Distribution M(mu, kappa)
  *
  * @param theta the angle
- * @param mu    the mode of the von Mises Distribution
- * @param kappa the concnetration parameter of the von Mises Distribution
+ * @param mu    the mode of the von Mises distribution
+ * @param kappa the concnetration parameter of the von Mises distribution
  */
 double pdfVMS(const double theta,
               const double mu,
               const double kappa);
+
+/**
+ * Sample from von Mises Distribution M(mu, kappa), the algorithm is from Best &
+ * Fisher (1979)
+ *
+ * @param dst   the destination vector
+ * @param mu    the mode of the von Mises distribution
+ * @param kappa the concentration parameter of the von Mises distribution
+ * @param n     number of sample
+ */
+void sampleVMS(vec& dst,
+               const double mu,
+               const double kappa,
+               const double n);
 
 #endif // DIRECTIONAL_STAT_H

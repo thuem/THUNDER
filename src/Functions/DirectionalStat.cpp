@@ -128,3 +128,45 @@ double pdfVMS(const double theta,
 {
     return exp(kappa * cos(theta - mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
 }
+
+void sampleVMS(vec& dst,
+               const double mu,
+               const double kappa,
+               const double n)
+{
+    gsl_rng* engine = get_random_engine();
+
+    if (kappa == 0)
+    {
+        for (int i = 0; i < n; i++)
+            dst(i) = gsl_ran_flat(engine, -M_PI, M_PI);
+    }
+    else
+    {
+        double a = 1 + sqrt(1 + 4 * gsl_pow_2(kappa));
+        double b = (a - sqrt(2 * a)) / (2 * kappa);
+        double r = (1 + gsl_pow_2(b)) / (2 * b);
+
+        for (int i = 0; i < n; i++)
+        {
+            double f;
+
+            while (true)
+            {
+                double z = cos(M_PI * gsl_rng_uniform(engine));
+
+                f = (1 + r * z) / (r + z);
+
+                double c = kappa * (r - f);
+
+                double u2 = gsl_rng_uniform(engine);
+
+                if (c * (2 - c) > u2) break;
+
+                if (log(c / u2) + 1 - c >= 0) break;
+            }
+
+            dst(i) = mu + GSL_SIGN(gsl_rng_uniform(engine) - 0.5) * acos(f);
+        }
+    }
+}
