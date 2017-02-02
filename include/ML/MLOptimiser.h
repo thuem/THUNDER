@@ -429,6 +429,11 @@ class MLOptimiser : public Parallel
         double _stdStdN;
 
         /**
+         * images distribution over classes
+         */
+        vec _cDistr;
+
+        /**
          * whether to generate mask or not
          */
         bool _genMask;
@@ -639,6 +644,8 @@ class MLOptimiser : public Parallel
          * previous one
          */
         void refreshRotationChange();
+
+        void refreshClassDistr();
 
         /**
          * re-calculate the rotation and translation variance

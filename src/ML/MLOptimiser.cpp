@@ -74,6 +74,9 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Number of Class(es): " << _para.k;
 
+    MLOG(INFO, "LOGGER_INIT") << "Initialising Class Distribution";
+    _cDistr.resize(_para.k);
+
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.k,
                 _para.size,
@@ -856,6 +859,15 @@ void MLOptimiser::run()
         MPI_Barrier(MPI_COMM_WORLD);
 
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
+
+        refreshClassDistr();
+
+        for (int t = 0; t < _para.k; t++)
+            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                       << "\% Percentage of Images Belong to Class "
+                                       << t;
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
@@ -1845,6 +1857,36 @@ void MLOptimiser::refreshRotationChange()
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
+}
+
+void MLOptimiser::refreshClassDistr()
+{
+    _cDistr = vec::Zero(_para.k);
+
+    NT_MASTER
+    {
+        int cls;
+
+        #pragma omp parallel for private(cls)
+        FOR_EACH_2D_IMAGE
+        {
+            _par[l].rank1st(cls);
+
+            #pragma omp atomic
+            _cDistr[cls] += 1;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _cDistr.data(),
+                  _cDistr.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    _cDistr.array() /= _nPar;
 }
 
 void MLOptimiser::refreshVariance()
