@@ -253,61 +253,61 @@ void Reconstructor::insert(const Image& src,
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
 
-    /***
-    _rot2D.push_back(rot);
-    _w.push_back(w);
-    _ctf.push_back(&ctf);
-    ***/
-
-    /***
-        #pragma omp parallel for schedule(dynamic)
-        IMAGE_FOR_EACH_PIXEL_FT(transSrc)
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_EACH_PIXEL_FT(transSrc)
+    {
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
-            {
-                vec2 newCor((double)(i * _pf), (double)(j * _pf));
-                vec2 oldCor = rot * newCor;
+            vec2 newCor((double)(i * _pf), (double)(j * _pf));
+            vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                _F2D.addFT(transSrc.getFTHalf(i, j)
-                         * REAL(ctf.getFTHalf(i, j))
-                         * w, 
-                           oldCor(0), 
-                           oldCor(1), 
-                           _pf * _a, 
-                           _kernelFT);
+            /***
+            _F2D.addFT(transSrc.getFTHalf(i, j)
+                     * REAL(ctf.getFTHalf(i, j))
+                     * w, 
+                       oldCor(0), 
+                       oldCor(1), 
+                       _pf * _a, 
+                       _kernelFT);
+                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _F2D.addFT(transSrc.getFTHalf(i, j)
-                         * REAL(ctf.getFTHalf(i, j))
-                         * w, 
-                           oldCor(0), 
-                           oldCor(1));
+            /***
+            _F2D.addFT(transSrc.getFTHalf(i, j)
+                     * REAL(ctf.getFTHalf(i, j))
+                     * w, 
+                       oldCor(0), 
+                       oldCor(1));
+                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
-                       * w, 
-                         oldCor(0), 
-                         oldCor(1), 
-                         _pf * _a,
-                         _kernelFT);
+            /***
+            _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                     * w, 
+                       oldCor(0), 
+                       oldCor(1), 
+                       _pf * _a,
+                       _kernelFT);
+                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
-                       * w, 
-                         oldCor(0), 
-                         oldCor(1));
+            /***
+             _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                      * w, 
+                        oldCor(0), 
+                        oldCor(1));
+                        ***/
 #endif
 
 #endif
-            }
         }
-        ***/
+    }
 }
 
 void Reconstructor::insert(const Image& src,
@@ -381,20 +381,20 @@ void Reconstructor::insert(const Image& src,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
-                       * w, 
-                         oldCor(0), 
-                         oldCor(1), 
-                         oldCor(2),
-                         _pf * _a,
-                         _kernelFT);
+                         * w, 
+                           oldCor(0), 
+                           oldCor(1), 
+                           oldCor(2),
+                           _pf * _a,
+                           _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                 _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
-                       * w, 
-                         oldCor(0), 
-                         oldCor(1), 
-                         oldCor(2));
+                         * w, 
+                           oldCor(0), 
+                           oldCor(1), 
+                           oldCor(2));
 #endif
 
 #endif
@@ -467,20 +467,20 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
-                   * w,
-                     oldCor(0), 
-                     oldCor(1), 
-                     oldCor(2),
-                     _pf * _a,
-                     _kernelFT);
+                     * w,
+                       oldCor(0), 
+                       oldCor(1), 
+                       oldCor(2),
+                       _pf * _a,
+                       _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
-                   * w,
-                     oldCor(0), 
-                     oldCor(1), 
-                     oldCor(2));
+                     * w,
+                       oldCor(0), 
+                       oldCor(1), 
+                       oldCor(2));
 #endif
 
 #endif
