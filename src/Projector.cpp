@@ -25,6 +25,7 @@ Projector::~Projector() {}
 
 void Projector::swap(Projector& that)
 {
+    std::swap(_mode, that._mode);
     std::swap(_maxRadius, that._maxRadius);
     std::swap(_interp, that._interp);
     std::swap(_pf, that._pf);
