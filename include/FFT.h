@@ -340,26 +340,46 @@ class FFT
         void bwMT(Volume& vol);
 
         void fwCreatePlan(const int nCol,
+                          const int nRow);
+
+        void fwCreatePlan(const int nCol,
                           const int nRow,
                           const int nSlc);
+
+        void bwCreatePlan(const int nCol,
+                          const int nRow);
 
         void bwCreatePlan(const int nCol,
                           const int nRow,
                           const int nSlc);
 
         void fwCreatePlanMT(const int nCol,
+                            const int nRow);
+
+        void fwCreatePlanMT(const int nCol,
                             const int nRow,
                             const int nSlc);
+
+        void bwCreatePlanMT(const int nCol,
+                            const int nRow);
 
         void bwCreatePlanMT(const int nCol,
                             const int nRow,
                             const int nSlc);
 
+        void fwExecutePlan(Image& img);
+
         void fwExecutePlan(Volume& vol);
+
+        void bwExecutePlan(Image& img);
 
         void bwExecutePlan(Volume& vol);
 
+        void fwExecutePlanMT(Image& img);
+
         void fwExecutePlanMT(Volume& vol);
+
+        void bwExecutePlanMT(Image& img);
 
         void bwExecutePlanMT(Volume& vol);
 

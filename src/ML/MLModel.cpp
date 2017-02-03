@@ -538,7 +538,8 @@ void MLModel::refreshReco()
                                  << l
                                  << " Initialising";
 
-        _reco[l]->init(_size,
+        _reco[l]->init(MODE_3D,
+                       _size,
                        _pf,
                        _sym,
                        _a,

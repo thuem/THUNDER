@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     boost::container::vector< boost::movelib::unique_ptr<Reconstructor> > reco;
 
     reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
-    reco[0]->init(N, 2, &sym);
+    reco[0]->init(MODE_3D, N, 2, &sym);
 
     //Reconstructor reconstructor(N, 2, &sym);
 

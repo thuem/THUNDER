@@ -13,7 +13,8 @@ Reconstructor::Reconstructor()
     defaultInit();
 }
 
-Reconstructor::Reconstructor(const int size,
+Reconstructor::Reconstructor(const int mode,
+                             const int size,
                              const int pf,
                              const Symmetry* sym,
                              const double a,
@@ -21,7 +22,7 @@ Reconstructor::Reconstructor(const int size,
 {
     defaultInit();
 
-    init(size, pf, sym, a, alpha);
+    init(mode, size, pf, sym, a, alpha);
 }
 
 Reconstructor::~Reconstructor()
@@ -30,12 +31,14 @@ Reconstructor::~Reconstructor()
     _fft.bwDestroyPlanMT();
 }
 
-void Reconstructor::init(const int size,
+void Reconstructor::init(const int mode,
+                         const int size,
                          const int pf,
                          const Symmetry* sym,
                          const double a,
                          const double alpha)
 {
+    _mode = mode;
     _size = size;
     _pf = pf;
     _sym = sym;
@@ -71,13 +74,28 @@ void Reconstructor::init(const int size,
 
     _maxRadius = (_size / 2 - a);
 
-    _F3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _W3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    if (_mode == MODE_2D)
+    {
+        _F2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _W2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _C2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _T2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
 
-    _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
-    _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE);
+        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE);
+    }
+    else if (_mode == MODE_3D)
+    {
+        _F3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _W3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+
+        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+    }
+    else 
+        REPORT_ERROR("INEXISTENT MODE");
 
     reset();
 }
@@ -97,17 +115,26 @@ void Reconstructor::reset()
 
     _MAP = true;
 
-    #pragma omp parallel for
-    SET_0_FT(_F3D);
+    if (_mode == MODE_2D)
+    {
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        SET_0_FT(_F3D);
 
-    #pragma omp parallel for
-    SET_1_FT(_W3D);
+        #pragma omp parallel for
+        SET_1_FT(_W3D);
 
-    #pragma omp parallel for
-    SET_0_FT(_C3D);
+        #pragma omp parallel for
+        SET_0_FT(_C3D);
 
-    #pragma omp parallel for
-    SET_0_FT(_T3D);
+        #pragma omp parallel for
+        SET_0_FT(_T3D);
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 }
 
 int Reconstructor::mode() const

@@ -224,14 +224,28 @@ void FFT::bwMT(Volume& vol)
 }
 
 void FFT::fwCreatePlan(const int nCol,
+                       const int nRow)
+{
+    fwCreatePlan(nCol, nRow, 1);
+    /***
+    _srcR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+    _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+
+    fwPlan = fftw_plan_dft_r2c_2d(nRow,
+                                  nCol,
+                                  _srcR,
+                                  _dstC,
+                                  FFTW_MEASURE);
+
+    fftw_free(_srcR);
+    fftw_free(_dstC);
+    ***/
+}
+
+void FFT::fwCreatePlan(const int nCol,
                        const int nRow,
                        const int nSlc)
 {
-    /***
-    _srcR = fftw_alloc_real(nCol * nRow * nSlc);
-    _dstC = fftw_alloc_complex((nCol / 2 + 1) * nRow * nSlc);
-    ***/
-
     _srcR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
@@ -247,14 +261,29 @@ void FFT::fwCreatePlan(const int nCol,
 }
 
 void FFT::bwCreatePlan(const int nCol,
+                       const int nRow)
+{
+    bwCreatePlan(nCol, nRow, 1);
+    /***
+    _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+    _dstR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+
+    #pragma omp critical
+    bwPlan = fftw_plan_dft_c2r_2d(nRow,
+                                  nCol,
+                                  _srcC,
+                                  _dstR,
+                                  FFTW_MEASURE);
+
+    fftw_free(_srcC);
+    fftw_free(_dstR);
+    ***/
+}
+
+void FFT::bwCreatePlan(const int nCol,
                        const int nRow,
                        const int nSlc)
 {
-    /***
-    _srcC = fftw_alloc_complex((nCol / 2 + 1) * nRow * nSlc);
-    _dstR = fftw_alloc_real(nCol * nRow * nSlc);
-    ***/
-
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
 
@@ -268,6 +297,12 @@ void FFT::bwCreatePlan(const int nCol,
 
     fftw_free(_srcC);
     fftw_free(_dstR);
+}
+
+void FFT::fwCreatePlanMT(const int nCol,
+                         const int nRow)
+{
+    fwCreatePlanMT(nCol, nRow, 1);
 }
 
 void FFT::fwCreatePlanMT(const int nCol,
@@ -293,6 +328,12 @@ void FFT::fwCreatePlanMT(const int nCol,
 }
 
 void FFT::bwCreatePlanMT(const int nCol,
+                         const int nRow)
+{
+    bwCreatePlanMT(nCol, nRow, 1);
+}
+
+void FFT::bwCreatePlanMT(const int nCol,
                          const int nRow,
                          const int nSlc)
 {
@@ -314,6 +355,16 @@ void FFT::bwCreatePlanMT(const int nCol,
     fftw_free(_dstR);
 }
 
+void FFT::fwExecutePlan(Image& img)
+{
+    FW_EXTRACT_P(img);
+
+    fftw_execute_dft_r2c(fwPlan, _srcR, _dstC);
+
+    _srcR = NULL;
+    _dstC = NULL;
+}
+
 void FFT::fwExecutePlan(Volume& vol)
 {
     FW_EXTRACT_P(vol);
@@ -322,6 +373,20 @@ void FFT::fwExecutePlan(Volume& vol)
 
     _srcR = NULL;
     _dstC = NULL;
+}
+
+void FFT::bwExecutePlan(Image& img)
+{
+    BW_EXTRACT_P(img);
+
+    fftw_execute_dft_c2r(bwPlan, _srcC, _dstR);
+
+    SCALE_RL(img, 1.0 / img.sizeRL());
+
+    _srcC = NULL;
+    _dstR = NULL;
+
+    img.clearFT();
 }
 
 void FFT::bwExecutePlan(Volume& vol)
@@ -338,6 +403,16 @@ void FFT::bwExecutePlan(Volume& vol)
     vol.clearFT();
 }
 
+void FFT::fwExecutePlanMT(Image& img)
+{
+    FW_EXTRACT_P(img);
+
+    fftw_execute_dft_r2c(fwPlan, _srcR, _dstC);
+
+    _srcR = NULL;
+    _dstC = NULL;
+}
+
 void FFT::fwExecutePlanMT(Volume& vol)
 {
     FW_EXTRACT_P(vol);
@@ -346,6 +421,21 @@ void FFT::fwExecutePlanMT(Volume& vol)
 
     _srcR = NULL;
     _dstC = NULL;
+}
+
+void FFT::bwExecutePlanMT(Image& img)
+{
+    BW_EXTRACT_P(img);
+
+    fftw_execute_dft_c2r(bwPlan, _srcC, _dstR);
+
+    #pragma omp parallel for
+    SCALE_RL(img, 1.0 / img.sizeRL());
+
+    _srcC = NULL;
+    _dstR = NULL;
+
+    img.clearFT();
 }
 
 void FFT::bwExecutePlanMT(Volume& vol)

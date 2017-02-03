@@ -94,6 +94,14 @@ class Reconstructor : public Parallel
          */
         int _size;
 
+        Image _F2D;
+
+        Image _W2D;
+
+        Image _C2D;
+
+        Image _T2D;
+
         /**
          * The 3D grid volume used to save the accumulation of the pixels 
          * values of 2D Fourier transforms of inserting images in 3D Fourier
@@ -261,7 +269,8 @@ class Reconstructor : public Parallel
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
          *              Kernel. By default is 15.
          */
-        Reconstructor(const int size,
+        Reconstructor(const int mode,
+                      const int size,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
                       const double a = 1.9,
@@ -283,7 +292,8 @@ class Reconstructor : public Parallel
          * @param alpha The smoothness parameter of modified Kaiser-Bessel 
          *              kernel. By default is 15.
          */
-        void init(const int size,
+        void init(const int mode,
+                  const int size,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
                   const double a = 1.9,
