@@ -13,18 +13,14 @@
 
 #include <cstdlib>
 
-
 #include "Macro.h"
 #include "Typedef.h"
-#include "Error.h"
 #include "Logging.h"
 
 #include "Euler.h"
 #include "PointGroup.h"
 #include "SymmetryOperation.h"
 #include "Utils.h"
-
-
 
 /**
  * This function translates a string indicating the symmetry group to the code

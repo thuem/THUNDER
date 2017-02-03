@@ -421,17 +421,34 @@ void Projector::gridCorrection()
     {
         FFT fft;
 
-        fft.bwMT(_projectee3D);
+        if (_mode == MODE_2D)
+        {
+            //TODO
+        }
+        else if (_mode == MODE_3D)
+        {
+            fft.bwMT(_projectee3D);
 
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
-            _projectee3D.setRL(_projectee3D.getRL(i, j, k)
-                             / TIK_RL(NORM_3(i, j, k)
-                                    / (_projectee3D.nColRL() * _pf)),
-                               i,
-                               j,
-                               k);
+            #pragma omp parallel for schedule(dynamic)
+            VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
+                _projectee3D.setRL(_projectee3D.getRL(i, j, k)
+                                 / TIK_RL(NORM_3(i, j, k)
+                                 / (_projectee3D.nColRL() * _pf)),
+                                   i,
+                                   j,
+                                   k);
 
-        fft.fwMT(_projectee3D);
+            fft.fwMT(_projectee3D);
+            _projectee3D.clearRL();
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT_MODE");
+            /***
+            CLOG(FATAL, "LOGGER_SYS") << __LINE__
+                                      << __FUNCTION__
+                                      << ": INEXISTENT MODE";
+                                      ***/
+        }
     }
 }

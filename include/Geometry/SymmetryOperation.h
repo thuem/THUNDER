@@ -15,9 +15,7 @@
 
 #include "Macro.h"
 #include "Typedef.h"
-#include "Error.h"
 #include "Utils.h"
-
 
 /**
  * @ingroup SymmetryOperation

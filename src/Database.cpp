@@ -6,9 +6,7 @@
  * Description:
  * ****************************************************************************/
 
-#include <Error.h>
 #include "Database.h"
-#include "Utils.h"
 
 Database::Database() : _mode(PARTICLE_MODE)
 {

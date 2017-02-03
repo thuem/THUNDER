@@ -18,8 +18,6 @@
 #define MICROGRAPH_PATH "/home/humingxu/Micrographs"
 #define STAR_PATH        "/home/humingxu/Star"
 
-
-
 void initPara(PREPROCESS_PARA* para)
 {
      para->nCol = 100;
@@ -230,14 +228,7 @@ int main(int argc, char* argv[])
     Preprocess preprocess(para);
     preprocess.setMPIEnv();
 
-    try
-    {
     	preprocess.run();
-    }
-    catch (Error& err)
-    {
-        std::cout << err;
-    }
 
     MPI_Finalize();
 

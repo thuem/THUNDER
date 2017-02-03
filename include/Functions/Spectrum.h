@@ -15,7 +15,6 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_fit.h>
 
-#include "Error.h"
 #include "Typedef.h"
 
 #include "Image.h"

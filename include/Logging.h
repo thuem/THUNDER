@@ -17,10 +17,17 @@
 
 #include "Macro.h"
 
-
-// Compatibility settings for
 namespace el = easyloggingpp;
+
 #define INITIALIZE_EASYLOGGINGPP _INITIALIZE_EASYLOGGINGPP
+
+#define REPORT_ERROR(msg) CLOG(FATAL, "LOGGER_SYS") << __FILE__ \
+                                                    << ", " \
+                                                    << __LINE__ \
+                                                    << ", " \
+                                                    << __FUNCTION__ \
+                                                    << ": " \
+                                                    << msg;
 
 void loggerInit(int argc, const char* const * argv);
 

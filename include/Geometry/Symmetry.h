@@ -17,15 +17,11 @@
 
 #include "Macro.h"
 #include "Typedef.h"
-#include "Error.h"
 #include "Logging.h"
 
-#include "Euler.h"
 #include "PointGroup.h"
 #include "SymmetryOperation.h"
 #include "SymmetryFunctions.h"
-
-
 
 /**
  * Maximum ID Length of Symmetry

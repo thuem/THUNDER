@@ -17,7 +17,6 @@
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
-#include "Error.h"
 #include "Complex.h"
 #include "Logging.h"
 

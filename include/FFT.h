@@ -18,7 +18,6 @@
 #include <omp_compat.h>
 
 #include "Complex.h"
-#include "Error.h"
 
 #include "Image.h"
 #include "Volume.h"

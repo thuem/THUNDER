@@ -17,8 +17,6 @@ int main(int argc, const char* argv[])
 {
     loggerInit(argc, argv);
 
-    try
-    {
         Symmetry sym("C15");
         display(sym);
 
@@ -37,9 +35,4 @@ int main(int argc, const char* argv[])
 
         for (int i = 0; i < (int)sr.size(); i++)
             std::cout << sr[i] << std::endl;
-    }
-    catch (Error& error)
-    {
-        std::cout << error;
-    }
 }
