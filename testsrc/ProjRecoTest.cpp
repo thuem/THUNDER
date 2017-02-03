@@ -47,11 +47,15 @@
 
 #define NOISE_FACTOR 1
 
+//#define TEST
+
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
+
+#ifdef TEST
 
     MPI_Init(&argc, &argv);
 
@@ -509,6 +513,8 @@ int main(int argc, char* argv[])
             imageNew.saveRLToBMP(name);
         }
     }
+
+#endif
     
     return 0;
 }
