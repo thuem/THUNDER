@@ -107,10 +107,10 @@ void Image::saveRLToBMP(const char* filename) const
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
-        CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Bitcamp File.";
+        REPORT_ERROR("FAILING TO OPEN BITCAMP FILE");
 
     if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
-        CLOG(FATAL, "LOGGER_SYS") << "Fail to Create BMP Image.";
+        REPORT_ERROR("FAILING TO CREATE BMP FILE");
 
     bmp.close();
 
@@ -165,9 +165,9 @@ void Image::saveFTToBMP(const char* filename, double c) const
     BMP bmp;
 
     if (bmp.open(filename, "wb") == 0)
-        CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Bitcamp File.";
+        REPORT_ERROR("FAILING TO OPEN BITCAMP FILE");
     if (bmp.createBMP(image, nColBMP, nRowBMP) == false)
-        CLOG(FATAL, "LOGGER_SYS") << "Fail to Create BMP Image.";
+        REPORT_ERROR("FAILING TO CREATE BMP FILE");
 
     bmp.close();
 
@@ -268,12 +268,36 @@ Complex Image::getBiLinearFT(const double iCol,
     return result;
 }
 
+Complex Image::getByInterpolationFT(double iCol,
+                                    double iRow,
+                                    const int interp) const
+{
+    bool conj = conjHalf(iCol, iRow);
+
+    if (interp == NEAREST_INTERP)
+    {
+        Complex result = getFTHalf(AROUND(iCol), AROUND(iRow));
+
+        return conj ? CONJUGATE(result) : result;
+    }
+
+    double w[2][2];
+    int x0[2];
+    double x[2] = {iCol, iRow};
+
+    WG_BI_INTERP(w, x0, x, interp);
+
+    Complex result = getFTHalf(w, x0);
+
+    return conj ? CONJUGATE(result) : result;
+}
+
 void Image::coordinatesInBoundaryRL(const int iCol,
                                     const int iRow) const
 {
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
-        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
+        REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
 }
 
 void Image::coordinatesInBoundaryFT(const int iCol,
@@ -281,5 +305,15 @@ void Image::coordinatesInBoundaryFT(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
-        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
+        REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
+}
+
+Complex Image::getFTHalf(const double w[2][2],
+                         const int x0[2]) const
+{
+    Complex result = COMPLEX(0, 0);
+    FOR_CELL_DIM_2 result += getFTHalf(x0[0] + i,
+                                       x0[1] + j)
+                           * w[i][j];
+    return result;
 }

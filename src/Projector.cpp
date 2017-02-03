@@ -119,7 +119,18 @@ void Projector::setProjectee(Volume src)
 void Projector::project(Image& dst,
                         const mat22& mat) const
 {
-    // TODO
+    IMAGE_FOR_PIXEL_R_FT(_maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        {
+            vec2 newCor((double)(i * _pf), (double)(j * _pf));
+            vec2 oldCor = mat * newCor;
+
+            dst.setFT(_projectee2D.getByInterpolationFT(oldCor(0),
+                                                        oldCor(1),
+                                                        _interp),
+                      i,
+                      j);
+        }
 }
 
 void Projector::project(Image& dst,
@@ -423,7 +434,17 @@ void Projector::gridCorrection()
 
         if (_mode == MODE_2D)
         {
-            //TODO
+            fft.bw(_projectee2D);
+
+            IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
+                _projectee2D.setRL(_projectee2D.getRL(i, j)
+                                 / TIK_RL(NORM(i, j))
+                                 / (_projectee2D.nColRL() * _pf),
+                                   i,
+                                   j);
+
+            fft.fw(_projectee2D);
+            _projectee2D.clearRL();
         }
         else if (_mode == MODE_3D)
         {
@@ -442,13 +463,6 @@ void Projector::gridCorrection()
             _projectee3D.clearRL();
         }
         else
-        {
             REPORT_ERROR("INEXISTENT_MODE");
-            /***
-            CLOG(FATAL, "LOGGER_SYS") << __LINE__
-                                      << __FUNCTION__
-                                      << ": INEXISTENT MODE";
-                                      ***/
-        }
     }
 }

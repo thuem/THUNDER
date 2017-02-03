@@ -63,7 +63,19 @@
     for (int j = -r; j < r; j++) \
         for (int i = 0; i <= r; i++)
 
-inline bool conjHalf(int& iCol, int& iRow)
+inline bool conjHalf(int& iCol,
+                     int& iRow)
+{
+    if (iCol >= 0) return false;
+
+    iCol *= -1;
+    iRow *= -1;
+
+    return true;
+};
+
+inline bool conjHalf(double& iCol,
+                     double& iRow)
 {
     if (iCol >= 0) return false;
 
@@ -246,6 +258,10 @@ class Image : public ImageBase
         Complex getBiLinearFT(const double iCol,
                               const double iRow) const;
 
+        Complex getByInterpolationFT(double iCol,
+                                     double iRow,
+                                     const int interp) const;
+
         void clear()
         {
             ImageBase::clear();
@@ -298,6 +314,9 @@ class Image : public ImageBase
          */
         void coordinatesInBoundaryFT(const int iCol,
                                      const int iRow) const;
+
+        Complex getFTHalf(const double w[2][2],
+                          const int x0[2]) const;
 };
 
 #endif // IMAGE_H
