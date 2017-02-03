@@ -79,6 +79,8 @@ class Reconstructor : public Parallel
 {
     private:
 
+        int _mode;
+
         int _calMode;
 
         bool _MAP;
@@ -103,7 +105,7 @@ class Reconstructor : public Parallel
          * _F volumes of all nodes, which the 3D Fourier transform of the 
          * model is obtained. This volume is initialised to be all zero.
          */
-        Volume _F;
+        Volume _F3D;
         
         /**
          * The 3D grid volume used to save the balancing weights factors of 
@@ -118,7 +120,7 @@ class Reconstructor : public Parallel
          * get the 3D Fourier transform of the model. This volume initialised
          * to be all one.
          */
-        Volume _W;
+        Volume _W3D;
         
         
         /**
@@ -132,9 +134,9 @@ class Reconstructor : public Parallel
          * by the divion of _W and _C, with which _C can be approximately equal
          * to 1. This volume initialised to be all zero.
          */
-        Volume _C;
+        Volume _C3D;
 
-        Volume _T;
+        Volume _T3D;
 
         /**
          * The vector to save the rotate matrixs of each insertion with image 
@@ -219,6 +221,8 @@ class Reconstructor : public Parallel
 
         void defaultInit()
         {
+            _mode = MODE_3D;
+
             _calMode = POST_CAL_MODE;
 
             _MAP = true;
@@ -285,6 +289,10 @@ class Reconstructor : public Parallel
                   const double alpha = 15);
 
         void reset();
+
+        int mode() const;
+
+        void setMode(const int mode);
 
         bool MAP() const;
 
@@ -368,12 +376,6 @@ class Reconstructor : public Parallel
         void reconstruct(Volume& dst);
 
     private:
-
-        /**
-         * The size of the reconstructor area that is used to determine the
-         * size of Volume in 3 dimension xyz.
-         */
-        void allReduceW();
 
         /**
          * The size of the reconstructor area that is used to determine the

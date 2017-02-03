@@ -73,10 +73,10 @@ void Reconstructor::init(const int size,
 
     _maxRadius = (_size / 2 - a);
 
-    _F.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _W.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _C.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-    _T.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _F3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _W3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+    _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
 
     _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
     _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
@@ -100,16 +100,26 @@ void Reconstructor::reset()
     _MAP = true;
 
     #pragma omp parallel for
-    SET_0_FT(_F);
+    SET_0_FT(_F3D);
 
     #pragma omp parallel for
-    SET_1_FT(_W);
+    SET_1_FT(_W3D);
 
     #pragma omp parallel for
-    SET_0_FT(_C);
+    SET_0_FT(_C3D);
 
     #pragma omp parallel for
-    SET_0_FT(_T);
+    SET_0_FT(_T3D);
+}
+
+int Reconstructor::mode() const
+{
+    return _mode;
+}
+
+void Reconstructor::setMode(const int mode)
+{
+    _mode = mode;
 }
 
 bool Reconstructor::MAP() const
@@ -190,14 +200,10 @@ void Reconstructor::insert(const Image& src,
                            const vec* sig)
 {
     IF_MASTER
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
-    }
+        REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
 
     if (_calMode != POST_CAL_MODE)
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Wrong Pre(Post) Calculation Mode in Reconstructor";
-    }
+        REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 
     if ((src.nColRL() != _size) ||
         (src.nRowRL() != _size) ||
@@ -234,39 +240,39 @@ void Reconstructor::insert(const Image& src,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 if (sig == NULL)
-                    _F.addFT(transSrc.getFTHalf(i, j)
-                           * REAL(ctf.getFTHalf(i, j))
-                           * w, 
-                             oldCor(0), 
-                             oldCor(1), 
-                             oldCor(2), 
-                             _pf * _a, 
-                             _kernelFT);
+                    _F3D.addFT(transSrc.getFTHalf(i, j)
+                             * REAL(ctf.getFTHalf(i, j))
+                             * w, 
+                               oldCor(0), 
+                               oldCor(1), 
+                               oldCor(2), 
+                               _pf * _a, 
+                               _kernelFT);
                 else
-                    _F.addFT(transSrc.getFTHalf(i, j)
-                           * REAL(ctf.getFTHalf(i, j))
-                           / sig(AROUND(NORM(i, j)))
-                           * w,
-                             oldCor(0),
-                             oldCor(1),
-                             oldCor(2),
-                             _pf * _a,
-                             _kernelFT);
+                    _F3D.addFT(transSrc.getFTHalf(i, j)
+                             * REAL(ctf.getFTHalf(i, j))
+                             / sig(AROUND(NORM(i, j)))
+                             * w,
+                               oldCor(0),
+                               oldCor(1),
+                               oldCor(2),
+                               _pf * _a,
+                               _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _F.addFT(transSrc.getFTHalf(i, j)
-                       * REAL(ctf.getFTHalf(i, j))
-                       * w, 
-                         oldCor(0), 
-                         oldCor(1), 
-                         oldCor(2));
+                _F3D.addFT(transSrc.getFTHalf(i, j)
+                         * REAL(ctf.getFTHalf(i, j))
+                         * w, 
+                           oldCor(0), 
+                           oldCor(1), 
+                           oldCor(2));
 #endif
 
-#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
+#ifdef RECONSTRUCTOR_ADD_T3D_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                        * w, 
                          oldCor(0), 
                          oldCor(1), 
@@ -276,7 +282,7 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _T.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                        * w, 
                          oldCor(0), 
                          oldCor(1), 
@@ -329,29 +335,29 @@ void Reconstructor::insertP(const Image& src,
             vec3 oldCor = sr[k] * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F.addFT(transSrc[_iPxl[i]]
-                   * REAL(ctf.iGetFT(_iPxl[i]))
-                   * w,
-                     oldCor(0), 
-                     oldCor(1), 
-                     oldCor(2), 
-                     _pf * _a, 
-                     _kernelFT);
+            _F3D.addFT(transSrc[_iPxl[i]]
+                     * REAL(ctf.iGetFT(_iPxl[i]))
+                     * w,
+                       oldCor(0), 
+                       oldCor(1), 
+                       oldCor(2), 
+                       _pf * _a, 
+                       _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F.addFT(transSrc[_iPxl[i]]
-                   * REAL(ctf.iGetFT(_iPxl[i]))
-                   * w,
-                     oldCor(0), 
-                     oldCor(1), 
-                     oldCor(2));
+            _F3D.addFT(transSrc[_iPxl[i]]
+                     * REAL(ctf.iGetFT(_iPxl[i]))
+                     * w,
+                       oldCor(0), 
+                       oldCor(1), 
+                       oldCor(2));
 #endif
 
-#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
+#ifdef RECONSTRUCTOR_ADD_T3D_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+            _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                    * w,
                      oldCor(0), 
                      oldCor(1), 
@@ -361,7 +367,7 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _T.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+            _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                    * w,
                      oldCor(0), 
                      oldCor(1), 
@@ -393,12 +399,12 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         // Obviously, wiener_filter with FSC can be wrong when dealing with
         // preferrable orienation problem
-#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
+#ifdef RECONSTRUCTOR_W3DIENER_FILTER_FSC
 
-#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
+#ifdef RECONSTRUCTOR_W3DIENER_FILTER_FSC_FREQ_AVG
         vec avg = vec::Zero(_maxRadius * _pf + 1);
         shellAverage(avg,
-                     _T,
+                     _T3D,
                      gsl_real,
                     _maxRadius * _pf - 1);
         // the last two elements have low fidelity
@@ -422,7 +428,7 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
 
         #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_T)
+        VOLUME_FOR_EACH_PIXEL_FT(_T3D)
             if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
                 (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
             {
@@ -434,24 +440,24 @@ void Reconstructor::reconstruct(Volume& dst)
 
                 FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
 
-#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-                _T.setFT(_T.getFT(i, j, k)
+#ifdef RECONSTRUCTOR_W3DIENER_FILTER_FSC_FREQ_AVG
+                _T3D.setFT(_T3D.getFT(i, j, k)
                        + COMPLEX((1 - FSC) / FSC * avg(u), 0),
                          i,
                          j,
                          k);
 #else
-                _T.setFT(_T.getFT(i, j, k) / FSC, i, j, k);
+                _T3D.setFT(_T3D.getFT(i, j, k) / FSC, i, j, k);
 #endif
             }
 #endif
 
-#ifdef RECONSTRUCTOR_WIENER_FILTER_CONST
+#ifdef RECONSTRUCTOR_W3DIENER_FILTER_C3DONST
         #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_T)
+        VOLUME_FOR_EACH_PIXEL_FT(_T3D)
             if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
                 (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-                _T.setFT(_T.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
+                _T3D.setFT(_T3D.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
 #endif
     }
 
@@ -459,11 +465,11 @@ void Reconstructor::reconstruct(Volume& dst)
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
     #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_W)
+    VOLUME_FOR_EACH_PIXEL_FT(_W3D)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            _W.setFTHalf(COMPLEX(1, 0), i, j, k);
+            _W3D.setFTHalf(COMPLEX(1, 0), i, j, k);
         else
-            _W.setFTHalf(COMPLEX(0, 0), i, j, k);
+            _W3D.setFTHalf(COMPLEX(0, 0), i, j, k);
 
     double diffC = DBL_MAX;
     double diffCPrev = DBL_MAX;
@@ -484,8 +490,8 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
         
         #pragma omp parallel for
-        FOR_EACH_PIXEL_FT(_C)
-            _C[i] = _T[i] * _W[i];
+        FOR_EACH_PIXEL_FT(_C3D)
+            _C3D[i] = _T3D[i] * _W3D[i];
 
         convoluteC();
 
@@ -504,10 +510,10 @@ void Reconstructor::reconstruct(Volume& dst)
         else
         {
             #pragma omp parallel for schedule(dynamic)
-            VOLUME_FOR_EACH_PIXEL_FT(_W)
+            VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-                    _W.setFTHalf(_W.getFTHalf(i, j, k)
-                               / GSL_MAX_DBL(ABS(_C.getFTHalf(i, j, k)),
+                    _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
+                               / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
                                              1e-6),
                                  i,
                                  j,
@@ -527,7 +533,7 @@ void Reconstructor::reconstruct(Volume& dst)
     symmetrizeF();
 #endif
 
-    dst = _F.copyVolume();
+    dst = _F3D.copyVolume();
 
     _fft.bwExecutePlan(dst);
 
@@ -535,20 +541,20 @@ void Reconstructor::reconstruct(Volume& dst)
 #ifdef RECONSTRUCTOR_ZERO_MASK
     softMask(dst,
              dst,
-             0.5 * _size - EDGE_WIDTH_RL,
-             EDGE_WIDTH_RL,
+             0.5 * _size - EDGE_W3DIDTH_RL,
+             EDGE_W3DIDTH_RL,
              0);
 #else
     regionBgSoftMask(dst,
                      dst,
-                     0.5 * _size - EDGE_WIDTH_RL,
-                     EDGE_WIDTH_RL,
+                     0.5 * _size - EDGE_W3DIDTH_RL,
+                     EDGE_W3DIDTH_RL,
                      0.5 * _size,
-                     0.5 * _size - EDGE_WIDTH_RL);
+                     0.5 * _size - EDGE_W3DIDTH_RL);
 #endif
     ***/
 
-#ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
+#ifdef RECONSTRUCTOR_CORRECT_C3DONVOLUTION_KERNEL
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
@@ -586,245 +592,17 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 }
 
-void Reconstructor::allReduceW()
-{
-    #pragma omp parallel for
-    SET_0_FT(_C);
-
-    ALOG(INFO, "LOGGER_RECO") << "Re-calculating C";
-    BLOG(INFO, "LOGGER_RECO") << "Re-calculating C";
-
-    if (_calMode == POST_CAL_MODE)
-    {
-        #pragma omp parallel for
-        for (int k = 0; k < int(_rot.size()); k++)
-            for (int j = -_size / 2; j < _size / 2; j++)
-                for (int i = 0; i <= _size / 2; i++)
-                {
-                    if (QUAD(i, j) < gsl_pow_2(_maxRadius))
-                    {
-                        vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
-                        vec3 oldCor = _rot[k] * newCor;
-
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-                        _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
-                                                              oldCor[1],
-                                                              oldCor[2],
-                                                              LINEAR_INTERP))
-                               * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                               * _w[k],
-                                 oldCor[0],
-                                 oldCor[1],
-                                 oldCor[2],
-                                 _pf * _a,
-                                 _kernelFT);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                        _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
-                                                              oldCor[1],
-                                                              oldCor[2],
-                                                              LINEAR_INTERP))
-                               * gsl_pow_2(REAL(_ctf[k]->getFTHalf(i, j)))
-                               * _w[k],
-                                 oldCor[0],
-                                 oldCor[1],
-                                 oldCor[2]);
-#endif
-                    }
-                }
-    }
-    else if (_calMode == PRE_CAL_MODE)
-    {
-        #pragma omp parallel for
-        for (int k = 0; k < int(_rot.size()); k++)
-            for (int i = 0; i < _nPxl; i++)
-            {
-                vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
-                vec3 oldCor = _rot[k] * newCor;
-
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-                _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
-                                                      oldCor[1],
-                                                      oldCor[2],
-                                                      LINEAR_INTERP))
-                       * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
-                       * _w[k],
-                         oldCor[0],
-                         oldCor[1],
-                         oldCor[2],
-                         _pf * _a,
-                         _kernelFT);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _C.addFT(REAL(_W.getByInterpolationFT(oldCor[0],
-                                                      oldCor[1],
-                                                      oldCor[2],
-                                                      LINEAR_INTERP))
-                       * gsl_pow_2(REAL(_ctf[k]->iGetFT(_iPxl[i])))
-                       * _w[k],
-                         oldCor[0],
-                         oldCor[1],
-                         oldCor[2]);
-#endif
-            }
-    }
-    else
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Invalid Pre(Post) Calculation Mode in Reconstructor";
-    }
-    
-    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
-    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
-
-    MPI_Barrier(_hemi);
-
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing C";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing C";
-
-    MPI_Allreduce_Large(&_C[0],
-                        _C.sizeFT(),
-                        MPI_DOUBLE_COMPLEX,
-                        MPI_SUM,
-                        _hemi);
-
-    MPI_Barrier(_hemi);
-
-    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
-    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Correction of C";
-
-    /***
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_C)
-        if (QUAD_3(i, j, k) >= gsl_pow_2(_maxRadius * _pf))
-            _C.setFTHalf(COMPLEX(0, 0), i, j, k);
-    ***/
-
-    _fft.bwExecutePlanMT(_C);
-
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_RL(_C)
-    {
-        _C.setRL(_C.getRL(i, j, k)
-               / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
-                 i,
-                 j,
-                 k);
-    }
-
-    _fft.fwExecutePlanMT(_C);
-
-    _C.clearRL();
-
-    ALOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
-    BLOG(INFO, "LOGGER_RECO") << "Adding Wiener Factor to C";
-
-    /***
-    #pragma omp parallel for
-    SET_0_FT(_T);
-
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_T)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-        {
-            if ((i % _pf == 0) &&
-                (j % _pf == 0) &&
-                (k % _pf == 0))
-                _T.addFT(_W.getFTHalf(i, j, k),
-                         i,
-                         j,
-                         k,
-                         _pf * _a,
-                         _kernelFT);
-        }
-    ***/
-
-    _T = _W.copyVolume();
-
-    _fft.bwExecutePlanMT(_T);
-
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_RL(_T)
-    {
-        _T.setRL(_T.getRL(i, j, k)
-               * MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
-                        _a * _pf,
-                        _alpha),
-                 i,
-                 j,
-                 k);
-    }
-
-    _fft.fwExecutePlanMT(_T);
-    _T.clearRL();
-
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_FT(_C)
-        _C[i] += _T[i];
-
-    /***
-    double blobVol = MKB_BLOB_VOL(_a * _pf, _alpha);
-
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_FT(_C)
-        _C[i] += blobVol * _W[i];
-    ***/
-
-    /***
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_FT(_C)
-        _C[i] += _W[i] * _T[i];
-        ***/
-
-    ALOG(INFO, "LOGGER_RECO") << "Re-calculating W";
-    BLOG(INFO, "LOGGER_RECO") << "Re-calculating W";
-
-    /***
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_FT(_W)
-        _W[i] /= REAL(_C[i]);
-    ***/
-
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_W)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-        {
-            _W.setFTHalf(_W.getFTHalf(i, j, k)
-                       / REAL(_C.getFTHalf(i, j, k)),
-                         i,
-                         j,
-                         k);
-        }
-
-            /***
-            if (REAL(_C.getFTHalf(i, j, k)) > 1)
-            {
-                _W.setFTHalf(_W.getFTHalf(i, j, k)
-                           / REAL(_C.getFTHalf(i, j, k)),
-                             i,
-                             j,
-                             k);
-            }
-            ***/
-    /***
-        }
-        else
-            _W.setFTHalf(COMPLEX(0, 0), i, j, k);
-            ***/
-}
-
 void Reconstructor::allReduceF()
 {
-    MUL_FT(_F, _W);
+    MUL_FT(_F3D, _W3D);
 
     ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
     BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce_Large(&_F[0],
-                        _F.sizeFT(),
+    MPI_Allreduce_Large(&_F3D[0],
+                        _F3D.sizeFT(),
                         MPI_DOUBLE_COMPLEX,
                         MPI_SUM,
                         _hemi);
@@ -839,8 +617,8 @@ void Reconstructor::allReduceT()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce_Large(&_T[0],
-                        _T.sizeFT(),
+    MPI_Allreduce_Large(&_T3D[0],
+                        _T3D.sizeFT(),
                         MPI_DOUBLE_COMPLEX,
                         MPI_SUM,
                         _hemi);
@@ -856,11 +634,11 @@ double Reconstructor::checkC() const
     int counter = 0;
 
     #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_C)
+    VOLUME_FOR_EACH_PIXEL_FT(_C3D)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
         {
             #pragma omp critical
-            diff += fabs(ABS(_C.getFT(i, j, k)) - 1);
+            diff += fabs(ABS(_C3D.getFT(i, j, k)) - 1);
             #pragma omp critical
             counter += 1;
         }
@@ -869,12 +647,12 @@ double Reconstructor::checkC() const
 #endif
 
 #ifdef RECONSTRUCTOR_CHECK_C_MAX
-    vector<double> diff(_C.sizeFT(), 0);
+    vector<double> diff(_C3D.sizeFT(), 0);
 
     #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_C)
+    VOLUME_FOR_EACH_PIXEL_FT(_C3D)
         if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            diff[_C.iFTHalf(i, j, k)] = fabs(ABS(_C.getFT(i, j, k)) - 1);
+            diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFT(i, j, k)) - 1);
 
     return *std::max_element(diff.begin(), diff.end());
 #endif
@@ -882,37 +660,28 @@ double Reconstructor::checkC() const
 
 void Reconstructor::convoluteC()
 {
-    _fft.bwExecutePlanMT(_C);
+    _fft.bwExecutePlanMT(_C3D);
 
     double nf = MKB_RL(0, _a * _pf, _alpha);
 
     #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_RL(_C)
-    {
-        _C.setRL(_C.getRL(i, j, k)
+    VOLUME_FOR_EACH_PIXEL_RL(_C3D)
+        _C3D.setRL(_C3D.getRL(i, j, k)
                * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                / nf,
                  i,
                  j,
                  k);
-        /***
-        _C.setRL(_C.getRL(i, j, k)
-               * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE)),
-                 i,
-                 j,
-                 k);
-                 ***/
-    }
 
-    _fft.fwExecutePlanMT(_C);
+    _fft.fwExecutePlanMT(_C3D);
 
-    _C.clearRL();
+    _C3D.clearRL();
 }
 
 void Reconstructor::symmetrizeF()
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_F, _F, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
+        SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
@@ -920,7 +689,7 @@ void Reconstructor::symmetrizeF()
 void Reconstructor::symmetrizeT()
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_T, _T, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
+        SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
