@@ -117,7 +117,17 @@ void Reconstructor::reset()
 
     if (_mode == MODE_2D)
     {
-        //TODO
+        #pragma omp parallel for
+        SET_0_FT(_F2D);
+
+        #pragma omp parallel for
+        SET_1_FT(_W2D);
+
+        #pragma omp parallel for
+        SET_0_FT(_C2D);
+
+        #pragma omp parallel for
+        SET_0_FT(_T2D);
     }
     else if (_mode == MODE_3D)
     {
