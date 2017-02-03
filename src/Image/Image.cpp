@@ -232,6 +232,47 @@ void Image::setFT(const Complex value,
     _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
+void Image::addFT(const Complex value,
+                  int iCol,
+                  int iRow)
+{
+    bool conj;
+    int index = iFT(conj, iCol, iRow);
+
+    Complex val = conj ? CONJUGATE(value) : value;
+
+    #pragma omp atomic
+    _dataFT[index].dat[0] += val.dat[0];
+    #pragma omp atomic
+    _dataFT[index].dat[1] += val.dat[1];
+}
+
+void Image::addFTHalf(const Complex value,
+                      const int iCol,
+                      const int iRow)
+{
+    #pragma omp atomic
+    _dataFT[iFTHalf(iCol, iRow)].dat[0] += value.dat[0];
+    #pragma omp atomic
+    _dataFT[iFTHalf(iCol, iRow)].dat[1] += value.dat[1];
+}
+
+void Image::addFT(const double value,
+                  int iCol,
+                  int iRow)
+{
+    #pragma omp atomic
+    _dataFT[iFT(iCol, iRow)].dat[0] += value;
+}
+
+void Image::addFTHalf(const double value,
+                      const int iCol,
+                      const int iRow)
+{
+    #pragma omp atomic
+    _dataFT[iFTHalf(iCol, iRow)].dat[0] += value;
+}
+
 double Image::getBiLinearRL(const double iCol,
                             const double iRow) const
 {
@@ -292,6 +333,38 @@ Complex Image::getByInterpolationFT(double iCol,
     return conj ? CONJUGATE(result) : result;
 }
 
+void Image::addFT(const Complex value,
+                  double iCol,
+                  double iRow)
+{
+    bool conj = conjHalf(iCol, iRow);
+
+    double w[2][2];
+    int x0[2];
+    double x[2] = {iCol, iRow};
+
+    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+
+    addFTHalf(conj ? CONJUGATE(value) : value,
+              w,
+              x0);
+}
+
+void Image::addFT(const double value,
+                  double iCol,
+                  double iRow)
+{
+    conjHalf(iCol, iRow);
+
+    double w[2][2];
+    int x0[2];
+    double x[2] = {iCol, iRow};
+
+    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+
+    addFTHalf(value, w, x0);
+}
+
 void Image::coordinatesInBoundaryRL(const int iCol,
                                     const int iRow) const
 {
@@ -316,4 +389,24 @@ Complex Image::getFTHalf(const double w[2][2],
                                        x0[1] + j)
                            * w[i][j];
     return result;
+}
+
+void Image::addFTHalf(const Complex value,
+                      const double w[2][2],
+                      const int x0[2])
+{
+    FOR_CELL_DIM_2 addFTHalf(value * w[i][j],
+                             x0[0] + i,
+                             x0[1] + j);
+                             
+}
+
+void Image::addFTHalf(const double value,
+                      const double w[2][2],
+                      const int x0[2])
+{
+    FOR_CELL_DIM_2 addFTHalf(value * w[i][j],
+                             x0[0] + i,
+                             x0[1] + j);
+                             
 }

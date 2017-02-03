@@ -240,6 +240,22 @@ class Image : public ImageBase
                    int iCol,
                    int iRow);
 
+        void addFT(const Complex value,
+                   int iCol,
+                   int iRow);
+
+        void addFTHalf(const Complex value,
+                       const int iCol,
+                       const int iRow);
+
+        void addFT(const double value,
+                   int iCol,
+                   int iRow);
+
+        void addFTHalf(const double value,
+                       const int iCol,
+                       const int iRow);
+
         /**
          * This function gets the value of an irregular pixel by bi-linear
          * interpolation in real space.
@@ -262,6 +278,14 @@ class Image : public ImageBase
                                      double iRow,
                                      const int interp) const;
 
+        void addFT(const Complex value,
+                   double iCol,
+                   double iRow);
+
+        void addFT(const double value,
+                   double iCol,
+                   double iRow);
+
         void clear()
         {
             ImageBase::clear();
@@ -274,6 +298,15 @@ class Image : public ImageBase
         {
             return (j >= 0 ? j : j + _nRow) * _nCol
                  + (i >= 0 ? i : i + _nCol);
+        }
+
+        inline int iFT(int i,
+                       int j) const
+        {
+            if (i >= 0)
+                return iFTHalf(i, j);
+            else
+                return iFTHalf(-i, -j);
         }
 
         inline int iFT(bool& conj,
@@ -317,6 +350,14 @@ class Image : public ImageBase
 
         Complex getFTHalf(const double w[2][2],
                           const int x0[2]) const;
+
+        void addFTHalf(const Complex value,
+                       const double w[2][2],
+                       const int x0[2]);
+
+        void addFTHalf(const double value,
+                       const double w[2][2],
+                       const int x0[2]);
 };
 
 #endif // IMAGE_H

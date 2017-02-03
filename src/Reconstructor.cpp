@@ -245,10 +245,7 @@ void Reconstructor::insert(const Image& src,
         (src.nRowRL() != _size) ||
         (ctf.nColRL() != _size) ||
         (ctf.nRowRL() != _size))
-        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Inserting Image"
-                                  << ": _size = " << _size
-                                  << ", nCol = " << src.nColRL()
-                                  << ", nRow = " << src.nRowRL();
+        REPORT_ERROR("INCORRECT SIZE OF INSERTING IMAGE");
 
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
@@ -274,13 +271,11 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            /***
             _F2D.addFT(transSrc.getFTHalf(i, j)
                      * REAL(ctf.getFTHalf(i, j))
                      * w, 
                        oldCor(0), 
                        oldCor(1));
-                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -297,12 +292,10 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            /***
              _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                       * w, 
                         oldCor(0), 
                         oldCor(1));
-                        ***/
 #endif
 
 #endif
@@ -326,10 +319,7 @@ void Reconstructor::insert(const Image& src,
         (src.nRowRL() != _size) ||
         (ctf.nColRL() != _size) ||
         (ctf.nRowRL() != _size))
-        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Inserting Image"
-                                  << ": _size = " << _size
-                                  << ", nCol = " << src.nColRL()
-                                  << ", nRow = " << src.nRowRL();
+        REPORT_ERROR("INCORRECT SIZE OF INSERTING IMAGE");
 
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
@@ -410,14 +400,10 @@ void Reconstructor::insertP(const Image& src,
                             const double w)
 {
     IF_MASTER
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Inserting Images into Reconstructor in MASTER";
-    }
+        REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
 
     if (_calMode != PRE_CAL_MODE)
-    {
-        CLOG(FATAL, "LOGGER_SYS") << "Wrong Pre(Post) Calculation Mode in Reconstructor";
-    }
+        REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
