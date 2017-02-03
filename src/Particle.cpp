@@ -796,6 +796,7 @@ void Particle::shuffle()
 
 void Particle::copy(Particle& that) const
 {
+    that.setMode(_mode);
     that.setN(_n);
     that.setTransS(_transS);
     that.setTransQ(_transQ);
