@@ -8,8 +8,6 @@
 
 #include "Reconstructor.h"
 
-#include <boost/bind.hpp>
-
 Reconstructor::Reconstructor()
 {
     defaultInit();

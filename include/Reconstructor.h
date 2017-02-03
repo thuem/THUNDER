@@ -15,6 +15,7 @@
 #include <mpi.h>
 
 #include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include "omp_compat.h"
 
