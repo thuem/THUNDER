@@ -117,7 +117,7 @@ void Particle::reset()
     for (int i = 0; i < _n; i++)
         _w(i) = 1.0 / _n;
 
-    symmetrise();
+    if (_mode == MODE_3D) symmetrise();
 }
 
 void Particle::reset(const int m,
@@ -162,7 +162,7 @@ void Particle::reset(const int m,
     {
         case MODE_2D:
             // sample from von Mises Distribution with kappa = 0
-            //TODO
+            sampleVMS(r, vec4(1, 0, 0, 0), 0, nR);
             break;
 
         case MODE_3D:
@@ -213,7 +213,7 @@ void Particle::reset(const int m,
                 _w(k * nR * nT + j * nT + i) = 1.0 / _n;
             }
 
-    symmetrise();
+    if (_mode == MODE_3D) symmetrise();
 }
 
 int Particle::m() const { return _m; }
@@ -269,7 +269,21 @@ void Particle::vari(double& rVari,
                     double& s0,
                     double& s1) const
 {
-    rVari = sqrt(_k1) / sqrt(_k0);
+    switch (_mode)
+    {
+        case MODE_2D:
+            rVari = 1.0 / (1 + _k); // TODO: it is a approximation
+            break;
+
+        case MODE_3D:
+            rVari = sqrt(_k1) / sqrt(_k0);
+            break;
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            break;
+    }
+
     s0 = _s0;
     s1 = _s1;
 }
@@ -280,7 +294,19 @@ double Particle::compress() const
 
     vari(rVari, s0, s1);
 
-    return gsl_pow_3(rVari) * s0 * s1 / gsl_pow_2(_transS);
+    switch (_mode)
+    {
+        case MODE_2D:
+            return rVari * s0 * s1 / gsl_pow_2(_transS);
+            
+        case MODE_3D:
+            return gsl_pow_3(rVari) * s0 * s1 / gsl_pow_2(_transS);
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            abort();
+            break;
+    }
 }
 
 double Particle::w(const int i) const { return _w(i); }
@@ -395,7 +421,23 @@ void Particle::perturb(const double pf)
 #endif
 
     mat4 d(_n, 4);
-    sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
+
+    switch (_mode)
+    {
+        case MODE_2D:
+            // for more sparse, pf > 1
+            // for more dense, 0 < pf < 1
+            sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _n);
+            break;
+
+        case MODE_3D:
+            sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
+            break;
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            break;
+    }
 
     for (int i = 0; i < _n; i++)
     {
@@ -405,7 +447,7 @@ void Particle::perturb(const double pf)
         _r.row(i) = quat.transpose();
     }
 
-    symmetrise();
+    if (_mode == MODE_3D) symmetrise();
 
     reCentre();
 }
@@ -475,7 +517,7 @@ void Particle::resample(const int n,
     switch (_mode)
     {
         case MODE_2D:
-            // TODO
+            sampleVMS(r, vec4(1, 0, 0, 0), 0, nG);
             break;
 
         case MODE_3D:
@@ -548,7 +590,7 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Symmetrizing";
 #endif
     
-    symmetrise();
+    if (_mode == MODE_3D) symmetrise();
 }
 
 void Particle::downSample(const int n,

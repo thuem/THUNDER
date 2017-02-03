@@ -101,6 +101,11 @@ class Particle
         const Symmetry* _sym;
 
         /**
+         * concnetration paramter of von Mises distribution of rotation (kappa)
+         */
+        double _k;
+
+        /**
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
          */
@@ -655,7 +660,8 @@ class Particle
 
         /**
          * This function symmetrises the particles in this particle filter
-         * according to the symmetry information.
+         * according to the symmetry information. This operation will be only
+         * performed in 3D mode.
          */
         void symmetrise();
 
