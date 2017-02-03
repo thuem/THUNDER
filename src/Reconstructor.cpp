@@ -269,7 +269,7 @@ void Reconstructor::insert(const Image& src,
                            oldCor(2));
 #endif
 
-#ifdef RECONSTRUCTOR_ADD_T3D_DURING_INSERT
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
@@ -354,7 +354,7 @@ void Reconstructor::insertP(const Image& src,
                        oldCor(2));
 #endif
 
-#ifdef RECONSTRUCTOR_ADD_T3D_DURING_INSERT
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
@@ -399,9 +399,9 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         // Obviously, wiener_filter with FSC can be wrong when dealing with
         // preferrable orienation problem
-#ifdef RECONSTRUCTOR_W3DIENER_FILTER_FSC
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
 
-#ifdef RECONSTRUCTOR_W3DIENER_FILTER_FSC_FREQ_AVG
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
         vec avg = vec::Zero(_maxRadius * _pf + 1);
         shellAverage(avg,
                      _T3D,
@@ -440,7 +440,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
                 FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
 
-#ifdef RECONSTRUCTOR_W3DIENER_FILTER_FSC_FREQ_AVG
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
                 _T3D.setFT(_T3D.getFT(i, j, k)
                        + COMPLEX((1 - FSC) / FSC * avg(u), 0),
                          i,
@@ -452,7 +452,7 @@ void Reconstructor::reconstruct(Volume& dst)
             }
 #endif
 
-#ifdef RECONSTRUCTOR_W3DIENER_FILTER_C3DONST
+#ifdef RECONSTRUCTOR_WIENER_FILTER_C3DONST
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_T3D)
             if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
@@ -478,13 +478,6 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
-
-        /***
-        ALOG(INFO, "LOGGER_RECO") << "Allreducing W";
-        BLOG(INFO, "LOGGER_RECO") << "Allreducing W";
-
-        allReduceW();
-        ***/
 
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
@@ -554,7 +547,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     ***/
 
-#ifdef RECONSTRUCTOR_CORRECT_C3DONVOLUTION_KERNEL
+#ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
