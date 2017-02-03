@@ -158,7 +158,15 @@ void Projector::project(Image& dst,
                         const int* iPxl,
                         const int nPxl) const
 {
-    //TODO
+    for (int i = 0; i < nPxl; i++)
+    {
+        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 oldCor = mat * newCor;
+
+        dst[iPxl[i]] = _projectee2D.getByInterpolationFT(oldCor(0),
+                                                         oldCor(1),
+                                                         _interp);
+    }
 }
 
 void Projector::project(Image& dst,
@@ -186,7 +194,15 @@ void Projector::project(Complex* dst,
                         const int* iRow,
                         const int nPxl) const
 {
-    //TODO
+    for (int i = 0; i < nPxl; i++)
+    {
+        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 oldCor = mat * newCor;
+
+        dst[i] = _projectee2D.getByInterpolationFT(oldCor(0),
+                                                   oldCor(1),
+                                                   _interp);
+    }
 }
 
 void Projector::project(Complex* dst,
@@ -210,7 +226,19 @@ void Projector::project(Complex* dst,
 void Projector::projectMT(Image& dst,
                           const mat22& mat) const
 {
-    //TODO
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_PIXEL_R_FT(_maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        {
+            vec2 newCor((double)(i * _pf), (double)(j * _pf));
+            vec2 oldCor = mat * newCor;
+
+            dst.setFT(_projectee2D.getByInterpolationFT(oldCor(0),
+                                                        oldCor(1),
+                                                        _interp),
+                      i,
+                      j);
+        }
 }
 
 void Projector::projectMT(Image& dst,
@@ -239,7 +267,16 @@ void Projector::projectMT(Image& dst,
                           const int* iPxl,
                           const int nPxl) const
 {
-    //TODO
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 oldCor = mat * newCor;
+
+        dst[iPxl[i]] = _projectee2D.getByInterpolationFT(oldCor(0),
+                                                         oldCor(1),
+                                                         _interp);
+    }
 }
 
 void Projector::projectMT(Image& dst,
@@ -268,7 +305,16 @@ void Projector::projectMT(Complex* dst,
                           const int* iRow,
                           const int nPxl) const
 {
-    //TODO
+    #pragma omp parallel for
+    for (int i = 0; i < nPxl; i++)
+    {
+        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 oldCor = mat * newCor;
+
+        dst[i] = _projectee2D.getByInterpolationFT(oldCor(0),
+                                                   oldCor(1),
+                                                   _interp);
+    }
 }
 
 void Projector::projectMT(Complex* dst,
@@ -294,7 +340,8 @@ void Projector::project(Image& dst,
                         const mat22& rot,
                         const vec2& t) const
 {
-    //TODO
+    project(dst, rot);
+    translate(dst, dst, _maxRadius, t(0), t(1));
 }
 
 void Projector::project(Image& dst,
@@ -313,7 +360,9 @@ void Projector::project(Image& dst,
                         const int* iPxl,
                         const int nPxl) const
 {
-    //TODO
+    project(dst, rot, iCol, iRow, iPxl, nPxl);
+
+    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
 }
 
 void Projector::project(Image& dst,
@@ -338,7 +387,9 @@ void Projector::project(Complex* dst,
                         const int* iRow,
                         const int nPxl) const
 {
-    //TODO
+    project(dst, rot, iCol, iRow, nPxl);
+
+    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
 }
 
 void Projector::project(Complex* dst,
@@ -359,7 +410,9 @@ void Projector::projectMT(Image& dst,
                           const mat22& rot,
                           const vec2& t) const
 {
-    //TODO
+    projectMT(dst, rot);
+
+    translateMT(dst, dst, _maxRadius, t(0), t(1));
 }
 
 void Projector::projectMT(Image& dst,
