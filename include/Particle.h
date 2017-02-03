@@ -75,8 +75,9 @@ class Particle
         uvec _c;
 
         /**
-         * MODE_2D: a table storing the rotation information as the first column
-         * standing for the rotation in radius and the other three are zero
+         * MODE_2D: a table storing the rotation information as the first and
+         * second elements stand for a unit vector in circle and the other two
+         * elements are zero
          *
          * MODE_3D: a table storing the rotation information with each row
          * storing a quaternion

@@ -126,6 +126,11 @@ void sampleVMS(mat2& dst,
                const double kappa,
                const double n);
 
+void sampleVMS(mat4& dst,
+               const vec4& mu,
+               const double kappa,
+               const double n);
+
 /**
  * Mode and Concentration Paramter Inference from Data Assuming the Distribution
  * Follows a von Mises Distribution
@@ -137,5 +142,9 @@ void sampleVMS(mat2& dst,
 void inferVMS(vec2& mu,
               double& kappa,
               const mat2& src);
+
+void inferVMS(vec4& mu,
+              double& kappa,
+              const mat4& src);
 
 #endif // DIRECTIONAL_STAT_H

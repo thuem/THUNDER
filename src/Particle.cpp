@@ -71,10 +71,9 @@ void Particle::reset()
 
     switch (_mode)
     {
-        // rotation, MODE_2D, sample from flat distribution (first element of
-        // _r)
+        // rotation, MODE_2D, sample from von Mises Distribution with kappa = 0
         case MODE_2D:
-            // TODO
+            sampleVMS(_r, vec4(1, 0, 0, 0), 0, _n);
             break;
 
         // rotation, MODE_3D, sample from Angular Central Gaussian Distribution

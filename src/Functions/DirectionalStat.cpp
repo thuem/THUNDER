@@ -183,6 +183,20 @@ void sampleVMS(mat2& dst,
     }
 }
 
+void sampleVMS(mat4& dst,
+               const vec4& mu,
+               const double kappa,
+               const double n)
+{
+    dst = mat4::Zero(dst.rows(), 4);
+
+    mat2 dst2D = dst.leftCols<2>();
+
+    sampleVMS(dst2D, vec2(mu(0), mu(1)), kappa, n);
+
+    dst.leftCols<2>() = dst2D;
+}
+
 void inferVMS(vec2& mu,
               double& kappa,
               const mat2& src)
@@ -200,4 +214,15 @@ void inferVMS(vec2& mu,
     mu /= mu.norm();
 
     kappa = R * (2 - gsl_pow_2(R)) / (1 - gsl_pow_2(R));
+}
+
+void inferVMS(vec4& mu,
+              double& kappa,
+              const mat4& src)
+{
+    vec2 mu2D;
+
+    inferVMS(mu2D, kappa, src.leftCols<2>());
+
+    mu = vec4(mu2D(0), mu2D(1), 0, 0);
 }
