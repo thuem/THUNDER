@@ -755,18 +755,38 @@ void Reconstructor::reconstruct(Volume& dst)
 
 void Reconstructor::allReduceF()
 {
-    MUL_FT(_F3D, _W3D);
+    if (_mode == MODE_2D)
+    {
+        #pragma omp parallel for
+        MUL_FT(_F2D, _W2D);
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        MUL_FT(_F3D, _W3D);
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
     BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce_Large(&_F3D[0],
-                        _F3D.sizeFT(),
-                        MPI_DOUBLE_COMPLEX,
-                        MPI_SUM,
-                        _hemi);
+    if (_mode == MODE_2D)
+        MPI_Allreduce_Large(&_F2D[0],
+                            _F2D.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            MPI_SUM,
+                            _hemi);
+    else if (_mode == MODE_3D)
+        MPI_Allreduce_Large(&_F3D[0],
+                            _F3D.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            MPI_SUM,
+                            _hemi);
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     MPI_Barrier(_hemi);
 }
@@ -778,11 +798,20 @@ void Reconstructor::allReduceT()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce_Large(&_T3D[0],
-                        _T3D.sizeFT(),
-                        MPI_DOUBLE_COMPLEX,
-                        MPI_SUM,
-                        _hemi);
+    if (_mode == MODE_2D)
+        MPI_Allreduce_Large(&_T2D[0],
+                            _T2D.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            MPI_SUM,
+                            _hemi);
+    else if (_mode == MODE_3D)
+        MPI_Allreduce_Large(&_T3D[0],
+                            _T3D.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            MPI_SUM,
+                            _hemi);
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     MPI_Barrier(_hemi);
 }
