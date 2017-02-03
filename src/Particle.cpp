@@ -218,6 +218,10 @@ void Particle::reset(const int m,
     if (_mode == MODE_3D) symmetrise();
 }
 
+int Particle::mode() const { return _mode; }
+
+void Particle::setMode(const int mode) { _mode = mode; }
+
 int Particle::m() const { return _m; }
 
 void Particle::setM(const int m) { _m = m; }

@@ -277,6 +277,10 @@ class Particle
                    const int nR,
                    const int nT);
 
+        int mode() const;
+
+        void setMode(const int mode);
+
         /**
          * This function returns the number of classes in this particle fitler.
          */
