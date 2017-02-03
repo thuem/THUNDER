@@ -117,32 +117,37 @@ void Projector::setProjectee(Volume src)
 }
 
 void Projector::project(Image& dst,
+                        const mat22& mat) const
+{
+    // TODO
+}
+
+void Projector::project(Image& dst,
                         const mat33& mat) const
 {
-    if (_mode == MODE_2D)
-    {
-        //TODO
-    }
-    else if (_mode == MODE_3D)
-    {
-        IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
-            {
-                vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
-                vec3 oldCor = mat * newCor;
+    IMAGE_FOR_PIXEL_R_FT(_maxRadius)
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        {
+            vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+            vec3 oldCor = mat * newCor;
 
-                dst.setFT(_projectee3D.getByInterpolationFT(oldCor(0),
-                                                            oldCor(1),
-                                                            oldCor(2),
-                                                            _interp),
-                          i,
-                          j);
-            }
-    }
-    else
-    {
-        CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__ << ": INEXISTENT MODE";
-    }
+            dst.setFT(_projectee3D.getByInterpolationFT(oldCor(0),
+                                                        oldCor(1),
+                                                        oldCor(2),
+                                                        _interp),
+                      i,
+                      j);
+        }
+}
+
+void Projector::project(Image& dst,
+                        const mat22& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int* iPxl,
+                        const int nPxl) const
+{
+    //TODO
 }
 
 void Projector::project(Image& dst,
@@ -152,27 +157,25 @@ void Projector::project(Image& dst,
                         const int* iPxl,
                         const int nPxl) const
 {
-    if (_mode == MODE_2D)
+    for (int i = 0; i < nPxl; i++)
     {
-        //TODO
-    }
-    else if (_mode == MODE_3D)
-    {
-        for (int i = 0; i < nPxl; i++)
-        {
-            vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
-            vec3 oldCor = mat * newCor;
+        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
+        vec3 oldCor = mat * newCor;
 
-            dst[iPxl[i]] = _projectee3D.getByInterpolationFT(oldCor(0),
-                                                             oldCor(1),
-                                                             oldCor(2),
-                                                             _interp);
-        }
+        dst[iPxl[i]] = _projectee3D.getByInterpolationFT(oldCor(0),
+                                                         oldCor(1),
+                                                         oldCor(2),
+                                                         _interp);
     }
-    else
-    {
-        CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__ << ": INEXISTENT MODE";
-    }
+}
+
+void Projector::project(Complex* dst,
+                        const mat22& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int nPxl) const
+{
+    //TODO
 }
 
 void Projector::project(Complex* dst,
@@ -191,6 +194,12 @@ void Projector::project(Complex* dst,
                                                    oldCor(2),
                                                    _interp);
     }
+}
+
+void Projector::projectMT(Image& dst,
+                          const mat22& mat) const
+{
+    //TODO
 }
 
 void Projector::projectMT(Image& dst,
@@ -213,6 +222,16 @@ void Projector::projectMT(Image& dst,
 }
 
 void Projector::projectMT(Image& dst,
+                          const mat22& mat,
+                          const int* iCol,
+                          const int* iRow,
+                          const int* iPxl,
+                          const int nPxl) const
+{
+    //TODO
+}
+
+void Projector::projectMT(Image& dst,
                           const mat33& mat,
                           const int* iCol,
                           const int* iRow,
@@ -230,6 +249,15 @@ void Projector::projectMT(Image& dst,
                                                          oldCor(2),
                                                          _interp);
     }
+}
+
+void Projector::projectMT(Complex* dst,
+                          const mat22& mat,
+                          const int* iCol,
+                          const int* iRow,
+                          const int nPxl) const
+{
+    //TODO
 }
 
 void Projector::projectMT(Complex* dst,

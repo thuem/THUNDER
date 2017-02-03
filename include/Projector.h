@@ -166,6 +166,9 @@ class Projector
          */
         void setProjectee(Volume src);
 
+        void project(Image& dst,
+                     const mat22& mat) const;
+
         /**
          * This function projects given the rotation matrix.
          * 
@@ -174,6 +177,13 @@ class Projector
          */
         void project(Image& dst,
                      const mat33& mat) const;
+
+        void project(Image& dst,
+                     const mat22& mat,
+                     const int* iCol,
+                     const int* iRow,
+                     const int* iPxl,
+                     const int nPxl) const;
 
         /**
          * This function projects given the rotation matrix and pre-determined
@@ -194,10 +204,19 @@ class Projector
                      const int nPxl) const;
 
         void project(Complex* dst,
+                     const mat22& mat,
+                     const int* iCol,
+                     const int* iRow,
+                     const int nPxl) const;
+
+        void project(Complex* dst,
                      const mat33& mat,
                      const int* iCol,
                      const int* iRow,
                      const int nPxl) const;
+
+        void projectMT(Image& dst,
+                       const mat22& mat) const;
 
         /**
          * This function projects given the rotation matrix using multiple
@@ -208,6 +227,13 @@ class Projector
          */
         void projectMT(Image& dst,
                        const mat33& mat) const;
+
+        void projectMT(Image& dst,
+                       const mat22& mat,
+                       const int* iCol,
+                       const int* iRow,
+                       const int* iPxl,
+                       const int nPxl) const;
 
         /**
          * This function projects given the rotation matrix and pre-determined
@@ -225,6 +251,12 @@ class Projector
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
+                       const int nPxl) const;
+
+        void projectMT(Complex* dst,
+                       const mat22& mat,
+                       const int* iCol,
+                       const int* iRow,
                        const int nPxl) const;
 
         void projectMT(Complex* dst,

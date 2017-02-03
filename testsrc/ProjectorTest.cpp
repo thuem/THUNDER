@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 
     R2R_FT(image,
            image,
-           projector.project(image, rot2 * rot));
+           projector.project(image, mat33(rot2 * rot)));
     image.saveRLToBMP("Negative.bmp");
 
     /***
