@@ -83,7 +83,8 @@ void Particle::reset()
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                      << ": INEXISTENT MODE";
             break;
     }
 
@@ -171,7 +172,8 @@ void Particle::reset(const int m,
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                      << ": INEXISTENT MODE";
             break;
     }
 
@@ -280,7 +282,8 @@ void Particle::vari(double& rVari,
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                      << ": INEXISTENT MODE";
             break;
     }
 
@@ -303,7 +306,8 @@ double Particle::compress() const
             return gsl_pow_3(rVari) * s0 * s1 / gsl_pow_2(_transS);
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                      << ": INEXISTENT MODE";
             abort();
             break;
     }
@@ -435,7 +439,8 @@ void Particle::perturb(const double pf)
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                      << ": INEXISTENT MODE";
             break;
     }
 
@@ -525,7 +530,8 @@ void Particle::resample(const int n,
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << "Inexistent Mode";
+            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                      << ": INEXISTENT MODE";
     }
 
 #ifdef VERBOSE_LEVEL_4
@@ -613,7 +619,8 @@ double Particle::neff() const
 void Particle::sort(const int n)
 {
     if (n > _n)
-        CLOG(FATAL, "LOGGER_SYS") << "Can not Select Top K from N when K > N";
+        CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
+                                  << ": CANNOT SELECT TOP K FROM N WHEN K > N";
 
     uvec order = iSort();
 
