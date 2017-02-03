@@ -823,49 +823,79 @@ double Reconstructor::checkC() const
 
     int counter = 0;
 
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_C3D)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-        {
-            #pragma omp critical
-            diff += fabs(ABS(_C3D.getFT(i, j, k)) - 1);
-            #pragma omp critical
-            counter += 1;
-        }
+    if (_mode == MODE_2D)
+    {
+        // TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_FT(_C3D)
+            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            {
+                #pragma omp critical
+                diff += fabs(ABS(_C3D.getFT(i, j, k)) - 1);
+                #pragma omp critical
+                counter += 1;
+            }
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     return diff / counter;
 #endif
 
 #ifdef RECONSTRUCTOR_CHECK_C_MAX
-    vector<double> diff(_C3D.sizeFT(), 0);
+    if (_mode == MODE_2D)
+    {
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        vector<double> diff(_C3D.sizeFT(), 0);
 
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_FT(_C3D)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFT(i, j, k)) - 1);
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_FT(_C3D)
+            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFT(i, j, k)) - 1);
 
-    return *std::max_element(diff.begin(), diff.end());
+        return *std::max_element(diff.begin(), diff.end());
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+        abort();
+    }
 #endif
 }
 
 void Reconstructor::convoluteC()
 {
-    _fft.bwExecutePlanMT(_C3D);
-
     double nf = MKB_RL(0, _a * _pf, _alpha);
 
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_RL(_C3D)
-        _C3D.setRL(_C3D.getRL(i, j, k)
-               * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
-               / nf,
-                 i,
-                 j,
-                 k);
+    if (_mode == MODE_2D)
+    {
+        // TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        _fft.bwExecutePlanMT(_C3D);
 
-    _fft.fwExecutePlanMT(_C3D);
+        #pragma omp parallel for
+        VOLUME_FOR_EACH_PIXEL_RL(_C3D)
+            _C3D.setRL(_C3D.getRL(i, j, k)
+                     * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
+                     / nf,
+                       i,
+                       j,
+                       k);
 
-    _C3D.clearRL();
+        _fft.fwExecutePlanMT(_C3D);
+
+        _C3D.clearRL();
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 }
 
 void Reconstructor::symmetrizeF()
