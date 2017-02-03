@@ -235,8 +235,11 @@ void Reconstructor::insert(const Image& src,
                            const vec2& t,
                            const double w)
 {
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
         REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
+
+    NT_MODE_2D REPORT_ERROR("WRONG MODE");
 
     if (_calMode != POST_CAL_MODE)
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
@@ -246,6 +249,7 @@ void Reconstructor::insert(const Image& src,
         (ctf.nColRL() != _size) ||
         (ctf.nRowRL() != _size))
         REPORT_ERROR("INCORRECT SIZE OF INSERTING IMAGE");
+#endif
 
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
@@ -309,8 +313,11 @@ void Reconstructor::insert(const Image& src,
                            const vec2& t,
                            const double w)
 {
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
         REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
+
+    NT_MODE_3D REPORT_ERROR("WRONG MODE");
 
     if (_calMode != POST_CAL_MODE)
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
@@ -320,6 +327,7 @@ void Reconstructor::insert(const Image& src,
         (ctf.nColRL() != _size) ||
         (ctf.nRowRL() != _size))
         REPORT_ERROR("INCORRECT SIZE OF INSERTING IMAGE");
+#endif
 
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
@@ -333,12 +341,6 @@ void Reconstructor::insert(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
-        /***
-        _rot.push_back(sr[k]);
-        _w.push_back(w);
-        _ctf.push_back(&ctf);
-        ***/
-
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(transSrc)
         {
@@ -395,15 +397,88 @@ void Reconstructor::insert(const Image& src,
 
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
+                            const mat22& rot,
+                            const vec2& t,
+                            const double w)
+{
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
+    IF_MASTER
+        REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
+
+    NT_MODE_3D REPORT_ERROR("WRONG MODE");
+
+    if (_calMode != PRE_CAL_MODE)
+        REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+#endif
+
+    Image transSrc(_size, _size, FT_SPACE);
+    translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
+
+        #pragma omp parallel for
+        for (int i = 0; i < _nPxl; i++)
+        {
+            vec2 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf));
+            vec2 oldCor = rot * newCor;
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            /***
+            _F2D.addFT(transSrc[_iPxl[i]]
+                     * REAL(ctf.iGetFT(_iPxl[i]))
+                     * w,
+                       oldCor(0), 
+                       oldCor(1), 
+                       _pf * _a, 
+                       _kernelFT);
+                       ***/
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            _F2D.addFT(transSrc[_iPxl[i]]
+                     * REAL(ctf.iGetFT(_iPxl[i]))
+                     * w,
+                       oldCor(0), 
+                       oldCor(1));
+#endif
+
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            /***
+            _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * w,
+                       oldCor(0), 
+                       oldCor(1), 
+                       _pf * _a,
+                       _kernelFT);
+                       ***/
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * w,
+                       oldCor(0), 
+                       oldCor(1));
+#endif
+
+#endif
+        }
+}
+
+void Reconstructor::insertP(const Image& src,
+                            const Image& ctf,
                             const mat33& rot,
                             const vec2& t,
                             const double w)
 {
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
         REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
 
+    NT_MODE_3D REPORT_ERROR("WRONG MODE");
+
     if (_calMode != PRE_CAL_MODE)
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+#endif
 
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
@@ -417,12 +492,6 @@ void Reconstructor::insertP(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
-        /***
-        _rot.push_back(sr[k]);
-        _w.push_back(w);
-        _ctf.push_back(&ctf);
-        ***/
-
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
@@ -476,6 +545,10 @@ void Reconstructor::insertP(const Image& src,
 
 void Reconstructor::reconstruct(Volume& dst)
 {
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
+    NT_MODE_3D REPORT_ERROR("WRONG MODE");
+#endif
+
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
@@ -547,7 +620,7 @@ void Reconstructor::reconstruct(Volume& dst)
             }
 #endif
 
-#ifdef RECONSTRUCTOR_WIENER_FILTER_C3DONST
+#ifdef RECONSTRUCTOR_WIENER_FILTER_CONST
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_T3D)
             if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&

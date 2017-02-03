@@ -35,6 +35,14 @@
  */
 #define MODE_3D 1
 
+#define IF_MODE_2D if (_mode == MODE_2D)
+
+#define IF_MODE_3D if (_mode == MODE_3D)
+
+#define NT_MODE_2D if (_mode != MODE_2D)
+
+#define NT_MODE_3D if (_mode != MODE_3D)
+
 /**
  * 1 KB
  */
