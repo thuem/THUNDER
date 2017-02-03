@@ -12,19 +12,14 @@
 
 Projector::Projector()
 {
+    _mode = MODE_3D;
+
     _maxRadius = -1;
 
     _interp = LINEAR_INTERP;
 
     _pf = 2;
 }
-
-/***
-Projector::Projector(BOOST_RV_REF(Projector) that)
-{
-    swap(that);
-}
-***/
 
 Projector::~Projector() {}
 
@@ -34,21 +29,28 @@ void Projector::swap(Projector& that)
     std::swap(_interp, that._interp);
     std::swap(_pf, that._pf);
     
-    _projectee.swap(that._projectee);
+    _projectee2D.swap(that._projectee2D);
+    _projectee3D.swap(that._projectee3D);
 }
 
-/***
-Projector& Projector::operator=(BOOST_RV_REF(Projector) that)
+bool Projector::isEmpty2D() const
 {
-    if (this != &other) swap(other);
-
-    return *this;
+    return _projectee2D.isEmptyFT();
 }
-***/
 
-bool Projector::isEmpty() const
+bool Projector::isEmpty3D() const
 {
-    return _projectee.isEmptyFT();
+    return _projectee3D.isEmptyFT();
+}
+
+int Projector::mode() const
+{
+    return _mode;
+}
+
+void Projector::setMode(const int mode)
+{
+    _mode = mode;
 }
 
 int Projector::maxRadius() const
@@ -81,18 +83,34 @@ void Projector::setPf(const int pf)
     _pf = pf;
 }
 
-const Volume& Projector::projectee() const
+const Image& Projector::projectee2D() const
 {
-    return _projectee;
+    return _projectee2D;
+}
+
+const Volume& Projector::projectee3D() const
+{
+    return _projectee3D;
+}
+
+void Projector::setProjectee(Image src)
+{
+    _projectee2D.swap(src);
+
+    _maxRadius = floor(MIN(_projectee2D.nColRL(),
+                           _projectee2D.nRowRL()) / _pf / 2 - 1);
+
+    // perform grid correction
+    gridCorrection();
 }
 
 void Projector::setProjectee(Volume src)
 {
-    _projectee.swap(src);
+    _projectee3D.swap(src);
 
-    _maxRadius = floor(MIN_3(_projectee.nColRL(),
-                             _projectee.nRowRL(),
-                             _projectee.nSlcRL()) / _pf / 2 - 1);
+    _maxRadius = floor(MIN_3(_projectee3D.nColRL(),
+                             _projectee3D.nRowRL(),
+                             _projectee3D.nSlcRL()) / _pf / 2 - 1);
 
     // perform grid correction
     gridCorrection();
@@ -101,19 +119,30 @@ void Projector::setProjectee(Volume src)
 void Projector::project(Image& dst,
                         const mat33& mat) const
 {
-    IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
-        {
-            vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
-            vec3 oldCor = mat * newCor;
+    if (_mode == MODE_2D)
+    {
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        IMAGE_FOR_PIXEL_R_FT(_maxRadius)
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+            {
+                vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+                vec3 oldCor = mat * newCor;
 
-            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
-                                                      oldCor(1),
-                                                      oldCor(2),
-                                                      _interp),
-                      i,
-                      j);
-        }
+                dst.setFT(_projectee3D.getByInterpolationFT(oldCor(0),
+                                                            oldCor(1),
+                                                            oldCor(2),
+                                                            _interp),
+                          i,
+                          j);
+            }
+    }
+    else
+    {
+        CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__ << ": INEXISTENT MODE";
+    }
 }
 
 void Projector::project(Image& dst,
@@ -123,15 +152,26 @@ void Projector::project(Image& dst,
                         const int* iPxl,
                         const int nPxl) const
 {
-    for (int i = 0; i < nPxl; i++)
+    if (_mode == MODE_2D)
     {
-        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
-        vec3 oldCor = mat * newCor;
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        for (int i = 0; i < nPxl; i++)
+        {
+            vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
+            vec3 oldCor = mat * newCor;
 
-        dst[iPxl[i]] = _projectee.getByInterpolationFT(oldCor(0),
-                                                       oldCor(1),
-                                                       oldCor(2),
-                                                       _interp);
+            dst[iPxl[i]] = _projectee3D.getByInterpolationFT(oldCor(0),
+                                                             oldCor(1),
+                                                             oldCor(2),
+                                                             _interp);
+        }
+    }
+    else
+    {
+        CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__ << ": INEXISTENT MODE";
     }
 }
 
@@ -146,10 +186,10 @@ void Projector::project(Complex* dst,
         vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
-        dst[i] = _projectee.getByInterpolationFT(oldCor(0),
-                                                 oldCor(1),
-                                                 oldCor(2),
-                                                 _interp);
+        dst[i] = _projectee3D.getByInterpolationFT(oldCor(0),
+                                                   oldCor(1),
+                                                   oldCor(2),
+                                                   _interp);
     }
 }
 
@@ -163,10 +203,10 @@ void Projector::projectMT(Image& dst,
             vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
             vec3 oldCor = mat * newCor;
 
-            dst.setFT(_projectee.getByInterpolationFT(oldCor(0),
-                                                      oldCor(1),
-                                                      oldCor(2),
-                                                      _interp),
+            dst.setFT(_projectee3D.getByInterpolationFT(oldCor(0),
+                                                        oldCor(1),
+                                                        oldCor(2),
+                                                        _interp),
                       i,
                       j);
         }
@@ -185,10 +225,10 @@ void Projector::projectMT(Image& dst,
         vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
-        dst[iPxl[i]] = _projectee.getByInterpolationFT(oldCor(0),
-                                                       oldCor(1),
-                                                       oldCor(2),
-                                                       _interp);
+        dst[iPxl[i]] = _projectee3D.getByInterpolationFT(oldCor(0),
+                                                         oldCor(1),
+                                                         oldCor(2),
+                                                         _interp);
     }
 }
 
@@ -204,10 +244,10 @@ void Projector::projectMT(Complex* dst,
         vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
-        dst[i] = _projectee.getByInterpolationFT(oldCor(0),
-                                                 oldCor(1),
-                                                 oldCor(2),
-                                                 _interp);
+        dst[i] = _projectee3D.getByInterpolationFT(oldCor(0),
+                                                   oldCor(1),
+                                                   oldCor(2),
+                                                   _interp);
     }
 }
 
@@ -395,17 +435,17 @@ void Projector::gridCorrection()
     {
         FFT fft;
 
-        fft.bwMT(_projectee);
+        fft.bwMT(_projectee3D);
 
         #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(_projectee)
-            _projectee.setRL(_projectee.getRL(i, j, k)
-                           / TIK_RL(NORM_3(i, j, k)
-                                  / (_projectee.nColRL() * _pf)),
-                             i,
-                             j,
-                             k);
+        VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
+            _projectee3D.setRL(_projectee3D.getRL(i, j, k)
+                             / TIK_RL(NORM_3(i, j, k)
+                                    / (_projectee3D.nColRL() * _pf)),
+                               i,
+                               j,
+                               k);
 
-        fft.fwMT(_projectee);
+        fft.fwMT(_projectee3D);
     }
 }

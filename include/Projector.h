@@ -31,6 +31,8 @@ class Projector
 
     private:
 
+        int _mode;
+
         /**
          * Only the signal beyond the max radius in frequnecy will be processed.
          * Max radius must be smaller than half of the shortest dimension of the
@@ -50,9 +52,14 @@ class Projector
         int _pf;
 
         /**
+         * the image to be projected
+         */
+        Image _projectee2D;
+
+        /**
          * the volume to be projected
          */
-        Volume _projectee;
+        Volume _projectee3D;
 
     public:
 
@@ -80,10 +87,20 @@ class Projector
         }
 
         /**
+         * If there is an image to be projected, return false, otherwise return
+         * true.
+         */
+        bool isEmpty2D() const;
+
+        /**
          * If there is a volume to be projected, return false, otherwise return
          * true.
          */
-        bool isEmpty() const;
+        bool isEmpty3D() const;
+
+        int mode() const;
+
+        void setMode(const int mode);
 
         /**
          * This function returns the max radius for processing signal in Fourier
@@ -126,7 +143,20 @@ class Projector
         /**
          * This function returns a constant reference to the projectee.
          */
-        const Volume& projectee() const;
+        const Image& projectee2D() const;
+
+        /**
+         * This function returns a constant reference to the projectee.
+         */
+        const Volume& projectee3D() const;
+
+        /**
+         * This function sets the projectee. Moreover, it automatically sets the
+         * max radius of processing signal.
+         *
+         * @param src the image to be projected
+         */
+        void setProjectee(Image src);
 
         /**
          * This function sets the projectee. Moreover, it automatically sets the

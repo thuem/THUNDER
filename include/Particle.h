@@ -29,9 +29,6 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
-#define MODE_2D 0
-#define MODE_3D 1
-
 class Particle
 {
     private:
@@ -182,6 +179,7 @@ class Particle
 
             _sym = NULL;
 
+            _k = 0;
             _k0 = 0;
             _k1 = 0;
             _s0 = 0;
