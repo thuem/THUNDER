@@ -102,9 +102,11 @@ void Reconstructor::init(const int mode,
 
 void Reconstructor::reset()
 {
+    /***
     _rot.clear();
     _w.clear();
     _ctf.clear();
+    ***/
 
     _iCol = NULL;
     _iRow = NULL;
@@ -229,10 +231,90 @@ void Reconstructor::setPreCal(const int nPxl,
 
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
+                           const mat22& rot,
+                           const vec2& t,
+                           const double w)
+{
+    IF_MASTER
+        REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
+
+    if (_calMode != POST_CAL_MODE)
+        REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+
+    if ((src.nColRL() != _size) ||
+        (src.nRowRL() != _size) ||
+        (ctf.nColRL() != _size) ||
+        (ctf.nRowRL() != _size))
+        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Inserting Image"
+                                  << ": _size = " << _size
+                                  << ", nCol = " << src.nColRL()
+                                  << ", nRow = " << src.nRowRL();
+
+    Image transSrc(_size, _size, FT_SPACE);
+    translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
+
+    /***
+    _rot2D.push_back(rot);
+    _w.push_back(w);
+    _ctf.push_back(&ctf);
+    ***/
+
+    /***
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_FT(transSrc)
+        {
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+            {
+                vec2 newCor((double)(i * _pf), (double)(j * _pf));
+                vec2 oldCor = rot * newCor;
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+                _F2D.addFT(transSrc.getFTHalf(i, j)
+                         * REAL(ctf.getFTHalf(i, j))
+                         * w, 
+                           oldCor(0), 
+                           oldCor(1), 
+                           _pf * _a, 
+                           _kernelFT);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+                _F2D.addFT(transSrc.getFTHalf(i, j)
+                         * REAL(ctf.getFTHalf(i, j))
+                         * w, 
+                           oldCor(0), 
+                           oldCor(1));
+#endif
+
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+                _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                       * w, 
+                         oldCor(0), 
+                         oldCor(1), 
+                         _pf * _a,
+                         _kernelFT);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+                _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                       * w, 
+                         oldCor(0), 
+                         oldCor(1));
+#endif
+
+#endif
+            }
+        }
+        ***/
+}
+
+void Reconstructor::insert(const Image& src,
+                           const Image& ctf,
                            const mat33& rot,
                            const vec2& t,
-                           const double w,
-                           const vec* sig)
+                           const double w)
 {
     IF_MASTER
         REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
@@ -261,9 +343,11 @@ void Reconstructor::insert(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
+        /***
         _rot.push_back(sr[k]);
         _w.push_back(w);
         _ctf.push_back(&ctf);
+        ***/
 
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(transSrc)
@@ -274,25 +358,14 @@ void Reconstructor::insert(const Image& src,
                 vec3 oldCor = sr[k] * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                if (sig == NULL)
-                    _F3D.addFT(transSrc.getFTHalf(i, j)
-                             * REAL(ctf.getFTHalf(i, j))
-                             * w, 
-                               oldCor(0), 
-                               oldCor(1), 
-                               oldCor(2), 
-                               _pf * _a, 
-                               _kernelFT);
-                else
-                    _F3D.addFT(transSrc.getFTHalf(i, j)
-                             * REAL(ctf.getFTHalf(i, j))
-                             / sig(AROUND(NORM(i, j)))
-                             * w,
-                               oldCor(0),
-                               oldCor(1),
-                               oldCor(2),
-                               _pf * _a,
-                               _kernelFT);
+                _F3D.addFT(transSrc.getFTHalf(i, j)
+                         * REAL(ctf.getFTHalf(i, j))
+                         * w, 
+                           oldCor(0), 
+                           oldCor(1), 
+                           oldCor(2), 
+                           _pf * _a, 
+                           _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
@@ -334,8 +407,7 @@ void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat33& rot,
                             const vec2& t,
-                            const double w,
-                            const vec* sig)
+                            const double w)
 {
     IF_MASTER
     {
@@ -359,9 +431,11 @@ void Reconstructor::insertP(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
+        /***
         _rot.push_back(sr[k]);
         _w.push_back(w);
         _ctf.push_back(&ctf);
+        ***/
 
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)

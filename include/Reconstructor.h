@@ -158,9 +158,13 @@ class Reconstructor : public Parallel
          * that matrix can be the same because of the multiple possibility of
          * 5D coordinates in a single image. 
          */
-        vector<mat33> _rot;
+        /***
+        vector<mat33> _rot3D;
+
+        vector<mat33> _rot2D;
 
         vector<const Image*> _ctf;
+        ***/
 
         //vector<vec> _sig;
 
@@ -348,6 +352,12 @@ class Reconstructor : public Parallel
                        const int* iPxl,
                        const int* iSig);
 
+        void insert(const Image& src,
+                    const Image& ctf,
+                    const mat22& rot,
+                    const vec2& t,
+                    const double w);
+
         /**
          * Insert a 2D Fourier transform of image pixel data with associated
          * 3D rotated matrix, 2D translation vector and weight into member 
@@ -368,15 +378,13 @@ class Reconstructor : public Parallel
                     const Image& ctf,
                     const mat33& rot,
                     const vec2& t,
-                    const double w,
-                    const vec* sig = NULL);
+                    const double w);
 
         void insertP(const Image& src,
                      const Image& ctf,
                      const mat33& rot,
                      const vec2& t,
-                     const double w,
-                     const vec* sig = NULL);
+                     const double w);
 
         /**
          * reconstruct a 3D model and save it into a volume.
