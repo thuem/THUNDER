@@ -645,12 +645,21 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
 
-    #pragma omp parallel for
-    VOLUME_FOR_EACH_PIXEL_FT(_W3D)
-        if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-            _W3D.setFTHalf(COMPLEX(1, 0), i, j, k);
-        else
-            _W3D.setFTHalf(COMPLEX(0, 0), i, j, k);
+    if (_mode == MODE_2D)
+    {
+        // TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        VOLUME_FOR_EACH_PIXEL_FT(_W3D)
+            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                _W3D.setFTHalf(COMPLEX(1, 0), i, j, k);
+            else
+                _W3D.setFTHalf(COMPLEX(0, 0), i, j, k);
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     double diffC = DBL_MAX;
     double diffCPrev = DBL_MAX;
@@ -663,9 +672,18 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
         
-        #pragma omp parallel for
-        FOR_EACH_PIXEL_FT(_C3D)
-            _C3D[i] = _T3D[i] * _W3D[i];
+        if (_mode == MODE_2D)
+        {
+            //TODO
+        }
+        else if (_mode == MODE_3D)
+        {
+            #pragma omp parallel for
+            FOR_EACH_PIXEL_FT(_C3D)
+                _C3D[i] = _T3D[i] * _W3D[i];
+        }
+        else
+            REPORT_ERROR("INEXISTENT MODE");
 
         convoluteC();
 
@@ -683,15 +701,24 @@ void Reconstructor::reconstruct(Volume& dst)
             (diffC > diffCPrev * DIFF_C_DECREASE_THRES)) break;
         else
         {
-            #pragma omp parallel for schedule(dynamic)
-            VOLUME_FOR_EACH_PIXEL_FT(_W3D)
-                if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-                    _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
-                               / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
-                                             1e-6),
-                                 i,
-                                 j,
-                                 k);
+            if (_mode == MODE_2D)
+            {
+                // TODO
+            }
+            else if (_mode == MODE_3D)
+            {
+                #pragma omp parallel for schedule(dynamic)
+                VOLUME_FOR_EACH_PIXEL_FT(_W3D)
+                    if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                        _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
+                                     / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
+                                                   1e-6),
+                                       i,
+                                       j,
+                                       k);
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
         }
     }
 
@@ -711,7 +738,14 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
-    dst = _F3D.copyVolume();
+    if (_mode == MODE_2D)
+    {
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+        dst = _F3D.copyVolume();
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     _fft.bwExecutePlan(dst);
 
@@ -741,9 +775,15 @@ void Reconstructor::reconstruct(Volume& dst)
     double nf = MKB_RL(0, _a * _pf, _alpha);
 #endif
 
-    #pragma omp parallel for schedule(dynamic)
-    VOLUME_FOR_EACH_PIXEL_RL(dst)
+    if (_mode == MODE_2D)
     {
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(dst)
+        {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             dst.setRL(dst.getRL(i, j, k)
                     / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
@@ -762,7 +802,10 @@ void Reconstructor::reconstruct(Volume& dst)
                       j,
                       k);
 #endif
+        }
     }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
