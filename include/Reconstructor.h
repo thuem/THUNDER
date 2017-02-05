@@ -392,13 +392,14 @@ class Reconstructor : public Parallel
                      const vec2& t,
                      const double w);
 
-        void reconstruct(Image& dst);
-
         /**
          * reconstruct a 3D model and save it into a volume.
+         *
+         * MODE_2D: the volume will be a special one with nSlc = 1
+         * MODE_3D: the regular volume
          * 
          * @param dst The destination volume that reconstructor object saves the
-         * result of reconstruction into.
+         *            result of reconstruction into.
          */
         void reconstruct(Volume& dst);
 
