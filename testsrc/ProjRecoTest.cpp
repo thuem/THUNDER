@@ -47,7 +47,8 @@
 
 #define NOISE_FACTOR 1
 
-//#define TEST
+#define TEST_2D
+//#define TEST_3D
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -55,7 +56,17 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-#ifdef TEST
+#ifdef TEST_2D
+
+    MPI_Init(&argc, &argv);
+
+    int commSize, commRank;
+    MPI_Comm_size(MPI_COMM_WORLD, &commSize);
+    MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
+
+#endif
+
+#ifdef TEST_3D
 
     MPI_Init(&argc, &argv);
 

@@ -95,6 +95,20 @@ inline void VOL_REPLACE_FT(Volume& dst, const Volume& src)
         dst.setFT(src.getFT(i, j, k), i, j, k); 
 }
 
+inline void IMG_PAD_RL(Image& dst,
+                       const Image& src,
+                       const int pf)
+{
+    dst.alloc(pf * src.nColRL(),
+              pf * src.nRowRL(),
+              RL_SPACE);
+
+    SET_0_RL(dst);
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+        dst.setRL(src.getRL(i, j), i, j);
+}
+
 /**
  * This function pads a volume in real space.
  *
@@ -102,7 +116,9 @@ inline void VOL_REPLACE_FT(Volume& dst, const Volume& src)
  * @param src the source volume
  * @param pf  the padding factor
  */
-inline void VOL_PAD_RL(Volume& dst, const Volume& src, const int pf) 
+inline void VOL_PAD_RL(Volume& dst,
+                       const Volume& src,
+                       const int pf) 
 { 
     dst.alloc(pf * src.nColRL(), 
               pf * src.nRowRL(), 
@@ -117,6 +133,20 @@ inline void VOL_PAD_RL(Volume& dst, const Volume& src, const int pf)
         dst.setRL(src.getRL(i, j, k), i, j, k); 
 }
 
+inline void IMG_PAD_FT(Image& dst,
+                       const Image& src,
+                       const int pf)
+{
+    dst.alloc(pf * src.nColRL(),
+              pf * src.nRowRL(),
+              FT_SPACE);
+
+    SET_0_FT(dst);
+
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+        dst.setFT(src.getFT(i, j), i, j);
+}
+
 /**
  * This function pads a volume in Fourier space.
  *
@@ -124,7 +154,9 @@ inline void VOL_PAD_RL(Volume& dst, const Volume& src, const int pf)
  * @param src the source volume
  * @param pf  the padding factor
  */
-inline void VOL_PAD_FT(Volume& dst, const Volume& src, const int pf) 
+inline void VOL_PAD_FT(Volume& dst,
+                       const Volume& src,
+                       const int pf) 
 { 
     dst.alloc(pf * src.nColRL(), 
               pf * src.nRowRL(), 
