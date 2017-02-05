@@ -545,25 +545,38 @@ void Reconstructor::insertP(const Image& src,
 
 void Reconstructor::reconstruct(Volume& dst)
 {
-#ifdef RECONSTRUCTOR_ASSERT_CHECK
-    NT_MODE_3D REPORT_ERROR("WRONG MODE");
-#endif
-
     IF_MASTER return;
+
+    IF_MODE_2D
+    {
+        ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
+        BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
+    }
+
+    IF_MODE_2D
+    {
+        ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
+        BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
+    }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
 
     allReduceT();
 
+    // only in 3D mode, symmetry should be considered
+    IF_MODE_3D
+    {
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
-    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
 
-    symmetrizeT();
+        symmetrizeT();
 #endif
+    }
 
-    if (_MAP)
+    // only in 3D mode, the MAP method is appropriate
+    if (_MAP && (_mode == MODE_3D))
     {
         // Obviously, wiener_filter with FSC can be wrong when dealing with
         // preferrable orienation problem
@@ -687,12 +700,16 @@ void Reconstructor::reconstruct(Volume& dst)
 
     allReduceF();
 
+    // only in 3D mode, symmetry should be considered
+    IF_MODE_3D
+    {
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-    ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
-    BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
-    symmetrizeF();
+        symmetrizeF();
 #endif
+    }
 
     dst = _F3D.copyVolume();
 
