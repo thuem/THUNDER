@@ -825,7 +825,15 @@ double Reconstructor::checkC() const
 
     if (_mode == MODE_2D)
     {
-        // TODO
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_FT(_C2D)
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            {
+                #pragma omp atomic
+                diff += fabs(ABS(_C2D.getFT(i, j)) - 1);
+                #pragma omp atomic
+                counter += 1;
+            }
     }
     else if (_mode == MODE_3D)
     {
@@ -833,9 +841,9 @@ double Reconstructor::checkC() const
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
             if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
             {
-                #pragma omp critical
+                #pragma omp atomic
                 diff += fabs(ABS(_C3D.getFT(i, j, k)) - 1);
-                #pragma omp critical
+                #pragma omp atomic
                 counter += 1;
             }
     }
@@ -848,7 +856,14 @@ double Reconstructor::checkC() const
 #ifdef RECONSTRUCTOR_CHECK_C_MAX
     if (_mode == MODE_2D)
     {
-        //TODO
+        vector<double> diff(_C2D.sizeFT(), 0);
+        
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_RL(_C2D)
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                diff[_C2D.iFTHalf(i, j)] = fabs(ABS(_C2D.getFT(i, j)) - 1);
+
+        return *std::max_element(diff.begin(), diff.end());
     }
     else if (_mode == MODE_3D)
     {
