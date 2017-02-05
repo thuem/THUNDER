@@ -302,7 +302,23 @@ void FFT::bwCreatePlan(const int nCol,
 void FFT::fwCreatePlanMT(const int nCol,
                          const int nRow)
 {
-    fwCreatePlanMT(nCol, nRow, 1);
+    //fwCreatePlanMT(nCol, nRow, 1);
+
+    _srcR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+    _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+
+    fftw_plan_with_nthreads(omp_get_max_threads());
+
+    fwPlan = fftw_plan_dft_r2c_2d(nRow,
+                                  nCol,
+                                  _srcR,
+                                  _dstC,
+                                  FFTW_MEASURE);
+
+    fftw_plan_with_nthreads(1);
+
+    fftw_free(_srcR);
+    fftw_free(_dstC);
 }
 
 void FFT::fwCreatePlanMT(const int nCol,
@@ -330,7 +346,23 @@ void FFT::fwCreatePlanMT(const int nCol,
 void FFT::bwCreatePlanMT(const int nCol,
                          const int nRow)
 {
-    bwCreatePlanMT(nCol, nRow, 1);
+    //bwCreatePlanMT(nCol, nRow, 1);
+
+    _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+    _dstR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+ 
+    fftw_plan_with_nthreads(omp_get_max_threads());
+
+    bwPlan = fftw_plan_dft_c2r_2d(nRow,
+                                  nCol,
+                                  _srcC,
+                                  _dstR,
+                                  FFTW_MEASURE);
+
+    fftw_plan_with_nthreads(1);
+
+    fftw_free(_srcC);
+    fftw_free(_dstR);
 }
 
 void FFT::bwCreatePlanMT(const int nCol,

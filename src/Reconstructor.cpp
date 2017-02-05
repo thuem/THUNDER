@@ -263,7 +263,6 @@ void Reconstructor::insert(const Image& src,
             vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            /***
             _F2D.addFT(transSrc.getFTHalf(i, j)
                      * REAL(ctf.getFTHalf(i, j))
                      * w, 
@@ -271,7 +270,6 @@ void Reconstructor::insert(const Image& src,
                        oldCor(1), 
                        _pf * _a, 
                        _kernelFT);
-                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
@@ -285,14 +283,12 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            /***
             _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
                      * w, 
                        oldCor(0), 
                        oldCor(1), 
                        _pf * _a,
                        _kernelFT);
-                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
@@ -414,6 +410,7 @@ void Reconstructor::insertP(const Image& src,
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
+    /***
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
@@ -421,7 +418,6 @@ void Reconstructor::insertP(const Image& src,
             vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            /***
             _F2D.addFT(transSrc[_iPxl[i]]
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * w,
@@ -429,7 +425,6 @@ void Reconstructor::insertP(const Image& src,
                        oldCor(1), 
                        _pf * _a, 
                        _kernelFT);
-                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
@@ -443,14 +438,12 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            /***
             _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
                        _pf * _a,
                        _kernelFT);
-                       ***/
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
@@ -462,6 +455,7 @@ void Reconstructor::insertP(const Image& src,
 
 #endif
         }
+        ***/
 }
 
 void Reconstructor::insertP(const Image& src,

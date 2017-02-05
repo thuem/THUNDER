@@ -27,6 +27,8 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
+    fftw_init_threads();
+
     int commSize, commRank;
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);
     MPI_Comm_rank(MPI_COMM_WORLD, &commRank);
@@ -93,27 +95,16 @@ int main(int argc, char* argv[])
 
     Image image(N, N, FT_SPACE);
 
-    /***
-    Symmetry sym("C2");
+    Image ctf(N, N, FT_SPACE);
 
-    boost::container::vector< boost::movelib::unique_ptr<Reconstructor> > reco;
+    SET_1_FT(ctf);
 
-    reco.push_back(boost::movelib::unique_ptr<Reconstructor>(new Reconstructor()));
-    reco[0]->init(MODE_3D, N, 2, &sym);
+    Reconstructor reconstructor(MODE_2D, N, 2, NULL);
 
-    //Reconstructor reconstructor(N, 2, &sym);
-    ***/
-
-    /***
     reconstructor.setMPIEnv();
-
-    printf("Set Symmetry Done\n");
-    ***/
 
     if (commRank != MASTER_ID)
     {
-        if (commRank == 1) timing();
-
         printf("Projection and Insertion\n");
 
         for (int k = M / (commSize - 1) * (commRank - 1);
@@ -139,18 +130,12 @@ int main(int argc, char* argv[])
 
             fft.fw(image);
 
-            /***
-                    fft.fw(image);
-
-                    reconstructor.insert(image, coord, 1);
-                    ***/
+            reconstructor.insert(image, ctf, rot, vec2(0, 0), 1);
         }
-
-        if (commRank == 1) timing();
     }
 
-    /***
     Volume result;
+
     if (commRank != MASTER_ID)
     {
         if (commRank == HEMI_A_LEAD)
@@ -161,59 +146,15 @@ int main(int argc, char* argv[])
         if (commRank == HEMI_A_LEAD)
             CLOG(INFO, "LOGGER_SYS") << "End Reconstruction";
 
-        printf("result: mean = %f, stddev = %f, maxValue = %f\n",
-               gsl_stats_mean(&result(0), 1, result.sizeRL()),
-               gsl_stats_sd(&result(0), 1, result.sizeRL()),
-               result(cblas_idamax(result.sizeRL(), &result(0), 1)));
-
-        if (commRank == 1)
+        if (commRank == HEMI_A_LEAD)
         {
+            /***
             ImageFile imf;
             imf.readMetaData(result);
             imf.writeVolume("result.mrc", result);
+            ***/
         }
     }
-
-    if (commRank == 1)
-        timing();
-
-    if (commRank != MASTER_ID)
-    {
-        fft.fw(result);
-        projector.setProjectee(result.copyVolume());
-        for (int k = M / (commSize - 1) * (commRank - 1);
-                 k < M / (commSize - 1) * commRank;
-                 k++)
-            for (int j = 0; j < M / 2; j++)
-                for (int i = 0; i < M / 2; i++)
-                {
-                    SET_0_FT(image);
-
-                    printf("%02d %02d %02d\n", i, j, k);
-                    sprintf(name, "%02d%02d%02d.bmp", i, j, k);
-                    Coordinate5D coord(2 * M_PI * i / M,
-                                       2 * M_PI * j / M,
-                                       2 * M_PI * k / M,
-                                       0,
-                                       0);
-                    projector.project(image, coord);
-
-                    fft.bw(image);
-
-                    printf("image: mean = %f, stddev = %f, maxValue = %f\n",
-                           gsl_stats_mean(&image(0), 1, image.sizeRL()),
-                           gsl_stats_sd(&image(0), 1, image.sizeRL()),
-                           image(cblas_idamax(image.sizeRL(), &image(0), 1)));
-
-                    fft.fw(image);
-                }
-    }
-
-    //MPI_Comm_free(&world);
-    //MPI_Comm_free(&workers);
-    //MPI_Group_free(&worker_group);
-    //MPI_Group_free(&world_group);
-    ***/
 
     MPI_Finalize();
 
