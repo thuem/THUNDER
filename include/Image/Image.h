@@ -124,8 +124,10 @@ class Image : public ImageBase
                                           _nCol(that._nCol),
                                           _nRow(that._nRow)
         {
+            /***
             that._nCol = 0;
             that._nRow = 0;
+            ***/
         }
 
         /**

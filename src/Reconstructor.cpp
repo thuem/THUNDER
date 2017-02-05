@@ -846,7 +846,12 @@ void Reconstructor::reconstruct(Volume& dst)
         //TODO
     }
     else if (_mode == MODE_3D)
+    {
         dst = _F3D.copyVolume();
+
+        _fft.fwExecutePlanMT(_F3D);
+        _F3D.clearRL();
+    }
     else
         REPORT_ERROR("INEXISTENT MODE");
 }
