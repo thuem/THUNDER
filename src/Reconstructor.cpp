@@ -875,7 +875,19 @@ void Reconstructor::convoluteC()
 
     if (_mode == MODE_2D)
     {
-        // TODO
+        _fft.bwExecutePlanMT(_C2D);
+
+        #pragma omp parallel for
+        IMAGE_FOR_EACH_PIXEL_RL(_C2D)
+            _C2D.setRL(_C2D.getRL(i, j)
+                     * _kernelRL(QUAD(i, j) / gsl_pow_2(PAD_SIZE))
+                     / nf,
+                       i,
+                       j);
+
+        _fft.fwExecutePlanMT(_C2D);
+
+        _C2D.clearRL();
     }
     else if (_mode == MODE_3D)
     {
