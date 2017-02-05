@@ -240,6 +240,10 @@ class Image : public ImageBase
                    int iCol,
                    int iRow);
 
+        void setFTHalf(const Complex value,
+                       const int iCol,
+                       const int iRow);
+
         void addFT(const Complex value,
                    int iCol,
                    int iRow);

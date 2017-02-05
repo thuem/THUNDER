@@ -553,10 +553,10 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
     }
 
-    IF_MODE_2D
+    IF_MODE_3D
     {
-        ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
-        BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
+        ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
+        BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
@@ -647,7 +647,12 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
-        // TODO
+        #pragma omp parallel for
+        IMAGE_FOR_EACH_PIXEL_FT(_W2D)
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                _W2D.setFTHalf(COMPLEX(1, 0), i, j);
+            else
+                _W2D.setFTHalf(COMPLEX(0, 0), i, j);
     }
     else if (_mode == MODE_3D)
     {
@@ -674,7 +679,9 @@ void Reconstructor::reconstruct(Volume& dst)
         
         if (_mode == MODE_2D)
         {
-            //TODO
+            #pragma omp parallel for
+            FOR_EACH_PIXEL_FT(_C2D)
+                _C2D[i] = _T2D[i] * _W2D[i];
         }
         else if (_mode == MODE_3D)
         {
@@ -703,7 +710,14 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             if (_mode == MODE_2D)
             {
-                // TODO
+                #pragma omp parallel for schedule(dynamic)
+                IMAGE_FOR_EACH_PIXEL_FT(_W2D)
+                    if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                        _W2D.setFTHalf(_W2D.getFTHalf(i, j)
+                                     / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
+                                                   1e-6),
+                                       i,
+                                       j);
             }
             else if (_mode == MODE_3D)
             {
@@ -738,17 +752,6 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
-    if (_mode == MODE_2D)
-    {
-        //TODO
-    }
-    else if (_mode == MODE_3D)
-        dst = _F3D.copyVolume();
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-
-    _fft.bwExecutePlan(dst);
-
     /***
 #ifdef RECONSTRUCTOR_ZERO_MASK
     softMask(dst,
@@ -766,6 +769,13 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     ***/
 
+    if (_mode == MODE_2D)
+        _fft.bwExecutePlan(_F2D);
+    else if (_mode == MODE_3D)
+        _fft.bwExecutePlan(_F3D);
+    else
+        REPORT_ERROR("INEXISTENT MODE");
+
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
@@ -777,30 +787,49 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
-        //TODO
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_RL(_F2D)
+        {
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            _F2D.setRL(_F2D.getRL(i, j)
+                     / MKB_RL(NORM(i, j) / PAD_SIZE,
+                              _a * _pf,
+                              _alpha)
+                     * nf,
+                       i,
+                       j);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            _F2D.setRL(_F2D.getRL(i, j)
+                     / TIK_RL(NORM(i, j) / PAD_SIZE),
+                       i,
+                       j);
+#endif
+        }
     }
     else if (_mode == MODE_3D)
     {
         #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(dst)
+        VOLUME_FOR_EACH_PIXEL_RL(_F3D)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            dst.setRL(dst.getRL(i, j, k)
-                    / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
-                             _a * _pf,
-                             _alpha)
-                    * nf,
-                      i,
-                      j,
-                      k);
+            _F3D.setRL(_F3D.getRL(i, j, k)
+                     / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
+                              _a * _pf,
+                              _alpha)
+                     * nf,
+                       i,
+                       j,
+                       k);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            dst.setRL(dst.getRL(i, j, k)
-                    / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
-                      i,
-                      j,
-                      k);
+            _F3D.setRL(_F3D.getRL(i, j, k)
+                     / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
+                       i,
+                       j,
+                       k);
 #endif
         }
     }
@@ -811,6 +840,15 @@ void Reconstructor::reconstruct(Volume& dst)
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
 
 #endif
+
+    if (_mode == MODE_2D)
+    {
+        //TODO
+    }
+    else if (_mode == MODE_3D)
+        dst = _F3D.copyVolume();
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 }
 
 void Reconstructor::allReduceF()

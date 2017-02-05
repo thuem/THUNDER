@@ -232,6 +232,17 @@ void Image::setFT(const Complex value,
     _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
+void Image::setFTHalf(const Complex value,
+                      const int iCol,
+                      const int iRow)
+{
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow);
+#endif
+
+    _dataFT[iFTHalf(iCol, iRow)] = value;
+}
+
 void Image::addFT(const Complex value,
                   int iCol,
                   int iRow)
