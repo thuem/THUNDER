@@ -238,15 +238,26 @@ void MLModel::BcastFSC()
     {
         IF_MASTER
         {
-            MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
-                                         << _size * _pf
-                                         << " X "
-                                         << _size * _pf
-                                         << " X "
-                                         << _size * _pf;
+            Volume A, B;
 
-            Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
-            Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+            if (_mode == MODE_2D)
+            {
+                //TODO
+            }
+            else if (_mode == MODE_3D)
+            {
+                MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
+                                             << _size * _pf
+                                             << " X "
+                                             << _size * _pf
+                                             << " X "
+                                             << _size * _pf;
+
+                A.alloc(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+                B.alloc(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
 
@@ -266,11 +277,22 @@ void MLModel::BcastFSC()
                            l,
                            MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+            if (_mode == MODE_2D)
+            {
+                MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
 
-            vec fsc(_rU * _pf);
-            FSC(fsc, A, B);
-            _FSC.col(l) = fsc;
+                //TODO
+            }
+            else if (_mode == MODE_3D)
+            {
+                MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+
+                vec fsc(_rU * _pf);
+                FSC(fsc, A, B);
+                _FSC.col(l) = fsc;
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
