@@ -73,6 +73,8 @@ class MLModel : public Parallel
 {
     private:
 
+        int _mode;
+
         /**
          * references in Fourier space
          */
@@ -293,6 +295,7 @@ class MLModel : public Parallel
         /**
          * This function initialises the MLModel object.
          *
+         * @param mode      2D or 3D mode
          * @param k         number of references
          * @param size      size of references before padding
          * @param r         radius of calculating FSC and SNR before padding
@@ -302,7 +305,8 @@ class MLModel : public Parallel
          * @param alpha     smoothness parameter of modified Kaiser-Bessel function
          * @param sym       the symmetry information
          */
-        void init(const int k,
+        void init(const int mode,
+                  const int k,
                   const int size,
                   const int r,
                   const int pf,
@@ -310,6 +314,10 @@ class MLModel : public Parallel
                   const double a,
                   const double alpha,
                   const Symmetry* sym);
+
+        int mode() const;
+
+        void setMode(const int mode);
 
         /**
          * This function initialises projectors and reconstructors.

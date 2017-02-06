@@ -14,7 +14,8 @@ MLModel::~MLModel()
     clear();
 }
 
-void MLModel::init(const int k,
+void MLModel::init(const int mode,
+                   const int k,
                    const int size,
                    const int r,
                    const int pf,
@@ -23,6 +24,7 @@ void MLModel::init(const int k,
                    const double alpha,
                    const Symmetry* sym)
 {
+    _mode = mode;
     _k = k;
     _size = size;
     _r = r;
@@ -34,6 +36,16 @@ void MLModel::init(const int k,
 
     _FSC = mat::Constant(1, _k, 1);
     _tau = mat::Constant(1, _k, DBL_MAX);
+}
+
+int MLModel::mode() const
+{
+    return _mode;
+}
+
+void MLModel::setMode(const int mode)
+{
+    _mode = mode;
 }
 
 void MLModel::initProjReco()

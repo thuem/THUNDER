@@ -78,7 +78,8 @@ void MLOptimiser::init()
     _cDistr.resize(_para.k);
 
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
-    _model.init(_para.k,
+    _model.init(MODE_3D,
+                _para.k,
                 _para.size,
                 0,
                 _para.pf,
