@@ -291,8 +291,8 @@ void MLModel::BcastFSC()
                 Image tmpA(_size * _pf, _size * _pf, FT_SPACE);
                 Image tmpB(_size * _pf, _size * _pf, FT_SPACE);
 
-                SLC_EXTRACT_RL(tmpA, A, 0);
-                SLC_EXTRACT_RL(tmpB, B, 0);
+                SLC_EXTRACT_FT(tmpA, A, 0);
+                SLC_EXTRACT_FT(tmpB, B, 0);
 
                 FRC(fsc, tmpA, tmpB);
 
@@ -575,7 +575,9 @@ void MLModel::refreshProj()
     {
         if (_mode == MODE_2D)
         {
-            //TODO
+            Image tmp(_size * _pf, _size * _pf, FT_SPACE);
+            SLC_EXTRACT_FT(tmp, _ref[l], 0);
+            _proj[l].setProjectee(tmp.copyImage());
         }
         else if (_mode == MODE_3D)
             _proj[l].setProjectee(_ref[l].copyVolume());
@@ -1037,15 +1039,29 @@ void MLModel::avgHemi()
     {
         IF_MASTER
         {
-            MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
-                                         << _size * _pf
-                                         << " X "
-                                         << _size * _pf
-                                         << " X "
-                                         << _size * _pf;
+            Volume A, B;
+            if (_mode == MODE_2D)
+            {
+                MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
+                                             << _size * _pf
+                                             << " X "
+                                             << _size * _pf;
 
-            Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
-            Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+                A.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
+                B.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
+            }
+            else if (_mode == MODE_3D)
+            {
+                MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
+                                             << _size * _pf
+                                             << " X "
+                                             << _size * _pf
+                                             << " X "
+                                             << _size * _pf;
+
+                Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+                Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+            }
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
 
