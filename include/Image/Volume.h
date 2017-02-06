@@ -178,29 +178,12 @@ class Volume : public ImageBase
         Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                             _nCol(that._nCol),
                                             _nRow(that._nRow),
-                                            _nSlc(that._nSlc)
-        {
-            /***
-            that._nCol = 0;
-            that._nRow = 0;
-            that._nSlc = 0;
-            ***/
-        }
+                                            _nSlc(that._nSlc) {}
 
         Volume(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                            _nCol(that.nColRL()),
                                            _nRow(that.nRowRL()),
                                            _nSlc(1) {}
-        /***
-        Volume(BOOST_RV_EEF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
-                                           _nCol(that._nCol),
-                                           _nRow(that._nRow),
-                                           _nSlc(1)
-        {
-            that._nCol = 0;
-            that._nRow = 0;
-        }
-        ***/
 
         /**
          * The deconstructor will automatically free all allocated space.

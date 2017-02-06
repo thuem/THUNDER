@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    Volume result;
+    Image result;
 
     if (commRank != MASTER_ID)
     {
@@ -148,11 +148,7 @@ int main(int argc, char* argv[])
 
         if (commRank == HEMI_A_LEAD)
         {
-            /***
-            ImageFile imf;
-            imf.readMetaData(result);
-            imf.writeVolume("result.mrc", result);
-            ***/
+            result.saveRLToBMP("result.bmp");
         }
     }
 

@@ -537,6 +537,17 @@ void Reconstructor::insertP(const Image& src,
     }
 }
 
+void Reconstructor::reconstruct(Image& dst)
+{
+    Volume tmp;
+
+    reconstruct(tmp);
+
+    dst.alloc(PAD_SIZE, PAD_SIZE, RL_SPACE);
+
+    SLC_EXTRACT_RL(dst, tmp, 0);
+}
+
 void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;

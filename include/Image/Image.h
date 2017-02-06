@@ -122,13 +122,7 @@ class Image : public ImageBase
 
         Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                           _nCol(that._nCol),
-                                          _nRow(that._nRow)
-        {
-            /***
-            that._nCol = 0;
-            that._nRow = 0;
-            ***/
-        }
+                                          _nRow(that._nRow) {}
 
         /**
          * deconstructor
