@@ -463,6 +463,9 @@ class Particle
         void setC(const int src,
                   const int i);
 
+        void rot(mat22& dst,
+                 const int i) const;
+
         /**
          * This function returns the rotation matrix of the i-th particle.
          *

@@ -361,6 +361,12 @@ void Particle::setC(const int src,
     _c(i) = src;
 }
 
+void Particle::rot(mat22& dst,
+                   const int i) const
+{
+    rotate2D(dst, vec2(_r(i, 0), _r(i, 1)));
+}
+
 void Particle::rot(mat33& dst,
                    const int i) const
 {
