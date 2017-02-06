@@ -84,6 +84,11 @@ inline void PROCESS_LOGW_HARD(vec& _logW)
 struct MLOptimiserPara
 {
     /**
+     * 2D or 3D mode
+     */
+    int mode;
+
+    /**
      * number of classes
      */
     int k;

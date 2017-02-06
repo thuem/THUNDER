@@ -35,6 +35,13 @@ static inline void copy_string(char (&array)[N], const std::string& source)
 void readPara(MLOptimiserPara& dst,
               const Json::Value src)
 {
+    if (src["2D or 3D Mode"].asString() == "2D")
+        dst.mode = MODE_2D;
+    else if (src["2D or 3D Mode"].asString() == "3D")
+        dst.mode = MODE_3D;
+    else
+        REPORT_ERROR("INEXISTENT MODE");
+
     dst.k = src["Number of Classes"].asInt();
     dst.size = src["Size of Image"].asInt();
     dst.pixelSize = src["Pixel Size (Angstrom)"].asFloat();
