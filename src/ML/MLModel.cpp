@@ -242,7 +242,13 @@ void MLModel::BcastFSC()
 
             if (_mode == MODE_2D)
             {
-                //TODO
+                MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
+                                              << _size * _pf
+                                              << " X "
+                                              << _size * _pf;
+
+                A.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
+                B.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
             }
             else if (_mode == MODE_3D)
             {
@@ -277,18 +283,27 @@ void MLModel::BcastFSC()
                            l,
                            MPI_COMM_WORLD);
 
+            vec fsc(_rU * _pf);
             if (_mode == MODE_2D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
 
-                //TODO
+                Image tmpA(_size * _pf, _size * _pf, FT_SPACE);
+                Image tmpB(_size * _pf, _size * _pf, FT_SPACE);
+
+                SLC_EXTRACT_RL(tmpA, A, 0);
+                SLC_EXTRACT_RL(tmpB, B, 0);
+
+                FRC(fsc, tmpA, tmpB);
+
+                _FSC.col(1) = fsc;
             }
             else if (_mode == MODE_3D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
 
-                vec fsc(_rU * _pf);
                 FSC(fsc, A, B);
+
                 _FSC.col(l) = fsc;
             }
             else
@@ -428,7 +443,16 @@ void MLModel::lowPassRef(const double thres,
                          const double ew)
 {
     FOR_EACH_CLASS
-        lowPassFilter(_ref[l], _ref[l], thres, ew);
+    {
+        if (_mode == MODE_2D)
+        {
+            //TODO
+        }
+        else if (_mode == MODE_3D)
+            lowPassFilter(_ref[l], _ref[l], thres, ew);
+        else
+            REPORT_ERROR("INEXISTENT MODE");
+    }
 }
 
 mat MLModel::fsc() const
@@ -461,6 +485,8 @@ void MLModel::refreshSNR()
 
 void MLModel::refreshTau()
 {
+    // TODO
+
     /***
     _tau.resize(_rU * _pf - 1, _k);
 
@@ -472,6 +498,7 @@ void MLModel::refreshTau()
     }
     ***/
 
+    /***
     _tau.resize(maxR() * _pf - 1, _k);
 
     FOR_EACH_CLASS
@@ -480,6 +507,7 @@ void MLModel::refreshTau()
         powerSpectrum(ps, _ref[l], maxR() * _pf - 1);
         _tau.col(l) = ps / 2;
     }
+    ***/
 }
 
 void MLModel::refreshSig(const vec& sig)
@@ -545,7 +573,15 @@ void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
     {
-        _proj[l].setProjectee(_ref[l].copyVolume());
+        if (_mode == MODE_2D)
+        {
+            //TODO
+        }
+        else if (_mode == MODE_3D)
+            _proj[l].setProjectee(_ref[l].copyVolume());
+        else
+            REPORT_ERROR("INEXISTENT MODE");
+
         _proj[l].setMaxRadius(_r);
         _proj[l].setPf(_pf);
 
@@ -572,7 +608,7 @@ void MLModel::refreshReco()
                                  << l
                                  << " Initialising";
 
-        _reco[l]->init(MODE_3D,
+        _reco[l]->init(_mode,
                        _size,
                        _pf,
                        _sym,
@@ -605,7 +641,6 @@ void MLModel::resetReco()
     {
         _reco[l]->reset();
 
-        //_reco[l]->setFSC(_FSC.col(l).head(_r * _pf));
         _reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);
@@ -925,71 +960,6 @@ bool MLModel::increaseR() const
 void MLModel::setIncreaseR(const bool increaseR)
 {
     _increaseR = increaseR;
-}
-
-void MLModel::sharpenUp(const bool fscWeighting)
-{
-    MLOG(INFO, "LOGGER_SYS") << "Averaging Reference(s) from Two Hemispheres";
-
-    avgHemi();
-
-    MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference(s)";
-
-    IF_MASTER
-    {
-        FOR_EACH_CLASS
-        {
-            if (fscWeighting)
-                fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
-
-            /***
-            sharpen(_ref[l],
-                    _ref[l],
-                    (double)_resT / _size,
-                    EDGE_WIDTH_FT / _size,
-                    _rT * _pf,
-                    (AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
-                                  _size,
-                                  _pixelSize)) + 1) * _pf);
-                                  ***/
-        }
-    }
-}
-
-void MLModel::sharpenUp(const double bFactor,
-                        const bool fscWeighting)
-{
-    MLOG(INFO, "LOGGER_SYS") << "Averaging Reference(s) from Two Hemispheres";
-
-    avgHemi();
-
-    MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference(s)";
-
-    IF_MASTER
-    {
-        FOR_EACH_CLASS
-        {
-            MLOG(INFO, "LOGGER_SYS") << "Shapening Merged Reference " << l;
-
-            MLOG(INFO, "LOGGER_SYS") << "FSC Weighting Reference " << l;
-
-            if (fscWeighting)
-                fscWeightingFilter(_ref[l], _ref[l], _FSC.col(l));
-
-            MLOG(INFO, "LOGGER_SYS") << "B-Factor and Low-Pass Filter Reference "
-                                     << l;
-
-            MLOG(INFO, "LOGGER_SYS") << "B-Factor is : "
-                                     << bFactor * gsl_pow_2(_pixelSize)
-                                     << " Angtrom^2";
-
-            sharpen(_ref[l],
-                    _ref[l],
-                    (double)_resT / _size,
-                    (double)EDGE_WIDTH_FT / _size,
-                    bFactor);
-        }
-    }
 }
 
 void MLModel::updateRU()

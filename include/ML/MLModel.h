@@ -701,11 +701,6 @@ class MLModel : public Parallel
          */
         void setIncreaseR(const bool increaseR);
 
-        void sharpenUp(const bool fscWeighting);
-
-        void sharpenUp(const double bFactor,
-                       const bool fscWeighting);
-
         /**
          * This function update the frequency for reconstruction and calculating
          * FSC, SNR by the frequency before padding (in pixel).

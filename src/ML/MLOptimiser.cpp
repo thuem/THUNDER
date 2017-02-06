@@ -1129,19 +1129,6 @@ void MLOptimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
-
-    if (_para.performSharpen)
-    {
-        MLOG(INFO, "LOGGER_ROUND") << "Sharpening Reference(s)";
-
-        if (_para.estBFactor)
-            _model.sharpenUp(true);
-        else
-            _model.sharpenUp(-_para.bFactor / gsl_pow_2(_para.pixelSize), true);
-
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Sharp Reference(s)";
-        saveSharpReference();
-    }
 }
 
 void MLOptimiser::clear()
