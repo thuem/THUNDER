@@ -457,19 +457,37 @@ class Particle
         void coord(Coordinate5D& dst,
                    const int i) const;
 
+        /**
+         * This function returns the class of the i-th particle.
+         *
+         * @param dst the class
+         * @param i   the index of particle
+         */
         void c(int& dst,
                const int i) const;
 
+        /**
+         * This function sets the class of the i-th particle.
+         *
+         * @param src the class
+         * @param i   the index of particle
+         */
         void setC(const int src,
                   const int i);
 
+        /**
+         * This function returns the 2D rotation matrix of the i-th particle.
+         *
+         * @param dst the 2D rotation matrix
+         * @param i   the index of particle
+         */
         void rot(mat22& dst,
                  const int i) const;
 
         /**
-         * This function returns the rotation matrix of the i-th particle.
+         * This function returns the 3D rotation matrix of the i-th particle.
          *
-         * @param dst the rotation matrix
+         * @param dst the 3D rotation matrix
          * @param i   the index of particle
          */
         void rot(mat33& dst,
