@@ -36,9 +36,13 @@ void readPara(MLOptimiserPara& dst,
               const Json::Value src)
 {
     if (src["2D or 3D Mode"].asString() == "2D")
+    {
         dst.mode = MODE_2D;
+    }
     else if (src["2D or 3D Mode"].asString() == "3D")
+    {
         dst.mode = MODE_3D;
+    }
     else
         REPORT_ERROR("INEXISTENT MODE");
 

@@ -66,6 +66,17 @@ void MLOptimiser::setPara(const MLOptimiserPara& para)
 
 void MLOptimiser::init()
 {
+    if (_para.mode == MODE_2D)
+    {
+        MLOG(INFO, "LOGGER_INIT") << "The Program is Running under 2D Mode";
+    }
+    else if (_para.mode == MODE_3D)
+    {
+        MLOG(INFO, "LOGGER_INIT") << "The Program is Running under 3D Mode";
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
+
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
 
@@ -78,7 +89,7 @@ void MLOptimiser::init()
     _cDistr.resize(_para.k);
 
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
-    _model.init(MODE_3D,
+    _model.init(_para.mode,
                 _para.k,
                 _para.size,
                 0,
