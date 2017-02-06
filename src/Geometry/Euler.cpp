@@ -70,6 +70,19 @@ void quaternoin(vec4& dst,
     dst(3) = sin((phi + psi) / 2) * cos(theta / 2);
 }
 
+void rotate2D(mat22& dst, const vec2& vec)
+{
+    /***
+    vec(0) = cos(phi);
+    vec(1) = sin(phi);
+    ***/
+
+    dst(0, 0) = vec(0);
+    dst(0, 1) = -vec(1);
+    dst(1, 0) = vec(1);
+    dst(1, 1) = vec(0);
+}
+
 void rotate2D(mat22& dst, const double phi)
 {
     double sine = sin(phi);
@@ -277,6 +290,7 @@ void scale3D(mat33& dst,
     dst(2, 2) = vec(2);
 }
 
+/***
 void randQuaternion(vec4& quat)
 {
     gsl_rng* engine = get_random_engine();
@@ -286,12 +300,30 @@ void randQuaternion(vec4& quat)
 
     quat /= quat.norm();
 }
+***/
+
+void randRotate2D(mat22& rot)
+{
+    gsl_rng* engine = get_random_engine();
+
+    vec2 vec(gsl_ran_gaussian(engine, 1),
+             gsl_ran_gaussian(engine, 1));
+
+    vec /= vec.norm();
+    
+    rotate2D(rot, vec);
+}
 
 void randRotate3D(mat33& rot)
 {
-    vec4 quat;
+    gsl_rng* engine = get_random_engine();
 
-    randQuaternion(quat);
+    vec4 vec(gsl_ran_gaussian(engine, 1),
+             gsl_ran_gaussian(engine, 1),
+             gsl_ran_gaussian(engine, 1),
+             gsl_ran_gaussian(engine, 1));
 
-    rotate3D(rot, quat);
+    vec /= vec.norm();
+
+    rotate3D(rot, vec);
 }
