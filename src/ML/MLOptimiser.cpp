@@ -2753,7 +2753,7 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
 
-        if (_mode == MODE_2D)
+        if (_para.mode == MODE_2D)
         {
             Image tmp(_para.size * _para.pf,
                       _para.size * _para.pf,
@@ -2764,7 +2764,7 @@ void MLOptimiser::reconstructRef()
             tmp.clearRL();
             _model.ref(t) = Volume(tmp);
         }
-        else if (_mode == MODE_3D)
+        else if (_para.mode == MODE_3D)
         {
             fft.fwMT(_model.ref(t));
             _model.ref(t).clearRL();
