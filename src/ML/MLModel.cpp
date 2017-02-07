@@ -269,8 +269,6 @@ void MLModel::BcastFSC()
             else
                 REPORT_ERROR("INEXISTENT MODE");
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
-
 #ifdef VERBOSE_LEVEL_1
             MLOG(INFO, "LOGGER_COMPARE") << "Size of Hemisphere A of Reference "
                                          << l
@@ -281,6 +279,8 @@ void MLModel::BcastFSC()
                                          << " to be Received: "
                                          << B.sizeFT();
 #endif
+
+            MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
 
             MPI_Recv_Large(&A[0],
                            A.sizeFT(),
@@ -297,6 +297,17 @@ void MLModel::BcastFSC()
                            HEMI_B_LEAD,
                            l,
                            MPI_COMM_WORLD);
+
+#ifdef VERBOSE_LEVEL_1
+                MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
+                                             << REAL(A[0])
+                                             << ", IMAG = "
+                                             << IMAG(A[0]);
+                MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
+                                             << REAL(B[0])
+                                             << ", IMAG = "
+                                             << IMAG(B[0]);
+#endif
 
             vec fsc(_rU * _pf);
 
@@ -420,6 +431,15 @@ void MLModel::BcastFSC()
                                              << l
                                              << " to be Sent: "
                                              << _ref[l].sizeFT();
+
+                ALOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
+                                             << REAL(_ref[l][0])
+                                             << ", IMAG = "
+                                             << IMAG(_ref[l][0]);
+                BLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
+                                             << REAL(_ref[l][0])
+                                             << ", IMAG = "
+                                             << IMAG(_ref[l][0]);
 #endif
 
                 MPI_Ssend_Large(&_ref[l][0],
@@ -475,6 +495,8 @@ void MLModel::BcastFSC()
               MPI_COMM_WORLD);
 
     MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_COMPARE") << "FSC Broadcasted from MASTER";
 }
 
 void MLModel::lowPassRef(const double thres,
