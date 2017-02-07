@@ -918,7 +918,7 @@ double Reconstructor::checkC() const
     if (_mode == MODE_2D)
     {
         #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_C2D)
+        IMAGE_FOR_EACH_PIXEL_FT(_C2D)
             if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
             {
                 #pragma omp atomic
