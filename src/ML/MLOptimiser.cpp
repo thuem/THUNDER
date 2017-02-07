@@ -2179,7 +2179,8 @@ void MLOptimiser::refreshScale(const bool init,
         Image img(size(), size(), FT_SPACE);
 
         int cls;
-        mat33 rot;
+        mat22 rot2D;
+        mat33 rot3D;
         vec2 tran;
 
         FOR_EACH_2D_IMAGE
@@ -2191,30 +2192,77 @@ void MLOptimiser::refreshScale(const bool init,
 
             if (init)
             {
-                randRotate3D(rot);
-
+                if (_para.mode == MODE_2D)
+                {
+                    randRotate2D(rot2D);
 #ifdef VERBOSE_LEVEL_3
-                ALOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
-                BLOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot;
+                ALOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot2D;
+                BLOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot2D;
 #endif
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    randRotate3D(rot3D);
+#ifdef VERBOSE_LEVEL_3
+                ALOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot3D;
+                BLOG(INFO, "LOGGER_SYS") << "The Random Rotation Matrix is " << rot3D;
+#endif
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
 
-                _model.proj(0).projectMT(img, rot);
+                if (_para.mode == MODE_2D)
+                {
+                    _model.proj(0).projectMT(img, rot2D);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _model.proj(0).projectMT(img, rot3D);
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
             }
             else
             {
                 if (!_switch[l]) continue;
 
-                _par[l].rank1st(cls, rot, tran);
+                if (_para.mode == MODE_2D)
+                {
+                    _par[l].rank1st(cls, rot2D, tran);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _par[l].rank1st(cls, rot3D, tran);
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
 
+                if (_para.mode == MODE_2D)
+                {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SCALE_MASK
-                _model.proj(cls).projectMT(img, rot, tran);
+                    _model.proj(cls).projectMT(img, rot2D, tran);
 #else
-                _model.proj(cls).projectMT(img, rot, tran - _offset[l]);
+                    _model.proj(cls).projectMT(img, rot2D, tran - _offset[l]);
 #endif
 #else
-                _model.proj(cls).projectMT(img, rot, tran);
+                    _model.proj(cls).projectMT(img, rot2D, tran);
 #endif
+                }
+                else if (_para.mode == MODE_3D)
+                {
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_SCALE_MASK
+                    _model.proj(cls).projectMT(img, rot3D, tran);
+#else
+                    _model.proj(cls).projectMT(img, rot3D, tran - _offset[l]);
+#endif
+#else
+                    _model.proj(cls).projectMT(img, rot3D, tran);
+#endif
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
             }
 
 #ifdef VERBOSE_LEVEL_3
