@@ -376,11 +376,11 @@ void MLOptimiser::expectation()
         int nR;
         if (_para.mode == MODE_2D)
         { 
-            nR = _para.mS / (1 + _sym.nSymmetryElement());
+            nR = _para.mS;
         }
         else if (_para.mode == MODE_3D)
         {
-            nR = _para.mS;
+            nR = _para.mS / (1 + _sym.nSymmetryElement());
         }
         else
             REPORT_ERROR("INEXISTENT MODE");
@@ -613,6 +613,13 @@ void MLOptimiser::expectation()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
 
     }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
+    BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
+#endif
 
     _nF = 0;
     _nI = 0;
