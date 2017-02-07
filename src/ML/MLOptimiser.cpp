@@ -3134,7 +3134,36 @@ void MLOptimiser::saveReference(const bool finished)
     {
         if (_para.mode == MODE_2D)
         {
-            // TODO
+            if (_commRank == HEMI_A_LEAD)
+            {
+                ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+
+                Image ref(_para.size * _para.pf,
+                          _para.size * _para.pf,
+                          FT_SPACE);
+
+                SLC_EXTRACT_FT(ref, _model.ref(t), 0);
+
+                fft.bwMT(ref);
+
+                sprintf(filename, "Reference_%03d_A_Final.bmp", t);
+                ref.saveRLToBMP(filename);
+            }
+            else if (_commRank == HEMI_A_LEAD)
+            {
+                BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+
+                Image ref(_para.size * _para.pf,
+                          _para.size * _para.pf,
+                          FT_SPACE);
+
+                SLC_EXTRACT_FT(ref, _model.ref(t), 0);
+
+                fft.bwMT(ref);
+
+                sprintf(filename, "Reference_%03d_B_Final.bmp", t);
+                ref.saveRLToBMP(filename);
+            }
         }
         else if (_para.mode == MODE_3D)
         {
