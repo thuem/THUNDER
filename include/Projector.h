@@ -14,6 +14,7 @@
 #include "Config.h"
 #include "Macro.h"
 #include "Complex.h"
+#include "Logging.h"
 
 #include "Euler.h"
 

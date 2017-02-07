@@ -101,7 +101,10 @@ void Projector::setProjectee(Image src)
     _maxRadius = floor(MIN(_projectee2D.nColRL(),
                            _projectee2D.nRowRL()) / _pf / 2 - 1);
 
-    // perform grid correction
+#ifdef VERBOSE_LEVEL_3
+    CLOG(INFO, "LOGGER_SYS") << "Performing Grid Correction";
+#endif
+
     gridCorrection();
 }
 
@@ -113,7 +116,10 @@ void Projector::setProjectee(Volume src)
                              _projectee3D.nRowRL(),
                              _projectee3D.nSlcRL()) / _pf / 2 - 1);
 
-    // perform grid correction
+#ifdef VERBOSE_LEVEL_3
+    CLOG(INFO, "LOGGER_SYS") << "Performing Grid Correction";
+#endif
+
     gridCorrection();
 }
 
@@ -488,6 +494,10 @@ void Projector::gridCorrection()
 
         if (_mode == MODE_2D)
         {
+#ifdef VERBOSE_LEVEL_3
+            CLOG(INFO, "LOGGER_SYS") << "Inverse Fourier Transform in Grid Correction";
+#endif
+
             fft.bwMT(_projectee2D);
 
             #pragma omp parallel for schedule(dynamic)
@@ -498,11 +508,19 @@ void Projector::gridCorrection()
                                    i,
                                    j);
 
+#ifdef VERBOSE_LEVEL_3
+            CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
+#endif
+
             fft.fwMT(_projectee2D);
             _projectee2D.clearRL();
         }
         else if (_mode == MODE_3D)
         {
+#ifdef VERBOSE_LEVEL_3
+            CLOG(INFO, "LOGGER_SYS") << "Inverse Fourier Transform in Grid Correction";
+#endif
+
             fft.bwMT(_projectee3D);
 
             #pragma omp parallel for schedule(dynamic)
@@ -513,6 +531,10 @@ void Projector::gridCorrection()
                                    i,
                                    j,
                                    k);
+
+#ifdef VERBOSE_LEVEL_3
+            CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
+#endif
 
             fft.fwMT(_projectee3D);
             _projectee3D.clearRL();
