@@ -3164,6 +3164,9 @@ void MLOptimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
+                sprintf(filename, "FT_Reference_%03d_A_%03d.bmp", t, _iter);
+                ref.saveFTToBMP(filename, 0.001);
+
                 fft.bwMT(ref);
 
                 sprintf(filename, "Reference_%03d_A_%03d.bmp", t, _iter);
@@ -3178,6 +3181,9 @@ void MLOptimiser::saveReference(const bool finished)
                           FT_SPACE);
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
+
+                sprintf(filename, "FT_Reference_%03d_B_%03d.bmp", t, _iter);
+                ref.saveFTToBMP(filename, 0.001);
 
                 fft.bwMT(ref);
 
