@@ -2637,18 +2637,11 @@ void MLOptimiser::reconstructRef()
                 _par[l].rand(cls, rot2D, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                _model.reco(cls).insert(_imgOri[l],
-                                        _ctf[l],
-                                        rot2D,
-                                        tran - _offset[l],
-                                        1.0 / _para.mReco);
-                /***
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
                                          1.0 / _para.mReco);
-                                         ***/
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
