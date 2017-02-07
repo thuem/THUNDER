@@ -288,11 +288,13 @@ void MLModel::BcastFSC()
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
 
+                /***
                 Image tmpA(_size * _pf, _size * _pf, FT_SPACE);
                 Image tmpB(_size * _pf, _size * _pf, FT_SPACE);
 
                 SLC_EXTRACT_FT(tmpA, A, 0);
                 SLC_EXTRACT_FT(tmpB, B, 0);
+                ***/
 
                 //FRC(fsc, tmpA, tmpB);
 
@@ -361,6 +363,10 @@ void MLModel::BcastFSC()
                             l,
                             MPI_COMM_WORLD);
 
+            MLOG(INFO, "LOGGER_COMPARE") << "Reference "
+                                         << l
+                                         << " Sent to Hemisphere A";
+
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << l
                                          << " to Hemisphere B";
@@ -371,6 +377,10 @@ void MLModel::BcastFSC()
                             HEMI_B_LEAD,
                             l,
                             MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_COMPARE") << "Reference "
+                                         << l
+                                         << " Sent to Hemisphere B";
         }
         else
         {
@@ -380,7 +390,7 @@ void MLModel::BcastFSC()
                 ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere A";
-                BLOG(INFO, "LOGGER_COMPARE") << "Snding Reference "
+                BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere B";
 
@@ -412,7 +422,7 @@ void MLModel::BcastFSC()
                             _ref[l].sizeFT(),
                             MPI_DOUBLE_COMPLEX,
                             0,
-                           _hemi);
+                            _hemi);
         }
 
         if (isB())

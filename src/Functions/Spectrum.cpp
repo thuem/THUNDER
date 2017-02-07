@@ -215,6 +215,14 @@ void FRC(vec& dst,
     }
 }
 
+void FRC(vec& dst,
+         const Volume& A,
+         const Volume& B,
+         const int k)
+{
+    // TODO
+}
+
 void FSC(vec& dst,
          const Volume& A,
          const Volume& B)

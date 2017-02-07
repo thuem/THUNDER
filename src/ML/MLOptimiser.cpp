@@ -3149,7 +3149,7 @@ void MLOptimiser::saveReference(const bool finished)
                 sprintf(filename, "Reference_%03d_A_Final.bmp", t);
                 ref.saveRLToBMP(filename);
             }
-            else if (_commRank == HEMI_A_LEAD)
+            else if (_commRank == HEMI_B_LEAD)
             {
                 BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
 

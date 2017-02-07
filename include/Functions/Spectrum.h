@@ -153,6 +153,11 @@ void FRC(vec& dst,
          const Image& A,
          const Image& B);
 
+void FRC(vec& dst,
+         const Volume& A,
+         const Volume& B,
+         const int k);
+
 /** 
  * This functions calculates the FSC (Fourier Shell Coefficient) between two
  * volumes.
