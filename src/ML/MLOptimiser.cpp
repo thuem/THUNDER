@@ -618,7 +618,7 @@ void MLOptimiser::expectation()
     MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
-    BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
+    BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
     _nF = 0;
