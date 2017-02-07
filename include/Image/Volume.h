@@ -180,11 +180,6 @@ class Volume : public ImageBase
                                             _nRow(that._nRow),
                                             _nSlc(that._nSlc) {}
 
-        Volume(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
-                                           _nCol(that.nColRL()),
-                                           _nRow(that.nRowRL()),
-                                           _nSlc(1) {}
-
         /**
          * The deconstructor will automatically free all allocated space.
          */

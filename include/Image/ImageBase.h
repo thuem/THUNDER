@@ -122,6 +122,14 @@
     FOR_EACH_PIXEL_FT(base) \
         (base)[i] *= a
 
+#define COPY_RL(a, b) \
+    FOR_EACH_PIXEL_RL(a) \
+        (a)(i) = b(i)
+
+#define COPY_FT(a, b) \
+    FOR_EACH_PIXEL_RL(a) \
+        (a)[i] = b[i]
+
 /**
  * This macro adds each pixel from B to A respectively in real space.
  * @param a Image / Volume A

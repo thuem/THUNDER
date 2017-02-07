@@ -26,16 +26,6 @@ int main(int argc, char* argv[])
 
     std::cout << "Define a head." << std::endl;
 
-    Image head(N, N, RL_SPACE);
-
-    SET_0_RL(head);
-
-    Volume head2(head);
-
-    FFT fft;
-    fft.fwMT(head2);
-    fft.bwMT(head2);
-
     /***
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {

@@ -1386,8 +1386,17 @@ void MLOptimiser::initRef()
             fft.fwMT(ref);
             ref.clearRL();
 
+            Volume volRef(_para.size * _para.pf,
+                          _para.size * _para.pf,
+                          1,
+                          FT_SPACE);
+
+            COPY_FT(volRef, ref);
+
             for (int t = 0; t < _para.k; t++)
-                _model.appendRef(Volume(ref.copyImage()).copyVolume());
+            {
+                _model.appendRef(volRef.copyVolume());
+            }
         }
         else if (_para.mode == MODE_3D)
         {
@@ -2840,7 +2849,7 @@ void MLOptimiser::solventFlatten(const bool mask)
                          EDGE_WIDTH_RL,
                          0);
 
-                _model.ref(t) = Volume(ref.copyImage()).copyVolume();
+                COPY_RL(_model.ref(t), ref);
             }
             else if (_para.mode == MODE_3D)
             {
