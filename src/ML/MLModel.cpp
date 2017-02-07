@@ -230,6 +230,10 @@ void MLModel::BcastFSC()
 
     _FSC.resize(_rU * _pf, _k);
 
+    MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _tau";
+
+    _tau.resize(_rU * _pf, _k);
+
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_COMPARE") << "Gathering References from Hemisphere A and Hemisphere B";
@@ -344,6 +348,12 @@ void MLModel::BcastFSC()
                 A[i] = avg;
                 B[i] = avg;
             }
+
+            vec tau(_rU * _pf);
+            Image tmp(_size * _pf, _size * _pf, FT_SPACE);
+            SLC_EXTRACT_RL(tmp, A, 0);
+            powerSpectrum(tau, tmp, _rU * _pf);
+            _tau.col(l) = tau;
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << l

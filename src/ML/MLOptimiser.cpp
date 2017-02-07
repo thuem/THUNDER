@@ -1064,6 +1064,8 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
 
+        saveTau();
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 

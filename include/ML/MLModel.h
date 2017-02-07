@@ -97,7 +97,7 @@ class MLModel : public Parallel
         /**
          * tau^2
          * each column stands for the power spectrum of a certain reference
-         * (_rU * _pf / 2 - 1) x _k
+         * (_rU * _pf - 1) x _k
          */
         mat _tau;
 
