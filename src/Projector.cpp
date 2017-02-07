@@ -98,6 +98,8 @@ void Projector::setProjectee(Image src)
 {
     _projectee2D.swap(src);
 
+    if (_projectee2D.isEmptyFT()) REPORT_ERROR("FOURIER SPACE EMPTY");
+
     _maxRadius = floor(MIN(_projectee2D.nColRL(),
                            _projectee2D.nRowRL()) / _pf / 2 - 1);
 
@@ -111,6 +113,8 @@ void Projector::setProjectee(Image src)
 void Projector::setProjectee(Volume src)
 {
     _projectee3D.swap(src);
+
+    if (_projectee3D.isEmptyFT()) REPORT_ERROR("FOURIER SPACE EMPTY");
 
     _maxRadius = floor(MIN_3(_projectee3D.nColRL(),
                              _projectee3D.nRowRL(),
