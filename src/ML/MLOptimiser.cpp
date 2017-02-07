@@ -1363,6 +1363,9 @@ void MLOptimiser::initRef()
                     ref.setRL(0, i, j);
             }
 
+            fft.fwMT(ref);
+            ref.clearRL();
+
             for (int t = 0; t < _para.k; t++)
                 _model.appendRef(Volume(ref));
         }
@@ -1381,17 +1384,14 @@ void MLOptimiser::initRef()
                     ref.setRL(0, i, j, k);
             }
 
+            fft.fwMT(ref);
+            ref.clearRL();
+
             for (int t = 0; t < _para.k; t++)
                 _model.appendRef(ref.copyVolume());
         }
         else
             REPORT_ERROR("INEXISTENT MODE");
-
-        for (int t = 0; t < _para.k; t++)
-        {
-            fft.fwMT(_model.ref(t));
-            _model.ref(t).clearRL();
-        }
     }
 }
 
