@@ -632,7 +632,7 @@ void MLOptimiser::expectation()
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            ALOG(INFO, "LOGGER_SYS") << "ID = "
+            ILOG(INFO, "LOGGER_SYS") << "ID = "
                                      << _ID[l]
                                      << ", Phase ="
                                      << phase;
