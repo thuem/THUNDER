@@ -1276,6 +1276,8 @@ void MLOptimiser::bcastGroupInfo()
 
 void MLOptimiser::initRef()
 {
+    FFT fft;
+
     if (strcmp(_para.initModel, "") != 0)
     {
         MLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
@@ -1325,7 +1327,6 @@ void MLOptimiser::initRef()
         FOR_EACH_PIXEL_RL(ref)
             if (ref(i) < 0) ref(i) = 0;
 
-        FFT fft;
         for (int t = 0; t < _para.k; t++)
         {
             if (_para.mode == MODE_2D)
@@ -1382,6 +1383,14 @@ void MLOptimiser::initRef()
 
             for (int t = 0; t < _para.k; t++)
                 _model.appendRef(ref.copyVolume());
+        }
+        else
+            REPORT_ERROR("INEXISTENT MODE");
+
+        for (int t = 0; t < _para.k; t++)
+        {
+            fft.fwMT(_model.ref(t));
+            _model.ref(t).clearRL();
         }
     }
 }
