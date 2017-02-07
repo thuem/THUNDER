@@ -516,7 +516,10 @@ void MLOptimiser::expectation()
 
         #pragma omp parallel for
         for (int j = 0; j < (int)_ID.size(); j++)
-            for (int i = 0; i < nSampleMax; i++)
+        {
+            int leaderBoardSize = leaderBoard[j].size();
+
+            for (int i = 0; i < leaderBoardSize; i++)
             {
                 topW(i, j) = leaderBoard[j].top()._w;
 
@@ -526,6 +529,7 @@ void MLOptimiser::expectation()
 
                 leaderBoard[j].pop();
             }
+        }
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
