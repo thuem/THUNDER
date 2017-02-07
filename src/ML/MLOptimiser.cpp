@@ -837,7 +837,7 @@ void MLOptimiser::maximization()
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-    //reconstructRef();
+    reconstructRef();
 }
 
 void MLOptimiser::run()
@@ -2639,13 +2639,13 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
-                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+                                         1.0 / _para.mReco);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot2D,
                                          tran,
-                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+                                         1.0 / _para.mReco);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -2657,13 +2657,13 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot3D,
                                          tran - _offset[l],
-                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+                                         1.0 / _para.mReco);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot3D,
                                          tran,
-                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+                                         1.0 / _para.mReco);
 #endif
             }
             else

@@ -26,8 +26,14 @@ int main(int argc, char* argv[])
 
     std::cout << "Define a head." << std::endl;
 
-    Volume head(N, N, N, RL_SPACE);
+    Volume head(N, N, 1, RL_SPACE);
 
+    SET_1_RL(head);
+
+    FFT fft;
+    fft.fwMT(head);
+
+    /***
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
         double ii = i * 0.8;
@@ -45,6 +51,7 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
+    ***/
 
     /***
     ImageFile imf;
