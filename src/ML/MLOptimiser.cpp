@@ -2616,8 +2616,10 @@ void MLOptimiser::reconstructRef()
     ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
     BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
+    /***
     for (int t = 0; t < _para.k; t++)
         _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
+        ***/
 
     FOR_EACH_2D_IMAGE
     {
@@ -2635,11 +2637,18 @@ void MLOptimiser::reconstructRef()
                 _par[l].rand(cls, rot2D, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+                _model.reco(cls).insert(_imgOri[l],
+                                        _ctf[l],
+                                        rot2D,
+                                        tran - _offset[l],
+                                        1.0 / _para.mReco);
+                /***
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
                                          1.0 / _para.mReco);
+                                         ***/
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],

@@ -702,7 +702,7 @@ void Reconstructor::reconstruct(Volume& dst)
         
         diffCPrev = diffC;
 
-        //diffC = checkC();
+        diffC = checkC();
 
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
