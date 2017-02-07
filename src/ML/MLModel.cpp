@@ -271,6 +271,17 @@ void MLModel::BcastFSC()
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
 
+#ifdef VERBOSE_LEVEL_1
+            MLOG(INFO, "LOGGER_COMPARE") << "Size of Hemisphere A of Reference "
+                                         << l
+                                         << " to be Received: "
+                                         << A.sizeFT();
+            MLOG(INFO, "LOGGER_COMPARE") << "Size of Hemisphere A of Reference "
+                                         << l
+                                         << " to be Received: "
+                                         << B.sizeFT();
+#endif
+
             MPI_Recv_Large(&A[0],
                            A.sizeFT(),
                            MPI_DOUBLE_COMPLEX,
@@ -397,6 +408,17 @@ void MLModel::BcastFSC()
                 BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere B";
+
+#ifdef VERBOSE_LEVEL_1
+                ALOG(INFO, "LOGGER_COMPARE") << "Size of Reference "
+                                             << l
+                                             << " to be Sent: "
+                                             << _ref[l].sizeFT();
+                BLOG(INFO, "LOGGER_COMPARE") << "Size of Reference "
+                                             << l
+                                             << " to be Sent: "
+                                             << _ref[l].sizeFT();
+#endif
 
                 MPI_Ssend_Large(&_ref[l][0],
                                 _ref[l].sizeFT(),
