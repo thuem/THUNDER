@@ -170,29 +170,27 @@ void FFT::bwMT(Image& img)
 
 void FFT::fwMT(Volume& vol)
 {
-    if (vol.nSlcRL() == 1)
-    {
-        CLOG(INFO, "LOGGER_SYS") << "Special";
-
-        Image img(vol.nColRL(), vol.nRowRL(), RL_SPACE);
-
-        SLC_EXTRACT_RL(img, vol, 0);
-
-        fwMT(img);
-
-        vol = Volume(img).copyVolume();
-    }
-
     FW_EXTRACT_P(vol);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
-    fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
-                                  vol.nColRL(),
-                                  vol.nSlcRL(),
-                                  _srcR,
-                                  _dstC,
-                                  FFTW_ESTIMATE);
+    if (vol.nSlcRL() == 1)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Special";
+
+        fwPlan = fftw_plan_dft_r2c_2d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      _srcR,
+                                      _dstC,
+                                      FFTW_ESTIMATE);
+    }
+    else
+        fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      vol.nSlcRL(),
+                                      _srcR,
+                                      _dstC,
+                                      FFTW_ESTIMATE);
 
     fftw_plan_with_nthreads(1);
 
@@ -203,29 +201,27 @@ void FFT::fwMT(Volume& vol)
 
 void FFT::bwMT(Volume& vol)
 {
-    if (vol.nSlcRL() == 1)
-    {
-        CLOG(INFO, "LOGGER_SYS") << "Special";
-
-        Image img(vol.nColRL(), vol.nRowRL(), FT_SPACE);
-
-        SLC_EXTRACT_FT(img, vol, 0);
-
-        bwMT(img);
-
-        vol = Volume(img).copyVolume();
-    }
-
     BW_EXTRACT_P(vol);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 
-    bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
-                                  vol.nColRL(),
-                                  vol.nSlcRL(),
-                                  _srcC,
-                                  _dstR,
-                                  FFTW_ESTIMATE);
+    if (vol.nSlcRL() == 1)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Special";
+
+        bwPlan = fftw_plan_dft_c2r_2d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      _srcC,
+                                      _dstR,
+                                      FFTW_ESTIMATE);
+    }
+    else
+        bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      vol.nSlcRL(),
+                                      _srcC,
+                                      _dstR,
+                                      FFTW_ESTIMATE);
 
     fftw_plan_with_nthreads(1);
 
