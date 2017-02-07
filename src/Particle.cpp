@@ -792,6 +792,16 @@ void Particle::rand(int& cls,
 }
 
 void Particle::rand(int& cls,
+                    mat22& rot,
+                    vec2& tran) const
+{
+    vec4 quat;
+    rand(cls, quat, tran);
+
+    rotate2D(rot, vec2(quat(0), quat(1)));
+}
+
+void Particle::rand(int& cls,
                     mat33& rot,
                     vec2& tran) const
 {

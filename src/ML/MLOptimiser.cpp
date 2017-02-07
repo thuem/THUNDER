@@ -2437,7 +2437,17 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             if (_para.mode == MODE_2D)
             {
-                //TODO
+                _par[l].rank1st(cls, rot2D, tran);
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_SIGMA_MASK
+                _model.proj(cls).project(img, rot2D, tran);
+#else
+                _model.proj(cls).project(img, rot2D, tran - _offset[l]);
+#endif
+#else
+                _model.proj(cls).project(img, rot2D, tran);
+#endif
             }
             else if (_para.mode == MODE_3D)
             {
@@ -2559,44 +2569,48 @@ void MLOptimiser::reconstructRef()
         for (int m = 0; m < _para.mReco; m++)
         {
             int cls;
-            mat33 rot;
+            mat22 rot2D;
+            mat33 rot3D;
             vec2 tran;
 
-            _par[l].rand(cls, rot, tran);
+            if (_para.mode == MODE_2D)
+            {
+                _par[l].rand(cls, rot2D, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-#ifdef OPTIMISER_COMPRESS_WEIGHTING
-            _par[l].calVari();
-            _model.reco(cls).insertP(_imgOri[l],
-                                     _ctf[l],
-                                     rot,
-                                     tran - _offset[l],
-                                     1.0 / (NUM_SAMPLE_POINT_IN_RECONSTRUCTION
-                                          * _par[l].compress()));
+                _model.reco(cls).insertP(_imgOri[l],
+                                         _ctf[l],
+                                         rot2D,
+                                         tran - _offset[l],
+                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #else
-            _model.reco(cls).insertP(_imgOri[l],
-                                     _ctf[l],
-                                     rot,
-                                     tran - _offset[l],
-                                     1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+                _model.reco(cls).insertP(_imgOri[l],
+                                         _ctf[l],
+                                         rot2D,
+                                         tran,
+                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _par[l].rand(cls, rot3D, tran);
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+                _model.reco(cls).insertP(_imgOri[l],
+                                         _ctf[l],
+                                         rot3D,
+                                         tran - _offset[l],
+                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #else
-#ifdef OPTIMISER_COMPRESS_WEIGHTING
-            _par[l].calVari();
-            _model.reco(cls).insertP(_imgOri[l],
-                                     _ctf[l],
-                                     rot,
-                                     tran,
-                                     1.0 / (NUN_SAMPLE_POINT_IN_RECONSTRUCTION
-                                          * _par[l].compress()));
-#else
-            _model.reco(cls).insertP(_imgOri[l],
-                                     _ctf[l],
-                                     rot,
-                                     tran,
-                                     1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
+                _model.reco(cls).insertP(_imgOri[l],
+                                         _ctf[l],
+                                         rot3D,
+                                         tran,
+                                         1.0 / NUM_SAMPLE_POINT_IN_RECONSTRUCTION);
 #endif
-#endif
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
         }
     }
 

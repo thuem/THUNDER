@@ -661,6 +661,10 @@ class Particle
                   vec4& quat,
                   vec2& tran) const;
 
+        void rand(int& cls,
+                  mat22& rot,
+                  vec2& tran) const;
+
         /**
          * This function randomly reports a coordinate by parameters.
          *
