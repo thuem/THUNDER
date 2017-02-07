@@ -416,9 +416,11 @@ void Particle::calVari()
     _rho = 0;
 
     if (_mode == MODE_2D)
+        inferVMS(_k, _r);
+    else if (_mode == MODE_3D)
         inferACG(_k0, _k1, _r);
     else
-        inferVMS(_k, _r);
+        REPORT_ERROR("INEXISTENT MODE");
 }
 
 void Particle::perturb(const double pf)
