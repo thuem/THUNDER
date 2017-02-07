@@ -1270,8 +1270,17 @@ void MLOptimiser::initRef()
         FFT fft;
         for (int t = 0; t < _para.k; t++)
         {
-            _model.appendRef(Volume());
-            VOL_PAD_RL(_model.ref(t), ref, _para.pf);
+            if (_para.mode == MODE_2D)
+            {
+                //TODO
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _model.appendRef(Volume());
+                VOL_PAD_RL(_model.ref(t), ref, _para.pf);
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
 
             fft.fwMT(_model.ref(t));
             _model.ref(t).clearRL();
