@@ -284,6 +284,7 @@ void MLModel::BcastFSC()
                            MPI_COMM_WORLD);
 
             vec fsc(_rU * _pf);
+
             if (_mode == MODE_2D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;

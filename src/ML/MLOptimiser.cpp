@@ -2820,7 +2820,7 @@ void MLOptimiser::solventFlatten(const bool mask)
                          EDGE_WIDTH_RL,
                          0);
 
-                _model.ref(t) = Volume(ref);
+                _model.ref(t) = Volume(ref.copyImage()).copyVolume();
             }
             else if (_para.mode == MODE_3D)
             {
