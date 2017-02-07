@@ -11,8 +11,6 @@
 #ifndef ML_OPTIMISER_H
 #define ML_OPTIMISER_H
 
-#define DYNAMIC_NUM_SAMPLE
-
 #include <cstdlib>
 #include <sstream>
 #include <string>

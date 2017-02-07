@@ -363,7 +363,7 @@ void MLOptimiser::expectation()
     else
         REPORT_ERROR("INEXISTENT MODE");
 
-#ifdef DYNAMIC_NUM_SAMPLE
+#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
     int nSampleWholeSpace = 0;
 
     int nSampleMin = _para.mL;
@@ -391,7 +391,7 @@ void MLOptimiser::expectation()
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * TRANS_SEARCH_FACTOR));
 
-#ifdef DYNAMIC_NUM_SAMPLE
+#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
         nSampleWholeSpace = _para.k * _para.mS * nT;
 #endif
 
@@ -581,7 +581,7 @@ void MLOptimiser::expectation()
             _par[l].resample();
         }
 
-#ifdef DYNAMIC_NUM_SAMPLE
+#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
 
 #ifdef VERBOSE_LEVEL_1
         ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
@@ -724,7 +724,7 @@ void MLOptimiser::expectation()
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-#ifdef DYNAMIC_NUM_SAMPLE
+#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
                 if (l == 0)
                 {
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
