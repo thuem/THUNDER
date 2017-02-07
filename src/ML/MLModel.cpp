@@ -317,7 +317,7 @@ void MLModel::BcastFSC()
 
                 FRC(fsc, A, B, 0);
 
-                _FSC.col(1) = fsc;
+                _FSC.col(l) = fsc;
             }
             else if (_mode == MODE_3D)
             {

@@ -236,9 +236,11 @@ void FRC(vec& dst,
             }
         }
 
+    /***
     std::cout << "vecS = " << vecS << std::endl;
     std::cout << "vecA = " << vecA << std::endl;
     std::cout << "vecB = " << vecB << std::endl;
+    ***/
 
     for (int i = 0; i < dst.size(); i++)
     {
