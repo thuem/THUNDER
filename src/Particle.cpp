@@ -693,6 +693,14 @@ void Particle::rank1st(vec4& quat) const
     quat = _topR;
 }
 
+void Particle::rank1st(mat22& rot) const
+{
+    vec4 quat;
+    rank1st(quat);
+
+    rotate2D(rot, vec2(quat(0), quat(1)));
+}
+
 void Particle::rank1st(mat33& rot) const
 {
     vec4 quat;
@@ -713,6 +721,16 @@ void Particle::rank1st(int& cls,
     cls = _topC;
     quat = _topR;
     tran = _topT;
+}
+
+void Particle::rank1st(int& cls,
+                       mat22& rot,
+                       vec2& tran) const
+{
+    vec4 quat;
+    rank1st(cls, quat, tran);
+
+    rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
 void Particle::rank1st(int& cls,

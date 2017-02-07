@@ -611,6 +611,8 @@ class Particle
         
         void rank1st(vec4& quat) const;
 
+        void rank1st(mat22& rot) const;
+
         void rank1st(mat33& rot) const;
 
         void rank1st(vec2& tran) const;
@@ -624,6 +626,10 @@ class Particle
          */
         void rank1st(int& cls,
                      vec4& quat,
+                     vec2& tran) const;
+
+        void rank1st(int& cls,
+                     mat22& rot,
                      vec2& tran) const;
 
         /**

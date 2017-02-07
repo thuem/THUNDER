@@ -2415,7 +2415,8 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     int cls;
 
-    mat33 rot;
+    mat22 rot2D;
+    mat33 rot3D;
 
     vec2 tran;
 
@@ -2425,7 +2426,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     for (int l = 0; l < _nGroup; l++)
         omp_init_lock(&mtx[l]);
 
-    #pragma omp parallel for private(rot, tran) schedule(dynamic)
+    #pragma omp parallel for private(rot2D, rot3D, tran) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         if (_switch[l])
@@ -2434,17 +2435,24 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             vec sig(_r);
 
-            _par[l].rank1st(cls, rot, tran);
+            if (_para.mode == MODE_2D)
+            {
+                //TODO
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _par[l].rank1st(cls, rot3D, tran);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SIGMA_MASK
-            _model.proj(cls).project(img, rot, tran);
+                _model.proj(cls).project(img, rot3D, tran);
 #else
-            _model.proj(cls).project(img, rot, tran - _offset[l]);
+                _model.proj(cls).project(img, rot3D, tran - _offset[l]);
 #endif
 #else
-            _model.proj(cls).project(img, rot, tran);
+                _model.proj(cls).project(img, rot3D, tran);
 #endif
+            }
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
