@@ -410,7 +410,6 @@ void Reconstructor::insertP(const Image& src,
     Image transSrc(_size, _size, FT_SPACE);
     translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
-    /***
         #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
@@ -455,7 +454,6 @@ void Reconstructor::insertP(const Image& src,
 
 #endif
         }
-        ***/
 }
 
 void Reconstructor::insertP(const Image& src,
@@ -704,7 +702,7 @@ void Reconstructor::reconstruct(Volume& dst)
         
         diffCPrev = diffC;
 
-        //diffC = checkC();
+        diffC = checkC();
 
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
