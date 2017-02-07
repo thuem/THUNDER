@@ -1367,7 +1367,7 @@ void MLOptimiser::initRef()
             ref.clearRL();
 
             for (int t = 0; t < _para.k; t++)
-                _model.appendRef(Volume(ref.copyVolume()).copyVolume());
+                _model.appendRef(Volume(ref.copyImage()).copyVolume());
         }
         else if (_para.mode == MODE_3D)
         {
