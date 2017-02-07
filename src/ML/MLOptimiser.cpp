@@ -1218,41 +1218,70 @@ void MLOptimiser::bcastGroupInfo()
 
 void MLOptimiser::initRef()
 {
-    MLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
-
-    Volume ref;
-
-    ImageFile imf(_para.initModel, "rb");
-    imf.readMetaData();
-    imf.readVolume(ref);
-
-    if ((ref.nColRL() != _para.size) ||
-        (ref.nRowRL() != _para.size) ||
-        (ref.nSlcRL() != _para.size))
+    if (strcmp(_para.initModel, "") != 0)
     {
-        CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
-                                  << ": size = " << _para.size
-                                  << ", nCol = " << ref.nColRL()
-                                  << ", nRow = " << ref.nRowRL()
-                                  << ", nSlc = " << ref.nSlcRL();
+        MLOG(INFO, "LOGGER_INIT") << "Read Initial Model from Hard-disk";
 
-        abort();
-    }
+        Volume ref;
+
+        ImageFile imf(_para.initModel, "rb");
+        imf.readMetaData();
+        imf.readVolume(ref);
+
+        if (_para.mode == MODE_2D)
+        {
+            if ((ref.nColRL() != _para.size) ||
+                (ref.nRowRL() != _para.size) ||
+                (ref.nSlcRL() != 1))
+            {
+                CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
+                                          << ": size = " << _para.size
+                                          << ", nCol = " << ref.nColRL()
+                                          << ", nRow = " << ref.nRowRL()
+                                          << ", nSlc = " << ref.nSlcRL();
+
+                abort();
+            }
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            if ((ref.nColRL() != _para.size) ||
+                (ref.nRowRL() != _para.size) ||
+                (ref.nSlcRL() != _para.size))
+            {
+                CLOG(FATAL, "LOGGER_SYS") << "Incorrect Size of Appending Reference"
+                                          << ": size = " << _para.size
+                                          << ", nCol = " << ref.nColRL()
+                                          << ", nRow = " << ref.nRowRL()
+                                          << ", nSlc = " << ref.nSlcRL();
+ 
+                abort();
+            }
+        }
+        else
+            REPORT_ERROR("INEXISTENT MODE");
     
-    MLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
+        MLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
 
-    #pragma omp parallel for
-    FOR_EACH_PIXEL_RL(ref)
-        if (ref(i) < 0) ref(i) = 0;
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_RL(ref)
+            if (ref(i) < 0) ref(i) = 0;
 
-    FFT fft;
-    for (int t = 0; t < _para.k; t++)
+        FFT fft;
+        for (int t = 0; t < _para.k; t++)
+        {
+            _model.appendRef(Volume());
+            VOL_PAD_RL(_model.ref(t), ref, _para.pf);
+
+            fft.fwMT(_model.ref(t));
+            _model.ref(t).clearRL();
+        }
+    }
+    else
     {
-        _model.appendRef(Volume());
-        VOL_PAD_RL(_model.ref(t), ref, _para.pf);
+        MLOG(INFO, "LOGGER_INIT") << "Initial Model is not Provided";
 
-        fft.fwMT(_model.ref(t));
-        _model.ref(t).clearRL();
+        // TODO
     }
 }
 
