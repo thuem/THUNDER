@@ -103,6 +103,8 @@ int main(int argc, char* argv[])
 
     reconstructor.setMPIEnv();
 
+    reconstructor.setMaxRadius(13);
+
     if (commRank != MASTER_ID)
     {
         printf("Projection and Insertion\n");

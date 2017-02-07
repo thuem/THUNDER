@@ -28,7 +28,7 @@ int main()
 
     gsl_rng* engine = get_random_engine();
 
-    gsl_ran_dir_3d(engine, &x, &y, &z);
+    //gsl_ran_dir_3d(engine, &x, &y, &z);
 
     cout << x << ", " << y << ", " << z << endl;
 
