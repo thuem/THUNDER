@@ -181,7 +181,7 @@ class Volume : public ImageBase
                                             _nSlc(that._nSlc)
         {
             that._nCol = 0;
-            thta._nRow = 0;
+            that._nRow = 0;
             that._nSlc = 0;
         }
 
