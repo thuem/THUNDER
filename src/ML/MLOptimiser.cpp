@@ -351,7 +351,17 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    int nSampleMax = _para.k * _para.mG / (1 + _sym.nSymmetryElement());
+    int nSampleMax;
+    if (_para.mode == MODE_2D)
+    {
+        nSampleMax = _para.k * _para.mG;
+    }
+    else if (_para.mode == MODE_3D)
+    {
+        nSampleMax = _para.k * _para.mG / (1 + _sym.nSymmetryElement());
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
 
 #ifdef DYNAMIC_NUM_SAMPLE
     int nSampleWholeSpace = 0;
@@ -363,7 +373,17 @@ void MLOptimiser::expectation()
     {
         // initialse a particle filter
 
-        int nR = _para.mS / (1 + _sym.nSymmetryElement());
+        int nR;
+        if (_para.mode == MODE_2D)
+        { 
+            nR = _para.mS / (1 + _sym.nSymmetryElement());
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            nR = _para.mS;
+        }
+        else
+            REPORT_ERROR("INEXISTENT MODE");
 
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
@@ -376,10 +396,11 @@ void MLOptimiser::expectation()
 #endif
 
         Particle par;
-        par.init(_para.transS, TRANS_Q, &_sym);
+        par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
         par.reset(_para.k, nR, nT);
 
-        mat33 rot;
+        mat22 rot2D;
+        mat33 rot3D;
         vec2 t;
 
         // generate "translations"
@@ -409,7 +430,7 @@ void MLOptimiser::expectation()
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
-            #pragma omp parallel for schedule(dynamic) private(rot)
+            #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (unsigned int m = 0; m < (unsigned int)nR; m++)
             {
                 Image imgRot(size(), size(), FT_SPACE);
@@ -417,9 +438,9 @@ void MLOptimiser::expectation()
 
                 // perform projection
 
-                par.rot(rot, t * nR * nT + m * nT);
+                par.rot(rot3D, t * nR * nT + m * nT);
 
-                _model.proj(t).project(imgRot, rot, _iCol, _iRow, _iPxl, _nPxl);
+                _model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
@@ -1290,7 +1311,41 @@ void MLOptimiser::initRef()
     {
         MLOG(INFO, "LOGGER_INIT") << "Initial Model is not Provided";
 
-        // TODO
+        if (_para.mode == MODE_2D)
+        {
+            Image ref(_para.size * _para.pf,
+                      _para.size * _para.pf,
+                      RL_SPACE);
+
+            IMAGE_FOR_EACH_PIXEL_RL(ref)
+            {
+                if (NORM(i, j) < _para.maskRadius / _para.pixelSize)
+                    ref.setRL(1, i, j);
+                else
+                    ref.setRL(0, i, j);
+            }
+
+            for (int t = 0; t < _para.k; t++)
+                _model.appendRef(Volume(ref));
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            Volume ref(_para.size * _para.pf,
+                       _para.size * _para.pf,
+                       _para.size * _para.pf,
+                       RL_SPACE);
+
+            VOLUME_FOR_EACH_PIXEL_RL(ref)
+            {
+                if (NORM_3(i, j, k) < _para.maskRadius / _para.pixelSize)
+                    ref.setRL(1, i, j, k);
+                else
+                    ref.setRL(0, i, j, k);
+            }
+
+            for (int t = 0; t < _para.k; t++)
+                _model.appendRef(ref.copyVolume());
+        }
     }
 }
 
@@ -1863,7 +1918,8 @@ void MLOptimiser::initParticles()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].init(_para.transS,
+        _par[l].init(_para.mode,
+                     _para.transS,
                      TRANS_Q,
                      &_sym);
 }

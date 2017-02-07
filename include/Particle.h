@@ -208,7 +208,8 @@ class Particle
          * @param transQ the re-center threshold of translation
          * @param sym    symmetry of resampling space
          */
-        Particle(const int n,
+        Particle(const int mode,
+                 const int n,
                  const int k,
                  const double transS,
                  const double transQ = 0.01,
@@ -226,7 +227,8 @@ class Particle
          * @param transQ the re-center threshold of translation
          * @param sym    symmetry of resampling space
          */
-        void init(const double transS,
+        void init(const int mode,
+                  const double transS,
                   const double transQ = 0.01,
                   const Symmetry* sym = NULL);
 
@@ -238,7 +240,8 @@ class Particle
          * @param transQ the re-center threshold of translation
          * @param sym    symmetry of resampling space
          */
-        void init(const int n,
+        void init(const int mode,
+                  const int n,
                   const int k,
                   const double transS,
                   const double transQ = 0.01,

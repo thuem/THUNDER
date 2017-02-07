@@ -13,7 +13,8 @@ Particle::Particle()
     defaultInit();
 }
 
-Particle::Particle(const int m,
+Particle::Particle(const int mode,
+                   const int m,
                    const int n,
                    const double transS,
                    const double transQ,
@@ -21,7 +22,7 @@ Particle::Particle(const int m,
 {
     defaultInit();
 
-    init(m, n, transS, transQ, sym);
+    init(mode, m, n, transS, transQ, sym);
 }
 
 Particle::~Particle()
@@ -29,11 +30,14 @@ Particle::~Particle()
     clear();
 }
 
-void Particle::init(const double transS,
+void Particle::init(const int mode,
+                    const double transS,
                     const double transQ,
                     const Symmetry* sym)
 {
     clear();
+
+    _mode = mode;
 
     _transS = transS;
     _transQ = transQ;
@@ -41,13 +45,14 @@ void Particle::init(const double transS,
     _sym = sym;
 }
 
-void Particle::init(const int m,
+void Particle::init(const int mode,
+                    const int m,
                     const int n,
                     const double transS,
                     const double transQ,
                     const Symmetry* sym)
 {
-    init(transS, transQ, sym);
+    init(mode, transS, transQ, sym);
 
     _m = m;
 
