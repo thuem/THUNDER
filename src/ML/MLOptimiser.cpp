@@ -939,8 +939,20 @@ void MLOptimiser::run()
                                        << "\% Percentage of Images Belonging to Class "
                                        << t;
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class Determined";
+#endif
+
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
 
@@ -958,6 +970,12 @@ void MLOptimiser::run()
                                    << _model.stdTVariS0()
                                    << ", "
                                    << _model.stdTVariS1();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Variance of Rotation and Translation Calculated";
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
         refreshRotationChange();
