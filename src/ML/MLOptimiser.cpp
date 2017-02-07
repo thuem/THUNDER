@@ -2952,7 +2952,8 @@ void MLOptimiser::saveBestProjections()
     char filename[FILE_NAME_LENGTH];
 
     int cls;
-    mat33 rot;
+    mat22 rot2D;
+    mat33 rot3D;
     vec2 tran;
 
     FOR_EACH_2D_IMAGE
@@ -2965,9 +2966,20 @@ void MLOptimiser::saveBestProjections()
             #pragma omp parallel for
             SET_0_FT(diff);
 
-            _par[l].rank1st(cls, rot, tran);
+            if (_para.mode == MODE_2D)
+            {
+                _par[l].rank1st(cls, rot2D, tran);
 
-            _model.proj(cls).projectMT(result, rot, tran);
+                _model.proj(cls).projectMT(result, rot2D, tran);
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _par[l].rank1st(cls, rot3D, tran);
+
+                _model.proj(cls).projectMT(result, rot3D, tran);
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
 
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(diff)
