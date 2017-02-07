@@ -294,7 +294,7 @@ void MLModel::BcastFSC()
                 SLC_EXTRACT_FT(tmpA, A, 0);
                 SLC_EXTRACT_FT(tmpB, B, 0);
 
-                FRC(fsc, tmpA, tmpB);
+                //FRC(fsc, tmpA, tmpB);
 
                 _FSC.col(1) = fsc;
             }
