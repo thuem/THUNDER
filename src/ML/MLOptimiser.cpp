@@ -1034,7 +1034,7 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-        saveReference();
+        //saveReference(); // TODO
 
         /***
         ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
@@ -3038,7 +3038,6 @@ void MLOptimiser::saveReference(const bool finished)
                        _para.size * _para.pf,
                        _para.size * _para.pf,
                        FT_SPACE);
-
 
         if (finished)
             fft.bwMT(_model.ref(t));
