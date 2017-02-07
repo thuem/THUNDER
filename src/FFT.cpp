@@ -178,7 +178,7 @@ void FFT::fwMT(Volume& vol)
 
         fwMT(img);
 
-        vol = Volume(img);
+        vol = Volume(img.copyImage());
     }
 
     FW_EXTRACT_P(vol);
@@ -209,7 +209,7 @@ void FFT::bwMT(Volume& vol)
 
         bwMT(img);
 
-        vol = Volume(img);
+        vol = Volume(img.copyImage());
     }
 
     BW_EXTRACT_P(vol);
