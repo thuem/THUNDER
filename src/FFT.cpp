@@ -172,6 +172,8 @@ void FFT::fwMT(Volume& vol)
 {
     if (vol.nSlcRL() == 1)
     {
+        CLOG(INFO, "LOGGER_SYS") << "Special";
+
         Image img(vol.nColRL(), vol.nRowRL(), RL_SPACE);
 
         SLC_EXTRACT_RL(img, vol, 0);
@@ -203,6 +205,8 @@ void FFT::bwMT(Volume& vol)
 {
     if (vol.nSlcRL() == 1)
     {
+        CLOG(INFO, "LOGGER_SYS") << "Special";
+
         Image img(vol.nColRL(), vol.nRowRL(), FT_SPACE);
 
         SLC_EXTRACT_FT(img, vol, 0);
