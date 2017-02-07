@@ -575,12 +575,19 @@ void MLModel::refreshProj()
     {
         if (_mode == MODE_2D)
         {
+            _proj[l].setMode(MODE_2D);
+
             Image tmp(_size * _pf, _size * _pf, FT_SPACE);
             SLC_EXTRACT_FT(tmp, _ref[l], 0);
+
             _proj[l].setProjectee(tmp.copyImage());
         }
         else if (_mode == MODE_3D)
+        {
+            _proj[l].setMode(MODE_3D);
+
             _proj[l].setProjectee(_ref[l].copyVolume());
+        }
         else
             REPORT_ERROR("INEXISTENT MODE");
 
