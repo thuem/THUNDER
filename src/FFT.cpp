@@ -68,22 +68,27 @@ void FFT::bw(Image& img)
 
 void FFT::fw(Volume& vol)
 {
-    /***
-    vol.alloc(FT_SPACE);
-    _dstC = (fftw_complex*)&vol[0];
-    _srcR = &vol(0);
-
-    CHECK_SPACE_VALID(_dstC, _srcR);
-    ***/
     FW_EXTRACT_P(vol);
 
-    #pragma omp critical
-    fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
-                                  vol.nColRL(),
-                                  vol.nSlcRL(),
-                                  _srcR,
-                                  _dstC,
-                                  FFTW_ESTIMATE);
+    if (vol.nSlcRL() == 1)
+    {
+        #pragma omp critical
+        fwPlan = fftw_plan_dft_r2c_2d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      _srcR,
+                                      _dstC,
+                                      FFTW_ESTIMATE);
+    }
+    else
+    {
+        #pragma omp critical
+        fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      vol.nSlcRL(),
+                                      _srcR,
+                                      _dstC,
+                                      FFTW_ESTIMATE);
+    }
 
     fftw_execute(fwPlan);
 
@@ -92,21 +97,27 @@ void FFT::fw(Volume& vol)
 
 void FFT::bw(Volume& vol)
 {
-    /***
-    vol.alloc(RL_SPACE);
-    _dstR = &vol(0);
-    _srcC = (fftw_complex*)&vol[0];
-    CHECK_SPACE_VALID(_dstR, _srcC);
-    ***/
     BW_EXTRACT_P(vol);
 
-    #pragma omp critical
-    bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
-                                  vol.nColRL(),
-                                  vol.nSlcRL(),
-                                  _srcC,
-                                  _dstR,
-                                  FFTW_ESTIMATE);
+    if (vol.nSlcRL() == 1)
+    {
+        #pragma omp critical
+        fwPlan = fftw_plan_dft_r2c_2d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      _srcR,
+                                      _dstC,
+                                      FFTW_ESTIMATE);
+    }
+    else
+    {
+        #pragma omp critical
+        bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
+                                      vol.nColRL(),
+                                      vol.nSlcRL(),
+                                      _srcC,
+                                      _dstR,
+                                      FFTW_ESTIMATE);
+    }
 
     fftw_execute(bwPlan);
 
@@ -175,15 +186,11 @@ void FFT::fwMT(Volume& vol)
     fftw_plan_with_nthreads(omp_get_max_threads());
 
     if (vol.nSlcRL() == 1)
-    {
-        CLOG(INFO, "LOGGER_SYS") << "Special";
-
         fwPlan = fftw_plan_dft_r2c_2d(vol.nRowRL(),
                                       vol.nColRL(),
                                       _srcR,
                                       _dstC,
                                       FFTW_ESTIMATE);
-    }
     else
         fwPlan = fftw_plan_dft_r2c_3d(vol.nRowRL(),
                                       vol.nColRL(),
@@ -206,15 +213,11 @@ void FFT::bwMT(Volume& vol)
     fftw_plan_with_nthreads(omp_get_max_threads());
 
     if (vol.nSlcRL() == 1)
-    {
-        CLOG(INFO, "LOGGER_SYS") << "Special";
-
         bwPlan = fftw_plan_dft_c2r_2d(vol.nRowRL(),
                                       vol.nColRL(),
                                       _srcC,
                                       _dstR,
                                       FFTW_ESTIMATE);
-    }
     else
         bwPlan = fftw_plan_dft_c2r_3d(vol.nRowRL(),
                                       vol.nColRL(),
