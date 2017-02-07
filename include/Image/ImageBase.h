@@ -127,7 +127,7 @@
         (a)(i) = b(i)
 
 #define COPY_FT(a, b) \
-    FOR_EACH_PIXEL_RL(a) \
+    FOR_EACH_PIXEL_FT(a) \
         (a)[i] = b[i]
 
 /**
