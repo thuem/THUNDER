@@ -757,23 +757,6 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
-    /***
-#ifdef RECONSTRUCTOR_ZERO_MASK
-    softMask(dst,
-             dst,
-             0.5 * _size - EDGE_W3DIDTH_RL,
-             EDGE_W3DIDTH_RL,
-             0);
-#else
-    regionBgSoftMask(dst,
-                     dst,
-                     0.5 * _size - EDGE_W3DIDTH_RL,
-                     EDGE_W3DIDTH_RL,
-                     0.5 * _size,
-                     0.5 * _size - EDGE_W3DIDTH_RL);
-#endif
-    ***/
-
     if (_mode == MODE_2D)
         _fft.bwExecutePlan(_F2D);
     else if (_mode == MODE_3D)

@@ -2654,29 +2654,39 @@ void MLOptimiser::solventFlatten(const bool mask)
             ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
             BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
-#ifdef OPTIMISER_REFERENCE_ZERO_MASK
             softMask(_model.ref(t), _model.ref(t), _mask, 0);
-#else
-            softMask(_model.ref(t), _model.ref(t), _mask);
-#endif
         }
         else
         {
             ALOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten of Reference " << t;
             BLOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten of Reference " << t;
 
-#ifdef OPTIMISER_REFERENCE_ZERO_MASK
-            softMask(_model.ref(t),
-                     _model.ref(t),
-                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
-                     EDGE_WIDTH_RL,
-                     0);
-#else
-            softMask(_model.ref(0),
-                     _model.ref(0),
-                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
-                     EDGE_WIDTH_RL);
-#endif
+            if (_para.mode == MODE_2D)
+            {
+                Image ref(_para.size * _para.pf,
+                          _para.size * _para.pf,
+                          RL_SPACE);
+
+                SLC_EXTRACT_RL(ref, _model.ref(t), 0);
+
+                softMask(ref,
+                         ref, 
+                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                         EDGE_WIDTH_RL,
+                         0);
+
+                _model.ref(t) = Volume(ref);
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                softMask(_model.ref(t),
+                         _model.ref(t),
+                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                         EDGE_WIDTH_RL,
+                         0);
+            }
+            else
+                REPORT_ERROR("INEXISTENT MODE");
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
