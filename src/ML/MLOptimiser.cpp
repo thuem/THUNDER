@@ -597,13 +597,15 @@ void MLOptimiser::expectation()
                                            << _par[0].compress();
                 ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                            << AROUND(nSampleWholeSpace
-                                                   * sqrt(_par[0].compress()));
+                                                   * sqrt(GSL_MIN_DBL(1,
+                                                                      _par[0].compress())));
             }
 
             _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                            GSL_MIN_INT(nSampleMax,
                                                        AROUND(nSampleWholeSpace
-                                                            * sqrt(_par[l].compress())))));
+                                                            * sqrt(GSL_MIN_DBL(1,
+                                                                               _par[l].compress()))))));
         }
 #endif
 
@@ -731,12 +733,14 @@ void MLOptimiser::expectation()
                                                << _par[0].compress();
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                                << AROUND(nSampleWholeSpace
-                                                       * sqrt(_par[0].compress()));
+                                                       * sqrt(GSL_MIN_DBL(1,
+                                                                          _par[0].compress())));
                 }
                 _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
-                                                                * sqrt(_par[l].compress())))));
+                                                                * sqrt(GSL_MIN_DBL(1,
+                                                                                   _par[l].compress()))))));
 #else
                 _par[l].resample();
 #endif
