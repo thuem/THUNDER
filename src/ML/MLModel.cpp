@@ -298,7 +298,7 @@ void MLModel::BcastFSC()
                 FRC(fsc, tmpA, tmpB);
                 ***/
 
-                FRC(fsc, A, B, 0);
+                //FRC(fsc, A, B, 0);
 
                 _FSC.col(1) = fsc;
             }
