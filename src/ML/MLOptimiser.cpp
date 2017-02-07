@@ -2756,7 +2756,7 @@ void MLOptimiser::reconstructRef()
         if (_mode == MODE_2D)
         {
             Image tmp(_para.size * _para.pf,
-                      _para.size * _Para.pf,
+                      _para.size * _para.pf,
                       RL_SPACE);
 
             SLC_EXTRACT_RL(tmp, _model.ref(t), 0);
