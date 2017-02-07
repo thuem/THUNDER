@@ -170,12 +170,17 @@ void FFT::bwMT(Image& img)
 
 void FFT::fwMT(Volume& vol)
 {
-    /***
-    vol.alloc(FT_SPACE);
-    _dstC = (fftw_complex*)&vol[0];
-    _srcR = &vol(0);
-    CHECK_SPACE_VALID(_dstC, _srcR);
-    ***/
+    if (vol.nSlcRL() == 1)
+    {
+        Image img(vol.nColRL(), vol.nRowRL(), RL_SPACE);
+
+        SLC_EXTRACT_RL(img, vol, 0);
+
+        fwMT(img);
+
+        vol = Volume(img);
+    }
+
     FW_EXTRACT_P(vol);
 
     fftw_plan_with_nthreads(omp_get_max_threads());
@@ -196,12 +201,17 @@ void FFT::fwMT(Volume& vol)
 
 void FFT::bwMT(Volume& vol)
 {
-    /****
-    vol.alloc(RL_SPACE);
-    _dstR = &vol(0);
-    _srcC = (fftw_complex*)&vol[0];
-    CHECK_SPACE_VALID(_dstR, _srcC);
-    ***/
+    if (vol.nSlcRL() == 1)
+    {
+        Image img(vol.nColRL(), vol.nRowRL(), FT_SPACE);
+
+        SLC_EXTRACT_FT(img, vol, 0);
+
+        bwMT(img);
+
+        vol = Volume(img);
+    }
+
     BW_EXTRACT_P(vol);
 
     fftw_plan_with_nthreads(omp_get_max_threads());

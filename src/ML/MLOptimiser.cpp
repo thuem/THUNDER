@@ -2753,6 +2753,7 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
 
+        /***
         if (_para.mode == MODE_2D)
         {
             Image tmp(_para.size * _para.pf,
@@ -2769,6 +2770,10 @@ void MLOptimiser::reconstructRef()
             fft.fwMT(_model.ref(t));
             _model.ref(t).clearRL();
         }
+        ***/
+
+        fft.fwMT(_model.ref(t));
+        _model.ref(t).clearRL();
 
 #ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";

@@ -21,6 +21,7 @@
 
 #include "Image.h"
 #include "Volume.h"
+#include "ImageFunctions.h"
 
 /**
  * This macro checks whether the source and destination of Fourier transform are
