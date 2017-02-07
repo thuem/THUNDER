@@ -438,9 +438,20 @@ void MLOptimiser::expectation()
 
                 // perform projection
 
-                par.rot(rot3D, t * nR * nT + m * nT);
+                if (_para.mode == MODE_2D)
+                {
+                    par.rot(rot2D, t * nR * nT + m * nT);
 
-                _model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
+                    _model.proj(t).project(imgRot, rot2D, _iCol, _iRow, _iPxl, _nPxl);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    par.rot(rot3D, t * nR * nT + m * nT);
+
+                    _model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
@@ -633,23 +644,49 @@ void MLOptimiser::expectation()
             vec logW(_par[l].n());
 
             int c;
-            mat33 rot;
+            mat22 rot2D;
+            mat33 rot3D;
             vec2 t;
 
             for (int m = 0; m < _par[l].n(); m++)
             {
                 _par[l].c(c, m);
-                _par[l].rot(rot, m);
+
+                if (_para.mode == MODE_2D)
+                {
+                    _par[l].rot(rot2D, m);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _par[l].rot(rot3D, m);
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
+
                 _par[l].t(t, m);
 
-                _model.proj(c).project(priP,
-                                       rot,
-                                       t,
-                                       _para.size,
-                                       _para.size,
-                                       _iCol,
-                                       _iRow,
-                                       _nPxl);
+                if (_para.mode == MODE_2D)
+                {
+                    _model.proj(c).project(priP,
+                                           rot2D,
+                                           t,
+                                           _para.size,
+                                           _para.size,
+                                           _iCol,
+                                           _iRow,
+                                           _nPxl);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _model.proj(c).project(priP,
+                                           rot3D,
+                                           t,
+                                           _para.size,
+                                           _para.size,
+                                           _iCol,
+                                           _iRow,
+                                           _nPxl);
+                }
 
                 logW(m) = logDataVSPrior(_datP + l * _nPxl,
                                          priP,
