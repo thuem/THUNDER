@@ -2748,8 +2748,18 @@ void MLOptimiser::reconstructRef()
     FFT fft;
     for (int t = 0; t < _para.k; t++)
     {
+#ifdef VERBOSE_LEVEL_2
+        ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+#endif
+
         fft.fwMT(_model.ref(t));
         _model.ref(t).clearRL();
+
+#ifdef VERBOSE_LEVEL_2
+        ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+        BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
     }
 }
 

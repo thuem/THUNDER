@@ -28,10 +28,11 @@ int main(int argc, char* argv[])
 
     Volume head(N, N, 1, RL_SPACE);
 
-    SET_1_RL(head);
+    SET_0_RL(head);
 
     FFT fft;
     fft.fwMT(head);
+    fft.bwMT(head);
 
     /***
     VOLUME_FOR_EACH_PIXEL_RL(head)
