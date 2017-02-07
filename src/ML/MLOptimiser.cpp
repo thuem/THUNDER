@@ -2171,7 +2171,7 @@ void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
     if (init)
-        _rS = 3;
+        _rS = 1;
     else if (_iter == 0)
         CLOG(FATAL, "LOGGER_SYS") << "Intensity Scale Can Not be Correct in First Iteration";
     else
@@ -3164,7 +3164,7 @@ void MLOptimiser::saveReference(const bool finished)
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "Reference_%03d_A_Final.bmp", t);
+                sprintf(filename, "Reference_%03d_A_%03d.bmp", t, _iter);
                 ref.saveRLToBMP(filename);
             }
             else if (_commRank == HEMI_B_LEAD)
@@ -3179,7 +3179,7 @@ void MLOptimiser::saveReference(const bool finished)
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "Reference_%03d_B_Final.bmp", t);
+                sprintf(filename, "Reference_%03d_B_%03d.bmp", t, _iter);
                 ref.saveRLToBMP(filename);
             }
         }
