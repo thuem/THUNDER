@@ -829,7 +829,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
-        dst.swap(Volume(_F2D.copyImage()));
+        dst = Volume(_F2D.copyImage()).copyVolume();
 
         _fft.fwExecutePlanMT(_F2D);
         _F2D.clearRL();
