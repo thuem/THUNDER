@@ -360,11 +360,13 @@ void MLModel::BcastFSC()
                 B[i] = avg;
             }
 
+            /***
             vec tau(_rU * _pf);
             Image tmp(_size * _pf, _size * _pf, FT_SPACE);
             SLC_EXTRACT_FT(tmp, A, 0);
             powerSpectrum(tau, tmp, _rU * _pf);
             _tau.col(l) = tau;
+            ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << l
