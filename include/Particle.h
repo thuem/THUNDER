@@ -209,8 +209,8 @@ class Particle
          * @param sym    symmetry of resampling space
          */
         Particle(const int mode,
+                 const int m,
                  const int n,
-                 const int k,
                  const double transS,
                  const double transQ = 0.01,
                  const Symmetry* sym = NULL);
@@ -718,7 +718,7 @@ class Particle
  *
  * @param particle the particle filter
  */
-void display(const Particle& particle);
+void display(const Particle& par);
 
 /**
  * This function save this particle filter to a file.

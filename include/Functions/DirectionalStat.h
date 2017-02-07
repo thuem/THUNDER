@@ -143,8 +143,14 @@ void inferVMS(vec2& mu,
               double& kappa,
               const mat2& src);
 
+void inferVMS(double& kappa,
+              const mat2& src);
+
 void inferVMS(vec4& mu,
               double& kappa,
+              const mat4& src);
+
+void inferVMS(double& kappa,
               const mat4& src);
 
 #endif // DIRECTIONAL_STAT_H

@@ -58,6 +58,7 @@ void Particle::init(const int mode,
 
     _n = n;
 
+    _c.resize(_n);
     _r.resize(_n, 4);
     _t.resize(_n, 2);
 
@@ -414,7 +415,10 @@ void Particle::calVari()
 
     _rho = 0;
 
-    inferACG(_k0, _k1, _r);
+    if (_mode == MODE_2D)
+        inferACG(_k0, _k1, _r);
+    else
+        inferVMS(_k, _r);
 }
 
 void Particle::perturb(const double pf)
@@ -896,13 +900,21 @@ void Particle::reCentre()
 
 void Particle::clear() {}
 
-void display(const Particle& particle)
+void display(const Particle& par)
 {
-    Coordinate5D coord;
-    for (int i = 0; i < particle.n(); i++)
+    int c;
+    vec4 q;
+    vec2 t;
+    for (int i = 0; i < par.n(); i++)
     {
-        particle.coord(coord, i);
-        display(coord);
+        par.c(c, i);
+        par.quaternion(q, i);
+        par.t(t, i);
+        printf("%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+               c,
+               q(0), q(1), q(2), q(3),
+               t(0), t(1),
+               par.w(i));
     }
 }
 

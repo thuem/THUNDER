@@ -216,6 +216,14 @@ void inferVMS(vec2& mu,
     kappa = R * (2 - gsl_pow_2(R)) / (1 - gsl_pow_2(R));
 }
 
+void inferVMS(double& kappa,
+              const mat2& src)
+{
+    vec2 mu;
+
+    inferVMS(mu, kappa, src);
+}
+
 void inferVMS(vec4& mu,
               double& kappa,
               const mat4& src)
@@ -225,4 +233,12 @@ void inferVMS(vec4& mu,
     inferVMS(mu2D, kappa, src.leftCols<2>());
 
     mu = vec4(mu2D(0), mu2D(1), 0, 0);
+}
+
+void inferVMS(double& kappa,
+              const mat4& src)
+{
+    vec4 mu;
+
+    inferVMS(mu, kappa, src);
 }
