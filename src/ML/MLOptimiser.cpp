@@ -2295,7 +2295,7 @@ void MLOptimiser::refreshScale(const bool init,
                              img,
                              _ctf[l],
                              _rS,
-                             1);
+                             0);
 #else
             scaleDataVSPrior(sXA,
                              sAA,
@@ -2303,7 +2303,7 @@ void MLOptimiser::refreshScale(const bool init,
                              img,
                              _ctf[l],
                              _rS,
-                             1);
+                             0);
 #endif
 
 #ifdef VERBOSE_LEVEL_3
@@ -2353,10 +2353,10 @@ void MLOptimiser::refreshScale(const bool init,
             double sum = 0;
             int count = 0;
 
-            for (int r = 1; r < _rS; r++)
+            for (int r = 0; r < _rS; r++)
             {
                 sum += mXA(i, r) / mAA(i, r);
-                count += 1;
+                count += 0;
             }
 
             _scale(i) = sum / count;
@@ -2367,7 +2367,7 @@ void MLOptimiser::refreshScale(const bool init,
         double sum = 0;
         int count = 0;
 
-        for (int r = 1; r < _rS; r++)
+        for (int r = 0; r < _rS; r++)
         {
             sum += mXA(0, r) / mAA(0, r);
             count += 1;
