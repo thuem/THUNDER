@@ -230,10 +230,6 @@ void MLModel::BcastFSC()
 
     _FSC.resize(_rU * _pf, _k);
 
-    MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _tau";
-
-    _tau.resize(_rU * _pf, _k);
-
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_COMPARE") << "Gathering References from Hemisphere A and Hemisphere B";
@@ -465,7 +461,7 @@ void MLModel::BcastFSC()
 
         if (isA())
         {
-            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from A_LEAD";
+            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
             MPI_Bcast_Large(&_ref[l][0],
                             _ref[l].sizeFT(),
                             MPI_DOUBLE_COMPLEX,
@@ -475,7 +471,7 @@ void MLModel::BcastFSC()
 
         if (isB())
         {
-            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference from B_LEAD";
+            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
             MPI_Bcast_Large(&_ref[l][0],
                             _ref[l].sizeFT(),
                             MPI_DOUBLE_COMPLEX,
@@ -484,6 +480,10 @@ void MLModel::BcastFSC()
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
+
+#ifdef VERBOSE_LEVEL_1
+        MLOG(INFO, "LOGGER_COMPARE") << "Reference " << l << " Broadcasted from A_LEAD and B_LEAD";
+#endif
     }
 
     MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
