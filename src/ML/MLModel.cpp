@@ -288,6 +288,7 @@ void MLModel::BcastFSC()
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
 
+                /***
                 Image tmpA(_size * _pf, _size * _pf, FT_SPACE);
                 Image tmpB(_size * _pf, _size * _pf, FT_SPACE);
 
@@ -295,6 +296,9 @@ void MLModel::BcastFSC()
                 SLC_EXTRACT_FT(tmpB, B, 0);
 
                 FRC(fsc, tmpA, tmpB);
+                ***/
+
+                FRC(fsc, A, B, 0);
 
                 _FSC.col(1) = fsc;
             }

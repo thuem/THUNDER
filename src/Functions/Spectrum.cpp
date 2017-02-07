@@ -220,7 +220,30 @@ void FRC(vec& dst,
          const Volume& B,
          const int k)
 {
-    // TODO
+    vec vecS = vec::Zero(dst.size());
+    vec vecA = vec::Zero(dst.size());
+    vec vecB = vec::Zero(dst.size());
+
+    for (int j = -A.nRowRL() / 2; j < A.nRowRL() / 2; j++)
+        for (int i = 0; i <= A.nColRL() / 2; i++)
+        {
+            int u = AROUND(NORM(i, j));
+            if (u < dst.size())
+            {
+                vecS[u] += REAL(A.getFT(i, j, k) * CONJUGATE(B.getFT(i, j, k)));
+                vecA[u] += ABS2(A.getFT(i, j, k));
+                vecB[u] += ABS2(B.getFT(i, j, k));
+            }
+        }
+
+    for (int i = 0; i < dst.size(); i++)
+    {
+        double AB = sqrt(vecA(i) * vecB(i));
+        if (AB == 0)
+            dst(i) = 0;
+        else
+            dst(i) = vecS(i) / AB;
+    }
 }
 
 void FSC(vec& dst,
