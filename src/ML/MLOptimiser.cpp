@@ -1034,7 +1034,7 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-        //saveReference(); // TODO
+        saveReference();
 
         /***
         ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
@@ -3034,70 +3034,76 @@ void MLOptimiser::saveReference(const bool finished)
 
     for (int t = 0; t < _para.k; t++)
     {
-        Volume lowPass(_para.size * _para.pf,
-                       _para.size * _para.pf,
-                       _para.size * _para.pf,
-                       FT_SPACE);
-
-        if (finished)
-            fft.bwMT(_model.ref(t));
-        else
+        if (_para.mode == MODE_2D)
         {
-            lowPassFilter(lowPass,
-                          _model.ref(0),
-                          (double)_resReport / _para.size,
-                          (double)EDGE_WIDTH_FT / _para.size);
-            fft.bwMT(lowPass);
+            // TODO
         }
-
-        Volume result;
-
-        if (_commRank == HEMI_A_LEAD)
+        else if (_para.mode == MODE_3D)
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+            Volume lowPass(_para.size * _para.pf,
+                           _para.size * _para.pf,
+                           _para.size * _para.pf,
+                           FT_SPACE);
 
             if (finished)
-            {
-                VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
-
-                fft.fwMT(_model.ref(t));
-                _model.ref(t).clearRL();
-
-                sprintf(filename, "Reference_%03d_A_Final.mrc", t);
-            }
+                fft.bwMT(_model.ref(t));
             else
             {
-                VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
-                sprintf(filename, "Reference_%03d_A_Round_%03d.mrc", t, _iter);
+                lowPassFilter(lowPass,
+                              _model.ref(0),
+                              (double)_resReport / _para.size,
+                              (double)EDGE_WIDTH_FT / _para.size);
+                fft.bwMT(lowPass);
             }
 
-            imf.readMetaData(result);
+            Volume result;
 
-            imf.writeVolume(filename, result, _para.pixelSize);
-        }
-
-        else if (_commRank == HEMI_B_LEAD)
-        {
-            BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
-
-            if (finished)
+            if (_commRank == HEMI_A_LEAD)
             {
-                VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
+                ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
 
-                fft.fwMT(_model.ref(t));
-                _model.ref(t).clearRL();
+                if (finished)
+                {
+                    VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
 
-                sprintf(filename, "Reference_%03d_B_Final.mrc", t);
+                    fft.fwMT(_model.ref(t));
+                    _model.ref(t).clearRL();
+
+                    sprintf(filename, "Reference_%03d_A_Final.mrc", t);
+                }
+                else
+                {
+                    VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+                    sprintf(filename, "Reference_%03d_A_Round_%03d.mrc", t, _iter);
+                }
+
+                imf.readMetaData(result);
+
+                imf.writeVolume(filename, result, _para.pixelSize);
             }
-            else
+            else if (_commRank == HEMI_B_LEAD)
             {
-                VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
-                sprintf(filename, "Reference_%03d_B_Round_%03d.mrc", t, _iter);
+                BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+
+                if (finished)
+                {
+                    VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
+
+                    fft.fwMT(_model.ref(t));
+                    _model.ref(t).clearRL();
+
+                    sprintf(filename, "Reference_%03d_B_Final.mrc", t);
+                }
+                else
+                {
+                    VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
+                    sprintf(filename, "Reference_%03d_B_Round_%03d.mrc", t, _iter);
+                }
+
+                imf.readMetaData(result);
+
+                imf.writeVolume(filename, result, _para.pixelSize);
             }
-
-            imf.readMetaData(result);
-
-            imf.writeVolume(filename, result, _para.pixelSize);
         }
     }
 }
