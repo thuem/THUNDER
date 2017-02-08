@@ -736,8 +736,6 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 
-            // TODO: a shuffle & resmaple should be performed before calVari
-
             // Only after resampling, the current variance can be calculated
             // correctly.
 
@@ -771,8 +769,6 @@ void MLOptimiser::expectation()
             else
                 _par[l].resample();
             
-            _par[l].resample();
-
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
                 double tVariS0Cur;
