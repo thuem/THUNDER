@@ -31,6 +31,9 @@ Postprocess::Postprocess(const char mapAFilename[],
     imfB.readVolume(_mapB);
     imfM.readVolume(_mask);
 
+    REMOVE_NEG(_mapA);
+    REMOVE_NEG(_mapB);
+
     _size = _mapA.nColRL();
 
     if ((_size != _mapA.nRowRL()) ||

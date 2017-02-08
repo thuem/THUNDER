@@ -845,6 +845,14 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else
         REPORT_ERROR("INEXISTENT MODE");
+
+#ifdef RECONSTRUCTOR_REMOVE_NEG
+    ALOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
+    BLOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
+
+    #pragma omp parallel for
+    REMOVE_NEG(dst);
+#endif
 }
 
 void Reconstructor::allReduceF()
