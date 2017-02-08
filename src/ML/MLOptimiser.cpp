@@ -591,6 +591,7 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
 #endif
 
+        #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
             _par[l].calVari();
