@@ -742,40 +742,38 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
 
-            _par[l].resample();
-
-            _par[l].calVari();
-
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
+
+                _par[l].calVari();
 
                 if (l == 0)
                 {
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
                                                << phase
                                                << ": "
-                                               //<< _par[0].compress();
-                                               << _par[0].compressPerDim();
+                                               << _par[0].compress();
+                                               //<< _par[0].compressPerDim();
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                                << AROUND(nSampleWholeSpace
                                                        * sqrt(GSL_MIN_DBL(1,
-                                                                          //_par[0].compress())));
-                                                                          _par[0].compressPerDim())));
+                                                                          _par[0].compress())));
+                                                                          //_par[0].compressPerDim())));
                 }
 
                 _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
                                                                 * sqrt(GSL_MIN_DBL(1,
-                                                                                   //_par[l].compress()))))));
-                                                                                   _par[l].compressPerDim()))))));
+                                                                                   _par[l].compress()))))));
+                                                                                   //_par[l].compressPerDim()))))));
 #endif
             }
-            /***
             else
                 _par[l].resample();
-                ***/
+
+            _par[l].calVari();
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
