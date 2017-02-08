@@ -1084,9 +1084,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
         ***/
 
-        //TODO TEST
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
@@ -1190,10 +1191,8 @@ void MLOptimiser::run()
                       (double)EDGE_WIDTH_FT / _para.pf / _para.size);
         ***/
 
-        /*** //TODO
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
-        ***/
 
         NT_MASTER
         {
