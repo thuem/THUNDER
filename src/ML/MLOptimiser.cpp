@@ -744,6 +744,8 @@ void MLOptimiser::expectation()
 
             // Only after resampling, the current variance can be calculated
             // correctly.
+            
+            _par[l].resample();
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
@@ -773,8 +775,6 @@ void MLOptimiser::expectation()
                                                                                    //_par[l].compressPerDim()))))));
 #endif
             }
-            else
-                _par[l].resample();
 
             _par[l].calVari();
             
