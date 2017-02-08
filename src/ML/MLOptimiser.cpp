@@ -736,14 +736,18 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 
+            // TODO: a shuffle & resmaple should be performed before calVari
+
             // Only after resampling, the current variance can be calculated
             // correctly.
-
-            _par[l].calVari();
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
+                _par[l].resample();
+
+                _par[l].calVari();
+
                 if (l == 0)
                 {
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
@@ -766,6 +770,8 @@ void MLOptimiser::expectation()
             }
             else
                 _par[l].resample();
+            
+            _par[l].resample();
 
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
