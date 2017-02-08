@@ -67,7 +67,7 @@
 
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
-    //_logW.array() -= _logW.maxCoeff();
+    _logW.array() -= _logW.maxCoeff();
     _logW.array() *= -1;
     _logW.array() += 1;
     _logW.array() = 1.0 / _logW.array();
