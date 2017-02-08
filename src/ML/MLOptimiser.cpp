@@ -762,7 +762,7 @@ void MLOptimiser::expectation()
                                                            AROUND(nSampleWholeSpace
                                                                 * sqrt(GSL_MIN_DBL(1,
                                                                                    _par[l].compress()))))));
-#else
+#endif
             }
             else
                 _par[l].resample();
