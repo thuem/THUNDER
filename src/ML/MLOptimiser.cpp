@@ -351,7 +351,8 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    int nSampleMax;
+    int nSampleMax = _para.k * _para.mG;
+    /***
     if (_para.mode == MODE_2D)
     {
         nSampleMax = _para.k * _para.mG;
@@ -359,9 +360,11 @@ void MLOptimiser::expectation()
     else if (_para.mode == MODE_3D)
     {
         nSampleMax = _para.k * _para.mG / (1 + _sym.nSymmetryElement());
+
     }
     else
         REPORT_ERROR("INEXISTENT MODE");
+        ***/
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
     int nSampleWholeSpace = 0;
