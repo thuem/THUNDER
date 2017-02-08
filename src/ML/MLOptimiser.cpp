@@ -582,7 +582,7 @@ void MLOptimiser::expectation()
             _par[l].shuffle();
 
             // resample
-            _par[l].resample();
+            _par[l].resample(0.5);
         }
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
@@ -741,9 +741,9 @@ void MLOptimiser::expectation()
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-                _par[l].resample();
+                _par[l].resample(GSL_MAX_DBL(0, 0.5 - 0.1 * phase));
 
+#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
                 _par[l].calVari();
 
                 if (l == 0)
@@ -763,8 +763,6 @@ void MLOptimiser::expectation()
                                                                 * sqrt(GSL_MIN_DBL(1,
                                                                                    _par[l].compress()))))));
 #else
-                _par[l].resample();
-#endif
             }
             else
                 _par[l].resample();
