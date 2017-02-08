@@ -739,14 +739,11 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
             
-            _par[l].resample();
 
             _par[l].calVari();
 
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-                //_par[l].resample(GSL_MAX_DBL(0, 0.5 - 0.1 * phase));
-
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
 
                 if (l == 0)
@@ -768,10 +765,8 @@ void MLOptimiser::expectation()
                                                                                    _par[l].compress()))))));
 #endif
             }
-            /***
             else
                 _par[l].resample();
-                ***/
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
