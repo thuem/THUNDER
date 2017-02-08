@@ -54,7 +54,7 @@
 //#define PERTURB_FACTOR_S 0.01
 
 #define PERTURB_FACTOR_L 10
-#define PERTURB_FACTOR_S 0.1
+#define PERTURB_FACTOR_S 0.5
 
 //#define GEN_MASK_RES 30
 
