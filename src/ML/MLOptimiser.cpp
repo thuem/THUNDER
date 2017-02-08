@@ -582,7 +582,7 @@ void MLOptimiser::expectation()
             _par[l].shuffle();
 
             // resample
-            _par[l].resample(0.5);
+            _par[l].resample();
         }
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
@@ -739,12 +739,13 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
 
+            _par[l].calVari();
+
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-                _par[l].resample(GSL_MAX_DBL(0, 0.5 - 0.1 * phase));
+                //_par[l].resample(GSL_MAX_DBL(0, 0.5 - 0.1 * phase));
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-                _par[l].calVari();
 
                 if (l == 0)
                 {
@@ -757,6 +758,7 @@ void MLOptimiser::expectation()
                                                        * sqrt(GSL_MIN_DBL(1,
                                                                           _par[0].compress())));
                 }
+
                 _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
