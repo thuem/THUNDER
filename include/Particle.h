@@ -416,6 +416,8 @@ class Particle
                   double& s0,
                   double& s1) const;
 
+        double compressPerDim() const;
+
         double compress() const;
 
         /**

@@ -301,6 +301,24 @@ void Particle::vari(double& rVari,
     s1 = _s1;
 }
 
+double Particle::compressPerDim() const
+{
+    double cmp = compress();
+
+    switch (_mode)
+    {
+        case MODE_2D:
+            return pow(cmp, -3);
+
+        case MODE_3D:
+            return pow(cmp, -5);
+
+        default:
+            REPORT_ERROR("INEXISTENT MODE");
+            abort();
+    }
+}
+
 double Particle::compress() const
 {
     double rVari, s0, s1;
@@ -316,10 +334,8 @@ double Particle::compress() const
             return gsl_pow_3(rVari) * s0 * s1 / gsl_pow_2(_transS);
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
-                                      << ": INEXISTENT MODE";
+            REPORT_ERROR("INEXISTENT MODE");
             abort();
-            break;
     }
 }
 

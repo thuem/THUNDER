@@ -599,18 +599,21 @@ void MLOptimiser::expectation()
             if (l == 0)
             {
                 ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
-                                           << _par[0].compress();
+                                           //<< _par[0].compress();
+                                           << _par[0].compressPerDim();
                 ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                            << AROUND(nSampleWholeSpace
                                                    * sqrt(GSL_MIN_DBL(1,
-                                                                      _par[0].compress())));
+                                                                      //_par[0].compress())));
+                                                                      _par[0].compressPerDim())));
             }
 
             _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                            GSL_MIN_INT(nSampleMax,
                                                        AROUND(nSampleWholeSpace
                                                             * sqrt(GSL_MIN_DBL(1,
-                                                                               _par[l].compress()))))));
+                                                                               //_par[l].compress()))))));
+                                                                               _par[l].compressPerDim()))))));
         }
 #endif
 
@@ -738,7 +741,8 @@ void MLOptimiser::expectation()
 
             // Only after resampling, the current variance can be calculated
             // correctly.
-            
+
+            _par[l].resample();
 
             _par[l].calVari();
 
@@ -751,22 +755,27 @@ void MLOptimiser::expectation()
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
                                                << phase
                                                << ": "
-                                               << _par[0].compress();
+                                               //<< _par[0].compress();
+                                               << _par[0].compressPerDim();
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
                                                << AROUND(nSampleWholeSpace
                                                        * sqrt(GSL_MIN_DBL(1,
-                                                                          _par[0].compress())));
+                                                                          //_par[0].compress())));
+                                                                          _par[0].compressPerDim())));
                 }
 
                 _par[l].downSample(GSL_MAX_INT(nSampleMin,
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
                                                                 * sqrt(GSL_MIN_DBL(1,
-                                                                                   _par[l].compress()))))));
+                                                                                   //_par[l].compress()))))));
+                                                                                   _par[l].compressPerDim()))))));
 #endif
             }
+            /***
             else
                 _par[l].resample();
+                ***/
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
