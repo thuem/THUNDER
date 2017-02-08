@@ -437,8 +437,12 @@ void Particle::perturb(const double pf)
     {
         double x, y;
         gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+        _t(i, 0) += x * pf;
+        _t(i, 1) += y * pf;
+        /***
         _t(i, 0) += x * sqrt(pf);
         _t(i, 1) += y * sqrt(pf);
+        ***/
     }
 
 #ifdef VERBOSE_LEVEL_4
@@ -456,7 +460,8 @@ void Particle::perturb(const double pf)
             break;
 
         case MODE_3D:
-            sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
+            //sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
+            sampleACG(d, pow(pf, -2.0) * _k0, _k1, _n);
             break;
 
         default:
