@@ -308,10 +308,10 @@ double Particle::compressPerDim() const
     switch (_mode)
     {
         case MODE_2D:
-            return pow(cmp, -3);
+            return pow(cmp, 1.0 / 3);
 
         case MODE_3D:
-            return pow(cmp, -5);
+            return pow(cmp, 1.0 / 5);
 
         default:
             REPORT_ERROR("INEXISTENT MODE");
