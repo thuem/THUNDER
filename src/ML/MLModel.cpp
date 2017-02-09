@@ -336,7 +336,7 @@ void MLModel::BcastFSC()
 
                 FSC(fsc, tmpA, tmpB);
 
-                FSC(fsc, A, B);
+                //FSC(fsc, A, B);
 
                 for (int i = 0; i < _rU * _pf; i++)
                     _FSC(i, l) = fsc(i / _pf);
