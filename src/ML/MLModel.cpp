@@ -851,7 +851,7 @@ void MLModel::elevateR(const double thres)
                                      ***/
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1,
-                                     _r + AROUND((double)_rGlobal / 4)));
+                                     _r + AROUND((double)_rGlobal / 3)));
     }
     else
     {
@@ -862,7 +862,7 @@ void MLModel::elevateR(const double thres)
                                      ***/
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1,
-                                     _r + AROUND((double)maxR() / 8)));
+                                     _r + AROUND((double)maxR() / 6)));
     }
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -1061,8 +1061,8 @@ void MLModel::updateRU()
 
     _rU = GSL_MIN_INT(_r
                     + ((_searchType == SEARCH_TYPE_GLOBAL)
-                     ? AROUND((double)_rGlobal / 4)
-                     : AROUND((double)maxR() / 4)),
+                     ? AROUND((double)_rGlobal / 3)
+                     : AROUND((double)maxR() / 3)),
                       maxR());
 
     MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "
