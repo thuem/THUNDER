@@ -623,14 +623,13 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
 
-    }
-
 #ifdef VERBOSE_LEVEL_1
-    MPI_Barrier(_hemi);
+        MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
-    BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
+        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
+        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
+    }
 
     _nF = 0;
     _nI = 0;
