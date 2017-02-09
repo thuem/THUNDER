@@ -818,12 +818,12 @@ void MLModel::elevateR(const double thres)
             
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
-                _r = GSL_MIN_INT(_rU, _r + AROUND((double)_rGlobal / 4));
+                _r = GSL_MIN_INT(_rU, _r + AROUND((double)_rGlobal / 3));
                 //_r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 4));
             }
             else
             {
-                _r = GSL_MIN_INT(_rU, _r + AROUND((double)maxR() / 8));
+                _r = GSL_MIN_INT(_rU, _r + AROUND((double)maxR() / 6));
                 //_r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
             }
 
