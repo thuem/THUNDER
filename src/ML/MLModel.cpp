@@ -305,7 +305,8 @@ void MLModel::BcastFSC()
                                              << IMAG(B[0]);
 #endif
 
-            vec fsc(_rU * _pf);
+            //vec fsc(_rU * _pf);
+            vec fsc(_rU);
 
             if (_mode == MODE_2D)
             {
@@ -319,9 +320,32 @@ void MLModel::BcastFSC()
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
 
+                FFT fft;
+
+                fft.bwMT(A);
+                fft.bwMT(B);
+
+                Volume tmpA(_size, _size, _size, RL_SPACE);
+                Volume tmpB(_size, _size, _size, RL_SPACE);
+
+                VOL_EXTRACT_RL(tmpA, A, 1.0 / _pf);
+                VOL_EXTRACT_RL(tmpB, B, 1.0 / _pf);
+
+                fft.fwMT(tmpA);
+                fft.fwMT(tmpB);
+
+                FSC(fsc, tmpA, tmpB);
+
                 FSC(fsc, A, B);
 
-                _FSC.col(l) = fsc;
+                for (int i = 0; i < _rU * _pf; i++)
+                    _FSC(i, l) = fsc(i / _pf);
+
+                fft.fwMT(A);
+                fft.fwMT(B);
+                A.clearRL();
+                B.clearRL();
+                //_FSC.col(l) = fsc;
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
