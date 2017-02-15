@@ -2495,6 +2495,8 @@ void MLOptimiser::reCentreImg()
                   _imgOri[l],
                   _offset[l](0),
                   _offset[l](1));
+
+        _par[l].setT(_par[l].t().rowwise() - tran.transpose());
     }
 }
 #endif
