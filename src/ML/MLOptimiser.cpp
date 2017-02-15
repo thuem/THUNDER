@@ -2705,14 +2705,14 @@ void MLOptimiser::reconstructRef()
                                          rot2D,
                                          tran - _offset[l],
                                          //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compress());
+                                         1.0 / (_para.mReco * _par[l].compress()));
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot2D,
                                          tran,
                                          //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compress());
+                                         1.0 / (_para.mReco * _par[l].compress()));
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -2725,14 +2725,14 @@ void MLOptimiser::reconstructRef()
                                          rot3D,
                                          tran - _offset[l],
                                          //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compress());
+                                         1.0 / (_para.mReco * _par[l].compress()));
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot3D,
                                          tran,
                                          //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compress());
+                                         1.0 / (_para.mReco * _par[l].compress()));
 #endif
             }
             else
