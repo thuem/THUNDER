@@ -626,10 +626,10 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
                 _T3D.setFT(_T3D.getFT(i, j, k)
-                       + COMPLEX((1 - FSC) / FSC * avg(u), 0),
-                         i,
-                         j,
-                         k);
+                         + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                           i,
+                           j,
+                           k);
 #else
                 _T3D.setFT(_T3D.getFT(i, j, k) / FSC, i, j, k);
 #endif
