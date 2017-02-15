@@ -288,6 +288,10 @@ void Particle::vari(double& rVari,
             break;
 
         case MODE_3D:
+            if (_k0 == 0) CLOG(FATAL, "LOGGER_SYS") << "k0 = 0";
+            if (gsl_isnan(_k0)) CLOG(FATAL, "LOGGER_SYS") << "k0 NAN";
+            if (gsl_isnan(_k1)) CLOG(FATAL, "LOGGER_SYS") << "k1 NAN";
+
             rVari = sqrt(_k1) / sqrt(_k0);
             break;
 
