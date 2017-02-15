@@ -104,7 +104,7 @@ void inferACG(mat44& dst,
         for (int i = 1; i < 4; i++)
             for (int j = 0; j < i; j++)
                 B(i, j) = B(j, i);
-    } while ((abs((A - B).array())).sum() > 1e-3);
+    } while ((abs((A - B).array())).sum() > 1e-5);
 
     dst = A;
 }
