@@ -2480,7 +2480,6 @@ void MLOptimiser::reCentreImg()
         _offset[l](0) -= tran(0);
         _offset[l](1) -= tran(1);
 
-        /***
         if ((fabs(_offset[l](0)) > gsl_cdf_chisq_Qinv(TRANS_Q, 2) * _para.transS) ||
             (fabs(_offset[l](1)) > gsl_cdf_chisq_Qinv(TRANS_Q, 2) * _para.transS))
         {
@@ -2491,14 +2490,13 @@ void MLOptimiser::reCentreImg()
             _offset[l](0) = 0;
             _offset[l](1) = 0;
         }
-        ***/
 
         translate(_img[l],
                   _imgOri[l],
                   _offset[l](0),
                   _offset[l](1));
 
-        _par[l].setT(_par[l].t().rowwise() - tran.transpose());
+        //_par[l].setT(_par[l].t().rowwise() - tran.transpose());
     }
 }
 #endif

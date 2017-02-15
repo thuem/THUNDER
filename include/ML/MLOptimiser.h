@@ -54,8 +54,10 @@
 //#define PERTURB_FACTOR_S 0.01
 
 #define PERTURB_FACTOR_L 2
+//#define PERTURB_FACTOR_L 4
 //#define PERTURB_FACTOR_L 10
 #define PERTURB_FACTOR_S 0.5
+//#define PERTURB_FACTOR_S 0.25
 //#define PERTURB_FACTOR_S 1
 //#define PERTURB_FACTOR_S 0.8
 
