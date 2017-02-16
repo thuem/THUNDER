@@ -622,7 +622,7 @@ void Reconstructor::reconstruct(Volume& dst)
                            ? _FSC(_FSC.size() - 1)
                            : _FSC(u);
 
-                FSC = GSL_MAX_DBL(1e-5, GSL_MIN_DBL(1 - 1e-5, FSC));
+                FSC = GSL_MAX_DBL(1e-3, GSL_MIN_DBL(1 - 1e-3, FSC));
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
                 _T3D.setFT(_T3D.getFT(i, j, k)
