@@ -802,10 +802,6 @@ void MLModel::updateR(const double thres)
 void MLModel::elevateR(const double thres)
 {
     /***
-    double areaTtl = M_PI * gsl_pow_2(maxR());
-    double areaGlb = M_PI * gsl_pow_2(_rGlobal);
-    ***/
-
     FOR_EACH_CLASS
         if (_FSC.col(l)(_pf * _rU - 1) > thres)
         {
@@ -833,14 +829,9 @@ void MLModel::elevateR(const double thres)
             return;
         }
 
-    /***
-    _r = GSL_MAX_INT(_r,
-                     GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                 _r + AROUND((double)_size / 16)));
-                                 ***/
-
     MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency When FSC at Upper Boundary Frequency Below "
                              << thres;
+                             ***/
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
