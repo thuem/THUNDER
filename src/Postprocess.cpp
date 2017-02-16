@@ -168,7 +168,7 @@ void Postprocess::run()
 
     softMask(_mapI, _mapI, _mask, 0);
 
-    REMOVE_NEG(_mapI);
+    //REMOVE_NEG(_mapI);
 
     imf.readMetaData(_mapI);
     imf.writeVolume("Reference_Sharp.mrc", _mapI, _pixelSize);

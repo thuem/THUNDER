@@ -504,6 +504,11 @@ void Projector::gridCorrection()
 
             fft.bwMT(_projectee2D);
 
+#ifdef PROJECTOR_REMOVE_NEG
+            #pragma omp parallel for
+            REMOVE_NEG(_projectee2D);
+#endif
+
             #pragma omp parallel for schedule(dynamic)
             IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
                 _projectee2D.setRL(_projectee2D.getRL(i, j)
@@ -526,6 +531,11 @@ void Projector::gridCorrection()
 #endif
 
             fft.bwMT(_projectee3D);
+
+#ifdef PROJECTOR_REMOVE_NEG
+            #pragma omp parallel for
+            REMOVE_NEG(_projectee3D);
+#endif
 
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
