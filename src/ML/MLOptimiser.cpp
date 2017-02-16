@@ -939,7 +939,8 @@ void MLOptimiser::run()
         MPI_Barrier(MPI_COMM_WORLD);
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining Lower Boundary of Frequency for Expectation";
-        _rL = 2.5;
+        _rL = 0;
+        //_rL = 2.5;
         /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
             _rL = 2.5;
@@ -2590,6 +2591,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 #endif
             }
 
+            /***
             double weight = logDataVSPrior(_img[l],
                                            img,
                                            _ctf[l],
@@ -2601,7 +2603,7 @@ void MLOptimiser::allReduceSigma(const bool group)
                                      << _ID[l]
                                      << ", Final dataVSPrior = "
                                      << -weight;
-                                     //<< 1.0 / (1 - weight);
+                                     ***/
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
