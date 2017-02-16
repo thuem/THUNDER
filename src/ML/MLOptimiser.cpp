@@ -2600,7 +2600,8 @@ void MLOptimiser::allReduceSigma(const bool group)
             ALOG(INFO, "LOGGER_SYS") << "_ID = "
                                      << _ID[l]
                                      << ", Final dataVSPrior = "
-                                     << 1.0 / (1 - weight);
+                                     << -weight;
+                                     //<< 1.0 / (1 - weight);
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
