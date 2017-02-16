@@ -2706,14 +2706,15 @@ void MLOptimiser::reconstructRef()
                 ALOG(INFO, "LOGGER_SYS") << "ID = "
                                          << _ID[l]
                                          << ", compress = "
-                                         << _par[l].compress();
+                                         << _par[l].compressTrans();
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
-                                         1.0 / _para.mReco);
+                                         //1.0 / _para.mReco);
+                                         1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #else
@@ -2721,7 +2722,8 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot2D,
                                          tran,
-                                         1.0 / _para.mReco);
+                                         //1.0 / _para.mReco);
+                                         1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #endif
@@ -2733,14 +2735,15 @@ void MLOptimiser::reconstructRef()
                 ALOG(INFO, "LOGGER_SYS") << "ID = "
                                          << _ID[l]
                                          << ", compress = "
-                                         << _par[l].compress();
+                                         << _par[l].compressTrans();
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot3D,
                                          tran - _offset[l],
-                                         1.0 / _para.mReco);
+                                         //1.0 / _para.mReco);
+                                         1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #else
@@ -2748,7 +2751,8 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot3D,
                                          tran,
-                                         1.0 / _para.mReco);
+                                         //1.0 / _para.mReco);
+                                         1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #endif
