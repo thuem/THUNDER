@@ -2746,10 +2746,12 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot3D, tran);
 
+                /***
                 ALOG(INFO, "LOGGER_SYS") << "ID = "
                                          << _ID[l]
                                          << ", compress = "
                                          << _par[l].compressTrans();
+                                         ***/
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
