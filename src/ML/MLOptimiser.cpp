@@ -2590,6 +2590,18 @@ void MLOptimiser::allReduceSigma(const bool group)
 #endif
             }
 
+            double weight = dataVSPrior(_img[l],
+                                        img,
+                                        _ctf[l],
+                                        _sigRcp.row(_groupID[l] - 1).transpose(),
+                                        _r,
+                                        _rL);
+
+            ALOG(INFO, "LOGGER_SYS") << "_ID = "
+                                     << _ID[l]
+                                     << ", Final dataVSPrior = "
+                                     << weight;
+
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
 
@@ -2703,18 +2715,20 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot2D, tran);
 
+                /***
                 ALOG(INFO, "LOGGER_SYS") << "ID = "
                                          << _ID[l]
                                          << ", compress = "
                                          << _par[l].compressTrans();
+                                         ***/
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
                                          _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
-                                         //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compressTrans()));
+                                         1.0 / _para.mReco);
+                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #else
@@ -2722,8 +2736,8 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot2D,
                                          tran,
-                                         //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compressTrans()));
+                                         1.0 / _para.mReco);
+                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #endif
@@ -2742,8 +2756,8 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot3D,
                                          tran - _offset[l],
-                                         //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compressTrans()));
+                                         1.0 / _para.mReco);
+                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #else
@@ -2751,8 +2765,8 @@ void MLOptimiser::reconstructRef()
                                          _ctf[l],
                                          rot3D,
                                          tran,
-                                         //1.0 / _para.mReco);
-                                         1.0 / (_para.mReco * _par[l].compressTrans()));
+                                         1.0 / _para.mReco);
+                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
                                          //1.0 / (_para.mReco * _par[l].compress()));
                                          //1.0 / _para.mReco * (-log(_par[l].compress())));
 #endif
