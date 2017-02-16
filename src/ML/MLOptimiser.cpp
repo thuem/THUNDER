@@ -2590,17 +2590,17 @@ void MLOptimiser::allReduceSigma(const bool group)
 #endif
             }
 
-            double weight = dataVSPrior(_img[l],
-                                        img,
-                                        _ctf[l],
-                                        _sigRcp.row(_groupID[l] - 1).transpose(),
-                                        _r,
-                                        _rL);
+            double weight = logDataVSPrior(_img[l],
+                                           img,
+                                           _ctf[l],
+                                           _sigRcp.row(_groupID[l] - 1).transpose(),
+                                           _r,
+                                           _rL);
 
             ALOG(INFO, "LOGGER_SYS") << "_ID = "
                                      << _ID[l]
                                      << ", Final dataVSPrior = "
-                                     << weight;
+                                     << 1.0 / (1 - weight);
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
