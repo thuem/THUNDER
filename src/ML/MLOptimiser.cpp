@@ -2683,8 +2683,8 @@ void MLOptimiser::allReduceSigma(const bool group)
     }
 
     #pragma omp parallel for
-    for (int i = _r + 1; i < _sig.cols() - 1; i++)
-        _sig.col(i) = _sig.col(_r);
+    for (int i = _r; i < _sig.cols() - 1; i++)
+        _sig.col(i) = _sig.col(_r - 1);
 
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
