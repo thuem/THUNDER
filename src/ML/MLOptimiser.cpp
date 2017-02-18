@@ -2527,6 +2527,27 @@ void MLOptimiser::reMaskImg()
     }
 }
 
+void MLOptimiser::normCorrection()
+{
+    vec norm = vec::Zero(_nPar);
+
+    int cls;
+
+    mat22 rot2D;
+    mat33 rot3D;
+
+    vec2 tran;
+
+    NT_MASTER
+    {
+        #pragma omp parallel for private(rot2D, rot3D, tran) schedule(dynamic)
+        FOR_EACH_2D_IMAGE
+        {
+            //TODO
+        }
+    }
+}
+
 void MLOptimiser::allReduceSigma(const bool group)
 {
     IF_MASTER return;
