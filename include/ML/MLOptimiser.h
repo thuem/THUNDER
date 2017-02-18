@@ -688,6 +688,8 @@ class MLOptimiser : public Parallel
 
         void reMaskImg();
 
+        void normCorrection();
+
         /**
          * re-calculate sigma
          *
