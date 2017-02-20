@@ -2611,6 +2611,12 @@ void MLOptimiser::normCorrection()
                                      << norm[i];
     }
 
+    MLOG(INFO, "LOGGER_SYS") << "Max of Norm of Noise : "
+                             << gsl_stats_max(norm.data(), 1, norm.size());
+
+    MLOG(INFO, "LOGGER_SYS") << "Min of Norm of Noise : "
+                             << gsl_stats_min(norm.data(), 1, norm.size());
+
     double m = gsl_stats_mean(norm.data(), 1, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
