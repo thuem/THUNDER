@@ -2634,8 +2634,8 @@ void MLOptimiser::normCorrection()
         {
             FOR_EACH_PIXEL_FT(_img[l])
             {
-                _img[l][i] *= m / norm(_ID[l] - 1);
-                _imgOri[l][i] *= m / norm(_ID[l] - 1);
+                _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
+                _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
             }
         }
     }
