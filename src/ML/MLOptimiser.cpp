@@ -99,6 +99,7 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
+
     /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
 
@@ -110,12 +111,12 @@ void MLOptimiser::init()
                               << _para.ignoreRes
                               << " Angstrom will be Ingored during Comparison";
 
-    _rL = 2.5;
+                              ***/
+    _rL = 0;
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
                               << " (Pixel) will be Ingored during Comparison";
-                              ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.sclCorRes
@@ -852,9 +853,9 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
+    // MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
-    normCorrection();
+    // normCorrection();
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
@@ -941,18 +942,6 @@ void MLOptimiser::run()
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
-
-        MLOG(INFO, "LOGGER_ROUND") << "Determining Lower Boundary of Frequency for Expectation";
-        //_rL = 0;
-        _rL = 1;
-        //_rL = 2.5;
-        /***
-        if (_searchType == SEARCH_TYPE_GLOBAL)
-            _rL = 2.5;
-        else if (_searchType == SEARCH_TYPE_LOCAL)
-            _rL = _r / 2;
-            ***/
-            //_rL = _model.rGlobal() / 2;
 
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
@@ -2589,6 +2578,10 @@ void MLOptimiser::normCorrection()
             ADD_FT(img, _imgOri[l]);
 #endif
 
+#ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
+            _imgOri[l][0] -= img[0];
+#endif
+
             IMAGE_FOR_EACH_PIXEL_FT(img)
             {
                 if (QUAD(i, j) < gsl_pow_2(_r))
@@ -2731,9 +2724,6 @@ void MLOptimiser::allReduceSigma(const bool group)
             ADD_FT(img, _imgOri[l]);
 #endif
 
-#ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
-            _imgOri[l][0] -= img[0];
-#endif
             powerSpectrum(sig, img, _r);
 
             if (group)
