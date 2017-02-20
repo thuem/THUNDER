@@ -2570,12 +2570,12 @@ void MLOptimiser::normCorrection()
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
 
-            NEG_FT(img);
-
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
-            _img[l][0] -= img[0];
-            _imgOri[l][0] -= img[0];
+            _img[l][0] = img[0];
+            _imgOri[l][0] = img[0];
 #endif
+
+            NEG_FT(img);
 
 #ifdef OPTIMISER_NORM_MASK
             ADD_FT(img, _img[l]);
