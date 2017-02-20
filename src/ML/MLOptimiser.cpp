@@ -2603,7 +2603,7 @@ void MLOptimiser::normCorrection()
 
     IF_MASTER
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 100; i++)
             MLOG(INFO, "LOGGER_SYS") << "norm "
                                      << i
                                      << " = "
