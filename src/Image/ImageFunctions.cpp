@@ -390,6 +390,34 @@ void meanStddev(double& mean,
     stddev = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
+double centreStddev(const double mean,
+                    const Image& src,
+                    const double r)
+{
+    vector<double> centre;
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+        if (QUAD(i, j) < gsl_pow_2(r))
+            centre.push_back(src.getRL(i, j));
+
+    return gsl_stats_sd_m(&centre[0], 1, centre.size(), mean);
+}
+
+void centreMeanStddev(double& mean,
+                      double& stddev,
+                      const Image& src,
+                      const double r)
+{
+    vector<double> centre;
+
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+        if (QUAD(i, j) < gsl_pow_2(r))
+            centre.push_back(src.getRL(i, j));
+
+    mean = gsl_stats_mean(&centre[0], 1, centre.size());
+    stddev = gsl_stats_sd_m(&centre[0], 1, centre.size(), mean);
+}
+
 double bgStddev(const double mean,
                 const Image& src,
                 const double r)
@@ -397,7 +425,7 @@ double bgStddev(const double mean,
     vector<double> bg;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
-        if (NORM(i, j) > r)
+        if (QUAD(i, j) > gsl_pow_2(r))
             bg.push_back(src.getRL(i, j));
 
     return gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
@@ -411,7 +439,7 @@ void bgMeanStddev(double& mean,
     vector<double> bg;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
-        if (NORM(i, j) > r)
+        if (QUAD(i, j) > gsl_pow_2(r))
             bg.push_back(src.getRL(i, j));
 
     mean = gsl_stats_mean(&bg[0], 1, bg.size());

@@ -2622,7 +2622,7 @@ void MLOptimiser::normCorrection()
     double m = median(norm, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
-                             << median;
+                             << m;
 
     for (int i = 0; i < norm.size(); i++)
     {
