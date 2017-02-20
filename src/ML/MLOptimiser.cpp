@@ -2617,15 +2617,27 @@ void MLOptimiser::normCorrection()
     MLOG(INFO, "LOGGER_SYS") << "Min of Norm of Noise : "
                              << gsl_stats_min(norm.data(), 1, norm.size());
 
-    double m = gsl_stats_mean(norm.data(), 1, norm.size());
+    //double m = gsl_stats_mean(norm.data(), 1, norm.size());
+
+    double m = median(norm, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
-                             << m;
+                             << median;
 
+    for (int i = 0; i < norm.size(); i++)
+    {
+        if (norm(i) < m / 5)
+            norm(i) = m / 5;
+        else if (norm(i) > m * 5)
+            norm(i) = m * 5;
+    }
+
+    /***
     double sd = gsl_stats_sd_m(norm.data(), 1, norm.size(), m);
 
     MLOG(INFO, "LOGGER_SYS") << "Standard Deviation of Norm of Noise : "
                              << sd;
+                             ***/
 
     NT_MASTER
     {
