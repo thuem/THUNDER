@@ -2544,7 +2544,7 @@ void MLOptimiser::normCorrection()
 
     NT_MASTER
     {
-        #pragma omp parallel for private(rot2D, rot3D, tran) schedule(dynamic)
+        #pragma omp parallel for private(rot2D, rot3D, tran)
         FOR_EACH_2D_IMAGE
         {
             Image img(size(), size(), FT_SPACE);
@@ -2615,6 +2615,29 @@ void MLOptimiser::normCorrection()
                                      << i
                                      << " = "
                                      << norm[i];
+    }
+
+    double m = gsl_stats_mean(norm.data(), 1, norm.size());
+
+    MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
+                             << m;
+
+    double sd = gsl_stats_sd_m(norm.data(), 1, norm.size(), m);
+
+    MLOG(INFO, "LOGGER_SYS") << "Standard Deviation of Norm of Noise : "
+                             << sd;
+
+    NT_MASTER
+    {
+        #pragma omp parallel
+        FOR_EACH_2D_IMAGE
+        {
+            FOR_EACH_PIXEL_FT(_img[l])
+            {
+                _img[l][i] *= m / norm(_ID[l] - 1);
+                _imgOri[l][i] *= m / norm(_ID[l] - 1);
+            }
+        }
     }
 }
 
