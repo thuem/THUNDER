@@ -2538,6 +2538,8 @@ void MLOptimiser::normCorrection()
         {
             Image img(size(), size(), FT_SPACE);
 
+            SET_0_FT(img);
+
             if (_para.mode == MODE_2D)
             {
                 _par[l].rank1st(cls, rot2D, tran);
@@ -2583,11 +2585,39 @@ void MLOptimiser::normCorrection()
             ADD_FT(img, _imgOri[l]);
 #endif
 
+            FFT fft;
+            fft.bw(img);
+
+            /***
+            double mean;
+            double stddev;
+
+            centreMeanStddev(mean,
+                             stddev,
+                             img,
+                             _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
+                             ***/
+
+            /***
+#ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
+            _img[l][0] -= mean;
+            _imgOri[l][0] -= mean;
+#endif
+***/
+
+            norm(_ID[l] - 1) = centreStddev(0,
+                                            img,
+                                            _para.maskRadius
+                                          / _para.pixelSize
+                                          - EDGE_WIDTH_RL);
+
+            /***
             IMAGE_FOR_EACH_PIXEL_FT(img)
             {
                 if (QUAD(i, j) < gsl_pow_2(_r))
                     norm(_ID[l] - 1) += ABS2(img.getFTHalf(i, j));
             }
+            ***/
         }
     }
 
@@ -2624,6 +2654,7 @@ void MLOptimiser::normCorrection()
     MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
                              << m;
 
+    /***
     for (int i = 0; i < norm.size(); i++)
     {
         if (norm(i) < m / 5)
@@ -2631,6 +2662,7 @@ void MLOptimiser::normCorrection()
         else if (norm(i) > m * 5)
             norm(i) = m * 5;
     }
+    ***/
 
     /***
     double sd = gsl_stats_sd_m(norm.data(), 1, norm.size(), m);
@@ -2646,8 +2678,12 @@ void MLOptimiser::normCorrection()
         {
             FOR_EACH_PIXEL_FT(_img[l])
             {
+                _img[l][i] *= (m / norm(_ID[l] - 1));
+                _imgOri[l][i] *= (m / norm(_ID[l] - 1));
+                /***
                 _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
                 _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
+                ***/
             }
         }
     }

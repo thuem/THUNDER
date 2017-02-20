@@ -483,6 +483,15 @@ void meanStddev(double& mean,
                 double& stddev,
                 const Image& src);
 
+double centreStddev(const double mean,
+                    const Image& src,
+                    const double r);
+
+void centreMeanStddev(double& mean,
+                      double& stddev,
+                      const Image& src,
+                      const double r);
+
 /**
  * This function calculates the standard deviation of the background when the
  * mean value is given.
