@@ -852,6 +852,10 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
+
+    normCorrection();
+
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
@@ -2543,8 +2547,74 @@ void MLOptimiser::normCorrection()
         #pragma omp parallel for private(rot2D, rot3D, tran) schedule(dynamic)
         FOR_EACH_2D_IMAGE
         {
-            //TODO
+            Image img(size(), size(), FT_SPACE);
+
+            if (_para.mode == MODE_2D)
+            {
+                _par[l].rank1st(cls, rot2D, tran);
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_NORM_MASK
+                _model.proj(cls).project(img, rot2D, tran);
+#else
+                _model.proj(cls).project(img, rot2D, tran - _offset[l]);
+#endif
+#else
+                _model.proj(cls).project(img, rot2D, tran);
+#endif
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _par[l].rank1st(cls, rot3D, tran);
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_NORM_MASK
+                _model.proj(cls).project(img, rot3D, tran);
+#else
+                _model.proj(cls).project(img, rot3D, tran - _offset[l]);
+#endif
+#else
+                _model.proj(cls).project(img, rot3D, tran);
+#endif
+            }
+
+            FOR_EACH_PIXEL_FT(img)
+                img[i] *= REAL(_ctf[l][i]);
+
+            NEG_FT(img);
+
+#ifdef OPTIMISER_NORM_MASK
+            ADD_FT(img, _img[l]);
+#else
+            ADD_FT(img, _imgOri[l]);
+#endif
+
+            IMAGE_FOR_EACH_PIXEL_FT(img)
+            {
+                if (QUAD(i, j) < gsl_pow_2(_r))
+                    norm(_ID[l] - 1) += ABS2(img.getFTHalf(i, j));
+            }
         }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  norm.data(),
+                  norm.size(),
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD); 
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    IF_MASTER
+    {
+        for (int i = 0; i < 10; i++)
+            MLOG(INFO, "LOGGER_SYS") << "norm "
+                                     << i
+                                     << " = "
+                                     << norm[i];
     }
 }
 
