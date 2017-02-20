@@ -2540,6 +2540,7 @@ void MLOptimiser::normCorrection()
 
             SET_0_FT(img);
 
+            /***
             if (_para.mode == MODE_2D)
             {
                 _par[l].rank1st(cls, rot2D, tran);
@@ -2576,6 +2577,8 @@ void MLOptimiser::normCorrection()
             _img[l][0] = img[0];
             _imgOri[l][0] = img[0];
 #endif
+
+            ***/
 
             NEG_FT(img);
 
