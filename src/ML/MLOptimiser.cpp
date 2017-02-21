@@ -1707,13 +1707,27 @@ void MLOptimiser::substractBgImg()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        double bgMean, bgStddev;
+
+        bgMeanStddev(bgMean,
+                     bgStddev,
+                     _img[l],
+                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
+
+        FOR_EACH_PIXEL_RL(_img[l])
+        {
+            _img[l](i) -= bgMean;
+            _img[l](i) /= bgStddev;
+        }
+
+        /***
         double bg = background(_img[l],
                                _para.maskRadius / _para.pixelSize,
-                               //size() * MASK_RATIO / 2,
                                EDGE_WIDTH_RL);
 
         FOR_EACH_PIXEL_RL(_img[l])
             _img[l](i) -= bg;
+        ***/
     }
 }
 
@@ -2591,7 +2605,6 @@ void MLOptimiser::normCorrection()
             FFT fft;
             fft.bw(img);
 
-            /***
             double mean;
             double stddev;
 
@@ -2599,7 +2612,8 @@ void MLOptimiser::normCorrection()
                              stddev,
                              img,
                              _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
-                             ***/
+
+            norm(_ID[l] - 1) = stddev;
 
             /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
@@ -2608,11 +2622,13 @@ void MLOptimiser::normCorrection()
 #endif
 ***/
 
+            /***
             norm(_ID[l] - 1) = centreStddev(0,
                                             img,
                                             _para.maskRadius
                                           / _para.pixelSize
                                           - EDGE_WIDTH_RL);
+                                          ***/
 
             /***
             IMAGE_FOR_EACH_PIXEL_FT(img)
