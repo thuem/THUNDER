@@ -886,12 +886,14 @@ void MLOptimiser::run()
 
     init();
 
+    /***
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
     saveImages();
     saveBinImages();
     saveCTFs();
     saveLowPassImages();
+    ***/
 
     MPI_Barrier(MPI_COMM_WORLD);
 
