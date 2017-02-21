@@ -853,11 +853,9 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    /***
     MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
     normCorrection();
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
@@ -2690,6 +2688,7 @@ void MLOptimiser::normCorrection()
                              << sd;
                              ***/
 
+    /***
     NT_MASTER
     {
         #pragma omp parallel
@@ -2699,13 +2698,12 @@ void MLOptimiser::normCorrection()
             {
                 _img[l][i] *= (m / norm(_ID[l] - 1));
                 _imgOri[l][i] *= (m / norm(_ID[l] - 1));
-                /***
-                _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
-                _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
-                ***/
+                // _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
+                // _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
             }
         }
     }
+    ***/
 }
 
 void MLOptimiser::allReduceSigma(const bool group)
