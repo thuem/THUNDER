@@ -2505,8 +2505,10 @@ void MLOptimiser::normCorrection()
             ADD_FT(img, _imgOri[l]);
 #endif
 
+            /***
             FFT fft;
             fft.bw(img);
+            ***/
 
             /***
             norm(_ID[l] - 1) = gsl_stats_mean(&img(0),
