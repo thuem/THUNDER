@@ -51,7 +51,6 @@ void FFT::bw(Image& img)
     CHECK_SPACE_VALID(_dstR, _srcC);
     ***/
 
-
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(img.nRowRL(),
                                   img.nColRL(),

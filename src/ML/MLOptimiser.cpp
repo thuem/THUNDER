@@ -902,7 +902,11 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
-        normCorrection();
+        bwImg();
+
+        fwImg();
+
+        // normCorrection();
 
         /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
