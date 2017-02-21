@@ -1022,9 +1022,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
-        solventFlatten(_para.performMask);
-
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
 
@@ -1119,10 +1116,8 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
-        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
-        ***/
 
         NT_MASTER
         {
