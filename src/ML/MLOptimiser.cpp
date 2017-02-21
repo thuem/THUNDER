@@ -2503,6 +2503,7 @@ void MLOptimiser::normCorrection()
 #endif
             ***/
 
+            /***
             NEG_FT(img);
 
 #ifdef OPTIMISER_NORM_MASK
@@ -2510,6 +2511,10 @@ void MLOptimiser::normCorrection()
 #else
             ADD_FT(img, _imgOri[l]);
 #endif
+            ***/
+
+            FOR_EACH_PIXEL_FT(img)
+                img[i] = _imgOri[l][i];
 
             FFT fft;
             fft.bw(img);
