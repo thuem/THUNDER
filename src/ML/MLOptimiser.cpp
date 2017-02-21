@@ -2514,6 +2514,7 @@ void MLOptimiser::normCorrection()
                                               img.sizeRL());
                                               ***/
 
+            /***
             double mean;
             double stddev;
 
@@ -2523,6 +2524,7 @@ void MLOptimiser::normCorrection()
                              _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
 
             norm(_ID[l] - 1) = stddev;
+            ***/
 
             /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
@@ -2539,13 +2541,11 @@ void MLOptimiser::normCorrection()
                                           - EDGE_WIDTH_RL);
                                           ***/
 
-            /***
             IMAGE_FOR_EACH_PIXEL_FT(img)
             {
                 if (QUAD(i, j) < gsl_pow_2(_r))
                     norm(_ID[l] - 1) += ABS2(img.getFTHalf(i, j));
             }
-            ***/
         }
     }
 
@@ -2640,10 +2640,10 @@ void MLOptimiser::normCorrection()
             {
                 // _img[l][i] /= 2;
                 // _imgOri[l][i] /= 2;
-                _img[l][i] *= (m / norm(_ID[l] - 1));
-                _imgOri[l][i] *= (m / norm(_ID[l] - 1));
-                // _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
-                // _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
+                // _img[l][i] *= (m / norm(_ID[l] - 1));
+                // _imgOri[l][i] *= (m / norm(_ID[l] - 1));
+                _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
+                _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
             }
         }
     }
