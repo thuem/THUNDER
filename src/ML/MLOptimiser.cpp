@@ -2630,12 +2630,22 @@ void MLOptimiser::normCorrection()
             ALOG(INFO, "LOGGER_SYS") << "SizeFT of imgOri " << _imgOri[l].sizeFT();
 
             FFT fft;
+
+            fft.bw(_imgOri[l]);
+
+            FOR_EACH_PIXEL_RL(_imgOri[l])
+                _imgOri[l](i) /= 2;
+
+            fft.fw(_imgOri[l]);
+            
+            /***
             fft.bw(_img[l]);
 
             FOR_EACH_PIXEL_RL(_img[l])
                 _img[l](i) /= 2;
 
             fft.fw(_img[l]);
+            ***/
 
             /***
             FOR_EACH_PIXEL_FT(_img[l])
