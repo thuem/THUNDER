@@ -902,15 +902,6 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
-        /***
-        bwImg();
-
-        fwImg();
-        ***/
-
-        normCorrection();
-
-        /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
@@ -1140,7 +1131,6 @@ void MLOptimiser::run()
 
             _model.resetReco();
         }
-        ***/
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
