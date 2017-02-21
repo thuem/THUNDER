@@ -14,7 +14,7 @@
 #include "ImageFile.h"
 
 #define N 256
-#define M 10
+#define M 1
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -26,7 +26,8 @@ int main(int argc, char* argv[])
 
     std::cout << "Define a head." << std::endl;
 
-    /***
+    Volume head(N, N, N, RL_SPACE);
+
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
         double ii = i * 0.8;
@@ -44,9 +45,7 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
-    ***/
 
-    /***
     ImageFile imf;
 
     imf.readMetaData(head);
@@ -59,11 +58,15 @@ int main(int argc, char* argv[])
     fft.fwCreatePlanMT(N, N, N);
     fft.bwCreatePlanMT(N, N, N);
 
-    for (int i = 0; i < M; i++)
+    for (int k = 0; k < M; k++)
     {
-        CLOG(INFO, "LOGGER_SYS") << "Executing Plan, Round " << i;
+        CLOG(INFO, "LOGGER_SYS") << "Executing Plan, Round " << k;
 
         fft.fwExecutePlanMT(head);
+
+        FOR_EACH_PIXEL_FT(head)
+            head[i] /= 2;
+
         fft.bwExecutePlanMT(head);
     }
 
@@ -74,7 +77,6 @@ int main(int argc, char* argv[])
 
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
-    ***/
 
     fftw_cleanup_threads();
 

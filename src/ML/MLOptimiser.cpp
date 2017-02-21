@@ -2514,6 +2514,11 @@ void MLOptimiser::normCorrection()
             FFT fft;
             fft.bw(img);
 
+            norm(_ID[l] - 1) = gsl_stats_mean(&img(0),
+                                              1,
+                                              img.sizeRL());
+
+            /***
             double mean;
             double stddev;
 
@@ -2523,6 +2528,7 @@ void MLOptimiser::normCorrection()
                              _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
 
             norm(_ID[l] - 1) = stddev;
+            ***/
 
             /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
