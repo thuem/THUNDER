@@ -902,11 +902,13 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
+        /***
         bwImg();
 
         fwImg();
+        ***/
 
-        // normCorrection();
+        normCorrection();
 
         /***
         if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -2618,9 +2620,10 @@ void MLOptimiser::normCorrection()
 
     NT_MASTER
     {
-        #pragma omp parallel
+        #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+            /***
             ALOG(INFO, "LOGGER_SYS") << "isEmptyRL of img " << _img[l].isEmptyRL();
             ALOG(INFO, "LOGGER_SYS") << "isEmptyFT of img " << _img[l].isEmptyFT();
 
@@ -2641,6 +2644,7 @@ void MLOptimiser::normCorrection()
                 _imgOri[l](i) /= 2;
 
             fft.fw(_imgOri[l]);
+            ***/
             
             /***
             fft.bw(_img[l]);
@@ -2651,17 +2655,15 @@ void MLOptimiser::normCorrection()
             fft.fw(_img[l]);
             ***/
 
-            /***
             FOR_EACH_PIXEL_FT(_img[l])
             {
-                // _img[l][i] /= 2;
-                // _imgOri[l][i] /= 2;
+                _img[l][i] /= 2;
+                _imgOri[l][i] /= 2;
                 // _img[l][i] *= (m / norm(_ID[l] - 1));
                 // _imgOri[l][i] *= (m / norm(_ID[l] - 1));
                 // _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
                 // _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
             }
-            ***/
         }
     }
 }
