@@ -2615,8 +2615,14 @@ void MLOptimiser::normCorrection()
         #pragma omp parallel
         FOR_EACH_2D_IMAGE
         {
+            ALOG(INFO, "LOGGER_SYS") << "isEmptyRL of img " << _img[l].isEmptyRL();
+            ALOG(INFO, "LOGGER_SYS") << "isEmptyFT of img " << _img[l].isEmptyFT();
+
             ALOG(INFO, "LOGGER_SYS") << "SizeRL of img " << _img[l].sizeRL();
             ALOG(INFO, "LOGGER_SYS") << "SizeFT of img " << _img[l].sizeFT();
+
+            ALOG(INFO, "LOGGER_SYS") << "isEmptyRL of imgOri " << _imgOri[l].isEmptyRL();
+            ALOG(INFO, "LOGGER_SYS") << "isEmptyFT of imgOri " << _imgOri[l].isEmptyFT();
 
             ALOG(INFO, "LOGGER_SYS") << "SizeRL of imgOri " << _imgOri[l].sizeRL();
             ALOG(INFO, "LOGGER_SYS") << "SizeFT of imgOri " << _imgOri[l].sizeFT();
