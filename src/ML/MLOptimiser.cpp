@@ -900,31 +900,9 @@ void MLOptimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
 
+        normCorrection();
+
         /***
-        switch (_searchType)
-        {
-            case SEARCH_TYPE_GLOBAL:
-                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
-                break;
-
-            case SEARCH_TYPE_LOCAL:
-                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
-                break;
-
-            case SEARCH_TYPE_HARSH:
-                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Harsh Search";
-                break;
-
-            case SEARCH_TYPE_STOP:
-                MLOG(INFO, "LOGGER_ROUND") << "Search Type : Stop Search";
-                break;
-
-            default:
-                CLOG(FATAL, "LOGGER_ROUND") << "Invalid Search Type";
-                break;
-        }
-        ***/
-
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Global Search";
@@ -1018,30 +996,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
 
-        /***
-        NT_MASTER
-        {
-            _model.allReduceRChange(_par, _N);
-
-            ALOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
-            BLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
-
-            ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
-                                       << _model.stdRChange();
-            BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
-                                       << _model.stdRChange();
-        }
-        ***/
-
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating Tau";
-        NT_MASTER
-        {
-            ///_model.refreshSig(_sig.row(_groupID[0] - 1).head(_r));
-
-            //_model.refreshRecoSigTau(_r, _r);
-            //_model.reco(0).setSig(_sig.row(0).head(_r));
-        }
-
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
 
@@ -1058,41 +1012,16 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
         reMaskImg();
 
-        /***
-        MLOG(INFO, "LOGGER_ROUND") << "Refreshing Tau";
-        NT_MASTER
-        {
-            _model.refreshTau();
+        //MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
 
-            _model.refreshSig(_sig.row(_groupID[0] - 1));
-
-            //_model.refreshRecoSigTau(_model.rPrev(), _model.rUPrev());
-            //_model.refreshRecoSigTau(_r, _model.rU());
-        }
-
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
-
-        saveSig();
-        saveTau();
-        ***/
+        //saveSig();
+        //saveTau();
 
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
-
-        /***
-        ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
-        BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
-        MPI_Barrier(MPI_COMM_WORLD);
-        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Saved";
-        ***/
-
-        /***
-        MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
-        solventFlatten(_para.performMask);
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC();
@@ -1188,14 +1117,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
-        /***
-        MLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s) to Cutoff Frequency";
-        lowPassFilter(_model.ref(0),
-                      _model.ref(0),
-                      (double)_r / _para.size,
-                      (double)EDGE_WIDTH_FT / _para.pf / _para.size);
-        ***/
-
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
 
@@ -1210,19 +1131,8 @@ void MLOptimiser::run()
             BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
 
             _model.resetReco();
-
-            /***
-            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
-            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
-
-            _model.refreshReco();
-            ***/
-
-            /***
-            //_model.refreshRecoSigTau(maxR(), _model.rUPrev());
-            _model.refreshRecoSigTau(maxR(), _resReport);
-            ***/
         }
+        ***/
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
