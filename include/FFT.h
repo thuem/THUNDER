@@ -34,12 +34,12 @@
 { \
     if (src == NULL) \
     { \
-        CLOG(FATAL, "LOGGER_FFT") << "FFT Needs Input Data."; \
+        REPORT_ERROR("FFT Needs Input Data."); \
         abort(); \
     } \
     if (dst == NULL) \
     { \
-        CLOG(FATAL, "LOGGER_FFT") << "FFT Needs Ouput Space."; \
+        REPORT_ERROR("FFT Needs Output Data."); \
         abort(); \
     } \
 }
