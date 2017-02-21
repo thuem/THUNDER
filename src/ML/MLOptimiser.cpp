@@ -2470,7 +2470,6 @@ void MLOptimiser::normCorrection()
 
             SET_0_FT(img);
 
-            /***
             if (_para.mode == MODE_2D)
             {
                 _par[l].rank1st(cls, rot2D, tran);
@@ -2502,7 +2501,6 @@ void MLOptimiser::normCorrection()
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
-            ***/
 
             /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
@@ -2527,11 +2525,12 @@ void MLOptimiser::normCorrection()
             FFT fft;
             fft.bw(img);
 
+            /***
             norm(_ID[l] - 1) = gsl_stats_mean(&img(0),
                                               1,
                                               img.sizeRL());
+                                              ***/
 
-            /***
             double mean;
             double stddev;
 
@@ -2541,7 +2540,6 @@ void MLOptimiser::normCorrection()
                              _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
 
             norm(_ID[l] - 1) = stddev;
-            ***/
 
             /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
@@ -2657,10 +2655,10 @@ void MLOptimiser::normCorrection()
 
             FOR_EACH_PIXEL_FT(_img[l])
             {
-                _img[l][i] /= 2;
-                _imgOri[l][i] /= 2;
-                // _img[l][i] *= (m / norm(_ID[l] - 1));
-                // _imgOri[l][i] *= (m / norm(_ID[l] - 1));
+                // _img[l][i] /= 2;
+                // _imgOri[l][i] /= 2;
+                _img[l][i] *= (m / norm(_ID[l] - 1));
+                _imgOri[l][i] *= (m / norm(_ID[l] - 1));
                 // _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
                 // _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
             }
