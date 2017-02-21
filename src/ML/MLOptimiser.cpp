@@ -2615,6 +2615,15 @@ void MLOptimiser::normCorrection()
         #pragma omp parallel
         FOR_EACH_2D_IMAGE
         {
+            FFT fft;
+            fft.bw(_img[l]);
+
+            FOR_EACH_PIXEL_RL(_img[l])
+                _img[l](i) /= 2;
+
+            fft.fw(_img[l]);
+
+            /***
             FOR_EACH_PIXEL_FT(_img[l])
             {
                 // _img[l][i] /= 2;
@@ -2624,6 +2633,7 @@ void MLOptimiser::normCorrection()
                 // _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
                 // _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
             }
+            ***/
         }
     }
 }
