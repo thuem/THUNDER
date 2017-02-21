@@ -2615,6 +2615,12 @@ void MLOptimiser::normCorrection()
         #pragma omp parallel
         FOR_EACH_2D_IMAGE
         {
+            ALOG(INFO, "LOGGER_SYS") << "SizeRL of img " << _img[l].sizeRL();
+            ALOG(INFO, "LOGGER_SYS") << "SizeFT of img " << _img[l].sizeFT();
+
+            ALOG(INFO, "LOGGER_SYS") << "SizeRL of imgOri " << _imgOri[l].sizeRL();
+            ALOG(INFO, "LOGGER_SYS") << "SizeFT of imgOri " << _imgOri[l].sizeFT();
+
             FFT fft;
             fft.bw(_img[l]);
 
