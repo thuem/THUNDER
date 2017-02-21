@@ -2687,7 +2687,6 @@ void MLOptimiser::normCorrection()
                              << sd;
                              ***/
 
-    /***
     NT_MASTER
     {
         #pragma omp parallel
@@ -2702,7 +2701,6 @@ void MLOptimiser::normCorrection()
             }
         }
     }
-    ***/
 }
 
 void MLOptimiser::allReduceSigma(const bool group)
