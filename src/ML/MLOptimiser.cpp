@@ -2460,7 +2460,6 @@ void MLOptimiser::normCorrection()
 
             SET_0_FT(img);
 
-            /***
             if (_para.mode == MODE_2D)
             {
                 _par[l].rank1st(cls, rot2D, tran);
@@ -2492,16 +2491,12 @@ void MLOptimiser::normCorrection()
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
-            ***/
 
-            /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
             _img[l][0] = img[0];
             _imgOri[l][0] = img[0];
 #endif
-            ***/
 
-            /***
             NEG_FT(img);
 
 #ifdef OPTIMISER_NORM_MASK
@@ -2509,10 +2504,6 @@ void MLOptimiser::normCorrection()
 #else
             ADD_FT(img, _imgOri[l]);
 #endif
-            ***/
-
-            FOR_EACH_PIXEL_FT(img)
-                img[i] = _imgOri[l][i];
 
             FFT fft;
             fft.bw(img);
