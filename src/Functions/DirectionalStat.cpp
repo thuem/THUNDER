@@ -137,7 +137,7 @@ void sampleVMS(mat2& dst,
 {
     gsl_rng* engine = get_random_engine();
 
-    if (kappa == 0)
+    if (kappa < 1e-3)
     {
         for (int i = 0; i < n; i++)
             gsl_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
