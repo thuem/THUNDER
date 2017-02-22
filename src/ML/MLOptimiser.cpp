@@ -854,6 +854,13 @@ void MLOptimiser::expectation()
     }
     }
 
+    ALOG(INFO, "LOGGER_ROUND") << "Performing Final Perturbation";
+    BLOG(INFO, "LOGGER_ROUND") << "Performing Final Perturbation";
+
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+        _par[l].perturb(_para.perturbFactorS);
+
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
 

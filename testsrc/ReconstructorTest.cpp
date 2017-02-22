@@ -50,40 +50,12 @@ int main(int argc, char* argv[])
 
     printf("head defined\n");
 
-    Image padHead;
-
-    //VOL_PAD_RL(padHead, head, 2);
-    IMG_PAD_RL(padHead, head, 2);
-
-    if (commRank == MASTER_ID)
-        padHead.saveRLToBMP("padHead.bmp");
-
-    normalise(padHead);
-
-    if (commRank == MASTER_ID)
-        padHead.saveRLToBMP("normalisedPadHead.bmp");
-
-    /***
-    std::cout << "Adding Noise" << std::endl;
-    Volume noise(2 * N, 2 * N, 2 * N, RL_SPACE);
-    gsl_rng* engine = get_random_engine();
-    FOR_EACH_PIXEL_RL(noise)
-        noise(i) = gsl_ran_gaussian(engine, 5);
-    ADD_RL(padHead, noise);
-
-    printf("padHead: mean = %f, stddev = %f, maxValue = %f\n",
-           gsl_stats_mean(&padHead(0), 1, padHead.sizeRL()),
-           gsl_stats_sd(&padHead(0), 1, padHead.sizeRL()),
-           padHead(cblas_idamax(padHead.sizeRL(), &padHead(0), 1)));
-    ***/
-
     FFT fft;
-    fft.fw(padHead);
-    printf("FFT Done\n");
+    fft.fw(head);
 
     Projector projector;
     projector.setMode(MODE_2D);
-    projector.setProjectee(padHead.copyImage());
+    projector.setProjectee(head.copyImage());
 
     Image projectee = projector.projectee2D().copyImage();
 
