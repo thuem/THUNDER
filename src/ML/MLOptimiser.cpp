@@ -541,8 +541,8 @@ void MLOptimiser::expectation()
         {
             vec v = topW.col(l);
 
-            //PROCESS_LOGW_SOFT(v);
-            PROCESS_LOGW_HARD(v);
+            PROCESS_LOGW_SOFT(v);
+            //PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
@@ -728,8 +728,8 @@ void MLOptimiser::expectation()
                                          _nPxl);
             }
 
-            //PROCESS_LOGW_SOFT(logW);
-            PROCESS_LOGW_HARD(logW);
+            PROCESS_LOGW_SOFT(logW);
+            //PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
