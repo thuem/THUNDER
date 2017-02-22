@@ -3391,8 +3391,8 @@ void MLOptimiser::saveReference(const bool finished)
             {
                 ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
 
-                Image ref(_para.size * _para.pf,
-                          _para.size * _para.pf,
+                Image ref(_para.size,
+                          _para.size,
                           FT_SPACE);
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
@@ -3409,8 +3409,8 @@ void MLOptimiser::saveReference(const bool finished)
             {
                 BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
 
-                Image ref(_para.size * _para.pf,
-                          _para.size * _para.pf,
+                Image ref(_para.size,
+                          _para.size,
                           FT_SPACE);
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
@@ -3426,9 +3426,9 @@ void MLOptimiser::saveReference(const bool finished)
         }
         else if (_para.mode == MODE_3D)
         {
-            Volume lowPass(_para.size * _para.pf,
-                           _para.size * _para.pf,
-                           _para.size * _para.pf,
+            Volume lowPass(_para.size,
+                           _para.size,
+                           _para.size,
                            FT_SPACE);
 
             if (finished)
@@ -3442,30 +3442,28 @@ void MLOptimiser::saveReference(const bool finished)
                 fft.bwMT(lowPass);
             }
 
-            Volume result;
-
             if (_commRank == HEMI_A_LEAD)
             {
                 ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
 
                 if (finished)
                 {
-                    VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
+                    sprintf(filename, "Reference_%03d_A_Final.mrc", t);
+
+                    imf.readMetaData(_model.ref(t));
+                    imf.writeVolume(filename, _model.ref(t), _para.pixelSize);
 
                     fft.fwMT(_model.ref(t));
                     _model.ref(t).clearRL();
 
-                    sprintf(filename, "Reference_%03d_A_Final.mrc", t);
                 }
                 else
                 {
-                    VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
                     sprintf(filename, "Reference_%03d_A_Round_%03d.mrc", t, _iter);
+
+                    imf.readMetaData(lowPass);
+                    imf.writeVolume(filename, lowPass, _para.pixelSize);
                 }
-
-                imf.readMetaData(result);
-
-                imf.writeVolume(filename, result, _para.pixelSize);
             }
             else if (_commRank == HEMI_B_LEAD)
             {
@@ -3473,22 +3471,21 @@ void MLOptimiser::saveReference(const bool finished)
 
                 if (finished)
                 {
-                    VOL_EXTRACT_RL(result, _model.ref(t), 1.0 / _para.pf);
+                    sprintf(filename, "Reference_%03d_B_Final.mrc", t);
+
+                    imf.readMetaData(_model.ref(t));
+                    imf.writeVolume(filename, _model.ref(t), _para.pixelSize);
 
                     fft.fwMT(_model.ref(t));
                     _model.ref(t).clearRL();
-
-                    sprintf(filename, "Reference_%03d_B_Final.mrc", t);
                 }
                 else
                 {
-                    VOL_EXTRACT_RL(result, lowPass, 1.0 / _para.pf);
                     sprintf(filename, "Reference_%03d_B_Round_%03d.mrc", t, _iter);
+
+                    imf.readMetaData(lowPass);
+                    imf.writeVolume(filename, lowPass, _para.pixelSize);
                 }
-
-                imf.readMetaData(result);
-
-                imf.writeVolume(filename, result, _para.pixelSize);
             }
         }
     }
