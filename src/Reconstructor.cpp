@@ -842,7 +842,8 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
-        dst = _F3D.copyVolume();
+        VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
+        // dst = _F3D.copyVolume();
 
         _fft.fwExecutePlanMT(_F3D);
         _F3D.clearRL();
