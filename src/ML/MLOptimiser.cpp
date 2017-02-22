@@ -641,7 +641,7 @@ void MLOptimiser::expectation()
 
     bool pHard = false;
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for private(pHard) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         Complex* priP = new Complex[_nPxl];
