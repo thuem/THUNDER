@@ -19,15 +19,15 @@
 #define KAPPA_4 4
 #define KAPPA_5 8
 #define KAPPA_6 16
-#define KAPPA_7 32
+#define KAPPA_7 100000
 
 #define N 1000
 
 //#define TEST_PDF_VMS
 
-//#define TEST_SAMPLE_VMS
+#define TEST_SAMPLE_VMS
 
-#define TEST_INFER_VMS
+//#define TEST_INFER_VMS
 
 INITIALIZE_EASYLOGGINGPP
 
