@@ -1298,8 +1298,11 @@ void MLOptimiser::initRef()
             }
             else if (_para.mode == MODE_3D)
             {
+                _model.appendRef(ref.copyVolume());
+                /***
                 _model.appendRef(Volume());
                 VOL_PAD_RL(_model.ref(t), ref, _para.pf);
+                ***/
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
@@ -1314,8 +1317,8 @@ void MLOptimiser::initRef()
 
         if (_para.mode == MODE_2D)
         {
-            Image ref(_para.size * _para.pf,
-                      _para.size * _para.pf,
+            Image ref(_para.size,
+                      _para.size,
                       RL_SPACE);
 
             IMAGE_FOR_EACH_PIXEL_RL(ref)
@@ -1329,8 +1332,8 @@ void MLOptimiser::initRef()
             fft.fwMT(ref);
             ref.clearRL();
 
-            Volume volRef(_para.size * _para.pf,
-                          _para.size * _para.pf,
+            Volume volRef(_para.size,
+                          _para.size,
                           1,
                           FT_SPACE);
 
@@ -1343,9 +1346,9 @@ void MLOptimiser::initRef()
         }
         else if (_para.mode == MODE_3D)
         {
-            Volume ref(_para.size * _para.pf,
-                       _para.size * _para.pf,
-                       _para.size * _para.pf,
+            Volume ref(_para.size,
+                       _para.size,
+                       _para.size,
                        RL_SPACE);
 
             VOLUME_FOR_EACH_PIXEL_RL(ref)
@@ -1372,10 +1375,13 @@ void MLOptimiser::initMask()
     ImageFile imf(_para.mask, "rb");
     imf.readMetaData();
 
+    imf.readVolume(_mask);
+    /***
     Volume mask;
     imf.readVolume(mask);
 
     VOL_PAD_RL(_mask, mask, _para.pf);
+    ***/
 }
 
 void MLOptimiser::initID()
