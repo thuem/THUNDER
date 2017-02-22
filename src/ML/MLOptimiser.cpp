@@ -3077,8 +3077,8 @@ void MLOptimiser::solventFlatten(const bool mask)
 
             if (_para.mode == MODE_2D)
             {
-                Image ref(_para.size * _para.pf,
-                          _para.size * _para.pf,
+                Image ref(_para.size,
+                          _para.size,
                           RL_SPACE);
 
                 SLC_EXTRACT_RL(ref, _model.ref(t), 0);
