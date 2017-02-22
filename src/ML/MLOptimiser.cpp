@@ -2441,15 +2441,24 @@ void MLOptimiser::reMaskImg()
 
     if (_para.zeroMask)
     {
+        Image mask(_para.size, _para.size, RL_SPACE);
+
+        softMask(mask,
+                 _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                 EDGE_WIDTH_RL);
+
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
             C2C_RL(_img[l],
                    _img[l],
+                   MUL_RL(_img[l], mask));
+        /***
                    softMask(_img[l],
                             _img[l],
                             _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                             EDGE_WIDTH_RL,
                             0));
+                            ***/
     }
     else
     {

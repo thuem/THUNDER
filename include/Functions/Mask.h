@@ -83,6 +83,10 @@ double background(const Volume& vol,
 double background(const Volume& vol,
                   const Volume& alpha);
 
+void softMask(Image& mask,
+              const double r,
+              const double ew);
+
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
  * from the source image with a certain radius and edge width.
@@ -171,6 +175,10 @@ void softMask(Image& dst,
               const Image& alpha,
               const double bgMean,
               const double bgStd);
+
+void softMask(Volume& mask,
+              const double r,
+              const double ew);
 
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated

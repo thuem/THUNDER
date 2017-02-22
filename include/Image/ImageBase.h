@@ -166,6 +166,10 @@
     FOR_EACH_PIXEL_FT(a) \
         (a)[i] -= (b)[i]
 
+#define MUL_RL(a, b) \
+    FOR_EACH_PIXEL_RL(a) \
+        (a)(i) *= (b)(i)
+
 /**
  * This macro multiplys each pixel of A with the pixel of B respectively in Fourier space.
  * @param a Image / Volume A
@@ -174,6 +178,10 @@
 #define MUL_FT(a, b) \
     FOR_EACH_PIXEL_FT(a) \
         (a)[i] *= (b)[i]
+
+#define DIV_RL(a, b) \
+    FOR_EACH_PIXEL_RL(a) \
+        (a)(i) /= (b)(i)
 
 /**
  * This macro divides each pixel of A with the pixel of B respectively in Fourier space.

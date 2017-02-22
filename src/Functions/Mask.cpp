@@ -180,6 +180,23 @@ void directSoftMask(Image& dst,
 }
 ***/
 
+void softMask(Image& mask,
+              const double r,
+              const double ew)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(mask)
+    {
+        double u = NORM(i, j);
+
+        if (u > r + ew)
+            mask.setRL(0, i, j);
+        else if (u >= r)
+            mask.setRL(0.5 + 0.5 * cos((u - r) / ew * M_PI), i, j);
+        else
+            mask.setRL(1, i, j);
+    }
+}
+
 void softMask(Image& dst,
               const Image& src,
               const double r,
@@ -281,6 +298,12 @@ void softMask(Image& dst,
     }
 }
 
+void softMask(Volume& mask,
+              const double r,
+              const double ew)
+{
+    //TODO
+}
 void softMask(Volume& dst,
               const Volume& src,
               const double r,
