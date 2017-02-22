@@ -727,7 +727,8 @@ void MLOptimiser::expectation()
                                          _nPxl);
             }
 
-            PROCESS_LOGW_SOFT(logW);
+            //PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
