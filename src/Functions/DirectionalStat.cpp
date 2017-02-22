@@ -75,7 +75,7 @@ void inferACG(mat44& dst,
     mat44 A;
     mat44 B = mat44::Identity();
 
-    do
+    for (int m = 0; m < 10; m++)
     {
         A = B;
 
@@ -104,7 +104,8 @@ void inferACG(mat44& dst,
         for (int i = 1; i < 4; i++)
             for (int j = 0; j < i; j++)
                 B(i, j) = B(j, i);
-    } while ((abs((A - B).array())).sum() > 1e-5);
+        if ((abs((A - B).array())).sum() < 1e-5) break;
+    }
 
     dst = A;
 }
