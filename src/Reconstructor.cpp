@@ -952,7 +952,10 @@ double Reconstructor::checkC() const
             }
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+        abort();
+    }
 
     return diff / counter;
 #endif
@@ -963,7 +966,7 @@ double Reconstructor::checkC() const
         vector<double> diff(_C2D.sizeFT(), 0);
         
         #pragma omp parallel for schedule(dynamic)
-        IMAGE_FOR_EACH_PIXEL_RL(_C2D)
+        IMAGE_FOR_EACH_PIXEL_FT(_C2D)
             if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                 diff[_C2D.iFTHalf(i, j)] = fabs(ABS(_C2D.getFT(i, j)) - 1);
 
