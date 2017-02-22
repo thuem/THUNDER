@@ -96,9 +96,12 @@ const Volume& Projector::projectee3D() const
 
 void Projector::setProjectee(Image src)
 {
-    _projectee2D.swap(src);
+    FFT fft;
+    fft.bwMT(src);
 
-    if (_projectee2D.isEmptyFT()) REPORT_ERROR("FOURIER SPACE EMPTY");
+    IMG_PAD_RL(_projectee2D, src, _pf);
+
+    if (_projectee2D.isEmptyRL()) REPORT_ERROR("REAL SPACE EMPTY");
 
     _maxRadius = floor(MIN(_projectee2D.nColRL(),
                            _projectee2D.nRowRL()) / _pf / 2 - 1);
@@ -112,9 +115,12 @@ void Projector::setProjectee(Image src)
 
 void Projector::setProjectee(Volume src)
 {
-    _projectee3D.swap(src);
+    FFT fft;
+    fft.bwMT(src);
 
-    if (_projectee3D.isEmptyFT()) REPORT_ERROR("FOURIER SPACE EMPTY");
+    VOL_PAD_RL(_projectee3D, src, _pf);
+
+    if (_projectee3D.isEmptyRL()) REPORT_ERROR("RL SPACE EMPTY");
 
     _maxRadius = floor(MIN_3(_projectee3D.nColRL(),
                              _projectee3D.nRowRL(),
@@ -502,8 +508,6 @@ void Projector::gridCorrection()
             CLOG(INFO, "LOGGER_SYS") << "Inverse Fourier Transform in Grid Correction";
 #endif
 
-            fft.bwMT(_projectee2D);
-
 #ifdef PROJECTOR_REMOVE_NEG
             #pragma omp parallel for
             REMOVE_NEG(_projectee2D);
@@ -529,8 +533,6 @@ void Projector::gridCorrection()
 #ifdef VERBOSE_LEVEL_3
             CLOG(INFO, "LOGGER_SYS") << "Inverse Fourier Transform in Grid Correction";
 #endif
-
-            fft.bwMT(_projectee3D);
 
 #ifdef PROJECTOR_REMOVE_NEG
             #pragma omp parallel for

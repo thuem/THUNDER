@@ -189,8 +189,6 @@ int MLModel::res() const
 
 void MLModel::setRes(const int res)
 {
-    //if (_resT < _res) _resT = _res;
-
     _res = res;
 }
 
@@ -228,7 +226,7 @@ void MLModel::BcastFSC()
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
-    _FSC.resize(_rU * _pf, _k);
+    _FSC.resize(_rU, _k);
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -243,24 +241,24 @@ void MLModel::BcastFSC()
             if (_mode == MODE_2D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
-                                              << _size * _pf
+                                              << _size 
                                               << " X "
-                                              << _size * _pf;
+                                              << _size;
 
-                A.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
-                B.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
+                A.alloc(_size, _size, 1, FT_SPACE);
+                B.alloc(_size, _size, 1, FT_SPACE);
             }
             else if (_mode == MODE_3D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
-                                             << _size * _pf
+                                             << _size
                                              << " X "
-                                             << _size * _pf
+                                             << _size
                                              << " X "
-                                             << _size * _pf;
+                                             << _size;
 
-                A.alloc(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
-                B.alloc(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+                A.alloc(_size, _size, _size, FT_SPACE);
+                B.alloc(_size, _size, _size, FT_SPACE);
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
@@ -305,7 +303,6 @@ void MLModel::BcastFSC()
                                              << IMAG(B[0]);
 #endif
 
-            //vec fsc(_rU * _pf);
             vec fsc(_rU);
 
             if (_mode == MODE_2D)
@@ -320,6 +317,7 @@ void MLModel::BcastFSC()
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
 
+                /***
                 FFT fft;
 
                 fft.bwMT(A);
@@ -335,9 +333,11 @@ void MLModel::BcastFSC()
                 fft.fwMT(tmpB);
 
                 FSC(fsc, tmpA, tmpB);
+                ***/
 
-                //FSC(fsc, A, B);
+                FSC(fsc, A, B);
 
+                /***
                 for (int i = 0; i < _rU * _pf; i++)
                     _FSC(i, l) = fsc(i / _pf);
 
@@ -345,7 +345,8 @@ void MLModel::BcastFSC()
                 fft.fwMT(B);
                 A.clearRL();
                 B.clearRL();
-                //_FSC.col(l) = fsc;
+                ***/
+                _FSC.col(l) = fsc;
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
@@ -621,7 +622,7 @@ int MLModel::resolutionP(const int i,
                          const double thres,
                          const bool inverse) const
 {
-    return resP(_FSC.col(i), thres, _pf, 1, inverse);
+    return resP(_FSC.col(i), thres, 1, 1, inverse);
 }
 
 int MLModel::resolutionP(const double thres,
@@ -661,7 +662,7 @@ void MLModel::refreshProj()
         {
             _proj[l].setMode(MODE_2D);
 
-            Image tmp(_size * _pf, _size * _pf, FT_SPACE);
+            Image tmp(_size, _size, FT_SPACE);
             SLC_EXTRACT_FT(tmp, _ref[l], 0);
 
             _proj[l].setProjectee(tmp.copyImage());
@@ -734,8 +735,7 @@ void MLModel::resetReco()
     {
         _reco[l]->reset();
 
-        //_reco[l]->setFSC(_FSC.col(l));
-        _reco[l]->setFSC(_FSC.col(l).head(_res * _pf));
+        _reco[l]->setFSC(_FSC.col(l).head(_res));
 
         _reco[l]->setMaxRadius(_rU);
     }
@@ -1126,24 +1126,24 @@ void MLModel::avgHemi()
             if (_mode == MODE_2D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
-                                             << _size * _pf
+                                             << _size
                                              << " X "
-                                             << _size * _pf;
+                                             << _size;
 
-                A.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
-                B.alloc(_size * _pf, _size * _pf, 1, FT_SPACE);
+                A.alloc(_size, _size, 1, FT_SPACE);
+                B.alloc(_size, _size, 1, FT_SPACE);
             }
             else if (_mode == MODE_3D)
             {
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
-                                             << _size * _pf
+                                             << _size
                                              << " X "
-                                             << _size * _pf
+                                             << _size
                                              << " X "
-                                             << _size * _pf;
+                                             << _size;
 
-                Volume A(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
-                Volume B(_size * _pf, _size * _pf, _size * _pf, FT_SPACE);
+                Volume A(_size, _size, _size, FT_SPACE);
+                Volume B(_size, _size, _size, FT_SPACE);
             }
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";

@@ -832,8 +832,10 @@ void Reconstructor::reconstruct(Volume& dst)
     if (_mode == MODE_2D)
     {
         dst.clear();
-        dst.alloc(_size * _pf, _size * _pf, 1, RL_SPACE);
-        COPY_RL(dst, _F2D);
+        dst.alloc(_size, _size, 1, RL_SPACE);
+
+        VOLUME_FOR_EACH_PIXEL_RL(dst)
+            dst.setRL(_F2D.getRL(i, j), i, j, k);
 
         _fft.fwExecutePlanMT(_F2D);
         _F2D.clearRL();
