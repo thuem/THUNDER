@@ -834,8 +834,8 @@ void Reconstructor::reconstruct(Volume& dst)
         dst.clear();
         dst.alloc(_size, _size, 1, RL_SPACE);
 
-        for (int j = _size / 2; j < _size / 2; j++)
-            for (int i = _size / 2; i < _size / 2; i++)
+        for (int j = -_size / 2; j < _size / 2; j++)
+            for (int i = -_size / 2; i < _size / 2; i++)
                 dst.setRL(_F2D.getRL(i, j), i, j, 0);
 
         _fft.fwExecutePlanMT(_F2D);
