@@ -635,7 +635,7 @@ void MLOptimiser::expectation()
 #endif
     }
 
-    if (_mode == MODE_3D)
+    if (_para.mode == MODE_3D)
     {
 
     _nF = 0;
