@@ -639,6 +639,8 @@ void MLOptimiser::expectation()
 
     nPer = 0;
 
+    bool pHard = false;
+
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
@@ -728,8 +730,10 @@ void MLOptimiser::expectation()
                                          _nPxl);
             }
 
-            PROCESS_LOGW_SOFT(logW);
-            //PROCESS_LOGW_HARD(logW);
+            if (pHard)
+                PROCESS_LOGW_HARD(logW);
+            else
+                PROCESS_LOGW_SOFT(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -803,7 +807,10 @@ void MLOptimiser::expectation()
                 else
                 {
                     // there is no improvement in this search
-                    nPhaseWithNoVariDecrease += 1;
+                    if (pHard)
+                        nPhaseWithNoVariDecrease += 1;
+                    else
+                        pHard = true;
                 }
 
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
