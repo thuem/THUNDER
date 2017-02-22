@@ -639,9 +639,7 @@ void MLOptimiser::expectation()
 
     nPer = 0;
 
-    bool pHard = false;
-
-    #pragma omp parallel for private(pHard) schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         Complex* priP = new Complex[_nPxl];
@@ -730,10 +728,7 @@ void MLOptimiser::expectation()
                                          _nPxl);
             }
 
-            if (pHard)
-                PROCESS_LOGW_HARD(logW);
-            else
-                PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_SOFT(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -805,13 +800,7 @@ void MLOptimiser::expectation()
                     nPhaseWithNoVariDecrease = 0;
                 }
                 else
-                {
-                    // there is no improvement in this search
-                    if (pHard)
-                        nPhaseWithNoVariDecrease += 1;
-                    else
-                        pHard = true;
-                }
+                    nPhaseWithNoVariDecrease += 1;
 
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
