@@ -590,6 +590,9 @@ void MLOptimiser::expectation()
 
             // resample
             _par[l].resample();
+
+            // calculation variance
+            _par[l].calVari();
         }
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
