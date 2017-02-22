@@ -2724,7 +2724,7 @@ void MLOptimiser::allReduceSigma(const bool group)
                                            _ctf[l],
                                            _sigRcp.row(_groupID[l] - 1).transpose(),
                                            _r,
-                                           _rL);
+                                           2.5);
 
             ALOG(INFO, "LOGGER_SYS") << "_ID = "
                                      << _ID[l]
