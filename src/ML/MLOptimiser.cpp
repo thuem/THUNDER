@@ -635,6 +635,9 @@ void MLOptimiser::expectation()
 #endif
     }
 
+    if (_mode == MODE_3D)
+    {
+
     _nF = 0;
     _nI = 0;
 
@@ -845,6 +848,7 @@ void MLOptimiser::expectation()
         }
 
         delete[] priP;
+    }
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
