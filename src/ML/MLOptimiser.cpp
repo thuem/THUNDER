@@ -2719,6 +2719,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 #endif
             }
 
+            /***
             double weight = logDataVSPrior(_img[l],
                                            img,
                                            _ctf[l],
@@ -2730,6 +2731,7 @@ void MLOptimiser::allReduceSigma(const bool group)
                                      << _ID[l]
                                      << ", Final dataVSPrior = "
                                      << exp(weight);
+                                     ***/
 
             FOR_EACH_PIXEL_FT(img)
                 img[i] *= REAL(_ctf[l][i]);
