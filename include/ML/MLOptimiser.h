@@ -50,22 +50,6 @@
 #define MIN_N_PHASE_PER_ITER 10
 #define MAX_N_PHASE_PER_ITER 100
 
-//#define PERTURB_FACTOR_L 100
-//#define PERTURB_FACTOR_S 0.01
-
-#define PERTURB_FACTOR_L 2
-//#define PERTURB_FACTOR_L 4
-//#define PERTURB_FACTOR_L 10
-#define PERTURB_FACTOR_S 0.5
-//#define PERTURB_FACTOR_S 0.25
-//#define PERTURB_FACTOR_S 1
-//#define PERTURB_FACTOR_S 0.8
-
-//#define GEN_MASK_RES 30
-
-//#define TRANS_SEARCH_FACTOR 1
-#define TRANS_SEARCH_FACTOR 0.25
-
 #define SWITCH_FACTOR 3
 
 #define N_SAVE_IMG 20
@@ -248,6 +232,12 @@ struct MLOptimiserPara
      */
     bool zeroMask;
 
+    double transSearchFactor;
+
+    double perturbFactorL;
+
+    double perturbFactorS;
+
     MLOptimiserPara()
     {
         autoSelection = false;
@@ -263,6 +253,9 @@ struct MLOptimiserPara
         thresCutoffFSC = 0.5;
         thresReportFSC = 0.143;
         thresSclCorFSC = 0.75;
+        transSearchFactor = 1;
+        perturbFactorL = 2;
+        perturbFactorS = 0.5;
     }
 };
 

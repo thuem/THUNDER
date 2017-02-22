@@ -63,10 +63,6 @@ void readPara(MLOptimiserPara& dst,
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();
     copy_string(dst.mask, src["Reference Mask"]["Provided Mask"].asString());
 
-    dst.performSharpen = src["Sharpening"]["Perform Sharpening"].asBool();
-    dst.estBFactor = src["Sharpening"]["Auto Estimate B-Factor"].asBool();
-    dst.bFactor = src["Sharpening"]["B-Factor (Angstrom^2)"].asFloat();
-
     dst.iterMax = src["Advanced"]["Max Number of Iteration"].asInt();
     dst.pf = src["Advanced"]["Padding Factor"].asInt();
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();
@@ -83,6 +79,10 @@ void readPara(MLOptimiserPara& dst,
     dst.groupSig = src["Advanced"]["Grouping when Calculating Sigma"].asBool();
     dst.groupScl = src["Advanced"]["Grouping when Correcting Intensity Scale"].asBool();
     dst.zeroMask = src["Advanced"]["Mask Images with Zero Noise"].asBool();
+
+    dst.transSearchFactor = src["Professional"]["Translation Search Factor"].asFloat();
+    dst.perturbFactorL = src["Professional"]["Perturbation Factor (Large)"].asFloat();
+    dst.perturbFactorS = src["Professional"]["Perturbation Factor (Small)"].asFloat();
 };
 
 INITIALIZE_EASYLOGGINGPP

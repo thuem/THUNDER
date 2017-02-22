@@ -393,7 +393,8 @@ void MLOptimiser::expectation()
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
-                                  * TRANS_SEARCH_FACTOR));
+                                  * _para.transSearchFactor));
+                                  //* TRANS_SEARCH_FACTOR));
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
         nSampleWholeSpace = _para.k * _para.mS * nT;
@@ -663,10 +664,14 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
-                _par[l].perturb(PERTURB_FACTOR_L);
+                _par[l].perturb(_para.perturbFactorL);
+                //_par[l].perturb(PERTURB_FACTOR_L);
             }
             else
-                _par[l].perturb(PERTURB_FACTOR_S);
+            {
+                _par[l].perturb(_para.perturbFactorS);
+                //_par[l].perturb(PERTURB_FACTOR_S);
+            }
 
             vec logW(_par[l].n());
 
