@@ -273,11 +273,18 @@ void softMask(Image& dst,
               const Image& alpha,
               const double bg)
 {
+    FOR_EACH_PIXEL_RL(src)
+    {
+        double w = 1 - alpha.iGetRL(i);
+        dst(i) = bg * w + src.iGetRL(i) * (1 - w);
+    }
+    /***
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         double w = 1 - alpha.getRL(i, j); // portion of background
         dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
     }
+    ***/
 }
 
 void softMask(Image& dst,
@@ -352,11 +359,19 @@ void softMask(Volume& dst,
               const double bg)
 {
     #pragma omp parallel for
+    FOR_EACH_PIXEL_RL(src)
+    {
+        double w = 1 - alpha.iGetRL(i); // portion of background
+        dst(i) = bg * w + src.iGetRL(i) * (1 - w);
+    }
+    /***
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
         double w = 1 - alpha.getRL(i, j, k); // portion of background
         dst.setRL(bg * w + src.getRL(i, j, k) * (1 - w), i, j, k);
     }
+    ***/
 }
 
 void regionBgSoftMask(Image& dst,

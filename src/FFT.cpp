@@ -238,8 +238,8 @@ void FFT::bwMT(Volume& vol)
 void FFT::fwCreatePlan(const int nCol,
                        const int nRow)
 {
-    fwCreatePlan(nCol, nRow, 1);
-    /***
+    //fwCreatePlan(nCol, nRow, 1);
+
     _srcR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
@@ -251,7 +251,6 @@ void FFT::fwCreatePlan(const int nCol,
 
     fftw_free(_srcR);
     fftw_free(_dstC);
-    ***/
 }
 
 void FFT::fwCreatePlan(const int nCol,
@@ -275,8 +274,8 @@ void FFT::fwCreatePlan(const int nCol,
 void FFT::bwCreatePlan(const int nCol,
                        const int nRow)
 {
-    bwCreatePlan(nCol, nRow, 1);
-    /***
+    // bwCreatePlan(nCol, nRow, 1);
+
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
     _dstR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
 
@@ -289,7 +288,6 @@ void FFT::bwCreatePlan(const int nCol,
 
     fftw_free(_srcC);
     fftw_free(_dstR);
-    ***/
 }
 
 void FFT::bwCreatePlan(const int nCol,

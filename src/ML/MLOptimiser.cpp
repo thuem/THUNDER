@@ -871,6 +871,7 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    /***
     MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
     normCorrection();
@@ -889,6 +890,7 @@ void MLOptimiser::maximization()
 
         correctScale(false, true);
     }
+    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
