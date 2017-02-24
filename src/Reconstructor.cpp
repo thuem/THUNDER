@@ -616,7 +616,7 @@ void Reconstructor::reconstruct(Volume& dst)
             if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
                 (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
             {
-                int u = AROUND(NORM_3(i, j, k));
+                int u = AROUND(NORM_3(i, j, k)) / _pf;
 
                 double FSC = (u >= _FSC.size())
                            ? _FSC(_FSC.size() - 1)
@@ -624,7 +624,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
                 FSC = GSL_MAX_DBL(1e-3, GSL_MIN_DBL(1 - 1e-3, FSC));
 
-                // FSC = sqrt(2 * FSC / (1 + FSC));
+                FSC = sqrt(2 * FSC / (1 + FSC));
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
                 _T3D.setFT(_T3D.getFT(i, j, k)
