@@ -616,11 +616,11 @@ void Reconstructor::reconstruct(Volume& dst)
             if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
                 (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
             {
-                int u = AROUND(NORM_3(i, j, k)) / _pf;
+                int u = AROUND(NORM_3(i, j, k));
 
-                double FSC = (u >= _FSC.size())
+                double FSC = (u / _pf >= _FSC.size())
                            ? _FSC(_FSC.size() - 1)
-                           : _FSC(u);
+                           : _FSC(u / _pf);
 
                 FSC = GSL_MAX_DBL(1e-3, GSL_MIN_DBL(1 - 1e-3, FSC));
 
