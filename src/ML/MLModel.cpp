@@ -15,6 +15,7 @@ MLModel::~MLModel()
 }
 
 void MLModel::init(const int mode,
+                   const bool refine,
                    const int k,
                    const int size,
                    const int r,
@@ -25,6 +26,7 @@ void MLModel::init(const int mode,
                    const Symmetry* sym)
 {
     _mode = mode;
+    _refine = refine;
     _k = k;
     _size = size;
     _r = r;
@@ -46,6 +48,16 @@ int MLModel::mode() const
 void MLModel::setMode(const int mode)
 {
     _mode = mode;
+}
+
+bool MLModel::refine() const
+{
+    return _refine;
+}
+
+void MLModel::setRefine(const bool refine)
+{
+    _refine = refine;
 }
 
 void MLModel::initProjReco()
@@ -1023,7 +1035,12 @@ int MLModel::searchType()
         // beteween iterations still gets room for improvement.
         IF_MASTER
             if ((_r == _rGlobal) && _increaseR)
-                _searchType = SEARCH_TYPE_LOCAL;
+            {
+                if (_refine)
+                    _searchType = SEARCH_TYPE_LOCAL;
+                else
+                    _searchType = SEARCH_TYPE_STOP;
+            }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);

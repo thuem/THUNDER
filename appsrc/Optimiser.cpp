@@ -46,6 +46,8 @@ void readPara(MLOptimiserPara& dst,
     else
         REPORT_ERROR("INEXISTENT MODE");
 
+    dst.refine = src["Refine"].asBool();
+
     dst.k = src["Number of Classes"].asInt();
     dst.size = src["Size of Image"].asInt();
     dst.pixelSize = src["Pixel Size (Angstrom)"].asFloat();

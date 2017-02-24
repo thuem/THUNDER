@@ -80,6 +80,11 @@ struct MLOptimiserPara
     int mode;
 
     /**
+     * refine or not
+     */
+    bool refine;
+
+    /**
      * number of classes
      */
     int k;
@@ -240,6 +245,8 @@ struct MLOptimiserPara
 
     MLOptimiserPara()
     {
+        mode = MODE_3D;
+        refine = true;
         autoSelection = false;
         localCTF = false;
         performMask = true;

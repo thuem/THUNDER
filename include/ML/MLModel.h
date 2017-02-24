@@ -75,6 +75,8 @@ class MLModel : public Parallel
 
         int _mode;
 
+        bool _refine;
+
         /**
          * references in Fourier space
          */
@@ -261,6 +263,8 @@ class MLModel : public Parallel
          */
         MLModel()
         {
+            _mode = MODE_3D;
+            _refine = true;
             _r = 1;
             _rU = 1;
             _rPrev = 1;
@@ -306,6 +310,7 @@ class MLModel : public Parallel
          * @param sym       the symmetry information
          */
         void init(const int mode,
+                  const bool refine,
                   const int k,
                   const int size,
                   const int r,
@@ -318,6 +323,10 @@ class MLModel : public Parallel
         int mode() const;
 
         void setMode(const int mode);
+
+        bool refine() const;
+
+        void setRefine(const bool refine);
 
         /**
          * This function initialises projectors and reconstructors.
