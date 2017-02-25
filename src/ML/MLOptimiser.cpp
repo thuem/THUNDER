@@ -3712,6 +3712,9 @@ double logDataVSPrior(const Image& dat,
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
+#ifdef OPTIMISER_CTF_WRAP
+                        * fabs(REAL(ctf.iGetFT(index)))
+#endif
                         * sigRcp(v);
             }
         }
@@ -3734,6 +3737,9 @@ double logDataVSPrior(const Image& dat,
         result += ABS2(dat.iGetFT(iPxl[i])
                      - REAL(ctf.iGetFT(iPxl[i]))
                      * pri.iGetFT(iPxl[i]))
+#ifdef OPTIMISER_CTF_WRAP
+                * fabs(REAL(ctf.iGetFT(iPxl[i])))
+#endif
                 * sigRcp(iSig[i]);
 
     return result;
@@ -3748,7 +3754,11 @@ double logDataVSPrior(const Complex* dat,
     double result = 0;
 
     for (int i = 0; i < m; i++)
-        result += ABS2(dat[i] - ctf[i] * pri[i]) * sigRcp[i];
+        result += ABS2(dat[i] - ctf[i] * pri[i])
+#ifdef OPTIMISER_CTF_WRAP
+                * fabs(ctf[i])
+#endif
+                * sigRcp[i];
 
     return result;
 }
@@ -3781,6 +3791,9 @@ double logDataVSPrior(const Image& dat,
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
+#ifdef OPTIMISER_CTF_WRAP
+                        * fabs(REAL(ctf.iGetFT(index)))
+#endif
                         * sigRcp(v);
             }
         }
@@ -3808,6 +3821,9 @@ double logDataVSPrior(const Image& dat,
                      - REAL(ctf.iGetFT(index))
                      * pri.iGetFT(index)
                      * tra.iGetFT(index))
+#ifdef OPTIMISER_CTF_WRAP
+                * fabs(REAL(ctf.iGetFT(index)))
+#endif
                 * sigRcp(iSig[i]);
     }
 
@@ -3845,6 +3861,9 @@ vec logDataVSPrior(const vector<Image>& dat,
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
+#ifdef OPTIMISER_CTF_WRAP
+                               * fabs(REAL(ctf[l].iGetFT(index)))
+#endif
                                * sigRcp(groupID[l] - 1, v);
                 }
             }
@@ -3881,6 +3900,9 @@ vec logDataVSPrior(const vector<Image>& dat,
             result(l) += ABS2(datL.iGetFT(index)
                             - REAL(ctfL.iGetFT(index))
                             * pri.iGetFT(index))
+#ifdef OPTIMISER_CTF_WRAP
+                       * fabs(REAL(ctfL.iGetFT(index)))
+#endif
                        * sigRcp(gL, iSig[i]);
         }
     }
@@ -3919,7 +3941,11 @@ vec logDataVSPrior(const Complex* dat,
     vec result = vec::Zero(n);
 
     for (int i = 0; i < n * m; i++)
-        result(i / m) += ABS2(dat[i] - ctf[i] * pri[i % m]) * sigRcp[i];
+        result(i / m) += ABS2(dat[i] - ctf[i] * pri[i % m])
+#ifdef OPTIMISER_CTF_WRAP
+                       * fabs(ctf[i])
+#endif
+                       * sigRcp[i];
 
     return result;
 }
