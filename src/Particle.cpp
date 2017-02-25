@@ -488,8 +488,8 @@ void Particle::perturb(const double pf)
             break;
 
         case MODE_3D:
-            sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
-            //sampleACG(d, pow(pf, -2.0) * _k0, _k1, _n);
+            //sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
+            sampleACG(d, pow(pf, -2.0) * _k0, _k1, _n);
             break;
 
         default:
