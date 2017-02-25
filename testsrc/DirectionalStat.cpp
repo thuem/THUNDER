@@ -23,9 +23,11 @@
 
 #define N 1000
 
+#define TEST_SAMPLE_ACG
+
 //#define TEST_PDF_VMS
 
-#define TEST_SAMPLE_VMS
+//#define TEST_SAMPLE_VMS
 
 //#define TEST_INFER_VMS
 
@@ -33,6 +35,26 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, const char* argv[])
 {
+#ifdef TEST_SAMPLE_ACG
+    mat44 mat;
+
+    mat << 1, 0, 0, 0,
+           0, 5, 0, 0,
+           0, 0, 5, 0,
+           0, 0, 0, 5;
+
+    mat4 acg(N, 4);
+
+    sampleACG(acg, mat, N);
+    
+    for (int i = 0; i < N; i++)
+        printf("%15.6lf %15.6lf %15.6lf %15.6lf\n",
+               acg(i, 0),
+               acg(i, 1),
+               acg(i, 2),
+               acg(i, 3));
+#endif
+
 #ifdef TEST_PDF_VMS
     for (double theta = -M_PI; theta < M_PI; theta += 0.01)
         printf("%6f   %6f   %6f   %6f   %6f   %6f\n",
