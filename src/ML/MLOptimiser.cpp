@@ -858,6 +858,7 @@ void MLOptimiser::expectation()
     }
     }
 
+#ifdef OPTIMISER_FINAL_PERTURBATION
     ALOG(INFO, "LOGGER_ROUND") << "Performing Final Perturbation";
     BLOG(INFO, "LOGGER_ROUND") << "Performing Final Perturbation";
 
@@ -869,6 +870,7 @@ void MLOptimiser::expectation()
         else
             _par[l].perturb(_para.perturbFactorSLocal);
     }
+#endif
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
