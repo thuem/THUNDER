@@ -241,7 +241,9 @@ struct MLOptimiserPara
 
     double perturbFactorL;
 
-    double perturbFactorS;
+    double perturbFactorSGlobal;
+
+    double perturbFactorSLocal;
 
     MLOptimiserPara()
     {
@@ -257,12 +259,13 @@ struct MLOptimiserPara
         pf = 2;
         a = 1.9;
         alpha = 15;
-        thresCutoffFSC = 0.5;
+        thresCutoffFSC = 0.143;
         thresReportFSC = 0.143;
         thresSclCorFSC = 0.75;
         transSearchFactor = 1;
         perturbFactorL = 2;
-        perturbFactorS = 0.5;
+        perturbFactorSGlobal = 0.2;
+        perturbFactorSLocal = 0.5;
     }
 };
 

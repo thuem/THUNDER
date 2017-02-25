@@ -114,7 +114,7 @@ void MLOptimiser::init()
 
                               ***/
     //_rL = 0;
-    _rL = 2.5;
+    _rL = 0;
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
@@ -678,7 +678,10 @@ void MLOptimiser::expectation()
             }
             else
             {
-                _par[l].perturb(_para.perturbFactorS);
+                if (_searchType == SEARCH_TYPE_GLOBAL)
+                    _par[l].perturb(_para.perturbFactorSGlobal);
+                else
+                    _par[l].perturb(_para.perturbFactorSLocal);
                 //_par[l].perturb(PERTURB_FACTOR_S);
             }
 
@@ -860,7 +863,12 @@ void MLOptimiser::expectation()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
-        _par[l].perturb(_para.perturbFactorS);
+    {
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].perturb(_para.perturbFactorSGlobal);
+        else
+            _par[l].perturb(_para.perturbFactorSLocal);
+    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
@@ -874,7 +882,7 @@ void MLOptimiser::maximization()
 {
     MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
-    //normCorrection();
+    normCorrection();
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";

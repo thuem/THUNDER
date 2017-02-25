@@ -247,7 +247,7 @@ void FFT::fwCreatePlan(const int nCol,
                                   nCol,
                                   _srcR,
                                   _dstC,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_free(_srcR);
     fftw_free(_dstC);
@@ -265,7 +265,7 @@ void FFT::fwCreatePlan(const int nCol,
                                   nSlc,
                                   _srcR,
                                   _dstC,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_free(_srcR);
     fftw_free(_dstC);
@@ -284,7 +284,7 @@ void FFT::bwCreatePlan(const int nCol,
                                   nCol,
                                   _srcC,
                                   _dstR,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_free(_srcC);
     fftw_free(_dstR);
@@ -303,7 +303,7 @@ void FFT::bwCreatePlan(const int nCol,
                                   nSlc,
                                   _srcC,
                                   _dstR,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_free(_srcC);
     fftw_free(_dstR);
@@ -323,7 +323,7 @@ void FFT::fwCreatePlanMT(const int nCol,
                                   nCol,
                                   _srcR,
                                   _dstC,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_plan_with_nthreads(1);
 
@@ -345,7 +345,7 @@ void FFT::fwCreatePlanMT(const int nCol,
                                   nSlc,
                                   _srcR,
                                   _dstC,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_plan_with_nthreads(1);
 
@@ -367,7 +367,7 @@ void FFT::bwCreatePlanMT(const int nCol,
                                   nCol,
                                   _srcC,
                                   _dstR,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_plan_with_nthreads(1);
 
@@ -389,7 +389,7 @@ void FFT::bwCreatePlanMT(const int nCol,
                                   nSlc,
                                   _srcC,
                                   _dstR,
-                                  FFTW_ESTIMATE);
+                                  FFTW_MEASURE);
 
     fftw_plan_with_nthreads(1);
 

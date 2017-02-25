@@ -89,7 +89,8 @@ void readPara(MLOptimiserPara& dst,
 
     dst.transSearchFactor = src["Professional"]["Translation Search Factor"].asFloat();
     dst.perturbFactorL = src["Professional"]["Perturbation Factor (Large)"].asFloat();
-    dst.perturbFactorS = src["Professional"]["Perturbation Factor (Small)"].asFloat();
+    dst.perturbFactorSGlobal = src["Professional"]["Perturbation Factor (Small, Global)"].asFloat();
+    dst.perturbFactorSLocal = src["Professional"]["Perturbation Factor (Small, Local)"].asFloat();
 };
 
 INITIALIZE_EASYLOGGINGPP
