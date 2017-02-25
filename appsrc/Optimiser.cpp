@@ -26,10 +26,15 @@ static inline void copy_string(char (&array)[N], const std::string& source)
 {
     if (source.size() + 1 >= N)
     {
-        CLOG(FATAL, "LOGGER_SYS") << "String too large to fit in parameter";
+        CLOG(FATAL, "LOGGER_SYS") << "String too large to fit in parameter. "
+                                  << "Destination length is "
+                                  << N
+                                  << ", while source length is "
+                                  << source.size() + 1;
+                                  
         return;
     }
-    memcpy(array, source.c_str(), source.size()+1);
+    memcpy(array, source.c_str(), source.size() + 1);
 }
 
 void readPara(MLOptimiserPara& dst,

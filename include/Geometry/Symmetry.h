@@ -27,7 +27,7 @@
  * Maximum ID Length of Symmetry
  * Example: C5, C4H, O, I, D2V
  */
-#define SYM_ID_LENGTH 4
+#define SYM_ID_LENGTH 5
 
 /**
  * This macros determines whether A and B matrix is equal with tolerence of 1e4.
