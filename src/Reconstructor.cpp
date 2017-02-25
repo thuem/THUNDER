@@ -55,6 +55,9 @@ void Reconstructor::init(const int mode,
     _alpha = alpha;
 
     // initialise the interpolation kernel
+    
+    ALOG(INFO, "LOGGER_RECO") << "Initialising Kernels";
+    BLOG(INFO, "LOGGER_RECO") << "Initialising Kernels";
 
     _kernelFT.init(boost::bind(MKB_FT_R2,
                                boost::placeholders::_1,
@@ -76,20 +79,32 @@ void Reconstructor::init(const int mode,
 
     if (_mode == MODE_2D)
     {
+        ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+        BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+
         _F2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
         _W2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
         _C2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
         _T2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+
+        ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
+        BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
         _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE);
         _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE);
     }
     else if (_mode == MODE_3D)
     {
+        ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+        BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+
         _F3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
         _W3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
         _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
         _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+
+        ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
+        BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
         _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
         _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
