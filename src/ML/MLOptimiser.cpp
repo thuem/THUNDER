@@ -3164,48 +3164,15 @@ void MLOptimiser::allocPreCalIdx(const double rU,
     }
 }
 
-void MLOptimiser::allocPreCal()
+void MLOptimiser::allocPreCal(const bool ctf)
 {
     IF_MASTER return;
-
-    /***
-    _datP = new Complex*[_ID.size()];
-
-    _ctfP = new double*[_ID.size()];
-
-    _sigRcpP = new double*[_ID.size()];
-
-    #pragma omp parallel for
-    for (int i = 0; i < (int)_ID.size(); i++)
-    {
-        _datP[i] = new Complex[_nPxl];
-        
-        _ctfP[i] = new double[_nPxl];
-
-        _sigRcpP[i] = new double[_nPxl];
-    }
-    ***/
 
     _datP = new Complex[_ID.size() * _nPxl];
 
     _ctfP = new double[_ID.size() * _nPxl];
 
     _sigRcpP = new double[_ID.size() * _nPxl];
-
-    /***
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-    {
-        for (int i = 0; i < _nPxl; i++)
-        {
-            _datP[l][i] = _img[l].iGetFT(_iPxl[i]);
-
-            _ctfP[l][i] = REAL(_ctf[l].iGetFT(_iPxl[i]));
-
-            _sigRcpP[l][i] = _sigRcp(_groupID[l] - 1, _iSig[i]);
-        }
-    }
-    ***/
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -3217,6 +3184,22 @@ void MLOptimiser::allocPreCal()
             _ctfP[_nPxl * l + i] = REAL(_ctf[l].iGetFT(_iPxl[i]));
 
             _sigRcpP[_nPxl * l + i] = _sigRcp(_groupID[l] - 1, _iSig[i]);
+        }
+    }
+
+    if (ctf)
+    {
+        _frequency = new double[_nPxl];
+
+        _defocusP = new double[_ID.size() * _nPxl];
+
+        _K1 = new double[_ID.size()];
+
+        _K2 = new double[_ID.size()];
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
         }
     }
 }
@@ -3231,23 +3214,21 @@ void MLOptimiser::freePreCalIdx()
     delete[] _iSig;
 }
 
-void MLOptimiser::freePreCal()
+void MLOptimiser::freePreCal(const bool ctf)
 {
     IF_MASTER return;
-
-    /***
-    #pragma omp parallel for
-    for (int i = 0; i < (int)_ID.size(); i++)
-    {
-        delete[] _datP[i];
-        delete[] _ctfP[i];
-        delete[] _sigRcpP[i];
-    }
-    ***/
 
     delete[] _datP;
     delete[] _ctfP;
     delete[] _sigRcpP;
+
+    if (ctf)
+    {
+        delete[] _frequency;
+        delete[] _defocusP;
+        delete[] _K1;
+        delete[] _K2;
+    }
 }
 
 void MLOptimiser::saveBestProjections()

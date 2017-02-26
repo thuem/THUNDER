@@ -484,19 +484,31 @@ class MLOptimiser : public Parallel
 
         int* _iSig;
 
-        /***
-        Complex** _datP;
-
-        double** _ctfP;
-
-        double** _sigRcpP;
-        ***/
-        
         Complex* _datP;
 
         double* _ctfP;
 
         double* _sigRcpP;
+
+        /**
+         * spatial frequency of each pixel
+         */
+        double* _frequency;
+
+        /**
+         * defocus of each pixel of each image
+         */
+        double* _defocusP;
+
+        /**
+         * K1 of CTF of each image
+         */
+        double* _K1;
+
+        /**
+         * K2 of CTF of each image
+         */
+        double* _K2;
 
     public:
         
@@ -717,11 +729,11 @@ class MLOptimiser : public Parallel
         void allocPreCalIdx(const double rU,
                             const double rL);
 
-        void allocPreCal();
+        void allocPreCal(const bool ctf = false);
 
         void freePreCalIdx();
 
-        void freePreCal();
+        void freePreCal(const bool ctf = false);
 
         /**
          * for debug, save the best projections
