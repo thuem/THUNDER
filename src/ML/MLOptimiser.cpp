@@ -3763,6 +3763,18 @@ double logDataVSPrior(const Complex* dat,
     return result;
 }
 
+double logDataVSPrior(const Complex* dat,
+                      const Complex* pri,
+                      const double* frequency,
+                      const double* defocus,
+                      const double df,
+                      const double K1,
+                      const double K2,
+                      const double* sigRcp,
+                      const int m)
+{
+}
+
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
