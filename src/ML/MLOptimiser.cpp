@@ -701,6 +701,7 @@ void MLOptimiser::expectation()
             int c;
             mat22 rot2D;
             mat33 rot3D;
+            double d;
             vec2 t;
 
             for (int m = 0; m < _par[l].n(); m++)
@@ -719,6 +720,8 @@ void MLOptimiser::expectation()
                     REPORT_ERROR("INEXISTENT MODE");
 
                 _par[l].t(t, m);
+
+                _par[l].d(d, m);
 
                 if (_para.mode == MODE_2D)
                 {
@@ -750,9 +753,16 @@ void MLOptimiser::expectation()
                                              _sigRcpP + l * _nPxl,
                                              _nPxl);
                 else
-                {
-                    // TODO
-                }
+                    logW(m) = logDataVSPrior(_datP + l * _nPxl,
+                                             priP,
+                                             _frequency,
+                                             _defocusP + l * _nPxl,
+                                             d,
+                                             _K1[l],
+                                             _K2[l],
+                                             _sigRcpP + l * _nPxl,
+                                             _nPxl);
+
             }
 
             PROCESS_LOGW_SOFT(logW);
@@ -891,7 +901,10 @@ void MLOptimiser::expectation()
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
 
-    freePreCal();
+    if (_searchType != SEARCH_TYPE_CTF)
+        freePreCal(false);
+    else
+        freePreCal(true);
 
     freePreCalIdx();
 }
