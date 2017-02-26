@@ -385,6 +385,8 @@ class MLOptimiser : public Parallel
          */
         vector<Particle> _par;
 
+        vector<CTFAttr> _ctfAttr;
+
         /**
          * a CTF for each 2D image
          */

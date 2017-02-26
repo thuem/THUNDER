@@ -1754,6 +1754,7 @@ void MLOptimiser::initCTF()
 {
     IF_MASTER return;
 
+    _ctfAttr.clear();
     _ctf.clear();
 
     // get CTF attributes from _exp
@@ -1814,6 +1815,8 @@ void MLOptimiser::initCTF()
         }
 
         stmt.reset();
+
+        _ctfAttr.push_back(ctfAttr);
 
         // append a CTF
         _ctf.push_back(Image(size(), size(), FT_SPACE));
@@ -3197,9 +3200,32 @@ void MLOptimiser::allocPreCal(const bool ctf)
 
         _K2 = new double[_ID.size()];
 
+        for (int i = 0; i < _nPxl; i++)
+            _frequency[i] = (double)_iSig[_iPxl[i]] / _para.size;
+
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+            for (int i = 0; i < _nPxl; i++)
+            {
+                double angle = atan2(_iRow[_iPxl[i]],
+                                     _iCol[_iPxl[i]])
+                             - _ctfAttr[l].defocusAngle;
+
+                double defocus = -(_ctfAttr[l].defocusU
+                                 + _ctfAttr[l].defocusV
+                                 + (_ctfAttr[l].defocusU - _ctfAttr[l].defocusV)
+                                 * cos(2 * angle))
+                                 / 2;
+
+                _defocusP[_nPxl * l + i] = defocus;
+            }
+
+            double lambda = 12.2643274 / sqrt(_ctfAttr[l].voltage
+                                            * (1 + _ctfAttr[l].voltage * 0.978466e-6));
+
+            _K1[l] = M_PI * lambda;
+            _K2[l] = M_PI / 2 * _ctfAttr[l].CS * gsl_pow_2(lambda);
         }
     }
 }
