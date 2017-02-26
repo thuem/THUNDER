@@ -187,8 +187,7 @@ void Particle::reset(const int m,
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
-                                      << ": INEXISTENT MODE";
+            REPORT_ERROR("INEXISTENT MODE");
             break;
     }
 
@@ -233,6 +232,14 @@ void Particle::reset(const int m,
             }
 
     if (_mode == MODE_3D) symmetrise();
+}
+
+void Particle::initD(const double sD)
+{
+    gsl_rng* engine = get_random_engine();
+
+    for (int i = 0; i < _n; i++)
+        _d(i) = 1 + gsl_ran_gaussian(engine, sD);
 }
 
 int Particle::mode() const { return _mode; }

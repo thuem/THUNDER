@@ -290,6 +290,13 @@ class Particle
                    const int nR,
                    const int nT);
 
+        /**
+         * initialise defocus factor
+         *
+         * @param sD the standard deviation of defocus factor
+         */
+        void initD(const double sD = 0.2);
+
         int mode() const;
 
         void setMode(const int mode);

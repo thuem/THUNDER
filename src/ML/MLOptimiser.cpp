@@ -351,7 +351,10 @@ void MLOptimiser::expectation()
 
     allocPreCalIdx(_r, _rL);
 
-    allocPreCal();
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(false);
+    else
+        allocPreCal(true);
 
     int nPer = 0;
 
@@ -397,7 +400,6 @@ void MLOptimiser::expectation()
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
-                                  //* TRANS_SEARCH_FACTOR));
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
         nSampleWholeSpace = _para.k * _para.mS * nT;
@@ -677,6 +679,16 @@ void MLOptimiser::expectation()
                 _par[l].perturb(_para.perturbFactorL);
                 //_par[l].perturb(PERTURB_FACTOR_L);
             }
+            else if ((phase == 0) &&
+                     (_searchType == SEARCH_TYPE_CTF))
+            {
+                _par[l].resample(_para.mL * _para.ctfRefineFactor,
+                                 ALPHA_LOCAL_SEARCH);
+
+                _par[l].perturb(_para.perturbFactorL);
+
+                _par[l].initD();
+            }
             else
             {
                 if (_searchType == SEARCH_TYPE_GLOBAL)
@@ -733,11 +745,16 @@ void MLOptimiser::expectation()
                                            _nPxl);
                 }
 
-                logW(m) = logDataVSPrior(_datP + l * _nPxl,
-                                         priP,
-                                         _ctfP + l * _nPxl,
-                                         _sigRcpP + l * _nPxl,
-                                         _nPxl);
+                if (_searchType != SEARCH_TYPE_CTF)
+                    logW(m) = logDataVSPrior(_datP + l * _nPxl,
+                                             priP,
+                                             _ctfP + l * _nPxl,
+                                             _sigRcpP + l * _nPxl,
+                                             _nPxl);
+                else
+                {
+                    // TODO
+                }
             }
 
             PROCESS_LOGW_SOFT(logW);
@@ -798,9 +815,9 @@ void MLOptimiser::expectation()
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
+                double rVariCur;
                 double tVariS0Cur;
                 double tVariS1Cur;
-                double rVariCur;
 
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
 
@@ -939,6 +956,10 @@ void MLOptimiser::run()
         else if (_searchType == SEARCH_TYPE_LOCAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Search Type : Local Search";
+        }
+        else if (_searchType == SEARCH_TYPE_CTF)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type : CTF Refine";
         }
         else
         {

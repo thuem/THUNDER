@@ -250,6 +250,8 @@ struct MLOptimiserPara
 
     double perturbFactorSLocal;
 
+    double ctfRefineFactor;
+
     MLOptimiserPara()
     {
         mode = MODE_3D;
@@ -272,6 +274,7 @@ struct MLOptimiserPara
         perturbFactorL = 2;
         perturbFactorSGlobal = 0.2;
         perturbFactorSLocal = 0.5;
+        ctfRefineFactor = 10;
     }
 };
 
