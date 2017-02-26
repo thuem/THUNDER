@@ -687,14 +687,16 @@ void MLOptimiser::expectation()
 
                 _par[l].perturb(_para.perturbFactorL);
 
-                _par[l].initD();
+                _par[l].initD(_para.ctfRefineS);
             }
             else
             {
                 if (_searchType == SEARCH_TYPE_GLOBAL)
                     _par[l].perturb(_para.perturbFactorSGlobal);
-                else
+                else if (_searchType == SEARCH_TYPE_LOCAL)
                     _par[l].perturb(_para.perturbFactorSLocal);
+                else
+                    _par[l].perturb(_para.perturbFactorSCTF);
             }
 
             vec logW(_par[l].n());
@@ -897,8 +899,10 @@ void MLOptimiser::expectation()
     {
         if (_searchType == SEARCH_TYPE_GLOBAL)
             _par[l].perturb(_para.perturbFactorSGlobal);
-        else
+        else if (_searchType == SEARCH_TYPE_LOCAL)
             _par[l].perturb(_para.perturbFactorSLocal);
+        else
+            _par[l].perturb(_para.perturbFactorSCTF);
     }
 #endif
 

@@ -295,7 +295,7 @@ class Particle
          *
          * @param sD the standard deviation of defocus factor
          */
-        void initD(const double sD = 0.2);
+        void initD(const double sD = 0.05);
 
         int mode() const;
 

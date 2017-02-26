@@ -250,6 +250,8 @@ struct MLOptimiserPara
 
     double perturbFactorSLocal;
 
+    double perturbFactorSCTF;
+
     double ctfRefineFactor;
 
     double ctfRefineS;
@@ -276,8 +278,9 @@ struct MLOptimiserPara
         perturbFactorL = 2;
         perturbFactorSGlobal = 0.2;
         perturbFactorSLocal = 0.5;
+        perturbFactorSCTF = 0.1;
         ctfRefineFactor = 10;
-        ctfRefineS = 0.2;
+        ctfRefineS = 0.05;
     }
 };
 

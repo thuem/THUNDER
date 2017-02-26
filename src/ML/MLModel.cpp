@@ -1129,7 +1129,7 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
                 break;
 
             case SEARCH_TYPE_LOCAL:
-            case SEARCH_TYPE_CTF;
+            case SEARCH_TYPE_CTF:
                 _increaseR = (_nRChangeNoDecrease
                            >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
                 break;
