@@ -550,7 +550,8 @@ class Particle
         void setQuaternion(const vec4& src,
                            const int i);
 
-        double d(const int i) const;
+        void d(double& d,
+               const int i) const;
 
         void setD(const double d,
                   const int i);

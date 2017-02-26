@@ -446,9 +446,10 @@ void Particle::setQuaternion(const vec4& src,
     _r.row(i) = src.transpose();
 }
 
-double Particle::d(const int i) const
+void Particle::d(double& d,
+                 const int i) const
 {
-    return _d(i);
+    d = _d(i);
 }
 
 void Particle::setD(const double d,
@@ -1024,16 +1025,19 @@ void save(const char filename[],
     int c;
     vec4 q;
     vec2 t;
+    double d;
     for (int i = 0; i < par.n(); i++)
     {
         par.c(c, i);
         par.quaternion(q, i);
         par.t(t, i);
+        par.d(d, i);
         fprintf(file,
-                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                 c,
                 q(0), q(1), q(2), q(3),
                 t(0), t(1),
+                d,
                 par.w(i));
     }
 
@@ -1048,6 +1052,7 @@ void load(Particle& par,
     int c;
     vec4 q;
     vec2 t;
+    double d;
     double w;
 
     char buf[FILE_LINE_LENGTH];
@@ -1062,15 +1067,17 @@ void load(Particle& par,
     for (int i = 0; i < nLine; i++) 
     {
         fscanf(file,
-               "%d %lf %lf %lf %lf %lf %lf %lf",
+               "%d %lf %lf %lf %lf %lf %lf %lf %lf",
                &c,
                &q(0), &q(1), &q(2), &q(3),
                &t(0), &t(1),
+               &d,
                &w);
 
         par.setC(c, i);
         par.setQuaternion(q, i);
         par.setT(t, i);
+        par.setD(d, i);
         par.setW(w, i);
     }
 
