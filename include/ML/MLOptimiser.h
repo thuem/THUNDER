@@ -85,6 +85,11 @@ struct MLOptimiserPara
     bool refine;
 
     /**
+     * CTF refine or not
+     */
+    bool ctfRefine;
+
+    /**
      * number of classes
      */
     int k;
