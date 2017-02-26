@@ -1035,6 +1035,10 @@ int MLModel::searchType()
                     {
                         _searchType = SEARCH_TYPE_CTF;
                         _nTopResNoImprove = 0;
+
+                        resetRChange();
+                        setNRChangeNoDecrease(0);
+                        setIncreaseR(false);
                     }
                     else
                         _searchType = SEARCH_TYPE_STOP;
