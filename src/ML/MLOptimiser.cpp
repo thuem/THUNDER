@@ -3244,9 +3244,17 @@ void MLOptimiser::allocPreCal(const bool ctf)
         _K2 = new double[_ID.size()];
 
         for (int i = 0; i < _nPxl; i++)
+        {
+            _frequency[i] = NORM(_iCol[_iPxl[i]],
+                                 _iRow[_iPxl[i]])
+                          / _para.size
+                          / _para.pixelSize;
+            /***
             _frequency[i] = (double)_iSig[_iPxl[i]]
                           / _para.size
                           / _para.pixelSize;
+            ***/
+        }
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
@@ -3270,7 +3278,7 @@ void MLOptimiser::allocPreCal(const bool ctf)
                                             * (1 + _ctfAttr[l].voltage * 0.978466e-6));
 
             _K1[l] = M_PI * lambda;
-            _K2[l] = M_PI / 2 * _ctfAttr[l].CS * gsl_pow_2(lambda);
+            _K2[l] = M_PI / 2 * _ctfAttr[l].CS * gsl_pow_3(lambda);
         }
     }
 }
