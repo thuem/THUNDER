@@ -3773,6 +3773,19 @@ double logDataVSPrior(const Complex* dat,
                       const double* sigRcp,
                       const int m)
 {
+    double result = 0;
+
+    for (int i = 0; i < m; i++)
+    {
+        double ctf = 0; // TODO
+
+        result += ABS2(dat[i] - ctf[i] * pri[i])
+#ifdef OPTIMISER_CTF_WRAP
+                * fabs(ctf[i])
+#endif
+                * sigRcp[i];
+
+    }
 }
 
 double logDataVSPrior(const Image& dat,
