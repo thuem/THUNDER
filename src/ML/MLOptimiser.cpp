@@ -3777,7 +3777,10 @@ double logDataVSPrior(const Complex* dat,
 
     for (int i = 0; i < m; i++)
     {
-        double ctf = 0; // TODO
+        double ki = K1 * defocus[i] * df * gsl_pow_2(frequency[i])
+                  + K2 * gsl_pow_4(frequency[i]);
+
+        double ctf = w1 * sin(ki) - w2 * cos(ki);
 
         result += ABS2(dat[i] - ctf * pri[i])
 #ifdef OPTIMISER_CTF_WRAP
