@@ -846,7 +846,7 @@ void MLOptimiser::expectation()
                 if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
                 if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
                 if (rVariCur < rVari) rVari = rVariCur;
-                if (dVariCur < dVari) dVari = rVariCur;
+                if (dVariCur < dVari) dVari = dVariCur;
 
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
