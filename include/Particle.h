@@ -550,6 +550,11 @@ class Particle
         void setQuaternion(const vec4& src,
                            const int i);
 
+        double d(const int i) const;
+
+        void setD(const double d,
+                  const int i);
+
         /**
          * This function calculates the concentration paramters, including
          * rotation and translation.

@@ -446,6 +446,17 @@ void Particle::setQuaternion(const vec4& src,
     _r.row(i) = src.transpose();
 }
 
+double Particle::d(const int i) const
+{
+    return _d(i);
+}
+
+void Particle::setD(const double d,
+                    const int i)
+{
+    _d(i) = d;
+}
+
 void Particle::calVari()
 {
     // variance of translation
