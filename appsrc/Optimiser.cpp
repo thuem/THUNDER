@@ -52,6 +52,7 @@ void readPara(MLOptimiserPara& dst,
         REPORT_ERROR("INEXISTENT MODE");
 
     dst.refine = src["Refine"].asBool();
+    dst.ctfRefine = src["CTF Refine"].asBool();
 
     dst.k = src["Number of Classes"].asInt();
     dst.size = src["Size of Image"].asInt();
