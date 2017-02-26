@@ -88,6 +88,11 @@ class Particle
         mat2 _t;
 
         /**
+         * a vector storing the defocus factor of each particle
+         */
+        vec _d;
+
+        /**
          * a vector storing the weight of each particle
          */
         vec _w;
@@ -128,6 +133,11 @@ class Particle
          * rho of 2D Gaussian distribution of translation
          */
         double _rho;
+
+        /**
+         * sigma of 1D Gaussian distribution of defocus factor
+         */
+        double _s;
 
         /**
          * the previous most likely class
@@ -363,6 +373,10 @@ class Particle
          * storing a 2-vector with x and y respectively
          */
         void setT(const mat2& t);
+
+        vec d() const;
+
+        void setD(const vec& d);
 
         /**
          * This function returns the vector storing the weight of each particle.

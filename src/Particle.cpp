@@ -61,6 +61,7 @@ void Particle::init(const int mode,
     _c.resize(_n);
     _r.resize(_n, 4);
     _t.resize(_n, 2);
+    _d.resize(_n);
 
     _w.resize(_n);
 
@@ -120,6 +121,10 @@ void Particle::reset()
     }
 #endif
 
+    // the default value of all defocus factor is 1
+    for (int i = 0; i < _n; i++)
+        _d(i) = 1;
+
     // initialise weight
     for (int i = 0; i < _n; i++)
         _w(i) = 1.0 / _n;
@@ -137,6 +142,8 @@ void Particle::reset(const int m,
     _c.resize(_n);
     _r.resize(_n, 4);
     _t.resize(_n, 2);
+    _d.resize(_n);
+
     _w.resize(_n);
 
     reset();
@@ -155,6 +162,8 @@ void Particle::reset(const int m,
     _c.resize(_n);
     _r.resize(_n, 4);
     _t.resize(_n, 2);
+    _d.resize(_n);
+
     _w.resize(_n);
 
     uvec c(m);
@@ -218,6 +227,8 @@ void Particle::reset(const int m,
 
                 _t.row(k * nR * nT + j * nT + i) = t.row(i);
 
+                _d(k * nR * nT + j * nT + i) = 1;
+
                 _w(k * nR * nT + j * nT + i) = 1.0 / _n;
             }
 
@@ -255,6 +266,10 @@ void Particle::setR(const mat4& r) { _r = r; }
 mat2 Particle::t() const { return _t; }
 
 void Particle::setT(const mat2& t) { _t = t; }
+
+vec Particle::d() const { return _d; }
+
+void Particle::setD(const vec& d) { _d = d; }
 
 vec Particle::w() const { return _w; }
 
@@ -433,6 +448,8 @@ void Particle::setQuaternion(const vec4& src,
 
 void Particle::calVari()
 {
+    // variance of translation
+
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
     _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
     _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
@@ -443,12 +460,18 @@ void Particle::calVari()
 
     _rho = 0;
 
+    // variance of rotation
+
     if (_mode == MODE_2D)
         inferVMS(_k, _r);
     else if (_mode == MODE_3D)
         inferACG(_k0, _k1, _r);
     else
         REPORT_ERROR("INEXISTENT MODE");
+
+    // variance of defocus factor
+
+    _s = gsl_stats_sd(_d.data(), 1, _d.size());
 }
 
 void Particle::perturb(const double pf)
@@ -508,6 +531,9 @@ void Particle::perturb(const double pf)
 
     if (_mode == MODE_3D) symmetrise();
 
+    for (int i = 0; i < _d.size(); i++)
+        _d(i) += gsl_ran_gaussian(engine, _s) * pf;
+
     reCentre();
 }
 
@@ -555,6 +581,7 @@ void Particle::resample(const int n,
     uvec c(n);
     mat4 r(n, 4);
     mat2 t(n, 2);
+    vec d(n);
     
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points";
@@ -604,6 +631,13 @@ void Particle::resample(const int n,
     }
 
 #ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Defocus Factor";
+#endif
+
+    for (int i = 0; i < nG; i++)
+        _d(i) = 1;
+
+#ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Weights for Global Sampling Points";
 #endif
 
@@ -630,6 +664,8 @@ void Particle::resample(const int n,
 
         t.row(nG + j) = _t.row(i);
 
+        d(nG + j) = _d(i);
+
         _w(nG + j) = 1.0 / n;
     }
 
@@ -645,6 +681,9 @@ void Particle::resample(const int n,
 
     _t.resize(n, 2);
     _t = t;
+
+    _d.resize(n);
+    _d = d;
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Symmetrizing";
@@ -678,21 +717,27 @@ void Particle::sort(const int n)
 
     uvec order = iSort();
 
+    uvec c(n);
     mat4 r(n, 4);
     mat2 t(n, 2);
+    vec d(n);
     vec w(n);
 
     for (int i = 0; i < n; i++)
     {
+        c(i) = _c(order(i));
         r.row(i) = _r.row(order(i));
         t.row(i) = _t.row(order(i));
+        d(i) = _d(order(i));
         w(i) = _w(order(i));
     }
 
     _n = n;
 
+    _c = c;
     _r = r;
     _t = t;
+    _d = d;
     _w = w;
 
     // normalise weight again
@@ -860,19 +905,25 @@ void Particle::shuffle()
 
     gsl_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
 
+    uvec c(_n);
     mat4 r(_n, 4);
     mat2 t(_n, 2);
+    vec d(_n);
     vec w(_n);
 
     for (int i = 0; i < _n; i++)
     {
+        c(s(i)) = _c(i);
         r.row(s(i)) = _r.row(i);
         t.row(s(i)) = _t.row(i);
+        d(s(i)) = _d(i);
         w(s(i)) = _w(i);
     }
 
+    _c = c;
     _r = r;
     _t = t;
+    _d = d;
     _w = w;
 }
 
@@ -885,6 +936,7 @@ void Particle::copy(Particle& that) const
     that.setC(_c);
     that.setR(_r);
     that.setT(_t);
+    that.setD(_d);
     that.setW(_w);
     that.setSymmetry(_sym);
 }
