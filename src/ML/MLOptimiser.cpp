@@ -3244,7 +3244,9 @@ void MLOptimiser::allocPreCal(const bool ctf)
         _K2 = new double[_ID.size()];
 
         for (int i = 0; i < _nPxl; i++)
-            _frequency[i] = (double)_iSig[_iPxl[i]] / _para.size;
+            _frequency[i] = (double)_iSig[_iPxl[i]]
+                          / _para.size
+                          / _para.pixelSize;
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
