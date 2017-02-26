@@ -423,7 +423,8 @@ class Particle
                   double& k1,
                   double& s0,
                   double& s1,
-                  double& rho) const;
+                  double& rho,
+                  double& s) const;
 
         /**
          * This function returns the concentration parameters, including
@@ -435,13 +436,16 @@ class Particle
          */
         void vari(double& rVari,
                   double& s0,
-                  double& s1) const;
+                  double& s1,
+                  double& s) const;
 
+        /***
         double compressTrans() const;
 
         double compressPerDim() const;
 
         double compress() const;
+        ***/
 
         /**
          * This function returns the weight of the i-th particle in this

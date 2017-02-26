@@ -290,18 +290,21 @@ void Particle::vari(double& k0,
                     double& k1,
                     double& s0,
                     double& s1,
-                    double& rho) const
+                    double& rho,
+                    double& s) const
 {
     k0 = _k0;
     k1 = _k1;
     s0 = _s0;
     s1 = _s1;
     rho = _rho;
+    s = _s;
 }
 
 void Particle::vari(double& rVari,
                     double& s0,
-                    double& s1) const
+                    double& s1,
+                    double& s) const
 {
     switch (_mode)
     {
@@ -328,8 +331,11 @@ void Particle::vari(double& rVari,
 
     s0 = _s0;
     s1 = _s1;
+
+    s = _s;
 }
 
+/***
 double Particle::compressTrans() const
 {
     return _s0 * _s1 / gsl_pow_2(_transS);
@@ -372,6 +378,7 @@ double Particle::compress() const
             abort();
     }
 }
+***/
 
 double Particle::w(const int i) const { return _w(i); }
 

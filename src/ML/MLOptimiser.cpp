@@ -660,6 +660,7 @@ void MLOptimiser::expectation()
         double tVariS0 = 5 * _para.transS;
         double tVariS1 = 5 * _para.transS;
         double rVari = 1;
+        double dVari = 5 * _para.ctfRefineS;
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
@@ -823,15 +824,17 @@ void MLOptimiser::expectation()
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
-                double rVariCur;
                 double tVariS0Cur;
                 double tVariS1Cur;
+                double rVariCur;
+                double dVariCur;
 
-                _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur);
+                _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
 
                 if ((tVariS0Cur < tVariS0 * 0.9) ||
                     (tVariS1Cur < tVariS1 * 0.9) ||
-                    (rVariCur < rVari * 0.9))
+                    (rVariCur < rVari * 0.9) ||
+                    (dVariCur < dVari * 0.9))
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
@@ -843,6 +846,7 @@ void MLOptimiser::expectation()
                 if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
                 if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
                 if (rVariCur < rVari) rVari = rVariCur;
+                if (dVariCur < dVari) dVari = rVariCur;
 
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
@@ -2087,14 +2091,15 @@ void MLOptimiser::refreshVariance()
 
     NT_MASTER
     {
-        double rVari, tVariS0, tVariS1;
+        double rVari, tVariS0, tVariS1, dVari;
 
         #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
         {
             _par[l].vari(rVari,
                          tVariS0,
-                         tVariS1);
+                         tVariS1,
+                         dVari);
 
             rv(_ID[l] - 1) = rVari;
             t0v(_ID[l] - 1) = tVariS0;
@@ -2163,14 +2168,15 @@ void MLOptimiser::refreshSwitch()
                             + SWITCH_FACTOR
                             * _model.stdTVariS1();
 
-        double rVari, tVariS0, tVariS1;
+        double rVari, tVariS0, tVariS1, dVari;
 
         #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
         {
             _par[l].vari(rVari,
                          tVariS0,
-                         tVariS1);
+                         tVariS1,
+                         dVari);
 
             if ((rVari > rVariThres) ||
                 (tVariS0 > tVariS0Thres) ||
