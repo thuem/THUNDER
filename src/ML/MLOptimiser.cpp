@@ -91,6 +91,7 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.mode,
                 _para.refine,
+                _para.ctfRefine,
                 _para.k,
                 _para.size,
                 0,

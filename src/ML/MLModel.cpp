@@ -16,6 +16,7 @@ MLModel::~MLModel()
 
 void MLModel::init(const int mode,
                    const bool refine,
+                   const bool ctfRefine,
                    const int k,
                    const int size,
                    const int r,
@@ -27,6 +28,8 @@ void MLModel::init(const int mode,
 {
     _mode = mode;
     _refine = refine;
+    _ctfRefine = ctfRefine;
+
     _k = k;
     _size = size;
     _r = r;
@@ -996,7 +999,8 @@ int MLModel::searchType()
     // If the searching needs to stop, return the stop signal.
     if (_searchType == SEARCH_TYPE_STOP) return SEARCH_TYPE_STOP;
 
-    if (_searchType == SEARCH_TYPE_LOCAL)
+    if ((_searchType == SEARCH_TYPE_LOCAL) ||
+        (_searchType == SEARCH_TYPE_CTF))
     {
         // If it is local search, check whether there is no space for
         // improvement or not. If there is, perform further local search, if
@@ -1025,7 +1029,16 @@ int MLModel::searchType()
                 }
 
                 if (_nTopResNoImprove >= MAX_ITER_RES_NO_IMPROVE)
-                    _searchType = SEARCH_TYPE_STOP;
+                {
+                    if ((_searchType == SEARCH_TYPE_LOCAL) &&
+                        _ctfRefine)
+                    {
+                        _searchType = SEARCH_TYPE_CTF;
+                        _nTopResNoImprove = 0;
+                    }
+                    else
+                        _searchType = SEARCH_TYPE_STOP;
+                }
             }
         }
     }

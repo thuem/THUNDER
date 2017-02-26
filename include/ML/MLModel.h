@@ -39,6 +39,8 @@
 
 #define SEARCH_TYPE_LOCAL 1
 
+#define SEARCH_TYPE_CTF 2
+
 #define MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL 2
 
 #define MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL 1
@@ -76,6 +78,8 @@ class MLModel : public Parallel
         int _mode;
 
         bool _refine;
+
+        bool _ctfRefine;
 
         /**
          * references in Fourier space
@@ -311,6 +315,7 @@ class MLModel : public Parallel
          */
         void init(const int mode,
                   const bool refine,
+                  const bool ctfRefine,
                   const int k,
                   const int size,
                   const int r,

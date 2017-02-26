@@ -85,7 +85,7 @@ struct MLOptimiserPara
     bool refine;
 
     /**
-     * CTF refine or not
+     * ctf refine or not
      */
     bool ctfRefine;
 
@@ -254,6 +254,7 @@ struct MLOptimiserPara
     {
         mode = MODE_3D;
         refine = true;
+        ctfRefine = false;
         autoSelection = false;
         localCTF = false;
         performMask = true;
