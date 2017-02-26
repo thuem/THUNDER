@@ -677,7 +677,6 @@ void MLOptimiser::expectation()
                                  ALPHA_LOCAL_SEARCH);
 
                 _par[l].perturb(_para.perturbFactorL);
-                //_par[l].perturb(PERTURB_FACTOR_L);
             }
             else if ((phase == 0) &&
                      (_searchType == SEARCH_TYPE_CTF))
@@ -695,7 +694,6 @@ void MLOptimiser::expectation()
                     _par[l].perturb(_para.perturbFactorSGlobal);
                 else
                     _par[l].perturb(_para.perturbFactorSLocal);
-                //_par[l].perturb(PERTURB_FACTOR_S);
             }
 
             vec logW(_par[l].n());
