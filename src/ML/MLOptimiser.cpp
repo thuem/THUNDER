@@ -30,10 +30,6 @@ void display(const MLOptimiserPara& para)
     printf("Automask:                                                %12d\n", para.autoMask);
     printf("Mask:                                                    %12s\n", para.mask);
 
-    printf("Perform Sharpening:                                      %12d\n", para.performSharpen);
-    printf("Auto Estimate B-factor:                                  %12d\n", para.estBFactor);
-    printf("B-Factor:                                                %12.6lf\n", para.bFactor);
-
     printf("Max Number of Iteration:                                 %12d\n", para.iterMax);
     printf("Padding Factor:                                          %12d\n", para.pf);
     printf("MKB Kernel Radius:                                       %12.6lf\n", para.a);
@@ -47,6 +43,8 @@ void display(const MLOptimiserPara& para)
     printf("Grouping when Calculating Sigma:                         %12d\n", para.groupSig);
     printf("Grouping when Correcting Intensity Scale:                %12d\n", para.groupScl);
     printf("Mask Images with Zero Noise:                             %12d\n", para.zeroMask);
+    printf("CTF Refine Factor:                                       %12.6lf\n", para.ctfRefineFactor);
+    printf("CTF Refine Standard Deviation                            %12.6lf\n", para.ctfRefineS);
 }
 
 MLOptimiser::~MLOptimiser()
