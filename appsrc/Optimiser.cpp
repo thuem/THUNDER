@@ -92,6 +92,7 @@ void readPara(MLOptimiserPara& dst,
     dst.perturbFactorL = src["Professional"]["Perturbation Factor (Large)"].asFloat();
     dst.perturbFactorSGlobal = src["Professional"]["Perturbation Factor (Small, Global)"].asFloat();
     dst.perturbFactorSLocal = src["Professional"]["Perturbation Factor (Small, Local)"].asFloat();
+    dst.perturbFactorSCTF = src["Professional"]["Perturbation Factor (Small, CTF)"].asFloat();
 };
 
 INITIALIZE_EASYLOGGINGPP
