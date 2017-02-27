@@ -3245,10 +3245,16 @@ void MLOptimiser::allocPreCal(const bool ctf)
 
         for (int i = 0; i < _nPxl; i++)
         {
+            _frequency[i] = NORM(_iCol[i],
+                                 _iRow[i])
+                          / _para.size
+                          / _para.pixelSize;
+            /***
             _frequency[i] = NORM(_iCol[_iPxl[i]],
                                  _iRow[_iPxl[i]])
                           / _para.size
                           / _para.pixelSize;
+            ***/
             /***
             _frequency[i] = (double)_iSig[_iPxl[i]]
                           / _para.size
@@ -3261,9 +3267,14 @@ void MLOptimiser::allocPreCal(const bool ctf)
         {
             for (int i = 0; i < _nPxl; i++)
             {
+                double angle = atan2(_iRow[i],
+                                     _iCol[i])
+                             - _ctfAttr[l].defocusAngle;
+                /***
                 double angle = atan2(_iRow[_iPxl[i]],
                                      _iCol[_iPxl[i]])
                              - _ctfAttr[l].defocusAngle;
+                             ***/
 
                 double defocus = -(_ctfAttr[l].defocusU
                                  + _ctfAttr[l].defocusV
