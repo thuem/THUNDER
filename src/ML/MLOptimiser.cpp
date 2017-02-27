@@ -3658,7 +3658,7 @@ void MLOptimiser::saveFSC(const bool finished) const
             fprintf(file,
                     "%05d   %10.6lf   %10.6lf\n",
                     i,
-                    1.0 / resP2A(i, _para.size * _para.pf, _para.pixelSize),
+                    1.0 / resP2A(i, _para.size, _para.pixelSize),
                     fsc(i));
 
         fclose(file);
