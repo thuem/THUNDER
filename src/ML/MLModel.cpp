@@ -996,6 +996,9 @@ void MLModel::setNTopResNoImprove(const int nTopResNoImprove)
 
 int MLModel::searchType()
 {
+    // record search type
+    _searchTypePrev = _searchType;
+
     // If the searching needs to stop, return the stop signal.
     if (_searchType == SEARCH_TYPE_STOP) return SEARCH_TYPE_STOP;
 
@@ -1069,6 +1072,11 @@ int MLModel::searchType()
               MPI_COMM_WORLD);
 
     return _searchType;
+}
+
+int MLModel::searchTypePrev() const
+{
+    return _searchTypePrev;
 }
 
 bool MLModel::increaseR() const

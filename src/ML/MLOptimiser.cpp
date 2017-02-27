@@ -685,7 +685,8 @@ void MLOptimiser::expectation()
 
                 _par[l].perturb(_para.perturbFactorL);
 
-                _par[l].initD(_para.ctfRefineS);
+                if (_model.searchTypePrev() == SEARCH_TYPE_LOCAL)
+                    _par[l].initD(_para.ctfRefineS);
             }
             else
             {

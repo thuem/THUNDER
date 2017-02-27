@@ -255,6 +255,8 @@ class MLModel : public Parallel
          */
         int _searchType;
 
+        int _searchTypePrev;
+
         /**
          * whether the frequency should be increased or not
          */
@@ -702,6 +704,8 @@ class MLModel : public Parallel
          * This function returns the suggested search type.
          */
         int searchType();
+
+        int searchTypePrev() const;
 
         /**
          * This function returns whether to increase cutoff frequency or not.
