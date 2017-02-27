@@ -767,7 +767,10 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
+            if (_searchType != SEARCH_TYPE_CTF)
+                PROCESS_LOGW_SOFT(logW);
+            else
+                PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
