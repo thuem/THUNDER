@@ -580,6 +580,7 @@ void Particle::resample(const int n,
     c(_topC, rank(0));
     quaternion(_topR, rank(0));
     t(_topT, rank(0));
+    d(_topD, rank(0));
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Performing Resampling";
@@ -824,31 +825,40 @@ void Particle::rank1st(vec2& tran) const
     tran = _topT;
 }
 
+void Particle::rank1st(double& df) const
+{
+    df = _topD;
+}
+
 void Particle::rank1st(int& cls,
                        vec4& quat,
-                       vec2& tran) const
+                       vec2& tran,
+                       double& df) const
 {
     cls = _topC;
     quat = _topR;
     tran = _topT;
+    df = _topD;
 }
 
 void Particle::rank1st(int& cls,
                        mat22& rot,
-                       vec2& tran) const
+                       vec2& tran,
+                       double& df) const
 {
     vec4 quat;
-    rank1st(cls, quat, tran);
+    rank1st(cls, quat, tran, df);
 
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
 void Particle::rank1st(int& cls,
                        mat33& rot,
-                       vec2& tran) const
+                       vec2& tran,
+                       double& df) const
 {
     vec4 quat;
-    rank1st(cls, quat, tran);
+    rank1st(cls, quat, tran, df);
 
     rotate3D(rot, quat);
 }
@@ -888,9 +898,19 @@ void Particle::rand(vec2& tran) const
     t(tran, u);
 }
 
+void Particle::rand(double& df) const
+{
+    gsl_rng* engine = get_random_engine();
+
+    size_t u = gsl_rng_uniform_int(engine, _n);
+
+    d(df, u);
+}
+
 void Particle::rand(int& cls,
                     vec4& quat,
-                    vec2& tran) const
+                    vec2& tran,
+                    double& df) const
 {
     gsl_rng* engine = get_random_engine();
 
@@ -899,24 +919,27 @@ void Particle::rand(int& cls,
     c(cls, u);
     quaternion(quat, u);
     t(tran, u);
+    d(df, u);
 }
 
 void Particle::rand(int& cls,
                     mat22& rot,
-                    vec2& tran) const
+                    vec2& tran,
+                    double& df) const
 {
     vec4 quat;
-    rand(cls, quat, tran);
+    rand(cls, quat, tran, df);
 
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
 void Particle::rand(int& cls,
                     mat33& rot,
-                    vec2& tran) const
+                    vec2& tran,
+                    double& df) const
 {
     vec4 quat;
-    rand(cls, quat, tran);
+    rand(cls, quat, tran, df);
 
     rotate3D(rot, quat);
 }

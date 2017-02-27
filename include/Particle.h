@@ -178,6 +178,10 @@ class Particle
          */
         vec2 _topT;
 
+        double _topDPrev;
+
+        double _topD;
+
         /**
          * default initialiser
          */
@@ -652,6 +656,8 @@ class Particle
 
         void rank1st(vec2& tran) const;
 
+        void rank1st(double& d) const;
+
         /**
          * This function reports the 1-st rank coordinate by parameters.
          * 
@@ -661,11 +667,13 @@ class Particle
          */
         void rank1st(int& cls,
                      vec4& quat,
-                     vec2& tran) const;
+                     vec2& tran,
+                     double& d) const;
 
         void rank1st(int& cls,
                      mat22& rot,
-                     vec2& tran) const;
+                     vec2& tran,
+                     double& d) const;
 
         /**
          * This function reports the 1-st rank coordinates by parameters.
@@ -676,7 +684,8 @@ class Particle
          */
         void rank1st(int& cls,
                      mat33& rot,
-                     vec2& tran) const;
+                     vec2& tran,
+                     double& d) const;
 
         void rand(int& cls) const;
 
@@ -686,6 +695,8 @@ class Particle
 
         void rand(vec2& tran) const;
 
+        void rand(double& d) const;
+
         /**
          * This function randomly reports a coordinate by parameters.
          *
@@ -694,11 +705,13 @@ class Particle
          */
         void rand(int& cls,
                   vec4& quat,
-                  vec2& tran) const;
+                  vec2& tran,
+                  double& d) const;
 
         void rand(int& cls,
                   mat22& rot,
-                  vec2& tran) const;
+                  vec2& tran,
+                  double& d) const;
 
         /**
          * This function randomly reports a coordinate by parameters.
@@ -708,7 +721,8 @@ class Particle
          */
         void rand(int& cls,
                   mat33& rot,
-                  vec2& tran) const;
+                  vec2& tran,
+                  double& d) const;
 
         /**
          * This function shuffles the sampling points.

@@ -2242,6 +2242,7 @@ void MLOptimiser::refreshScale(const bool init,
         mat22 rot2D;
         mat33 rot3D;
         vec2 tran;
+        double d;
 
         FOR_EACH_2D_IMAGE
         {
@@ -2288,11 +2289,11 @@ void MLOptimiser::refreshScale(const bool init,
 
                 if (_para.mode == MODE_2D)
                 {
-                    _par[l].rank1st(cls, rot2D, tran);
+                    _par[l].rank1st(cls, rot2D, tran, d);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    _par[l].rank1st(cls, rot3D, tran);
+                    _par[l].rank1st(cls, rot3D, tran, d);
                 }
                 else
                     REPORT_ERROR("INEXISTENT MODE");
@@ -2540,9 +2541,11 @@ void MLOptimiser::normCorrection()
 
     vec2 tran;
 
+    double d;
+
     NT_MASTER
     {
-        #pragma omp parallel for private(rot2D, rot3D, tran)
+        #pragma omp parallel for private(rot2D, rot3D, tran, d)
         FOR_EACH_2D_IMAGE
         {
             Image img(size(), size(), FT_SPACE);
@@ -2551,7 +2554,7 @@ void MLOptimiser::normCorrection()
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].rank1st(cls, rot2D, tran);
+                _par[l].rank1st(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
@@ -2565,7 +2568,7 @@ void MLOptimiser::normCorrection()
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].rank1st(cls, rot3D, tran);
+                _par[l].rank1st(cls, rot3D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
@@ -2578,8 +2581,25 @@ void MLOptimiser::normCorrection()
 #endif
             }
 
-            FOR_EACH_PIXEL_FT(img)
-                img[i] *= REAL(_ctf[l][i]);
+            if (_searchType != SEARCH_TYPE_CTF)
+            {
+                FOR_EACH_PIXEL_FT(img)
+                    img[i] *= REAL(_ctf[l][i]);
+            }
+            else
+            {
+                Image ctf(_para.size, _para.size, FT_SPACE);
+                CTF(ctf,
+                    _para.pixelSize, 
+                    _ctfAttr[l].voltage,
+                    _ctfAttr[l].defocusU * d,
+                    _ctfAttr[l].defocusV * d,
+                    _ctfAttr[l].defocusAngle,
+                    _ctfAttr[l].CS);
+
+                FOR_EACH_PIXEL_FT(img)
+                    img[i] *= REAL(ctf[i]);
+            }
 
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
             _img[l][0] = img[0];
@@ -2761,13 +2781,15 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     vec2 tran;
 
+    double d;
+
     omp_lock_t* mtx = new omp_lock_t[_nGroup];
 
     #pragma omp parallel for
     for (int l = 0; l < _nGroup; l++)
         omp_init_lock(&mtx[l]);
 
-    #pragma omp parallel for private(rot2D, rot3D, tran) schedule(dynamic)
+    #pragma omp parallel for private(rot2D, rot3D, tran, d) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         if (_switch[l])
@@ -2778,7 +2800,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].rank1st(cls, rot2D, tran);
+                _par[l].rank1st(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SIGMA_MASK
@@ -2792,7 +2814,7 @@ void MLOptimiser::allReduceSigma(const bool group)
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].rank1st(cls, rot3D, tran);
+                _par[l].rank1st(cls, rot3D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SIGMA_MASK
@@ -2819,8 +2841,25 @@ void MLOptimiser::allReduceSigma(const bool group)
                                      << exp(weight);
                                      ***/
 
-            FOR_EACH_PIXEL_FT(img)
-                img[i] *= REAL(_ctf[l][i]);
+            if (_searchType != SEARCH_TYPE_CTF)
+            {
+                FOR_EACH_PIXEL_FT(img)
+                    img[i] *= REAL(_ctf[l][i]);
+            }
+            else
+            {
+                Image ctf(_para.size, _para.size, FT_SPACE);
+                CTF(ctf,
+                    _para.pixelSize, 
+                    _ctfAttr[l].voltage,
+                    _ctfAttr[l].defocusU * d,
+                    _ctfAttr[l].defocusV * d,
+                    _ctfAttr[l].defocusAngle,
+                    _ctfAttr[l].CS);
+
+                FOR_EACH_PIXEL_FT(img)
+                    img[i] *= REAL(ctf[i]);
+            }
 
             NEG_FT(img);
 
@@ -2928,67 +2967,72 @@ void MLOptimiser::reconstructRef()
             mat22 rot2D;
             mat33 rot3D;
             vec2 tran;
+            double d;
+
+            Image ctf(_para.size, _para.size, FT_SPACE);
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].rand(cls, rot2D, tran);
+                _par[l].rand(cls, rot2D, tran, d);
 
-                /***
-                ALOG(INFO, "LOGGER_SYS") << "ID = "
-                                         << _ID[l]
-                                         << ", compress = "
-                                         << _par[l].compressTrans();
-                                         ***/
+                if (_searchType != SEARCH_TYPE_CTF)
+                    ctf = _ctf[l].copyImage();
+                else
+                {
+                    // TODO: OPENMP Parallel
+                    CTF(ctf,
+                        _para.pixelSize,
+                        _ctfAttr[l].voltage,
+                        _ctfAttr[l].defocusU * d,
+                        _ctfAttr[l].defocusV * d,
+                        _ctfAttr[l].defocusAngle,
+                        _ctfAttr[l].CS);
+                }
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
-                                         _ctf[l],
+                                         ctf,
                                          rot2D,
                                          tran - _offset[l],
                                          1.0 / _para.mReco);
-                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
-                                         //1.0 / (_para.mReco * _par[l].compress()));
-                                         //1.0 / _para.mReco * (-log(_par[l].compress())));
 #else
                 _model.reco(cls).insertP(_imgOri[l],
-                                         _ctf[l],
+                                         ctf,
                                          rot2D,
                                          tran,
                                          1.0 / _para.mReco);
-                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
-                                         //1.0 / (_para.mReco * _par[l].compress()));
-                                         //1.0 / _para.mReco * (-log(_par[l].compress())));
 #endif
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].rand(cls, rot3D, tran);
+                _par[l].rand(cls, rot3D, tran, d);
 
-                /***
-                ALOG(INFO, "LOGGER_SYS") << "ID = "
-                                         << _ID[l]
-                                         << ", compress = "
-                                         << _par[l].compressTrans();
-                                         ***/
+                if (_searchType != SEARCH_TYPE_CTF)
+                    ctf = _ctf[l].copyImage();
+                else
+                {
+                    // TODO: OPENMP Parallel
+                    CTF(ctf,
+                        _para.pixelSize,
+                        _ctfAttr[l].voltage,
+                        _ctfAttr[l].defocusU * d,
+                        _ctfAttr[l].defocusV * d,
+                        _ctfAttr[l].defocusAngle,
+                        _ctfAttr[l].CS);
+                }
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
-                                         _ctf[l],
+                                         ctf,
                                          rot3D,
                                          tran - _offset[l],
                                          1.0 / _para.mReco);
-                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
-                                         //1.0 / (_para.mReco * _par[l].compress()));
-                                         //1.0 / _para.mReco * (-log(_par[l].compress())));
 #else
                 _model.reco(cls).insertP(_imgOri[l],
-                                         _ctf[l],
+                                         ctf,
                                          rot3D,
                                          tran,
                                          1.0 / _para.mReco);
-                                         //1.0 / (_para.mReco * _par[l].compressTrans()));
-                                         //1.0 / (_para.mReco * _par[l].compress()));
-                                         //1.0 / _para.mReco * (-log(_par[l].compress())));
 #endif
             }
             else
@@ -3334,6 +3378,7 @@ void MLOptimiser::saveBestProjections()
     mat22 rot2D;
     mat33 rot3D;
     vec2 tran;
+    double d;
 
     FOR_EACH_2D_IMAGE
     {
@@ -3347,13 +3392,13 @@ void MLOptimiser::saveBestProjections()
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].rank1st(cls, rot2D, tran);
+                _par[l].rank1st(cls, rot2D, tran, d);
 
                 _model.proj(cls).projectMT(result, rot2D, tran);
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].rank1st(cls, rot3D, tran);
+                _par[l].rank1st(cls, rot3D, tran, d);
 
                 _model.proj(cls).projectMT(result, rot3D, tran);
             }
