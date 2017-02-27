@@ -2978,16 +2978,14 @@ void MLOptimiser::reconstructRef()
                 if (_searchType != SEARCH_TYPE_CTF)
                     ctf = _ctf[l].copyImage();
                 else
-                {
-                    // TODO: OPENMP Parallel
                     CTF(ctf,
                         _para.pixelSize,
                         _ctfAttr[l].voltage,
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
                         _ctfAttr[l].defocusAngle,
-                        _ctfAttr[l].CS);
-                }
+                        _ctfAttr[l].CS,
+                        omp_get_max_threads());
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
