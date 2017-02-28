@@ -685,8 +685,12 @@ void MLOptimiser::expectation()
 
                 _par[l].perturb(_para.perturbFactorL);
 
+                _par[l].initD(_para.ctfRefineS);
+
+                /***
                 if (_model.searchTypePrev() == SEARCH_TYPE_LOCAL)
                     _par[l].initD(_para.ctfRefineS);
+                ***/
             }
             else
             {
@@ -2966,6 +2970,11 @@ void MLOptimiser::reconstructRef()
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
+
+        ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
+                                 << _ID[l]
+                                 << " is "
+                                 << _par[l].compressTrans();
 
         for (int m = 0; m < _para.mReco; m++)
         {
