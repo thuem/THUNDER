@@ -501,7 +501,9 @@ void Particle::calVari()
     _s = gsl_stats_sd(_d.data(), 1, _d.size());
 }
 
-void Particle::perturb(const double pf)
+void Particle::perturb(const double pfT,
+                       const double pfR,
+                       const double pfD)
 {
     calVari();
 
@@ -515,12 +517,8 @@ void Particle::perturb(const double pf)
     {
         double x, y;
         gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-        _t(i, 0) += x * pf;
-        _t(i, 1) += y * pf;
-        /***
-        _t(i, 0) += x * sqrt(pf);
-        _t(i, 1) += y * sqrt(pf);
-        ***/
+        _t(i, 0) += x * pfT;
+        _t(i, 1) += y * pfT;
     }
 
 #ifdef VERBOSE_LEVEL_4
@@ -534,17 +532,16 @@ void Particle::perturb(const double pf)
         case MODE_2D:
             // for more sparse, pf > 1
             // for more dense, 0 < pf < 1
-            sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _n);
+            sampleVMS(d, vec4(1, 0, 0, 0), _k / pfR, _n);
             break;
 
         case MODE_3D:
             //sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
-            sampleACG(d, pow(pf, -2.0) * _k0, _k1, _n);
+            sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
-                                      << ": INEXISTENT MODE";
+            REPORT_ERROR("INEXISTENT MODE");
             break;
     }
 
@@ -559,7 +556,7 @@ void Particle::perturb(const double pf)
     if (_mode == MODE_3D) symmetrise();
 
     for (int i = 0; i < _d.size(); i++)
-        _d(i) += gsl_ran_gaussian(engine, _s) * pf;
+        _d(i) += gsl_ran_gaussian(engine, _s) * pfD;
 
     reCentre();
 }

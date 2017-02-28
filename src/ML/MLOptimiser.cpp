@@ -675,7 +675,9 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
-                _par[l].perturb(_para.perturbFactorL);
+                _par[l].perturb(_para.perturbFactorL,
+                                _para.perturbFactorL,
+                                _para.perturbFactorL);
             }
             else if ((phase == 0) &&
                      (_searchType == SEARCH_TYPE_CTF))
@@ -683,7 +685,9 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL * _para.ctfRefineFactor,
                                  ALPHA_LOCAL_SEARCH);
 
-                _par[l].perturb(_para.perturbFactorL);
+                _par[l].perturb(_para.perturbFactorL,
+                                _para.perturbFactorL,
+                                _para.perturbFactorL);
 
                 _par[l].initD(_para.ctfRefineS);
 
@@ -695,11 +699,17 @@ void MLOptimiser::expectation()
             else
             {
                 if (_searchType == SEARCH_TYPE_GLOBAL)
-                    _par[l].perturb(_para.perturbFactorSGlobal);
+                    _par[l].perturb(_para.perturbFactorSGlobal,
+                                    _para.perturbFactorSGlobal,
+                                    _para.perturbFactorSGlobal);
                 else if (_searchType == SEARCH_TYPE_LOCAL)
-                    _par[l].perturb(_para.perturbFactorSLocal);
+                    _par[l].perturb(_para.perturbFactorSLocal,
+                                    _para.perturbFactorSLocal,
+                                    _para.perturbFactorSLocal);
                 else
-                    _par[l].perturb(_para.perturbFactorSCTF);
+                    _par[l].perturb(_para.perturbFactorSLocal,
+                                    _para.perturbFactorSLocal,
+                                    _para.perturbFactorSCTF);
             }
 
             vec logW(_par[l].n());

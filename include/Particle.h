@@ -585,7 +585,9 @@ class Particle
          *           confidence area of perturbation of the confidence area
          *           of the sampling points
          */
-        void perturb(const double pf = 0.2);
+        void perturb(const double pfT,
+                     const double pfR,
+                     const double pfD);
 
         /**
          * This function resamples the particles in this particle filter with
