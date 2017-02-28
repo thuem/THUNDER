@@ -2974,7 +2974,7 @@ void MLOptimiser::reconstructRef()
         ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
                                  << _ID[l]
                                  << " is "
-                                 << _par[l].compressTrans();
+                                 << _par[l].compress();
 
         for (int m = 0; m < _para.mReco; m++)
         {
@@ -3007,13 +3007,15 @@ void MLOptimiser::reconstructRef()
                                          ctf,
                                          rot2D,
                                          tran - _offset[l],
-                                         1.0 / _para.mReco);
+                                         _par[l].compress() / _para.mReco);
+                                         //1.0 / _para.mReco);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
                                          rot2D,
                                          tran,
-                                         1.0 / _para.mReco);
+                                         _par[l].compress() / _para.mReco);
+                                         //1.0 / _para.mReco);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -3037,13 +3039,15 @@ void MLOptimiser::reconstructRef()
                                          ctf,
                                          rot3D,
                                          tran - _offset[l],
-                                         1.0 / _para.mReco);
+                                         _par[l].compress() / _para.mReco);
+                                         //1.0 / _para.mReco);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
                                          rot3D,
                                          tran,
-                                         1.0 / _para.mReco);
+                                         _par[l].compress() / _para.mReco);
+                                         //1.0 / _para.mReco);
 #endif
             }
             else
