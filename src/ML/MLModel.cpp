@@ -817,60 +817,14 @@ void MLModel::updateR(const double thres)
 
 void MLModel::elevateR(const double thres)
 {
-    /***
-    FOR_EACH_CLASS
-        if (_FSC.col(l)(_pf * _rU - 1) > thres)
-        {
-            MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency When FSC at Upper Boundary Frequency Above "
-                                     << thres;
-
-            //_r = GSL_MIN_INT(_rU, _r + AROUND((double)_size / 16));
-
-            //_r = GSL_MIN_INT(_rU, AROUND(s * _r));
-            
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-            {
-                _r = GSL_MIN_INT(_rU, _r + AROUND((double)_rGlobal / 3));
-                //_r = GSL_MIN_INT(_rU, _r + AROUND(areaGlb / (2 * M_PI * _r) / 4));
-            }
-            else
-            {
-                _r = GSL_MIN_INT(_rU, _r + AROUND((double)maxR() / 6));
-                //_r = GSL_MIN_INT(_rU, _r + AROUND(areaTtl / (2 * M_PI * _r) / 16));
-            }
-
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-                _r = GSL_MIN_INT(_rGlobal, _r);
-
-            return;
-        }
-
-    MLOG(INFO, "LOGGER_SYS") << "Elevating Cutoff Frequency When FSC at Upper Boundary Frequency Below "
-                             << thres;
-                             ***/
-
     if (_searchType == SEARCH_TYPE_GLOBAL)
-    {
-        /***
         _r = GSL_MAX_INT(_r,
-                         GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                     _r + AROUND(areaGlb / (2 * M_PI * _r) / 4)));
-                                     ***/
-        _r = GSL_MAX_INT(_r,
-                         GSL_MIN_INT(resolutionP(thres, false) + 1,
+                         GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
                                      _r + AROUND((double)_rGlobal / 3)));
-    }
     else
-    {
-        /***
         _r = GSL_MAX_INT(_r,
-                         GSL_MIN_INT(resolutionP(thres, true) + 1,
-                                     _r + AROUND(areaTtl / (2 * M_PI * _r) / 16)));
-                                     ***/
-        _r = GSL_MAX_INT(_r,
-                         GSL_MIN_INT(resolutionP(thres, false) + 1,
+                         GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
                                      _r + AROUND((double)maxR() / 6)));
-    }
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
