@@ -399,12 +399,37 @@ void MLModel::BcastFSC()
                 }
             ***/
 
+            /***
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(A)
             {
                 Complex avg = (A[i] + B[i]) / 2;
                 A[i] = avg;
                 B[i] = avg;
+            }
+            ***/
+
+            int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
+                                             _size,
+                                             _pixelSize)),
+                                _r);
+
+            if (_mode == MODE_2D)
+            {
+                //TODO
+            }
+            else if (_mode == MODE_3D)
+            {
+                #pragma omp parallel for
+                VOLUME_FOR_EACH_PIXEL_FT(A)
+                    if (QUAD_3(i, j, k) < gsl_pow_2(r))
+                    {
+                        Complex avg = (A.getFTHalf(i, j, k)
+                                     + B.getFTHalf(i, j, k))
+                                    / 2;
+                        A.setFTHalf(avg, i, j, k);
+                        B.setFTHalf(avg, i, j, k);
+                    }
             }
 
             /***
