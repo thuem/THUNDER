@@ -242,6 +242,8 @@ struct MLOptimiserPara
      */
     bool zeroMask;
 
+    bool parGra;
+
     double transSearchFactor;
 
     double perturbFactorL;
@@ -280,7 +282,7 @@ struct MLOptimiserPara
         perturbFactorSLocal = 0.5;
         perturbFactorSCTF = 0.1;
         ctfRefineFactor = 10;
-        ctfRefineS = 0.05;
+        ctfRefineS = 0.005;
         //ctfRefineS = 0;
     }
 };

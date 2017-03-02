@@ -2996,6 +2996,12 @@ void MLOptimiser::reconstructRef()
 
             Image ctf(_para.size, _para.size, FT_SPACE);
 
+            double w;
+            if (_para.parGra)
+                w = _par[l].compress();
+            else
+                w = 1;
+
             if (_para.mode == MODE_2D)
             {
                 _par[l].rand(cls, rot2D, tran, d);
@@ -3017,15 +3023,13 @@ void MLOptimiser::reconstructRef()
                                          ctf,
                                          rot2D,
                                          tran - _offset[l],
-                                         _par[l].compress() / _para.mReco);
-                                         //1.0 / _para.mReco);
+                                         w / _para.mReco);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
                                          rot2D,
                                          tran,
-                                         _par[l].compress() / _para.mReco);
-                                         //1.0 / _para.mReco);
+                                         w / _para.mReco);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -3049,15 +3053,13 @@ void MLOptimiser::reconstructRef()
                                          ctf,
                                          rot3D,
                                          tran - _offset[l],
-                                         _par[l].compress() / _para.mReco);
-                                         //1.0 / _para.mReco);
+                                         w / _para.mReco);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
                                          rot3D,
                                          tran,
-                                         _par[l].compress() / _para.mReco);
-                                         //1.0 / _para.mReco);
+                                         w / _para.mReco);
 #endif
             }
             else

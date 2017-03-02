@@ -87,6 +87,7 @@ void readPara(MLOptimiserPara& dst,
     dst.groupSig = src["Advanced"]["Grouping when Calculating Sigma"].asBool();
     dst.groupScl = src["Advanced"]["Grouping when Correcting Intensity Scale"].asBool();
     dst.zeroMask = src["Advanced"]["Mask Images with Zero Noise"].asBool();
+    dst.parGra = src["Advanced"]["Particle Grading"].asBool();
     dst.ctfRefineFactor = src["Advanced"]["CTF Refine Factor"].asFloat();
     dst.ctfRefineS = src["Advanced"]["CTF Refine Standard Deviation"].asFloat();
 
