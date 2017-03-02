@@ -409,6 +409,7 @@ void MLModel::BcastFSC()
             }
             ***/
 
+            /***
             int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
                                              _size,
                                              _pixelSize)),
@@ -431,6 +432,7 @@ void MLModel::BcastFSC()
                         B.setFTHalf(avg, i, j, k);
                     }
             }
+            ***/
 
             /***
             vec tau(_rU * _pf);
