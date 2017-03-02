@@ -399,7 +399,6 @@ void MLModel::BcastFSC()
                 }
             ***/
 
-            /***
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(A)
             {
@@ -407,7 +406,6 @@ void MLModel::BcastFSC()
                 A[i] = avg;
                 B[i] = avg;
             }
-            ***/
 
             /***
             int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
