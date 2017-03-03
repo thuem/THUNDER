@@ -1244,7 +1244,7 @@ void MLOptimiser::run()
     {
         _model.resetReco();
 
-        //_model.reco(0).setMAP(false);
+        _model.reco(0).setMAP(false);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
@@ -3018,9 +3018,9 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot2D, tran, d);
 
-                if (_searchType != SEARCH_TYPE_CTF)
-                    ctf = _ctf[l].copyImage();
-                else
+                if ((_searchType == SEARCH_TYPE_CTF) ||
+                    ((_para.ctfRefine) &&
+                     (_searchType == SEARCH_TYPE_STOP)))
                     CTF(ctf,
                         _para.pixelSize,
                         _ctfAttr[l].voltage,
@@ -3029,6 +3029,8 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusAngle,
                         _ctfAttr[l].CS,
                         omp_get_max_threads());
+                else
+                    ctf = _ctf[l].copyImage();
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
