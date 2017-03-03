@@ -1217,6 +1217,14 @@ void MLOptimiser::run()
 
             _model.refreshProj();
 
+            if (_searchType == SEARCH_TYPE_CTF)
+            {
+                ALOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit in CTF Refine";
+                BLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit in CTF Refine";
+
+                _model.setRU(maxR());
+            }
+
             ALOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
             BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
 
@@ -3606,10 +3614,14 @@ void MLOptimiser::saveReference(const bool finished)
                 fft.bwMT(_model.ref(t));
             else
             {
-                lowPassFilter(lowPass,
-                              _model.ref(0),
-                              (double)_resReport / _para.size,
-                              (double)EDGE_WIDTH_FT / _para.size);
+                if (_searchType != SEARCH_TYPE_CTF)
+                    lowPassFilter(lowPass,
+                                  _model.ref(0),
+                                  (double)_resReport / _para.size,
+                                  (double)EDGE_WIDTH_FT / _para.size);
+                else
+                    lowPass = _model.ref(0).copyVolume();
+
                 fft.bwMT(lowPass);
             }
 
