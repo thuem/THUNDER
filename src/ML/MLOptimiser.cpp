@@ -1244,7 +1244,7 @@ void MLOptimiser::run()
     {
         _model.resetReco();
 
-        _model.reco(0).setMAP(false);
+        //_model.reco(0).setMAP(false);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
