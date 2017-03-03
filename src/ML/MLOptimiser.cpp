@@ -1217,6 +1217,7 @@ void MLOptimiser::run()
 
             _model.refreshProj();
 
+            /***
             if (_searchType == SEARCH_TYPE_CTF)
             {
                 ALOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit in CTF Refine";
@@ -1224,6 +1225,7 @@ void MLOptimiser::run()
 
                 _model.setRU(maxR());
             }
+            ***/
 
             ALOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
             BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
@@ -1235,7 +1237,7 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
 
     MLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit";
-    _model.setRU(maxR());
+    _model.setMaxRU();
 
     MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
     NT_MASTER

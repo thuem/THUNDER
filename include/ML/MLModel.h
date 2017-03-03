@@ -391,6 +391,8 @@ class MLModel : public Parallel
 
         void setRU(const int rU);
 
+        void setMaxRU();
+
         /**
          * This function returns the frequency before padding (in pixel) of the
          * previous iteration.

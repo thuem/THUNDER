@@ -148,7 +148,7 @@ int MLModel::size() const
 
 int MLModel::maxR() const
 {
-    return _size / 2 - _a;
+    return _size / 2 - CEIL(_a);
 }
 
 int MLModel::r() const
@@ -175,6 +175,11 @@ void MLModel::setRU(const int rU)
     _rUPrev = _rU;
 
     _rU = rU;
+}
+
+void MLModel::setMaxRU()
+{
+    _rU = maxR();
 }
 
 int MLModel::rPrev() const
@@ -1072,14 +1077,11 @@ void MLModel::updateRU()
 {
     _rUPrev = _rU;
 
-    if (_searchType != SEARCH_TYPE_CTF)
-        _rU = GSL_MIN_INT(_r
-                        + ((_searchType == SEARCH_TYPE_GLOBAL)
-                         ? AROUND((double)_rGlobal / 3)
-                         : AROUND((double)maxR() / 3)),
-                          maxR());
-    else
-        _rU = maxR();
+    _rU = GSL_MIN_INT(_r
+                   + ((_searchType == SEARCH_TYPE_GLOBAL)
+                    ? AROUND((double)_rGlobal / 3)
+                    : AROUND((double)maxR() / 3)),
+                      maxR());
 
     MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "
                              << _rU;
