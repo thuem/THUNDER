@@ -191,10 +191,14 @@ void Volume::addFTHalf(const Complex value,
                        const int iRow,
                        const int iSlc)
 {
+    int index = iFTHalf(iCol, iRow, iSlc);
+
     #pragma omp atomic
-    _dataFT[iFTHalf(iCol, iRow, iSlc)].dat[0] += value.dat[0];
+    _dataFT[index].dat[0] += value.dat[0];
+    //_dataFT[iFTHalf(iCol, iRow, iSlc)].dat[0] += value.dat[0];
     #pragma omp atomic
-    _dataFT[iFTHalf(iCol, iRow, iSlc)].dat[1] += value.dat[1];
+    _dataFT[index].dat[1] += value.dat[1];
+    //_dataFT[iFTHalf(iCol, iRow, iSlc)].dat[1] += value.dat[1];
 }
 
 void Volume::addFT(const double value,
@@ -404,20 +408,50 @@ void Volume::addFTHalf(const Complex value,
                        const double w[2][2][2],
                        const int x0[3])
 {
+    /***
     FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
                              x0[0] + i,
                              x0[1] + j,
                              x0[2] + k);
-                             
+    ***/
+
+    int index0 = iFTHalf(x0[0], x0[1], x0[2]);
+
+    FOR_CELL_DIM_3
+    {
+        int index = index0
+                  + i * (_nCol / 2 + 1) * _nRow
+                  + j * (_nCol / 2 + 1)
+                  + k;
+
+        #pragma omp atomic
+        _dataFT[index].dat[0] += value.dat[0] * w[i][j][k];
+        #pragma omp atomic
+        _dataFT[index].dat[1] += value.dat[1] * w[i][j][k];
+    }
 }
 
 void Volume::addFTHalf(const double value,
                        const double w[2][2][2],
                        const int x0[3])
 {
+    int index0 = iFTHalf(x0[0], x0[1], x0[2]);
+
+    FOR_CELL_DIM_3
+    {
+        int index = index0
+                  + i * (_nCol / 2 + 1) * _nRow
+                  + j * (_nCol / 2 + 1)
+                  + k;
+
+        #pragma omp atomic
+        _dataFT[index].dat[0] += value * w[i][j][k];
+    }
+
+    /***
     FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
                              x0[0] + i,
                              x0[1] + j,
                              x0[2] + k);
-                             
+    ***/
 }
