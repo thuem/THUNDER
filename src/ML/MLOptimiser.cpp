@@ -3086,7 +3086,9 @@ void MLOptimiser::reconstructRef()
         }
     }
 
+#ifdef VERBOSE_LEVEL_2
     ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
+#endif
 
     MPI_Barrier(_hemi);
 
