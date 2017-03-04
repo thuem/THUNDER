@@ -1114,7 +1114,7 @@ void MLOptimiser::run()
         saveReference();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
-        _model.BcastFSC();
+        _model.BcastFSC(_para.thresReportFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
@@ -1254,7 +1254,7 @@ void MLOptimiser::run()
     saveReference(true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
-    _model.BcastFSC();
+    _model.BcastFSC(_para.thresReportFSC);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);

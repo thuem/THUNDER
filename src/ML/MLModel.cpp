@@ -242,7 +242,7 @@ Reconstructor& MLModel::reco(const int i)
     return *_reco[i];
 }
 
-void MLModel::BcastFSC()
+void MLModel::BcastFSC(const double thres)
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
@@ -386,10 +386,13 @@ void MLModel::BcastFSC()
                 B[i] = avg;
             }
 #else
+            int r = resolutionP(thres, false);
+            /***
             int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
                                              _size,
                                              _pixelSize)),
                                 _r);
+                                ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
                                          << 1.0 / resP2A(r, _size, _pixelSize)
