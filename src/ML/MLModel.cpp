@@ -377,7 +377,7 @@ void MLModel::BcastFSC()
                 }
             ***/
 
-#ifdef MODEL_AVERAGE_TWO_HEMISPERE
+#ifdef MODEL_AVERAGE_TWO_HEMISPHERE
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(A)
             {
