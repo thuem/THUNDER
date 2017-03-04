@@ -420,9 +420,9 @@ void Volume::addFTHalf(const Complex value,
     FOR_CELL_DIM_3
     {
         int index = index0
-                  + i * (_nCol / 2 + 1) * _nRow
+                  + k * (_nCol / 2 + 1) * _nRow
                   + j * (_nCol / 2 + 1)
-                  + k;
+                  + i;
 
         #pragma omp atomic
         _dataFT[index].dat[0] += value.dat[0] * w[i][j][k];
@@ -440,9 +440,9 @@ void Volume::addFTHalf(const double value,
     FOR_CELL_DIM_3
     {
         int index = index0
-                  + i * (_nCol / 2 + 1) * _nRow
+                  + k * (_nCol / 2 + 1) * _nRow
                   + j * (_nCol / 2 + 1)
-                  + k;
+                  + i;
 
         #pragma omp atomic
         _dataFT[index].dat[0] += value * w[i][j][k];
