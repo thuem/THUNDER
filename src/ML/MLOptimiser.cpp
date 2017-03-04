@@ -3086,6 +3086,8 @@ void MLOptimiser::reconstructRef()
         }
     }
 
+    ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
+
     MPI_Barrier(_hemi);
 
     for (int t = 0; t < _para.k; t++)
