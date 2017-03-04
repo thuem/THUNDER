@@ -2989,6 +2989,11 @@ void MLOptimiser::reconstructRef()
     for (int t = 0; t < _para.k; t++)
         _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
+
+    bool ctfRefine = ((_searchType == SEARCH_TYPE_CTF) ||
+                      ((_para.ctfRefine) &&
+                       (_searchType == SEARCH_TYPE_STOP)));
+
     FOR_EACH_2D_IMAGE
     {
         if (!_switch[l]) continue;
@@ -2998,7 +3003,9 @@ void MLOptimiser::reconstructRef()
                                  << " is "
                                  << _par[l].compress();
 
-        for (int m = 0; m < _para.mReco; m++)
+        for (int m = 0; m < (ctfRefine
+                           ? _para.mReco
+                           : (_para.mReco * _para.ctfRefineFactor)); m++)
         {
             int cls;
             mat22 rot2D;
@@ -3018,9 +3025,7 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot2D, tran, d);
 
-                if ((_searchType == SEARCH_TYPE_CTF) ||
-                    ((_para.ctfRefine) &&
-                     (_searchType == SEARCH_TYPE_STOP)))
+                if (ctfRefine)
                     CTF(ctf,
                         _para.pixelSize,
                         _ctfAttr[l].voltage,
@@ -3050,9 +3055,7 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot3D, tran, d);
 
-                if ((_searchType == SEARCH_TYPE_CTF) ||
-                    ((_para.ctfRefine) &&
-                     (_searchType == SEARCH_TYPE_STOP)))
+                if (ctfRefine)
                     CTF(ctf,
                         _para.pixelSize,
                         _ctfAttr[l].voltage,
