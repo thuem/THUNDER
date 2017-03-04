@@ -3004,8 +3004,8 @@ void MLOptimiser::reconstructRef()
                                  << _par[l].compress();
 
         for (int m = 0; m < (ctfRefine
-                           ? _para.mReco
-                           : (_para.mReco * _para.ctfRefineFactor)); m++)
+                           ? (_para.mReco * _para.ctfRefineFactor)
+                           : _para.mReco); m++)
         {
             int cls;
             mat22 rot2D;
