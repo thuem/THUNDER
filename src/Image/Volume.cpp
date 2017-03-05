@@ -397,10 +397,30 @@ Complex Volume::getFTHalf(const double w[2][2][2],
                           const int x0[3]) const
 {
     Complex result = COMPLEX(0, 0);
-    FOR_CELL_DIM_3 result += getFTHalf(x0[0] + i,
-                                       x0[1] + j,
-                                       x0[2] + k)
-                           * w[i][j][k];
+
+    if ((x0[1] == -1) ||
+        (x0[2] == -1))
+    {
+        FOR_CELL_DIM_3 result += getFTHalf(x0[0] + i,
+                                           x0[1] + j,
+                                           x0[2] + k)
+                               * w[i][j][k];
+    }
+    else
+    {
+        int index0 = iFTHalf(x0[0], x0[1], x0[2]);
+
+        FOR_CELL_DIM_3
+        {
+            int index = index0
+                      + k * (_nCol / 2 + 1) * _nRow
+                      + j * (_nCol / 2 + 1)
+                      + i;
+
+            result += _dataFT[index] * w[i][j][k];
+        }
+    }
+
     return result;
 }
 

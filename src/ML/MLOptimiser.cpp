@@ -3039,13 +3039,13 @@ void MLOptimiser::reconstructRef()
                                          ctf,
                                          rot2D,
                                          tran - _offset[l],
-                                         w / _para.mReco);
+                                         w);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
                                          rot2D,
                                          tran,
-                                         w / _para.mReco);
+                                         w);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -3066,13 +3066,13 @@ void MLOptimiser::reconstructRef()
                                          ctf,
                                          rot3D,
                                          tran - _offset[l],
-                                         w / _para.mReco);
+                                         w);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
                                          rot3D,
                                          tran,
-                                         w / _para.mReco);
+                                         w);
 #endif
             }
             else
