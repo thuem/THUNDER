@@ -337,8 +337,9 @@ void Particle::vari(double& rVari,
 
 double Particle::compress() const
 {
-    return _transS / sqrt(_s0 * _s1);
-    //return sqrt(_s0 * _s1) / _transS;
+    // return _transS / sqrt(_s0 * _s1);
+
+    return gsl_pow_2(_transS) / _s0 / _s1;
 }
 
 /***
