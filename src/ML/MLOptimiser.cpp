@@ -2993,6 +2993,7 @@ void MLOptimiser::reconstructRef()
                       ((_para.ctfRefine) &&
                        (_searchType == SEARCH_TYPE_STOP)));
 
+    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
         ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
