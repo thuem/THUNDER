@@ -44,8 +44,7 @@ void CTF(Image& dst,
          const double defocusU,
          const double defocusV,
          const double theta,
-         const double Cs,
-         const int nThreads = 1);
+         const double Cs);
 
 /**
  * This function reduces the CTF affect using Wiener filter.

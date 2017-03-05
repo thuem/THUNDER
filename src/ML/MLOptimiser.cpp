@@ -2989,19 +2989,20 @@ void MLOptimiser::reconstructRef()
     for (int t = 0; t < _para.k; t++)
         _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
-
     bool ctfRefine = ((_searchType == SEARCH_TYPE_CTF) ||
                       ((_para.ctfRefine) &&
                        (_searchType == SEARCH_TYPE_STOP)));
 
     FOR_EACH_2D_IMAGE
     {
-        if (!_switch[l]) continue;
-
         ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
                                  << _ID[l]
                                  << " is "
                                  << _par[l].compress();
+
+        Image ctf(_para.size, _para.size, FT_SPACE);
+
+        if (!ctfRefine) ctf = _ctf[l].copyImage();
 
         for (int m = 0; m < (ctfRefine
                            ? (_para.mReco * _para.ctfRefineFactor)
@@ -3012,8 +3013,6 @@ void MLOptimiser::reconstructRef()
             mat33 rot3D;
             vec2 tran;
             double d;
-
-            Image ctf(_para.size, _para.size, FT_SPACE);
 
             double w;
             if (_para.parGra)
@@ -3032,10 +3031,7 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
                         _ctfAttr[l].defocusAngle,
-                        _ctfAttr[l].CS,
-                        omp_get_max_threads());
-                else
-                    ctf = _ctf[l].copyImage();
+                        _ctfAttr[l].CS);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
@@ -3062,10 +3058,7 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
                         _ctfAttr[l].defocusAngle,
-                        _ctfAttr[l].CS,
-                        omp_get_max_threads());
-                else
-                    ctf = _ctf[l].copyImage();
+                        _ctfAttr[l].CS);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],

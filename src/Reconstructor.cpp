@@ -267,9 +267,8 @@ void Reconstructor::insert(const Image& src,
 #endif
 
     Image transSrc(_size, _size, FT_SPACE);
-    translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
+    translate(transSrc, src, _maxRadius, -t(0), -t(1));
 
-    #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(transSrc)
     {
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
@@ -341,7 +340,7 @@ void Reconstructor::insert(const Image& src,
 #endif
 
     Image transSrc(_size, _size, FT_SPACE);
-    translateMT(transSrc, src, _maxRadius, -t(0), -t(1));
+    translate(transSrc, src, _maxRadius, -t(0), -t(1));
 
     vector<mat33> sr;
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
@@ -352,7 +351,6 @@ void Reconstructor::insert(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
-        #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(transSrc)
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
@@ -423,9 +421,8 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
     Image transSrc(_size, _size, FT_SPACE);
-    translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
+    translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
-        #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
             vec2 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf));
@@ -488,7 +485,7 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
     Image transSrc(_size, _size, FT_SPACE);
-    translateMT(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
+    translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
     vector<mat33> sr;
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
@@ -499,7 +496,6 @@ void Reconstructor::insertP(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
-        #pragma omp parallel for
         for (int i = 0; i < _nPxl; i++)
         {
             vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
