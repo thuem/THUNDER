@@ -71,7 +71,7 @@
  */
 #define A_B_AVERAGE_THRES 40
 
-#define CUTOFF_BEYOND_RES 10
+#define CUTOFF_BEYOND_RES 5
 
 class MLModel : public Parallel
 {
