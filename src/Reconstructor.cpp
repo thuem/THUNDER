@@ -855,6 +855,10 @@ void Reconstructor::reconstruct(Volume& dst)
         dst.clear();
         dst.alloc(_size, _size, 1, RL_SPACE);
 
+#ifdef RECONSTRUCTOR_REMOVE_CORNER
+        //TODO
+#endif
+
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i < _size / 2; i++)
                 dst.setRL(_F2D.getRL(i, j), i, j, 0);
@@ -865,7 +869,14 @@ void Reconstructor::reconstruct(Volume& dst)
     else if (_mode == MODE_3D)
     {
         VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
-        // dst = _F3D.copyVolume();
+
+#ifdef RECONSTRUCTOR_REMOVE_CORNER
+        softMask(dst,
+                 dst,
+                 _size / 2 - EDGE_WIDTH_RL,
+                 EDGE_WIDTH_RL,
+                 0);
+#endif
 
         _fft.fwExecutePlanMT(_F3D);
         _F3D.clearRL();
