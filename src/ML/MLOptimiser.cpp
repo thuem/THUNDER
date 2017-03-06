@@ -691,12 +691,10 @@ void MLOptimiser::expectation()
                                     _para.perturbFactorL,
                                     _para.perturbFactorL);
 
-                _par[l].initD(_para.ctfRefineS);
+                //_par[l].initD(_para.ctfRefineS);
 
-                /***
                 if (_model.searchTypePrev() == SEARCH_TYPE_LOCAL)
                     _par[l].initD(_para.ctfRefineS);
-                ***/
             }
             else
             {
@@ -1383,8 +1381,6 @@ void MLOptimiser::initRef()
         else
             REPORT_ERROR("INEXISTENT MODE");
     
-        MLOG(INFO, "LOGGER_INIT") << "Padding Initial Model";
-
         #pragma omp parallel for
         FOR_EACH_PIXEL_RL(ref)
             if (ref(i) < 0) ref(i) = 0;
