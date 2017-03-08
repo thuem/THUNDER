@@ -430,12 +430,21 @@ void MLModel::BcastFSC(const double thres)
                                          << l
                                          << " to Hemisphere A";
             
+#ifdef MODEL_SWAP_HEMISPHERE
+            MPI_Ssend_Large(&B[0],
+                            A.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            HEMI_A_LEAD,
+                            l,
+                            MPI_COMM_WORLD);
+#else
             MPI_Ssend_Large(&A[0],
                             A.sizeFT(),
                             MPI_DOUBLE_COMPLEX,
                             HEMI_A_LEAD,
                             l,
                             MPI_COMM_WORLD);
+#endif
 
             MLOG(INFO, "LOGGER_COMPARE") << "Reference "
                                          << l
@@ -445,12 +454,21 @@ void MLModel::BcastFSC(const double thres)
                                          << l
                                          << " to Hemisphere B";
 
+#ifdef MODEL_SWAP_HEMISPHERE
+            MPI_Ssend_Large(&A[0],
+                            B.sizeFT(),
+                            MPI_DOUBLE_COMPLEX,
+                            HEMI_B_LEAD,
+                            l,
+                            MPI_COMM_WORLD);
+#else
             MPI_Ssend_Large(&B[0],
                             B.sizeFT(),
                             MPI_DOUBLE_COMPLEX,
                             HEMI_B_LEAD,
                             l,
                             MPI_COMM_WORLD);
+#endif
 
             MLOG(INFO, "LOGGER_COMPARE") << "Reference "
                                          << l
