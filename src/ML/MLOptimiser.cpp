@@ -783,7 +783,7 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
+            //PROCESS_LOGW_SOFT(logW);
             //PROCESS_LOGW_HARD(logW);
 
             /***
