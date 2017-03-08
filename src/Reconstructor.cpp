@@ -645,7 +645,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
                 FSC = GSL_MAX_DBL(1e-3, GSL_MIN_DBL(1 - 1e-3, FSC));
 
-                if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
+                // if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
                 _T3D.setFT(_T3D.getFT(i, j, k)
