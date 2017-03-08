@@ -793,6 +793,11 @@ void MLOptimiser::expectation()
                 PROCESS_LOGW_HARD(logW);
             ***/
 
+            if (_searchType == SEARCH_TYPE_GLOBAL)
+                PROCESS_LOGW_SOFT(logW);
+            else
+                PROCESS_LOGW_HARD(logW);
+
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
 
