@@ -611,8 +611,10 @@ class Particle
         void resample(const int n,
                       const double alpha = 0);
 
+        /***
         void downSample(const int n,
                         const double alpha = 0);
+                        ***/
 
         /**
          * This function returns the neff value of this particle filter, which

@@ -582,6 +582,20 @@ void Particle::resample(const int n,
     d(_topD, rank(0));
 
 #ifdef VERBOSE_LEVEL_4
+    if (n < _n)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Performing Sorting";
+        sort(n);
+    }
+#endif
+
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Performing Shuffling";
+#endif
+
+    shuffle();
+
+#ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Performing Resampling";
 #endif
 
@@ -718,6 +732,7 @@ void Particle::resample(const int n,
     if (_mode == MODE_3D) symmetrise();
 }
 
+/***
 void Particle::downSample(const int n,
                           const double alpha)
 {
@@ -729,6 +744,7 @@ void Particle::downSample(const int n,
 
     resample(n, alpha);
 }
+***/
 
 double Particle::neff() const
 {

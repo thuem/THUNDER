@@ -672,6 +672,8 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
+                _par[l].shuffle();
+
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
@@ -781,8 +783,8 @@ void MLOptimiser::expectation()
 
             }
 
-            //PROCESS_LOGW_SOFT(logW);
-            PROCESS_LOGW_HARD(logW);
+            PROCESS_LOGW_SOFT(logW);
+            //PROCESS_LOGW_HARD(logW);
 
             /***
             if (_searchType != SEARCH_TYPE_CTF)
@@ -833,7 +835,7 @@ void MLOptimiser::expectation()
                                                                           //_par[0].compressPerDim())));
                 }
 
-                _par[l].downSample(GSL_MAX_INT(nSampleMin,
+                _par[l].resample(GSL_MAX_INT(nSampleMin,
                                                GSL_MIN_INT(nSampleMax,
                                                            AROUND(nSampleWholeSpace
                                                                 * sqrt(GSL_MIN_DBL(1,
