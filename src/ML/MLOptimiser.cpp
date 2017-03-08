@@ -544,8 +544,8 @@ void MLOptimiser::expectation()
         {
             vec v = topW.col(l);
 
-            PROCESS_LOGW_SOFT(v);
-            //PROCESS_LOGW_HARD(v);
+            //PROCESS_LOGW_SOFT(v);
+            PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
@@ -781,7 +781,8 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
+            //PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_HARD(logW);
 
             /***
             if (_searchType != SEARCH_TYPE_CTF)
