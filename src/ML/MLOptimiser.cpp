@@ -3023,6 +3023,7 @@ void MLOptimiser::reconstructRef()
             vec2 tran;
             double d;
 
+            /***
             double w;
             if (_para.parGra)
                 w = _par[l].compress();
@@ -3069,7 +3070,6 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusAngle,
                         _ctfAttr[l].CS);
 
-                /***
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctf,
@@ -3083,10 +3083,10 @@ void MLOptimiser::reconstructRef()
                                          tran,
                                          w);
 #endif
-                ***/
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
+            ***/
         }
     }
 
