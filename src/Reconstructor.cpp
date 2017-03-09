@@ -495,9 +495,9 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
     Image transSrc(_size, _size, FT_SPACE);
+    /***
     translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
-    /***
     vector<mat33> sr;
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
     symmetryRotation(sr, rot, _sym);
