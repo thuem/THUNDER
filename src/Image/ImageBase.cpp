@@ -94,9 +94,12 @@ void ImageBase::clearRL()
 #endif
     
 #ifdef FFTW_PTR
-    fftw_free(_dataRL);
+    if (_dataRL != NULL)
+    {
+        fftw_free(_dataRL);
 
-    _dataRL = NULL;
+        _dataRL = NULL;
+    }
 #endif
 }
 
@@ -107,9 +110,12 @@ void ImageBase::clearFT()
 #endif
     
 #ifdef FFTW_PTR
-    fftw_free(_dataFT);
+    if (_dataFT != NULL)
+    {
+        fftw_free(_dataFT);
 
-    _dataFT = NULL;
+        _dataFT = NULL;
+    }
 #endif
 }
 
