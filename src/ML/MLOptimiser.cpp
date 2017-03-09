@@ -3021,6 +3021,7 @@ void MLOptimiser::reconstructRef()
                            ? (_para.mReco * _para.ctfRefineFactor)
                            : _para.mReco); m++)
         {
+            /***
             int cls;
             mat22 rot2D;
             mat33 rot3D;
@@ -3089,6 +3090,7 @@ void MLOptimiser::reconstructRef()
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
+            ***/
         }
     }
 
