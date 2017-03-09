@@ -506,6 +506,7 @@ void Reconstructor::insertP(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
+        /***
         for (int i = 0; i < _nPxl; i++)
         {
             vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
@@ -553,6 +554,7 @@ void Reconstructor::insertP(const Image& src,
 
 #endif
         }
+        ***/
     }
 }
 
