@@ -3011,13 +3011,12 @@ void MLOptimiser::reconstructRef()
                                  << _par[l].compress();
                                  ***/
 
-    Image ctf(_para.size, _para.size, FT_SPACE);
+        Image ctf(_para.size, _para.size, FT_SPACE);
 
         /***
         if (!ctfRefine) ctf = _ctf[l].copyImage();
         ***/
 
-        /***
         for (int m = 0; m < (ctfRefine
                            ? (_para.mReco * _para.ctfRefineFactor)
                            : _para.mReco); m++)
@@ -3074,6 +3073,7 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusAngle,
                         _ctfAttr[l].CS);
 
+                /***
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctfRefine ? ctf : _ctf[l],
@@ -3087,11 +3087,11 @@ void MLOptimiser::reconstructRef()
                                          tran,
                                          w);
 #endif
+                ***/
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
         }
-        ***/
     }
 
 #ifdef VERBOSE_LEVEL_2
