@@ -159,6 +159,10 @@ void Volume::setFT(const Complex value,
     bool conj;
     int index = iFT(conj, iCol, iRow, iSlc);
 
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
+
     _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
@@ -167,7 +171,17 @@ void Volume::setFTHalf(const Complex value,
                        const int iRow,
                        const int iSlc)
 {
-    _dataFT[iFTHalf(iCol, iRow, iSlc)] = value;
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    coordinatesInBoundaryFT(iCol, iRow, iSlc);
+#endif
+
+    int index = iFTHalf(iCol, iRow, iSlc);
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
+
+    _dataFT[index] = value;
 }
 
 void Volume::addFT(const Complex value,
@@ -179,6 +193,10 @@ void Volume::addFT(const Complex value,
     int index = iFT(conj, iCol, iRow, iSlc);
 
     Complex val = conj ? CONJUGATE(value) : value;
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
 
     #pragma omp atomic
     _dataFT[index].dat[0] += val.dat[0];
@@ -193,12 +211,14 @@ void Volume::addFTHalf(const Complex value,
 {
     int index = iFTHalf(iCol, iRow, iSlc);
 
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
+
     #pragma omp atomic
     _dataFT[index].dat[0] += value.dat[0];
-    //_dataFT[iFTHalf(iCol, iRow, iSlc)].dat[0] += value.dat[0];
     #pragma omp atomic
     _dataFT[index].dat[1] += value.dat[1];
-    //_dataFT[iFTHalf(iCol, iRow, iSlc)].dat[1] += value.dat[1];
 }
 
 void Volume::addFT(const double value,
@@ -206,8 +226,14 @@ void Volume::addFT(const double value,
                    int iRow,
                    int iSlc)
 {
+    int index = iFT(iCol, iRow, iSlc);
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
+
     #pragma omp atomic
-    _dataFT[iFT(iCol, iRow, iSlc)].dat[0] += value;
+    _dataFT[index].dat[0] += value;
 }
 
 void Volume::addFTHalf(const double value,
@@ -417,6 +443,9 @@ Complex Volume::getFTHalf(const double w[2][2][2],
                       + j * (_nCol / 2 + 1)
                       + i;
 
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
             result += _dataFT[index] * w[i][j][k];
         }
     }
@@ -446,6 +475,10 @@ void Volume::addFTHalf(const Complex value,
                       + k * (_nCol / 2 + 1) * _nRow
                       + j * (_nCol / 2 + 1)
                       + i;
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
 
             #pragma omp atomic
             _dataFT[index].dat[0] += value.dat[0] * w[i][j][k];
@@ -477,6 +510,10 @@ void Volume::addFTHalf(const double value,
                       + k * (_nCol / 2 + 1) * _nRow
                       + j * (_nCol / 2 + 1)
                       + i;
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
 
             #pragma omp atomic
             _dataFT[index].dat[0] += value * w[i][j][k];

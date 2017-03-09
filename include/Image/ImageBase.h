@@ -196,6 +196,14 @@
     FOR_EACH_PIXEL_RL(base) \
         if (base(i) < 0) base(i) = 0
 
+#define BOUNDARY_CHECK_RL(index) \
+    if ((index < 0) || (index >= _sizeRL)) \
+        REPORT_ERROR("OUT OF BOUNDARY RL");
+
+#define BOUNDARY_CHECK_FT(index) \
+    if ((index < 0) || (index >= _sizeFT)) \
+        REPORT_ERROR("OUT OF BOUNDARY FT");
+
 class ImageBase
 {
     BOOST_MOVABLE_BUT_NOT_COPYABLE(ImageBase)
@@ -247,8 +255,7 @@ class ImageBase
         inline const double& iGetRL(const size_t i = 0) const
         {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            if ((i < 0) || (i >= _sizeRL))
-                REPORT_ERROR("OUT OF BOUNDARY");
+            BOUNDARY_CHECK_RL(i);
 #endif
 
             return _dataRL[i];
@@ -262,8 +269,7 @@ class ImageBase
         inline const Complex& iGetFT(const size_t i = 0) const
         {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            if ((i < 0) || (i >= _sizeFT))
-                REPORT_ERROR("OUT OF BOUNDARY");
+            BOUNDARY_CHECK_FT(i);
 #endif
 
             return _dataFT[i];
@@ -276,8 +282,7 @@ class ImageBase
         inline double& operator()(const size_t i)
         {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            if ((i < 0) || (i >= _sizeRL))
-                REPORT_ERROR("OUT OF BOUNDARY");
+            BOUNDARY_CHECK_RL(i);
 #endif
 
             return _dataRL[i];
@@ -290,8 +295,7 @@ class ImageBase
         inline Complex& operator[](const size_t i)
         {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            if ((i < 0) || (i >= _sizeFT))
-                REPORT_ERROR("OUT OF BOUNDARY");
+            BOUNDARY_CHECK_FT(i);
 #endif
 
             return _dataFT[i];
