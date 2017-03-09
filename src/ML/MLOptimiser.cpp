@@ -2693,7 +2693,8 @@ void MLOptimiser::normCorrection()
 
             IMAGE_FOR_EACH_PIXEL_FT(img)
             {
-                if (QUAD(i, j) < gsl_pow_2(_r))
+                if ((QUAD(i, j) >= gsl_pow_2(_rL)) ||
+                    (QUAD(i, j) < gsl_pow_2(_r)))
                     norm(_ID[l] - 1) += ABS2(img.getFTHalf(i, j));
             }
         }
