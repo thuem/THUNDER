@@ -1093,8 +1093,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
+        ***/
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
