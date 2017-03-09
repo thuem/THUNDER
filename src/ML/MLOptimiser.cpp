@@ -3004,12 +3004,12 @@ void MLOptimiser::reconstructRef()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        /***
         ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
                                  << _ID[l]
                                  << " is "
                                  << _par[l].compress();
 
+        /***
         Image ctf(_para.size, _para.size, FT_SPACE);
 
         if (!ctfRefine) ctf = _ctf[l].copyImage();
