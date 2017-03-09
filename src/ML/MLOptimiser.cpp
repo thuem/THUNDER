@@ -3011,7 +3011,7 @@ void MLOptimiser::reconstructRef()
                                  << _par[l].compress();
                                  ***/
 
-        // Image ctf(_para.size, _para.size, FT_SPACE);
+    Image ctf(_para.size, _para.size, FT_SPACE);
 
         /***
         if (!ctfRefine) ctf = _ctf[l].copyImage();
