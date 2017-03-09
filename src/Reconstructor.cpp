@@ -497,6 +497,7 @@ void Reconstructor::insertP(const Image& src,
     Image transSrc(_size, _size, FT_SPACE);
     translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
+    /***
     vector<mat33> sr;
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
     symmetryRotation(sr, rot, _sym);
@@ -506,7 +507,6 @@ void Reconstructor::insertP(const Image& src,
 
     for (int k = 0; k < int(sr.size()); k++)
     {
-        /***
         for (int i = 0; i < _nPxl; i++)
         {
             vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
@@ -554,8 +554,8 @@ void Reconstructor::insertP(const Image& src,
 
 #endif
         }
-        ***/
     }
+    ***/
 }
 
 void Reconstructor::reconstruct(Image& dst)
