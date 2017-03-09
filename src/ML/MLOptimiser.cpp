@@ -3004,14 +3004,16 @@ void MLOptimiser::reconstructRef()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        /***
         ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
                                  << _ID[l]
                                  << " is "
                                  << _par[l].compress();
+                                 ***/
 
-        /***
         Image ctf(_para.size, _para.size, FT_SPACE);
 
+        /***
         if (!ctfRefine) ctf = _ctf[l].copyImage();
         ***/
 
@@ -3025,7 +3027,6 @@ void MLOptimiser::reconstructRef()
             vec2 tran;
             double d;
 
-            /***
             double w;
             if (_para.parGra)
                 w = _par[l].compress();
@@ -3047,13 +3048,13 @@ void MLOptimiser::reconstructRef()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctf,
+                                         ctfRefine ? ctf : _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
                                          w);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctf,
+                                         ctfRefine ? ctf : _ctf[l],
                                          rot2D,
                                          tran,
                                          w);
@@ -3074,13 +3075,13 @@ void MLOptimiser::reconstructRef()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctf,
+                                         ctfRefine ? ctf : _ctf[l],
                                          rot3D,
                                          tran - _offset[l],
                                          w);
 #else
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctf,
+                                         ctfRefine ? ctf : _ctf[l],
                                          rot3D,
                                          tran,
                                          w);
@@ -3088,7 +3089,6 @@ void MLOptimiser::reconstructRef()
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
-            ***/
         }
     }
 
