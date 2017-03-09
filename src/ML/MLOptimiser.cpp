@@ -2,8 +2,7 @@
  * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Bing Li, Heng Guo
  * Dependency:
  * Test:
- * Execution:
- * Description:
+ * Execution: * Description:
  *
  * Manual:
  * ****************************************************************************/
@@ -113,7 +112,7 @@ void MLOptimiser::init()
 
                               ***/
     //_rL = 0;
-    _rL = 0;
+    _rL = 2.5;
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
