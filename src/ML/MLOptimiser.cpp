@@ -966,10 +966,12 @@ void MLOptimiser::maximization()
         correctScale(false, true);
     }
 
+    /***
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
     reconstructRef();
+    ***/
 }
 
 void MLOptimiser::run()
@@ -1093,10 +1095,8 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
 
-        /***
         MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
         maximization();
-        ***/
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
