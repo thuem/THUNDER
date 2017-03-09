@@ -966,12 +966,10 @@ void MLOptimiser::maximization()
         correctScale(false, true);
     }
 
-    /***
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
     reconstructRef();
-    ***/
 }
 
 void MLOptimiser::run()
@@ -3096,6 +3094,7 @@ void MLOptimiser::reconstructRef()
 
     MPI_Barrier(_hemi);
 
+    /***
     for (int t = 0; t < _para.k; t++)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
@@ -3107,6 +3106,7 @@ void MLOptimiser::reconstructRef()
 
         _model.reco(t).reconstruct(_model.ref(t));
     }
+    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
@@ -3165,6 +3165,7 @@ void MLOptimiser::reconstructRef()
     }
     ***/
 
+    /***
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
@@ -3176,25 +3177,6 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
 
-        /***
-        if (_para.mode == MODE_2D)
-        {
-            Image tmp(_para.size * _para.pf,
-                      _para.size * _para.pf,
-                      RL_SPACE);
-
-            SLC_EXTRACT_RL(tmp, _model.ref(t), 0);
-            fft.fwMT(tmp);
-            tmp.clearRL();
-            _model.ref(t) = Volume(tmp);
-        }
-        else if (_para.mode == MODE_3D)
-        {
-            fft.fwMT(_model.ref(t));
-            _model.ref(t).clearRL();
-        }
-        ***/
-
         fft.fwMT(_model.ref(t));
         _model.ref(t).clearRL();
 
@@ -3203,6 +3185,7 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
 #endif
     }
+    ***/
 }
 
 void MLOptimiser::solventFlatten(const bool mask)
