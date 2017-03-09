@@ -246,6 +246,11 @@ class ImageBase
          */
         inline const double& iGetRL(const size_t i = 0) const
         {
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            if ((i < 0) || (i >= _sizeRL))
+                REPORT_ERROR("OUT OF BOUNDARY");
+#endif
+
             return _dataRL[i];
         };
 
@@ -256,6 +261,11 @@ class ImageBase
          */
         inline const Complex& iGetFT(const size_t i = 0) const
         {
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            if ((i < 0) || (i >= _sizeFT))
+                REPORT_ERROR("OUT OF BOUNDARY");
+#endif
+
             return _dataFT[i];
         };
 
@@ -263,13 +273,29 @@ class ImageBase
          * return the i-th element in real space
          * @param i index of the element
          */
-        inline double& operator()(const size_t i) { return _dataRL[i]; };
+        inline double& operator()(const size_t i)
+        {
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            if ((i < 0) || (i >= _sizeRL))
+                REPORT_ERROR("OUT OF BOUNDARY");
+#endif
+
+            return _dataRL[i];
+        };
 
         /**
          * return the i-th element in Fourier space
          * @param i index of the element
          */
-        inline Complex& operator[](const size_t i) { return _dataFT[i]; };
+        inline Complex& operator[](const size_t i)
+        {
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            if ((i < 0) || (i >= _sizeFT))
+                REPORT_ERROR("OUT OF BOUNDARY");
+#endif
+
+            return _dataFT[i];
+        };
 
         /**
          * check whether _dataRL is NULL or not
