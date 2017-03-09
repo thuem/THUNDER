@@ -3011,17 +3011,17 @@ void MLOptimiser::reconstructRef()
                                  << _par[l].compress();
                                  ***/
 
-        Image ctf(_para.size, _para.size, FT_SPACE);
+        // Image ctf(_para.size, _para.size, FT_SPACE);
 
         /***
         if (!ctfRefine) ctf = _ctf[l].copyImage();
         ***/
 
+        /***
         for (int m = 0; m < (ctfRefine
                            ? (_para.mReco * _para.ctfRefineFactor)
                            : _para.mReco); m++)
         {
-            /***
             int cls;
             mat22 rot2D;
             mat33 rot3D;
@@ -3090,8 +3090,8 @@ void MLOptimiser::reconstructRef()
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
-            ***/
         }
+        ***/
     }
 
 #ifdef VERBOSE_LEVEL_2
