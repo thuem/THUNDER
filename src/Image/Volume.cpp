@@ -94,11 +94,13 @@ double Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
 {
+    int index = iRL(iCol, iRow, iSlc);
+
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    BOUNDARY_CHECK_RL(index);
 #endif
-    
-    return _dataRL[iRL(iCol, iRow, iSlc)];
+
+    return _dataRL[index];
 }
 
 void Volume::setRL(const double value,
@@ -106,11 +108,13 @@ void Volume::setRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
+    int index = iRL(iCol, iRow, iSlc);
+
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    BOUNDARY_CHECK_RL(index);
 #endif
 
-    _dataRL[iRL(iCol, iRow, iSlc)] = value;
+    _dataRL[index] = value;
 }
 
 void Volume::addRL(const double value,
@@ -118,24 +122,26 @@ void Volume::addRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
+    int index = iRL(iCol, iRow, iSlc);
+
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    coordinatesInBoundaryRL(iCol, iRow, iSlc);
+    BOUNDARY_CHECK_RL(index);
 #endif
 
     #pragma omp atomic
-    _dataRL[iRL(iCol, iRow, iSlc)] += value;
+    _dataRL[index] += value;
 }
 
 Complex Volume::getFT(int iCol,
                       int iRow,
                       int iSlc) const
 {
-#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
-#endif
-
     bool conj;
     int index = iFT(conj, iCol, iRow, iSlc);
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
 
     return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
@@ -144,7 +150,13 @@ Complex Volume::getFTHalf(const int iCol,
                           const int iRow,
                           const int iSlc) const
 {
-    return _dataFT[iFTHalf(iCol, iRow, iSlc)];
+    int index = iFTHalf(iCol, iRow, iSlc);
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
+
+    return _dataFT[index];
 }
 
 void Volume::setFT(const Complex value,
@@ -152,10 +164,6 @@ void Volume::setFT(const Complex value,
                    int iRow,
                    int iSlc)
 {
-#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
-#endif
-
     bool conj;
     int index = iFT(conj, iCol, iRow, iSlc);
 
@@ -171,10 +179,6 @@ void Volume::setFTHalf(const Complex value,
                        const int iRow,
                        const int iSlc)
 {
-#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    coordinatesInBoundaryFT(iCol, iRow, iSlc);
-#endif
-
     int index = iFTHalf(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
@@ -241,8 +245,14 @@ void Volume::addFTHalf(const double value,
                        const int iRow,
                        const int iSlc)
 {
+    int index = iFTHalf(iCol, iRow, iSlc);
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+    BOUNDARY_CHECK_FT(index);
+#endif
+
     #pragma omp atomic
-    _dataFT[iFTHalf(iCol, iRow, iSlc)].dat[0] += value;
+    _dataFT[index].dat[0] += value;
 }
 
 double Volume::getByInterpolationRL(const double iCol,
