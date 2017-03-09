@@ -14,6 +14,10 @@
 //#define CXX11_PTR
 #define FFTW_PTR
 
+#ifdef FFTW_PTR
+#define FFTW_PTR_THREAD_SAFETY
+#endif
+
 #include <functional>
 #include <cstring>
 #include <cstdio>

@@ -65,6 +65,9 @@ void Image::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
+#ifdef FFTW_PTR_THREAD_SAFETY
+        #pragma omp critical
+#endif
         _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
 #endif
     }
@@ -80,6 +83,9 @@ void Image::alloc(const int nCol,
 #endif
 
 #ifdef FFTW_PTR
+#ifdef FFTW_PTR_THREAD_SAFETY
+        #pragma omp critical
+#endif
         _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
