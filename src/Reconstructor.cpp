@@ -484,7 +484,6 @@ void Reconstructor::insertP(const Image& src,
                             const vec2& t,
                             const double w)
 {
-    /***
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
         REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
@@ -555,7 +554,6 @@ void Reconstructor::insertP(const Image& src,
 #endif
         }
     }
-    ***/
 }
 
 void Reconstructor::reconstruct(Image& dst)
