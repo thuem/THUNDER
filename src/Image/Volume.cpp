@@ -407,7 +407,7 @@ void Volume::coordinatesInBoundaryRL(const int iCol,
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
-        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
+        REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
 }
 
 void Volume::coordinatesInBoundaryFT(const int iCol,
@@ -417,7 +417,7 @@ void Volume::coordinatesInBoundaryFT(const int iCol,
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
-        CLOG(FATAL, "LOGGER_SYS") << "Accessing Value out of Boundary";
+        REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
 }
 
 double Volume::getRL(const double w[2][2][2],
@@ -454,7 +454,7 @@ Complex Volume::getFTHalf(const double w[2][2][2],
                       + i;
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    BOUNDARY_CHECK_FT(index);
+            BOUNDARY_CHECK_FT(index);
 #endif
             result += _dataFT[index] * w[i][j][k];
         }
@@ -487,7 +487,7 @@ void Volume::addFTHalf(const Complex value,
                       + i;
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    BOUNDARY_CHECK_FT(index);
+            BOUNDARY_CHECK_FT(index);
 #endif
 
             #pragma omp atomic
@@ -522,7 +522,7 @@ void Volume::addFTHalf(const double value,
                       + i;
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
-    BOUNDARY_CHECK_FT(index);
+            BOUNDARY_CHECK_FT(index);
 #endif
 
             #pragma omp atomic
