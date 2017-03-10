@@ -3100,7 +3100,6 @@ void MLOptimiser::reconstructRef()
 
     MPI_Barrier(_hemi);
 
-    /***
     for (int t = 0; t < _para.k; t++)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
@@ -3112,7 +3111,6 @@ void MLOptimiser::reconstructRef()
 
         _model.reco(t).reconstruct(_model.ref(t));
     }
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
@@ -3171,7 +3169,6 @@ void MLOptimiser::reconstructRef()
     }
     ***/
 
-    /***
     ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
     BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
 
@@ -3191,7 +3188,6 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
 #endif
     }
-    ***/
 }
 
 void MLOptimiser::solventFlatten(const bool mask)
