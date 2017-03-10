@@ -1076,11 +1076,15 @@ void MLModel::updateRU()
 {
     _rUPrev = _rU;
 
+#ifdef MODEL_ALWAYS_MAX_RU
+    _rU = maxR();
+#else
     _rU = GSL_MIN_INT(_r
                    + ((_searchType == SEARCH_TYPE_GLOBAL)
                     ? AROUND((double)_rGlobal / 3)
                     : AROUND((double)maxR() / 3)),
                       maxR());
+#endif
 
     MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "
                              << _rU;

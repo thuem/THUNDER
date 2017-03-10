@@ -980,12 +980,12 @@ void MLOptimiser::run()
 
     init();
 
-    /***
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
     saveImages();
-    saveBinImages();
     saveCTFs();
+    /***
+    saveBinImages();
     saveLowPassImages();
     ***/
 
