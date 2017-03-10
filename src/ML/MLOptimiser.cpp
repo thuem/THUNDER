@@ -3004,12 +3004,10 @@ void MLOptimiser::reconstructRef()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        /***
-        ALOG(INFO, "LOGGER_SYS") << "CompressTrans of Particle "
+        ALOG(INFO, "LOGGER_SYS") << "Compress of Particle "
                                  << _ID[l]
                                  << " is "
                                  << _par[l].compress();
-                                 ***/
 
         Image ctf(_para.size, _para.size, FT_SPACE);
 
@@ -3616,12 +3614,14 @@ void MLOptimiser::saveReference(const bool finished)
                 fft.bwMT(_model.ref(t));
             else
             {
+                /***
                 if (_searchType != SEARCH_TYPE_CTF)
                     lowPassFilter(lowPass,
                                   _model.ref(0),
                                   (double)_resReport / _para.size,
                                   (double)EDGE_WIDTH_FT / _para.size);
                 else
+                ***/
                     lowPass = _model.ref(0).copyVolume();
 
                 fft.bwMT(lowPass);
