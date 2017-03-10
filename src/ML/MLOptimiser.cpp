@@ -2584,7 +2584,7 @@ void MLOptimiser::normCorrection()
 
     NT_MASTER
     {
-        #pragma omp parallel for private(rot2D, rot3D, tran, d)
+        #pragma omp parallel for private(cls, rot2D, rot3D, tran, d)
         FOR_EACH_2D_IMAGE
         {
             Image img(size(), size(), FT_SPACE);
@@ -2829,7 +2829,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     for (int l = 0; l < _nGroup; l++)
         omp_init_lock(&mtx[l]);
 
-    #pragma omp parallel for private(rot2D, rot3D, tran, d) schedule(dynamic)
+    #pragma omp parallel for private(cls, rot2D, rot3D, tran, d) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         if (_switch[l])
