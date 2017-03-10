@@ -495,7 +495,6 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
     Image transSrc(_size, _size, FT_SPACE);
-    /***
     translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
 
     vector<mat33> sr;
@@ -555,7 +554,6 @@ void Reconstructor::insertP(const Image& src,
 #endif
         }
     }
-    ***/
 }
 
 void Reconstructor::reconstruct(Image& dst)
