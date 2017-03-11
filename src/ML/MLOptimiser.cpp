@@ -3200,6 +3200,13 @@ void MLOptimiser::solventFlatten(const bool mask)
         FFT fft;
         fft.bwMT(_model.ref(t));
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN_REMOVE_NEG
+        ALOG(INFO, "LOGGER_ROUND") << "Removing Negative Values from Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Removing Negative Values from Reference " << t;
+
+        REMOVE_NEG(_model.ref(t));
+#endif
+
         if (mask && !_mask.isEmptyRL())
         {
             ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
