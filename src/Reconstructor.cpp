@@ -954,6 +954,32 @@ void Reconstructor::allReduceT()
         REPORT_ERROR("INEXISTENT MODE");
 
     MPI_Barrier(_hemi);
+
+#ifdef RECONSTRUCTOR_NORMALISE_T_F
+    ALOG(INFO, "LOGGER_RECO") << "Normalising T and F";
+    BLOG(INFO, "LOGGER_RECO") << "Normalising T and F";
+
+    if (_mode == MODE_2D)
+    {
+        double sf = 1.0 / REAL(_T2D[0]);
+
+        #pragma omp parallel for
+        SCALE_FT(_T2D, sf);
+        #pragma omp parallel for
+        SCALE_FT(_F2D, sf);
+    }
+    else if (_mode == MODE_3D)
+    {
+        double sf = 1.0 / REAL(_T3D[0]);
+
+        #pragma omp parallel for
+        SCALE_FT(_T3D, sf);
+        #pragma omp parallel for
+        SCALE_FT(_F3D, sf);
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
+#endif
 }
 
 double Reconstructor::checkC() const
