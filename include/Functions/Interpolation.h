@@ -131,10 +131,13 @@ inline void W_INTERP_LINEAR(double w[2],
 inline void W_INTERP_SINC(double w[2], 
                           const double xd) 
 {
-    w[0] = gsl_sf_sinc(xd)
-         / (gsl_sf_sinc(xd) + gsl_sf_sinc(1 - xd));
-    w[1] = gsl_sf_sinc(1 - xd)
-         / (gsl_sf_sinc(xd) + gsl_sf_sinc(1 - xd));
+    w[0] = gsl_sf_sinc(xd);
+    w[1] = gsl_sf_sinc(1 - xd);
+
+    double n = w[0] + w[1];
+    
+    w[0] /= n;
+    w[1] /= n;
 }
 
 /**
