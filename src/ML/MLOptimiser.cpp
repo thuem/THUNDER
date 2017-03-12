@@ -659,15 +659,10 @@ void MLOptimiser::expectation()
         double rVari = 1;
         double dVari = 5 * _para.ctfRefineS;
 
+        bool harsh = (_searchType != SEARCH_TYPE_GLOBAL);
+
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            /***
-            ILOG(INFO, "LOGGER_SYS") << "ID = "
-                                     << _ID[l]
-                                     << ", Phase ="
-                                     << phase;
-                                     ***/
-
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
@@ -782,8 +777,10 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
-            //PROCESS_LOGW_HARD(logW);
+            if (harsh)
+                PROCESS_LOGW_HARD(logW);
+            else
+                PROCESS_LOGW_SOFT(logW);
 
             /***
             if (_searchType != SEARCH_TYPE_CTF)
@@ -881,13 +878,22 @@ void MLOptimiser::expectation()
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
                 {
-                    #pragma omp atomic
-                    _nF += phase;
+                    if (harsh)
+                    {
+                        #pragma omp atomic
+                        _nF += phase;
 
-                    #pragma omp atomic
-                    _nI += 1;
+                        #pragma omp atomic
+                        _nI += 1;
 
-                    break;
+                        break;
+                    }
+                    else
+                    {
+                        harsh = true;
+
+                        nPhaseWithNoVariDecrease = 0;
+                    }
                 }
             }
         }
