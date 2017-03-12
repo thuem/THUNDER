@@ -136,6 +136,11 @@ void MLModel::appendRef(Volume ref)
     _ref.push_back(boost::move(ref));
 }
 
+void MLModel::clearRef()
+{
+    _ref.clear();
+}
+
 int MLModel::k() const
 {
     return _k;

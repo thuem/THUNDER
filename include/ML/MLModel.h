@@ -356,6 +356,8 @@ class MLModel : public Parallel
          */
         void appendRef(Volume ref);
 
+        void clearRef();
+
         /**
          * This function returns the number of references.
          */

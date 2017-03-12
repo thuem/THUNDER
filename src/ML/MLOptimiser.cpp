@@ -1123,6 +1123,11 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC(_para.thresReportFSC);
 
+        /***
+        // TODO: FOR DEBUG
+        initRef();
+        ***/
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 
@@ -1394,6 +1399,8 @@ void MLOptimiser::initRef()
         FOR_EACH_PIXEL_RL(ref)
             if (ref(i) < 0) ref(i) = 0;
 
+        _model.clearRef();
+
         for (int t = 0; t < _para.k; t++)
         {
             if (_para.mode == MODE_2D)
@@ -1403,10 +1410,6 @@ void MLOptimiser::initRef()
             else if (_para.mode == MODE_3D)
             {
                 _model.appendRef(ref.copyVolume());
-                /***
-                _model.appendRef(Volume());
-                VOL_PAD_RL(_model.ref(t), ref, _para.pf);
-                ***/
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
