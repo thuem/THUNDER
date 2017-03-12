@@ -1018,6 +1018,9 @@ void MLOptimiser::run()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
+        // TODO DEBUG
+        if (_iter == 0)
+        {
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
         expectation();
@@ -1030,6 +1033,7 @@ void MLOptimiser::run()
                                    << " Images";
 
         MPI_Barrier(MPI_COMM_WORLD);
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
 
