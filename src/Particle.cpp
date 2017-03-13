@@ -581,6 +581,7 @@ void Particle::resample(const int n,
     t(_topT, rank(0));
     d(_topD, rank(0));
 
+    /***
 #ifdef VERBOSE_LEVEL_4
     if (n < _n)
     {
@@ -588,6 +589,7 @@ void Particle::resample(const int n,
         sort(n);
     }
 #endif
+    ***/
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Performing Shuffling";

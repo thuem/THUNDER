@@ -586,8 +586,10 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 
+            /***
             // shuffle
             _par[l].shuffle();
+            ***/
 
             // resample
             _par[l].resample();
@@ -659,7 +661,9 @@ void MLOptimiser::expectation()
         double rVari = 1;
         double dVari = 5 * _para.ctfRefineS;
 
+#ifdef OPTIMISER_HARD_SEARCH
         bool harsh = (_searchType != SEARCH_TYPE_GLOBAL);
+#endif
 
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
@@ -777,10 +781,14 @@ void MLOptimiser::expectation()
 
             }
 
+#ifdef OPTIMISER_HARDH_SEARCH
             if (harsh)
                 PROCESS_LOGW_HARD(logW);
             else
                 PROCESS_LOGW_SOFT(logW);
+#else
+            PROCESS_LOGW_SOFT(logW);
+#endif
 
             /***
             if (_searchType != SEARCH_TYPE_CTF)
@@ -878,6 +886,7 @@ void MLOptimiser::expectation()
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
                 {
+#ifdef OPTIMISER_HARSH_SEARCH
                     if (harsh)
                     {
                         #pragma omp atomic
@@ -894,6 +903,15 @@ void MLOptimiser::expectation()
 
                         nPhaseWithNoVariDecrease = 0;
                     }
+#else
+                    #pragma omp atomic
+                    _nF += phase;
+
+                    #pragma omp atomic
+                    _nI += 1;
+
+                    break;
+#endif
                 }
             }
         }
