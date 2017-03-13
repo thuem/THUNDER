@@ -114,7 +114,7 @@ void shellAverage(vec& dst,
             if (u < r)
             {
                 #pragma omp atomic
-                dst(u) += func(src.getFT(i, j, k));
+                dst(u) += func(src.getFTHalf(i, j, k));
                 #pragma omp atomic
                 counter(u) += 1;
             }
