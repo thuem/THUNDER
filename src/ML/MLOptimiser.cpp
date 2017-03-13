@@ -670,7 +670,9 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
+                /***
                 _par[l].shuffle();
+                ***/
 
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
