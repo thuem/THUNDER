@@ -1142,9 +1142,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
         reMaskImg();
 
-        //MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
 
-        //saveSig();
+        saveSig();
         //saveTau();
 
         MPI_Barrier(MPI_COMM_WORLD);
