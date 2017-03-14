@@ -2288,7 +2288,9 @@ void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
     if (init)
-        _rS = 1;
+    {
+        // _rS = 1;
+    }
     else if (_iter == 0)
         CLOG(FATAL, "LOGGER_SYS") << "Intensity Scale Can Not be Correct in First Iteration";
     else
