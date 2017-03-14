@@ -661,7 +661,7 @@ void MLOptimiser::expectation()
         double rVari = 1;
         double dVari = 5 * _para.ctfRefineS;
 
-#ifdef OPTIMISER_HARD_SEARCH
+#ifdef OPTIMISER_HARSH_SEARCH
         bool harsh = (_searchType != SEARCH_TYPE_GLOBAL);
 #endif
 
@@ -783,7 +783,7 @@ void MLOptimiser::expectation()
 
             }
 
-#ifdef OPTIMISER_HARDH_SEARCH
+#ifdef OPTIMISER_HARSH_SEARCH
             if (harsh)
                 PROCESS_LOGW_HARD(logW);
             else
