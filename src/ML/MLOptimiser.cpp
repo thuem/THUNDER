@@ -119,7 +119,7 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
-                              << " Pixels in Fourier Space will be Ingored during Comparison";
+                              << " Pixels in Fourier Space will be Ignored during Comparison";
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.sclCorRes
