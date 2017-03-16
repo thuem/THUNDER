@@ -115,8 +115,8 @@ void MLOptimiser::init()
     //_rL = 1.5;
     //_rL = 3.5;
     //_rL = 6;
-    //_rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
-    _rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
+    _rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
+    //_rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
@@ -2618,6 +2618,8 @@ void MLOptimiser::reMaskImg()
 
 void MLOptimiser::normCorrection()
 {
+    double rNorm = GSL_MIN_DBL(_r, _model.resolutionP(0.75, false));
+
     vec norm = vec::Zero(_nPar);
 
     int cls;
@@ -2741,7 +2743,7 @@ void MLOptimiser::normCorrection()
             IMAGE_FOR_EACH_PIXEL_FT(img)
             {
                 if ((QUAD(i, j) >= gsl_pow_2(_rL)) ||
-                    (QUAD(i, j) < gsl_pow_2(_r)))
+                    (QUAD(i, j) < gsl_pow_2(rNorm)))
                     norm(_ID[l] - 1) += ABS2(img.getFTHalf(i, j));
             }
         }
