@@ -517,7 +517,8 @@ void Projector::gridCorrection()
             IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
                 _projectee2D.setRL(_projectee2D.getRL(i, j)
                                  / TIK_RL(NORM(i, j)
-                                        / (_projectee2D.nColRL() * _pf)),
+                                        / _projectee2D.nColRL()),
+                                        // / (_projectee2D.nColRL() * _pf)),
                                    i,
                                    j);
 

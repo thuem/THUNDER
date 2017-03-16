@@ -722,7 +722,39 @@ void Reconstructor::reconstruct(Volume& dst)
         else
             REPORT_ERROR("INEXISTENT MODE");
 
+        ALOG(INFO, "LOGGER_RECO") << "Convoluting C";
+        BLOG(INFO, "LOGGER_RECO") << "Convoluting C";
+
         convoluteC();
+
+        ALOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+        BLOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+
+        if (_mode == MODE_2D)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            IMAGE_FOR_EACH_PIXEL_FT(_W2D)
+                if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                    _W2D.setFTHalf(_W2D.getFTHalf(i, j)
+                                 / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
+                                               1e-6),
+                                   i,
+                                   j);
+        }
+        else if (_mode == MODE_3D)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            VOLUME_FOR_EACH_PIXEL_FT(_W3D)
+                if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                    _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
+                                 / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
+                                               1e-6),
+                                   i,
+                                   j,
+                                   k);
+        }
+        else
+            REPORT_ERROR("INEXISTENT MODE");
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
@@ -736,34 +768,6 @@ void Reconstructor::reconstruct(Volume& dst)
 
         if ((m >= N_ITER_BALANCE) &&
             (diffC > diffCPrev * DIFF_C_DECREASE_THRES)) break;
-        else
-        {
-            if (_mode == MODE_2D)
-            {
-                #pragma omp parallel for schedule(dynamic)
-                IMAGE_FOR_EACH_PIXEL_FT(_W2D)
-                    if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
-                        _W2D.setFTHalf(_W2D.getFTHalf(i, j)
-                                     / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
-                                                   1e-6),
-                                       i,
-                                       j);
-            }
-            else if (_mode == MODE_3D)
-            {
-                #pragma omp parallel for schedule(dynamic)
-                VOLUME_FOR_EACH_PIXEL_FT(_W3D)
-                    if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-                        _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
-                                     / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
-                                                   1e-6),
-                                       i,
-                                       j,
-                                       k);
-            }
-            else
-                REPORT_ERROR("INEXISTENT MODE");
-        }
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
