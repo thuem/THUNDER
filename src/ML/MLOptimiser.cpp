@@ -1143,8 +1143,10 @@ void MLOptimiser::run()
             _img.push_back(_imgOri[l].copyImage());
 #endif
 
+#ifdef OPTIMISER_MASK_IMG
         MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
         reMaskImg();
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
 
@@ -1798,6 +1800,7 @@ void MLOptimiser::maskImg()
     FOR_EACH_2D_IMAGE
         _imgOri.push_back(_img[l].copyImage());
 
+#ifdef OPTIMISER_MASK_IMG
     if (_para.zeroMask)
     {
         #pragma omp parallel for
@@ -1819,6 +1822,7 @@ void MLOptimiser::maskImg()
                      0,
                      _stdN);
     }
+#endif
 }
 
 void MLOptimiser::normaliseImg()
