@@ -2850,11 +2850,17 @@ void MLOptimiser::allReduceSigma(const bool group)
 {
     IF_MASTER return;
 
+#ifdef OPTIMISER_SIGMA_WHOLE_FREQUENCY
+    int rSig = maxR();
+#else
+    int rSig = _r;
+#endif
+
     ALOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
 
     // set re-calculating part to zero
-    _sig.leftCols(_r).setZero();
+    _sig.leftCols(rSig).setZero();
     _sig.rightCols(1).setZero();
 
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
@@ -2882,7 +2888,9 @@ void MLOptimiser::allReduceSigma(const bool group)
         {
             Image img(size(), size(), FT_SPACE);
 
-            vec sig(_r);
+            SET_0_FT(img);
+
+            vec sig(rSig);
 
             if (_para.mode == MODE_2D)
             {
@@ -2955,13 +2963,13 @@ void MLOptimiser::allReduceSigma(const bool group)
             ADD_FT(img, _imgOri[l]);
 #endif
 
-            powerSpectrum(sig, img, _r);
+            powerSpectrum(sig, img, rSig);
 
             if (group)
             {
                 omp_set_lock(&mtx[_groupID[l] - 1]);
 
-                _sig.row(_groupID[l] - 1).head(_r) += sig.transpose() / 2;
+                _sig.row(_groupID[l] - 1).head(rSig) += sig.transpose() / 2;
 
                 _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
 
@@ -2971,7 +2979,7 @@ void MLOptimiser::allReduceSigma(const bool group)
             {
                 omp_set_lock(&mtx[0]);
 
-                _sig.row(0).head(_r) += sig.transpose() / 2;
+                _sig.row(0).head(rSig) += sig.transpose() / 2;
 
                 _sig(0, _sig.cols() - 1) += 1;
 
@@ -2989,7 +2997,7 @@ void MLOptimiser::allReduceSigma(const bool group)
 
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
-                  _r * _nGroup,
+                  rSig * _nGroup,
                   MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
@@ -3007,24 +3015,24 @@ void MLOptimiser::allReduceSigma(const bool group)
     {
         #pragma omp parallel for
         for (int i = 0; i < _sig.rows(); i++)
-            _sig.row(i).head(_r) /= _sig(i, _sig.cols() - 1);
+            _sig.row(i).head(rSig) /= _sig(i, _sig.cols() - 1);
     }
     else
     {
-        _sig.row(0).head(_r) /= _sig(0, _sig.cols() - 1);
+        _sig.row(0).head(rSig) /= _sig(0, _sig.cols() - 1);
 
         #pragma omp parallel for
         for (int i = 1; i < _sig.rows(); i++)
-            _sig.row(i).head(_r) = _sig.row(0).head(_r);
+            _sig.row(i).head(rSig) = _sig.row(0).head(rSig);
     }
 
     #pragma omp parallel for
-    for (int i = _r; i < _sig.cols() - 1; i++)
-        _sig.col(i) = _sig.col(_r - 1);
+    for (int i = rSig; i < _sig.cols() - 1; i++)
+        _sig.col(i) = _sig.col(rSig - 1);
 
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
-        for (int j = 0; j < _r; j++)
+        for (int j = 0; j < rSig; j++)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
 }
 
