@@ -543,7 +543,8 @@ void Projector::gridCorrection()
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
                 _projectee3D.setRL(_projectee3D.getRL(i, j, k)
                                  / TIK_RL(NORM_3(i, j, k)
-                                        / (_projectee3D.nColRL() * _pf)),
+                                        / _projectee3D.nColRL()),
+                                        // / (_projectee3D.nColRL() * _pf)),
                                    i,
                                    j,
                                    k);
