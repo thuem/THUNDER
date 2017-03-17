@@ -787,8 +787,6 @@ class MLOptimiser : public Parallel
          */
         void saveReference(const bool finished = false);
 
-        void saveSharpReference();
-
         /**
          * save the mask
          */

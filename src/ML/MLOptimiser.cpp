@@ -3745,25 +3745,6 @@ void MLOptimiser::saveReference(const bool finished)
     }
 }
 
-void MLOptimiser::saveSharpReference()
-{
-    NT_MASTER return;
-
-    FFT fft;
-
-    fft.bwMT(_model.ref(0));
-
-    Volume result;
-
-    VOL_EXTRACT_RL(result, _model.ref(0), 1.0 / _para.pf);
-
-    REMOVE_NEG(result);
-
-    ImageFile imf;
-    imf.readMetaData(result);
-    imf.writeVolume("Reference_Sharp.mrc", result, _para.pixelSize);
-}
-
 void MLOptimiser::saveMask()
 {
     ImageFile imf;
