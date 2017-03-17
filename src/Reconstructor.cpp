@@ -643,8 +643,8 @@ void Reconstructor::reconstruct(Volume& dst)
                            ? _FSC(_FSC.size() - 1)
                            : _FSC(u / _pf);
 
-                //FSC = GSL_MAX_DBL(1e-3, GSL_MIN_DBL(1 - 1e-3, FSC));
-                FSC = GSL_MAX_DBL(1e-2, GSL_MIN_DBL(1 - 1e-2, FSC));
+                FSC = GSL_MAX_DBL(1e-3, GSL_MIN_DBL(1 - 1e-3, FSC));
+                //FSC = GSL_MAX_DBL(1e-2, GSL_MIN_DBL(1 - 1e-2, FSC));
 
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
                 FSC = sqrt(2 * FSC / (1 + FSC));
