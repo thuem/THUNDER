@@ -3343,7 +3343,7 @@ void MLOptimiser::allocPreCalIdx(const double rU,
         {
             int v = AROUND(NORM(i, j));
 
-            if (v < rU)
+            if ((v < rU) && (v >= rL))
             {
                 _iPxl[_nPxl] = _img[0].iFTHalf(i, j);
 
