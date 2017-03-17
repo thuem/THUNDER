@@ -541,12 +541,12 @@ void Particle::perturb(const double pfT,
             //sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
             if (pfR > 1)
             {
-                // more sparse
+                // more sparse, pf > 1
                 sampleACG(d, pow(pfR, -2.0) * (_k0 / _k1 - 1) + 1, 1, _n);
             }
             else
             {
-                // more dense
+                // more dense, 0 < pf < 1
                 sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
             }
 
