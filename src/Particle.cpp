@@ -538,7 +538,18 @@ void Particle::perturb(const double pfT,
 
         case MODE_3D:
             //sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
-            sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
+            //sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
+            if (pfR > 1)
+            {
+                // more sparse
+                sampleACG(d, pow(pfR, -2.0) * (_k0 / _k1 - 1) + 1, 1, _n);
+            }
+            else
+            {
+                // more dense
+                sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
+            }
+
             break;
 
         default:
