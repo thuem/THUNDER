@@ -69,6 +69,10 @@
 #define THU_SCORE 19
 #define THU_SCORE_FORMAT %12.6f
 
+#include <cstring>
+#include <cstdio>
+#include <iostream>
+
 #include "Parallel.h"
 #include "Utils.h"
 
@@ -87,6 +91,11 @@ class Database : public Parallel
          * the ID of the last particle of this process
          */
         int _end;
+
+        /**
+         * the offset in File of each line (particle)
+         */
+        vector<long> _offset;
 
     public:
 
@@ -129,6 +138,13 @@ class Database : public Parallel
          * assign particles to each process
          */
         void assign();
+
+        /**
+         * record the shift of each line, prepare for late use
+         */
+        void index();
+
+        long offset(const int i) const;
 
     private:
 

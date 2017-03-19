@@ -57,7 +57,32 @@ int Database::nParticle()
 
 int Database::nGroup()
 {
-    // TODO
+    rewind(_db);
+
+    int result = 0;
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    IF_MASTER
+    {
+        while (fgets(line, FILE_LINE_LENGTH - 1, _db))
+        {
+            word = strtok(line, " ");
+
+            for (int i = 0; i < THU_GROUP_ID; i++)
+                word = strtok(NULL, " ");
+
+            if (atoi(word) > result)
+                result = atoi(word);
+        }
+    }
+
+    MPI_Bcast(&result, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    return result;
 }
 
 int Database::nParticleRank()
@@ -75,6 +100,34 @@ int Database::nParticleRank()
 void Database::assign()
 {
     split(_start, _end, _commRank);
+}
+
+long Database::offset(const int i) const
+{
+    return _offset[i];
+}
+
+void Database::index()
+{
+    _offset.resize(nParticle());
+
+    rewind(_db);
+
+    char line[FILE_LINE_LENGTH];
+
+    IF_MASTER
+    {
+        for (int i = 0; i < (int)_offset.size(); i++)
+        {
+            _offset[i] = ftell(_db);
+
+            fgets(line, FILE_LINE_LENGTH - 1, _db);
+        }
+    }
+
+    MPI_Bcast(&_offset[0], _offset.size(), MPI_LONG, MASTER_ID, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void Database::split(int& start,

@@ -151,14 +151,14 @@ void MLOptimiser::init()
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
     _model.setR(_r);
 
+    MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _exp";
+    _db.setMPIEnv(_commSize, _commRank, _hemi);
+
+    MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
+    _db.openDatabase(_para.db);
+
     // TODO
     /***
-    MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
-    _exp.openDatabase(_para.db);
-
-    MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _exp";
-    _exp.setMPIEnv(_commSize, _commRank, _hemi);
-
     MLOG(INFO, "LOGGER_INIT") << "Broadcasting ID of _exp";
     _exp.bcastID();
 
@@ -1166,11 +1166,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
         _model.BcastFSC(_para.thresReportFSC);
 
-        /***
-        // TODO: FOR DEBUG
-        initRef();
-        ***/
-
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 
@@ -1326,28 +1321,20 @@ void MLOptimiser::clear()
 
 void MLOptimiser::bCastNPar()
 {
-    // TODO
-    /***
-    IF_MASTER _nPar = _exp.nParticle();
-
-    MPI_Bcast(&_nPar, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
-    ***/
+    _nPar = _db.nParticle();
 }
 
 void MLOptimiser::allReduceN()
 {
-    // TODO
-    /***
     IF_MASTER return;
 
-    _N = _exp.nParticle();
+    _N = _db.nParticleRank();
 
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, &_N, 1, MPI_INT, MPI_SUM, _hemi);
 
     MPI_Barrier(_hemi);
-    ***/
 }
 
 int MLOptimiser::size() const
@@ -1378,15 +1365,13 @@ void MLOptimiser::bcastGroupInfo()
             stmt.reset();
         }
     }
+    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Getting Number of Groups from Database";
-    IF_MASTER _nGroup = _exp.nGroup();
 
-    MLOG(INFO, "LOGGER_INIT") << "Broadcasting Number of Groups";
-    MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+    _nGroup = _db.nGroup();
 
     MLOG(INFO, "LOGGER_INIT") << "Number of Group: " << _nGroup;
-    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER
@@ -1534,25 +1519,14 @@ void MLOptimiser::initMask()
     imf.readMetaData();
 
     imf.readVolume(_mask);
-    /***
-    Volume mask;
-    imf.readVolume(mask);
-
-    VOL_PAD_RL(_mask, mask, _para.pf);
-    ***/
 }
 
 void MLOptimiser::initID()
 {
     _ID.clear();
 
-    // TODO
-    /***
-    sql::Statement stmt("select ID from particles;", -1, _exp.expose());
-
-    while (stmt.step())
-        _ID.push_back(stmt.get_int(0));
-    ***/
+    for (int i = _db.start(); i <= _db.end(); i++)
+        _ID.push_back(i);
 }
 
 void MLOptimiser::initImg()
@@ -2620,13 +2594,6 @@ void MLOptimiser::reMaskImg()
             C2C_RL(_img[l],
                    _img[l],
                    MUL_RL(_img[l], mask));
-        /***
-                   softMask(_img[l],
-                            _img[l],
-                            _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
-                            EDGE_WIDTH_RL,
-                            0));
-                            ***/
     }
     else
     {

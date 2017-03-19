@@ -74,6 +74,8 @@
  */
 #define FILE_LINE_LENGTH 1024
 
+#define FILE_WORD_LENGTH 256
+
 /**
  * edge width in Fourier space
  */

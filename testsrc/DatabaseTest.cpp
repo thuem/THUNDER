@@ -36,5 +36,18 @@ int main(int argc, char* argv[])
               << db.nParticleRank()
               << std::endl;
 
+    std::cout << "Number of Groups : "
+              << db.nGroup()
+              << std::endl;
+
+    std::cout << "Indexing" << std::endl;
+
+    db.index();
+
+    std::cout << "Offset of Each Line: " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.offset(i) << std::endl;
+
     MPI_Finalize();
 }
