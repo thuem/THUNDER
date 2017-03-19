@@ -37,6 +37,8 @@ void Database::saveDatabase(const char database[])
 
 int Database::nParticle()
 {
+    rewind(_db);
+
     int result = 0;
 
     char line[FILE_LINE_LENGTH];
@@ -48,6 +50,8 @@ int Database::nParticle()
 
     MPI_Bcast(&result, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
+    MPI_Barrier(MPI_COMM_WORLD);
+
     return result;
 }
 
@@ -58,13 +62,18 @@ int Database::nGroup()
 
 int Database::nParticleRank()
 {
-    // TODO
+    IF_MASTER
+    {
+        CLOG(WARNING, "LOGGER_SYS") << "NO PARTICLE ASSIGNED TO MASTER PROCESS";
+
+        return 0;
+    }
+
+    return (_end - _start + 1);
 }
 
 void Database::assign()
 {
-    IF_MASTER return;
-
     split(_start, _end, _commRank);
 }
 
@@ -73,6 +82,8 @@ void Database::split(int& start,
                      const int commRank)
 {
     int size = nParticle();
+
+    IF_MASTER return;
 
     int piece = size / (_commSize - 1);
 

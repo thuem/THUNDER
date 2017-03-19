@@ -70,8 +70,6 @@ class Database : public Parallel
          */
         void assign();
 
-    private:
-
         void split(int& start,
                    int& end,
                    int commRank);

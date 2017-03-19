@@ -18,11 +18,23 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    Database db("xz.thu");
+    Database db;
 
     db.setMPIEnv();
 
-    std::cout << db.nParticle() << std::endl;
+    db.openDatabase("xz.thu");
+
+    std::cout << "Total Number of Particles: "
+              << db.nParticle()
+              << std::endl;
+
+    std::cout << "Assigning Particles to Procecesses" << std::endl;
+
+    db.assign();
+
+    std::cout << "Number of Particles of This Process: "
+              << db.nParticleRank()
+              << std::endl;
 
     MPI_Finalize();
 }
