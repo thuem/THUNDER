@@ -35,11 +35,8 @@
 #include "Symmetry.h"
 #include "CTF.h"
 #include "Mask.h"
-
-#include "Experiment.h"
-
 #include "Particle.h"
-
+#include "Database.h"
 #include "MLModel.h"
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
@@ -367,7 +364,7 @@ class MLOptimiser : public Parallel
          * a database containing information of 2D images, CTFs, group and
          * micrograph information
          */
-        Experiment _exp;
+        Database _db;
 
         /**
          * the symmetry information of this reconstruction

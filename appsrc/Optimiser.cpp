@@ -16,7 +16,6 @@
 #include "ImageFile.h"
 #include "Particle.h"
 #include "CTF.h"
-#include "Experiment.h"
 #include "MLOptimiser.h"
 
 using namespace std;

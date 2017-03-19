@@ -50,7 +50,7 @@ int Database::nParticleRank()
     // TODO
 }
 
-int Database::assign()
+void Database::assign()
 {
     IF_MASTER return;
 

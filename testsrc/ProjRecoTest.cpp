@@ -18,7 +18,6 @@
 #include "ImageFile.h"
 #include "Particle.h"
 #include "CTF.h"
-#include "Experiment.h"
 #include "Spectrum.h"
 #include "Mask.h"
 

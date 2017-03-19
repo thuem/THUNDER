@@ -151,6 +151,8 @@ void MLOptimiser::init()
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
     _model.setR(_r);
 
+    // TODO
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _exp.openDatabase(_para.db);
 
@@ -165,6 +167,7 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Scattering _exp";
     _exp.scatter();
+    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Appending Initial References into _model";
     initRef();
@@ -1323,13 +1326,18 @@ void MLOptimiser::clear()
 
 void MLOptimiser::bCastNPar()
 {
+    // TODO
+    /***
     IF_MASTER _nPar = _exp.nParticle();
 
     MPI_Bcast(&_nPar, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+    ***/
 }
 
 void MLOptimiser::allReduceN()
 {
+    // TODO
+    /***
     IF_MASTER return;
 
     _N = _exp.nParticle();
@@ -1339,6 +1347,7 @@ void MLOptimiser::allReduceN()
     MPI_Allreduce(MPI_IN_PLACE, &_N, 1, MPI_INT, MPI_SUM, _hemi);
 
     MPI_Barrier(_hemi);
+    ***/
 }
 
 int MLOptimiser::size() const
@@ -1355,6 +1364,7 @@ void MLOptimiser::bcastGroupInfo()
 {
     ALOG(INFO, "LOGGER_INIT") << "Storing GroupID";
 
+    /***
     _groupID.clear();
 
     NT_MASTER
@@ -1376,6 +1386,7 @@ void MLOptimiser::bcastGroupInfo()
     MPI_Bcast(&_nGroup, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_INIT") << "Number of Group: " << _nGroup;
+    ***/
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Sigma";
     NT_MASTER
@@ -1535,10 +1546,13 @@ void MLOptimiser::initID()
 {
     _ID.clear();
 
+    // TODO
+    /***
     sql::Statement stmt("select ID from particles;", -1, _exp.expose());
 
     while (stmt.step())
         _ID.push_back(stmt.get_int(0));
+    ***/
 }
 
 void MLOptimiser::initImg()
@@ -1551,6 +1565,7 @@ void MLOptimiser::initImg()
 
     string imgName;
 
+    /***
     sql::Statement stmt("select Name from particles where ID = ?", -1, _exp.expose());
 
     FOR_EACH_2D_IMAGE
@@ -1596,6 +1611,7 @@ void MLOptimiser::initImg()
             abort();
         }
     }
+    ***/
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -1884,6 +1900,7 @@ void MLOptimiser::initCTF()
     // get CTF attributes from _exp
     CTFAttr ctfAttr;
 
+    /***
     sql::Statement stmt;
 
     if (_para.localCTF)
@@ -1954,6 +1971,7 @@ void MLOptimiser::initCTF()
             ctfAttr.defocusAngle,
             ctfAttr.CS);
     }
+    ***/
 }
 
 void MLOptimiser::initSwitch()
