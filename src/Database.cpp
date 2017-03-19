@@ -37,7 +37,18 @@ void Database::saveDatabase(const char database[])
 
 int Database::nParticle()
 {
-    // TODO
+    int result = 0;
+
+    char line[FILE_LINE_LENGTH];
+
+    IF_MASTER
+    {
+        while (fgets(line, FILE_LINE_LENGTH - 1, _db)) result++;
+    }
+
+    MPI_Bcast(&result, 1, MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+
+    return result;
 }
 
 int Database::nGroup()

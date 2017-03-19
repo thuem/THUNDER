@@ -10,10 +10,6 @@
 
 #include "Database.h"
 
-#define N 1000
-
-
-
 INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
@@ -22,27 +18,11 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    /***
-    Database db;
-
-    db.createTables();
-
-    db.appendMicrograph("", 0, 0, 0, 0, 0);
-    db.appendGroup("");
-
-    for (int i = 0; i < N; i++)
-        db.appendParticle("", 1, 1);
+    Database db("xz.thu");
 
     db.setMPIEnv();
 
-    db.bcastID();
-    db.prepareTmpFile();
-    ***/
-
-    /***
-    db.scatter();
-    db.gather();   
-    ***/
+    std::cout << db.nParticle() << std::endl;
 
     MPI_Finalize();
 }
