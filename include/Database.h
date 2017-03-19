@@ -9,6 +9,66 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#define THU_VOLTAGE 0
+#define THU_VOLTAGE_FORMAT %12.6f
+
+#define THU_DEFOCUS_U 1
+#define THU_DEFOCUS_U_FORMAT %12.6f
+
+#define THU_DEFOCUS_V 2
+#define THU_DEFOCUS_V_FORMAT %12.6f
+
+#define THU_DEFOCUS_THETA 3
+#define THU_DEFOCUS_THETA_FORMAT %12.6f
+
+#define THU_CS 4
+#define THU_CS_FORMAT %12.6f
+
+#define THU_AMPLITUTDE_CONTRAST 5
+#define THU_AMPLITUTDE_CONTRAST_FORMAT %12.6f
+
+#define THU_PHASE_SHIFT 6
+#define THU_PHASE_SHIFT_FORMAT %12.6f
+
+#define THU_PARTICLE_PATH 7
+#define THU_PARTICLE_PATH_FORMAT %s
+
+#define THU_MICROGRAPH_PATH 8
+#define THU_MICROGRAPH_PATH_FORMAT %s
+
+#define THU_COORDINATE_X 9
+#define THU_COORDINATE_X_FORMAT %12.6f
+
+#define THU_COORDINATE_Y 10
+#define THU_COORDINATE_Y_FORMAT %12.6f
+
+#define THU_GROUP_ID 11
+#define THU_GROUP_ID_FORMAT %6d
+
+#define THU_CLASS_ID 12
+#define THU_CLASS_ID_FORMAT %6d
+
+#define THU_QUATERNION_0 13
+#define THU_QUATERNION_0_FORMAT %12.6f
+
+#define THU_QUATERNION_1 14
+#define THU_QUATERNION_1_FORMAT %12.6f
+
+#define THU_QUATERNION_2 15
+#define THU_QUATERNION_2_FORMAT %12.6f
+
+#define THU_QUATERNION_3 16
+#define THU_QUATERNION_3_FORMAT %12.6f
+
+#define THU_TRANSLATION_X 17
+#define THU_TRANSLATION_X_FORMAT %12.6f
+
+#define THU_TRANSLATION_Y 18
+#define THU_TRANSLATION_Y_FORMAT %12.6f
+
+#define THU_SCORE 19
+#define THU_SCORE_FORMAT %12.6f
+
 #include "Parallel.h"
 #include "Utils.h"
 
@@ -69,6 +129,8 @@ class Database : public Parallel
          * assign particles to each process
          */
         void assign();
+
+    private:
 
         void split(int& start,
                    int& end,
