@@ -157,17 +157,11 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _db.openDatabase(_para.db);
 
-    // TODO
-    /***
-    MLOG(INFO, "LOGGER_INIT") << "Broadcasting ID of _exp";
-    _exp.bcastID();
+    MLOG(INFO, "LOGGER_INIT") << "Assigning Particles to Each Process";
+    _db.assign();
 
-    MLOG(INFO, "LOGGER_INIT") << "Preparing Temporary File of _exp";
-    _exp.prepareTmpFile();
-
-    MLOG(INFO, "LOGGER_INIT") << "Scattering _exp";
-    _exp.scatter();
-    ***/
+    MLOG(INFO, "LOGGER_INIT") << "Indexing the Offset in Database";
+    _db.index();
 
     MLOG(INFO, "LOGGER_INIT") << "Appending Initial References into _model";
     initRef();
@@ -1351,21 +1345,11 @@ void MLOptimiser::bcastGroupInfo()
 {
     ALOG(INFO, "LOGGER_INIT") << "Storing GroupID";
 
-    /***
     _groupID.clear();
 
     NT_MASTER
-    {
-        sql::Statement stmt("select GroupID from particles where ID = ?", -1, _exp.expose());
         FOR_EACH_2D_IMAGE
-        {
-            stmt.bind_int(1, _ID[l]);
-            while (stmt.step())
-                _groupID.push_back(stmt.get_int(0));
-            stmt.reset();
-        }
-    }
-    ***/
+            _groupID.push_back(_db.groupID(l));
 
     MLOG(INFO, "LOGGER_INIT") << "Getting Number of Groups from Database";
 

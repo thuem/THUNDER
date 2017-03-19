@@ -49,5 +49,9 @@ int main(int argc, char* argv[])
     for (int i = 0; i < 10; i++)
         std::cout << db.offset(i) << std::endl;
 
+    std::cout << "GroupID" << std::endl;
+    for (int i = 0; i < 10; i++)
+        std::cout << db.groupID(i) << std::endl;
+
     MPI_Finalize();
 }

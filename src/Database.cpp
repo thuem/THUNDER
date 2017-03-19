@@ -35,7 +35,7 @@ void Database::saveDatabase(const char database[])
     // TODO
 }
 
-int Database::nParticle()
+int Database::nParticle() const
 {
     rewind(_db);
 
@@ -55,7 +55,7 @@ int Database::nParticle()
     return result;
 }
 
-int Database::nGroup()
+int Database::nGroup() const
 {
     rewind(_db);
 
@@ -102,11 +102,6 @@ void Database::assign()
     split(_start, _end, _commRank);
 }
 
-long Database::offset(const int i) const
-{
-    return _offset[i];
-}
-
 void Database::index()
 {
     _offset.resize(nParticle());
@@ -128,6 +123,45 @@ void Database::index()
     MPI_Bcast(&_offset[0], _offset.size(), MPI_LONG, MASTER_ID, MPI_COMM_WORLD);
 
     MPI_Barrier(MPI_COMM_WORLD);
+}
+
+long Database::offset(const int i) const
+{
+    return _offset[i];
+}
+
+int Database::groupID(const int i) const
+{
+    fseek(_db, _offset[i], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_GROUP_ID; i++)
+        word = strtok(NULL, " ");
+
+    return atoi(word);
+}
+
+string Database::path(const int i) const
+{
+    fseek(_db, _offset[i], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_PARTICLE_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return string(word);
 }
 
 void Database::split(int& start,

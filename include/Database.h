@@ -122,12 +122,12 @@ class Database : public Parallel
         /**
          * total number of particles
          */
-        int nParticle();
+        int nParticle() const;
 
         /**
          * total number of groups
          */
-        int nGroup();
+        int nGroup() const;
 
         /**
          * number of particles assigned to this process
@@ -145,6 +145,10 @@ class Database : public Parallel
         void index();
 
         long offset(const int i) const;
+        
+        int groupID(const int i) const;
+
+        string path(const int i) const;
 
     private:
 
