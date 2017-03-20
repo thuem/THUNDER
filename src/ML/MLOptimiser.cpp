@@ -1527,6 +1527,9 @@ void MLOptimiser::initImg()
     {
         imgName = _db.path(_ID[l]);
 
+        ILOG(INFO, "LOGGER_SYS") << "Path of Image: "
+                                 << imgName;
+
         if (imgName.find('@') == string::npos)
         {
             ImageFile imf(imgName.c_str(), "rb");
