@@ -14,7 +14,7 @@
 
 //#define TEST_N_PARTICLE_RANK
 
-#define TEST_START_END
+//#define TEST_START_END
 
 //#define TEST_N_GROUP
 
@@ -24,7 +24,7 @@
 
 //#define TEST_PATH
 
-//#define TEST_CTF
+#define TEST_CTF
 
 INITIALIZE_EASYLOGGINGPP
 
