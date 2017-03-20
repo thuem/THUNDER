@@ -1845,65 +1845,11 @@ void MLOptimiser::initCTF()
     _ctfAttr.clear();
     _ctf.clear();
 
-    // get CTF attributes from _exp
     CTFAttr ctfAttr;
-
-    /***
-    sql::Statement stmt;
-
-    if (_para.localCTF)
-    {
-        ALOG(INFO, "LOGGER_INIT") << "Local CTF Enable";
-        BLOG(INFO, "LOGGER_INIT") << "Local CTF Enable";
-
-        stmt = sql::Statement("select Voltage, \
-                                      DefocusU, \
-                                      DefocusV, \
-                                      DefocusAngle, \
-                                      Cs \
-                               from particles where particles.ID = ?;",
-                               -1,
-                               _exp.expose());
-    }
-    else
-    {
-        ALOG(INFO, "LOGGER_INIT") << "Local CTF Disable";
-        BLOG(INFO, "LOGGER_INIT") << "Local CTF Disable";
-
-        stmt = sql::Statement("select Voltage, \
-                                      DefocusU, \
-                                      DefocusV, \
-                                      DefocusAngle, \
-                                      CS \
-                               from micrographs, \
-                                    particles \
-                               where particles.micrographID = micrographs.ID \
-                               and particles.ID = ?;",
-                               -1,
-                               _exp.expose());
-    }
 
     FOR_EACH_2D_IMAGE
     {
-        // get attributes of CTF from database
-        stmt.bind_int(1, _ID[l]);
-
-        if (stmt.step())
-        {
-            ctfAttr.voltage = stmt.get_double(0);
-            ctfAttr.defocusU = stmt.get_double(1);
-            ctfAttr.defocusV = stmt.get_double(2);
-            ctfAttr.defocusAngle = stmt.get_double(3);
-            ctfAttr.CS = stmt.get_double(4);
-        }
-        else 
-        {
-            CLOG(FATAL, "LOGGER_SYS") << "No Data";
-
-            abort();
-        }
-
-        stmt.reset();
+        _db.ctf(ctfAttr, l);
 
         _ctfAttr.push_back(ctfAttr);
 
@@ -1916,10 +1862,9 @@ void MLOptimiser::initCTF()
             ctfAttr.voltage,
             ctfAttr.defocusU,
             ctfAttr.defocusV,
-            ctfAttr.defocusAngle,
-            ctfAttr.CS);
+            ctfAttr.defocusTheta,
+            ctfAttr.Cs);
     }
-    ***/
 }
 
 void MLOptimiser::initSwitch()
@@ -2641,8 +2586,8 @@ void MLOptimiser::normCorrection()
                     _ctfAttr[l].voltage,
                     _ctfAttr[l].defocusU * d,
                     _ctfAttr[l].defocusV * d,
-                    _ctfAttr[l].defocusAngle,
-                    _ctfAttr[l].CS);
+                    _ctfAttr[l].defocusTheta,
+                    _ctfAttr[l].Cs);
 
                 FOR_EACH_PIXEL_FT(img)
                     img[i] *= REAL(ctf[i]);
@@ -2910,8 +2855,8 @@ void MLOptimiser::allReduceSigma(const bool group)
                     _ctfAttr[l].voltage,
                     _ctfAttr[l].defocusU * d,
                     _ctfAttr[l].defocusV * d,
-                    _ctfAttr[l].defocusAngle,
-                    _ctfAttr[l].CS);
+                    _ctfAttr[l].defocusTheta,
+                    _ctfAttr[l].Cs);
 
                 FOR_EACH_PIXEL_FT(img)
                     img[i] *= REAL(ctf[i]);
@@ -3062,8 +3007,8 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].voltage,
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
-                        _ctfAttr[l].defocusAngle,
-                        _ctfAttr[l].CS);
+                        _ctfAttr[l].defocusTheta,
+                        _ctfAttr[l].Cs);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
@@ -3089,8 +3034,8 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].voltage,
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
-                        _ctfAttr[l].defocusAngle,
-                        _ctfAttr[l].CS);
+                        _ctfAttr[l].defocusTheta,
+                        _ctfAttr[l].Cs);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 _model.reco(cls).insertP(_imgOri[l],
@@ -3377,12 +3322,7 @@ void MLOptimiser::allocPreCal(const bool ctf)
             {
                 double angle = atan2(_iRow[i],
                                      _iCol[i])
-                             - _ctfAttr[l].defocusAngle;
-                /***
-                double angle = atan2(_iRow[_iPxl[i]],
-                                     _iCol[_iPxl[i]])
-                             - _ctfAttr[l].defocusAngle;
-                             ***/
+                             - _ctfAttr[l].defocusTheta;
 
                 double defocus = -(_ctfAttr[l].defocusU
                                  + _ctfAttr[l].defocusV
@@ -3397,7 +3337,7 @@ void MLOptimiser::allocPreCal(const bool ctf)
                                             * (1 + _ctfAttr[l].voltage * 0.978466e-6));
 
             _K1[l] = M_PI * lambda;
-            _K2[l] = M_PI / 2 * _ctfAttr[l].CS * gsl_pow_3(lambda);
+            _K2[l] = M_PI / 2 * _ctfAttr[l].Cs * gsl_pow_3(lambda);
         }
     }
 }

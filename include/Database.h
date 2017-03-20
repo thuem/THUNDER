@@ -76,6 +76,23 @@
 #include "Parallel.h"
 #include "Utils.h"
 
+struct CTFAttr
+{
+    double voltage;
+
+    double defocusU;
+
+    double defocusV;
+
+    double defocusTheta;
+
+    double Cs;
+
+    double amplitudeConstrast;
+
+    double phaseShift;
+};
+
 class Database : public Parallel
 {
     private:
@@ -157,6 +174,9 @@ class Database : public Parallel
                  double& Cs,
                  double& amplitudeConstrast,
                  double& phaseShift,
+                 const int i) const;
+
+        void ctf(CTFAttr& dst,
                  const int i) const;
 
     private:

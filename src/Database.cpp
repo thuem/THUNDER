@@ -209,6 +209,19 @@ void Database::ctf(double& voltage,
     phaseShift = atof(word);
 }
 
+void Database::ctf(CTFAttr& dst,
+                   const int i) const
+{
+    ctf(dst.voltage,
+        dst.defocusU,
+        dst.defocusV,
+        dst.defocusTheta,
+        dst.Cs,
+        dst.amplitudeConstrast,
+        dst.phaseShift,
+        i);
+}
+
 void Database::split(int& start,
                      int& end,
                      const int commRank)

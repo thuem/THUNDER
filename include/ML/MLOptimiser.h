@@ -286,21 +286,6 @@ struct MLOptimiserPara
 
 void display(const MLOptimiserPara& para);
 
-typedef struct CTF_ATTR
-{
-
-    double voltage;
-
-    double defocusU;
-
-    double defocusV;
-
-    double defocusAngle;
-
-    double CS;
-
-} CTFAttr;
-
 class MLOptimiser : public Parallel
 {
     private:
