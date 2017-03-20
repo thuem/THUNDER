@@ -164,6 +164,51 @@ string Database::path(const int i) const
     return string(word);
 }
 
+void Database::ctf(double& voltage,
+                   double& defocusU,
+                   double& defocusV,
+                   double& defocusTheta,
+                   double& Cs,
+                   double& amplitudeConstrast,
+                   double& phaseShift,
+                   const int i) const
+{
+    fseek(_db, _offset[i], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    voltage = atof(word);
+
+    word = strtok(NULL, " ");
+
+    defocusU = atof(word);
+
+    word = strtok(NULL, " ");
+
+    defocusV = atof(word);
+
+    word = strtok(NULL, " ");
+
+    defocusTheta = atof(word);
+
+    word = strtok(NULL, " ");
+
+    Cs = atof(word);
+
+    word = strtok(NULL, " ");
+
+    amplitudeConstrast = atof(word);
+
+    word = strtok(NULL, " ");
+
+    phaseShift = atof(word);
+}
+
 void Database::split(int& start,
                      int& end,
                      const int commRank)

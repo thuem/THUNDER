@@ -149,6 +149,15 @@ class Database : public Parallel
         int groupID(const int i) const;
 
         string path(const int i) const;
+        
+        void ctf(double& voltage,
+                 double& defocusU,
+                 double& defocusV,
+                 double& defocusTheta,
+                 double& Cs,
+                 double& amplitudeConstrast,
+                 double& phaseShift,
+                 const int i) const;
 
     private:
 
