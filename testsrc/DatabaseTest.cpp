@@ -20,7 +20,9 @@
 
 //#define TEST_GROUP_ID
 
-#define TEST_PATH
+//#define TEST_PATH
+
+#define TEST_CTF
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -81,6 +83,31 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < 10; i++)
         std::cout << db.path(i) << std::endl;
+#endif
+
+#ifdef TEST_CTF
+    std::cout << "CTF " << std::endl;
+    double voltage, defocusU, defocusV, defocusTheta, Cs, amplitudeContrast, phaseShift;
+
+    for (int i = 0; i < 10; i++)
+    {
+        db.ctf(voltage,
+               defocusU,
+               defocusV,
+               defocusTheta,
+               Cs,
+               amplitudeContrast,
+               phaseShift,
+               i);
+
+        std::cout << "Voltage = " << voltage << std::endl
+                  << "defocusU = " << defocusU << std::endl
+                  << "defocusV = " << defocusV << std::endl
+                  << "defocusTheta = " << defocusTheta << std::endl
+                  << "Cs = " << Cs << std::endl
+                  << "amplitudeContrast = " << amplitudeContrast << std::endl
+                  << "phaseShift = " << phaseShift << std::endl;
+    }
 #endif
 
     MPI_Finalize();
