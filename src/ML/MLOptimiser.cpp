@@ -1856,7 +1856,7 @@ void MLOptimiser::initCTF()
 
     FOR_EACH_2D_IMAGE
     {
-        _db.ctf(ctfAttr, l);
+        _db.ctf(ctfAttr, _ID[l]);
 
         _ctfAttr.push_back(ctfAttr);
 
