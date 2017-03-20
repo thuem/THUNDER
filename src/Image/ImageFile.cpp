@@ -18,7 +18,7 @@ ImageFile::ImageFile(const char* filename,
     _file = fopen(filename, option);
 
     if (_file == NULL)
-        CLOG(FATAL, "LOGGER_SYS") << "File Does not Exist: "
+        CLOG(FATAL, "LOGGER_SYS") << "FILE DOES NOT EXIST: "
                                   << filename;
     _symmetryData = NULL;
 }
@@ -188,13 +188,12 @@ void ImageFile::fillMRCHeader(MRCHeader& header) const
 
 void ImageFile::readMetaDataMRC()
 {
-    if (_file == NULL)
-        REPORT_ERROR("Null file");
+    if (_file == NULL) REPORT_ERROR("FILE NOT EXIST");
 
     rewind(_file);
 
     if (fread(&_MRCHeader, 1, 1024, _file) != 1024)
-        REPORT_ERROR("Fail to read in mrc header file.");
+        REPORT_ERROR("FAIL TO READ IN MRC HEADER FILE.");
 
     _metaData.mode = _MRCHeader.mode;
         
@@ -210,12 +209,12 @@ void ImageFile::readSymmetryData()
     if (symmetryDataSize() != 0)
     {
         if (fseek(_file, 1024, 0) != 0)
-            REPORT_ERROR("Fail to read in an image.");
+            REPORT_ERROR("FAIL TO READ IN THIS IMAGE");
 
         _symmetryData = new char[symmetryDataSize()];
 
         if (fread(_symmetryData, 1, symmetryDataSize(), _file) == 0)
-            REPORT_ERROR("Fail to read in an image.");
+            REPORT_ERROR("FAIL TO READ IN THIS IMAGE");
     }
 }
 
@@ -223,11 +222,6 @@ void ImageFile::readImageMRC(Image& dst,
                              const int iSlc)
 {
     readSymmetryData();
-
-    /***
-    CLOG(INFO, "LOGGER_SYS") << "nCol = " << nCol();
-    CLOG(INFO, "LOGGER_SYS") << "nRow = " << nRow();
-    ***/
 
 	dst.alloc(nCol(), nRow(), RL_SPACE);
 
@@ -247,8 +241,7 @@ void ImageFile::readImageMRC(Image& dst,
 
 void ImageFile::readImageBMP(Image& dst)
 {
-    if (_file == NULL) \
-        REPORT_ERROR("Image file does not exist.");
+    if (_file == NULL) REPORT_ERROR("FILE NOT EXIST");
 
     BMP bmp;
     bmp.open(_file);
@@ -297,7 +290,7 @@ void ImageFile::writeImageMRC(const char dst[],
     if (fwrite(&header, 1, 1024, _file) == 0 ||
         (symmetryDataSize() != 0 &&
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
-        REPORT_ERROR("Fail to write out an image.");
+        REPORT_ERROR("FAIL TO WRITE OUT THIS IMAGE");
 
     IMAGE_WRITE_CAST<float>(_file, src);
 
@@ -322,7 +315,7 @@ void ImageFile::writeVolumeMRC(const char dst[],
     if (fwrite(&header, 1, 1024, _file) == 0 ||
         (symmetryDataSize() != 0 &&
          fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
-        REPORT_ERROR("Fail to write out an image.");
+        REPORT_ERROR("FAIL TO WRITE OUT THIS IMAGE");
 
     VOLUME_WRITE_CAST<float>(_file, src);
 

@@ -1527,8 +1527,10 @@ void MLOptimiser::initImg()
     {
         imgName = _db.path(_ID[l]);
 
+        /***
         ILOG(INFO, "LOGGER_SYS") << "Path of Image: "
                                  << imgName;
+                                 ***/
 
         if (imgName.find('@') == string::npos)
         {
@@ -2033,7 +2035,7 @@ void MLOptimiser::refreshRotationChange()
     NT_MASTER
     {
         FOR_EACH_2D_IMAGE
-            rc(_ID[l] - 1) = _par[l].diffTopR();
+            rc(_ID[l]) = _par[l].diffTopR();
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -2102,9 +2104,9 @@ void MLOptimiser::refreshVariance()
                          tVariS1,
                          dVari);
 
-            rv(_ID[l] - 1) = rVari;
-            t0v(_ID[l] - 1) = tVariS0;
-            t1v(_ID[l] - 1) = tVariS1;
+            rv(_ID[l]) = rVari;
+            t0v(_ID[l]) = tVariS0;
+            t1v(_ID[l]) = tVariS1;
         }
     }
 
@@ -2651,7 +2653,7 @@ void MLOptimiser::normCorrection()
             {
                 if ((QUAD(i, j) >= gsl_pow_2(_rL)) ||
                     (QUAD(i, j) < gsl_pow_2(rNorm)))
-                    norm(_ID[l] - 1) += ABS2(img.getFTHalf(i, j));
+                    norm(_ID[l]) += ABS2(img.getFTHalf(i, j));
             }
         }
     }
@@ -2745,12 +2747,8 @@ void MLOptimiser::normCorrection()
 
             FOR_EACH_PIXEL_FT(_img[l])
             {
-                // _img[l][i] /= 2;
-                // _imgOri[l][i] /= 2;
-                // _img[l][i] *= (m / norm(_ID[l] - 1));
-                // _imgOri[l][i] *= (m / norm(_ID[l] - 1));
-                _img[l][i] *= sqrt(m / norm(_ID[l] - 1));
-                _imgOri[l][i] *= sqrt(m / norm(_ID[l] - 1));
+                _img[l][i] *= sqrt(m / norm(_ID[l]));
+                _imgOri[l][i] *= sqrt(m / norm(_ID[l]));
             }
         }
     }
