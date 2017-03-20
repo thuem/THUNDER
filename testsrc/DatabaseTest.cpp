@@ -10,7 +10,7 @@
 
 #include "Database.h"
 
-//#define TEST_N_PARTICLE
+#define TEST_N_PARTICLE
 
 //#define TEST_N_PARTICLE_RANK
 

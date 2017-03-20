@@ -169,6 +169,8 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Broadcasting Total Number of 2D Images";
     bCastNPar();
 
+    MLOG(INFO, "LOGGER_INIT") << "Total Number of Images: " << _nPar;
+
     NT_MASTER
     {
         if (_para.performMask && !_para.autoMask)

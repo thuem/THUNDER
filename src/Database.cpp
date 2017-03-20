@@ -235,11 +235,11 @@ void Database::split(int& start,
     if (commRank <= size % (_commSize - 1))
     {
         start = (piece + 1) * (commRank - 1);
-        end = start + (piece + 1) - 2;
+        end = start + (piece + 1) - 1;
     }
     else
     {
         start = piece * (commRank - 1) + size % (_commSize - 1);
-        end = start + piece - 2;
+        end = start + piece - 1;
     }
 }
