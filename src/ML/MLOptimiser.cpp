@@ -1523,18 +1523,9 @@ void MLOptimiser::initImg()
 
     string imgName;
 
-    /***
-    sql::Statement stmt("select Name from particles where ID = ?", -1, _exp.expose());
-
     FOR_EACH_2D_IMAGE
     {
-        stmt.bind_int(1, _ID[l]);
-        if (stmt.step())
-            imgName = stmt.get_text(0);
-        else
-            CLOG(FATAL, "LOGGER_SYS") << "Database Changed";
-
-        stmt.reset();
+        imgName = _db.path(_ID[l]);
 
         if (imgName.find('@') == string::npos)
         {
@@ -1569,7 +1560,6 @@ void MLOptimiser::initImg()
             abort();
         }
     }
-    ***/
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
