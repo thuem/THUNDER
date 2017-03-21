@@ -136,11 +136,6 @@ struct MLOptimiserPara
      */
     char db[FILE_NAME_LENGTH];
 
-
-    bool autoSelection;
-
-    bool localCTF;
-
     /**
      * whether to perform masking on the reference
      */
@@ -260,8 +255,6 @@ struct MLOptimiserPara
         mode = MODE_3D;
         refine = true;
         ctfRefine = false;
-        autoSelection = false;
-        localCTF = false;
         performMask = true;
         autoMask = true;
         performSharpen = true;
@@ -391,12 +384,6 @@ class MLOptimiser : public Parallel
          * a CTF for each 2D image
          */
         vector<Image> _ctf;
-
-        /**
-         * whether to use the image in calculating sigma and reconstruction or
-         * not
-         */
-        vector<bool> _switch;
 
         /**
          * Each row stands for sigma^2 of a certain group, thus the size of this
@@ -644,12 +631,6 @@ class MLOptimiser : public Parallel
         void initCTF();
 
         /**
-         * initialise the switches on images which determine whether an image
-         * will be used in calculating sigma and recosntruction or not
-         */
-        void initSwitch();
-
-        /**
          * correct the intensity scale
          *
          * @param init  whether it is an initial correction or not
@@ -680,12 +661,6 @@ class MLOptimiser : public Parallel
          * re-calculate the rotation and translation variance
          */
         void refreshVariance();
-
-        /**
-         * re-determine whether to use an image in calculating sigma and
-         * reconstruction or not
-         */
-        void refreshSwitch();
 
         /**
          * re-calculate the intensity scale

@@ -62,9 +62,7 @@ void readPara(MLOptimiserPara& dst,
     dst.globalSearchRes = src["Perform Global Search Under (Angstrom)"].asFloat();
     copy_string(dst.sym, src["Symmetry"].asString());
     copy_string(dst.initModel, src["Initial Model"].asString());
-    copy_string(dst.db, src["Sqlite3 File Storing Paths and CTFs of Images"].asString());
-    dst.autoSelection = src["Auto Selection"].asBool();
-    dst.localCTF = src["Local CTF"].asBool();
+    copy_string(dst.db, src[".thu File Storing Paths and CTFs of Images"].asString());
 
     dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();

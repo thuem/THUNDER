@@ -21,9 +21,7 @@ void display(const MLOptimiserPara& para)
     printf("Perform Global Search Under (Angstrom):                  %12.6lf\n", para.globalSearchRes);
     printf("Symmetry:                                                %12s\n", para.sym);
     printf("Initial Model:                                           %12s\n", para.initModel);
-    printf("Sqlite3 File Storing Paths and CTFs of Images:           %12s\n", para.db);
-    printf("Auto Selection:                                          %12d\n", para.autoSelection);
-    printf("Local CTF:                                               %12d\n", para.localCTF);
+    printf(".thu File Storing Paths and CTFs of Images:           %12s\n", para.db);
     
     printf("Perform Reference Mask:                                  %12d\n", para.performMask);
     printf("Automask:                                                %12d\n", para.autoMask);
@@ -238,11 +236,6 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "CTFs Generated";
         BLOG(INFO, "LOGGER_INIT") << "CTFs Generated";
 #endif
-
-        ALOG(INFO, "LOGGER_INIT") << "Initialising Switch";
-        BLOG(INFO, "LOGGER_INIT") << "Initialising Switch";
-
-        initSwitch();
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
@@ -1117,12 +1110,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
         refreshRotationChange();
 
-        if (_para.autoSelection)
-        {
-            MLOG(INFO, "LOGGER_ROUND") << "Determining Which Images Unsuited for Reconstruction";
-            refreshSwitch();
-        }
-
         MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
@@ -1874,17 +1861,6 @@ void MLOptimiser::initCTF()
     }
 }
 
-void MLOptimiser::initSwitch()
-{
-    IF_MASTER return;
-
-    _switch.clear();
-    _switch.resize(_ID.size());
-
-    for (int i = 0; i < (int)_ID.size(); i++)
-        _switch[i] = true;
-}
-
 void MLOptimiser::correctScale(const bool init,
                                const bool group)
 {
@@ -2155,62 +2131,6 @@ void MLOptimiser::refreshVariance()
     _model.setStdTVariS1(std);
 }
 
-void MLOptimiser::refreshSwitch()
-{
-    int nFail = 0;
-
-    NT_MASTER
-    {
-        double rVariThres = _model.rVari()
-                          + SWITCH_FACTOR
-                          * _model.stdRVari();
-
-        double tVariS0Thres = _model.tVariS0()
-                            + SWITCH_FACTOR
-                            * _model.stdTVariS0();
-
-        double tVariS1Thres = _model.tVariS1() +
-                            + SWITCH_FACTOR
-                            * _model.stdTVariS1();
-
-        double rVari, tVariS0, tVariS1, dVari;
-
-        #pragma omp parallel for private(rVari, tVariS0, tVariS1)
-        FOR_EACH_2D_IMAGE
-        {
-            _par[l].vari(rVari,
-                         tVariS0,
-                         tVariS1,
-                         dVari);
-
-            if ((rVari > rVariThres) ||
-                (tVariS0 > tVariS0Thres) ||
-                (tVariS1 > tVariS1Thres))
-            {
-                _switch[l] = false;
-                #pragma omp atomic
-                nFail += 1;
-            }
-            else
-                _switch[l] = true;
-        }
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    MPI_Allreduce(MPI_IN_PLACE,
-                  &nFail,
-                  1,
-                  MPI_INT,
-                  MPI_SUM,
-                  MPI_COMM_WORLD);
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    MLOG(INFO, "LOGGER_ROUND") << (double)nFail / _nPar * 100
-                               << "\% of Images are Unsuited for Reconstruction";
-}
-
 void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
@@ -2289,8 +2209,6 @@ void MLOptimiser::refreshScale(const bool init,
             }
             else
             {
-                if (!_switch[l]) continue;
-
                 if (_para.mode == MODE_2D)
                 {
                     _par[l].rank1st(cls, rot2D, tran, d);
@@ -2794,8 +2712,6 @@ void MLOptimiser::allReduceSigma(const bool group)
     #pragma omp parallel for private(cls, rot2D, rot3D, tran, d) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        if (_switch[l])
-        {
             Image img(size(), size(), FT_SPACE);
 
             SET_0_FT(img);
@@ -2895,7 +2811,6 @@ void MLOptimiser::allReduceSigma(const bool group)
 
                 omp_unset_lock(&mtx[0]);
             }
-        }
     }
 
     delete[] mtx;

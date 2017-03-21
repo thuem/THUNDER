@@ -46,7 +46,7 @@ if (ADDITIONAL_LINKER_FLAGS)
 endif()
 
 set (INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
-include_directories(${INCLUDE_BASE}/Error ${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
+include_directories(${INCLUDE_BASE}/Functions ${INCLUDE_BASE}/Geometry ${INCLUDE_BASE}/ML ${INCLUDE_BASE}/Image ${INCLUDE_BASE})
 
 set (EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external)
 file (GLOB EXTERNAL_SUBDIR ${EXTERNAL_DIR}/*)
