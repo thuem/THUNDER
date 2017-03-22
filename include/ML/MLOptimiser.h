@@ -499,6 +499,8 @@ class MLOptimiser : public Parallel
          */
         double* _K2;
 
+        FFT _fftImg;
+
     public:
         
         MLOptimiser()
