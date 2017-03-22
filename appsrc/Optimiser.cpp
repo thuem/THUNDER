@@ -99,6 +99,21 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    if (argc == 1)
+    {
+        cout << "Welcome to THUNDER! You may visit the website http://166.111.30.94/THUNDER for more information."
+             << endl;
+
+        return 0;
+    }
+    else if (argc != 2)
+    {
+        cout << "Wrong Number of Parameters Input!"
+             << endl;
+
+        return -1;
+    }
+
     MPI_Init(&argc, &argv);
 
     loggerInit(argc, argv);
