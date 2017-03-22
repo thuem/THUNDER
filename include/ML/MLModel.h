@@ -286,8 +286,8 @@ class MLModel : public Parallel
             _stdRVari = 0;
             _stdTVariS0 = 0;
             _stdTVariS1 = 0;
-            _rChange = 1;
-            _rChangePrev = 1;
+            _rChange = DBL_MAX;
+            _rChangePrev = DBL_MAX;
             _stdRChange = 0;
             _stdRChangePrev = 0;
             _nRChangeNoDecrease = 0;
