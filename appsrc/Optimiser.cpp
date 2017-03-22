@@ -122,6 +122,7 @@ int main(int argc, char* argv[])
 
     fftw_init_threads();
 
+    /***
     Json::Reader reader;
     Json::Value root;
 
@@ -168,6 +169,7 @@ int main(int argc, char* argv[])
     MPI_Finalize();
 
     fftw_cleanup_threads();
+    ***/
 
     return 0;
 }
