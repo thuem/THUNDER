@@ -19,6 +19,8 @@ void loggerInit(int argc, const char* const * argv)
     else
         loggerFileName += appname.substr(appname.rfind('/')) + ".log";
 
+    std::cout << "Log File will be Put: " << loggerFileName << std::endl;
+
     conf.setToDefault();
     conf.set(el::Level::All,
              el::ConfigurationType::Filename,
