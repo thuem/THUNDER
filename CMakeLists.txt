@@ -36,20 +36,6 @@ if (NOT SHENWEI)
     endif()
 endif()
 
-"""
-if (NOT GSL_INCLUDE_DIRS)
-    MESSAGE(FATAL_ERROR, "GSL_INCLUDE_DIRS should be assigned.")
-endif()
-
-if (NOT GSL_LIBRARY)
-    MESSAGE(FATAL_ERROR, "GSL_LIBRARY should be assigned.")
-endif()
-
-if (NOT GSL_CBLAS_LIBRARY)
-    MESSAGE(FATAL_ERROR, "GSL_CBLAS_LIBRARY should be assigned.")
-endif()
-"""
-
 # includes and linker flags
 include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS})
 
