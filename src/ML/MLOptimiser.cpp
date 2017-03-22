@@ -1514,6 +1514,9 @@ void MLOptimiser::initImg()
 
     FOR_EACH_2D_IMAGE
     {
+        ALOG(INFO, "LOGGER_SYS") << "Reading in Image " << _ID[l];
+        BLOG(INFO, "LOGGER_SYS") << "Reading in Image " << _ID[l];
+
         imgName = _db.path(_ID[l]);
 
         /***

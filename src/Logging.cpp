@@ -15,7 +15,7 @@ void loggerInit(int argc, const char* const * argv)
     string appname(argv[0]);
 
     if (appname.rfind('/') == std::string::npos)
-        loggerFileName += appname + ".log";
+        loggerFileName += '/' + appname + ".log";
     else
         loggerFileName += appname.substr(appname.rfind('/')) + ".log";
 
