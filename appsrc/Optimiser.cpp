@@ -130,13 +130,17 @@ int main(int argc, char* argv[])
     }
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
+    
     MLOptimiser opt;
+
     opt.setPara(para);
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment"
+    CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment";
+
     opt.setMPIEnv();
 
-    std::cout << "Run" << std::endl;
+    CLOG(INFO, "LOGGER_SYS") << "Running";
+
     opt.run();
 
     MPI_Finalize();
