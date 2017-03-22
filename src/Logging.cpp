@@ -12,7 +12,11 @@ void loggerInit(int argc, const char* const * argv)
     getcwd(buf, sizeof(buf));
     loggerFileName = buf;
     string appname(argv[0]);
-    loggerFileName += appname.substr(appname.rfind('/')) + ".log";
+
+    if (appname.rfind('/') == npos)
+        loggerFileName += appname + ".log";
+    else
+        loggerFileName += appname.substr(appname.rfind('/')) + ".log";
 
     conf.setToDefault();
     conf.set(el::Level::All,
