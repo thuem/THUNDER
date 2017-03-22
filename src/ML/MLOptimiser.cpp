@@ -2451,11 +2451,17 @@ void MLOptimiser::reMaskImg()
                  _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
                  EDGE_WIDTH_RL);
 
-        #pragma omp parallel for
         FOR_EACH_2D_IMAGE
-            C2C_RL(_img[l],
-                   _img[l],
-                   MUL_RL(_img[l], mask));
+        {
+            _fftImg.bwExecutePlanMT(_img[l]);
+
+            #pragma omp parallel for
+            MUL_RL(_img[l], mask);
+
+            _fftImg.fwExecutePlanMT(_img[l]);
+
+            _img[l].clearRL();
+        }
     }
     else
     {
