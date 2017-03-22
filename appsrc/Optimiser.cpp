@@ -29,11 +29,11 @@ static inline void copy_string(char (&array)[N], const std::string& source)
                                   << "Destination length is "
                                   << N
                                   << ", while source length is "
-                                  << source.size() + 1;
+                                  << source.size();
                                   
         return;
     }
-    memcpy(array, source.c_str(), source.size() + 1);
+    memcpy(array, source.c_str(), source.size());
 }
 
 void readPara(MLOptimiserPara& dst,
