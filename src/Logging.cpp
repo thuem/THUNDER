@@ -6,6 +6,7 @@ static el::Configurations conf;
 void loggerInit(int argc, const char* const * argv)
 {
     using std::string;
+
     string loggerFileName;
 
     char buf[FILE_NAME_LENGTH];
@@ -13,7 +14,7 @@ void loggerInit(int argc, const char* const * argv)
     loggerFileName = buf;
     string appname(argv[0]);
 
-    if (appname.rfind('/') == npos)
+    if (appname.rfind('/') == std::string::npos)
         loggerFileName += appname + ".log";
     else
         loggerFileName += appname.substr(appname.rfind('/')) + ".log";
