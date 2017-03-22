@@ -47,6 +47,9 @@ void display(const MLOptimiserPara& para)
 MLOptimiser::~MLOptimiser()
 {
     clear();
+
+    _fftImg.fwDestroyPlanMT();
+    _fftImg.bwDestroyPlanMT();
 }
 
 MLOptimiserPara& MLOptimiser::para()
@@ -79,6 +82,11 @@ void MLOptimiser::init()
     _sym.init(_para.sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Number of Class(es): " << _para.k;
+
+    MLOG(INFO, "LOGGER_INIT") << "Initialising FFTW Plan";
+
+    _fftImg.fwCreatePlanMT(_para.size, _para.size);
+    _fftImg.bwCreatePlanMT(_para.size, _para.size);
 
     MLOG(INFO, "LOGGER_INIT") << "Initialising Class Distribution";
     _cDistr.resize(_para.k);
@@ -343,6 +351,9 @@ void MLOptimiser::expectation()
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
 
     allocPreCalIdx(_r, _rL);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
+    BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
 
     if (_searchType != SEARCH_TYPE_CTF)
         allocPreCal(false);
@@ -1817,32 +1828,24 @@ void MLOptimiser::normaliseImg()
 
 void MLOptimiser::fwImg()
 {
-    // perform Fourier transform
-    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        FFT fft;
-
-        fft.fw(_img[l]);
+        _fftImg.fwExecutePlanMT(_img[l]);
         _img[l].clearRL();
 
-        fft.fw(_imgOri[l]);
+        _fftImg.fwExecutePlanMT(_imgOri[l]);
         _imgOri[l].clearRL();
     }
 }
 
 void MLOptimiser::bwImg()
 {
-    // perform inverse Fourier transform
-    #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        FFT fft;
-
-        fft.bw(_img[l]);
+        _fftImg.bwExecutePlanMT(_img[l]);
         _img[l].clearFT();
 
-        fft.bw(_imgOri[l]);
+        _fftImg.bwExecutePlanMT(_imgOri[l]);
         _imgOri[l].clearFT();
     }
 }
