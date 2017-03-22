@@ -118,9 +118,9 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    /***
     loggerInit(argc, argv);
 
+    /***
     CLOG(FATAL, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
 
     fftw_init_threads();
