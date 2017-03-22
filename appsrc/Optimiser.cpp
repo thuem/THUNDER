@@ -99,7 +99,6 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-    /***
     if (argc == 1)
     {
         cout << "Welcome to THUNDER! You may visit the website http://166.111.30.94/THUNDER for more information."
@@ -114,7 +113,6 @@ int main(int argc, char* argv[])
 
         return -1;
     }
-    ***/
 
     loggerInit(argc, argv);
 
@@ -122,7 +120,6 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    /***
     CLOG(FATAL, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
 
     fftw_init_threads();
@@ -173,7 +170,6 @@ int main(int argc, char* argv[])
     MPI_Finalize();
 
     fftw_cleanup_threads();
-    ***/
 
     return 0;
 }
