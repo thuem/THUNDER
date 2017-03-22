@@ -1512,8 +1512,23 @@ void MLOptimiser::initImg()
 
     string imgName;
 
+    int nPer = 0;
+    int nImg = 0;
+
     FOR_EACH_2D_IMAGE
     {
+        nImg += 1;
+
+        if (nImg >= (int)_ID.size() / 10)
+        {
+            nPer += 1;
+
+            ALOG(INFO, "LOGGER_SYS") << nPer * 10 << "\% Percentage of Images Read";
+            BLOG(INFO, "LOGGER_SYS") << nPer * 10 << "\% Percentage of Images Read";
+
+            nImg = 0;
+        }
+
         ALOG(INFO, "LOGGER_SYS") << "Reading in Image " << _ID[l];
         BLOG(INFO, "LOGGER_SYS") << "Reading in Image " << _ID[l];
 
