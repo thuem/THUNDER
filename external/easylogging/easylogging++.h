@@ -1496,7 +1496,7 @@ public:
 #       if SHENWEI
             setAll(ConfigurationType::Filename, "./tmp/logs/myeasylog.log");
 #       else
-            setAll(ConfigurationType::Filename, "/tmp/logs/myeasylog.log");
+            setAll(ConfigurationType::Filename, "./tmp/logs/myeasylog.log");
 #       endif // SHENWEI
 #   endif // _ELPP_NDK
 #elif _ELPP_OS_WINDOWS
