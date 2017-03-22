@@ -1529,9 +1529,6 @@ void MLOptimiser::initImg()
             nImg = 0;
         }
 
-        ALOG(INFO, "LOGGER_SYS") << "Reading in Image " << _ID[l];
-        BLOG(INFO, "LOGGER_SYS") << "Reading in Image " << _ID[l];
-
         imgName = _db.path(_ID[l]);
 
         /***
