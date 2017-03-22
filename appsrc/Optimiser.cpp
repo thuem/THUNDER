@@ -29,16 +29,17 @@ static inline void copy_string(char (&array)[N], const std::string& source)
                                   << "Destination length is "
                                   << N
                                   << ", while source length is "
-                                  << source.size();
+                                  << source.size() + 1;
                                   
         return;
     }
-    memcpy(array, source.c_str(), source.size());
+    memcpy(array, source.c_str(), source.size() + 1);
 }
 
 void readPara(MLOptimiserPara& dst,
               const Json::Value src)
 {
+    /***
     if (src["2D or 3D Mode"].asString() == "2D")
     {
         dst.mode = MODE_2D;
@@ -93,6 +94,7 @@ void readPara(MLOptimiserPara& dst,
     dst.perturbFactorSGlobal = src["Professional"]["Perturbation Factor (Small, Global)"].asFloat();
     dst.perturbFactorSLocal = src["Professional"]["Perturbation Factor (Small, Local)"].asFloat();
     dst.perturbFactorSCTF = src["Professional"]["Perturbation Factor (Small, CTF)"].asFloat();
+    ***/
 };
 
 INITIALIZE_EASYLOGGINGPP
