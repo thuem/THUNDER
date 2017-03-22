@@ -129,11 +129,11 @@ int main(int argc, char* argv[])
         abort();
     }
 
-    std::cout << "Setting Parameters" << std::endl;
+    CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
     MLOptimiser opt;
     opt.setPara(para);
 
-    std::cout << "MPISetting" << std::endl;
+    CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment"
     opt.setMPIEnv();
 
     std::cout << "Run" << std::endl;
