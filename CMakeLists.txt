@@ -24,7 +24,7 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(FFTW REQUIRED)
-find_package(GSL REQUIRED)
+# find_package(GSL REQUIRED)
 
 if (NOT SHENWEI)
     include(CheckCXXCompilerFlag)
@@ -36,10 +36,22 @@ if (NOT SHENWEI)
     endif()
 endif()
 
+if (NOT GSL_INCLUDE_DIRS)
+    MESSAGE(FATAL_ERROR, "GSL_INCLUDE_DIRS should be assigned.")
+endif()
+
+if (NOT GSL_LIBRARY)
+    MESSAGE(FATAL_ERROR, "GSL_LIBRARY should be assigned.")
+endif()
+
+if (NOT GSL_CBLAS_LIBRARY)
+    MESSAGE(FATAL_ERROR, "GSL_CBLAS_LIBRARY should be assigned.")
+endif()
+
 # includes and linker flags
 include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS})
 
-link_libraries(${FFTW_LIBRARIES} ${FFTWOMP_LIBRARIES} ${GSL_LIBRARIES} ${GLOG_LIBRARIES} ${CMAKE_DL_LIBS})
+link_libraries(${FFTW_LIBRARIES} ${FFTWOMP_LIBRARIES} ${GSL_LIBRARY} ${GSL_CBLAS_LIBRARY} ${GLOG_LIBRARIES} ${CMAKE_DL_LIBS})
 
 if (ADDITIONAL_LINKER_FLAGS)
     link_libraries(${ADDITIONAL_LINKER_FLAGS})
