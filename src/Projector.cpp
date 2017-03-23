@@ -126,13 +126,11 @@ void Projector::setProjectee(Volume src)
                              _projectee3D.nRowRL(),
                              _projectee3D.nSlcRL()) / _pf / 2 - 1);
 
-    /***
 #ifdef VERBOSE_LEVEL_3
     CLOG(INFO, "LOGGER_SYS") << "Performing Grid Correction";
 #endif
 
     gridCorrection();
-    ***/
 }
 
 void Projector::project(Image& dst,
