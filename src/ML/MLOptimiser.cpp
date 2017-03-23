@@ -355,7 +355,6 @@ void MLOptimiser::expectation()
     ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
     BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
 
-
     int nPer = 0;
 
     int nSampleMax = _para.k * _para.mG;
@@ -382,9 +381,9 @@ void MLOptimiser::expectation()
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         if (_searchType != SEARCH_TYPE_CTF)
-            allocPreCal(true, false);
+            allocPreCal(false, false);
         else
-            allocPreCal(true, true);
+            allocPreCal(false, true);
 
         // initialse a particle filter
 
@@ -4028,17 +4027,16 @@ vec logDataVSPrior(const Complex* dat,
     vec result = vec::Zero(n);
 
     // imageMajor
-    /***
     for (int i = 0; i < n * m; i++)
         result(i / m) += ABS2(dat[i] - ctf[i] * pri[i % m])
 #ifdef OPTIMISER_CTF_WRAP
                        * fabs(ctf[i])
 #endif
                        * sigRcp[i];
-    ***/
 
     // pixelMajor
 
+    /***
     for (int i = 0; i < m; i++)
         for (int j = 0; j < n; j++)
         {
@@ -4049,6 +4047,7 @@ vec logDataVSPrior(const Complex* dat,
 #endif
                        * sigRcp[idx];
         }
+    ***/
 
     return result;
 }
