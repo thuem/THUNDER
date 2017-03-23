@@ -381,9 +381,9 @@ void MLOptimiser::expectation()
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         if (_searchType != SEARCH_TYPE_CTF)
-            allocPreCal(false, false);
+            allocPreCal(true, false);
         else
-            allocPreCal(false, true);
+            allocPreCal(true, true);
 
         // initialse a particle filter
 
@@ -4027,27 +4027,28 @@ vec logDataVSPrior(const Complex* dat,
     vec result = vec::Zero(n);
 
     // imageMajor
+
+    /***
     for (int i = 0; i < n * m; i++)
         result(i / m) += ABS2(dat[i] - ctf[i] * pri[i % m])
 #ifdef OPTIMISER_CTF_WRAP
                        * fabs(ctf[i])
 #endif
                        * sigRcp[i];
+    ***/
 
     // pixelMajor
 
-    /***
     for (int i = 0; i < m; i++)
         for (int j = 0; j < n; j++)
         {
-            int idx = i * m + j;
+            int idx = i * n + j;
             result(j) += ABS2(dat[idx] - ctf[idx] * pri[i])
 #ifdef OPTIMISER_CTF_WRAP
                        * fabs(ctf[idx])
 #endif
                        * sigRcp[idx];
         }
-    ***/
 
     return result;
 }
