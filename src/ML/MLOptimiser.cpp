@@ -3242,7 +3242,7 @@ void MLOptimiser::allocPreCal(const bool pixelMajor,
                 : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
 
             _sigRcpP[pixelMajor
-                   ? (i * _ID.size() + 1)
+                   ? (i * _ID.size() + l)
                    : (_nPxl * l + i)] = _sigRcp(_groupID[l] - 1, _iSig[i]);
         }
     }
