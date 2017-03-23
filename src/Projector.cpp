@@ -106,13 +106,11 @@ void Projector::setProjectee(Image src)
     _maxRadius = floor(MIN(_projectee2D.nColRL(),
                            _projectee2D.nRowRL()) / _pf / 2 - 1);
 
-    /***
 #ifdef VERBOSE_LEVEL_3
     CLOG(INFO, "LOGGER_SYS") << "Performing Grid Correction";
 #endif
 
     gridCorrection();
-    ***/
 }
 
 void Projector::setProjectee(Volume src)
@@ -544,6 +542,7 @@ void Projector::gridCorrection()
             REMOVE_NEG(_projectee3D);
 #endif
 
+            /***
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
                 _projectee3D.setRL(_projectee3D.getRL(i, j, k)
@@ -553,6 +552,7 @@ void Projector::gridCorrection()
                                    i,
                                    j,
                                    k);
+            ***/
 
 #ifdef VERBOSE_LEVEL_3
             CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
