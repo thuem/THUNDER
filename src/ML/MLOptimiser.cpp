@@ -355,10 +355,6 @@ void MLOptimiser::expectation()
     ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
     BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
 
-    if (_searchType != SEARCH_TYPE_CTF)
-        allocPreCal(false);
-    else
-        allocPreCal(true);
 
     int nPer = 0;
 
@@ -385,6 +381,11 @@ void MLOptimiser::expectation()
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
+        if (_searchType != SEARCH_TYPE_CTF)
+            allocPreCal(true, false);
+        else
+            allocPreCal(true, true);
+
         // initialse a particle filter
 
         int nR;
@@ -603,6 +604,7 @@ void MLOptimiser::expectation()
 
             // calculation variance
             _par[l].calVari();
+
         }
 
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
@@ -646,7 +648,17 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
+
+        if (_searchType != SEARCH_TYPE_CTF)
+            freePreCal(false);
+        else
+            freePreCal(true);
     }
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(false, false);
+    else
+        allocPreCal(false, true);
 
     if (_para.mode == MODE_3D)
     {
@@ -3205,7 +3217,8 @@ void MLOptimiser::allocPreCalIdx(const double rU,
     }
 }
 
-void MLOptimiser::allocPreCal(const bool ctf)
+void MLOptimiser::allocPreCal(const bool pixelMajor,
+                              const bool ctf)
 {
     IF_MASTER return;
 
@@ -3220,11 +3233,17 @@ void MLOptimiser::allocPreCal(const bool ctf)
     {
         for (int i = 0; i < _nPxl; i++)
         {
-            _datP[_nPxl * l + i] = _img[l].iGetFT(_iPxl[i]);
+            _datP[pixelMajor
+                ? (i * _ID.size() + l)
+                : (_nPxl * l + i)] = _img[l].iGetFT(_iPxl[i]);
 
-            _ctfP[_nPxl * l + i] = REAL(_ctf[l].iGetFT(_iPxl[i]));
+            _ctfP[pixelMajor
+                ? (i * _ID.size() + l)
+                : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
 
-            _sigRcpP[_nPxl * l + i] = _sigRcp(_groupID[l] - 1, _iSig[i]);
+            _sigRcpP[pixelMajor
+                   ? (i * _ID.size() + 1)
+                   : (_nPxl * l + i)] = _sigRcp(_groupID[l] - 1, _iSig[i]);
         }
     }
 
@@ -3239,23 +3258,10 @@ void MLOptimiser::allocPreCal(const bool ctf)
         _K2 = new double[_ID.size()];
 
         for (int i = 0; i < _nPxl; i++)
-        {
             _frequency[i] = NORM(_iCol[i],
                                  _iRow[i])
                           / _para.size
                           / _para.pixelSize;
-            /***
-            _frequency[i] = NORM(_iCol[_iPxl[i]],
-                                 _iRow[_iPxl[i]])
-                          / _para.size
-                          / _para.pixelSize;
-            ***/
-            /***
-            _frequency[i] = (double)_iSig[_iPxl[i]]
-                          / _para.size
-                          / _para.pixelSize;
-            ***/
-        }
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
@@ -3272,7 +3278,9 @@ void MLOptimiser::allocPreCal(const bool ctf)
                                  * cos(2 * angle))
                                  / 2;
 
-                _defocusP[_nPxl * l + i] = defocus;
+                _defocusP[pixelMajor
+                        ? (i * _ID.size() + l)
+                        : (_nPxl * l + i)] = defocus;
             }
 
             double lambda = 12.2643274 / sqrt(_ctfAttr[l].voltage
@@ -4019,12 +4027,28 @@ vec logDataVSPrior(const Complex* dat,
 {
     vec result = vec::Zero(n);
 
+    // imageMajor
+    /***
     for (int i = 0; i < n * m; i++)
         result(i / m) += ABS2(dat[i] - ctf[i] * pri[i % m])
 #ifdef OPTIMISER_CTF_WRAP
                        * fabs(ctf[i])
 #endif
                        * sigRcp[i];
+    ***/
+
+    // pixelMajor
+
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++)
+        {
+            int idx = i * m + j;
+            result(j) += ABS2(dat[idx] - ctf[idx] * pri[i])
+#ifdef OPTIMISER_CTF_WRAP
+                       * fabs(ctf[idx])
+#endif
+                       * sigRcp[idx];
+        }
 
     return result;
 }

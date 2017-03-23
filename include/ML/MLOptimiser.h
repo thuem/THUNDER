@@ -708,11 +708,12 @@ class MLOptimiser : public Parallel
         void allocPreCalIdx(const double rU,
                             const double rL);
 
-        void allocPreCal(const bool ctf = false);
+        void allocPreCal(const bool pixelMajor,
+                         const bool ctf);
 
         void freePreCalIdx();
 
-        void freePreCal(const bool ctf = false);
+        void freePreCal(const bool ctf);
 
         /**
          * for debug, save the best projections
