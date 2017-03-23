@@ -516,9 +516,8 @@ void Projector::gridCorrection()
             #pragma omp parallel for schedule(dynamic)
             IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
                 _projectee2D.setRL(_projectee2D.getRL(i, j)
-                                 / TIK_RL(NORM(i, j)
+                                 * TIK_RL(NORM(i, j)
                                         / _projectee2D.nColRL()),
-                                        // / (_projectee2D.nColRL() * _pf)),
                                    i,
                                    j);
 
@@ -543,9 +542,8 @@ void Projector::gridCorrection()
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
                 _projectee3D.setRL(_projectee3D.getRL(i, j, k)
-                                 / TIK_RL(NORM_3(i, j, k)
+                                 * TIK_RL(NORM_3(i, j, k)
                                         / _projectee3D.nColRL()),
-                                        // / (_projectee3D.nColRL() * _pf)),
                                    i,
                                    j,
                                    k);
