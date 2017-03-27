@@ -1872,6 +1872,10 @@ void MLOptimiser::initCTF()
 
     FOR_EACH_2D_IMAGE
     {
+#ifdef VERBOSE_LEVEL_3
+        ALOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
+        BLOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
+#endif
         _db.ctf(ctfAttr, _ID[l]);
 
         _ctfAttr.push_back(ctfAttr);
@@ -2030,10 +2034,16 @@ void MLOptimiser::initParticles()
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
+    {
+#ifdef VERBOSE_LEVEL_3
+        ALOG(INFO, "LOGGER_SYS") << "Initialising Particle Filter for Image " << _ID[l];
+        BLOG(INFO, "LOGGER_SYS") << "Initialising Particle Filter for Image " << _ID[l];
+#endif
         _par[l].init(_para.mode,
                      _para.transS,
                      TRANS_Q,
                      &_sym);
+    }
 }
 
 void MLOptimiser::refreshRotationChange()
@@ -2201,8 +2211,8 @@ void MLOptimiser::refreshScale(const bool init,
         FOR_EACH_2D_IMAGE
         {
 #ifdef VERBOSE_LEVEL_3
-            ALOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << l;
-            BLOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << l;
+            ALOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << _ID[l];
+            BLOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << _ID[l];
 #endif
 
             if (init)
