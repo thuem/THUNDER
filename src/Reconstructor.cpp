@@ -1107,9 +1107,11 @@ void Reconstructor::symmetrizeF()
 {
     if (_sym != NULL)
     {
-        _fft.bwExecutePlanMT(_F3D);
+        SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
 
         /***
+        _fft.bwExecutePlanMT(_F3D);
+
         if ((_sym.pgGroup() == PG_CN)
             (_sym.pgOrder() == 1))
             CLOG(INFO, "LOGGER_SYS") << "No Symmetry";
