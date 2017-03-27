@@ -11,10 +11,12 @@
 #ifndef INTERPOLATION_H
 #define INTERPOLATION_H
 
-#include <gsl/gsl_sf_trig.h>
-
 #include <cstdlib>
 #include <cmath>
+
+#include <gsl/gsl_sf_trig.h>
+
+#include "Functions.h"
 
 /**
  * nearest point interpolation
@@ -140,6 +142,45 @@ inline void W_INTERP_SINC(double w[2],
     w[1] /= n;
 }
 
+inline void W_BI_INTERP_SINC(double w[2][2],
+                             const double xd[2])
+{
+    double norm = 0;
+
+    FOR_CELL_DIM_2
+    {
+        double d = NORM((i == 0) ? xd[0] : (1 - xd[0]),
+                        (j == 0) ? xd[1] : (1 - xd[1]));
+
+        w[i][j] = gsl_sf_sinc(d);
+
+        norm += w[i][j];
+    }
+
+    FOR_CELL_DIM_2
+        w[i][j] /= norm;
+}
+
+inline void W_TRI_INTERP_SINC(double w[2][2][2],
+                              const double xd[3])
+{
+    double norm = 0;
+
+    FOR_CELL_DIM_3
+    {
+        double d = NORM_3((i == 0) ? xd[0] : (1 - xd[0]),
+                          (j == 0) ? xd[1] : (1 - xd[1]),
+                          (k == 0) ? xd[2] : (1 - xd[2]));
+
+        w[i][j][k] = gsl_sf_sinc(d);
+
+        norm += w[i][j][k];
+    }
+
+    FOR_CELL_DIM_3
+        w[i][j][k] /= norm;
+}
+
 /**
  * This function determines the weights of two sampling points during 1D
  * interpolation given the distance between the interpolation point and the
@@ -210,7 +251,11 @@ inline void WG_BI_INTERP(double w[2][2],
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];
     }
-    W_BI_INTERP(w, xd, interpType);
+
+    if (interpType == SINC_INTERP)
+        W_BI_INTERP_SINC(w, xd);
+    else
+        W_BI_INTERP(w, xd, interpType);
 }
 
 inline void W_TRI_INTERP(double w[2][2][2], 
@@ -237,7 +282,11 @@ inline void WG_TRI_INTERP(double w[2][2][2],
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];
     }
-    W_TRI_INTERP(w, xd, interpType);
+
+    if (interpType == SINC_INTERP)
+        W_TRI_INTERP_SINC(w, xd);
+    else
+        W_TRI_INTERP(w, xd, interpType);
 }
 
 
