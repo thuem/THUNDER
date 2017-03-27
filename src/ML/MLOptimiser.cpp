@@ -2202,17 +2202,16 @@ void MLOptimiser::refreshScale(const bool init,
 
     NT_MASTER
     {
+        Image img(size(), size(), FT_SPACE);
+
         int cls;
         mat22 rot2D;
         mat33 rot3D;
         vec2 tran;
         double d;
 
-        #pragma omp parallel for private(cls, rot2D, rot3D, tran, d)
         FOR_EACH_2D_IMAGE
         {
-            Image img(size(), size(), FT_SPACE);
-
 #ifdef VERBOSE_LEVEL_3
             ALOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << _ID[l];
             BLOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << _ID[l];
@@ -2241,11 +2240,11 @@ void MLOptimiser::refreshScale(const bool init,
 
                 if (_para.mode == MODE_2D)
                 {
-                    _model.proj(0).project(img, rot2D);
+                    _model.proj(0).projectMT(img, rot2D);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    _model.proj(0).project(img, rot3D);
+                    _model.proj(0).projectMT(img, rot3D);
                 }
                 else
                     REPORT_ERROR("INEXISTENT MODE");
@@ -2267,24 +2266,24 @@ void MLOptimiser::refreshScale(const bool init,
                 {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SCALE_MASK
-                    _model.proj(cls).project(img, rot2D, tran);
+                    _model.proj(cls).projectMT(img, rot2D, tran);
 #else
-                    _model.proj(cls).project(img, rot2D, tran - _offset[l]);
+                    _model.proj(cls).projectMT(img, rot2D, tran - _offset[l]);
 #endif
 #else
-                    _model.proj(cls).project(img, rot2D, tran);
+                    _model.proj(cls).projectMT(img, rot2D, tran);
 #endif
                 }
                 else if (_para.mode == MODE_3D)
                 {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SCALE_MASK
-                    _model.proj(cls).project(img, rot3D, tran);
+                    _model.proj(cls).projectMT(img, rot3D, tran);
 #else
-                    _model.proj(cls).project(img, rot3D, tran - _offset[l]);
+                    _model.proj(cls).projectMT(img, rot3D, tran - _offset[l]);
 #endif
 #else
-                    _model.proj(cls).project(img, rot3D, tran);
+                    _model.proj(cls).projectMT(img, rot3D, tran);
 #endif
                 }
                 else
@@ -2321,16 +2320,12 @@ void MLOptimiser::refreshScale(const bool init,
 
             if (group)
             {
-                #pragma omp critical
                 mXA.row(_groupID[l] - 1) += sXA.transpose();
-                #pragma omp critical
                 mAA.row(_groupID[l] - 1) += sAA.transpose();
             }
             else
             {
-                #pragma omp critical
                 mXA.row(0) += sXA.transpose();
-                #pragma omp critical
                 mAA.row(0) += sAA.transpose();
             }
         }
@@ -4109,6 +4104,7 @@ void scaleDataVSPrior(vec& sXA,
         sAA(i) = 0;
     }
     
+    #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_PIXEL_R_FT(CEIL(rU) + 1)
     {
         double u = QUAD(i, j);
