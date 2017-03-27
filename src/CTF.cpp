@@ -29,7 +29,8 @@ void CTF(Image& dst,
          const double defocusU,
          const double defocusV,
          const double theta,
-         const double Cs)
+         const double Cs,
+         const int nThread)
 {
     double lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
@@ -38,6 +39,7 @@ void CTF(Image& dst,
     double K1 = M_PI * lambda;
     double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
         double u = NORM(i / (pixelSize * dst.nColRL()),

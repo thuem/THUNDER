@@ -1886,7 +1886,8 @@ void MLOptimiser::initCTF()
             ctfAttr.defocusU,
             ctfAttr.defocusV,
             ctfAttr.defocusTheta,
-            ctfAttr.Cs);
+            ctfAttr.Cs,
+            omp_get_max_threads());
     }
 }
 
