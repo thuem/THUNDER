@@ -1889,11 +1889,11 @@ void MLOptimiser::initCTF()
 
         CTF(_ctf[l],
             _para.pixelSize,
-            ctfAttr.voltage,
-            ctfAttr.defocusU,
-            ctfAttr.defocusV,
-            ctfAttr.defocusTheta,
-            ctfAttr.Cs);
+            _ctfAttr[l].voltage,
+            _ctfAttr[l].defocusU,
+            _ctfAttr[l].defocusV,
+            _ctfAttr[l].defocusTheta,
+            _ctfAttr[l].Cs);
     }
 }
 
