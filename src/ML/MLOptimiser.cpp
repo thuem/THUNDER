@@ -1887,7 +1887,7 @@ void MLOptimiser::initCTF()
         BLOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
 #endif
 
-        CTF(_ctf[l]
+        CTF(_ctf[l],
             _para.pixelSize,
             ctfAttr.voltage,
             ctfAttr.defocusU,
