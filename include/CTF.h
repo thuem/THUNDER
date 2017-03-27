@@ -44,7 +44,6 @@ void CTF(Image& dst,
          const double defocusU,
          const double defocusV,
          const double theta,
-         const double Cs,
-         const int nThread = 1);
+         const double Cs);
 
 #endif // CTF_H

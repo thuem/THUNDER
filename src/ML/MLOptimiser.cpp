@@ -1872,26 +1872,28 @@ void MLOptimiser::initCTF()
 
     FOR_EACH_2D_IMAGE
     {
-#ifdef VERBOSE_LEVEL_3
-        ALOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
-        BLOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
-#endif
         _db.ctf(ctfAttr, _ID[l]);
 
         _ctfAttr.push_back(ctfAttr);
 
-        // append a CTF
         _ctf.push_back(Image(size(), size(), FT_SPACE));
+    }
 
-        // initialise the CTF according to attributes given
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+#ifdef VERBOSE_LEVEL_3
+        ALOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
+        BLOG(INFO, "LOGGER_SYS") << "Initialising CTF for Image " << _ID[l];
+#endif
+
         CTF(_ctf.back(),
             _para.pixelSize,
             ctfAttr.voltage,
             ctfAttr.defocusU,
             ctfAttr.defocusV,
             ctfAttr.defocusTheta,
-            ctfAttr.Cs,
-            omp_get_max_threads());
+            ctfAttr.Cs);
     }
 }
 
