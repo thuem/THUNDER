@@ -142,6 +142,7 @@ inline void W_INTERP_SINC(double w[2],
     w[1] /= n;
 }
 
+/***
 inline void W_BI_INTERP_SINC(double w[2][2],
                              const double xd[2])
 {
@@ -180,6 +181,7 @@ inline void W_TRI_INTERP_SINC(double w[2][2][2],
     FOR_CELL_DIM_3
         w[i][j][k] /= norm;
 }
+***/
 
 /**
  * This function determines the weights of two sampling points during 1D
@@ -252,10 +254,14 @@ inline void WG_BI_INTERP(double w[2][2],
         xd[i] = x[i] - x0[i];
     }
 
+    W_BI_INTERP(w, xd, interpType);
+
+    /***
     if (interpType == SINC_INTERP)
         W_BI_INTERP_SINC(w, xd);
     else
         W_BI_INTERP(w, xd, interpType);
+    ***/
 }
 
 inline void W_TRI_INTERP(double w[2][2][2], 
@@ -283,10 +289,14 @@ inline void WG_TRI_INTERP(double w[2][2][2],
         xd[i] = x[i] - x0[i];
     }
 
+    W_TRI_INTERP(w, xd, interpType);
+
+    /***
     if (interpType == SINC_INTERP)
         W_TRI_INTERP_SINC(w, xd);
     else
         W_TRI_INTERP(w, xd, interpType);
+    ***/
 }
 
 

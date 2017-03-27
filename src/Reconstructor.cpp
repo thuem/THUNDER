@@ -1106,7 +1106,25 @@ void Reconstructor::convoluteC()
 void Reconstructor::symmetrizeF()
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
+    {
+        _fft.bwExecutePlanMT(_F3D);
+
+        /***
+        if ((_sym.pgGroup() == PG_CN)
+            (_sym.pgOrder() == 1))
+            CLOG(INFO, "LOGGER_SYS") << "No Symmetry";
+        else
+        {
+            SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
+
+            _fft.bwExecutePlanMT(_F3D);
+
+            #pragma omp parallel for
+            VOLUME_FOR_EACH_PIXEL_RL(_F3D)
+                _F3D.setRL(_F3D.getRL(i, j, k)
+                         * TIK(
+        ***/
+    }
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
@@ -1114,7 +1132,7 @@ void Reconstructor::symmetrizeF()
 void Reconstructor::symmetrizeT()
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, SINC_INTERP);
+        SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
