@@ -128,6 +128,12 @@ void MLOptimiser::init()
                               << _rL
                               << " Pixels in Fourier Space will be Ignored during Comparison";
 
+    _rScan = resA2P(1.0 / _para.scanRes, _para.size, _para.pixelSize);
+
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _rScan
+                              << " Pixels in Fourier Space will be Used for Scanning Phase of Global Search";
+
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.sclCorRes
                               << " Angstrom will be Used for Performing Intensity Scale Correction";
@@ -347,14 +353,6 @@ void MLOptimiser::expectation()
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
-
-    allocPreCalIdx(_r, _rL);
-
-    ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
-    BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
-
     int nPer = 0;
 
     int nSampleMax = _para.k * _para.mG;
@@ -380,10 +378,18 @@ void MLOptimiser::expectation()
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
+        ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+        BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+
+        allocPreCalIdx(GSL_MIN_DBL(_r, _rScan), _rL);
+
         if (_searchType != SEARCH_TYPE_CTF)
             allocPreCal(true, false);
         else
             allocPreCal(true, true);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
+        BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
 
         // initialse a particle filter
 
@@ -652,7 +658,11 @@ void MLOptimiser::expectation()
             freePreCal(false);
         else
             freePreCal(true);
+
+        freePreCalIdx();
     }
+
+    allocPreCalIdx(_r, _rL);
 
     if (_searchType != SEARCH_TYPE_CTF)
         allocPreCal(false, false);

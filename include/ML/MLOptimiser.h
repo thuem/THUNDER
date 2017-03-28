@@ -117,6 +117,11 @@ struct MLOptimiserPara
     double initRes;
 
     /**
+     * scan resolution (Angstrom)
+     */
+    double scanRes;
+
+    /**
      * resolution threshold for performing global search
      */
     double globalSearchRes;
@@ -305,6 +310,8 @@ class MLOptimiser : public Parallel
          * comparison
          */
         double _rL;
+
+        double _rScan;
 
         /**
          * the information below this frequency will be used for performing

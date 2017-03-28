@@ -59,6 +59,7 @@ void readPara(MLOptimiserPara& dst,
     dst.maskRadius = src["Radius of Mask on Images (Angstrom)"].asFloat();
     dst.transS = src["Estimated Translation (Pixel)"].asFloat();
     dst.initRes = src["Initial Resolution (Angstrom)"].asFloat();
+    dst.scanRes = src["Scanning Phase Resolution (Angstrom)"].asFloat();
     dst.globalSearchRes = src["Perform Global Search Under (Angstrom)"].asFloat();
     copy_string(dst.sym, src["Symmetry"].asString());
     copy_string(dst.initModel, src["Initial Model"].asString());
