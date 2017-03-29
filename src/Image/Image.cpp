@@ -296,7 +296,8 @@ double Image::getBiLinearRL(const double iCol,
     double w[2][2];
     int x0[2];
     double x[2] = {iCol, iRow};
-    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    WG_BI_INTERP_LINEAR(w, x0, x);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryRL(x0[0], x0[1]);
@@ -314,7 +315,8 @@ Complex Image::getBiLinearFT(const double iCol,
     double w[2][2];
     int x0[2];
     double x[2] = {iCol, iRow};
-    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    WG_BI_INTERP_LINEAR(w, x0, x);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(x0[0], x0[1]);
@@ -343,7 +345,8 @@ Complex Image::getByInterpolationFT(double iCol,
     int x0[2];
     double x[2] = {iCol, iRow};
 
-    WG_BI_INTERP(w, x0, x, interp);
+    //WG_BI_INTERP(w, x0, x, interp);
+    WG_BI_INTERP_LINEAR(w, x0, x);
 
     Complex result = getFTHalf(w, x0);
 
@@ -360,7 +363,8 @@ void Image::addFT(const Complex value,
     int x0[2];
     double x[2] = {iCol, iRow};
 
-    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    WG_BI_INTERP_LINEAR(w, x0, x);
 
     addFTHalf(conj ? CONJUGATE(value) : value,
               w,
@@ -377,7 +381,8 @@ void Image::addFT(const double value,
     int x0[2];
     double x[2] = {iCol, iRow};
 
-    WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
+    WG_BI_INTERP_LINEAR(w, x0, x);
 
     addFTHalf(value, w, x0);
 }

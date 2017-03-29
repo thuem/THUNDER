@@ -273,7 +273,8 @@ double Volume::getByInterpolationRL(const double iCol,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    WG_TRI_INTERP(w, x0, x, interp);
+    //WG_TRI_INTERP(w, x0, x, interp);
+    WG_TRI_INTERP_LINEAR(w, x0, x);
 
     return getRL(w, x0);
 }
@@ -296,7 +297,8 @@ Complex Volume::getByInterpolationFT(double iCol,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    WG_TRI_INTERP(w, x0, x, interp);
+    //WG_TRI_INTERP(w, x0, x, interp);
+    WG_TRI_INTERP_LINEAR(w, x0, x);
 
     Complex result = getFTHalf(w, x0);
 
@@ -314,7 +316,8 @@ void Volume::addFT(const Complex value,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
+    //WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
+    WG_TRI_INTERP_LINEAR(w, x0, x);
 
     addFTHalf(conj ? CONJUGATE(value) : value,
               w,
@@ -332,7 +335,8 @@ void Volume::addFT(const double value,
     int x0[3];
     double x[3] = {iCol, iRow, iSlc};
 
-    WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
+    //WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
+    WG_TRI_INTERP_LINEAR(w, x0, x);
 
     addFTHalf(value, w, x0);
 }
