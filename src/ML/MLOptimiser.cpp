@@ -667,10 +667,14 @@ void MLOptimiser::expectation()
 
         int nPhaseWithNoVariDecrease = 0;
 
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+        double topCmp = 0;
+#else
         double tVariS0 = 5 * _para.transS;
         double tVariS1 = 5 * _para.transS;
         double rVari = 1;
         double dVari = 5 * _para.ctfRefineS;
+#endif
 
 #ifdef OPTIMISER_HARSH_SEARCH
         bool harsh = (_searchType != SEARCH_TYPE_GLOBAL);
@@ -865,6 +869,9 @@ void MLOptimiser::expectation()
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                if (_par[l].compress() > topCmp / PARTICLE_FILTER_DECREASE_FACTOR)
+#else
                 double tVariS0Cur;
                 double tVariS1Cur;
                 double rVariCur;
@@ -876,6 +883,7 @@ void MLOptimiser::expectation()
                     (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
@@ -883,11 +891,15 @@ void MLOptimiser::expectation()
                 else
                     nPhaseWithNoVariDecrease += 1;
 
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                topCmp = _par[l].compress();
+#else
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
                 if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
                 if (rVariCur < rVari) rVari = rVariCur;
                 if (dVariCur < dVari) dVari = dVariCur;
+#endif
 
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
