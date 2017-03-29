@@ -886,10 +886,10 @@ void MLOptimiser::expectation()
 
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
 
-                if ((tVariS0Cur < tVariS0 * 0.9) ||
-                    (tVariS1Cur < tVariS1 * 0.9) ||
-                    (rVariCur < rVari * 0.9) ||
-                    (dVariCur < dVari * 0.9))
+                if ((tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                    (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                    (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                    (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
