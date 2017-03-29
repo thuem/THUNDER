@@ -855,9 +855,8 @@ void MLOptimiser::expectation()
                                                << ": "
                                                << _par[0].compress();
 
-                _par[l].resample(_par[l].n()
-                               / _par[l].compress()
-                               * cmp[l]);
+                _par[l].resample(AROUND(_par[l].n() 
+                                      * GSL_MIN_DBL(1, cmp[l] / _par[l].compress())));
 
                 if (l == 0)
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points "
