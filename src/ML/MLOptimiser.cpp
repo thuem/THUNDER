@@ -370,6 +370,12 @@ void MLOptimiser::expectation()
         REPORT_ERROR("INEXISTENT MODE");
         ***/
 
+#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
+
+    vec cmp = vec::Zero(_ID.size());
+
+#endif
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
@@ -608,14 +614,12 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
 #endif
 
-        vec compress = vec::Zero(_ID.size());
-
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
             _par[l].calVari();
 
-            compress[l] = _par[l].compress();
+            cmp[l] = _par[l].compress();
 
             if (l == 0)
                 ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
@@ -846,6 +850,16 @@ void MLOptimiser::expectation()
                                                << phase
                                                << ": "
                                                << _par[0].compress();
+
+                _par[l].resample(_par[l].n()
+                               / _par[l].compress()
+                               * cmp[l]);
+
+                if (l == 0)
+                    ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points "
+                                               << phase
+                                               << ": "
+                                               << _par[0].n();
 #endif
             }
             
