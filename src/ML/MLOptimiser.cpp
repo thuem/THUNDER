@@ -370,12 +370,6 @@ void MLOptimiser::expectation()
         REPORT_ERROR("INEXISTENT MODE");
         ***/
 
-#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-    int nSampleWholeSpace = 0;
-
-    int nSampleMin = _para.mL;
-#endif
-
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
@@ -410,10 +404,6 @@ void MLOptimiser::expectation()
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
-
-#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-        nSampleWholeSpace = _para.k * _para.mS * nT;
-#endif
 
         Particle par;
         par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
@@ -618,29 +608,18 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
 #endif
 
+        vec compress = vec::Zero(_ID.size());
+
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
             _par[l].calVari();
 
+            compress[l] = _par[l].compress();
+
             if (l == 0)
-            {
                 ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
                                            << _par[0].compress();
-                                           //<< _par[0].compressPerDim();
-                ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
-                                           << AROUND(nSampleWholeSpace
-                                                   * sqrt(GSL_MIN_DBL(1,
-                                                                      _par[0].compress())));
-                                                                      //_par[0].compressPerDim())));
-            }
-
-            _par[l].downSample(GSL_MAX_INT(nSampleMin,
-                                           GSL_MIN_INT(nSampleMax,
-                                                       AROUND(nSampleWholeSpace
-                                                            * sqrt(GSL_MIN_DBL(1,
-                                                                               _par[l].compress()))))));
-                                                                               //_par[l].compressPerDim()))))));
         }
 #endif
 
@@ -856,36 +835,19 @@ void MLOptimiser::expectation()
             
             _par[l].resample();
 
+            _par[l].calVari();
+
             if (_searchType == SEARCH_TYPE_GLOBAL)
             {
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
 
-                _par[l].calVari();
-
                 if (l == 0)
-                {
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
                                                << phase
                                                << ": "
                                                << _par[0].compress();
-                                               //<< _par[0].compressPerDim();
-                    ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points for the Next Phase: "
-                                               << AROUND(nSampleWholeSpace
-                                                       * sqrt(GSL_MIN_DBL(1,
-                                                                          _par[0].compress())));
-                                                                          //_par[0].compressPerDim())));
-                }
-
-                _par[l].resample(GSL_MAX_INT(nSampleMin,
-                                               GSL_MIN_INT(nSampleMax,
-                                                           AROUND(nSampleWholeSpace
-                                                                * sqrt(GSL_MIN_DBL(1,
-                                                                                   _par[l].compress()))))));
-                                                                                   //_par[l].compressPerDim()))))));
 #endif
             }
-
-            _par[l].calVari();
             
             if (phase >= MIN_N_PHASE_PER_ITER)
             {
