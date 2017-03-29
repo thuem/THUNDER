@@ -867,7 +867,9 @@ void MLOptimiser::expectation()
 #endif
             }
             
-            if (phase >= MIN_N_PHASE_PER_ITER)
+            if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
+                        ? MIN_N_PHASE_PER_ITER_GLOBAL
+                        : MIN_N_PHASE_PER_ITER_LOCAL))
             {
 #ifdef OPTIMISER_COMPRESS_CRITERIA
                 if (_par[l].compress() > topCmp / PARTICLE_FILTER_DECREASE_FACTOR)
