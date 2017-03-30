@@ -417,9 +417,9 @@ void Volume::clear()
 void Volume::initBox()
 {
     FOR_CELL_DIM_3
-        _box[i][j][k] += k * (_nCol / 2 + 1) * _nRow
-                       + j * (_nCol / 2 + 1)
-                       + i;
+        _box[i][j][k] = k * (_nCol / 2 + 1) * _nRow
+                      + j * (_nCol / 2 + 1)
+                      + i;
 }
 
 void Volume::coordinatesInBoundaryRL(const int iCol,
