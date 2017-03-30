@@ -857,10 +857,13 @@ void MLOptimiser::expectation()
 
                 _par[l].resample(GSL_MAX_INT(AROUND(nSampleMax
                                                   * GSL_MIN_DBL(1,
+                                                                cmp[l] / _par[l].compress())),
+                                                                  /***
                                                                 pow(cmp[l] / _par[l].compress(),
                                                                     (_para.mode == MODE_2D)
                                                                   ? 2
                                                                   : 2.5))),
+                                                                  ***/
                                              _para.mL));
 
                 if (l == 0)
