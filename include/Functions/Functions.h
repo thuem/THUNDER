@@ -185,6 +185,11 @@ double MKB_BLOB_VOL(const double a,
  */
 double TIK_RL(const double r);
 
+/**
+ * Estimate form of Inverse Fourier Transform of Nearest Neighbor Interpolation Function
+ */
+double NIK_RL(const double r);
+
 double median(vec src,
               const int n);
 

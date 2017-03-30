@@ -497,9 +497,6 @@ void Projector::projectMT(Complex* dst,
 
 void Projector::gridCorrection()
 {
-    if ((_interp == LINEAR_INTERP) ||
-        (_interp == NEAREST_INTERP))
-    {
         FFT fft;
 
         if (_mode == MODE_2D)
@@ -513,6 +510,8 @@ void Projector::gridCorrection()
             REMOVE_NEG(_projectee2D);
 #endif
 
+        if (_interp == LINEAR_INTERP)
+        {
             #pragma omp parallel for schedule(dynamic)
             IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
                 _projectee2D.setRL(_projectee2D.getRL(i, j)
@@ -520,6 +519,17 @@ void Projector::gridCorrection()
                                         / _projectee2D.nColRL()),
                                    i,
                                    j);
+        }
+        else if (_interp == NEAREST_INTERP)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
+                _projectee2D.setRL(_projectee2D.getRL(i, j)
+                                 / NIK_RL(NORM(i, j)
+                                        / _projectee2D.nColRL()),
+                                   i,
+                                   j);
+        }
 
 #ifdef VERBOSE_LEVEL_3
             CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
@@ -539,6 +549,8 @@ void Projector::gridCorrection()
             REMOVE_NEG(_projectee3D);
 #endif
 
+        if (_interp == LINEAR_INTERP)
+        {
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
                 _projectee3D.setRL(_projectee3D.getRL(i, j, k)
@@ -547,6 +559,18 @@ void Projector::gridCorrection()
                                    i,
                                    j,
                                    k);
+        }
+        else if (_interp == NEAREST_INTERP)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
+                _projectee3D.setRL(_projectee3D.getRL(i, j, k)
+                                 / NIK_RL(NORM_3(i, j, k)
+                                        / _projectee3D.nColRL()),
+                                   i,
+                                   j,
+                                   k);
+        }
 
 #ifdef VERBOSE_LEVEL_3
             CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
@@ -557,5 +581,4 @@ void Projector::gridCorrection()
         }
         else
             REPORT_ERROR("INEXISTENT_MODE");
-    }
 }

@@ -222,6 +222,11 @@ double TIK_RL(const double r)
     return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));
 }
 
+double NIK_RL(const double r)
+{
+    return gsl_sf_bessel_j0(M_PI * r);
+}
+
 double median(vec src,
               const int n)
 {
