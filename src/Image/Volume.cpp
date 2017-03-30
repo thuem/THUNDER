@@ -427,7 +427,7 @@ void Volume::initBox()
     _nColFT = _nCol / 2 + 1;
 
     FOR_CELL_DIM_3
-        _box[i][j][k] = k * (_nColFT) * _nRow
+        _box[k][j][i] = k * (_nColFT) * _nRow
                       + j * (_nColFT)
                       + i;
 }
