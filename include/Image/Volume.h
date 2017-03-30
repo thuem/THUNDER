@@ -148,6 +148,8 @@ class Volume : public ImageBase
          */
         int _nSlc;
 
+        int _nColFT;
+
         int _box[2][2][2];
 
     public:
@@ -584,10 +586,8 @@ class Volume : public ImageBase
                            const int j,
                            const int k) const
         {
-            int nColFT = _nCol / 2 + 1;
-
-            return (k >= 0 ? k : k + _nSlc) * nColFT * _nRow
-                 + (j >= 0 ? j : j + _nRow) * nColFT 
+            return (k >= 0 ? k : k + _nSlc) * _nColFT * _nRow
+                 + (j >= 0 ? j : j + _nRow) * _nColFT 
                  + i;
         }
 
