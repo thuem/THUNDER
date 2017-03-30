@@ -184,6 +184,11 @@ class Volume : public ImageBase
                                             _nRow(that._nRow),
                                             _nSlc(that._nSlc)
         {
+            _nColFT = that._nColFT;
+
+            FOR_CELL_DIM_3
+                _box[k][j][i] = that._box[k][j][i];
+
             that._nCol = 0;
             that._nRow = 0;
             that._nSlc = 0;
