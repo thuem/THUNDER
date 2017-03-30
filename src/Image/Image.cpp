@@ -305,7 +305,7 @@ double Image::getBiLinearRL(const double iCol,
 #endif
 
     double result = 0;
-    FOR_CELL_DIM_3 result += w[i][j] * getRL(x0[0] + i, x0[1] + j);
+    FOR_CELL_DIM_3 result += w[j][i] * getRL(x0[0] + i, x0[1] + j);
     return result;
 }
 
@@ -324,7 +324,7 @@ Complex Image::getBiLinearFT(const double iCol,
 #endif
 
     Complex result = COMPLEX(0, 0);
-    FOR_CELL_DIM_2 result += w[i][j] * getFT(x0[0] + i , x0[1] + j);
+    FOR_CELL_DIM_2 result += w[j][i] * getFT(x0[0] + i , x0[1] + j);
     return result;
 }
 
@@ -409,7 +409,7 @@ Complex Image::getFTHalf(const double w[2][2],
     Complex result = COMPLEX(0, 0);
     FOR_CELL_DIM_2 result += getFTHalf(x0[0] + i,
                                        x0[1] + j)
-                           * w[i][j];
+                           * w[j][i];
     return result;
 }
 
@@ -417,7 +417,7 @@ void Image::addFTHalf(const Complex value,
                       const double w[2][2],
                       const int x0[2])
 {
-    FOR_CELL_DIM_2 addFTHalf(value * w[i][j],
+    FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
                              x0[0] + i,
                              x0[1] + j);
                              
@@ -427,7 +427,7 @@ void Image::addFTHalf(const double value,
                       const double w[2][2],
                       const int x0[2])
 {
-    FOR_CELL_DIM_2 addFTHalf(value * w[i][j],
+    FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
                              x0[0] + i,
                              x0[1] + j);
                              

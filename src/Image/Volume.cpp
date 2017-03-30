@@ -32,7 +32,8 @@ void Volume::swap(Volume& that)
 
     std::swap(_nColFT, that._nColFT);
 
-    std::swap(_box, that._box);
+    FOR_CELL_DIM_3
+        std::swap(_box[k][j][i], that._box[k][j][i]);
 }
 
 Volume Volume::copyVolume() const
@@ -48,7 +49,7 @@ Volume Volume::copyVolume() const
     out._nColFT = _nColFT;
 
     FOR_CELL_DIM_3
-        out._box[i][j][k] = _box[i][j][k];
+        out._box[k][j][i] = _box[k][j][i];
 
     return out;
 }
@@ -456,7 +457,7 @@ double Volume::getRL(const double w[2][2][2],
 {
     double result = 0;
     FOR_CELL_DIM_3 result += getRL(x0[0] + i, x0[1] + j, x0[2] + k)
-                           * w[i][j][k];
+                           * w[k][j][i];
     return result;
 }
 
@@ -486,7 +487,7 @@ Complex Volume::getFTHalf(const double w[2][2][2],
         FOR_CELL_DIM_3 result += getFTHalf(x0[0] + i,
                                            x0[1] + j,
                                            x0[2] + k)
-                               * w[i][j][k];
+                               * w[k][j][i];
     }
 
     return result;
@@ -517,7 +518,7 @@ void Volume::addFTHalf(const Complex value,
     }
     else
     {
-        FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
+        FOR_CELL_DIM_3 addFTHalf(value * w[k][j][i],
                                  x0[0] + i,
                                  x0[1] + j,
                                  x0[2] + k);
@@ -547,7 +548,7 @@ void Volume::addFTHalf(const double value,
     }
     else
     {
-        FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
+        FOR_CELL_DIM_3 addFTHalf(value * w[k][j][i],
                                  x0[0] + i,
                                  x0[1] + j,
                                  x0[2] + k);

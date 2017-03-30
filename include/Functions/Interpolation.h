@@ -29,16 +29,25 @@
  * This macro loops over a 2D cell.
  */
 #define FOR_CELL_DIM_2 \
+    for (int j = 0; j < 2; j++) \
+        for (int i = 0; i < 2; i++)
+/***
     for (int i = 0; i < 2; i++) \
         for (int j = 0; j < 2; j++)
+        ***/
 
 /**
  * This macro loops over a 3D cell.
  */
 #define FOR_CELL_DIM_3 \
+    for (int k = 0; k < 2; k++) \
+        for (int j = 0; j < 2; j++) \
+            for (int i = 0; i < 2; i++)
+    /***
     for (int i = 0; i < 2; i++) \
         for (int j = 0; j < 2; j++) \
             for (int k = 0; k < 2; k++)
+            ***/
 
 /**
  * This macro calculates the 1D linear interpolation result given values of two
@@ -108,7 +117,10 @@ inline void W_BI_INTERP_LINEAR(double w[2][2],
         W_INTERP_LINEAR(v[i], xd[i]);
 
     FOR_CELL_DIM_2
-        w[i][j] = v[0][i] * v[1][j];
+    {
+        w[j][i] = v[0][i] * v[1][j];
+        // w[i][j] = v[0][i] * v[1][j];
+    }
 }
 
 inline void WG_BI_INTERP_LINEAR(double w[2][2], 
@@ -133,7 +145,10 @@ inline void W_TRI_INTERP_LINEAR(double w[2][2][2],
         W_INTERP_LINEAR(v[i], xd[i]);
 
     FOR_CELL_DIM_3 
-        w[i][j][k] = v[0][i] * v[1][j] * v[2][k];
+    {
+        w[k][j][i] = v[0][i] * v[1][j] * v[2][k];
+        //w[i][j][k] = v[0][i] * v[1][j] * v[2][k];
+    }
 }
 
 inline void WG_TRI_INTERP_LINEAR(double w[2][2][2],
