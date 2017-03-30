@@ -148,6 +148,8 @@ class Volume : public ImageBase
          */
         int _nSlc;
 
+        int _box[2][2][2];
+
     public:
 
         /**
@@ -590,6 +592,8 @@ class Volume : public ImageBase
         }
 
     private:
+
+        void initBox();
 
         /**
          * This function checks whether the given coordinates is in the boundary

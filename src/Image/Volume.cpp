@@ -29,6 +29,8 @@ void Volume::swap(Volume& that)
     std::swap(_nCol, that._nCol);
     std::swap(_nRow, that._nRow);
     std::swap(_nSlc, that._nSlc);
+
+    std::swap(_box, that._box);
 }
 
 Volume Volume::copyVolume() const
@@ -94,6 +96,8 @@ void Volume::alloc(const int nCol,
         _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
+
+    initBox();
 }
 
 double Volume::getRL(const int iCol,
@@ -410,6 +414,14 @@ void Volume::clear()
     _nSlc = 0;
 }
 
+void Volume::initBox()
+{
+    FOR_CELL_DIM_3
+        _box[i][j][k] += k * (_nCol / 2 + 1) * _nRow
+                       + j * (_nCol / 2 + 1)
+                       + i;
+}
+
 void Volume::coordinatesInBoundaryRL(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
@@ -444,30 +456,27 @@ Complex Volume::getFTHalf(const double w[2][2][2],
 {
     Complex result = COMPLEX(0, 0);
 
-    if ((x0[1] == -1) ||
-        (x0[2] == -1))
-    {
-        FOR_CELL_DIM_3 result += getFTHalf(x0[0] + i,
-                                           x0[1] + j,
-                                           x0[2] + k)
-                               * w[i][j][k];
-    }
-    else
+    if ((x0[1] != -1) &&
+        (x0[2] != -1))
     {
         int index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
         FOR_CELL_DIM_3
         {
-            int index = index0
-                      + k * (_nCol / 2 + 1) * _nRow
-                      + j * (_nCol / 2 + 1)
-                      + i;
+            int index = index0 + _box[i][j][k];
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_FT(index);
 #endif
             result += _dataFT[index] * w[i][j][k];
         }
+    }
+    else
+    {
+        FOR_CELL_DIM_3 result += getFTHalf(x0[0] + i,
+                                           x0[1] + j,
+                                           x0[2] + k)
+                               * w[i][j][k];
     }
 
     return result;
@@ -477,34 +486,31 @@ void Volume::addFTHalf(const Complex value,
                        const double w[2][2][2],
                        const int x0[3])
 {
-    if ((x0[1] == -1) ||
-        (x0[2] == -1))
-    {
-        FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
-                                 x0[0] + i,
-                                 x0[1] + j,
-                                 x0[2] + k);
-    }
-    else
+    if ((x0[1] != -1) &&
+        (x0[2] != -1))
     {
         int index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
         FOR_CELL_DIM_3
         {
-            int index = index0
-                      + k * (_nCol / 2 + 1) * _nRow
-                      + j * (_nCol / 2 + 1)
-                      + i;
+            int index = index0 + _box[i][j][k];
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_FT(index);
 #endif
-
+            
             #pragma omp atomic
             _dataFT[index].dat[0] += value.dat[0] * w[i][j][k];
             #pragma omp atomic
             _dataFT[index].dat[1] += value.dat[1] * w[i][j][k];
         }
+    }
+    else
+    {
+        FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
+                                 x0[0] + i,
+                                 x0[1] + j,
+                                 x0[2] + k);
     }
 }
 
@@ -512,24 +518,14 @@ void Volume::addFTHalf(const double value,
                        const double w[2][2][2],
                        const int x0[3])
 {
-    if ((x0[1] == -1) ||
-        (x0[2] == -1))
-    {
-        FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
-                                 x0[0] + i,
-                                 x0[1] + j,
-                                 x0[2] + k);
-    }
-    else
+    if ((x0[1] != -1) &&
+        (x0[2] != -1))
     {
         int index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
         FOR_CELL_DIM_3
         {
-            int index = index0
-                      + k * (_nCol / 2 + 1) * _nRow
-                      + j * (_nCol / 2 + 1)
-                      + i;
+            int index = index0 + _box[i][j][k];
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_FT(index);
@@ -538,5 +534,12 @@ void Volume::addFTHalf(const double value,
             #pragma omp atomic
             _dataFT[index].dat[0] += value * w[i][j][k];
         }
+    }
+    else
+    {
+        FOR_CELL_DIM_3 addFTHalf(value * w[i][j][k],
+                                 x0[0] + i,
+                                 x0[1] + j,
+                                 x0[2] + k);
     }
 }
