@@ -30,13 +30,6 @@
 #define SYM_ID_LENGTH 5
 
 /**
- * This macros determines whether A and B matrix is equal with tolerence of 1e4.
- * @param A A matrix
- * @param B B matrix
- */
-#define SAME_MATRIX(A, B) (sqrt((A - B).colwise().squaredNorm().sum()) < 1e4)
-
-/**
  * This marcos determines whether a direction given by phi and theta belongs to
  * a certain asymmetric unit.
  *
@@ -46,14 +39,24 @@
  */
 #define ASY(PG, phi, theta) \
     ({ \
-        double _phi = (phi), _theta = (theta); \
-        vec3 norm; \
-        direction(norm, _phi, _theta); \
-        ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
-                (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
-                (norm.dot(vec3(pg_##PG##_a3)) >= 0)); \
-    })
+         double _phi = (phi), _theta = (theta); \
+         vec3 norm; \
+         direction(norm, _phi, _theta); \
+         ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
+          (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
+          (norm.dot(vec3(pg_##PG##_a3)) >= 0)); \
+     })
 
+inline bool SAME_MATRIX(const mat33& A,
+                        const mat33& B)
+{
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            if (fabs(A(i, j) - B(i, j)) > EQUAL_ACCURACY)
+                return false;
+
+    return true;
+};
 
 /**
  * @ingroup Symmetry

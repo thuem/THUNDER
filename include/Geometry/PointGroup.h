@@ -32,13 +32,11 @@
 #define PG_I2   217
 #define PG_I3   218
 #define PG_I4   219
-#define PG_I5   220
 
 #define PG_I1H  221
 #define PG_I2H  222
 #define PG_I3H  223
 #define PG_I4H  224
-#define PG_I5H  225
 
 /**
  * 3-fold Axis 1 <--> 3-fold Axis 2

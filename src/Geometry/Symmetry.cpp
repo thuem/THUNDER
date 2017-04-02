@@ -141,7 +141,10 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             for (int j = 1; j < entry[i].fold; j++)
             {
                 rotate3D(R, angle * j, entry[i].axisPlane);
-                append(L, R);
+
+                //if (novo(L, R)) append(L, R.transpose());
+                if (novo(L, R)) append(L, R);
+                //append(L, R);
             }
         }
         else if (entry[i].id == 1)
@@ -149,7 +152,7 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             // reflexion
 
             reflect3D(R, entry[i].axisPlane);
-            append(L, R);
+            if (novo(L, R)) append(L, R);
         }
         else if (entry[i].id == 2)
         {
@@ -161,11 +164,12 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
              * R -> [-1  0  0]
              *      [ 0 -1  0]
              *      [ 0  0 -1] */
+
             L(2, 2) = -1;
 
             R = vec3(-1, -1, -1).asDiagonal();
 
-            append(L, R);
+            if (novo(L, R)) append(L, R);
         }
     }
 }
@@ -186,19 +190,21 @@ bool Symmetry::novo(const mat33& L,
     return true;
 }
 
-static bool completePointGroupHelper(umat& table, int& i, int& j)
+static bool completePointGroupHelper(umat& table,
+                                     int& i,
+                                     int& j)
 {
-    for (int row = 0; row < table.rows(); row++) {
-        for (int col = 0; col < table.cols(); col++) {
-            if (table(row, col) == 0) {
+    for (int row = 0; row < table.rows(); row++)
+        for (int col = 0; col < table.cols(); col++)
+            if (table(row, col) == 0)
+            {
                 i = row;
                 j = col;
                 table(row, col) = 1;
 
                 return true;
             }
-        }
-    }
+
     return false;
 }
 
@@ -216,8 +222,13 @@ void Symmetry::completePointGroup()
         if (novo(L, R))
         {
             append(L, R);
-            table.resize(table.rows() + 1,
-                         table.cols() + 1);
+
+            umat tableNew = umat::Zero(table.rows() + 1,
+                                       table.cols() + 1);
+
+            tableNew.topLeftCorner(table.rows(), table.cols()) = table;
+
+            table = tableNew;
         }
     }
 }
@@ -321,13 +332,11 @@ bool asymmetryUnit(const double phi,
         case PG_I1:
         case PG_I3:
         case PG_I4:
-        case PG_I5:
         case PG_IH:
         case PG_I2H:
         case PG_I1H:
         case PG_I3H:
         case PG_I4H:
-        case PG_I5H:
             CLOG(FATAL, "LOGGER_SYS") << "Point Group has not been implemented.";
     }
 
@@ -354,10 +363,12 @@ void symmetryCounterpart(double& ex,
 
     mat33 L, R;
     vec3 newDir;
+
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
         sym.get(L, R, i);
         newDir = R * dir;
+
         if (asymmetryUnit(newDir, sym))
         {
             ex = newDir(0);

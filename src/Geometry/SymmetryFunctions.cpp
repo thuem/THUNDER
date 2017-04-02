@@ -101,8 +101,6 @@ void symmetryGroup(int& pgGroup,
                 pgGroup = PG_I3; break;
             case '4':
                 pgGroup = PG_I4; break;
-            case '5':
-                pgGroup = PG_I5; break;
             default:
                 REPORT_ERROR("INVALID POINT GROUP");
                 abort();
@@ -126,8 +124,6 @@ void symmetryGroup(int& pgGroup,
                 pgGroup = PG_I3H; break;
             case '4':
                 pgGroup = PG_I4H; break;
-            case '5':
-                pgGroup = PG_I5H; break;
             default:
                 REPORT_ERROR("INVALID POINT GROUP");
                 abort();
@@ -277,10 +273,6 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
                                                          0.7946545)));
             break;
 
-        case PG_I5:
-            CLOG(FATAL, "LOGGER_SYS") << "PG_I5 Not Implemented";
-            break;
-
         case PG_IH:
         case PG_I2H:
             fillSymmetryEntry(entry, PG_I, pgOrder);
@@ -306,13 +298,8 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
                                                           -0.5257311)));
             break;
 
-        case PG_I5H:
-            REPORT_ERROR("PG_I5H IS NOT IMPLEMENTED");
-            abort();
-            break;
-
         default:
-            REPORT_ERROR("SYMMETRY POINT GROUP IS NOT KNOWN");
+            REPORT_ERROR("UNKNOWN SYMMETRY POINT GROUP KNOWN");
             abort();
             break;
     }
