@@ -86,6 +86,66 @@ int Symmetry::nSymmetryElement() const
     return _L.size();
 }
 
+int Symmetry::nFractionSpace() const
+{
+    switch (_pgGroup)
+    {
+        case PG_CN:
+            return _pgOrder;
+        
+        case PG_CI:
+        case PG_CS:
+            return 2;
+
+        case PG_CNV:
+            return 4;
+
+        case PG_CNH:
+            return _pgOrder * 2;
+        
+        case PG_SN:
+            return _pgOrder;
+
+        case PG_DN:
+            return _pgOrder * 2;
+
+        case PG_DNV:
+        case PG_DNH:
+            return _pgOrder * 4;
+
+        case PG_T:
+            return 4;
+
+        case PG_TD:
+        case PG_TH:
+            return 8;
+
+        case PG_O:
+            return 8;
+
+        case PG_OH:
+            return 16;
+
+        case PG_I:
+        case PG_I2:
+        case PG_I1:
+        case PG_I3:
+        case PG_I4:
+            return 20;
+
+        case PG_IH:
+        case PG_I2H:
+        case PG_I1H:
+        case PG_I3H:
+        case PG_I4H:
+            return 40;
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "UNKNOWN SYMMETRY";
+            abort();
+    }
+}
+
 void Symmetry::clear()
 {
     _L.clear();
@@ -248,6 +308,15 @@ void display(const Symmetry& sym)
     }
 }
 
+bool asymmetry(const Symmetry& sym)
+{
+    if ((sym.pgGroup() == PG_CN) &&
+        (sym.pgOrder() == 1))
+        return true;
+    else
+        return false;
+}
+
 bool asymmetryUnit(const vec3 dir,
                    const Symmetry& sym)
 {
@@ -307,39 +376,56 @@ bool asymmetryUnit(const double phi,
                     (theta <= M_PI / 2));
 
         case PG_T:
-            return ASY(T, phi, theta);
+            return ASY_3(T, phi, theta);
 
         case PG_TD:
-            return ASY(TD, phi, theta);
+            return ASY_3(TD, phi, theta);
 
         case PG_TH:
-            return ASY(TH, phi, theta);
+            return ASY_3(TH, phi, theta);
 
         case PG_O:
             return ((phi >= M_PI / 4) &&
                     (phi <= 3 * M_PI / 4) &&
                     (theta <= M_PI / 2) &&
-                    ASY(O, phi, theta));
+                    ASY_3(O, phi, theta));
 
         case PG_OH:
             return ((phi >= 3 * M_PI / 2) &&
                     (phi <= 7 * M_PI / 4) &&
                     (theta <= M_PI / 2) &&
-                    ASY(O, phi, theta));
+                    ASY_3(O, phi, theta));
 
         case PG_I:
         case PG_I2:
+            return ASY_3(I2, phi, theta);
+
         case PG_I1:
+            return ASY_3(I1, phi, theta);
+
         case PG_I3:
+            return ASY_3(I3, phi, theta);
+
         case PG_I4:
+            return ASY_3(I4, phi, theta);
+
         case PG_IH:
         case PG_I2H:
-        case PG_I1H:
-        case PG_I3H:
-        case PG_I4H:
-            CLOG(FATAL, "LOGGER_SYS") << "Point Group has not been implemented.";
-    }
+            return ASY_4(I2H, phi, theta);
 
+        case PG_I1H:
+            return ASY_4(I1H, phi, theta);
+
+        case PG_I3H:
+            return ASY_4(I3H, phi, theta);
+
+        case PG_I4H:
+            return ASY_4(I4H, phi, theta);
+
+        default:
+            CLOG(FATAL, "LOGGER_SYS") << "UNKNOWN SYMMETRY";
+            abort();
+    }
     abort();
 }
 
@@ -392,6 +478,8 @@ void symmetryRotation(vector<mat33>& sr,
 
     if (sym == NULL) return;
 
+    if (asymmetry(*sym)) return;
+
     mat33 L, R;
 
     for (int i = 0; i < sym->nSymmetryElement(); i++)
@@ -401,45 +489,3 @@ void symmetryRotation(vector<mat33>& sr,
         sr.push_back(R * rot);
     }
 }
-
-/***
-void angleSymmetryC(double& phi,
-                    double& theta,
-                    double& psi,
-                    const vec4& src,
-                    const int fold)
-{
-    angle(phi, theta, psi, src);
-
-    phi /= fold;
-}
-
-void angleSymmetryD(double& phi,
-                    double& theta,
-                    double& psi,
-                    const vec4& src,
-                    const int fold)
-{
-    //TODO
-}
-
-void rotate3DSymmetryC(mat33& dst,
-                       const vec4& src,
-                       const int fold)
-{
-    double phi, theta, psi;
-    angleSymmetryC(phi, theta, psi, src, fold);
-
-    rotate3D(dst, phi, theta, psi);
-}
-
-void rotate3DSymmetryD(mat33& dst,
-                       const vec4& src,
-                       const int fold)
-{
-    double phi, theta, psi;
-    angleSymmetryD(phi, theta, psi, src, fold);
-
-    rotate3D(dst, phi, theta, psi);
-}
-***/

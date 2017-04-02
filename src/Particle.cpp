@@ -1029,15 +1029,21 @@ Particle Particle::copy() const
 
 void Particle::symmetrise()
 {
+    if (_sym == NULL) return;
+
+    if (asymmetry(*_sym)) return;
+
     double phi, theta, psi;
+
     vec4 quat;
+
     for (int i = 0; i < _n; i++)
     {
         vec4 quat = _r.row(i).transpose();
+        
         angle(phi, theta, psi, quat);
 
-        // make phi and theta in the asymetric unit
-        if (_sym != NULL) symmetryCounterpart(phi, theta, *_sym);
+        symmetryCounterpart(phi, theta, *_sym);
 
         quaternoin(quat, phi, theta, psi);
         _r.row(i) = quat.transpose();

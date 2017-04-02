@@ -37,7 +37,7 @@
  * @param phi   phi
  * @param theta theta
  */
-#define ASY(PG, phi, theta) \
+#define ASY_3(PG, phi, theta) \
     ({ \
          double _phi = (phi), _theta = (theta); \
          vec3 norm; \
@@ -45,6 +45,17 @@
          ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
           (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
           (norm.dot(vec3(pg_##PG##_a3)) >= 0)); \
+     })
+
+#define ASY_4(PG, phi, theta) \
+    ({ \
+         double _phi = (phi), _theta = (theta); \
+         vec3 norm; \
+         direction(norm, _phi, _theta); \
+         ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
+          (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
+          (norm.dot(vec3(pg_##PG##_a3)) >= 0) && \
+          (norm.dot(vec3(pg_##PG##_a4)) >= 0)); \
      })
 
 inline bool SAME_MATRIX(const mat33& A,
@@ -162,6 +173,8 @@ class Symmetry
          */
         int nSymmetryElement() const;
 
+        int nFractionSpace() const;
+
         /**
          * This function clears up the storage.
          */
@@ -230,6 +243,8 @@ class Symmetry
  * @param sym the Symmetry object to be displayed
  */
 void display(const Symmetry& sym);
+
+bool asymmetry(const Symmetry& sym);
 
 /**
  * This function determines whether the direction given belongs to a certain
