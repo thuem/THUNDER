@@ -3395,6 +3395,8 @@ void MLOptimiser::saveDatabase() const
                 0.0);
     }
 
+    fclose(file);
+
     if (_commRank != _commSize - 1)
         MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
 }
