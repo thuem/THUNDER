@@ -88,7 +88,7 @@ struct CTFAttr
 
     double Cs;
 
-    double amplitudeConstrast;
+    double amplitudeContrast;
 
     double phaseShift;
 };

@@ -217,7 +217,7 @@ void Database::ctf(CTFAttr& dst,
         dst.defocusV,
         dst.defocusTheta,
         dst.Cs,
-        dst.amplitudeConstrast,
+        dst.amplitudeContrast,
         dst.phaseShift,
         i);
 }

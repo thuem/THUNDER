@@ -1114,6 +1114,9 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
 #endif
 
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Database";
+        saveDatabase();
+
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
 
         refreshVariance();
@@ -3339,11 +3342,61 @@ void MLOptimiser::freePreCal(const bool ctf)
     }
 }
 
-void MLOptimiser::saveDatabase(const char database[]) const
+void MLOptimiser::saveDatabase() const
 {
     IF_MASTER return;
 
-    // TODO
+    char filename[FILE_NAME_LENGTH];
+    sprintf(filename, "Meta_Round_%03d.thu", _iter);
+
+    bool flag;
+    MPI_Status status;
+    
+    if (_commRank != 1)
+        MPI_Recv(&flag, 1, MPI_C_BOOL, _commRank - 1, 0, MPI_COMM_WORLD, &status);
+
+    FILE* file = (_commRank == 1)
+               ? fopen(filename, "w")
+               : fopen(filename, "a");
+
+    int cls;
+    vec4 quat;
+    vec2 tran;
+    double df;
+
+    FOR_EACH_2D_IMAGE
+    {
+        _par[l].rank1st(cls, quat, tran, df);
+
+        fprintf(file,
+                "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
+                 %s %s %18.6f %18.6f \
+                 %d %d \
+                 %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f\n",
+                _ctfAttr[l].voltage,
+                _ctfAttr[l].defocusU,
+                _ctfAttr[l].defocusV,
+                _ctfAttr[l].defocusTheta,
+                _ctfAttr[l].Cs,
+                _ctfAttr[l].amplitudeContrast,
+                _ctfAttr[l].phaseShift,
+                "",
+                "",
+                0.0,
+                0.0,
+                _groupID[l],
+                cls,
+                quat(0),
+                quat(1),
+                quat(2),
+                quat(3),
+                tran(0),
+                tran(1),
+                0.0);
+    }
+
+    if (_commRank != _commSize - 1)
+        MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
 }
 
 void MLOptimiser::saveBestProjections()
