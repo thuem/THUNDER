@@ -3339,6 +3339,13 @@ void MLOptimiser::freePreCal(const bool ctf)
     }
 }
 
+void MLOptimiser::saveDatabase(const char database[]) const
+{
+    IF_MASTER return;
+
+    // TODO
+}
+
 void MLOptimiser::saveBestProjections()
 {
     IF_MASTER return;
@@ -3422,31 +3429,6 @@ void MLOptimiser::saveImages()
     }
 }
 
-void MLOptimiser::saveBinImages()
-{
-    IF_MASTER return;
-
-    FFT fft;
-
-    Image bin;
-
-    char filename[FILE_NAME_LENGTH];
-    FOR_EACH_2D_IMAGE
-    {
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            sprintf(filename, "Image_Bin_8_%04d.bmp", _ID[l]);
-
-            fft.bw(_img[l]);
-            binning(bin, _img[l], 8);
-            fft.fw(_img[l]);
-
-            bin.saveRLToBMP(filename);
-        }
-    }
-            
-}
-
 void MLOptimiser::saveCTFs()
 {
     IF_MASTER return;
@@ -3459,32 +3441,6 @@ void MLOptimiser::saveCTFs()
             sprintf(filename, "CTF_%04d.bmp", _ID[l]);
 
             _ctf[l].saveFTToBMP(filename, 0.01);
-        }
-    }
-}
-
-void MLOptimiser::saveLowPassImages()
-{
-    IF_MASTER return;
-
-    FFT fft;
-
-    Image img(size(), size(), FT_SPACE);
-    SET_0_FT(img);
-
-    char filename[FILE_NAME_LENGTH];
-
-    FOR_EACH_2D_IMAGE
-    {
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            lowPassFilter(img, _img[l], _para.pixelSize / 40, 1.0 / _para.size);
-
-            sprintf(filename, "Image_LowPass_%04d.bmp", _ID[l]);
-
-            fft.bw(img);
-            img.saveRLToBMP(filename);
-            fft.fw(img);
         }
     }
 }

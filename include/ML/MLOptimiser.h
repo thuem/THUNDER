@@ -723,6 +723,8 @@ class MLOptimiser : public Parallel
 
         void freePreCal(const bool ctf);
 
+        void saveDatabase(const char database[]) const;
+
         /**
          * for debug, save the best projections
          */
@@ -734,19 +736,9 @@ class MLOptimiser : public Parallel
         void saveImages();
 
         /**
-         * for debug, save the binning images
-         */
-        void saveBinImages();
-
-        /**
          * for debug, save the CTFs
          */
         void saveCTFs();
-
-        /**
-         * for debug, save the low pass filtered images
-         */
-        void saveLowPassImages();
 
         /**
          * save the reference(s)
