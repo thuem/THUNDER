@@ -3375,7 +3375,7 @@ void MLOptimiser::saveDatabase() const
         fprintf(file,
                 "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
                  %s %s %18.6f %18.6f \
-                 %d %d \
+                 %6d %6d \
                  %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f\n",
                 _ctfAttr[l].voltage,
                 _ctfAttr[l].defocusU,
