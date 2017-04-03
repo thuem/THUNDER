@@ -850,11 +850,13 @@ void MLOptimiser::expectation()
             {
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
 
+                /***
                 if (l == 0)
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
                                                << phase
                                                << ": "
                                                << _par[0].compress();
+                                               ***/
 
                 _par[l].resample(GSL_MAX_INT(AROUND(nSampleMax
                                                   * GSL_MIN_DBL(1,
@@ -867,11 +869,13 @@ void MLOptimiser::expectation()
                                                                   ***/
                                              _para.mL));
 
+                /***
                 if (l == 0)
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points "
                                                << phase
                                                << ": "
                                                << _par[0].n();
+                                               ***/
 #endif
             }
             
@@ -3380,8 +3384,8 @@ void MLOptimiser::saveDatabase() const
                 _ctfAttr[l].Cs,
                 _ctfAttr[l].amplitudeContrast,
                 _ctfAttr[l].phaseShift,
-                "",
-                "",
+                _db.path(_ID[l]).c_str(),
+                _db.micrographPath(_ID[l]).c_str(),
                 0.0,
                 0.0,
                 _groupID[l],

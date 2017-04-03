@@ -164,6 +164,23 @@ string Database::path(const int i) const
     return string(word);
 }
 
+string Database::micrographPath(const int i) const
+{
+    fseek(_db, _offset[i], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return string(word);
+}
+
 void Database::ctf(double& voltage,
                    double& defocusU,
                    double& defocusV,
