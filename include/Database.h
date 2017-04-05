@@ -88,7 +88,7 @@ struct CTFAttr
 
     double Cs;
 
-    double amplitudeConstrast;
+    double amplitudeContrast;
 
     double phaseShift;
 };
@@ -166,6 +166,8 @@ class Database : public Parallel
         int groupID(const int i) const;
 
         string path(const int i) const;
+
+        string micrographPath(const int i) const;
         
         void ctf(double& voltage,
                  double& defocusU,

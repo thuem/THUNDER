@@ -850,11 +850,13 @@ void MLOptimiser::expectation()
             {
 #ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
 
+                /***
                 if (l == 0)
                     ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
                                                << phase
                                                << ": "
                                                << _par[0].compress();
+                                               ***/
 
                 _par[l].resample(GSL_MAX_INT(AROUND(nSampleMax
                                                   * GSL_MIN_DBL(1,
@@ -867,11 +869,13 @@ void MLOptimiser::expectation()
                                                                   ***/
                                              _para.mL));
 
+                /***
                 if (l == 0)
                     ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points "
                                                << phase
                                                << ": "
                                                << _par[0].n();
+                                               ***/
 #endif
             }
             
@@ -1113,6 +1117,9 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
 #endif
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Database";
+        saveDatabase();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
 
@@ -3339,11 +3346,63 @@ void MLOptimiser::freePreCal(const bool ctf)
     }
 }
 
-void MLOptimiser::saveDatabase(const char database[]) const
+void MLOptimiser::saveDatabase() const
 {
     IF_MASTER return;
 
-    // TODO
+    char filename[FILE_NAME_LENGTH];
+    sprintf(filename, "Meta_Round_%03d.thu", _iter);
+
+    bool flag;
+    MPI_Status status;
+    
+    if (_commRank != 1)
+        MPI_Recv(&flag, 1, MPI_C_BOOL, _commRank - 1, 0, MPI_COMM_WORLD, &status);
+
+    FILE* file = (_commRank == 1)
+               ? fopen(filename, "w")
+               : fopen(filename, "a");
+
+    int cls;
+    vec4 quat;
+    vec2 tran;
+    double df;
+
+    FOR_EACH_2D_IMAGE
+    {
+        _par[l].rank1st(cls, quat, tran, df);
+
+        fprintf(file,
+                "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
+                 %s %s %18.6f %18.6f \
+                 %6d %6d \
+                 %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f\n",
+                _ctfAttr[l].voltage,
+                _ctfAttr[l].defocusU,
+                _ctfAttr[l].defocusV,
+                _ctfAttr[l].defocusTheta,
+                _ctfAttr[l].Cs,
+                _ctfAttr[l].amplitudeContrast,
+                _ctfAttr[l].phaseShift,
+                _db.path(_ID[l]).c_str(),
+                _db.micrographPath(_ID[l]).c_str(),
+                0.0,
+                0.0,
+                _groupID[l],
+                cls,
+                quat(0),
+                quat(1),
+                quat(2),
+                quat(3),
+                tran(0),
+                tran(1),
+                0.0);
+    }
+
+    fclose(file);
+
+    if (_commRank != _commSize - 1)
+        MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
 }
 
 void MLOptimiser::saveBestProjections()

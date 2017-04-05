@@ -723,7 +723,7 @@ class MLOptimiser : public Parallel
 
         void freePreCal(const bool ctf);
 
-        void saveDatabase(const char database[]) const;
+        void saveDatabase() const;
 
         /**
          * for debug, save the best projections
