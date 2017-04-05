@@ -26,8 +26,46 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    std::cout << "Define a head." << std::endl;
+    ImageFile imf(argv[1], "r");
 
+    imf.readMetaData();
+
+    Volume ref;
+
+    imf.readVolume(ref);
+
+    FFT fft;
+
+    fft.fwMT(ref);
+
+    Projector projector;
+
+    projector.setProjectee(ref.copyVolume());
+
+    mat33 rot;
+
+    Image img(ref.nColRL(), ref.nColRL(), FT_SPACE);
+
+    char filename[FILE_NAME_LENGTH];
+
+    for (int l = 0; l < 10; l++)
+    {
+        SET_0_FT(img);
+
+        randRotate3D(rot);
+
+        projector.projectMT(img, rot);
+
+        fft.bw(img);
+
+        sprintf(filename, "Image_%d.bmp", l);
+
+        img.saveRLToBMP(filename);
+
+        fft.fw(img);
+    }
+
+    /***
     Volume head(N, N, N, RL_SPACE);
 
     VOLUME_FOR_EACH_PIXEL_RL(head)
@@ -47,4 +85,5 @@ int main(int argc, char* argv[])
         else
             head.setRL(0, i, j, k);
     }
+    ***/
 }
