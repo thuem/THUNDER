@@ -75,6 +75,7 @@
 
 #include "Parallel.h"
 #include "Utils.h"
+#include "Random.h"
 
 struct CTFAttr
 {
@@ -113,6 +114,11 @@ class Database : public Parallel
          * the offset in File of each line (particle)
          */
         vector<long> _offset;
+
+        /**
+         * the register of each particle
+         */
+        vector<int> _reg;
 
     public:
 
@@ -157,9 +163,11 @@ class Database : public Parallel
         void assign();
 
         /**
-         * record the shift of each line, prepare for late use
+         * record the shift of each line, prepare for later use
          */
         void index();
+
+        void shuffle();
 
         long offset(const int i) const;
         

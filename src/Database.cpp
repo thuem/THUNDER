@@ -125,14 +125,33 @@ void Database::index()
     MPI_Barrier(MPI_COMM_WORLD);
 }
 
+void Database::shuffle()
+{
+    _reg.resize(nParticle());
+
+    IF_MASTER
+    {
+        for (int i = 0; i < (int)_reg.size(); i++)
+            _reg[i] = i;
+
+        gsl_rng* engine = get_random_engine();
+
+        gsl_ran_shuffle(engine, &_reg[0], _reg.size(), sizeof(int));
+    }
+
+    MPI_Bcast(&_reg[0], _reg.size(), MPI_INT, MASTER_ID, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+}
+
 long Database::offset(const int i) const
 {
-    return _offset[i];
+    return _offset[_reg[i]];
 }
 
 int Database::groupID(const int i) const
 {
-    fseek(_db, _offset[i], SEEK_SET);
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
 
     char line[FILE_LINE_LENGTH];
     char* word;
@@ -149,7 +168,7 @@ int Database::groupID(const int i) const
 
 string Database::path(const int i) const
 {
-    fseek(_db, _offset[i], SEEK_SET);
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
 
     char line[FILE_LINE_LENGTH];
     char* word;
@@ -166,7 +185,7 @@ string Database::path(const int i) const
 
 string Database::micrographPath(const int i) const
 {
-    fseek(_db, _offset[i], SEEK_SET);
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
 
     char line[FILE_LINE_LENGTH];
     char* word;
@@ -190,7 +209,7 @@ void Database::ctf(double& voltage,
                    double& phaseShift,
                    const int i) const
 {
-    fseek(_db, _offset[i], SEEK_SET);
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
 
     char line[FILE_LINE_LENGTH];
     char* word;
