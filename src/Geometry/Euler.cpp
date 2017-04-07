@@ -73,12 +73,62 @@ void quaternion(vec4& dst,
 void quaternion(vec4& dst,
                 const mat33& src)
 {
-    double s = sqrt(src.trace() + 1);
+    dst(0) = 0.5 * sqrt(1 + src(0, 0) + src(1, 1) + src(2, 2));
+    dst(1) = 0.5 * sqrt(1 + src(0, 0) - src(1, 1) - src(2, 2));
+    dst(2) = 0.5 * sqrt(1 - src(0, 0) + src(1, 1) - src(2, 2));
+    dst(3) = 0.5 * sqrt(1 - src(0, 0) - src(1, 1) + src(2, 2));
 
-    dst(0) = 0.5 * s;
-    dst(1) = 0.5 * (src(2, 1) - src(1, 2)) / s;
-    dst(2) = 0.5 * (src(0, 2) - src(2, 0)) / s;
-    dst(3) = 0.5 * (src(1, 0) - src(0, 1)) / s;
+    dst(1) = copysign(dst(1), src(2, 1) - src(1, 2));
+    dst(2) = copysign(dst(2), src(0, 2) - src(2, 0));
+    dst(3) = copysign(dst(3), src(1, 0) - src(0, 1));
+
+    /***
+    if (src.trace() > 0)
+    {
+        double s = sqrt(src.trace() + 1);
+
+        dst(0) = 0.5 * s;
+        dst(1) = 0.5 * (src(2, 1) - src(1, 2)) / s;
+        dst(2) = 0.5 * (src(0, 2) - src(2, 0)) / s;
+        dst(3) = 0.5 * (src(1, 0) - src(0, 1)) / s;
+    }
+    else
+    {
+        if ((src(0, 0) > src(1, 1)) &&
+            (src(0, 0) > src(2, 2)))
+        {
+            // src(0, 0) -> biggest
+            double s = sqrt(src(0, 0) - src(1, 1) - src(2, 2) + 1);
+
+            dst(0) = 0.5 * (dst(2, 1) - dst(1, 2)) / s;
+            dst(1) = 0.5 * s;
+            dst(2) = 0.5 * (src(0, 1) + src(1, 0)) / s;
+            dst(3) = 0.5 * (src(0, 2) + src(2, 0)) / s;
+        }
+        else if (src(1, 1) > src(2, 2))
+        {
+            // src(1, 1) -> biggest
+
+            double s = sqrt(src(1, 1) - src(0, 0) - src(2, 2) + 1);
+
+            dst(0) = 0.5 * (dst(0, 2) - dst(2, 0)) / s;
+            dst(1) = 0.5 * (src(0, 1) + src(1, 0)) / s;
+            dst(2) = 0.5 * s;
+            dst(3) = 0.5 * (src(1, 2) + src(2, 1)) / s;
+        }
+        else
+        {
+            // src(2, 2) -> biggest
+
+            double s = sqrt(src(2, 2) - src(0, 0) - src(1, 1) + 1);
+
+            dst(0) = 0.5 * (dst(1, 0) - dst(0, 1)) / s;
+            dst(1) = 0.5 * (src(0, 2) + src(2, 0)) / s;
+            dst(2) = 0.5 * (src(1, 2) + src(2, 1)) / s;
+            dst(3) = 0.5 * s;
+        }
+    }
+    ***/
 }
 
 void rotate2D(mat22& dst, const vec2& vec)

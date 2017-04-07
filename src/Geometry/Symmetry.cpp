@@ -160,10 +160,13 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             {
                 rotate3D(R, angle * j, entry[i].axisPlane);
 
-                if (novo(L, R))
+                if (novo(L, R.transpose()))
                 {
-                    append(L, R);
-                    // TODO
+                    append(L, R.transpose());
+
+                    vec4 quat;
+                    quaternion(quat, R.transpose());
+                    append(quat);
                 }
             }
         }
@@ -247,6 +250,11 @@ void Symmetry::completePointGroup()
         {
             append(L, R);
 
+            vec4 quat;
+            quaternion(quat, R);
+
+            append(quat);
+
             umat tableNew = umat::Zero(table.rows() + 1,
                                        table.cols() + 1);
 
@@ -269,6 +277,11 @@ void display(const Symmetry& sym)
 
         std::cout << "L matrix:\n" << L << std::endl << std::endl;
         std::cout << "R matrix:\n" << R << std::endl << std::endl;
+
+        std::cout << "Quaternion:\n" << sym.quat(i) << std::endl << std::endl;
+
+        rotate3D(R, sym.quat(i));
+        std::cout << "R' matrix:\n" << R << std::endl << std::endl;
     }
 }
 

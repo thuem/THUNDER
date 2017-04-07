@@ -4013,7 +4013,7 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     for (int l = 0; l < n; l++)
     {
-        int gL = groupID[l] -1 ;
+        int gL = groupID[l] - 1;
 
         const Image& datL = dat[l];
         const Image& ctfL = ctf[l];

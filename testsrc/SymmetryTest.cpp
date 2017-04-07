@@ -19,7 +19,7 @@
 
 #define TEST
 
-#define SYM "I4H"
+#define SYM "I"
 
 INITIALIZE_EASYLOGGINGPP
 
