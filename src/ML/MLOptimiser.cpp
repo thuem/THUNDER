@@ -403,8 +403,8 @@ void MLOptimiser::expectation()
         }
         else if (_para.mode == MODE_3D)
         {
-            //nR = _para.mS / (1 + _sym.nSymmetryElement());
-            nR = _para.mS / _sym.nFractionSpace();
+            nR = _para.mS / (1 + _sym.nSymmetryElement());
+            //nR = _para.mS / _sym.nFractionSpace();
         }
         else
             REPORT_ERROR("INEXISTENT MODE");

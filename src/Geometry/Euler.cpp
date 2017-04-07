@@ -59,7 +59,7 @@ void angle(double& phi,
     if (psi < 0) psi += 2 * M_PI;
 }
 
-void quaternoin(vec4& dst,
+void quaternion(vec4& dst,
                 const double phi,
                 const double theta,
                 const double psi)
@@ -68,6 +68,17 @@ void quaternoin(vec4& dst,
     dst(1) = cos((phi - psi) / 2) * sin(theta / 2);
     dst(2) = sin((phi - psi) / 2) * sin(theta / 2);
     dst(3) = sin((phi + psi) / 2) * cos(theta / 2);
+}
+
+void quaternion(vec4& dst,
+                const mat33& src)
+{
+    double s = sqrt(src.trace() + 1);
+
+    dst(0) = 0.5 * s;
+    dst(1) = 0.5 * (src(2, 1) - src(1, 2)) / s;
+    dst(2) = 0.5 * (src(0, 2) - src(2, 0)) / s;
+    dst(3) = 0.5 * (src(1, 0) - src(0, 1)) / s;
 }
 
 void rotate2D(mat22& dst, const vec2& vec)

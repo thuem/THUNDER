@@ -66,10 +66,13 @@ void angle(double& phi,
  * @param theta theta
  * @param psi   psi
  */
-void quaternoin(vec4& dst,
+void quaternion(vec4& dst,
                 const double phi,
                 const double theta,
                 const double psi);
+
+void quaternion(vec4& dst,
+                const mat33& src);
 
 /**
  * This function calculates the rotation matrix given the a unit vector.

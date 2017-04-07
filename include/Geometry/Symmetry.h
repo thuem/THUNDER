@@ -98,6 +98,8 @@ class Symmetry
          */
         vector<mat33> _R;
 
+        vector<vec4> _quat;
+
     public:
 
         /**
@@ -167,13 +169,13 @@ class Symmetry
                  mat33& R,
                  const int i) const;
 
+        vec4 quat(const int i) const;
+
         /**
          * This function calculates how many symmetry elements there are in this
          * symmetry group.
          */
         int nSymmetryElement() const;
-
-        int nFractionSpace() const;
 
         /**
          * This function clears up the storage.
@@ -203,6 +205,8 @@ class Symmetry
         void append(const mat33& L,
                     const mat33& R);
 
+        void append(const vec4& quat);
+
         /**
          * This function sets the i-th left matrix and right matrix.
          *
@@ -211,6 +215,9 @@ class Symmetry
          */
         void set(const mat33& L,
                  const mat33& R,
+                 const int i);
+
+        void set(const vec4& quat,
                  const int i);
 
         /**
@@ -246,100 +253,11 @@ void display(const Symmetry& sym);
 
 bool asymmetry(const Symmetry& sym);
 
-/**
- * This function determines whether the direction given belongs to a certain
- * asymmetric unit of a point group or not.
- *
- * @param dir the direction vector
- * @param sym the symmetry group
- */
-bool asymmetryUnit(const vec3 dir,
-                   const Symmetry& sym);
-
-/**
- * This function determines whether the direction given by phi and theta
- * belongs to a certain asymmetric unit of a point group or not.
- *
- * @param phi   phi
- * @param theta theta
- * @param sym   the symmetry group
- */
-bool asymmetryUnit(const double phi,
-                   const double theta,
-                   const Symmetry& sym);
-
-/**
- * This function determines whether the direction given by phi and theta belongs
- * to a certain asymmetric unit of a point group or not.
- *
- * @param phi     phi
- * @param theta   theta
- * @param pgGroup the code of point group
- * @param pgOrder the order of point group
- */
-bool asymmetryUnit(const double phi,
-                   const double theta,
-                   const int pgGroup,
-                   const int pgOrder);
-
-/**
- * This function changes the direction given by phi and theta to the
- * corresponding direction belonging to a certain asymetric unit.
- *
- * @param phi   phi
- * @param theta theta
- * @param sym   the symmetry group
- */
-void symmetryCounterpart(double& phi,
-                         double& theta,
+void symmetryCounterpart(vec4& quat,
                          const Symmetry& sym);
 
-/**
- * This function changes the direction given by a 3-vector to the corresponding
- * direction belonging to a certain asymetric unit.
- *
- * @param ex  the 1st element of the direction vector
- * @param ey  the 2nd element of the direction vector
- * @param ez  the 3rd element of the direction vector
- * @param sym the symmetry group
- */
-void symmetryCounterpart(double& ex,
-                         double& ey,
-                         double& ez,
-                         const Symmetry& sym);
-
-/**
- * This function generates all corresponding rotation matrices of a rotation
- * matrix for a given symmetry group.
- *
- * @param sr  the corresponding rotation matrices
- * @param rot the rotation matrix
- * @param sym the symmety group
- */
 void symmetryRotation(vector<mat33>& sr,
                       const mat33 rot,
                       const Symmetry* sym = NULL);
-
-/***
-void angleSymmetryC(double& phi,
-                    double& theta,
-                    double& psi,
-                    const vec4& src,
-                    const int fold);
-
-void angleSymmetryD(double& phi,
-                    double& theta,
-                    double& psi,
-                    const vec4& src,
-                    const int fold);
-
-void rotate3DSymmetryC(mat33& dst,
-                       const vec4& src,
-                       const int fold);
-
-void rotate3DSymmetryD(mat33& dst,
-                       const vec4& src,
-                       const int fold);
-***/
 
 #endif // SYMMETRY_H

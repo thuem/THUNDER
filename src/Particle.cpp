@@ -1039,6 +1039,7 @@ void Particle::symmetrise()
 
     for (int i = 0; i < _n; i++)
     {
+        /***
         vec4 quat = _r.row(i).transpose();
         
         angle(phi, theta, psi, quat);
@@ -1047,6 +1048,7 @@ void Particle::symmetrise()
 
         quaternoin(quat, phi, theta, psi);
         _r.row(i) = quat.transpose();
+        ***/
     }
 }
 

@@ -51,6 +51,8 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
     {
         that.get(L, R, i);
         append(L, R);
+
+        append(that.quat(i));
     }
 
     return *this;
@@ -81,69 +83,14 @@ void Symmetry::get(mat33& L,
     R = _R[i];
 }
 
+vec4 Symmetry::quat(const int i) const
+{
+    return _quat[i];
+}
+
 int Symmetry::nSymmetryElement() const
 {
     return _L.size();
-}
-
-int Symmetry::nFractionSpace() const
-{
-    switch (_pgGroup)
-    {
-        case PG_CN:
-            return _pgOrder;
-        
-        case PG_CI:
-        case PG_CS:
-            return 2;
-
-        case PG_CNV:
-            return 4;
-
-        case PG_CNH:
-            return _pgOrder * 2;
-        
-        case PG_SN:
-            return _pgOrder;
-
-        case PG_DN:
-            return _pgOrder * 2;
-
-        case PG_DNV:
-        case PG_DNH:
-            return _pgOrder * 4;
-
-        case PG_T:
-            return 4;
-
-        case PG_TD:
-        case PG_TH:
-            return 8;
-
-        case PG_O:
-            return 8;
-
-        case PG_OH:
-            return 16;
-
-        case PG_I:
-        case PG_I2:
-        case PG_I1:
-        case PG_I3:
-        case PG_I4:
-            return 20;
-
-        case PG_IH:
-        case PG_I2H:
-        case PG_I1H:
-        case PG_I3H:
-        case PG_I4H:
-            return 40;
-
-        default:
-            CLOG(FATAL, "LOGGER_SYS") << "UNKNOWN SYMMETRY";
-            abort();
-    }
 }
 
 void Symmetry::clear()
@@ -176,12 +123,23 @@ void Symmetry::append(const mat33& L,
     _R.push_back(R);
 }
 
+void Symmetry::append(const vec4& quat)
+{
+    _quat.push_back(quat);
+}
+
 void Symmetry::set(const mat33& L,
                    const mat33& R,
                    const int i)
 {
     _L[i] = L;
     _R[i] = R;
+}
+
+void Symmetry::set(const vec4& quat,
+                   const int i)
+{
+    _quat[i] = quat;
 }
 
 void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
@@ -202,13 +160,17 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             {
                 rotate3D(R, angle * j, entry[i].axisPlane);
 
-                //if (novo(L, R)) append(L, R.transpose());
-                if (novo(L, R)) append(L, R);
-                //append(L, R);
+                if (novo(L, R))
+                {
+                    append(L, R);
+                    // TODO
+                }
             }
         }
         else if (entry[i].id == 1)
         {
+            CLOG(FATAL, "LOGGER_SYS") << "WRONG!";
+
             // reflexion
 
             reflect3D(R, entry[i].axisPlane);
@@ -216,6 +178,8 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
         }
         else if (entry[i].id == 2)
         {
+            CLOG(FATAL, "LOGGER_SYS") << "WRONG!";
+
             // inversion
             
             /* L -> [ 1  0  0]
@@ -317,155 +281,10 @@ bool asymmetry(const Symmetry& sym)
         return false;
 }
 
-bool asymmetryUnit(const vec3 dir,
-                   const Symmetry& sym)
-{
-    double phi, theta;
-    angle(phi, theta, dir);
-    return asymmetryUnit(phi, theta, sym);
-}
-
-bool asymmetryUnit(const double phi,
-                   const double theta,
-                   const Symmetry& sym)
-{
-    return asymmetryUnit(phi, theta, sym.pgGroup(), sym.pgOrder());
-}
-
-bool asymmetryUnit(const double phi,
-                   const double theta,
-                   const int pgGroup,
-                   const int pgOrder)
-{
-    // basic range check
-    if ((phi < 0) ||
-        (phi >= 2 * M_PI) ||
-        (theta < 0) ||
-        (theta > M_PI))
-        return false;
-
-    switch (pgGroup)
-    {
-        case PG_CN:
-            return (phi <= 2 * M_PI / pgOrder);
-        
-        case PG_CI:
-        case PG_CS:
-            return (theta <= M_PI / 2);
-
-        case PG_CNV:
-            return (phi <= M_PI / pgOrder);
-
-        case PG_CNH:
-            return ((phi <= 2 * M_PI / pgOrder) &&
-                    (theta <= M_PI / 2));
-        
-        case PG_SN:
-            return ((phi <= 4 * M_PI / pgOrder) &&
-                    (theta <= M_PI / 2));
-
-        case PG_DN:
-            return ((phi >= M_PI / 2) &&
-                    (phi <= 2 * M_PI / pgOrder + M_PI / 2) &&
-                    (theta <= M_PI / 2));
-
-        case PG_DNV:
-        case PG_DNH:
-            return ((phi >= M_PI / 2) &&
-                    (phi <= M_PI / pgOrder + M_PI / 2) &&
-                    (theta <= M_PI / 2));
-
-        case PG_T:
-            return ASY_3(T, phi, theta);
-
-        case PG_TD:
-            return ASY_3(TD, phi, theta);
-
-        case PG_TH:
-            return ASY_3(TH, phi, theta);
-
-        case PG_O:
-            return ((phi >= M_PI / 4) &&
-                    (phi <= 3 * M_PI / 4) &&
-                    (theta <= M_PI / 2) &&
-                    ASY_3(O, phi, theta));
-
-        case PG_OH:
-            return ((phi >= 3 * M_PI / 2) &&
-                    (phi <= 7 * M_PI / 4) &&
-                    (theta <= M_PI / 2) &&
-                    ASY_3(O, phi, theta));
-
-        case PG_I:
-        case PG_I2:
-            return ASY_3(I2, phi, theta);
-
-        case PG_I1:
-            return ASY_3(I1, phi, theta);
-
-        case PG_I3:
-            return ASY_3(I3, phi, theta);
-
-        case PG_I4:
-            return ASY_3(I4, phi, theta);
-
-        case PG_IH:
-        case PG_I2H:
-            return ASY_4(I2H, phi, theta);
-
-        case PG_I1H:
-            return ASY_4(I1H, phi, theta);
-
-        case PG_I3H:
-            return ASY_4(I3H, phi, theta);
-
-        case PG_I4H:
-            return ASY_4(I4H, phi, theta);
-
-        default:
-            CLOG(FATAL, "LOGGER_SYS") << "UNKNOWN SYMMETRY";
-            abort();
-    }
-    abort();
-}
-
-void symmetryCounterpart(double& phi,
-                         double& theta,
+void symmetryCounterpart(vec4& quat,
                          const Symmetry& sym)
 {
-    vec3 dir;
-    direction(dir, phi, theta);
-    symmetryCounterpart(dir(0), dir(1), dir(2), sym);
-    angle(phi, theta, dir);
-}
-
-void symmetryCounterpart(double& ex,
-                         double& ey,
-                         double& ez,
-                         const Symmetry& sym)
-{
-    vec3 dir(ex, ey, ez);
-    if (asymmetryUnit(dir, sym)) return;
-
-    mat33 L, R;
-    vec3 newDir;
-
-    for (int i = 0; i < sym.nSymmetryElement(); i++)
-    {
-        sym.get(L, R, i);
-        newDir = R * dir;
-
-        if (asymmetryUnit(newDir, sym))
-        {
-            ex = newDir(0);
-            ey = newDir(1);
-            ez = newDir(2);
-
-            return;
-        }
-    }
-
-    CLOG(WARNING, "LOGGER_SYS") << "Unable to find SymmetryCounterpart";
+    // TODO
 }
 
 void symmetryRotation(vector<mat33>& sr,
