@@ -17,9 +17,11 @@
 
 //#define TEST_SAME_MATRIX
 
-#define TEST
+#define TEST_COUNTERPART
 
-#define SYM "I"
+//#define TEST
+
+#define SYM "O"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -55,6 +57,16 @@ int main(int argc, const char* argv[])
     //std::cout << (sqrt((A - B).colwise().squaredNorm().sum()) << std::endl;
 
     std::cout << SAME_MATRIX(A, B) << std::endl;
+#endif
+
+#ifdef TEST_COUNTERPART
+    Symmetry sym(SYM);
+
+    vec4 quat(0, 0, 1, 0);
+
+    symmetryCounterpart(quat, sym);
+
+    std::cout << quat << std::endl;
 #endif
 
 #ifdef TEST

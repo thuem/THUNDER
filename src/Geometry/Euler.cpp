@@ -71,12 +71,22 @@ void quaternion(vec4& dst,
 }
 
 void quaternion(vec4& dst,
+                const double phi,
+                const vec3& axis)
+{
+    dst(0) = cos(phi / 2);
+    dst(1) = sin(phi / 2) * axis(0);
+    dst(2) = sin(phi / 2) * axis(1);
+    dst(3) = sin(phi / 2) * axis(2);
+}
+
+void quaternion(vec4& dst,
                 const mat33& src)
 {
-    dst(0) = 0.5 * sqrt(1 + src(0, 0) + src(1, 1) + src(2, 2));
-    dst(1) = 0.5 * sqrt(1 + src(0, 0) - src(1, 1) - src(2, 2));
-    dst(2) = 0.5 * sqrt(1 - src(0, 0) + src(1, 1) - src(2, 2));
-    dst(3) = 0.5 * sqrt(1 - src(0, 0) - src(1, 1) + src(2, 2));
+    dst(0) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 + src(0, 0) + src(1, 1) + src(2, 2)));
+    dst(1) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 + src(0, 0) - src(1, 1) - src(2, 2)));
+    dst(2) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 - src(0, 0) + src(1, 1) - src(2, 2)));
+    dst(3) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 - src(0, 0) - src(1, 1) + src(2, 2)));
 
     dst(1) = copysign(dst(1), src(2, 1) - src(1, 2));
     dst(2) = copysign(dst(2), src(0, 2) - src(2, 0));
@@ -313,6 +323,13 @@ void rotate3D(mat33& dst,
               const double phi,
               const vec3& axis)
 {
+    vec4 quat;
+
+    quaternion(quat, phi, axis);
+
+    rotate3D(dst, quat);
+
+    /***
     mat33 A, R;
 
     alignZ(A, axis);
@@ -320,6 +337,7 @@ void rotate3D(mat33& dst,
     rotate3DZ(R, phi);
 
     dst = A.transpose() * R * A;
+    ***/
 }
 
 void reflect3D(mat33& dst,

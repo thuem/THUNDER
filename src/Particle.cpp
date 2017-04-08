@@ -1033,12 +1033,16 @@ void Particle::symmetrise()
 
     if (asymmetry(*_sym)) return;
 
-    double phi, theta, psi;
-
     vec4 quat;
 
     for (int i = 0; i < _n; i++)
     {
+        vec4 quat = _r.row(i).transpose();
+
+        symmetryCounterpart(quat, *_sym);
+
+        _r.row(i) = quat.transpose();
+
         /***
         vec4 quat = _r.row(i).transpose();
         

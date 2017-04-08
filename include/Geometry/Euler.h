@@ -71,6 +71,17 @@ void quaternion(vec4& dst,
                 const double theta,
                 const double psi);
 
+/**
+ * This function calculates the quaternion given rotation angle and rotation axis.
+ *
+ * @param dst  the quaternion to be calculated
+ * @param phi  the rotation angle
+ * @param axis the rotation axis (unit vector)
+ */
+void quaternion(vec4& dst,
+                const double phi,
+                const vec3& axis);
+
 void quaternion(vec4& dst,
                 const mat33& src);
 

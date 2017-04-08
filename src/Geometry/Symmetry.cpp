@@ -160,6 +160,16 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
             {
                 rotate3D(R, angle * j, entry[i].axisPlane);
 
+                if (novo(L, R))
+                {
+                    append(L, R);
+
+                    vec4 quat;
+                    quaternion(quat, R);
+                    append(quat);
+                }
+
+                /***
                 if (novo(L, R.transpose()))
                 {
                     append(L, R.transpose());
@@ -168,6 +178,7 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
                     quaternion(quat, R.transpose());
                     append(quat);
                 }
+                ***/
             }
         }
         else if (entry[i].id == 1)
@@ -294,10 +305,29 @@ bool asymmetry(const Symmetry& sym)
         return false;
 }
 
-void symmetryCounterpart(vec4& quat,
+void symmetryCounterpart(vec4& dst,
                          const Symmetry& sym)
 {
-    // TODO
+    vec4 q = dst;
+
+    // compare with (1, 0, 0, 0)
+    double s = fabs(q(0));
+
+    vec4 p;
+
+    for (int i = 0; i < sym.nSymmetryElement(); i++)
+    {
+        quaternion_mul(p, dst, sym.quat(i));
+
+        if (fabs(p(0)) > s)
+        {
+            s = fabs(p(0));
+
+            q = p;
+        }
+    }
+
+    dst = q;
 }
 
 void symmetryRotation(vector<mat33>& sr,

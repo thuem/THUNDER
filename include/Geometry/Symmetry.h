@@ -23,6 +23,8 @@
 #include "SymmetryOperation.h"
 #include "SymmetryFunctions.h"
 
+#include "Functions.h"
+
 /**
  * Maximum ID Length of Symmetry
  * Example: C5, C4H, O, I, D2V
