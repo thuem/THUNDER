@@ -707,17 +707,17 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mL * _para.ctfRefineFactor,
                                  ALPHA_LOCAL_SEARCH);
 
-                /***
                 if (_para.perturbFactorL != 0)
                     _par[l].perturb(_para.perturbFactorL,
                                     _para.perturbFactorL,
                                     _para.perturbFactorL);
-                ***/
 
-                //_par[l].initD(_para.ctfRefineS);
+                _par[l].initD(_para.ctfRefineS);
 
+                /**
                 if (_model.searchTypePrev() == SEARCH_TYPE_LOCAL)
                     _par[l].initD(_para.ctfRefineS);
+                ***/
             }
             else
             {
