@@ -3181,7 +3181,7 @@ void MLOptimiser::solventFlatten(const bool mask)
 
                 softMask(ref,
                          ref, 
-                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                         _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
                          0);
 
@@ -3191,7 +3191,7 @@ void MLOptimiser::solventFlatten(const bool mask)
             {
                 softMask(_model.ref(t),
                          _model.ref(t),
-                         _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                         _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
                          0);
             }
