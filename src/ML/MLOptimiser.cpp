@@ -1790,7 +1790,7 @@ void MLOptimiser::substractBgImg()
         bgMeanStddev(bgMean,
                      bgStddev,
                      _img[l],
-                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
+                     _para.maskRadius / _para.pixelSize);
 
         FOR_EACH_PIXEL_RL(_img[l])
         {
@@ -1823,7 +1823,7 @@ void MLOptimiser::maskImg()
         FOR_EACH_2D_IMAGE
             softMask(_img[l],
                      _img[l],
-                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                     _para.maskRadius / _para.pixelSize,
                      EDGE_WIDTH_RL,
                      0);
     }
@@ -1833,7 +1833,7 @@ void MLOptimiser::maskImg()
         FOR_EACH_2D_IMAGE
             softMask(_img[l],
                      _img[l],
-                     _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                     _para.maskRadius / _para.pixelSize,
                      EDGE_WIDTH_RL,
                      0,
                      _stdN);
@@ -2492,7 +2492,7 @@ void MLOptimiser::reMaskImg()
         Image mask(_para.size, _para.size, RL_SPACE);
 
         softMask(mask,
-                 _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL,
+                 _para.maskRadius / _para.pixelSize,
                  EDGE_WIDTH_RL);
 
         FOR_EACH_2D_IMAGE
