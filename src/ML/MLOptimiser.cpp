@@ -1282,10 +1282,8 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
-        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
-        ***/
 
         NT_MASTER
         {
@@ -1734,7 +1732,7 @@ void MLOptimiser::statImg()
         #pragma omp atomic
         _stdN += bgStddev(0,
                           _img[l],
-                          _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
+                          _para.maskRadius / _para.pixelSize);
 
         #pragma omp atomic
         _stdD += stddev(0, _img[l]);
@@ -1742,7 +1740,7 @@ void MLOptimiser::statImg()
         #pragma omp atomic
         _stdStdN += gsl_pow_2(bgStddev(0,
                                        _img[l],
-                                       _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL));
+                                       _para.maskRadius / _para.pixelSize));
     }
 
     MPI_Barrier(_hemi);
