@@ -1282,8 +1282,10 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
+        ***/
 
         NT_MASTER
         {
