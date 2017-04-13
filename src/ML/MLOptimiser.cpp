@@ -121,8 +121,8 @@ void MLOptimiser::init()
     //_rL = 1.5;
     //_rL = 3.5;
     //_rL = 6;
-    _rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
-    //_rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
+    //_rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
+    _rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
@@ -1282,10 +1282,8 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
-        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
-        ***/
 
         NT_MASTER
         {
