@@ -358,8 +358,8 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    //int nSampleMax = _para.k * _para.mG;
-    int nSampleMax = 100;
+    int nSampleMax = _para.k * _para.mG;
+    //int nSampleMax = 100;
     /***
     if (_para.mode == MODE_2D)
     {
@@ -606,7 +606,8 @@ void MLOptimiser::expectation()
             ***/
 
             // resample
-            _par[l].resample(_para.mG);
+            //_par[l].resample(_para.mG);
+            _par[l].resample();
 
             // calculation variance
             _par[l].calVari();
