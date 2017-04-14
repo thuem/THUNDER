@@ -133,6 +133,13 @@ void Postprocess::run()
     
     mergeAB();
 
+    fft.bw(_mapI);
+
+    imf.readMetaData(_mapI);
+    imf.writeVolume("Reference_Average.mrc", _mapI, _pixelSize);
+
+    fft.fw(_mapI);
+
     CLOG(INFO, "LOGGER_SYS") << "Applying FSC Weighting";
 
     fscWeightingFilter(_mapI, _mapI, _FSC);
