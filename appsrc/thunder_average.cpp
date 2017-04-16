@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     Volume refA;
     imfA.readVolume(refA);
 
-    ImageFile imfB(argv[2], "rb");
+    ImageFile imfB(argv[3], "rb");
     imfB.readMetaData();
 
     Volume refB;
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
     ImageFile imf;
     imf.readMetaData(refA);
-    imf.writeVolume(argv[1], refA);
+    imf.writeVolume(argv[1], refA, atof(argv[4]));
 
     return 0;
 }
