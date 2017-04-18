@@ -3420,7 +3420,7 @@ void MLOptimiser::saveDatabase() const
                 quat(3),
                 tran(0),
                 tran(1),
-                0.0);
+                _par[l].compress());
     }
 
     fclose(file);
