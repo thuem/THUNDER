@@ -564,7 +564,7 @@ void MLOptimiser::expectation()
             double c = 0;
             for (int i = v.size() - 1; i >= 0; i--)
             {
-                if (c < s * 0.999)
+                if (c < s * 0.9999)
                 {
                     c += exp(v(i));
                 }
