@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 
     loggerInit(argc, argv);
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialsing Processes";
+    CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
 
     MPI_Init(&argc, &argv);
 
