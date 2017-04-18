@@ -126,7 +126,8 @@ int main(int argc, char* argv[])
     fftw_init_threads();
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
-    fftw_set_timelimit(300);
+    //fftw_set_timelimit(300);
+    fftw_set_timelimit(60);
 
     Json::Reader reader;
     Json::Value root;

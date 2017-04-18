@@ -561,7 +561,8 @@ void Particle::perturb(const double pfT,
     {
         vec4 quat = _r.row(i).transpose();
         vec4 pert = d.row(i).transpose();
-        quaternion_mul(quat, quat, pert);
+        //quaternion_mul(quat, quat, pert);
+        quaternion_mul(quat, pert, quat);
         _r.row(i) = quat.transpose();
     }
 
