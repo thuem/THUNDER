@@ -88,6 +88,18 @@ void quaternion_mul(vec4& dst,
     dst[3] = z;
 }
 
+vec4 quaternion_conj(const vec4& quat)
+{
+    vec4 conj;
+
+    conj << quat(0),
+            -quat(1),
+            -quat(2),
+            -quat(3);
+
+    return conj;
+}
+
 double MKB_FT(const double r,
               const double a,
               const double alpha)

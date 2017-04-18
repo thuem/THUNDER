@@ -14,7 +14,9 @@
 
 //#define QUATERNION_MATRIX_TEST
 
-#define QUATERNION_MUL_TEST
+//#define QUATERNION_MUL_TEST
+
+#define QUATERNION_ROTATE_TEST
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -68,6 +70,30 @@ int main(int argc, char* argv[])
     rotate3D(rot, quat);
 
     std::cout << "rotation matix of (quat2 * quat1) = \n" << rot << std::endl;
+
+#endif
+
+#ifdef QUATERNION_ROTATE_TEST
+
+    mat33 rot;
+    randRotate3D(rot);
+
+    vec4 quat;
+    quaternion(quat, rot);
+
+    vec3 v;
+    v << 0.6, 0.8, 0;
+
+    std::cout << rot * v << std::endl;
+
+    //vec4 a = vec4({0, 0.6, 0.8, 0});
+    vec4 a;
+    a << 0, 0.6, 0.8, 0;
+
+    quaternion_mul(a, quat, a);
+    quaternion_mul(a, a, quaternion_conj(quat));
+
+    std::cout << a << std::endl;
 
 #endif
 
