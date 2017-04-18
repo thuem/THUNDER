@@ -557,6 +557,21 @@ void MLOptimiser::expectation()
         {
             vec v = topW.col(l);
 
+            double s = 0;
+            for (int i = 0; i < v.size(); i++)
+                s += exp(v(i));
+
+            double c = 0;
+            for (int i = v.size() - 1; i >= 0; i--)
+            {
+                if (c < s * 0.99)
+                {
+                    c += exp(v(i));
+                }
+                else
+                    v(i) = -GSL_DBL_MAX;
+            }
+
             PROCESS_LOGW_SOFT(v);
             //PROCESS_LOGW_HARD(v);
 
