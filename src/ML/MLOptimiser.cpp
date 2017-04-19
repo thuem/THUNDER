@@ -1654,7 +1654,6 @@ void MLOptimiser::initImg()
 #endif
 #endif
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
     BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
 
@@ -1690,7 +1689,6 @@ void MLOptimiser::initImg()
     ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
     BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
 #endif
-    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
@@ -1704,7 +1702,6 @@ void MLOptimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "2D Images Masked";
 #endif
 
-    /***
     ALOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
     BLOG(INFO, "LOGGER_INIT") << "Normalising 2D Images, Making the Noise Have Standard Deviation of 1";
 
@@ -1728,7 +1725,6 @@ void MLOptimiser::initImg()
     ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images After Normalising Displayed";
     BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images After Normalising Displayed";
 #endif
-    ***/
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";

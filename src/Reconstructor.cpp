@@ -623,6 +623,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                  << avg(avg.size() - 2) << ", "
                                  << avg(avg.size() - 1);
         BLOG(INFO, "LOGGER_SYS") << "End of Avg = "
+                                 << avg(avg.size() - 5) << ", "
                                  << avg(avg.size() - 4) << ", "
                                  << avg(avg.size() - 3) << ", "
                                  << avg(avg.size() - 2) << ", "
