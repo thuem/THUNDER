@@ -125,6 +125,11 @@ void MLOptimiser::init()
     _rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
 
     MLOG(INFO, "LOGGER_INIT") << "Checking Radius of Mask";
+
+    CLOG(INFO, "LOGGER_SYS") << "_para.size / 2 = " << _para.size / 2;
+    CLOG(INFO, "LOGGER_SYS") << "CEIL(_para.maskRadius / _para.pxielSize) = "
+                             << CEIL(_para.maskRadius / _para.pixelSize);
+
     if (_para.size / 2 - CEIL(_para.maskRadius / _para.pixelSize) < 1)
         REPORT_ERROR("INPROPER RADIUS OF MASK");
 
