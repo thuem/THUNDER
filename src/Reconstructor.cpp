@@ -821,7 +821,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F2D.setRL(_F2D.getRL(i, j)
-                     * TIK_RL(NORM(i, j) / PAD_SIZE),
+                     / TIK_RL(NORM(i, j) / PAD_SIZE),
                        i,
                        j);
 #endif
@@ -845,7 +845,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F3D.setRL(_F3D.getRL(i, j, k)
-                     * TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
+                     / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
                        i,
                        j,
                        k);
