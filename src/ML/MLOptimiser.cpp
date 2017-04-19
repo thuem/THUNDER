@@ -1038,9 +1038,11 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+    /***
     MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
     normCorrection();
+    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
@@ -1312,8 +1314,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN
+
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
         solventFlatten(_para.performMask);
+
+#endif
 
         NT_MASTER
         {
