@@ -117,12 +117,12 @@ void MLOptimiser::init()
                               << " Angstrom will be Ingored during Comparison";
 
                               ***/
-    _rL = 0;
+    //_rL = 0;
     //_rL = 1.5;
     //_rL = 3.5;
     //_rL = 6;
     //_rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
-    //_rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
+    _rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL

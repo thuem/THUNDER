@@ -17,11 +17,11 @@
 
 //#define TEST_SAME_MATRIX
 
-#define TEST_COUNTERPART
+//#define TEST_COUNTERPART
 
-//#define TEST
+#define TEST
 
-#define SYM "O"
+#define SYM "C15"
 
 INITIALIZE_EASYLOGGINGPP
 
