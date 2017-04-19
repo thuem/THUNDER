@@ -3175,10 +3175,24 @@ void MLOptimiser::solventFlatten(const bool mask)
         FFT fft;
         fft.bwMT(_model.ref(t));
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN_SUBTRACT_BG
+        ALOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
+
+        double bg = background(_model.ref(t),
+                               _para.maskRadius / _para.pixelSize,
+                               EDGE_WIDTH_RL);
+
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_RL(_model.ref(t))
+            (_model.ref(t))(i) -= bg;
+#endif
+
 #ifdef OPTIMISER_SOLVENT_FLATTEN_REMOVE_NEG
         ALOG(INFO, "LOGGER_ROUND") << "Removing Negative Values from Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Removing Negative Values from Reference " << t;
 
+        #pragma omp parallel for
         REMOVE_NEG(_model.ref(t));
 #endif
 
