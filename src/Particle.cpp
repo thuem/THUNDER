@@ -571,7 +571,7 @@ void Particle::perturb(const double pfT,
     for (int i = 0; i < _d.size(); i++)
         _d(i) += gsl_ran_gaussian(engine, _s) * pfD;
 
-    reCentre();
+    // reCentre();
 }
 
 void Particle::resample(const double alpha)
