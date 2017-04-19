@@ -124,6 +124,10 @@ void MLOptimiser::init()
     //_rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
     _rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
 
+    MLOG(INFO, "LOGGER_INIT") << "Checking Radius of Mask";
+    if (_para.size / 2 - CEIL(_para.maskRadius / _para.pixelSize) < 1)
+        REPORT_ERROR("INPROPER RADIUS OF MASK");
+
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _rL
                               << " Pixels in Fourier Space will be Ignored during Comparison";
@@ -3176,6 +3180,7 @@ void MLOptimiser::solventFlatten(const bool mask)
         BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
 
         double bg = background(_model.ref(t),
+                               _para.size / 2,                               
                                _para.maskRadius / _para.pixelSize,
                                EDGE_WIDTH_RL);
 

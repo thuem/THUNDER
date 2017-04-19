@@ -157,6 +157,44 @@ double background(const Volume& vol,
     return sum / weightSum;
 }
 
+double background(const Volume& vol,
+                  const double rU,
+                  const double rL,
+                  const double ew)
+{
+    double weightSum = 0;
+    double sum = 0;
+    
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
+    {
+        double u = NORM_3(i, j, k);
+
+        if ((u > rL + ew) &&
+            (u < rU))
+        {
+            #pragma omp atomic
+            weightSum += 1;
+
+            #pragma omp atomic
+            sum += vol.getRL(i, j, k);
+        }
+        else if ((u >= rL) &&
+                 (u < rU))
+        {
+            double w = 0.5 - 0.5 * cos((u - rL) / ew * M_PI); // portion of background
+
+            #pragma omp atomic
+            weightSum += w;
+
+            #pragma omp atomic
+            sum += vol.getRL(i, j, k) * w;
+        }
+    }
+
+    return sum / weightSum;
+}
+
 /***
 void directSoftMask(Image& dst,
                     const Image& src,

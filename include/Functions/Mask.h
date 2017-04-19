@@ -83,6 +83,11 @@ double background(const Volume& vol,
 double background(const Volume& vol,
                   const Volume& alpha);
 
+double background(const Volume& vol,
+                  const double rU,
+                  const double rL,
+                  const double ew);
+
 void softMask(Image& mask,
               const double r,
               const double ew);
