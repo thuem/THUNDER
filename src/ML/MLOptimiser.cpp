@@ -3187,9 +3187,14 @@ void MLOptimiser::solventFlatten(const bool mask)
         BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
 
         double bg = background(_model.ref(t),
+                               _para.maskRadius / _para.pixelSize,
+                               EDGE_WIDTH_RL);
+        /***
+        double bg = background(_model.ref(t),
                                _para.size / 2,                               
                                _para.maskRadius / _para.pixelSize,
                                EDGE_WIDTH_RL);
+                               ***/
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_RL(_model.ref(t))
