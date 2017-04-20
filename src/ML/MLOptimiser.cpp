@@ -369,7 +369,7 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    int nSampleMax = _para.k * _para.mG;
+    //int nSampleMax = _para.k * _para.mG;
     //int nSampleMax = 100;
     /***
     if (_para.mode == MODE_2D)
@@ -426,6 +426,9 @@ void MLOptimiser::expectation()
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
+
+        // TODO
+        nSampleMax = nR * nT;
 
         Particle par;
         par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
@@ -633,9 +636,8 @@ void MLOptimiser::expectation()
             _par[l].shuffle();
             ***/
 
-            // resample
-            //_par[l].resample(_para.mG);
-            _par[l].resample();
+            _par[l].resample(_para.mG);
+            //_par[l].resample();
 
             // calculation variance
             _par[l].calVari();
