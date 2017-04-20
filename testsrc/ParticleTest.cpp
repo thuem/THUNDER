@@ -23,8 +23,8 @@ int main()
 #endif
 
 #ifdef PARTICLE_TEST_3D
-    Symmetry sym("C15");
-    //Symmetry sym("O");
+    //Symmetry sym("C15");
+    Symmetry sym("O");
 
     Particle par(MODE_3D, 1, N, 5, 0.01, &sym);
 
