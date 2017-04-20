@@ -23,7 +23,7 @@
 
 //#define TEST
 
-#define SYM "C15"
+#define SYM "C2"
 
 #define N 1000
 
