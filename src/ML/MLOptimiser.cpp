@@ -428,7 +428,7 @@ void MLOptimiser::expectation()
                                   * _para.transSearchFactor));
 
         // TODO
-        nSampleMax = nR * nT;
+        int nSampleMax = nR * nT;
 
         Particle par;
         par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
