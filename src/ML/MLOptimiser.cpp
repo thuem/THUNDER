@@ -369,6 +369,7 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
+    int nSampleMax = _para.mG;
     //int nSampleMax = _para.k * _para.mG;
     //int nSampleMax = 100;
     /***
@@ -426,9 +427,6 @@ void MLOptimiser::expectation()
                                   * gsl_pow_2(_para.transS
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
-
-        // TODO
-        int nSampleMax = nR * nT;
 
         Particle par;
         par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
