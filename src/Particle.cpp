@@ -1082,15 +1082,18 @@ void display(const Particle& par)
     int c;
     vec4 q;
     vec2 t;
+    double d;
     for (int i = 0; i < par.n(); i++)
     {
         par.c(c, i);
         par.quaternion(q, i);
         par.t(t, i);
-        printf("%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+        par.d(d, i);
+        printf("%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                c,
                q(0), q(1), q(2), q(3),
                t(0), t(1),
+               d,
                par.w(i));
     }
 }

@@ -17,11 +17,15 @@
 
 //#define TEST_SAME_MATRIX
 
-//#define TEST_COUNTERPART
+#define TEST_COUNTERPART
 
-#define TEST
+//#define ANCHOR_POINT
+
+//#define TEST
 
 #define SYM "C15"
+
+#define N 1000
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -62,11 +66,43 @@ int main(int argc, const char* argv[])
 #ifdef TEST_COUNTERPART
     Symmetry sym(SYM);
 
-    vec4 quat(0, 0, 1, 0);
+    for (int i = 0; i < N; i++)
+    {
+        vec4 quat;
+        randQuaternion(quat);
 
-    symmetryCounterpart(quat, sym);
+        //std::cout << quat << std::endl << std::endl;
 
-    std::cout << quat << std::endl;
+        symmetryCounterpart(quat, sym);
+
+        //std::cout << quat << std::endl << std::endl;
+
+        // vec4 r(0, 1, 0, 0);
+        
+        vec4 r;
+
+        quaternion_mul(r, quat, ANCHOR_POINT);
+        quaternion_mul(r, r, quaternion_conj(quat));
+
+        //std::cout << r.dot(ANCHOR_POINT) << std::endl;
+
+        printf("%15.6lf %15.6lf %15.6lf\n",
+               r(1),
+               r(2),
+               r(3));
+    }
+#endif
+
+#ifdef ANCHOR_POINT
+    gsl_rng* engine = get_random_engine();
+
+    vec3 v(gsl_ran_gaussian(engine, 1),
+           gsl_ran_gaussian(engine, 1),
+          gsl_ran_gaussian(engine, 1));
+
+    v /= v.norm();
+
+    std::cout << v << std::endl;
 #endif
 
 #ifdef TEST

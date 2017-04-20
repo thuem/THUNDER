@@ -223,12 +223,16 @@ void translate3D(mat44& dst,
 void scale3D(mat33& dst,
              const vec3& vec);
 
+void randDirection(vec2& dir);
+
 /**
  * This function generates a random unit quaternion.
  */
 //void randQuaternion(vec4& quat);
 
 void randRotate2D(mat22& rot);
+
+void randQuaternion(vec4& quat);
 
 /**
  * This function generates a random 3D rotation matrix.

@@ -381,28 +381,41 @@ void randQuaternion(vec4& quat)
 }
 ***/
 
-void randRotate2D(mat22& rot)
+void randDirection(vec2& dir)
 {
     gsl_rng* engine = get_random_engine();
 
-    vec2 vec(gsl_ran_gaussian(engine, 1),
-             gsl_ran_gaussian(engine, 1));
+    dir(0) = gsl_ran_gaussian(engine, 1);
+    dir(1) = gsl_ran_gaussian(engine, 1);
 
-    vec /= vec.norm();
+    dir /= dir.norm();
+}
+
+void randRotate2D(mat22& rot)
+{
+    vec2 dir;
+    randDirection(dir);
     
-    rotate2D(rot, vec);
+    rotate2D(rot, dir);
+}
+
+void randQuaternion(vec4& quat)
+{
+    gsl_rng* engine = get_random_engine();
+
+    quat(0) = gsl_ran_gaussian(engine, 1);
+    quat(1) = gsl_ran_gaussian(engine, 1);
+    quat(2) = gsl_ran_gaussian(engine, 1);
+    quat(3) = gsl_ran_gaussian(engine, 1);
+
+    quat /= quat.norm();
 }
 
 void randRotate3D(mat33& rot)
 {
-    gsl_rng* engine = get_random_engine();
+    vec4 quat;
 
-    vec4 vec(gsl_ran_gaussian(engine, 1),
-             gsl_ran_gaussian(engine, 1),
-             gsl_ran_gaussian(engine, 1),
-             gsl_ran_gaussian(engine, 1));
+    randQuaternion(quat);
 
-    vec /= vec.norm();
-
-    rotate3D(rot, vec);
+    rotate3D(rot, quat);
 }

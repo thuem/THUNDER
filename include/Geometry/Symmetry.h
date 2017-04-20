@@ -71,6 +71,22 @@ inline bool SAME_MATRIX(const mat33& A,
     return true;
 };
 
+static const vec4 ANCHOR_QUAT(0.198976,
+                              0.792015,
+                              0.484271,
+                              0.3140111);
+
+static const vec4 ANCHOR_POINT(0,
+                               1,
+                               0,
+                               0);
+/***
+static const vec4 ANCHOR_POINT(0,
+                               0.395009,
+                               0.893974,
+                               0.211607);
+                               ***/
+
 /**
  * @ingroup Symmetry
  * @brief   Symmetry class can generate and store a vector of transformation

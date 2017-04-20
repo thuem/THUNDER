@@ -217,6 +217,7 @@ class Particle
         /**
          * constructor of Particle
          *
+         * @param m      number of classes in this particle filter
          * @param n      number of particles in this particle filter
          * @param transS standard deviation of translation
          * @param transQ the re-center threshold of translation

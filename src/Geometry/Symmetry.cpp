@@ -310,23 +310,53 @@ void symmetryCounterpart(vec4& dst,
 {
     vec4 q = dst;
 
+    /***
     // compare with (1, 0, 0, 0)
     double s = fabs(q(0));
+    ***/
+    
+    vec4 r;
+    //quaternion_mul(r, q, vec4(0, 1, 0, 0));
+    quaternion_mul(r, q, ANCHOR_POINT);
+    quaternion_mul(r, r, quaternion_conj(q));
+
+    double s = r.dot(ANCHOR_POINT);
+
+    // double s = fabs(q.dot(ANCHOR_QUAT));
 
     vec4 p;
 
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
-        //quaternion_mul(p, dst, sym.quat(i));
         quaternion_mul(p, sym.quat(i), dst);
 
-        if (fabs(p(0)) > s)
+        //quaternion_mul(r, p, vec4(0, 1, 0, 0));
+        quaternion_mul(r, p, ANCHOR_POINT);
+        quaternion_mul(r, r, quaternion_conj(p));
+
+        double t = r.dot(ANCHOR_POINT);
+
+        /***
+        std::cout << "t = " << t << std::endl;
+
+        std::cout << "r = \n" << r << std::endl << std::endl;
+        ***/
+
+        // double t = fabs(p(0));
+
+        if (t > s)
         {
-            s = fabs(p(0));
+            s = t;
 
             q = p;
         }
     }
+
+    /***
+    std::cout << "s = " << s << std::endl;
+
+    std::cout << "q = \n" << q << std::endl << std::endl;
+    ***/
 
     dst = q;
 }
