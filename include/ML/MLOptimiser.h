@@ -420,6 +420,8 @@ class MLOptimiser : public Parallel
          */
         vector<int> _groupID;
 
+        double _mean;
+
         /*
          * standard deviation of noise
          */

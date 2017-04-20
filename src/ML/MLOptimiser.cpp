@@ -1756,6 +1756,8 @@ void MLOptimiser::initImg()
 
 void MLOptimiser::statImg()
 {
+    _mean = 0;
+
     _stdN = 0;
     _stdD = 0;
     _stdS = 0;
@@ -1765,6 +1767,11 @@ void MLOptimiser::statImg()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        #pragma omp atomic
+        _mean += regionMean(_img[l],
+                            _para.maskRadius / _para.pixelSize,
+                            0);
+
         #pragma omp atomic
         _stdN += bgStddev(0,
                           _img[l],
@@ -1781,6 +1788,8 @@ void MLOptimiser::statImg()
 
     MPI_Barrier(_hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE, &_mean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+
     MPI_Allreduce(MPI_IN_PLACE, &_stdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, &_stdD, 1, MPI_DOUBLE, MPI_SUM, _hemi);
@@ -1788,6 +1797,8 @@ void MLOptimiser::statImg()
     MPI_Allreduce(MPI_IN_PLACE, &_stdStdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
 
     MPI_Barrier(_hemi);
+
+    _mean /= _N;
 
     _stdN /= _N;
     _stdD /= _N;
@@ -1801,12 +1812,16 @@ void MLOptimiser::statImg()
 
 void MLOptimiser::displayStatImg()
 {
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Centre : " << _mean;
+
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _stdN;
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
 
     ALOG(INFO, "LOGGER_INIT") << "Standard Devation of Standard Deviation of Noise : "
                               << _stdStdN;
+
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Centre : " << _mean;
 
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Noise  : " << _stdN;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
