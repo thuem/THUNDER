@@ -561,8 +561,8 @@ void Particle::perturb(const double pfT,
     {
         vec4 quat = _r.row(i).transpose();
         vec4 pert = d.row(i).transpose();
-        //quaternion_mul(quat, quat, pert);
-        quaternion_mul(quat, pert, quat);
+        quaternion_mul(quat, quat, pert);
+        //quaternion_mul(quat, pert, quat);
         _r.row(i) = quat.transpose();
     }
 
@@ -571,7 +571,7 @@ void Particle::perturb(const double pfT,
     for (int i = 0; i < _d.size(); i++)
         _d(i) += gsl_ran_gaussian(engine, _s) * pfD;
 
-    // reCentre();
+    reCentre();
 }
 
 void Particle::resample(const double alpha)
