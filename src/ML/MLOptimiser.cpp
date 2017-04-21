@@ -1038,11 +1038,9 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
-    /***
     MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
     normCorrection();
-    ***/
 
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
