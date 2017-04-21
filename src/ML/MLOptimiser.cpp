@@ -3220,7 +3220,11 @@ void MLOptimiser::solventFlatten(const bool mask)
             ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
             BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
             softMask(_model.ref(t), _model.ref(t), _mask, 0);
+#else
+            softMask(_model.ref(t), _model.ref(t), _mask);
+#endif
         }
         else
         {
@@ -3235,21 +3239,35 @@ void MLOptimiser::solventFlatten(const bool mask)
 
                 SLC_EXTRACT_RL(ref, _model.ref(t), 0);
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
                 softMask(ref,
                          ref, 
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
                          0);
+#else
+                softMask(ref,
+                         ref, 
+                         _para.maskRadius / _para.pixelSize,
+                         EDGE_WIDTH_RL);
+#endif
 
                 COPY_RL(_model.ref(t), ref);
             }
             else if (_para.mode == MODE_3D)
             {
+#ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
                 softMask(_model.ref(t),
                          _model.ref(t),
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
                          0);
+#else
+                softMask(_model.ref(t),
+                         _model.ref(t),
+                         _para.maskRadius / _para.pixelSize,
+                         EDGE_WIDTH_RL);
+#endif
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
