@@ -318,6 +318,7 @@ void Particle::vari(double& rVari,
             if (gsl_isnan(_k0)) CLOG(FATAL, "LOGGER_SYS") << "k0 NAN";
             if (gsl_isnan(_k1)) CLOG(FATAL, "LOGGER_SYS") << "k1 NAN";
             ***/
+            // more cencentrate, smaller rVari, bigger _k0 / _k1;
 
             rVari = sqrt(_k1) / sqrt(_k0);
 
@@ -561,8 +562,8 @@ void Particle::perturb(const double pfT,
     {
         vec4 quat = _r.row(i).transpose();
         vec4 pert = d.row(i).transpose();
-        quaternion_mul(quat, quat, pert);
-        //quaternion_mul(quat, pert, quat);
+        //quaternion_mul(quat, quat, pert);
+        quaternion_mul(quat, pert, quat);
         _r.row(i) = quat.transpose();
     }
 

@@ -38,10 +38,17 @@ int main(int argc, const char* argv[])
 #ifdef TEST_SAMPLE_ACG
     mat44 mat;
 
+    /***
     mat << 1, 0, 0, 0,
            0, 5, 0, 0,
            0, 0, 5, 0,
            0, 0, 0, 5;
+           ***/
+
+    mat << 1000, 0, 0, 0,
+           0, 1, 0, 0,
+           0, 0, 1, 0,
+           0, 0, 0, 1;
 
     mat4 acg(N, 4);
 

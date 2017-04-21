@@ -323,6 +323,7 @@ void symmetryCounterpart(vec4& dst,
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
         quaternion_mul(p, sym.quat(i), dst);
+        //quaternion_mul(p, dst, sym.quat(i));
 
         // double t = fabs(p(0));
 
