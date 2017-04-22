@@ -2046,7 +2046,7 @@ void MLOptimiser::initSigma()
     {
         vec ps(maxR());
 
-#ifdef OPTMISER_SIGMA_MASK
+#ifdef OPTIMISER_SIGMA_MASK
         powerSpectrum(ps, _img[l], maxR());
 #else
         powerSpectrum(ps, _imgOri[l], maxR());
