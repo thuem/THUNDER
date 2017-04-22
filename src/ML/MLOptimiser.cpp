@@ -1038,14 +1038,18 @@ void MLOptimiser::expectation()
 
 void MLOptimiser::maximization()
 {
+#ifdef OPTIMISER_NORM_CORRECTION
     MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
     normCorrection();
+#endif
 
+#ifdef OPTIMISER_REFRESH_SIGMA
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
     allReduceSigma(_para.groupSig);
+#endif
 
     if ((_searchType == SEARCH_TYPE_GLOBAL) &&
         (_para.groupScl) &&
