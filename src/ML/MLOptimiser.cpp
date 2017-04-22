@@ -1194,16 +1194,30 @@ void MLOptimiser::run()
         maximization();
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
+
             reCentreImg();
         }
+        else
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+
+            _img.clear();
+            FOR_EACH_2D_IMAGE
+                _img.push_back(_imgOri[l].copyImage());
+        }
+
 #else
+
         MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+
         _img.clear();
         FOR_EACH_2D_IMAGE
             _img.push_back(_imgOri[l].copyImage());
+
 #endif
 
 #ifdef OPTIMISER_MASK_IMG
