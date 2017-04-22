@@ -881,11 +881,20 @@ void Reconstructor::reconstruct(Volume& dst)
         VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
 
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
+
+#ifdef RECONSTRUCTOR_REMOVE_CORNER_MASK_ZERO
         softMask(dst,
                  dst,
-                 _size / 2 - EDGE_WIDTH_RL,
+                 _size / 2,
                  EDGE_WIDTH_RL,
                  0);
+#else
+        softMask(dst,
+                 dst,
+                 _size / 2,
+                 EDGE_WIDTH_RL);
+#endif
+
 #endif
 
         _fft.fwExecutePlanMT(_F3D);

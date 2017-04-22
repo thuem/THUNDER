@@ -2527,6 +2527,7 @@ void MLOptimiser::reMaskImg()
 {
     IF_MASTER return;
 
+#ifdef OPTIMISER_MASK_IMG
     if (_para.zeroMask)
     {
         Image mask(_para.size, _para.size, RL_SPACE);
@@ -2551,6 +2552,7 @@ void MLOptimiser::reMaskImg()
     {
         //TODO Make the background a noise with PowerSpectrum of sigma2
     }
+#endif
 }
 
 void MLOptimiser::normCorrection()
