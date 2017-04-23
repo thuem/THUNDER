@@ -50,6 +50,47 @@ double nVoxel(const double r,
 }
 
 double regionMean(const Image& img,
+                  const int r)
+{
+    double weightSum = 0;
+    double sum = 0;
+
+    IMAGE_FOR_EACH_PIXEL_RL(img)
+    {
+        int u = AROUND(NORM(i, j));
+
+        if (u == r)
+        {
+            weightSum += 1;
+            sum += img.getRL(i, j);
+        }
+    }
+
+    return sum / weightSum;
+}
+
+double regionMean(const Volume& vol,
+                  const int r)
+{
+    double weightSum = 0;
+    double sum = 0;
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
+    {
+        int u = AROUND(NORM_3(i, j, k));
+
+        if (u == r)
+        {
+            weightSum += 1;
+            sum += vol.getRL(i, j, k);
+        }
+    }
+
+    return sum / weightSum;
+}
+
+double regionMean(const Image& img,
                   const double rU,
                   const double rL)
 {

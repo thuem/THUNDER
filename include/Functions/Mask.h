@@ -50,6 +50,12 @@ double nVoxel(const double r,
               const double ew);
 
 double regionMean(const Image& img,
+                  const int r);
+
+double regionMean(const Volume& vol,
+                  const int r);
+
+double regionMean(const Image& img,
                   const double rU,
                   const double rL);
 

@@ -3230,9 +3230,15 @@ void MLOptimiser::solventFlatten(const bool mask)
         ALOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
 
+        double bg = regionMean(_model.ref(t),
+                               _para.maskRadius / _para.pixelSize);
+
+        /***
         double bg = background(_model.ref(t),
                                _para.maskRadius / _para.pixelSize,
                                EDGE_WIDTH_RL);
+        ***/
+        
         /***
         double bg = background(_model.ref(t),
                                _para.size / 2,                               
