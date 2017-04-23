@@ -10,6 +10,45 @@
 
 #include "Mask.h"
 
+double nPixel(const double r,
+              const double ew)
+{
+    double sum = 0;
+
+    for (int j = FLOOR(-(r + ew)); j <= CEIL(r + ew); j++)
+        for (int i = FLOOR(-(r + ew)); i <= CEIL(r + ew); i++)
+        {
+            double u = NORM(i, j);
+
+            if (u <= r)
+                sum += 1;
+            else if (u <= r + ew)
+                sum += 0.5 + 0.5 * cos((u - r) / ew * M_PI);
+        }
+
+    return sum;
+}
+
+double nVoxel(const double r,
+              const double ew)
+{
+    double sum = 0;
+
+    for (int k = FLOOR(-(r + ew)); k <= CEIL(r + ew); k++)
+        for (int j = FLOOR(-(r + ew)); j <= CEIL(r + ew); j++)
+            for (int i = FLOOR(-(r + ew)); i <= CEIL(r + ew); i++)
+            {
+                double u = NORM_3(i, j, k);
+
+                if (u <= r)
+                    sum += 1;
+                else if (u <= r + ew)
+                    sum += 0.5 + 0.5 * cos((u - r) / ew * M_PI);
+            }
+
+    return sum;
+}
+
 double regionMean(const Image& img,
                   const double rU,
                   const double rL)

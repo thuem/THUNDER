@@ -31,6 +31,24 @@
 
 #define GEN_MASK_GAP 0.05
 
+/**
+ * This function calculates the number of pixels inside the circle of a certain radius.
+ *
+ * @param r  radius of the circle
+ * @param ew edge width of the circle 
+ */
+double nPixel(const double r,
+              const double ew);
+
+/**
+ * This function calculates the number of voxels inside the cirlce of a certain radius.
+ *
+ * @param r  radius of the circle
+ * @param ew edge width of the circle
+ */
+double nVoxel(const double r,
+              const double ew);
+
 double regionMean(const Image& img,
                   const double rU,
                   const double rL);
