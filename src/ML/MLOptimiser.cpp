@@ -2642,12 +2642,10 @@ void MLOptimiser::normCorrection()
                     img[i] *= REAL(ctf[i]);
             }
 
-            /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
             _img[l][0] = img[0];
             _imgOri[l][0] = img[0];
 #endif
-            ***/
 
             NEG_FT(img);
 
@@ -2657,6 +2655,7 @@ void MLOptimiser::normCorrection()
             ADD_FT(img, _imgOri[l]);
 #endif
 
+            /***
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
 #ifdef OPTIMISER_NORM_MASK
             double scl = gsl_pow_2(_para.size)
@@ -2672,6 +2671,7 @@ void MLOptimiser::normCorrection()
             CLOG(FATAL, "LOGGER_SYS") << "OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN REQUIRES OPTIMISER_NORM_MASK";
 #endif
 #endif
+            ***/
 
             /***
             FFT fft;
