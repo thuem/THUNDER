@@ -3071,17 +3071,33 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].Cs);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctfRefine ? ctf : _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
                                          w);
 #else
+                _model.reco(cls).insertP(_img[l],
+                                         ctfRefine ? ctf : _ctf[l],
+                                         rot2D,
+                                         tran,
+                                         w);
+#endif
+#else
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
                                          ctfRefine ? ctf : _ctf[l],
                                          rot2D,
                                          tran,
                                          w);
+#else
+                _model.reco(cls).insertP(_img[l],
+                                         ctfRefine ? ctf : _ctf[l],
+                                         rot2D,
+                                         tran,
+                                         w);
+#endif
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -3098,19 +3114,33 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].Cs);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
-                                         //_ctf[l],
                                          ctfRefine ? ctf : _ctf[l],
                                          rot3D,
                                          tran - _offset[l],
                                          w);
 #else
-                _model.reco(cls).insertP(_imgOri[l],
-                                         //_ctf[l],
+                _model.reco(cls).insertP(_img[l],
                                          ctfRefine ? ctf : _ctf[l],
                                          rot3D,
                                          tran,
                                          w);
+#endif
+#else
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
+                _model.reco(cls).insertP(_imgOri[l],
+                                         ctfRefine ? ctf : _ctf[l],
+                                         rot3D,
+                                         tran,
+                                         w);
+#else
+                _model.reco(cls).insertP(_img[l],
+                                         ctfRefine ? ctf : _ctf[l],
+                                         rot3D,
+                                         tran,
+                                         w);
+#endif
 #endif
             }
             else
