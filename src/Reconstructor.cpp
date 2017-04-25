@@ -803,6 +803,7 @@ void Reconstructor::reconstruct(Volume& dst)
                       (double)(_maxRadius - EDGE_WIDTH_FT) / _size,
                       (double)EDGE_WIDTH_FT / _size);
     }
+    else
         REPORT_ERROR("INEXISTENT MODE");
 #endif
 
