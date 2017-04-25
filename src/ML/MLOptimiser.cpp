@@ -297,11 +297,13 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
+#ifdef OPTIMISER_LOW_PASS_REF
         ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
         BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
             
         _model.lowPassRef((double)(_r - EDGE_WIDTH_FT) / _para.size,
                           (double)EDGE_WIDTH_FT / _para.size);
+#endif
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
         BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
@@ -1348,11 +1350,13 @@ void MLOptimiser::run()
 
         NT_MASTER
         {
+#ifdef OPTIMISER_LOW_PASS_REF
             ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
             BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
             
             _model.lowPassRef((double)(_r - EDGE_WIDTH_FT) / _para.size,
                               (double)EDGE_WIDTH_FT / _para.size);
+#endif
 
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
