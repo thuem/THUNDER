@@ -3320,8 +3320,11 @@ void MLOptimiser::solventFlatten(const bool mask)
         #pragma omp parallel for
         FOR_EACH_PIXEL_RL(_model.ref(t))
             if (_model.ref(t)(i) < bgThres)
-                _model.ref(t)(i) = 0;
+                _model.ref(t)(i) = bgMean;
 
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_RL(_model.ref(t))
+                _model.ref(t)(i) -= bgMean;
 #endif
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_SUBTRACT_BG
