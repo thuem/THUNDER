@@ -3524,15 +3524,22 @@ void MLOptimiser::saveDatabase() const
     vec2 tran;
     double df;
 
+    double rVari, s0, s1, s;
+
     FOR_EACH_2D_IMAGE
     {
         _par[l].rank1st(cls, quat, tran, df);
+
+        _par[l].vari(rVari, s0, s1, s);
 
         fprintf(file,
                 "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
                  %s %s %18.6f %18.6f \
                  %6d %6d \
-                 %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f\n",
+                 %18.6f %18.6f %18.6f %18.6f %18.6f \
+                 %18.6f %18.6f %18.6f %18.6f \
+                 %18.6f %18.6f \
+                 %18.6f\n",
                 _ctfAttr[l].voltage,
                 _ctfAttr[l].defocusU,
                 _ctfAttr[l].defocusV,
@@ -3550,8 +3557,13 @@ void MLOptimiser::saveDatabase() const
                 quat(1),
                 quat(2),
                 quat(3),
+                rVari,
                 tran(0),
                 tran(1),
+                s0,
+                s1,
+                df,
+                s,
                 _par[l].compress());
     }
 
