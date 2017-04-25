@@ -788,6 +788,24 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
+#ifdef RECONSTRUCTOR_LOW_PASS
+    ALOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
+    BLOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
+
+    if (_mode == MODE_2D)
+    {
+        // TODO
+    }
+    else if (_mode == MODE_3D)
+    {
+        lowPassFilter(_F3D,
+                      _F3D,
+                      (double)(_maxRadius - EDGE_WIDTH_FT) / _size,
+                      (double)EDGE_WIDTH_FT / _size);
+    }
+        REPORT_ERROR("INEXISTENT MODE");
+#endif
+
     if (_mode == MODE_2D)
         _fft.bwExecutePlan(_F2D);
     else if (_mode == MODE_3D)
