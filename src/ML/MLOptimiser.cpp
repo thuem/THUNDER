@@ -1688,6 +1688,10 @@ void MLOptimiser::initImg()
     }
 
 #ifdef VERBOSE_LEVEL_1
+    ILOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
+#endif
+
+#ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
 
     ALOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
