@@ -1332,11 +1332,15 @@ void MLOptimiser::run()
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN
 
+        /***
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+        ***/
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
             solventFlatten(_para.performMask);
+            /***
         }
+        ***/
 
 #endif
 
