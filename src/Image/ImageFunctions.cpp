@@ -431,6 +431,15 @@ double bgStddev(const double mean,
     return gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
+double bgStddev(const double mean,
+                const Volume& src,
+                const double r)
+{
+    // TODO
+    //
+    return 0;
+}
+
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,
@@ -441,6 +450,21 @@ void bgMeanStddev(double& mean,
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (QUAD(i, j) > gsl_pow_2(r))
             bg.push_back(src.getRL(i, j));
+
+    mean = gsl_stats_mean(&bg[0], 1, bg.size());
+    stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+}
+
+void bgMeanStddev(double& mean,
+                  double& stddev,
+                  const Volume& src,
+                  const double r)
+{
+    vector<double> bg;
+
+    VOLUME_FOR_EACH_PIXEL_RL(src)
+        if (QUAD_3(i, j, k) > gsl_pow_2(r))
+            bg.push_back(src.getRL(i, j, k));
 
     mean = gsl_stats_mean(&bg[0], 1, bg.size());
     stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);

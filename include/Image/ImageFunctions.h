@@ -504,6 +504,10 @@ double bgStddev(const double mean,
                 const Image& src,
                 const double r);
 
+double bgSttdev(const double mean,
+                const Volume& src,
+                const double r);
+
 /**
  * This function calculates the mean and standard deviation of the background.
  * The background stands for the outer region beyond a certain radius.
@@ -516,6 +520,11 @@ double bgStddev(const double mean,
 void bgMeanStddev(double& mean,
                   double& stddev,
                   const Image& src,
+                  const double r);
+
+void bgMeanStddev(double& mean,
+                  double& stddev,
+                  const Volume& src,
                   const double r);
 
 /**

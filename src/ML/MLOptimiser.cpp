@@ -3275,6 +3275,50 @@ void MLOptimiser::solventFlatten(const bool mask)
         FFT fft;
         fft.bwMT(_model.ref(t));
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN_STAT_REMOVE_BG
+
+        double bgMean, bgStddev;
+
+        bgMeanStddev(bgMean,
+                     bgStddev,
+                     _model.ref(t),
+                     _para.maskRadius / _para.pixelSize);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+                                   << t
+                                   << ": "
+                                   << bgMean;
+        BLOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+                                   << t
+                                   << ": "
+                                   << bgMean;
+        ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Background Noise of Reference "
+                                   << t
+                                   << ": "
+                                   << bgStddev;
+        BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Background Noise of Reference "
+                                   << t
+                                   << ": "
+                                   << bgStddev;
+
+        double bgThres = bgMean + bgStddev * gsl_cdf_gaussian_Qinv(0.01, 1);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
+                                   << t
+                                   << ": "
+                                   << bgThres;
+        BLOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
+                                   << t
+                                   << ": "
+                                   << bgThres;
+
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_RL(_model.ref(t))
+            if (_model.ref(t)(i) < bgThres)
+                _model.ref(t)(i) = 0;
+
+#endif
+
 #ifdef OPTIMISER_SOLVENT_FLATTEN_SUBTRACT_BG
         ALOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
