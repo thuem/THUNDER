@@ -82,7 +82,7 @@
 
 //#define MODEL_SWAP_HEMISPHERE
 
-//#define MODEL_ALWAYS_MAX_RU
+#define MODEL_ALWAYS_MAX_RU
 
 //#define OPTIMISER_LOW_PASS_REF
 

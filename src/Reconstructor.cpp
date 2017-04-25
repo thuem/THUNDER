@@ -788,6 +788,19 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
+    if (_mode == MODE_2D)
+    {
+        #pragma omp parallel for
+        MUL_FT(_F2D, _W2D);
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        MUL_FT(_F3D, _W3D);
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
+
 #ifdef RECONSTRUCTOR_LOW_PASS
     ALOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
     BLOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
@@ -933,18 +946,6 @@ void Reconstructor::reconstruct(Volume& dst)
 
 void Reconstructor::allReduceF()
 {
-    if (_mode == MODE_2D)
-    {
-        #pragma omp parallel for
-        MUL_FT(_F2D, _W2D);
-    }
-    else if (_mode == MODE_3D)
-    {
-        #pragma omp parallel for
-        MUL_FT(_F3D, _W3D);
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
 
     ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
     BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
