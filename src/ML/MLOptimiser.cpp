@@ -1332,20 +1332,22 @@ void MLOptimiser::run()
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN
 
-        /***
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
-        ***/
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
             solventFlatten(_para.performMask);
-            /***
         }
-        ***/
 
 #endif
 
         NT_MASTER
         {
+            ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
+            BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
+            
+            _model.lowPassRef((double)(_r - EDGE_WIDTH_FT) / _para.size,
+                              (double)EDGE_WIDTH_FT / _para.size);
+
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
 
