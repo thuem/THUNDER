@@ -3305,7 +3305,8 @@ void MLOptimiser::solventFlatten(const bool mask)
                                    << ": "
                                    << bgStddev;
 
-        double bgThres = bgMean + bgStddev * gsl_cdf_gaussian_Qinv(0.01, 1);
+        //double bgThres = bgMean + bgStddev * gsl_cdf_gaussian_Qinv(0.01, 1);
+        double bgThres = bgMean + bgStddev * gsl_cdf_gaussian_Qinv(1e-3, 1);
 
         ALOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
                                    << t
