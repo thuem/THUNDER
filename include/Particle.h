@@ -623,7 +623,7 @@ class Particle
          */
         double neff() const;
 
-        void flatten(double thres);
+        void flatten(const double thres);
 
         /**
          * This function sorts all particles by their weight in a descending

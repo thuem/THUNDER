@@ -593,6 +593,14 @@ void MLOptimiser::expectation()
                     v(i) = -GSL_DBL_MAX;
             }
 #endif
+            if (_ID[l] < 20)
+            {
+                printf("%d %d %d %d %d\n",
+                       v(v.size() - 1),
+                       v(v.size() - 2),
+                       v(v.size() - 3),
+                       v(v.size() - 4));
+            }
 
             //PROCESS_LOGW_SOFT(v);
             PROCESS_LOGW_HARD(v);
