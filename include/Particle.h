@@ -623,6 +623,8 @@ class Particle
          */
         double neff() const;
 
+        void flatten(double thres);
+
         /**
          * This function sorts all particles by their weight in a descending
          * order. It only keeps top N particles.
