@@ -727,10 +727,6 @@ void MLOptimiser::expectation()
         double dVari = 5 * _para.ctfRefineS;
 #endif
 
-#ifdef OPTIMISER_HARSH_SEARCH
-        bool harsh = (_searchType != SEARCH_TYPE_GLOBAL);
-#endif
-
         for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if ((phase == 0) &&
@@ -851,14 +847,7 @@ void MLOptimiser::expectation()
 
             }
 
-#ifdef OPTIMISER_HARSH_SEARCH
-            if (harsh)
-                PROCESS_LOGW_HARD(logW);
-            else
-                PROCESS_LOGW_SOFT(logW);
-#else
             PROCESS_LOGW_SOFT(logW);
-#endif
 
             /***
             if (_searchType != SEARCH_TYPE_CTF)
@@ -974,24 +963,6 @@ void MLOptimiser::expectation()
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == 3)
                 {
-#ifdef OPTIMISER_HARSH_SEARCH
-                    if (harsh)
-                    {
-                        #pragma omp atomic
-                        _nF += phase;
-
-                        #pragma omp atomic
-                        _nI += 1;
-
-                        break;
-                    }
-                    else
-                    {
-                        harsh = true;
-
-                        nPhaseWithNoVariDecrease = 0;
-                    }
-#else
                     #pragma omp atomic
                     _nF += phase;
 
@@ -999,7 +970,6 @@ void MLOptimiser::expectation()
                     _nI += 1;
 
                     break;
-#endif
                 }
             }
             /***
