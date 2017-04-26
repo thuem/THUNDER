@@ -894,6 +894,8 @@ void MLOptimiser::expectation()
             // Only after resampling, the current variance can be calculated
             // correctly.
             
+            if (_par[l].neff() < _par[l].n() / 10)
+            {
             _par[l].resample();
 
             _par[l].calVari();
@@ -997,6 +999,7 @@ void MLOptimiser::expectation()
                     break;
 #endif
                 }
+            }
             }
         }
 
