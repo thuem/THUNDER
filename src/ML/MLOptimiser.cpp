@@ -601,8 +601,8 @@ void MLOptimiser::expectation()
                                          << v(v.size() - 4);
             }
 
-            PROCESS_LOGW_SOFT(v);
-            //PROCESS_LOGW_HARD(v);
+            //PROCESS_LOGW_SOFT(v);
+            PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
