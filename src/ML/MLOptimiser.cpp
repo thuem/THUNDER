@@ -595,7 +595,7 @@ void MLOptimiser::expectation()
 #endif
             if (_ID[l] < 20)
             {
-                printf("%d %d %d %d %d\n",
+                printf("%lf %lf %lf %lf\n",
                        v(v.size() - 1),
                        v(v.size() - 2),
                        v(v.size() - 3),
