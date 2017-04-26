@@ -601,8 +601,8 @@ void MLOptimiser::expectation()
                                          << v(v.size() - 4);
             }
 
-            //PROCESS_LOGW_SOFT(v);
-            PROCESS_LOGW_HARD(v);
+            PROCESS_LOGW_SOFT(v);
+            //PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
@@ -644,7 +644,7 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 
-            _par[l].flatten(1 - 1e-4);
+            //_par[l].flatten(1 - 1e-4);
 
             /***
             // shuffle
