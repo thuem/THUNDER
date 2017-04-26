@@ -595,11 +595,10 @@ void MLOptimiser::expectation()
 #endif
             if (_ID[l] < 20)
             {
-                printf("%lf %lf %lf %lf\n",
-                       v(v.size() - 1),
-                       v(v.size() - 2),
-                       v(v.size() - 3),
-                       v(v.size() - 4));
+                CLOG(INFO, "LOGGER_SYS") << v(v.size() - 1),
+                                            v(v.size() - 2),
+                                            v(v.size() - 3),
+                                            v(v.size() - 4);
             }
 
             //PROCESS_LOGW_SOFT(v);
