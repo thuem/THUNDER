@@ -64,6 +64,8 @@ void readPara(MLOptimiserPara& dst,
     copy_string(dst.sym, src["Symmetry"].asString());
     copy_string(dst.initModel, src["Initial Model"].asString());
     copy_string(dst.db, src[".thu File Storing Paths and CTFs of Images"].asString());
+    copy_string(dst.parPrefix, src["Prefix of Particles"].asString());
+    copy_string(dst.dstPrefix, src["Prefix of Destination"].asString());
 
     dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();

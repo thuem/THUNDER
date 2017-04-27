@@ -144,6 +144,10 @@ struct MLOptimiserPara
      */
     char db[FILE_NAME_LENGTH];
 
+    char parPrefix[FILE_NAME_LENGTH];
+
+    char dstPrefix[FILE_NAME_LENGTH];
+
     /**
      * whether to perform masking on the reference
      */

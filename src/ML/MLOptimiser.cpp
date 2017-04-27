@@ -1629,14 +1629,15 @@ void MLOptimiser::initImg()
 
         if (imgName.find('@') == string::npos)
         {
-            ImageFile imf(imgName.c_str(), "rb");
+            //ImageFile imf(imgName.c_str(), "rb");
+            ImageFile imf((string(_para.parPrefix) + imgName).c_str(), "rb");
             imf.readMetaData();
             imf.readImage(_img[l]);
         }
         else
         {
             int nSlc = atoi(imgName.substr(0, imgName.find('@')).c_str()) - 1;
-            string filename = imgName.substr(imgName.find('@') + 1);
+            string filename = string(_para.parPrefix) + imgName.substr(imgName.find('@') + 1);
 
             ImageFile imf(filename.c_str(), "rb");
             imf.readMetaData();
