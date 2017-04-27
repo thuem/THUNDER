@@ -965,6 +965,7 @@ void MLOptimiser::expectation()
             BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
         }
 
+#ifdef OPTIMISER_SAVE_PARTICLES
         if (_ID[l] < 20)
         {
             char filename[FILE_NAME_LENGTH];
@@ -975,6 +976,7 @@ void MLOptimiser::expectation()
                      _iter);
             save(filename, _par[l]);
         }
+#endif
 
         delete[] priP;
     }
