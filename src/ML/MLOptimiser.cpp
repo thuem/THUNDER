@@ -117,12 +117,17 @@ void MLOptimiser::init()
                               << " Angstrom will be Ingored during Comparison";
 
                               ***/
-    //_rL = 0;
+    //_rL = FLOOR(resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize));
+    _rL = 0;
     //_rL = 1.5;
     //_rL = 3.5;
     //_rL = 6;
     //_rL = resA2P(1.0 / (2 * _para.maskRadius), _para.size, _para.pixelSize);
-    _rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
+    //_rL = resA2P(1.0 / _para.maskRadius, _para.size, _para.pixelSize);
+
+    MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                              << _rL
+                              << " Pixels in Fourier Space will be Ignored during Comparison";
 
     MLOG(INFO, "LOGGER_INIT") << "Checking Radius of Mask";
 
@@ -134,10 +139,6 @@ void MLOptimiser::init()
 
     if (_para.size / 2 - CEIL(_para.maskRadius / _para.pixelSize) < 1)
         REPORT_ERROR("INPROPER RADIUS OF MASK");
-
-    MLOG(INFO, "LOGGER_INIT") << "Information Under "
-                              << _rL
-                              << " Pixels in Fourier Space will be Ignored during Comparison";
 
     _rScan = resA2P(1.0 / _para.scanRes, _para.size, _para.pixelSize);
 
