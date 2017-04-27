@@ -594,6 +594,7 @@ void MLOptimiser::expectation()
                     v(i) = -GSL_DBL_MAX;
             }
 #endif
+            /***
             if (_ID[l] < 20)
             {
                 CLOG(INFO, "LOGGER_SYS") << v(v.size() - 1) << ", "
@@ -601,6 +602,7 @@ void MLOptimiser::expectation()
                                          << v(v.size() - 3) << ", "
                                          << v(v.size() - 4);
             }
+            ***/
 
             PROCESS_LOGW_SOFT(v);
             //PROCESS_LOGW_HARD(v);
@@ -634,6 +636,7 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+#ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -644,6 +647,7 @@ void MLOptimiser::expectation()
                          _iter);
                 save(filename, _par[l]);
             }
+#endif
 
             //_par[l].flatten(1 - 1e-4);
 
@@ -856,6 +860,7 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+#ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
             {
                 char filename[FILE_NAME_LENGTH];
@@ -867,6 +872,7 @@ void MLOptimiser::expectation()
                          phase);
                 save(filename, _par[l]);
             }
+#endif
 
             // Only after resampling, the current variance can be calculated
             // correctly.
@@ -2491,8 +2497,16 @@ void MLOptimiser::refreshScale(const bool init,
     
     MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
+    if (meanScale < 0)
+    {
+        REPORT_ERROR("AVERAGE INTENSITY SCALE SHOULD NOT BE SMALLER THAN ZERO");
+        abort();
+    }
+
+    /***
     if (medianScale * meanScale < 0)
         CLOG(FATAL, "LOGGER_SYS") << "Median and Mean of Intensity Scale Should Have the Same Sign";
+    ***/
 
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
