@@ -403,13 +403,13 @@ void MLOptimiser::expectation()
 
     allocPreCalIdx(_r, _rL);
 
-    if (_searchType != SEARCH_TYPE_CTF)
-        allocPreCal(true, false);
-    else
-        allocPreCal(true, true);
-
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
+        if (_searchType != SEARCH_TYPE_CTF)
+            allocPreCal(true, false);
+        else
+            allocPreCal(true, true);
+
         ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
         BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
 
@@ -689,7 +689,17 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
+
+        if (_searchType != SEARCH_TYPE_CTF)
+            freePreCal(false);
+        else
+            freePreCal(true);
     }
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(false, false);
+    else
+        allocPreCal(false, true);
 
     if (_para.mode == MODE_3D)
     {
