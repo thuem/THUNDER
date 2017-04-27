@@ -117,8 +117,8 @@ void MLOptimiser::init()
                               << " Angstrom will be Ingored during Comparison";
 
                               ***/
-    //_rL = FLOOR(resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize));
-    _rL = 0;
+    _rL = FLOOR(resA2P(1.0 / _para.ignoreRes, _para.size, _para.pixelSize));
+    //_rL = 0;
     //_rL = 1.5;
     //_rL = 3.5;
     //_rL = 6;
