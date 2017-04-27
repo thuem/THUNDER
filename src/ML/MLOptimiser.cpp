@@ -1059,9 +1059,9 @@ void MLOptimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
+    /***
     saveImages();
     saveCTFs();
-    /***
     saveBinImages();
     saveLowPassImages();
     ***/
@@ -2733,6 +2733,7 @@ void MLOptimiser::normCorrection()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+    /***
     IF_MASTER
     {
         for (int i = 0; i < 100; i++)
@@ -2741,6 +2742,7 @@ void MLOptimiser::normCorrection()
                                      << " = "
                                      << norm[i];
     }
+    ***/
 
     MLOG(INFO, "LOGGER_SYS") << "Max of Norm of Noise : "
                              << gsl_stats_max(norm.data(), 1, norm.size());
@@ -3027,10 +3029,12 @@ void MLOptimiser::reconstructRef()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        /***
         ALOG(INFO, "LOGGER_SYS") << "Compress of Particle "
                                  << _ID[l]
                                  << " is "
                                  << _par[l].compress();
+        ***/
 
         Image ctf(_para.size, _para.size, FT_SPACE);
 
@@ -3554,7 +3558,7 @@ void MLOptimiser::saveDatabase() const
     IF_MASTER return;
 
     char filename[FILE_NAME_LENGTH];
-    sprintf(filename, "Meta_Round_%03d.thu", _iter);
+    sprintf(filename, "%sMeta_Round_%03d.thu", _para.dstPrefix, _iter);
 
     bool flag;
     MPI_Status status;
@@ -3665,13 +3669,13 @@ void MLOptimiser::saveBestProjections()
             FOR_EACH_PIXEL_FT(diff)
                 diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
 
-            sprintf(filename, "Result_%04d_Round_%03d.bmp", _ID[l], _iter);
+            sprintf(filename, "%sResult_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
 
             fft.bw(result);
             result.saveRLToBMP(filename);
             fft.fw(result);
 
-            sprintf(filename, "Diff_%04d_Round_%03d.bmp", _ID[l], _iter);
+            sprintf(filename, "%sDiff_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
             fft.bw(diff);
             diff.saveRLToBMP(filename);
             fft.fw(diff);
@@ -3744,12 +3748,12 @@ void MLOptimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
-                sprintf(filename, "FT_Reference_%03d_A_Round_%03d.bmp", t, _iter);
+                sprintf(filename, "%sFT_Reference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
                 ref.saveFTToBMP(filename, 0.001);
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "Reference_%03d_A_Round_%03d.bmp", t, _iter);
+                sprintf(filename, "%sReference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
                 ref.saveRLToBMP(filename);
             }
             else if (_commRank == HEMI_B_LEAD)
@@ -3762,12 +3766,12 @@ void MLOptimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
-                sprintf(filename, "FT_Reference_%03d_B_Round_%03d.bmp", t, _iter);
+                sprintf(filename, "%sFT_Reference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
                 ref.saveFTToBMP(filename, 0.001);
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "Reference_%03d_B_Round_%03d.bmp", t, _iter);
+                sprintf(filename, "%sReference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
                 ref.saveRLToBMP(filename);
             }
         }
@@ -3801,7 +3805,7 @@ void MLOptimiser::saveReference(const bool finished)
 
                 if (finished)
                 {
-                    sprintf(filename, "Reference_%03d_A_Final.mrc", t);
+                    sprintf(filename, "%sReference_%03d_A_Final.mrc", _para.dstPrefix, t);
 
                     imf.readMetaData(_model.ref(t));
                     imf.writeVolume(filename, _model.ref(t), _para.pixelSize);
@@ -3812,7 +3816,7 @@ void MLOptimiser::saveReference(const bool finished)
                 }
                 else
                 {
-                    sprintf(filename, "Reference_%03d_A_Round_%03d.mrc", t, _iter);
+                    sprintf(filename, "%sReference_%03d_A_Round_%03d.mrc", _para.dstPrefix, t, _iter);
 
                     imf.readMetaData(lowPass);
                     imf.writeVolume(filename, lowPass, _para.pixelSize);
@@ -3824,7 +3828,7 @@ void MLOptimiser::saveReference(const bool finished)
 
                 if (finished)
                 {
-                    sprintf(filename, "Reference_%03d_B_Final.mrc", t);
+                    sprintf(filename, "%sReference_%03d_B_Final.mrc", _para.dstPrefix, t);
 
                     imf.readMetaData(_model.ref(t));
                     imf.writeVolume(filename, _model.ref(t), _para.pixelSize);
@@ -3834,42 +3838,13 @@ void MLOptimiser::saveReference(const bool finished)
                 }
                 else
                 {
-                    sprintf(filename, "Reference_%03d_B_Round_%03d.mrc", t, _iter);
+                    sprintf(filename, "%sReference_%03d_B_Round_%03d.mrc", _para.dstPrefix, t, _iter);
 
                     imf.readMetaData(lowPass);
                     imf.writeVolume(filename, lowPass, _para.pixelSize);
                 }
             }
         }
-    }
-}
-
-void MLOptimiser::saveMask()
-{
-    ImageFile imf;
-    char filename[FILE_NAME_LENGTH];
-
-    Volume mask;
-
-    if (_commRank == HEMI_A_LEAD)
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Saving Mask(s)";
-
-        VOL_EXTRACT_RL(mask, _mask, 1.0 / _para.pf);
-
-        imf.readMetaData(mask);
-        sprintf(filename, "Mask_A.mrc");
-        imf.writeVolume(filename, mask, _para.pixelSize);
-    }
-    else if (_commRank == HEMI_B_LEAD)
-    {
-        BLOG(INFO, "LOGGER_ROUND") << "Saving Mask(s)";
-
-        VOL_EXTRACT_RL(mask, _mask, 1.0 / _para.pf);
-
-        imf.readMetaData(mask);
-        sprintf(filename, "Mask_B.mrc");
-        imf.writeVolume(filename, mask, _para.pixelSize);
     }
 }
 
@@ -3884,9 +3859,9 @@ void MLOptimiser::saveFSC(const bool finished) const
         vec fsc = _model.fsc(t);
 
         if (finished)
-            sprintf(filename, "FSC_%03d_Final.txt", t);
+            sprintf(filename, "%sFSC_%03d_Final.txt", _para.dstPrefix, t);
         else
-            sprintf(filename, "FSC_%03d_Round_%03d.txt", t, _iter);
+            sprintf(filename, "%sFSC_%03d_Round_%03d.txt", _para.dstPrefix, t, _iter);
 
         FILE* file = fopen(filename, "w");
 
@@ -3910,9 +3885,9 @@ void MLOptimiser::saveSig() const
     char filename[FILE_NAME_LENGTH];
 
     if (_commRank == HEMI_A_LEAD)
-        sprintf(filename, "Sig_A_Round_%03d.txt", _iter);
+        sprintf(filename, "%sSig_A_Round_%03d.txt", _para.dstPrefix, _iter);
     else
-        sprintf(filename, "Sig_B_Round_%03d.txt", _iter);
+        sprintf(filename, "%sSig_B_Round_%03d.txt", _para.dstPrefix, _iter);
 
     FILE* file = fopen(filename, "w");
 
@@ -3935,9 +3910,9 @@ void MLOptimiser::saveTau() const
     char filename[FILE_NAME_LENGTH];
 
     if (_commRank == HEMI_A_LEAD)
-        sprintf(filename, "Tau_A_Round_%03d.txt", _iter);
+        sprintf(filename, "%sTau_A_Round_%03d.txt", _para.dstPrefix, _iter);
     else if (_commRank == HEMI_B_LEAD)
-        sprintf(filename, "Tau_B_Round_%03d.txt", _iter);
+        sprintf(filename, "%sTau_B_Round_%03d.txt", _para.dstPrefix, _iter);
 
     FILE* file = fopen(filename, "w");
 

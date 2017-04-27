@@ -756,11 +756,6 @@ class MLOptimiser : public Parallel
         void saveReference(const bool finished = false);
 
         /**
-         * save the mask
-         */
-        void saveMask();
-
-        /**
          * save FSC
          */
         void saveFSC(const bool finished = false) const;
