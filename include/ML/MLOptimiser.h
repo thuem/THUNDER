@@ -318,8 +318,6 @@ class MLOptimiser : public Parallel
          */
         double _rL;
 
-        double _rScan;
-
         /**
          * the information below this frequency will be used for performing
          * intensity scale correction

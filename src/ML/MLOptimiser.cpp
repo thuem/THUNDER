@@ -138,13 +138,10 @@ void MLOptimiser::init()
     ***/
 
     if (_para.size / 2 - CEIL(_para.maskRadius / _para.pixelSize) < 1)
+    {
         REPORT_ERROR("INPROPER RADIUS OF MASK");
-
-    _rScan = resA2P(1.0 / _para.scanRes, _para.size, _para.pixelSize);
-
-    MLOG(INFO, "LOGGER_INIT") << "Information Under "
-                              << _rScan
-                              << " Pixels in Fourier Space will be Used for Scanning Phase of Global Search";
+        abort();
+    }
 
     MLOG(INFO, "LOGGER_INIT") << "Information Under "
                               << _para.sclCorRes
@@ -401,18 +398,18 @@ void MLOptimiser::expectation()
 
 #endif
 
+    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+
+    allocPreCalIdx(_r, _rL);
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(true, false);
+    else
+        allocPreCal(true, true);
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
-        BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
-
-        allocPreCalIdx(GSL_MIN_DBL(_r, _rScan), _rL);
-
-        if (_searchType != SEARCH_TYPE_CTF)
-            allocPreCal(true, false);
-        else
-            allocPreCal(true, true);
-
         ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
         BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
 
@@ -692,21 +689,7 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
-
-        if (_searchType != SEARCH_TYPE_CTF)
-            freePreCal(false);
-        else
-            freePreCal(true);
-
-        freePreCalIdx();
     }
-
-    allocPreCalIdx(_r, _rL);
-
-    if (_searchType != SEARCH_TYPE_CTF)
-        allocPreCal(false, false);
-    else
-        allocPreCal(false, true);
 
     if (_para.mode == MODE_3D)
     {
