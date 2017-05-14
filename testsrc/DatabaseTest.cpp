@@ -32,7 +32,11 @@
 
 //#define TEST_STD_R
 
-#define TEST_TRAN
+//#define TEST_TRAN
+
+//#define TEST_D
+
+#define TEST_STD_D
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -165,6 +169,24 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < 10; i++)
         std::cout << db.tran(i) << std::endl << std::endl;
+
+#endif
+
+#ifdef TEST_D
+
+    std::cout << "d " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.d(i) << std::endl;
+
+#endif
+
+#ifdef TEST_STD_D
+
+    std::cout << "stdD " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.stdD(i) << std::endl;
 
 #endif
 

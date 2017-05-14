@@ -361,8 +361,7 @@ double Database::stdTX(const int i) const
 
     word = strtok(line, " ");
 
-    // TODO
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_STD_TRANSLATION_X; i++)
         word = strtok(NULL, " ");
 
     return atof(word);
@@ -379,8 +378,7 @@ double Database::stdTY(const int i) const
 
     word = strtok(line, " ");
 
-    // TODO
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_STD_TRANSLATION_Y; i++)
         word = strtok(NULL, " ");
 
     return atof(word);
@@ -397,8 +395,7 @@ double Database::d(const int i) const
 
     word = strtok(line, " ");
 
-    // TODO
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_DEFOCUS_FACTOR; i++)
         word = strtok(NULL, " ");
 
     return atof(word);
@@ -415,8 +412,7 @@ double Database::stdD(const int i) const
 
     word = strtok(line, " ");
 
-    // TODO
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_STD_DEFOCUS_FACTOR; i++)
         word = strtok(NULL, " ");
 
     return atof(word);
