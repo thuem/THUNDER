@@ -307,8 +307,6 @@ void Particle::load(const int cls,
     mat4 p(_n, 4);
     sampleACG(p, 1, gsl_pow_2(stdR), _n);
     
-    // load the translation
-
     for (int i = 0; i < _n; i++)
     {
         vec4 pert = p.row(i).transpose();
@@ -318,6 +316,8 @@ void Particle::load(const int cls,
 
         _r.row(i) = part.transpose();
     }
+
+    // load the translation
 
     for (int i = 0; i < _n; i++)
     {
