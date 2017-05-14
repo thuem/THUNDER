@@ -298,12 +298,27 @@ void Particle::load(const int cls,
     gsl_rng* engine = get_random_engine();
 
     // load the class
+
     for (int i = 0; i < _n; i++)
         _c(i) = cls;
 
     // load the rotation
+
+    mat4 p(_n, 4);
+    sampleACG(p, 1, gsl_pow_2(stdR), _n);
     
     // load the translation
+
+    for (int i = 0; i < _n; i++)
+    {
+        vec4 pert = p.row(i).transpose();
+
+        vec4 part;
+        quaternion_mul(part, pert, quat);
+
+        _r.row(i) = part.transpose();
+    }
+
     for (int i = 0; i < _n; i++)
     {
        gsl_ran_bivariate_gaussian(engine,
@@ -318,6 +333,7 @@ void Particle::load(const int cls,
     }
 
     // load the defocus factor
+
     for (int i = 0; i < _n; i++)
         _d(i) = d + gsl_ran_gaussian(engine, stdD);
 
