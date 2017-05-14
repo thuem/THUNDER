@@ -269,8 +269,7 @@ int Database::cls(const int i) const
 
     word = strtok(line, " ");
 
-    // TODO
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_CLASS_ID; i++)
         word = strtok(NULL, " ");
 
     return atoi(word);
@@ -287,12 +286,24 @@ vec4 Database::quat(const int i) const
 
     word = strtok(line, " ");
 
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_QUATERNION_0; i++)
         word = strtok(NULL, " ");
 
     vec4 result;
 
-    // TODO
+    result(0) = atof(word);
+
+    word = strtok(NULL, " ");
+
+    result(1) = atof(word);
+
+    word = strtok(NULL, " ");
+
+    result(2) = atof(word);
+
+    word = strtok(NULL, " ");
+
+    result(3) = atof(word);
 
     return result;
 }
@@ -308,8 +319,7 @@ double Database::stdR(const int i) const
 
     word = strtok(line, " ");
 
-    // TODO
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_STD_ROTATION; i++)
         word = strtok(NULL, " ");
 
     return atof(word);
@@ -326,12 +336,16 @@ vec2 Database::tran(const int i) const
 
     word = strtok(line, " ");
 
-    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+    for (int i = 0; i < THU_TRANSLATION_X; i++)
         word = strtok(NULL, " ");
 
     vec2 result;
 
-    // TODO
+    result(0) = atof(word);
+
+    word = strtok(NULL, " ");
+
+    result(1) = atof(word);
 
     return result;
 }

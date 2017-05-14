@@ -24,7 +24,15 @@
 
 //#define TEST_PATH
 
-#define TEST_CTF
+//#define TEST_CTF
+
+//#define TEST_CLS
+
+//#define TEST_QUAT
+
+//#define TEST_STD_R
+
+#define TEST_TRAN
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -70,6 +78,10 @@ int main(int argc, char* argv[])
     std::cout << "Indexing" << std::endl;
 
     db.index();
+
+    std::cout << "Shuffling" << std::endl;
+
+    db.shuffle();
 
 #ifdef TEST_OFFSET
     std::cout << "Offset of Each Line: " << std::endl;
@@ -118,6 +130,42 @@ int main(int argc, char* argv[])
                   << "amplitudeContrast = " << amplitudeContrast << std::endl
                   << "phaseShift = " << phaseShift << std::endl;
     }
+#endif
+
+#ifdef TEST_CLS
+
+    std::cout << "cls " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.cls(i) << std::endl;
+
+#endif
+
+#ifdef TEST_QUAT
+
+    std::cout << "quat " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.quat(i) << std::endl << std::endl;
+
+#endif
+
+#ifdef TEST_STD_R
+
+    std::cout << "stdR " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.stdR(i) << std::endl;
+
+#endif
+
+#ifdef TEST_TRAN
+
+    std::cout << "tran " << std::endl;
+
+    for (int i = 0; i < 10; i++)
+        std::cout << db.tran(i) << std::endl << std::endl;
+
 #endif
 
     MPI_Finalize();
