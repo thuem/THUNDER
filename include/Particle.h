@@ -791,16 +791,43 @@ class Particle
          */
         void rand(double& d) const;
 
+        /**
+         * This function gives the class, quaternion of rotation, translation
+         * vector and defocus factor of a random particle.
+         *
+         * @param cls  the class of a random particle
+         * @param quat the quaternion of rotation of a random particle
+         * @param tran the translation vector of a random particle
+         * @param d    the defocus factor of a random particle
+         */
         void rand(int& cls,
                   vec4& quat,
                   vec2& tran,
                   double& d) const;
 
+        /**
+         * This function gives the class, rotation matrix in 2D, translation
+         * vector and defocus factor of a random particle.
+         *
+         * @param cls  the class of a random particle of a random particle
+         * @param rot  the rotation matrix in 2D of a random particle
+         * @param tran the translation vector of a random particle
+         * @param d    the defocus factor of a random particle
+         */
         void rand(int& cls,
                   mat22& rot,
                   vec2& tran,
                   double& d) const;
 
+        /**
+         * This function gives the class, rotation matrix in 3D, translation
+         * vector and defocus factor of a random particle.
+         *
+         * @param cls  the class of a random particle of a random particle
+         * @param rot  the rotation matrix in 3D of a random particle
+         * @param tran the translation vector of a random particle
+         * @param d    the defocus factor of a random particle
+         */
         void rand(int& cls,
                   mat33& rot,
                   vec2& tran,
