@@ -146,7 +146,6 @@ class Particle
 
         /**
          * the most likely class
-         * it will be refreshed by resampling
          */
         int _topC;
 
@@ -162,8 +161,6 @@ class Particle
          * MODE_2D: the first element stands for the most likely rotation
          *
          * MODE_3D: quaternion of the most likely rotation
-         *
-         * it will be refreshed by resampling
          */
         vec4 _topR;
 
@@ -178,8 +175,14 @@ class Particle
          */
         vec2 _topT;
 
+        /**
+         * the previous most likely defocus factor
+         */
         double _topDPrev;
 
+        /**
+         * the most likely defocus factor
+         */
         double _topD;
 
         /**
@@ -205,6 +208,9 @@ class Particle
 
             _topTPrev = vec2(0, 0);
             _topT = vec2(0, 0);
+
+            _topDPrev = 1;
+            _topD = 1;
         }
 
     public:
@@ -653,63 +659,138 @@ class Particle
          */
         double diffTopT();
 
+        /**
+         * This function returns the difference between the most likely
+         * defocus factor between two iterations. This function also resets the
+         * most likely defocus factor.
+         */
+        double diffTopD();
+
+        /**
+         * This function gives the most likely class.
+         *
+         * @param cls the most likely class
+         */
         void rank1st(int& cls) const;
         
+        /**
+         * This function gives the most likely quaternion of rotation.
+         *
+         * @param quat the most likely quaternion of rotation
+         */
         void rank1st(vec4& quat) const;
 
+        /**
+         * This function gives the most likely rotation matrix in 2D.
+         *
+         * @param rot the most likely rotation matrix in 2D
+         */
         void rank1st(mat22& rot) const;
 
+        /**
+         * This function gives the most likely rotation matrix in 3D.
+         *
+         * @param rot the most likely rotation matrix in 3D
+         */
         void rank1st(mat33& rot) const;
 
+        /**
+         * This function gives the most likely translation vector.
+         *
+         * @param tran the most likely translation vector
+         */
         void rank1st(vec2& tran) const;
 
+        /**
+         * This function gives the most likely defocus factor.
+         *
+         * @param d the most likely defocus factor
+         */
         void rank1st(double& d) const;
 
         /**
-         * This function reports the 1-st rank coordinate by parameters.
+         * This function reports the most likely class, quaternion of rotation,
+         * translation vector and defocus factor.
          * 
-         * @param cls  the class of the most likely rotation
-         * @param quat the quaternion of the most likely rotation
-         * @param tran the translation of the most likely coordinate
+         * @param cls  the most likely class
+         * @param quat the most likely quaternion of rotation
+         * @param tran the most likely translation vector
+         * @param d    the most likely defocus factor
          */
         void rank1st(int& cls,
                      vec4& quat,
                      vec2& tran,
                      double& d) const;
 
+        /**
+         * This function reports the most likely class, rotation matrix in 2D,
+         * translation vector and defocus factor.
+         * 
+         * @param cls  the most likely class
+         * @param rot  the most likely rotation matrix in 2D
+         * @param tran the most likely translation vector
+         * @param d    the most likely defocus factor
+         */
         void rank1st(int& cls,
                      mat22& rot,
                      vec2& tran,
                      double& d) const;
-
         /**
-         * This function reports the 1-st rank coordinates by parameters.
+         * This function reports the most likely class, rotation matrix in 3D,
+         * translation vector and defocus factor.
          * 
-         * @param cls  the class of the most likely rotation
-         * @param rot  the rotation matrix of the most likely rotation
-         * @param tran the translation of the most likely coordinate
+         * @param cls  the most likely class
+         * @param rot  the most likely rotation matrix in 3D
+         * @param tran the most likely translation vector
+         * @param d    the most likely defocus factor
          */
         void rank1st(int& cls,
                      mat33& rot,
                      vec2& tran,
                      double& d) const;
 
+        /**
+         * This function gives the class of a random particle.
+         *
+         * @param cls the class of a random particle
+         */
         void rand(int& cls) const;
 
+        /**
+         * This function gives the quaternion of rotation of a random particle.
+         *
+         * @param quat the quaternion of rotation of a random particle
+         */
         void rand(vec4& quat) const;
 
-        void rand(mat33& rot) const;
-
-        void rand(vec2& tran) const;
-
-        void rand(double& d) const;
+        /**
+         * This function gives the rotation matrix in 2D of a random particle.
+         *
+         * @param rot the rotation matrix in 2D of a random particle
+         */
+        void rand(mat22& rot) const;
 
         /**
-         * This function randomly reports a coordinate by parameters.
+         * This function gives the rotation matrix in 3D of a random particle.
          *
-         * @param quat the quaternion of the rotation
-         * @param tran the translation
+         * @param rot the rotation martrix in 3D of a random particle
          */
+        void rand(mat33& rot) const;
+
+        /**
+         * This function gives the translation vector of a random particle.
+         *
+         * @param tran the translation vector of a random particle
+         */
+        void rand(vec2& tran) const;
+
+        /**
+         * This function gives the defocus factor of a random particle.
+         *
+         * @param d the defocus factor
+         */
+        void rand(double& d) const;
+
         void rand(int& cls,
                   vec4& quat,
                   vec2& tran,
@@ -720,12 +801,6 @@ class Particle
                   vec2& tran,
                   double& d) const;
 
-        /**
-         * This function randomly reports a coordinate by parameters.
-         *
-         * @param rot  the rotation matrix of the rotation
-         * @param tran the translation
-         */
         void rand(int& cls,
                   mat33& rot,
                   vec2& tran,

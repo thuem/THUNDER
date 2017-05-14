@@ -847,6 +847,15 @@ double Particle::diffTopT()
     return diff;
 }
 
+double Particle::diffTopD()
+{
+    double diff = fabs(_topDPrev - _topD);
+
+    _topDPrev = _topD;
+
+    return diff;
+}
+
 void Particle::rank1st(int& cls) const
 {
     cls = _topC;
@@ -932,6 +941,14 @@ void Particle::rand(vec4& quat) const
     size_t u = gsl_rng_uniform_int(engine, _n);
 
     quaternion(quat, u);
+}
+
+void Particle::rand(mat22& rot) const
+{
+    vec4 quat;
+    rand(quat);
+
+    rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
 void Particle::rand(mat33& rot) const
