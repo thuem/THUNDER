@@ -258,6 +258,156 @@ void Database::ctf(CTFAttr& dst,
         i);
 }
 
+int Database::cls(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    // TODO
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return atoi(word);
+}
+
+vec4 Database::quat(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    vec4 result;
+
+    // TODO
+
+    return result;
+}
+
+double Database::stdR(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    // TODO
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
+vec2 Database::tran(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    vec2 result;
+
+    // TODO
+
+    return result;
+}
+
+double Database::stdTX(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    // TODO
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
+double Database::stdTY(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    // TODO
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
+double Database::d(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    // TODO
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
+double Database::stdD(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    // TODO
+    for (int i = 0; i < THU_MICROGRAPH_PATH; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
 void Database::split(int& start,
                      int& end,
                      const int commRank)

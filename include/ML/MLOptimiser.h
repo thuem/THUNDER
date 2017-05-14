@@ -665,6 +665,8 @@ class MLOptimiser : public Parallel
          */
         void initParticles();
 
+        void loadParticles();
+
         /**
          * re-calculate the rotation change between this iteration and the
          * previous one

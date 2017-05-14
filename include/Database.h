@@ -73,6 +73,9 @@
 #include <cstdio>
 #include <iostream>
 
+#include "Typedef.h"
+#include "Macro.h"
+
 #include "Parallel.h"
 #include "Utils.h"
 #include "Random.h"
@@ -188,6 +191,22 @@ class Database : public Parallel
 
         void ctf(CTFAttr& dst,
                  const int i) const;
+
+        int cls(const int i) const;
+
+        vec4 quat(const int i) const;
+
+        double stdR(const int i) const;
+
+        vec2 tran(const int i) const;
+
+        double stdTX(const int i) const;
+
+        double stdTY(const int i) const;
+
+        double d(const int i) const;
+
+        double stdD(const int i) const;
 
     private:
 

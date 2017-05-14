@@ -2138,6 +2138,15 @@ void MLOptimiser::initParticles()
     }
 }
 
+void MLOptimiser::loadParticles()
+{
+    IF_MASTER return;
+
+    FOR_EACH_2D_IMAGE
+    {
+    }
+}
+
 void MLOptimiser::refreshRotationChange()
 {
     vec rc = vec::Zero(_nPar);

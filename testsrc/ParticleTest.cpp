@@ -8,7 +8,9 @@ INITIALIZE_EASYLOGGINGPP
 
 //#define RAND_QUATERNION
 
-#define PARTICLE_TEST_3D
+//#define PARTICLE_TEST_3D
+
+#define TEST_PARTICLE_LOAD
 
 using namespace std;
 
@@ -53,6 +55,43 @@ int main()
                r(2),
                r(3));
     }
+
+#endif
+
+#ifdef TEST_PARTICLE_LOAD
+
+    Symmetry sym("C1");
+
+    Particle par(MODE_3D, 1, N, 5, 0.01, &sym);
+
+    double stdR = 0.01;
+
+    double stdTX = 1;
+
+    double stdTY = 1;
+
+    double stdD = 0;
+
+    par.load(0,
+             vec4(1, 0, 0, 0),
+             stdR,
+             vec2(0, 0),
+             stdTX,
+             stdTY,
+             1,
+             stdD);
+
+    save("TEST_PARTICLE_LOAD.par", par);
+
+    par.calVari();
+
+    par.vari(stdR, stdTX, stdTY, stdD);
+
+    printf("stdR = %lf, stdTX = %lf, stdTY = %lf, stdD = %lf\n",
+           stdR,
+           stdTX,
+           stdTY,
+           stdD);
 
 #endif
 
