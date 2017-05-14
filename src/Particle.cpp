@@ -286,6 +286,17 @@ const Symmetry* Particle::symmetry() const { return _sym; }
 
 void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
 
+void Particle::load(const int cls,
+                    const vec4& quat,
+                    const double stdR,
+                    const vec2& tran,
+                    const double stdTX,
+                    const double stdTY,
+                    const double d,
+                    const double stdD)
+{
+}
+
 void Particle::vari(double& k0,
                     double& k1,
                     double& s0,
@@ -747,20 +758,6 @@ void Particle::resample(const int n,
     if (_mode == MODE_3D) symmetrise();
 }
 
-/***
-void Particle::downSample(const int n,
-                          const double alpha)
-{
-    if (n < _n)
-    {
-        sort(n);
-        shuffle();
-    }
-
-    resample(n, alpha);
-}
-***/
-
 double Particle::neff() const
 {
     return 1.0 / _w.squaredNorm();
@@ -792,8 +789,7 @@ void Particle::flatten(const double thres)
 void Particle::sort(const int n)
 {
     if (n > _n)
-        CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
-                                  << ": CANNOT SELECT TOP K FROM N WHEN K > N";
+        REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
 
     uvec order = iSort();
 

@@ -421,6 +421,31 @@ class Particle
         void setSymmetry(const Symmetry* sym);
 
         /**
+         * This function generates the particles by loading the class,
+         * quaternion of translation, standard devaation of rotation,
+         * translation vector, standard deviation of translation X,
+         * standard deviation of translation Y, defocus factor and
+         * standard deviation of defocus factor.
+         *
+         * @param cls   the class
+         * @param quat  the quaternion of rotation
+         * @param stdR  the standard deviation of rotation
+         * @param tran  the translation vector
+         * @param stdTX the standard deviation of translation X
+         * @param stdTY the standard deviation of translation Y
+         * @param d     the defocus factor
+         * @param stdD  the standard deviation of defocus factor
+         */
+        void load(const int cls,
+                  const vec4& quat,
+                  const double stdR,
+                  const vec2& tran,
+                  const double stdTX,
+                  const double stdTY,
+                  const double d,
+                  const double stdD);
+
+        /**
          * This function returns the concentration parameters, including
          * rotation and translation.
          *
@@ -617,11 +642,6 @@ class Particle
          */
         void resample(const int n,
                       const double alpha = 0);
-
-        /***
-        void downSample(const int n,
-                        const double alpha = 0);
-                        ***/
 
         /**
          * This function returns the neff value of this particle filter, which
