@@ -2231,14 +2231,17 @@ void MLOptimiser::loadParticles()
     #pragma omp parallel for private(cls, quat, stdR, tran, stdTX, stdTY, d, stdD)
     FOR_EACH_2D_IMAGE
     {
-        cls = _db.cls(_ID[l]);
-        quat = _db.quat(_ID[l]);
-        stdR = _db.stdR(_ID[l]);
-        tran = _db.tran(_ID[l]);
-        stdTX = _db.stdTX(_ID[l]);
-        stdTY = _db.stdTY(_ID[l]);
-        d = _db.d(_ID[l]);
-        stdD = _db.stdD(_ID[l]);
+        #pragma omp critical
+        {
+            cls = _db.cls(_ID[l]);
+            quat = _db.quat(_ID[l]);
+            stdR = _db.stdR(_ID[l]);
+            tran = _db.tran(_ID[l]);
+            stdTX = _db.stdTX(_ID[l]);
+            stdTY = _db.stdTY(_ID[l]);
+            d = _db.d(_ID[l]);
+            stdD = _db.stdD(_ID[l]);
+        }
 
         _par[l].load(cls,
                      quat,
