@@ -730,7 +730,11 @@ class MLModel : public Parallel
          */
         int searchType();
 
+        void setSearchType(const int searchType);
+
         int searchTypePrev() const;
+
+        void setSearchTypePrev(const int searchTypePrev);
 
         /**
          * This function returns whether to increase cutoff frequency or not.

@@ -105,6 +105,22 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
+    MLOG(INFO, "LOGGER_INIT") << "Determining Search Type";
+
+    if (_para.gSearch)
+    {
+        _searchType = SEARCH_TYPE_GLOBAL;
+
+        MLOG(INFO, "LOGGER_INIT") << "Search Type : Global";
+    }
+    else
+    {
+        _searchType = SEARCH_TYPE_LOCAL;
+
+        MLOG(INFO, "LOGGER_INIT") << "Search Type : Local";
+    }
+
+    _model.setSearchType(_searchType);
 
     /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";

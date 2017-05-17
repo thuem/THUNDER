@@ -1092,9 +1092,19 @@ int MLModel::searchType()
     return _searchType;
 }
 
+void MLModel::setSearchType(const int searchType)
+{
+    _searchType = searchType;
+}
+
 int MLModel::searchTypePrev() const
 {
     return _searchTypePrev;
+}
+
+void MLModel::setSearchTypePrev(const int searchTypePrev)
+{
+    _searchTypePrev = _searchTypePrev;
 }
 
 bool MLModel::increaseR() const
