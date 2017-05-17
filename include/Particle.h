@@ -203,6 +203,9 @@ class Particle
             _s1 = 0;
             _rho = 0;
 
+            _topCPrev = 0;
+            _topC = 0;
+
             _topRPrev = vec4(1, 0, 0, 0);
             _topR = vec4(1, 0, 0, 0);
 

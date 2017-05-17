@@ -144,27 +144,46 @@ void MLOptimiser::init()
         abort();
     }
 
-    MLOG(INFO, "LOGGER_INIT") << "Information Under "
-                              << _para.sclCorRes
-                              << " Angstrom will be Used for Performing Intensity Scale Correction";
+    if (_para.gSearch)
+    {
+        MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                                  << _para.sclCorRes
+                                  << " Angstrom will be Used for Performing Intensity Scale Correction";
 
-    _rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
+        _rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
+        
+        MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                                  << _rS
+                                  << " (Pixel) will be Used for Performing Intensity Scale Correction";
 
-    MLOG(INFO, "LOGGER_INIT") << "Information Under "
-                              << _rS
-                              << " (Pixel) will be Used for Performing Intensity Scale Correction";
+    }
+    else
+    {
+         MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                                   << _para.initRes
+                                   << " Angstrom will be Used for Performing Intensity Scale Correction";
 
-    MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
+         _rS = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
+         
+         MLOG(INFO, "LOGGER_INIT") << "Information Under "
+                                   << _rS
+                                   << " (Pixel) will be Used for Performing Intensity Scale Correction";
+    }
 
-    _model.setRGlobal(AROUND(resA2P(1.0 / _para.globalSearchRes,
-                             _para.size,
-                             _para.pixelSize)) + 1);
+    if (_para.gSearch)
+    {
+        MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
-    MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
-                              << _para.globalSearchRes
-                              << " (Angstrom), "
-                              << _model.rGlobal()
-                              << " (Pixel)";
+        _model.setRGlobal(AROUND(resA2P(1.0 / _para.globalSearchRes,
+                                 _para.size,
+                                 _para.pixelSize)) + 1);
+
+        MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
+                                  << _para.globalSearchRes
+                                  << " (Angstrom), "
+                                  << _model.rGlobal()
+                                  << " (Pixel)";
+    }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
 
@@ -282,6 +301,19 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
         BLOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
 #endif
+
+        if (!_para.gSearch)
+        {
+            ALOG(INFO, "LOGGER_INIT") << "Loading Particle Filters";
+            BLOG(INFO, "LOGGER_INIT") << "Loading Particle Filters";
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_INIT") << "Particle Filters Loaded";
+            BLOG(INFO, "LOGGER_INIT") << "Particle Filters Loaded";
+#endif
+        }
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
@@ -318,7 +350,18 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
-    correctScale(true, false);
+    if (_para.gSearch)
+    {
+        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Random Projections";
+
+        correctScale(true, false);
+    }
+    else
+    {
+        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
+
+        correctScale(false, false);
+    }
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
@@ -2303,6 +2346,15 @@ void MLOptimiser::refreshVariance()
 void MLOptimiser::refreshScale(const bool init,
                                const bool group)
 {
+    if (!init)
+    {
+        if (_iter == 0)
+            _rS = _r;
+        else
+            _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+    }
+
+    /***
     if (init)
     {
         // _rS = 1;
@@ -2311,6 +2363,7 @@ void MLOptimiser::refreshScale(const bool init,
         CLOG(FATAL, "LOGGER_SYS") << "Intensity Scale Can Not be Correct in First Iteration";
     else
         _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+    ***/
 
     if (_rS > _r)
     {
