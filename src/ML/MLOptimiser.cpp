@@ -162,8 +162,10 @@ void MLOptimiser::init()
         abort();
     }
 
+    /***
     if (_para.gSearch)
     {
+    ***/
         MLOG(INFO, "LOGGER_INIT") << "Information Under "
                                   << _para.sclCorRes
                                   << " Angstrom will be Used for Performing Intensity Scale Correction";
@@ -174,6 +176,7 @@ void MLOptimiser::init()
                                   << _rS
                                   << " (Pixel) will be Used for Performing Intensity Scale Correction";
 
+        /***
     }
     else
     {
@@ -187,6 +190,7 @@ void MLOptimiser::init()
                                    << _rS
                                    << " (Pixel) will be Used for Performing Intensity Scale Correction";
     }
+    ***/
 
     if (_para.gSearch)
     {
