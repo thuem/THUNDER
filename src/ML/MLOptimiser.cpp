@@ -105,6 +105,7 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Determining Search Type";
 
     if (_para.gSearch)
@@ -121,6 +122,7 @@ void MLOptimiser::init()
     }
 
     _model.setSearchType(_searchType);
+    ***/
 
     /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
@@ -322,6 +324,8 @@ void MLOptimiser::init()
         {
             ALOG(INFO, "LOGGER_INIT") << "Loading Particle Filters";
             BLOG(INFO, "LOGGER_INIT") << "Loading Particle Filters";
+
+            loadParticles();
 
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(_hemi);
