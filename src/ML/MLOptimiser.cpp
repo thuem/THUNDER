@@ -380,7 +380,8 @@ void MLOptimiser::init()
     {
         MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
 
-        correctScale(false, false);
+        //correctScale(false, false);
+        correctScale(true, false);
     }
 
 #ifdef VERBOSE_LEVEL_1
