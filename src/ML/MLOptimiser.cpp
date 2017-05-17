@@ -105,6 +105,7 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Determining Search Type";
 
     if (_para.gSearch)
@@ -121,6 +122,7 @@ void MLOptimiser::init()
     }
 
     _model.setSearchType(_searchType);
+    ***/
 
     /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
@@ -390,7 +392,20 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
-        initSigma();
+        if (_para.gSearch)
+        {
+            ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Random Projections";
+            BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Random Projections";
+            
+            initSigma();
+        }
+        else
+        {
+            ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
+            BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
+
+            allReduceSigma();
+        }
     }
 
 #ifdef VERBOSE_LEVEL_1
@@ -2211,7 +2226,7 @@ void MLOptimiser::loadParticles()
     double d;
     double stdD;
 
-    #pragma omp parallel for private(quat, stdR, tran, stdTX, stdTY, d, stdD)
+    #pragma omp parallel for private(cls, quat, stdR, tran, stdTX, stdTY, d, stdD)
     FOR_EACH_2D_IMAGE
     {
         cls = _db.cls(_ID[l]);
