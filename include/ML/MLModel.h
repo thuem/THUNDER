@@ -78,7 +78,15 @@ class MLModel : public Parallel
 
         int _mode;
 
-        bool _refine;
+        /**
+         * perform global search or not
+         */
+        bool _gSearch;
+
+        /**
+         * perform local search or not
+         */
+        bool _lSearch;
 
         bool _ctfRefine;
 
@@ -271,7 +279,8 @@ class MLModel : public Parallel
         MLModel()
         {
             _mode = MODE_3D;
-            _refine = true;
+            _gSearch = true;
+            _lSearch = true;
             _r = 1;
             _rU = 1;
             _rPrev = 1;
@@ -317,7 +326,8 @@ class MLModel : public Parallel
          * @param sym       the symmetry information
          */
         void init(const int mode,
-                  const bool refine,
+                  const bool gSearch,
+                  const bool lSearch,
                   const bool ctfRefine,
                   const int k,
                   const int size,
@@ -332,9 +342,19 @@ class MLModel : public Parallel
 
         void setMode(const int mode);
 
+        bool gSearch() const;
+
+        void setGSearch(const bool gSearch);
+
+        bool lSearch() const;
+
+        void setLSearch(const bool lSearch);
+
+        /***
         bool refine() const;
 
         void setRefine(const bool refine);
+        ***/
 
         /**
          * This function initialises projectors and reconstructors.

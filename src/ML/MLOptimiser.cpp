@@ -93,7 +93,8 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.mode,
-                _para.refine,
+                _para.gSearch,
+                _para.lSearch,
                 _para.ctfRefine,
                 _para.k,
                 _para.size,
@@ -2151,7 +2152,7 @@ void MLOptimiser::loadParticles()
     double d;
     double stdD;
 
-    #pragma omp parralel for private(quat, stdR, tran, stdTX, stdTY, d, stdD)
+    #pragma omp parallel for private(quat, stdR, tran, stdTX, stdTY, d, stdD)
     FOR_EACH_2D_IMAGE
     {
         cls = _db.cls(_ID[l]);

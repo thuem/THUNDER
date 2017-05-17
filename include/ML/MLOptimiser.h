@@ -80,9 +80,14 @@ struct MLOptimiserPara
     int mode;
 
     /**
-     * refine or not
+     * perform global search or not
      */
-    bool refine;
+    bool gSearch;
+
+    /**
+     * perform local search or not
+     */
+    bool lSearch;
 
     /**
      * ctf refine or not
@@ -265,7 +270,8 @@ struct MLOptimiserPara
     MLOptimiserPara()
     {
         mode = MODE_3D;
-        refine = true;
+        gSearch = true;
+        lSearch = true;
         ctfRefine = false;
         performMask = true;
         autoMask = true;

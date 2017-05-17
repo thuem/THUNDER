@@ -15,7 +15,8 @@ MLModel::~MLModel()
 }
 
 void MLModel::init(const int mode,
-                   const bool refine,
+                   const bool gSearch,
+                   const bool lSearch,
                    const bool ctfRefine,
                    const int k,
                    const int size,
@@ -27,7 +28,8 @@ void MLModel::init(const int mode,
                    const Symmetry* sym)
 {
     _mode = mode;
-    _refine = refine;
+    _gSearch = gSearch;
+    _lSearch = lSearch;
     _ctfRefine = ctfRefine;
 
     _k = k;
@@ -53,6 +55,27 @@ void MLModel::setMode(const int mode)
     _mode = mode;
 }
 
+bool MLModel::gSearch() const
+{
+    return _gSearch;
+}
+
+void MLModel::setGSearch(const bool gSearch)
+{
+    _gSearch = gSearch;
+}
+
+bool MLModel::lSearch() const
+{
+    return _lSearch;
+}
+
+void MLModel::setLSearch(const bool lSearch)
+{
+    _lSearch = lSearch;
+}
+
+/***
 bool MLModel::refine() const
 {
     return _refine;
@@ -62,6 +85,7 @@ void MLModel::setRefine(const bool refine)
 {
     _refine = refine;
 }
+***/
 
 void MLModel::initProjReco()
 {
@@ -1045,10 +1069,15 @@ int MLModel::searchType()
         IF_MASTER
             if ((_r == _rGlobal) && _increaseR)
             {
+                _searchType = _lSearch
+                            ? SEARCH_TYPE_LOCAL
+                            : SEARCH_TYPE_STOP;
+                /***
                 if (_refine)
                     _searchType = SEARCH_TYPE_LOCAL;
                 else
                     _searchType = SEARCH_TYPE_STOP;
+                ***/
             }
     }
 

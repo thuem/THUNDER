@@ -50,7 +50,9 @@ void readPara(MLOptimiserPara& dst,
     else
         REPORT_ERROR("INEXISTENT MODE");
 
-    dst.refine = src["Refine"].asBool();
+    dst.gSearch = src["Global Search"].asBool();
+    dst.lSearch = src["Local Search"].asBool();
+    //dst.refine = src["Refine"].asBool();
     dst.ctfRefine = src["CTF Refine"].asBool();
 
     dst.k = src["Number of Classes"].asInt();
