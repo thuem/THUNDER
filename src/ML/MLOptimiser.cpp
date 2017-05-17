@@ -105,7 +105,6 @@ void MLOptimiser::init()
                 _para.alpha,
                 &_sym);
 
-    /***
     MLOG(INFO, "LOGGER_INIT") << "Determining Search Type";
 
     if (_para.gSearch)
@@ -122,7 +121,6 @@ void MLOptimiser::init()
     }
 
     _model.setSearchType(_searchType);
-    ***/
 
     /***
     MLOG(INFO, "LOGGER_INIT") << "Initialising Upper Boundary of Reconstruction";
