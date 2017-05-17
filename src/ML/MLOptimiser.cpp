@@ -4127,7 +4127,8 @@ double logDataVSPrior(const Image& dat,
         if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < rU)
+            if ((v < rU) &&
+                (v >= rL))
             {
                 int index = dat.iFTHalf(i, j);
 
@@ -4235,7 +4236,8 @@ double logDataVSPrior(const Image& dat,
         if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < rU)
+            if ((v < rU) &&
+                (v >= rL))
             {
                 int index = dat.iFTHalf(i, j);
 
@@ -4304,7 +4306,8 @@ vec logDataVSPrior(const vector<Image>& dat,
         if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < rU)
+            if ((v < rU) &&
+                (v >= rL))
             {
                 int index = dat[0].iFTHalf(i, j);
 
@@ -4465,7 +4468,8 @@ void scaleDataVSPrior(vec& sXA,
         if ((u < rU2) && (u >= rL2))
         {
             int v = AROUND(NORM(i, j));
-            if (v < rU)
+            if ((v < rU) &&
+                (v >= rL))
             {
                 int index = dat.iFTHalf(i, j);
 
