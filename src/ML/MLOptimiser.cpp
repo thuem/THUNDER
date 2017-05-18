@@ -1124,10 +1124,12 @@ void MLOptimiser::maximization()
         correctScale(false, true);
     }
 
+#ifdef OPTIMISER_RECONSTRUCT_REF
     ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
     BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
     reconstructRef();
+#endif
 }
 
 void MLOptimiser::run()
