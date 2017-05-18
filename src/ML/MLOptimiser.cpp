@@ -2258,6 +2258,16 @@ void MLOptimiser::loadParticles()
                      stdTY,
                      d,
                      stdD);
+
+        _par[l].calVari();
+    }
+
+    for (int i = 0; i < 10; i++)
+    {
+        ALOG(INFO, "LOGGER_SYS") << "Compress of "
+                                 << i
+                                 << " : "
+                                 << _par[l].compress();
     }
 }
 
