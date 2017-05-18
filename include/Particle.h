@@ -430,7 +430,8 @@ class Particle
          * standard deviation of translation Y, defocus factor and
          * standard deviation of defocus factor.
          *
-         * @param cls   the number of particles
+         * @param m     the number of classes
+         * @param n     the number of particles
          * @param cls   the class
          * @param quat  the quaternion of rotation
          * @param stdR  the standard deviation of rotation
@@ -440,7 +441,8 @@ class Particle
          * @param d     the defocus factor
          * @param stdD  the standard deviation of defocus factor
          */
-        void load(const int n,
+        void load(const int m,
+                  const int n,
                   const int cls,
                   const vec4& quat,
                   const double stdR,

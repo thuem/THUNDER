@@ -286,7 +286,8 @@ const Symmetry* Particle::symmetry() const { return _sym; }
 
 void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
 
-void Particle::load(const int n,
+void Particle::load(const int m,
+                    const int n,
                     const int cls,
                     const vec4& quat,
                     const double stdR,
@@ -296,7 +297,16 @@ void Particle::load(const int n,
                     const double d,
                     const double stdD)
 {
+    _m = m;
+
     _n = n;
+
+    _c.resize(_n);
+    _r.resize(_n, 4);
+    _t.resize(_n, 2);
+    _d.resize(_n);
+
+    _w.resize(_n);
 
     gsl_rng* engine = get_random_engine();
 
