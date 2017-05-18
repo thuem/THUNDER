@@ -366,6 +366,8 @@ void Particle::load(const int m,
     // make sure the particles have the same weight
     for (int i = 0; i < _n; i++)
         _w(i) = 1.0 / _n;
+
+    if (_mode == MODE_3D) symmetrise();
 }
 
 void Particle::vari(double& k0,
