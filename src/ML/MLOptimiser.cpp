@@ -2578,6 +2578,7 @@ void MLOptimiser::refreshScale(const bool init,
     {
         for (int i = 0; i < _nGroup; i++)
         {
+            /***
             double sum = 0;
             int count = 0;
 
@@ -2588,10 +2589,14 @@ void MLOptimiser::refreshScale(const bool init,
             }
 
             _scale(i) = sum / count;
+            ***/
+
+            _scale(i) = mXA.row(i).sum() / mAA.row(i).sum();
         }
     }
     else
     {
+        /***
         double sum = 0;
         int count = 0;
 
@@ -2600,9 +2605,13 @@ void MLOptimiser::refreshScale(const bool init,
             sum += mXA(0, r) / mAA(0, r);
             count += 1;
         }
+        ***/
         
         for (int i = 0; i < _nGroup; i++)
-            _scale(i) = sum / count;
+        {
+            _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
+            // _scale(i) = sum / count;
+        }
     }
 
     double medianScale = median(_scale, _scale.size());
