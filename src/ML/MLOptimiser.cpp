@@ -3194,26 +3194,26 @@ void MLOptimiser::reconstructRef()
         if (!ctfRefine) ctf = _ctf[l].copyImage();
         ***/
 
+        double w;
+
+        if (_para.parGra)
+        {
+            _par[l].calVari();
+
+            w = _par[l].compress();
+        }
+        else
+            w = 1;
+
+        w /= _para.mReco;
+
         for (int m = 0; m < _para.mReco; m++)
-            /***
-        for (int m = 0; m < (ctfRefine
-                           ? (_para.mReco * _para.ctfRefineFactor)
-                           : _para.mReco); m++)
-                           ***/
         {
             int cls;
             mat22 rot2D;
             mat33 rot3D;
             vec2 tran;
             double d;
-
-            double w;
-            if (_para.parGra)
-                w = _par[l].compress();
-            else
-                w = 1;
-
-            w /= _para.mReco;
 
             if (_para.mode == MODE_2D)
             {
