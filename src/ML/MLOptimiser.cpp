@@ -1172,13 +1172,11 @@ void MLOptimiser::run()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        /***
-        if (_iter == 0)
-        {
-        ***/
+#ifndef OPTIMISER_SKIP_EXPECTATION
         MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
         expectation();
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
         ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
