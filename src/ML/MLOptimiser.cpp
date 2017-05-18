@@ -405,7 +405,7 @@ void MLOptimiser::init()
             ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
             BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
 
-            allReduceSigma();
+            allReduceSigma(false);
         }
     }
 
