@@ -1572,9 +1572,11 @@ void MLOptimiser::initRef()
         else
             REPORT_ERROR("INEXISTENT MODE");
     
+#ifdef OPTIMISER_INIT_REF_REMOVE_NEG
         #pragma omp parallel for
         FOR_EACH_PIXEL_RL(ref)
             if (ref(i) < 0) ref(i) = 0;
+#endif
 
         _model.clearRef();
 
@@ -2718,6 +2720,7 @@ void MLOptimiser::reMaskImg()
 
 void MLOptimiser::normCorrection()
 {
+    // TODO, Something not Good here!
     double rNorm = GSL_MIN_DBL(_r, _model.resolutionP(0.75, false));
 
     vec norm = vec::Zero(_nPar);
