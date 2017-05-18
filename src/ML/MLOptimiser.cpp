@@ -2246,7 +2246,8 @@ void MLOptimiser::loadParticles()
             stdD = _db.stdD(_ID[l]);
         }
 
-        _par[l].load(cls,
+        _par[l].load(_para.mL,
+                     cls,
                      quat,
                      stdR,
                      tran,
