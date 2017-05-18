@@ -2342,6 +2342,8 @@ void MLOptimiser::refreshVariance()
         #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
         {
+            _par[l].calVari();
+
             _par[l].vari(rVari,
                          tVariS0,
                          tVariS1,
