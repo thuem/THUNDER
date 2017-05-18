@@ -2262,7 +2262,7 @@ void MLOptimiser::loadParticles()
         _par[l].calVari();
     }
 
-    for (int i = 0; i < 10; i++)
+    for (int l = 0; l < 10; l++)
     {
         ALOG(INFO, "LOGGER_SYS") << "Compress of "
                                  << i
