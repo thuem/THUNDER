@@ -2220,20 +2220,70 @@ void MLOptimiser::initParticles()
     }
 }
 
+void MLOptimiser::avgStdR(double& stdR)
+{
+    IF_MASTER return;
+
+    stdR = 0;
+
+    FOR_EACH_2D_IMAGE
+        stdR += _db.stdR(_ID[l]);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                 &stdR,
+                 1,
+                 MPI_DOUBLE,
+                 MPI_SUM,
+                 _hemi);
+
+    stdR /= _N;
+}
+
+void MLOptimiser::avgStdT(double& stdT)
+{
+    IF_MASTER return;
+
+    stdT = 0;
+
+    FOR_EACH_2D_IMAGE
+    {
+        stdT += _db.stdTX(_ID[l]);
+        stdT += _db.stdTY(_ID[l]);
+    }
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &stdT,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    stdT /= _N;
+    stdT /= 2;
+}
+
 void MLOptimiser::loadParticles()
 {
     IF_MASTER return;
 
+    double stdR, stdT;
+
+    avgStdR(stdR);
+    avgStdT(stdT);
+
+    ALOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Rotation: " << stdR;
+    BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Rotation: " << stdR;
+
+    ALOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
+    BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
+
     int cls;
     vec4 quat;
-    double stdR;
     vec2 tran;
-    double stdTX;
-    double stdTY;
     double d;
     double stdD;
 
-    #pragma omp parallel for private(cls, quat, stdR, tran, stdTX, stdTY, d, stdD)
+    #pragma omp parallel for private(cls, quat, stdR, tran, d)
     FOR_EACH_2D_IMAGE
     {
         #pragma omp critical
@@ -2242,10 +2292,7 @@ void MLOptimiser::loadParticles()
             quat = _db.quat(_ID[l]);
             stdR = _db.stdR(_ID[l]);
             tran = _db.tran(_ID[l]);
-            stdTX = _db.stdTX(_ID[l]);
-            stdTY = _db.stdTY(_ID[l]);
             d = _db.d(_ID[l]);
-            stdD = _db.stdD(_ID[l]);
         }
 
         _par[l].load(_para.k,
@@ -2254,8 +2301,8 @@ void MLOptimiser::loadParticles()
                      quat,
                      stdR,
                      tran,
-                     stdTX,
-                     stdTY,
+                     stdT,
+                     stdT,
                      d,
                      stdD);
 

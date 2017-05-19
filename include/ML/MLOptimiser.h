@@ -671,6 +671,10 @@ class MLOptimiser : public Parallel
          */
         void initParticles();
 
+        void avgStdR(double& stdR);
+
+        void avgStdT(double& stdT);
+
         void loadParticles();
 
         /**
