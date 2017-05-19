@@ -332,7 +332,11 @@ void Particle::load(const int m,
         vec4 pert = p.row(i).transpose();
 
         vec4 part;
-        quaternion_mul(part, pert, quat);
+
+        if (gsl_ran_flat(engine, -1, 1) >= 0)
+            quaternion_mul(part, pert, quat);
+        else
+            quaternion_mul(part, pert, -quat);
 
         _r.row(i) = part.transpose();
     }
