@@ -393,6 +393,9 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
+        initSigma();
+
+        /***
         if (_para.gSearch)
         {
             ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Random Projections";
@@ -407,6 +410,7 @@ void MLOptimiser::init()
 
             allReduceSigma(false);
         }
+        ***/
     }
 
 #ifdef VERBOSE_LEVEL_1
@@ -2688,7 +2692,9 @@ void MLOptimiser::refreshScale(const bool init,
 #endif
     }
 
-    double medianScale = median(_scale, _scale.size());
+    //double medianScale = median(_scale, _scale.size());
+
+    double medianScale = 0.091;
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
 
