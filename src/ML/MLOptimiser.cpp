@@ -1506,7 +1506,7 @@ void MLOptimiser::bcastGroupInfo()
 
     NT_MASTER
         FOR_EACH_2D_IMAGE
-            _groupID.push_back(_db.groupID(l));
+            _groupID.push_back(_db.groupID(_ID[l]));
 
     MLOG(INFO, "LOGGER_INIT") << "Getting Number of Groups from Database";
 
