@@ -393,15 +393,12 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
         BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma";
 
-        /***
         if (_para.gSearch)
         {
-        ***/
             ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Random Projections";
             BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Random Projections";
             
             initSigma();
-        /***
         }
         else
         {
@@ -410,7 +407,6 @@ void MLOptimiser::init()
 
             allReduceSigma(false);
         }
-        ***/
     }
 
 #ifdef VERBOSE_LEVEL_1
@@ -2283,6 +2279,9 @@ void MLOptimiser::loadParticles()
     double d;
     double stdD;
 
+    //double stdR, stdTX, stdTY;
+
+    //#pragma omp parallel for private(cls, quat, stdR, tran, d, stdR, stdTX, stdTY)
     #pragma omp parallel for private(cls, quat, stdR, tran, d)
     FOR_EACH_2D_IMAGE
     {
@@ -2293,6 +2292,12 @@ void MLOptimiser::loadParticles()
             stdR = _db.stdR(_ID[l]);
             tran = _db.tran(_ID[l]);
             d = _db.d(_ID[l]);
+
+            /***
+            stdR = _db.stdR(_ID[l]);
+            stdR = _db.stdTX(_ID[l]);
+            stdR = _db.stdTY(_ID[l]);
+            ***/
         }
 
         _par[l].load(_para.k,
