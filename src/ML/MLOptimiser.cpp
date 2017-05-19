@@ -1151,6 +1151,8 @@ void MLOptimiser::run()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+    saveSig();
+
     MLOG(INFO, "LOGGER_ROUND") << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
