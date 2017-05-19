@@ -2688,13 +2688,14 @@ void MLOptimiser::refreshScale(const bool init,
             _scale(i) = sum / count;
 #else
         for (int i = 0; i < _nGroup; i++)
+        {
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
+            _scale(i) = 0.091;
+        }
 #endif
     }
 
-    //double medianScale = median(_scale, _scale.size());
-
-    double medianScale = 0.091;
+    double medianScale = median(_scale, _scale.size());
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
 
@@ -2709,8 +2710,6 @@ void MLOptimiser::refreshScale(const bool init,
     }
 
     double meanScale = _scale.mean();
-
-    double meanScale = 0.091;
     
     MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
