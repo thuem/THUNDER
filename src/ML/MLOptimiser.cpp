@@ -2709,6 +2709,8 @@ void MLOptimiser::refreshScale(const bool init,
     }
 
     double meanScale = _scale.mean();
+
+    double meanScale = 0.091;
     
     MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
