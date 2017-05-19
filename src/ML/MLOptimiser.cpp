@@ -2736,7 +2736,9 @@ void MLOptimiser::reMaskImg()
 
 void MLOptimiser::normCorrection()
 {
-    // TODO, Something not Good here!
+    // skip norm correction in the first iteration
+    if (_iter == 0) return;
+
     double rNorm = GSL_MIN_DBL(_r, _model.resolutionP(0.75, false));
 
     vec norm = vec::Zero(_nPar);
