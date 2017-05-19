@@ -2432,6 +2432,9 @@ void MLOptimiser::refreshVariance()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+    ALOG(INFO, "INFO") << "Maximum Rotation Variance: " << rv.maxCoeff();
+    ALOG(INFO, "INFO") << "Minimum Rotation Variance: " << rv.minCoeff();
+
     double mean, std;
 
     stat_MAS(mean, std, rv, _nPar);
