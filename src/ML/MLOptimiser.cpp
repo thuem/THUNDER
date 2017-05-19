@@ -2403,10 +2403,15 @@ void MLOptimiser::refreshScale(const bool init,
 {
     if (!init)
     {
+        if (_iter != 0)
+            _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+
+        /***
         if (_iter == 0)
             _rS = _r;
         else
             _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+        ***/
     }
 
     /***
