@@ -3272,8 +3272,8 @@ void MLOptimiser::reconstructRef()
             }
             else if (_para.mode == MODE_3D)
             {
-                //_par[l].rand(cls, rot3D, tran, d);
-                _par[l].rank1st(cls, rot3D, tran, d);
+                _par[l].rand(cls, rot3D, tran, d);
+                //_par[l].rank1st(cls, rot3D, tran, d);
 
                 if (ctfRefine)
                     CTF(ctf,
