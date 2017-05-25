@@ -90,9 +90,9 @@ struct MLOptimiserPara
     bool lSearch;
 
     /**
-     * ctf refine or not
+     * perform ctf search or not
      */
-    bool ctfRefine;
+    bool cSearch;
 
     /**
      * number of classes
@@ -272,7 +272,7 @@ struct MLOptimiserPara
         mode = MODE_3D;
         gSearch = true;
         lSearch = true;
-        ctfRefine = false;
+        cSearch = true;
         performMask = true;
         autoMask = true;
         performSharpen = true;

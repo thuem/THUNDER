@@ -88,7 +88,10 @@ class MLModel : public Parallel
          */
         bool _lSearch;
 
-        bool _ctfRefine;
+        /**
+         * perform CTF search or not
+         */
+        bool _cSearch;
 
         /**
          * references in Fourier space
@@ -328,7 +331,7 @@ class MLModel : public Parallel
         void init(const int mode,
                   const bool gSearch,
                   const bool lSearch,
-                  const bool ctfRefine,
+                  const bool cSearch,
                   const int k,
                   const int size,
                   const int r,

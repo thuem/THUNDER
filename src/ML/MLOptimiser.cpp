@@ -95,7 +95,7 @@ void MLOptimiser::init()
     _model.init(_para.mode,
                 _para.gSearch,
                 _para.lSearch,
-                _para.ctfRefine,
+                _para.cSearch,
                 _para.k,
                 _para.size,
                 0,
@@ -113,11 +113,23 @@ void MLOptimiser::init()
 
         MLOG(INFO, "LOGGER_INIT") << "Search Type : Global";
     }
-    else
+    else if (_para.lSearch)
     {
         _searchType = SEARCH_TYPE_LOCAL;
 
         MLOG(INFO, "LOGGER_INIT") << "Search Type : Local";
+    }
+    else if (_para.cSearch)
+    {
+        _searchType = SEARCH_TYPE_CTF;
+
+        MLOG(INFO, "LOGGER_INIT") << "Search Type : CTF";
+    }
+    else
+    {
+        REPORT_ERROR("WRONG INITIAL SEARCH TYPE");
+
+        abort();
     }
 
     _model.setSearchType(_searchType);
@@ -837,7 +849,7 @@ void MLOptimiser::expectation()
 
                 /**
                 if (_model.searchTypePrev() == SEARCH_TYPE_LOCAL)
-                    _par[l].initD(_para.ctfRefineS);
+                    _par[l].initD(_para.cSearchS);
                 ***/
             }
             else
@@ -3245,8 +3257,8 @@ void MLOptimiser::reconstructRef()
     for (int t = 0; t < _para.k; t++)
         _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
-    bool ctfRefine = ((_searchType == SEARCH_TYPE_CTF) ||
-                      ((_para.ctfRefine) &&
+    bool cSearch = ((_searchType == SEARCH_TYPE_CTF) ||
+                      ((_para.cSearch) &&
                        (_searchType == SEARCH_TYPE_STOP)));
 
     #pragma omp parallel for
@@ -3262,7 +3274,7 @@ void MLOptimiser::reconstructRef()
         Image ctf(_para.size, _para.size, FT_SPACE);
 
         /***
-        if (!ctfRefine) ctf = _ctf[l].copyImage();
+        if (!cSearch) ctf = _ctf[l].copyImage();
         ***/
 
         double w;
@@ -3290,7 +3302,7 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot2D, tran, d);
 
-                if (ctfRefine)
+                if (cSearch)
                     CTF(ctf,
                         _para.pixelSize,
                         _ctfAttr[l].voltage,
@@ -3302,13 +3314,13 @@ void MLOptimiser::reconstructRef()
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot2D,
                                          tran - _offset[l],
                                          w);
 #else
                 _model.reco(cls).insertP(_img[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot2D,
                                          tran,
                                          w);
@@ -3316,13 +3328,13 @@ void MLOptimiser::reconstructRef()
 #else
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot2D,
                                          tran,
                                          w);
 #else
                 _model.reco(cls).insertP(_img[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot2D,
                                          tran,
                                          w);
@@ -3334,7 +3346,7 @@ void MLOptimiser::reconstructRef()
                 _par[l].rand(cls, rot3D, tran, d);
                 //_par[l].rank1st(cls, rot3D, tran, d);
 
-                if (ctfRefine)
+                if (cSearch)
                     CTF(ctf,
                         _para.pixelSize,
                         _ctfAttr[l].voltage,
@@ -3346,13 +3358,13 @@ void MLOptimiser::reconstructRef()
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot3D,
                                          tran - _offset[l],
                                          w);
 #else
                 _model.reco(cls).insertP(_img[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot3D,
                                          tran,
                                          w);
@@ -3360,13 +3372,13 @@ void MLOptimiser::reconstructRef()
 #else
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 _model.reco(cls).insertP(_imgOri[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot3D,
                                          tran,
                                          w);
 #else
                 _model.reco(cls).insertP(_img[l],
-                                         ctfRefine ? ctf : _ctf[l],
+                                         cSearch ? ctf : _ctf[l],
                                          rot3D,
                                          tran,
                                          w);

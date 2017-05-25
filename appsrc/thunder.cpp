@@ -52,8 +52,7 @@ void readPara(MLOptimiserPara& dst,
 
     dst.gSearch = src["Global Search"].asBool();
     dst.lSearch = src["Local Search"].asBool();
-    //dst.refine = src["Refine"].asBool();
-    dst.ctfRefine = src["CTF Refine"].asBool();
+    dst.cSearch = src["CTF Search"].asBool();
 
     dst.k = src["Number of Classes"].asInt();
     dst.size = src["Size of Image"].asInt();

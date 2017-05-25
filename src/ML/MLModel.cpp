@@ -17,7 +17,7 @@ MLModel::~MLModel()
 void MLModel::init(const int mode,
                    const bool gSearch,
                    const bool lSearch,
-                   const bool ctfRefine,
+                   const bool cSearch,
                    const int k,
                    const int size,
                    const int r,
@@ -30,7 +30,7 @@ void MLModel::init(const int mode,
     _mode = mode;
     _gSearch = gSearch;
     _lSearch = lSearch;
-    _ctfRefine = ctfRefine;
+    _cSearch = cSearch;
 
     _k = k;
     _size = size;
@@ -1047,7 +1047,7 @@ int MLModel::searchType()
                 if (_nTopResNoImprove >= MAX_ITER_RES_NO_IMPROVE)
                 {
                     if ((_searchType == SEARCH_TYPE_LOCAL) &&
-                        _ctfRefine)
+                        _cSearch)
                     {
                         _searchType = SEARCH_TYPE_CTF;
                         _nTopResNoImprove = 0;
