@@ -397,7 +397,6 @@ void MLOptimiser::init()
 
         initSigma();
 
-        /***
         if (_para.gSearch)
         {
             ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Random Projections";
@@ -412,7 +411,6 @@ void MLOptimiser::init()
 
             allReduceSigma(false);
         }
-        ***/
     }
 
 #ifdef VERBOSE_LEVEL_1
