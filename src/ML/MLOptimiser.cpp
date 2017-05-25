@@ -2466,11 +2466,13 @@ void MLOptimiser::refreshScale(const bool init,
     {
         if (_iter != 0)
             _rS = _model.resolutionP(_para.thresSclCorFSC, false);
+        /***
         else
         {
             REPORT_ERROR("REFRESH SCALE SHOULD NOT BE PERFORMED AT ITERATION 0");
             abort();
         }
+        ***/
     }
 
     if (_rS > _r)
