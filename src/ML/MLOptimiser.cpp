@@ -368,7 +368,6 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Set Up";
 #endif
 
-    /***
     MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
     if (_para.gSearch)
@@ -384,7 +383,6 @@ void MLOptimiser::init()
         correctScale(false, false);
         //correctScale(true, false);
     }
-    ***/
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
@@ -2696,7 +2694,7 @@ void MLOptimiser::refreshScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
         {
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
-            _scale(i) = 0.091;
+            //_scale(i) = 0.091;
         }
 #endif
     }
@@ -2705,7 +2703,7 @@ void MLOptimiser::refreshScale(const bool init,
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
 
-    MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale: " << medianScale;
+    MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale";
 
     for (int i = 0; i < _nGroup; i++)
     {
@@ -2733,6 +2731,7 @@ void MLOptimiser::refreshScale(const bool init,
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
                                << gsl_stats_sd(_scale.data(), 1, _scale.size());
 
+    /***
     if (!init)
     {
         MLOG(INFO, "LOGGER_ROUND") << "Making Average Intensity Scale be 1";
@@ -2740,6 +2739,7 @@ void MLOptimiser::refreshScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) /= fabs(meanScale);
     }
+    ***/
 
     IF_MASTER
     {
