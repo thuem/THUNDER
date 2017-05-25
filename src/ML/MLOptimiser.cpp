@@ -2694,7 +2694,7 @@ void MLOptimiser::refreshScale(const bool init,
         for (int i = 0; i < _nGroup; i++)
         {
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
-            //_scale(i) = 0.091;
+            _scale(i) = 0.091;
         }
 #endif
     }
