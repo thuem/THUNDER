@@ -322,7 +322,6 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Particle Filters Initialised";
 #endif
 
-        /***
         if (!_para.gSearch)
         {
             ALOG(INFO, "LOGGER_INIT") << "Loading Particle Filters";
@@ -337,7 +336,6 @@ void MLOptimiser::init()
             BLOG(INFO, "LOGGER_INIT") << "Particle Filters Loaded";
 #endif
         }
-        ***/
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
