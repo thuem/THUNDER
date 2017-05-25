@@ -2466,25 +2466,12 @@ void MLOptimiser::refreshScale(const bool init,
     {
         if (_iter != 0)
             _rS = _model.resolutionP(_para.thresSclCorFSC, false);
-
-        /***
-        if (_iter == 0)
-            _rS = _r;
         else
-            _rS = _model.resolutionP(_para.thresSclCorFSC, false);
-        ***/
+        {
+            REPORT_ERROR("REFRESH SCALE SHOULD NOT BE PERFORMED AT ITERATION 0");
+            abort();
+        }
     }
-
-    /***
-    if (init)
-    {
-        // _rS = 1;
-    }
-    else if (_iter == 0)
-        CLOG(FATAL, "LOGGER_SYS") << "Intensity Scale Can Not be Correct in First Iteration";
-    else
-        _rS = _model.resolutionP(_para.thresSclCorFSC, false);
-    ***/
 
     if (_rS > _r)
     {
