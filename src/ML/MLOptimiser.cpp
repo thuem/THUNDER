@@ -366,6 +366,7 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Set Up";
 #endif
 
+    /***
     MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
     if (_para.gSearch)
@@ -381,6 +382,7 @@ void MLOptimiser::init()
         correctScale(false, false);
         //correctScale(true, false);
     }
+    ***/
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
