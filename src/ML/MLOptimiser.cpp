@@ -160,9 +160,8 @@ void MLOptimiser::init()
         abort();
     }
 
-    _rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
+    //_rS = AROUND(resA2P(1.0 / _para.sclCorRes, _para.size, _para.pixelSize)) + 1;
 
-    /***
     if (_para.gSearch)
     {
         MLOG(INFO, "LOGGER_INIT") << "Information Under "
@@ -188,7 +187,6 @@ void MLOptimiser::init()
                                    << _rS
                                    << " (Pixel) will be Used for Performing Intensity Scale Correction";
     }
-    ***/
 
     if (_para.gSearch)
     {
