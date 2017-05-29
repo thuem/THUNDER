@@ -188,6 +188,10 @@ class Database : public Parallel
         void shuffle();
 
         long offset(const int i) const;
+
+        double coordX(const int i) const;
+
+        double coordY(const int i) const;
         
         int groupID(const int i) const;
 

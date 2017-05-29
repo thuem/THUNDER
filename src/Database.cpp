@@ -149,6 +149,40 @@ long Database::offset(const int i) const
     return _offset[_reg[i]];
 }
 
+double Database::coordX(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_COORDINATE_X; i++)
+        word = strtok(NULL, " ");
+
+    return atoi(word);
+}
+
+double Database::coordY(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_COORDINATE_Y; i++)
+        word = strtok(NULL, " ");
+
+    return atoi(word);
+}
+
 int Database::groupID(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
