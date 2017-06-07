@@ -396,6 +396,14 @@ void MLOptimiser::init()
         //correctScale(true, false);
     }
 
+    NT_MASTER
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+        BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+
+        _model.refreshProj();
+    }
+
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
     
@@ -2096,10 +2104,10 @@ void MLOptimiser::correctScale(const bool init,
     ALOG(INFO, "LOGGER_SYS") << "Correcting Scale";
     BLOG(INFO, "LOGGER_SYS") << "Correcting Scale";
 
-    FOR_EACH_CLASS
+    for (int l = 0; l < _para.k; l++)
     {
         #pragma omp parallel for
-        _ref[l][i] *= _scale(_groupID[l] - 1);
+        SCALE_FT(_model.ref(l), _scale(_groupID[l] - 1));
     }
 
     /***
