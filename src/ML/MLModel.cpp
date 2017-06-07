@@ -731,6 +731,9 @@ void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
     {
+        _proj[l].setMaxRadius(_r);
+        _proj[l].setPf(_pf);
+
         if (_mode == MODE_2D)
         {
             _proj[l].setMode(MODE_2D);
@@ -748,9 +751,6 @@ void MLModel::refreshProj()
         }
         else
             REPORT_ERROR("INEXISTENT MODE");
-
-        _proj[l].setMaxRadius(_r);
-        _proj[l].setPf(_pf);
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
             _proj[l].setInterp(INTERP_TYPE_GLOBAL);
