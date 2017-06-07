@@ -659,6 +659,7 @@ class MLOptimiser : public Parallel
          * @param group grouping or not
          */
         void correctScale(const bool init = false,
+                          const bool coord = false,
                           const bool group = true);
 
         /**
@@ -693,10 +694,10 @@ class MLOptimiser : public Parallel
         /**
          * re-calculate the intensity scale
          *
-         * @param init  whether it is an initial correction or not
+         * @param init  whether using given coordiantes or not
          * @param group grouping or not
          */
-        void refreshScale(const bool init = false,
+        void refreshScale(const bool coord = false,
                           const bool group = true);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION

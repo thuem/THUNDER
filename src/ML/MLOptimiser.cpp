@@ -386,14 +386,13 @@ void MLOptimiser::init()
     {
         MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Random Projections";
 
-        correctScale(true, false);
+        correctScale(true, false, false);
     }
     else
     {
         MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
 
-        correctScale(false, false);
-        //correctScale(true, false);
+        correctScale(true, true, false);
     }
 
     NT_MASTER
@@ -2092,38 +2091,39 @@ void MLOptimiser::initCTF()
 }
 
 void MLOptimiser::correctScale(const bool init,
+                               const bool coord,
                                const bool group)
 {
     ALOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
     BLOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
 
-    refreshScale(init, group);
+    refreshScale(coord, group);
 
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_SYS") << "Correcting Scale";
     BLOG(INFO, "LOGGER_SYS") << "Correcting Scale";
 
-    for (int l = 0; l < _para.k; l++)
+    if (init)
     {
-        #pragma omp parallel for
-        SCALE_FT(_model.ref(l), _scale(_groupID[l] - 1));
-    }
-
-    /***
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-    {
-        FOR_EACH_PIXEL_FT(_img[l])
+        for (int l = 0; l < _para.k; l++)
         {
-            _img[l][i] /= _scale(_groupID[l] - 1);
-            _imgOri[l][i] /= _scale(_groupID[l] - 1);
+            #pragma omp parallel for
+            SCALE_FT(_model.ref(l), _scale(_groupID[0] - 1));
         }
     }
-    ***/
-
-    if (!init)
+    else
     {
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+            FOR_EACH_PIXEL_FT(_img[l])
+            {
+                _img[l][i] /= _scale(_groupID[l] - 1);
+                _imgOri[l][i] /= _scale(_groupID[l] - 1);
+            }
+        }
+
         #pragma omp parallel for
         for (int i = 0; i < _nGroup; i++)
         {
@@ -2487,21 +2487,11 @@ void MLOptimiser::refreshVariance()
     _model.setStdTVariS1(std);
 }
 
-void MLOptimiser::refreshScale(const bool init,
+void MLOptimiser::refreshScale(const bool coord,
                                const bool group)
 {
-    if (!init)
-    {
-        if (_iter != 0)
-            _rS = _model.resolutionP(_para.thresSclCorFSC, false);
-        /***
-        else
-        {
-            REPORT_ERROR("REFRESH SCALE SHOULD NOT BE PERFORMED AT ITERATION 0");
-            abort();
-        }
-        ***/
-    }
+    if (_iter != 0)
+        _rS = _model.resolutionP(_para.thresSclCorFSC, false);
 
     if (_rS > _r)
     {
@@ -2535,7 +2525,7 @@ void MLOptimiser::refreshScale(const bool init,
             BLOG(INFO, "LOGGER_SYS") << "Projecting from the Initial Reference from a Random Rotation for Image " << _ID[l];
 #endif
 
-            if (init)
+            if (!coord)
             {
                 if (_para.mode == MODE_2D)
                 {
