@@ -84,6 +84,12 @@ void Volume::alloc(const int nCol,
         #pragma omp critical
 #endif
         _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
+
+        if (_dataRL == NULL)
+        {
+            REPORT_ERROR("FAIL TO ALLOCATE SPACE");
+            abort();
+        }
 #endif
     }
     else if (space == FT_SPACE)
@@ -102,6 +108,12 @@ void Volume::alloc(const int nCol,
         #pragma omp critical
 #endif
         _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
+
+        if (_dataFT == NULL)
+        {
+            REPORT_ERROR("FAIL TO ALLOCATE SPACE");
+            abort();
+        }
 #endif
     }
 
