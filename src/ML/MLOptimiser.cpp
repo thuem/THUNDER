@@ -1465,7 +1465,7 @@ void MLOptimiser::run()
 
         //_model.reco(0).setMAP(false);
 
-        _model.reco(0).setJoinHalf(true);
+        //_model.reco(0).setJoinHalf(true);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
