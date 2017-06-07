@@ -79,6 +79,15 @@ void Reconstructor::init(const int mode,
 
     if (_mode == MODE_2D)
     {
+        // Create Fourier Plans First, Then Allocate Space
+        // For Save Memory Space
+
+        ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
+        BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
+
+        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE);
+        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE);
+
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
 
@@ -86,15 +95,18 @@ void Reconstructor::init(const int mode,
         _W2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
         _C2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
         _T2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+    }
+    else if (_mode == MODE_3D)
+    {
+        // Create Fourier Plans First, Then Allocate Space
+        // For Save Memory Space
 
         ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
         BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
-        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE);
-        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE);
-    }
-    else if (_mode == MODE_3D)
-    {
+        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
 
@@ -103,11 +115,6 @@ void Reconstructor::init(const int mode,
         _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
         _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
 
-        ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
-        BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
-
-        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
-        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
     }
     else 
         REPORT_ERROR("INEXISTENT MODE");
@@ -1136,27 +1143,7 @@ void Reconstructor::convoluteC()
 void Reconstructor::symmetrizeF()
 {
     if (_sym != NULL)
-    {
         SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
-
-        /***
-        _fft.bwExecutePlanMT(_F3D);
-
-        if ((_sym.pgGroup() == PG_CN)
-            (_sym.pgOrder() == 1))
-            CLOG(INFO, "LOGGER_SYS") << "No Symmetry";
-        else
-        {
-            SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
-
-            _fft.bwExecutePlanMT(_F3D);
-
-            #pragma omp parallel for
-            VOLUME_FOR_EACH_PIXEL_RL(_F3D)
-                _F3D.setRL(_F3D.getRL(i, j, k)
-                         * TIK(
-        ***/
-    }
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
