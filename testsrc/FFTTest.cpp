@@ -13,7 +13,8 @@
 #include "FFT.h"
 #include "ImageFile.h"
 
-#define N 256
+//#define N 256
+#define N (576)
 #define M 1
 
 INITIALIZE_EASYLOGGINGPP
@@ -64,8 +65,10 @@ int main(int argc, char* argv[])
 
         fft.fwExecutePlanMT(head);
 
+        /***
         FOR_EACH_PIXEL_FT(head)
             head[i] /= 2;
+        ***/
 
         fft.bwExecutePlanMT(head);
     }

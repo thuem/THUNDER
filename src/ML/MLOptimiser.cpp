@@ -1465,7 +1465,7 @@ void MLOptimiser::run()
 
         //_model.reco(0).setMAP(false);
 
-        //_model.reco(0).setJoinHalf(true);
+        _model.reco(0).setJoinHalf(true);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
@@ -2096,6 +2096,13 @@ void MLOptimiser::correctScale(const bool init,
     ALOG(INFO, "LOGGER_SYS") << "Correcting Scale";
     BLOG(INFO, "LOGGER_SYS") << "Correcting Scale";
 
+    FOR_EACH_CLASS
+    {
+        #pragma omp parallel for
+        _ref[l][i] *= _scale(_groupID[l] - 1);
+    }
+
+    /***
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -2105,6 +2112,7 @@ void MLOptimiser::correctScale(const bool init,
             _imgOri[l][i] /= _scale(_groupID[l] - 1);
         }
     }
+    ***/
 
     if (!init)
     {
@@ -3258,8 +3266,8 @@ void MLOptimiser::reconstructRef()
         _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
     bool cSearch = ((_searchType == SEARCH_TYPE_CTF) ||
-                      ((_para.cSearch) &&
-                       (_searchType == SEARCH_TYPE_STOP)));
+                    ((_para.cSearch) &&
+                     (_searchType == SEARCH_TYPE_STOP)));
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
