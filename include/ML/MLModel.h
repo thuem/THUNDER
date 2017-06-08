@@ -17,6 +17,7 @@
 
 #include "Image.h"
 #include "Volume.h"
+#include "ImageFile.h"
 #include "Parallel.h"
 #include "Filter.h"
 #include "Spectrum.h"

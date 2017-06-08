@@ -386,6 +386,12 @@ void MLModel::BcastFSC(const double thres,
                     Volume coreA, coreB;
                     VOL_EXTRACT_RL(coreA, A, ef);
                     VOL_EXTRACT_RL(coreB, B, ef);
+
+                    ImageFile imf;
+                    imf.readMetaData(coreA);
+                    imf.writeVolume("coreA.mrc", coreA);
+                    imf.writeVolume("coreB.mrc", coreB);
+
                     fft.fwMT(coreA);
                     fft.fwMT(coreB);
 
