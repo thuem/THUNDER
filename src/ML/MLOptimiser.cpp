@@ -1321,7 +1321,9 @@ void MLOptimiser::run()
         saveReference();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
-        _model.BcastFSC(_para.thresReportFSC);
+        _model.BcastFSC(_para.thresReportFSC,
+                        true,
+                        (_para.maskRadius * 2) / (_para.size * _para.pixelSize));
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
@@ -1482,7 +1484,9 @@ void MLOptimiser::run()
     saveReference(true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
-    _model.BcastFSC(_para.thresReportFSC);
+    _model.BcastFSC(_para.thresReportFSC,
+                    false,
+                    0);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);

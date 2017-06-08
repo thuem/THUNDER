@@ -271,7 +271,9 @@ Reconstructor& MLModel::reco(const int i)
     return *_reco[i];
 }
 
-void MLModel::BcastFSC(const double thres)
+void MLModel::BcastFSC(const double thres,
+                       const bool coreFSC,
+                       const double ef)
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
@@ -354,24 +356,71 @@ void MLModel::BcastFSC(const double thres)
 
             vec fsc(_rU);
 
-            if (_mode == MODE_2D)
+            if (coreFSC)
             {
-                MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
+                if (_mode == MODE_2D)
+                {
+                    // TODO
+                }
+                else if (_mode == MODE_3D)
+                {
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Core Region of Reference " << l;
 
-                FRC(fsc, A, B, 0);
+                    FFT fft;
+                    fft.bwMT(A);
+                    fft.bwMT(B);
 
-                _FSC.col(l) = fsc;
-            }
-            else if (_mode == MODE_3D)
-            {
-                MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+                    MLOG(INFO, "LOGGER_COMPARE") << "Extracing Core Region from Reference " << l;
 
-                FSC(fsc, A, B);
+                    Volume coreA, coreB;
+                    VOL_EXTRACT_RL(coreA, A, ef);
+                    VOL_EXTRACT_RL(coreB, B, ef);
+                    fft.fwMT(coreA);
+                    fft.fwMT(coreB);
 
-                _FSC.col(l) = fsc;
+                    coreA.clearRL();
+                    coreB.clearRL();
+
+                    int coreRU = FLOOR(_rU * ef);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Determining Core Region FSC of Reference " << l;
+
+                    vec coreFSC(coreRU);
+                    FSC(coreFSC, coreA, coreB);
+
+                    for (int i = 0; i < _rU; i++)
+                        fsc(i) = coreFSC(GSL_MIN_INT(AROUND(i * ef), coreRU - 1));
+
+                    fft.fwMT(A);
+                    fft.fwMT(B);
+
+                    A.clearRL();
+                    B.clearRL();
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
             }
             else
-                REPORT_ERROR("INEXISTENT MODE");
+            {
+                if (_mode == MODE_2D)
+                {
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
+
+                    FRC(fsc, A, B, 0);
+
+                    _FSC.col(l) = fsc;
+                }
+                else if (_mode == MODE_3D)
+                {
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+
+                    FSC(fsc, A, B);
+
+                    _FSC.col(l) = fsc;
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
+            }
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
