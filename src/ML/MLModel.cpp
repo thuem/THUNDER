@@ -377,7 +377,7 @@ void MLModel::BcastFSC(const double thres,
                                                  << " x "
                                                  << (2 * coreR);
 
-                    double ef = (2 * coreR) / _size;
+                    double ef = (2.0 * coreR) / _size;
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Core Region Extract Factor: " << ef;
 
