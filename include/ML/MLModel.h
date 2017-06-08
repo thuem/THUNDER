@@ -483,7 +483,7 @@ class MLModel : public Parallel
          */
         void BcastFSC(const double thres,
                       const bool coreFSC,
-                      const double ef);
+                      const int coreR);
 
         /**
          * This function performs a low pass filter on each reference.

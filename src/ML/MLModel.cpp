@@ -273,7 +273,7 @@ Reconstructor& MLModel::reco(const int i)
 
 void MLModel::BcastFSC(const double thres,
                        const bool coreFSC,
-                       const double ef)
+                       const int coreR)
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
@@ -369,6 +369,17 @@ void MLModel::BcastFSC(const double thres,
                     FFT fft;
                     fft.bwMT(A);
                     fft.bwMT(B);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Core Region is "
+                                                 << (2 * coreR)
+                                                 << " x "
+                                                 << (2 * coreR)
+                                                 << " x "
+                                                 << (2 * coreR);
+
+                    double ef = (2 * coreR) / _size;
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Core Region Extract Factor: " << ef;
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Extracing Core Region from Reference " << l;
 
