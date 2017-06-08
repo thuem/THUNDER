@@ -1076,7 +1076,7 @@ double Reconstructor::checkC() const
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(_C2D)
             if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
-                diff[_C2D.iFTHalf(i, j)] = fabs(ABS(_C2D.getFT(i, j)) - 1);
+                diff[_C2D.iFTHalf(i, j)] = fabs(ABS(_C2D.getFTHalf(i, j)) - 1);
 
         return *std::max_element(diff.begin(), diff.end());
     }
@@ -1087,7 +1087,7 @@ double Reconstructor::checkC() const
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
             if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-                diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFT(i, j, k)) - 1);
+                diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFTHalf(i, j, k)) - 1);
 
         return *std::max_element(diff.begin(), diff.end());
     }
