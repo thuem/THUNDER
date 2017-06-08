@@ -68,7 +68,7 @@
  * resolution resolution for averaging reference(s) from A hemisphere and B
  * hemisphere
  */
-#define A_B_AVERAGE_THRES 40
+#define A_B_AVERAGE_THRES 10
 
 #define CUTOFF_BEYOND_RES 10
 
