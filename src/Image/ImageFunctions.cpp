@@ -479,7 +479,7 @@ void bgMeanStddev(double& mean,
     vector<double> bg;
 
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if ((QUAD_3(i, j, k) >= gsl_pow_2(rL))
+        if ((QUAD_3(i, j, k) >= gsl_pow_2(rL)) &&
             (QUAD_3(i, j, k) < gsl_pow_2(rU)))
             bg.push_back(src.getRL(i, j, k));
 
