@@ -3511,7 +3511,15 @@ void MLOptimiser::solventFlatten(const bool mask)
         bgMeanStddev(bgMean,
                      bgStddev,
                      _model.ref(t),
+                     _para.size / 2,
                      _para.maskRadius / _para.pixelSize);
+
+        /***
+        bgMeanStddev(bgMean,
+                     bgStddev,
+                     _model.ref(t),
+                     _para.maskRadius / _para.pixelSize);
+        ***/
 
         ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
                                    << t

@@ -470,6 +470,23 @@ void bgMeanStddev(double& mean,
     stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
+void bgMeanStddev(double& mean,
+                  double& stddev,
+                  const Volume& src,
+                  const double rU,
+                  const double rL)
+{
+    vector<double> bg;
+
+    VOLUME_FOR_EACH_PIXEL_RL(src)
+        if ((QUAD_3(i, j, k) >= gsl_pow_2(rL))
+            (QUAD_3(i, j, k) < gsl_pow_2(rU)))
+            bg.push_back(src.getRL(i, j, k));
+
+    mean = gsl_stats_mean(&bg[0], 1, bg.size());
+    stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+}
+
 void removeDust(Image& img,
                 const double wDust,
                 const double bDust,

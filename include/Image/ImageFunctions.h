@@ -527,6 +527,13 @@ void bgMeanStddev(double& mean,
                   const Volume& src,
                   const double r);
 
+void bgMeanStddev(double& mean,
+                  double& stddev,
+                  const Volume& src,
+                  const double rU,
+                  const double rL);
+
+
 /**
  * This function removes white and black dust from the image. Any value out of
  * the range (mean - bDust * stddev, mean + wDust * stddev) will be replaced by
