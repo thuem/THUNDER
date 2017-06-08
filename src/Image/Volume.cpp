@@ -124,7 +124,7 @@ double Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
 {
-    int index = iRL(iCol, iRow, iSlc);
+    size_t index = iRL(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_RL(index);
@@ -138,7 +138,7 @@ void Volume::setRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    int index = iRL(iCol, iRow, iSlc);
+    size_t index = iRL(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_RL(index);
@@ -152,7 +152,7 @@ void Volume::addRL(const double value,
                    const int iRow,
                    const int iSlc)
 {
-    int index = iRL(iCol, iRow, iSlc);
+    size_t index = iRL(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_RL(index);
@@ -167,7 +167,7 @@ Complex Volume::getFT(int iCol,
                       int iSlc) const
 {
     bool conj;
-    int index = iFT(conj, iCol, iRow, iSlc);
+    size_t index = iFT(conj, iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -180,7 +180,7 @@ Complex Volume::getFTHalf(const int iCol,
                           const int iRow,
                           const int iSlc) const
 {
-    int index = iFTHalf(iCol, iRow, iSlc);
+    size_t index = iFTHalf(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -195,7 +195,7 @@ void Volume::setFT(const Complex value,
                    int iSlc)
 {
     bool conj;
-    int index = iFT(conj, iCol, iRow, iSlc);
+    size_t index = iFT(conj, iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -209,7 +209,7 @@ void Volume::setFTHalf(const Complex value,
                        const int iRow,
                        const int iSlc)
 {
-    int index = iFTHalf(iCol, iRow, iSlc);
+    size_t index = iFTHalf(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -224,7 +224,7 @@ void Volume::addFT(const Complex value,
                    int iSlc)
 {
     bool conj;
-    int index = iFT(conj, iCol, iRow, iSlc);
+    size_t index = iFT(conj, iCol, iRow, iSlc);
 
     Complex val = conj ? CONJUGATE(value) : value;
 
@@ -243,7 +243,7 @@ void Volume::addFTHalf(const Complex value,
                        const int iRow,
                        const int iSlc)
 {
-    int index = iFTHalf(iCol, iRow, iSlc);
+    size_t index = iFTHalf(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -260,7 +260,7 @@ void Volume::addFT(const double value,
                    int iRow,
                    int iSlc)
 {
-    int index = iFT(iCol, iRow, iSlc);
+    size_t index = iFT(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -275,7 +275,7 @@ void Volume::addFTHalf(const double value,
                        const int iRow,
                        const int iSlc)
 {
-    int index = iFTHalf(iCol, iRow, iSlc);
+    size_t index = iFTHalf(iCol, iRow, iSlc);
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     BOUNDARY_CHECK_FT(index);
@@ -481,11 +481,11 @@ Complex Volume::getFTHalf(const double w[2][2][2],
     if ((x0[1] != -1) &&
         (x0[2] != -1))
     {
-        int index0 = iFTHalf(x0[0], x0[1], x0[2]);
+        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
         for (int i = 0; i < 8; i++)
         {
-            int index = index0 + ((int*)_box)[i];
+            size_t index = index0 + ((size_t*)_box)[i];
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_FT(index);
@@ -512,11 +512,11 @@ void Volume::addFTHalf(const Complex value,
     if ((x0[1] != -1) &&
         (x0[2] != -1))
     {
-        int index0 = iFTHalf(x0[0], x0[1], x0[2]);
+        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
         for (int i = 0; i < 8; i++)
         {
-            int index = index0 + ((int*)_box)[i];
+            size_t index = index0 + ((size_t*)_box)[i];
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_FT(index);
@@ -544,11 +544,11 @@ void Volume::addFTHalf(const double value,
     if ((x0[1] != -1) &&
         (x0[2] != -1))
     {
-        int index0 = iFTHalf(x0[0], x0[1], x0[2]);
+        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
         for (int i = 0; i < 8; i++)
         {
-            int index = index0 + ((int*)_box)[i];
+            size_t index = index0 + ((size_t*)_box)[i];
 
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_FT(index);

@@ -150,7 +150,7 @@ class Volume : public ImageBase
 
         int _nColFT;
 
-        int _box[2][2][2];
+        size_t _box[2][2][2];
 
     public:
 
@@ -558,18 +558,18 @@ class Volume : public ImageBase
          */
         void clear();
 
-        inline int iRL(const int i,
-                       const int j,
-                       const int k) const
+        inline size_t iRL(const int i,
+                          const int j,
+                          const int k) const
         {
             return (k >= 0 ? k : k + _nSlc) * _nCol * _nRow
                  + (j >= 0 ? j : j + _nRow) * _nCol
                  + (i >= 0 ? i : i + _nCol);
         }
 
-        inline int iFT(int i,
-                       int j,
-                       int k) const
+        inline size_t iFT(int i,
+                          int j,
+                          int k) const
         {
             if (i >= 0)
                 return iFTHalf(i, j, k);
@@ -577,19 +577,19 @@ class Volume : public ImageBase
                 return iFTHalf(-i, -j, -k);
         }
 
-        inline int iFT(bool& conj,
-                       int i,
-                       int j,
-                       int k) const
+        inline size_t iFT(bool& conj,
+                          int i,
+                          int j,
+                          int k) const
         {
             conj = conjHalf(i, j, k);
 
             return iFTHalf(i, j, k);
         }
 
-        inline int iFTHalf(const int i,
-                           const int j,
-                           const int k) const
+        inline size_t iFTHalf(const int i,
+                              const int j,
+                              const int k) const
         {
             return (k >= 0 ? k : k + _nSlc) * _nColFT * _nRow
                  + (j >= 0 ? j : j + _nRow) * _nColFT 
