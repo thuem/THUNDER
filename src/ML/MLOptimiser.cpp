@@ -3579,18 +3579,14 @@ void MLOptimiser::solventFlatten(const bool mask)
         double bg = regionMean(_model.ref(t),
                                _para.maskRadius / _para.pixelSize);
 
-        /***
-        double bg = background(_model.ref(t),
-                               _para.maskRadius / _para.pixelSize,
-                               EDGE_WIDTH_RL);
-        ***/
-        
-        /***
-        double bg = background(_model.ref(t),
-                               _para.size / 2,                               
-                               _para.maskRadius / _para.pixelSize,
-                               EDGE_WIDTH_RL);
-                               ***/
+        ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+                                   << t
+                                   << ": "
+                                   << bg;
+        BLOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+                                   << t
+                                   << ": "
+                                   << bg;
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_RL(_model.ref(t))
