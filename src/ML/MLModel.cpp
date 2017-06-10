@@ -801,8 +801,8 @@ void MLModel::refreshProj()
 {
     FOR_EACH_CLASS
     {
-        //_proj[l].setPf(_pf);
-        _proj[l].setPf(2);
+        _proj[l].setPf(_pf);
+        //_proj[l].setPf(2);
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
             _proj[l].setInterp(INTERP_TYPE_GLOBAL);

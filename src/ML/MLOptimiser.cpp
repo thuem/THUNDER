@@ -3298,6 +3298,14 @@ void MLOptimiser::reconstructRef()
         else
             w = 1;
 
+        if (!gsl_finite(w))
+        {
+            CLOG(WARNING, "LOGGER_SYS") << "PARTICLE "
+                                        << _ID[l]
+                                        << "DEGENERATED";
+            continue;
+        }
+
         w /= _para.mReco;
 
         for (int m = 0; m < _para.mReco; m++)
