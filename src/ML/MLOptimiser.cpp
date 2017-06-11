@@ -4043,6 +4043,11 @@ void MLOptimiser::saveReference(const bool finished)
                 fft.bwMT(_model.ref(t));
             else
             {
+                lowPassFilter(lowPass,
+                              _model.ref(t),
+                              (double)_resReport / _para.size,
+                              (double)EDGE_WIDTH_FT / _para.size);
+
                 /***
                 if (_searchType != SEARCH_TYPE_CTF)
                     lowPassFilter(lowPass,
@@ -4050,8 +4055,8 @@ void MLOptimiser::saveReference(const bool finished)
                                   (double)_resReport / _para.size,
                                   (double)EDGE_WIDTH_FT / _para.size);
                 else
-                ***/
                     lowPass = _model.ref(0).copyVolume();
+                ***/
 
                 fft.bwMT(lowPass);
             }
