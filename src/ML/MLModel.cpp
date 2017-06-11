@@ -441,54 +441,65 @@ void MLModel::BcastFSC(const double thres)
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
-#ifdef MODEL_AVERAGE_TWO_HEMISPHERE
-            #pragma omp parallel for
-            FOR_EACH_PIXEL_FT(A)
+            if (_k == 1)
             {
-                Complex avg = (A[i] + B[i]) / 2;
-                A[i] = avg;
-                B[i] = avg;
-            }
+                // When refining only one reference, use gold standard FSC.
+
+#ifdef MODEL_AVERAGE_TWO_HEMISPHERE
+                #pragma omp parallel for
+                FOR_EACH_PIXEL_FT(A)
+                {
+                    Complex avg = (A[i] + B[i]) / 2;
+                    A[i] = avg;
+                    B[i] = avg;
+                }
 #else
 #ifdef MODEL_RESOLUTION_BASE_AVERAGE
-            int r = resolutionP(thres, false);
+                int r = resolutionP(thres, false);
 #else
-            int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
-                                              _size,
-                                              _pixelSize)),
-                                _r);
+                int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
+                                                  _size,
+                                                  _pixelSize)),
+                                    _r);
 #endif
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
-                                         << 1.0 / resP2A(r, _size, _pixelSize)
-                                         << "(Angstrom)";
+                MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
+                                             << 1.0 / resP2A(r, _size, _pixelSize)
+                                             << "(Angstrom)";
 
-            if (_mode == MODE_2D)
-            {
-                //TODO
+                if (_mode == MODE_2D)
+                {
+                    //TODO
+                }
+                else if (_mode == MODE_3D)
+                {
+                    #pragma omp parallel for
+                    VOLUME_FOR_EACH_PIXEL_FT(A)
+                        if (QUAD_3(i, j, k) < gsl_pow_2(r))
+                        {
+                            Complex avg = (A.getFTHalf(i, j, k)
+                                         + B.getFTHalf(i, j, k))
+                                        / 2;
+                            A.setFTHalf(avg, i, j, k);
+                            B.setFTHalf(avg, i, j, k);
+                        }
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
+#endif
             }
-            else if (_mode == MODE_3D)
+            else
             {
+                // When refining more than 1 references, directly average two half maps.
+
                 #pragma omp parallel for
-                VOLUME_FOR_EACH_PIXEL_FT(A)
-                    if (QUAD_3(i, j, k) < gsl_pow_2(r))
-                    {
-                        Complex avg = (A.getFTHalf(i, j, k)
-                                     + B.getFTHalf(i, j, k))
-                                    / 2;
-                        A.setFTHalf(avg, i, j, k);
-                        B.setFTHalf(avg, i, j, k);
-                    }
+                FOR_EACH_PIXEL_FT(A)
+                {
+                    Complex avg = (A[i] + B[i]) / 2;
+                    A[i] = avg;
+                    B[i] = avg;
+                }
             }
-#endif
-
-            /***
-            vec tau(_rU * _pf);
-            Image tmp(_size * _pf, _size * _pf, FT_SPACE);
-            SLC_EXTRACT_FT(tmp, A, 0);
-            powerSpectrum(tau, tmp, _rU * _pf);
-            _tau.col(l) = tau;
-            ***/
 
             MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                          << l
