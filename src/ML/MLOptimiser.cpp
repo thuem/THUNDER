@@ -3301,7 +3301,7 @@ void MLOptimiser::reconstructRef()
         {
             CLOG(WARNING, "LOGGER_SYS") << "PARTICLE "
                                         << _ID[l]
-                                        << "DEGENERATED";
+                                        << " DEGENERATED";
             continue;
         }
 
