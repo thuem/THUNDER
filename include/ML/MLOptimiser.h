@@ -153,6 +153,8 @@ struct MLOptimiserPara
 
     char dstPrefix[FILE_NAME_LENGTH];
 
+    bool coreFSC;
+
     /**
      * whether to perform masking on the reference
      */
@@ -167,12 +169,6 @@ struct MLOptimiserPara
      * mask
      */
     char mask[FILE_NAME_LENGTH];
-
-    bool performSharpen;
-
-    bool estBFactor;
-
-    double bFactor;
 
     /**
      * max number of iteration
@@ -273,11 +269,9 @@ struct MLOptimiserPara
         gSearch = true;
         lSearch = true;
         cSearch = true;
+        coreFSC = false;
         performMask = true;
         autoMask = true;
-        performSharpen = true;
-        estBFactor = false;
-        bFactor = 200;
         pf = 2;
         a = 1.9;
         alpha = 15;

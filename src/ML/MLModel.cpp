@@ -18,6 +18,8 @@ void MLModel::init(const int mode,
                    const bool gSearch,
                    const bool lSearch,
                    const bool cSearch,
+                   const bool coreFSC,
+                   const int coreR,
                    const int k,
                    const int size,
                    const int r,
@@ -31,6 +33,9 @@ void MLModel::init(const int mode,
     _gSearch = gSearch;
     _lSearch = lSearch;
     _cSearch = cSearch;
+
+    _coreFSC = coreFSC;
+    _coreR = coreR,
 
     _k = k;
     _size = size;
@@ -271,9 +276,7 @@ Reconstructor& MLModel::reco(const int i)
     return *_reco[i];
 }
 
-void MLModel::BcastFSC(const double thres,
-                       const bool coreFSC,
-                       const int coreR)
+void MLModel::BcastFSC(const double thres)
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
@@ -356,7 +359,7 @@ void MLModel::BcastFSC(const double thres,
 
             vec fsc(_rU);
 
-            if (coreFSC)
+            if (_coreFSC)
             {
                 if (_mode == MODE_2D)
                 {
@@ -371,13 +374,13 @@ void MLModel::BcastFSC(const double thres,
                     fft.bwMT(B);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Core Region is "
-                                                 << (2 * coreR)
+                                                 << (2 * _coreR)
                                                  << " x "
-                                                 << (2 * coreR)
+                                                 << (2 * _coreR)
                                                  << " x "
-                                                 << (2 * coreR);
+                                                 << (2 * _coreR);
 
-                    double ef = (2.0 * coreR) / _size;
+                    double ef = (2.0 * _coreR) / _size;
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Core Region Extract Factor: " << ef;
 
@@ -386,13 +389,6 @@ void MLModel::BcastFSC(const double thres,
                     Volume coreA, coreB;
                     VOL_EXTRACT_RL(coreA, A, ef);
                     VOL_EXTRACT_RL(coreB, B, ef);
-
-                    /***
-                    ImageFile imf;
-                    imf.readMetaData(coreA);
-                    imf.writeVolume("coreA.mrc", coreA);
-                    imf.writeVolume("coreB.mrc", coreB);
-                    ***/
 
                     fft.fwMT(coreA);
                     fft.fwMT(coreB);
@@ -444,37 +440,6 @@ void MLModel::BcastFSC(const double thres,
             }
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
-
-            /***
-            double r = GSL_MIN_DBL(resA2P(1.0 / A_B_AVERAGE_THRES,
-                                          _size,
-                                          _pixelSize) * _pf,
-                                   (_r - 1) * _pf);
-                                   ***/
-
-            //double r = (_r - 1) * _pf;
-
-            //double r = _rU * _pf;
-
-            /***
-            double r = GSL_MIN_DBL((resA2P(1.0 / A_B_AVERAGE_THRES,
-                                           _size,
-                                           _pixelSize) + 1) * _pf,
-                                   //_rU * _pf);
-
-            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
-                                         << 1.0 / resP2A(r, _size * _pf, _pixelSize)
-                                         << "(Angstrom)";
-
-            #pragma omp parallel for schedule(dynamic)
-            VOLUME_FOR_EACH_PIXEL_FT(A)
-                if (QUAD_3(i, j, k) < gsl_pow_2(r))
-                {
-                    Complex avg = (A.getFT(i, j, k) + B.getFT(i, j, k)) / 2;
-                    A.setFT(avg, i, j, k);
-                    B.setFT(avg, i, j, k);
-                }
-            ***/
 
 #ifdef MODEL_AVERAGE_TWO_HEMISPHERE
             #pragma omp parallel for

@@ -96,6 +96,8 @@ void MLOptimiser::init()
                 _para.gSearch,
                 _para.lSearch,
                 _para.cSearch,
+                _para.coreFSC,
+                AROUND(_para.maskRadius / _para.pixelSize),
                 _para.k,
                 _para.size,
                 0,
@@ -1321,9 +1323,8 @@ void MLOptimiser::run()
         saveReference();
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
-        _model.BcastFSC(_para.thresReportFSC,
-                        true,
-                        AROUND(_para.maskRadius / _para.pixelSize));
+
+        _model.BcastFSC(_para.thresReportFSC);
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
@@ -1484,9 +1485,7 @@ void MLOptimiser::run()
     saveReference(true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
-    _model.BcastFSC(_para.thresReportFSC,
-                    false,
-                    0);
+    _model.BcastFSC(_para.thresReportFSC);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);

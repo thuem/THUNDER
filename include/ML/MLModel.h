@@ -94,6 +94,10 @@ class MLModel : public Parallel
          */
         bool _cSearch;
 
+        bool _coreFSC;
+
+        int _coreR;
+
         /**
          * references in Fourier space
          */
@@ -285,6 +289,9 @@ class MLModel : public Parallel
             _mode = MODE_3D;
             _gSearch = true;
             _lSearch = true;
+            _cSearch = true;
+            _coreFSC = false;
+            _coreR = 0;
             _r = 1;
             _rU = 1;
             _rPrev = 1;
@@ -333,6 +340,8 @@ class MLModel : public Parallel
                   const bool gSearch,
                   const bool lSearch,
                   const bool cSearch,
+                  const bool coreFSC,
+                  const int coreR,
                   const int k,
                   const int size,
                   const int r,
@@ -482,9 +491,7 @@ class MLModel : public Parallel
          * compares the references from two hemisphere respectively for FSC. It
          * broadcast the FSC to all process.
          */
-        void BcastFSC(const double thres,
-                      const bool coreFSC,
-                      const int coreR);
+        void BcastFSC(const double thres);
 
         /**
          * This function performs a low pass filter on each reference.
