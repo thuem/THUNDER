@@ -1648,6 +1648,7 @@ void MLOptimiser::initRef()
                       _para.size,
                       RL_SPACE);
 
+            /***
             IMAGE_FOR_EACH_PIXEL_RL(ref)
             {
                 if (NORM(i, j) < _para.maskRadius / _para.pixelSize)
@@ -1655,6 +1656,9 @@ void MLOptimiser::initRef()
                 else
                     ref.setRL(0, i, j);
             }
+            ***/
+
+            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
             fft.fwMT(ref);
             ref.clearRL();
@@ -1678,6 +1682,7 @@ void MLOptimiser::initRef()
                        _para.size,
                        RL_SPACE);
 
+            /***
             VOLUME_FOR_EACH_PIXEL_RL(ref)
             {
                 if (NORM_3(i, j, k) < _para.maskRadius / _para.pixelSize)
@@ -1685,6 +1690,9 @@ void MLOptimiser::initRef()
                 else
                     ref.setRL(0, i, j, k);
             }
+            ***/
+
+            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
             fft.fwMT(ref);
             ref.clearRL();
