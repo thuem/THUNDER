@@ -569,7 +569,7 @@ void Particle::setD(const double d,
     _d(i) = d;
 }
 
-void Particle::calCDistr()
+void Particle::calClassDistr()
 {
     _cDistr.setZero();
 
@@ -581,7 +581,7 @@ void Particle::calVari()
 {
     // calculate class distribution
 
-    calCDistr();
+    calClassDistr();
 
     // calculate the class with maximum particles
 

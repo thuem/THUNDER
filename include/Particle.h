@@ -612,7 +612,7 @@ class Particle
         void setD(const double d,
                   const int i);
 
-        void calCDistr();
+        void calClassDistr();
 
         /**
          * This function calculates the concentration paramters, including
