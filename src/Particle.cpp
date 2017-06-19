@@ -148,6 +148,8 @@ void Particle::reset(const int m,
 
     _w.resize(_n);
 
+    _cDistr.resize(_m);
+
     reset();
 }
 
@@ -167,6 +169,8 @@ void Particle::reset(const int m,
     _d.resize(_n);
 
     _w.resize(_n);
+
+    _cDistr.resize(_m);
 
     uvec c(m);
 
