@@ -102,6 +102,8 @@ class Particle
          */
         const Symmetry* _sym;
 
+        vec _cDistr;
+
         /**
          * concnetration paramter of von Mises distribution of rotation (kappa)
          */
@@ -609,6 +611,8 @@ class Particle
 
         void setD(const double d,
                   const int i);
+
+        void calCDistr();
 
         /**
          * This function calculates the concentration paramters, including

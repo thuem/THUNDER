@@ -65,6 +65,8 @@ void Particle::init(const int mode,
 
     _w.resize(_n);
 
+    _cDistr.resize(_m);
+
     reset();
 }
 
@@ -563,16 +565,47 @@ void Particle::setD(const double d,
     _d(i) = d;
 }
 
+void Particle::calCDistr()
+{
+    _cDistr.setZero();
+
+    for (int i = 0; i < _n; i++)
+        _cDistr(_c(i)) += 1;
+}
+
 void Particle::calVari()
 {
+    // calculate class distribution
+
+    calCDistr();
+
+    // calculate the class with maximum particles
+
+    int cls;
+    int num = _cDistr.maxCoeff(&cls);
+
+    mat2 t = mat::Zero(num, 2);
+    mat4 r = mat::Zero(num, 4);
+    vec d = vec::Zero(num);
+
+    int j = 0;
+    for (int i = 0; i < _n; i++)
+        if (_c(i) == cls)
+        {
+            t.row(j) = _t.row(i);
+            r.row(j) = _r.row(i);
+            d(j) = _d(i);
+            j++;
+        }
+
     // variance of translation
 
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
-    _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
-    _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
+    _s0 = gsl_stats_sd_m(t.col(0).data(), 1, t.rows(), 0);
+    _s1 = gsl_stats_sd_m(t.col(1).data(), 1, t.rows(), 0);
 #else
-    _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
-    _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
+    _s0 = gsl_stats_sd(t.col(0).data(), 1, t.rows());
+    _s1 = gsl_stats_sd(t.col(1).data(), 1, t.rows());
 #endif
 
     _rho = 0;
@@ -580,15 +613,15 @@ void Particle::calVari()
     // variance of rotation
 
     if (_mode == MODE_2D)
-        inferVMS(_k, _r);
+        inferVMS(_k, r);
     else if (_mode == MODE_3D)
-        inferACG(_k0, _k1, _r);
+        inferACG(_k0, _k1, r);
     else
         REPORT_ERROR("INEXISTENT MODE");
 
     // variance of defocus factor
 
-    _s = gsl_stats_sd(_d.data(), 1, _d.size());
+    _s = gsl_stats_sd(d.data(), 1, d.size());
 }
 
 void Particle::perturb(const double pfT,
