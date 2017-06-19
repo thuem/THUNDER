@@ -2433,15 +2433,14 @@ void MLOptimiser::refreshClassDistr()
 
 void MLOptimiser::balanceClass(const double thres)
 {
-    IF_MASTER return;
-
     int cls;
     double num = _cDistr.maxCoeff(&cls);
 
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
         {
-            _model.ref(t) = _model.ref(cls).copyVolume();
+            NF_MASTER
+                _model.ref(t) = _model.ref(cls).copyVolume();
             _cDistr(t) = num;
         }
 
