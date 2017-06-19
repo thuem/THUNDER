@@ -72,9 +72,9 @@ int main()
 
     double stdD = 0;
 
-    par.load(1,
+    par.load(2,
              N,
-             0,
+             1,
              vec4(1, 0, 0, 0),
              stdR,
              vec2(0, 0),
