@@ -1227,21 +1227,6 @@ void MLOptimiser::run()
             MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
                                        << "\% Percentage of Images Belonging to Class "
                                        << t;
-
-#ifdef OPTIMISER_BALANCE_CLASS
-
-        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
-
-        balanceClass(0.2);
-
-        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
-
-        for (int t = 0; t < _para.k; t++)
-            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
-                                       << "\% Percentage of Images Belonging to Class "
-                                       << t;
-#endif
-
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -1443,6 +1428,20 @@ void MLOptimiser::run()
         }
         ***/
 
+#endif
+
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+        balanceClass(0.2);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+        for (int t = 0; t < _para.k; t++)
+            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                       << "\% Percentage of Images Belonging to Class "
+                                       << t;
 #endif
 
         NT_MASTER
@@ -2442,11 +2441,11 @@ void MLOptimiser::balanceClass(const double thres)
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
         {
-            _model.ref(t) = _model.ref(max).copyVolume();
+            _model.ref(t) = _model.ref(cls).copyVolume();
             _cDistr(t) = num;
         }
 
-    _cDistr.array() /= _cDistr().sum();
+    _cDistr.array() /= _cDistr.sum();
 }
 
 void MLOptimiser::refreshVariance()

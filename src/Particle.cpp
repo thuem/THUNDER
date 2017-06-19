@@ -585,7 +585,7 @@ void Particle::calVari()
 
     // calculate the class with maximum particles
 
-    int cls;
+    unsigned int cls;
     int num = _cDistr.maxCoeff(&cls);
 
     mat2 t = mat::Zero(num, 2);
