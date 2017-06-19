@@ -2439,7 +2439,7 @@ void MLOptimiser::balanceClass(const double thres)
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
         {
-            NF_MASTER
+            NT_MASTER
                 _model.ref(t) = _model.ref(cls).copyVolume();
             _cDistr(t) = num;
         }
