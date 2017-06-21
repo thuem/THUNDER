@@ -702,6 +702,14 @@ void MLOptimiser::expectation()
             }
             ***/
 
+#ifdef OPTIMISER_EXPECTATION_REMOVE_AUXILIARY_CLASS
+            unsigned int cls = iTopC(v.size() - 1, l);
+            
+            for (int i = 0; i < v.size(); i++)
+                if (iTopC(i, l) != cls)
+                    v(i) = -GSL_DBL_MAX;
+#endif
+
             PROCESS_LOGW_SOFT(v);
             //PROCESS_LOGW_HARD(v);
 
