@@ -476,8 +476,8 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    int nSampleMax = _para.mG;
-    //int nSampleMax = _para.k * _para.mG;
+    //int nSampleMax = _para.mG;
+    int nSampleMax = _para.k * _para.mG;
     //int nSampleMax = 100;
     /***
     if (_para.mode == MODE_2D)
