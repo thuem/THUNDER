@@ -939,6 +939,15 @@ uvec Particle::iSort() const
     return index_sort_descend(_w);
 }
 
+bool Particle::diffTopC()
+{
+    bool diff = (_topCPrev == _topC);
+
+    _topC = _topCPrev;
+
+    return diff;
+}
+
 double Particle::diffTopR()
 {
     double diff = 1 - fabs(_topRPrev.dot(_topR));

@@ -2391,6 +2391,50 @@ void MLOptimiser::loadParticles()
 
 void MLOptimiser::refreshRotationChange()
 {
+    double mean = 0;
+    double std = 0;
+
+    int num = 0;
+
+    NT_MASTER
+    {
+        FOR_EACH_2D_IMAGE
+            if (_par[l].diffTopC())
+            {
+                double diffR = _par[l].diffTopR();
+
+                mean += diffR;
+                std += gsl_pow_2(diffR);
+                num += 1;
+            }
+    }
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &mean,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &std,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &num,
+                  1,
+                  MPI_INT,
+                  MPI_SUM,
+                  MPI_COMM_WORLD);
+
+    mean /= num;
+
+    std = sqrt(std / num - gsl_pow_2(mean));
+
+    /***
     vec rc = vec::Zero(_nPar);
 
     NT_MASTER
@@ -2412,6 +2456,7 @@ void MLOptimiser::refreshRotationChange()
 
     double mean, std;
     stat_MAS(mean, std, rc, _nPar);
+    ***/
 
     _model.setRChange(mean);
     _model.setStdRChange(std);

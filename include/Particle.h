@@ -676,6 +676,8 @@ class Particle
          */
         uvec iSort() const;
 
+        bool diffTopC();
+
         /**
          * This function returns the difference between the most likely
          * rotations between two iterations. This function also resets the most likely
