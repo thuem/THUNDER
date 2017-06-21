@@ -943,7 +943,7 @@ bool Particle::diffTopC()
 {
     bool diff = (_topCPrev == _topC);
 
-    _topC = _topCPrev;
+    _topCPrev = _topC;
 
     return diff;
 }

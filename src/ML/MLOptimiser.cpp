@@ -762,8 +762,8 @@ void MLOptimiser::expectation()
             _par[l].shuffle();
             ***/
 
-            _par[l].resample(_para.mG);
-            //_par[l].resample();
+            //_par[l].resample(_para.mG);
+            _par[l].resample();
 
             // calculation variance
             _par[l].calVari();
