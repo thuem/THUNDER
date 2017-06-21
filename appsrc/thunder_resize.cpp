@@ -20,10 +20,13 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+    loggerInit(argc, argv);
+
     ImageFile imfSrc(argv[2], "rb");
 
     Volume src;
 
+    imfSrc.readMetaData();
     imfSrc.readVolume(src);
 
     FFT fft;
