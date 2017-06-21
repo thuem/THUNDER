@@ -2458,8 +2458,6 @@ void MLOptimiser::refreshRotationChange()
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
-    gsl_sort(rc.data(), 1, _nPar);
-
     int nNoZero = 0;
     for (int i = 0; i < _nPar; i++)
         if (rc(i) != 0)
