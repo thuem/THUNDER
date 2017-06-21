@@ -2465,9 +2465,14 @@ void MLOptimiser::refreshRotationChange()
         if (rc(i) != 0)
             nNoZero += 1;
 
+    vec rcNoZero = vec::Zero(nNoZero);
+
+    gsl_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
+
     double mean, std;
     //stat_MAS(mean, std, rc, _nPar);
-    stat_MAS(mean, std, rc, nNoZero);
+    //stat_MAS(mean, std, rc, nNoZero);
+    stat_MAS(mean, std, rcNoZero, nNoZero);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
