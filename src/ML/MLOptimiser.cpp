@@ -2391,6 +2391,7 @@ void MLOptimiser::loadParticles()
 
 void MLOptimiser::refreshRotationChange()
 {
+    /***
     double mean = 0;
     double std = 0;
 
@@ -2404,14 +2405,6 @@ void MLOptimiser::refreshRotationChange()
 
             if (_par[l].diffTopC())
             {
-                /***
-                if (_ID[l] < 20)
-                    CLOG(INFO, "LOGGER_SYS") << "ID = "
-                                             << _ID[l]
-                                             << ", diffR = "
-                                             << diffR;
-                                             ***/
-
                 mean += diffR;
                 std += gsl_pow_2(diffR);
                 num += 1;
@@ -2443,17 +2436,20 @@ void MLOptimiser::refreshRotationChange()
     mean /= num;
 
     std = sqrt(std / num - gsl_pow_2(mean));
+    ***/
 
-    /***
     vec rc = vec::Zero(_nPar);
 
     NT_MASTER
     {
         FOR_EACH_2D_IMAGE
-            rc(_ID[l]) = _par[l].diffTopR();
-    }
+        {
+            double diff = _par[l].diffTopR();
 
-    MPI_Barrier(MPI_COMM_WORLD);
+            if (_par[l].diffTopC())
+                rc(_ID[l]) = diff;
+        }
+    }
 
     MPI_Allreduce(MPI_IN_PLACE,
                   rc.data(),
@@ -2462,11 +2458,16 @@ void MLOptimiser::refreshRotationChange()
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    gsl_sort(rc.data(), 1, _nPar);
+
+    int nNoZero = 0;
+    for (int i = 0; i < _nPar; i++)
+        if (rc(i) != 0)
+            nNoZero += 1;
 
     double mean, std;
-    stat_MAS(mean, std, rc, _nPar);
-    ***/
+    //stat_MAS(mean, std, rc, _nPar);
+    stat_MAS(mean, std, rc, nNoZero);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
