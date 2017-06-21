@@ -2399,14 +2399,24 @@ void MLOptimiser::refreshRotationChange()
     NT_MASTER
     {
         FOR_EACH_2D_IMAGE
+        {
+            double diffR = _par[l].diffTopR();
+
             if (_par[l].diffTopC())
             {
-                double diffR = _par[l].diffTopR();
+                /***
+                if (_ID[l] < 20)
+                    CLOG(INFO, "LOGGER_SYS") << "ID = "
+                                             << _ID[l]
+                                             << ", diffR = "
+                                             << diffR;
+                                             ***/
 
                 mean += diffR;
                 std += gsl_pow_2(diffR);
                 num += 1;
             }
+        }
     }
 
     MPI_Allreduce(MPI_IN_PLACE,
