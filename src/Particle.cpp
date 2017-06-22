@@ -632,8 +632,6 @@ void Particle::perturb(const double pfT,
                        const double pfR,
                        const double pfD)
 {
-    calVari();
-
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Translation Perturbation";
 #endif

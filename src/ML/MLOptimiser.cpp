@@ -690,8 +690,8 @@ void MLOptimiser::expectation()
                     v(i) = -GSL_DBL_MAX;
 #endif
 
-            PROCESS_LOGW_SOFT(v);
-            //PROCESS_LOGW_HARD(v);
+            //PROCESS_LOGW_SOFT(v);
+            PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
@@ -742,11 +742,13 @@ void MLOptimiser::expectation()
             _par[l].shuffle();
             ***/
 
+            _par[l].calVari();
+
             //_par[l].resample(_para.mG);
             _par[l].resample();
 
             // calculation variance
-            _par[l].calVari();
+            // _par[l].calVari();
 
         }
 
@@ -915,8 +917,8 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
-            //PROCESS_LOGW_HARD(logW);
+            //PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
@@ -944,9 +946,12 @@ void MLOptimiser::expectation()
             if (_par[l].neff() < _par[l].n() / 10)
             {
             ***/
-            _par[l].resample();
 
             _par[l].calVari();
+
+            _par[l].resample();
+
+            // _par[l].calVari();
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
