@@ -478,26 +478,6 @@ void MLOptimiser::expectation()
 
     //int nSampleMax = _para.mG;
     int nSampleMax = _para.k * _para.mG;
-    //int nSampleMax = 100;
-    /***
-    if (_para.mode == MODE_2D)
-    {
-        nSampleMax = _para.k * _para.mG;
-    }
-    else if (_para.mode == MODE_3D)
-    {
-        nSampleMax = _para.k * _para.mG / (1 + _sym.nSymmetryElement());
-
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-        ***/
-
-#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-
-    vec cmp = vec::Zero(_ID.size());
-
-#endif
 
     ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
@@ -770,25 +750,6 @@ void MLOptimiser::expectation()
 
         }
 
-#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-
-#ifdef VERBOSE_LEVEL_1
-        ALOG(INFO, "LOGGER_ROUND") << "Determining Compression Level After Initial Phase of Global Search";
-#endif
-
-        #pragma omp parallel for
-        FOR_EACH_2D_IMAGE
-        {
-            _par[l].calVari();
-
-            cmp[l] = _par[l].compress();
-
-            if (l == 0)
-                ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Global Search: "
-                                           << _par[0].compress();
-        }
-#endif
-
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
 
@@ -987,39 +948,6 @@ void MLOptimiser::expectation()
 
             _par[l].calVari();
 
-            if (_searchType == SEARCH_TYPE_GLOBAL)
-            {
-#ifdef OPTIMISER_DYNAMIC_NUM_SAMPLE
-
-                /***
-                if (l == 0)
-                    ALOG(INFO, "LOGGER_ROUND") << "Compress Level after Phase "
-                                               << phase
-                                               << ": "
-                                               << _par[0].compress();
-                                               ***/
-
-                _par[l].resample(GSL_MAX_INT(AROUND(nSampleMax
-                                                  * GSL_MIN_DBL(1,
-                                                                cmp[l] / _par[l].compress())),
-                                                                  /***
-                                                                pow(cmp[l] / _par[l].compress(),
-                                                                    (_para.mode == MODE_2D)
-                                                                  ? 2
-                                                                  : 2.5))),
-                                                                  ***/
-                                             _para.mL));
-
-                /***
-                if (l == 0)
-                    ALOG(INFO, "LOGGER_ROUND") << "Number of Sampling Points "
-                                               << phase
-                                               << ": "
-                                               << _par[0].n();
-                                               ***/
-#endif
-            }
-            
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
                         : MIN_N_PHASE_PER_ITER_LOCAL))
@@ -1100,22 +1028,6 @@ void MLOptimiser::expectation()
         delete[] priP;
     }
     }
-
-#ifdef OPTIMISER_FINAL_PERTURBATION
-    ALOG(INFO, "LOGGER_ROUND") << "Performing Final Perturbation";
-    BLOG(INFO, "LOGGER_ROUND") << "Performing Final Perturbation";
-
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
-    {
-        if (_searchType == SEARCH_TYPE_GLOBAL)
-            _par[l].perturb(_para.perturbFactorSGlobal);
-        else if (_searchType == SEARCH_TYPE_LOCAL)
-            _par[l].perturb(_para.perturbFactorSLocal);
-        else
-            _par[l].perturb(_para.perturbFactorSCTF);
-    }
-#endif
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
@@ -2588,7 +2500,7 @@ void MLOptimiser::refreshVariance()
     _model.setTVariS0(mean);
     _model.setStdTVariS0(std);
 
-    stat_MAS(mean, std, t0v, _nPar);
+    stat_MAS(mean, std, t1v, _nPar);
 
     _model.setTVariS1(mean);
     _model.setStdTVariS1(std);
