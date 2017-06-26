@@ -62,19 +62,19 @@
 /**
  * maximum length of filename
  */
-#define FILE_NAME_LENGTH 512
+#define FILE_NAME_LENGTH 1024
 
 /**
  * maximum length of SQL command
  */
-#define SQL_COMMAND_LENGTH 512
+#define SQL_COMMAND_LENGTH 1024
 
 /**
  * maximum length of a line in a file
  */
-#define FILE_LINE_LENGTH 1024
+#define FILE_LINE_LENGTH (1024 * 1024)
 
-#define FILE_WORD_LENGTH 256
+#define FILE_WORD_LENGTH 1024
 
 /**
  * edge width in Fourier space
