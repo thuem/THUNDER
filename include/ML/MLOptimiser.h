@@ -198,7 +198,9 @@ struct MLOptimiserPara
     /**
      * number of sampling points in global search
      */
-    int mG;
+    int mGMax;
+
+    int mGMin;
 
     /**
      * number of sampling points in local search
@@ -285,7 +287,6 @@ struct MLOptimiserPara
         perturbFactorSCTF = 0.1;
         ctfRefineFactor = 10;
         ctfRefineS = 0.005;
-        //ctfRefineS = 0;
     }
 };
 

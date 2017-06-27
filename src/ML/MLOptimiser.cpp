@@ -31,7 +31,8 @@ void display(const MLOptimiserPara& para)
     printf("Padding Factor:                                          %12d\n", para.pf);
     printf("MKB Kernel Radius:                                       %12.6lf\n", para.a);
     printf("MKB Kernel Smooth Factor:                                %12.6lf\n", para.alpha);
-    printf("Number of Sampling Points in Global Search:              %12d\n", para.mG);
+    printf("Number of Sampling Points in Global Search (Max):        %12d\n", para.mGMax);
+    printf("Number of Sampling Points in Global Search (Min):        %12d\n", para.mGMin);
     printf("Number of Sampling Points in Local Search:               %12d\n", para.mL);
     printf("Ignore Signal Under (Angstrom):                          %12.6lf\n", para.ignoreRes);
     printf("Correct Intensity Scale Using Signal Under (Angstrom):   %12.6lf\n", para.sclCorRes);
@@ -477,7 +478,9 @@ void MLOptimiser::expectation()
     int nPer = 0;
 
     //int nSampleMax = _para.mG;
-    int nSampleMax = _para.k * _para.mG;
+    //int nSampleMax = _para.k * _para.mG;
+    int nSampleMax = GSL_MAX_INT(_para.mGMin,
+                                 _para.mGMax / (1 + _sym.nSymmetryElement()));
 
     ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";

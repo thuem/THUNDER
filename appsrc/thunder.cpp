@@ -77,7 +77,8 @@ void readPara(MLOptimiserPara& dst,
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();
     dst.alpha = src["Advanced"]["MKB Kernel Smooth Factor"].asFloat();
     dst.mS = src["Advanced"]["Number of Sampling Points for Scanning in Global Search"].asInt();
-    dst.mG = src["Advanced"]["Number of Sampling Points in Global Search"].asInt();
+    dst.mGMax = src["Advanced"]["Number of Sampling Points in Global Search (Max)"].asInt();
+    dst.mGMin = src["Advanced"]["Number of Sampling Points in Global Search (Min)"].asInt();
     dst.mL = src["Advanced"]["Number of Sampling Points in Local Search"].asInt();
     dst.mReco = src["Advanced"]["Number of Sampling Points Used in Reconstruction"].asInt();
     dst.ignoreRes = src["Advanced"]["Ignore Signal Under (Angstrom)"].asFloat();
