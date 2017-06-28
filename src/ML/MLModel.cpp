@@ -977,12 +977,25 @@ void MLModel::setRVari(const double rVari)
 
 void MLModel::setTVariS0(const double tVariS0)
 {
+    _tVariS0Prev = _tVariS0;
+
     _tVariS0 = tVariS0;
 }
 
 void MLModel::setTVariS1(const double tVariS1)
 {
+    _tVariS1Prev = _tVariS1;
+
     _tVariS1 = tVariS1;
+}
+
+void MLModel::resetTVari()
+{
+    _tVariS0Prev = DBL_MAX;
+    _tVariS1Prev = DBL_MAX;
+
+    _tVariS0 = DBL_MAX;
+    _tVariS1 = DBL_MAX;
 }
 
 void MLModel::setStdRVari(const double stdRVari)
@@ -1103,6 +1116,7 @@ int MLModel::searchType()
                         _searchType = SEARCH_TYPE_CTF;
                         _nTopResNoImprove = 0;
 
+                        resetTVari();
                         resetRChange();
                         setNRChangeNoDecrease(0);
                         setIncreaseR(false);
@@ -1203,11 +1217,7 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 {
     IF_MASTER
     {
-        /***
-        if (_rChange > _rChangePrev
-                     - rChangeDecreaseFactor
-                     * _stdRChangePrev)
-                     ***/
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         if (_rChange > (1 - rChangeDecreaseFactor) * _rChangePrev)
         {
             // When the frequency remains the same as the last iteration, check
@@ -1234,6 +1244,10 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
                            >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
                 break;
         }
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+#endif
     }
 
     MPI_Barrier(MPI_COMM_WORLD);

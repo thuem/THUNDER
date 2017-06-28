@@ -223,10 +223,14 @@ class MLModel : public Parallel
          */
         double _tVariS1;
 
+        double _tVariS0Prev;
+
+        double _tVariS1Prev;
+
         double _stdRVari;
 
         double _stdTVariS0;
-        
+
         double _stdTVariS1;
 
         /**
@@ -302,8 +306,10 @@ class MLModel : public Parallel
             _pf = 2;
             _a = 1.9;
             _rVari = 0;
-            _tVariS0 = 0;
-            _tVariS1 = 0;
+            _tVariS0Prev = DBL_MAX;
+            _tVariS0Prev = DBL_MAX;
+            _tVariS0 = DBL_MAX;
+            _tVariS1 = DBL_MAX;
             _stdRVari = 0;
             _stdTVariS0 = 0;
             _stdTVariS1 = 0;
@@ -660,6 +666,8 @@ class MLModel : public Parallel
         void setTVariS0(const double tVariS0);
 
         void setTVariS1(const double tVariS1);
+
+        void resetTVari();
 
         void setStdRVari(const double stdRVari);
 
