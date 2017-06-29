@@ -17,13 +17,13 @@
 
 //#define TEST_SAME_MATRIX
 
-//#define TEST_COUNTERPART
+#define TEST_COUNTERPART
 
 //#define ANCHOR_POINT
 
-#define TEST
+//#define TEST
 
-#define SYM "D2"
+#define SYM "D1"
 
 #define N 1000
 
