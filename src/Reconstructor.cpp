@@ -67,7 +67,7 @@ void Reconstructor::init(const int mode,
                    1,
                    1e5);
 
-    _maxRadius = (_size / 2 - a);
+    _maxRadius = (_size / 2 - CEIL(a));
 
     allocSpace();
 
