@@ -3455,6 +3455,19 @@ void MLOptimiser::reconstructRef()
         ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
         BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
 #endif
+
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging on Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging on Reference " << t;
+
+        softMask(_model.ref(t),
+                 _model.ref(t),
+                 (double)(_model.rU() - EDGE_WIDTH_FT) / _para.size,
+                 (double)EDGE_WIDTH_RL / _para.size);
+
+#ifdef VERBOSE_LEVEL_2
+        ALOG(INFO, "LOGGER_ROUND") << "Soft Edging Performed on Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Soft Edging Performed on Reference " << t;
+#endif
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
