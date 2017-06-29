@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 
             fft.fw(image);
 
-            reconstructor.insert(image, ctf, rot, vec2(0, 0), 1);
+            reconstructor.insert(image, ctf, rot, 1);
         }
     }
 

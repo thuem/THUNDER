@@ -267,7 +267,6 @@ void Reconstructor::setPreCal(const int nPxl,
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
                            const mat22& rot,
-                           const vec2& t,
                            const double w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -286,10 +285,7 @@ void Reconstructor::insert(const Image& src,
         REPORT_ERROR("INCORRECT SIZE OF INSERTING IMAGE");
 #endif
 
-    Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, _maxRadius, -t(0), -t(1));
-
-    IMAGE_FOR_EACH_PIXEL_FT(transSrc)
+    IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
@@ -297,7 +293,7 @@ void Reconstructor::insert(const Image& src,
             vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F2D.addFT(transSrc.getFTHalf(i, j)
+            _F2D.addFT(src.getFTHalf(i, j)
                      * REAL(ctf.getFTHalf(i, j))
                      * w, 
                        oldCor(0), 
@@ -307,7 +303,7 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F2D.addFT(transSrc.getFTHalf(i, j)
+            _F2D.addFT(src.getFTHalf(i, j)
                      * REAL(ctf.getFTHalf(i, j))
                      * w, 
                        oldCor(0), 
@@ -340,7 +336,6 @@ void Reconstructor::insert(const Image& src,
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
                            const mat33& rot,
-                           const vec2& t,
                            const double w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -359,27 +354,15 @@ void Reconstructor::insert(const Image& src,
         REPORT_ERROR("INCORRECT SIZE OF INSERTING IMAGE");
 #endif
 
-    Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, _maxRadius, -t(0), -t(1));
-
-    vector<mat33> sr;
-#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
-    symmetryRotation(sr, rot, _sym);
-#else
-    sr.push_back(rot);
-#endif
-
-    for (int k = 0; k < int(sr.size()); k++)
-    {
-        IMAGE_FOR_EACH_PIXEL_FT(transSrc)
+        IMAGE_FOR_EACH_PIXEL_FT(src)
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
                 vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
-                vec3 oldCor = sr[k] * newCor;
+                vec3 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                _F3D.addFT(transSrc.getFTHalf(i, j)
+                _F3D.addFT(src.getFTHalf(i, j)
                          * REAL(ctf.getFTHalf(i, j))
                          * w, 
                            oldCor(0), 
@@ -390,7 +373,7 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _F3D.addFT(transSrc.getFTHalf(i, j)
+                _F3D.addFT(src.getFTHalf(i, j)
                          * REAL(ctf.getFTHalf(i, j))
                          * w, 
                            oldCor(0), 
@@ -421,13 +404,11 @@ void Reconstructor::insert(const Image& src,
 #endif
             }
         }
-    }
 }
 
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat22& rot,
-                            const vec2& t,
                             const double w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -440,16 +421,13 @@ void Reconstructor::insertP(const Image& src,
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 #endif
 
-    Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
-
         for (int i = 0; i < _nPxl; i++)
         {
             vec2 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf));
             vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F2D.addFT(transSrc[_iPxl[i]]
+            _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * w,
                        oldCor(0), 
@@ -459,7 +437,7 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F2D.addFT(transSrc[_iPxl[i]]
+            _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * w,
                        oldCor(0), 
@@ -491,7 +469,6 @@ void Reconstructor::insertP(const Image& src,
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat33& rot,
-                            const vec2& t,
                             const double w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -504,25 +481,13 @@ void Reconstructor::insertP(const Image& src,
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 #endif
 
-    Image transSrc(_size, _size, FT_SPACE);
-    translate(transSrc, src, -t(0), -t(1), _iCol, _iRow, _iPxl, _nPxl);
-
-    vector<mat33> sr;
-#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_INSERT
-    symmetryRotation(sr, rot, _sym);
-#else
-    sr.push_back(rot);
-#endif
-
-    for (int k = 0; k < int(sr.size()); k++)
-    {
         for (int i = 0; i < _nPxl; i++)
         {
             vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
-            vec3 oldCor = sr[k] * newCor;
+            vec3 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F3D.addFT(transSrc[_iPxl[i]]
+            _F3D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * w,
                        oldCor(0), 
@@ -533,7 +498,7 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F3D.addFT(transSrc[_iPxl[i]]
+            _F3D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * w,
                        oldCor(0), 
@@ -563,7 +528,6 @@ void Reconstructor::insertP(const Image& src,
 
 #endif
         }
-    }
 }
 
 void Reconstructor::reconstruct(Image& dst)

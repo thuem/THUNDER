@@ -3325,6 +3325,8 @@ void MLOptimiser::reconstructRef()
 
         w /= _para.mReco;
 
+        Image transImg(_para.size, _para.size, FT_SPACE);
+
         for (int m = 0; m < _para.mReco; m++)
         {
             int cls;
@@ -3337,6 +3339,26 @@ void MLOptimiser::reconstructRef()
             {
                 _par[l].rand(cls, rot2D, tran, d);
 
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
+                translate(transImg,
+                          _imgOri[l],
+                          -(tran - _offset[l])(0),
+                          -(tran - _offset[l])(1),
+                          _iCol,
+                          _iRow,
+                          _iPxl,
+                          _nPxl);
+#else
+                translate(transImg,
+                          _img[l],
+                          -tran(0),
+                          -tran(1),
+                          _iCol,
+                          _iRow,
+                          _iPxl,
+                          _nPxl);
+#endif
+
                 if (cSearch)
                     CTF(ctf,
                         _para.pixelSize,
@@ -3346,40 +3368,34 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusTheta,
                         _ctfAttr[l].Cs);
 
-#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                _model.reco(cls).insertP(_imgOri[l],
+                _model.reco(cls).insertP(transImg,
                                          cSearch ? ctf : _ctf[l],
                                          rot2D,
-                                         tran - _offset[l],
                                          w);
-#else
-                _model.reco(cls).insertP(_img[l],
-                                         cSearch ? ctf : _ctf[l],
-                                         rot2D,
-                                         tran,
-                                         w);
-#endif
-#else
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                _model.reco(cls).insertP(_imgOri[l],
-                                         cSearch ? ctf : _ctf[l],
-                                         rot2D,
-                                         tran,
-                                         w);
-#else
-                _model.reco(cls).insertP(_img[l],
-                                         cSearch ? ctf : _ctf[l],
-                                         rot2D,
-                                         tran,
-                                         w);
-#endif
-#endif
             }
             else if (_para.mode == MODE_3D)
             {
                 _par[l].rand(cls, rot3D, tran, d);
-                //_par[l].rank1st(cls, rot3D, tran, d);
+
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
+                translate(transImg,
+                          _imgOri[l],
+                          -(tran - _offset[l])(0),
+                          -(tran - _offset[l])(1),
+                          _iCol,
+                          _iRow,
+                          _iPxl,
+                          _nPxl);
+#else
+                translate(transImg,
+                          _img[l],
+                          -tran(0),
+                          -tran(1),
+                          _iCol,
+                          _iRow,
+                          _iPxl,
+                          _nPxl);
+#endif
 
                 if (cSearch)
                     CTF(ctf,
@@ -3390,35 +3406,10 @@ void MLOptimiser::reconstructRef()
                         _ctfAttr[l].defocusTheta,
                         _ctfAttr[l].Cs);
 
-#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                _model.reco(cls).insertP(_imgOri[l],
+                _model.reco(cls).insertP(transImg,
                                          cSearch ? ctf : _ctf[l],
                                          rot3D,
-                                         tran - _offset[l],
                                          w);
-#else
-                _model.reco(cls).insertP(_img[l],
-                                         cSearch ? ctf : _ctf[l],
-                                         rot3D,
-                                         tran,
-                                         w);
-#endif
-#else
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                _model.reco(cls).insertP(_imgOri[l],
-                                         cSearch ? ctf : _ctf[l],
-                                         rot3D,
-                                         tran,
-                                         w);
-#else
-                _model.reco(cls).insertP(_img[l],
-                                         cSearch ? ctf : _ctf[l],
-                                         rot3D,
-                                         tran,
-                                         w);
-#endif
-#endif
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
