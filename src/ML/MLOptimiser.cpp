@@ -3456,17 +3456,17 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
 #endif
 
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging on Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging on Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging in Fourier Space on Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging in Fourier Space on Reference " << t;
 
-        softMask(_model.ref(t),
-                 _model.ref(t),
-                 (double)(_model.rU() - EDGE_WIDTH_FT) / _para.size,
-                 (double)EDGE_WIDTH_RL / _para.size);
+        lowPassFilter(_model.ref(t),
+                      _model.ref(t),
+                      (double)(_model.rU() - EDGE_WIDTH_FT) / _para.size,
+                      (double)EDGE_WIDTH_RL / _para.size);
 
 #ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_ROUND") << "Soft Edging Performed on Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Soft Edging Performed on Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
 #endif
     }
 
