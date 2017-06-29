@@ -138,7 +138,7 @@ void Database::shuffle()
         gsl_rng* engine = get_random_engine();
 
         gsl_ran_shuffle(engine, &_reg[0], _reg.size(), sizeof(int));
-#else
+#endif
     }
 
     MPI_Bcast(&_reg[0], _reg.size(), MPI_INT, MASTER_ID, MPI_COMM_WORLD);
