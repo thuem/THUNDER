@@ -231,12 +231,8 @@ void MLOptimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _db.openDatabase(_para.db);
 
-#ifdef OPTIMISER_SHUFFLE_PARTICLES
-
     MLOG(INFO, "LOGGER_INIT") << "Shuffling Particles";
     _db.shuffle();
-
-#endif
 
     MLOG(INFO, "LOGGER_INIT") << "Assigning Particles to Each Process";
     _db.assign();
