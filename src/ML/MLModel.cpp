@@ -854,7 +854,8 @@ void MLModel::resetReco()
 
     FOR_EACH_CLASS
     {
-        _reco[l]->reset();
+        //_reco[l]->reset();
+        _reco[l]->resizeSpace((_rU + _a) * 2);
 
         if (_k == 1)
         {

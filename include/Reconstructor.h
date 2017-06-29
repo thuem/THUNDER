@@ -309,6 +309,10 @@ class Reconstructor : public Parallel
                   const double a = 1.9,
                   const double alpha = 15);
 
+        void allocSpace();
+
+        void resizeSpace(const int size);
+
         void reset();
 
         int mode() const;

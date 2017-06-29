@@ -79,7 +79,7 @@
 /**
  * edge width in Fourier space
  */
-#define EDGE_WIDTH_FT 6
+#define EDGE_WIDTH_FT 2
 
 /**
  * edge width in real space

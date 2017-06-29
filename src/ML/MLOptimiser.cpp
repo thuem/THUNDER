@@ -3431,6 +3431,8 @@ void MLOptimiser::reconstructRef()
 
     MPI_Barrier(_hemi);
 
+    FFT fft;
+
     for (int t = 0; t < _para.k; t++)
     {
         ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
@@ -3440,7 +3442,28 @@ void MLOptimiser::reconstructRef()
                                    << t
                                    << " for Next Iteration";
 
-        _model.reco(t).reconstruct(_model.ref(t));
+        Volume ref;
+
+        //_model.reco(t).reconstruct(_model.ref(t));
+        _model.reco(t).reconstruct(ref);
+
+#ifdef VERBOSE_LEVEL_2
+        ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+#endif
+
+        fft.fwMT(ref);
+
+        SET_0_FT(_model.ref(t));
+
+        #pragma omp parallel for
+        VOLUME_FOR_EACH_PIXEL_FT(ref)
+            _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+
+#ifdef VERBOSE_LEVEL_2
+        ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+        BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
@@ -3452,73 +3475,6 @@ void MLOptimiser::reconstructRef()
 
     ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
     BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
-
-    /***
-    if (_genMask)
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Generating Automask";
-        BLOG(INFO, "LOGGER_ROUND") << "Generating Automask";
-
-        _mask.alloc(_para.pf * _para.size,
-                    _para.pf * _para.size,
-                    _para.pf * _para.size,
-                    RL_SPACE);
-
-        Volume lowPassRef(_para.pf * _para.size,
-                          _para.pf * _para.size,
-                          _para.pf * _para.size,
-                          RL_SPACE);
-
-        lowPassRef = _model.ref(0).copyVolume();
-
-        FFT fft;
-
-        fft.fwMT(lowPassRef);
-
-        lowPassFilter(lowPassRef,
-                      lowPassRef,
-                      _model.rGlobal() / _para.size,
-                      (double)EDGE_WIDTH_FT / _para.pf / _para.size);
-
-        fft.bwMT(lowPassRef);
-
-        softMask(lowPassRef,
-                 lowPassRef,
-                 _para.size / 2 - EDGE_WIDTH_RL,
-                 EDGE_WIDTH_RL,
-                 0);
-
-        autoMask(_mask,
-                 lowPassRef,
-                 GEN_MASK_EXT,
-                 EDGE_WIDTH_RL,
-                 _para.size / 2 - EDGE_WIDTH_RL);
-
-        saveMask();
-
-        _genMask = false;
-    }
-    ***/
-
-    ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
-    BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming References";
-
-    FFT fft;
-    for (int t = 0; t < _para.k; t++)
-    {
-#ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-#endif
-
-        fft.fwMT(_model.ref(t));
-        _model.ref(t).clearRL();
-
-#ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-        BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-#endif
-    }
 }
 
 void MLOptimiser::solventFlatten(const bool mask)

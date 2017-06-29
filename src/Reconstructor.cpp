@@ -43,14 +43,6 @@ void Reconstructor::init(const int mode,
     _pf = pf;
     _sym = sym;
 
-    /***
-    _FSC = vec::Constant(1, 1);
-
-    _sig = vec::Zero(1);
-
-    _tau = vec::Constant(1, 1);
-    ***/
-
     _a = a;
     _alpha = alpha;
 
@@ -77,6 +69,13 @@ void Reconstructor::init(const int mode,
 
     _maxRadius = (_size / 2 - a);
 
+    allocSpace();
+
+    reset();
+}
+
+void Reconstructor::allocSpace()
+{
     if (_mode == MODE_2D)
     {
         // Create Fourier Plans First, Then Allocate Space
@@ -118,18 +117,22 @@ void Reconstructor::init(const int mode,
     }
     else 
         REPORT_ERROR("INEXISTENT MODE");
+}
+
+void Reconstructor::resizeSpace(const int size)
+{
+    _fft.fwDestroyPlanMT();
+    _fft.bwDestroyPlanMT();
+
+    _size = size;
+
+    allocSpace();
 
     reset();
 }
 
 void Reconstructor::reset()
 {
-    /***
-    _rot.clear();
-    _w.clear();
-    _ctf.clear();
-    ***/
-
     _iCol = NULL;
     _iRow = NULL;
     _iPxl = NULL;
