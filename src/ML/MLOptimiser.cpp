@@ -363,12 +363,11 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
-#ifdef OPTIMISER_LOW_PASS_REF
-        ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
-        BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
-            
-        _model.lowPassRef((double)(_r - EDGE_WIDTH_FT) / _para.size,
-                          (double)EDGE_WIDTH_FT / _para.size);
+#ifdef OPTIMISER_SOLVENT_FLATTEN
+        ALOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
+        BLOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
+
+        solventFlatten();
 #endif
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
@@ -1351,6 +1350,7 @@ void MLOptimiser::run()
         {
         ***/
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+
             solventFlatten(_para.performMask);
             /***
         }
@@ -1374,14 +1374,6 @@ void MLOptimiser::run()
 
         NT_MASTER
         {
-#ifdef OPTIMISER_LOW_PASS_REF
-            ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
-            BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filtering Reference(s)";
-            
-            _model.lowPassRef((double)(_r - EDGE_WIDTH_FT) / _para.size,
-                              (double)EDGE_WIDTH_FT / _para.size);
-#endif
-
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
 
@@ -3487,6 +3479,14 @@ void MLOptimiser::solventFlatten(const bool mask)
 
     for (int t = 0; t < _para.k; t++)
     {
+        ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filter on Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filter on Reference " << t;
+
+        lowPassFilter(_model.ref(t),
+                      _model.ref(t),
+                      (double)_r  / _para.size,
+                      (double)EDGE_WIDTH_RL / _para.size);
+
         ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
 
