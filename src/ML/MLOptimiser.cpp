@@ -3435,11 +3435,23 @@ void MLOptimiser::reconstructRef()
 
         fft.fwMT(ref);
 
+        if (IMAG(ref[0]) != 0)
+        {
+            CLOG(FATAL, "LOGGER_ROUND") << "BREAKPOINT 0, ZERO NO";
+            abort();
+        }
+
         SET_0_FT(_model.ref(t));
 
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_FT(ref)
             _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+
+        if (IMAG(_model.ref(t)[0]) != 0)
+        {
+            CLOG(FATAL, "LOGGER_ROUND") << "BREAKPOINT 0, ZERO NO";
+            abort();
+        }
 
 #ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
