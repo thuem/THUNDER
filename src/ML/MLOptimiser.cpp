@@ -746,9 +746,9 @@ void MLOptimiser::expectation()
 
             _par[l].calVari();
 
-            _par[l].flatten(0.999);
+            //_par[l].flatten(0.999);
 
-            //_par[l].resample();
+            _par[l].resample();
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -947,9 +947,9 @@ void MLOptimiser::expectation()
 
             _par[l].calVari();
 
-            _par[l].flatten(0.999);
+            //_par[l].flatten(0.999);
 
-            //_par[l].resample();
+            _par[l].resample();
 
             // _par[l].calVari();
 
