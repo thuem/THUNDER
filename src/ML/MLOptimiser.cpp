@@ -3448,13 +3448,15 @@ void MLOptimiser::reconstructRef()
         BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
 #endif
 
+        /***
         ALOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging in Fourier Space on Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging in Fourier Space on Reference " << t;
 
         lowPassFilter(_model.ref(t),
                       _model.ref(t),
                       (double)(_model.rU() - EDGE_WIDTH_FT) / _para.size,
-                      (double)EDGE_WIDTH_RL / _para.size);
+                      (double)EDGE_WIDTH_FT / _para.size);
+        ***/
 
 #ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
@@ -3485,7 +3487,7 @@ void MLOptimiser::solventFlatten(const bool mask)
         lowPassFilter(_model.ref(t),
                       _model.ref(t),
                       (double)_r  / _para.size,
-                      (double)EDGE_WIDTH_RL / _para.size);
+                      (double)EDGE_WIDTH_FT / _para.size);
 
         ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
