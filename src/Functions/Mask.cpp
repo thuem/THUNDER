@@ -82,7 +82,10 @@ double regionMean(const Volume& vol,
 
         if (u == r)
         {
+            #pragma omp atomic
             weightSum += 1;
+
+            #pragma omp atomic
             sum += vol.getRL(i, j, k);
         }
     }
