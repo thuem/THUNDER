@@ -890,10 +890,14 @@ void Particle::flatten(const double thres)
             break;
     }
 
+    int n = _n;
+
     sort(i + 1);
 
     for (int i = 0; i < _n; i++)
         _w(i) = 1.0 / _n;
+
+    resample(n);
 }
 
 void Particle::sort(const int n)

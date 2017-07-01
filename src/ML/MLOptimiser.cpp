@@ -748,14 +748,7 @@ void MLOptimiser::expectation()
 
             _par[l].flatten(0.999);
 
-            _par[l].resample(nSampleMax);
-
-            //_par[l].resample(_para.mG);
             //_par[l].resample();
-
-            // calculation variance
-            // _par[l].calVari();
-
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -811,9 +804,6 @@ void MLOptimiser::expectation()
                 /***
                 _par[l].shuffle();
                 ***/
-
-                _par[l].flatten(0.999);
-
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
@@ -825,8 +815,6 @@ void MLOptimiser::expectation()
             else if ((phase == 0) &&
                      (_searchType == SEARCH_TYPE_CTF))
             {
-                _par[l].flatten(0.999);
-
                 _par[l].resample(_para.mL * _para.ctfRefineFactor,
                                  ALPHA_LOCAL_SEARCH);
 
@@ -960,8 +948,6 @@ void MLOptimiser::expectation()
             _par[l].calVari();
 
             _par[l].flatten(0.999);
-
-            _par[l].resample(nSampleMax);
 
             //_par[l].resample();
 
