@@ -737,18 +737,11 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            //_par[l].flatten(1 - 1e-4);
-
-            /***
-            // shuffle
-            _par[l].shuffle();
-            ***/
-
             _par[l].calVari();
 
-            _par[l].flatten(FLATTEN_THRESHOLD);
+            //_par[l].flatten(FLATTEN_THRESHOLD);
 
-            //_par[l].resample();
+            _par[l].resample();
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -947,9 +940,9 @@ void MLOptimiser::expectation()
 
             _par[l].calVari();
 
-            _par[l].flatten(FLATTEN_THRESHOLD);
+            //_par[l].flatten(FLATTEN_THRESHOLD);
 
-            //_par[l].resample();
+            _par[l].resample();
 
             // _par[l].calVari();
 
