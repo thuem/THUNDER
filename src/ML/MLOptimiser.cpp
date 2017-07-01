@@ -3449,7 +3449,7 @@ void MLOptimiser::reconstructRef()
 
         if (IMAG(_model.ref(t)[0]) != 0)
         {
-            CLOG(FATAL, "LOGGER_ROUND") << "BREAKPOINT 0, ZERO NO";
+            CLOG(FATAL, "LOGGER_ROUND") << "BREAKPOINT 1, ZERO NO";
             abort();
         }
 
