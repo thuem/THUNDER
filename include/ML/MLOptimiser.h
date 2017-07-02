@@ -58,7 +58,7 @@
 //#define TRANS_Q 0.25
 //#define TRANS_Q 0.5
 
-#define FLATTEN_THRESHOLD 0.9
+#define FLATTEN_THRESHOLD 0.999
 
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
