@@ -930,13 +930,15 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            //_par[l].calVari();
+            _par[l].calVari();
+
+            _par[l].resample();
+            /***
 
             _par[l].flatten(FLATTEN_THRESHOLD);
 
-            //_par[l].resample();
-
             _par[l].calVari();
+            ***/
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
