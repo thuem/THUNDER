@@ -737,10 +737,22 @@ void MLOptimiser::expectation()
             }
 #endif
 
-
             _par[l].flatten(FLATTEN_THRESHOLD);
 
             _par[l].calVari();
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+            if (_ID[l] < 20)
+            {
+                char filename[FILE_NAME_LENGTH];
+                snprintf(filename,
+                         sizeof(filename),
+                         "Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l]);
+            }
+#endif
 
             /***
             _par[l].calVari();

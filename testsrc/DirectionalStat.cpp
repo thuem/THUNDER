@@ -23,7 +23,9 @@
 
 #define N 1000
 
-#define TEST_SAMPLE_ACG
+//#define TEST_SAMPLE_ACG
+
+#define TEST_INFER_ACG
 
 //#define TEST_PDF_VMS
 
@@ -67,6 +69,29 @@ int main(int argc, const char* argv[])
                acg(i, 1),
                acg(i, 2),
                acg(i, 3));
+#endif
+
+#ifdef TEST_INFER_ACG
+    mat4 acg = mat4::Zero(N, 4);
+
+    // acg.col(0) = vec::Ones(N);
+    acg.col(1) = vec::Ones(N);
+
+    /***
+    for (int i = 0; i < N; i++)
+        printf("%15.6lf %15.6lf %15.6lf %15.6lf\n",
+               acg(i, 0),
+               acg(i, 1),
+               acg(i, 2),
+               acg(i, 3));
+               ***/
+
+    double k0, k1;
+
+    inferACG(k0, k1, acg);
+
+    printf("k0 = %15.6lf, k1 = %15.6lf\n", k0, k1);
+
 #endif
 
 #ifdef TEST_PDF_VMS
