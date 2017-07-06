@@ -1074,12 +1074,13 @@ void MLOptimiser::maximization()
         correctScale(false, true);
     }
 
-#ifdef OPTIMISER_RECONSTRUCT_REF
-    ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
-    BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+    if (!_para.skipR)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+        BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-    reconstructRef();
-#endif
+        reconstructRef();
+    }
 }
 
 void MLOptimiser::run()
@@ -1130,23 +1131,23 @@ void MLOptimiser::run()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-#ifndef OPTIMISER_SKIP_EXPECTATION
-        MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
+        if (!_para.skipE)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
-        expectation();
-#endif
+            expectation();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
-        ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
-                                   << _nF
-                                   << " Times over "
-                                   << _ID.size()
-                                   << " Images";
+            MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
+            ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
+                                       << _nF
+                                       << " Times over "
+                                       << _ID.size()
+                                       << " Images";
 
-        MPI_Barrier(MPI_COMM_WORLD);
-        //}
+            MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
+            MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
 
@@ -1156,6 +1157,7 @@ void MLOptimiser::run()
             MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
                                        << "\% Percentage of Images Belonging to Class "
                                        << t;
+
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -1204,8 +1206,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
-        maximization();
+        if (!_para.skipM)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
+
+            maximization();
+        }
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 

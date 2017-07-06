@@ -267,6 +267,21 @@ struct MLOptimiserPara
 
     double ctfRefineS;
 
+    /**
+     * whether skip expectation or not
+     */
+    bool skipE;
+
+    /**
+     * whether skip maximization or not
+     */
+    bool skipM;
+
+    /**
+     * whether skip reconstruction or not
+     */
+    bool skipR;
+
     MLOptimiserPara()
     {
         mode = MODE_3D;
@@ -289,6 +304,9 @@ struct MLOptimiserPara
         perturbFactorSCTF = 0.1;
         ctfRefineFactor = 10;
         ctfRefineS = 0.005;
+        skipE = false;
+        skipM = false;
+        skipR = false;
     }
 };
 

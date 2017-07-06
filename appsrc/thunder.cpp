@@ -98,6 +98,9 @@ void readPara(MLOptimiserPara& dst,
     dst.perturbFactorSGlobal = src["Professional"]["Perturbation Factor (Small, Global)"].asFloat();
     dst.perturbFactorSLocal = src["Professional"]["Perturbation Factor (Small, Local)"].asFloat();
     dst.perturbFactorSCTF = src["Professional"]["Perturbation Factor (Small, CTF)"].asFloat();
+    dst.skipE = src["Professional"]["Skip Expectation"].asBool();
+    dst.skipM = src["Professional"]["Skip Maximization"].asBool();
+    dst.skipR = src["Professional"]["Skip Reconstruction"].asBool();
 };
 
 INITIALIZE_EASYLOGGINGPP
