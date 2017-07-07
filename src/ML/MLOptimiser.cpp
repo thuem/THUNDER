@@ -1658,7 +1658,7 @@ void MLOptimiser::initRef()
             }
             ***/
 
-            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
 
             fft.fwMT(ref);
             ref.clearRL();
@@ -1692,7 +1692,7 @@ void MLOptimiser::initRef()
             }
             ***/
 
-            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
 
             fft.fwMT(ref);
             ref.clearRL();
