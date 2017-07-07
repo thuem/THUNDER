@@ -744,8 +744,9 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
 
-        if ((m >= MIN_N_ITER_BALANCE) &&
-            (diffC > diffCPrev * DIFF_C_DECREASE_THRES)) break;
+        if ((diffC < DIFF_C_THRES) ||
+            ((m >= MIN_N_ITER_BALANCE) &&
+             (diffC > diffCPrev * DIFF_C_DECREASE_THRES))) break;
     }
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";

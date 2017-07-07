@@ -46,7 +46,9 @@
 
 #define MIN_N_ITER_BALANCE 5
 
-#define MAX_N_ITER_BALANCE 20
+#define MAX_N_ITER_BALANCE 50
+
+#define DIFF_C_THRES 0.01
 
 #define DIFF_C_DECREASE_THRES 0.95
 
