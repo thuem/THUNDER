@@ -53,7 +53,8 @@ void Reconstructor::init(const int mode,
 
     _kernelFT.init(boost::bind(MKB_FT_R2,
                                boost::placeholders::_1,
-                               _pf * _a,
+                               //_pf * _a,
+                               _a,
                                _alpha),
                    0,
                    gsl_pow_2(_pf * _a),
@@ -61,7 +62,8 @@ void Reconstructor::init(const int mode,
 
     _kernelRL.init(boost::bind(MKB_RL_R2,
                                boost::placeholders::_1,
-                               _pf * _a,
+                               //_pf * _a,
+                               _a,
                                _alpha),
                    0,
                    1,
@@ -1068,7 +1070,8 @@ double Reconstructor::checkC() const
 
 void Reconstructor::convoluteC()
 {
-    double nf = MKB_RL(0, _a * _pf, _alpha);
+    //double nf = MKB_RL(0, _a * _pf, _alpha);
+    double nf = MKB_RL(0, _a, _alpha);
 
     if (_mode == MODE_2D)
     {
