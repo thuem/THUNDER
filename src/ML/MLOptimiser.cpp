@@ -737,8 +737,8 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            //_par[l].flatten(FLATTEN_THRESHOLD);
-            _par[l].segment(FLATTEN_THRESHOLD);
+            _par[l].flatten(FLATTEN_THRESHOLD);
+            //_par[l].segment(FLATTEN_THRESHOLD);
 
             _par[l].calVari();
 
