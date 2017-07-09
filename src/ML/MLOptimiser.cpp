@@ -737,9 +737,11 @@ void MLOptimiser::expectation()
             }
 #endif
 
+            /***
             _par[l].flatten(FLATTEN_THRESHOLD);
 
             _par[l].calVari();
+            ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
@@ -754,11 +756,9 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            /***
             _par[l].calVari();
 
             _par[l].resample();
-            ***/
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
