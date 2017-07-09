@@ -692,8 +692,8 @@ void MLOptimiser::expectation()
                     v(i) = -GSL_DBL_MAX;
 #endif
 
-            PROCESS_LOGW_SOFT(v);
-            //PROCESS_LOGW_HARD(v);
+            //PROCESS_LOGW_SOFT(v);
+            PROCESS_LOGW_HARD(v);
 
             topW.col(l) = v;
         }
@@ -737,12 +737,10 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            /***
             _par[l].flatten(FLATTEN_THRESHOLD);
-            _par[l].segment(FLATTEN_THRESHOLD);
+            //_par[l].segment(FLATTEN_THRESHOLD);
 
             _par[l].calVari();
-            ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
@@ -757,9 +755,11 @@ void MLOptimiser::expectation()
             }
 #endif
 
+            /***
             _par[l].resample();
 
             _par[l].calVari();
+            ***/
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -942,7 +942,7 @@ void MLOptimiser::expectation()
             _par[l].flatten(FLATTEN_THRESHOLD);
 
             _par[l].calVari();
-            ****/
+            ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
