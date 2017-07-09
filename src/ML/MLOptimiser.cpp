@@ -926,17 +926,23 @@ void MLOptimiser::expectation()
 
             }
 
-            //PROCESS_LOGW_SOFT(logW);
-            PROCESS_LOGW_HARD(logW);
+            PROCESS_LOGW_SOFT(logW);
+            //PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
 
             _par[l].normW();
 
+            _par[l].resample();
+
             _par[l].calVari();
 
-            _par[l].resample();
+            /***
+            _par[l].flatten(FLATTEN_THRESHOLD);
+
+            _par[l].calVari();
+            ****/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
@@ -951,12 +957,6 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 #endif
-
-            /***
-            _par[l].flatten(FLATTEN_THRESHOLD);
-
-            _par[l].calVari();
-            ****/
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
