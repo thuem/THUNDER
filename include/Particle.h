@@ -614,19 +614,19 @@ class Particle
 
         double k0() const;
 
-        double setK0(const double k0);
+        void setK0(const double k0);
 
         double k1() const;
 
-        double setK1(const double k1);
+        void setK1(const double k1);
 
         double s0() const;
 
-        double setS0(const double s0);
+        void setS0(const double s0);
 
         double s1() const;
 
-        double setS1(const double s1);
+        void setS1(const double s1);
 
         void calClassDistr();
 

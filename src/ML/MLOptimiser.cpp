@@ -752,7 +752,7 @@ void MLOptimiser::expectation()
 
             _par[l].calVari();
 
-            _par[l].setK1(GSL_MAX_DBL(scanMinStdR, _par[l].k1()));
+            _par[l].setK1(GSL_MAX_DBL(gsl_pow_2(scanMinStdR), _par[l].k1()));
 
             _par[l].setS0(GSL_MAX_DBL(scanMinStdT, _par[l].s0()));
 
