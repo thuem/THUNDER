@@ -3506,6 +3506,7 @@ void MLOptimiser::solventFlatten(const bool mask)
 
     for (int t = 0; t < _para.k; t++)
     {
+#ifdef OPTIMISER_SOLVENT_FLATTEN_LOW_PASS
         ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filter on Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filter on Reference " << t;
 
@@ -3513,6 +3514,7 @@ void MLOptimiser::solventFlatten(const bool mask)
                       _model.ref(t),
                       (double)_r  / _para.size,
                       (double)EDGE_WIDTH_FT / _para.size);
+#endif
 
         ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
