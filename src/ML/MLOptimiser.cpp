@@ -524,7 +524,7 @@ void MLOptimiser::expectation()
 
         ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
                                    << scanMinStdR;
-        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
+        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Translation in Scanning Phase: "
                                    << scanMinStdT;
 
         Particle par;
@@ -942,17 +942,17 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
-            //PROCESS_LOGW_HARD(logW);
+            //PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
 
             _par[l].normW();
 
-            _par[l].resample();
-
             _par[l].calVari();
+
+            _par[l].resample();
 
             /***
             _par[l].flatten(FLATTEN_THRESHOLD);
