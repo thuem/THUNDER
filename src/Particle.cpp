@@ -569,6 +569,46 @@ void Particle::setD(const double d,
     _d(i) = d;
 }
 
+double Particle::k0() const
+{
+    return _k0;
+}
+
+void Particle::setK0(const double k0)
+{
+    _k0 = k0;
+}
+
+double Particle::k1() const
+{
+    return _k1;
+}
+
+void Particle::setK1(const double k1)
+{
+    _k1 = k1;
+}
+
+double Particle::s0() const
+{
+    return _s0;
+}
+
+void Particle::setS0(const double s0)
+{
+    _s0 = s0;
+}
+
+double Particle::s1() const
+{
+    return _s1;
+}
+
+void Particle::setS1(const double s1)
+{
+    _s1 = s1;
+}
+
 void Particle::calClassDistr()
 {
     _cDistr.setZero();
@@ -622,6 +662,9 @@ void Particle::calVari()
         inferACG(_k0, _k1, r);
     else
         REPORT_ERROR("INEXISTENT MODE");
+
+    _k1 /= _k0;
+    _k0 = 1;
 
     // variance of defocus factor
 

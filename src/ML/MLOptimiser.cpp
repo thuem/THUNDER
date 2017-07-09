@@ -517,6 +517,16 @@ void MLOptimiser::expectation()
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
 
+        double scanMinStdR = pow(_para.mS, -1.0 / 3);
+        double scanMinStdT  = 1.0
+                           / gsl_cdf_chisq_Qinv(0.5, 2)
+                           / sqrt(_para.transSearchFactor * M_PI);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
+                                   << scanMinStdR;
+        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
+                                   << scanMinStdT;
+
         Particle par;
         par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
         par.reset(_para.k, nR, nT);
@@ -741,6 +751,12 @@ void MLOptimiser::expectation()
             //_par[l].segment(FLATTEN_THRESHOLD);
 
             _par[l].calVari();
+
+            _par[l].setK1(GSL_MAX_DBL(scanMinStdR, _par[l].k1()));
+
+            _par[l].setS0(GSL_MAX_DBL(scanMinStdT, _par[l].s0()));
+
+            _par[l].setS1(GSL_MAX_DBL(scanMinStdT, _par[l].s1()));
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
