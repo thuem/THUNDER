@@ -934,6 +934,10 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+            _par[l].calVari();
+
+            _par[l].resample();
+
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
             {
@@ -947,10 +951,6 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 #endif
-
-            _par[l].calVari();
-
-            _par[l].resample();
 
             /***
             _par[l].flatten(FLATTEN_THRESHOLD);
