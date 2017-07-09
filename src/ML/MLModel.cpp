@@ -830,6 +830,7 @@ void MLModel::refreshReco()
                        _a,
                        _alpha);
 
+#ifdef MODEL_RECONSTRUCTOR_RESIZE
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l
                                  << " Resizing";
@@ -838,6 +839,7 @@ void MLModel::refreshReco()
                                  << " Resizing";
 
         _reco[l]->resizeSpace((_rU + CEIL(_a)) * 2);
+#endif
 
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l
@@ -864,8 +866,11 @@ void MLModel::resetReco()
 
     FOR_EACH_CLASS
     {
-        //_reco[l]->reset();
+#ifdef MODEL_RECONSTRUCTOR_RESIZE
         _reco[l]->resizeSpace((_rU + CEIL(_a)) * 2);
+#else
+        _reco[l]->reset();
+#endif
 
         if (_k == 1)
         {
