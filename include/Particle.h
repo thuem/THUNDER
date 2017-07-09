@@ -660,6 +660,8 @@ class Particle
          */
         double neff() const;
 
+        void segment(const double thres);
+
         void flatten(const double thres);
 
         /**

@@ -875,6 +875,28 @@ double Particle::neff() const
     return 1.0 / _w.squaredNorm();
 }
 
+void Particle::segment(const double thres)
+{
+    uvec order = iSort();
+
+    double s = 0;
+    int i;
+
+    for (i = 0; i < _n; i++)
+    {
+        s += _w(order(i));
+
+        if (s > thres)
+            break;
+    }
+
+    int n = _n;
+
+    sort(i + 1);
+
+    resample(n);
+}
+
 void Particle::flatten(const double thres)
 {
     uvec order = iSort();
