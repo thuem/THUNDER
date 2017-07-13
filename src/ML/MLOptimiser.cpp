@@ -1016,7 +1016,7 @@ void MLOptimiser::expectation()
 #endif
 
                 // break if in a few continuous searching, there is no improvement
-                if (nPhaseWithNoVariDecrease == 3)
+                if (nPhaseWithNoVariDecrease == N_PHASE_WITH_NO_VARI_DECREASE)
                 {
                     #pragma omp atomic
                     _nF += phase;
