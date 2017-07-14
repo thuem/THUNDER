@@ -951,7 +951,7 @@ void MLModel::elevateR(const double thres)
     else
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + AROUND((double)maxR() / 6)));
+                                     _r + AROUND((double)maxR() / 3)));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
