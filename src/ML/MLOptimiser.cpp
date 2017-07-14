@@ -765,7 +765,7 @@ void MLOptimiser::expectation()
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
-            
+            {
                 char filename[FILE_NAME_LENGTH];
                 snprintf(filename,
                          sizeof(filename),
