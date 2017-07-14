@@ -765,7 +765,7 @@ void MLOptimiser::expectation()
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
-            {
+            
                 char filename[FILE_NAME_LENGTH];
                 snprintf(filename,
                          sizeof(filename),
@@ -947,17 +947,17 @@ void MLOptimiser::expectation()
 
             }
 
-            PROCESS_LOGW_SOFT(logW);
-            //PROCESS_LOGW_HARD(logW);
+            //PROCESS_LOGW_SOFT(logW);
+            PROCESS_LOGW_HARD(logW);
 
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
 
             _par[l].normW();
 
-            _par[l].resample();
-
             _par[l].calVari();
+
+            _par[l].resample();
 
             /***
             _par[l].flatten(FLATTEN_THRESHOLD);
@@ -4071,10 +4071,12 @@ void MLOptimiser::saveReference(const bool finished)
                 fft.bwMT(_model.ref(t));
             else
             {
+                /***
                 lowPassFilter(lowPass,
                               _model.ref(t),
                               (double)_resReport / _para.size,
                               (double)EDGE_WIDTH_FT / _para.size);
+                ***/
 
                 /***
                 if (_searchType != SEARCH_TYPE_CTF)
