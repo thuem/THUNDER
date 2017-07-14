@@ -721,7 +721,7 @@ class MLOptimiser : public Parallel
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
         /**
-         * re-centre images according to translation expectationn of the last
+         * re-centre images according to translation expectation of the last
          * ieration; mask if neccessary
          */
         void reCentreImg();
