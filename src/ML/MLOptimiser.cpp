@@ -955,9 +955,9 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
-            _par[l].calVari();
-
             _par[l].resample();
+
+            _par[l].calVari();
 
             /***
             _par[l].flatten(FLATTEN_THRESHOLD);
