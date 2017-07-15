@@ -985,9 +985,6 @@ void MLOptimiser::expectation()
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
                         : MIN_N_PHASE_PER_ITER_LOCAL))
             {
-#ifdef OPTIMISER_COMPRESS_CRITERIA
-                if (_par[l].compress() > topCmp / PARTICLE_FILTER_DECREASE_FACTOR)
-#else
                 double tVariS0Cur;
                 double tVariS1Cur;
                 double rVariCur;
@@ -995,11 +992,16 @@ void MLOptimiser::expectation()
 
                 _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
 
+                /***
                 if ((tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
-#endif
+                ***/
+                if ((tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) &&
+                    (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) &&
+                    (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) &&
+                    (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
