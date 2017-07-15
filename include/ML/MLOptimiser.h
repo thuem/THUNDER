@@ -420,6 +420,8 @@ class MLOptimiser : public Parallel
          */
         vector<Image> _ctf;
 
+        vector<int> _nP;
+
         /**
          * Each row stands for sigma^2 of a certain group, thus the size of this
          * matrix is _nGroup x (maxR() + 1)

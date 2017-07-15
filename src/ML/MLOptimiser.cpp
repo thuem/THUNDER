@@ -807,6 +807,8 @@ void MLOptimiser::expectation()
     if (_para.mode == MODE_3D)
     {
 
+    _nP.resize(_ID.size(), 0);
+
     _nF = 0;
     _nI = 0;
 
@@ -1018,6 +1020,8 @@ void MLOptimiser::expectation()
                 // break if in a few continuous searching, there is no improvement
                 if (nPhaseWithNoVariDecrease == N_PHASE_WITH_NO_VARI_DECREASE)
                 {
+                    _nP[l] = phase;
+
                     #pragma omp atomic
                     _nF += phase;
 
@@ -1027,9 +1031,6 @@ void MLOptimiser::expectation()
                     break;
                 }
             }
-            /***
-            }
-            ***/
         }
 
         #pragma omp critical
@@ -3875,7 +3876,7 @@ void MLOptimiser::saveDatabase() const
                  %18.6f %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f \
-                 %18.6f\n",
+                 %18.6f %6d\n",
                 _ctfAttr[l].voltage,
                 _ctfAttr[l].defocusU,
                 _ctfAttr[l].defocusV,
@@ -3900,7 +3901,8 @@ void MLOptimiser::saveDatabase() const
                 s1,
                 df,
                 s,
-                _par[l].compress());
+                _par[l].compress(),
+                _nP[l]);
     }
 
     fclose(file);
