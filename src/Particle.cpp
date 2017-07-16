@@ -965,6 +965,11 @@ void Particle::flatten(const double thres)
     resample(n);
 }
 
+void Particle::sort()
+{
+    sort(_n);
+}
+
 void Particle::sort(const int n)
 {
     if (n > _n)

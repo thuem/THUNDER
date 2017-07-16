@@ -680,6 +680,8 @@ class Particle
 
         void flatten(const double thres);
 
+        void sort();
+
         /**
          * This function sorts all particles by their weight in a descending
          * order. It only keeps top N particles.
