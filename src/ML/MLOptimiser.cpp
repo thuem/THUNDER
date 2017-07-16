@@ -957,10 +957,6 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
-            _par[l].calVari();
-
-            _par[l].resample();
-
             /***
             _par[l].flatten(FLATTEN_THRESHOLD);
 
@@ -968,8 +964,12 @@ void MLOptimiser::expectation()
             ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < 20)
+            if ((_ID[l] < 20) ||
+                (_ID[l] == 8874) ||
+                (_ID[l] == 16999))
             {
+                _par[l].sort();
+
                 char filename[FILE_NAME_LENGTH];
                 snprintf(filename,
                          sizeof(filename),
@@ -980,6 +980,10 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 #endif
+
+            _par[l].calVari();
+
+            _par[l].resample();
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
