@@ -14,15 +14,17 @@ Particle::Particle()
 }
 
 Particle::Particle(const int mode,
-                   const int m,
-                   const int n,
+                   const int nC,
+                   const int nR,
+                   const int nT,
+                   const int nD,
                    const double transS,
                    const double transQ,
                    const Symmetry* sym)
 {
     defaultInit();
 
-    init(mode, m, n, transS, transQ, sym);
+    init(mode, nC, nR, nT, nD, transS, transQ, sym);
 }
 
 Particle::~Particle()
@@ -46,26 +48,33 @@ void Particle::init(const int mode,
 }
 
 void Particle::init(const int mode,
-                    const int m,
-                    const int n,
+                    const int nC,
+                    const int nR,
+                    const int nT,
+                    const int nD,
                     const double transS,
                     const double transQ,
                     const Symmetry* sym)
 {
     init(mode, transS, transQ, sym);
 
-    _m = m;
+    _nC = nC;
 
-    _n = n;
+    _nR = nR;
 
-    _c.resize(_n);
-    _r.resize(_n, 4);
-    _t.resize(_n, 2);
-    _d.resize(_n);
+    _nT = nT;
 
-    _w.resize(_n);
+    _nD = nD;
 
-    _cDistr.resize(_m);
+    _c.resize(_nC);
+    _r.resize(_nR, 4);
+    _t.resize(_nT, 2);
+    _d.resize(_nD);
+
+    _wC.resize(_nC);
+    _wR.resize(_nR);
+    _wT.resize(_nT);
+    _wD.resize(_nD);
 
     reset();
 }
@@ -74,21 +83,24 @@ void Particle::reset()
 {
     gsl_rng* engine = get_random_engine();
 
-    // class, sample from flat distribution
-    for (int i = 0; i < _n; i++)
-        _c(i) = gsl_rng_uniform_int(engine, _m);
+    // initialise class distribution
+
+    for (int i = 0; i < _nC; i++)
+        _c(i) = gsl_rng_uniform_int(engine, _nR);
+
+    // initialise rotation distribution
 
     switch (_mode)
     {
         // rotation, MODE_2D, sample from von Mises Distribution with kappa = 0
         case MODE_2D:
-            sampleVMS(_r, vec4(1, 0, 0, 0), 0, _n);
+            sampleVMS(_r, vec4(1, 0, 0, 0), 0, _nR);
             break;
 
         // rotation, MODE_3D, sample from Angular Central Gaussian Distribution
         // with identity matrix
         case MODE_3D:
-            sampleACG(_r, 1, 1, _n);
+            sampleACG(_r, 1, 1, _nR);
             break;
 
         default:
@@ -98,42 +110,33 @@ void Particle::reset()
     }
 
 
-#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
-    // sample from 2D Gaussian Distribution
-    for (int i = 0; i < _n; i++)
-    {
+    // initialise translation distribution
+
+    for (int i = 0; i < _nT; i++)
         gsl_ran_bivariate_gaussian(engine,
                                    _transS,
                                    _transS,
                                    0,
                                    &_t(i, 0),
                                    &_t(i, 1));
-    }
-#endif
 
-#ifdef PARTICLE_TRANS_INIT_FLAT
-    // sample for 2D Flat Distribution in a Circle
-    for (int i = 0; i < _n; i++)
-    {
-        double r = gsl_ran_flat(engine, 0, _transS);
-        double t = gsl_ran_flat(engine, 0, 2 * M_PI);
+    // initialise defocus distribution
 
-        _t(i, 0) = r * cos(t);
-        _t(i, 1) = r * sin(t);
-    }
-#endif
-
-    // the default value of all defocus factor is 1
-    for (int i = 0; i < _n; i++)
-        _d(i) = 1;
+    _d = vec::Constant(_nD, 1);
 
     // initialise weight
-    for (int i = 0; i < _n; i++)
-        _w(i) = 1.0 / _n;
+
+    _wC = vec::Constant(_nC, 1.0 / nC);
+    _wR = vec::Constant(_nR, 1.0 / nR);
+    _wT = vec::Constant(_nT, 1.0 / nT);
+    _wD = vec::Constant(_nD, 1.0 / nD);
+
+    // symmetrise
 
     if (_mode == MODE_3D) symmetrise();
 }
 
+/***
 void Particle::reset(const int m,
                      const int n)
 {
@@ -152,16 +155,18 @@ void Particle::reset(const int m,
 
     reset();
 }
+***/
 
-void Particle::reset(const int m,
+void Particle::reset(const int nC,
                      const int nR,
-                     const int nT)
+                     const int nT,
+                     const int nD)
 {
+    init(_mode, nC, nR, nT, nD, _transS, _transQ, _sym);
+    /***
     gsl_rng* engine = get_random_engine();
 
     _m = m;
-
-    _n = m * nR * nT;
 
     _c.resize(_n);
     _r.resize(_n, 4);
@@ -238,11 +243,17 @@ void Particle::reset(const int m,
             }
 
     if (_mode == MODE_3D) symmetrise();
+    ***/
 }
 
-void Particle::initD(const double sD)
+void Particle::initD(const int nD,
+                     const double sD)
 {
     gsl_rng* engine = get_random_engine();
+
+    _nD = nD;
+
+    _d.resize(nD);
 
     for (int i = 0; i < _n; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
@@ -252,13 +263,21 @@ int Particle::mode() const { return _mode; }
 
 void Particle::setMode(const int mode) { _mode = mode; }
 
-int Particle::m() const { return _m; }
+int Particle::nC() const { return _nC; }
 
-void Particle::setM(const int m) { _m = m; }
+void Particle::setNC(const int nC) { _nC = nC; }
 
-int Particle::n() const { return _n; }
+int Particle::nR() const { return _nR; }
 
-void Particle::setN(const int n) { _n = n; }
+void Particle::setNR(const int nR) { _nR = nR; }
+
+int Particle::nT() const { return _nT; }
+
+void Particle::setNT(const int nT) { _nT = nT; }
+
+int Particle::nD() const { return _nD; }
+
+void Particle::setND(const int nD) { _nD = nD; }
 
 double Particle::transS() const { return _transS; }
 
@@ -284,14 +303,23 @@ vec Particle::d() const { return _d; }
 
 void Particle::setD(const vec& d) { _d = d; }
 
-vec Particle::w() const { return _w; }
+vec Particle::wR() const { return _wR; }
 
-void Particle::setW(const vec& w) { _w = w; }
+void Particle::setWR(const vec& wR) { _wR = wR; }
+
+vec Particle::wT() const { return _wT; }
+
+void Particle::setWT(const vec& wT) { _wT = wT; }
+
+vec Particle::wD() const { return _wD; }
+
+void Particle::setWD(const vec& wD) { _wD = wD; }
 
 const Symmetry* Particle::symmetry() const { return _sym; }
 
 void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
 
+/***
 void Particle::load(const int m,
                     const int n,
                     const int cls,
@@ -379,6 +407,7 @@ void Particle::load(const int m,
 
     if (_mode == MODE_3D) symmetrise();
 }
+***/
 
 void Particle::vari(double& k0,
                     double& k1,

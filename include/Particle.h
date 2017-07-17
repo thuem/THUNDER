@@ -45,12 +45,16 @@ class Particle
         /**
          * number of classes in this particle filter
          */
-        int _m;
+        int _nC;
 
         /**
          * number of particles in this particle filter
          */
-        int _n;
+        int _nR;
+
+        int _nT;
+
+        int _nD;
 
         /**
          * the standard deviation of translation, assuming the translation
@@ -95,14 +99,18 @@ class Particle
         /**
          * a vector storing the weight of each particle
          */
-        vec _w;
+        vec _wC;
+
+        vec _wR;
+
+        vec _wT;
+
+        vec _wD;
         
         /**
          * a pointer points to a Symmetry object which indicating the symmetry
          */
         const Symmetry* _sym;
-
-        vec _cDistr;
 
         /**
          * concnetration paramter of von Mises distribution of rotation (kappa)
@@ -235,8 +243,10 @@ class Particle
          * @param sym    symmetry of resampling space
          */
         Particle(const int mode,
-                 const int m,
-                 const int n,
+                 const int nC,
+                 const int nR,
+                 const int nT,
+                 const int nD,
                  const double transS,
                  const double transQ = 0.01,
                  const Symmetry* sym = NULL);
@@ -267,8 +277,10 @@ class Particle
          * @param sym    symmetry of resampling space
          */
         void init(const int mode,
-                  const int n,
-                  const int k,
+                  const int nC,
+                  const int nR,
+                  const int nT,
+                  const int nD,
                   const double transS,
                   const double transQ = 0.01,
                   const Symmetry* sym = NULL);
@@ -286,8 +298,10 @@ class Particle
          *
          * @param n number of particles in this particle filter
          */
+        /***
         void reset(const int m,
                    const int n);
+        ***/
 
         /**
          * This function resets the particles in this particle filter to a
@@ -304,14 +318,16 @@ class Particle
          */
         void reset(const int m,
                    const int nR,
-                   const int nT);
+                   const int nT,
+                   const int nD);
 
         /**
          * initialise defocus factor
          *
          * @param sD the standard deviation of defocus factor
          */
-        void initD(const double sD = 0.05);
+        void initD(const int nD,
+                   const double sD = 0.05);
 
         int mode() const;
 
@@ -320,22 +336,30 @@ class Particle
         /**
          * This function returns the number of classes in this particle fitler.
          */
-        int m() const;
+        int nC() const;
 
-        void setM(const int m);
+        void setNC(const int nC);
 
         /**
          * This function returns the number of particles in this particle
          * filter.
          */
-        int n() const;
+        int nR() const;
 
         /**
          * This function sets the number of particles in this particle filter.
          *
          * @param n the number of particles in this particle fitler
          */
-        void setN(const int n);
+        void setNR(const int nR);
+
+        int nT();
+
+        void setNT(const int nT);
+
+        int nD() const;
+
+        void setND(const int nD);
 
         /**
          * This function returns the standard deviation of translation, assuming
@@ -404,14 +428,22 @@ class Particle
         /**
          * This function returns the vector storing the weight of each particle.
          */
-        vec w() const;
+        vec wR() const;
 
         /**
          * This function sets the vector storing the weight of each particle.
          *
          * @param w the vector storing the weight of each particle
          */
-        void setW(const vec& w);
+        void setWR(const vec& wR);
+
+        vec wT() const;
+
+        void setWT(const vec& wT);
+
+        vec wD() const;
+
+        void setWD(const vec& wD);
 
         /**
          * This function returns the symmetry.
@@ -443,6 +475,7 @@ class Particle
          * @param d     the defocus factor
          * @param stdD  the standard deviation of defocus factor
          */
+        /***
         void load(const int m,
                   const int n,
                   const int cls,
@@ -453,6 +486,7 @@ class Particle
                   const double stdTY,
                   const double d,
                   const double stdD);
+        ***/
 
         /**
          * This function returns the concentration parameters, including
@@ -498,7 +532,7 @@ class Particle
          *
          * @param i the index of particle
          */
-        double w(const int i) const;
+        double wR(const int i) const;
 
         /**
          * This function sets the weight of the i-th particle in this particle
@@ -507,8 +541,8 @@ class Particle
          * @param w the weight of particle
          * @param i the index of particle
          */
-        void setW(const double w,
-                  const int i);
+        void setWR(const double wR,
+                   const int i);
 
         /**
          * This function multiply the weight of the i-th particle in this
@@ -517,8 +551,24 @@ class Particle
          * @param w the factor
          * @param i the index of particle
          */
-        void mulW(const double w,
-                  const int i);
+        void mulWR(const double wR,
+                   const int i);
+
+        double wT(const int i) const;
+
+        void setWT(const double wT,
+                   const int i);
+
+        void mulWT(const double wT,
+                   const int i);
+
+        double wD(const int i) const;
+
+        void setWD(const double wD,
+                   const int i);
+
+        void mulWD(const double wD,
+                   const int i);
 
         /**
          * This function normalizes the vector of the weights.
