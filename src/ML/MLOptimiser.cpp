@@ -995,6 +995,8 @@ void MLOptimiser::expectation()
 
             _par[l].calVari();
 
+            // TODO : take perturbation factor into consideration
+
             _par[l].setK1(GSL_MAX_DBL(k1 * gsl_pow_2(MIN_STD_FACTOR
                                                    * pow(_par[l].n(), -1.0 / 3)),
                                       _par[l].k1()));
