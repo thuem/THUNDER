@@ -518,7 +518,7 @@ void MLOptimiser::expectation()
                                   * _para.transSearchFactor));
 
         double scanMinStdR = pow(_para.mS, -1.0 / 3);
-        double scanMinStdT  = 1.0
+        double scanMinStdT = 1.0
                            / gsl_cdf_chisq_Qinv(0.5, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
 
