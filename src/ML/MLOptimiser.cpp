@@ -981,9 +981,28 @@ void MLOptimiser::expectation()
             }
 #endif
 
+            /***
             _par[l].calVari();
 
             _par[l].resample();
+            ***/
+
+            double k1 = _par[l].k1();
+            double s0 = _par[l].s0();
+            double s1 = _par[l].s1();
+
+            _par[l].resample();
+
+            _par[l].calVari();
+
+            _par[l].setK1(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR
+                                              * k1
+                                              * pow(_par[l].n(), -1.0 / 3)),
+                                      _par[l].k1()));
+
+            _par[l].setS0(GSL_MAX_DBL(MIN_STD_FACTOR * s0 / sqrt(_par[l].n()), _par[l].s0()));
+
+            _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * s1 / sqrt(_par[l].n()), _par[l].s1()));
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
