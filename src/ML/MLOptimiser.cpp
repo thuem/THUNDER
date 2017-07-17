@@ -965,8 +965,8 @@ void MLOptimiser::expectation()
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if ((_ID[l] < 20) ||
-                (_ID[l] == 8874) ||
-                (_ID[l] == 16999))
+                (_ID[l] == 8873) ||
+                (_ID[l] == 16998))
             {
                 _par[l].sort();
 
