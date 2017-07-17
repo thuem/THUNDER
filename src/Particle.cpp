@@ -664,6 +664,9 @@ void Particle::calVari()
         REPORT_ERROR("INEXISTENT MODE");
 
     _k1 /= _k0;
+
+    _k1 = GSL_MIN_DBL(_k1, 1);
+
     _k0 = 1;
 
     // variance of defocus factor
@@ -713,7 +716,7 @@ void Particle::perturb(const double pfT,
             }
             else
             {
-                // more dense, 0 < pf < 1
+                // more dense, 0 < pf =< 1
                 sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
             }
 
