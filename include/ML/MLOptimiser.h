@@ -206,10 +206,14 @@ struct MLOptimiserPara
 
     int mGMin;
 
+    int mLR;
+
     /**
      * number of sampling points in local search
      */
-    int mL;
+    int mLT;
+
+    int mLD;
 
     /**
      * number of sampling points used in reconstruction

@@ -79,7 +79,9 @@ void readPara(MLOptimiserPara& dst,
     dst.mS = src["Advanced"]["Number of Sampling Points for Scanning in Global Search"].asInt();
     dst.mGMax = src["Advanced"]["Number of Sampling Points in Global Search (Max)"].asInt();
     dst.mGMin = src["Advanced"]["Number of Sampling Points in Global Search (Min)"].asInt();
-    dst.mL = src["Advanced"]["Number of Sampling Points in Local Search"].asInt();
+    dst.mLR = src["Advanced"]["Number of Sampling Points of Rotation in Local Search"].asInt();
+    dst.mLT = src["Advanced"]["Number of Sampling Points of Translation in Local Search"].asInt();
+    dst.mLD = src["Advanced"]["Number of Sampling Points of Defocus in Local Search"].asInt();
     dst.mReco = src["Advanced"]["Number of Sampling Points Used in Reconstruction"].asInt();
     dst.ignoreRes = src["Advanced"]["Ignore Signal Under (Angstrom)"].asFloat();
     dst.sclCorRes = src["Advanced"]["Correct Intensity Scale Using Signal Under (Angstrom)"].asFloat();

@@ -33,7 +33,7 @@ void display(const MLOptimiserPara& para)
     printf("MKB Kernel Smooth Factor:                                %12.6lf\n", para.alpha);
     printf("Number of Sampling Points in Global Search (Max):        %12d\n", para.mGMax);
     printf("Number of Sampling Points in Global Search (Min):        %12d\n", para.mGMin);
-    printf("Number of Sampling Points in Local Search:               %12d\n", para.mL);
+    //printf("Number of Sampling Points in Local Search:               %12d\n", para.mL);
     printf("Ignore Signal Under (Angstrom):                          %12.6lf\n", para.ignoreRes);
     printf("Correct Intensity Scale Using Signal Under (Angstrom):   %12.6lf\n", para.sclCorRes);
     printf("FSC Threshold for Cutoff Frequency:                      %12.6lf\n", para.thresCutoffFSC);
@@ -833,7 +833,6 @@ void MLOptimiser::expectation()
         allocPreCal(false, true);
 
     _nP.resize(_ID.size(), 0);
-    /***
 
     _nF = 0;
     _nI = 0;
@@ -861,8 +860,14 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
+                _par[l].resample(_para.mLR,
+                                 _para.mLT,
+                                 1);
+                
+                /***
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
+                ***/
 
                 if (_para.perturbFactorL != 0)
                     _par[l].perturb(_para.perturbFactorL,
@@ -872,19 +877,34 @@ void MLOptimiser::expectation()
             else if ((phase == 0) &&
                      (_searchType == SEARCH_TYPE_CTF))
             {
+                _par[l].resample(_para.mLR,
+                                 _para.mLT,
+                                 1);
+
+                /***
                 _par[l].resample(_para.mL * _para.ctfRefineFactor,
                                  ALPHA_LOCAL_SEARCH);
+                ***/
 
                 if (_para.perturbFactorL != 0)
                     _par[l].perturb(_para.perturbFactorL,
                                     _para.perturbFactorL,
                                     _para.perturbFactorL);
 
-                _par[l].initD(_para.ctfRefineS);
-
+                _par[l].initD(10, _para.ctfRefineS);
+                // TODO
             }
             else
             {
+                _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                              ? _para.perturbFactorSGlobal
+                              : _para.perturbFactorSGlobal,
+                                (_searchType == SEARCH_TYPE_GLOBAL)
+                              ? _para.perturbFactorSGlobal
+                              : _para.perturbFactorSGlobal,
+                                _para.perturbFactorSCTF);
+
+                /***
                 if (_searchType == SEARCH_TYPE_GLOBAL)
                     _par[l].perturb(_para.perturbFactorSGlobal,
                                     _para.perturbFactorSGlobal,
@@ -897,34 +917,39 @@ void MLOptimiser::expectation()
                     _par[l].perturb(_para.perturbFactorSLocal,
                                     _para.perturbFactorSLocal,
                                     _para.perturbFactorSCTF);
+                ***/
             }
 
-            vec logW(_par[l].n());
+            vec wC = vec::Zero(_para.k);
+            vec wR = vec::Zero(_para.mLR);
+            vec wT = vec::Zero(_para.mLT);
+            vec wD = vec::Zero(_para.mLD);
+            //vec logW(_par[l].n());
 
-            int c;
+            unsigned int c;
             mat22 rot2D;
             mat33 rot3D;
             double d;
             vec2 t;
 
-            for (int m = 0; m < _par[l].n(); m++)
+            FOR_EACH_PAR(_par[l])
             {
-                _par[l].c(c, m);
+                _par[l].c(c, iC);
 
                 if (_para.mode == MODE_2D)
                 {
-                    _par[l].rot(rot2D, m);
+                    _par[l].rot(rot2D, iR);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    _par[l].rot(rot3D, m);
+                    _par[l].rot(rot3D, iR);
                 }
                 else
                     REPORT_ERROR("INEXISTENT MODE");
 
-                _par[l].t(t, m);
+                _par[l].t(t, iT);
 
-                _par[l].d(d, m);
+                _par[l].d(d, iD);
 
                 if (_para.mode == MODE_2D)
                 {
@@ -949,30 +974,45 @@ void MLOptimiser::expectation()
                                            _nPxl);
                 }
 
-                if (_searchType != SEARCH_TYPE_CTF)
-                    logW(m) = logDataVSPrior(_datP + l * _nPxl,
-                                             priP,
-                                             _ctfP + l * _nPxl,
-                                             _sigRcpP + l * _nPxl,
-                                             _nPxl);
-                else
-                    logW(m) = logDataVSPrior(_datP + l * _nPxl,
-                                             priP,
-                                             _frequency,
-                                             _defocusP + l * _nPxl,
-                                             d,
-                                             _K1[l],
-                                             _K2[l],
-                                             _sigRcpP + l * _nPxl,
-                                             _nPxl);
+                double w;
 
+                if (_searchType != SEARCH_TYPE_CTF)
+                    w = exp(logDataVSPrior(_datP + l * _nPxl,
+                                           priP,
+                                           _ctfP + l * _nPxl,
+                                           _sigRcpP + l * _nPxl,
+                                           _nPxl));
+                else
+                    w = exp(logDataVSPrior(_datP + l * _nPxl,
+                                           priP,
+                                           _frequency,
+                                           _defocusP + l * _nPxl,
+                                           d,
+                                           _K1[l],
+                                           _K2[l],
+                                           _sigRcpP + l * _nPxl,
+                                           _nPxl));
+
+                wC(iC) += w;
+                wR(iR) += w;
+                wT(iT) += w;
+                wD(iD) += w;
             }
 
             //PROCESS_LOGW_SOFT(logW);
-            PROCESS_LOGW_HARD(logW);
+            //PROCESS_LOGW_HARD(logW);
 
+            /***
             for (int m = 0; m < _par[l].n(); m++)
                 _par[l].mulW(logW(m), m);
+            ***/
+
+            for (int iC = 0; iC < _para.k; iC++)
+                _par[l].mulWC(wC(iC), iC);
+            for (int iR = 0; iR < _para.mLR; iR++)
+                _par[l].mulWR(wR(iR), iR);
+            for (int iT = 0; iT < _para.mLT; iT++)
+                _par[l].mulWT(wT(iT), iT);
 
             _par[l].normW();
 
@@ -994,9 +1034,11 @@ void MLOptimiser::expectation()
             }
 #endif
 
+            /***
             double k1 = _par[l].k1();
             double s0 = _par[l].s0();
             double s1 = _par[l].s1();
+            ***/
 
             _par[l].resample();
 
@@ -1004,6 +1046,7 @@ void MLOptimiser::expectation()
 
             // TODO : take perturbation factor into consideration
 
+            /***
             _par[l].setK1(GSL_MAX_DBL(k1 * gsl_pow_2(MIN_STD_FACTOR
                                                    * pow(_par[l].n(), -1.0 / 3)),
                                       _par[l].k1()));
@@ -1011,6 +1054,7 @@ void MLOptimiser::expectation()
             _par[l].setS0(GSL_MAX_DBL(MIN_STD_FACTOR * s0 / sqrt(_par[l].n()), _par[l].s0()));
 
             _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * s1 / sqrt(_par[l].n()), _par[l].s1()));
+            ***/
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
@@ -1086,7 +1130,6 @@ void MLOptimiser::expectation()
 
         delete[] priP;
     }
-    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
@@ -1095,7 +1138,6 @@ void MLOptimiser::expectation()
         freePreCal(false);
     else
         freePreCal(true);
-    ***/
 
     freePreCalIdx();
 }
