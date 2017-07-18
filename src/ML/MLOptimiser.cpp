@@ -1100,9 +1100,9 @@ void MLOptimiser::expectation()
         freePreCal(false);
     else
         freePreCal(true);
+    ***/
 
     freePreCalIdx();
-    ***/
 }
 
 void MLOptimiser::maximization()
