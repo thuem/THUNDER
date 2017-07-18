@@ -921,9 +921,9 @@ void Particle::resample(const int nR,
                         const int nT,
                         const int nD)
 {
-    /***
     resample(_nC, PAR_C);
     resample(nR, PAR_R);
+    /***
     resample(nT, PAR_T);
     resample(nD, PAR_D);
     ***/
@@ -1555,7 +1555,7 @@ void Particle::shuffle(const ParticleType pt)
     {
         uvec s = uvec(_nD);
 
-        for (int i = 0; i < _nT; i++) s(i) = i;
+        for (int i = 0; i < _nD; i++) s(i) = i;
 
         gsl_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
 
