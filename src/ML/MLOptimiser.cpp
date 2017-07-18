@@ -630,7 +630,10 @@ void MLOptimiser::expectation()
                         #pragma omp atomic
                         wC(l, t) += w;
 
+                        #pragma omp atomic
                         wR(l, m) += w;
+
+                        #pragma omp atomic
                         wT(l, n) += w;
                     }
 
