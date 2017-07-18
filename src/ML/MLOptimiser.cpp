@@ -783,9 +783,9 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            /***
             _par[l].resample();
 
+            /***
             _par[l].calVari();
             ***/
 
