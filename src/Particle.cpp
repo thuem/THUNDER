@@ -466,65 +466,83 @@ double Particle::compress() const
     //return gsl_pow_2(_transS) / _s0 / _s1;
 }
 
-/***
-double Particle::compressPerDim() const
+double Particle::wC(const int i) const
 {
-    double cmp = compress();
-
-    switch (_mode)
-    {
-        case MODE_2D:
-            return pow(cmp, 1.0 / 3);
-
-        case MODE_3D:
-            return pow(cmp, 1.0 / 5);
-
-        default:
-            REPORT_ERROR("INEXISTENT MODE");
-            abort();
-    }
+    return _wC(i);
 }
 
-double Particle::compress() const
+void Particle::setWC(const double wC,
+                     const int i)
 {
-    double rVari, s0, s1;
-
-    vari(rVari, s0, s1);
-
-    switch (_mode)
-    {
-        case MODE_2D:
-            return rVari * s0 * s1 / gsl_pow_2(_transS);
-            
-        case MODE_3D:
-            return gsl_pow_3(rVari) * s0 * s1 / gsl_pow_2(_transS);
-
-        default:
-            REPORT_ERROR("INEXISTENT MODE");
-            abort();
-    }
-}
-***/
-
-double Particle::w(const int i) const { return _w(i); }
-
-void Particle::setW(const double w,
-                    const int i)
-{
-    _w(i) = w;
+    _wC(i) = wC;
 }
 
-void Particle::mulW(const double w,
-                    const int i)
+void Particle::mulWC(const double wC,
+                     const int i)
 {
-    _w(i) *= w;
+    _wC(i) *= wC;
+}
+
+double Particle::wR(const int i) const
+{
+    return _wR(i);
+}
+
+void Particle::setWR(const double wR,
+                     const int i)
+{
+    _wR(i) = wR;
+}
+
+void Particle::mulWR(const double wR,
+                     const int i)
+{
+    _wR(i) *= wR;
+}
+
+double Particle::wT(const int i) const
+{
+    return _wT(i);
+}
+
+void Particle::setWT(const double wT,
+                     const int i)
+{
+    _wT(i) = wT;
+}
+
+void Particle::mulWT(const double wT,
+                     const int i)
+{
+    _wT(i) *= wT;
+}
+
+double Particle::wD(const int i) const
+{
+    return _wD(i);
+}
+
+void Particle::setWR(const double wD,
+                     const int i)
+{
+    _wD(i) = wD;
+}
+
+void Particle::mulWD(const double wD,
+                     const int i)
+{
+    _wD(i) *= wD;
 }
 
 void Particle::normW()
 {
-    _w /= _w.sum();
+    _wC /= _wC.sum();
+    _wR /= _wR.sum();
+    _wT /= _wT.sum();
+    _wD /= _wD.sum();
 }
 
+/***
 void Particle::coord(Coordinate5D& dst,
                      const int i) const
 {
@@ -537,14 +555,15 @@ void Particle::coord(Coordinate5D& dst,
     dst.x = _t(i, 0);
     dst.y = _t(i, 1);
 }
+***/
 
-void Particle::c(int& dst,
+void Particle::c(unsigned int& dst,
                  const int i) const
 {
     dst = _c(i);
 }
 
-void Particle::setC(const int src,
+void Particle::setC(const unsigned int src,
                     const int i)
 {
     _c(i) = src;
@@ -638,6 +657,7 @@ void Particle::setS1(const double s1)
     _s1 = s1;
 }
 
+/***
 void Particle::calClassDistr()
 {
     _cDistr.setZero();
@@ -645,15 +665,17 @@ void Particle::calClassDistr()
     for (int i = 0; i < _n; i++)
         _cDistr(_c(i)) += 1;
 }
+***/
 
 void Particle::calVari()
 {
     // calculate class distribution
 
-    calClassDistr();
+    // calClassDistr();
 
     // calculate the class with maximum particles
 
+    /***
     unsigned int cls;
     int num = _cDistr.maxCoeff(&cls);
 
@@ -670,8 +692,19 @@ void Particle::calVari()
             d(j) = _d(i);
             j++;
         }
+    ***/
 
     // variance of translation
+
+    /***
+#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
+    _s0 = gsl_stats_sd_m(t.col(0).data(), 1, t.rows(), 0);
+    _s1 = gsl_stats_sd_m(t.col(1).data(), 1, t.rows(), 0);
+#else
+    _s0 = gsl_stats_sd(t.col(0).data(), 1, t.rows());
+    _s1 = gsl_stats_sd(t.col(1).data(), 1, t.rows());
+#endif
+    ***/
 
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
     _s0 = gsl_stats_sd_m(t.col(0).data(), 1, t.rows(), 0);
@@ -686,9 +719,9 @@ void Particle::calVari()
     // variance of rotation
 
     if (_mode == MODE_2D)
-        inferVMS(_k, r);
+        inferVMS(_k, _r);
     else if (_mode == MODE_3D)
-        inferACG(_k0, _k1, r);
+        inferACG(_k0, _k1, _r);
     else
         REPORT_ERROR("INEXISTENT MODE");
 
@@ -700,81 +733,108 @@ void Particle::calVari()
 
     // variance of defocus factor
 
-    _s = gsl_stats_sd(d.data(), 1, d.size());
+    _s = gsl_stats_sd(_d.data(), 1, _d.size());
 }
 
-void Particle::perturb(const double pfT,
-                       const double pfR,
+void Particle::perturb(const double pf,
+                       const ParticleType pt)
+{
+    if (pt == PAR_C)
+    {
+        CLOG(WARN, "LOGGER_SYS") << "NO NEED TO PERFORM PERTURBATION IN CLASS";
+    }
+    else if (pt == PAR_R)
+    {
+        mat4 d(_nR, 4);
+
+        if (_mode == MODE_2D)
+            sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _nR);
+        else if (_mode == MODE_3D)
+            sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
+           
+        for (int i = 0; i < _nR; i++)
+        {
+            vec4 quat = _r.row(i).transpose();
+            vec4 pert = d.row(i).transpose();
+            quaternion_mul(quat, pert, quat);
+            _r.row(i) = quat.transpose();
+        }
+
+        if (_mode == MODE_3D) symmetrise();
+    }
+    else if (pt == PAR_T)
+    {
+        gsl_rng* engine = get_random_engine();
+
+        for (int i = 0; i < _nT; i++)
+        {
+            double x, y;
+
+            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+
+            _t(i, 0) += x * pf;
+            _t(i, 1) += y * pf;
+        }
+
+        reCentre();
+    }
+    else if (pt == PAR_D)
+    {
+        for (int i = 0; i < _nD; i++)
+            _d(i) += gsl_ran_gaussian(engine, _s) * pf;
+    }
+}
+
+void Particle::perturb(const double pfR,
+                       const double pfT,
                        const double pfD)
 {
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Translation Perturbation";
-#endif
-
-    gsl_rng* engine = get_random_engine();
-
-    for (int i = 0; i < _t.rows(); i++)
-    {
-        double x, y;
-        gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
-        _t(i, 0) += x * pfT;
-        _t(i, 1) += y * pfT;
-    }
-
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Rotation Perturbation";
 #endif
 
-    mat4 d(_n, 4);
+    perturb(pfR, PAR_R);
 
-    switch (_mode)
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Translation Perturbation";
+#endif
+
+    perturb(pfT, PAR_T);
+
+#ifdef VERBOSE_LEVEL_4
+    CLOG(INFO, "LOGGER_SYS") << "Defocus Factor Perturbation";
+#endif
+
+    perturb(pfD, PAR_D);
+}
+
+void Particle::resample(const int n,
+                        const ParticleType pt)
+{
+    uvec rank = iSort(pt);
+
+    if (pt == PAR_C)
     {
-        case MODE_2D:
-            // for more sparse, pf > 1
-            // for more dense, 0 < pf < 1
-            sampleVMS(d, vec4(1, 0, 0, 0), _k / pfR, _n);
-            break;
-
-        case MODE_3D:
-            //sampleACG(d, pow(pf, -2.0 / 3) * _k0, _k1, _n);
-            //sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
-            //sampleACG(d, GSL_DBL_MIN(pow(pfR, -2.0) * _k0, _k1), _k1, _n);
-            sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pfR, 2) * _k1), _n);
-            /***
-            if (pfR > 1)
-            {
-                // more sparse, pf > 1
-                sampleACG(d, pow(pfR, -2.0) * (_k0 / _k1 - 1) + 1, 1, _n);
-            }
-            else
-            {
-                // more dense, 0 < pf =< 1
-                sampleACG(d, pow(pfR, -2.0) * _k0, _k1, _n);
-            }
-            ***/
-
-            break;
-
-        default:
-            REPORT_ERROR("INEXISTENT MODE");
-            break;
+        c(_topC, rank(0));
     }
-
-    for (int i = 0; i < _n; i++)
+    else if (pt == PAR_R)
     {
-        vec4 quat = _r.row(i).transpose();
-        vec4 pert = d.row(i).transpose();
-        //quaternion_mul(quat, quat, pert);
-        quaternion_mul(quat, pert, quat);
-        _r.row(i) = quat.transpose();
+        quaternion(_topR, rank(0));
+
+        // TODO
     }
+    else if (pt == PAR_T)
+    {
+        t(_topC, rank(0));
 
-    if (_mode == MODE_3D) symmetrise();
+        // TODO
+    }
+    else if (pt == PAR_D)
+    {
+        d(_topD, rank(0));
 
-    for (int i = 0; i < _d.size(); i++)
-        _d(i) += gsl_ran_gaussian(engine, _s) * pfD;
-
-    reCentre();
+        // TODO
+    }
 }
 
 void Particle::resample(const double alpha)
@@ -1040,9 +1100,16 @@ void Particle::sort(const int n)
     normW();
 }
 
-uvec Particle::iSort() const
+uvec Particle::iSort(const ParticleType pt) const
 {
-    return index_sort_descend(_w);
+    if (pt == PAR_C)
+        return index_sort_descend(_wC);
+    else if (pt == PAR_R)
+        return index_sort_descend(_wR);
+    else if (pt == PAR_T)
+        return index_sort_descend(_wT);
+    else if (pt == PAR_D)
+        return index_sort_descend(_wD);
 }
 
 bool Particle::diffTopC()
@@ -1329,7 +1396,7 @@ void Particle::reCentre()
 
     gsl_rng* engine = get_random_engine();
 
-    for (int i = 0; i < _n; i++)
+    for (int i = 0; i < _nT; i++)
         if (NORM(_t(i, 0), _t(i, 1)) > transM)
         {
             gsl_ran_bivariate_gaussian(engine,

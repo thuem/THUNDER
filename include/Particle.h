@@ -29,6 +29,14 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
+enum ParticleType
+{
+    PAR_C,
+    PAR_R,
+    PAR_T,
+    PAR_D
+}
+
 class Particle
 {
     private:
@@ -316,7 +324,7 @@ class Particle
          * @param nR the number of rotation in this particle filter
          * @param nT the number of translation in this particle filter
          */
-        void reset(const int m,
+        void reset(const int nC,
                    const int nR,
                    const int nT,
                    const int nD);
@@ -520,12 +528,6 @@ class Particle
 
         double compress() const;
 
-        /***
-        double compressPerDim() const;
-
-        double compress() const;
-        ***/
-
         /**
          * This function returns the weight of the i-th particle in this
          * particle filter.
@@ -581,8 +583,10 @@ class Particle
          * @param dst the 5D coordinate
          * @param i   the index of particle
          */
+        /***
         void coord(Coordinate5D& dst,
                    const int i) const;
+                   ***/
 
         /**
          * This function returns the class of the i-th particle.
@@ -678,13 +682,16 @@ class Particle
 
         void setS1(const double s1);
 
-        void calClassDistr();
+        //void calClassDistr();
 
         /**
          * This function calculates the concentration paramters, including
          * rotation and translation.
          */
         void calVari();
+
+        void perturb(const double pf,
+                     const ParticleType pt);
 
         /**
          * This function performs a perturbation on the particles in this
@@ -697,6 +704,9 @@ class Particle
         void perturb(const double pfT,
                      const double pfR,
                      const double pfD);
+
+        void resample(const int n,
+                      const ParticleType pt);
 
         /**
          * This function resamples the particles in this particle filter with
@@ -744,7 +754,7 @@ class Particle
          * This function returns the index of sorting of the particles' weight
          * in a descending order.
          */
-        uvec iSort() const;
+        uvec iSort(const ParticleType pt) const;
 
         bool diffTopC();
 
