@@ -735,6 +735,8 @@ class Particle
                       const int nT,
                       const int nD);
 
+        void resample();
+
         /**
          * This function resamples the particles in this particle filter with
          * adding a portion of global sampling points.
