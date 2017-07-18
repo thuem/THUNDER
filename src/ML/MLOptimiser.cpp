@@ -626,7 +626,10 @@ void MLOptimiser::expectation()
                     FOR_EACH_2D_IMAGE
                     {
                         double w = exp(dvp(l));
+                        
+                        #pragma omp atomic
                         wC(l, t) += w;
+
                         wR(l, m) += w;
                         wT(l, n) += w;
                     }
