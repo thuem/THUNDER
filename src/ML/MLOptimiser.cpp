@@ -785,7 +785,8 @@ void MLOptimiser::expectation()
                          "Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
-                save(filename, _par[l]);
+                //save(filename, _par[l]);
+                save(filename, _par[l], PAR_R);
             }
 #endif
 
@@ -814,7 +815,8 @@ void MLOptimiser::expectation()
                          "Particle_%04d_Round_%03d_Resampled_Initial.par",
                          _ID[l],
                          _iter);
-                save(filename, _par[l]);
+                //save(filename, _par[l]);
+                save(filename, _par[l], PAR_R);
             }
 #endif
         }
@@ -1001,7 +1003,8 @@ void MLOptimiser::expectation()
                          _ID[l],
                          _iter,
                          phase);
-                save(filename, _par[l]);
+                //save(filename, _par[l]);
+                save(filename, _par[l], PAR_R);
             }
 #endif
 
@@ -1096,7 +1099,8 @@ void MLOptimiser::expectation()
                      "Particle_%04d_Round_%03d_Final.par",
                      _ID[l],
                      _iter);
-            save(filename, _par[l]);
+            //save(filename, _par[l]);
+            save(filename, _par[l], PAR_R);
         }
 #endif
 

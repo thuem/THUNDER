@@ -1723,26 +1723,54 @@ void save(const char filename[],
                 par.wC(iC) * par.wR(iR) * par.wT(iT) * par.wD(iD));
     }
 
-    /***
-    for (int i = 0; i < par.n(); i++)
-    {
-        par.c(c, i);
-        par.quaternion(q, i);
-        par.t(t, i);
-        par.d(d, i);
-        fprintf(file,
-                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
-                c,
-                q(0), q(1), q(2), q(3),
-                t(0), t(1),
-                d,
-                par.w(i));
-    }
-    ***/
-
     fclose(file);
 }
 
+void save(const char filename[],
+          const Particle& par,
+          const ParticleType pt)
+{
+    FILE* file = fopen(filename, "w");
+
+    if (pt == PAR_C)
+    {
+        unsigned int c;
+
+        FOR_EACH_C(par)
+        {
+            par.c(c, iC);
+
+            fprintf(file,
+                    "%03d %15.9lf\n",
+                    c,
+                    par.wC(iC));
+        }
+    }
+    else if (pt == PAR_R)
+    {
+        vec4 q;
+ 
+        FOR_EACH_R(par)
+        {
+            par.quaternion(q, iR);
+
+            fprintf(file,
+                    "%15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                    q(0), q(1), q(2), q(3),
+                    par.wR(iR));
+        }
+    }
+    else if (pt == PAR_T)
+    {
+        // TODO
+    }
+    else if (pt == PAR_D)
+    {
+        // TODO
+    }
+
+    fclose(file);
+}
 /***
 void load(Particle& par,
           const char filename[])

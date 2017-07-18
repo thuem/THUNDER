@@ -1047,7 +1047,11 @@ void display(const Particle& par);
  * @param particle the particle filter to be saved
  */
 void save(const char filename[],
-          const Particle& particle);
+          const Particle& par);
+
+void save(const char filenamep[],
+          const Particle& par,
+          const ParticleType pt);
 
 /**
  * This function load a particle filter from a file.
