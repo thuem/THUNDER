@@ -1199,7 +1199,7 @@ void Particle::sort(const int n,
 
         for (int i = 0; i < n; i++)
         {
-            c.row(i) = _c.row(order(i));
+            c(i) = _c(order(i));
             wC(i) = _wC(order(i));
         }
 
@@ -1218,7 +1218,7 @@ void Particle::sort(const int n,
 
         for (int i = 0; i < n; i++)
         {
-            r(i) = _r(order(i));
+            r.row(i) = _r.row(order(i));
             wR(i) = _wR(order(i));
         }
 
@@ -1237,7 +1237,7 @@ void Particle::sort(const int n,
 
         for (int i = 0; i < n; i++)
         {
-            t.col(i) = _t.col(order(i));
+            t.row(i) = _t.row(order(i));
             wT(i) = _wT(order(i));
         }
 
