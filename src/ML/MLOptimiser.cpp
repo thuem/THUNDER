@@ -1232,7 +1232,14 @@ void MLOptimiser::run()
 #endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Database";
+ 
         saveDatabase();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Database Saved";
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
 
@@ -3910,7 +3917,12 @@ void MLOptimiser::saveDatabase() const
     {
         _par[l].rank1st(cls, quat, tran, df);
 
-        _par[l].vari(rVari, s0, s1, s);
+        //_par[l].vari(rVari, s0, s1, s);
+
+        rVari = 0;
+        s0 = 0;
+        s1 = 0;
+        s = 0;
 
         fprintf(file,
                 "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
