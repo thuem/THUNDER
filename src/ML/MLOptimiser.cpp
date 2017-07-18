@@ -783,7 +783,8 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            _par[l].resample();
+            //_par[l].resample();
+            _par[l].resample(_para.mLR, _para.mLT, 1);
 
             _par[l].calVari();
 
