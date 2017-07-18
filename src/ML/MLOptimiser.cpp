@@ -745,8 +745,6 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
-            _par[l].sort();
-
             /***
             _par[l].reset(_para.k, nSampleMax);
 
@@ -773,6 +771,8 @@ void MLOptimiser::expectation()
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
             {
+                _par[l].sort();
+
                 char filename[FILE_NAME_LENGTH];
                 snprintf(filename,
                          sizeof(filename),
@@ -783,20 +783,23 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            /***
             _par[l].resample();
 
             _par[l].calVari();
 
+            /***
             _par[l].setK1(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR * scanMinStdR), _par[l].k1()));
 
             _par[l].setS0(GSL_MAX_DBL(MIN_STD_FACTOR * scanMinStdT, _par[l].s0()));
 
             _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * scanMinStdT, _par[l].s1()));
+            ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
             {
+                _par[l].sort();
+
                 char filename[FILE_NAME_LENGTH];
                 snprintf(filename,
                          sizeof(filename),
@@ -806,7 +809,6 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 #endif
-            ***/
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
