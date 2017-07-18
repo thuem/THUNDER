@@ -946,6 +946,8 @@ class Particle
                   vec2& tran,
                   double& d) const;
 
+        void shuffle(const ParticleType pt);
+
         /**
          * This function shuffles the sampling points.
          */
@@ -1006,7 +1008,9 @@ void save(const char filename[],
  * @param particle the particle filter to be loaded
  * @param filename the file name for loading
  */
+/***
 void load(Particle& particle,
           const char filename[]);
+          ***/
 
 #endif  //PARTICLE_H

@@ -1306,8 +1306,72 @@ void Particle::rand(int& cls,
     rotate3D(rot, quat);
 }
 
+void Particle::shuffle(const ParticleType pt)
+{
+    gsl_rng* engine = get_random_engine();
+
+    if (pt == PAR_C)
+    {
+        CLOG(WARN, "LOGGER_SYS") << "NO NEED TO PERFORM SHUFFLE IN CLASS";
+    }
+    else if (pt == PAR_R)
+    {
+        uvec s = uvec(_nR);
+
+        for (int i = 0; i < _nR; i++) s(i) = i;
+
+        gsl_ran_shuffle(engine, s.data(), _nR, sizeof(unsigned int));
+
+        mat4 r(_nR, 4);
+        vec wR(_nR);
+
+        for (int i = 0; i < _nR; i++)
+        {
+            r.row(s(i)) = _r.row(i);
+            wR(s(i)) = _wR(i);
+        }
+
+        _r = r;
+        _wR = wR;
+    }
+    else if (pt == PAR_T)
+    {
+        uvec s = uvec(_nT);
+
+        for (int i = 0; i < _nT; i++) s(i) = i;
+
+        gsl_ran_shuffle(engine, s.data(), _nT, sizeof(unsigned int));
+
+        mat2 t(_nT, 2);
+        vec wT(_nT);
+
+        for (int i = 0; i < _nT; i++)
+        {
+            t.row(s(i)) = _t.row(i);
+            wT(s(i)) = _wT(i);
+        }
+
+        _t = t;
+        _wT = wT;
+    }
+    else if (pt == PAR_D)
+    {
+        uvec s = uvec(_nD);
+
+        for (int i = 0; i < _nT; i++) s(i) = i;
+
+        gsl_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
+
+        // TODO
+    }
+}
+
 void Particle::shuffle()
 {
+    shuffle(PAR_R);
+    shuffle(PAR_T);
+    shuffle(PAR_D);
+    /***
     uvec s = uvec(_n);
 
     for (int i = 0; i < _n; i++) s(i) = i;
@@ -1336,19 +1400,25 @@ void Particle::shuffle()
     _t = t;
     _d = d;
     _w = w;
+    ***/
 }
 
 void Particle::copy(Particle& that) const
 {
-    that.setMode(_mode);
-    that.setN(_n);
+    that.setNC(_nC);
+    that.setNR(_nR);
+    that.setNT(_nT);
+    that.setND(_nD);
     that.setTransS(_transS);
     that.setTransQ(_transQ);
     that.setC(_c);
     that.setR(_r);
     that.setT(_t);
     that.setD(_d);
-    that.setW(_w);
+    that.setWC(_wC);
+    that.setWR(_wR);
+    that.setWT(_wT);
+    that.setWD(_wD);
     that.setSymmetry(_sym);
 }
 
@@ -1369,24 +1439,13 @@ void Particle::symmetrise()
 
     vec4 quat;
 
-    for (int i = 0; i < _n; i++)
+    for (int i = 0; i < _nR; i++)
     {
         vec4 quat = _r.row(i).transpose();
 
         symmetryCounterpart(quat, *_sym);
 
         _r.row(i) = quat.transpose();
-
-        /***
-        vec4 quat = _r.row(i).transpose();
-        
-        angle(phi, theta, psi, quat);
-
-        symmetryCounterpart(phi, theta, *_sym);
-
-        quaternoin(quat, phi, theta, psi);
-        _r.row(i) = quat.transpose();
-        ***/
     }
 }
 
@@ -1458,6 +1517,7 @@ void save(const char filename[],
     fclose(file);
 }
 
+/***
 void load(Particle& par,
           const char filename[])
 {
@@ -1497,3 +1557,4 @@ void load(Particle& par,
 
     fclose(file);
 }
+***/
