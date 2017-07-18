@@ -784,7 +784,8 @@ void MLOptimiser::expectation()
 #endif
 
             //_par[l].resample();
-            _par[l].resample(_para.mLR, _para.mLT, 1);
+            _par[l].resample(_para.mLR, PAR_R);
+            _par[l].resample(_para.mLT, PAR_T);
 
             _par[l].calVari();
 
@@ -861,9 +862,8 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
-                _par[l].resample(_para.mLR,
-                                 _para.mLT,
-                                 1);
+                _par[l].resample(_para.mLR, PAR_R);
+                _par[l].resample(_para.mLT, PAR_T);
                 
                 /***
                 _par[l].resample(_para.mL,
@@ -878,14 +878,8 @@ void MLOptimiser::expectation()
             else if ((phase == 0) &&
                      (_searchType == SEARCH_TYPE_CTF))
             {
-                _par[l].resample(_para.mLR,
-                                 _para.mLT,
-                                 1);
-
-                /***
-                _par[l].resample(_para.mL * _para.ctfRefineFactor,
-                                 ALPHA_LOCAL_SEARCH);
-                ***/
+                _par[l].resample(_para.mLR, PAR_R);
+                _par[l].resample(_para.mLT, PAR_T);
 
                 if (_para.perturbFactorL != 0)
                     _par[l].perturb(_para.perturbFactorL,
@@ -893,7 +887,6 @@ void MLOptimiser::expectation()
                                     _para.perturbFactorL);
 
                 _par[l].initD(10, _para.ctfRefineS);
-                // TODO
             }
             else
             {
@@ -1041,7 +1034,8 @@ void MLOptimiser::expectation()
             double s1 = _par[l].s1();
             ***/
 
-            _par[l].resample();
+            _par[l].resample(_para.mLR, PAR_R);
+            _par[l].resample(_para.mLT, PAR_T);
 
             _par[l].calVari();
 
