@@ -907,8 +907,8 @@ void Particle::resample(const int n,
 
             while (uj > cdf[i])
                 i++;
-        
-            d.row(j) = _d.row(i);
+
+            d(j) = _d(i);
 
             _wD(j) = 1.0 / _nD;
         }
