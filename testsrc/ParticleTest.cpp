@@ -8,9 +8,9 @@ INITIALIZE_EASYLOGGINGPP
 
 //#define RAND_QUATERNION
 
-//#define PARTICLE_TEST_3D
+#define PARTICLE_TEST_3D
 
-#define TEST_PARTICLE_LOAD
+//#define TEST_PARTICLE_LOAD
 
 using namespace std;
 
@@ -28,7 +28,7 @@ int main()
     //Symmetry sym("C15");
     Symmetry sym("C2");
 
-    Particle par(MODE_3D, 1, N, 5, 0.01, &sym);
+    Particle par(MODE_3D, 1, N, N, 1, 5, 0.01, &sym);
 
     vec4 quat;
     for (int i = 0; i < N; i++)

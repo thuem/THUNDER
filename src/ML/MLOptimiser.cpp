@@ -506,7 +506,6 @@ void MLOptimiser::expectation()
         else if (_para.mode == MODE_3D)
         {
             nR = _para.mS / (1 + _sym.nSymmetryElement());
-            //nR = _para.mS / _sym.nFractionSpace();
         }
         else
             REPORT_ERROR("INEXISTENT MODE");
@@ -527,9 +526,18 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Translation in Scanning Phase: "
                                    << scanMinStdT;
 
+        /***
         Particle par;
         par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
         par.reset(_para.k, nR, nT);
+        ***/
+
+        Particle par = _par[0].copy();
+
+        par.reset(_para.k, nR, nT, 1);
+
+        FOR_EACH_2D_IMAGE
+            _par[l] = par.copy();
 
         mat22 rot2D;
         mat33 rot3D;
@@ -550,15 +558,25 @@ void MLOptimiser::expectation()
             translate(trans[m], _r, t(0), t(1));
         }
 
-        vector<std::priority_queue<Sp, vector<Sp>, SpWeightComparator> > leaderBoard(_ID.size());
+        //vector<std::priority_queue<Sp, vector<Sp>, SpWeightComparator> > leaderBoard(_ID.size());
+        
+        mat wC = mat::Zero(_ID.size(), _para.k);
+        mat wR = mat::Zero(_ID.size(), nR);
+        mat wT = mat::Zero(_ID.size(), nT);
 
         _nR = 0;
 
+        /***
         omp_lock_t* mtx = new omp_lock_t[_ID.size()];
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
             omp_init_lock(&mtx[l]);
+        ***/
+
+        // t -> class
+        // m -> rotation
+        // n -> translation
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
@@ -572,13 +590,15 @@ void MLOptimiser::expectation()
 
                 if (_para.mode == MODE_2D)
                 {
-                    par.rot(rot2D, t * nR * nT + m * nT);
+                    //par.rot(rot2D, t * nR * nT + m * nT);
+                    par.rot(rot2D, m);
 
                     _model.proj(t).project(imgRot, rot2D, _iCol, _iRow, _iPxl, _nPxl);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    par.rot(rot3D, t * nR * nT + m * nT);
+                    //par.rot(rot3D, t * nR * nT + m * nT);
+                    par.rot(rot3D, m);
 
                     _model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
                 }
@@ -605,6 +625,15 @@ void MLOptimiser::expectation()
 
                     FOR_EACH_2D_IMAGE
                     {
+                        double w = exp(dvp(l));
+                        wC(l, t) += w;
+                        wR(l, m) += w;
+                        wT(l, n) += w;
+                    }
+
+                    /***
+                    FOR_EACH_2D_IMAGE
+                    {
                         omp_set_lock(&mtx[l]);
 
                         if ((int)leaderBoard[l].size() < nSampleMax)
@@ -618,6 +647,7 @@ void MLOptimiser::expectation()
 
                         omp_unset_lock(&mtx[l]);
                     }
+                    ***/
                 }
 
                 #pragma omp atomic
@@ -638,8 +668,9 @@ void MLOptimiser::expectation()
             }
         }
 
-        delete[] mtx;
+        //delete[] mtx;
         
+        /***
         mat topW(nSampleMax, _ID.size());
 
         umat iTopC(nSampleMax, _ID.size());
@@ -684,15 +715,6 @@ void MLOptimiser::expectation()
                     v(i) = -GSL_DBL_MAX;
             }
 #endif
-            /***
-            if (_ID[l] < 20)
-            {
-                CLOG(INFO, "LOGGER_SYS") << v(v.size() - 1) << ", "
-                                         << v(v.size() - 2) << ", "
-                                         << v(v.size() - 3) << ", "
-                                         << v(v.size() - 4);
-            }
-            ***/
 
 #ifdef OPTIMISER_EXPECTATION_REMOVE_AUXILIARY_CLASS
             unsigned int cls = iTopC(v.size() - 1, l);
@@ -707,12 +729,23 @@ void MLOptimiser::expectation()
 
             topW.col(l) = v;
         }
+        ***/
 
         // reset weights of particle filter
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+            for (int iC = 0; iC < _para.k; iC++)
+                _par[l].setWC(wC(l, iC), iC);
+            for (int iR = 0; iR < nR; iR++)
+                _par[l].setWR(wR(l, iR), iR);
+            for (int iT = 0; iT < nT; iT++)
+                _par[l].setWT(wT(l, iT), iT);
+
+            _par[l].normW();
+
+            /***
             _par[l].reset(_para.k, nSampleMax);
 
             int c;
@@ -733,6 +766,7 @@ void MLOptimiser::expectation()
             }
 
             _par[l].normW();
+            ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < 20)
@@ -748,11 +782,6 @@ void MLOptimiser::expectation()
 #endif
 
             /***
-            _par[l].flatten(FLATTEN_THRESHOLD);
-
-            _par[l].segment(FLATTEN_THRESHOLD);
-            ***/
-
             _par[l].resample();
 
             _par[l].calVari();
@@ -775,11 +804,6 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 #endif
-
-            /***
-            _par[l].resample();
-
-            _par[l].calVari();
             ***/
         }
 
@@ -799,6 +823,7 @@ void MLOptimiser::expectation()
             freePreCal(true);
     }
 
+    /***
     if (_searchType != SEARCH_TYPE_CTF)
         allocPreCal(false, false);
     else
@@ -835,9 +860,6 @@ void MLOptimiser::expectation()
             if ((phase == 0) &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
-                /***
-                _par[l].shuffle();
-                ***/
                 _par[l].resample(_para.mL,
                                  ALPHA_LOCAL_SEARCH);
 
@@ -859,10 +881,6 @@ void MLOptimiser::expectation()
 
                 _par[l].initD(_para.ctfRefineS);
 
-                /**
-                if (_model.searchTypePrev() == SEARCH_TYPE_LOCAL)
-                    _par[l].initD(_para.cSearchS);
-                ***/
             }
             else
             {
@@ -957,12 +975,6 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
-            /***
-            _par[l].flatten(FLATTEN_THRESHOLD);
-
-            _par[l].calVari();
-            ***/
-
 #ifdef OPTIMISER_SAVE_PARTICLES
             if ((_ID[l] < 20) ||
                 (_ID[l] == 8873) ||
@@ -980,12 +992,6 @@ void MLOptimiser::expectation()
                 save(filename, _par[l]);
             }
 #endif
-
-            /***
-            _par[l].calVari();
-
-            _par[l].resample();
-            ***/
 
             double k1 = _par[l].k1();
             double s0 = _par[l].s0();
@@ -1020,12 +1026,6 @@ void MLOptimiser::expectation()
                     (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
-                /***
-                if ((tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) &&
-                    (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) &&
-                    (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) &&
-                    (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
-                ***/
                 {
                     // there is still room for searching
                     nPhaseWithNoVariDecrease = 0;
@@ -1096,6 +1096,7 @@ void MLOptimiser::expectation()
         freePreCal(true);
 
     freePreCalIdx();
+    ***/
 }
 
 void MLOptimiser::maximization()
@@ -1198,6 +1199,7 @@ void MLOptimiser::run()
             MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
         }
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
 
         refreshClassDistr();
@@ -1212,6 +1214,7 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class Determined";
 #endif
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
@@ -1415,6 +1418,7 @@ void MLOptimiser::run()
 
 #endif
 
+            /***
 #ifdef OPTIMISER_BALANCE_CLASS
 
         MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
@@ -1428,6 +1432,7 @@ void MLOptimiser::run()
                                        << "\% Percentage of Images Belonging to Class "
                                        << t;
 #endif
+            ***/
 
         NT_MASTER
         {
@@ -2308,7 +2313,7 @@ void MLOptimiser::loadParticles()
     ALOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
     BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
 
-    int cls;
+    unsigned int cls;
     vec4 quat;
     vec2 tran;
     double d;
@@ -2335,6 +2340,7 @@ void MLOptimiser::loadParticles()
             ***/
         }
 
+        /***
         _par[l].load(_para.k,
                      _para.mL,
                      cls,
@@ -2347,6 +2353,7 @@ void MLOptimiser::loadParticles()
                      stdD);
 
         _par[l].calVari();
+        ***/
     }
 
     for (int l = 0; l < 10; l++)
@@ -2445,6 +2452,7 @@ void MLOptimiser::refreshRotationChange()
     _model.setStdRChange(std);
 }
 
+/***
 void MLOptimiser::refreshClassDistr()
 {
     _cDistr = vec::Zero(_para.k);
@@ -2474,7 +2482,9 @@ void MLOptimiser::refreshClassDistr()
 
     _cDistr.array() /= _nPar;
 }
+***/
 
+/***
 void MLOptimiser::balanceClass(const double thres)
 {
     int cls;
@@ -2490,6 +2500,7 @@ void MLOptimiser::balanceClass(const double thres)
 
     _cDistr.array() /= _cDistr.sum();
 }
+***/
 
 void MLOptimiser::refreshVariance()
 {
@@ -2586,7 +2597,7 @@ void MLOptimiser::refreshScale(const bool coord,
     {
         Image img(size(), size(), FT_SPACE);
 
-        int cls;
+        unsigned int cls;
         mat22 rot2D;
         mat33 rot3D;
         vec2 tran;
@@ -2892,7 +2903,7 @@ void MLOptimiser::normCorrection()
 
     vec norm = vec::Zero(_nPar);
 
-    int cls;
+    unsigned int cls;
 
     mat22 rot2D;
     mat33 rot3D;
@@ -3155,7 +3166,7 @@ void MLOptimiser::allReduceSigma(const bool group)
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
-    int cls;
+    unsigned int cls;
 
     mat22 rot2D;
     mat33 rot3D;
@@ -3378,7 +3389,7 @@ void MLOptimiser::reconstructRef()
 
         for (int m = 0; m < _para.mReco; m++)
         {
-            int cls;
+            unsigned int cls;
             mat22 rot2D;
             mat33 rot3D;
             vec2 tran;
@@ -3882,7 +3893,7 @@ void MLOptimiser::saveDatabase() const
                ? fopen(filename, "w")
                : fopen(filename, "a");
 
-    int cls;
+    unsigned int cls;
     vec4 quat;
     vec2 tran;
     double df;
@@ -3947,7 +3958,7 @@ void MLOptimiser::saveBestProjections()
     Image diff(_para.size, _para.size, FT_SPACE);
     char filename[FILE_NAME_LENGTH];
 
-    int cls;
+    unsigned int cls;
     mat22 rot2D;
     mat33 rot3D;
     vec2 tran;

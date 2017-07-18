@@ -126,10 +126,10 @@ void Particle::reset()
 
     // initialise weight
 
-    _wC = vec::Constant(_nC, 1.0 / nC);
-    _wR = vec::Constant(_nR, 1.0 / nR);
-    _wT = vec::Constant(_nT, 1.0 / nT);
-    _wD = vec::Constant(_nD, 1.0 / nD);
+    _wC = vec::Constant(_nC, 1.0 / _nC);
+    _wR = vec::Constant(_nR, 1.0 / _nR);
+    _wT = vec::Constant(_nT, 1.0 / _nT);
+    _wD = vec::Constant(_nD, 1.0 / _nD);
 
     // symmetrise
 
@@ -255,7 +255,7 @@ void Particle::initD(const int nD,
 
     _d.resize(nD);
 
-    for (int i = 0; i < _n; i++)
+    for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
 }
 
@@ -302,6 +302,10 @@ void Particle::setT(const mat2& t) { _t = t; }
 vec Particle::d() const { return _d; }
 
 void Particle::setD(const vec& d) { _d = d; }
+
+vec Particle::wC() const { return _wC; }
+
+void Particle::setWC(const vec& wC) { _wC = wC; }
 
 vec Particle::wR() const { return _wR; }
 
@@ -522,7 +526,7 @@ double Particle::wD(const int i) const
     return _wD(i);
 }
 
-void Particle::setWR(const double wD,
+void Particle::setWD(const double wD,
                      const int i)
 {
     _wD(i) = wD;
@@ -707,11 +711,11 @@ void Particle::calVari()
     ***/
 
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
-    _s0 = gsl_stats_sd_m(t.col(0).data(), 1, t.rows(), 0);
-    _s1 = gsl_stats_sd_m(t.col(1).data(), 1, t.rows(), 0);
+    _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
+    _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
 #else
-    _s0 = gsl_stats_sd(t.col(0).data(), 1, t.rows());
-    _s1 = gsl_stats_sd(t.col(1).data(), 1, t.rows());
+    _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
+    _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
     _rho = 0;
@@ -741,7 +745,7 @@ void Particle::perturb(const double pf,
 {
     if (pt == PAR_C)
     {
-        CLOG(WARN, "LOGGER_SYS") << "NO NEED TO PERFORM PERTURBATION IN CLASS";
+        CLOG(WARNING, "LOGGER_SYS") << "NO NEED TO PERFORM PERTURBATION IN CLASS";
     }
     else if (pt == PAR_R)
     {
@@ -780,6 +784,8 @@ void Particle::perturb(const double pf,
     }
     else if (pt == PAR_D)
     {
+        gsl_rng* engine = get_random_engine();
+
         for (int i = 0; i < _nD; i++)
             _d(i) += gsl_ran_gaussian(engine, _s) * pf;
     }
@@ -811,6 +817,8 @@ void Particle::perturb(const double pfR,
 void Particle::resample(const int n,
                         const ParticleType pt)
 {
+    gsl_rng* engine = get_random_engine();
+
     uvec rank = iSort(pt);
 
     if (pt == PAR_C)
@@ -821,22 +829,105 @@ void Particle::resample(const int n,
     {
         quaternion(_topR, rank(0));
 
-        // TODO
+        shuffle(pt);
+
+        vec cdf = cumsum(_wR);
+
+        _nR = n;
+        _wR.resize(_nR);
+
+        mat4 r(_nR, 4);
+
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nR);  
+
+        int i = 0;
+        for (int j = 0; j < _nR; j++)
+        {
+            double uj = u0 + j * 1.0 / _nR;
+
+            while (uj > cdf[i])
+                i++;
+        
+            r.row(j) = _r.row(i);
+
+            _wR(j) = 1.0 / _nR;
+        }
+
+        r = _r;
     }
     else if (pt == PAR_T)
     {
-        t(_topC, rank(0));
+        t(_topT, rank(0));
 
-        // TODO
+        shuffle(pt);
+
+        vec cdf = cumsum(_wT);
+
+        _nT = n;
+        _wT.resize(_nT);
+
+        mat2 t(_nT, 2);
+
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nT);  
+
+        int i = 0;
+        for (int j = 0; j < _nT; j++)
+        {
+            double uj = u0 + j * 1.0 / _nT;
+
+            while (uj > cdf[i])
+                i++;
+        
+            t.row(j) = _t.row(i);
+
+            _wT(j) = 1.0 / _nT;
+        }
+
+        t = _t;
     }
     else if (pt == PAR_D)
     {
         d(_topD, rank(0));
 
-        // TODO
+        shuffle(pt);
+
+        vec cdf = cumsum(_wD);
+
+        _nD = n;
+        _wD.resize(_nD);
+
+        vec d(_nD);
+
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nD);  
+
+        int i = 0;
+        for (int j = 0; j < _nD; j++)
+        {
+            double uj = u0 + j * 1.0 / _nT;
+
+            while (uj > cdf[i])
+                i++;
+        
+            d.row(j) = _d.row(i);
+
+            _wD(j) = 1.0 / _nD;
+        }
+
+        d = _d;
     }
 }
 
+void Particle::resample(const int nR,
+                        const int nT,
+                        const int nD)
+{
+    resample(_nC, PAR_C);
+    resample(nR, PAR_R);
+    resample(nT, PAR_T);
+    resample(nD, PAR_D);
+}
+
+/***
 void Particle::resample(const double alpha)
 {
     resample(_n, alpha);
@@ -855,16 +946,6 @@ void Particle::resample(const int n,
     quaternion(_topR, rank(0));
     t(_topT, rank(0));
     d(_topD, rank(0));
-
-    /***
-#ifdef VERBOSE_LEVEL_4
-    if (n < _n)
-    {
-        CLOG(INFO, "LOGGER_SYS") << "Performing Sorting";
-        sort(n);
-    }
-#endif
-    ***/
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Performing Shuffling";
@@ -1008,7 +1089,9 @@ void Particle::resample(const int n,
     
     if (_mode == MODE_3D) symmetrise();
 }
+***/
 
+/***
 double Particle::neff() const
 {
     return 1.0 / _w.squaredNorm();
@@ -1099,6 +1182,7 @@ void Particle::sort(const int n)
     // normalise weight again
     normW();
 }
+***/
 
 uvec Particle::iSort(const ParticleType pt) const
 {
@@ -1110,6 +1194,7 @@ uvec Particle::iSort(const ParticleType pt) const
         return index_sort_descend(_wT);
     else if (pt == PAR_D)
         return index_sort_descend(_wD);
+    else abort();
 }
 
 bool Particle::diffTopC()
@@ -1148,7 +1233,7 @@ double Particle::diffTopD()
     return diff;
 }
 
-void Particle::rank1st(int& cls) const
+void Particle::rank1st(unsigned int& cls) const
 {
     cls = _topC;
 }
@@ -1184,7 +1269,7 @@ void Particle::rank1st(double& df) const
     df = _topD;
 }
 
-void Particle::rank1st(int& cls,
+void Particle::rank1st(unsigned int& cls,
                        vec4& quat,
                        vec2& tran,
                        double& df) const
@@ -1195,7 +1280,7 @@ void Particle::rank1st(int& cls,
     df = _topD;
 }
 
-void Particle::rank1st(int& cls,
+void Particle::rank1st(unsigned int& cls,
                        mat22& rot,
                        vec2& tran,
                        double& df) const
@@ -1206,7 +1291,7 @@ void Particle::rank1st(int& cls,
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
-void Particle::rank1st(int& cls,
+void Particle::rank1st(unsigned int& cls,
                        mat33& rot,
                        vec2& tran,
                        double& df) const
@@ -1217,11 +1302,11 @@ void Particle::rank1st(int& cls,
     rotate3D(rot, quat);
 }
 
-void Particle::rand(int& cls) const
+void Particle::rand(unsigned int& cls) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _n);
+    size_t u = gsl_rng_uniform_int(engine, _nC);
 
     c(cls, u);
 }
@@ -1230,7 +1315,7 @@ void Particle::rand(vec4& quat) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _n);
+    size_t u = gsl_rng_uniform_int(engine, _nR);
 
     quaternion(quat, u);
 }
@@ -1255,7 +1340,7 @@ void Particle::rand(vec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _n);
+    size_t u = gsl_rng_uniform_int(engine, _nT);
 
     t(tran, u);
 }
@@ -1264,16 +1349,21 @@ void Particle::rand(double& df) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _n);
+    size_t u = gsl_rng_uniform_int(engine, _nD);
 
     d(df, u);
 }
 
-void Particle::rand(int& cls,
+void Particle::rand(unsigned int& cls,
                     vec4& quat,
                     vec2& tran,
                     double& df) const
 {
+    rand(cls);
+    rand(quat);
+    rand(tran);
+    rand(df);
+    /***
     gsl_rng* engine = get_random_engine();
 
     size_t u = gsl_rng_uniform_int(engine, _n);
@@ -1282,9 +1372,10 @@ void Particle::rand(int& cls,
     quaternion(quat, u);
     t(tran, u);
     d(df, u);
+    ***/
 }
 
-void Particle::rand(int& cls,
+void Particle::rand(unsigned int& cls,
                     mat22& rot,
                     vec2& tran,
                     double& df) const
@@ -1295,7 +1386,7 @@ void Particle::rand(int& cls,
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
-void Particle::rand(int& cls,
+void Particle::rand(unsigned int& cls,
                     mat33& rot,
                     vec2& tran,
                     double& df) const
@@ -1312,7 +1403,7 @@ void Particle::shuffle(const ParticleType pt)
 
     if (pt == PAR_C)
     {
-        CLOG(WARN, "LOGGER_SYS") << "NO NEED TO PERFORM SHUFFLE IN CLASS";
+        CLOG(WARNING, "LOGGER_SYS") << "NO NEED TO PERFORM SHUFFLE IN CLASS";
     }
     else if (pt == PAR_R)
     {
@@ -1362,7 +1453,17 @@ void Particle::shuffle(const ParticleType pt)
 
         gsl_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
 
-        // TODO
+        vec d(_nD);
+        vec wD(_nD);
+
+        for (int i = 0; i < _nD; i++)
+        {
+            d(s(i)) = _d(i);
+            wD(s(i)) = _wD(i);
+        }
+
+        _d = d;
+        _wD = wD;
     }
 }
 
@@ -1471,22 +1572,23 @@ void Particle::clear() {}
 
 void display(const Particle& par)
 {
-    int c;
+    unsigned int c;
     vec4 q;
     vec2 t;
     double d;
-    for (int i = 0; i < par.n(); i++)
+
+    FOR_EACH_PAR(par)
     {
-        par.c(c, i);
-        par.quaternion(q, i);
-        par.t(t, i);
-        par.d(d, i);
+        par.c(c, iC);
+        par.quaternion(q, iR);
+        par.t(t, iT);
+        par.d(d, iD);
         printf("%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                c,
                q(0), q(1), q(2), q(3),
                t(0), t(1),
                d,
-               par.w(i));
+               par.wC(iC) * par.wR(iR) * par.wT(iT) * par.wD(iD));
     }
 }
 
@@ -1495,10 +1597,27 @@ void save(const char filename[],
 {
     FILE* file = fopen(filename, "w");
 
-    int c;
+    unsigned int c;
     vec4 q;
     vec2 t;
     double d;
+
+    FOR_EACH_PAR(par)
+    {
+        par.c(c, iC);
+        par.quaternion(q, iR);
+        par.t(t, iT);
+        par.d(d, iD);
+        fprintf(file,
+                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                c,
+                q(0), q(1), q(2), q(3),
+                t(0), t(1),
+                d,
+                par.wC(iC) * par.wR(iR) * par.wT(iT) * par.wD(iD));
+    }
+
+    /***
     for (int i = 0; i < par.n(); i++)
     {
         par.c(c, i);
@@ -1513,6 +1632,7 @@ void save(const char filename[],
                 d,
                 par.w(i));
     }
+    ***/
 
     fclose(file);
 }

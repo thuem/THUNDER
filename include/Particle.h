@@ -29,13 +29,24 @@
 #include "Symmetry.h"
 #include "DirectionalStat.h"
 
+#define FOR_EACH_C(par) for (int iC = 0; iC < par.nC(); iC++)
+#define FOR_EACH_R(par) for (int iR = 0; iR < par.nR(); iR++)
+#define FOR_EACH_T(par) for (int iT = 0; iT < par.nT(); iT++)
+#define FOR_EACH_D(par) for (int iD = 0; iD < par.nD(); iD++)
+
+#define FOR_EACH_PAR(par) \
+    FOR_EACH_C(par) \
+        FOR_EACH_R(par) \
+            FOR_EACH_T(par) \
+                FOR_EACH_D(par)
+
 enum ParticleType
 {
     PAR_C,
     PAR_R,
     PAR_T,
     PAR_D
-}
+};
 
 class Particle
 {
@@ -160,12 +171,12 @@ class Particle
         /**
          * the previous most likely class
          */
-        int _topCPrev;
+        unsigned int _topCPrev;
 
         /**
          * the most likely class
          */
-        int _topC;
+        unsigned int _topC;
 
         /**
          * MODE_2D: the first element stands for the previous most likely
@@ -210,7 +221,7 @@ class Particle
         {
             _mode = MODE_3D;
 
-            _m = 1;
+            _nC = 1;
 
             _sym = NULL;
 
@@ -361,7 +372,7 @@ class Particle
          */
         void setNR(const int nR);
 
-        int nT();
+        int nT() const;
 
         void setNT(const int nT);
 
@@ -432,6 +443,10 @@ class Particle
         vec d() const;
 
         void setD(const vec& d);
+
+        vec wC() const;
+
+        void setWC(const vec& wC);
 
         /**
          * This function returns the vector storing the weight of each particle.
@@ -528,6 +543,14 @@ class Particle
 
         double compress() const;
 
+        double wC(const int i) const;
+
+        void setWC(const double wC,
+                   const int i);
+
+        void mulWC(const double wC,
+                   const int i);
+
         /**
          * This function returns the weight of the i-th particle in this
          * particle filter.
@@ -594,7 +617,7 @@ class Particle
          * @param dst the class
          * @param i   the index of particle
          */
-        void c(int& dst,
+        void c(unsigned int& dst,
                const int i) const;
 
         /**
@@ -603,7 +626,7 @@ class Particle
          * @param src the class
          * @param i   the index of particle
          */
-        void setC(const int src,
+        void setC(const unsigned int src,
                   const int i);
 
         /**
@@ -701,12 +724,16 @@ class Particle
          *           confidence area of perturbation of the confidence area
          *           of the sampling points
          */
-        void perturb(const double pfT,
-                     const double pfR,
+        void perturb(const double pfR,
+                     const double pfT,
                      const double pfD);
 
         void resample(const int n,
                       const ParticleType pt);
+
+        void resample(const int nR,
+                      const int nT,
+                      const int nD);
 
         /**
          * This function resamples the particles in this particle filter with
@@ -715,7 +742,9 @@ class Particle
          * @param alpha the portion of global sampling points in the resampled
          *              particles
          */
+        /***
         void resample(const double alpha = 0);
+        ***/
 
         /**
          * This function resamples the particles in this particle filter to a
@@ -727,13 +756,16 @@ class Particle
          * @param alpha the portion of global sampling points in the resampled
          *              particles
          */
+        /***
         void resample(const int n,
                       const double alpha = 0);
+        ***/
 
         /**
          * This function returns the neff value of this particle filter, which
          * indicates the degengency of it.
          */
+        /***
         double neff() const;
 
         void segment(const double thres);
@@ -741,6 +773,7 @@ class Particle
         void flatten(const double thres);
 
         void sort();
+        ***/
 
         /**
          * This function sorts all particles by their weight in a descending
@@ -748,7 +781,7 @@ class Particle
          *
          * @param n the number of particles to keep
          */
-        void sort(const int n);
+        //void sort(const int n);
 
         /**
          * This function returns the index of sorting of the particles' weight
@@ -784,7 +817,7 @@ class Particle
          *
          * @param cls the most likely class
          */
-        void rank1st(int& cls) const;
+        void rank1st(unsigned int& cls) const;
         
         /**
          * This function gives the most likely quaternion of rotation.
@@ -830,7 +863,7 @@ class Particle
          * @param tran the most likely translation vector
          * @param d    the most likely defocus factor
          */
-        void rank1st(int& cls,
+        void rank1st(unsigned int& cls,
                      vec4& quat,
                      vec2& tran,
                      double& d) const;
@@ -844,7 +877,7 @@ class Particle
          * @param tran the most likely translation vector
          * @param d    the most likely defocus factor
          */
-        void rank1st(int& cls,
+        void rank1st(unsigned int& cls,
                      mat22& rot,
                      vec2& tran,
                      double& d) const;
@@ -857,7 +890,7 @@ class Particle
          * @param tran the most likely translation vector
          * @param d    the most likely defocus factor
          */
-        void rank1st(int& cls,
+        void rank1st(unsigned int& cls,
                      mat33& rot,
                      vec2& tran,
                      double& d) const;
@@ -867,7 +900,7 @@ class Particle
          *
          * @param cls the class of a random particle
          */
-        void rand(int& cls) const;
+        void rand(unsigned int& cls) const;
 
         /**
          * This function gives the quaternion of rotation of a random particle.
@@ -913,7 +946,7 @@ class Particle
          * @param tran the translation vector of a random particle
          * @param d    the defocus factor of a random particle
          */
-        void rand(int& cls,
+        void rand(unsigned int& cls,
                   vec4& quat,
                   vec2& tran,
                   double& d) const;
@@ -927,7 +960,7 @@ class Particle
          * @param tran the translation vector of a random particle
          * @param d    the defocus factor of a random particle
          */
-        void rand(int& cls,
+        void rand(unsigned int& cls,
                   mat22& rot,
                   vec2& tran,
                   double& d) const;
@@ -941,7 +974,7 @@ class Particle
          * @param tran the translation vector of a random particle
          * @param d    the defocus factor of a random particle
          */
-        void rand(int& cls,
+        void rand(unsigned int& cls,
                   mat33& rot,
                   vec2& tran,
                   double& d) const;
