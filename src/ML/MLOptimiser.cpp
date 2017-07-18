@@ -827,16 +827,13 @@ void MLOptimiser::expectation()
             freePreCal(true);
     }
 
-    /***
     if (_searchType != SEARCH_TYPE_CTF)
         allocPreCal(false, false);
     else
         allocPreCal(false, true);
 
-    if (_para.mode == MODE_3D)
-    {
-
     _nP.resize(_ID.size(), 0);
+    /***
 
     _nF = 0;
     _nI = 0;
@@ -3915,12 +3912,14 @@ void MLOptimiser::saveDatabase() const
     {
         _par[l].rank1st(cls, quat, tran, df);
 
-        //_par[l].vari(rVari, s0, s1, s);
+        _par[l].vari(rVari, s0, s1, s);
 
+        /***
         rVari = 0;
         s0 = 0;
         s1 = 0;
         s = 0;
+        ***/
 
         fprintf(file,
                 "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
@@ -3930,32 +3929,32 @@ void MLOptimiser::saveDatabase() const
                  %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f \
                  %18.6f %6d\n",
-                _ctfAttr[l].voltage,
-                _ctfAttr[l].defocusU,
-                _ctfAttr[l].defocusV,
-                _ctfAttr[l].defocusTheta,
-                _ctfAttr[l].Cs,
-                _ctfAttr[l].amplitudeContrast,
-                _ctfAttr[l].phaseShift,
-                _db.path(_ID[l]).c_str(),
-                _db.micrographPath(_ID[l]).c_str(),
-                _db.coordX(_ID[l]),
-                _db.coordY(_ID[l]),
-                _groupID[l],
-                cls,
-                quat(0),
-                quat(1),
-                quat(2),
-                quat(3),
-                rVari,
-                tran(0) - _offset[l](0),
-                tran(1) - _offset[l](1),
-                s0,
-                s1,
-                df,
-                s,
-                _par[l].compress(),
-                _nP[l]);
+                 _ctfAttr[l].voltage,
+                 _ctfAttr[l].defocusU,
+                 _ctfAttr[l].defocusV,
+                 _ctfAttr[l].defocusTheta,
+                 _ctfAttr[l].Cs,
+                 _ctfAttr[l].amplitudeContrast,
+                 _ctfAttr[l].phaseShift,
+                 _db.path(_ID[l]).c_str(),
+                 _db.micrographPath(_ID[l]).c_str(),
+                 _db.coordX(_ID[l]),
+                 _db.coordY(_ID[l]),
+                 _groupID[l],
+                 cls,
+                 quat(0),
+                 quat(1),
+                 quat(2),
+                 quat(3),
+                 rVari,
+                 tran(0) - _offset[l](0),
+                 tran(1) - _offset[l](1),
+                 s0,
+                 s1,
+                 df,
+                 s,
+                 _par[l].compress(),
+                 _nP[l]);
     }
 
     fclose(file);
