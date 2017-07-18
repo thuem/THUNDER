@@ -921,10 +921,12 @@ void Particle::resample(const int nR,
                         const int nT,
                         const int nD)
 {
+    /***
     resample(_nC, PAR_C);
     resample(nR, PAR_R);
     resample(nT, PAR_T);
     resample(nD, PAR_D);
+    ***/
 }
 
 void Particle::resample()
