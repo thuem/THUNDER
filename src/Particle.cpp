@@ -791,6 +791,7 @@ void Particle::perturb(const double pf,
     }
 }
 
+/***
 void Particle::perturb(const double pfR,
                        const double pfT,
                        const double pfD)
@@ -813,6 +814,7 @@ void Particle::perturb(const double pfR,
 
     perturb(pfD, PAR_D);
 }
+***/
 
 void Particle::resample(const int n,
                         const ParticleType pt)

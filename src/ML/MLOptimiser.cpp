@@ -857,61 +857,32 @@ void MLOptimiser::expectation()
         double dVari = 5 * _para.ctfRefineS;
 #endif
 
-        for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+        for (int phase = SEARCH_TYPE_GLOBAL ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            if ((phase == 0) &&
-                (_searchType == SEARCH_TYPE_LOCAL))
-            {
-                _par[l].resample(_para.mLR, PAR_R);
-                _par[l].resample(_para.mLT, PAR_T);
-                
-                /***
-                _par[l].resample(_para.mL,
-                                 ALPHA_LOCAL_SEARCH);
-                ***/
-
-                if (_para.perturbFactorL != 0)
-                    _par[l].perturb(_para.perturbFactorL,
-                                    _para.perturbFactorL,
-                                    _para.perturbFactorL);
-            }
-            else if ((phase == 0) &&
-                     (_searchType == SEARCH_TYPE_CTF))
+            if (phase == 0)
             {
                 _par[l].resample(_para.mLR, PAR_R);
                 _par[l].resample(_para.mLT, PAR_T);
 
-                if (_para.perturbFactorL != 0)
-                    _par[l].perturb(_para.perturbFactorL,
-                                    _para.perturbFactorL,
-                                    _para.perturbFactorL);
+                _par[l].perturb(_para.perturbFactorL, PAR_R);
+                _par[l].perturb(_para.perturbFactorL, PAR_T);
 
-                _par[l].initD(10, _para.ctfRefineS);
+                if (_searchType == SEARCH_TYPE_CTF)
+                    _par[l].initD(10, _para.ctfRefineS);
             }
             else
             {
                 _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
                               ? _para.perturbFactorSGlobal
-                              : _para.perturbFactorSGlobal,
-                                (_searchType == SEARCH_TYPE_GLOBAL)
+                              : _para.perturbFactorSLocal,
+                                PAR_R);
+                _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
                               ? _para.perturbFactorSGlobal
-                              : _para.perturbFactorSGlobal,
-                                _para.perturbFactorSCTF);
+                              : _para.perturbFactorSLocal,
+                                PAR_T);
 
-                /***
-                if (_searchType == SEARCH_TYPE_GLOBAL)
-                    _par[l].perturb(_para.perturbFactorSGlobal,
-                                    _para.perturbFactorSGlobal,
-                                    _para.perturbFactorSGlobal);
-                else if (_searchType == SEARCH_TYPE_LOCAL)
-                    _par[l].perturb(_para.perturbFactorSLocal,
-                                    _para.perturbFactorSLocal,
-                                    _para.perturbFactorSLocal);
-                else
-                    _par[l].perturb(_para.perturbFactorSLocal,
-                                    _para.perturbFactorSLocal,
-                                    _para.perturbFactorSCTF);
-                ***/
+                if (_searchType == SEARCH_TYPE_CTF)
+                    _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
             }
 
             vec wC = vec::Zero(_para.k);

@@ -724,9 +724,11 @@ class Particle
          *           confidence area of perturbation of the confidence area
          *           of the sampling points
          */
+        /***
         void perturb(const double pfR,
                      const double pfT,
                      const double pfD);
+        ***/
 
         void resample(const int n,
                       const ParticleType pt);
