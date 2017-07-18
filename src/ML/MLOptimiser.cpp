@@ -745,6 +745,8 @@ void MLOptimiser::expectation()
 
             _par[l].normW();
 
+            _par[l].sort();
+
             /***
             _par[l].reset(_para.k, nSampleMax);
 

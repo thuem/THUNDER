@@ -1184,6 +1184,105 @@ void Particle::sort(const int n)
 }
 ***/
 
+void Particle::sort(const int n,
+                    const ParticleType pt)
+{
+    uvec order = iSort(pt);
+
+    if (pt == PAR_C)
+    {
+        if (n > _nC)
+            REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
+
+        uvec c(n);
+        vec wC(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            c.row(i) = _c.row(order(i));
+            wC(i) = _wC(order(i));
+        }
+
+        _nC = n;
+        
+        _c = c;
+        _wC = wC;
+    }
+    else if (pt == PAR_R)
+    {
+        if (n > _nR)
+            REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
+
+        mat4 r(n, 4);
+        vec wR(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            r(i) = _r(order(i));
+            wR(i) = _wR(order(i));
+        }
+
+        _nR = n;
+        
+        _r = r;
+        _wR = wR;
+    }
+    else if (pt == PAR_T)
+    {
+        if (n > _nT)
+            REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
+
+        mat2 t(n, 2);
+        vec wT(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            t.col(i) = _t.col(order(i));
+            wT(i) = _wT(order(i));
+        }
+
+        _nT = n;
+        
+        _t = t;
+        _wT = wT;
+    }
+    else if (pt == PAR_D)
+    {
+        if (n > _nD)
+            REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
+
+        vec d(n);
+        vec wD(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            d(i) = _d(order(i));
+            wD(i) = _wD(order(i));
+        }
+
+        _nD = n;
+        
+        _d = d;
+        _wD = wD;
+    }
+}
+
+void Particle::sort(const int nC,
+                    const int nR,
+                    const int nT,
+                    const int nD)
+{
+    sort(nC, PAR_C);
+    sort(nR, PAR_R);
+    sort(nT, PAR_T);
+    sort(nD, PAR_D);
+}
+
+void Particle::sort()
+{
+    sort(_nC, _nR, _nT, _nD);
+}
+
 uvec Particle::iSort(const ParticleType pt) const
 {
     if (pt == PAR_C)

@@ -783,6 +783,16 @@ class Particle
          */
         //void sort(const int n);
 
+        void sort(const int n,
+                  const ParticleType pt);
+
+        void sort(const int nC,
+                  const int nR,
+                  const int nT,
+                  const int nD);
+
+        void sort();
+
         /**
          * This function returns the index of sorting of the particles' weight
          * in a descending order.
