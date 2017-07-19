@@ -855,7 +855,7 @@ void Particle::resample(const int n,
             _wR(j) = 1.0 / _nR;
         }
 
-        r = _r;
+        _r = r;
     }
     else if (pt == PAR_T)
     {
@@ -885,7 +885,7 @@ void Particle::resample(const int n,
             _wT(j) = 1.0 / _nT;
         }
 
-        t = _t;
+        _t = t;
     }
     else if (pt == PAR_D)
     {
@@ -915,7 +915,7 @@ void Particle::resample(const int n,
             _wD(j) = 1.0 / _nD;
         }
 
-        d = _d;
+        _d = d;
     }
 }
 
