@@ -789,12 +789,11 @@ void MLOptimiser::expectation()
                 save(filename, _par[l], PAR_R);
             }
 #endif
+            _par[l].calVari();
 
             //_par[l].resample();
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
-
-            _par[l].calVari();
 
             /***
             _par[l].setK1(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR * scanMinStdR), _par[l].k1()));
@@ -1014,10 +1013,10 @@ void MLOptimiser::expectation()
             double s1 = _par[l].s1();
             ***/
 
+            _par[l].calVari();
+
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
-
-            _par[l].calVari();
 
             // TODO : take perturbation factor into consideration
 
