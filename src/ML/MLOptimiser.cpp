@@ -2445,8 +2445,12 @@ void MLOptimiser::refreshRotationChange()
         {
             double diff = _par[l].diffTopR();
 
+            rc(_ID[l]) = diff;
+
+            /***
             if (_par[l].diffTopC())
                 rc(_ID[l]) = diff;
+            ***/
         }
     }
 
@@ -2457,19 +2461,23 @@ void MLOptimiser::refreshRotationChange()
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
+    /***
     int nNoZero = 0;
     for (int i = 0; i < _nPar; i++)
         if (rc(i) != 0)
             nNoZero += 1;
+    ***/
 
-    vec rcNoZero = vec::Zero(nNoZero);
+    //vec rcNoZero = vec::Zero(nNoZero);
 
-    gsl_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
+    //gsl_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
+    //gsl_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
+    gsl_sort(rc.data(), 1, _nPar);
 
     double mean, std;
-    //stat_MAS(mean, std, rc, _nPar);
+    stat_MAS(mean, std, rc, _nPar);
     //stat_MAS(mean, std, rc, nNoZero);
-    stat_MAS(mean, std, rcNoZero, nNoZero);
+    //stat_MAS(mean, std, rcNoZero, nNoZero);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
