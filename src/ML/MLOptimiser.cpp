@@ -537,7 +537,10 @@ void MLOptimiser::expectation()
         par.reset(_para.k, nR, nT, 1);
 
         FOR_EACH_2D_IMAGE
-            _par[l] = par.copy();
+        {
+            // the previous top class, translation, rotation remain
+            par.copy(_par[l]);
+        }
 
         mat22 rot2D;
         mat33 rot3D;
