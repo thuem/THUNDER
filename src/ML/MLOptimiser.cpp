@@ -871,7 +871,8 @@ void MLOptimiser::expectation()
         double dVari = 5 * _para.ctfRefineS;
 #endif
 
-        for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+        //for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+        for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if (phase == 0)
             {
