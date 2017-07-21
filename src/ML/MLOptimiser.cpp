@@ -580,6 +580,8 @@ void MLOptimiser::expectation()
         // t -> class
         // m -> rotation
         // n -> translation
+        
+        double baseLine = GSL_NAN;
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
@@ -628,16 +630,17 @@ void MLOptimiser::expectation()
 
                     FOR_EACH_2D_IMAGE
                     {
-                        double w = exp(dvp(l));
+                        #pragma omp critical
+                        {
+                            if (gsl_isnan(baseLine))
+                                baseLine = dvp(l);
+
+                            double w = exp(dvp(l) - baseLine);
                         
-                        #pragma omp atomic
-                        wC(l, t) += w;
-
-                        #pragma omp atomic
-                        wR(l, m) += w;
-
-                        #pragma omp atomic
-                        wT(l, n) += w;
+                            wC(l, t) += w;
+                            wR(l, m) += w;
+                            wT(l, n) += w;
+                        }
                     }
 
                     /***
@@ -852,6 +855,8 @@ void MLOptimiser::expectation()
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
+        double baseLine = GSL_NAN;
+
         Complex* priP = new Complex[_nPxl];
 
         int nPhaseWithNoVariDecrease = 0;
@@ -950,21 +955,25 @@ void MLOptimiser::expectation()
                 double w;
 
                 if (_searchType != SEARCH_TYPE_CTF)
-                    w = exp(logDataVSPrior(_datP + l * _nPxl,
-                                           priP,
-                                           _ctfP + l * _nPxl,
-                                           _sigRcpP + l * _nPxl,
-                                           _nPxl));
+                    w = logDataVSPrior(_datP + l * _nPxl,
+                                       priP,
+                                       _ctfP + l * _nPxl,
+                                       _sigRcpP + l * _nPxl,
+                                       _nPxl);
                 else
-                    w = exp(logDataVSPrior(_datP + l * _nPxl,
-                                           priP,
-                                           _frequency,
-                                           _defocusP + l * _nPxl,
-                                           d,
-                                           _K1[l],
-                                           _K2[l],
-                                           _sigRcpP + l * _nPxl,
-                                           _nPxl));
+                    w = logDataVSPrior(_datP + l * _nPxl,
+                                       priP,
+                                       _frequency,
+                                       _defocusP + l * _nPxl,
+                                       d,
+                                       _K1[l],
+                                       _K2[l],
+                                       _sigRcpP + l * _nPxl,
+                                       _nPxl);
+
+                if (gsl_isnan(baseLine)) baseLine = w;
+
+                w = exp(w - baseLine);
 
                 wC(iC) += w;
                 wR(iR) += w;
