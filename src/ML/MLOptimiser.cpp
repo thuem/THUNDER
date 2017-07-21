@@ -857,7 +857,8 @@ void MLOptimiser::expectation()
     {
         double baseLine = GSL_NAN;
 
-        Complex* priP = new Complex[_nPxl];
+        Complex* priRotP = new Complex[_nPxl];
+        Complex* priAllP = new Complex[_nPxl];
 
         int nPhaseWithNoVariDecrease = 0;
 
@@ -930,7 +931,7 @@ void MLOptimiser::expectation()
 
                     if (_para.mode == MODE_2D)
                     {
-                        _model.proj(c).project(priP,
+                        _model.proj(c).project(priRotP,
                                                rot2D,
                                                _iCol,
                                                _iRow,
@@ -948,7 +949,7 @@ void MLOptimiser::expectation()
                     }
                     else if (_para.mode == MODE_3D)
                     {
-                        _model.proj(c).project(priP,
+                        _model.proj(c).project(priRotP,
                                                rot3D,
                                                _iCol,
                                                _iRow,
@@ -969,8 +970,8 @@ void MLOptimiser::expectation()
                     {
                         _par[l].t(t, iT);
 
-                        translate(priP,
-                                  priP, 
+                        translate(priAllP,
+                                  priRotP, 
                                   t(0),
                                   t(1),
                                   _para.size,
@@ -987,13 +988,13 @@ void MLOptimiser::expectation()
 
                             if (_searchType != SEARCH_TYPE_CTF)
                                 w = logDataVSPrior(_datP + l * _nPxl,
-                                                   priP,
+                                                   priAllP,
                                                    _ctfP + l * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             else
                                 w = logDataVSPrior(_datP + l * _nPxl,
-                                                   priP,
+                                                   priAllP,
                                                    _frequency,
                                                    _defocusP + l * _nPxl,
                                                    d,
@@ -1147,7 +1148,8 @@ void MLOptimiser::expectation()
         }
 #endif
 
-        delete[] priP;
+        delete[] priRotP;
+        delete[] priAllP;
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
