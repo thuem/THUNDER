@@ -910,75 +910,109 @@ void MLOptimiser::expectation()
             double d;
             vec2 t;
 
-            FOR_EACH_PAR(_par[l])
+            //FOR_EACH_PAR(_par[l])
+            FOR_EACH_C(_par[l])
             {
                 _par[l].c(c, iC);
 
-                if (_para.mode == MODE_2D)
+                FOR_EACH_R(_par[l])
                 {
-                    _par[l].rot(rot2D, iR);
+                    if (_para.mode == MODE_2D)
+                    {
+                        _par[l].rot(rot2D, iR);
+                    }
+                    else if (_para.mode == MODE_3D)
+                    {
+                        _par[l].rot(rot3D, iR);
+                    }
+                    else
+                        REPORT_ERROR("INEXISTENT MODE");
+
+                    if (_para.mode == MODE_2D)
+                    {
+                        _model.proj(c).project(priP,
+                                               rot2D,
+                                               _iCol,
+                                               _iRow,
+                                               _nPxl);
+                        /***
+                        _model.proj(c).project(priP,
+                                               rot2D,
+                                               t,
+                                               _para.size,
+                                               _para.size,
+                                               _iCol,
+                                               _iRow,
+                                               _nPxl);
+                        ***/
+                    }
+                    else if (_para.mode == MODE_3D)
+                    {
+                        _model.proj(c).project(priP,
+                                               rot3D,
+                                               _iCol,
+                                               _iRow,
+                                               _nPxl);
+                        /***
+                        _model.proj(c).project(priP,
+                                               rot3D,
+                                               t,
+                                               _para.size,
+                                               _para.size,
+                                               _iCol,
+                                               _iRow,
+                                               _nPxl);
+                        ***/
+                    }
+
+                    FOR_EACH_T(_par[l])
+                    {
+                        _par[l].t(t, iT);
+
+                        translate(priP,
+                                  priP, 
+                                  t(0),
+                                  t(1),
+                                  _para.size,
+                                  _para.size,
+                                  _iCol,
+                                  _iRow,
+                                  _nPxl);
+
+                        FOR_EACH_D(_par[l])
+                        {
+                            _par[l].d(d, iD);
+
+                            double w;
+
+                            if (_searchType != SEARCH_TYPE_CTF)
+                                w = logDataVSPrior(_datP + l * _nPxl,
+                                                   priP,
+                                                   _ctfP + l * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            else
+                                w = logDataVSPrior(_datP + l * _nPxl,
+                                                   priP,
+                                                   _frequency,
+                                                   _defocusP + l * _nPxl,
+                                                   d,
+                                                   _K1[l],
+                                                   _K2[l],
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+
+                            if (gsl_isnan(baseLine)) baseLine = w;
+
+                            w = exp(w - baseLine);
+
+                            wC(iC) += w;
+                            wR(iR) += w;
+                            wT(iT) += w;
+                            wD(iD) += w;
+                        }
+                    }
                 }
-                else if (_para.mode == MODE_3D)
-                {
-                    _par[l].rot(rot3D, iR);
-                }
-                else
-                    REPORT_ERROR("INEXISTENT MODE");
-
-                _par[l].t(t, iT);
-
-                _par[l].d(d, iD);
-
-                if (_para.mode == MODE_2D)
-                {
-                    _model.proj(c).project(priP,
-                                           rot2D,
-                                           t,
-                                           _para.size,
-                                           _para.size,
-                                           _iCol,
-                                           _iRow,
-                                           _nPxl);
-                }
-                else if (_para.mode == MODE_3D)
-                {
-                    _model.proj(c).project(priP,
-                                           rot3D,
-                                           t,
-                                           _para.size,
-                                           _para.size,
-                                           _iCol,
-                                           _iRow,
-                                           _nPxl);
-                }
-
-                double w;
-
-                if (_searchType != SEARCH_TYPE_CTF)
-                    w = logDataVSPrior(_datP + l * _nPxl,
-                                       priP,
-                                       _ctfP + l * _nPxl,
-                                       _sigRcpP + l * _nPxl,
-                                       _nPxl);
-                else
-                    w = logDataVSPrior(_datP + l * _nPxl,
-                                       priP,
-                                       _frequency,
-                                       _defocusP + l * _nPxl,
-                                       d,
-                                       _K1[l],
-                                       _K2[l],
-                                       _sigRcpP + l * _nPxl,
-                                       _nPxl);
-
-                if (gsl_isnan(baseLine)) baseLine = w;
-
-                w = exp(w - baseLine);
-
-                wC(iC) += w;
-                wR(iR) += w;
-                wT(iT) += w;
-                wD(iD) += w;
             }
 
             //PROCESS_LOGW_SOFT(logW);
