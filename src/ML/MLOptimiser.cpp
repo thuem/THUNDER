@@ -553,7 +553,8 @@ void MLOptimiser::expectation()
         trans.resize(nT);
         ***/
 
-        Complex* traP = new Complex[nT * _nPxl];
+        //Complex* traP = new Complex[nT * _nPxl];
+        Complex* traP = (Complex*)fftw_malloc(nT * _nPxl * sizeof(Complex));
 
         #pragma omp parallel for schedule(dynamic) private(t)
         for (unsigned int m = 0; m < (unsigned int)nT; m++)
@@ -602,11 +603,36 @@ void MLOptimiser::expectation()
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
+            Complex* poolPriRotP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+            Complex* poolPriAllP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (unsigned int m = 0; m < (unsigned int)nR; m++)
             {
+                /***
+#ifdef FFTW_PTR_THREAD_SAFETY
+                #pragma omp critical
+#endif
+                #pragma omp critical
+                Complex* priRotP = (Complex*)fftw_malloc(_nPxl * sizeof(Complex));
+                ***/
+
+                Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
+
+                Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
+
+                /***
+#ifdef FFTW_PTR_THREAD_SAFETY
+                #pragma omp critical
+#endif
+                Complex* priAllP = (Complex*)fftw_malloc(_nPxl * sizeof(Complex));
+                ***/
+
+                /***
                 Complex* priRotP = new Complex[_nPxl];
                 Complex* priAllP = new Complex[_nPxl];
+                ***/
+
                 /***
                 Image imgRot(size(), size(), FT_SPACE);
                 Image imgAll(size(), size(), FT_SPACE);
@@ -715,9 +741,27 @@ void MLOptimiser::expectation()
                                                << "\% Initial Phase of Global Search Performed";
                 }
 
+
+                /***
+#ifdef FFTW_PTR_THREAD_SAFETY
+                #pragma omp critical
+#endif
+                fftw_free(priRotP);
+
+#ifdef FFTW_PTR_THREAD_SAFETY
+                #pragma omp critical
+#endif
+                fftw_free(priAllP);
+                ***/
+
+                /***
                 delete[] priRotP;
                 delete[] priAllP;
+                ***/
             }
+
+            fftw_free(poolPriRotP);
+            fftw_free(poolPriAllP);
         }
 
         //delete[] mtx;
@@ -874,7 +918,8 @@ void MLOptimiser::expectation()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
-        delete[] traP;
+        fftw_free(traP);
+        //delete[] traP;
 
         if (_searchType != SEARCH_TYPE_CTF)
             freePreCal(false);
@@ -3928,11 +3973,14 @@ void MLOptimiser::allocPreCal(const bool pixelMajor,
 {
     IF_MASTER return;
 
-    _datP = new Complex[_ID.size() * _nPxl];
+    _datP = (Complex*)fftw_malloc(_ID.size() * _nPxl * sizeof(Complex));
+    // _datP = new Complex[_ID.size() * _nPxl];
 
-    _ctfP = new double[_ID.size() * _nPxl];
+    _ctfP = (double*)fftw_malloc(_ID.size() * _nPxl * sizeof(double));
+    //_ctfP = new double[_ID.size() * _nPxl];
 
-    _sigRcpP = new double[_ID.size() * _nPxl];
+    _sigRcpP = (double*)fftw_malloc(_ID.size() * _nPxl * sizeof(double));
+    //_sigRcpP = new double[_ID.size() * _nPxl];
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -4012,9 +4060,15 @@ void MLOptimiser::freePreCal(const bool ctf)
 {
     IF_MASTER return;
 
+    fftw_free(_datP);
+    fftw_free(_ctfP);
+    fftw_free(_sigRcpP);
+
+    /***
     delete[] _datP;
     delete[] _ctfP;
     delete[] _sigRcpP;
+    ***/
 
     if (ctf)
     {
