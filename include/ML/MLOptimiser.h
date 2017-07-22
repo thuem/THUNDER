@@ -60,7 +60,7 @@
 
 #define FLATTEN_THRESHOLD 0.999
 
-#define MIN_STD_FACTOR 1
+#define MIN_STD_FACTOR 3
 
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {

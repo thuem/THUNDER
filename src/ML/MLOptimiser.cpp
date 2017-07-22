@@ -917,6 +917,22 @@ void MLOptimiser::expectation()
             {
                 _par[l].c(c, iC);
 
+                Complex* traP = new Complex[_par[l].nT() * _nPxl];
+
+                FOR_EACH_T(_par[l])
+                {
+                    _par[l].t(t, iT);
+
+                    translate(traP + iT * _nPxl,
+                              t(0),
+                              t(1),
+                              _para.size,
+                              _para.size,
+                              _iCol,
+                              _iRow,
+                              _nPxl);
+                }
+
                 FOR_EACH_R(_par[l])
                 {
                     if (_para.mode == MODE_2D)
@@ -969,6 +985,10 @@ void MLOptimiser::expectation()
 
                     FOR_EACH_T(_par[l])
                     {
+                        for (int i = 0; i < _nPxl; i++)
+                            priAllP[i] = traP[_nPxl * iT + i] * priRotP[i];
+
+                        /***
                         _par[l].t(t, iT);
 
                         translate(priAllP,
@@ -980,6 +1000,7 @@ void MLOptimiser::expectation()
                                   _iCol,
                                   _iRow,
                                   _nPxl);
+                        ***/
 
                         FOR_EACH_D(_par[l])
                         {
@@ -1015,6 +1036,8 @@ void MLOptimiser::expectation()
                         }
                     }
                 }
+
+                delete[] traP;
             }
 
             //PROCESS_LOGW_SOFT(logW);
