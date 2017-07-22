@@ -659,8 +659,13 @@ void MLOptimiser::expectation()
                     FOR_EACH_2D_IMAGE
                     {
                         {
+                            /***
                             #pragma omp critical
                             if (gsl_isnan(baseLine)) baseLine = dvp(l);
+                            ***/
+
+                            #pragma omp critical
+                            baseLine = gsl_isnan(baseLine) ? dvp(l) : baseLine;
 
                             double w = exp(dvp(l) - baseLine);
                         
@@ -1062,7 +1067,8 @@ void MLOptimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
 
-                            if (gsl_isnan(baseLine)) baseLine = w;
+                            //if (gsl_isnan(baseLine)) baseLine = w;
+                            baseLine = gsl_isnan(baseLine) ? w : baseLine;
 
                             w = exp(w - baseLine);
 
