@@ -551,14 +551,26 @@ void MLOptimiser::expectation()
         vector<Image> trans;
         trans.resize(nT);
 
+        Complex* traP = new Complex[nT * _nPxl];
+
         #pragma omp parallel for schedule(dynamic) private(t)
         for (unsigned int m = 0; m < (unsigned int)nT; m++)
         {
+            /***
             trans[m].alloc(size(), size(), FT_SPACE);
 
             par.t(t, m);
                     
             translate(trans[m], _r, t(0), t(1));
+            ***/
+            translate(traP + m * _nPxl,
+                      t(0),
+                      t(1),
+                      _para.size,
+                      _para.size,
+                      _iCol,
+                      _iRow,
+                      _nPxl);
         }
 
         //vector<std::priority_queue<Sp, vector<Sp>, SpWeightComparator> > leaderBoard(_ID.size());
@@ -588,8 +600,12 @@ void MLOptimiser::expectation()
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (unsigned int m = 0; m < (unsigned int)nR; m++)
             {
+                Complex* priRotP = new Complex[_nPxl];
+                Complex* priAllP = new Complex[_nPxl];
+                /***
                 Image imgRot(size(), size(), FT_SPACE);
                 Image imgAll(size(), size(), FT_SPACE);
+                ***/
 
                 // perform projection
 
@@ -598,35 +614,42 @@ void MLOptimiser::expectation()
                     //par.rot(rot2D, t * nR * nT + m * nT);
                     par.rot(rot2D, m);
 
-                    _model.proj(t).project(imgRot, rot2D, _iCol, _iRow, _iPxl, _nPxl);
+                    //_model.proj(t).project(imgRot, rot2D, _iCol, _iRow, _iPxl, _nPxl);
+                    _model.proj(t).project(priRotP, rot2D, _iCol, _iRow, _nPxl);
                 }
                 else if (_para.mode == MODE_3D)
                 {
                     //par.rot(rot3D, t * nR * nT + m * nT);
                     par.rot(rot3D, m);
 
-                    _model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
+                    //_model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
+                    _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl);
                 }
                 else
                     REPORT_ERROR("INEXISTENT MODE");
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
+                    /***
                     mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
 
                     Complex* priP = new Complex[_nPxl];
 
                     for (int i = 0; i < _nPxl; i++)
                         priP[i] = imgAll.iGetFT(_iPxl[i]);
+                    ***/
+
+                    for (int i = 0; i < _nPxl; i++)
+                        priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
 
                     vec dvp = logDataVSPrior(_datP,
-                                             priP,
+                                             priAllP,
                                              _ctfP,
                                              _sigRcpP,
                                              (int)_ID.size(),
                                              _nPxl);
 
-                    delete[] priP;
+                    //delete[] priP;
 
                     FOR_EACH_2D_IMAGE
                     {
@@ -677,6 +700,9 @@ void MLOptimiser::expectation()
                     BLOG(INFO, "LOGGER_ROUND") << nPer * 10
                                                << "\% Initial Phase of Global Search Performed";
                 }
+
+                delete[] priRotP;
+                delete[] priAllP;
             }
         }
 
@@ -833,6 +859,8 @@ void MLOptimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
+
+        delete[] traP;
 
         if (_searchType != SEARCH_TYPE_CTF)
             freePreCal(false);
