@@ -548,8 +548,10 @@ void MLOptimiser::expectation()
 
         // generate "translations"
 
+        /***
         vector<Image> trans;
         trans.resize(nT);
+        ***/
 
         Complex* traP = new Complex[nT * _nPxl];
 
@@ -563,6 +565,9 @@ void MLOptimiser::expectation()
                     
             translate(trans[m], _r, t(0), t(1));
             ***/
+
+            par.t(t, m);
+
             translate(traP + m * _nPxl,
                       t(0),
                       t(1),
