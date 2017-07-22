@@ -682,17 +682,12 @@ void MLOptimiser::expectation()
 
                     //delete[] priP;
 
+                    #pragma omp critical
+                    baseLine = gsl_isnan(baseLine) ? dvp(0) : baseLine;
+
                     FOR_EACH_2D_IMAGE
                     {
                         {
-                            /***
-                            #pragma omp critical
-                            if (gsl_isnan(baseLine)) baseLine = dvp(l);
-                            ***/
-
-                            #pragma omp critical
-                            baseLine = gsl_isnan(baseLine) ? dvp(l) : baseLine;
-
                             double w = exp(dvp(l) - baseLine);
                         
                             #pragma omp atomic
