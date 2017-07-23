@@ -877,7 +877,8 @@ void MLOptimiser::expectation()
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
 
-            _par[l].calVari();
+            _par[l].calVari(PAR_R);
+            _par[l].calVari(PAR_T);
 
             _par[l].setK1(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR * scanMinStdR), _par[l].k1()));
 
@@ -1158,7 +1159,8 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            _par[l].calVari();
+            _par[l].calVari(PAR_R);
+            _par[l].calVari(PAR_T);
 
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);

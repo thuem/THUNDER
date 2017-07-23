@@ -671,73 +671,44 @@ void Particle::calClassDistr()
 }
 ***/
 
-void Particle::calVari()
+void Particle::calVari(const ParticleType pt)
 {
-    // calculate class distribution
 
-    // calClassDistr();
+    if (pt == PAR_C)
+    {
+        CLOG(WARNING, "LOGGER") << "NO NEED TO CALCULATE VARIANCE IN CLASS";
+    }
+    else if (pt == PAR_R)
+    {
+        if (_mode == MODE_2D)
+            inferVMS(_k, _r);
+        else if (_mode == MODE_3D)
+            inferACG(_k0, _k1, _r);
+        else
+            REPORT_ERROR("INEXISTENT MODE");
 
-    // calculate the class with maximum particles
+        _k1 /= _k0;
 
-    /***
-    unsigned int cls;
-    int num = _cDistr.maxCoeff(&cls);
+        _k1 = GSL_MIN_DBL(_k1, 1);
 
-    mat2 t = mat::Zero(num, 2);
-    mat4 r = mat::Zero(num, 4);
-    vec d = vec::Zero(num);
-
-    int j = 0;
-    for (int i = 0; i < _n; i++)
-        if (_c(i) == cls)
-        {
-            t.row(j) = _t.row(i);
-            r.row(j) = _r.row(i);
-            d(j) = _d(i);
-            j++;
-        }
-    ***/
-
-    // variance of translation
-
-    /***
+        _k0 = 1;
+    }
+    else if (pt == PAR_T)
+    {
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
-    _s0 = gsl_stats_sd_m(t.col(0).data(), 1, t.rows(), 0);
-    _s1 = gsl_stats_sd_m(t.col(1).data(), 1, t.rows(), 0);
+        _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
+        _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
 #else
-    _s0 = gsl_stats_sd(t.col(0).data(), 1, t.rows());
-    _s1 = gsl_stats_sd(t.col(1).data(), 1, t.rows());
-#endif
-    ***/
-
-#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
-    _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
-    _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
-#else
-    _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
-    _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
+        _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
+        _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
-    _rho = 0;
-
-    // variance of rotation
-
-    if (_mode == MODE_2D)
-        inferVMS(_k, _r);
-    else if (_mode == MODE_3D)
-        inferACG(_k0, _k1, _r);
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-
-    _k1 /= _k0;
-
-    _k1 = GSL_MIN_DBL(_k1, 1);
-
-    _k0 = 1;
-
-    // variance of defocus factor
-
-    _s = gsl_stats_sd(_d.data(), 1, _d.size());
+        _rho = 0;
+    }
+    else if (pt == PAR_D)
+    {
+        _s = gsl_stats_sd(_d.data(), 1, _d.size());
+    }
 }
 
 void Particle::perturb(const double pf,

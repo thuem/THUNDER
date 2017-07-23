@@ -711,7 +711,7 @@ class Particle
          * This function calculates the concentration paramters, including
          * rotation and translation.
          */
-        void calVari();
+        void calVari(const ParticleType pt);
 
         void perturb(const double pf,
                      const ParticleType pt);
