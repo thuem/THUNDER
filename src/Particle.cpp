@@ -1755,8 +1755,8 @@ void save(const char filename[],
         {
             par.d(d, iD);
 
-            fprint(file,
-                   "15.9lf %15.9lf\n",
+            fprintf(file,
+                   "%15.9lf %15.9lf\n",
                    d,
                    par.wD(iD));
         }
