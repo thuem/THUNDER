@@ -870,7 +870,7 @@ void MLOptimiser::expectation()
                          _ID[l],
                          _iter);
                 //save(filename, _par[l]);
-                save(filename, _par[l], PAR_R);
+                save(filename, _par[l], PAR_D);
             }
 #endif
 
@@ -898,7 +898,7 @@ void MLOptimiser::expectation()
                          _ID[l],
                          _iter);
                 //save(filename, _par[l]);
-                save(filename, _par[l], PAR_R);
+                save(filename, _par[l], PAR_D);
             }
 #endif
         }
@@ -934,13 +934,28 @@ void MLOptimiser::expectation()
 
     nPer = 0;
 
+    Complex* poolPriRotP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+    Complex* poolPriAllP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+
+    Complex* poolTraP = (Complex*)fftw_malloc(_para.mLT * _nPxl * omp_get_max_threads() * sizeof(Complex));
+
+    double* poolCtfP;
+
+    if (_searchType == SEARCH_TYPE_CTF)
+        poolCtfP = (double*)fftw_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(double));
+
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
         double baseLine = GSL_NAN;
 
+        /***
         Complex* priRotP = new Complex[_nPxl];
         Complex* priAllP = new Complex[_nPxl];
+        ***/
+
+        Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
+        Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
 
         int nPhaseWithNoVariDecrease = 0;
 
@@ -999,7 +1014,9 @@ void MLOptimiser::expectation()
             {
                 _par[l].c(c, iC);
 
-                Complex* traP = new Complex[_par[l].nT() * _nPxl];
+                Complex* traP = poolTraP + _par[l].nT() * _nPxl * omp_get_thread_num();
+
+                // Complex* traP = new Complex[_par[l].nT() * _nPxl];
 
                 FOR_EACH_T(_par[l])
                 {
@@ -1019,7 +1036,13 @@ void MLOptimiser::expectation()
 
                 if (_searchType == SEARCH_TYPE_CTF)
                 {
+                    /***
+                    ctfP = (double*)fftw_malloc(_par[l].nD() * _nPxl * sizeof(double));
+
                     ctfP = new double[_par[l].nD() * _nPxl];
+                    ***/
+
+                    ctfP = poolCtfP + _par[l].nD() * _nPxl * omp_get_thread_num();
 
                     FOR_EACH_D(_par[l])
                     {
@@ -1160,10 +1183,12 @@ void MLOptimiser::expectation()
                     }
                 }
 
-                delete[] traP;
+                // delete[] traP;
 
+                /***
                 if (_searchType == SEARCH_TYPE_CTF)
                     delete[] ctfP;
+                ***/
             }
 
             //PROCESS_LOGW_SOFT(logW);
@@ -1202,7 +1227,7 @@ void MLOptimiser::expectation()
                          _iter,
                          phase);
                 //save(filename, _par[l]);
-                save(filename, _par[l], PAR_R);
+                save(filename, _par[l], PAR_D);
             }
 #endif
 
@@ -1308,13 +1333,23 @@ void MLOptimiser::expectation()
                      _ID[l],
                      _iter);
             //save(filename, _par[l]);
-            save(filename, _par[l], PAR_R);
+            save(filename, _par[l], PAR_D);
         }
 #endif
 
+        /***
         delete[] priRotP;
         delete[] priAllP;
+        ***/
     }
+
+    fftw_free(poolPriRotP);
+    fftw_free(poolPriAllP);
+
+    fftw_free(poolTraP);
+
+    if (_searchType == SEARCH_TYPE_CTF)
+        fftw_free(poolCtfP);
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
