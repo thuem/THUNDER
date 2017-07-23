@@ -257,6 +257,8 @@ void Particle::initD(const int nD,
 
     for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
+
+    _wD = vec::Constant(_nD, 1.0 / _nD);
 }
 
 int Particle::mode() const { return _mode; }
@@ -1733,11 +1735,31 @@ void save(const char filename[],
     }
     else if (pt == PAR_T)
     {
-        // TODO
+        vec2 t;
+
+        FOR_EACH_T(par)
+        {
+            par.t(t, iT);
+
+            fprintf(file,
+                    "%15.9lf %15.9lf %15.9lf\n",
+                    t(0), t(1),
+                    par.wT(iT));
+        }
     }
     else if (pt == PAR_D)
     {
-        // TODO
+        double d;
+
+        FOR_EACH_D(par)
+        {
+            par.d(d, iD);
+
+            fprint(file,
+                   "15.9lf %15.9lf\n",
+                   d,
+                   par.wD(iD));
+        }
     }
 
     fclose(file);
