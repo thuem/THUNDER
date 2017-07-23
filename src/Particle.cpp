@@ -892,6 +892,7 @@ void Particle::resample(const int n,
     }
 }
 
+/***
 void Particle::resample(const int nR,
                         const int nT,
                         const int nD)
@@ -901,11 +902,14 @@ void Particle::resample(const int nR,
     resample(nT, PAR_T);
     resample(nD, PAR_D);
 }
+***/
 
+/***
 void Particle::resample()
 {
     resample(_nR, _nT, _nD);
 }
+***/
 
 /***
 void Particle::resample(const double alpha)

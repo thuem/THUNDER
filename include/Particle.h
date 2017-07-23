@@ -734,11 +734,13 @@ class Particle
         void resample(const int n,
                       const ParticleType pt);
 
+        /***
         void resample(const int nR,
                       const int nT,
                       const int nD);
+        ***/
 
-        void resample();
+        // void resample();
 
         /**
          * This function resamples the particles in this particle filter with
