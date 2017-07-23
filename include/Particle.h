@@ -230,6 +230,7 @@ class Particle
             _k1 = 0;
             _s0 = 0;
             _s1 = 0;
+            _s = 0;
             _rho = 0;
 
             _topCPrev = 0;
