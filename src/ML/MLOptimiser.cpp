@@ -965,7 +965,7 @@ void MLOptimiser::expectation()
                 _par[l].perturb(_para.perturbFactorL, PAR_T);
 
                 if (_searchType == SEARCH_TYPE_CTF)
-                    _par[l].initD(10, _para.ctfRefineS);
+                    _par[l].initD(_para.mLD, _para.ctfRefineS);
             }
             else
             {
