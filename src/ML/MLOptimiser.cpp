@@ -1015,6 +1015,37 @@ void MLOptimiser::expectation()
                               _nPxl);
                 }
 
+                double* ctfP;
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                {
+                    ctfP = new double[_par[l].nD() * _nPxl];
+
+                    FOR_EACH_D(_par[l])
+                    {
+                        _par[l].d(d, iD);
+
+                        for (int i = 0; i < _nPxl; i++)
+                        {
+                            double ki = _K1[l]
+                                      * _defocusP[l * _nPxl + i]
+                                      * d
+                                      * gsl_pow_2(_frequency[i])
+                                      + _K2[l]
+                                      * gsl_pow_4(_frequency[i]);
+
+                            /***
+                            double ki = K1 * defocus[i] * df * gsl_pow_2(frequency[i])
+                                      + K2 * gsl_pow_4(frequency[i]);
+                            ***/
+
+                            ctfP[_nPxl * iD + i] = -w1 * sin(ki) + w2 * cos(ki);
+
+                            // double ctf = -w1 * sin(ki) + w2 * cos(ki);
+                        }
+                    }
+                }
+
                 FOR_EACH_R(_par[l])
                 {
                     if (_para.mode == MODE_2D)
@@ -1097,6 +1128,13 @@ void MLOptimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             else
+                            {
+                                w = logDataVSPrior(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   ctfP + iD * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                                /***
                                 w = logDataVSPrior(_datP + l * _nPxl,
                                                    priAllP,
                                                    _frequency,
@@ -1106,6 +1144,8 @@ void MLOptimiser::expectation()
                                                    _K2[l],
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
+                                ***/
+                            }
 
                             //if (gsl_isnan(baseLine)) baseLine = w;
                             baseLine = gsl_isnan(baseLine) ? w : baseLine;
@@ -1121,6 +1161,9 @@ void MLOptimiser::expectation()
                 }
 
                 delete[] traP;
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                    delete[] ctfP;
             }
 
             //PROCESS_LOGW_SOFT(logW);
