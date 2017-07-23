@@ -878,7 +878,7 @@ void Particle::resample(const int n,
         int i = 0;
         for (int j = 0; j < _nD; j++)
         {
-            double uj = u0 + j * 1.0 / _nT;
+            double uj = u0 + j * 1.0 / _nD;
 
             while (uj > cdf[i])
                 i++;
