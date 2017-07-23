@@ -1138,6 +1138,10 @@ void MLOptimiser::expectation()
             for (int iT = 0; iT < _para.mLT; iT++)
                 _par[l].mulWT(wT(iT), iT);
 
+            if (_searchType == SEARCH_TYPE_CTF)
+                for (int iD = 0; iD < _para.mLD; iD++)
+                    _par[l].mulWD(wD(iD), iD);
+
             _par[l].normW();
 
 #ifdef OPTIMISER_SAVE_PARTICLES
@@ -1164,6 +1168,12 @@ void MLOptimiser::expectation()
 
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
+
+            if (_searchType == SEARCH_TYPE_CTF)
+            {
+                _par[l].calVari(PAR_D);
+                _par[l].resample(_para.mLD, PAR_D);
+            }
 
             /***
             double k1 = _par[l].k1();
