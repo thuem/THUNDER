@@ -52,13 +52,9 @@
 
 #define N_PHASE_WITH_NO_VARI_DECREASE 1
 
-#define N_SAVE_IMG 100
+#define N_SAVE_IMG 20
 
 #define TRANS_Q 0.01
-//#define TRANS_Q 0.25
-//#define TRANS_Q 0.5
-
-#define FLATTEN_THRESHOLD 0.999
 
 #define MIN_STD_FACTOR 3
 
