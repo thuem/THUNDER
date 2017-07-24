@@ -1001,8 +1001,22 @@ void MLOptimiser::expectation()
                 _par[l].resample(_para.mLR, PAR_R);
                 _par[l].resample(_para.mLT, PAR_T);
 
-                _par[l].perturb(_para.perturbFactorL, PAR_R);
-                _par[l].perturb(_para.perturbFactorL, PAR_T);
+                if (_model.r() > _model.rPrev())
+                {
+                    _par[l].perturb(_para.perturbFactorL, PAR_R);
+                    _par[l].perturb(_para.perturbFactorL, PAR_T);
+                }
+                else
+                {
+                    _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                  ? _para.perturbFactorSGlobal
+                                  : _para.perturbFactorSLocal,
+                                    PAR_R);
+                    _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                  ? _para.perturbFactorSGlobal
+                                  : _para.perturbFactorSLocal,
+                                    PAR_T);
+                }
 
                 if (_searchType == SEARCH_TYPE_CTF)
                     _par[l].initD(_para.mLD, _para.ctfRefineS);
