@@ -58,6 +58,7 @@
 
 #define MIN_STD_FACTOR 3
 
+/***
 inline void PROCESS_LOGW_SOFT(vec& _logW)
 {
     _logW.array() -= _logW.maxCoeff();
@@ -71,6 +72,7 @@ inline void PROCESS_LOGW_HARD(vec& _logW)
     _logW.array() -= _logW.maxCoeff();
     _logW.array() = exp(_logW.array());
 }
+***/
 
 struct MLOptimiserPara
 {
@@ -265,8 +267,6 @@ struct MLOptimiserPara
 
     double perturbFactorSCTF;
 
-    double ctfRefineFactor;
-
     double ctfRefineS;
 
     /**
@@ -300,11 +300,10 @@ struct MLOptimiserPara
         thresReportFSC = 0.143;
         thresSclCorFSC = 0.75;
         transSearchFactor = 1;
-        perturbFactorL = 2;
-        perturbFactorSGlobal = 0.2;
-        perturbFactorSLocal = 0.5;
-        perturbFactorSCTF = 0.1;
-        ctfRefineFactor = 10;
+        perturbFactorL = 10;
+        perturbFactorSGlobal = 0.8;
+        perturbFactorSLocal = 0.8;
+        perturbFactorSCTF = 0.2;
         ctfRefineS = 0.005;
         skipE = false;
         skipM = false;

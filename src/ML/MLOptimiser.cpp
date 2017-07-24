@@ -9,6 +9,7 @@
 
 #include "MLOptimiser.h"
 
+/***
 void display(const MLOptimiserPara& para)
 {
     printf("Number of Classes:                                       %12d\n", para.k);
@@ -44,6 +45,7 @@ void display(const MLOptimiserPara& para)
     printf("CTF Refine Factor:                                       %12.6lf\n", para.ctfRefineFactor);
     printf("CTF Refine Standard Deviation                            %12.6lf\n", para.ctfRefineS);
 }
+***/
 
 MLOptimiser::~MLOptimiser()
 {
@@ -1444,7 +1446,7 @@ void MLOptimiser::maximization()
 
 void MLOptimiser::run()
 {
-    IF_MASTER display(_para);
+    // IF_MASTER display(_para);
 
     MLOG(INFO, "LOGGER_ROUND") << "Initialising MLOptimiser";
 
