@@ -1252,7 +1252,8 @@ void MLOptimiser::expectation()
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
 
-            _par[l].calVari();
+            _par[l].calVari(PAD_R);
+            _par[l].calVari(PAD_T);
 
             _par[l].setK1(GSL_MAX_DBL(k1 * gsl_pow_2(MIN_STD_FACTOR
                                                    * pow(_par[l].nR(), -1.0 / 3)),
