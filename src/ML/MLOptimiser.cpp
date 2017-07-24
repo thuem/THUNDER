@@ -859,7 +859,7 @@ void MLOptimiser::expectation()
             ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < 500)
+            if (_ID[l] < N_SAVE_IMG)
             {
                 _par[l].sort();
 
@@ -899,7 +899,7 @@ void MLOptimiser::expectation()
             _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * scanMinStdT, _par[l].s1()));
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < 500)
+            if (_ID[l] < N_SAVE_IMG)
             {
                 _par[l].sort();
 
@@ -1236,7 +1236,7 @@ void MLOptimiser::expectation()
             _par[l].normW();
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < 500)
+            if (_ID[l] < N_SAVE_IMG)
             {
                 _par[l].sort();
 
@@ -1358,7 +1358,7 @@ void MLOptimiser::expectation()
         }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-        if (_ID[l] < 500)
+        if (_ID[l] < N_SAVE_IMG)
         {
             char filename[FILE_NAME_LENGTH];
 
