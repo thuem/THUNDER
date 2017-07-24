@@ -859,17 +859,29 @@ void MLOptimiser::expectation()
             ***/
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < 20)
+            if (_ID[l] < 500)
             {
                 _par[l].sort();
 
                 char filename[FILE_NAME_LENGTH];
+
                 snprintf(filename,
                          sizeof(filename),
-                         "Particle_%04d_Round_%03d_Initial.par",
+                         "R_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
-                //save(filename, _par[l]);
+                save(filename, _par[l], PAR_T);
+                snprintf(filename,
+                         sizeof(filename),
+                         "R_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_T);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
                 save(filename, _par[l], PAR_D);
             }
 #endif
@@ -887,17 +899,28 @@ void MLOptimiser::expectation()
             _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * scanMinStdT, _par[l].s1()));
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < 20)
+            if (_ID[l] < 500)
             {
                 _par[l].sort();
 
                 char filename[FILE_NAME_LENGTH];
                 snprintf(filename,
                          sizeof(filename),
-                         "Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         "R_Particle_%04d_Round_%03d_Resampled_Initial.par",
                          _ID[l],
                          _iter);
-                //save(filename, _par[l]);
+                save(filename, _par[l], PAR_R);
+                snprintf(filename,
+                         sizeof(filename),
+                         "T_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_T);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
                 save(filename, _par[l], PAR_D);
             }
 #endif
@@ -1213,20 +1236,32 @@ void MLOptimiser::expectation()
             _par[l].normW();
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-            if ((_ID[l] < 20) ||
-                (_ID[l] == 8873) ||
-                (_ID[l] == 16998))
+            if (_ID[l] < 500)
             {
                 _par[l].sort();
 
                 char filename[FILE_NAME_LENGTH];
+
                 snprintf(filename,
                          sizeof(filename),
-                         "Particle_%04d_Round_%03d_%03d.par",
+                         "R_Particle_%04d_Round_%03d_%03d.par",
                          _ID[l],
                          _iter,
                          phase);
-                //save(filename, _par[l]);
+                save(filename, _par[l], PAR_R);
+                snprintf(filename,
+                         sizeof(filename),
+                         "T_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
+                save(filename, _par[l], PAR_T);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
                 save(filename, _par[l], PAR_D);
             }
 #endif
@@ -1326,12 +1361,24 @@ void MLOptimiser::expectation()
         if (_ID[l] < 20)
         {
             char filename[FILE_NAME_LENGTH];
+
             snprintf(filename,
                      sizeof(filename),
-                     "Particle_%04d_Round_%03d_Final.par",
+                     "R_Particle_%04d_Round_%03d_Final.par",
                      _ID[l],
                      _iter);
-            //save(filename, _par[l]);
+            save(filename, _par[l], PAR_R);
+            snprintf(filename,
+                     sizeof(filename),
+                     "T_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l], PAR_T);
+            snprintf(filename,
+                     sizeof(filename),
+                     "D_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
             save(filename, _par[l], PAR_D);
         }
 #endif
