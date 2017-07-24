@@ -875,7 +875,7 @@ void MLOptimiser::expectation()
                 save(filename, _par[l], PAR_R);
                 snprintf(filename,
                          sizeof(filename),
-                         "R_Particle_%04d_Round_%03d_Initial.par",
+                         "T_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
                 save(filename, _par[l], PAR_T);
