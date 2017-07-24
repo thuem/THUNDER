@@ -1231,7 +1231,6 @@ void MLOptimiser::expectation()
             }
 #endif
 
-            /***
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
@@ -1243,8 +1242,8 @@ void MLOptimiser::expectation()
                 _par[l].calVari(PAR_D);
                 _par[l].resample(_para.mLD, PAR_D);
             }
-            ***/
 
+            /***
             double k1 = _par[l].k1();
             double s0 = _par[l].s0();
             double s1 = _par[l].s1();
@@ -1262,6 +1261,7 @@ void MLOptimiser::expectation()
             _par[l].setS0(GSL_MAX_DBL(MIN_STD_FACTOR * s0 / sqrt(_par[l].nT()), _par[l].s0()));
 
             _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * s1 / sqrt(_par[l].nT()), _par[l].s1()));
+            ***/
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
