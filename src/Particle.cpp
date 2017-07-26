@@ -344,6 +344,8 @@ void Particle::load(const int nR,
     _c.resize(1);
     _wC.resize(1);
 
+    _c(0) = 0;
+
     _wC(0) = 1;
 
     _topCPrev = 0;
