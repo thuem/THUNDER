@@ -392,6 +392,8 @@ void MLModel::BcastFSC(const double thres)
                     Volume randomPhaseA(_size, _size, _size, FT_SPACE);
                     Volume randomPhaseB(_size, _size, _size, FT_SPACE);
 
+                    MLOG(INFO, "LOGGER_COMPARE") << "Performing Random Phase on Unmask Reference";
+
                     randomPhase(randomPhaseA, A, randomPhaseThres);
                     randomPhase(randomPhaseB, B, randomPhaseThres);
 
@@ -413,10 +415,8 @@ void MLModel::BcastFSC(const double thres)
 
                     FSC(fscRFMask, randomPhaseA, randomPhaseB);
 
-                    randomPhaseA.clearFT();
-                    randomPhaseB.clearFT();
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Performing Random Phase on Unmask Reference";
+                    // randomPhaseA.clearFT();
+                    // randomPhaseB.clearFT();
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference ";
 
