@@ -363,13 +363,13 @@ void Particle::load(const int nR,
     
     _k0 = 1;
     
-    _k1 = gsl_pow_2(std);
+    _k1 = gsl_pow_2(stdR);
     
     _topRPrev = quat;
     _topR = quat;
 
     mat4 p(_nR, 4);
-    sampleACG(p, k0, k1, _nR);
+    sampleACG(p, _k0, _k1, _nR);
     //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
     
     for (int i = 0; i < _nR; i++)
@@ -390,8 +390,8 @@ void Particle::load(const int nR,
 
     // load the translation
 
-    _stdTX = stdTX;
-    _stdTY = stdTY;
+    _s0 = stdTX;
+    _s1 = stdTY;
 
     _topTPrev = tran;
     _topT = tran;
@@ -399,8 +399,8 @@ void Particle::load(const int nR,
     for (int i = 0; i < _nT; i++)
     {
        gsl_ran_bivariate_gaussian(engine,
-                                  stdTX,
-                                  stdTY,
+                                  _s0,
+                                  _s1,
                                   0,
                                   &_t(i, 0),
                                   &_t(i, 1));
@@ -413,14 +413,14 @@ void Particle::load(const int nR,
 
     // load the defocus factor
 
-    _stdD = stdD;
+    _s = stdD;
     
     _topDPrev = d;
     _topD = d;
 
     for (int i = 0; i < _nD; i++)
     {
-        _d(i) = d + gsl_ran_gaussian(engine, stdD);
+        _d(i) = d + gsl_ran_gaussian(engine, _s);
         _wD(i) = 1.0 / _nD;
     }
 
