@@ -450,6 +450,8 @@ void MLModel::BcastFSC(const double thres)
                         else
                             fsc(i) = (fscMask(i) - fscRFMask(i)) / (1 - fscRFMask(i));
                     }
+                    
+                    _FSC.col(l) = fsc;
                 }
             }
             else if (_coreFSC)
