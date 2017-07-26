@@ -435,8 +435,8 @@ void MLModel::BcastFSC(const double thres)
                     maskA.clearRL();
                     maskB.clearRL();
 
-                    ffw.fwMT(A);
-                    ffw.fwMT(B);
+                    fft.fwMT(A);
+                    fft.fwMT(B);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Masked Reference ";
 
