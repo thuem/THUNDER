@@ -437,7 +437,7 @@ void MLModel::BcastFSC(const double thres)
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Masked Reference ";
 
-                    vec fscMask;
+                    vec fscMask(_rU);
 
                     FSC(fscMask, maskA, maskB);
 
