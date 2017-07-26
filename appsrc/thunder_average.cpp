@@ -32,7 +32,10 @@ int main(int argc, char* argv[])
     imfB.readVolume(refB);
 
     FOR_EACH_PIXEL_RL(refA)
+    {
         refA(i) += refB(i);
+        refA(i) /= 2;
+    }
 
     ImageFile imf;
     imf.readMetaData(refA);
