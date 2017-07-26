@@ -101,6 +101,8 @@ void MLOptimiser::init()
                 _para.cSearch,
                 _para.coreFSC,
                 AROUND(_para.maskRadius / _para.pixelSize),
+                _para.maskFSC,
+                &_mask,
                 _para.k,
                 _para.size,
                 0,
@@ -252,7 +254,8 @@ void MLOptimiser::init()
 
     NT_MASTER
     {
-        if (_para.performMask && !_para.autoMask)
+        if ((_para.maskFSC) ||
+            (_para.performMask && !_para.autoMask))
         {
             ALOG(INFO, "LOGGER_INIT") << "Reading Mask";
             BLOG(INFO, "LOGGER_INIT") << "Reading Mask";

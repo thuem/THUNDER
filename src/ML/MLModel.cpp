@@ -20,6 +20,8 @@ void MLModel::init(const int mode,
                    const bool cSearch,
                    const bool coreFSC,
                    const int coreR,
+                   const bool maskFSC,
+                   const Volume* mask,
                    const int k,
                    const int size,
                    const int r,
@@ -35,7 +37,10 @@ void MLModel::init(const int mode,
     _cSearch = cSearch;
 
     _coreFSC = coreFSC;
-    _coreR = coreR,
+    _coreR = coreR;
+
+    _maskFSC = maskFSC;
+    _mask = mask;
 
     _k = k;
     _size = size;
@@ -359,7 +364,86 @@ void MLModel::BcastFSC(const double thres)
 
             vec fsc(_rU);
 
-            if (_coreFSC)
+            if (_maskFSC)
+            {
+                if (_mode == MODE_2D)
+                {
+                    // TODO
+                }
+                else if (_mode == MODE_3D)
+                {
+                    FFT fft;
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Mask Region of Reference " << l;
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Unmasked Reference";
+
+                    vec fscUnmask(_rU);
+
+                    FSC(fscUnmask, A, B);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Determining Random Phase Resolution";
+                    
+                    int randomPhaseThres = resP(fscUnmask, 0.8, 1, 1, false);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Performing Random Phase Resolution from "
+                                                 << 1.0 / resP2A(randomPhaseThres, _size, _pixelSize);
+
+                    Volume randomPhaseA(_size, _size, _size, FT_SPACE);
+                    Volume randomPhaseB(_size, _size, _size, FT_SPACE);
+
+                    randomPhase(randomPhaseA, A, randomPhaseThres);
+                    randomPhase(randomPhaseB, B, randomPhaseThres);
+
+                    fft.bwMT(A);
+                    fft.bwMT(B);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
+
+                    softMask(randomPhaseA, randomPhaseA, *_mask, 0);
+                    softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+                    
+                    vec fscRFMask(_rU);
+
+                    FSC(fscRFMask, randomPhaseA, randomPhaseB);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Performing Random Phase on Unmask Reference";
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference ";
+
+                    fft.bwMT(A);
+                    fft.bwMT(B);
+
+                    Volume maskA(_size, _size, _size, RL_SPACE);
+                    Volume maskB(_size, _size, _size, RL_SPACE);
+
+                    softMask(maskA, A, *_mask, 0);
+                    softMask(maskB, B, *_mask, 0);
+
+                    fft.fwMT(maskA);
+                    fft.fwMT(maskB);
+
+                    maskA.clearRL();
+                    maskB.clearRL();
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Masked Reference ";
+
+                    vec fscMask;
+
+                    FSC(fscMask, maskA, maskB);
+
+                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating True FSC";
+
+                    for (int i = 0; i < _rU; i++)
+                    {
+                        if (i < randomPhaseThres + 2)
+                            fsc(i) = fscMask(i);
+                        else
+                            fsc(i) = (fscMask(i) - fscRFMask(i)) / (1 - fscRFMask(i));
+                    }
+                }
+            }
+            else if (_coreFSC)
             {
                 if (_mode == MODE_2D)
                 {

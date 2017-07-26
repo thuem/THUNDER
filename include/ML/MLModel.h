@@ -96,6 +96,10 @@ class MLModel : public Parallel
 
         bool _coreFSC;
 
+        bool _maskFSC;
+
+        const Volume* _mask;
+
         int _coreR;
 
         /**
@@ -295,6 +299,7 @@ class MLModel : public Parallel
             _lSearch = true;
             _cSearch = true;
             _coreFSC = false;
+            _maskFSC = false;
             _coreR = 0;
             _r = 1;
             _rU = 1;
@@ -348,6 +353,8 @@ class MLModel : public Parallel
                   const bool cSearch,
                   const bool coreFSC,
                   const int coreR,
+                  const bool maskFSC,
+                  const Volume* mask,
                   const int k,
                   const int size,
                   const int r,

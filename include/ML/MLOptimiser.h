@@ -157,6 +157,8 @@ struct MLOptimiserPara
 
     bool coreFSC;
 
+    bool maskFSC;
+
     /**
      * whether to perform masking on the reference
      */
@@ -291,6 +293,7 @@ struct MLOptimiserPara
         lSearch = true;
         cSearch = true;
         coreFSC = false;
+        maskFSC = false;
         performMask = true;
         autoMask = true;
         pf = 2;
