@@ -255,16 +255,14 @@ void MLOptimiser::init()
     if ((_para.maskFSC) ||
         (_para.performMask && !_para.autoMask))
     {
-        ALOG(INFO, "LOGGER_INIT") << "Reading Mask";
-        BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
+        MLOG(INFO, "LOGGER_INIT") << "Reading Mask";
 
         initMask();
 
 #ifdef VERBOSE_LEVEL_1
-        MPI_Barrier(_hemi);
+        MPI_Barrier(MPI_COMM_WORLD);
 
-        ALOG(INFO, "LOGGER_INIT") << "Mask Read";
-        BLOG(INFO, "LOGGER_INIT") << "Mask Read";
+        MLOG(INFO, "LOGGER_INIT") << "Mask Read";
 #endif
     }
 
