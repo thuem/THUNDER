@@ -361,11 +361,16 @@ void Particle::load(const int nR,
 
     // load the rotation
     
+    _k0 = 1;
+    
+    _k1 = gsl_pow_2(std);
+    
     _topRPrev = quat;
     _topR = quat;
 
     mat4 p(_nR, 4);
-    sampleACG(p, 1, gsl_pow_2(stdR), _nR);
+    sampleACG(p, k0, k1, _nR);
+    //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
     
     for (int i = 0; i < _nR; i++)
     {
@@ -384,6 +389,9 @@ void Particle::load(const int nR,
     }
 
     // load the translation
+
+    _stdTX = stdTX;
+    _stdTY = stdTY;
 
     _topTPrev = tran;
     _topT = tran;
@@ -404,6 +412,8 @@ void Particle::load(const int nR,
     }
 
     // load the defocus factor
+
+    _stdD = stdD;
     
     _topDPrev = d;
     _topD = d;

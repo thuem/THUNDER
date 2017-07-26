@@ -395,17 +395,26 @@ void MLModel::BcastFSC(const double thres)
                     randomPhase(randomPhaseA, A, randomPhaseThres);
                     randomPhase(randomPhaseB, B, randomPhaseThres);
 
-                    fft.bwMT(A);
-                    fft.bwMT(B);
+                    fft.bwMT(randomPhaseA);
+                    fft.bwMT(randomPhaseB);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
 
                     softMask(randomPhaseA, randomPhaseA, *_mask, 0);
                     softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+
+                    fft.fwMT(randomPhaseA);
+                    fft.fwMT(randomPhaseB);
+
+                    randomPhaseA.clearRL();
+                    randomPhaseB.clearRL();
                     
                     vec fscRFMask(_rU);
 
                     FSC(fscRFMask, randomPhaseA, randomPhaseB);
+
+                    randomPhaseA.clearFT();
+                    randomPhaseB.clearFT();
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Random Phase on Unmask Reference";
 
