@@ -103,6 +103,7 @@ void MLOptimiser::init()
                 AROUND(_para.maskRadius / _para.pixelSize),
                 _para.maskFSC,
                 &_mask,
+                _para.goldenStandard,
                 _para.k,
                 _para.size,
                 0,

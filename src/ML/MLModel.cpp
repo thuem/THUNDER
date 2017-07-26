@@ -22,6 +22,7 @@ void MLModel::init(const int mode,
                    const int coreR,
                    const bool maskFSC,
                    const Volume* mask,
+                   const bool goldenStandard,
                    const int k,
                    const int size,
                    const int r,
@@ -41,6 +42,8 @@ void MLModel::init(const int mode,
 
     _maskFSC = maskFSC;
     _mask = mask;
+
+    _goldenStandard = goldenStandard;
 
     _k = k;
     _size = size;
@@ -539,7 +542,7 @@ void MLModel::BcastFSC(const double thres)
 
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
-            if (_k == 1)
+            if ((_k == 1) && (_goldenStandard))
             {
                 // When refining only one reference, use gold standard FSC.
 

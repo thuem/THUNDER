@@ -178,6 +178,8 @@ struct MLOptimiserPara
      * max number of iteration
      */
     int iterMax;
+
+    bool goldenStandard;
     
     /**
      * padding factor
@@ -296,6 +298,7 @@ struct MLOptimiserPara
         maskFSC = false;
         performMask = true;
         autoMask = true;
+        goldenStandard = false;
         pf = 2;
         a = 1.9;
         alpha = 15;
