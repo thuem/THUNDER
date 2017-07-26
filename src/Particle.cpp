@@ -325,10 +325,9 @@ const Symmetry* Particle::symmetry() const { return _sym; }
 
 void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
 
-/***
-void Particle::load(const int m,
-                    const int n,
-                    const int cls,
+void Particle::load(const int nR,
+                    const int nT,
+                    const int nD,
                     const vec4& quat,
                     const double stdR,
                     const vec2& tran,
@@ -337,37 +336,38 @@ void Particle::load(const int m,
                     const double d,
                     const double stdD)
 {
-    _m = m;
+    _nC = 1;
+    _nR = nR;
+    _nT = nT;
+    _nD = nD;
 
-    _n = n;
+    _c.resize(1);
+    _wC.resize(1);
 
-    _c.resize(_n);
-    _r.resize(_n, 4);
-    _t.resize(_n, 2);
-    _d.resize(_n);
+    _wC(0) = 1;
 
-    _w.resize(_n);
+    _topCPrev = 0;
+    _topC = 0;
+
+    _r.resize(_nR, 4);
+    _t.resize(_nT, 2);
+    _d.resize(_nD);
+
+    _wR.resize(_nR);
+    _wT.resize(_nT);
+    _wD.resize(_nD);
 
     gsl_rng* engine = get_random_engine();
-
-    // load the class
-
-    _topCPrev = cls;
-
-    _topC = cls;
-
-    for (int i = 0; i < _n; i++)
-        _c(i) = cls;
 
     // load the rotation
     
     _topRPrev = quat;
     _topR = quat;
 
-    mat4 p(_n, 4);
-    sampleACG(p, 1, gsl_pow_2(stdR), _n);
+    mat4 p(_nR, 4);
+    sampleACG(p, 1, gsl_pow_2(stdR), _nR);
     
-    for (int i = 0; i < _n; i++)
+    for (int i = 0; i < _nR; i++)
     {
         vec4 pert = p.row(i).transpose();
 
@@ -379,6 +379,8 @@ void Particle::load(const int m,
             quaternion_mul(part, pert, -quat);
 
         _r.row(i) = part.transpose();
+
+        _wR(i) = 1.0 / _nR;
     }
 
     // load the translation
@@ -386,7 +388,7 @@ void Particle::load(const int m,
     _topTPrev = tran;
     _topT = tran;
 
-    for (int i = 0; i < _n; i++)
+    for (int i = 0; i < _nT; i++)
     {
        gsl_ran_bivariate_gaussian(engine,
                                   stdTX,
@@ -397,6 +399,8 @@ void Particle::load(const int m,
 
        _t(i, 0) += tran(0);
        _t(i, 1) += tran(1);
+
+       _wT(i) = 1.0 / _nT;
     }
 
     // load the defocus factor
@@ -404,16 +408,14 @@ void Particle::load(const int m,
     _topDPrev = d;
     _topD = d;
 
-    for (int i = 0; i < _n; i++)
+    for (int i = 0; i < _nD; i++)
+    {
         _d(i) = d + gsl_ran_gaussian(engine, stdD);
-
-    // make sure the particles have the same weight
-    for (int i = 0; i < _n; i++)
-        _w(i) = 1.0 / _n;
+        _wD(i) = 1.0 / _nD;
+    }
 
     if (_mode == MODE_3D) symmetrise();
 }
-***/
 
 void Particle::vari(double& k0,
                     double& k1,

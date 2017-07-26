@@ -2634,6 +2634,7 @@ void MLOptimiser::loadParticles()
 {
     IF_MASTER return;
 
+    /***
     double stdR, stdT;
 
     avgStdR(stdR);
@@ -2644,14 +2645,14 @@ void MLOptimiser::loadParticles()
 
     ALOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
     BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
+    ***/
 
     unsigned int cls;
     vec4 quat;
     vec2 tran;
     double d;
-    double stdD;
 
-    //double stdR, stdTX, stdTY;
+    double stdR, stdTX, stdTY, stdD;
 
     //#pragma omp parallel for private(cls, quat, stdR, tran, d, stdR, stdTX, stdTY)
     #pragma omp parallel for private(cls, quat, stdR, tran, d)
@@ -2665,27 +2666,21 @@ void MLOptimiser::loadParticles()
             tran = _db.tran(_ID[l]);
             d = _db.d(_ID[l]);
 
-            /***
             stdR = _db.stdR(_ID[l]);
-            stdR = _db.stdTX(_ID[l]);
-            stdR = _db.stdTY(_ID[l]);
-            ***/
+            stdTX = _db.stdTX(_ID[l]);
+            stdTY = _db.stdTY(_ID[l]);
         }
 
-        /***
-        _par[l].load(_para.k,
-                     _para.mL,
-                     cls,
+        _par[l].load(_para.mLR,
+                     _para.mLT,
+                     1,
                      quat,
                      stdR,
                      tran,
-                     stdT,
-                     stdT,
+                     stdTX,
+                     stdTY,
                      d,
                      stdD);
-
-        _par[l].calVari();
-        ***/
     }
 
     for (int l = 0; l < 10; l++)

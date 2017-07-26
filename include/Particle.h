@@ -499,10 +499,9 @@ class Particle
          * @param d     the defocus factor
          * @param stdD  the standard deviation of defocus factor
          */
-        /***
-        void load(const int m,
-                  const int n,
-                  const int cls,
+        void load(const int nR,
+                  const int nT,
+                  const int nD,
                   const vec4& quat,
                   const double stdR,
                   const vec2& tran,
@@ -510,7 +509,6 @@ class Particle
                   const double stdTY,
                   const double d,
                   const double stdD);
-        ***/
 
         /**
          * This function returns the concentration parameters, including
