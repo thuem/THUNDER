@@ -252,24 +252,24 @@ void MLOptimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Total Number of Images: " << _nPar;
 
-    NT_MASTER
+    if ((_para.maskFSC) ||
+        (_para.performMask && !_para.autoMask))
     {
-        if ((_para.maskFSC) ||
-            (_para.performMask && !_para.autoMask))
-        {
-            ALOG(INFO, "LOGGER_INIT") << "Reading Mask";
-            BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
+        ALOG(INFO, "LOGGER_INIT") << "Reading Mask";
+        BLOG(INFO, "LOGGER_INIT") << "Reading Mask";
 
-            initMask();
+        initMask();
 
 #ifdef VERBOSE_LEVEL_1
-            MPI_Barrier(_hemi);
+        MPI_Barrier(_hemi);
 
-            ALOG(INFO, "LOGGER_INIT") << "Mask Read";
-            BLOG(INFO, "LOGGER_INIT") << "Mask Read";
+        ALOG(INFO, "LOGGER_INIT") << "Mask Read";
+        BLOG(INFO, "LOGGER_INIT") << "Mask Read";
 #endif
-        }
+    }
 
+    NT_MASTER
+    {
         ALOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
         BLOG(INFO, "LOGGER_INIT") << "Initialising IDs of 2D Images";
 

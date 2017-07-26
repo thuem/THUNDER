@@ -418,7 +418,7 @@ void MLModel::BcastFSC(const double thres)
                     // randomPhaseA.clearFT();
                     // randomPhaseB.clearFT();
 
-                    MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference ";
+                    MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference";
 
                     fft.bwMT(A);
                     fft.bwMT(B);
