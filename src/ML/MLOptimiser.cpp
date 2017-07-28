@@ -1789,6 +1789,12 @@ void MLOptimiser::run()
             BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
 
             _model.resetReco();
+
+            if (!_para.goldenStandard)
+            {
+                for (int k = 0; k < _para.k; k++)
+                    _model.rec(k).setJoinHalf(true);
+            }
         }
     }
 
@@ -1804,7 +1810,8 @@ void MLOptimiser::run()
 
         //_model.reco(0).setMAP(false);
 
-        _model.reco(0).setJoinHalf(true);
+        for (int k = 0; k < _para.k; k++)
+            _model.reco(k).setJoinHalf(true);
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
