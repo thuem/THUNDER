@@ -371,7 +371,7 @@ void MLOptimiser::init()
         ALOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
         BLOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
 
-        solventFlatten();
+        solventFlatten(_para.performMask);
 #endif
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
