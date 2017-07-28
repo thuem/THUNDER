@@ -1793,7 +1793,7 @@ void MLOptimiser::run()
             if (!_para.goldenStandard)
             {
                 for (int k = 0; k < _para.k; k++)
-                    _model.rec(k).setJoinHalf(true);
+                    _model.reco(k).setJoinHalf(true);
             }
         }
     }
