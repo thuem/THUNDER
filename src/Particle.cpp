@@ -1738,7 +1738,7 @@ void save(const char filename[],
             par.c(c, iC);
 
             fprintf(file,
-                    "%03d %15.9lf\n",
+                    "%03d %.24lf\n",
                     c,
                     par.wC(iC));
         }
@@ -1752,7 +1752,7 @@ void save(const char filename[],
             par.quaternion(q, iR);
 
             fprintf(file,
-                    "%15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                    "%15.9lf %15.9lf %15.9lf %15.9lf %.24lf\n",
                     q(0), q(1), q(2), q(3),
                     par.wR(iR));
         }
@@ -1766,7 +1766,7 @@ void save(const char filename[],
             par.t(t, iT);
 
             fprintf(file,
-                    "%15.9lf %15.9lf %15.9lf\n",
+                    "%15.9lf %15.9lf %.24lf\n",
                     t(0), t(1),
                     par.wT(iT));
         }
@@ -1780,7 +1780,7 @@ void save(const char filename[],
             par.d(d, iD);
 
             fprintf(file,
-                   "%15.9lf %15.9lf\n",
+                   "%15.9lf %.24lf\n",
                    d,
                    par.wD(iD));
         }
