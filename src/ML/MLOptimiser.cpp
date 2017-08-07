@@ -3032,6 +3032,12 @@ void MLOptimiser::refreshScale(const bool coord,
             BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
 #endif
 
+#ifdef OPTIMISER_REFRESH_SCALE_RL_ZERO
+            double rL = 0;
+#else
+            double rL = _rL;
+#endif
+
 #ifdef OPTIMISER_SCALE_MASK
             scaleDataVSPrior(sXA,
                              sAA,
@@ -3039,7 +3045,7 @@ void MLOptimiser::refreshScale(const bool coord,
                              img,
                              _ctf[l],
                              _rS,
-                             _rL);
+                             rL);
 #else
             scaleDataVSPrior(sXA,
                              sAA,
@@ -3047,7 +3053,7 @@ void MLOptimiser::refreshScale(const bool coord,
                              img,
                              _ctf[l],
                              _rS,
-                             _rL);
+                             rL);
 #endif
 
 #ifdef VERBOSE_LEVEL_3
@@ -3098,7 +3104,7 @@ void MLOptimiser::refreshScale(const bool coord,
             double sum = 0;
             int count = 0;
 
-            for (int r = (int)_rL; r < _rS; r++)
+            for (int r = (int)rL; r < _rS; r++)
             {
                 sum += mXA(i, r) / mAA(i, r);
                 count += 1;
@@ -3116,7 +3122,7 @@ void MLOptimiser::refreshScale(const bool coord,
         double sum = 0;
         int count = 0;
 
-        for (int r = (int)_rL; r < _rS; r++)
+        for (int r = (int)rL; r < _rS; r++)
         {
             sum += mXA(0, r) / mAA(0, r);
             count += 1;
