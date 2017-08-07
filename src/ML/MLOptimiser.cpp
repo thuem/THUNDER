@@ -2017,11 +2017,16 @@ void MLOptimiser::initRef()
 
             softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
-            fft.fwMT(ref);
-            ref.clearRL();
+            _model.clearRef();
 
             for (int t = 0; t < _para.k; t++)
+            {
                 _model.appendRef(ref.copyVolume());
+
+                fft.fwMT(_model.ref(t));
+                _model.ref(t).clearRL();
+            }
+
         }
         else
             REPORT_ERROR("INEXISTENT MODE");
@@ -3131,9 +3136,11 @@ void MLOptimiser::refreshScale(const bool coord,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = sum / count;
 #else
+        /***
         MLOG(INFO, "LOGGER_SYS") << mAA(0, 0)
                                  << ", "
                                  << mAA(0, 1);
+        ***/
 
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();

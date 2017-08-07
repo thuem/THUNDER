@@ -430,7 +430,18 @@ void softMask(Volume& mask,
               const double r,
               const double ew)
 {
-    //TODO
+    #pragma omp paralle for
+    VOLUME_FOR_EACH_PIXEL_RL(mask)
+    {
+        double u = NORM_3(i, j, k);
+
+        if (u > r + ew)
+            mask.setRL(0, i, j, k);
+        else if (u >= r)
+            mask.setRL(0.5 + 0.5 * cos((u - r) / ew * M_PI), i, j, k);
+        else
+            mask.setRL(1, i, j, k);
+    }
 }
 void softMask(Volume& dst,
               const Volume& src,
