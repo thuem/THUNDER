@@ -430,7 +430,7 @@ void softMask(Volume& mask,
               const double r,
               const double ew)
 {
-    #pragma omp paralle for
+    #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(mask)
     {
         double u = NORM_3(i, j, k);
