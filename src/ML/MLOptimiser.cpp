@@ -3131,6 +3131,10 @@ void MLOptimiser::refreshScale(const bool coord,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = sum / count;
 #else
+        MLOG(INFO, "LOGGER_SYS") << mAA(0, 0)
+                                 << ", "
+                                 << mAA(0, 1);
+
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
 #endif
