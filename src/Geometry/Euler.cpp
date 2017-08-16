@@ -369,17 +369,19 @@ void scale3D(mat33& dst,
     dst(2, 2) = vec(2);
 }
 
-/***
-void randQuaternion(vec4& quat)
+void swingTwist(vec4& swing,
+                vec4& twist,
+                const vec4& src,
+                const vec3& vec)
 {
-    gsl_rng* engine = get_random_engine();
+    double p = vec3(src(1), src(2), src(3)).dot(vec);
 
-    for (int j = 0; j < 4; j++)
-        quat(j) = gsl_ran_gaussian(engine, 1);
+    twist = vec4(src(0), p * vec(0), p * vec(1), p * vec(2));
 
-    quat /= quat.norm();
+    twist /= twist.norm();
+
+    quaternion_mul(swing, src, quaternion_conj(twist));
 }
-***/
 
 void randDirection(vec2& dir)
 {

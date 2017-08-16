@@ -18,6 +18,7 @@
 #include "Macro.h"
 #include "Typedef.h"
 #include "Random.h"
+#include "Functions.h"
 
 /**
  * This function calculates phi and theta given a certain direction indicated by
@@ -222,6 +223,11 @@ void translate3D(mat44& dst,
  */
 void scale3D(mat33& dst,
              const vec3& vec);
+
+void swingTwist(vec4& swing,
+                vec4& twist,
+                const vec4& src,
+                const vec3& vec);
 
 void randDirection(vec2& dir);
 

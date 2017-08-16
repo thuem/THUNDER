@@ -71,17 +71,21 @@ inline bool SAME_MATRIX(const mat33& A,
     return true;
 };
 
+static const vec4 ANCHOR_POINT_2(1, 0, 0, 0);
 
 /***
-static const vec4 ANCHOR_POINT(0,
-                               1,
-                               0,
-                               0);
-                               ***/
-static const vec4 ANCHOR_POINT(0,
-                               0.395009,
-                               0.893974,
-                               0.211607);
+static const vec4 ANCHOR_POINT_2(-0.320523,
+                                 0.239029,
+                                 0.0310742,
+                                 -0.916059);
+***/
+
+static const vec4 ANCHOR_POINT_0(0, 0, 0, 1);
+
+static const vec4 ANCHOR_POINT_1(0,
+                                 0.395009,
+                                 0.893974,
+                                 0.211607);
 
 /**
  * @ingroup Symmetry

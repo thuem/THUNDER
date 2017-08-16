@@ -17,13 +17,17 @@
 
 //#define TEST_SAME_MATRIX
 
-#define TEST_COUNTERPART
+//#define TEST_COUNTERPART
 
 //#define ANCHOR_POINT
 
-//#define TEST
+#define TEST
 
-#define SYM "D1"
+//#define TEST_QUAT
+
+//#define TEST_ROT
+
+#define SYM "C4"
 
 #define N 1000
 
@@ -81,7 +85,7 @@ int main(int argc, const char* argv[])
         
         vec4 r;
 
-        quaternion_mul(r, quat, ANCHOR_POINT);
+        quaternion_mul(r, quat, ANCHOR_POINT_0);
         quaternion_mul(r, r, quaternion_conj(quat));
 
         //std::cout << r.dot(ANCHOR_POINT) << std::endl;
@@ -106,7 +110,7 @@ int main(int argc, const char* argv[])
 #endif
 
 #ifdef TEST
-        Symmetry sym(SYM);
+        Symmetry sym(argv[1]);
 
         std::cout << "nSymmetryElement = " << sym.nSymmetryElement() << std::endl;
 
@@ -127,5 +131,55 @@ int main(int argc, const char* argv[])
         for (int i = 0; i < (int)sr.size(); i++)
             std::cout << sr[i] << std::endl;
         ***/
+#endif
+
+#ifdef TEST_QUAT
+        Symmetry sym(argv[1]);
+
+        vec4 q0 = ANCHOR_POINT_1;
+
+        printf("%12.6lf %12.6lf %12.6lf\n", q0(1), q0(2), q0(3));
+
+        for (int i = 0; i < sym.nSymmetryElement(); i++)
+        {
+            vec4 q = sym.quat(i);
+
+            quaternion_mul(q0, q, ANCHOR_POINT_1);
+            quaternion_mul(q0, q0, quaternion_conj(q));
+            
+            printf("%12.6lf %12.6lf %12.6lf\n", q0(1), q0(2), q0(3));
+        }
+#endif
+
+#ifdef TEST_ROT
+        Symmetry sym(argv[1]);
+
+        vec3 r;
+        
+        r(0) = ANCHOR_POINT_1(1);
+        r(1) = ANCHOR_POINT_1(2);
+        r(2) = ANCHOR_POINT_1(3);
+
+        printf("%12.6lf %12.6lf %12.6lf\n", r(0), r(1), r(2));
+
+        for (int i = 0; i < sym.nSymmetryElement(); i++)
+        {
+            mat33 L, R;
+            sym.get(L, R, i);
+
+            vec3 v = R * r;
+            
+            vec4 q;
+
+            printf("%12.6lf %12.6lf %12.6lf\n", v(0), v(1), v(2));
+
+            quaternion(q, R);
+
+            vec4 t;
+            quaternion_mul(t, q, ANCHOR_POINT_1);
+            quaternion_mul(t, t, quaternion_conj(q));
+
+            printf("%12.6lf %12.6lf %12.6lf\n", t(1), t(2), t(3));
+        }
 #endif
 }

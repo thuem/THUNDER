@@ -14,9 +14,11 @@
 
 //#define QUATERNION_MATRIX_TEST
 
-#define QUATERNION_MUL_TEST
+//#define QUATERNION_MUL_TEST
 
 //#define QUATERNION_ROTATE_TEST
+
+#define QUATERNION_SWING_TWIST_TEST
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -94,6 +96,24 @@ int main(int argc, char* argv[])
     quaternion_mul(a, a, quaternion_conj(quat));
 
     std::cout << a << std::endl;
+
+#endif
+
+#ifdef QUATERNION_SWING_TWIST_TEST
+
+    vec4 swing;
+    vec4 twist;
+
+    mat33 rot;
+    randRotate3D(rot);
+
+    vec4 quat;
+    quaternion(quat, rot);
+
+    swingTwist(swing, twist, quat, vec3(0, 0, 1));
+
+    std::cout << "swing = \n" << swing << std::endl;
+    std::cout << "twist = \n" << twist << std::endl;
 
 #endif
 

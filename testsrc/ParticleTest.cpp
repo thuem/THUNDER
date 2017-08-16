@@ -4,7 +4,7 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-#define N 10000
+#define N 100000
 
 //#define RAND_QUATERNION
 
@@ -14,7 +14,7 @@ INITIALIZE_EASYLOGGINGPP
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
 #ifdef RAND_QUATERNION
     vec4 quat;
@@ -25,29 +25,34 @@ int main()
 #endif
 
 #ifdef PARTICLE_TEST_3D
-    //Symmetry sym("C15");
-    Symmetry sym("C2");
+    Symmetry sym(argv[1]);
 
     Particle par(MODE_3D, 1, N, N, 1, 5, 0.01, &sym);
+
+    /***
+    vec4 quat;
+    for (int i = 0; i < N; i++)
+    {
+        par.quaternion(quat, i);
+
+        if (quat(0) < 0) quat = -quat;
+
+        printf("%15.6lf %15.6lf %15.6lf %15.6lf\n",
+               quat(0),
+               quat(1),
+               quat(2),
+               quat(3));
+    }
+    ***/
 
     vec4 quat;
     for (int i = 0; i < N; i++)
     {
         par.quaternion(quat, i);
 
-        /***
-        printf("%15.6lf %15.6lf %15.6lf %15.6lf\n",
-               quat(0),
-               quat(1),
-               quat(2),
-               quat(3));
-        ***/
-
-        //vec4 r(0, 1, 0, 0);
-        
         vec4 r;
 
-        quaternion_mul(r, quat, ANCHOR_POINT);
+        quaternion_mul(r, quat, ANCHOR_POINT_0);
         quaternion_mul(r, r, quaternion_conj(quat));
 
         printf("%15.6lf %15.6lf %15.6lf\n",
@@ -55,7 +60,6 @@ int main()
                r(2),
                r(3));
     }
-
 #endif
 
 #ifdef TEST_PARTICLE_LOAD

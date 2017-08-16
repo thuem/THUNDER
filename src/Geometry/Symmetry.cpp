@@ -97,6 +97,8 @@ void Symmetry::clear()
 {
     _L.clear();
     _R.clear();
+
+    _quat.clear();
 }
 
 void Symmetry::init()
@@ -109,8 +111,7 @@ void Symmetry::init()
 
 void Symmetry::init(const vector<SymmetryOperation>& entry)
 {
-    _L.clear();
-    _R.clear();
+    clear();
     
     fillLR(entry);
     completePointGroup();
@@ -308,29 +309,157 @@ bool asymmetry(const Symmetry& sym)
 void symmetryCounterpart(vec4& dst,
                          const Symmetry& sym)
 {
+    /***
+    vector<SymmetryOperation> entry;
+
+    fillSymmetryEntry(entry, sym.pgGroup(), sym.pgOrder());
+
+    for (size_t i = 0; i < entry.size(); i++)
+    {
+        if (entry[i].id == 0)
+        {
+            double phi, theta, psi;
+
+            angle(phi, theta, psi, dst);
+
+            cout << "phi_1 = " << phi << endl;
+
+            double d = 2 * M_PI / entry[i].fold;
+
+            double t = vec3(dst(1), dst(2), dst(3)).dot(entry[i].axisPlane);
+
+            double p = 2 * acos(dst(0) / sqrt(gsl_pow_2(dst(0)) + gsl_pow_2(t)));
+
+            cout << "phi_2 = " << p << endl;
+
+            // cout << "phi = " << phi * 180 / M_PI << endl;
+
+            int n = periodic(p, d);
+
+            // cout << "n = " << n << endl;
+
+            if (n < 0) REPORT_ERROR("N WRONG!");
+
+            for (int j = 0; j < n; j++)
+                quaternion_mul(dst,
+                               quaternion_conj(vec4(cos(d / 2),
+                                                    entry[i].axisPlane(0) * sin(d / 2),
+                                                    entry[i].axisPlane(1) * sin(d / 2),
+                                                    entry[i].axisPlane(2) * sin(d / 2))),
+                               dst);
+
+            angle(phi, theta, psi, dst);
+
+            cout << "phi_3 = " << phi << endl;
+        }
+        else
+        {
+            REPORT_ERROR("WRONG");
+            abort();
+        }
+    }
+    ***/
+
+    /***
+    double s = fabs(dst(0));
+
+    int j = 0;
+
+    for (int i = 0; i < sym.nSymmetryElement(); i++)
+    {
+        double t = fabs(dst.dot(sym.quat(i)));
+
+        if (t > s)
+        {
+            s = t;
+
+            j = i + 1;
+        }
+    }
+
+    if (j != 0)
+        quaternion_mul(dst, quaternion_conj(sym.quat(j - 1)), dst);
+    ***/
+
     vec4 q = dst;
-
-    // double s = fabs(q(0));
-    
-    vec4 r;
-    quaternion_mul(r, q, ANCHOR_POINT);
-    quaternion_mul(r, r, quaternion_conj(q));
-
-    double s = r.dot(ANCHOR_POINT);
+    double s = fabs(dst.dot(ANCHOR_POINT_2));
 
     vec4 p;
 
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
         quaternion_mul(p, sym.quat(i), dst);
-        //quaternion_mul(p, dst, sym.quat(i));
 
-        // double t = fabs(p(0));
+        double t = fabs(p.dot(ANCHOR_POINT_2));
 
-        quaternion_mul(r, p, ANCHOR_POINT);
+        if (t > s)
+        {
+            s = t;
+            q = p;
+        }
+    }
+
+    dst = q;
+
+    /***
+    mat4 anchors(sym.nSymmetryElement(), 4);
+
+    vec4 anchor;
+    for (int i = 0; i < sym.nSymmetryElement(); i++)
+    {
+        quaternion_mul(anchor, sym.quat(i), ANCHOR_POINT_1);
+        quaternion_mul(anchor, anchor, quaternion_conj(sym.quat(i)));
+
+        anchors.row(i) = anchor.transpose();
+    }
+
+    vec4 r;
+    quaternion_mul(r, dst, ANCHOR_POINT_0);
+    quaternion_mul(r, r, quaternion_conj(dst));
+
+    int j = 0; // index of the nearest anchor
+    double s = r.dot(ANCHOR_POINT_1);
+
+    for (int i = 0; i < sym.nSymmetryElement(); i++)
+    {
+        double t = r.dot(anchors.row(i).transpose());
+
+        if (t > s)
+        {
+            s = t;
+            j = i + 1;
+        }
+    }
+
+    if (j != 0)
+    {
+        dst(0) = 1;
+        dst(1) = 0;
+        dst(2) = 0;
+        dst(3) = 0;
+
+        //quaternion_mul(dst, quaternion_conj(sym.quat(j - 1)), dst);
+    }
+    ***/
+
+    vec4 q = dst;
+
+    vec4 r;
+    quaternion_mul(r, q, ANCHOR_POINT_0);
+    quaternion_mul(r, r, quaternion_conj(q));
+
+    double s = r.dot(ANCHOR_POINT_1);
+
+    vec4 p;
+
+    for (int i = 0; i < sym.nSymmetryElement(); i++)
+    {
+        quaternion_mul(p, sym.quat(i), dst);
+
+        quaternion_mul(r, p, ANCHOR_POINT_0);
         quaternion_mul(r, r, quaternion_conj(p));
 
-        double t = r.dot(ANCHOR_POINT);
+        double t = r.dot(ANCHOR_POINT_1);
 
         if (t > s)
         {
