@@ -382,6 +382,7 @@ void symmetryCounterpart(vec4& dst,
     ***/
 
     vec4 q = dst;
+
     double s = fabs(dst.dot(ANCHOR_POINT_2));
 
     vec4 p;
@@ -442,6 +443,7 @@ void symmetryCounterpart(vec4& dst,
     }
     ***/
 
+    /***
     vec4 q = dst;
 
     vec4 r;
@@ -470,6 +472,7 @@ void symmetryCounterpart(vec4& dst,
     }
 
     dst = q;
+    ***/
 }
 
 void symmetryRotation(vector<mat33>& sr,
