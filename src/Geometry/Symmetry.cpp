@@ -393,6 +393,8 @@ void symmetryCounterpart(vec4& dst,
 
         double t = fabs(p.dot(ANCHOR_POINT_2));
 
+        // cout << t << endl;
+
         if (t > s)
         {
             s = t;

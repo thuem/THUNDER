@@ -50,6 +50,16 @@ int main(int argc, char* argv[])
     {
         par.quaternion(quat, i);
 
+        double phi, theta, psi;
+
+        angle(phi, theta, psi, quat);
+
+        printf("%15.6lf %15.6lf %15.6lf\n",
+               phi,
+               theta,
+               psi);
+
+        /***
         vec4 r;
 
         quaternion_mul(r, quat, ANCHOR_POINT_0);
@@ -59,6 +69,7 @@ int main(int argc, char* argv[])
                r(1),
                r(2),
                r(3));
+        ***/
     }
 #endif
 
