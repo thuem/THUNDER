@@ -3751,14 +3751,15 @@ void MLOptimiser::reconstructRef()
         for (int m = 0; m < _para.mReco; m++)
         {
             unsigned int cls;
-            mat22 rot2D;
-            mat33 rot3D;
+            vec4 quat;
             vec2 tran;
             double d;
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].rand(cls, rot2D, tran, d);
+                _par[l].rand(cls, quat, tran, d);
+
+                mat22 rot2D;
 
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 translate(transImg,
@@ -3796,7 +3797,11 @@ void MLOptimiser::reconstructRef()
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].rand(cls, rot3D, tran, d);
+                _par[l].rand(cls, quat, tran, d);
+
+                mat33 rot3D;
+                
+                rotate3D(rot3D, quat);
 
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 translate(transImg,
