@@ -381,7 +381,6 @@ void symmetryCounterpart(vec4& dst,
         quaternion_mul(dst, quaternion_conj(sym.quat(j - 1)), dst);
     ***/
 
-    /***
     vec4 q = dst;
 
     double s = fabs(dst.dot(ANCHOR_POINT_2));
@@ -402,7 +401,6 @@ void symmetryCounterpart(vec4& dst,
     }
 
     dst = q;
-    ***/
 
     /***
     mat4 anchors(sym.nSymmetryElement(), 4);
@@ -445,6 +443,7 @@ void symmetryCounterpart(vec4& dst,
     }
     ***/
 
+    /***
     vec4 q = dst;
 
     vec4 r;
@@ -473,6 +472,7 @@ void symmetryCounterpart(vec4& dst,
     }
 
     dst = q;
+    ***/
 }
 
 void symmetryRotation(vector<mat33>& sr,
