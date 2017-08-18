@@ -3801,7 +3801,7 @@ void MLOptimiser::reconstructRef()
 
                 mat33 rot3D;
                 
-                rotate3D(rot3D, quat);
+                rotate3D(rot3D, quaternion_conj(quat));
 
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                 translate(transImg,
