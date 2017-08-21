@@ -426,7 +426,7 @@ void Particle::load(const int nR,
         _wD(i) = 1.0 / _nD;
     }
 
-    if (_mode == MODE_3D) symmetrise();
+    // if (_mode == MODE_3D) symmetrise();
 }
 
 void Particle::vari(double& k0,
@@ -759,7 +759,7 @@ void Particle::perturb(const double pf,
             _r.row(i) = quat.transpose();
         }
 
-        if (_mode == MODE_3D) symmetrise();
+        // if (_mode == MODE_3D) symmetrise();
     }
     else if (pt == PAR_T)
     {
