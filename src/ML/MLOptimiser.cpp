@@ -3545,6 +3545,13 @@ void MLOptimiser::allReduceSigma(const bool group)
     #pragma omp parallel for private(cls, rot2D, rot3D, tran, d) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
+            double w;
+
+            if (_para.parGra) 
+                w = _par[l].compress();
+            else
+                w = 1;
+
             Image img(size(), size(), FT_SPACE);
 
             SET_0_FT(img);
@@ -3628,9 +3635,9 @@ void MLOptimiser::allReduceSigma(const bool group)
             {
                 omp_set_lock(&mtx[_groupID[l] - 1]);
 
-                _sig.row(_groupID[l] - 1).head(rSig) += sig.transpose() / 2;
+                _sig.row(_groupID[l] - 1).head(rSig) += w * sig.transpose() / 2;
 
-                _sig(_groupID[l] - 1, _sig.cols() - 1) += 1;
+                _sig(_groupID[l] - 1, _sig.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[_groupID[l] - 1]);
             }
@@ -3638,9 +3645,9 @@ void MLOptimiser::allReduceSigma(const bool group)
             {
                 omp_set_lock(&mtx[0]);
 
-                _sig.row(0).head(rSig) += sig.transpose() / 2;
+                _sig.row(0).head(rSig) += w * sig.transpose() / 2;
 
-                _sig(0, _sig.cols() - 1) += 1;
+                _sig(0, _sig.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[0]);
             }
