@@ -1664,12 +1664,15 @@ void Particle::reCentre()
     for (int i = 0; i < _nT; i++)
         if (NORM(_t(i, 0), _t(i, 1)) > transM)
         {
+            _t.row(i) *= transM / NORM(_t(i, 0), _t(i, 1));
+            /***
             gsl_ran_bivariate_gaussian(engine,
                                        _transS,
                                        _transS,
                                        0,
                                        &_t(i, 0),
                                        &_t(i, 1));
+            ***/
         }
 }
 
