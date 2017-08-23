@@ -775,7 +775,7 @@ void Particle::perturb(const double pf,
             _t(i, 1) += y * pf;
         }
 
-        // reCentre();
+        reCentre();
     }
     else if (pt == PAR_D)
     {
@@ -1665,6 +1665,7 @@ void Particle::reCentre()
         if (NORM(_t(i, 0), _t(i, 1)) > transM)
         {
             _t.row(i) *= transM / NORM(_t(i, 0), _t(i, 1));
+
             /***
             gsl_ran_bivariate_gaussian(engine,
                                        _transS,
@@ -1672,7 +1673,7 @@ void Particle::reCentre()
                                        0,
                                        &_t(i, 0),
                                        &_t(i, 1));
-            ***/
+                                       ***/
         }
 }
 
