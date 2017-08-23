@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
-set (COMMON_FLAGS "-g -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
+set (COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 set (CMAKE_C_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing")
 set (CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
 
