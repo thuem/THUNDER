@@ -3545,16 +3545,14 @@ void MLOptimiser::allReduceSigma(const bool group)
     #pragma omp parallel for private(cls, rot2D, rot3D, tran, d) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-            /***
             double w;
 
             if (_para.parGra) 
-                w = _par[l].compress();
+                w = gsl_pow_2(_par[l].compress());
             else
                 w = 1;
-            ***/
 
-            double w = 1;
+            // double w = 1;
 
             Image img(size(), size(), FT_SPACE);
 
