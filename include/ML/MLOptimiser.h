@@ -52,7 +52,7 @@
 
 #define N_PHASE_WITH_NO_VARI_DECREASE 1
 
-#define N_SAVE_IMG 20
+#define N_SAVE_IMG 1000
 
 #define TRANS_Q 0.01
 
