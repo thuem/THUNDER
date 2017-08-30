@@ -352,6 +352,34 @@ void MLOptimiser::init()
             ALOG(INFO, "LOGGER_INIT") << "Particle Filters Loaded";
             BLOG(INFO, "LOGGER_INIT") << "Particle Filters Loaded";
 #endif
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+
+            ALOG(INFO, "LOGGER_INIT") << "Re-centring Images";
+            BLOG(INFO, "LOGGER_INIT") << "Re-centring Images";
+
+            reCentreImg();
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_INIT") << "Images Re-centred";
+            BLOG(INFO, "LOGGER_INIT") << "Images Re-centred";
+#endif
+#endif
+
+#ifdef OPTIMISER_MASK_IMG
+
+            MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+            reMaskImg();
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_INIT") << "Images Re-Masked";
+            BLOG(INFO, "LOGGER_INIT") << "Images Re-Masked";
+#endif
+#endif
         }
     }
 
