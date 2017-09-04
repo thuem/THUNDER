@@ -822,7 +822,7 @@ void Particle::resample(const int n,
     {
         c(_topC, rank(0));
 
-        if (n != 0)
+        if (n != 1)
         {
             REPORT_ERROR("ONLY KEEP ONE CLASS");
             abort();
