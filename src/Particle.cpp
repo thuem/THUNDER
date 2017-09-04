@@ -828,6 +828,8 @@ void Particle::resample(const int n,
             abort();
         }
 
+        _nC = 1;
+
         _c.resize(1);
         _c(0) = _topC;
         
