@@ -1075,7 +1075,7 @@ void MLOptimiser::expectation()
                     _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
             }
 
-            vec wC = vec::Zero(_para.k);
+            //vec wC = vec::Zero(_para.k);
             vec wR = vec::Zero(_para.mLR);
             vec wT = vec::Zero(_para.mLT);
             vec wD = vec::Zero(_para.mLD);
@@ -1088,9 +1088,10 @@ void MLOptimiser::expectation()
             vec2 t;
 
             //FOR_EACH_PAR(_par[l])
-            FOR_EACH_C(_par[l])
+            //FOR_EACH_C(_par[l])
             {
-                _par[l].c(c, iC);
+                // _par[l].c(c, iC);
+                _par[l].c(c, 0);
 
                 Complex* traP = poolTraP + _par[l].nT() * _nPxl * omp_get_thread_num();
 
@@ -1253,7 +1254,7 @@ void MLOptimiser::expectation()
 
                             w = exp(w - baseLine);
 
-                            wC(iC) += w;
+                            //wC(iC) += w;
                             wR(iR) += w;
                             wT(iT) += w;
                             wD(iD) += w;
@@ -1277,8 +1278,10 @@ void MLOptimiser::expectation()
                 _par[l].mulW(logW(m), m);
             ***/
 
+            /***
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].mulWC(wC(iC), iC);
+            ***/
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].mulWR(wR(iR), iR);
             for (int iT = 0; iT < _para.mLT; iT++)
