@@ -1579,7 +1579,6 @@ void MLOptimiser::run()
             MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
         }
 
-        /***
         MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
 
         refreshClassDistr();
@@ -1594,7 +1593,6 @@ void MLOptimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class Determined";
 #endif
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
@@ -2856,7 +2854,6 @@ void MLOptimiser::refreshRotationChange()
     _model.setStdRChange(std);
 }
 
-/***
 void MLOptimiser::refreshClassDistr()
 {
     _cDistr = vec::Zero(_para.k);
@@ -2886,7 +2883,6 @@ void MLOptimiser::refreshClassDistr()
 
     _cDistr.array() /= _nPar;
 }
-***/
 
 /***
 void MLOptimiser::balanceClass(const double thres)
