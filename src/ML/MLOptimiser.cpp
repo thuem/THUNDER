@@ -2860,7 +2860,7 @@ void MLOptimiser::refreshClassDistr()
 
     NT_MASTER
     {
-        int cls;
+        unsigned int cls;
 
         #pragma omp parallel for private(cls)
         FOR_EACH_2D_IMAGE
@@ -2868,7 +2868,7 @@ void MLOptimiser::refreshClassDistr()
             _par[l].rank1st(cls);
 
             #pragma omp atomic
-            _cDistr[cls] += 1;
+            _cDistr(cls) += 1;
         }
     }
 
