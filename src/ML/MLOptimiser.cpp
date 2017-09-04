@@ -919,6 +919,8 @@ void MLOptimiser::expectation()
             }
 #endif
 
+            _par[l].resample(1, PAR_C);
+
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
 

@@ -821,6 +821,18 @@ void Particle::resample(const int n,
     if (pt == PAR_C)
     {
         c(_topC, rank(0));
+
+        if (n != 0)
+        {
+            REPORT_ERROR("ONLY KEEP ONE CLASS");
+            abort();
+        }
+
+        _c.resize(1);
+        _c(0) = _topC;
+        
+        _wC.resize(1);
+        _wC(0) = 1;
     }
     else if (pt == PAR_R)
     {
