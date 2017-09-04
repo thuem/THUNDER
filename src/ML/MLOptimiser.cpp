@@ -508,11 +508,6 @@ void MLOptimiser::expectation()
 
     int nPer = 0;
 
-    //int nSampleMax = _para.mG;
-    //int nSampleMax = _para.k * _para.mG;
-    int nSampleMax = GSL_MAX_INT(_para.mGMin,
-                                 _para.mGMax / (1 + _sym.nSymmetryElement()));
-
     ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
 
@@ -899,6 +894,12 @@ void MLOptimiser::expectation()
 
                 snprintf(filename,
                          sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_C);
+                snprintf(filename,
+                         sizeof(filename),
                          "R_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
@@ -936,6 +937,12 @@ void MLOptimiser::expectation()
                 _par[l].sort();
 
                 char filename[FILE_NAME_LENGTH];
+                snprintf(filename,
+                         sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_C);
                 snprintf(filename,
                          sizeof(filename),
                          "R_Particle_%04d_Round_%03d_Resampled_Initial.par",
@@ -1290,6 +1297,13 @@ void MLOptimiser::expectation()
 
                 snprintf(filename,
                          sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
+                save(filename, _par[l], PAR_C);
+                snprintf(filename,
+                         sizeof(filename),
                          "R_Particle_%04d_Round_%03d_%03d.par",
                          _ID[l],
                          _iter,
@@ -1408,6 +1422,12 @@ void MLOptimiser::expectation()
         {
             char filename[FILE_NAME_LENGTH];
 
+            snprintf(filename,
+                     sizeof(filename),
+                     "C_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l], PAR_C);
             snprintf(filename,
                      sizeof(filename),
                      "R_Particle_%04d_Round_%03d_Final.par",
@@ -2789,14 +2809,16 @@ void MLOptimiser::refreshRotationChange()
     {
         FOR_EACH_2D_IMAGE
         {
+            /***
             double diff = _par[l].diffTopR();
 
             rc(_ID[l]) = diff;
-
-            /***
-            if (_par[l].diffTopC())
-                rc(_ID[l]) = diff;
             ***/
+
+            if (_par[l].diffTopC())
+                rc(_ID[l]) = _par[l].diffTopR();
+            else
+                rc(_ID[l]) = 1;
         }
     }
 
