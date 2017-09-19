@@ -1728,12 +1728,27 @@ void MLOptimiser::run()
 
         _model.updateR(_para.thresCutoffFSC);
 
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
                                    << ", as the Rotation Change is "
                                    << _model.rChange()
                                    << " and the Previous Rotation Change is "
                                    << _model.rChangePrev();
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+                                   << _model.increaseR()
+                                   << ", as the Translation Variance is "
+                                   << _model.tVariS0()
+                                   << ", "
+                                   << _model.tVariS1()
+                                   << ", and the Previous Translation Variance is "
+                                   << _model.tVariS0Prev()
+                                   << ", "
+                                   << _model.tVariS1Prev();
+#endif
 
         if (_model.r() > _model.rT())
         {

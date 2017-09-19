@@ -1024,7 +1024,9 @@ void MLModel::updateR(const double thres)
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-
+        MLOG(INFO, "LOGGER_SYS") << "Using rVariDecreaseFactor "
+                                 << T_VARI_DECREASE_STUN;
+        elevate = determineIncreaseR(T_VARI_DECREASE_STUN);
 #endif
 
     }
@@ -1034,12 +1036,13 @@ void MLModel::updateR(const double thres)
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_GLOBAL;
-
         elevate = determineIncreaseR(R_CHANGE_DECREASE_GLOBAL);
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-
+        MLOG(INFO, "LOGGER_SYS") << "Using rVariDecreaseFactor "
+                                 << T_VARI_DECREASE_GLOBAL;
+        elevate = determineIncreaseR(T_VARI_DECREASE_GLOBAL);
 #endif
 
     }
@@ -1049,14 +1052,14 @@ void MLModel::updateR(const double thres)
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_LOCAL;
-
         elevate = determineIncreaseR(R_CHANGE_DECREASE_LOCAL);
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-
+        MLOG(INFO, "LOGGER_SYS") << "Using rVariDecreaseFactor "
+                                 << T_VARI_DECREASE_LOCAL;
+        elevate = determineIncreaseR(T_VARI_DECREASE_LOCAL);
 #endif
-
     }
 
     if (elevate)
@@ -1110,6 +1113,16 @@ double MLModel::stdTVariS0() const
 double MLModel::stdTVariS1() const
 {
     return _stdTVariS1;
+}
+
+double MLModel::tVariS0Prev() const
+{
+    return _tVariS0Prev;
+}
+
+double MLModel::tVariS1Prev() const
+{
+    return _tVariS1Prev;
 }
 
 void MLModel::setRVari(const double rVari)
@@ -1403,6 +1416,50 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+
+bool MLModel::determineIncreaseR(const double tVariDecreaseFactor)
+{
+    IF_MASTER
+    {
+        if ((_tVariS0 > (1 - tVariDecreaseFactor) * _tVariS0Prev) &&
+            (_tVariS1 > (1 - tVariDecreaseFactor) * _tVariS1Prev))
+        {
+            // When the frequency remains the same as the last iteration, check
+            // whether there is a decrease of rotation change.
+            _nRChangeNoDecrease += 1;
+        }
+        else
+            _nRChangeNoDecrease = 0;
+
+        switch (_searchType)
+        {
+            case SEARCH_TYPE_STOP:
+                _increaseR = false;
+                break;
+
+            case SEARCH_TYPE_GLOBAL:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL);
+                break;
+
+            case SEARCH_TYPE_LOCAL:
+            case SEARCH_TYPE_CTF:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
+                break;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(&_increaseR,
+              1,
+              MPI_C_BOOL,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    return _increaseR;
+}
 
 #endif
 

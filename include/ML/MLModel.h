@@ -54,11 +54,25 @@
 
 #define MAX_ITER_RES_NO_IMPROVE 1
 
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
+
 #define R_CHANGE_DECREASE_GLOBAL 0.5
 
 #define R_CHANGE_DECREASE_STUN 0.5
 
 #define R_CHANGE_DECREASE_LOCAL 0.5
+
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+
+#define T_VARI_DECREASE_GLOBAL 0.9
+
+#define T_VARI_DECREASE_STUN 0.9
+
+#define T_VARI_DECREASE_LOCAL 0.9
+
+#endif
 
 #define INTERP_TYPE_GLOBAL LINEAR_INTERP
 //#define INTERP_TYPE_GLOBAL NEAREST_INTERP
@@ -671,6 +685,10 @@ class MLModel : public Parallel
         double stdTVariS0() const;
 
         double stdTVariS1() const;
+
+        double tVariS0Prev() const;
+
+        double tVariS1Prev() const;
 
         void setRVari(const double rVari);
 
