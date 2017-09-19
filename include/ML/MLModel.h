@@ -798,7 +798,14 @@ class MLModel : public Parallel
          * or not at current frequency. If there is still room, return false,
          * otherwise, return true.
          */
-        bool determineIncreaseR(const double rChangeDecreaseFactor = 0.02);
+
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
+        bool determineIncreaseR(const double rChangeDecreaseFactor);
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+        bool determineIncreaseR(const double tVariDecreaseFactor);
+#endif
 
         void avgHemi();
 };

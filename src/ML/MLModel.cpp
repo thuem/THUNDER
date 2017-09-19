@@ -1016,23 +1016,47 @@ void MLModel::updateR(const double thres)
     if ((_r == _rGlobal) &&
         (_searchType == SEARCH_TYPE_GLOBAL))
     {
+
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_STUN;
         elevate = determineIncreaseR(R_CHANGE_DECREASE_STUN);
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+
+#endif
+
     }
     else if (_searchType == SEARCH_TYPE_GLOBAL)
     {
+
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_GLOBAL;
 
         elevate = determineIncreaseR(R_CHANGE_DECREASE_GLOBAL);
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+
+#endif
+
     }
     else
     {
+
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_LOCAL;
 
         elevate = determineIncreaseR(R_CHANGE_DECREASE_LOCAL);
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+
+#endif
+
     }
 
     if (elevate)
@@ -1331,11 +1355,12 @@ void MLModel::clear()
     _reco.clear();
 }
 
+#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
+
 bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 {
     IF_MASTER
     {
-#ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         if (_rChange > (1 - rChangeDecreaseFactor) * _rChangePrev)
         {
             // When the frequency remains the same as the last iteration, check
@@ -1362,10 +1387,6 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
                            >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
                 break;
         }
-#endif
-
-#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-#endif
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -1378,6 +1399,12 @@ bool MLModel::determineIncreaseR(const double rChangeDecreaseFactor)
 
     return _increaseR;
 }
+
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
+
+#endif
 
 void MLModel::avgHemi()
 {
