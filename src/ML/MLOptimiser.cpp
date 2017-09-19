@@ -320,13 +320,6 @@ void MLOptimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "CTFs Generated";
 #endif
 
-#ifdef VERBOSE_LEVEL_1
-        MPI_Barrier(_hemi);
-
-        ALOG(INFO, "LOGGER_INIT") << "Switch Initialised";
-        BLOG(INFO, "LOGGER_INIT") << "Switch Initialised";
-#endif
-
         ALOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
         BLOG(INFO, "LOGGER_INIT") << "Initialising Particle Filters";
 
