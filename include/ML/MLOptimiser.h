@@ -279,6 +279,7 @@ struct MLOptimiserPara
 
     MLOptimiserPara()
     {
+        nThreadsPerProcess = 1;
         mode = MODE_3D;
         gSearch = true;
         lSearch = true;
