@@ -169,13 +169,18 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
 
-    omp_set_num_threads(para.nThreadsPerProcess);
+    //omp_set_num_threads(para.nThreadsPerProcess);
 
     CLOG(INFO, "LOGGER_SYS") << "Maximum Number of Threads in a Process is " << omp_get_max_threads();
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
 
-    fftw_init_threads();
+    if (fftw_init_threads() == 0)
+    {
+        REPORT_ERROR("ERROR IN INITIALISING FFTW THREADS");
+
+        abort();
+    }
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
     fftw_set_timelimit(60);
