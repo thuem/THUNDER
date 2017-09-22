@@ -39,6 +39,8 @@ static inline void copy_string(char (&array)[N], const std::string& source)
 void readPara(MLOptimiserPara& dst,
               const Json::Value src)
 {
+    dst.nThreadsPerProcess = src["Number of Threads Per Process"].asInt();
+
     if (src["2D or 3D Mode"].asString() == "2D")
     {
         dst.mode = MODE_2D;
@@ -136,14 +138,6 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Process " << rank << " Initialised";
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
-
-    fftw_init_threads();
-
-    CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
-    //fftw_set_timelimit(300);
-    fftw_set_timelimit(60);
-
     Json::Reader reader;
     Json::Value root;
 
@@ -172,6 +166,19 @@ int main(int argc, char* argv[])
 
         abort();
     }
+
+    CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
+
+    omp_set_num_threads(para.nThreadsPerProcess);
+
+    CLOG(INFO, "LOGGER_SYS") << "Maximum Number of Threads in a Process is " << omp_get_max_threads();
+
+    CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
+
+    fftw_init_threads();
+
+    CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
+    fftw_set_timelimit(60);
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
     

@@ -61,6 +61,11 @@
 struct MLOptimiserPara
 {
     /**
+     * maximum number of threads in a process
+     */
+    int nThreadsPerProcess;
+
+    /**
      * 2D or 3D mode
      */
     int mode;
