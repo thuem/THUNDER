@@ -70,6 +70,7 @@ void readPara(MLOptimiserPara& dst,
     copy_string(dst.dstPrefix, src["Prefix of Destination"].asString());
     dst.coreFSC = src["Calculate FSC Using Core Region"].asBool();
     dst.maskFSC = src["Calculate FSC Using Masked Region"].asBool();
+    dst.parGra = src["Particle Grading"].asBool();
 
     dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();
@@ -95,7 +96,6 @@ void readPara(MLOptimiserPara& dst,
     dst.groupSig = src["Advanced"]["Grouping when Calculating Sigma"].asBool();
     dst.groupScl = src["Advanced"]["Grouping when Correcting Intensity Scale"].asBool();
     dst.zeroMask = src["Advanced"]["Mask Images with Zero Noise"].asBool();
-    dst.parGra = src["Advanced"]["Particle Grading"].asBool();
     dst.ctfRefineS = src["Advanced"]["CTF Refine Standard Deviation"].asFloat();
 
     dst.transSearchFactor = src["Professional"]["Translation Search Factor"].asFloat();
