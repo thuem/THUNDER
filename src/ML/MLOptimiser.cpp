@@ -2821,16 +2821,16 @@ void MLOptimiser::refreshRotationChange()
     {
         FOR_EACH_2D_IMAGE
         {
-            /***
             double diff = _par[l].diffTopR();
 
             rc(_ID[l]) = diff;
-            ***/
 
+            /***
             if (_par[l].diffTopC())
                 rc(_ID[l]) = _par[l].diffTopR();
             else
                 rc(_ID[l]) = 1;
+            ***/
         }
     }
 
