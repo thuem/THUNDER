@@ -750,6 +750,21 @@ void Particle::perturb(const double pf,
             sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _nR);
         else if (_mode == MODE_3D)
             sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
+
+        vec4 mean;
+
+        inferACG(mean, _r);
+
+        vec4 quat;
+
+        for (int i = 0; i < _nR; i++)
+        {
+            quat = _r.row(i).transpose();
+
+            quaternion_mul(quat, quaternion_conj(mean), quat);
+
+            _r.row(i) = quat.transpose();
+        }
            
         for (int i = 0; i < _nR; i++)
         {
@@ -760,6 +775,15 @@ void Particle::perturb(const double pf,
         }
 
         if (_mode == MODE_3D) symmetrise();
+
+        for (int i = 0; i < _nR; i++)
+        {
+            quat = _r.row(i).transpose();
+
+            quaternion_mul(quat, mean, quat);
+
+            _r.row(i) = quat.transpose();
+        }
     }
     else if (pt == PAR_T)
     {
@@ -1657,9 +1681,11 @@ void Particle::symmetrise()
 
     if (asymmetry(*_sym)) return;
 
+    /***
     vec4 mean;
 
     inferACG(mean, _r);
+    ***/
 
     vec4 quat;
 
@@ -1667,11 +1693,11 @@ void Particle::symmetrise()
     {
         vec4 quat = _r.row(i).transpose();
 
-        quaternion_mul(quat, quaternion_conj(mean), quat);
+        // quaternion_mul(quat, quaternion_conj(mean), quat);
 
         symmetryCounterpart(quat, *_sym);
 
-        quaternion_mul(quat, mean, quat);
+        // quaternion_mul(quat, mean, quat);
 
         _r.row(i) = quat.transpose();
     }
