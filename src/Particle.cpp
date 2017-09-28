@@ -759,7 +759,7 @@ void Particle::perturb(const double pf,
             _r.row(i) = quat.transpose();
         }
 
-        // if (_mode == MODE_3D) symmetrise();
+        if (_mode == MODE_3D) symmetrise();
     }
     else if (pt == PAR_T)
     {
