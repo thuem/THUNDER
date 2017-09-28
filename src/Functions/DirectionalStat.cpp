@@ -117,9 +117,13 @@ void inferACG(double& k0,
     inferACG(A, src);
 
     SelfAdjointEigenSolver<mat44> eigenSolver(A);
+
+    //vec4 ev = eigenSolver.eigenvalues();
+
+    //ev = ev.cwiseAbs();
     
-    k0 = eigenSolver.eigenvalues().maxCoeff();
-    k1 = eigenSolver.eigenvalues().minCoeff();
+    k0 = eigenSolver.eigenvalues().cwiseAbs().maxCoeff();
+    k1 = eigenSolver.eigenvalues().cwiseAbs().minCoeff();
 }
 
 void inferACG(vec4& mean,
@@ -132,7 +136,7 @@ void inferACG(vec4& mean,
 
     int i;
 
-    eigenSolver.eigenvalues().maxCoeff(&i);
+    eigenSolver.eigenvalues().cwiseAbs().maxCoeff(&i);
 
     mean = eigenSolver.eigenvectors().col(i);
 
