@@ -1657,13 +1657,21 @@ void Particle::symmetrise()
 
     if (asymmetry(*_sym)) return;
 
+    vec4 mean;
+
+    inferACG(mean, _r);
+
     vec4 quat;
 
     for (int i = 0; i < _nR; i++)
     {
         vec4 quat = _r.row(i).transpose();
 
+        quaternion_mul(quat, quaternion_conj(mean), quat);
+
         symmetryCounterpart(quat, *_sym);
+
+        quaternion_mul(quat, mean, quat);
 
         _r.row(i) = quat.transpose();
     }

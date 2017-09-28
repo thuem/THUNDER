@@ -102,6 +102,16 @@ void inferACG(double& k0,
               const mat4& src);
 
 /**
+ * Parameter Inference from Data Assuming the Distribution Follows an Angular
+ * Central Gaussian Distribution
+ *
+ * @param mean the mean of ACG distribution
+ * @param src  the data
+ */
+void inferACG(vec4& mean,
+              const mat4& src);
+
+/**
  * Probabilty Density Function of von Mises Distribution M(mu, kappa)
  *
  * @param x     the orientation in unit vector

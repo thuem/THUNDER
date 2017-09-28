@@ -122,6 +122,23 @@ void inferACG(double& k0,
     k1 = eigenSolver.eigenvalues().minCoeff();
 }
 
+void inferACG(vec4& mean,
+              const mat4& src)
+{
+    mat44 A;
+    inferACG(A, src);
+
+    SelfAdjointEigenSolver<mat44> eigenSolver(A);
+
+    int i;
+
+    eigenSolver.eigenvalues().maxCoeff(&i);
+
+    mean = eigenSolver.eigenvectors().col(i);
+
+    mean /= mean.norm();
+}
+
 double pdfVMS(const vec2& x,
               const vec2& mu,
               const double kappa)
