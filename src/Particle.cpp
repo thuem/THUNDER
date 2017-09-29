@@ -751,12 +751,15 @@ void Particle::perturb(const double pf,
         else if (_mode == MODE_3D)
             sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
 
+        /***
         vec4 mean;
 
         inferACG(mean, _r);
+        ***/
 
         vec4 quat;
 
+        /***
         for (int i = 0; i < _nR; i++)
         {
             quat = _r.row(i).transpose();
@@ -765,17 +768,21 @@ void Particle::perturb(const double pf,
 
             _r.row(i) = quat.transpose();
         }
+        ***/
+
+        vec4 pert;
            
         for (int i = 0; i < _nR; i++)
         {
-            vec4 quat = _r.row(i).transpose();
-            vec4 pert = d.row(i).transpose();
+            quat = _r.row(i).transpose();
+            pert = d.row(i).transpose();
             quaternion_mul(quat, pert, quat);
             _r.row(i) = quat.transpose();
         }
 
         if (_mode == MODE_3D) symmetrise();
 
+        /***
         for (int i = 0; i < _nR; i++)
         {
             quat = _r.row(i).transpose();
@@ -784,6 +791,7 @@ void Particle::perturb(const double pf,
 
             _r.row(i) = quat.transpose();
         }
+        ***/
     }
     else if (pt == PAR_T)
     {
