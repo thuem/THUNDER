@@ -85,8 +85,13 @@ void Particle::reset()
 
     // initialise class distribution
 
+    /***
     for (int i = 0; i < _nC; i++)
         _c(i) = gsl_rng_uniform_int(engine, _nC);
+    ***/
+
+    for (int i = 0; i < _nC; i++)
+        _c(i) = i;
 
     // initialise rotation distribution
 
@@ -847,6 +852,8 @@ void Particle::resample(const int n,
     if (pt == PAR_C)
     {
         c(_topC, rank(0));
+
+        shuffle(pt);
 
         /***
         if (n != 1)
