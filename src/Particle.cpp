@@ -848,6 +848,7 @@ void Particle::resample(const int n,
     {
         c(_topC, rank(0));
 
+        /***
         if (n != 1)
         {
             REPORT_ERROR("ONLY KEEP ONE CLASS");
@@ -861,6 +862,31 @@ void Particle::resample(const int n,
         
         _wC.resize(1);
         _wC(0) = 1;
+        ***/
+
+        vec cdf = cumsum(_wC);
+        
+        _nC = n;
+        _wC.resize(_nC);
+
+        uvec c(_nC);
+
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nC);  
+
+        int i = 0;
+        for (int j = 0; j < _nC; j++)
+        {
+            double uj = u0 + j * 1.0 / _nC;
+
+            while (uj > cdf[i])
+                i++;
+
+            c(j) = _c(i);
+        
+            _wC(j) = 1.0 / _nC;
+        }
+
+        _c = c;
     }
     else if (pt == PAR_R)
     {
@@ -1548,7 +1574,26 @@ void Particle::shuffle(const ParticleType pt)
 
     if (pt == PAR_C)
     {
-        CLOG(WARNING, "LOGGER_SYS") << "NO NEED TO PERFORM SHUFFLE IN CLASS";
+        // CLOG(WARNING, "LOGGER_SYS") << "NO NEED TO PERFORM SHUFFLE IN CLASS";
+
+        uvec s = uvec(_nC);
+
+        for (int i = 0; i < _nC; i++) s(i) = i;
+
+        gsl_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
+
+        uvec c(_nC);
+
+        vec wC(_nC);
+
+        for (int i = 0; i < _nC; i++)
+        {
+            c(s(i)) = _c(i);
+            wC(s(i)) = _wC(i);
+        }
+
+        _c = c;
+        _wC = wC;
     }
     else if (pt == PAR_R)
     {
