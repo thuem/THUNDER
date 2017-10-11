@@ -286,8 +286,8 @@ struct MLOptimiserPara
         cSearch = true;
         coreFSC = false;
         maskFSC = false;
-        performMask = true;
-        autoMask = true;
+        performMask = false;
+        autoMask = false;
         goldenStandard = false;
         pf = 2;
         a = 1.9;
@@ -296,11 +296,11 @@ struct MLOptimiserPara
         thresReportFSC = 0.143;
         thresSclCorFSC = 0.75;
         transSearchFactor = 1;
-        perturbFactorL = 10;
+        perturbFactorL = 0.8;
         perturbFactorSGlobal = 0.8;
         perturbFactorSLocal = 0.8;
-        perturbFactorSCTF = 0.2;
-        ctfRefineS = 0.005;
+        perturbFactorSCTF = 0.8;
+        ctfRefineS = 0.01;
         skipE = false;
         skipM = false;
         skipR = false;

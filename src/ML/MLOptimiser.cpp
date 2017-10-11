@@ -1588,8 +1588,12 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class Determined";
 #endif
 
+#ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
+
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
+
+#endif
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
