@@ -4373,7 +4373,7 @@ void MLOptimiser::saveDatabase() const
                  %18.6f %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f \
-                 %18.6f %6d\n",
+                 %18.6f",
                  _ctfAttr[l].voltage,
                  _ctfAttr[l].defocusU,
                  _ctfAttr[l].defocusV,
@@ -4398,8 +4398,7 @@ void MLOptimiser::saveDatabase() const
                  s1,
                  df,
                  s,
-                 _par[l].compress(),
-                 _nP[l]);
+                 _par[l].compress());
     }
 
     fclose(file);
