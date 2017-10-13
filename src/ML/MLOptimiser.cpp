@@ -4373,7 +4373,7 @@ void MLOptimiser::saveDatabase() const
                  %18.6f %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f \
-                 %18.6f",
+                 %18.6f\n",
                  _ctfAttr[l].voltage,
                  _ctfAttr[l].defocusU,
                  _ctfAttr[l].defocusV,
