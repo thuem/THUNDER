@@ -2726,22 +2726,23 @@ void MLOptimiser::loadParticles()
     BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
     ***/
 
-    unsigned int cls;
+    // unsigned int cls;
     vec4 quat;
     vec2 tran;
     double d;
 
     double stdR, stdTX, stdTY, stdD;
 
-    //#pragma omp parallel for private(cls, quat, stdR, tran, d, stdR, stdTX, stdTY)
-    #pragma omp parallel for private(cls, quat, stdR, tran, d)
+    //#pragma omp parallel for private(cls, quat, stdR, tran, d)
+
+    #pragma omp parallel for private(cls, quat, stdR, tran, d, stdR, stdTX, stdTY)
     FOR_EACH_2D_IMAGE
     {
         #pragma omp critical
         {
-            cls = _db.cls(_ID[l]);
+            // cls = _db.cls(_ID[l]);
             quat = _db.quat(_ID[l]);
-            stdR = _db.stdR(_ID[l]);
+            //stdR = _db.stdR(_ID[l]);
             tran = _db.tran(_ID[l]);
             d = _db.d(_ID[l]);
 
