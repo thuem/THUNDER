@@ -375,20 +375,31 @@ void Particle::load(const int nR,
     _topRPrev = quat;
     _topR = quat;
 
-    mat4 p(_nR, 4);
-    sampleACG(p, _k0, _k1, _nR);
+    // mat4 p(_nR, 4);
+
+    sampleACG(_r, _k0, _k1, _nR);
+
     //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
+
+    if (_mode == MODE_3D) symmetrise();
     
     for (int i = 0; i < _nR; i++)
     {
-        vec4 pert = p.row(i).transpose();
+        vec4 pert = _r.row(i).transpose();
 
         vec4 part;
 
         if (gsl_ran_flat(engine, -1, 1) >= 0)
+            quaternion_mul(part, quat, pert);
+        else
+            quaternion_mul(part, -quat, pert);
+
+        /***
+        if (gsl_ran_flat(engine, -1, 1) >= 0)
             quaternion_mul(part, pert, quat);
         else
             quaternion_mul(part, pert, -quat);
+        ***/
 
         _r.row(i) = part.transpose();
 
@@ -431,7 +442,6 @@ void Particle::load(const int nR,
         _wD(i) = 1.0 / _nD;
     }
 
-    // if (_mode == MODE_3D) symmetrise();
 }
 
 void Particle::vari(double& k0,

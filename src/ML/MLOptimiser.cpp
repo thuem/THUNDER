@@ -348,16 +348,16 @@ void MLOptimiser::init()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 
-            ALOG(INFO, "LOGGER_INIT") << "Re-centring Images";
-            BLOG(INFO, "LOGGER_INIT") << "Re-centring Images";
+            ALOG(INFO, "LOGGER_INIT") << "Re-Centring Images";
+            BLOG(INFO, "LOGGER_INIT") << "Re-Centring Images";
 
             reCentreImg();
 
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(_hemi);
 
-            ALOG(INFO, "LOGGER_INIT") << "Images Re-centred";
-            BLOG(INFO, "LOGGER_INIT") << "Images Re-centred";
+            ALOG(INFO, "LOGGER_INIT") << "Images Re-Centred";
+            BLOG(INFO, "LOGGER_INIT") << "Images Re-Centred";
 #endif
 #endif
 
