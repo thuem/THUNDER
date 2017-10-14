@@ -2735,7 +2735,7 @@ void MLOptimiser::loadParticles()
 
     //#pragma omp parallel for private(cls, quat, stdR, tran, d)
 
-    #pragma omp parallel for private(cls, quat, stdR, tran, d, stdR, stdTX, stdTY)
+    #pragma omp parallel for private(quat, tran, d, stdR, stdTX, stdTY, stdD)
     FOR_EACH_2D_IMAGE
     {
         #pragma omp critical
@@ -2749,6 +2749,7 @@ void MLOptimiser::loadParticles()
             stdR = _db.stdR(_ID[l]);
             stdTX = _db.stdTX(_ID[l]);
             stdTY = _db.stdTY(_ID[l]);
+            stdD = _db.stdD(_ID[l]);
         }
 
         _par[l].load(_para.mLR,
