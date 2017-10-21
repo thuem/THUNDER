@@ -288,7 +288,7 @@ struct MLOptimiserPara
         maskFSC = false;
         performMask = false;
         autoMask = false;
-        goldenStandard = false;
+        goldenStandard = true;
         pf = 2;
         a = 1.9;
         alpha = 15;

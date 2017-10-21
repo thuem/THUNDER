@@ -77,7 +77,7 @@ void readPara(MLOptimiserPara& dst,
     copy_string(dst.mask, src["Reference Mask"]["Provided Mask"].asString());
 
     dst.iterMax = src["Advanced"]["Max Number of Iteration"].asInt();
-    dst.goldenStandard = src["Advanced"]["Use Golden Standard FSC"].asBool();
+    dst.goldenStandard = src["Advanced"]["Using Golden Standard FSC"].asBool();
     dst.pf = src["Advanced"]["Padding Factor"].asInt();
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();
     dst.alpha = src["Advanced"]["MKB Kernel Smooth Factor"].asFloat();
