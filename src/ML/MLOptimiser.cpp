@@ -4377,14 +4377,14 @@ void MLOptimiser::saveDatabase() const
         ***/
 
         fprintf(file,
-                "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
-                 %s %s %18.6f %18.6f \
+                "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
+                 %s %s %18.9lf %18.9lf \
                  %6d %6d \
-                 %18.6f %18.6f %18.6f %18.6f \
-                 %18.6f %18.6f %18.6f \
-                 %18.6f %18.6f %18.6f %18.6f \
-                 %18.6f %18.6f \
-                 %18.6f\n",
+                 %18.9lf %18.9lf %18.9lf %18.9lf \
+                 %18.9lf %18.9lf %18.9lf \
+                 %18.9lf %18.9lf %18.9lf %18.9lf \
+                 %18.9lf %18.9lf \
+                 %18.9lf\n",
                  _ctfAttr[l].voltage,
                  _ctfAttr[l].defocusU,
                  _ctfAttr[l].defocusV,
