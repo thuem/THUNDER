@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include <gsl/gsl_sort.h>
+
 #include "DirectionalStat.h"
 
 #define MU 0
@@ -23,9 +25,9 @@
 
 #define N 1000
 
-#define TEST_SAMPLE_ACG
+//#define TEST_SAMPLE_ACG
 
-//#define TEST_INFER_ACG
+#define TEST_INFER_ACG
 
 //#define TEST_PDF_VMS
 
@@ -33,7 +35,11 @@
 
 //#define TEST_INFER_VMS
 
+//#define TEST_EIGEN_SORT
+
 INITIALIZE_EASYLOGGINGPP
+
+using namespace std;
 
 int main(int argc, const char* argv[])
 {
@@ -109,11 +115,19 @@ int main(int argc, const char* argv[])
                acg(i, 3));
                ***/
 
+    /***
     double k0, k1;
 
     inferACG(k0, k1, acg);
 
     printf("k0 = %15.6lf, k1 = %15.6lf\n", k0, k1);
+    ***/
+
+    double k1, k2, k3;
+
+    inferACG(k1, k2, k3, acg);
+
+    printf("k1 = %15.6lf, k2 = %15.6lf, k3 = %15.6lf\n", k1, k2, k3);
 
 #endif
 
@@ -187,5 +201,14 @@ int main(int argc, const char* argv[])
     printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
     inferVMS(mu, kappa, VMS_7);
     printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+#endif
+
+#ifdef TEST_EIGEN_SORT
+
+    vec4 b = vec4(4, 3, 1, 2);
+
+    gsl_sort(b.data(), 1, 4);
+
+    cout << b << endl;
 #endif
 }

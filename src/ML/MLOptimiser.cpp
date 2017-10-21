@@ -923,6 +923,10 @@ void MLOptimiser::expectation()
 
             _par[l].setK1(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR * scanMinStdR), _par[l].k1()));
 
+            _par[l].setK2(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR * scanMinStdR), _par[l].k2()));
+
+            _par[l].setK3(GSL_MAX_DBL(gsl_pow_2(MIN_STD_FACTOR * scanMinStdR), _par[l].k3()));
+
             _par[l].setS0(GSL_MAX_DBL(MIN_STD_FACTOR * scanMinStdT, _par[l].s0()));
 
             _par[l].setS1(GSL_MAX_DBL(MIN_STD_FACTOR * scanMinStdT, _par[l].s1()));
@@ -2757,6 +2761,8 @@ void MLOptimiser::loadParticles()
                      1,
                      quat,
                      stdR,
+                     stdR,
+                     stdR,
                      tran,
                      stdTX,
                      stdTY,
@@ -4353,13 +4359,15 @@ void MLOptimiser::saveDatabase() const
     vec2 tran;
     double df;
 
-    double rVari, s0, s1, s;
+    // double rVari, s0, s1, s;
+    double k1, k2, k3, s0, s1, s;
 
     FOR_EACH_2D_IMAGE
     {
         _par[l].rank1st(cls, quat, tran, df);
 
-        _par[l].vari(rVari, s0, s1, s);
+        //_par[l].vari(rVari, s0, s1, s);
+        _par[l].vari(k1, k2, k3, s0, s1, s);
 
         /***
         rVari = 0;
@@ -4372,7 +4380,8 @@ void MLOptimiser::saveDatabase() const
                 "%18.6f %18.6f %18.6f %18.6f %18.6f %18.6f %18.6f \
                  %s %s %18.6f %18.6f \
                  %6d %6d \
-                 %18.6f %18.6f %18.6f %18.6f %18.6f \
+                 %18.6f %18.6f %18.6f %18.6f \
+                 %18.6f %18.6f %18.6f \
                  %18.6f %18.6f %18.6f %18.6f \
                  %18.6f %18.6f \
                  %18.6f\n",
@@ -4393,7 +4402,9 @@ void MLOptimiser::saveDatabase() const
                  quat(1),
                  quat(2),
                  quat(3),
-                 rVari,
+                 k1,
+                 k2,
+                 k3,
                  tran(0) - _offset[l](0),
                  tran(1) - _offset[l](1),
                  s0,

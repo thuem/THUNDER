@@ -105,7 +105,8 @@ void Particle::reset()
         // rotation, MODE_3D, sample from Angular Central Gaussian Distribution
         // with identity matrix
         case MODE_3D:
-            sampleACG(_r, 1, 1, _nR);
+            //sampleACG(_r, 1, 1, _nR);
+            sampleACG(_r, 1, 1, 1, _nR);
             break;
 
         default:
@@ -333,13 +334,15 @@ void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
 void Particle::load(const int nR,
                     const int nT,
                     const int nD,
-                    const vec4& quat,
-                    const double stdR,
-                    const vec2& tran,
-                    const double stdTX,
-                    const double stdTY,
+                    const vec4& q,
+                    const double k1,
+                    const double k2,
+                    const double k3,
+                    const vec2& t,
+                    const double s0,
+                    const double s1,
                     const double d,
-                    const double stdD)
+                    const double s)
 {
     _nC = 1;
     _nR = nR;
@@ -367,17 +370,23 @@ void Particle::load(const int nR,
     gsl_rng* engine = get_random_engine();
 
     // load the rotation
+
+    _k1 = k1;
+    _k2 = k2;
+    _k3 = k3;
     
-    _k0 = 1;
+    // _k0 = 1;
     
-    _k1 = gsl_pow_2(stdR);
+    // _k1 = gsl_pow_2(stdR);
     
-    _topRPrev = quat;
-    _topR = quat;
+    _topRPrev = q;
+    _topR = q;
 
     // mat4 p(_nR, 4);
 
-    sampleACG(_r, _k0, _k1, _nR);
+    // sampleACG(_r, _k0, _k1, _nR);
+
+    sampleACG(_r, _k1, _k2, _k3, _nR);
 
     //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
 
@@ -397,9 +406,9 @@ void Particle::load(const int nR,
         ***/
 
         if (gsl_ran_flat(engine, -1, 1) >= 0)
-            quaternion_mul(part, pert, quat);
+            quaternion_mul(part, pert, q);
         else
-            quaternion_mul(part, pert, -quat);
+            quaternion_mul(part, pert, -q);
 
         _r.row(i) = part.transpose();
 
@@ -408,11 +417,11 @@ void Particle::load(const int nR,
 
     // load the translation
 
-    _s0 = stdTX;
-    _s1 = stdTY;
+    _s0 = s0;
+    _s1 = s1;
 
-    _topTPrev = tran;
-    _topT = tran;
+    _topTPrev = t;
+    _topT = t;
 
     for (int i = 0; i < _nT; i++)
     {
@@ -423,15 +432,15 @@ void Particle::load(const int nR,
                                   &_t(i, 0),
                                   &_t(i, 1));
 
-       _t(i, 0) += tran(0);
-       _t(i, 1) += tran(1);
+       _t(i, 0) += t(0);
+       _t(i, 1) += t(1);
 
        _wT(i) = 1.0 / _nT;
     }
 
     // load the defocus factor
 
-    _s = stdD;
+    _s = s;
     
     _topDPrev = d;
     _topD = d;
@@ -444,18 +453,18 @@ void Particle::load(const int nR,
 
 }
 
-void Particle::vari(double& k0,
-                    double& k1,
+void Particle::vari(double& k1,
+                    double& k2,
+                    double& k3,
                     double& s0,
                     double& s1,
-                    double& rho,
                     double& s) const
 {
-    k0 = _k0;
     k1 = _k1;
+    k2 = _k2;
+    k3 = _k3;
     s0 = _s0;
     s1 = _s1;
-    rho = _rho;
     s = _s;
 }
 
@@ -478,7 +487,8 @@ void Particle::vari(double& rVari,
             ***/
             // more cencentrate, smaller rVari, bigger _k0 / _k1;
 
-            rVari = sqrt(_k1) / sqrt(_k0);
+            // rVari = sqrt(_k1) / sqrt(_k0);
+            rVari = pow(_k1 * _k2 * _k3, 1.0 / 3);
 
             break;
 
@@ -500,7 +510,9 @@ double Particle::compress() const
 
     // return pow(_k0 / _k1, 1.5);
 
-    return sqrt(_k0) / sqrt(_k1);
+    // return sqrt(_k0) / sqrt(_k1);
+
+    return pow(_k1 * _k2 * _k3, 1.0 / 3);
 
     // return _k0 / _k1;
 
@@ -660,6 +672,7 @@ void Particle::setD(const double d,
     _d(i) = d;
 }
 
+/***
 double Particle::k0() const
 {
     return _k0;
@@ -669,6 +682,7 @@ void Particle::setK0(const double k0)
 {
     _k0 = k0;
 }
+***/
 
 double Particle::k1() const
 {
@@ -678,6 +692,26 @@ double Particle::k1() const
 void Particle::setK1(const double k1)
 {
     _k1 = k1;
+}
+
+double Particle::k2() const
+{
+    return _k2;
+}
+
+void Particle::setK2(const double k2)
+{
+    _k2 = k2;
+}
+
+double Particle::k3() const
+{
+    return _k3;
+}
+
+void Particle::setK3(const double k3)
+{
+    _k3 = k3;
 }
 
 double Particle::s0() const
@@ -698,6 +732,16 @@ double Particle::s1() const
 void Particle::setS1(const double s1)
 {
     _s1 = s1;
+}
+
+double Particle::s() const
+{
+    return _s;
+}
+
+void Particle::setS(const double s)
+{
+    _s = s;
 }
 
 /***
@@ -722,15 +766,20 @@ void Particle::calVari(const ParticleType pt)
         if (_mode == MODE_2D)
             inferVMS(_k, _r);
         else if (_mode == MODE_3D)
-            inferACG(_k0, _k1, _r);
+        {
+            // inferACG(_k0, _k1, _r);
+            inferACG(_k1, _k2, _k3, _r);
+        }
         else
             REPORT_ERROR("INEXISTENT MODE");
 
+        /***
         _k1 /= _k0;
 
         _k1 = GSL_MIN_DBL(_k1, 1);
 
         _k0 = 1;
+        ***/
     }
     else if (pt == PAR_T)
     {
@@ -764,7 +813,14 @@ void Particle::perturb(const double pf,
         if (_mode == MODE_2D)
             sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _nR);
         else if (_mode == MODE_3D)
-            sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
+        {
+            //sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
+            sampleACG(d,
+                      gsl_pow_2(pf) * _k1,
+                      gsl_pow_2(pf) * _k2,
+                      gsl_pow_2(pf) * _k3,
+                      _nR);
+        }
 
         vec4 mean;
 

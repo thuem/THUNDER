@@ -17,6 +17,7 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_bessel.h>
+#include <gsl/gsl_sort.h>
 
 #include "Config.h"
 #include "Macro.h"
@@ -63,7 +64,7 @@ void sampleACG(mat4& dst,
 /**
  * Sample from an Angular Central Gaussian Distribution
  *
- * paramter matrxix:
+ * paramter matrix:
  * k0 0  0  0
  * 0  k1 0  0
  * 0  0  k1 0
@@ -77,6 +78,27 @@ void sampleACG(mat4& dst,
 void sampleACG(mat4& dst,
                const double k0,
                const double k1,
+               const int n);
+
+/**
+ * Sample from an Angular Central Gaussian Distribution
+ *
+ * parameter matrix:
+ * 1 0 0 0
+ * 0 k1 0 0
+ * 0 0 k2 0
+ * 0 0 0 k3
+ *
+ * @param dst the destination table
+ * @param k1  the 1st parameter
+ * @param k2  the 2nd parameter
+ * @param k3  the 3rd parameter
+ * @param n   the number of samples
+ */
+void sampleACG(mat4& dst,
+               const double k1,
+               const double k2,
+               const double k3,
                const int n);
 
 /**
@@ -99,6 +121,11 @@ void inferACG(mat44& dst,
  */
 void inferACG(double& k0,
               double& k1,
+              const mat4& src);
+
+void inferACG(double& k1,
+              double& k2,
+              double& k3,
               const mat4& src);
 
 /**

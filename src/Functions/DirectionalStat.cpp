@@ -69,6 +69,21 @@ void sampleACG(mat4& dst,
     sampleACG(dst, src, n);
 }
 
+void sampleACG(mat4& dst,
+               const double k1,
+               const double k2,
+               const double k3,
+               const int n)
+{
+    mat44 src;
+    src << 1, 0, 0, 0,
+           0, k1, 0, 0,
+           0, 0, k2, 0,
+           0, 0, 0, k3;
+
+    sampleACG(dst, src, n);
+}
+
 void inferACG(mat44& dst,
               const mat4& src)
 {
@@ -124,6 +139,26 @@ void inferACG(double& k0,
     
     k0 = eigenSolver.eigenvalues().cwiseAbs().maxCoeff();
     k1 = eigenSolver.eigenvalues().cwiseAbs().minCoeff();
+}
+
+void inferACG(double& k1,
+              double& k2,
+              double& k3,
+              const mat4& src)
+{
+    mat44 A;
+    inferACG(A, src);
+
+    SelfAdjointEigenSolver<mat44> eigenSolver(A);
+
+    vec4 ev = eigenSolver.eigenvalues();
+
+    // sort eigenvalues in ascending sort
+    gsl_sort(ev.data(), 1, 4);
+
+    k1 = ev(2) / ev(3);
+    k2 = ev(1) / ev(3);
+    k3 = ev(0) / ev(3);
 }
 
 void inferACG(vec4& mean,

@@ -140,13 +140,17 @@ class Particle
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
          */
-        double _k0;
+        // double _k0;
 
         /**
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
          */
         double _k1;
+
+        double _k2;
+
+        double _k3;
 
         /**
          * sigma0 of 2D Gaussian distribution of translation
@@ -226,12 +230,17 @@ class Particle
             _sym = NULL;
 
             _k = 0;
-            _k0 = 0;
+
             _k1 = 0;
+            _k2 = 0;
+            _k3 = 0;
+
             _s0 = 0;
             _s1 = 0;
-            _s = 0;
+
             _rho = 0;
+
+            _s = 0;
 
             _topCPrev = 0;
             _topC = 0;
@@ -502,13 +511,15 @@ class Particle
         void load(const int nR,
                   const int nT,
                   const int nD,
-                  const vec4& quat,
-                  const double stdR,
-                  const vec2& tran,
-                  const double stdTX,
-                  const double stdTY,
+                  const vec4& q,
+                  const double k1,
+                  const double k2,
+                  const double k3,
+                  const vec2& t,
+                  const double s0,
+                  const double s1,
                   const double d,
-                  const double stdD);
+                  const double s);
 
         /**
          * This function returns the concentration parameters, including
@@ -520,11 +531,11 @@ class Particle
          * @param s1  sigma1 of 2D Gaussian distribution of the translation
          * @param rho rho of 2D Gaussian distribution of the translation
          */
-        void vari(double& k0,
-                  double& k1,
+        void vari(double& k1,
+                  double& k2,
+                  double& k3,
                   double& s0,
                   double& s1,
-                  double& rho,
                   double& s) const;
 
         /**
@@ -688,13 +699,23 @@ class Particle
         void setD(const double d,
                   const int i);
 
+        /***
         double k0() const;
 
         void setK0(const double k0);
+        ***/
 
         double k1() const;
 
         void setK1(const double k1);
+
+        double k2() const;
+
+        void setK2(const double k2);
+
+        double k3() const;
+
+        void setK3(const double k3);
 
         double s0() const;
 
@@ -703,6 +724,10 @@ class Particle
         double s1() const;
 
         void setS1(const double s1);
+
+        double s() const;
+
+        void setS(const double s);
 
         //void calClassDistr();
 
