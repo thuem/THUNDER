@@ -149,6 +149,11 @@ void inferACG(double& k1,
     mat44 A;
     inferACG(A, src);
 
+    k1 = A(1, 1) / A(0, 0);
+    k2 = A(2, 2) / A(0, 0);
+    k3 = A(3, 3) / A(0, 0);
+
+    /***
     SelfAdjointEigenSolver<mat44> eigenSolver(A);
 
     vec4 ev = eigenSolver.eigenvalues();
@@ -159,6 +164,7 @@ void inferACG(double& k1,
     k1 = ev(2) / ev(3);
     k2 = ev(1) / ev(3);
     k3 = ev(0) / ev(3);
+    ***/
 }
 
 void inferACG(vec4& mean,

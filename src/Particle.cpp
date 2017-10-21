@@ -767,8 +767,33 @@ void Particle::calVari(const ParticleType pt)
             inferVMS(_k, _r);
         else if (_mode == MODE_3D)
         {
-            // inferACG(_k0, _k1, _r);
+            vec4 mean;
+
+            inferACG(mean, _r);
+
+            vec4 quat;
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, quaternion_conj(mean), quat);
+
+                _r.row(i) = quat.transpose();
+            }
+
             inferACG(_k1, _k2, _k3, _r);
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, mean, quat);
+
+                _r.row(i) = quat.transpose();
+            }
+
+            // inferACG(_k0, _k1, _r);
         }
         else
             REPORT_ERROR("INEXISTENT MODE");
