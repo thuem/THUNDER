@@ -344,7 +344,7 @@ vec4 Database::quat(const int i) const
     return result;
 }
 
-double Database::stdR(const int i) const
+double Database::k1(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -355,7 +355,41 @@ double Database::stdR(const int i) const
 
     word = strtok(line, " ");
 
-    for (int i = 0; i < THU_STD_ROTATION; i++)
+    for (int i = 0; i < THU_K1; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
+double Database::k2(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_K2; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
+double Database::k3(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_K3; i++)
         word = strtok(NULL, " ");
 
     return atof(word);

@@ -60,28 +60,34 @@
 #define THU_QUATERNION_3 16
 #define THU_QUATERNION_3_FORMAT %12.6f
 
-#define THU_STD_ROTATION 17
-#define THU_STD_ROTATION_FORMAT %12.6f
+#define THU_K1 17
+#define THU_K1_FORMAT %12.6f
 
-#define THU_TRANSLATION_X 18
+#define THU_K2 18
+#define THU_K2_FORMAT %12.6f
+
+#define THU_K3 19
+#define THU_K3_FORMAT %12.6f
+
+#define THU_TRANSLATION_X 20
 #define THU_TRANSLATION_X_FORMAT %12.6f
 
-#define THU_TRANSLATION_Y 19
+#define THU_TRANSLATION_Y 21
 #define THU_TRANSLATION_Y_FORMAT %12.6f
 
-#define THU_STD_TRANSLATION_X 20
+#define THU_STD_TRANSLATION_X 22
 #define THU_STD_TRANSLATION_X_FORMAT %12.6f
 
-#define THU_STD_TRANSLATION_Y 21
+#define THU_STD_TRANSLATION_Y 23
 #define THU_STD_TRANSLATION_X_FORMAT %12.6f
 
-#define THU_DEFOCUS_FACTOR 22
+#define THU_DEFOCUS_FACTOR 24
 #define THU_DEFOCUS_FACTOR_FORMAT %12.6f
 
-#define THU_STD_DEFOCUS_FACTOR 23
+#define THU_STD_DEFOCUS_FACTOR 25
 #define THU_STD_DEFOCUS_FACTOR_FORMAT %12.6f
 
-#define THU_SCORE 24
+#define THU_SCORE 26
 #define THU_SCORE_FORMAT %12.6f
 
 #include <cstring>
@@ -215,7 +221,11 @@ class Database : public Parallel
 
         vec4 quat(const int i) const;
 
-        double stdR(const int i) const;
+        double k1(const int i) const;
+
+        double k2(const int i) const;
+
+        double k3(const int i) const;
 
         vec2 tran(const int i) const;
 

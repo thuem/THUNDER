@@ -2675,6 +2675,7 @@ void MLOptimiser::avgStdR(double& stdR)
 {
     IF_MASTER return;
 
+    /***
     stdR = 0;
 
     FOR_EACH_2D_IMAGE
@@ -2688,12 +2689,14 @@ void MLOptimiser::avgStdR(double& stdR)
                  _hemi);
 
     stdR /= _N;
+    ***/
 }
 
 void MLOptimiser::avgStdT(double& stdT)
 {
     IF_MASTER return;
 
+    /***
     stdT = 0;
 
     FOR_EACH_2D_IMAGE
@@ -2711,6 +2714,7 @@ void MLOptimiser::avgStdT(double& stdT)
 
     stdT /= _N;
     stdT /= 2;
+    ***/
 }
 
 void MLOptimiser::loadParticles()
@@ -2735,11 +2739,11 @@ void MLOptimiser::loadParticles()
     vec2 tran;
     double d;
 
-    double stdR, stdTX, stdTY, stdD;
+    double k1, k2, k3, stdTX, stdTY, stdD;
 
     //#pragma omp parallel for private(cls, quat, stdR, tran, d)
 
-    #pragma omp parallel for private(quat, tran, d, stdR, stdTX, stdTY, stdD)
+    #pragma omp parallel for private(quat, tran, d, k1, k2, k3, stdTX, stdTY, stdD)
     FOR_EACH_2D_IMAGE
     {
         #pragma omp critical
@@ -2750,7 +2754,10 @@ void MLOptimiser::loadParticles()
             tran = _db.tran(_ID[l]);
             d = _db.d(_ID[l]);
 
-            stdR = _db.stdR(_ID[l]);
+            k1 = _db.k1(_ID[l]);
+            k2 = _db.k2(_ID[l]);
+            k3 = _db.k3(_ID[l]);
+
             stdTX = _db.stdTX(_ID[l]);
             stdTY = _db.stdTY(_ID[l]);
             stdD = _db.stdD(_ID[l]);
@@ -2760,9 +2767,9 @@ void MLOptimiser::loadParticles()
                      _para.mLT,
                      1,
                      quat,
-                     stdR,
-                     stdR,
-                     stdR,
+                     k1,
+                     k2,
+                     k3,
                      tran,
                      stdTX,
                      stdTY,
