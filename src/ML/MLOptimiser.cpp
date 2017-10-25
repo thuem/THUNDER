@@ -1378,9 +1378,9 @@ void MLOptimiser::expectation()
 
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
 
-                if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                    (k2Cur < k2 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                    (k3Cur < k3 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                    (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                    (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                     (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
