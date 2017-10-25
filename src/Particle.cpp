@@ -488,7 +488,7 @@ void Particle::vari(double& rVari,
             // more cencentrate, smaller rVari, bigger _k0 / _k1;
 
             // rVari = sqrt(_k1) / sqrt(_k0);
-            rVari = pow(_k1 * _k2 * _k3, 1.0 / 3);
+            rVari = pow(_k1 * _k2 * _k3, 1.0 / 6);
 
             break;
 
