@@ -1024,9 +1024,11 @@ void MLOptimiser::expectation()
 #ifdef OPTIMISER_COMPRESS_CRITERIA
         double topCmp = 0;
 #else
+        double k1 = 1;
+        double k2 = 1;
+        double k3 = 1;
         double tVariS0 = 5 * _para.transS;
         double tVariS1 = 5 * _para.transS;
-        double rVari = 1;
         double dVari = 5 * _para.ctfRefineS;
 #endif
 
@@ -1365,16 +1367,22 @@ void MLOptimiser::expectation()
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
                         : MIN_N_PHASE_PER_ITER_LOCAL))
             {
+                double k1Cur;
+                double k2Cur;
+                double k3Cur;
                 double tVariS0Cur;
                 double tVariS1Cur;
-                double rVariCur;
                 double dVariCur;
 
-                _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
+                // _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
 
-                if ((tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
+
+                if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                    (k2Cur < k2 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                    (k3Cur < k3 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                    (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                    (rVariCur < rVari * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
                 {
                     // there is still room for searching
@@ -1387,9 +1395,11 @@ void MLOptimiser::expectation()
                 topCmp = _par[l].compress();
 #else
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
+                if (k1Cur < k1) k1 = k1Cur;
+                if (k2Cur < k2) k2 = k2Cur;
+                if (k3Cur < k3) k3 = k3Cur;
                 if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
                 if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
-                if (rVariCur < rVari) rVari = rVariCur;
                 if (dVariCur < dVari) dVari = dVariCur;
 #endif
 
