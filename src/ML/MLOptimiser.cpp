@@ -4009,12 +4009,12 @@ void MLOptimiser::reconstructRef()
                       _model.ref(t),
                       (double)(_model.rU() - EDGE_WIDTH_FT) / _para.size,
                       (double)EDGE_WIDTH_FT / _para.size);
-        ***/
 
 #ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
 #endif
+        ***/
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
