@@ -1831,6 +1831,14 @@ void MLOptimiser::run()
 
 #endif
 
+#ifdef OPTIMISER_SAVE_SOLVENT_FLATTENED_REFERENCE
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Solvent Flattened Reference(s)";
+
+        saveReference();
+
+#endif
+
             /***
 #ifdef OPTIMISER_BALANCE_CLASS
 
