@@ -984,6 +984,8 @@ void MLOptimiser::expectation()
             freePreCal(true);
     }
 
+#ifdef OPTIMISER_PARTICLE_FILTER
+
     if (_searchType != SEARCH_TYPE_CTF)
         allocPreCal(false, false);
     else
@@ -1011,11 +1013,6 @@ void MLOptimiser::expectation()
     {
         double baseLine = GSL_NAN;
 
-        /***
-        Complex* priRotP = new Complex[_nPxl];
-        Complex* priAllP = new Complex[_nPxl];
-        ***/
-
         Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
         Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
 
@@ -1033,7 +1030,6 @@ void MLOptimiser::expectation()
 #endif
 
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
-        //for (int phase = 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if (phase == 0)
             {
@@ -1079,7 +1075,6 @@ void MLOptimiser::expectation()
             vec wR = vec::Zero(_para.mLR);
             vec wT = vec::Zero(_para.mLT);
             vec wD = vec::Zero(_para.mLD);
-            //vec logW(_par[l].n());
 
             unsigned int c;
             mat22 rot2D;
@@ -1483,6 +1478,8 @@ void MLOptimiser::expectation()
         freePreCal(false);
     else
         freePreCal(true);
+
+#endif // OPTIMISER_PARTICLE_FILTER
 
     freePreCalIdx();
 }
