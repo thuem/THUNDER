@@ -3909,7 +3909,7 @@ void MLOptimiser::reconstructRef()
                 _par[l].rand(cls, quat, tran, d);
 
                 // TODO, TEST!!!!!!
-                tran = vec2(0, 0);
+                // tran = vec2(0, 0);
 
                 mat33 rot3D;
 
