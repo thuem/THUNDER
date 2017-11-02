@@ -1528,8 +1528,13 @@ void MLOptimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
-    /***
+#ifdef OPTIMISER_SAVE_IMAGES
+
     saveImages();
+
+#endif
+    
+    /***
     saveCTFs();
     saveBinImages();
     saveLowPassImages();
