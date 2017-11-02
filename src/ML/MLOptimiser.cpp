@@ -4257,13 +4257,10 @@ void MLOptimiser::allocPreCal(const bool pixelMajor,
     IF_MASTER return;
 
     _datP = (Complex*)fftw_malloc(_ID.size() * _nPxl * sizeof(Complex));
-    // _datP = new Complex[_ID.size() * _nPxl];
 
     _ctfP = (double*)fftw_malloc(_ID.size() * _nPxl * sizeof(double));
-    //_ctfP = new double[_ID.size() * _nPxl];
 
     _sigRcpP = (double*)fftw_malloc(_ID.size() * _nPxl * sizeof(double));
-    //_sigRcpP = new double[_ID.size() * _nPxl];
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -5091,7 +5088,8 @@ vec logDataVSPrior(const Complex* dat,
     for (int i = 0; i < m; i++)
         for (int j = 0; j < n; j++)
         {
-            int idx = i * n + j;
+            size_t idx = i * n + j;
+
             result(j) += ABS2(dat[idx] - ctf[idx] * pri[i])
 #ifdef OPTIMISER_CTF_WRAP
                        * fabs(ctf[idx])
