@@ -115,6 +115,9 @@ void Projector::setProjectee(Image src)
     gridCorrection();
 
 #endif
+
+    fft.fwMT(_projectee2D);
+    _projectee2D.clearRL();
 }
 
 void Projector::setProjectee(Volume src)
@@ -139,6 +142,9 @@ void Projector::setProjectee(Volume src)
     gridCorrection();
 
 #endif
+
+    fft.fwMT(_projectee3D);
+    _projectee3D.clearRL();
 }
 
 void Projector::project(Image& dst,
@@ -505,8 +511,6 @@ void Projector::projectMT(Complex* dst,
 
 void Projector::gridCorrection()
 {
-        FFT fft;
-
         if (_mode == MODE_2D)
         {
 #ifdef VERBOSE_LEVEL_3
@@ -542,9 +546,6 @@ void Projector::gridCorrection()
 #ifdef VERBOSE_LEVEL_3
             CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
 #endif
-
-            fft.fwMT(_projectee2D);
-            _projectee2D.clearRL();
         }
         else if (_mode == MODE_3D)
         {
@@ -583,9 +584,6 @@ void Projector::gridCorrection()
 #ifdef VERBOSE_LEVEL_3
             CLOG(INFO, "LOGGER_SYS") << "Fourier Transform in Grid Correction";
 #endif
-
-            fft.fwMT(_projectee3D);
-            _projectee3D.clearRL();
         }
         else
             REPORT_ERROR("INEXISTENT_MODE");
