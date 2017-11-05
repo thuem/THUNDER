@@ -137,8 +137,8 @@ void inferACG(double& k0,
 
     //ev = ev.cwiseAbs();
     
-    k0 = eigenSolver.eigenvalues().cwiseAbs().maxCoeff();
-    k1 = eigenSolver.eigenvalues().cwiseAbs().minCoeff();
+    k0 = eigenSolver.eigenvalues().maxCoeff();
+    k1 = eigenSolver.eigenvalues().minCoeff();
 }
 
 void inferACG(double& k1,
@@ -177,7 +177,7 @@ void inferACG(vec4& mean,
 
     int i;
 
-    eigenSolver.eigenvalues().cwiseAbs().maxCoeff(&i);
+    eigenSolver.eigenvalues().maxCoeff(&i);
 
     mean = eigenSolver.eigenvectors().col(i);
 
