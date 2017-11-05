@@ -308,6 +308,7 @@ int main(int argc, char* argv[])
     if (commRank == MASTER_ID)
         CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
+    /***
     Reconstructor reco(MODE_3D, N, 2, &sym);
     reco.setMPIEnv();
 
