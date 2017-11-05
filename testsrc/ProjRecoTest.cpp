@@ -23,7 +23,7 @@
 
 #define PF 2
 
-#define N 160
+#define N 200
 #define M 5000
 //#define M 40000
 //#define M 10
@@ -46,8 +46,8 @@
 
 #define NOISE_FACTOR 1
 
-#define TEST_2D
-//#define TEST_3D
+#define TEST_3D
+//#define TEST_2D
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
     FFT fft;
 
-    Symmetry sym("C4");
+    Symmetry sym("C1");
 
         Image ctf1(N, N, FT_SPACE);
         Image ctf2(N, N, FT_SPACE);
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
     if (commRank == MASTER_ID)
     {
         CLOG(INFO, "LOGGER_SYS") << "Initialising Random Sampling Points";
-        Particle par(M, 1, TRANS_S, 0.01, &sym);
+        Particle par(MODE_3D, 1, M, 1, 1, TRANS_S, 0.01, &sym);
         //Particle par(M, TRANS_S, 0.01, NULL);
         save("SamplingPoints.par", par);
 
@@ -172,12 +172,15 @@ int main(int argc, char* argv[])
             (ref.nRowRL() != N))
             CLOG(INFO, "LOGGER_SYS") << "Wrong Size!";
 
+        /***
         FOR_EACH_PIXEL_RL(ref)
             if (ref(i) < 0) ref(i) = 0;
 
         imf.readMetaData(ref);
         imf.writeVolume("truncRef.mrc", ref);
+        ****/
 
+        /***
         CLOG(INFO, "LOGGER_SYS") << "Padding Head";
 
         Volume padRef;
@@ -187,77 +190,86 @@ int main(int argc, char* argv[])
 
         imf.readMetaData(padRef);
         imf.writeVolume("padRef.mrc", padRef);
+        ***/
 
         CLOG(INFO, "LOGGER_SYS") << "Fourier Transforming Ref";
-        fft.fwMT(padRef);
+        //fft.fwMT(padRef);
         fft.fwMT(ref);
 
-        CLOG(INFO, "LOGGER_SYS") << "padRef[0]" << REAL(padRef[0]);
+        //CLOG(INFO, "LOGGER_SYS") << "padRef[0]" << REAL(padRef[0]);
 
         CLOG(INFO, "LOGGER_SYS") << "Setting Projectee";
         projector.setPf(PF);
-        projector.setProjectee(padRef.copyVolume());
+        //projector.setProjectee(padRef.copyVolume());
+        projector.setProjectee(ref.copyVolume());
 
-        Coordinate5D coord;
+        /***
+        mat33 rot;
+
         Image image(N, N, FT_SPACE);
         SET_0_FT(image);
+        ***/
 
+        /***
         par.coord(coord, 0);
     
         projector.project(image, coord);
         fft.bw(image);
 
         double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
+        ***/
 
         #pragma omp parallel for
-        for (int i = 0; i < M; i++)
+        for (int l = 0; l < M; l++)
         {
             FFT fftThread;
 
             gsl_rng* engine = get_random_engine();
 
             char name[256];
-            Coordinate5D coord;
 
             Image image(N, N, FT_SPACE);
+
             SET_0_FT(image);
 
-            sprintf(name, "%05d.mrc", i + 1);
+            sprintf(name, "%05d.mrc", l + 1);
 
-            par.coord(coord, i);
-            projector.project(image, coord);
+            mat33 rot;
 
-            if (i % 8 == 0)
+            par.rot(rot, l);
+            projector.project(image, rot);
+
+            if (l % 8 == 0)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf1[i]);
             }
-            else if (i % 8 == 1)
+            else if (l % 8 == 1)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf2[i]);
             }
-            else if (i % 8 == 2)
+            else if (l % 8 == 2)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf3[i]);
             }
-            else if (i % 8 == 3)
+            else if (l % 8 == 3)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf4[i]);
             }
-            else if (i % 8 == 4)
+            else if (l % 8 == 4)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf5[i]);
             }
-            else if (i % 8 == 5)
+            else if (l % 8 == 5)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf6[i]);
             }
-            else if (i % 8 == 6)
+            else if (l % 8 == 6)
             {
                 FOR_EACH_PIXEL_FT(image)
                     image[i] *= REAL(ctf7[i]);
@@ -270,11 +282,13 @@ int main(int argc, char* argv[])
 
             fftThread.bw(image);
 
+            /***
             Image noise(N, N, RL_SPACE);
             FOR_EACH_PIXEL_RL(noise)
                 noise(i) = gsl_ran_gaussian(engine, NOISE_FACTOR * std);
 
             ADD_RL(image, noise);
+            ***/
 
             ImageFile imfThread;
 
@@ -290,14 +304,9 @@ int main(int argc, char* argv[])
     if (commRank == MASTER_ID)
         CLOG(INFO, "LOGGER_SYS") << "Projection Done!";
 
+    /***
     Reconstructor reco(N, 2, &sym, BLOB_A);
-    //Reconstructor reco(N, 2, NULL, 0.95);
-    //Reconstructor reco(N, 2, &sym);
-    //Reconstructor reco(N, 2, NULL, 0.95);
-    //Reconstructor reco(N, 2, &sym, 0.95);
-    //Reconstructor reco(N, 2, NULL);
     reco.setMPIEnv();
-    //reco.setMaxRadius(33);
 
     if (commRank == MASTER_ID)
         CLOG(INFO, "LOGGER_SYS") << "Reconstructor Set!";
@@ -340,7 +349,6 @@ int main(int argc, char* argv[])
 
             par.coord(coord, i);
 
-            /***
             if (i % 8 == 0)
                 reco.insert(insert, ctf1, coord, 1);
             else if (i % 8 == 1)
@@ -357,7 +365,6 @@ int main(int argc, char* argv[])
                 reco.insert(insert, ctf7, coord, 1);
             else
                 reco.insert(insert, ctf8, coord, 1);
-            ***/
 
             CLOG(INFO, "LOGGER_SYS") << nameInsert << " Inserted!";
         }
@@ -523,6 +530,7 @@ int main(int argc, char* argv[])
             imageNew.saveRLToBMP(name);
         }
     }
+    ***/
 
 #endif
     
