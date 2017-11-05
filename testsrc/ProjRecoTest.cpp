@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 
             SET_0_FT(image);
 
-            sprintf(name, "%05d.mrc", l + 1);
+            sprintf(name, "%05d.bmp", l + 1);
 
             mat33 rot;
 
