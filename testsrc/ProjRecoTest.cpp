@@ -290,10 +290,14 @@ int main(int argc, char* argv[])
             ADD_RL(image, noise);
             ***/
 
+            /***
             ImageFile imfThread;
 
             imfThread.readMetaData(image);
             imfThread.writeImage(name, image);
+            ***/
+
+            image.saveRLToBMP(name);
 
             fftThread.fw(image);
         }
