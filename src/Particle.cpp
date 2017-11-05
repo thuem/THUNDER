@@ -906,7 +906,11 @@ void Particle::perturb(const double pf,
             _t(i, 1) += y * pf;
         }
 
+#ifdef PARTICLE_RECENTRE
+
         reCentre();
+
+#endif
     }
     else if (pt == PAR_D)
     {
