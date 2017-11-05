@@ -110,7 +110,11 @@ void Projector::setProjectee(Image src)
     CLOG(INFO, "LOGGER_SYS") << "Performing Grid Correction";
 #endif
 
+#ifdef PROJECTOR_CORRECT_CONVOLUTION_KERNEL
+
     gridCorrection();
+
+#endif
 }
 
 void Projector::setProjectee(Volume src)
