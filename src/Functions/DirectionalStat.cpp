@@ -170,6 +170,7 @@ void inferACG(double& k1,
 void inferACG(vec4& mean,
               const mat4& src)
 {
+    /***
     mat44 A;
     inferACG(A, src);
 
@@ -180,6 +181,11 @@ void inferACG(vec4& mean,
     eigenSolver.eigenvalues().maxCoeff(&i);
 
     mean = eigenSolver.eigenvectors().col(i);
+
+    mean /= mean.norm();
+    ***/
+
+    mean = src.colwise().sum().transpose();
 
     mean /= mean.norm();
 }
