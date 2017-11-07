@@ -185,7 +185,12 @@ void inferACG(vec4& mean,
     mean /= mean.norm();
     ***/
 
-    mean = src.colwise().sum().transpose();
+    mean = vec4::Zero();
+
+    for (int i = 0; i < src.rows(); i++)
+        mean += src.row(i).transpose() * (src(i, 0) > 0 ? 1 : -1);
+
+    // mean = src.colwise().sum().transpose();
 
     mean /= mean.norm();
 }
