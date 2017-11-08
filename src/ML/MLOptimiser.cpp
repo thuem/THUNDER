@@ -607,19 +607,22 @@ void MLOptimiser::expectation()
 
         _nR = 0;
 
-        /***
         omp_lock_t* mtx = new omp_lock_t[_ID.size()];
+
+        double* baseLine = new double[_ID.size()];
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
+        {
             omp_init_lock(&mtx[l]);
-        ***/
+            baseLine[l] = GSL_NAN;
+        }
 
         // t -> class
         // m -> rotation
         // n -> translation
         
-        double baseLine = GSL_NAN;
+        // double baseLine = GSL_NAN;
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
@@ -704,35 +707,49 @@ void MLOptimiser::expectation()
 
                     //delete[] priP;
 
-                    #pragma omp critical
+                    FOR_EACH_2D_IMAGE
                     {
-                        if (gsl_isnan(baseLine))
-                            baseLine = dvp.maxCoeff();
+                        omp_set_lock(&mtx[l]);
+
+                        if (gsl_isnan(baseLine[l]))
+                            baseLine[l] = dvp(l);
                         else
                         {
-                            double offset = (dvp.maxCoeff() > baseLine)
-                                          ? (dvp.maxCoeff() - baseLine)
-                                          : 0;
-
-                            double nf = exp(offset);
-
-                            if (gsl_isinf(nf))
+                            if (dvp(l) > baseLine[l])
                             {
-                                wC = mat::Zero(_ID.size(), _para.k);
-                                wR = mat::Zero(_ID.size(), nR);
-                                wT = mat::Zero(_ID.size(), nT);
-                            }
-                            else
-                            {
-                                wC /= nf;
-                                wR /= nf;
-                                wT /= nf;
-                            }
+                                double offset = dvp(l) - baseLine[l];
 
-                            baseLine += offset;
+                                double nf = exp(offset);
+
+                                if (gsl_isinf(nf))
+                                {
+                                    wC.row(l) = vec::Zero(_para.k).transpose();
+                                    wR.row(l) = vec::Zero(nR).transpose();
+                                    wT.row(l) = vec::Zero(nT).transpose();
+                                }
+                                else
+                                {
+                                    wC.row(l) /= nf;
+                                    wR.row(l) /= nf;
+                                    wT.row(l) /= nf;
+                                }
+
+                                baseLine[l] += offset;
+                            }
                         }
+
+                        double w = exp(dvp(l) - baseLine[l]);
+
+                        wC(l, t) += w;
+
+                        wR(l, m) += w;
+
+                        wT(l, n) += w;
+
+                        omp_unset_lock(&mtx[l]);
                     }
 
+                    /***
                     FOR_EACH_2D_IMAGE
                     {
                         {
@@ -747,6 +764,7 @@ void MLOptimiser::expectation()
                             wT(l, n) += w;
                         }
                     }
+                    ***/
 
                     /***
                     FOR_EACH_2D_IMAGE
@@ -806,7 +824,8 @@ void MLOptimiser::expectation()
             fftw_free(poolPriAllP);
         }
 
-        //delete[] mtx;
+        delete[] mtx;
+        delete[] baseLine;
         
         /***
         mat topW(nSampleMax, _ID.size());
