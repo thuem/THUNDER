@@ -693,6 +693,8 @@ void MLOptimiser::expectation()
                     for (int i = 0; i < _nPxl; i++)
                         priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
 
+                    // higher logDataVSPrior, higher prabibility
+
                     vec dvp = logDataVSPrior(_datP,
                                              priAllP,
                                              _ctfP,
@@ -703,7 +705,33 @@ void MLOptimiser::expectation()
                     //delete[] priP;
 
                     #pragma omp critical
-                    baseLine = gsl_isnan(baseLine) ? dvp(0) : baseLine;
+                    {
+                        if (gsl_isnan(baseLine))
+                            baseLine = dvp.maxCoeff();
+                        else
+                        {
+                            double offset = (dvp.maxCoeff() > baseLine)
+                                          ? (dvp.maxCoeff() - baseLine)
+                                          : 0;
+
+                            double nf = exp(offset);
+
+                            if (gsl_isinf(nf))
+                            {
+                                wC = mat::Zero(_ID.size(), _para.k);
+                                wR = mat::Zero(_ID.size(), nR);
+                                wT = mat::Zero(_ID.size(), nT);
+                            }
+                            else
+                            {
+                                wC /= nf;
+                                wR /= nf;
+                                wT /= nf;
+                            }
+
+                            baseLine += offset;
+                        }
+                    }
 
                     FOR_EACH_2D_IMAGE
                     {
