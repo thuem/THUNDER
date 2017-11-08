@@ -115,11 +115,13 @@ void inferACG(mat44& dst,
 
         B *= 4.0 / nf;
 
+        /***
         // make it self-adjoint
         for (int i = 1; i < 4; i++)
             for (int j = 0; j < i; j++)
                 B(i, j) = B(j, i);
-    } while ((abs((A - B).array())).sum() > 1e-5);
+        ***/
+    } while ((abs((A - B).array())).sum() > 1e-10);
 
     dst = A;
 }
@@ -170,7 +172,6 @@ void inferACG(double& k1,
 void inferACG(vec4& mean,
               const mat4& src)
 {
-    /***
     mat44 A;
     inferACG(A, src);
 
@@ -183,16 +184,15 @@ void inferACG(vec4& mean,
     mean = eigenSolver.eigenvectors().col(i);
 
     mean /= mean.norm();
-    ***/
 
+    /***
     mean = vec4::Zero();
 
     for (int i = 0; i < src.rows(); i++)
         mean += src.row(i).transpose() * (src(i, 0) > 0 ? 1 : -1);
 
-    // mean = src.colwise().sum().transpose();
-
     mean /= mean.norm();
+    ***/
 }
 
 double pdfVMS(const vec2& x,
