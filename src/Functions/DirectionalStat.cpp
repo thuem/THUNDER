@@ -124,6 +124,18 @@ void inferACG(mat44& dst,
     } while ((abs((A - B).array())).sum() > 1e-3);
 
     dst = A;
+
+#ifndef NAN_NO_CHECK
+
+    for (int i = 0; i < dst.nrows(); i++)
+        for (int j = 0; j < dst.ncols(); j++)
+            if (gsl_isnan(dst(i, j)))
+            {
+                REPORT_ERROR("NAN DETECTED");
+                abort();
+            }
+
+#endif
 }
 
 void inferACG(double& k0,
@@ -185,14 +197,16 @@ void inferACG(vec4& mean,
 
     mean /= mean.norm();
 
-    /***
-    mean = vec4::Zero();
+#ifndef NAN_NO_CHECK
+    
+    for (int i = 0; i < 4; i++)
+        if (gsl_isnan(mean(i)))
+        {
+            REPORT_ERROR("NAN DETECTED");
+            abort();
+        }
 
-    for (int i = 0; i < src.rows(); i++)
-        mean += src.row(i).transpose() * (src(i, 0) > 0 ? 1 : -1);
-
-    mean /= mean.norm();
-    ***/
+#endif
 }
 
 double pdfVMS(const vec2& x,

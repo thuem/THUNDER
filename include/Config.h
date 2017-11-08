@@ -29,6 +29,8 @@
 
 #define MATRIX_BOUNDARY_NO_CHECK
 
+//#define NAN_NO_CHECK
+
 #define NOISE_ZERO_MEAN
 
 #define DATABASE_SHUFFLE

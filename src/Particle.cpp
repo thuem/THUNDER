@@ -842,9 +842,9 @@ void Particle::perturb(const double pf,
             //sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
 
             sampleACG(d,
-                      gsl_pow_2(pf) * _k1,
-                      gsl_pow_2(pf) * _k2,
-                      gsl_pow_2(pf) * _k3,
+                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
 
             /***
