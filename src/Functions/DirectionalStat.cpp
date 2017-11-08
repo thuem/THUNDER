@@ -127,8 +127,8 @@ void inferACG(mat44& dst,
 
 #ifndef NAN_NO_CHECK
 
-    for (int i = 0; i < dst.nrows(); i++)
-        for (int j = 0; j < dst.ncols(); j++)
+    for (int i = 0; i < dst.rows(); i++)
+        for (int j = 0; j < dst.cols(); j++)
             if (gsl_isnan(dst(i, j)))
             {
                 REPORT_ERROR("NAN DETECTED");
