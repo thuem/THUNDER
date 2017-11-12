@@ -629,7 +629,8 @@ void Reconstructor::reconstruct(Volume& dst)
                            ? _FSC(_FSC.size() - 1)
                            : _FSC(u / _pf);
 
-                FSC = GSL_MAX_DBL(FSC_BASE, GSL_MIN_DBL(1 - FSC_BASE, FSC));
+                //FSC = GSL_MAX_DBL(FSC_BASE, GSL_MIN_DBL(1 - FSC_BASE, FSC));
+                FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
                 //FSC = GSL_MAX_DBL(1e-2, GSL_MIN_DBL(1 - 1e-2, FSC));
 
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
@@ -724,7 +725,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                     _W2D.setFTHalf(_W2D.getFTHalf(i, j)
                                  / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
-                                               1e-15),
+                                               1e-6),
                                    i,
                                    j);
         }
@@ -735,7 +736,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                     _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
                                  / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
-                                               1e-15),
+                                               1e-6),
                                    i,
                                    j,
                                    k);
