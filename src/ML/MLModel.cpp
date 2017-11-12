@@ -926,6 +926,7 @@ void MLModel::refreshReco()
 
         _reco[l]->init(_mode,
                        _size,
+                       _size,
                        _pf,
                        _sym,
                        _a,

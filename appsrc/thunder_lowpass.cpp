@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
     imf.readMetaData(ref);
 
-    imf.writeVolume(argv[1], ref);
+    imf.writeVolume(argv[1], ref, atof(argv[4]));
 
     fftw_cleanup_threads();
 

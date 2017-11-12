@@ -100,6 +100,8 @@ class Reconstructor : public Parallel
          */
         int _size;
 
+        int _N;
+
         Image _F2D;
 
         Image _W2D;
@@ -283,6 +285,7 @@ class Reconstructor : public Parallel
          */
         Reconstructor(const int mode,
                       const int size,
+                      const int N,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
                       const double a = 1.9,
@@ -306,6 +309,7 @@ class Reconstructor : public Parallel
          */
         void init(const int mode,
                   const int size,
+                  const int N,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
                   const double a = 1.9,

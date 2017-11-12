@@ -15,6 +15,7 @@ Reconstructor::Reconstructor()
 
 Reconstructor::Reconstructor(const int mode,
                              const int size,
+                             const int N,
                              const int pf,
                              const Symmetry* sym,
                              const double a,
@@ -22,7 +23,7 @@ Reconstructor::Reconstructor(const int mode,
 {
     defaultInit();
 
-    init(mode, size, pf, sym, a, alpha);
+    init(mode, size, N, pf, sym, a, alpha);
 }
 
 Reconstructor::~Reconstructor()
@@ -33,6 +34,7 @@ Reconstructor::~Reconstructor()
 
 void Reconstructor::init(const int mode,
                          const int size,
+                         const int N,
                          const int pf,
                          const Symmetry* sym,
                          const double a,
@@ -40,6 +42,7 @@ void Reconstructor::init(const int mode,
 {
     _mode = mode;
     _size = size;
+    _N = N;
     _pf = pf;
     _sym = sym;
 
@@ -826,7 +829,8 @@ void Reconstructor::reconstruct(Volume& dst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F2D.setRL(_F2D.getRL(i, j)
-                     / MKB_RL(NORM(i, j) / PAD_SIZE,
+                     // / MKB_RL(NORM(i, j) / PAD_SIZE,
+                     / MKB_RL(NORM(i, j) / (_pf * _N),
                               _a * _pf,
                               _alpha)
                      * nf,
@@ -836,7 +840,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F2D.setRL(_F2D.getRL(i, j)
-                     / TIK_RL(NORM(i, j) / PAD_SIZE),
+                     // / TIK_RL(NORM(i, j) / PAD_SIZE),
+                     / TIK_RL(NORM(i, j) / (_pf * _N)),
                        i,
                        j);
 #endif
@@ -849,7 +854,8 @@ void Reconstructor::reconstruct(Volume& dst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F3D.setRL(_F3D.getRL(i, j, k)
-                     / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
+                     // / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
+                     / MKB_RL(NORM_3(i, j, k) / (_pf * _N),
                               _a * _pf,
                               _alpha)
                      * nf,
@@ -860,7 +866,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F3D.setRL(_F3D.getRL(i, j, k)
-                     / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
+                     // / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
+                     / TIK_RL(NORM_3(i, j, k) / (_pf * _N)),
                        i,
                        j,
                        k);
@@ -878,7 +885,7 @@ void Reconstructor::reconstruct(Volume& dst)
     if (_mode == MODE_2D)
     {
         dst.clear();
-        dst.alloc(_size, _size, 1, RL_SPACE);
+        dst.alloc(_N, _N, 1, RL_SPACE);
 
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
         //TODO
@@ -893,20 +900,30 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
-        VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
+        dst.clear();
+        dst.alloc(_N, _N, _N, RL_SPACE);
+
+        SET_0_RL(dst);
+
+        for (int k = -_size / 2; k < _size / 2; k++)
+            for (int j = -_size / 2; j < _size / 2; j++)
+                for (int i = -_size / 2; i < _size / 2; i++)
+                    dst.setRL(_F3D.getRL(i, j, k), i, j, k);
+
+        // VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
 
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
 
 #ifdef RECONSTRUCTOR_REMOVE_CORNER_MASK_ZERO
         softMask(dst,
                  dst,
-                 _size / 2,
+                 _N / 2,
                  EDGE_WIDTH_RL,
                  0);
 #else
         softMask(dst,
                  dst,
-                 _size / 2,
+                 _N / 2,
                  EDGE_WIDTH_RL);
 #endif
 
@@ -1090,7 +1107,8 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
             _C2D.setRL(_C2D.getRL(i, j)
-                     * _kernelRL(QUAD(i, j) / gsl_pow_2(PAD_SIZE))
+                     // * _kernelRL(QUAD(i, j) / gsl_pow_2(PAD_SIZE))
+                     * _kernelRL(QUAD(i, j) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
                        j);
@@ -1106,7 +1124,8 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
             _C3D.setRL(_C3D.getRL(i, j, k)
-                     * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
+                     // * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
+                     * _kernelRL(QUAD(i, j) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
                        j,
