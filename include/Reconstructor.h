@@ -54,7 +54,7 @@
 
 #define WIENER_FACTOR_MIN_R 5
 
-#define FSC_BASE 1e-2
+#define FSC_BASE 1e-1
 
 /**
  * @ingroup Reconstructor
