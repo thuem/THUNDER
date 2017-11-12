@@ -807,9 +807,9 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
     if (_mode == MODE_2D)
-        _fft.bwExecutePlan(_F2D);
+        _fft.bwExecutePlanMT(_F2D);
     else if (_mode == MODE_3D)
-        _fft.bwExecutePlan(_F3D);
+        _fft.bwExecutePlanMT(_F3D);
     else
         REPORT_ERROR("INEXISTENT MODE");
 
@@ -884,31 +884,46 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
+        _fft.fwExecutePlanMT(_F2D);
+        _F2D.clearRL();
+
         dst.clear();
-        dst.alloc(_N, _N, 1, RL_SPACE);
+        dst.alloc(_N, _N, 1, FT_SPACE);
 
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
-        //TODO
+        // TODO
 #endif
 
+        // TODO
+        /***
         for (int j = -_size / 2; j < _size / 2; j++)
             for (int i = -_size / 2; i < _size / 2; i++)
                 dst.setRL(_F2D.getRL(i, j), i, j, 0);
-
-        _fft.fwExecutePlanMT(_F2D);
-        _F2D.clearRL();
+        ***/
     }
     else if (_mode == MODE_3D)
     {
-        dst.clear();
-        dst.alloc(_N, _N, _N, RL_SPACE);
+        _fft.fwExecutePlanMT(_F3D);
+        _F3D.clearRL();
 
-        SET_0_RL(dst);
+        Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
+        SET_0_FT(padDst);
+
+        VOLUME_FOR_EACH_PIXEL_FT(_F3D)
+            dst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j,k);
+
+        FFT fft;
+        fft.bwMT(padDst);
+
+        VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf);
+
+        /***
         for (int k = -_size / 2; k < _size / 2; k++)
             for (int j = -_size / 2; j < _size / 2; j++)
                 for (int i = -_size / 2; i < _size / 2; i++)
                     dst.setRL(_F3D.getRL(i, j, k), i, j, k);
+        ***/
 
         // VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
 
@@ -928,9 +943,6 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
 #endif
-
-        _fft.fwExecutePlanMT(_F3D);
-        _F3D.clearRL();
     }
     else
         REPORT_ERROR("INEXISTENT MODE");
