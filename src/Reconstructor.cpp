@@ -903,18 +903,34 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
+        ALOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
+        BLOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
+
         _fft.fwExecutePlanMT(_F3D);
         _F3D.clearRL();
+
+        ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
+        BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
 
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
         SET_0_FT(padDst);
 
+        ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+        BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+
+        #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
-            dst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j,k);
+            padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
+
+        ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
+        BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
 
         FFT fft;
         fft.bwMT(padDst);
+        
+        ALOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
+        BLOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
 
         VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf);
 
