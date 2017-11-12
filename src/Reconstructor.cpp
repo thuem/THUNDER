@@ -724,7 +724,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                     _W2D.setFTHalf(_W2D.getFTHalf(i, j)
                                  / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
-                                               1e-6),
+                                               1e-15),
                                    i,
                                    j);
         }
@@ -735,7 +735,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                     _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
                                  / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
-                                               1e-6),
+                                               1e-15),
                                    i,
                                    j,
                                    k);
