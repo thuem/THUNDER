@@ -806,89 +806,24 @@ void Reconstructor::reconstruct(Volume& dst)
         REPORT_ERROR("INEXISTENT MODE");
 #endif
 
+    /***
     if (_mode == MODE_2D)
         _fft.bwExecutePlanMT(_F2D);
     else if (_mode == MODE_3D)
         _fft.bwExecutePlanMT(_F3D);
     else
         REPORT_ERROR("INEXISTENT MODE");
-
-#ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
-
-    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
-    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
-
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-    double nf = MKB_RL(0, _a * _pf, _alpha);
-#endif
+    ***/
 
     if (_mode == MODE_2D)
     {
-        #pragma omp parallel for schedule(dynamic)
-        IMAGE_FOR_EACH_PIXEL_RL(_F2D)
-        {
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F2D.setRL(_F2D.getRL(i, j)
-                     // / MKB_RL(NORM(i, j) / PAD_SIZE,
-                     / MKB_RL(NORM(i, j) / (_pf * _N),
-                              _a * _pf,
-                              _alpha)
-                     * nf,
-                       i,
-                       j);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F2D.setRL(_F2D.getRL(i, j)
-                     // / TIK_RL(NORM(i, j) / PAD_SIZE),
-                     / TIK_RL(NORM(i, j) / (_pf * _N)),
-                       i,
-                       j);
-#endif
-        }
-    }
-    else if (_mode == MODE_3D)
-    {
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(_F3D)
-        {
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F3D.setRL(_F3D.getRL(i, j, k)
-                     // / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
-                     / MKB_RL(NORM_3(i, j, k) / (_pf * _N),
-                              _a * _pf,
-                              _alpha)
-                     * nf,
-                       i,
-                       j,
-                       k);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F3D.setRL(_F3D.getRL(i, j, k)
-                     // / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
-                     / TIK_RL(NORM_3(i, j, k) / (_pf * _N)),
-                       i,
-                       j,
-                       k);
-#endif
-        }
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-
-    ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
-    BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
-
-#endif
-
-    if (_mode == MODE_2D)
-    {
+        /***
         _fft.fwExecutePlanMT(_F2D);
         _F2D.clearRL();
 
         dst.clear();
         dst.alloc(_N, _N, 1, FT_SPACE);
+        ***/
 
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
         // TODO
@@ -903,11 +838,13 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
+        /***
         ALOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
         BLOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
 
         _fft.fwExecutePlanMT(_F3D);
         _F3D.clearRL();
+        ***/
 
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
@@ -919,9 +856,12 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
 
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
-            padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
+        {
+            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
+        }
 
         ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
@@ -962,6 +902,79 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else
         REPORT_ERROR("INEXISTENT MODE");
+
+#ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
+
+    ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+    BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+    double nf = MKB_RL(0, _a * _pf, _alpha);
+#endif
+
+    if (_mode == MODE_2D)
+    {
+        // TODO
+
+        /***
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_RL(_F2D)
+        {
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            dst.setRL(dst.getRL(i, j)
+                     // / MKB_RL(NORM(i, j) / PAD_SIZE,
+                     / MKB_RL(NORM(i, j) / (_pf * _N),
+                              _a * _pf,
+                              _alpha)
+                     * nf,
+                       i,
+                       j);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            dst.setRL(dst.getRL(i, j)
+                     // / TIK_RL(NORM(i, j) / PAD_SIZE),
+                     / TIK_RL(NORM(i, j) / (_pf * _N)),
+                       i,
+                       j);
+#endif
+        }
+        ***/
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for schedule(dynamic)
+        VOLUME_FOR_EACH_PIXEL_RL(_F3D)
+        {
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            dst.setRL(dst.getRL(i, j, k)
+                     // / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
+                     / MKB_RL(NORM_3(i, j, k) / (_pf * _N),
+                              _a * _pf,
+                              _alpha)
+                     * nf,
+                       i,
+                       j,
+                       k);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            dst.setRL(dst.getRL(i, j, k)
+                     // / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
+                     / TIK_RL(NORM_3(i, j, k) / (_pf * _N)),
+                       i,
+                       j,
+                       k);
+#endif
+        }
+    }
+    else
+        REPORT_ERROR("INEXISTENT MODE");
+
+    ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
+    BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
+
+#endif
 
 #ifdef RECONSTRUCTOR_REMOVE_NEG
     ALOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
