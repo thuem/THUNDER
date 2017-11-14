@@ -945,7 +945,7 @@ void Reconstructor::reconstruct(Volume& dst)
     else if (_mode == MODE_3D)
     {
         #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_RL(_F3D)
+        VOLUME_FOR_EACH_PIXEL_RL(dst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             dst.setRL(dst.getRL(i, j, k)
