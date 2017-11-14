@@ -969,7 +969,7 @@ void MLModel::resetReco()
     FOR_EACH_CLASS
     {
 #ifdef MODEL_RECONSTRUCTOR_RESIZE
-        _reco[l]->resizeSpace((_rU + CEIL(_a)) * 2);
+        _reco[l]->resizeSpace(GSL_MIN_INT(_size, (_rU + CEIL(_a)) * 2));
 #else
         _reco[l]->reset();
 #endif
