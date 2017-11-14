@@ -1167,7 +1167,7 @@ void Reconstructor::convoluteC()
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
             _C3D.setRL(_C3D.getRL(i, j, k)
                      // * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
-                     * _kernelRL(QUAD(i, j, k) / gsl_pow_2(_N * _pf))
+                     * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
                        j,
