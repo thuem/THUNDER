@@ -1618,7 +1618,7 @@ void MLOptimiser::run()
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        if (!_para.skipE)
+        if ((_iter == 0) || (!_para.skipE))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
