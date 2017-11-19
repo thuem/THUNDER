@@ -599,6 +599,8 @@ void Reconstructor::reconstruct(Volume& dst)
                      gsl_real,
                      _maxRadius * _pf + 1);
 
+        std::cout << avg << std::endl;
+
         /***
         shellAverage(avg,
                      _T3D,
