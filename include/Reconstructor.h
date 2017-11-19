@@ -48,9 +48,9 @@
 
 #define MAX_N_ITER_BALANCE 100
 
-#define DIFF_C_THRES 0.01
+#define DIFF_C_THRES 1e-3
 
-#define DIFF_C_DECREASE_THRES 0.99
+#define DIFF_C_DECREASE_THRES (1 - 1e-2)
 
 #define WIENER_FACTOR_MIN_R 5
 
