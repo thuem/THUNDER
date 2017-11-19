@@ -593,13 +593,21 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
         vec avg = vec::Zero(_maxRadius * _pf + 1);
+
         shellAverage(avg,
                      _T3D,
                      gsl_real,
-                    _maxRadius * _pf - 1);
+                     _maxRadius * _pf + 1);
+
+        /***
+        shellAverage(avg,
+                     _T3D,
+                     gsl_real,
+                     _maxRadius * _pf - 1);
         // the last two elements have low fidelity
         avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
         avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
+        ***/
 
         ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
                                  << avg(avg.size() - 5) << ", "
