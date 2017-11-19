@@ -813,6 +813,8 @@ void Reconstructor::reconstruct(Volume& dst)
                              << m
                              << " Iterations, Distance to Total Balanced: "
                              << diffC;
+
+    /***
     if (_mode == MODE_2D)
     {
         #pragma omp parallel for
@@ -844,6 +846,7 @@ void Reconstructor::reconstruct(Volume& dst)
     else
         REPORT_ERROR("INEXISTENT MODE");
 #endif
+    ***/
 
     /***
     if (_mode == MODE_2D)
@@ -899,7 +902,14 @@ void Reconstructor::reconstruct(Volume& dst)
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
         {
             if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
-                padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
+            {
+                padDst.setFTHalf(_F3D.getFTHalf(i, j, k)
+                               * _W3D.getFTHalf(i, j ,k),
+                                 i,
+                                 j,
+                                 k);
+                // padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
+            }
         }
 
         ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";

@@ -3854,242 +3854,247 @@ void MLOptimiser::allReduceSigma(const bool group)
 
 void MLOptimiser::reconstructRef()
 {
-    IF_MASTER return;
+    FFT fft;
 
     ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
     
     allocPreCalIdx(_model.rU(), 0);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
-    BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
-
-    for (int t = 0; t < _para.k; t++)
-        _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
-
-    bool cSearch = ((_searchType == SEARCH_TYPE_CTF) ||
-                    ((_para.cSearch) &&
-                     (_searchType == SEARCH_TYPE_STOP)));
-
-    #pragma omp parallel for
-    FOR_EACH_2D_IMAGE
+    NT_MASTER
     {
-        /***
-        ALOG(INFO, "LOGGER_SYS") << "Compress of Particle "
-                                 << _ID[l]
-                                 << " is "
-                                 << _par[l].compress();
-        ***/
+        ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
+        BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
-        Image ctf(_para.size, _para.size, FT_SPACE);
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
 
-        /***
-        if (!cSearch) ctf = _ctf[l].copyImage();
-        ***/
-
-        double w;
-
-        if (_para.parGra)
-            w = _par[l].compress();
-        else
-            w = 1;
-
-        if (!gsl_finite(w))
-        {
-            CLOG(WARNING, "LOGGER_SYS") << "PARTICLE "
-                                        << _ID[l]
-                                        << " DEGENERATED";
-            continue;
-        }
-
-        w /= _para.mReco;
-
-        Image transImg(_para.size, _para.size, FT_SPACE);
-
-        for (int m = 0; m < _para.mReco; m++)
-        {
-            unsigned int cls;
-            vec4 quat;
-            vec2 tran;
-            double d;
-
-            if (_para.mode == MODE_2D)
-            {
-                _par[l].rand(cls, quat, tran, d);
-
-                mat22 rot2D;
-
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                translate(transImg,
-                          _imgOri[l],
-                          -(tran - _offset[l])(0),
-                          -(tran - _offset[l])(1),
-                          _iCol,
-                          _iRow,
-                          _iPxl,
-                          _nPxl);
-#else
-                translate(transImg,
-                          _img[l],
-                          -tran(0),
-                          -tran(1),
-                          _iCol,
-                          _iRow,
-                          _iPxl,
-                          _nPxl);
-#endif
-
-                if (cSearch)
-                    CTF(ctf,
-                        _para.pixelSize,
-                        _ctfAttr[l].voltage,
-                        _ctfAttr[l].defocusU * d,
-                        _ctfAttr[l].defocusV * d,
-                        _ctfAttr[l].defocusTheta,
-                        _ctfAttr[l].Cs);
-
-                _model.reco(cls).insertP(transImg,
-                                         cSearch ? ctf : _ctf[l],
-                                         rot2D,
-                                         w);
-            }
-            else if (_para.mode == MODE_3D)
-            {
-                _par[l].rand(cls, quat, tran, d);
-
-                // TODO, TEST!!!!!!
-                // tran = vec2(0, 0);
-
-                mat33 rot3D;
-
-                rotate3D(rot3D, quat);
-                
-                //rotate3D(rot3D, quaternion_conj(quat));
-
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                translate(transImg,
-                          _imgOri[l],
-                          -(tran - _offset[l])(0),
-                          -(tran - _offset[l])(1),
-                          _iCol,
-                          _iRow,
-                          _iPxl,
-                          _nPxl);
-#else
-                translate(transImg,
-                          _img[l],
-                          -tran(0),
-                          -tran(1),
-                          _iCol,
-                          _iRow,
-                          _iPxl,
-                          _nPxl);
-#endif
-
-                if (cSearch)
-                    CTF(ctf,
-                        _para.pixelSize,
-                        _ctfAttr[l].voltage,
-                        _ctfAttr[l].defocusU * d,
-                        _ctfAttr[l].defocusV * d,
-                        _ctfAttr[l].defocusTheta,
-                        _ctfAttr[l].Cs);
-
-                _model.reco(cls).insertP(transImg,
-                                         cSearch ? ctf : _ctf[l],
-                                         rot3D,
-                                         w);
-            }
-            else
-                REPORT_ERROR("INEXISTENT MODE");
-        }
-    }
-
-#ifdef VERBOSE_LEVEL_2
-    ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
-#endif
-
-    MPI_Barrier(_hemi);
-
-    FFT fft;
-
-    for (int t = 0; t < _para.k; t++)
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
-                                   << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
-                                   << t;
-
-        _model.reco(t).prepareTF();
-
-        ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
-                                   << t
-                                   << " for Next Iteration";
-        BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
-                                   << t
-                                   << " for Next Iteration";
-
-        Volume ref;
-
-        //_model.reco(t).reconstruct(_model.ref(t));
-        _model.reco(t).reconstruct(ref);
-
-#ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-#endif
-
-        fft.fwMT(ref);
-
-        /***
-        if (IMAG(ref[0]) != 0)
-        {
-            CLOG(FATAL, "LOGGER_ROUND") << "BREAKPOINT 0, ZERO NO";
-            abort();
-        }
-        ***/
-
-        SET_0_FT(_model.ref(t));
+        bool cSearch = ((_searchType == SEARCH_TYPE_CTF) ||
+                        ((_para.cSearch) &&
+                        (_searchType == SEARCH_TYPE_STOP)));
 
         #pragma omp parallel for
-        VOLUME_FOR_EACH_PIXEL_FT(ref)
-            _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
-
-        /***
-        if (IMAG(_model.ref(t)[0]) != 0)
+        FOR_EACH_2D_IMAGE
         {
-            CLOG(FATAL, "LOGGER_ROUND") << "BREAKPOINT 1, ZERO NO";
-            abort();
+            Image ctf(_para.size, _para.size, FT_SPACE);
+
+            double w;
+
+            if (_para.parGra)
+                w = _par[l].compress();
+            else
+                w = 1;
+
+            /***
+            if (!gsl_finite(w))
+            {
+                CLOG(WARNING, "LOGGER_SYS") << "PARTICLE "
+                                            << _ID[l]
+                                            << " DEGENERATED";
+                continue;
+            }
+            ***/
+
+            w /= _para.mReco;
+
+            Image transImg(_para.size, _para.size, FT_SPACE);
+
+            for (int m = 0; m < _para.mReco; m++)
+            {
+                unsigned int cls;
+                vec4 quat;
+                vec2 tran;
+                double d;
+
+                if (_para.mode == MODE_2D)
+                {
+                    _par[l].rand(cls, quat, tran, d);
+
+                    mat22 rot2D;
+
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
+                    translate(transImg,
+                              _imgOri[l],
+                              -(tran - _offset[l])(0),
+                              -(tran - _offset[l])(1),
+                              _iCol,
+                              _iRow,
+                              _iPxl,
+                              _nPxl);
+#else
+                    translate(transImg,
+                              _img[l],
+                              -tran(0),
+                              -tran(1),
+                              _iCol,
+                              _iRow,
+                              _iPxl,
+                              _nPxl);
+#endif
+
+                    if (cSearch)
+                        CTF(ctf,
+                            _para.pixelSize,
+                            _ctfAttr[l].voltage,
+                            _ctfAttr[l].defocusU * d,
+                            _ctfAttr[l].defocusV * d,
+                            _ctfAttr[l].defocusTheta,
+                            _ctfAttr[l].Cs);
+
+                    _model.reco(cls).insertP(transImg,
+                                             cSearch ? ctf : _ctf[l],
+                                             rot2D,
+                                             w);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _par[l].rand(cls, quat, tran, d);
+
+                    mat33 rot3D;
+
+                    rotate3D(rot3D, quat);
+                
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
+                    translate(transImg,
+                              _imgOri[l],
+                              -(tran - _offset[l])(0),
+                              -(tran - _offset[l])(1),
+                              _iCol,
+                              _iRow,
+                              _iPxl,
+                              _nPxl);
+#else
+                    translate(transImg,
+                              _img[l],
+                              -tran(0),
+                              -tran(1),
+                              _iCol,
+                              _iRow,
+                              _iPxl,
+                              _nPxl);
+#endif
+
+                    if (cSearch)
+                        CTF(ctf,
+                            _para.pixelSize,
+                            _ctfAttr[l].voltage,
+                            _ctfAttr[l].defocusU * d,
+                            _ctfAttr[l].defocusV * d,
+                            _ctfAttr[l].defocusTheta,
+                            _ctfAttr[l].Cs);
+
+                    _model.reco(cls).insertP(transImg,
+                                             cSearch ? ctf : _ctf[l],
+                                             rot3D,
+                                             w);
+                }
+                else
+                    REPORT_ERROR("INEXISTENT MODE");
+            }
         }
-        ***/
 
 #ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-        BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+        ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
 #endif
 
-        /***
-        ALOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging in Fourier Space on Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Performing Soft Edging in Fourier Space on Reference " << t;
+        MPI_Barrier(_hemi);
 
-        lowPassFilter(_model.ref(t),
-                      _model.ref(t),
-                      (double)(_model.rU() - EDGE_WIDTH_FT) / _para.size,
-                      (double)EDGE_WIDTH_FT / _para.size);
+        for (int t = 0; t < _para.k; t++)
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                       << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                       << t;
+
+            _model.reco(t).prepareTF();
+        }
+
+        for (int t = 0; t < _para.k; t++)
+        {
+            _model.reco(t).setMAP(false);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                       << t
+                                       << " for Determining FSC";
+            BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                       << t
+                                       << " for Determining FSC";
+
+            Volume ref;
+
+            _model.reco(t).reconstruct(ref);
 
 #ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Fourier Space Soft Edging Performed on Reference " << t;
+            ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
-        ***/
+
+            fft.fwMT(ref);
+
+            SET_0_FT(_model.ref(t));
+
+            #pragma omp parallel for
+            VOLUME_FOR_EACH_PIXEL_FT(ref)
+                _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+
+#ifdef VERBOSE_LEVEL_2
+            ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+            BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
+        }
     }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+
+    NT_MASTER
+    {
+        for (int t = 0; t < _para.k; t++)
+        {
+            _model.reco(t).setMAP(true);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                       << t
+                                       << " for Next Iteration";
+            BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                       << t
+                                       << " for Next Iteration";
+
+            Volume ref;
+
+            _model.reco(t).reconstruct(ref);
+
+#ifdef VERBOSE_LEVEL_2
+            ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+#endif
+
+            fft.fwMT(ref);
+
+            SET_0_FT(_model.ref(t));
+
+            #pragma omp parallel for
+            VOLUME_FOR_EACH_PIXEL_FT(ref)
+                _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+
+#ifdef VERBOSE_LEVEL_2
+            ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+            BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
 
     freePreCalIdx();
 
-    MPI_Barrier(_hemi);
+    MPI_Barrier(MPI_COMM_WORLD);
 
     ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
     BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
