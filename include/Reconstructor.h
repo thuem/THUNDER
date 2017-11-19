@@ -44,14 +44,16 @@
 
 #define RECO_LOOSE_FACTOR 1
 
-#define MIN_N_ITER_BALANCE 5
+#define MIN_N_ITER_BALANCE 10
 
-//#define MAX_N_ITER_BALANCE 100
-#define MAX_N_ITER_BALANCE 1
+#define MAX_N_ITER_BALANCE 100
+//#define MAX_N_ITER_BALANCE 1
 
-#define DIFF_C_THRES 1e-4
+#define DIFF_C_THRES 1e-2
 
 #define DIFF_C_DECREASE_THRES (1 - 1e-2)
+
+#define N_DIFF_C_NO_DECREASE 3
 
 #define WIENER_FACTOR_MIN_R 5
 
