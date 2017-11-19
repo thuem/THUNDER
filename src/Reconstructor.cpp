@@ -775,7 +775,6 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
-    /***
     if (_mode == MODE_2D)
     {
         #pragma omp parallel for
@@ -788,7 +787,6 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else
         REPORT_ERROR("INEXISTENT MODE");
-    ***/
 
 #ifdef RECONSTRUCTOR_LOW_PASS
     ALOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
