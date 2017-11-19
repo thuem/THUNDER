@@ -668,9 +668,6 @@ void MLModel::compareTwoHemispheres(const bool fscFlag,
                 (_commRank == HEMI_B_LEAD))
             {
 
-                if (avgFlag)
-                {
-
                 ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere A";
@@ -705,6 +702,9 @@ void MLModel::compareTwoHemispheres(const bool fscFlag,
                                 MASTER_ID,
                                 l,
                                 MPI_COMM_WORLD);
+
+                if (avgFlag)
+                {
 
                 ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
                 BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
