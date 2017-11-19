@@ -4015,6 +4015,13 @@ void MLOptimiser::reconstructRef()
 
     for (int t = 0; t < _para.k; t++)
     {
+        ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                   << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                   << t;
+
+        _model.reco(t).prepareTF();
+
         ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
                                    << t
                                    << " for Next Iteration";
