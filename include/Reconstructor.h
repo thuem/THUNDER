@@ -48,7 +48,7 @@
 
 #define MAX_N_ITER_BALANCE 100
 
-#define DIFF_C_THRES 1e-3
+#define DIFF_C_THRES 1e-4
 
 #define DIFF_C_DECREASE_THRES (1 - 1e-2)
 
