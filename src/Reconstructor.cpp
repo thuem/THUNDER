@@ -635,8 +635,14 @@ void Reconstructor::reconstruct(Volume& dst)
             {
                 int u = AROUND(NORM_3(i, j, k));
 
+                /***
                 double FSC = (u / _pf >= _FSC.size())
                            ? _FSC(_FSC.size() - 1)
+                           : _FSC(u / _pf);
+                ***/
+
+                double FSC = (u / _pf >= _FSC.size())
+                           ? 0
                            : _FSC(u / _pf);
 
                 //FSC = GSL_MAX_DBL(FSC_BASE, GSL_MIN_DBL(1 - FSC_BASE, FSC));
