@@ -976,8 +976,8 @@ void MLModel::resetReco()
 
         if (_k == 1)
         {
-            //_reco[l]->setFSC(_FSC.col(l).head(_res));
-            _reco[l]->setFSC(_FSC.col(l));
+            _reco[l]->setFSC(_FSC.col(l).head(_res));
+            //_reco[l]->setFSC(_FSC.col(l));
         }
 
         _reco[l]->setMaxRadius(_rU);
