@@ -541,6 +541,43 @@ void Reconstructor::insertP(const Image& src,
         }
 }
 
+void Reconstructor::prepareTF()
+{
+    IF_MASTER return;
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
+
+    allReduceT();
+
+    // only in 3D mode, symmetry should be considered
+    IF_MODE_3D
+    {
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
+
+        symmetrizeT();
+#endif
+    }
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
+
+    allReduceF();
+
+    // only in 3D mode, symmetry should be considered
+    IF_MODE_3D
+    {
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
+
+        symmetrizeF();
+#endif
+    }
+}
+
 void Reconstructor::reconstruct(Image& dst)
 {
     Volume tmp;
@@ -566,22 +603,6 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
         BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
-    }
-
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
-
-    allReduceT();
-
-    // only in 3D mode, symmetry should be considered
-    IF_MODE_3D
-    {
-#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
-        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
-
-        symmetrizeT();
-#endif
     }
 
     // only in 3D mode, the MAP method is appropriate
@@ -792,23 +813,6 @@ void Reconstructor::reconstruct(Volume& dst)
                              << m
                              << " Iterations, Distance to Total Balanced: "
                              << diffC;
-
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
-
-    allReduceF();
-
-    // only in 3D mode, symmetry should be considered
-    IF_MODE_3D
-    {
-#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
-        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
-
-        symmetrizeF();
-#endif
-    }
-
     if (_mode == MODE_2D)
     {
         #pragma omp parallel for

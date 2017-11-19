@@ -415,6 +415,8 @@ class Reconstructor : public Parallel
                      const mat33& rot,
                      const double w);
 
+        void prepareTF();
+
         void reconstruct(Image& dst);
 
         /**
