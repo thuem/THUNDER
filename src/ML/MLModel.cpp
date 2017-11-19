@@ -945,6 +945,15 @@ void MLModel::refreshReco()
 
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l
+                                 << " Setting Up FSC";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up FSC";
+
+        _reco[l]->setFSC(vec::Constant(_rU, 1));
+
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
                                  << " Setting Up Max Radius";
         BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l
@@ -955,7 +964,7 @@ void MLModel::refreshReco()
     }
 }
 
-void MLModel::resetReco()
+void MLModel::resetReco(const double thres)
 {
     ALOG(INFO, "LOGGER_SYS") << "Resetting Reconstructor(s) with Frequency Upper Boundary : "
                              << _rU;
@@ -976,7 +985,20 @@ void MLModel::resetReco()
 
         if (_k == 1)
         {
-            _reco[l]->setFSC(_FSC.col(l).head(_res));
+            ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                     << l
+                                     << " Setting Up FSC";
+            BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                     << l
+                                     << " Setting Up FSC";
+
+            vec FSC = _FSC.col(l);
+
+            FSC.tail(FSC.size() - _res - 1) = vec::Constant(FSC.size() - _res - 1, thres);
+
+            _reco[l]->setFSC(FSC);
+
+            //_reco[l]->setFSC(_FSC.col(l).head(_res + 1));
             //_reco[l]->setFSC(_FSC.col(l));
         }
 

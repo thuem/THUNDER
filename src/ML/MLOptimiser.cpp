@@ -1924,7 +1924,7 @@ void MLOptimiser::run()
             ALOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
             BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
 
-            _model.resetReco();
+            _model.resetReco(_para.thresReportFSC);
 
             if (!_para.goldenStandard)
             {
@@ -1942,7 +1942,7 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
     NT_MASTER
     {
-        _model.resetReco();
+        _model.resetReco(_para.thresReportFSC);
 
         //_model.reco(0).setMAP(false);
 

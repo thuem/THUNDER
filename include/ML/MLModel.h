@@ -646,7 +646,7 @@ class MLModel : public Parallel
          */
         void refreshReco();
 
-        void resetReco();
+        void resetReco(const double thres);
 
         /***
         void refreshRecoSigTau(const int rSig,
