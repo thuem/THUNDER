@@ -687,7 +687,9 @@ void Reconstructor::reconstruct(Volume& dst)
     double diffC = DBL_MAX;
     double diffCPrev = DBL_MAX;
 
-    for (int m = 0; m < MAX_N_ITER_BALANCE; m++)
+    int m = 0;
+
+    for (m = 0; m < MAX_N_ITER_BALANCE; m++)
     {
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
@@ -758,6 +760,15 @@ void Reconstructor::reconstruct(Volume& dst)
             ((m >= MIN_N_ITER_BALANCE) &&
              (diffC > diffCPrev * DIFF_C_DECREASE_THRES))) break;
     }
+
+    ALOG(INFO, "LOGGER_SYS") << "After "
+                             << m
+                             << " Iterations, Distance to Total Balanced: "
+                             << diffC;
+    BLOG(INFO, "LOGGER_SYS") << "After "
+                             << m
+                             << " Iterations, Distance to Total Balanced: "
+                             << diffC;
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
