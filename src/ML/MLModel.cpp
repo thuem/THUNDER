@@ -284,7 +284,9 @@ Reconstructor& MLModel::reco(const int i)
     return *_reco[i];
 }
 
-void MLModel::BcastFSC(const double thres)
+void MLModel::compareTwoHemispheres(const bool fscFlag,
+                                    const bool avgFlag,
+                                    const double thres)
 {
     MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
@@ -355,15 +357,18 @@ void MLModel::BcastFSC(const double thres)
                            MPI_COMM_WORLD);
 
 #ifdef VERBOSE_LEVEL_1
-                MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
-                                             << REAL(A[0])
-                                             << ", IMAG = "
-                                             << IMAG(A[0]);
-                MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
-                                             << REAL(B[0])
-                                             << ", IMAG = "
-                                             << IMAG(B[0]);
+            MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
+                                         << REAL(A[0])
+                                         << ", IMAG = "
+                                         << IMAG(A[0]);
+            MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
+                                         << REAL(B[0])
+                                         << ", IMAG = "
+                                         << IMAG(B[0]);
 #endif
+
+            if (fscFlag)
+            {
 
             vec fsc(_rU);
 
@@ -540,6 +545,11 @@ void MLModel::BcastFSC(const double thres)
                     REPORT_ERROR("INEXISTENT MODE");
             }
 
+            }
+
+            if (avgFlag)
+            {
+            
             MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
             if ((_k == 1) && (_goldenStandard))
@@ -649,12 +659,18 @@ void MLModel::BcastFSC(const double thres)
             MLOG(INFO, "LOGGER_COMPARE") << "Reference "
                                          << l
                                          << " Sent to Hemisphere B";
+
+            }
         }
         else
         {
             if ((_commRank == HEMI_A_LEAD) ||
                 (_commRank == HEMI_B_LEAD))
             {
+
+                if (avgFlag)
+                {
+
                 ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere A";
@@ -699,8 +715,13 @@ void MLModel::BcastFSC(const double thres)
                                MASTER_ID,
                                l,
                                MPI_COMM_WORLD);
+
+                }
             }
         }
+
+        if (avgFlag)
+        {
 
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -729,7 +750,11 @@ void MLModel::BcastFSC(const double thres)
 #ifdef VERBOSE_LEVEL_1
         MLOG(INFO, "LOGGER_COMPARE") << "Reference " << l << " Broadcasted from A_LEAD and B_LEAD";
 #endif
+        }
     }
+
+    if (fscFlag)
+    {
 
     MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
 
@@ -742,6 +767,8 @@ void MLModel::BcastFSC(const double thres)
     MPI_Barrier(MPI_COMM_WORLD);
 
     MLOG(INFO, "LOGGER_COMPARE") << "FSC Broadcasted from MASTER";
+
+    }
 }
 
 void MLModel::lowPassRef(const double thres,

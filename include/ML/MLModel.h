@@ -522,7 +522,9 @@ class MLModel : public Parallel
          * compares the references from two hemisphere respectively for FSC. It
          * broadcast the FSC to all process.
          */
-        void BcastFSC(const double thres);
+        void compareTwoHemispheres(const bool fscFlag,
+                                   const bool avgFlag,
+                                   const double thres);
 
         /**
          * This function performs a low pass filter on each reference.
