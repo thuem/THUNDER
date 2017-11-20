@@ -288,9 +288,12 @@ void MLModel::compareTwoHemispheres(const bool fscFlag,
                                     const bool avgFlag,
                                     const double thres)
 {
-    MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
+    if (fscFlag)
+    {
+        MLOG(INFO, "LOGGER_COMPARE") << "Setting Size of _FSC";
 
-    _FSC.resize(_rU, _k);
+        _FSC.resize(_rU, _k);
+    }
 
     MPI_Barrier(MPI_COMM_WORLD);
 
@@ -304,22 +307,26 @@ void MLModel::compareTwoHemispheres(const bool fscFlag,
 
             if (_mode == MODE_2D)
             {
+#ifdef VERBOSE_LEVEL_2
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
                                               << _size 
                                               << " X "
                                               << _size;
+#endif
 
                 A.alloc(_size, _size, 1, FT_SPACE);
                 B.alloc(_size, _size, 1, FT_SPACE);
             }
             else if (_mode == MODE_3D)
             {
+#ifdef VERBOSE_LEVEL_2
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
                                              << _size
                                              << " X "
                                              << _size
                                              << " X "
                                              << _size;
+#endif
 
                 A.alloc(_size, _size, _size, FT_SPACE);
                 B.alloc(_size, _size, _size, FT_SPACE);
@@ -356,7 +363,7 @@ void MLModel::compareTwoHemispheres(const bool fscFlag,
                            l,
                            MPI_COMM_WORLD);
 
-#ifdef VERBOSE_LEVEL_1
+#ifdef VERBOSE_LEVEL_3
             MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
                                          << REAL(A[0])
                                          << ", IMAG = "
@@ -676,7 +683,7 @@ void MLModel::compareTwoHemispheres(const bool fscFlag,
                                              << l
                                              << " from Hemisphere B";
 
-#ifdef VERBOSE_LEVEL_1
+#ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_COMPARE") << "Size of Reference "
                                              << l
                                              << " to be Sent: "
@@ -1519,24 +1526,31 @@ void MLModel::avgHemi()
         IF_MASTER
         {
             Volume A, B;
+
             if (_mode == MODE_2D)
             {
+
+#ifdef VERBOSE_LEVEL_2
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
                                              << _size
                                              << " X "
                                              << _size;
+#endif
 
                 A.alloc(_size, _size, 1, FT_SPACE);
                 B.alloc(_size, _size, 1, FT_SPACE);
             }
             else if (_mode == MODE_3D)
             {
+
+#ifdef VERBOSE_LEVEL_2
                 MLOG(INFO, "LOGGER_COMPARE") << "Allocating A and B in Fourier Space with Size: "
                                              << _size
                                              << " X "
                                              << _size
                                              << " X "
                                              << _size;
+#endif
 
                 Volume A(_size, _size, _size, FT_SPACE);
                 Volume B(_size, _size, _size, FT_SPACE);
@@ -1572,6 +1586,7 @@ void MLModel::avgHemi()
                 ALOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere A";
+
                 BLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
                                              << l
                                              << " from Hemisphere B";

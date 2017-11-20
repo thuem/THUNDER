@@ -1956,8 +1956,10 @@ void MLOptimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
 
+    /***
     MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
     _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+    ***/
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
