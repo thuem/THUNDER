@@ -1953,7 +1953,7 @@ void MLOptimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(true, false);
+    reconstructRef(true, true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
@@ -4092,7 +4092,7 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
+        //_model.compareTwoHemispheres(false, true, _para.thresReportFSC);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
