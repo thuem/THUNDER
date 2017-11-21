@@ -1561,7 +1561,7 @@ void MLOptimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-        reconstructRef();
+        reconstructRef(true, false);
     }
 }
 
@@ -1944,14 +1944,16 @@ void MLOptimiser::run()
     {
         _model.resetReco(_para.thresReportFSC);
 
-        //_model.reco(0).setMAP(false);
+        /***
+        _model.reco(0).setMAP(false);
 
         for (int k = 0; k < _para.k; k++)
             _model.reco(k).setJoinHalf(true);
+        ***/
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef();
+    reconstructRef(true, false);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
@@ -3854,7 +3856,8 @@ void MLOptimiser::allReduceSigma(const bool group)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
 }
 
-void MLOptimiser::reconstructRef()
+void MLOptimiser::reconstructRef(const bool fscFlag,
+                                 const bool avgFlag)
 {
     FFT fft;
 
@@ -3886,16 +3889,6 @@ void MLOptimiser::reconstructRef()
                 w = _par[l].compress();
             else
                 w = 1;
-
-            /***
-            if (!gsl_finite(w))
-            {
-                CLOG(WARNING, "LOGGER_SYS") << "PARTICLE "
-                                            << _ID[l]
-                                            << " DEGENERATED";
-                continue;
-            }
-            ***/
 
             w /= _para.mReco;
 
@@ -4010,86 +4003,97 @@ void MLOptimiser::reconstructRef()
 
             _model.reco(t).prepareTF();
         }
-
-        for (int t = 0; t < _para.k; t++)
-        {
-            _model.reco(t).setMAP(false);
-
-            ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
-                                       << t
-                                       << " for Determining FSC";
-            BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
-                                       << t
-                                       << " for Determining FSC";
-
-            Volume ref;
-
-            _model.reco(t).reconstruct(ref);
-
-#ifdef VERBOSE_LEVEL_2
-            ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-            BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-#endif
-
-            fft.fwMT(ref);
-
-            SET_0_FT(_model.ref(t));
-
-            #pragma omp parallel for
-            VOLUME_FOR_EACH_PIXEL_FT(ref)
-                _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
-
-#ifdef VERBOSE_LEVEL_2
-            ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-            BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-#endif
-        }
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
-
-    NT_MASTER
+    if (fscFlag)
     {
-        for (int t = 0; t < _para.k; t++)
+        NT_MASTER
         {
-            _model.reco(t).setMAP(true);
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).setMAP(false);
 
-            ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
-                                       << t
-                                       << " for Next Iteration";
-            BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
-                                       << t
-                                       << " for Next Iteration";
+                ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Determining FSC";
+                BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Determining FSC";
 
-            Volume ref;
+                Volume ref;
 
-            _model.reco(t).reconstruct(ref);
-
-#ifdef VERBOSE_LEVEL_2
-            ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-            BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-#endif
-
-            fft.fwMT(ref);
-
-            SET_0_FT(_model.ref(t));
-
-            #pragma omp parallel for
-            VOLUME_FOR_EACH_PIXEL_FT(ref)
-                _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+                _model.reco(t).reconstruct(ref);
 
 #ifdef VERBOSE_LEVEL_2
-            ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-            BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
+
+                fft.fwMT(ref);
+
+                SET_0_FT(_model.ref(t));
+
+                #pragma omp parallel for
+                VOLUME_FOR_EACH_PIXEL_FT(ref)
+                    _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
+            }
         }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    if (avgFlag)
+    {
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).setMAP(true);
 
-    _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
+                ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Next Iteration";
+                BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Next Iteration";
+
+                Volume ref;
+
+                _model.reco(t).reconstruct(ref);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+#endif
+
+                fft.fwMT(ref);
+
+                SET_0_FT(_model.ref(t));
+
+                #pragma omp parallel for
+                VOLUME_FOR_EACH_PIXEL_FT(ref)
+                    _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
+            }
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
+    }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";

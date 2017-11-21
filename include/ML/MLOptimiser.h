@@ -738,7 +738,8 @@ class MLOptimiser : public Parallel
         /**
          * reconstruct reference
          */
-        void reconstructRef();
+        void reconstructRef(const bool fscFlag,
+                            const bool avgFlag);
 
         /***
          * @param mask           whether mask on the reference is allowed or
