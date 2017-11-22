@@ -1546,6 +1546,7 @@ void MLOptimiser::maximization()
     allReduceSigma(_para.groupSig);
 #endif
 
+#ifdef OPTIMISER_CORRECT_SCALE
     if ((_searchType == SEARCH_TYPE_GLOBAL) &&
         (_para.groupScl) &&
         (_iter != 0))
@@ -1555,6 +1556,7 @@ void MLOptimiser::maximization()
 
         correctScale(false, true);
     }
+#endif
 
     if (!_para.skipR)
     {
@@ -1754,9 +1756,11 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
 
         _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
