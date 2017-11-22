@@ -4077,9 +4077,9 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
+                /***
                 SET_0_FT(_model.ref(t));
 
-                /***
                 #pragma omp parallel for
                 VOLUME_FOR_EACH_PIXEL_FT(ref)
                     _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
