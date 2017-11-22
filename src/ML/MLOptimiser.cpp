@@ -1756,12 +1756,6 @@ void MLOptimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
 
-        /***
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC(s)";
-
-        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
-        ***/
-
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 
@@ -4081,13 +4075,11 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
-                /***
                 SET_0_FT(_model.ref(t));
 
                 #pragma omp parallel for
                 VOLUME_FOR_EACH_PIXEL_FT(ref)
                     _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
-                ***/
 
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
