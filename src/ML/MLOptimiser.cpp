@@ -1561,7 +1561,7 @@ void MLOptimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-        reconstructRef(true, true);
+        reconstructRef(true, false);
     }
 }
 
