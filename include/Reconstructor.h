@@ -413,7 +413,8 @@ class Reconstructor : public Parallel
         void insertP(const Image& src,
                      const Image& ctf,
                      const mat33& rot,
-                     const double w);
+                     const double w,
+                     const vec* sig = NULL);
 
         void prepareTF();
 

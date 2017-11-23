@@ -480,7 +480,8 @@ void Reconstructor::insertP(const Image& src,
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat33& rot,
-                            const double w)
+                            const double w,
+                            const vec* sig)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
@@ -500,6 +501,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F3D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -511,6 +513,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F3D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -521,6 +524,7 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -531,6 +535,7 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 

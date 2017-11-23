@@ -3995,6 +3995,7 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
                               _nPxl);
 #endif
 
+                    /***
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
 
                     IMAGE_FOR_EACH_PIXEL_FT(transImg)
@@ -4005,6 +4006,7 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
                                                j);
                                          
 #endif
+                    **/
 
                     if (cSearch)
                         CTF(ctf,
@@ -4015,10 +4017,20 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs);
 
+#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
+                    vec sig = _sig.row(_groupID[l] - 1).transpose();
+
+                    _model.reco(cls).insertP(transImg,
+                                             cSearch ? ctf : _ctf[l],
+                                             rot3D,
+                                             w,
+                                             &sig);
+#else
                     _model.reco(cls).insertP(transImg,
                                              cSearch ? ctf : _ctf[l],
                                              rot3D,
                                              w);
+#endif
                 }
                 else
                     REPORT_ERROR("INEXISTENT MODE");
