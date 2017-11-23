@@ -2379,23 +2379,44 @@ void MLOptimiser::statImg()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+#ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
         #pragma omp atomic
         _mean += regionMean(_img[l],
                             _para.maskRadius / _para.pixelSize,
                             0);
+#else
+        #pragma omp atomic
+        _mean += regionMean(_img[l],
+                            _para.size / 2,
+                            0);
+#endif
 
+#ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
         #pragma omp atomic
         _stdN += bgStddev(0,
                           _img[l],
                           _para.maskRadius / _para.pixelSize);
+#else
+        #pragma omp atomic
+        _stdN += bgStddev(0,
+                          _img[l],
+                          _para.size / 2);
+#endif
 
         #pragma omp atomic
         _stdD += stddev(0, _img[l]);
 
+#ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
         #pragma omp atomic
         _stdStdN += gsl_pow_2(bgStddev(0,
                                        _img[l],
                                        _para.maskRadius / _para.pixelSize));
+#else
+        #pragma omp atomic
+        _stdStdN += gsl_pow_2(bgStddev(0,
+                                       _img[l],
+                                       _para.size / 2));
+#endif
     }
 
     MPI_Barrier(_hemi);
@@ -2450,10 +2471,17 @@ void MLOptimiser::substractBgImg()
     {
         double bgMean, bgStddev;
 
+#ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
         bgMeanStddev(bgMean,
                      bgStddev,
                      _img[l],
                      _para.maskRadius / _para.pixelSize);
+#else
+        bgMeanStddev(bgMean,
+                     bgStddev,
+                     _img[l],
+                     _para.size / 2);
+#endif
 
         FOR_EACH_PIXEL_RL(_img[l])
         {
