@@ -4031,6 +4031,7 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
+                #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 
                 #pragma omp parallel for
@@ -4075,6 +4076,7 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
+                #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 
                 #pragma omp parallel for
