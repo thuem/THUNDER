@@ -4817,7 +4817,7 @@ void MLOptimiser::saveSig() const
 
     FILE* file = fopen(filename, "w");
 
-    for (int i = 1; i < maxR(); i++)
+    for (int i = 0; i < maxR(); i++)
         fprintf(file,
                 "%05d   %10.6lf   %10.6lf\n",
                 i,
