@@ -4000,7 +4000,7 @@ void MLOptimiser::reconstructRef(const bool fscFlag,
                     IMAGE_FOR_EACH_PIXEL_FT(transImg)
                         if (QUAD(i, j) < gsl_pow_2(_model.reco(cls).maxRadius()))
                             transImg.setFTHalf(transImg.getFTHalf(i, j)
-                                             / _sig(AROUND(NORM(i, j))),
+                                             / _sig(_groupID[l] - 1, AROUND(NORM(i, j))),
                                                i,
                                                j);
                                          
