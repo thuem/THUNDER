@@ -1080,8 +1080,10 @@ void MLOptimiser::expectation()
         {
             if (phase == 0)
             {
+                /***
                 _par[l].resample(_para.mLR, PAR_R);
                 _par[l].resample(_para.mLT, PAR_T);
+                ***/
 
                 if (_model.r() > _model.rPrev())
                 {
