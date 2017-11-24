@@ -975,6 +975,10 @@ void Particle::resample(const int n,
         _wC(0) = 1;
         ***/
 
+#ifdef PARTICLE_PRIOR_ONE
+        vec _wCPrev = _wC;
+#endif
+
         vec cdf = cumsum(_wC);
         
         _nC = n;
@@ -994,7 +998,11 @@ void Particle::resample(const int n,
 
             c(j) = _c(i);
         
+#ifdef PARTICLE_PRIOR_ONE
+            _wC(j) = 1.0 / _wCPrev(i);
+#else
             _wC(j) = 1.0 / _nC;
+#endif
         }
 
         _c = c;
@@ -1004,6 +1012,10 @@ void Particle::resample(const int n,
         quaternion(_topR, rank(0));
 
         shuffle(pt);
+
+#ifdef PARTICLE_PRIOR_ONE
+        vec _wRPrev = _wR;
+#endif
 
         vec cdf = cumsum(_wR);
 
@@ -1024,7 +1036,11 @@ void Particle::resample(const int n,
         
             r.row(j) = _r.row(i);
 
+#ifdef PARTICLE_PRIOR_ONE
+            _wR(j) = 1.0 / _wR(i);
+#else
             _wR(j) = 1.0 / _nR;
+#endif
         }
 
         _r = r;
@@ -1034,6 +1050,10 @@ void Particle::resample(const int n,
         t(_topT, rank(0));
 
         shuffle(pt);
+
+#ifdef PARTICLE_PRIOR_ONE
+        vec _wTPrev = _wT;
+#endif
 
         vec cdf = cumsum(_wT);
 
@@ -1054,7 +1074,11 @@ void Particle::resample(const int n,
         
             t.row(j) = _t.row(i);
 
+#ifdef PARTICLE_PRIOR_ONE
+            _wT(j) = 1.0 / _wTPrev(i);
+#else
             _wT(j) = 1.0 / _nT;
+#endif
         }
 
         _t = t;
@@ -1064,6 +1088,10 @@ void Particle::resample(const int n,
         d(_topD, rank(0));
 
         shuffle(pt);
+
+#ifdef PARTICLE_PRIOR_ONE
+        vec _wDPrev = _wD;
+#endif
 
         vec cdf = cumsum(_wD);
 
@@ -1084,11 +1112,17 @@ void Particle::resample(const int n,
 
             d(j) = _d(i);
 
+#ifdef PARTICLE_PRIOR_ONE
+            _wD(j) = 1.0 / _wDPrev(i);
+#else
             _wD(j) = 1.0 / _nD;
+#endif
         }
 
         _d = d;
     }
+
+    normW();
 }
 
 /***
