@@ -1037,7 +1037,7 @@ void Particle::resample(const int n,
             r.row(j) = _r.row(i);
 
 #ifdef PARTICLE_PRIOR_ONE
-            _wR(j) = 1.0 / _wR(i);
+            _wR(j) = 1.0 / _wRPrev(i);
 #else
             _wR(j) = 1.0 / _nR;
 #endif
