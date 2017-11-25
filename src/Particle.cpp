@@ -118,6 +118,8 @@ void Particle::reset()
 
     // initialise translation distribution
 
+#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
+    // sample from 2D Gaussian Distribution
     for (int i = 0; i < _nT; i++)
         gsl_ran_bivariate_gaussian(engine,
                                    _transS,
@@ -125,6 +127,20 @@ void Particle::reset()
                                    0,
                                    &_t(i, 0),
                                    &_t(i, 1));
+#endif
+
+#ifdef PARTICLE_TRANS_INIT_FLAT
+    // sample for 2D Flat Distribution in a Square
+    for (int i = 0; i < _nT; i++)
+    {
+        _t(i, 0) = gsl_ran_flat(engine,
+                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+        _t(i, 1) = gsl_ran_flat(engine,
+                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+    }
+#endif
 
     // initialise defocus distribution
 
