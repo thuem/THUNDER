@@ -16,7 +16,7 @@
 #include "ImageFile.h"
 #include "Particle.h"
 #include "CTF.h"
-#include "MLOptimiser.h"
+#include "Optimiser.h"
 
 using namespace std;
 
@@ -36,7 +36,7 @@ static inline void copy_string(char (&array)[N], const std::string& source)
     memcpy(array, source.c_str(), source.size() + 1);
 }
 
-void readPara(MLOptimiserPara& dst,
+void readPara(OptimiserPara& dst,
               const Json::Value src)
 {
     dst.nThreadsPerProcess = src["Number of Threads Per Process"].asInt();
@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
         abort();
     }
 
-    MLOptimiserPara para;
+    OptimiserPara para;
 
     if (reader.parse(in, root))
     {
@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
     
-    MLOptimiser opt;
+    Optimiser opt;
 
     opt.setPara(para);
 
