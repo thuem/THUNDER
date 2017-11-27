@@ -125,6 +125,14 @@ class Particle
         vec _wT;
 
         vec _wD;
+
+        vec _uC;
+
+        vec _uR;
+
+        vec _uT;
+
+        vec _uD;
         
         /**
          * a pointer points to a Symmetry object which indicating the symmetry
@@ -478,6 +486,22 @@ class Particle
 
         void setWD(const vec& wD);
 
+        vec uC() const;
+
+        void setUC(const vec& uC);
+
+        vec uR() const;
+
+        void setUR(const vec& uR);
+
+        vec uT() const;
+
+        void setUT(const vec& uT);
+
+        vec uD() const;
+
+        void setUD(const vec& uD);
+
         /**
          * This function returns the symmetry.
          */
@@ -605,6 +629,17 @@ class Particle
         void mulWD(const double wD,
                    const int i);
 
+        void setUC(const double uC,
+                   const int i);
+
+        void setUR(const double uR,
+                   const int i);
+
+        void setUT(const double uT,
+                   const int i);
+
+        void setUD(const double uD,
+                   const int i);
         /**
          * This function normalizes the vector of the weights.
          */

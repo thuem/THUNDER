@@ -894,13 +894,13 @@ void Optimiser::expectation()
         FOR_EACH_2D_IMAGE
         {
             for (int iC = 0; iC < _para.k; iC++)
-                _par[l].setWC(wC(l, iC), iC);
+                _par[l].setUC(wC(l, iC), iC);
             for (int iR = 0; iR < nR; iR++)
-                _par[l].setWR(wR(l, iR), iR);
+                _par[l].setUR(wR(l, iR), iR);
             for (int iT = 0; iT < nT; iT++)
-                _par[l].setWT(wT(l, iT), iT);
+                _par[l].setUT(wT(l, iT), iT);
 
-            _par[l].normW();
+            //_par[l].normW();
 
             /***
             _par[l].reset(_para.k, nSampleMax);
@@ -1323,17 +1323,17 @@ void Optimiser::expectation()
             ***/
 
             for (int iC = 0; iC < _para.k; iC++)
-                _par[l].mulWC(wC(iC), iC);
+                _par[l].setUC(wC(iC), iC);
             for (int iR = 0; iR < _para.mLR; iR++)
-                _par[l].mulWR(wR(iR), iR);
+                _par[l].setUR(wR(iR), iR);
             for (int iT = 0; iT < _para.mLT; iT++)
-                _par[l].mulWT(wT(iT), iT);
+                _par[l].setUT(wT(iT), iT);
 
             if (_searchType == SEARCH_TYPE_CTF)
                 for (int iD = 0; iD < _para.mLD; iD++)
-                    _par[l].mulWD(wD(iD), iD);
+                    _par[l].setUD(wD(iD), iD);
 
-            _par[l].normW();
+            // _par[l].normW();
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)

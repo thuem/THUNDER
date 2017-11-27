@@ -76,6 +76,11 @@ void Particle::init(const int mode,
     _wT.resize(_nT);
     _wD.resize(_nD);
 
+    _uC.resize(_nC);
+    _uR.resize(_nR);
+    _uT.resize(_nT);
+    _uD.resize(_nD);
+
     reset();
 }
 
@@ -152,6 +157,11 @@ void Particle::reset()
     _wR = vec::Constant(_nR, 1.0 / _nR);
     _wT = vec::Constant(_nT, 1.0 / _nT);
     _wD = vec::Constant(_nD, 1.0 / _nD);
+
+    _uC = vec::Constant(_nC, 1.0 / _nC);
+    _uR = vec::Constant(_nR, 1.0 / _nR);
+    _uT = vec::Constant(_nT, 1.0 / _nT);
+    _uD = vec::Constant(_nD, 1.0 / _nD);
 
     // symmetrise
 
@@ -281,6 +291,8 @@ void Particle::initD(const int nD,
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
 
     _wD = vec::Constant(_nD, 1.0 / _nD);
+    
+    _uD = vec::Constant(_nD, 1.0 / _nD);
 }
 
 int Particle::mode() const { return _mode; }
@@ -343,6 +355,22 @@ vec Particle::wD() const { return _wD; }
 
 void Particle::setWD(const vec& wD) { _wD = wD; }
 
+vec Particle::uC() const { return _uC; }
+
+void Particle::setUC(const vec& uC) { _uC = uC; }
+
+vec Particle::uR() const { return _uR; }
+
+void Particle::setUR(const vec& uR) { _uR = uR; }
+
+vec Particle::uT() const { return _uT; }
+
+void Particle::setUT(const vec& uT) { _uT = uT; }
+
+vec Particle::uD() const { return _uD; }
+
+void Particle::setUD(const vec& uD) { _uD = uD; }
+
 const Symmetry* Particle::symmetry() const { return _sym; }
 
 void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
@@ -382,6 +410,10 @@ void Particle::load(const int nR,
     _wR.resize(_nR);
     _wT.resize(_nT);
     _wD.resize(_nD);
+
+    _uR.resize(_nR);
+    _uT.resize(_nT);
+    _uD.resize(_nD);
 
     gsl_rng* engine = get_random_engine();
 
@@ -429,6 +461,8 @@ void Particle::load(const int nR,
         _r.row(i) = part.transpose();
 
         _wR(i) = 1.0 / _nR;
+
+        _uR(i) = 1.0 / _nR;
     }
 
     // load the translation
@@ -452,6 +486,8 @@ void Particle::load(const int nR,
        _t(i, 1) += t(1);
 
        _wT(i) = 1.0 / _nT;
+
+       _uT(i) = 1.0 / _nT;
     }
 
     // load the defocus factor
@@ -464,7 +500,9 @@ void Particle::load(const int nR,
     for (int i = 0; i < _nD; i++)
     {
         _d(i) = d + gsl_ran_gaussian(engine, _s);
+
         _wD(i) = 1.0 / _nD;
+        _uD(i) = 1.0 / _nD;
     }
 
 }
@@ -603,6 +641,30 @@ void Particle::mulWD(const double wD,
                      const int i)
 {
     _wD(i) *= wD;
+}
+
+void Particle::setUC(const double uC,
+                     const int i)
+{
+    _uC(i) = uC;
+}
+
+void Particle::setUR(const double uR,
+                     const int i)
+{
+    _uR(i) = uR;
+}
+
+void Particle::setUT(const double uT,
+                     const int i)
+{
+    _uT(i) = uT;
+}
+
+void Particle::setUD(const double uD,
+                     const int i)
+{
+    _uD(i) = uD;
 }
 
 void Particle::normW()
@@ -991,9 +1053,8 @@ void Particle::resample(const int n,
         _wC(0) = 1;
         ***/
 
-#ifdef PARTICLE_PRIOR_ONE
-        vec _wCPrev = _wC;
-#endif
+        for (int i = 0; i < _nC; i++)
+            _wC(i) *= _uC(i);
 
         vec cdf = cumsum(_wC);
         
@@ -1013,15 +1074,17 @@ void Particle::resample(const int n,
                 i++;
 
             c(j) = _c(i);
-        
+
 #ifdef PARTICLE_PRIOR_ONE
-            _wC(j) = 1.0 / _wCPrev(i);
+            _wC(j) = _uC(i);
 #else
             _wC(j) = 1.0 / _nC;
 #endif
         }
 
         _c = c;
+
+        _uC.resize(_nC);
     }
     else if (pt == PAR_R)
     {
@@ -1029,9 +1092,8 @@ void Particle::resample(const int n,
 
         shuffle(pt);
 
-#ifdef PARTICLE_PRIOR_ONE
-        vec _wRPrev = _wR;
-#endif
+        for (int i = 0; i < _nR; i++)
+            _wR(i) *= _uR(i);
 
         vec cdf = cumsum(_wR);
 
@@ -1052,14 +1114,17 @@ void Particle::resample(const int n,
         
             r.row(j) = _r.row(i);
 
+
 #ifdef PARTICLE_PRIOR_ONE
-            _wR(j) = 1.0 / _wRPrev(i);
+            _wR(j) = 1.0 / _uR(i);
 #else
             _wR(j) = 1.0 / _nR;
 #endif
         }
 
         _r = r;
+
+        _uR.resize(_nR);
     }
     else if (pt == PAR_T)
     {
@@ -1067,9 +1132,8 @@ void Particle::resample(const int n,
 
         shuffle(pt);
 
-#ifdef PARTICLE_PRIOR_ONE
-        vec _wTPrev = _wT;
-#endif
+        for (int i = 0; i < _nT; i++)
+            _wT(i) *= _uT(i);
 
         vec cdf = cumsum(_wT);
 
@@ -1090,14 +1154,17 @@ void Particle::resample(const int n,
         
             t.row(j) = _t.row(i);
 
+
 #ifdef PARTICLE_PRIOR_ONE
-            _wT(j) = 1.0 / _wTPrev(i);
+            _wT(j) = 1.0 / _uT(i);
 #else
             _wT(j) = 1.0 / _nT;
 #endif
         }
 
         _t = t;
+
+        _uT.resize(_nT);
     }
     else if (pt == PAR_D)
     {
@@ -1105,9 +1172,8 @@ void Particle::resample(const int n,
 
         shuffle(pt);
 
-#ifdef PARTICLE_PRIOR_ONE
-        vec _wDPrev = _wD;
-#endif
+        for (int i = 0; i < _nD; i++)
+            _wD(i) *= _uD(i);
 
         vec cdf = cumsum(_wD);
 
@@ -1128,14 +1194,17 @@ void Particle::resample(const int n,
 
             d(j) = _d(i);
 
+
 #ifdef PARTICLE_PRIOR_ONE
-            _wD(j) = 1.0 / _wDPrev(i);
+            _wD(j) = 1.0 / _uD(i);
 #else
             _wD(j) = 1.0 / _nD;
 #endif
         }
 
         _d = d;
+
+        _uD.resize(_nD);
     }
 
     normW();
@@ -1747,14 +1816,18 @@ void Particle::shuffle(const ParticleType pt)
 
         vec wC(_nC);
 
+        vec uC(_nC);
+
         for (int i = 0; i < _nC; i++)
         {
             c(s(i)) = _c(i);
             wC(s(i)) = _wC(i);
+            uC(s(i)) = _uC(i);
         }
 
         _c = c;
         _wC = wC;
+        _uC = uC;
     }
     else if (pt == PAR_R)
     {
@@ -1766,15 +1839,18 @@ void Particle::shuffle(const ParticleType pt)
 
         mat4 r(_nR, 4);
         vec wR(_nR);
+        vec uR(_nR);
 
         for (int i = 0; i < _nR; i++)
         {
             r.row(s(i)) = _r.row(i);
             wR(s(i)) = _wR(i);
+            uR(s(i)) = _wR(i);
         }
 
         _r = r;
         _wR = wR;
+        _uR = uR;
     }
     else if (pt == PAR_T)
     {
@@ -1786,15 +1862,18 @@ void Particle::shuffle(const ParticleType pt)
 
         mat2 t(_nT, 2);
         vec wT(_nT);
+        vec uT(_nT);
 
         for (int i = 0; i < _nT; i++)
         {
             t.row(s(i)) = _t.row(i);
             wT(s(i)) = _wT(i);
+            uT(s(i)) = _uT(i);
         }
 
         _t = t;
         _wT = wT;
+        _uT = uT;
     }
     else if (pt == PAR_D)
     {
@@ -1806,15 +1885,18 @@ void Particle::shuffle(const ParticleType pt)
 
         vec d(_nD);
         vec wD(_nD);
+        vec uD(_nD);
 
         for (int i = 0; i < _nD; i++)
         {
             d(s(i)) = _d(i);
             wD(s(i)) = _wD(i);
+            uD(s(i)) = _uD(i);
         }
 
         _d = d;
         _wD = wD;
+        _uD = uD;
     }
 }
 
