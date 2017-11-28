@@ -395,10 +395,11 @@ void Particle::load(const int nR,
 
     _c.resize(1);
     _wC.resize(1);
+    _uC.resize(1);
 
     _c(0) = 0;
-
     _wC(0) = 1;
+    _uC(0) = 1;
 
     _topCPrev = 0;
     _topC = 0;
@@ -1056,6 +1057,8 @@ void Particle::resample(const int n,
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
 
+        _wC /= _wC.sum();
+
         vec cdf = cumsum(_wC);
         
         _nC = n;
@@ -1094,6 +1097,8 @@ void Particle::resample(const int n,
 
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
+
+        _wR /= _wR.sum();
 
         vec cdf = cumsum(_wR);
 
@@ -1135,6 +1140,8 @@ void Particle::resample(const int n,
         for (int i = 0; i < _nT; i++)
             _wT(i) *= _uT(i);
 
+        _wT /= _wT.sum();
+
         vec cdf = cumsum(_wT);
 
         _nT = n;
@@ -1174,6 +1181,8 @@ void Particle::resample(const int n,
 
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);
+
+        _wD /= _wD.sum();
 
         vec cdf = cumsum(_wD);
 
