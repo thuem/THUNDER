@@ -1507,17 +1507,20 @@ void Particle::sort(const int n,
 
         uvec c(n);
         vec wC(n);
+        vec uC(n);
 
         for (int i = 0; i < n; i++)
         {
             c(i) = _c(order(i));
             wC(i) = _wC(order(i));
+            uC(i) = _uC(order(i));
         }
 
         _nC = n;
         
         _c = c;
         _wC = wC;
+        _uC = uC;
     }
     else if (pt == PAR_R)
     {
@@ -1526,17 +1529,20 @@ void Particle::sort(const int n,
 
         mat4 r(n, 4);
         vec wR(n);
+        vec uR(n);
 
         for (int i = 0; i < n; i++)
         {
             r.row(i) = _r.row(order(i));
             wR(i) = _wR(order(i));
+            uR(i) = _uR(order(i));
         }
 
         _nR = n;
         
         _r = r;
         _wR = wR;
+        _uR = uR;
     }
     else if (pt == PAR_T)
     {
@@ -1545,17 +1551,20 @@ void Particle::sort(const int n,
 
         mat2 t(n, 2);
         vec wT(n);
+        vec uT(n);
 
         for (int i = 0; i < n; i++)
         {
             t.row(i) = _t.row(order(i));
             wT(i) = _wT(order(i));
+            uT(i) = _uT(order(i));
         }
 
         _nT = n;
         
         _t = t;
         _wT = wT;
+        _uT = uT;
     }
     else if (pt == PAR_D)
     {
@@ -1564,17 +1573,20 @@ void Particle::sort(const int n,
 
         vec d(n);
         vec wD(n);
+        vec uD(n);
 
         for (int i = 0; i < n; i++)
         {
             d(i) = _d(order(i));
             wD(i) = _wD(order(i));
+            uD(i) = _uD(order(i));
         }
 
         _nD = n;
         
         _d = d;
         _wD = wD;
+        _uD = uD;
     }
 }
 
@@ -1962,6 +1974,10 @@ void Particle::copy(Particle& that) const
     that.setWR(_wR);
     that.setWT(_wT);
     that.setWD(_wD);
+    that.setUC(_uC);
+    that.setUR(_uR);
+    that.setUT(_uT);
+    that.setUD(_uD);
     that.setSymmetry(_sym);
 }
 
