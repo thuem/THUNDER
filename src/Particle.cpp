@@ -1119,7 +1119,6 @@ void Particle::resample(const int n,
         
             r.row(j) = _r.row(i);
 
-
 #ifdef PARTICLE_PRIOR_ONE
             _wR(j) = 1.0 / _uR(i);
 #else
@@ -1866,7 +1865,7 @@ void Particle::shuffle(const ParticleType pt)
         {
             r.row(s(i)) = _r.row(i);
             wR(s(i)) = _wR(i);
-            uR(s(i)) = _wR(i);
+            uR(s(i)) = _uR(i);
         }
 
         _r = r;
