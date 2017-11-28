@@ -1079,7 +1079,7 @@ void Particle::resample(const int n,
             c(j) = _c(i);
 
 #ifdef PARTICLE_PRIOR_ONE
-            _wC(j) = _uC(i);
+            _wC(j) = 1.0 / _uC(i);
 #else
             _wC(j) = 1.0 / _nC;
 #endif
