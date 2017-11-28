@@ -1609,13 +1609,13 @@ void Particle::sort()
 uvec Particle::iSort(const ParticleType pt) const
 {
     if (pt == PAR_C)
-        return index_sort_descend(_wC);
+        return index_sort_descend(_uC);
     else if (pt == PAR_R)
-        return index_sort_descend(_wR);
+        return index_sort_descend(_uR);
     else if (pt == PAR_T)
-        return index_sort_descend(_wT);
+        return index_sort_descend(_uT);
     else if (pt == PAR_D)
-        return index_sort_descend(_wD);
+        return index_sort_descend(_uD);
     else abort();
 }
 
