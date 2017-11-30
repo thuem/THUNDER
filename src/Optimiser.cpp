@@ -3885,7 +3885,7 @@ void Optimiser::allReduceSigma(const bool group)
 }
 
 void Optimiser::reconstructRef(const bool fscFlag,
-                                 const bool avgFlag)
+                               const bool avgFlag)
 {
     FFT fft;
 

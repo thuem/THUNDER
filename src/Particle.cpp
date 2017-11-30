@@ -567,7 +567,9 @@ double Particle::compress() const
 
     // return sqrt(_k0) / sqrt(_k1);
 
-    return pow(_k1 * _k2 * _k3, -1.0 / 6);
+    // return pow(_k1 * _k2 * _k3, -1.0 / 6);
+
+    return pow(_k1 * _k2 * _k3, -1.0 / 3);
 
     // return _k0 / _k1;
 
