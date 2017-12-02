@@ -56,7 +56,7 @@
 
 #define TRANS_Q 0.01
 
-#define MIN_STD_FACTOR 3
+#define MIN_STD_FACTOR 1
 
 struct OptimiserPara
 {
