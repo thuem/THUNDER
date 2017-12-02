@@ -1085,6 +1085,10 @@ void Optimiser::expectation()
                 _par[l].resample(_para.mLT, PAR_T);
                 ***/
 
+                _par[l].perturb(_para.perturbFactorL, PAR_R);
+                _par[l].perturb(_para.perturbFactorL, PAR_T);
+
+                /***
                 if (_model.r() > _model.rPrev())
                 {
                     _par[l].perturb(_para.perturbFactorL, PAR_R);
@@ -1101,6 +1105,7 @@ void Optimiser::expectation()
                                   : _para.perturbFactorSLocal,
                                     PAR_T);
                 }
+                ***/
 
                 if (_searchType == SEARCH_TYPE_CTF)
                     _par[l].initD(_para.mLD, _para.ctfRefineS);
