@@ -4123,6 +4123,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+        saveReference();
+
         MPI_Barrier(MPI_COMM_WORLD);
 
         _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
@@ -4167,6 +4170,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
             }
         }
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+        saveReference();
 
         MPI_Barrier(MPI_COMM_WORLD);
 
