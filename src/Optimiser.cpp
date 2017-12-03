@@ -968,33 +968,33 @@ void Optimiser::expectation()
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
-            _par[l].setK1(GSL_MAX_DBL(gsl_pow_2((1.0 / (_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setK1(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                       ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal)
+                                                      : _para.perturbFactorSLocal))
                                                * MIN_STD_FACTOR * scanMinStdR),
                                       _par[l].k1()));
 
-            _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / (_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                       ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal)
+                                                      : _para.perturbFactorSLocal))
                                                * MIN_STD_FACTOR * scanMinStdR),
                                       _par[l].k2()));
 
-            _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / (_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                       ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal)
+                                                      : _para.perturbFactorSLocal))
                                                * MIN_STD_FACTOR * scanMinStdR),
                                       _par[l].k3()));
 
-            _par[l].setS0(GSL_MAX_DBL(1.0 / (_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setS0(GSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal
-                                           : _para.perturbFactorSLocal
+                                           : _para.perturbFactorSLocal)
                                     * MIN_STD_FACTOR * scanMinStdT,
                                       _par[l].s0()));
 
-            _par[l].setS1(GSL_MAX_DBL(1.0 / (_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setS1(GSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal
-                                           : _para.perturbFactorSLocal
+                                           : _para.perturbFactorSLocal)
                                     * MIN_STD_FACTOR * scanMinStdT,
                                       _par[l].s1()));
 
@@ -4400,7 +4400,7 @@ void Optimiser::allocPreCalIdx(const double rU,
 }
 
 void Optimiser::allocPreCal(const bool pixelMajor,
-                              const bool ctf)
+                            const bool ctf)
 {
     IF_MASTER return;
 
