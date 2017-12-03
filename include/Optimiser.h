@@ -739,7 +739,10 @@ class Optimiser : public Parallel
          * reconstruct reference
          */
         void reconstructRef(const bool fscFlag,
-                            const bool avgFlag);
+                            const bool avgFlag,
+                            const bool fscSave,
+                            const bool avgSave,
+                            const bool finished = false);
 
         /***
          * @param mask           whether mask on the reference is allowed or

@@ -1590,7 +1590,7 @@ void Optimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-        reconstructRef(true, true);
+        reconstructRef(true, true, false, true, false);
     }
 }
 
@@ -1780,8 +1780,10 @@ void Optimiser::run()
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
         saveReference();
+        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
@@ -1978,10 +1980,12 @@ void Optimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(true, false);
+    reconstructRef(true, false, true, false, true);
 
+    /***
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
     saveReference(true);
+    ***/
 
     /***
     MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
@@ -3910,7 +3914,10 @@ void Optimiser::allReduceSigma(const bool group)
 }
 
 void Optimiser::reconstructRef(const bool fscFlag,
-                               const bool avgFlag)
+                               const bool avgFlag,
+                               const bool fscSave,
+                               const bool avgSave,
+                               const bool finished)
 {
     FFT fft;
 
@@ -4123,8 +4130,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-        saveReference();
+        if (fscSave)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+            saveReference(finished);
+        }
 
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -4171,8 +4181,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-        saveReference();
+        if (avgSave)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+            saveReference(finished);
+        }
 
         MPI_Barrier(MPI_COMM_WORLD);
 
