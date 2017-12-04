@@ -388,12 +388,14 @@ void Optimiser::init()
 
     NT_MASTER
     {
+        /***
 #ifdef OPTIMISER_SOLVENT_FLATTEN
         ALOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
         BLOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
 
         solventFlatten(_para.performMask);
 #endif
+        ***/
 
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
         BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
@@ -1894,16 +1896,12 @@ void Optimiser::run()
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN
 
-        /***
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
-        ***/
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
 
             solventFlatten(_para.performMask);
-            /***
         }
-        ***/
 
 #endif
 
