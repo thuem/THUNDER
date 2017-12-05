@@ -3488,129 +3488,76 @@ void Optimiser::normCorrection()
 
             SET_0_FT(img);
 
-            if (_para.mode == MODE_2D)
+            for (int m = 0; m < _para.mReco; m++)
             {
-                _par[l].rank1st(cls, rot2D, tran, d);
+                if (_para.mode == MODE_2D)
+                {
+                    _par[l].rand(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
-                _model.proj(cls).project(img, rot2D, tran);
+                    _model.proj(cls).project(img, rot2D, tran);
 #else
-                _model.proj(cls).project(img, rot2D, tran - _offset[l]);
+                    _model.proj(cls).project(img, rot2D, tran - _offset[l]);
 #endif
 #else
-                _model.proj(cls).project(img, rot2D, tran);
+                    _model.proj(cls).project(img, rot2D, tran);
 #endif
-            }
-            else if (_para.mode == MODE_3D)
-            {
-                _par[l].rank1st(cls, rot3D, tran, d);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _par[l].rand(cls, rot3D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
-                _model.proj(cls).project(img, rot3D, tran);
+                    _model.proj(cls).project(img, rot3D, tran);
 #else
-                _model.proj(cls).project(img, rot3D, tran - _offset[l]);
+                    _model.proj(cls).project(img, rot3D, tran - _offset[l]);
 #endif
 #else
-                _model.proj(cls).project(img, rot3D, tran);
+                    _model.proj(cls).project(img, rot3D, tran);
 #endif
-            }
+                }
 
-            if (_searchType != SEARCH_TYPE_CTF)
-            {
-                FOR_EACH_PIXEL_FT(img)
-                    img[i] *= REAL(_ctf[l][i]);
-            }
-            else
-            {
-                Image ctf(_para.size, _para.size, FT_SPACE);
-                CTF(ctf,
-                    _para.pixelSize, 
-                    _ctfAttr[l].voltage,
-                    _ctfAttr[l].defocusU * d,
-                    _ctfAttr[l].defocusV * d,
-                    _ctfAttr[l].defocusTheta,
-                    _ctfAttr[l].Cs);
+                if (_searchType != SEARCH_TYPE_CTF)
+                {
+                    FOR_EACH_PIXEL_FT(img)
+                        img[i] *= REAL(_ctf[l][i]);
+                }
+                else
+                {
+                    Image ctf(_para.size, _para.size, FT_SPACE);
+                    CTF(ctf,
+                        _para.pixelSize, 
+                        _ctfAttr[l].voltage,
+                        _ctfAttr[l].defocusU * d,
+                        _ctfAttr[l].defocusV * d,
+                        _ctfAttr[l].defocusTheta,
+                        _ctfAttr[l].Cs);
 
-                FOR_EACH_PIXEL_FT(img)
-                    img[i] *= REAL(ctf[i]);
-            }
+                    FOR_EACH_PIXEL_FT(img)
+                        img[i] *= REAL(ctf[i]);
+                }
 
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
-            _img[l][0] = img[0];
-            _imgOri[l][0] = img[0];
+                _img[l][0] = img[0];
+                _imgOri[l][0] = img[0];
 #endif
 
-            NEG_FT(img);
+                NEG_FT(img);
 
 #ifdef OPTIMISER_NORM_MASK
-            ADD_FT(img, _img[l]);
+                ADD_FT(img, _img[l]);
 #else
-            ADD_FT(img, _imgOri[l]);
+                ADD_FT(img, _imgOri[l]);
 #endif
 
-            /***
-#ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
-#ifdef OPTIMISER_NORM_MASK
-            double scl = gsl_pow_2(_para.size)
-                       / nPixel(_para.maskRadius
-                              / _para.pixelSize,
-                                EDGE_WIDTH_RL);
-
-            ALOG(INFO, "LOGGER_SYS") << "Scaling of AJUST_2D_IMAGE_NOISE_ZERO_MEAN = "
-                                     << scl;
-
-            _imgOri[l][0] -= img[0] * scl;
-#else
-            CLOG(FATAL, "LOGGER_SYS") << "OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN REQUIRES OPTIMISER_NORM_MASK";
-#endif
-#endif
-            ***/
-
-            /***
-            FFT fft;
-            fft.bw(img);
-            ***/
-
-            /***
-            norm(_ID[l] - 1) = gsl_stats_mean(&img(0),
-                                              1,
-                                              img.sizeRL());
-                                              ***/
-
-            /***
-            double mean;
-            double stddev;
-
-            centreMeanStddev(mean,
-                             stddev,
-                             img,
-                             _para.maskRadius / _para.pixelSize - EDGE_WIDTH_RL);
-
-            norm(_ID[l] - 1) = stddev;
-            ***/
-
-            /***
-#ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
-            _img[l][0] -= mean;
-            _imgOri[l][0] -= mean;
-#endif
-***/
-
-            /***
-            norm(_ID[l] - 1) = centreStddev(0,
-                                            img,
-                                            _para.maskRadius
-                                          / _para.pixelSize
-                                          - EDGE_WIDTH_RL);
-                                          ***/
-
-            IMAGE_FOR_EACH_PIXEL_FT(img)
-            {
-                if ((QUAD(i, j) >= gsl_pow_2(_rL)) ||
-                    (QUAD(i, j) < gsl_pow_2(rNorm)))
-                    norm(_ID[l]) += ABS2(img.getFTHalf(i, j));
+                IMAGE_FOR_EACH_PIXEL_FT(img)
+                {
+                    if ((QUAD(i, j) >= gsl_pow_2(_rL)) ||
+                        (QUAD(i, j) < gsl_pow_2(rNorm)))
+                        norm(_ID[l]) += ABS2(img.getFTHalf(i, j));
+                }
             }
         }
     }
