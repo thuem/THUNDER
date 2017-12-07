@@ -76,7 +76,11 @@ void Optimiser::init()
         MLOG(INFO, "LOGGER_INIT") << "The Program is Running under 3D Mode";
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+        
+        abort();
+    }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
@@ -2115,7 +2119,7 @@ void Optimiser::initRef()
         {
             if (_para.mode == MODE_2D)
             {
-                //TODO
+                _model.appendRef(ref.copyVolume());
             }
             else if (_para.mode == MODE_3D)
             {
@@ -2196,7 +2200,11 @@ void Optimiser::initRef()
 
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
     }
 }
 
