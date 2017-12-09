@@ -1961,6 +1961,7 @@ void Particle::shuffle()
 
 void Particle::copy(Particle& that) const
 {
+    that.setMode(_mode);
     that.setNC(_nC);
     that.setNR(_nR);
     that.setNT(_nT);
