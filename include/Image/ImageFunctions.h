@@ -25,6 +25,18 @@
 #include "Image.h"
 #include "Volume.h"
 
+inline void IMG_EXTRACT_RL(Image& dst,
+                           const Image& src,
+                           const double ef)
+{
+    dst.alloc(AROUND(ef * src.nColRL()),
+              AROUND(ef * src.nRowRL()),
+              RL_SPACE);
+
+    IMAGE_FOR_EACH_PIXEL_RL(dst)
+        dst.setRL(src.getRL(i, j), i, j);
+}
+
 /**
  * This function extracts the centre block out of a volume in real space.
  *
@@ -45,6 +57,18 @@ inline void VOL_EXTRACT_RL(Volume& dst,
     VOLUME_FOR_EACH_PIXEL_RL(dst) 
         dst.setRL(src.getRL(i, j, k), i, j, k); 
 }
+
+inline void IMG_EXTRACT_FT(Image& dst,
+                           const Image& src,
+                           const double ef)
+{
+    dst.alloc(AROUND(ef * src.nColRL()),
+              AROUND(ef * src.nRowRL()),
+              FT_SPACE);
+
+    IMAGE_FOR_EACH_PIXEL_FT(dst)
+        dst.setFTHalf(src.getFTHalf(i, j), i, j);
+}
  
 /**
  * This function extracts the centre block out of a volume in Fourier space.
@@ -64,7 +88,13 @@ inline void VOL_EXTRACT_FT(Volume& dst,
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(dst)
-        dst.setFT(src.getFT(i, j, k), i, j, k); 
+        dst.setFTHalf(src.getFTHalf(i, j, k), i, j, k); 
+}
+
+inline void IMG_REPLACE_RL(Image& dst, const Image& src)
+{
+    IMAGE_FOR_EACH_PIXEL_RL(src)
+        dst.setRL(src.getRL(i, j), i, j);
 }
 
 /**
@@ -81,6 +111,12 @@ inline void VOL_REPLACE_RL(Volume& dst, const Volume& src)
         dst.setRL(src.getRL(i, j, k), i, j, k); 
 }
 
+inline void IMG_REPLACE_FT(Image& dst, const Image& src)
+{
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+        dst.setFTHalf(src.getFTHalf(i, j), i, j);
+}
+
 /**
  * This function replaces the centre block of a volume with another volume in
  * Fourier space.
@@ -88,11 +124,11 @@ inline void VOL_REPLACE_RL(Volume& dst, const Volume& src)
  * @param dst the destination volume
  * @param src the source volume
  */
-inline void VOL_REPLACE_FT(Volume& dst, const Volume& src) 
+inline void VOL_REPLACE_FT(Volume& dst, const Volume& src)
 { 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(src) 
-        dst.setFT(src.getFT(i, j, k), i, j, k); 
+        dst.setFTHalf(src.getFTHalf(i, j, k), i, j, k); 
 }
 
 inline void IMG_PAD_RL(Image& dst,

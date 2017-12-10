@@ -853,7 +853,27 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
 
-        // TODO
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_FT(_F2D)
+        {
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            {
+                padDst.setFTHalf(_F2D.getFTHalf(i, j)
+                               * _W2D.getFTHalf(i, j),
+                                 i,
+                                 j);
+            }
+        }
+
+        ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Image";
+        BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Image";
+
+        FFT fft;
+        fft.bwMT(padDst);
+
+        Image imgDst;
+
+        //IMG_EXTRACT_RL(imgDst, padDst, 1.0 / _pf);
     }
     else if (_mode == MODE_3D)
     {
