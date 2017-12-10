@@ -1,0 +1,11 @@
+prefix=/root/THUNDER-V1/3rd-lib-base/gsl2.4
+exec_prefix=/root/THUNDER-V1/3rd-lib-base/gsl2.4
+libdir=/root/THUNDER-V1/3rd-lib-base/gsl2.4/lib
+includedir=/root/THUNDER-V1/3rd-lib-base/gsl2.4/include
+GSL_CBLAS_LIB=-lgslcblas
+
+Name: GSL
+Description: GNU Scientific Library
+Version: 2.4
+Libs: -L/root/THUNDER-V1/3rd-lib-base/gsl2.4/lib -lgsl ${GSL_CBLAS_LIB} -lm -lm 
+Cflags: -I/root/THUNDER-V1/3rd-lib-base/gsl2.4/include
