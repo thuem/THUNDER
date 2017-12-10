@@ -7,13 +7,13 @@ project(thuem)
 #set(USING_SINGLE_PRECISION "yes")
 
 OPTION(USING_SINGLE_PRECISION "whether to use single float point number for caculation" OFF) 
+set(CMAKE_PREFIX_PATH "external")
 
 if(USING_SINGLE_PRECISION STREQUAL "yes")
     add_definitions(-DUSING_SINGLE_PRECISION)
     set(USING_SINGLE_PRECISION "yes")
 else()
     set(USING_SINGLE_PRECISION "no")
-#endif(USING_SINGLE_PRECISION)
 endif()
 
 set (COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
