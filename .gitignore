@@ -6,7 +6,6 @@
 *.cpp.swp
 *.swp
 *.bmp
-*.a
 *.mrc
 *.txt
 *.csv
