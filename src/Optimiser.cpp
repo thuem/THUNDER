@@ -2164,9 +2164,14 @@ void Optimiser::initRef()
 
             COPY_FT(volRef, ref);
 
+            _model.clearRef();
+
             for (int t = 0; t < _para.k; t++)
             {
                 _model.appendRef(volRef.copyVolume());
+
+                fft.fwMT(_model.ref(t));
+                _model.ref(t).clearRL();
             }
         }
         else if (_para.mode == MODE_3D)

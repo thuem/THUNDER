@@ -586,5 +586,9 @@ void Projector::gridCorrection()
 #endif
         }
         else
+        {
             REPORT_ERROR("INEXISTENT_MODE");
+
+            abort();
+        }
 }
