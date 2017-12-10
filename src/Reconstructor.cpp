@@ -843,6 +843,17 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
+        ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
+        BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
+
+        Image padDst(_N * _pf, _N * _pf, FT_SPACE);
+
+        SET_0_FT(padDst);
+
+        ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+        BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+
+        // TODO
     }
     else if (_mode == MODE_3D)
     {
