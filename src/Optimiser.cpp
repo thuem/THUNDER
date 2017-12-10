@@ -4020,7 +4020,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
                 }
                 else
+                {
                     REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
             }
         }
 

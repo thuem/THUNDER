@@ -127,7 +127,11 @@ void Reconstructor::allocSpace()
 
     }
     else 
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 void Reconstructor::resizeSpace(const int size)
@@ -182,7 +186,11 @@ void Reconstructor::reset()
         SET_0_FT(_T3D);
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 int Reconstructor::mode() const
@@ -724,7 +732,11 @@ void Reconstructor::reconstruct(Volume& dst)
                 _W3D.setFTHalf(COMPLEX(0, 0), i, j, k);
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     double diffC = DBL_MAX;
     double diffCPrev = DBL_MAX;
@@ -746,6 +758,12 @@ void Reconstructor::reconstruct(Volume& dst)
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(_C2D)
                 _C2D[i] = _T2D[i] * _W2D[i];
+
+            ALOG(INFO, "LOGGER_RECO") << REAL(_C2D[0]) << ", "
+                                      << REAL(_C2D[1]) << ", "
+                                      << REAL(_C2D[2]) << ", "
+                                      << REAL(_C2D[3]) << ", "
+                                      << REAL(_C2D[4]);
         }
         else if (_mode == MODE_3D)
         {
@@ -754,7 +772,11 @@ void Reconstructor::reconstruct(Volume& dst)
                 _C3D[i] = _T3D[i] * _W3D[i];
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
 
         ALOG(INFO, "LOGGER_RECO") << "Convoluting C";
         BLOG(INFO, "LOGGER_RECO") << "Convoluting C";
@@ -1085,7 +1107,11 @@ void Reconstructor::allReduceT()
                             MPI_SUM,
                             _hemi);
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     MPI_Barrier(_hemi);
 
@@ -1112,7 +1138,11 @@ void Reconstructor::allReduceT()
         SCALE_FT(_F3D, sf);
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 #endif
 }
 
@@ -1150,6 +1180,7 @@ double Reconstructor::checkC() const
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
+
         abort();
     }
 
@@ -1182,6 +1213,7 @@ double Reconstructor::checkC() const
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
+
         abort();
     }
 #endif
@@ -1202,7 +1234,6 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
             _C2D.setRL(_C2D.getRL(i, j)
-                     // * _kernelRL(QUAD(i, j) / gsl_pow_2(PAD_SIZE))
                      * _kernelRL(QUAD(i, j) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
@@ -1219,7 +1250,6 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
             _C3D.setRL(_C3D.getRL(i, j, k)
-                     // * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                      * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
@@ -1231,7 +1261,11 @@ void Reconstructor::convoluteC()
         _C3D.clearRL();
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 void Reconstructor::symmetrizeF()
