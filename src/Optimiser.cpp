@@ -3920,6 +3920,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     mat22 rot2D;
 
+                    rotate2D(rot2D, vec2(quat(0), quat(1)));
+
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                     translate(transImg,
                               _imgOri[l],
