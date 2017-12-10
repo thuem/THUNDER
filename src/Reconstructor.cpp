@@ -841,80 +841,11 @@ void Reconstructor::reconstruct(Volume& dst)
                              << " Iterations, Distance to Total Balanced: "
                              << diffC;
 
-    /***
     if (_mode == MODE_2D)
     {
-        #pragma omp parallel for
-        MUL_FT(_F2D, _W2D);
     }
     else if (_mode == MODE_3D)
     {
-        #pragma omp parallel for
-        MUL_FT(_F3D, _W3D);
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-
-#ifdef RECONSTRUCTOR_LOW_PASS
-    ALOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
-    BLOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
-
-    if (_mode == MODE_2D)
-    {
-        // TODO
-    }
-    else if (_mode == MODE_3D)
-    {
-        lowPassFilter(_F3D,
-                      _F3D,
-                      (double)(_maxRadius - EDGE_WIDTH_FT) / _size,
-                      (double)EDGE_WIDTH_FT / _size);
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-#endif
-    ***/
-
-    /***
-    if (_mode == MODE_2D)
-        _fft.bwExecutePlanMT(_F2D);
-    else if (_mode == MODE_3D)
-        _fft.bwExecutePlanMT(_F3D);
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-    ***/
-
-    if (_mode == MODE_2D)
-    {
-        /***
-        _fft.fwExecutePlanMT(_F2D);
-        _F2D.clearRL();
-
-        dst.clear();
-        dst.alloc(_N, _N, 1, FT_SPACE);
-        ***/
-
-#ifdef RECONSTRUCTOR_REMOVE_CORNER
-        // TODO
-#endif
-
-        // TODO
-        /***
-        for (int j = -_size / 2; j < _size / 2; j++)
-            for (int i = -_size / 2; i < _size / 2; i++)
-                dst.setRL(_F2D.getRL(i, j), i, j, 0);
-        ***/
-    }
-    else if (_mode == MODE_3D)
-    {
-        /***
-        ALOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
-        BLOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
-
-        _fft.fwExecutePlanMT(_F3D);
-        _F3D.clearRL();
-        ***/
-
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
 
@@ -935,7 +866,6 @@ void Reconstructor::reconstruct(Volume& dst)
                                  i,
                                  j,
                                  k);
-                // padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
             }
         }
 
@@ -949,35 +879,13 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
 
         VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf);
-
-        /***
-        for (int k = -_size / 2; k < _size / 2; k++)
-            for (int j = -_size / 2; j < _size / 2; j++)
-                for (int i = -_size / 2; i < _size / 2; i++)
-                    dst.setRL(_F3D.getRL(i, j, k), i, j, k);
-        ***/
-
-        // VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
-
-#ifdef RECONSTRUCTOR_REMOVE_CORNER
-
-#ifdef RECONSTRUCTOR_REMOVE_CORNER_MASK_ZERO
-        softMask(dst,
-                 dst,
-                 _N / 2,
-                 EDGE_WIDTH_RL,
-                 0);
-#else
-        softMask(dst,
-                 dst,
-                 _N / 2,
-                 EDGE_WIDTH_RL);
-#endif
-
-#endif
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
