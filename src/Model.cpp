@@ -285,8 +285,8 @@ Reconstructor& Model::reco(const int i)
 }
 
 void Model::compareTwoHemispheres(const bool fscFlag,
-                                    const bool avgFlag,
-                                    const double thres)
+                                  const bool avgFlag,
+                                  const double thres)
 {
     if (fscFlag)
     {
@@ -614,56 +614,56 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                         B[i] = avg;
                     }
                 }
-            }
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
-                                         << l
-                                         << " to Hemisphere A";
+                MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                             << l
+                                             << " to Hemisphere A";
             
 #ifdef MODEL_SWAP_HEMISPHERE
-            MPI_Ssend_Large(&B[0],
-                            A.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_A_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&B[0],
+                                A.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_A_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #else
-            MPI_Ssend_Large(&A[0],
-                            A.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_A_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&A[0],
+                                A.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_A_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #endif
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Reference "
-                                         << l
-                                         << " Sent to Hemisphere A";
+                MLOG(INFO, "LOGGER_COMPARE") << "Reference "
+                                             << l
+                                             << " Sent to Hemisphere A";
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
-                                         << l
-                                         << " to Hemisphere B";
+                MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                             << l
+                                             << " to Hemisphere B";
 
 #ifdef MODEL_SWAP_HEMISPHERE
-            MPI_Ssend_Large(&A[0],
-                            B.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_B_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&A[0],
+                                B.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_B_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #else
-            MPI_Ssend_Large(&B[0],
-                            B.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_B_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&B[0],
+                                B.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_B_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #endif
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Reference "
-                                         << l
-                                         << " Sent to Hemisphere B";
+                MLOG(INFO, "LOGGER_COMPARE") << "Reference "
+                                             << l
+                                             << " Sent to Hemisphere B";
 
+            }
         }
         else
         {
@@ -709,12 +709,12 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 if (avgFlag)
                 {
 
-                ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
-                BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
+                    ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
+                    BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
 
-                MPI_Recv_Large(&_ref[l][0],
-                               _ref[l].sizeFT(),
-                               MPI_DOUBLE_COMPLEX,
+                    MPI_Recv_Large(&_ref[l][0],
+                                   _ref[l].sizeFT(),
+                                   MPI_DOUBLE_COMPLEX,
                                MASTER_ID,
                                l,
                                MPI_COMM_WORLD);
@@ -726,32 +726,32 @@ void Model::compareTwoHemispheres(const bool fscFlag,
         if (avgFlag)
         {
 
-        MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
 
-        if (isA())
-        {
-            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
-            MPI_Bcast_Large(&_ref[l][0],
-                            _ref[l].sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            0,
-                            _hemi);
-        }
+            if (isA())
+            {
+                ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
+                MPI_Bcast_Large(&_ref[l][0],
+                                _ref[l].sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                0,
+                                _hemi);
+            }
 
-        if (isB())
-        {
-            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
-            MPI_Bcast_Large(&_ref[l][0],
-                            _ref[l].sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            0,
-                            _hemi);
-        }
+            if (isB())
+            {
+                BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
+                MPI_Bcast_Large(&_ref[l][0],
+                                _ref[l].sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                0,
+                                _hemi);
+            }
 
-        MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
 
 #ifdef VERBOSE_LEVEL_1
-        MLOG(INFO, "LOGGER_COMPARE") << "Reference " << l << " Broadcasted from A_LEAD and B_LEAD";
+            MLOG(INFO, "LOGGER_COMPARE") << "Reference " << l << " Broadcasted from A_LEAD and B_LEAD";
 #endif
         }
     }
@@ -759,18 +759,17 @@ void Model::compareTwoHemispheres(const bool fscFlag,
     if (fscFlag)
     {
 
-    MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
+        MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
 
-    MPI_Bcast(_FSC.data(),
-              _FSC.size(),
-              MPI_DOUBLE,
-              MASTER_ID,
-              MPI_COMM_WORLD);
+        MPI_Bcast(_FSC.data(),
+                  _FSC.size(),
+                  MPI_DOUBLE,
+                  MASTER_ID,
+                  MPI_COMM_WORLD);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_COMPARE") << "FSC Broadcasted from MASTER";
-
+        MLOG(INFO, "LOGGER_COMPARE") << "FSC Broadcasted from MASTER";
     }
 }
 
