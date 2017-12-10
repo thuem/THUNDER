@@ -848,6 +848,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
         Image padDst(_N * _pf, _N * _pf, FT_SPACE);
 
+        #pragma omp parallel
         SET_0_FT(padDst);
 
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
@@ -873,7 +874,13 @@ void Reconstructor::reconstruct(Volume& dst)
 
         Image imgDst;
 
-        //IMG_EXTRACT_RL(imgDst, padDst, 1.0 / _pf);
+        IMG_EXTRACT_RL(imgDst, padDst, 1.0 / _pf);
+
+        dst.alloc(_N, _N, 1, RL_SPACE);
+
+        #pragma omp parallel
+        IMAGE_FOR_EACH_PIXEL_RL(imgDst)
+            dst.setRL(imgDst.getRL(i, j), i, j, 0);
     }
     else if (_mode == MODE_3D)
     {
@@ -882,6 +889,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
+        #pragma omp parallel
         SET_0_FT(padDst);
 
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";

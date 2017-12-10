@@ -180,7 +180,7 @@ inline void IMG_PAD_FT(Image& dst,
     SET_0_FT(dst);
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
-        dst.setFT(src.getFT(i, j), i, j);
+        dst.setFTHalf(src.getFTHalf(i, j), i, j);
 }
 
 /**
@@ -204,7 +204,7 @@ inline void VOL_PAD_FT(Volume& dst,
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(src) 
-        dst.setFT(src.getFT(i, j, k), i, j, k); 
+        dst.setFTHalf(src.getFTHalf(i, j, k), i, j, k); 
 }
 
 /**
@@ -231,7 +231,7 @@ inline void SLC_REPLACE_RL(Volume& dst, const Image& src, const int k)
 inline void SLC_REPLACE_FT(Volume& dst, const Image& src, const int k) 
 { 
     IMAGE_FOR_EACH_PIXEL_FT(src) 
-        dst.setFT(src.getFT(i, j), i, j, k); 
+        dst.setFTHalf(src.getFTHalf(i, j), i, j, k); 
 }
 
 /**
@@ -259,7 +259,7 @@ inline void SLC_EXTRACT_RL(Image& dst, const Volume& src, const int k)
 inline void SLC_EXTRACT_FT(Image& dst, const Volume& src, const int k) 
 { 
     IMAGE_FOR_EACH_PIXEL_FT(dst) 
-        dst.setFT(src.getFT(i, j, k), i, j); 
+        dst.setFTHalf(src.getFTHalf(i, j, k), i, j); 
 }
 
 void mul(Image& dst,
