@@ -544,6 +544,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                         abort();
                     }
                 }
+            }
 
             if (avgFlag)
             {
@@ -663,7 +664,6 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                                          << l
                                          << " Sent to Hemisphere B";
 
-            }
         }
         else
         {
