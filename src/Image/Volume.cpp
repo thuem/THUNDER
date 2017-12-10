@@ -332,7 +332,7 @@ Complex Volume::getByInterpolationFT(RFLOAT iCol,
 
     return conj ? CONJUGATE(result) : result;
 }
-
+//huabin
 void Volume::addFT(const Complex value,
                    RFLOAT iCol,
                    RFLOAT iRow,
@@ -352,6 +352,7 @@ void Volume::addFT(const Complex value,
               x0);
 }
 
+//huabin
 void Volume::addFT(const RFLOAT value,
                    RFLOAT iCol,
                    RFLOAT iRow,
@@ -511,6 +512,7 @@ Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
     return result;
 }
 
+//huabin
 void Volume::addFTHalf(const Complex value,
                        const RFLOAT w[2][2][2],
                        const int x0[3])
@@ -543,6 +545,7 @@ void Volume::addFTHalf(const Complex value,
     }
 }
 
+//huabin
 void Volume::addFTHalf(const RFLOAT value,
                        const RFLOAT w[2][2][2],
                        const int x0[3])

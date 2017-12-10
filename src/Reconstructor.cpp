@@ -807,13 +807,8 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_gridCorr)
     {
-#ifdef USING_SINGLE_PRECISION
-        RFLOAT diffC = FLT_MAX;
-        RFLOAT diffCPrev = FLT_MAX;
-#else
         RFLOAT diffC = TS_MAX_RFLOAT_VALUE;
         RFLOAT diffCPrev = TS_MAX_RFLOAT_VALUE;
-#endif
 
         int m = 0;
 

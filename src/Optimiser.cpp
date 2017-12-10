@@ -622,7 +622,7 @@ void Optimiser::expectation()
 
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
-                                  * gsl_pow_2(_para.transS
+                                  * TSGSL_pow_2(_para.transS
                                             * TSGSL_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
 
@@ -3917,7 +3917,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     rotate2D(rot2D, vec2(quat(0), quat(1)));
 
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE ///huabin
                     translate(transImg,
                               _imgOri[l],
                               -(tran - _offset[l])(0),
@@ -3927,7 +3927,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iPxl,
                               _nPxl);
 #else
-                    translate(transImg,
+                    translate(transImg, //huabin
                               _img[l],
                               -tran(0),
                               -tran(1),

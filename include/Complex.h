@@ -36,10 +36,15 @@
  #define COMPLEX_POLAR(phi) ts_complex_polar(1.0, phi)
 inline Complex ts_complex_polar(RFLOAT r, RFLOAT phi)
 {
+#ifdef USING_SINGLE_PRECISION
     Complex z;
     z.dat[0] = r * cosf(phi);
     z.dat[1] = r * sinf(phi);
-
+#else
+    Complex z;
+    z.dat[0] = r * cos(phi);
+    z.dat[1] = r * sin(phi);
+#endif
     return z;
 };
 
@@ -47,7 +52,7 @@ inline Complex CONJUGATE(const Complex &a)
 {
     Complex z;
     z.dat[0] = a.dat[0];
-    z.dat[1] = 0.0f - a.dat[1];
+    z.dat[1] = -a.dat[1];
     return z;
 }
 
@@ -135,8 +140,8 @@ inline Complex operator-(const Complex& a)
 {
     //return COMPLEX(-REAL(a), -IMAG(a));
     Complex newa;
-    newa.dat[0] =  0.0 - a.dat[0];
-    newa.dat[1] =  0.0 - a.dat[1];
+    newa.dat[0] =  -a.dat[0];
+    newa.dat[1] =  -a.dat[1];
     return newa;
 };
 
@@ -151,7 +156,6 @@ inline Complex operator+(const Complex& a, const Complex& b)
 
 inline Complex operator-(const Complex& a, const Complex& b)
 {
-    //return gsl_complex_sub(a, b);
     Complex result;
     result.dat[0] = a.dat[0] - b.dat[0];
     result.dat[1] = a.dat[1] - b.dat[1];
@@ -161,10 +165,13 @@ inline Complex operator-(const Complex& a, const Complex& b)
 
 inline Complex operator*(const Complex& a, const Complex& b)
 {
-    //return gsl_complex_mul(a, b);
     Complex result;
-    result.dat[0] = a.dat[0] * b.dat[0];
-    result.dat[1] = a.dat[1] * b.dat[1];
+    /*
+     *result.dat[0] = a.dat[0] * b.dat[0];
+     *result.dat[1] = a.dat[1] * b.dat[1];
+     */
+    result.dat[0] = a.dat[0] * b.dat[0] - a.dat[1] * b.dat[1];
+    result.dat[1] = a.dat[0] * b.dat[1] + a.dat[1] * b.dat[0];
     return result;
 
 };
@@ -172,9 +179,34 @@ inline Complex operator*(const Complex& a, const Complex& b)
 inline Complex operator/(const Complex& a, const Complex& b)
 {
     //return gsl_complex_div(a, b);
+    /* 
+     RFLOAT cd = op.norm();
+     RFLOAT realval = real*op.real + imag*op.imag;
+     RFLOAT imagval = imag*op.real - real*op.imag;
+     return Complex(realval/cd, imagval/cd);*
+
+
+    RFLOAT Complex::norm()
+    {
+        return real*real + imag*imag;
+    }
+    RFLOAT norm(const Complex& op)
+    {
+        return op.real*op.real + op.imag*op.imag;
+    }
+     * */
     Complex result;
-    result.dat[0] = a.dat[0] / b.dat[0];
-    result.dat[1] = a.dat[1] / b.dat[1];
+    result.dat[0] = a.dat[0] * b.dat[0] + a.dat[1] * b.dat[1];
+    result.dat[1] = a.dat[1] * b.dat[0] - a.dat[0] * b.dat[1]; 
+    
+
+    RFLOAT norm = b.dat[0] * b.dat[0] + b.dat[1] * b.dat[1];
+    result.dat[0] /= norm;
+    result.dat[1] /= norm;
+    /*
+     *result.dat[0] = a.dat[0] / b.dat[0];
+     *result.dat[1] = a.dat[1] / b.dat[1];
+     */
     return result;
 
 };

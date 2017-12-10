@@ -1,13 +1,24 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
-set(USING_SINGLE_PRECISION "yes")
+#Note: if you want to use single precision float number, please don't comment out following line
+#otherwise, comment out following line, and change value  "yes" to "no"
+#add_definitions(-DUSING_SINGLE_PRECISION=yes)
+#set(USING_SINGLE_PRECISION "yes")
+
+OPTION(USING_SINGLE_PRECISION "whether to use single float point number for caculation" OFF) 
+
+if(USING_SINGLE_PRECISION STREQUAL "yes")
+    add_definitions(-DUSING_SINGLE_PRECISION)
+    set(USING_SINGLE_PRECISION "yes")
+else()
+    set(USING_SINGLE_PRECISION "no")
+endif(USING_SINGLE_PRECISION)
 
 set (COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 set (CMAKE_C_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing")
 set (CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
-#set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -O0 -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ")
-#set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ")
+
 
 if(NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE Release)
@@ -35,7 +46,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 #########################################################################
 #Following lines are added by huabin
 if(USING_SINGLE_PRECISION STREQUAL "yes")
-    find_path (FFTW_INCLUDES fftw3float/fftw3.h)
+    find_path (FFTW_INCLUDES fftw3float/fftw3.h) 
     find_library (FFTWOMP_LIBRARIES NAMES fftw3f_threads fftw3f)
     find_library (FFTW_LIBRARIES NAMES fftw3f)
 else()

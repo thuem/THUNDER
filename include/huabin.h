@@ -51,6 +51,7 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 
+
 #ifdef USING_SINGLE_PRECISION
 #include <fftw3float/fftw3.h>
 #else
@@ -75,7 +76,9 @@ gsl_stats_float_sd_m
 */
 
 
-#define USING_SINGLE_PRECISION 1
+/*
+ *#define USING_SINGLE_PRECISION 1
+ */
 
 
 

@@ -490,7 +490,7 @@ void TSFFTW_execute(const TSFFTW_PLAN plan)
 void TSFFTW_execute_split_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, RFLOAT *ro, RFLOAT *io)
 {
     
-#ifdef  USING_SINGLE_PRECISION
+#ifdef USING_SINGLE_PRECISION
 	fftwf_execute_split_dft_r2c( p, in, ro, io);
 #else
 	fftw_execute_split_dft_r2c( p, in, ro, io);
