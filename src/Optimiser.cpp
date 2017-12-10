@@ -2105,7 +2105,11 @@ void Optimiser::initRef()
             }
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
     
 #ifdef OPTIMISER_INIT_REF_REMOVE_NEG
         #pragma omp parallel for
@@ -2126,7 +2130,11 @@ void Optimiser::initRef()
                 _model.appendRef(ref.copyVolume());
             }
             else
+            {
                 REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
 
             fft.fwMT(_model.ref(t));
             _model.ref(t).clearRL();
@@ -2154,15 +2162,12 @@ void Optimiser::initRef()
 
             softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
-            fft.fwMT(ref);
-            ref.clearRL();
-
             Volume volRef(_para.size,
                           _para.size,
                           1,
                           FT_SPACE);
 
-            COPY_FT(volRef, ref);
+            COPY_RL(volRef, ref);
 
             _model.clearRef();
 
