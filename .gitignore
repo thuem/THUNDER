@@ -27,7 +27,6 @@ cscope*
 tmp/
 unittest/
 gpu/gpuunittest/
-bin/
 gpu/
 case/
 case/case1
