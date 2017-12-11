@@ -1596,8 +1596,8 @@ void Optimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-        //reconstructRef(true, true, true, false, false);
-        reconstructRef(true, true, false, true, false); // TODO, DEBUG
+        reconstructRef(true, true, true, false, false);
+        //reconstructRef(true, true, false, true, false); // TODO, DEBUG
     }
 }
 
@@ -1779,18 +1779,12 @@ void Optimiser::run()
         reMaskImg();
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma";
 
         saveSig();
-        //saveTau();
 
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
-
-        /***
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-        saveReference();
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
