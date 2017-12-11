@@ -4704,12 +4704,20 @@ void Optimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
-                sprintf(filename, "%sFT_Reference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                if (finished)
+                    sprintf(filename, "%sFT_Reference_%03d_A_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sFT_Reference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveFTToBMP(filename, 0.001);
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "%sReference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                if (finished)
+                    sprintf(filename, "%sReference_%03d_A_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sReference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveRLToBMP(filename);
             }
             else if (_commRank == HEMI_B_LEAD)
@@ -4722,12 +4730,20 @@ void Optimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
-                sprintf(filename, "%sFT_Reference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                if (finished)
+                    sprintf(filename, "%sFT_Reference_%03d_B_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sFT_Reference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveFTToBMP(filename, 0.001);
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "%sReference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                if (finished)
+                    sprintf(filename, "%sReference_%03d_B_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sReference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveRLToBMP(filename);
             }
         }
