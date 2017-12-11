@@ -2165,7 +2165,7 @@ void Optimiser::initRef()
             Volume volRef(_para.size,
                           _para.size,
                           1,
-                          FT_SPACE);
+                          RL_SPACE);
 
             COPY_RL(volRef, ref);
 
