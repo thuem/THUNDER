@@ -1032,13 +1032,13 @@ void Particle::resample(const int n,
 {
     gsl_rng* engine = get_random_engine();
 
-    uvec rank = iSort(pt);
-
     if (pt == PAR_C)
     {
-        c(_topC, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        c(_topC, rank(0));
 
         /***
         if (n != 1)
@@ -1093,9 +1093,11 @@ void Particle::resample(const int n,
     }
     else if (pt == PAR_R)
     {
-        quaternion(_topR, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        quaternion(_topR, rank(0));
 
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
@@ -1134,9 +1136,11 @@ void Particle::resample(const int n,
     }
     else if (pt == PAR_T)
     {
-        t(_topT, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        t(_topT, rank(0));
 
         for (int i = 0; i < _nT; i++)
             _wT(i) *= _uT(i);
@@ -1176,9 +1180,11 @@ void Particle::resample(const int n,
     }
     else if (pt == PAR_D)
     {
-        d(_topD, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        d(_topD, rank(0));
 
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);

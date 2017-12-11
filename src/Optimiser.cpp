@@ -1596,7 +1596,8 @@ void Optimiser::maximization()
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
-        reconstructRef(true, true, true, false, false);
+        //reconstructRef(true, true, true, false, false);
+        reconstructRef(true, true, false, true, false); // TODO, DEBUG
     }
 }
 
