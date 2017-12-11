@@ -3038,10 +3038,13 @@ void Optimiser::refreshClassDistr()
         #pragma omp parallel for private(cls)
         FOR_EACH_2D_IMAGE
         {
-            _par[l].rank1st(cls);
+            for (int k = 0; k < _para.k; k++)
+            {
+                _par[l].rand(cls); 
 
-            #pragma omp atomic
-            _cDistr(cls) += 1;
+                #pragma omp atomic
+                _cDistr(cls) += 1;
+            }
         }
     }
 
@@ -3054,7 +3057,7 @@ void Optimiser::refreshClassDistr()
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
-    _cDistr.array() /= _nPar;
+    _cDistr.array() /= (_nPar * _para.k);
 }
 
 /***
