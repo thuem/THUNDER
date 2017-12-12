@@ -534,7 +534,11 @@ void Optimiser::expectation()
             nR = _para.mS / (1 + _sym.nSymmetryElement());
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
 
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
@@ -542,7 +546,22 @@ void Optimiser::expectation()
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
 
-        double scanMinStdR = pow(_para.mS, -1.0 / 3);
+        double scanMinStdR;
+        if (_para.mode == MODE_2D)
+        { 
+            scanMinStdR = 1.0 / _para.mS;
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            scanMinStdR =  pow(_para.mS, -1.0 / 3);
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
         double scanMinStdT = 1.0
                            / gsl_cdf_chisq_Qinv(0.5, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
@@ -980,17 +999,20 @@ void Optimiser::expectation()
                                                * MIN_STD_FACTOR * scanMinStdR),
                                       _par[l].k1()));
 
-            _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
-                                                      ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal))
-                                               * MIN_STD_FACTOR * scanMinStdR),
-                                      _par[l].k2()));
+            if (_para.mode == MODE_3D)
+            {
+                _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                  * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k2()));
 
-            _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
-                                                      ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal))
-                                               * MIN_STD_FACTOR * scanMinStdR),
-                                      _par[l].k3()));
+                _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                   * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k3()));
+            }
 
             _par[l].setS0(GSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal

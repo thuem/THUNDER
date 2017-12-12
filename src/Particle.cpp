@@ -846,9 +846,7 @@ void Particle::calVari(const ParticleType pt)
     {
         if (_mode == MODE_2D)
         {
-            // TODO
-
-            inferVMS(_k, _r);
+            inferVMS(_k1, _r);
         }
         else if (_mode == MODE_3D)
         {

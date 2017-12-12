@@ -139,20 +139,14 @@ class Particle
          */
         const Symmetry* _sym;
 
-        /**
-         * concnetration paramter of von Mises distribution of rotation (kappa)
-         */
         double _k;
 
         /**
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
          */
-        // double _k0;
-
         /**
-         * concentration parameter of Angular Central Gaussian distribution of
-         * rotation
+         * concnetration paramter of von Mises distribution of rotation (kappa)
          */
         double _k1;
 
