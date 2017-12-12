@@ -428,7 +428,8 @@ void Reconstructor::insert(const Image& src,
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat22& rot,
-                            const double w)
+                            const double w,
+                            const vec* sig)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
@@ -448,6 +449,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -458,6 +460,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1));
@@ -467,6 +470,7 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -476,6 +480,7 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1));
@@ -759,11 +764,13 @@ void Reconstructor::reconstruct(Volume& dst)
             FOR_EACH_PIXEL_FT(_C2D)
                 _C2D[i] = _T2D[i] * _W2D[i];
 
+            /***
             ALOG(INFO, "LOGGER_RECO") << REAL(_C2D[0]) << ", "
                                       << REAL(_C2D[1]) << ", "
                                       << REAL(_C2D[2]) << ", "
                                       << REAL(_C2D[3]) << ", "
                                       << REAL(_C2D[4]);
+            ***/
         }
         else if (_mode == MODE_3D)
         {

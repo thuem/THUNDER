@@ -3956,10 +3956,20 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs);
 
+#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
+                    vec sig = _sig.row(_groupID[l] - 1).transpose();
+
+                    _model.reco(cls).insertP(transImg,
+                                             cSearch ? ctf : _ctf[l],
+                                             rot2D,
+                                             w,
+                                             &sig);
+#else
                     _model.reco(cls).insertP(transImg,
                                              cSearch ? ctf : _ctf[l],
                                              rot2D,
                                              w);
+#endif
                 }
                 else if (_para.mode == MODE_3D)
                 {
@@ -4082,12 +4092,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
-
-                /***
-                #pragma omp parallel for
-                VOLUME_FOR_EACH_PIXEL_FT(ref)
-                    _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
-                ***/
 
                 COPY_FT(_model.ref(t), ref);
 
