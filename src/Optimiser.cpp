@@ -4141,9 +4141,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 
-                #pragma omp parallel for
-                VOLUME_FOR_EACH_PIXEL_FT(ref)
-                    _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+                COPY_FT(_model.ref(t), ref);
 
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
