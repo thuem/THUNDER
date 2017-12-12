@@ -332,7 +332,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 B.alloc(_size, _size, _size, FT_SPACE);
             }
             else
+            {
                 REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
 
 #ifdef VERBOSE_LEVEL_1
             MLOG(INFO, "LOGGER_COMPARE") << "Size of Hemisphere A of Reference "
@@ -363,7 +367,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                            l,
                            MPI_COMM_WORLD);
 
-#ifdef VERBOSE_LEVEL_3
+#ifdef VERBOSE_LEVEL_2
             MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
                                          << REAL(A[0])
                                          << ", IMAG = "
@@ -580,6 +584,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     if (_mode == MODE_2D)
                     {
                         MLOG(FATAL, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT GOLDEN STANDARD AVERAGING";
+
+                        abort();
                     }
                     else if (_mode == MODE_3D)
                     {
@@ -715,9 +721,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     MPI_Recv_Large(&_ref[l][0],
                                    _ref[l].sizeFT(),
                                    MPI_DOUBLE_COMPLEX,
-                               MASTER_ID,
-                               l,
-                               MPI_COMM_WORLD);
+                                   MASTER_ID,
+                                   l,
+                                   MPI_COMM_WORLD);
 
                 }
             }
@@ -725,7 +731,6 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
         if (avgFlag)
         {
-
             MPI_Barrier(MPI_COMM_WORLD);
 
             if (isA())
