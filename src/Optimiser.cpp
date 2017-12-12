@@ -1597,14 +1597,11 @@ void Optimiser::maximization()
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
         reconstructRef(true, true, true, false, false);
-        //reconstructRef(true, true, false, true, false); // TODO, DEBUG
     }
 }
 
 void Optimiser::run()
 {
-    // IF_MASTER display(_para);
-
     MLOG(INFO, "LOGGER_ROUND") << "Initialising Optimiser";
 
     init();
