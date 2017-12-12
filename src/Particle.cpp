@@ -845,7 +845,11 @@ void Particle::calVari(const ParticleType pt)
     else if (pt == PAR_R)
     {
         if (_mode == MODE_2D)
+        {
+            // TODO
+
             inferVMS(_k, _r);
+        }
         else if (_mode == MODE_3D)
         {
             vec4 mean;
@@ -873,19 +877,13 @@ void Particle::calVari(const ParticleType pt)
 
                 _r.row(i) = quat.transpose();
             }
-
-            // inferACG(_k0, _k1, _r);
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
 
-        /***
-        _k1 /= _k0;
-
-        _k1 = GSL_MIN_DBL(_k1, 1);
-
-        _k0 = 1;
-        ***/
+            abort();
+        }
     }
     else if (pt == PAR_T)
     {
@@ -917,60 +915,57 @@ void Particle::perturb(const double pf,
         mat4 d(_nR, 4);
 
         if (_mode == MODE_2D)
+        {
             sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _nR);
+        }
         else if (_mode == MODE_3D)
         {
-            //sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
-
             sampleACG(d,
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
+            vec4 mean;
 
-            /***
-            sampleACG(d,
-                      gsl_pow_2(pf) * GSL_MAX_DBL(GSL_MAX_DBL(_k1, _k2), _k3),
-                      gsl_pow_2(pf) * GSL_MAX_DBL(GSL_MAX_DBL(_k1, _k2), _k3),
-                      gsl_pow_2(pf) * GSL_MAX_DBL(GSL_MAX_DBL(_k1, _k2), _k3),
-                      _nR);
-            ***/
-        }
+            inferACG(mean, _r);
 
-        vec4 mean;
+            vec4 quat;
 
-        inferACG(mean, _r);
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
 
-        vec4 quat;
+                quaternion_mul(quat, quaternion_conj(mean), quat);
 
-        for (int i = 0; i < _nR; i++)
-        {
-            quat = _r.row(i).transpose();
+                _r.row(i) = quat.transpose();
+            }
 
-            quaternion_mul(quat, quaternion_conj(mean), quat);
-
-            _r.row(i) = quat.transpose();
-        }
-
-        vec4 pert;
+            vec4 pert;
            
-        for (int i = 0; i < _nR; i++)
-        {
-            quat = _r.row(i).transpose();
-            pert = d.row(i).transpose();
-            quaternion_mul(quat, pert, quat);
-            _r.row(i) = quat.transpose();
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+                pert = d.row(i).transpose();
+                quaternion_mul(quat, pert, quat);
+                _r.row(i) = quat.transpose();
+            }
+
+            symmetrise();
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, mean, quat);
+
+                _r.row(i) = quat.transpose();
+            }
         }
-
-        if (_mode == MODE_3D) symmetrise();
-
-        for (int i = 0; i < _nR; i++)
+        else
         {
-            quat = _r.row(i).transpose();
+            REPORT_ERROR("INEXISTENT MODE");
 
-            quaternion_mul(quat, mean, quat);
-
-            _r.row(i) = quat.transpose();
+            abort();
         }
     }
     else if (pt == PAR_T)
@@ -1001,31 +996,6 @@ void Particle::perturb(const double pf,
             _d(i) += gsl_ran_gaussian(engine, _s) * pf;
     }
 }
-
-/***
-void Particle::perturb(const double pfR,
-                       const double pfT,
-                       const double pfD)
-{
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Rotation Perturbation";
-#endif
-
-    perturb(pfR, PAR_R);
-
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Translation Perturbation";
-#endif
-
-    perturb(pfT, PAR_T);
-
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Defocus Factor Perturbation";
-#endif
-
-    perturb(pfD, PAR_D);
-}
-***/
 
 void Particle::resample(const int n,
                         const ParticleType pt)
