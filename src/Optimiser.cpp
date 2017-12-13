@@ -3912,6 +3912,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
     NT_MASTER
     {
+        if ((_para.parGra) && (_para.k != 1))
+        {
+            ALOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+            BLOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+        }
+
         ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
         BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
@@ -3929,7 +3935,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
             double w;
 
-            if (_para.parGra)
+            if ((_para.parGra) && (_para.k == 1))
                 w = _par[l].compress();
             else
                 w = 1;
