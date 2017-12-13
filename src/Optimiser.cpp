@@ -413,19 +413,22 @@ void Optimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Set Up";
 #endif
 
-    MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
-
-    if (_para.gSearch)
+    if (strcmp(_para.initModel, "") != 0)
     {
-        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Random Projections";
+        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
-        correctScale(true, false, false);
-    }
-    else
-    {
-        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
+        if (_para.gSearch)
+        {
+            MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Random Projections";
 
-        correctScale(true, true, false);
+            correctScale(true, false, false);
+        }
+        else
+        {
+            MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
+
+            correctScale(true, true, false);
+        }
     }
 
     NT_MASTER
@@ -2178,7 +2181,9 @@ void Optimiser::initRef()
             }
             ***/
 
-            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            // softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+
+            SET_0_RL(ref);
 
             Volume volRef(_para.size,
                           _para.size,
@@ -2214,7 +2219,9 @@ void Optimiser::initRef()
             }
             ***/
 
-            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            // softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+
+            SET_0_RL(ref);
 
             _model.clearRef();
 
@@ -2674,8 +2681,8 @@ void Optimiser::initCTF()
 }
 
 void Optimiser::correctScale(const bool init,
-                               const bool coord,
-                               const bool group)
+                             const bool coord,
+                             const bool group)
 {
     ALOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
     BLOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
@@ -3167,7 +3174,7 @@ void Optimiser::refreshVariance()
 }
 
 void Optimiser::refreshScale(const bool coord,
-                               const bool group)
+                             const bool group)
 {
     if (_iter != 0)
         _rS = _model.resolutionP(_para.thresSclCorFSC, false);
