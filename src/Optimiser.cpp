@@ -4317,11 +4317,26 @@ void Optimiser::solventFlatten(const bool mask)
             ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
             BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
+            if (_para.mode == MODE_2D)
+            {
+                REPORT_ERROR("2D MODE DO NOT SUPPORTS PROVIDED MASK");
+
+                abort();
+            }
+            else if (_para.mode == MODE_3D)
+            {
 #ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
-            softMask(_model.ref(t), _model.ref(t), _mask, 0);
+                softMask(_model.ref(t), _model.ref(t), _mask, 0);
 #else
-            softMask(_model.ref(t), _model.ref(t), _mask);
+                softMask(_model.ref(t), _model.ref(t), _mask);
 #endif
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
         }
         else
         {
@@ -4367,7 +4382,11 @@ void Optimiser::solventFlatten(const bool mask)
 #endif
             }
             else
+            {
                 REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
