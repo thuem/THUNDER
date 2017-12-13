@@ -567,7 +567,20 @@ double Particle::compress() const
 
     // return sqrt(_k0) / sqrt(_k1);
 
-    return pow(_k1 * _k2 * _k3, -1.0 / 6);
+    if (_mode == MODE_2D)
+    {
+        return 1.0 / _k1;
+    }
+    else if (_mode == MODE_3D)
+    {
+        return pow(_k1 * _k2 * _k3, -1.0 / 6);
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     // return pow(_k1 * _k2 * _k3, -1.0 / 3);
 
@@ -847,6 +860,8 @@ void Particle::calVari(const ParticleType pt)
         if (_mode == MODE_2D)
         {
             inferVMS(_k1, _r);
+
+            // _k1 = 1.0 / (1 + _k1); // converting range, extreme sparse, _k1 = 1, extreme dense, _k1 = 0
         }
         else if (_mode == MODE_3D)
         {

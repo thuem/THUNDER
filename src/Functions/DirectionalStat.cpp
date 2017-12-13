@@ -211,16 +211,20 @@ void inferACG(vec4& mean,
 
 double pdfVMS(const vec2& x,
               const vec2& mu,
-              const double kappa)
+              const double k)
 {
+    double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
+
     return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
 }
 
 void sampleVMS(mat2& dst,
                const vec2& mu,
-               const double kappa,
+               const double k,
                const double n)
 {
+    double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
+
     gsl_rng* engine = get_random_engine();
 
     if (kappa < 1e-1)
@@ -272,20 +276,20 @@ void sampleVMS(mat2& dst,
 
 void sampleVMS(mat4& dst,
                const vec4& mu,
-               const double kappa,
+               const double k,
                const double n)
 {
     dst = mat4::Zero(dst.rows(), 4);
 
     mat2 dst2D = dst.leftCols<2>();
 
-    sampleVMS(dst2D, vec2(mu(0), mu(1)), kappa, n);
+    sampleVMS(dst2D, vec2(mu(0), mu(1)), k, n);
 
     dst.leftCols<2>() = dst2D;
 }
 
 void inferVMS(vec2& mu,
-              double& kappa,
+              double& k,
               const mat2& src)
 {
     mu = vec2::Zero();
@@ -300,32 +304,38 @@ void inferVMS(vec2& mu,
 
     mu /= mu.norm();
 
+    /***
+    R = GSL_MIN_DBL(R, 1 - 1e-3); // for the purpose of avoiding extreme value
+
     kappa = R * (2 - gsl_pow_2(R)) / (1 - gsl_pow_2(R));
+    ***/
+
+    k = 1 - R;
 }
 
-void inferVMS(double& kappa,
+void inferVMS(double& k,
               const mat2& src)
 {
     vec2 mu;
 
-    inferVMS(mu, kappa, src);
+    inferVMS(mu, k, src);
 }
 
 void inferVMS(vec4& mu,
-              double& kappa,
+              double& k,
               const mat4& src)
 {
     vec2 mu2D;
 
-    inferVMS(mu2D, kappa, src.leftCols<2>());
+    inferVMS(mu2D, k, src.leftCols<2>());
 
     mu = vec4(mu2D(0), mu2D(1), 0, 0);
 }
 
-void inferVMS(double& kappa,
+void inferVMS(double& k,
               const mat4& src)
 {
     vec4 mu;
 
-    inferVMS(mu, kappa, src);
+    inferVMS(mu, k, src);
 }
