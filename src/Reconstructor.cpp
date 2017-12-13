@@ -611,6 +611,8 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
+#ifdef VERBOSE_LEVEL_2
+
     IF_MODE_2D
     {
         ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
@@ -622,6 +624,8 @@ void Reconstructor::reconstruct(Volume& dst)
         ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
         BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
     }
+
+#endif
 
     // only in 3D mode, the MAP method is appropriate
     if (_MAP && (_mode == MODE_3D))
@@ -650,6 +654,7 @@ void Reconstructor::reconstruct(Volume& dst)
         avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
         avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
 
+#ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
                                  << avg(avg.size() - 5) << ", "
                                  << avg(avg.size() - 4) << ", "
@@ -664,8 +669,12 @@ void Reconstructor::reconstruct(Volume& dst)
                                  << avg(avg.size() - 1);
 #endif
 
+#endif
+
+#ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
         BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
+#endif
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_T3D)
@@ -715,8 +724,12 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
     }
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
+
+#endif
 
     if (_mode == MODE_2D)
     {
@@ -752,25 +765,21 @@ void Reconstructor::reconstruct(Volume& dst)
 
     for (m = 0; m < MAX_N_ITER_BALANCE; m++)
     {
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
 
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
+
+#endif
         
         if (_mode == MODE_2D)
         {
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(_C2D)
                 _C2D[i] = _T2D[i] * _W2D[i];
-
-            /***
-            ALOG(INFO, "LOGGER_RECO") << REAL(_C2D[0]) << ", "
-                                      << REAL(_C2D[1]) << ", "
-                                      << REAL(_C2D[2]) << ", "
-                                      << REAL(_C2D[3]) << ", "
-                                      << REAL(_C2D[4]);
-            ***/
         }
         else if (_mode == MODE_3D)
         {
@@ -785,13 +794,21 @@ void Reconstructor::reconstruct(Volume& dst)
             abort();
         }
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Convoluting C";
         BLOG(INFO, "LOGGER_RECO") << "Convoluting C";
 
+#endif
+
         convoluteC();
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
         BLOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+
+#endif
 
         if (_mode == MODE_2D)
         {
@@ -817,17 +834,29 @@ void Reconstructor::reconstruct(Volume& dst)
                                    k);
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+
+#endif
         
         diffCPrev = diffC;
 
         diffC = checkC();
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
+
+#endif
 
         if (diffC > diffCPrev * DIFF_C_DECREASE_THRES)
             nDiffCNoDecrease += 1;
@@ -839,6 +868,8 @@ void Reconstructor::reconstruct(Volume& dst)
              (nDiffCNoDecrease == N_DIFF_C_NO_DECREASE))) break;
     }
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_SYS") << "After "
                              << m
                              << " Iterations, Distance to Total Balanced: "
@@ -847,19 +878,28 @@ void Reconstructor::reconstruct(Volume& dst)
                              << m
                              << " Iterations, Distance to Total Balanced: "
                              << diffC;
+#endif
 
     if (_mode == MODE_2D)
     {
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
         BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
+
+#endif
 
         Image padDst(_N * _pf, _N * _pf, FT_SPACE);
 
         #pragma omp parallel
         SET_0_FT(padDst);
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+
+#endif
 
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(_F2D)
@@ -873,8 +913,12 @@ void Reconstructor::reconstruct(Volume& dst)
             }
         }
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Image";
         BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Image";
+
+#endif
 
         FFT fft;
         fft.bwMT(padDst);
@@ -891,16 +935,24 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
+
+#endif
 
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
         #pragma omp parallel
         SET_0_FT(padDst);
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+
+#endif
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
@@ -915,14 +967,22 @@ void Reconstructor::reconstruct(Volume& dst)
             }
         }
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
+
+#endif
 
         FFT fft;
         fft.bwMT(padDst);
         
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
+
+#endif
 
         VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf);
     }
@@ -944,32 +1004,32 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
-        // TODO
+        Image imgDst(_N, _N, RL_SPACE);
 
-        /***
+        SLC_EXTRACT_RL(imgDst, dst, 0);
+
         #pragma omp parallel for schedule(dynamic)
-        IMAGE_FOR_EACH_PIXEL_RL(_F2D)
+        IMAGE_FOR_EACH_PIXEL_RL(imgDst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            dst.setRL(dst.getRL(i, j)
-                     // / MKB_RL(NORM(i, j) / PAD_SIZE,
-                     / MKB_RL(NORM(i, j) / (_pf * _N),
-                              _a * _pf,
-                              _alpha)
-                     * nf,
-                       i,
-                       j);
+            imgDst.setRL(imgDst.getRL(i, j)
+                       / MKB_RL(NORM(i, j) / (_pf * _N),
+                                _a * _pf,
+                                _alpha)
+                       * nf,
+                         i,
+                         j);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            dst.setRL(dst.getRL(i, j)
-                     // / TIK_RL(NORM(i, j) / PAD_SIZE),
-                     / TIK_RL(NORM(i, j) / (_pf * _N)),
-                       i,
-                       j);
+            imgDst.setRL(imgDst.getRL(i, j)
+                       / TIK_RL(NORM(i, j) / (_pf * _N)),
+                         i,
+                         j);
 #endif
         }
-        ***/
+
+        SLC_REPLACE_RL(dst, imgDst, 0);
     }
     else if (_mode == MODE_3D)
     {
@@ -978,7 +1038,6 @@ void Reconstructor::reconstruct(Volume& dst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             dst.setRL(dst.getRL(i, j, k)
-                     // / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
                      / MKB_RL(NORM_3(i, j, k) / (_pf * _N),
                               _a * _pf,
                               _alpha)
@@ -990,7 +1049,6 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             dst.setRL(dst.getRL(i, j, k)
-                     // / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
                      / TIK_RL(NORM_3(i, j, k) / (_pf * _N)),
                        i,
                        j,
@@ -999,7 +1057,11 @@ void Reconstructor::reconstruct(Volume& dst)
         }
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
