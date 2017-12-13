@@ -995,8 +995,12 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+
+#endif
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
     double nf = MKB_RL(0, _a * _pf, _alpha);
@@ -1063,8 +1067,12 @@ void Reconstructor::reconstruct(Volume& dst)
         abort();
     }
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
+
+#endif
 
 #endif
 
