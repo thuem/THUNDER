@@ -102,21 +102,27 @@ void Particle::reset()
 
     switch (_mode)
     {
-        // rotation, MODE_2D, sample from von Mises Distribution with kappa = 0
+        // rotation, MODE_2D, sample from von Mises Distribution with k = 1
         case MODE_2D:
-            sampleVMS(_r, vec4(1, 0, 0, 0), 0, _nR);
+
+            sampleVMS(_r, vec4(1, 0, 0, 0), 1, _nR);
+
             break;
 
         // rotation, MODE_3D, sample from Angular Central Gaussian Distribution
         // with identity matrix
         case MODE_3D:
-            //sampleACG(_r, 1, 1, _nR);
+            
             sampleACG(_r, 1, 1, 1, _nR);
+
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
-                                      << ": INEXISTENT MODE";
+
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+
             break;
     }
 
