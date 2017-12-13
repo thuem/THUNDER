@@ -1256,7 +1256,11 @@ void Optimiser::expectation()
                         _par[l].rot(rot3D, iR);
                     }
                     else
+                    {
                         REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
+                    }
 
                     if (_para.mode == MODE_2D)
                     {

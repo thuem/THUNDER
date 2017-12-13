@@ -139,8 +139,6 @@ class Particle
          */
         const Symmetry* _sym;
 
-        double _k;
-
         /**
          * concentration parameter of Angular Central Gaussian distribution of
          * rotation
@@ -230,8 +228,6 @@ class Particle
             _nC = 1;
 
             _sym = NULL;
-
-            _k = 0;
 
             _k1 = 0;
             _k2 = 0;

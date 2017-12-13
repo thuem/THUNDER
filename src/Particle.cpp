@@ -537,7 +537,9 @@ void Particle::vari(double& rVari,
     switch (_mode)
     {
         case MODE_2D:
-            rVari = 1.0 / (1 + _k); // TODO: it is a approximation
+
+            rVari = _k1;
+
             break;
 
         case MODE_3D:
@@ -935,7 +937,18 @@ void Particle::perturb(const double pf,
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _nR);
+            sampleVMS(d, vec4(1, 0, 0, 0), _k1 * pf, _nR);
+
+            vec4 quat;
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, quat, d.row(i).transpose());
+
+                _r.row(i) = quat.transpose();
+            }
         }
         else if (_mode == MODE_3D)
         {
@@ -944,6 +957,7 @@ void Particle::perturb(const double pf,
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
+
             vec4 mean;
 
             inferACG(mean, _r);
