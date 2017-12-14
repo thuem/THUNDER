@@ -1062,6 +1062,15 @@ void Particle::resample(const int n,
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
 
+#ifndef NAN_NO_CHECK
+        if ((_wC.sum() == 0) || (gsl_isnan(_wC.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
+
         _wC /= _wC.sum();
 
         vec cdf = cumsum(_wC);
@@ -1104,6 +1113,15 @@ void Particle::resample(const int n,
 
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
+
+#ifndef NAN_NO_CHECK
+        if ((_wR.sum() == 0) || (gsl_isnan(_wR.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
 
         _wR /= _wR.sum();
 
@@ -1150,6 +1168,14 @@ void Particle::resample(const int n,
 
         _wT /= _wT.sum();
 
+#ifndef NAN_NO_CHECK
+        if ((_wT.sum() == 0) || (gsl_isnan(_wT.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
         vec cdf = cumsum(_wT);
 
         _nT = n;
@@ -1191,6 +1217,15 @@ void Particle::resample(const int n,
 
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);
+
+#ifndef NAN_NO_CHECK
+        if ((_wD.sum() == 0) || (gsl_isnan(_wD.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
 
         _wD /= _wD.sum();
 
