@@ -921,6 +921,32 @@ void Optimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+
+#ifndef NAN_NO_DETECT
+
+            if ((wC.row(l).sum() == 0) || (gsl_isnan(wC.row(l).sum())))
+            {
+                REPORT_ERROR("WC, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wR.row(l).sum() == 0) || (gsl_isnan(wR.row(l).sum())))
+            {
+                REPORT_ERROR("WR, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wT.row(l).sum() == 0) || (gsl_isnan(wT.row(l).sum())))
+            {
+                REPORT_ERROR("WT, NAN DETECTED");
+
+                abort();
+            }
+
+#endif
+
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(l, iC), iC);
             for (int iR = 0; iR < nR; iR++)
