@@ -733,6 +733,18 @@ void Optimiser::expectation()
                                              (int)_ID.size(),
                                              _nPxl);
 
+#ifndef NAN_NO_CHECK
+
+                    FOR_EACH_2D_IMAGE
+                        if (gsl_isnan(dvp(l)))
+                        {
+                            REPORT_ERROR("DVP CONTAINS NAN");
+
+                            abort();
+                        }
+
+#endif
+
                     //delete[] priP;
 
                     FOR_EACH_2D_IMAGE
