@@ -708,7 +708,11 @@ void Optimiser::expectation()
                     _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl);
                 }
                 else
+                {
                     REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
@@ -934,7 +938,7 @@ void Optimiser::expectation()
         FOR_EACH_2D_IMAGE
         {
 
-#ifndef NAN_NO_DETECT
+#ifndef NAN_NO_CHECK
 
             if ((wC.row(l).sum() == 0) || (gsl_isnan(wC.row(l).sum())))
             {

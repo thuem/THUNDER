@@ -638,7 +638,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
         vec avg = vec::Zero(_maxRadius * _pf + 1);
 
-        if (_mode == MODE_3D)
+        if (_mode == MODE_2D)
         {
             ringAverage(avg,
                         _T2D,
