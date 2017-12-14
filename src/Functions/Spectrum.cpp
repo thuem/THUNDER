@@ -78,6 +78,33 @@ Complex ringAverage(const int resP,
     return result / counter;
 }
 
+void ringAverage(vec& dst,
+                 const Image& src,
+                 const function<double(const Complex)> func,
+                 const int r)
+{
+    dst.setZero();
+
+    uvec counter = uvec::Zero(dst.size());
+
+    IMAGE_FOR_EACH_PIXEL_FT(src)
+    {
+        if (QUAD(i, j) < gsl_pow_2(r))
+        {
+            int u = AROUND(NORM(i, j));
+
+            if (u < r)
+            {
+                dst(u) += func(src.getFTHalf(i, j));
+                counter(u) += 1;
+            }
+        }
+    }
+
+    for (int i = 0; i < r; i++)
+        dst(i) /= counter(i);
+}
+
 double shellAverage(const int resP,
                     const Volume& vol,
                     const function<double(const Complex)> func)

@@ -98,6 +98,11 @@ Complex ringAverage(const int resP,
                     const Image& img,
                     const function<Complex(const Complex)> func);
 
+void ringAverage(vec& dst,
+                 const Image& src,
+                 const function<double(const Complex)> func,
+                 const int r);
+
 /**
  * This function calculates the shell average at a certain resolution with a
  * given function.

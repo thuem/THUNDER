@@ -429,21 +429,21 @@ void Optimiser::init()
 
             correctScale(true, true, false);
         }
-    }
 
-    NT_MASTER
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
-        BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+        NT_MASTER
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
 
-        _model.refreshProj();
-    }
+            _model.refreshProj();
+        }
 
 #ifdef VERBOSE_LEVEL_1
-    MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
     
-    MLOG(INFO, "LOGGER_INIT") << "Intensity Scale Re-balanced";
+        MLOG(INFO, "LOGGER_INIT") << "Intensity Scale Re-balanced";
 #endif
+    }
 
     NT_MASTER
     {

@@ -628,7 +628,8 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
     // only in 3D mode, the MAP method is appropriate
-    if (_MAP && (_mode == MODE_3D))
+    //if (_MAP && (_mode == MODE_3D))
+    if (_MAP)
     {
         // Obviously, wiener_filter with FSC can be wrong when dealing with
         // preferrable orienation problem
@@ -637,19 +638,27 @@ void Reconstructor::reconstruct(Volume& dst)
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
         vec avg = vec::Zero(_maxRadius * _pf + 1);
 
-        /***
-        shellAverage(avg,
-                     _T3D,
-                     gsl_real,
-                     _maxRadius * _pf + 1);
+        if (_mode == MODE_3D)
+        {
+            ringAverage(avg,
+                        _T2D,
+                        gsl_real,
+                        _maxRadius * _pf - 1);
+        }
+        else if (_mode == MODE_3D)
+        {
+            shellAverage(avg,
+                         _T3D,
+                         gsl_real,
+                         _maxRadius * _pf - 1);
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
 
-        std::cout << avg << std::endl;
-        ***/
+            abort();
+        }
 
-        shellAverage(avg,
-                     _T3D,
-                     gsl_real,
-                     _maxRadius * _pf - 1);
         // the last two elements have low fidelity
         avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
         avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
@@ -676,51 +685,75 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
 #endif
 
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_T3D)
-            if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-                (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-            {
-                int u = AROUND(NORM_3(i, j, k));
+        if (_mode == MODE_2D)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            IMAGE_FOR_EACH_PIXEL_FT(_T2D)
+                if ((QUAD(i, j) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                    (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf)))
+                {
+                    int u = AROUND(NORM(i, j));
 
-                /***
-                double FSC = (u / _pf >= _FSC.size())
-                           ? _FSC(_FSC.size() - 1)
-                           : _FSC(u / _pf);
-                ***/
+                    double FSC = (u / _pf >= _FSC.size())
+                               ? 0
+                               : _FSC(u / _pf);
 
-                double FSC = (u / _pf >= _FSC.size())
-                           ? 0
-                           : _FSC(u / _pf);
-
-                //FSC = GSL_MAX_DBL(FSC_BASE, GSL_MIN_DBL(1 - FSC_BASE, FSC));
-                FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
-                //FSC = GSL_MAX_DBL(1e-2, GSL_MIN_DBL(1 - 1e-2, FSC));
+                    FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
 
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
-                FSC = sqrt(2 * FSC / (1 + FSC));
+                    FSC = sqrt(2 * FSC / (1 + FSC));
 #else
-                if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
+                    if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-                _T3D.setFT(_T3D.getFT(i, j, k)
-                         + COMPLEX((1 - FSC) / FSC * avg(u), 0),
-                           i,
-                           j,
-                           k);
+                    _T2D.setFT(_T2D.getFT(i, j)
+                             + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                               i,
+                               j);
 #else
-                _T3D.setFT(_T3D.getFT(i, j, k) / FSC, i, j, k);
+                    _T2D.setFT(_T2D.getFT(i, j) / FSC, i, j);
 #endif
-            }
+                }
+        }
+        else if (_mode == MODE_3D)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            VOLUME_FOR_EACH_PIXEL_FT(_T3D)
+                if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                    (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
+                {
+                    int u = AROUND(NORM_3(i, j, k));
+
+                    double FSC = (u / _pf >= _FSC.size())
+                               ? 0
+                               : _FSC(u / _pf);
+
+                    FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
+
+#ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
+                    FSC = sqrt(2 * FSC / (1 + FSC));
+#else
+                    if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
 #endif
 
-#ifdef RECONSTRUCTOR_WIENER_FILTER_CONST
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_T3D)
-            if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-                (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-                _T3D.setFT(_T3D.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
+                    _T3D.setFT(_T3D.getFT(i, j, k)
+                             + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                               i,
+                               j,
+                               k);
+#else
+                    _T3D.setFT(_T3D.getFT(i, j, k) / FSC, i, j, k);
+#endif
+                }
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT_MODE");
+
+            abort();
+        }
 #endif
     }
 
