@@ -1980,12 +1980,11 @@ void Optimiser::run()
 
 #endif
 
-            /***
 #ifdef OPTIMISER_BALANCE_CLASS
 
         MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-        balanceClass(0.2);
+        balanceClass(0.05);
 
         MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
 
@@ -1994,7 +1993,6 @@ void Optimiser::run()
                                        << "\% Percentage of Images Belonging to Class "
                                        << t;
 #endif
-            ***/
 
         NT_MASTER
         {
@@ -3127,7 +3125,6 @@ void Optimiser::refreshClassDistr()
     _cDistr.array() /= (_nPar * _para.k);
 }
 
-/***
 void Optimiser::balanceClass(const double thres)
 {
     int cls;
@@ -3138,12 +3135,12 @@ void Optimiser::balanceClass(const double thres)
         {
             NT_MASTER
                 _model.ref(t) = _model.ref(cls).copyVolume();
+
             _cDistr(t) = num;
         }
 
     _cDistr.array() /= _cDistr.sum();
 }
-***/
 
 void Optimiser::refreshVariance()
 {

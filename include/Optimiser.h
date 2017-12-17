@@ -700,7 +700,7 @@ class Optimiser : public Parallel
 
         void refreshClassDistr();
 
-        void balanceClass(const double thres = 0.2);
+        void balanceClass(const double thres);
 
         /**
          * re-calculate the rotation and translation variance
