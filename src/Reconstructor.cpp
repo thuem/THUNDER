@@ -663,7 +663,7 @@ void Reconstructor::reconstruct(Volume& dst)
         avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
         avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
 
-#ifdef VERBOSE_LEVEL_2
+#ifdef VERBOSE_LEVEL_1
         ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
                                  << avg(avg.size() - 5) << ", "
                                  << avg(avg.size() - 4) << ", "

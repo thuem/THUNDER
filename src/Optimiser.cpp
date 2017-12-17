@@ -4996,48 +4996,6 @@ void Optimiser::saveTau() const
     fclose(file);
 }
 
-/***
-int searchPlace(double* topW,
-                const double w,
-                const int l,
-                const int r)
-{
-    if (l < r)
-    {
-        if (topW[(l + r) / 2] < w)
-            return searchPlace(topW, w, l, (l + r) / 2);
-        else
-            return searchPlace(topW, w, (l + r) / 2 + 1, r);
-    }
-    else
-        return r;
-}
-
-void recordTopK(double* topW,
-                unsigned int* iTopR,
-                unsigned int* iTopT,
-                const double w,
-                const unsigned int iR,
-                const unsigned int iT,
-                const int k)
-{
-    int place = searchPlace(topW, w, 0, k);
-
-    for (int i = k - 1; i > place; i--)
-    {
-        topW[i] = topW[i - 1];
-
-        iTopR[i] = iTopR[i - 1];
-        iTopT[i] = iTopT[i - 1];
-    }
-
-    topW[place] = w;
-
-    iTopR[place] = iR;
-    iTopT[place] = iT;
-}
-***/
-
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
@@ -5065,9 +5023,6 @@ double logDataVSPrior(const Image& dat,
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                        * fabs(REAL(ctf.iGetFT(index)))
-#endif
                         * sigRcp(v);
             }
         }
@@ -5090,9 +5045,6 @@ double logDataVSPrior(const Image& dat,
         result += ABS2(dat.iGetFT(iPxl[i])
                      - REAL(ctf.iGetFT(iPxl[i]))
                      * pri.iGetFT(iPxl[i]))
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(REAL(ctf.iGetFT(iPxl[i])))
-#endif
                 * sigRcp(iSig[i]);
 
     return result;
@@ -5108,9 +5060,6 @@ double logDataVSPrior(const Complex* dat,
 
     for (int i = 0; i < m; i++)
         result += ABS2(dat[i] - ctf[i] * pri[i])
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(ctf[i])
-#endif
                 * sigRcp[i];
 
     return result;
@@ -5136,9 +5085,6 @@ double logDataVSPrior(const Complex* dat,
         double ctf = -w1 * sin(ki) + w2 * cos(ki);
 
         result += ABS2(dat[i] - ctf * pri[i])
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(ctf)
-#endif
                 * sigRcp[i];
 
     }
@@ -5175,9 +5121,6 @@ double logDataVSPrior(const Image& dat,
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                        * fabs(REAL(ctf.iGetFT(index)))
-#endif
                         * sigRcp(v);
             }
         }
@@ -5205,9 +5148,6 @@ double logDataVSPrior(const Image& dat,
                      - REAL(ctf.iGetFT(index))
                      * pri.iGetFT(index)
                      * tra.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(REAL(ctf.iGetFT(index)))
-#endif
                 * sigRcp(iSig[i]);
     }
 
@@ -5246,9 +5186,6 @@ vec logDataVSPrior(const vector<Image>& dat,
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                               * fabs(REAL(ctf[l].iGetFT(index)))
-#endif
                                * sigRcp(groupID[l] - 1, v);
                 }
             }
@@ -5285,9 +5222,6 @@ vec logDataVSPrior(const vector<Image>& dat,
             result(l) += ABS2(datL.iGetFT(index)
                             - REAL(ctfL.iGetFT(index))
                             * pri.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                       * fabs(REAL(ctfL.iGetFT(index)))
-#endif
                        * sigRcp(gL, iSig[i]);
         }
     }
@@ -5344,9 +5278,6 @@ vec logDataVSPrior(const Complex* dat,
             size_t idx = i * n + j;
 
             result(j) += ABS2(dat[idx] - ctf[idx] * pri[i])
-#ifdef OPTIMISER_CTF_WRAP
-                       * fabs(ctf[idx])
-#endif
                        * sigRcp[idx];
         }
 
