@@ -1016,27 +1016,15 @@ void Model::resetReco(const double thres)
 #else
         _reco[l]->reset();
 #endif
+    
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up FSC";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up FSC";
 
-        if (_k == 1)
-        {
-            ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
-                                     << l
-                                     << " Setting Up FSC";
-            BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
-                                     << l
-                                     << " Setting Up FSC";
-
-            /***
-            vec FSC = _FSC.col(l);
-
-            FSC.tail(FSC.size() - _res - 1) = vec::Constant(FSC.size() - _res - 1, thres);
-
-            _reco[l]->setFSC(FSC);
-            ***/
-
-            //_reco[l]->setFSC(_FSC.col(l).head(_res + 1));
-            _reco[l]->setFSC(_FSC.col(l));
-        }
+        _reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);
     }
