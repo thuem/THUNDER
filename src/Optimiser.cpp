@@ -1979,21 +1979,6 @@ void Optimiser::run()
         saveReference();
 
 #endif
-
-#ifdef OPTIMISER_BALANCE_CLASS
-
-        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
-
-        balanceClass(0.05);
-
-        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
-
-        for (int t = 0; t < _para.k; t++)
-            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
-                                       << "\% Percentage of Images Belonging to Class "
-                                       << t;
-#endif
-
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
@@ -4188,6 +4173,24 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         MPI_Barrier(MPI_COMM_WORLD);
 
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+        balanceClass(0.05);
+
+#ifdef VERBOSE_LEVEL_1
+
+        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+        for (int t = 0; t < _para.k; t++)
+            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                       << "\% Percentage of Images Belonging to Class "
+                                       << t;
+#endif
+
+#endif
+
         _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
     }
 
@@ -4236,6 +4239,24 @@ void Optimiser::reconstructRef(const bool fscFlag,
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
+
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+        balanceClass(0.05);
+
+#ifdef VERBOSE_LEVEL_1
+
+        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+        for (int t = 0; t < _para.k; t++)
+            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                       << "\% Percentage of Images Belonging to Class "
+                                       << t;
+#endif
+
+#endif
 
         _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
     }
