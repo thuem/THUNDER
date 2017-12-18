@@ -147,7 +147,7 @@ void inferACG(vec4& mean,
  */
 double pdfVMS(const vec2& x,
               const vec2& mu,
-              const double kappa);
+              const double k);
 
 /**
  * Sample from von Mises Distribution M(mu, kappa), the algorithm is from Best &
@@ -160,12 +160,12 @@ double pdfVMS(const vec2& x,
  */
 void sampleVMS(mat2& dst,
                const vec2& mu,
-               const double kappa,
+               const double k,
                const double n);
 
 void sampleVMS(mat4& dst,
                const vec4& mu,
-               const double kappa,
+               const double k,
                const double n);
 
 /**
@@ -177,17 +177,17 @@ void sampleVMS(mat4& dst,
  * @param src    the data
  */
 void inferVMS(vec2& mu,
-              double& kappa,
+              double& k,
               const mat2& src);
 
 void inferVMS(double& kappa,
               const mat2& src);
 
 void inferVMS(vec4& mu,
-              double& kappa,
+              double& k,
               const mat4& src);
 
-void inferVMS(double& kappa,
+void inferVMS(double& k,
               const mat4& src);
 
 #endif // DIRECTIONAL_STAT_H

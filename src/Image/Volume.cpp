@@ -88,6 +88,7 @@ void Volume::alloc(const int nCol,
         if (_dataRL == NULL)
         {
             REPORT_ERROR("FAIL TO ALLOCATE SPACE");
+
             abort();
         }
 #endif
@@ -112,6 +113,7 @@ void Volume::alloc(const int nCol,
         if (_dataFT == NULL)
         {
             REPORT_ERROR("FAIL TO ALLOCATE SPACE");
+
             abort();
         }
 #endif

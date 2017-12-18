@@ -58,6 +58,8 @@
 
 #define MIN_STD_FACTOR 2
 
+#define CLASS_BALANCE_FACTOR 0.05
+
 struct OptimiserPara
 {
     /**
@@ -189,13 +191,6 @@ struct OptimiserPara
      * number of sampling points for scanning in global search
      */
     int mS;
-
-    /**
-     * number of sampling points in global search
-     */
-    int mGMax;
-
-    int mGMin;
 
     int mLR;
 
@@ -700,7 +695,8 @@ class Optimiser : public Parallel
 
         void refreshClassDistr();
 
-        void balanceClass(const double thres = 0.2);
+        void balanceClass(const double thres,
+                          const bool refreshDistr);
 
         /**
          * re-calculate the rotation and translation variance

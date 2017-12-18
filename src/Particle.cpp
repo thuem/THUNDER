@@ -102,21 +102,27 @@ void Particle::reset()
 
     switch (_mode)
     {
-        // rotation, MODE_2D, sample from von Mises Distribution with kappa = 0
+        // rotation, MODE_2D, sample from von Mises Distribution with k = 1
         case MODE_2D:
-            sampleVMS(_r, vec4(1, 0, 0, 0), 0, _nR);
+
+            sampleVMS(_r, vec4(1, 0, 0, 0), 1, _nR);
+
             break;
 
         // rotation, MODE_3D, sample from Angular Central Gaussian Distribution
         // with identity matrix
         case MODE_3D:
-            //sampleACG(_r, 1, 1, _nR);
+            
             sampleACG(_r, 1, 1, 1, _nR);
+
             break;
 
         default:
-            CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__
-                                      << ": INEXISTENT MODE";
+
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+
             break;
     }
 
@@ -531,7 +537,9 @@ void Particle::vari(double& rVari,
     switch (_mode)
     {
         case MODE_2D:
-            rVari = 1.0 / (1 + _k); // TODO: it is a approximation
+
+            rVari = _k1;
+
             break;
 
         case MODE_3D:
@@ -567,7 +575,20 @@ double Particle::compress() const
 
     // return sqrt(_k0) / sqrt(_k1);
 
-    return pow(_k1 * _k2 * _k3, -1.0 / 6);
+    if (_mode == MODE_2D)
+    {
+        return 1.0 / _k1;
+    }
+    else if (_mode == MODE_3D)
+    {
+        return pow(_k1 * _k2 * _k3, -1.0 / 6);
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     // return pow(_k1 * _k2 * _k3, -1.0 / 3);
 
@@ -845,7 +866,11 @@ void Particle::calVari(const ParticleType pt)
     else if (pt == PAR_R)
     {
         if (_mode == MODE_2D)
-            inferVMS(_k, _r);
+        {
+            inferVMS(_k1, _r);
+
+            // _k1 = 1.0 / (1 + _k1); // converting range, extreme sparse, _k1 = 1, extreme dense, _k1 = 0
+        }
         else if (_mode == MODE_3D)
         {
             vec4 mean;
@@ -873,19 +898,13 @@ void Particle::calVari(const ParticleType pt)
 
                 _r.row(i) = quat.transpose();
             }
-
-            // inferACG(_k0, _k1, _r);
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
 
-        /***
-        _k1 /= _k0;
-
-        _k1 = GSL_MIN_DBL(_k1, 1);
-
-        _k0 = 1;
-        ***/
+            abort();
+        }
     }
     else if (pt == PAR_T)
     {
@@ -917,60 +936,69 @@ void Particle::perturb(const double pf,
         mat4 d(_nR, 4);
 
         if (_mode == MODE_2D)
-            sampleVMS(d, vec4(1, 0, 0, 0), _k / pf, _nR);
+        {
+            sampleVMS(d, vec4(1, 0, 0, 0), _k1 * pf, _nR);
+
+            vec4 quat;
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, quat, d.row(i).transpose());
+
+                _r.row(i) = quat.transpose();
+            }
+        }
         else if (_mode == MODE_3D)
         {
-            //sampleACG(d, _k0, GSL_MIN_DBL(_k0, pow(pf, 2) * _k1), _nR);
-
             sampleACG(d,
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
 
-            /***
-            sampleACG(d,
-                      gsl_pow_2(pf) * GSL_MAX_DBL(GSL_MAX_DBL(_k1, _k2), _k3),
-                      gsl_pow_2(pf) * GSL_MAX_DBL(GSL_MAX_DBL(_k1, _k2), _k3),
-                      gsl_pow_2(pf) * GSL_MAX_DBL(GSL_MAX_DBL(_k1, _k2), _k3),
-                      _nR);
-            ***/
-        }
+            vec4 mean;
 
-        vec4 mean;
+            inferACG(mean, _r);
 
-        inferACG(mean, _r);
+            vec4 quat;
 
-        vec4 quat;
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
 
-        for (int i = 0; i < _nR; i++)
-        {
-            quat = _r.row(i).transpose();
+                quaternion_mul(quat, quaternion_conj(mean), quat);
 
-            quaternion_mul(quat, quaternion_conj(mean), quat);
+                _r.row(i) = quat.transpose();
+            }
 
-            _r.row(i) = quat.transpose();
-        }
-
-        vec4 pert;
+            vec4 pert;
            
-        for (int i = 0; i < _nR; i++)
-        {
-            quat = _r.row(i).transpose();
-            pert = d.row(i).transpose();
-            quaternion_mul(quat, pert, quat);
-            _r.row(i) = quat.transpose();
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+                pert = d.row(i).transpose();
+                quaternion_mul(quat, pert, quat);
+                _r.row(i) = quat.transpose();
+            }
+
+            symmetrise();
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, mean, quat);
+
+                _r.row(i) = quat.transpose();
+            }
         }
-
-        if (_mode == MODE_3D) symmetrise();
-
-        for (int i = 0; i < _nR; i++)
+        else
         {
-            quat = _r.row(i).transpose();
+            REPORT_ERROR("INEXISTENT MODE");
 
-            quaternion_mul(quat, mean, quat);
-
-            _r.row(i) = quat.transpose();
+            abort();
         }
     }
     else if (pt == PAR_T)
@@ -1002,43 +1030,18 @@ void Particle::perturb(const double pf,
     }
 }
 
-/***
-void Particle::perturb(const double pfR,
-                       const double pfT,
-                       const double pfD)
-{
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Rotation Perturbation";
-#endif
-
-    perturb(pfR, PAR_R);
-
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Translation Perturbation";
-#endif
-
-    perturb(pfT, PAR_T);
-
-#ifdef VERBOSE_LEVEL_4
-    CLOG(INFO, "LOGGER_SYS") << "Defocus Factor Perturbation";
-#endif
-
-    perturb(pfD, PAR_D);
-}
-***/
-
 void Particle::resample(const int n,
                         const ParticleType pt)
 {
     gsl_rng* engine = get_random_engine();
 
-    uvec rank = iSort(pt);
-
     if (pt == PAR_C)
     {
-        c(_topC, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        c(_topC, rank(0));
 
         /***
         if (n != 1)
@@ -1058,6 +1061,15 @@ void Particle::resample(const int n,
 
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
+
+#ifndef NAN_NO_CHECK
+        if ((_wC.sum() == 0) || (gsl_isnan(_wC.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
 
         _wC /= _wC.sum();
 
@@ -1093,12 +1105,23 @@ void Particle::resample(const int n,
     }
     else if (pt == PAR_R)
     {
-        quaternion(_topR, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        quaternion(_topR, rank(0));
 
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
+
+#ifndef NAN_NO_CHECK
+        if ((_wR.sum() == 0) || (gsl_isnan(_wR.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
 
         _wR /= _wR.sum();
 
@@ -1134,15 +1157,25 @@ void Particle::resample(const int n,
     }
     else if (pt == PAR_T)
     {
-        t(_topT, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        t(_topT, rank(0));
 
         for (int i = 0; i < _nT; i++)
             _wT(i) *= _uT(i);
 
         _wT /= _wT.sum();
 
+#ifndef NAN_NO_CHECK
+        if ((_wT.sum() == 0) || (gsl_isnan(_wT.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
         vec cdf = cumsum(_wT);
 
         _nT = n;
@@ -1176,12 +1209,23 @@ void Particle::resample(const int n,
     }
     else if (pt == PAR_D)
     {
-        d(_topD, rank(0));
-
         shuffle(pt);
+
+        uvec rank = iSort(pt);
+
+        d(_topD, rank(0));
 
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);
+
+#ifndef NAN_NO_CHECK
+        if ((_wD.sum() == 0) || (gsl_isnan(_wD.sum())))
+        {
+            REPORT_ERROR("NAN DETECTED");
+
+            abort();
+        }
+#endif
 
         _wD /= _wD.sum();
 
@@ -1961,6 +2005,7 @@ void Particle::shuffle()
 
 void Particle::copy(Particle& that) const
 {
+    that.setMode(_mode);
     that.setNC(_nC);
     that.setNR(_nR);
     that.setNT(_nT);

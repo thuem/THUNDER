@@ -76,7 +76,11 @@ void Optimiser::init()
         MLOG(INFO, "LOGGER_INIT") << "The Program is Running under 3D Mode";
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+        
+        abort();
+    }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _model";
     _model.setMPIEnv(_commSize, _commRank, _hemi);
@@ -409,34 +413,37 @@ void Optimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Projectors and Reconstructors Set Up";
 #endif
 
-    MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
-
-    if (_para.gSearch)
+    if (strcmp(_para.initModel, "") != 0)
     {
-        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Random Projections";
+        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale";
 
-        correctScale(true, false, false);
-    }
-    else
-    {
-        MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
+        if (_para.gSearch)
+        {
+            MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Random Projections";
 
-        correctScale(true, true, false);
-    }
+            correctScale(true, false, false);
+        }
+        else
+        {
+            MLOG(INFO, "LOGGER_INIT") << "Re-balancing Intensity Scale Using Given Projections";
 
-    NT_MASTER
-    {
-        ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
-        BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+            correctScale(true, true, false);
+        }
 
-        _model.refreshProj();
-    }
+        NT_MASTER
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+
+            _model.refreshProj();
+        }
 
 #ifdef VERBOSE_LEVEL_1
-    MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
     
-    MLOG(INFO, "LOGGER_INIT") << "Intensity Scale Re-balanced";
+        MLOG(INFO, "LOGGER_INIT") << "Intensity Scale Re-balanced";
 #endif
+    }
 
     NT_MASTER
     {
@@ -530,7 +537,11 @@ void Optimiser::expectation()
             nR = _para.mS / (1 + _sym.nSymmetryElement());
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
 
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
@@ -538,7 +549,22 @@ void Optimiser::expectation()
                                             * gsl_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
 
-        double scanMinStdR = pow(_para.mS, -1.0 / 3);
+        double scanMinStdR;
+        if (_para.mode == MODE_2D)
+        { 
+            scanMinStdR = 1.0 / _para.mS;
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            scanMinStdR =  pow(_para.mS, -1.0 / 3);
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
         double scanMinStdT = 1.0
                            / gsl_cdf_chisq_Qinv(0.5, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
@@ -682,7 +708,11 @@ void Optimiser::expectation()
                     _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl);
                 }
                 else
+                {
                     REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
@@ -706,6 +736,18 @@ void Optimiser::expectation()
                                              _sigRcpP,
                                              (int)_ID.size(),
                                              _nPxl);
+
+#ifndef NAN_NO_CHECK
+
+                    FOR_EACH_2D_IMAGE
+                        if (gsl_isnan(dvp(l)))
+                        {
+                            REPORT_ERROR("DVP CONTAINS NAN");
+
+                            abort();
+                        }
+
+#endif
 
                     //delete[] priP;
 
@@ -895,6 +937,32 @@ void Optimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+
+#ifndef NAN_NO_CHECK
+
+            if ((wC.row(l).sum() == 0) || (gsl_isnan(wC.row(l).sum())))
+            {
+                REPORT_ERROR("WC, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wR.row(l).sum() == 0) || (gsl_isnan(wR.row(l).sum())))
+            {
+                REPORT_ERROR("WR, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wT.row(l).sum() == 0) || (gsl_isnan(wT.row(l).sum())))
+            {
+                REPORT_ERROR("WT, NAN DETECTED");
+
+                abort();
+            }
+
+#endif
+
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(l, iC), iC);
             for (int iR = 0; iR < nR; iR++)
@@ -976,17 +1044,20 @@ void Optimiser::expectation()
                                                * MIN_STD_FACTOR * scanMinStdR),
                                       _par[l].k1()));
 
-            _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
-                                                      ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal))
-                                               * MIN_STD_FACTOR * scanMinStdR),
-                                      _par[l].k2()));
+            if (_para.mode == MODE_3D)
+            {
+                _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                  * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k2()));
 
-            _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
-                                                      ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal))
-                                               * MIN_STD_FACTOR * scanMinStdR),
-                                      _par[l].k3()));
+                _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                   * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k3()));
+            }
 
             _par[l].setS0(GSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal
@@ -1230,7 +1301,11 @@ void Optimiser::expectation()
                         _par[l].rot(rot3D, iR);
                     }
                     else
+                    {
                         REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
+                    }
 
                     if (_para.mode == MODE_2D)
                     {
@@ -1598,8 +1673,6 @@ void Optimiser::maximization()
 
 void Optimiser::run()
 {
-    // IF_MASTER display(_para);
-
     MLOG(INFO, "LOGGER_ROUND") << "Initialising Optimiser";
 
     init();
@@ -1774,18 +1847,12 @@ void Optimiser::run()
         reMaskImg();
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma and Tau";
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma";
 
         saveSig();
-        //saveTau();
 
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
-
-        /***
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-        saveReference();
-        ***/
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
@@ -1912,23 +1979,6 @@ void Optimiser::run()
         saveReference();
 
 #endif
-
-            /***
-#ifdef OPTIMISER_BALANCE_CLASS
-
-        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
-
-        balanceClass(0.2);
-
-        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
-
-        for (int t = 0; t < _para.k; t++)
-            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
-                                       << "\% Percentage of Images Belonging to Class "
-                                       << t;
-#endif
-            ***/
-
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
@@ -2101,7 +2151,11 @@ void Optimiser::initRef()
             }
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
     
 #ifdef OPTIMISER_INIT_REF_REMOVE_NEG
         #pragma omp parallel for
@@ -2115,14 +2169,18 @@ void Optimiser::initRef()
         {
             if (_para.mode == MODE_2D)
             {
-                //TODO
+                _model.appendRef(ref.copyVolume());
             }
             else if (_para.mode == MODE_3D)
             {
                 _model.appendRef(ref.copyVolume());
             }
             else
+            {
                 REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
 
             fft.fwMT(_model.ref(t));
             _model.ref(t).clearRL();
@@ -2148,21 +2206,25 @@ void Optimiser::initRef()
             }
             ***/
 
-            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            // softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
-            fft.fwMT(ref);
-            ref.clearRL();
+            SET_0_RL(ref);
 
             Volume volRef(_para.size,
                           _para.size,
                           1,
-                          FT_SPACE);
+                          RL_SPACE);
 
-            COPY_FT(volRef, ref);
+            COPY_RL(volRef, ref);
+
+            _model.clearRef();
 
             for (int t = 0; t < _para.k; t++)
             {
                 _model.appendRef(volRef.copyVolume());
+
+                fft.fwMT(_model.ref(t));
+                _model.ref(t).clearRL();
             }
         }
         else if (_para.mode == MODE_3D)
@@ -2182,7 +2244,9 @@ void Optimiser::initRef()
             }
             ***/
 
-            softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            // softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+
+            SET_0_RL(ref);
 
             _model.clearRef();
 
@@ -2196,7 +2260,11 @@ void Optimiser::initRef()
 
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
     }
 }
 
@@ -2638,8 +2706,8 @@ void Optimiser::initCTF()
 }
 
 void Optimiser::correctScale(const bool init,
-                               const bool coord,
-                               const bool group)
+                             const bool coord,
+                             const bool group)
 {
     ALOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
     BLOG(INFO, "LOGGER_SYS") << "Refreshing Scale";
@@ -3020,10 +3088,13 @@ void Optimiser::refreshClassDistr()
         #pragma omp parallel for private(cls)
         FOR_EACH_2D_IMAGE
         {
-            _par[l].rank1st(cls);
+            for (int k = 0; k < _para.k; k++)
+            {
+                _par[l].rand(cls); 
 
-            #pragma omp atomic
-            _cDistr(cls) += 1;
+                #pragma omp atomic
+                _cDistr(cls) += 1;
+            }
         }
     }
 
@@ -3036,11 +3107,11 @@ void Optimiser::refreshClassDistr()
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
-    _cDistr.array() /= _nPar;
+    _cDistr.array() /= (_nPar * _para.k);
 }
 
-/***
-void Optimiser::balanceClass(const double thres)
+void Optimiser::balanceClass(const double thres,
+                             const bool refreshDistr)
 {
     int cls;
     double num = _cDistr.maxCoeff(&cls);
@@ -3048,14 +3119,13 @@ void Optimiser::balanceClass(const double thres)
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
         {
-            NT_MASTER
-                _model.ref(t) = _model.ref(cls).copyVolume();
-            _cDistr(t) = num;
+            NT_MASTER _model.ref(t) = _model.ref(cls).copyVolume();
+
+            if (refreshDistr) _cDistr(t) = num;
         }
 
-    _cDistr.array() /= _cDistr.sum();
+    if (refreshDistr) _cDistr.array() /= _cDistr.sum();
 }
-***/
 
 void Optimiser::refreshVariance()
 {
@@ -3128,7 +3198,7 @@ void Optimiser::refreshVariance()
 }
 
 void Optimiser::refreshScale(const bool coord,
-                               const bool group)
+                             const bool group)
 {
     if (_iter != 0)
         _rS = _model.resolutionP(_para.thresSclCorFSC, false);
@@ -3873,6 +3943,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
     NT_MASTER
     {
+        if ((_para.parGra) && (_para.k != 1))
+        {
+            ALOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+            BLOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+        }
+
         ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
         BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
@@ -3890,7 +3966,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
             double w;
 
-            if (_para.parGra)
+            if ((_para.parGra) && (_para.k == 1))
                 w = _par[l].compress();
             else
                 w = 1;
@@ -3911,6 +3987,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                     _par[l].rand(cls, quat, tran, d);
 
                     mat22 rot2D;
+
+                    rotate2D(rot2D, vec2(quat(0), quat(1)));
 
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
                     translate(transImg,
@@ -3941,10 +4019,20 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs);
 
+#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
+                    vec sig = _sig.row(_groupID[l] - 1).transpose();
+
+                    _model.reco(cls).insertP(transImg,
+                                             cSearch ? ctf : _ctf[l],
+                                             rot2D,
+                                             w,
+                                             &sig);
+#else
                     _model.reco(cls).insertP(transImg,
                                              cSearch ? ctf : _ctf[l],
                                              rot2D,
                                              w);
+#endif
                 }
                 else if (_para.mode == MODE_3D)
                 {
@@ -4012,7 +4100,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
                 }
                 else
+                {
                     REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
             }
         }
 
@@ -4064,9 +4156,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 
-                #pragma omp parallel for
-                VOLUME_FOR_EACH_PIXEL_FT(ref)
-                    _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+                COPY_FT(_model.ref(t), ref);
 
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
@@ -4083,7 +4173,28 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+            balanceClass(CLASS_BALANCE_FACTOR, false);
+
+#ifdef VERBOSE_LEVEL_1
+
+            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+            for (int t = 0; t < _para.k; t++)
+                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                           << "\% Percentage of Images Belonging to Class "
+                                           << t;
+#endif
+        }
+
+#endif
+
+        _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
     }
 
     if (avgFlag)
@@ -4115,9 +4226,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 
-                #pragma omp parallel for
-                VOLUME_FOR_EACH_PIXEL_FT(ref)
-                    _model.ref(t).setFTHalf(ref.getFTHalf(i, j, k), i, j, k);
+                COPY_FT(_model.ref(t), ref);
 
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
@@ -4134,7 +4243,28 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         MPI_Barrier(MPI_COMM_WORLD);
 
-        _model.compareTwoHemispheres(false, false, _para.thresReportFSC);
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+            balanceClass(CLASS_BALANCE_FACTOR, true);
+
+#ifdef VERBOSE_LEVEL_1
+
+            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+            for (int t = 0; t < _para.k; t++)
+                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                           << "\% Percentage of Images Belonging to Class "
+                                           << t;
+#endif
+        }
+
+#endif
+
+        _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
     }
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
@@ -4260,11 +4390,26 @@ void Optimiser::solventFlatten(const bool mask)
             ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
             BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
 
+            if (_para.mode == MODE_2D)
+            {
+                REPORT_ERROR("2D MODE DO NOT SUPPORTS PROVIDED MASK");
+
+                abort();
+            }
+            else if (_para.mode == MODE_3D)
+            {
 #ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
-            softMask(_model.ref(t), _model.ref(t), _mask, 0);
+                softMask(_model.ref(t), _model.ref(t), _mask, 0);
 #else
-            softMask(_model.ref(t), _model.ref(t), _mask);
+                softMask(_model.ref(t), _model.ref(t), _mask);
 #endif
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
         }
         else
         {
@@ -4310,7 +4455,11 @@ void Optimiser::solventFlatten(const bool mask)
 #endif
             }
             else
+            {
                 REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
@@ -4678,12 +4827,22 @@ void Optimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
-                sprintf(filename, "%sFT_Reference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                /***
+                if (finished)
+                    sprintf(filename, "%sFT_Reference_%03d_A_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sFT_Reference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveFTToBMP(filename, 0.001);
+                ***/
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "%sReference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                if (finished)
+                    sprintf(filename, "%sReference_%03d_A_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sReference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveRLToBMP(filename);
             }
             else if (_commRank == HEMI_B_LEAD)
@@ -4696,12 +4855,22 @@ void Optimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
-                sprintf(filename, "%sFT_Reference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                /***
+                if (finished)
+                    sprintf(filename, "%sFT_Reference_%03d_B_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sFT_Reference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveFTToBMP(filename, 0.001);
+                ***/
 
                 fft.bwMT(ref);
 
-                sprintf(filename, "%sReference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+                if (finished)
+                    sprintf(filename, "%sReference_%03d_B_Final.bmp", _para.dstPrefix, t);
+                else
+                    sprintf(filename, "%sReference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
+
                 ref.saveRLToBMP(filename);
             }
         }
@@ -4855,48 +5024,6 @@ void Optimiser::saveTau() const
     fclose(file);
 }
 
-/***
-int searchPlace(double* topW,
-                const double w,
-                const int l,
-                const int r)
-{
-    if (l < r)
-    {
-        if (topW[(l + r) / 2] < w)
-            return searchPlace(topW, w, l, (l + r) / 2);
-        else
-            return searchPlace(topW, w, (l + r) / 2 + 1, r);
-    }
-    else
-        return r;
-}
-
-void recordTopK(double* topW,
-                unsigned int* iTopR,
-                unsigned int* iTopT,
-                const double w,
-                const unsigned int iR,
-                const unsigned int iT,
-                const int k)
-{
-    int place = searchPlace(topW, w, 0, k);
-
-    for (int i = k - 1; i > place; i--)
-    {
-        topW[i] = topW[i - 1];
-
-        iTopR[i] = iTopR[i - 1];
-        iTopT[i] = iTopT[i - 1];
-    }
-
-    topW[place] = w;
-
-    iTopR[place] = iR;
-    iTopT[place] = iT;
-}
-***/
-
 double logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
@@ -4924,9 +5051,6 @@ double logDataVSPrior(const Image& dat,
                 result += ABS2(dat.iGetFT(index)
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                        * fabs(REAL(ctf.iGetFT(index)))
-#endif
                         * sigRcp(v);
             }
         }
@@ -4949,9 +5073,6 @@ double logDataVSPrior(const Image& dat,
         result += ABS2(dat.iGetFT(iPxl[i])
                      - REAL(ctf.iGetFT(iPxl[i]))
                      * pri.iGetFT(iPxl[i]))
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(REAL(ctf.iGetFT(iPxl[i])))
-#endif
                 * sigRcp(iSig[i]);
 
     return result;
@@ -4967,9 +5088,6 @@ double logDataVSPrior(const Complex* dat,
 
     for (int i = 0; i < m; i++)
         result += ABS2(dat[i] - ctf[i] * pri[i])
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(ctf[i])
-#endif
                 * sigRcp[i];
 
     return result;
@@ -4995,9 +5113,6 @@ double logDataVSPrior(const Complex* dat,
         double ctf = -w1 * sin(ki) + w2 * cos(ki);
 
         result += ABS2(dat[i] - ctf * pri[i])
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(ctf)
-#endif
                 * sigRcp[i];
 
     }
@@ -5034,9 +5149,6 @@ double logDataVSPrior(const Image& dat,
                              - REAL(ctf.iGetFT(index))
                              * pri.iGetFT(index)
                              * tra.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                        * fabs(REAL(ctf.iGetFT(index)))
-#endif
                         * sigRcp(v);
             }
         }
@@ -5064,9 +5176,6 @@ double logDataVSPrior(const Image& dat,
                      - REAL(ctf.iGetFT(index))
                      * pri.iGetFT(index)
                      * tra.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                * fabs(REAL(ctf.iGetFT(index)))
-#endif
                 * sigRcp(iSig[i]);
     }
 
@@ -5105,9 +5214,6 @@ vec logDataVSPrior(const vector<Image>& dat,
                     result(l) += ABS2(dat[l].iGetFT(index)
                                     - REAL(ctf[l].iGetFT(index))
                                     * pri.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                               * fabs(REAL(ctf[l].iGetFT(index)))
-#endif
                                * sigRcp(groupID[l] - 1, v);
                 }
             }
@@ -5144,9 +5250,6 @@ vec logDataVSPrior(const vector<Image>& dat,
             result(l) += ABS2(datL.iGetFT(index)
                             - REAL(ctfL.iGetFT(index))
                             * pri.iGetFT(index))
-#ifdef OPTIMISER_CTF_WRAP
-                       * fabs(REAL(ctfL.iGetFT(index)))
-#endif
                        * sigRcp(gL, iSig[i]);
         }
     }
@@ -5203,9 +5306,6 @@ vec logDataVSPrior(const Complex* dat,
             size_t idx = i * n + j;
 
             result(j) += ABS2(dat[idx] - ctf[idx] * pri[i])
-#ifdef OPTIMISER_CTF_WRAP
-                       * fabs(ctf[idx])
-#endif
                        * sigRcp[idx];
         }
 

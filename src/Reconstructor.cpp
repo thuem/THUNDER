@@ -127,7 +127,11 @@ void Reconstructor::allocSpace()
 
     }
     else 
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 void Reconstructor::resizeSpace(const int size)
@@ -182,7 +186,11 @@ void Reconstructor::reset()
         SET_0_FT(_T3D);
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 int Reconstructor::mode() const
@@ -420,7 +428,8 @@ void Reconstructor::insert(const Image& src,
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat22& rot,
-                            const double w)
+                            const double w,
+                            const vec* sig)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
@@ -440,6 +449,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -450,6 +460,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1));
@@ -459,6 +470,7 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1), 
@@ -468,6 +480,7 @@ void Reconstructor::insertP(const Image& src,
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
                        oldCor(1));
@@ -598,6 +611,8 @@ void Reconstructor::reconstruct(Volume& dst)
 {
     IF_MASTER return;
 
+#ifdef VERBOSE_LEVEL_2
+
     IF_MODE_2D
     {
         ALOG(INFO, "LOGGER_RECO") << "Reconstructing Under 2D Mode";
@@ -610,8 +625,11 @@ void Reconstructor::reconstruct(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
     }
 
+#endif
+
     // only in 3D mode, the MAP method is appropriate
-    if (_MAP && (_mode == MODE_3D))
+    //if (_MAP && (_mode == MODE_3D))
+    if (_MAP)
     {
         // Obviously, wiener_filter with FSC can be wrong when dealing with
         // preferrable orienation problem
@@ -620,23 +638,32 @@ void Reconstructor::reconstruct(Volume& dst)
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
         vec avg = vec::Zero(_maxRadius * _pf + 1);
 
-        /***
-        shellAverage(avg,
-                     _T3D,
-                     gsl_real,
-                     _maxRadius * _pf + 1);
+        if (_mode == MODE_2D)
+        {
+            ringAverage(avg,
+                        _T2D,
+                        gsl_real,
+                        _maxRadius * _pf - 1);
+        }
+        else if (_mode == MODE_3D)
+        {
+            shellAverage(avg,
+                         _T3D,
+                         gsl_real,
+                         _maxRadius * _pf - 1);
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
 
-        std::cout << avg << std::endl;
-        ***/
+            abort();
+        }
 
-        shellAverage(avg,
-                     _T3D,
-                     gsl_real,
-                     _maxRadius * _pf - 1);
         // the last two elements have low fidelity
         avg(_maxRadius * _pf - 1) = avg(_maxRadius * _pf - 2);
         avg(_maxRadius * _pf) = avg(_maxRadius * _pf - 2);
 
+#ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_SYS") << "End of Avg = "
                                  << avg(avg.size() - 5) << ", "
                                  << avg(avg.size() - 4) << ", "
@@ -651,59 +678,91 @@ void Reconstructor::reconstruct(Volume& dst)
                                  << avg(avg.size() - 1);
 #endif
 
+#endif
+
+#ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
         BLOG(INFO, "LOGGER_SYS") << "End of FSC = " << _FSC(_FSC.size() - 1);
+#endif
 
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_T3D)
-            if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-                (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-            {
-                int u = AROUND(NORM_3(i, j, k));
+        if (_mode == MODE_2D)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            IMAGE_FOR_EACH_PIXEL_FT(_T2D)
+                if ((QUAD(i, j) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                    (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf)))
+                {
+                    int u = AROUND(NORM(i, j));
 
-                /***
-                double FSC = (u / _pf >= _FSC.size())
-                           ? _FSC(_FSC.size() - 1)
-                           : _FSC(u / _pf);
-                ***/
+                    double FSC = (u / _pf >= _FSC.size())
+                               ? 0
+                               : _FSC(u / _pf);
 
-                double FSC = (u / _pf >= _FSC.size())
-                           ? 0
-                           : _FSC(u / _pf);
-
-                //FSC = GSL_MAX_DBL(FSC_BASE, GSL_MIN_DBL(1 - FSC_BASE, FSC));
-                FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
-                //FSC = GSL_MAX_DBL(1e-2, GSL_MIN_DBL(1 - 1e-2, FSC));
+                    FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
 
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
-                FSC = sqrt(2 * FSC / (1 + FSC));
+                    FSC = sqrt(2 * FSC / (1 + FSC));
 #else
-                if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
+                    if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-                _T3D.setFT(_T3D.getFT(i, j, k)
-                         + COMPLEX((1 - FSC) / FSC * avg(u), 0),
-                           i,
-                           j,
-                           k);
+                    _T2D.setFT(_T2D.getFT(i, j)
+                             + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                               i,
+                               j);
 #else
-                _T3D.setFT(_T3D.getFT(i, j, k) / FSC, i, j, k);
+                    _T2D.setFT(_T2D.getFT(i, j) / FSC, i, j);
 #endif
-            }
+                }
+        }
+        else if (_mode == MODE_3D)
+        {
+            #pragma omp parallel for schedule(dynamic)
+            VOLUME_FOR_EACH_PIXEL_FT(_T3D)
+                if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                    (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
+                {
+                    int u = AROUND(NORM_3(i, j, k));
+
+                    double FSC = (u / _pf >= _FSC.size())
+                               ? 0
+                               : _FSC(u / _pf);
+
+                    FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
+
+#ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
+                    FSC = sqrt(2 * FSC / (1 + FSC));
+#else
+                    if (_joinHalf) FSC = sqrt(2 * FSC / (1 + FSC));
 #endif
 
-#ifdef RECONSTRUCTOR_WIENER_FILTER_CONST
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_T3D)
-            if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-                (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
-                _T3D.setFT(_T3D.getFT(i, j, k) + COMPLEX(1, 0), i, j, k);
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
+                    _T3D.setFT(_T3D.getFT(i, j, k)
+                             + COMPLEX((1 - FSC) / FSC * avg(u), 0),
+                               i,
+                               j,
+                               k);
+#else
+                    _T3D.setFT(_T3D.getFT(i, j, k) / FSC, i, j, k);
+#endif
+                }
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT_MODE");
+
+            abort();
+        }
 #endif
     }
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_RECO") << "Initialising W";
     BLOG(INFO, "LOGGER_RECO") << "Initialising W";
+
+#endif
 
     if (_mode == MODE_2D)
     {
@@ -724,7 +783,11 @@ void Reconstructor::reconstruct(Volume& dst)
                 _W3D.setFTHalf(COMPLEX(0, 0), i, j, k);
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     double diffC = DBL_MAX;
     double diffCPrev = DBL_MAX;
@@ -735,11 +798,15 @@ void Reconstructor::reconstruct(Volume& dst)
 
     for (m = 0; m < MAX_N_ITER_BALANCE; m++)
     {
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
         BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
 
         ALOG(INFO, "LOGGER_RECO") << "Determining C";
         BLOG(INFO, "LOGGER_RECO") << "Determining C";
+
+#endif
         
         if (_mode == MODE_2D)
         {
@@ -754,15 +821,27 @@ void Reconstructor::reconstruct(Volume& dst)
                 _C3D[i] = _T3D[i] * _W3D[i];
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Convoluting C";
         BLOG(INFO, "LOGGER_RECO") << "Convoluting C";
 
+#endif
+
         convoluteC();
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
         BLOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+
+#endif
 
         if (_mode == MODE_2D)
         {
@@ -788,17 +867,29 @@ void Reconstructor::reconstruct(Volume& dst)
                                    k);
         }
         else
+        {
             REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
         BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+
+#endif
         
         diffCPrev = diffC;
 
         diffC = checkC();
 
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
         BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
+
+#endif
 
         if (diffC > diffCPrev * DIFF_C_DECREASE_THRES)
             nDiffCNoDecrease += 1;
@@ -810,6 +901,8 @@ void Reconstructor::reconstruct(Volume& dst)
              (nDiffCNoDecrease == N_DIFF_C_NO_DECREASE))) break;
     }
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_SYS") << "After "
                              << m
                              << " Iterations, Distance to Total Balanced: "
@@ -818,90 +911,81 @@ void Reconstructor::reconstruct(Volume& dst)
                              << m
                              << " Iterations, Distance to Total Balanced: "
                              << diffC;
-
-    /***
-    if (_mode == MODE_2D)
-    {
-        #pragma omp parallel for
-        MUL_FT(_F2D, _W2D);
-    }
-    else if (_mode == MODE_3D)
-    {
-        #pragma omp parallel for
-        MUL_FT(_F3D, _W3D);
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-
-#ifdef RECONSTRUCTOR_LOW_PASS
-    ALOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
-    BLOG(INFO, "LOGGER_RECO") << "Low Pass Filtering F";
-
-    if (_mode == MODE_2D)
-    {
-        // TODO
-    }
-    else if (_mode == MODE_3D)
-    {
-        lowPassFilter(_F3D,
-                      _F3D,
-                      (double)(_maxRadius - EDGE_WIDTH_FT) / _size,
-                      (double)EDGE_WIDTH_FT / _size);
-    }
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-#endif
-    ***/
-
-    /***
-    if (_mode == MODE_2D)
-        _fft.bwExecutePlanMT(_F2D);
-    else if (_mode == MODE_3D)
-        _fft.bwExecutePlanMT(_F3D);
-    else
-        REPORT_ERROR("INEXISTENT MODE");
-    ***/
-
-    if (_mode == MODE_2D)
-    {
-        /***
-        _fft.fwExecutePlanMT(_F2D);
-        _F2D.clearRL();
-
-        dst.clear();
-        dst.alloc(_N, _N, 1, FT_SPACE);
-        ***/
-
-#ifdef RECONSTRUCTOR_REMOVE_CORNER
-        // TODO
 #endif
 
-        // TODO
-        /***
-        for (int j = -_size / 2; j < _size / 2; j++)
-            for (int i = -_size / 2; i < _size / 2; i++)
-                dst.setRL(_F2D.getRL(i, j), i, j, 0);
-        ***/
+    if (_mode == MODE_2D)
+    {
+#ifdef VERBOSE_LEVEL_2
+
+        ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
+        BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
+
+#endif
+
+        Image padDst(_N * _pf, _N * _pf, FT_SPACE);
+
+        #pragma omp parallel
+        SET_0_FT(padDst);
+
+#ifdef VERBOSE_LEVEL_2
+
+        ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+        BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+
+#endif
+
+        #pragma omp parallel for schedule(dynamic)
+        IMAGE_FOR_EACH_PIXEL_FT(_F2D)
+        {
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            {
+                padDst.setFTHalf(_F2D.getFTHalf(i, j)
+                               * _W2D.getFTHalf(i, j),
+                                 i,
+                                 j);
+            }
+        }
+
+#ifdef VERBOSE_LEVEL_2
+
+        ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Image";
+        BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Image";
+
+#endif
+
+        FFT fft;
+        fft.bwMT(padDst);
+
+        Image imgDst;
+
+        IMG_EXTRACT_RL(imgDst, padDst, 1.0 / _pf);
+
+        dst.alloc(_N, _N, 1, RL_SPACE);
+
+        #pragma omp parallel
+        IMAGE_FOR_EACH_PIXEL_RL(imgDst)
+            dst.setRL(imgDst.getRL(i, j), i, j, 0);
     }
     else if (_mode == MODE_3D)
     {
-        /***
-        ALOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
-        BLOG(INFO, "LOGGER_RECO") << "Fourier Transforming F";
-
-        _fft.fwExecutePlanMT(_F3D);
-        _F3D.clearRL();
-        ***/
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Volume";
 
+#endif
+
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
+        #pragma omp parallel
         SET_0_FT(padDst);
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
+
+#endif
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
@@ -913,54 +997,43 @@ void Reconstructor::reconstruct(Volume& dst)
                                  i,
                                  j,
                                  k);
-                // padDst.setFTHalf(_F3D.getFTHalf(i, j, k), i, j, k);
             }
         }
+
+#ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
 
+#endif
+
         FFT fft;
         fft.bwMT(padDst);
         
+#ifdef VERBOSE_LEVEL_2
+
         ALOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Extracting Destination Volume";
 
+#endif
+
         VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf);
-
-        /***
-        for (int k = -_size / 2; k < _size / 2; k++)
-            for (int j = -_size / 2; j < _size / 2; j++)
-                for (int i = -_size / 2; i < _size / 2; i++)
-                    dst.setRL(_F3D.getRL(i, j, k), i, j, k);
-        ***/
-
-        // VOL_EXTRACT_RL(dst, _F3D, 1.0 / _pf);
-
-#ifdef RECONSTRUCTOR_REMOVE_CORNER
-
-#ifdef RECONSTRUCTOR_REMOVE_CORNER_MASK_ZERO
-        softMask(dst,
-                 dst,
-                 _N / 2,
-                 EDGE_WIDTH_RL,
-                 0);
-#else
-        softMask(dst,
-                 dst,
-                 _N / 2,
-                 EDGE_WIDTH_RL);
-#endif
-
-#endif
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
+#ifdef VERBOSE_LEVEL_2
+
     ALOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
     BLOG(INFO, "LOGGER_RECO") << "Correcting Convolution Kernel";
+
+#endif
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
     double nf = MKB_RL(0, _a * _pf, _alpha);
@@ -968,32 +1041,32 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
-        // TODO
+        Image imgDst(_N, _N, RL_SPACE);
 
-        /***
+        SLC_EXTRACT_RL(imgDst, dst, 0);
+
         #pragma omp parallel for schedule(dynamic)
-        IMAGE_FOR_EACH_PIXEL_RL(_F2D)
+        IMAGE_FOR_EACH_PIXEL_RL(imgDst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            dst.setRL(dst.getRL(i, j)
-                     // / MKB_RL(NORM(i, j) / PAD_SIZE,
-                     / MKB_RL(NORM(i, j) / (_pf * _N),
-                              _a * _pf,
-                              _alpha)
-                     * nf,
-                       i,
-                       j);
+            imgDst.setRL(imgDst.getRL(i, j)
+                       / MKB_RL(NORM(i, j) / (_pf * _N),
+                                _a * _pf,
+                                _alpha)
+                       * nf,
+                         i,
+                         j);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            dst.setRL(dst.getRL(i, j)
-                     // / TIK_RL(NORM(i, j) / PAD_SIZE),
-                     / TIK_RL(NORM(i, j) / (_pf * _N)),
-                       i,
-                       j);
+            imgDst.setRL(imgDst.getRL(i, j)
+                       / TIK_RL(NORM(i, j) / (_pf * _N)),
+                         i,
+                         j);
 #endif
         }
-        ***/
+
+        SLC_REPLACE_RL(dst, imgDst, 0);
     }
     else if (_mode == MODE_3D)
     {
@@ -1002,7 +1075,6 @@ void Reconstructor::reconstruct(Volume& dst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             dst.setRL(dst.getRL(i, j, k)
-                     // / MKB_RL(NORM_3(i, j, k) / PAD_SIZE,
                      / MKB_RL(NORM_3(i, j, k) / (_pf * _N),
                               _a * _pf,
                               _alpha)
@@ -1014,7 +1086,6 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
             dst.setRL(dst.getRL(i, j, k)
-                     // / TIK_RL(NORM_3(i, j, k) / PAD_SIZE),
                      / TIK_RL(NORM_3(i, j, k) / (_pf * _N)),
                        i,
                        j,
@@ -1023,10 +1094,18 @@ void Reconstructor::reconstruct(Volume& dst)
         }
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+
+#ifdef VERBOSE_LEVEL_2
 
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
+
+#endif
 
 #endif
 
@@ -1085,7 +1164,11 @@ void Reconstructor::allReduceT()
                             MPI_SUM,
                             _hemi);
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     MPI_Barrier(_hemi);
 
@@ -1112,7 +1195,11 @@ void Reconstructor::allReduceT()
         SCALE_FT(_F3D, sf);
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 #endif
 }
 
@@ -1150,6 +1237,7 @@ double Reconstructor::checkC() const
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
+
         abort();
     }
 
@@ -1182,6 +1270,7 @@ double Reconstructor::checkC() const
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
+
         abort();
     }
 #endif
@@ -1202,7 +1291,6 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
             _C2D.setRL(_C2D.getRL(i, j)
-                     // * _kernelRL(QUAD(i, j) / gsl_pow_2(PAD_SIZE))
                      * _kernelRL(QUAD(i, j) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
@@ -1219,7 +1307,6 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
             _C3D.setRL(_C3D.getRL(i, j, k)
-                     // * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(PAD_SIZE))
                      * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(_N * _pf))
                      / nf,
                        i,
@@ -1231,7 +1318,11 @@ void Reconstructor::convoluteC()
         _C3D.clearRL();
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 void Reconstructor::symmetrizeF()

@@ -407,7 +407,8 @@ class Reconstructor : public Parallel
         void insertP(const Image& src,
                      const Image& ctf,
                      const mat22& rot,
-                     const double w);
+                     const double w,
+                     const vec* sig = NULL);
 
         void insertP(const Image& src,
                      const Image& ctf,

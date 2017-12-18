@@ -285,8 +285,8 @@ Reconstructor& Model::reco(const int i)
 }
 
 void Model::compareTwoHemispheres(const bool fscFlag,
-                                    const bool avgFlag,
-                                    const double thres)
+                                  const bool avgFlag,
+                                  const double thres)
 {
     if (fscFlag)
     {
@@ -332,7 +332,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 B.alloc(_size, _size, _size, FT_SPACE);
             }
             else
+            {
                 REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
 
 #ifdef VERBOSE_LEVEL_1
             MLOG(INFO, "LOGGER_COMPARE") << "Size of Hemisphere A of Reference "
@@ -363,7 +367,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                            l,
                            MPI_COMM_WORLD);
 
-#ifdef VERBOSE_LEVEL_3
+#ifdef VERBOSE_LEVEL_2
             MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
                                          << REAL(A[0])
                                          << ", IMAG = "
@@ -376,16 +380,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
             if (fscFlag)
             {
+                vec fsc(_rU);
 
-            vec fsc(_rU);
-
-            if (_maskFSC)
-            {
-                if (_mode == MODE_2D)
-                {
-                    // TODO
-                }
-                else if (_mode == MODE_3D)
+                if ((_maskFSC) && (_mode == MODE_3D))
                 {
                     FFT fft;
 
@@ -471,14 +468,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     _FSC.col(l) = fsc;
                 }
-            }
-            else if (_coreFSC)
-            {
-                if (_mode == MODE_2D)
-                {
-                    // TODO
-                }
-                else if (_mode == MODE_3D)
+                else if (_coreFSC && (_mode == MODE_3D))
                 {
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Core Region of Reference " << l;
 
@@ -528,144 +518,156 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     _FSC.col(l) = fsc;
                 }
                 else
-                    REPORT_ERROR("INEXISTENT MODE");
-            }
-            else
-            {
-                if (_mode == MODE_2D)
                 {
-                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
+                    if (_mode == MODE_2D)
+                    {
+                        if (_coreFSC)
+                            MLOG(WARNING, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT CORE REGION FSC";
 
-                    FRC(fsc, A, B, 0);
+                        if (_maskFSC)
+                            MLOG(WARNING, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT MASK REGION FSC";
 
-                    _FSC.col(l) = fsc;
+                        MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
+
+                        FRC(fsc, A, B, 0);
+
+                        _FSC.col(l) = fsc;
+                    }
+                    else if (_mode == MODE_3D)
+                    {
+                        MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+
+                        FSC(fsc, A, B);
+
+                        _FSC.col(l) = fsc;
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
+                    }
                 }
-                else if (_mode == MODE_3D)
-                {
-                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
-
-                    FSC(fsc, A, B);
-
-                    _FSC.col(l) = fsc;
-                }
-                else
-                    REPORT_ERROR("INEXISTENT MODE");
-            }
-
             }
 
             if (avgFlag)
             {
             
-            MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
+                MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B";
 
-            if ((_k == 1) && (_goldenStandard))
-            {
-                // When refining only one reference, use gold standard FSC.
+                if ((_k == 1) && (_goldenStandard))
+                {
+                    // When refining only one reference, use gold standard FSC.
 
 #ifdef MODEL_AVERAGE_TWO_HEMISPHERE
-                #pragma omp parallel for
-                FOR_EACH_PIXEL_FT(A)
-                {
-                    Complex avg = (A[i] + B[i]) / 2;
-                    A[i] = avg;
-                    B[i] = avg;
-                }
+                    #pragma omp parallel for
+                    FOR_EACH_PIXEL_FT(A)
+                    {
+                        Complex avg = (A[i] + B[i]) / 2;
+                        A[i] = avg;
+                        B[i] = avg;
+                    }
 #else
 #ifdef MODEL_RESOLUTION_BASE_AVERAGE
-                int r = resolutionP(thres, false);
+                    int r = resolutionP(thres, false);
 #else
-                int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
-                                                  _size,
-                                                  _pixelSize)),
-                                    _r);
+                    int r = GSL_MIN_INT(AROUND(resA2P(1.0 / A_B_AVERAGE_THRES,
+                                                      _size,
+                                                      _pixelSize)),
+                                        _r);
 #endif
 
-                MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
-                                             << 1.0 / resP2A(r, _size, _pixelSize)
-                                             << "(Angstrom)";
+                    MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
+                                                 << 1.0 / resP2A(r, _size, _pixelSize)
+                                                 << "(Angstrom)";
 
-                if (_mode == MODE_2D)
-                {
-                    //TODO
-                }
-                else if (_mode == MODE_3D)
-                {
-                    #pragma omp parallel for
-                    VOLUME_FOR_EACH_PIXEL_FT(A)
-                        if (QUAD_3(i, j, k) < gsl_pow_2(r))
-                        {
-                            Complex avg = (A.getFTHalf(i, j, k)
-                                         + B.getFTHalf(i, j, k))
-                                        / 2;
-                            A.setFTHalf(avg, i, j, k);
-                            B.setFTHalf(avg, i, j, k);
-                        }
+                    if (_mode == MODE_2D)
+                    {
+                        MLOG(FATAL, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT GOLDEN STANDARD AVERAGING";
+
+                        abort();
+                    }
+                    else if (_mode == MODE_3D)
+                    {
+                        #pragma omp parallel for
+                        VOLUME_FOR_EACH_PIXEL_FT(A)
+                            if (QUAD_3(i, j, k) < gsl_pow_2(r))
+                            {
+                                Complex avg = (A.getFTHalf(i, j, k)
+                                             + B.getFTHalf(i, j, k))
+                                             / 2;
+                                A.setFTHalf(avg, i, j, k);
+                                B.setFTHalf(avg, i, j, k);
+                            }
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
+                    }
+#endif
                 }
                 else
-                    REPORT_ERROR("INEXISTENT MODE");
-#endif
-            }
-            else
-            {
-                // When refining more than 1 references, directly average two half maps.
-
-                #pragma omp parallel for
-                FOR_EACH_PIXEL_FT(A)
                 {
-                    Complex avg = (A[i] + B[i]) / 2;
-                    A[i] = avg;
-                    B[i] = avg;
-                }
-            }
+                    // When refining more than 1 references, directly average two half maps.
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
-                                         << l
-                                         << " to Hemisphere A";
+                    #pragma omp parallel for
+                    FOR_EACH_PIXEL_FT(A)
+                    {
+                        Complex avg = (A[i] + B[i]) / 2;
+                        A[i] = avg;
+                        B[i] = avg;
+                    }
+                }
+
+                MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                             << l
+                                             << " to Hemisphere A";
             
 #ifdef MODEL_SWAP_HEMISPHERE
-            MPI_Ssend_Large(&B[0],
-                            A.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_A_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&B[0],
+                                A.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_A_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #else
-            MPI_Ssend_Large(&A[0],
-                            A.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_A_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&A[0],
+                                A.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_A_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #endif
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Reference "
-                                         << l
-                                         << " Sent to Hemisphere A";
+                MLOG(INFO, "LOGGER_COMPARE") << "Reference "
+                                             << l
+                                             << " Sent to Hemisphere A";
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
-                                         << l
-                                         << " to Hemisphere B";
+                MLOG(INFO, "LOGGER_COMPARE") << "Sending Reference "
+                                             << l
+                                             << " to Hemisphere B";
 
 #ifdef MODEL_SWAP_HEMISPHERE
-            MPI_Ssend_Large(&A[0],
-                            B.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_B_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&A[0],
+                                B.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_B_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #else
-            MPI_Ssend_Large(&B[0],
-                            B.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            HEMI_B_LEAD,
-                            l,
-                            MPI_COMM_WORLD);
+                MPI_Ssend_Large(&B[0],
+                                B.sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                HEMI_B_LEAD,
+                                l,
+                                MPI_COMM_WORLD);
 #endif
 
-            MLOG(INFO, "LOGGER_COMPARE") << "Reference "
-                                         << l
-                                         << " Sent to Hemisphere B";
+                MLOG(INFO, "LOGGER_COMPARE") << "Reference "
+                                             << l
+                                             << " Sent to Hemisphere B";
 
             }
         }
@@ -713,15 +715,15 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 if (avgFlag)
                 {
 
-                ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
-                BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
+                    ALOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
+                    BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
 
-                MPI_Recv_Large(&_ref[l][0],
-                               _ref[l].sizeFT(),
-                               MPI_DOUBLE_COMPLEX,
-                               MASTER_ID,
-                               l,
-                               MPI_COMM_WORLD);
+                    MPI_Recv_Large(&_ref[l][0],
+                                   _ref[l].sizeFT(),
+                                   MPI_DOUBLE_COMPLEX,
+                                   MASTER_ID,
+                                   l,
+                                   MPI_COMM_WORLD);
 
                 }
             }
@@ -729,33 +731,32 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
         if (avgFlag)
         {
+            MPI_Barrier(MPI_COMM_WORLD);
 
-        MPI_Barrier(MPI_COMM_WORLD);
+            if (isA())
+            {
+                ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
+                MPI_Bcast_Large(&_ref[l][0],
+                                _ref[l].sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                0,
+                                _hemi);
+            }
 
-        if (isA())
-        {
-            ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
-            MPI_Bcast_Large(&_ref[l][0],
-                            _ref[l].sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            0,
-                            _hemi);
-        }
+            if (isB())
+            {
+                BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
+                MPI_Bcast_Large(&_ref[l][0],
+                                _ref[l].sizeFT(),
+                                MPI_DOUBLE_COMPLEX,
+                                0,
+                                _hemi);
+            }
 
-        if (isB())
-        {
-            BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
-            MPI_Bcast_Large(&_ref[l][0],
-                            _ref[l].sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
-                            0,
-                            _hemi);
-        }
-
-        MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
 
 #ifdef VERBOSE_LEVEL_1
-        MLOG(INFO, "LOGGER_COMPARE") << "Reference " << l << " Broadcasted from A_LEAD and B_LEAD";
+            MLOG(INFO, "LOGGER_COMPARE") << "Reference " << l << " Broadcasted from A_LEAD and B_LEAD";
 #endif
         }
     }
@@ -763,18 +764,17 @@ void Model::compareTwoHemispheres(const bool fscFlag,
     if (fscFlag)
     {
 
-    MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
+        MLOG(INFO, "LOGGER_COMPARE") << "Broadcasting FSC from MASTER";
 
-    MPI_Bcast(_FSC.data(),
-              _FSC.size(),
-              MPI_DOUBLE,
-              MASTER_ID,
-              MPI_COMM_WORLD);
+        MPI_Bcast(_FSC.data(),
+                  _FSC.size(),
+                  MPI_DOUBLE,
+                  MASTER_ID,
+                  MPI_COMM_WORLD);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_COMPARE") << "FSC Broadcasted from MASTER";
-
+        MLOG(INFO, "LOGGER_COMPARE") << "FSC Broadcasted from MASTER";
     }
 }
 
@@ -1016,27 +1016,15 @@ void Model::resetReco(const double thres)
 #else
         _reco[l]->reset();
 #endif
+    
+        ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up FSC";
+        BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
+                                 << l
+                                 << " Setting Up FSC";
 
-        if (_k == 1)
-        {
-            ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
-                                     << l
-                                     << " Setting Up FSC";
-            BLOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
-                                     << l
-                                     << " Setting Up FSC";
-
-            /***
-            vec FSC = _FSC.col(l);
-
-            FSC.tail(FSC.size() - _res - 1) = vec::Constant(FSC.size() - _res - 1, thres);
-
-            _reco[l]->setFSC(FSC);
-            ***/
-
-            //_reco[l]->setFSC(_FSC.col(l).head(_res + 1));
-            _reco[l]->setFSC(_FSC.col(l));
-        }
+        _reco[l]->setFSC(_FSC.col(l));
 
         _reco[l]->setMaxRadius(_rU);
     }
