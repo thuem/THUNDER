@@ -50,7 +50,11 @@ void readPara(OptimiserPara& dst,
         dst.mode = MODE_3D;
     }
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     dst.gSearch = src["Global Search"].asBool();
     dst.lSearch = src["Local Search"].asBool();
@@ -81,10 +85,26 @@ void readPara(OptimiserPara& dst,
     dst.pf = src["Advanced"]["Padding Factor"].asInt();
     dst.a = src["Advanced"]["MKB Kernel Radius"].asFloat();
     dst.alpha = src["Advanced"]["MKB Kernel Smooth Factor"].asFloat();
-    dst.mS = src["Advanced"]["Number of Sampling Points for Scanning in Global Search"].asInt();
-    dst.mGMax = src["Advanced"]["Number of Sampling Points in Global Search (Max)"].asInt();
-    dst.mGMin = src["Advanced"]["Number of Sampling Points in Global Search (Min)"].asInt();
-    dst.mLR = src["Advanced"]["Number of Sampling Points of Rotation in Local Search"].asInt();
+
+    if (dst.mode == MODE_2D)
+    {
+        dst.mS = src["Advanced"]["Number of Sampling Points for Scanning in Global Search (2D)"].asInt();
+
+        dst.mLR = src["Advanced"]["Number of Sampling Points of Rotation in Local Search (2D)"].asInt();
+    }
+    else if (dst.mode == MODE_3D)
+    {
+        dst.mS = src["Advanced"]["Number of Sampling Points for Scanning in Global Search (3D)"].asInt();
+
+        dst.mLR = src["Advanced"]["Number of Sampling Points of Rotation in Local Search (3D)"].asInt();
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+
     dst.mLT = src["Advanced"]["Number of Sampling Points of Translation in Local Search"].asInt();
     dst.mLD = src["Advanced"]["Number of Sampling Points of Defocus in Local Search"].asInt();
     dst.mReco = src["Advanced"]["Number of Sampling Points Used in Reconstruction"].asInt();
