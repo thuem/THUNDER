@@ -58,6 +58,8 @@
 
 #define MIN_STD_FACTOR 2
 
+#define CLASS_BALANCE_FACTOR 0.2
+
 struct OptimiserPara
 {
     /**
@@ -189,13 +191,6 @@ struct OptimiserPara
      * number of sampling points for scanning in global search
      */
     int mS;
-
-    /**
-     * number of sampling points in global search
-     */
-    int mGMax;
-
-    int mGMin;
 
     int mLR;
 

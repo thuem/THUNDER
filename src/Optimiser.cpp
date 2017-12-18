@@ -4179,7 +4179,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-            balanceClass(0.05, false);
+            balanceClass(CLASS_BALANCE_FACTOR, false);
 
 #ifdef VERBOSE_LEVEL_1
 
@@ -4249,7 +4249,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-            balanceClass(0.05, true);
+            balanceClass(CLASS_BALANCE_FACTOR, true);
 
 #ifdef VERBOSE_LEVEL_1
 
