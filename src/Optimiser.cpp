@@ -4827,12 +4827,14 @@ void Optimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
+                /***
                 if (finished)
                     sprintf(filename, "%sFT_Reference_%03d_A_Final.bmp", _para.dstPrefix, t);
                 else
                     sprintf(filename, "%sFT_Reference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
 
                 ref.saveFTToBMP(filename, 0.001);
+                ***/
 
                 fft.bwMT(ref);
 
@@ -4853,12 +4855,14 @@ void Optimiser::saveReference(const bool finished)
 
                 SLC_EXTRACT_FT(ref, _model.ref(t), 0);
 
+                /***
                 if (finished)
                     sprintf(filename, "%sFT_Reference_%03d_B_Final.bmp", _para.dstPrefix, t);
                 else
                     sprintf(filename, "%sFT_Reference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
 
                 ref.saveFTToBMP(filename, 0.001);
+                ***/
 
                 fft.bwMT(ref);
 
