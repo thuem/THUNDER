@@ -3110,7 +3110,8 @@ void Optimiser::refreshClassDistr()
     _cDistr.array() /= (_nPar * _para.k);
 }
 
-void Optimiser::balanceClass(const double thres)
+void Optimiser::balanceClass(const double thres,
+                             const bool refreshDistr)
 {
     int cls;
     double num = _cDistr.maxCoeff(&cls);
@@ -3118,13 +3119,12 @@ void Optimiser::balanceClass(const double thres)
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
         {
-            NT_MASTER
-                _model.ref(t) = _model.ref(cls).copyVolume();
+            NT_MASTER _model.ref(t) = _model.ref(cls).copyVolume();
 
-            _cDistr(t) = num;
+            if (refreshDistr) _cDistr(t) = num;
         }
 
-    _cDistr.array() /= _cDistr.sum();
+    if (refreshDistr) _cDistr.array() /= _cDistr.sum();
 }
 
 void Optimiser::refreshVariance()
@@ -4177,7 +4177,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-        balanceClass(0.05);
+        balanceClass(0.2, false);
 
 #ifdef VERBOSE_LEVEL_1
 
@@ -4244,7 +4244,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-        balanceClass(0.05);
+        balanceClass(0.2, true);
 
 #ifdef VERBOSE_LEVEL_1
 
