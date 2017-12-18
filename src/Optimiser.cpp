@@ -4175,19 +4175,22 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #ifdef OPTIMISER_BALANCE_CLASS
 
-        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-        balanceClass(0.05, false);
+            balanceClass(0.05, false);
 
 #ifdef VERBOSE_LEVEL_1
 
-        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
 
-        for (int t = 0; t < _para.k; t++)
-            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
-                                       << "\% Percentage of Images Belonging to Class "
-                                       << t;
+            for (int t = 0; t < _para.k; t++)
+                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                           << "\% Percentage of Images Belonging to Class "
+                                           << t;
 #endif
+        }
 
 #endif
 
@@ -4242,19 +4245,22 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #ifdef OPTIMISER_BALANCE_CLASS
 
-        MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-        balanceClass(0.05, true);
+            balanceClass(0.05, true);
 
 #ifdef VERBOSE_LEVEL_1
 
-        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
 
-        for (int t = 0; t < _para.k; t++)
-            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
-                                       << "\% Percentage of Images Belonging to Class "
-                                       << t;
+            for (int t = 0; t < _para.k; t++)
+                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                           << "\% Percentage of Images Belonging to Class "
+                                           << t;
 #endif
+        }
 
 #endif
 
