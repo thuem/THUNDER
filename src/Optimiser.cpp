@@ -1693,7 +1693,9 @@ void Optimiser::run()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+#ifdef OPTIMISER_SAVE_SIGMA
     saveSig();
+#endif
 
     MLOG(INFO, "LOGGER_ROUND") << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
@@ -4966,8 +4968,6 @@ void Optimiser::saveMapHalf(const bool finished)
 
 void Optimiser::saveMapJoin(const bool finished)
 {
-    NT_MASTER return;
-
     FFT fft;
 
     ImageFile imf;
