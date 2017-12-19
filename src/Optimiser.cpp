@@ -4165,7 +4165,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
         if (fscSave)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-            saveMapHalf(finished);
+
+            if (_para.mode == MODE_2D)
+                saveMapJoin(finished);
+            else if (_para.mode == MODE_3D)
+                saveMapHalf(finished);
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -4235,7 +4245,18 @@ void Optimiser::reconstructRef(const bool fscFlag,
         if (avgSave)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-            saveMapHalf(finished);
+
+            if (_para.mode == MODE_2D)
+                saveMapJoin(finished);
+            else if (_para.mode == MODE_3D)
+                saveMapHalf(finished);
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
+
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
