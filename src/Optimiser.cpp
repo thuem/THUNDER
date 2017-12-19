@@ -4471,7 +4471,7 @@ void Optimiser::solventFlatten(const bool mask)
 }
 
 void Optimiser::allocPreCalIdx(const double rU,
-                                 const double rL)
+                               const double rL)
 {
     IF_MASTER return;
 
@@ -4952,6 +4952,27 @@ void Optimiser::saveFSC(const bool finished) const
 
     char filename[FILE_NAME_LENGTH];
 
+    if (finished)
+        sprintf(filename, "%sFSC_Final.txt", _para.dstPrefix);
+    else
+        sprintf(filename, "%sFSC_Round_%03d.txt", _para.dstPrefix, _iter);
+
+    FILE* file = fopen(filename, "w");
+
+    for (int i = 1; i < _model.rU(); i++)
+    {
+        fprintf(file,
+                "%05d   %10.6lf",
+                i,
+                1.0 / resP2A(i, _para.size, _para.pixelSize));
+        for (int t = 0; t < _para.k; t++)
+            fprintf(file,
+                    "   %10.6lf",
+                    (_model.fsc(t))(i));
+        fprintf(file, "\n");
+    }
+
+    /***
     for (int t = 0; t < _para.k; t++)
     {
         vec fsc = _model.fsc(t);
@@ -4972,6 +4993,7 @@ void Optimiser::saveFSC(const bool finished) const
 
         fclose(file);
     }
+    ***/
 }
 
 void Optimiser::saveSig() const
