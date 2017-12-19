@@ -4975,14 +4975,24 @@ void Optimiser::saveMapJoin(const bool finished)
 
     if (_para.mode == MODE_2D)
     {
-        Volume stack(_para.size, _para.size, _para.k, RL_SPACE);
+        IF_MASTER
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Stack of Reference(s)";
+
+            if (finished)
+                sprintf(filename, "%sReference_Final.mrcs", _para.dstPrefix);
+            else
+                sprintf(filename, "%sReference_Round_%03d.mrcs", _para.dstPrefix, _iter);
+
+            imf.openStack(filename, _para.k, _para.pixelSize);
+        }
 
         for (int l = 0; l < _para.k; l++)
         {
-            Image ref(_para.size, _para.size, FT_SPACE);
-
             IF_MASTER
             {
+                Image ref(_para.size, _para.size, FT_SPACE);
+
                 Image A(_para.size, _para.size, FT_SPACE);
                 Image B(_para.size, _para.size, FT_SPACE);
 
@@ -5010,7 +5020,7 @@ void Optimiser::saveMapJoin(const bool finished)
 
                 fft.bwMT(ref);
 
-                SLC_REPLACE_RL(stack, ref, l);
+                imf.writeStack(ref, l);
             }
             else
             {
@@ -5035,18 +5045,7 @@ void Optimiser::saveMapJoin(const bool finished)
             }
         }
 
-        IF_MASTER
-        {
-            MLOG(INFO, "LOGGER_ROUND") << "Saving Stack of Reference(s)";
-
-            if (finished)
-                sprintf(filename, "%sReference_Final.mrcs", _para.dstPrefix);
-            else
-                sprintf(filename, "%sReference_Round_%03d.mrcs", _para.dstPrefix, _iter);
-
-            imf.readMetaData(stack);
-            imf.writeVolume(filename, stack, _para.pixelSize);
-        }
+        IF_MASTER imf.closeStack();
     }
     else if (_para.mode == MODE_3D)
     {

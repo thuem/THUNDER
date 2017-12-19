@@ -227,9 +227,7 @@ void ImageFile::readImageMRC(Image& dst,
 
     size_t size = dst.sizeRL();
 
-
     SKIP_HEAD(size * iSlc * BYTE_MODE(mode()));
-    
 
     switch (mode())
     {
@@ -320,5 +318,42 @@ void ImageFile::writeVolumeMRC(const char dst[],
     VOLUME_WRITE_CAST<float>(_file, src);
 
     fclose(_file);
+    _file = NULL;
+}
+
+void ImageFile::openStack(const char dst[],
+                          const int nSlc,
+                          const double pixelSize)
+{
+    _file = fopen(dst, "w");
+
+    MRCHeader header;
+    fillMRCHeader(header);
+
+    header.cella[0] *= pixelSize;
+    header.cella[1] *= pixelSize;
+    header.cella[2] *= pixelSize;
+
+    rewind(_file);
+    if (fwrite(&header, 1, 1024, _file) == 0 ||
+        (symmetryDataSize() != 0 &&
+         fwrite(_symmetryData, 1, symmetryDataSize(), _file) == 0))
+        REPORT_ERROR("FAIL TO WRITE OUT THIS IMAGE");
+}
+
+void ImageFile::writeStack(const Image& src,
+                           const int iSlc)
+{
+    size_t size = src.sizeRL();
+
+    SKIP_HEAD(size * iSlc * BYTE_MODE(mode()));
+
+    IMAGE_WRITE_CAST<float>(_file, src);
+}
+
+void ImageFile::closeStack()
+{
+    fclose(_file);
+
     _file = NULL;
 }

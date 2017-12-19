@@ -87,9 +87,6 @@ inline int  BYTE_MODE(const int _mode)
         } 
 };
 
-
-
-
 class ImageFile
 {
     private:
@@ -149,6 +146,15 @@ class ImageFile
         void writeVolume(const char dst[],
                          const Volume& src,
                          const double pixelSize = 1);
+
+        void openStack(const char dst[],
+                       const int nSlc,
+                       const double pixelSize);
+
+        void writeStack(const Image& src,
+                        const int iSlc);
+
+        void closeStack();
 
         void clear();
 
