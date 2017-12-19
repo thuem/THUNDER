@@ -4991,7 +4991,7 @@ void Optimiser::saveClassInfo(const bool finished) const
     if (finished)
         sprintf(filename, "%sClass_Info_Final.txt", _para.dstPrefix);
     else
-        sprintf(filename, "%sClass_Info_%03d.txt", _para.dstPrefix, _iter);
+        sprintf(filename, "%sClass_Info_Round_%03d.txt", _para.dstPrefix, _iter);
 
     FILE* file = fopen(filename, "w");
 
