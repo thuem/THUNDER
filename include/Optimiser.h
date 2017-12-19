@@ -780,7 +780,9 @@ class Optimiser : public Parallel
          *
          * @param finished whether it is the final round or not
          */
-        void saveReference(const bool finished = false);
+        void saveMapHalf(const bool finished = false);
+
+        void saveMapJoin(const bool finished = false);
 
         /**
          * save FSC

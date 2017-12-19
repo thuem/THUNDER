@@ -2034,16 +2034,6 @@ void Optimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
     reconstructRef(true, false, true, false, true);
 
-    /***
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Reference(s)";
-    saveReference(true);
-    ***/
-
-    /***
-    MLOG(INFO, "LOGGER_ROUND") << "Calculating Final FSC(s)";
-    _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
-    ***/
-
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
 
@@ -4175,7 +4165,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         if (fscSave)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-            saveReference(finished);
+            saveMapHalf(finished);
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -4245,7 +4235,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         if (avgSave)
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
-            saveReference(finished);
+            saveMapHalf(finished);
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
@@ -4809,7 +4799,7 @@ void Optimiser::saveCTFs()
     }
 }
 
-void Optimiser::saveReference(const bool finished)
+void Optimiser::saveMapHalf(const bool finished)
 {
     if ((_commRank != HEMI_A_LEAD) &&
         (_commRank != HEMI_B_LEAD))
@@ -4950,6 +4940,31 @@ void Optimiser::saveReference(const bool finished)
                 }
             }
         }
+    }
+}
+
+void Optimiser::saveMapJoin(const bool finished)
+{
+    NT_MASTER return;
+
+    FFT fft;
+
+    ImageFile imf;
+    char filename[FILE_NAME_LENGTH];
+
+    if (_para.mode == MODE_2D)
+    {
+        Volume ref(_para.size, _para.size, _para.k, RL_SPACE);
+    }
+    else if (_para.mode == MODE_3D)
+    {
+        // TODO
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
     }
 }
 
