@@ -4954,7 +4954,78 @@ void Optimiser::saveMapJoin(const bool finished)
 
     if (_para.mode == MODE_2D)
     {
-        Volume ref(_para.size, _para.size, _para.k, RL_SPACE);
+        Volume stack(_para.size, _para.size, _para.k, RL_SPACE);
+
+        for (int l = 0; l < _para.k; l++)
+        {
+            Image ref(_para.size, _para.size, FT_SPACE);
+
+            IF_MASTER
+            {
+                Image A(_para.size, _para.size, FT_SPACE);
+                Image B(_para.size, _para.size, FT_SPACE);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere A";
+
+                MPI_Recv_Large(&A[0],
+                               A.sizeFT(),
+                               MPI_DOUBLE_COMPLEX,
+                               HEMI_A_LEAD,
+                               l,
+                               MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere B";
+
+                MPI_Recv_Large(&B[0],
+                               B.sizeFT(),
+                               MPI_DOUBLE_COMPLEX,
+                               HEMI_B_LEAD,
+                               l,
+                               MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Averaging Two Hemispheres";
+                FOR_EACH_PIXEL_FT(ref)
+                    ref[i] = (A[i] + B[i]) / 2;
+
+                fft.bwMT(ref);
+
+                SLC_REPLACE_RL(stack, ref, l);
+            }
+            else
+            {
+                if ((_commRank == HEMI_A_LEAD) ||
+                    (_commRank == HEMI_B_LEAD))
+                {
+                    ALOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                                                 << l
+                                                 << " from Hemisphere A";
+
+                    BLOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                                                 << l
+                                                 << " from Hemisphere B";
+
+                    MPI_Ssend_Large(&_model.ref(l)[0],
+                                    _model.ref(l).sizeFT(),
+                                    MPI_DOUBLE_COMPLEX,
+                                    MASTER_ID,
+                                    l,
+                                    MPI_COMM_WORLD);
+                }
+            }
+        }
+
+        IF_MASTER
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Stack of Reference(s)";
+
+            if (finished)
+                sprintf(filename, "%sReference_Final.mrcs", _para.dstPrefix);
+            else
+                sprintf(filename, "%sReference_Round_%03d.mrcs", _para.dstPrefix, _iter);
+
+            imf.readMetaData(stack);
+            imf.writeVolume(filename, stack, _para.pixelSize);
+        }
     }
     else if (_para.mode == MODE_3D)
     {
