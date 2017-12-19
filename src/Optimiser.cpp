@@ -1793,9 +1793,14 @@ void Optimiser::run()
 
         refreshVariance();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Rotation Variance : " << _model.rVari();
+        MLOG(INFO, "LOGGER_ROUND") << "Round "
+                                   << _iter
+                                   << ", Rotation Variance : "
+                                   << _model.rVari();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Translation Variance : "
+        MLOG(INFO, "LOGGER_ROUND") << "Round "
+                                   << _iter
+                                   << ", Translation Variance : "
                                    << _model.tVariS0()
                                    << ", "
                                    << _model.tVariS1();
