@@ -873,14 +873,14 @@ vec Model::tau(const int i) const
 }
 
 int Model::resolutionP(const int i,
-                         const double thres,
-                         const bool inverse) const
+                       const double thres,
+                       const bool inverse) const
 {
     return resP(_FSC.col(i), thres, 1, 1, inverse);
 }
 
 int Model::resolutionP(const double thres,
-                         const bool inverse) const
+                       const bool inverse) const
 {
     int result = 0;
 
@@ -892,7 +892,7 @@ int Model::resolutionP(const double thres,
 }
 
 double Model::resolutionA(const int i,
-                            const double thres) const
+                          const double thres) const
 {
     return resP2A(resolutionP(i, thres), _size, _pixelSize);
 }

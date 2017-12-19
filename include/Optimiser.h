@@ -787,6 +787,8 @@ class Optimiser : public Parallel
          */
         void saveFSC(const bool finished = false) const;
 
+        void saveClassInfo(const bool finished = false) const;
+
         void saveSig() const;
 
         void saveTau() const;

@@ -1847,9 +1847,10 @@ void Optimiser::run()
         reMaskImg();
 #endif
 
+#ifdef OPTIMISER_SAVE_SIGMA
         MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma";
-
         saveSig();
+#endif
 
         MPI_Barrier(MPI_COMM_WORLD);
         MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
@@ -1859,6 +1860,9 @@ void Optimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
         saveFSC();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Class Information";
+        saveClassInfo();
 
         MLOG(INFO, "LOGGER_ROUND") << "Current Cutoff Frequency: "
                                    << _r - 1
@@ -2042,6 +2046,9 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Class Information";
+    saveClassInfo(true);
 }
 
 void Optimiser::clear()
@@ -4973,29 +4980,31 @@ void Optimiser::saveFSC(const bool finished) const
     }
     
     fclose(file);
+}
 
-    /***
+void Optimiser::saveClassInfo(const bool finished) const
+{
+    NT_MASTER return;
+
+    char filename[FILE_NAME_LENGTH];
+
+    if (finished)
+        sprintf(filename, "%sClass_Info_Final.txt", _para.dstPrefix);
+    else
+        sprintf(filename, "%sClass_Info_%03d.txt", _para.dstPrefix, _iter);
+
+    FILE* file = fopen(filename, "w");
+
     for (int t = 0; t < _para.k; t++)
     {
-        vec fsc = _model.fsc(t);
-
-        if (finished)
-            sprintf(filename, "%sFSC_%03d_Final.txt", _para.dstPrefix, t);
-        else
-            sprintf(filename, "%sFSC_%03d_Round_%03d.txt", _para.dstPrefix, t, _iter);
-
-        FILE* file = fopen(filename, "w");
-
-        for (int i = 1; i < fsc.size(); i++)
-            fprintf(file,
-                    "%05d   %10.6lf   %10.6lf\n",
-                    i,
-                    1.0 / resP2A(i, _para.size, _para.pixelSize),
-                    fsc(i));
-
-        fclose(file);
+        fprintf(file,
+               "%05d   %10.6lf   %10.6lf\n",
+               t,
+               _model.resolutionA(t, _para.thresReportFSC),
+               _cDistr(t));
     }
-    ***/
+
+    fclose(file);
 }
 
 void Optimiser::saveSig() const
