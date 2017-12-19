@@ -148,6 +148,7 @@ class ImageFile
                          const double pixelSize = 1);
 
         void openStack(const char dst[],
+                       const int size,
                        const int nSlc,
                        const double pixelSize);
 

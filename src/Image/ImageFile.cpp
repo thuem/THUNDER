@@ -322,10 +322,15 @@ void ImageFile::writeVolumeMRC(const char dst[],
 }
 
 void ImageFile::openStack(const char dst[],
+                          const int size,
                           const int nSlc,
                           const double pixelSize)
 {
     _file = fopen(dst, "w");
+
+    setSize(size, size, nSlc);
+
+    _metaData.mode = 2;
 
     MRCHeader header;
     fillMRCHeader(header);
@@ -344,7 +349,7 @@ void ImageFile::openStack(const char dst[],
 void ImageFile::writeStack(const Image& src,
                            const int iSlc)
 {
-    size_t size = src.sizeRL();
+    size_t size = _metaData.nCol * _metaData.nRow;
 
     SKIP_HEAD(size * iSlc * BYTE_MODE(mode()));
 

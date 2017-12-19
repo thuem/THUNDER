@@ -4984,7 +4984,7 @@ void Optimiser::saveMapJoin(const bool finished)
             else
                 sprintf(filename, "%sReference_Round_%03d.mrcs", _para.dstPrefix, _iter);
 
-            imf.openStack(filename, _para.k, _para.pixelSize);
+            imf.openStack(filename, _para.size, _para.k, _para.pixelSize);
         }
 
         for (int l = 0; l < _para.k; l++)
