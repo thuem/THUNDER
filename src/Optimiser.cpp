@@ -5000,7 +5000,7 @@ void Optimiser::saveClassInfo(const bool finished) const
         fprintf(file,
                "%05d   %10.6lf   %10.6lf\n",
                t,
-               _model.resolutionA(t, _para.thresReportFSC),
+               1.0 / _model.resolutionA(t, _para.thresReportFSC),
                _cDistr(t));
     }
 
