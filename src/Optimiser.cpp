@@ -123,19 +123,25 @@ void Optimiser::init()
     {
         _searchType = SEARCH_TYPE_GLOBAL;
 
-        MLOG(INFO, "LOGGER_INIT") << "Search Type : Global";
+        MLOG(INFO, "LOGGER_INIT") << "Round "
+                                  << _iter
+                                  <<", Search Type : Global";
     }
     else if (_para.lSearch)
     {
         _searchType = SEARCH_TYPE_LOCAL;
 
-        MLOG(INFO, "LOGGER_INIT") << "Search Type : Local";
+        MLOG(INFO, "LOGGER_INIT") << "Round "
+                                  << _iter
+                                  << ", Search Type : Local";
     }
     else if (_para.cSearch)
     {
         _searchType = SEARCH_TYPE_CTF;
 
-        MLOG(INFO, "LOGGER_INIT") << "Search Type : CTF";
+        MLOG(INFO, "LOGGER_INIT") << "Round "
+                                  << _iter
+                                  << ", Search Type : CTF";
     }
     else
     {
@@ -1878,7 +1884,9 @@ void Optimiser::run()
 
         _resReport = _model.resolutionP(_para.thresReportFSC, false);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Report): "
+        MLOG(INFO, "LOGGER_ROUND") << "Round "
+                                   << _iter
+                                   << ", Current Resolution (Report): "
                                    << _resReport
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_resReport, _para.size, _para.pixelSize)
@@ -1888,7 +1896,9 @@ void Optimiser::run()
 
         _resCutoff = _model.resolutionP(_para.thresCutoffFSC, false);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution (Cutoff): "
+        MLOG(INFO, "LOGGER_ROUND") << "Round "
+                                   << _iter
+                                   << ", Current Resolution (Cutoff): "
                                    << _resCutoff
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_resCutoff, _para.size, _para.pixelSize)
@@ -1899,7 +1909,9 @@ void Optimiser::run()
         _model.updateR(_para.thresCutoffFSC);
 
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
-        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round "
+                                   << _iter
+                                   << ", Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
                                    << ", as the Rotation Change is "
                                    << _model.rChange()
@@ -1908,7 +1920,9 @@ void Optimiser::run()
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round "
+                                   << _iter
+                                   << ", Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
                                    << ", as the Translation Variance is "
                                    << _model.tVariS0()
