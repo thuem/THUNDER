@@ -4971,6 +4971,8 @@ void Optimiser::saveFSC(const bool finished) const
                     (_model.fsc(t))(i));
         fprintf(file, "\n");
     }
+    
+    fclose(file);
 
     /***
     for (int t = 0; t < _para.k; t++)
