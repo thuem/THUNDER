@@ -4189,9 +4189,21 @@ void Optimiser::reconstructRef(const bool fscFlag,
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
             if (_para.mode == MODE_2D)
+            {
+#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
                 saveMapJoin(finished);
-            else if (_para.mode == MODE_3D)
+#else
                 saveMapHalf(finished);
+#endif
+            }
+            else if (_para.mode == MODE_3D)
+            {
+#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
+                saveMapJoin(finished);
+#else
+                saveMapHalf(finished);
+#endif
+            }
             else
             {
                 REPORT_ERROR("INEXISTENT MODE");
@@ -4269,16 +4281,27 @@ void Optimiser::reconstructRef(const bool fscFlag,
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
             if (_para.mode == MODE_2D)
+            {
+#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
                 saveMapJoin(finished);
-            else if (_para.mode == MODE_3D)
+#else
                 saveMapHalf(finished);
+#endif
+            }
+            else if (_para.mode == MODE_3D)
+            {
+#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
+                saveMapJoin(finished);
+#else
+                saveMapHalf(finished);
+#endif
+            }
             else
             {
                 REPORT_ERROR("INEXISTENT MODE");
 
                 abort();
             }
-
         }
 
         MPI_Barrier(MPI_COMM_WORLD);
