@@ -25,13 +25,13 @@
 
 #define N 1000
 
-#define TEST_SAMPLE_ACG
+//#define TEST_SAMPLE_ACG
 
 //#define TEST_INFER_ACG
 
 //#define TEST_PDF_VMS
 
-//#define TEST_SAMPLE_VMS
+#define TEST_SAMPLE_VMS
 
 //#define TEST_INFER_VMS
 
@@ -161,43 +161,14 @@ int main(int argc, const char* argv[])
                pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_4));
 #endif
 
-    mat2 VMS_0 = mat2::Zero(N, 2);
-    mat2 VMS_1 = mat2::Zero(N, 2);
-    mat2 VMS_2 = mat2::Zero(N, 2);
-    mat2 VMS_3 = mat2::Zero(N, 2);
-    mat2 VMS_4 = mat2::Zero(N, 2);
-    mat2 VMS_5 = mat2::Zero(N, 2);
-    mat2 VMS_6 = mat2::Zero(N, 2);
-    mat2 VMS_7 = mat2::Zero(N, 2);
-
-    sampleVMS(VMS_0, vec2(cos(MU), sin(MU)), KAPPA_0, N);
-    sampleVMS(VMS_1, vec2(cos(MU), sin(MU)), KAPPA_1, N);
-    sampleVMS(VMS_2, vec2(cos(MU), sin(MU)), KAPPA_2, N);
-    sampleVMS(VMS_3, vec2(cos(MU), sin(MU)), KAPPA_3, N);
-    sampleVMS(VMS_4, vec2(cos(MU), sin(MU)), KAPPA_4, N);
-    sampleVMS(VMS_5, vec2(cos(MU), sin(MU)), KAPPA_5, N);
-    sampleVMS(VMS_6, vec2(cos(MU), sin(MU)), KAPPA_6, N);
-    sampleVMS(VMS_7, vec2(cos(MU), sin(MU)), KAPPA_7, N);
-
 #ifdef TEST_SAMPLE_VMS
+
+    mat2 VMS = mat2::Zero(N, 2);
+
+    sampleVMS(VMS, vec2(atof(argv[1]), atof(argv[2])), atof(argv[3]), N);
+
     for (int i = 0; i < N; i++)
-        printf("%15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6f   %15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6lf   %15.6lf %15.6lf\n",
-               VMS_0(i, 0),
-               VMS_0(i, 1),
-               VMS_1(i, 0),
-               VMS_1(i, 1),
-               VMS_2(i, 0),
-               VMS_2(i, 1),
-               VMS_3(i, 0),
-               VMS_3(i, 1),
-               VMS_4(i, 0),
-               VMS_4(i, 1),
-               VMS_5(i, 0),
-               VMS_5(i, 1),
-               VMS_6(i, 0),
-               VMS_6(i, 1),
-               VMS_7(i, 0),
-               VMS_7(i, 1));
+        printf("%15.6lf %15.6lf\n", VMS(i, 0), VMS(i, 1));
 #endif
 
 #ifdef TEST_INFER_VMS

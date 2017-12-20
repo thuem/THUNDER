@@ -574,12 +574,6 @@ void Optimiser::expectation()
         ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Translation in Scanning Phase: "
                                    << scanMinStdT;
 
-        /***
-        Particle par;
-        par.init(_para.mode, _para.transS, TRANS_Q, &_sym);
-        par.reset(_para.k, nR, nT);
-        ***/
-
         Particle par = _par[0].copy();
 
         par.reset(_para.k, nR, nT, 1);
@@ -596,25 +590,11 @@ void Optimiser::expectation()
 
         // generate "translations"
 
-        /***
-        vector<Image> trans;
-        trans.resize(nT);
-        ***/
-
-        //Complex* traP = new Complex[nT * _nPxl];
         Complex* traP = (Complex*)fftw_malloc(nT * _nPxl * sizeof(Complex));
 
         #pragma omp parallel for schedule(dynamic) private(t)
         for (unsigned int m = 0; m < (unsigned int)nT; m++)
         {
-            /***
-            trans[m].alloc(size(), size(), FT_SPACE);
-
-            par.t(t, m);
-                    
-            translate(trans[m], _r, t(0), t(1));
-            ***/
-
             par.t(t, m);
 
             translate(traP + m * _nPxl,
@@ -627,8 +607,6 @@ void Optimiser::expectation()
                       _nPxl);
         }
 
-        //vector<std::priority_queue<Sp, vector<Sp>, SpWeightComparator> > leaderBoard(_ID.size());
-        
         mat wC = mat::Zero(_ID.size(), _para.k);
         mat wR = mat::Zero(_ID.size(), nR);
         mat wT = mat::Zero(_ID.size(), nT);
@@ -650,8 +628,6 @@ void Optimiser::expectation()
         // m -> rotation
         // n -> translation
         
-        // double baseLine = GSL_NAN;
-
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
             Complex* poolPriRotP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
@@ -660,51 +636,22 @@ void Optimiser::expectation()
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (unsigned int m = 0; m < (unsigned int)nR; m++)
             {
-                /***
-#ifdef FFTW_PTR_THREAD_SAFETY
-                #pragma omp critical
-#endif
-                #pragma omp critical
-                Complex* priRotP = (Complex*)fftw_malloc(_nPxl * sizeof(Complex));
-                ***/
-
                 Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
 
                 Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
-
-                /***
-#ifdef FFTW_PTR_THREAD_SAFETY
-                #pragma omp critical
-#endif
-                Complex* priAllP = (Complex*)fftw_malloc(_nPxl * sizeof(Complex));
-                ***/
-
-                /***
-                Complex* priRotP = new Complex[_nPxl];
-                Complex* priAllP = new Complex[_nPxl];
-                ***/
-
-                /***
-                Image imgRot(size(), size(), FT_SPACE);
-                Image imgAll(size(), size(), FT_SPACE);
-                ***/
 
                 // perform projection
 
                 if (_para.mode == MODE_2D)
                 {
-                    //par.rot(rot2D, t * nR * nT + m * nT);
                     par.rot(rot2D, m);
 
-                    //_model.proj(t).project(imgRot, rot2D, _iCol, _iRow, _iPxl, _nPxl);
                     _model.proj(t).project(priRotP, rot2D, _iCol, _iRow, _nPxl);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    //par.rot(rot3D, t * nR * nT + m * nT);
                     par.rot(rot3D, m);
 
-                    //_model.proj(t).project(imgRot, rot3D, _iCol, _iRow, _iPxl, _nPxl);
                     _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl);
                 }
                 else
@@ -716,15 +663,6 @@ void Optimiser::expectation()
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
-                    /***
-                    mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
-
-                    Complex* priP = new Complex[_nPxl];
-
-                    for (int i = 0; i < _nPxl; i++)
-                        priP[i] = imgAll.iGetFT(_iPxl[i]);
-                    ***/
-
                     for (int i = 0; i < _nPxl; i++)
                         priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
 
@@ -749,8 +687,6 @@ void Optimiser::expectation()
 
 #endif
 
-                    //delete[] priP;
-
                     FOR_EACH_2D_IMAGE
                     {
                         omp_set_lock(&mtx[l]);
@@ -763,6 +699,13 @@ void Optimiser::expectation()
                             {
                                 double offset = dvp(l) - baseLine[l];
 
+                                double nf = exp(-offset);
+
+                                wC.row(l) *= nf;
+                                wR.row(l) *= nf;
+                                wT.row(l) *= nf;
+
+                                /***
                                 double nf = exp(offset);
 
                                 if (gsl_isinf(nf))
@@ -777,6 +720,7 @@ void Optimiser::expectation()
                                     wR.row(l) /= nf;
                                     wT.row(l) /= nf;
                                 }
+                                ***/
 
                                 baseLine[l] += offset;
                             }
@@ -792,41 +736,6 @@ void Optimiser::expectation()
 
                         omp_unset_lock(&mtx[l]);
                     }
-
-                    /***
-                    FOR_EACH_2D_IMAGE
-                    {
-                        {
-                            double w = exp(dvp(l) - baseLine);
-                        
-                            #pragma omp atomic
-                            wC(l, t) += w;
-
-                            wR(l, m) += w;
-
-                            #pragma omp atomic
-                            wT(l, n) += w;
-                        }
-                    }
-                    ***/
-
-                    /***
-                    FOR_EACH_2D_IMAGE
-                    {
-                        omp_set_lock(&mtx[l]);
-
-                        if ((int)leaderBoard[l].size() < nSampleMax)
-                            leaderBoard[l].push(Sp(dvp(l), t, m, n));
-                        else if (leaderBoard[l].top()._w < dvp(l))
-                        {
-                            leaderBoard[l].pop();
-
-                            leaderBoard[l].push(Sp(dvp(l), t, m, n));
-                        }
-
-                        omp_unset_lock(&mtx[l]);
-                    }
-                    ***/
                 }
 
                 #pragma omp atomic
@@ -844,24 +753,6 @@ void Optimiser::expectation()
                     BLOG(INFO, "LOGGER_ROUND") << nPer * 10
                                                << "\% Initial Phase of Global Search Performed";
                 }
-
-
-                /***
-#ifdef FFTW_PTR_THREAD_SAFETY
-                #pragma omp critical
-#endif
-                fftw_free(priRotP);
-
-#ifdef FFTW_PTR_THREAD_SAFETY
-                #pragma omp critical
-#endif
-                fftw_free(priAllP);
-                ***/
-
-                /***
-                delete[] priRotP;
-                delete[] priAllP;
-                ***/
             }
 
             fftw_free(poolPriRotP);
@@ -871,67 +762,6 @@ void Optimiser::expectation()
         delete[] mtx;
         delete[] baseLine;
         
-        /***
-        mat topW(nSampleMax, _ID.size());
-
-        umat iTopC(nSampleMax, _ID.size());
-        umat iTopR(nSampleMax, _ID.size());
-        umat iTopT(nSampleMax, _ID.size());
-
-        #pragma omp parallel for
-        for (int j = 0; j < (int)_ID.size(); j++)
-        {
-            int leaderBoardSize = leaderBoard[j].size();
-
-            for (int i = 0; i < leaderBoardSize; i++)
-            {
-                topW(i, j) = leaderBoard[j].top()._w;
-
-                iTopC(i, j) = leaderBoard[j].top()._k;
-                iTopR(i, j) = leaderBoard[j].top()._iR;
-                iTopT(i, j) = leaderBoard[j].top()._iT;
-
-                leaderBoard[j].pop();
-            }
-        }
-
-        #pragma omp parallel for
-        FOR_EACH_2D_IMAGE
-        {
-            vec v = topW.col(l);
-
-#ifdef OPTIMISER_EXPECTATION_REMOVE_TAIL
-            double s = 0;
-            for (int i = 0; i < v.size(); i++)
-                s += exp(v(i));
-
-            double c = 0;
-            for (int i = v.size() - 1; i >= 0; i--)
-            {
-                if (c < s * 0.9999)
-                {
-                    c += exp(v(i));
-                }
-                else
-                    v(i) = -GSL_DBL_MAX;
-            }
-#endif
-
-#ifdef OPTIMISER_EXPECTATION_REMOVE_AUXILIARY_CLASS
-            unsigned int cls = iTopC(v.size() - 1, l);
-            
-            for (int i = 0; i < v.size(); i++)
-                if (iTopC(i, l) != cls)
-                    v(i) = -GSL_DBL_MAX;
-#endif
-
-            //PROCESS_LOGW_SOFT(v);
-            PROCESS_LOGW_HARD(v);
-
-            topW.col(l) = v;
-        }
-        ***/
-
         // reset weights of particle filter
 
         #pragma omp parallel for
@@ -970,31 +800,6 @@ void Optimiser::expectation()
             for (int iT = 0; iT < nT; iT++)
                 _par[l].setUT(wT(l, iT), iT);
 
-            //_par[l].normW();
-
-            /***
-            _par[l].reset(_para.k, nSampleMax);
-
-            int c;
-            vec4 quat;
-            vec2 t;
-
-            for (int m = 0; m < nSampleMax; m++)
-            {
-                par.c(c, iTopC(m, l) * nR * nT);
-                par.quaternion(quat, iTopR(m, l) * nT);
-                par.t(t, iTopT(m, l));
-
-                _par[l].setC(c, m);
-                _par[l].setQuaternion(quat, m);
-                _par[l].setT(t, m);
-
-                _par[l].mulW(topW(m, l), m);
-            }
-
-            _par[l].normW();
-            ***/
-
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
             {
@@ -1029,7 +834,6 @@ void Optimiser::expectation()
             }
 #endif
 
-            //_par[l].resample(1, PAR_C);
             _par[l].resample(_para.k, PAR_C);
 
             _par[l].resample(_para.mLR, PAR_R);
@@ -1038,14 +842,22 @@ void Optimiser::expectation()
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
-            _par[l].setK1(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
-                                                      ? _para.perturbFactorSGlobal
-                                                      : _para.perturbFactorSLocal))
-                                               * MIN_STD_FACTOR * scanMinStdR),
-                                      _par[l].k1()));
 
-            if (_para.mode == MODE_3D)
+            if (_para.mode == MODE_2D)
             {
+                _par[l].setK1(GSL_MAX_DBL((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                ? _para.perturbFactorSGlobal
+                                                : _para.perturbFactorSLocal))
+                                        * MIN_STD_FACTOR * scanMinStdR,
+                                          _par[l].k1()));
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _par[l].setK1(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                  * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k1()));
                 _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
@@ -1057,6 +869,12 @@ void Optimiser::expectation()
                                                           : _para.perturbFactorSLocal))
                                                    * MIN_STD_FACTOR * scanMinStdR),
                                           _par[l].k3()));
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
             }
 
             _par[l].setS0(GSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
@@ -1116,7 +934,6 @@ void Optimiser::expectation()
 #endif
 
         fftw_free(traP);
-        //delete[] traP;
 
         if (_searchType != SEARCH_TYPE_CTF)
             freePreCal(false);
@@ -1229,15 +1046,11 @@ void Optimiser::expectation()
             double d;
             vec2 t;
 
-            //FOR_EACH_PAR(_par[l])
             FOR_EACH_C(_par[l])
             {
                 _par[l].c(c, iC);
-                //_par[l].c(c, 0);
 
                 Complex* traP = poolTraP + _par[l].nT() * _nPxl * omp_get_thread_num();
-
-                // Complex* traP = new Complex[_par[l].nT() * _nPxl];
 
                 FOR_EACH_T(_par[l])
                 {
@@ -1257,12 +1070,6 @@ void Optimiser::expectation()
 
                 if (_searchType == SEARCH_TYPE_CTF)
                 {
-                    /***
-                    ctfP = (double*)fftw_malloc(_par[l].nD() * _nPxl * sizeof(double));
-
-                    ctfP = new double[_par[l].nD() * _nPxl];
-                    ***/
-
                     ctfP = poolCtfP + _par[l].nD() * _nPxl * omp_get_thread_num();
 
                     FOR_EACH_D(_par[l])
@@ -1284,8 +1091,6 @@ void Optimiser::expectation()
                             ***/
 
                             ctfP[_nPxl * iD + i] = -w1 * sin(ki) + w2 * cos(ki);
-
-                            // double ctf = -w1 * sin(ki) + w2 * cos(ki);
                         }
                     }
                 }
@@ -1314,16 +1119,6 @@ void Optimiser::expectation()
                                                _iCol,
                                                _iRow,
                                                _nPxl);
-                        /***
-                        _model.proj(c).project(priP,
-                                               rot2D,
-                                               t,
-                                               _para.size,
-                                               _para.size,
-                                               _iCol,
-                                               _iRow,
-                                               _nPxl);
-                        ***/
                     }
                     else if (_para.mode == MODE_3D)
                     {
@@ -1332,36 +1127,18 @@ void Optimiser::expectation()
                                                _iCol,
                                                _iRow,
                                                _nPxl);
-                        /***
-                        _model.proj(c).project(priP,
-                                               rot3D,
-                                               t,
-                                               _para.size,
-                                               _para.size,
-                                               _iCol,
-                                               _iRow,
-                                               _nPxl);
-                        ***/
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
                     }
 
                     FOR_EACH_T(_par[l])
                     {
                         for (int i = 0; i < _nPxl; i++)
                             priAllP[i] = traP[_nPxl * iT + i] * priRotP[i];
-
-                        /***
-                        _par[l].t(t, iT);
-
-                        translate(priAllP,
-                                  priRotP, 
-                                  t(0),
-                                  t(1),
-                                  _para.size,
-                                  _para.size,
-                                  _iCol,
-                                  _iRow,
-                                  _nPxl);
-                        ***/
 
                         FOR_EACH_D(_par[l])
                         {
@@ -1376,26 +1153,12 @@ void Optimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             else
-                            {
                                 w = logDataVSPrior(_datP + l * _nPxl,
                                                    priAllP,
                                                    ctfP + iD * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
-                                /***
-                                w = logDataVSPrior(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   _frequency,
-                                                   _defocusP + l * _nPxl,
-                                                   d,
-                                                   _K1[l],
-                                                   _K2[l],
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                                ***/
-                            }
 
-                            //if (gsl_isnan(baseLine)) baseLine = w;
                             baseLine = gsl_isnan(baseLine) ? w : baseLine;
 
                             w = exp(w - baseLine);
@@ -1407,22 +1170,7 @@ void Optimiser::expectation()
                         }
                     }
                 }
-
-                // delete[] traP;
-
-                /***
-                if (_searchType == SEARCH_TYPE_CTF)
-                    delete[] ctfP;
-                ***/
             }
-
-            //PROCESS_LOGW_SOFT(logW);
-            //PROCESS_LOGW_HARD(logW);
-
-            /***
-            for (int m = 0; m < _par[l].n(); m++)
-                _par[l].mulW(logW(m), m);
-            ***/
 
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
@@ -1434,8 +1182,6 @@ void Optimiser::expectation()
             if (_searchType == SEARCH_TYPE_CTF)
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
-
-            // _par[l].normW();
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
@@ -1519,8 +1265,6 @@ void Optimiser::expectation()
                 double tVariS0Cur;
                 double tVariS1Cur;
                 double dVariCur;
-
-                // _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
 
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
 
@@ -1607,11 +1351,6 @@ void Optimiser::expectation()
             save(filename, _par[l], PAR_D);
         }
 #endif
-
-        /***
-        delete[] priRotP;
-        delete[] priAllP;
-        ***/
     }
 
     fftw_free(poolPriRotP);
