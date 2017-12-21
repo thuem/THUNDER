@@ -3937,7 +3937,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else if (_para.mode == MODE_3D)
             {
-#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
+#ifdef OPTIMISER_3D_SAVE_JOIN_MAP
                 saveMapJoin(finished);
 #else
                 saveMapHalf(finished);
@@ -4029,7 +4029,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else if (_para.mode == MODE_3D)
             {
-#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
+#ifdef OPTIMISER_3D_SAVE_JOIN_MAP
                 saveMapJoin(finished);
 #else
                 saveMapHalf(finished);
