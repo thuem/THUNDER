@@ -1268,18 +1268,40 @@ void Optimiser::expectation()
 
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
 
-                if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                    (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                    (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                    (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                    (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                    (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+                if (_para.mode == MODE_2D)
                 {
-                    // there is still room for searching
-                    nPhaseWithNoVariDecrease = 0;
+                    if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+                    {
+                        // there is still room for searching
+                        nPhaseWithNoVariDecrease = 0;
+                    }
+                    else
+                        nPhaseWithNoVariDecrease += 1;
+                }
+                if (_para.mode == MODE_3D)
+                {
+                    if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                        (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                        (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                        (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+                    {
+                        // there is still room for searching
+                        nPhaseWithNoVariDecrease = 0;
+                    }
+                    else
+                        nPhaseWithNoVariDecrease += 1;
                 }
                 else
-                    nPhaseWithNoVariDecrease += 1;
+                {
+                    REPORT_ERROR("EXISTENT MODE");
+
+                    abort();
+                }
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
                 topCmp = _par[l].compress();
@@ -3893,6 +3915,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
             {
                 _model.reco(t).setMAP(false);
 
+                if (_para.mode == MODE_2D)
+                    _model.reco(t).setGridCorr(false);
+
                 ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
                                            << t
                                            << " for Determining FSC";
@@ -3984,6 +4009,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(true);
+
+                if (_para.mode == MODE_2D)
+                    _model.reco(t).setGridCorr(false);
 
                 ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
                                            << t
