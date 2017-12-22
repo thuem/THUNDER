@@ -1281,7 +1281,7 @@ void Optimiser::expectation()
                     else
                         nPhaseWithNoVariDecrease += 1;
                 }
-                if (_para.mode == MODE_3D)
+                else if (_para.mode == MODE_3D)
                 {
                     if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                         (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
@@ -3916,7 +3916,27 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 _model.reco(t).setMAP(false);
 
                 if (_para.mode == MODE_2D)
+                {
+#ifdef OPTIMISER_2D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
                     _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else if (_para.mode == MODE_3D)
+                {
+#ifdef OPTIMISER_3D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
+                    _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
 
                 ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
                                            << t
@@ -4011,7 +4031,27 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 _model.reco(t).setMAP(true);
 
                 if (_para.mode == MODE_2D)
+                {
+#ifdef OPTIMISER_2D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
                     _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else if (_para.mode == MODE_3D)
+                {
+#ifdef OPTIMISER_3D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
+                    _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
 
                 ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
                                            << t
