@@ -28,7 +28,7 @@ namespace
 
             static void deallocate(void* p)
             {
-                if (p) gsl_rng_free(static_cast<gsl_rng*>(p));
+                if (p) TSGSL_rng_free(static_cast<gsl_rng*>(p));
             }
 
         public:
@@ -54,7 +54,7 @@ namespace
 
                 if (engine) return engine;
 
-                engine = gsl_rng_alloc(gsl_rng_mt19937);
+                engine = TSGSL_rng_alloc(gsl_rng_mt19937);
 
                 if (!engine) CLOG(FATAL, "LOGGER_SYS") << "Failure to allocate Random Engine";
 
@@ -62,7 +62,7 @@ namespace
 
                 (void)(seed_from_urandom(&seed) || seed_from_time(&seed));
 
-                gsl_rng_set(engine, seed);
+                TSGSL_rng_set(engine, seed);
 
                 int rc = pthread_setspecific(key, engine);
                 if (rc) CLOG(FATAL, "LOGGER_SYS") << __FUNCTION__

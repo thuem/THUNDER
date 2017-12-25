@@ -63,7 +63,7 @@ void Reconstructor::init(const int mode,
 #endif
                                _alpha),
                    0,
-                   gsl_pow_2(_pf * _a),
+                   TSGSL_pow_2(_pf * _a),
                    1e5);
 
     _kernelRL.init(boost::bind(MKB_RL_R2,
@@ -306,7 +306,7 @@ void Reconstructor::insert(const Image& src,
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
             vec2 newCor((double)(i * _pf), (double)(j * _pf));
             vec2 oldCor = rot * newCor;
@@ -332,7 +332,7 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+            _T2D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                      * w, 
                        oldCor(0), 
                        oldCor(1), 
@@ -341,7 +341,7 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-             _T2D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+             _T2D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                       * w, 
                         oldCor(0), 
                         oldCor(1));
@@ -375,7 +375,7 @@ void Reconstructor::insert(const Image& src,
 
         IMAGE_FOR_EACH_PIXEL_FT(src)
         {
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+            if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
             {
                 vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                 vec3 oldCor = rot * newCor;
@@ -403,7 +403,7 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-                _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                _T3D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                          * w, 
                            oldCor(0), 
                            oldCor(1), 
@@ -413,7 +413,7 @@ void Reconstructor::insert(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                _T3D.addFT(gsl_pow_2(REAL(ctf.getFTHalf(i, j)))
+                _T3D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                          * w, 
                            oldCor(0), 
                            oldCor(1), 
@@ -469,7 +469,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+            _T2D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
@@ -479,7 +479,7 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _T2D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+            _T2D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
@@ -536,7 +536,7 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+            _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
@@ -547,7 +547,7 @@ void Reconstructor::insertP(const Image& src,
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _T3D.addFT(gsl_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+            _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
                        oldCor(0), 
@@ -689,8 +689,8 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             #pragma omp parallel for schedule(dynamic)
             IMAGE_FOR_EACH_PIXEL_FT(_T2D)
-                if ((QUAD(i, j) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-                    (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf)))
+                if ((QUAD(i, j) >= TSGSL_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                    (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf)))
                 {
                     int u = AROUND(NORM(i, j));
 
@@ -720,8 +720,8 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(_T3D)
-                if ((QUAD_3(i, j, k) >= gsl_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
-                    (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf)))
+                if ((QUAD_3(i, j, k) >= TSGSL_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
+                    (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf)))
                 {
                     int u = AROUND(NORM_3(i, j, k));
 
@@ -768,7 +768,7 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_FT(_W2D)
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                 _W2D.setFTHalf(COMPLEX(1, 0), i, j);
             else
                 _W2D.setFTHalf(COMPLEX(0, 0), i, j);
@@ -777,7 +777,7 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_FT(_W3D)
-            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                 _W3D.setFTHalf(COMPLEX(1, 0), i, j, k);
             else
                 _W3D.setFTHalf(COMPLEX(0, 0), i, j, k);
@@ -847,7 +847,7 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             #pragma omp parallel for schedule(dynamic)
             IMAGE_FOR_EACH_PIXEL_FT(_W2D)
-                if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                     _W2D.setFTHalf(_W2D.getFTHalf(i, j)
                                  / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
                                                1e-6),
@@ -858,7 +858,7 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(_W3D)
-                if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                     _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
                                  / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
                                                1e-6),
@@ -937,7 +937,7 @@ void Reconstructor::reconstruct(Volume& dst)
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(_F2D)
         {
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
             {
                 padDst.setFTHalf(_F2D.getFTHalf(i, j)
                                * _W2D.getFTHalf(i, j),
@@ -990,7 +990,7 @@ void Reconstructor::reconstruct(Volume& dst)
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
         {
-            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
             {
                 padDst.setFTHalf(_F3D.getFTHalf(i, j, k)
                                * _W3D.getFTHalf(i, j ,k),
@@ -1214,7 +1214,7 @@ double Reconstructor::checkC() const
     {
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(_C2D)
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
             {
                 #pragma omp atomic
                 diff += fabs(ABS(_C2D.getFT(i, j)) - 1);
@@ -1226,7 +1226,7 @@ double Reconstructor::checkC() const
     {
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
-            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
             {
                 #pragma omp atomic
                 diff += fabs(ABS(_C3D.getFT(i, j, k)) - 1);
@@ -1251,7 +1251,7 @@ double Reconstructor::checkC() const
         
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(_C2D)
-            if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                 diff[_C2D.iFTHalf(i, j)] = fabs(ABS(_C2D.getFTHalf(i, j)) - 1);
 
         return *std::max_element(diff.begin(), diff.end());
@@ -1262,7 +1262,7 @@ double Reconstructor::checkC() const
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
-            if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+            if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                 diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFTHalf(i, j, k)) - 1);
 
         return *std::max_element(diff.begin(), diff.end());
@@ -1291,7 +1291,7 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
             _C2D.setRL(_C2D.getRL(i, j)
-                     * _kernelRL(QUAD(i, j) / gsl_pow_2(_N * _pf))
+                     * _kernelRL(QUAD(i, j) / TSGSL_pow_2(_N * _pf))
                      / nf,
                        i,
                        j);
@@ -1307,7 +1307,7 @@ void Reconstructor::convoluteC()
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
             _C3D.setRL(_C3D.getRL(i, j, k)
-                     * _kernelRL(QUAD_3(i, j, k) / gsl_pow_2(_N * _pf))
+                     * _kernelRL(QUAD_3(i, j, k) / TSGSL_pow_2(_N * _pf))
                      / nf,
                        i,
                        j,

@@ -17,7 +17,7 @@ void mul(Image& dst,
 {
     IMAGE_FOR_PIXEL_R_FT(r)
     {
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             int index = dst.iFTHalf(i, j);
 
@@ -78,7 +78,7 @@ void translate(Image& dst,
     double rRow = nTransRow / dst.nRowRL();
 
     IMAGE_FOR_PIXEL_R_FT(r)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
@@ -95,7 +95,7 @@ void translateMT(Image& dst,
 
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(dst)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
@@ -219,7 +219,7 @@ void translate(Image& dst,
     double rRow = nTransRow / src.nRowRL();
 
     IMAGE_FOR_PIXEL_R_FT(r)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
@@ -237,7 +237,7 @@ void translateMT(Image& dst,
 
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(src)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             double phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
@@ -334,7 +334,7 @@ void crossCorrelation(Image& dst,
                       const double r)
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
             dst.setFT(CONJUGATE(a.getFT(i, j)) * b.getFT(i, j), i, j);
 }
 
@@ -379,15 +379,15 @@ void translate(int& nTransCol,
 double stddev(const double mean,
               const Image& src)
 {
-    return gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
+    return TSGSL_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
 void meanStddev(double& mean,
                 double& stddev,
                 const Image& src)
 {
-    mean = gsl_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
-    stddev = gsl_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
+    mean = TSGSL_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
+    stddev = TSGSL_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
 double centreStddev(const double mean,
@@ -397,10 +397,10 @@ double centreStddev(const double mean,
     vector<double> centre;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
             centre.push_back(src.getRL(i, j));
 
-    return gsl_stats_sd_m(&centre[0], 1, centre.size(), mean);
+    return TSGSL_stats_sd_m(&centre[0], 1, centre.size(), mean);
 }
 
 void centreMeanStddev(double& mean,
@@ -411,11 +411,11 @@ void centreMeanStddev(double& mean,
     vector<double> centre;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
             centre.push_back(src.getRL(i, j));
 
-    mean = gsl_stats_mean(&centre[0], 1, centre.size());
-    stddev = gsl_stats_sd_m(&centre[0], 1, centre.size(), mean);
+    mean = TSGSL_stats_mean(&centre[0], 1, centre.size());
+    stddev = TSGSL_stats_sd_m(&centre[0], 1, centre.size(), mean);
 }
 
 double bgStddev(const double mean,
@@ -425,10 +425,10 @@ double bgStddev(const double mean,
     vector<double> bg;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
-        if (QUAD(i, j) > gsl_pow_2(r))
+        if (QUAD(i, j) > TSGSL_pow_2(r))
             bg.push_back(src.getRL(i, j));
 
-    return gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+    return TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
 double bgStddev(const double mean,
@@ -448,11 +448,11 @@ void bgMeanStddev(double& mean,
     vector<double> bg;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
-        if (QUAD(i, j) > gsl_pow_2(r))
+        if (QUAD(i, j) > TSGSL_pow_2(r))
             bg.push_back(src.getRL(i, j));
 
-    mean = gsl_stats_mean(&bg[0], 1, bg.size());
-    stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+    mean = TSGSL_stats_mean(&bg[0], 1, bg.size());
+    stddev = TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
 void bgMeanStddev(double& mean,
@@ -463,11 +463,11 @@ void bgMeanStddev(double& mean,
     vector<double> bg;
 
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (QUAD_3(i, j, k) > gsl_pow_2(r))
+        if (QUAD_3(i, j, k) > TSGSL_pow_2(r))
             bg.push_back(src.getRL(i, j, k));
 
-    mean = gsl_stats_mean(&bg[0], 1, bg.size());
-    stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+    mean = TSGSL_stats_mean(&bg[0], 1, bg.size());
+    stddev = TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
 void bgMeanStddev(double& mean,
@@ -479,12 +479,12 @@ void bgMeanStddev(double& mean,
     vector<double> bg;
 
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if ((QUAD_3(i, j, k) >= gsl_pow_2(rL)) &&
-            (QUAD_3(i, j, k) < gsl_pow_2(rU)))
+        if ((QUAD_3(i, j, k) >= TSGSL_pow_2(rL)) &&
+            (QUAD_3(i, j, k) < TSGSL_pow_2(rU)))
             bg.push_back(src.getRL(i, j, k));
 
-    mean = gsl_stats_mean(&bg[0], 1, bg.size());
-    stddev = gsl_stats_sd_m(&bg[0], 1, bg.size(), mean);
+    mean = TSGSL_stats_mean(&bg[0], 1, bg.size());
+    stddev = TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
 void removeDust(Image& img,
@@ -498,7 +498,7 @@ void removeDust(Image& img,
     IMAGE_FOR_EACH_PIXEL_RL(img)
         if ((img.getRL(i, j) > mean + wDust * stddev) ||
             (img.getRL(i, j) < mean - bDust * stddev))
-            img.setRL(mean + gsl_ran_gaussian(engine, stddev), i, j);
+            img.setRL(mean + TSGSL_ran_gaussian(engine, stddev), i, j);
 }
 
 void normalise(Image& img,
@@ -548,7 +548,7 @@ void binning(Image& dst,
                 sum += src.getRL(bf * i + x,
                                  bf * j + y);
 
-        dst.setRL(sum / gsl_pow_2(bf),
+        dst.setRL(sum / TSGSL_pow_2(bf),
                   i,
                   j);
     }

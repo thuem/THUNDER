@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_RL(ref)
-        if (QUAD_3(i, j, k) >= gsl_pow_2(ref.nColRL() / 2))
+        if (QUAD_3(i, j, k) >= TSGSL_pow_2(ref.nColRL() / 2))
             ref.setRL(0, i, j, k);
 
     CLOG(INFO, "LOGGER_SYS") << "Generating Mask";

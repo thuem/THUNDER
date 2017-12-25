@@ -367,7 +367,7 @@ void softMask(Image& dst,
             dst.setRL(src.getRL(i, j), i, j);
         else
         {
-            double bg = bgMean + gsl_ran_gaussian(engine, bgStd);
+            double bg = bgMean + TSGSL_ran_gaussian(engine, bgStd);
 
             if (u > r + ew)
                 dst.setRL(bg, i, j);
@@ -420,7 +420,7 @@ void softMask(Image& dst,
     {
         double w = 1 - alpha.getRL(i, j); // portion of background
 
-        double bg = bgMean + gsl_ran_gaussian(engine, bgStd);
+        double bg = bgMean + TSGSL_ran_gaussian(engine, bgStd);
 
         dst.setRL(bg * w + src.getRL(i, j) * (1 - w), i, j);
     }
@@ -573,7 +573,7 @@ void extMask(Volume& vol,
         VOLUME_FOR_EACH_PIXEL_RL(vol)
             if (vol.getRL(i, j, k) == 1)
                 VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
+                    if (QUAD_3(x, y, z) < TSGSL_pow_2(ext))
                         volTmp.setRL(1, i + x, j + y, k + z);
     }
     else if (ext < 0)
@@ -582,7 +582,7 @@ void extMask(Volume& vol,
         VOLUME_FOR_EACH_PIXEL_RL(vol)
             if (vol.getRL(i, j, k) == 0)
                 VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
-                    if (QUAD_3(x, y, z) < gsl_pow_2(ext))
+                    if (QUAD_3(x, y, z) < TSGSL_pow_2(ext))
                         volTmp.setRL(0, i + x, j + y, k + z);
     }
 
@@ -682,7 +682,7 @@ void autoMask(Volume& dst,
 {
     vector<double> data;
     VOLUME_FOR_EACH_PIXEL_RL(src)
-        if (QUAD_3(i, j, k) < gsl_pow_2(r))
+        if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
             data.push_back(GSL_MAX_DBL(0, src.getRL(i, j, k)));
 
     size_t n = data.size();

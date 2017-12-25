@@ -16,9 +16,9 @@ double CTF(const double f,
     double lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
     double K1 = M_PI * lambda;
-    double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);
+    double K2 = M_PI / 2 * Cs * TSGSL_pow_3(lambda);
 
-    double ki = -K1 * defocus * gsl_pow_2(f) + K2 * gsl_pow_4(f);
+    double ki = -K1 * defocus * TSGSL_pow_2(f) + K2 * gsl_pow_4(f);
 
     return -w1 * sin(ki) + w2 * cos(ki);
 }
@@ -36,7 +36,7 @@ void CTF(Image& dst,
     //std::cout << "lambda = " << lambda << std::endl;
 
     double K1 = M_PI * lambda;
-    double K2 = M_PI / 2 * Cs * gsl_pow_3(lambda);
+    double K2 = M_PI / 2 * Cs * TSGSL_pow_3(lambda);
 
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
@@ -47,7 +47,7 @@ void CTF(Image& dst,
         double defocus = -(defocusU + defocusV
                          + (defocusU - defocusV) * cos(2 * angle)) / 2;
 
-        double ki = K1 * defocus * gsl_pow_2(u) + K2 * gsl_pow_4(u);
+        double ki = K1 * defocus * TSGSL_pow_2(u) + K2 * gsl_pow_4(u);
 
         dst.setFT(COMPLEX(-w1 * sin(ki) + w2 * cos(ki), 0),
                   i,

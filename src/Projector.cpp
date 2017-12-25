@@ -151,7 +151,7 @@ void Projector::project(Image& dst,
                         const mat22& mat) const
 {
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
             vec2 newCor((double)(i * _pf), (double)(j * _pf));
             vec2 oldCor = mat * newCor;
@@ -168,7 +168,7 @@ void Projector::project(Image& dst,
                         const mat33& mat) const
 {
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
             vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
             vec3 oldCor = mat * newCor;
@@ -259,7 +259,7 @@ void Projector::projectMT(Image& dst,
 {
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
             vec2 newCor((double)(i * _pf), (double)(j * _pf));
             vec2 oldCor = mat * newCor;
@@ -277,7 +277,7 @@ void Projector::projectMT(Image& dst,
 {
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
-        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
+        if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
             vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
             vec3 oldCor = mat * newCor;

@@ -109,14 +109,14 @@ double MKB_FT(const double r,
     if (u > 1) return 0;
 
 #ifdef FUNCTIONS_MKB_ORDER_2
-    return (1 - gsl_pow_2(u))
-         * gsl_sf_bessel_In(2, alpha * sqrt(1 - gsl_pow_2(u)))
-         / gsl_sf_bessel_In(2, alpha);
+    return (1 - TSGSL_pow_2(u))
+         * TSGSL_sf_bessel_In(2, alpha * sqrt(1 - gsl_pow_2(u)))
+         / TSGSL_sf_bessel_In(2, alpha);
 #endif
 
 #ifdef FUNCTIONS_MKB_ORDER_0
-    return gsl_sf_bessel_I0(alpha * sqrt(1 - gsl_pow_2(u)))
-         / gsl_sf_bessel_I0(alpha);
+    return TSGSL_sf_bessel_I0(alpha * sqrt(1 - gsl_pow_2(u)))
+         / TSGSL_sf_bessel_I0(alpha);
 #endif
 }
 
@@ -124,19 +124,19 @@ double MKB_FT_R2(const double r2,
                  const double a,
                  const double alpha)
 {
-    double u2 = r2 / gsl_pow_2(a);
+    double u2 = r2 / TSGSL_pow_2(a);
 
     if (u2 > 1) return 0;
 
 #ifdef FUNCTIONS_MKB_ORDER_2
     return (1 - u2)
-         * gsl_sf_bessel_In(2, alpha * sqrt(1 - u2))
-         / gsl_sf_bessel_In(2, alpha);
+         * TSGSL_sf_bessel_In(2, alpha * sqrt(1 - u2))
+         / TSGSL_sf_bessel_In(2, alpha);
 #endif
 
 #ifdef FUNCTIONS_MKB_ORDER_0
-    return gsl_sf_bessel_I0(alpha * sqrt(1 - u2))
-         / gsl_sf_bessel_I0(alpha);
+    return TSGSL_sf_bessel_I0(alpha * sqrt(1 - u2))
+         / TSGSL_sf_bessel_I0(alpha);
 #endif
 }
 
@@ -146,32 +146,32 @@ double MKB_RL(const double r,
 {
     double u = 2 * M_PI * a * r;
 
-    double v = (u <= alpha) ? sqrt(gsl_pow_2(alpha) - gsl_pow_2(u))
-                            : sqrt(gsl_pow_2(u) - gsl_pow_2(alpha));
+    double v = (u <= alpha) ? sqrt(TSGSL_pow_2(alpha) - gsl_pow_2(u))
+                            : sqrt(TSGSL_pow_2(u) - gsl_pow_2(alpha));
 
 #ifdef FUNCTIONS_MKB_ORDER_2
     double w = pow(2 * M_PI, 1.5)
-             * gsl_pow_3(a)
-             * gsl_pow_2(alpha)
-             / gsl_sf_bessel_In(2, alpha)
+             * TSGSL_pow_3(a)
+             * TSGSL_pow_2(alpha)
+             / TSGSL_sf_bessel_In(2, alpha)
              / pow(v, 3.5);
 
     if (u <= alpha)
-        return w * gsl_sf_bessel_Inu(3.5, v);
+        return w * TSGSL_sf_bessel_Inu(3.5, v);
     else
-        return w * gsl_sf_bessel_Jnu(3.5, v);
+        return w * TSGSL_sf_bessel_Jnu(3.5, v);
 #endif
 
 #ifdef FUNCTIONS_MKB_ORDER_0
     double w = pow(2 * M_PI, 1.5)
-             * gsl_pow_3(a)
-             / gsl_sf_bessel_I0(alpha)
+             * TSGSL_pow_3(a)
+             / TSGSL_sf_bessel_I0(alpha)
              / pow(v, 1.5);
 
     if (u <= alpha)
-        return w * gsl_sf_bessel_Inu(1.5, v);
+        return w * TSGSL_sf_bessel_Inu(1.5, v);
     else
-        return w * gsl_sf_bessel_Jnu(1.5, v);
+        return w * TSGSL_sf_bessel_Jnu(1.5, v);
 #endif
 }
 
@@ -179,35 +179,35 @@ double MKB_RL_R2(const double r2,
                  const double a,
                  const double alpha)
 {
-    double u2 = gsl_pow_2(2 * M_PI * a) * r2;
+    double u2 = TSGSL_pow_2(2 * M_PI * a) * r2;
 
-    double v = (u2 <= gsl_pow_2(alpha))
-             ? sqrt(gsl_pow_2(alpha) - u2)
-             : sqrt(u2 - gsl_pow_2(alpha));
+    double v = (u2 <= TSGSL_pow_2(alpha))
+             ? sqrt(TSGSL_pow_2(alpha) - u2)
+             : sqrt(u2 - TSGSL_pow_2(alpha));
 
 #ifdef FUNCTIONS_MKB_ORDER_2
     double w = pow(2 * M_PI, 1.5)
-             * gsl_pow_3(a)
-             * gsl_pow_2(alpha)
-             / gsl_sf_bessel_In(2, alpha)
+             * TSGSL_pow_3(a)
+             * TSGSL_pow_2(alpha)
+             / TSGSL_sf_bessel_In(2, alpha)
              / pow(v, 3.5);
 
-    if (u2 <= gsl_pow_2(alpha))
-        return w * gsl_sf_bessel_Inu(3.5, v);
+    if (u2 <= TSGSL_pow_2(alpha))
+        return w * TSGSL_sf_bessel_Inu(3.5, v);
     else
-        return w * gsl_sf_bessel_Jnu(3.5, v);
+        return w * TSGSL_sf_bessel_Jnu(3.5, v);
 #endif
 
 #ifdef FUNCTIONS_MKB_ORDER_0
     double w = pow(2 * M_PI, 1.5)
-             * gsl_pow_3(a)
-             / gsl_sf_bessel_I0(alpha)
+             * TSGSL_pow_3(a)
+             / TSGSL_sf_bessel_I0(alpha)
              / pow(v, 1.5);
 
-    if (u2 <= gsl_pow_2(alpha))
-        return w * gsl_sf_bessel_Inu(1.5, v);
+    if (u2 <= TSGSL_pow_2(alpha))
+        return w * TSGSL_sf_bessel_Inu(1.5, v);
     else
-        return w * gsl_sf_bessel_Jnu(1.5, v);
+        return w * TSGSL_sf_bessel_Jnu(1.5, v);
 #endif
 }
 
@@ -216,35 +216,35 @@ double MKB_BLOB_VOL(const double a,
 {
 #ifdef FUNCTIONS_MKB_ORDER_2
     return pow(2 * M_PI / alpha, 1.5)
-         * gsl_sf_bessel_Inu(3.5, alpha)
-         / gsl_sf_bessel_In(2, alpha)
-         * gsl_pow_3(a);
+         * TSGSL_sf_bessel_Inu(3.5, alpha)
+         / TSGSL_sf_bessel_In(2, alpha)
+         * TSGSL_pow_3(a);
 #endif
 
 #ifdef FUNCTIONS_MKB_ORDER_0
     return pow(2 * M_PI / alpha, 1.5)
-         * gsl_sf_bessel_Inu(1.5, alpha)
-         / gsl_sf_bessel_I0(alpha)
-         * gsl_pow_3(a);
+         * TSGSL_sf_bessel_Inu(1.5, alpha)
+         / TSGSL_sf_bessel_I0(alpha)
+         * TSGSL_pow_3(a);
 #endif
 }
 
 double TIK_RL(const double r)
 {
-    return gsl_pow_2(gsl_sf_bessel_j0(M_PI * r));
+    return TSGSL_pow_2(gsl_sf_bessel_j0(M_PI * r));
 }
 
 double NIK_RL(const double r)
 {
-    return gsl_sf_bessel_j0(M_PI * r);
+    return TSGSL_sf_bessel_j0(M_PI * r);
 }
 
 double median(vec src,
               const int n)
 {
-    gsl_sort(src.data(), 1, n);
+    TSGSL_sort(src.data(), 1, n);
 
-    return gsl_stats_quantile_from_sorted_data(src.data(), 1, n, 0.5);
+    return TSGSL_stats_quantile_from_sorted_data(src.data(), 1, n, 0.5);
 }
 
 void stat_MAS(double& mean,
@@ -252,18 +252,18 @@ void stat_MAS(double& mean,
               vec src,
               const int n)
 {
-    gsl_sort(src.data(), 1, n);
+    TSGSL_sort(src.data(), 1, n);
 
-    mean = gsl_stats_quantile_from_sorted_data(src.data(),
+    mean = TSGSL_stats_quantile_from_sorted_data(src.data(),
                                                1,
                                                n,
                                                0.5);
 
     src = abs(src.array() - mean);
 
-    gsl_sort(src.data(), 1, n);
+    TSGSL_sort(src.data(), 1, n);
 
-    std = gsl_stats_quantile_from_sorted_data(src.data(),
+    std = TSGSL_stats_quantile_from_sorted_data(src.data(),
                                               1,
                                               n,
                                               0.5)

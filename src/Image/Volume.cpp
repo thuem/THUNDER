@@ -402,7 +402,7 @@ void Volume::addFT(const Complex value,
                    const double a,
                    const TabFunction& kernel)
 {
-    double a2 = gsl_pow_2(a);
+    double a2 = TSGSL_pow_2(a);
 
     VOLUME_SUB_SPHERE_FT(a)
     {
@@ -418,7 +418,7 @@ void Volume::addFT(const double value,
                    const double a,
                    const TabFunction& kernel)
 {
-    double a2 = gsl_pow_2(a);
+    double a2 = TSGSL_pow_2(a);
 
     VOLUME_SUB_SPHERE_FT(a)
     {

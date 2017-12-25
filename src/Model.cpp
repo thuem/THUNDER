@@ -591,7 +591,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     {
                         #pragma omp parallel for
                         VOLUME_FOR_EACH_PIXEL_FT(A)
-                            if (QUAD_3(i, j, k) < gsl_pow_2(r))
+                            if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
                             {
                                 Complex avg = (A.getFTHalf(i, j, k)
                                              + B.getFTHalf(i, j, k))

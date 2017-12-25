@@ -92,7 +92,7 @@ void Particle::reset()
 
     /***
     for (int i = 0; i < _nC; i++)
-        _c(i) = gsl_rng_uniform_int(engine, _nC);
+        _c(i) = TSGSL_rng_uniform_int(engine, _nC);
     ***/
 
     for (int i = 0; i < _nC; i++)
@@ -145,11 +145,11 @@ void Particle::reset()
     for (int i = 0; i < _nT; i++)
     {
         _t(i, 0) = gsl_ran_flat(engine,
-                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+                                -TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS,
+                                TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS);
         _t(i, 1) = gsl_ran_flat(engine,
-                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+                                -TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS,
+                                TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS);
     }
 #endif
 
@@ -257,8 +257,8 @@ void Particle::reset(const int nC,
     // sample for 2D Flat Distribution in a Circle
     for (int i = 0; i < nT; i++)
     {
-        double r = gsl_ran_flat(engine, 0, _transS);
-        double t = gsl_ran_flat(engine, 0, 2 * M_PI);
+        double r = TSGSL_ran_flat(engine, 0, _transS);
+        double t = TSGSL_ran_flat(engine, 0, 2 * M_PI);
 
         t(i, 0) = r * cos(t);
         t(i, 1) = r * sin(t);
@@ -294,7 +294,7 @@ void Particle::initD(const int nD,
     _d.resize(nD);
 
     for (int i = 0; i < _nD; i++)
-        _d(i) = 1 + gsl_ran_gaussian(engine, sD);
+        _d(i) = 1 + TSGSL_ran_gaussian(engine, sD);
 
     _wD = vec::Constant(_nD, 1.0 / _nD);
     
@@ -432,7 +432,7 @@ void Particle::load(const int nR,
     
     // _k0 = 1;
     
-    // _k1 = gsl_pow_2(stdR);
+    // _k1 = TSGSL_pow_2(stdR);
     
     _topRPrev = q;
     _topR = q;
@@ -443,7 +443,7 @@ void Particle::load(const int nR,
 
     sampleACG(_r, _k1, _k2, _k3, _nR);
 
-    //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
+    //sampleACG(p, 1, TSGSL_pow_2(stdR), _nR);
 
     if (_mode == MODE_3D) symmetrise();
     
@@ -454,13 +454,13 @@ void Particle::load(const int nR,
         vec4 part;
 
         /***
-        if (gsl_ran_flat(engine, -1, 1) >= 0)
+        if (TSGSL_ran_flat(engine, -1, 1) >= 0)
             quaternion_mul(part, quat, pert);
         else
             quaternion_mul(part, -quat, pert);
         ***/
 
-        if (gsl_ran_flat(engine, -1, 1) >= 0)
+        if (TSGSL_ran_flat(engine, -1, 1) >= 0)
             quaternion_mul(part, pert, q);
         else
             quaternion_mul(part, pert, -q);
@@ -506,7 +506,7 @@ void Particle::load(const int nR,
 
     for (int i = 0; i < _nD; i++)
     {
-        _d(i) = d + gsl_ran_gaussian(engine, _s);
+        _d(i) = d + TSGSL_ran_gaussian(engine, _s);
 
         _wD(i) = 1.0 / _nD;
         _uD(i) = 1.0 / _nD;
@@ -545,8 +545,8 @@ void Particle::vari(double& rVari,
         case MODE_3D:
             /***
             if (_k0 == 0) CLOG(FATAL, "LOGGER_SYS") << "k0 = 0";
-            if (gsl_isnan(_k0)) CLOG(FATAL, "LOGGER_SYS") << "k0 NAN";
-            if (gsl_isnan(_k1)) CLOG(FATAL, "LOGGER_SYS") << "k1 NAN";
+            if (TSGSL_isnan(_k0)) CLOG(FATAL, "LOGGER_SYS") << "k0 NAN";
+            if (TSGSL_isnan(_k1)) CLOG(FATAL, "LOGGER_SYS") << "k1 NAN";
             ***/
             // more cencentrate, smaller rVari, bigger _k0 / _k1;
 
@@ -594,9 +594,9 @@ double Particle::compress() const
 
     // return _k0 / _k1;
 
-    // return pow(_k0 / _k1, 1.5) * gsl_pow_2(_transS) / _s0 / _s1;
+    // return pow(_k0 / _k1, 1.5) * TSGSL_pow_2(_transS) / _s0 / _s1;
 
-    //return gsl_pow_2(_transS) / _s0 / _s1;
+    //return TSGSL_pow_2(_transS) / _s0 / _s1;
 }
 
 double Particle::wC(const int i) const
@@ -909,18 +909,18 @@ void Particle::calVari(const ParticleType pt)
     else if (pt == PAR_T)
     {
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
-        _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
-        _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
+        _s0 = TSGSL_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
+        _s1 = TSGSL_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
 #else
-        _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
-        _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
+        _s0 = TSGSL_stats_sd(_t.col(0).data(), 1, _t.rows());
+        _s1 = TSGSL_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
         _rho = 0;
     }
     else if (pt == PAR_D)
     {
-        _s = gsl_stats_sd(_d.data(), 1, _d.size());
+        _s = TSGSL_stats_sd(_d.data(), 1, _d.size());
     }
 }
 
@@ -953,9 +953,9 @@ void Particle::perturb(const double pf,
         else if (_mode == MODE_3D)
         {
             sampleACG(d,
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
+                      TSGSL_pow_2(pf) * GSL_MIN_DBL(1, _k1),
+                      TSGSL_pow_2(pf) * GSL_MIN_DBL(1, _k2),
+                      TSGSL_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
 
             vec4 mean;
@@ -1009,7 +1009,7 @@ void Particle::perturb(const double pf,
         {
             double x, y;
 
-            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+            TSGSL_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
 
             _t(i, 0) += x * pf;
             _t(i, 1) += y * pf;
@@ -1026,7 +1026,7 @@ void Particle::perturb(const double pf,
         gsl_rng* engine = get_random_engine();
 
         for (int i = 0; i < _nD; i++)
-            _d(i) += gsl_ran_gaussian(engine, _s) * pf;
+            _d(i) += TSGSL_ran_gaussian(engine, _s) * pf;
     }
 }
 
@@ -1063,7 +1063,7 @@ void Particle::resample(const int n,
             _wC(i) *= _uC(i);
 
 #ifndef NAN_NO_CHECK
-        if ((_wC.sum() == 0) || (gsl_isnan(_wC.sum())))
+        if ((_wC.sum() == 0) || (TSGSL_isnan(_wC.sum())))
         {
             REPORT_ERROR("NAN DETECTED");
 
@@ -1080,7 +1080,7 @@ void Particle::resample(const int n,
 
         uvec c(_nC);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nC);  
+        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nC);  
 
         int i = 0;
         for (int j = 0; j < _nC; j++)
@@ -1115,7 +1115,7 @@ void Particle::resample(const int n,
             _wR(i) *= _uR(i);
 
 #ifndef NAN_NO_CHECK
-        if ((_wR.sum() == 0) || (gsl_isnan(_wR.sum())))
+        if ((_wR.sum() == 0) || (TSGSL_isnan(_wR.sum())))
         {
             REPORT_ERROR("NAN DETECTED");
 
@@ -1132,7 +1132,7 @@ void Particle::resample(const int n,
 
         mat4 r(_nR, 4);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nR);  
+        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nR);  
 
         int i = 0;
         for (int j = 0; j < _nR; j++)
@@ -1169,7 +1169,7 @@ void Particle::resample(const int n,
         _wT /= _wT.sum();
 
 #ifndef NAN_NO_CHECK
-        if ((_wT.sum() == 0) || (gsl_isnan(_wT.sum())))
+        if ((_wT.sum() == 0) || (TSGSL_isnan(_wT.sum())))
         {
             REPORT_ERROR("NAN DETECTED");
 
@@ -1183,7 +1183,7 @@ void Particle::resample(const int n,
 
         mat2 t(_nT, 2);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nT);  
+        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nT);  
 
         int i = 0;
         for (int j = 0; j < _nT; j++)
@@ -1219,7 +1219,7 @@ void Particle::resample(const int n,
             _wD(i) *= _uD(i);
 
 #ifndef NAN_NO_CHECK
-        if ((_wD.sum() == 0) || (gsl_isnan(_wD.sum())))
+        if ((_wD.sum() == 0) || (TSGSL_isnan(_wD.sum())))
         {
             REPORT_ERROR("NAN DETECTED");
 
@@ -1236,7 +1236,7 @@ void Particle::resample(const int n,
 
         vec d(_nD);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nD);  
+        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nD);  
 
         int i = 0;
         for (int j = 0; j < _nD; j++)
@@ -1348,7 +1348,7 @@ void Particle::resample(const int n,
 #endif
 
     for (int i = 0; i < nG; i++)
-        c(i) = gsl_rng_uniform_int(engine, _m);
+        c(i) = TSGSL_rng_uniform_int(engine, _m);
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Rotation";
@@ -1402,7 +1402,7 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Generating Local Sampling Points";
 #endif
 
-    double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
+    double u0 = TSGSL_ran_flat(engine, 0, 1.0 / nL);  
 
     int i = 0;
     for (int j = 0; j < nL; j++)
@@ -1773,7 +1773,7 @@ void Particle::rand(unsigned int& cls) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _nC);
+    size_t u = TSGSL_rng_uniform_int(engine, _nC);
 
     c(cls, u);
 }
@@ -1782,7 +1782,7 @@ void Particle::rand(vec4& quat) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _nR);
+    size_t u = TSGSL_rng_uniform_int(engine, _nR);
 
     quaternion(quat, u);
 }
@@ -1807,7 +1807,7 @@ void Particle::rand(vec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _nT);
+    size_t u = TSGSL_rng_uniform_int(engine, _nT);
 
     t(tran, u);
 }
@@ -1816,7 +1816,7 @@ void Particle::rand(double& df) const
 {
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _nD);
+    size_t u = TSGSL_rng_uniform_int(engine, _nD);
 
     d(df, u);
 }
@@ -1833,7 +1833,7 @@ void Particle::rand(unsigned int& cls,
     /***
     gsl_rng* engine = get_random_engine();
 
-    size_t u = gsl_rng_uniform_int(engine, _n);
+    size_t u = TSGSL_rng_uniform_int(engine, _n);
 
     c(cls, u);
     quaternion(quat, u);
@@ -1876,7 +1876,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nC; i++) s(i) = i;
 
-        gsl_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
 
         uvec c(_nC);
 
@@ -1901,7 +1901,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nR; i++) s(i) = i;
 
-        gsl_ran_shuffle(engine, s.data(), _nR, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nR, sizeof(unsigned int));
 
         mat4 r(_nR, 4);
         vec wR(_nR);
@@ -1924,7 +1924,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nT; i++) s(i) = i;
 
-        gsl_ran_shuffle(engine, s.data(), _nT, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nT, sizeof(unsigned int));
 
         mat2 t(_nT, 2);
         vec wT(_nT);
@@ -1947,7 +1947,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nD; i++) s(i) = i;
 
-        gsl_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
 
         vec d(_nD);
         vec wD(_nD);
@@ -1978,7 +1978,7 @@ void Particle::shuffle()
 
     gsl_rng* engine = get_random_engine();
 
-    gsl_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
+    TSGSL_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
 
     uvec c(_n);
     mat4 r(_n, 4);
@@ -2066,7 +2066,7 @@ void Particle::symmetrise()
 
 void Particle::reCentre()
 {
-    double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
+    double transM = _transS * TSGSL_cdf_chisq_Qinv(_transQ, 2);
 
     gsl_rng* engine = get_random_engine();
 

@@ -226,7 +226,7 @@ int main(int argc, const char* argv[])
 
     vec4 b = vec4(4, 3, 1, 2);
 
-    gsl_sort(b.data(), 1, 4);
+    TSGSL_sort(b.data(), 1, 4);
 
     cout << b << endl;
 #endif

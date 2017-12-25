@@ -46,7 +46,7 @@ void sampleACG(mat4& dst,
         // sample from a standard Gaussian distribution
         vec4 v;
         for (int j = 0; j < 4; j++)
-            v(j) = gsl_ran_gaussian(engine, 1);
+            v(j) = TSGSL_ran_gaussian(engine, 1);
 
         v = L * v;
         v /= v.norm();
@@ -129,7 +129,7 @@ void inferACG(mat44& dst,
 
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            if (gsl_isnan(dst(i, j)))
+            if (TSGSL_isnan(dst(i, j)))
             {
                 REPORT_ERROR("NAN DETECTED");
                 abort();
@@ -173,7 +173,7 @@ void inferACG(double& k1,
     vec4 ev = eigenSolver.eigenvalues();
 
     // sort eigenvalues in ascending sort
-    gsl_sort(ev.data(), 1, 4);
+    TSGSL_sort(ev.data(), 1, 4);
 
     k1 = ev(2) / ev(3);
     k2 = ev(1) / ev(3);
@@ -200,7 +200,7 @@ void inferACG(vec4& mean,
 #ifndef NAN_NO_CHECK
     
     for (int i = 0; i < 4; i++)
-        if (gsl_isnan(mean(i)))
+        if (TSGSL_isnan(mean(i)))
         {
             REPORT_ERROR("NAN DETECTED");
             abort();
@@ -213,9 +213,9 @@ double pdfVMS(const vec2& x,
               const vec2& mu,
               const double k)
 {
-    double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
+    double kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
 
-    return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+    return exp(kappa * x.dot(mu)) / (2 * M_PI * TSGSL_sf_bessel_I0(kappa));
 }
 
 void sampleVMS(mat2& dst,
@@ -223,20 +223,20 @@ void sampleVMS(mat2& dst,
                const double k,
                const double n)
 {
-    double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
+    double kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
 
     gsl_rng* engine = get_random_engine();
 
     if (kappa < 1e-1)
     {
         for (int i = 0; i < n; i++)
-            gsl_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
+            TSGSL_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
     }
     else
     {
-        double a = 1 + sqrt(1 + 4 * gsl_pow_2(kappa));
+        double a = 1 + sqrt(1 + 4 * TSGSL_pow_2(kappa));
         double b = (a - sqrt(2 * a)) / (2 * kappa);
-        double r = (1 + gsl_pow_2(b)) / (2 * b);
+        double r = (1 + TSGSL_pow_2(b)) / (2 * b);
 
         for (int i = 0; i < n; i++)
         {
@@ -244,13 +244,13 @@ void sampleVMS(mat2& dst,
 
             while (true)
             {
-                double z = cos(M_PI * gsl_rng_uniform(engine));
+                double z = cos(M_PI * TSGSL_rng_uniform(engine));
 
                 f = (1 + r * z) / (r + z);
 
                 double c = kappa * (r - f);
 
-                double u2 = gsl_rng_uniform(engine);
+                double u2 = TSGSL_rng_uniform(engine);
 
                 if (c * (2 - c) > u2) break;
 
@@ -260,7 +260,7 @@ void sampleVMS(mat2& dst,
             double delta0 = sqrt((1 - f) * (f + 1)) * mu(1);
             double delta1 = sqrt((1 - f) * (f + 1)) * mu(0);
 
-            if (gsl_rng_uniform(engine) > 0.5)
+            if (TSGSL_rng_uniform(engine) > 0.5)
             {
                 dst(i, 0) = mu(0) * f + delta0;
                 dst(i, 1) = mu(1) * f - delta1;
@@ -307,7 +307,7 @@ void inferVMS(vec2& mu,
     /***
     R = GSL_MIN_DBL(R, 1 - 1e-3); // for the purpose of avoiding extreme value
 
-    kappa = R * (2 - gsl_pow_2(R)) / (1 - gsl_pow_2(R));
+    kappa = R * (2 - TSGSL_pow_2(R)) / (1 - gsl_pow_2(R));
     ***/
 
     k = 1 - R;

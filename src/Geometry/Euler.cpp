@@ -48,10 +48,10 @@ void angle(double& phi,
 
     if (phi < 0) phi += 2 * M_PI;
 
-    theta = acos(gsl_pow_2(src(0))
-               - gsl_pow_2(src(1))
-               - gsl_pow_2(src(2))
-               + gsl_pow_2(src(3)));
+    theta = acos(TSGSL_pow_2(src(0))
+               - TSGSL_pow_2(src(1))
+               - TSGSL_pow_2(src(2))
+               + TSGSL_pow_2(src(3)));
 
     psi = atan2((src(1) * src(3) - src(0) * src(2)),
                 (src(0) * src(1) + src(2) * src(3)));
@@ -387,8 +387,8 @@ void randDirection(vec2& dir)
 {
     gsl_rng* engine = get_random_engine();
 
-    dir(0) = gsl_ran_gaussian(engine, 1);
-    dir(1) = gsl_ran_gaussian(engine, 1);
+    dir(0) = TSGSL_ran_gaussian(engine, 1);
+    dir(1) = TSGSL_ran_gaussian(engine, 1);
 
     dir /= dir.norm();
 }
@@ -405,10 +405,10 @@ void randQuaternion(vec4& quat)
 {
     gsl_rng* engine = get_random_engine();
 
-    quat(0) = gsl_ran_gaussian(engine, 1);
-    quat(1) = gsl_ran_gaussian(engine, 1);
-    quat(2) = gsl_ran_gaussian(engine, 1);
-    quat(3) = gsl_ran_gaussian(engine, 1);
+    quat(0) = TSGSL_ran_gaussian(engine, 1);
+    quat(1) = TSGSL_ran_gaussian(engine, 1);
+    quat(2) = TSGSL_ran_gaussian(engine, 1);
+    quat(3) = TSGSL_ran_gaussian(engine, 1);
 
     quat /= quat.norm();
 }

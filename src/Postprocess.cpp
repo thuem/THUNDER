@@ -167,7 +167,7 @@ void Postprocess::run()
 
     //CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";
 
-    //bFactorFilter(_mapI, _mapI, COMPENSATE_B_FACTOR / gsl_pow_2(_pixelSize));
+    //bFactorFilter(_mapI, _mapI, COMPENSATE_B_FACTOR / TSGSL_pow_2(_pixelSize));
 
     CLOG(INFO, "LOGGER_SYS") << "Saving Result";
 

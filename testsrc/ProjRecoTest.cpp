@@ -216,7 +216,7 @@ int main(int argc, char* argv[])
         projector.project(image, coord);
         fft.bw(image);
 
-        double std = gsl_stats_sd(&image(0), 1, image.sizeRL());
+        double std = TSGSL_stats_sd(&image(0), 1, image.sizeRL());
         ***/
 
         #pragma omp parallel for
@@ -285,7 +285,7 @@ int main(int argc, char* argv[])
             /***
             Image noise(N, N, RL_SPACE);
             FOR_EACH_PIXEL_RL(noise)
-                noise(i) = gsl_ran_gaussian(engine, NOISE_FACTOR * std);
+                noise(i) = TSGSL_ran_gaussian(engine, NOISE_FACTOR * std);
 
             ADD_RL(image, noise);
             ***/

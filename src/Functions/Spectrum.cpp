@@ -89,7 +89,7 @@ void ringAverage(vec& dst,
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             int u = AROUND(NORM(i, j));
 
@@ -134,7 +134,7 @@ void shellAverage(vec& dst,
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD_3(i, j, k) < gsl_pow_2(r))
+        if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
         {
             int u = AROUND(NORM_3(i, j, k));
 
@@ -164,7 +164,7 @@ void powerSpectrum(vec& dst,
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD(i, j) < gsl_pow_2(r))
+        if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             int u = AROUND(NORM(i, j));
 
@@ -194,7 +194,7 @@ void powerSpectrum(vec& dst,
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD_3(i, j, k) < gsl_pow_2(r))
+        if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
         {
             int u = AROUND(NORM_3(i, j, k));
 
@@ -347,7 +347,7 @@ void randomPhase(Volume& dst,
 
         if (u > r)
             dst.setFT(src.getFT(i, j, k)
-                    * COMPLEX_POLAR(gsl_ran_flat(engine, 0, 2 * M_PI)),
+                    * COMPLEX_POLAR(TSGSL_ran_flat(engine, 0, 2 * M_PI)),
                       i,
                       j,
                       k);
@@ -401,12 +401,12 @@ void bFactorEst(double& bFactor,
     for (int i = 0; i < rU - rL; i++)
     {
         I[i] = log(I[i] / C[i]);
-        C[i] = gsl_pow_2((double)(i + rL) / vol.nColRL());
+        C[i] = TSGSL_pow_2((double)(i + rL) / vol.nColRL());
     }
 
     double c0, c1, cov00, cov01, cov11, sumsq;
 
-    gsl_fit_linear(C.data(),
+    TSGSL_fit_linear(C.data(),
                    1,
                    I.data(),
                    1,

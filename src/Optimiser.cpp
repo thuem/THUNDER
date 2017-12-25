@@ -546,7 +546,7 @@ void Optimiser::expectation()
         int nT = GSL_MAX_INT(30,
                              AROUND(M_PI
                                   * gsl_pow_2(_para.transS
-                                            * gsl_cdf_chisq_Qinv(0.5, 2))
+                                            * TSGSL_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
 
         double scanMinStdR;
@@ -566,7 +566,7 @@ void Optimiser::expectation()
         }
 
         double scanMinStdT = 1.0
-                           / gsl_cdf_chisq_Qinv(0.5, 2)
+                           / TSGSL_cdf_chisq_Qinv(0.5, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
 
         ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
@@ -740,7 +740,7 @@ void Optimiser::expectation()
 #ifndef NAN_NO_CHECK
 
                     FOR_EACH_2D_IMAGE
-                        if (gsl_isnan(dvp(l)))
+                        if (TSGSL_isnan(dvp(l)))
                         {
                             REPORT_ERROR("DVP CONTAINS NAN");
 
@@ -755,7 +755,7 @@ void Optimiser::expectation()
                     {
                         omp_set_lock(&mtx[l]);
 
-                        if (gsl_isnan(baseLine[l]))
+                        if (TSGSL_isnan(baseLine[l]))
                             baseLine[l] = dvp(l);
                         else
                         {
@@ -765,7 +765,7 @@ void Optimiser::expectation()
 
                                 double nf = exp(offset);
 
-                                if (gsl_isinf(nf))
+                                if (TSGSL_isinf(nf))
                                 {
                                     wC.row(l) = vec::Zero(_para.k).transpose();
                                     wR.row(l) = vec::Zero(nR).transpose();
@@ -940,21 +940,21 @@ void Optimiser::expectation()
 
 #ifndef NAN_NO_CHECK
 
-            if ((wC.row(l).sum() == 0) || (gsl_isnan(wC.row(l).sum())))
+            if ((wC.row(l).sum() == 0) || (TSGSL_isnan(wC.row(l).sum())))
             {
                 REPORT_ERROR("WC, NAN DETECTED");
 
                 abort();
             }
 
-            if ((wR.row(l).sum() == 0) || (gsl_isnan(wR.row(l).sum())))
+            if ((wR.row(l).sum() == 0) || (TSGSL_isnan(wR.row(l).sum())))
             {
                 REPORT_ERROR("WR, NAN DETECTED");
 
                 abort();
             }
 
-            if ((wT.row(l).sum() == 0) || (gsl_isnan(wT.row(l).sum())))
+            if ((wT.row(l).sum() == 0) || (TSGSL_isnan(wT.row(l).sum())))
             {
                 REPORT_ERROR("WT, NAN DETECTED");
 
@@ -1038,7 +1038,7 @@ void Optimiser::expectation()
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
-            _par[l].setK1(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setK1(GSL_MAX_DBL(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                       ? _para.perturbFactorSGlobal
                                                       : _para.perturbFactorSLocal))
                                                * MIN_STD_FACTOR * scanMinStdR),
@@ -1046,13 +1046,13 @@ void Optimiser::expectation()
 
             if (_para.mode == MODE_3D)
             {
-                _par[l].setK2(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].setK2(GSL_MAX_DBL(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
                                                   * MIN_STD_FACTOR * scanMinStdR),
                                           _par[l].k2()));
 
-                _par[l].setK3(GSL_MAX_DBL(gsl_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].setK3(GSL_MAX_DBL(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
                                                    * MIN_STD_FACTOR * scanMinStdR),
@@ -1274,13 +1274,13 @@ void Optimiser::expectation()
                             double ki = _K1[l]
                                       * _defocusP[l * _nPxl + i]
                                       * d
-                                      * gsl_pow_2(_frequency[i])
+                                      * TSGSL_pow_2(_frequency[i])
                                       + _K2[l]
-                                      * gsl_pow_4(_frequency[i]);
+                                      * TSGSL_pow_4(_frequency[i]);
 
                             /***
-                            double ki = K1 * defocus[i] * df * gsl_pow_2(frequency[i])
-                                      + K2 * gsl_pow_4(frequency[i]);
+                            double ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
+                                      + K2 * TSGSL_pow_4(frequency[i]);
                             ***/
 
                             ctfP[_nPxl * iD + i] = -w1 * sin(ki) + w2 * cos(ki);
@@ -1395,8 +1395,8 @@ void Optimiser::expectation()
                                 ***/
                             }
 
-                            //if (gsl_isnan(baseLine)) baseLine = w;
-                            baseLine = gsl_isnan(baseLine) ? w : baseLine;
+                            //if (TSGSL_isnan(baseLine)) baseLine = w;
+                            baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
 
                             w = exp(w - baseLine);
 
@@ -1524,9 +1524,9 @@ void Optimiser::expectation()
 
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
 
-                if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                    (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                    (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                if ((k1Cur < k1 * TSGSL_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                    (k2Cur < k2 * TSGSL_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                    (k3Cur < k3 * TSGSL_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                     (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                     (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
@@ -2556,7 +2556,7 @@ void Optimiser::statImg()
 
     _stdS = _stdD - _stdN;
 
-    _stdStdN = sqrt(_stdStdN - gsl_pow_2(_stdN));
+    _stdStdN = sqrt(_stdStdN - TSGSL_pow_2(_stdN));
 }
 
 void Optimiser::displayStatImg()
@@ -2761,7 +2761,7 @@ void Optimiser::correctScale(const bool init,
         #pragma omp parallel for
         for (int i = 0; i < _nGroup; i++)
         {
-            _sig.row(i) /= gsl_pow_2(_scale(i));
+            _sig.row(i) /= TSGSL_pow_2(_scale(i));
         }
     }
 }
@@ -2845,7 +2845,7 @@ void Optimiser::initSigma()
         psAvg(i) = ringAverage(i,
                                avg,
                                function<double(const Complex)>(&gsl_real_imag_sum));
-        psAvg(i) = gsl_pow_2(psAvg(i));
+        psAvg(i) = TSGSL_pow_2(psAvg(i));
     }
 
     // avgPs -> average power spectrum
@@ -3016,7 +3016,7 @@ void Optimiser::refreshRotationChange()
             if (_par[l].diffTopC())
             {
                 mean += diffR;
-                std += gsl_pow_2(diffR);
+                std += TSGSL_pow_2(diffR);
                 num += 1;
             }
         }
@@ -3045,7 +3045,7 @@ void Optimiser::refreshRotationChange()
 
     mean /= num;
 
-    std = sqrt(std / num - gsl_pow_2(mean));
+    std = sqrt(std / num - TSGSL_pow_2(mean));
     ***/
 
     vec rc = vec::Zero(_nPar);
@@ -3083,9 +3083,9 @@ void Optimiser::refreshRotationChange()
 
     //vec rcNoZero = vec::Zero(nNoZero);
 
-    //gsl_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
-    //gsl_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
-    gsl_sort(rc.data(), 1, _nPar);
+    //TSGSL_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
+    //TSGSL_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
+    TSGSL_sort(rc.data(), 1, _nPar);
 
     double mean, std;
     stat_MAS(mean, std, rc, _nPar);
@@ -3472,7 +3472,7 @@ void Optimiser::refreshScale(const bool coord,
     ***/
 
     MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
-                               << gsl_stats_sd(_scale.data(), 1, _scale.size());
+                               << TSGSL_stats_sd(_scale.data(), 1, _scale.size());
 
     /***
     if (!init)
@@ -3643,8 +3643,8 @@ void Optimiser::normCorrection()
 
                 IMAGE_FOR_EACH_PIXEL_FT(img)
                 {
-                    if ((QUAD(i, j) >= gsl_pow_2(_rL)) ||
-                        (QUAD(i, j) < gsl_pow_2(rNorm)))
+                    if ((QUAD(i, j) >= TSGSL_pow_2(_rL)) ||
+                        (QUAD(i, j) < TSGSL_pow_2(rNorm)))
                         norm(_ID[l]) += ABS2(img.getFTHalf(i, j));
                 }
             }
@@ -3674,12 +3674,12 @@ void Optimiser::normCorrection()
     ***/
 
     MLOG(INFO, "LOGGER_SYS") << "Max of Norm of Noise : "
-                             << gsl_stats_max(norm.data(), 1, norm.size());
+                             << TSGSL_stats_max(norm.data(), 1, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Min of Norm of Noise : "
-                             << gsl_stats_min(norm.data(), 1, norm.size());
+                             << TSGSL_stats_min(norm.data(), 1, norm.size());
 
-    //double m = gsl_stats_mean(norm.data(), 1, norm.size());
+    //double m = TSGSL_stats_mean(norm.data(), 1, norm.size());
 
     double m = median(norm, norm.size());
 
@@ -3697,7 +3697,7 @@ void Optimiser::normCorrection()
     ***/
 
     /***
-    double sd = gsl_stats_sd_m(norm.data(), 1, norm.size(), m);
+    double sd = TSGSL_stats_sd_m(norm.data(), 1, norm.size(), m);
 
     MLOG(INFO, "LOGGER_SYS") << "Standard Deviation of Norm of Noise : "
                              << sd;
@@ -3791,7 +3791,7 @@ void Optimiser::allReduceSigma(const bool group)
             double w;
 
             if (_para.parGra) 
-                w = gsl_pow_2(_par[l].compress());
+                w = TSGSL_pow_2(_par[l].compress());
             else
                 w = 1;
             ***/
@@ -4085,7 +4085,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
 
                     IMAGE_FOR_EACH_PIXEL_FT(transImg)
-                        if (QUAD(i, j) < gsl_pow_2(_model.reco(cls).maxRadius()))
+                        if (QUAD(i, j) < TSGSL_pow_2(_model.reco(cls).maxRadius()))
                             transImg.setFTHalf(transImg.getFTHalf(i, j)
                                              / _sig(_groupID[l] - 1, AROUND(NORM(i, j))),
                                                i,
@@ -4374,8 +4374,8 @@ void Optimiser::solventFlatten(const bool mask)
                                    << ": "
                                    << bgStddev;
 
-        //double bgThres = bgMean + bgStddev * gsl_cdf_gaussian_Qinv(0.01, 1);
-        double bgThres = bgMean + bgStddev * gsl_cdf_gaussian_Qinv(1e-3, 1);
+        //double bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(0.01, 1);
+        double bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(1e-3, 1);
 
         ALOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
                                    << t
@@ -4523,8 +4523,8 @@ void Optimiser::allocPreCalIdx(const double rU,
 
     _iSig = new int[_img[0].sizeFT()];
 
-    double rU2 = gsl_pow_2(rU);
-    double rL2 = gsl_pow_2(rL);
+    double rU2 = TSGSL_pow_2(rU);
+    double rL2 = TSGSL_pow_2(rL);
 
     _nPxl = 0;
 
@@ -4622,7 +4622,7 @@ void Optimiser::allocPreCal(const bool pixelMajor,
                                             * (1 + _ctfAttr[l].voltage * 0.978466e-6));
 
             _K1[l] = M_PI * lambda;
-            _K2[l] = M_PI / 2 * _ctfAttr[l].Cs * gsl_pow_3(lambda);
+            _K2[l] = M_PI / 2 * _ctfAttr[l].Cs * TSGSL_pow_3(lambda);
         }
     }
 }
@@ -5192,8 +5192,8 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
-    double rU2 = gsl_pow_2(rU);
-    double rL2 = gsl_pow_2(rL);
+    double rU2 = TSGSL_pow_2(rU);
+    double rL2 = TSGSL_pow_2(rL);
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
@@ -5266,8 +5266,8 @@ double logDataVSPrior(const Complex* dat,
 
     for (int i = 0; i < m; i++)
     {
-        double ki = K1 * defocus[i] * df * gsl_pow_2(frequency[i])
-                  + K2 * gsl_pow_4(frequency[i]);
+        double ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
+                  + K2 * TSGSL_pow_4(frequency[i]);
 
         double ctf = -w1 * sin(ki) + w2 * cos(ki);
 
@@ -5289,8 +5289,8 @@ double logDataVSPrior(const Image& dat,
 {
     double result = 0;
 
-    double rU2 = gsl_pow_2(rU);
-    double rL2 = gsl_pow_2(rL);
+    double rU2 = TSGSL_pow_2(rU);
+    double rL2 = TSGSL_pow_2(rL);
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
@@ -5353,8 +5353,8 @@ vec logDataVSPrior(const vector<Image>& dat,
 
     vec result = vec::Zero(n);
 
-    double rU2 = gsl_pow_2(rU);
-    double rL2 = gsl_pow_2(rL);
+    double rU2 = TSGSL_pow_2(rU);
+    double rL2 = TSGSL_pow_2(rL);
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
@@ -5500,8 +5500,8 @@ void scaleDataVSPrior(vec& sXA,
                       const double rU,
                       const double rL)
 {
-    double rU2 = gsl_pow_2(rU);
-    double rL2 = gsl_pow_2(rL);
+    double rU2 = TSGSL_pow_2(rU);
+    double rL2 = TSGSL_pow_2(rL);
 
     for (int i = 0; i < rU; i++)
     {
@@ -5530,7 +5530,7 @@ void scaleDataVSPrior(vec& sXA,
                 #pragma omp atomic
                 sAA(v) += REAL(pri.iGetFT(index)
                              * pri.iGetFT(index)
-                             * gsl_pow_2(REAL(ctf.iGetFT(index))));
+                             * TSGSL_pow_2(REAL(ctf.iGetFT(index))));
             }
         }
     }

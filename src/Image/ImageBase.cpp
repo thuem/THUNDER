@@ -210,8 +210,8 @@ double norm(ImageBase& base)
 
 void normalise(ImageBase& base)
 {
-    double mean = gsl_stats_mean(&base(0), 1, base.sizeRL());
-    double stddev = gsl_stats_sd_m(&base(0), 1, base.sizeRL(), mean);
+    double mean = TSGSL_stats_mean(&base(0), 1, base.sizeRL());
+    double stddev = TSGSL_stats_sd_m(&base(0), 1, base.sizeRL(), mean);
 
     FOR_EACH_PIXEL_RL(base)
         base(i) -= mean;

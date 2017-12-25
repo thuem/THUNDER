@@ -12,5 +12,5 @@
 
 int main(int argc, const char* argv[])
 {
-    std::cout << gsl_sf_sinc(sqrt(3)) << std::endl;
+    std::cout << TSGSL_sf_sinc(sqrt(3)) << std::endl;
 }

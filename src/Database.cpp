@@ -137,7 +137,7 @@ void Database::shuffle()
 #ifdef DATABASE_SHUFFLE
         gsl_rng* engine = get_random_engine();
 
-        gsl_ran_shuffle(engine, &_reg[0], _reg.size(), sizeof(int));
+        TSGSL_ran_shuffle(engine, &_reg[0], _reg.size(), sizeof(int));
 #endif
     }
 

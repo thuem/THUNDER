@@ -100,9 +100,9 @@ int main(int argc, const char* argv[])
 #ifdef ANCHOR_POINT
     gsl_rng* engine = get_random_engine();
 
-    vec3 v(gsl_ran_gaussian(engine, 1),
-           gsl_ran_gaussian(engine, 1),
-          gsl_ran_gaussian(engine, 1));
+    vec3 v(TSGSL_ran_gaussian(engine, 1),
+           TSGSL_ran_gaussian(engine, 1),
+          TSGSL_ran_gaussian(engine, 1));
 
     v /= v.norm();
 

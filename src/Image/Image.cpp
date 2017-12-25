@@ -137,7 +137,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
     for (int i = 0; i < nRowBMP; i++)
         for (int j = 0; j <= nColBMP / 2; j++)
         {
-            double value = gsl_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
+            double value = TSGSL_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
             value = log(1 + value * c);
 
             int iImage = (i + nRowBMP / 2) % nRowBMP;
