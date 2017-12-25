@@ -1,3 +1,5 @@
+//This header file is add by huabin
+#include "huabin.h"
 /*******************************************************************************
  * Authors Mingxu Hu
  * Dependency:

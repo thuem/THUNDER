@@ -1,3 +1,5 @@
+//This header file is add by huabin
+#include "huabin.h"
 /// Json-cpp amalgated source (http://jsoncpp.sourceforge.net/).
 /// It is intended to be used with #include "json/json.h"
 

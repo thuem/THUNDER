@@ -1,3 +1,5 @@
+//This header file is add by huabin
+#include "huabin.h"
 #ifndef UTILS_H
 #define UTILS_H
 

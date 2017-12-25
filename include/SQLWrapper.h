@@ -1,3 +1,5 @@
+//This header file is add by huabin
+#include "huabin.h"
 // clang-format
 #pragma once
 #include <sqlite3.h>

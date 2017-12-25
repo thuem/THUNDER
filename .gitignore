@@ -22,7 +22,7 @@
 
 .dirstamp
 .deps/
-
+tmp/
 unittest/
 gpu/gpuunittest/
 bin/
