@@ -32,7 +32,7 @@
 inline void VOL_TRANSFORM_MAT_RL(Volume& dst, 
                                  const Volume& src, 
                                  const mat33& mat, 
-                                 const double r,
+                                 const RFLOAT r,
                                  const int interp)
 { 
     #pragma omp parallel for
@@ -41,7 +41,7 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     { 
-        vec3 newCor((double)i, (double)j, (double)k);
+        vec3 newCor((RFLOAT)i, (RFLOAT)j, (RFLOAT)k);
         vec3 oldCor = mat * newCor; 
 
         if (oldCor.squaredNorm() < gsl_pow_2(r))
@@ -58,7 +58,7 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,
 inline void VOL_TRANSFORM_MAT_FT(Volume& dst, 
                                  const Volume& src, 
                                  const mat33& mat, 
-                                 const double r,
+                                 const RFLOAT r,
                                  const int interp)
 { 
     #pragma omp parallel for
@@ -67,7 +67,7 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(dst)
     { 
-        vec3 newCor((double)i, (double)j, (double)k);
+        vec3 newCor((RFLOAT)i, (RFLOAT)j, (RFLOAT)k);
         vec3 oldCor = mat * newCor; 
 
         if (oldCor.squaredNorm() < gsl_pow_2(r))
@@ -84,7 +84,7 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,
 inline void SYMMETRIZE_RL(Volume& dst,
                           const Volume& src,
                           const Symmetry& sym,
-                          const double r,
+                          const RFLOAT r,
                           const int interp)
 {
     Volume result = src.copyVolume();
@@ -108,7 +108,7 @@ inline void SYMMETRIZE_RL(Volume& dst,
 inline void SYMMETRIZE_FT(Volume& dst,
                           const Volume& src,
                           const Symmetry& sym,
-                          const double r,
+                          const RFLOAT r,
                           const int interp)
 {
     Volume result = src.copyVolume();

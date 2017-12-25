@@ -13,9 +13,9 @@
 #include "SymmetryOperation.h"
 
 RotationSO::RotationSO(const int fold,
-                       const double x,
-                       const double y,
-                       const double z)
+                       const RFLOAT x,
+                       const RFLOAT y,
+                       const RFLOAT z)
 {
     this->fold = fold;
 
@@ -29,9 +29,9 @@ RotationSO::RotationSO(const int fold,
     ***/
 }
 
-ReflexionSO::ReflexionSO(const double x,
-                         const double y,
-                         const double z)
+ReflexionSO::ReflexionSO(const RFLOAT x,
+                         const RFLOAT y,
+                         const RFLOAT z)
 {
     plane(0) = x;
     plane(1) = y;

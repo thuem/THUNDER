@@ -78,14 +78,14 @@ void Volume::alloc(const int nCol,
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
 #ifdef CXX11_PTR
-        _dataRL.reset(new double[_sizeRL]);
+        _dataRL.reset(new RFLOAT[_sizeRL]);
 #endif
 
 #ifdef FFTW_PTR
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
+        _dataRL = (RFLOAT*)fftw_malloc(_sizeRL * sizeof(RFLOAT));
 
         if (_dataRL == NULL)
         {
@@ -124,7 +124,7 @@ void Volume::alloc(const int nCol,
     initBox();
 }
 
-double Volume::getRL(const int iCol,
+RFLOAT Volume::getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const
 {
@@ -137,7 +137,7 @@ double Volume::getRL(const int iCol,
     return _dataRL[index];
 }
 
-void Volume::setRL(const double value,
+void Volume::setRL(const RFLOAT value,
                    const int iCol,
                    const int iRow,
                    const int iSlc)
@@ -151,7 +151,7 @@ void Volume::setRL(const double value,
     _dataRL[index] = value;
 }
 
-void Volume::addRL(const double value,
+void Volume::addRL(const RFLOAT value,
                    const int iCol,
                    const int iRow,
                    const int iSlc)
@@ -259,7 +259,7 @@ void Volume::addFTHalf(const Complex value,
     _dataFT[index].dat[1] += value.dat[1];
 }
 
-void Volume::addFT(const double value,
+void Volume::addFT(const RFLOAT value,
                    int iCol,
                    int iRow,
                    int iSlc)
@@ -274,7 +274,7 @@ void Volume::addFT(const double value,
     _dataFT[index].dat[0] += value;
 }
 
-void Volume::addFTHalf(const double value,
+void Volume::addFTHalf(const RFLOAT value,
                        const int iCol,
                        const int iRow,
                        const int iSlc)
@@ -289,17 +289,17 @@ void Volume::addFTHalf(const double value,
     _dataFT[index].dat[0] += value;
 }
 
-double Volume::getByInterpolationRL(const double iCol,
-                                    const double iRow,
-                                    const double iSlc,
+RFLOAT Volume::getByInterpolationRL(const RFLOAT iCol,
+                                    const RFLOAT iRow,
+                                    const RFLOAT iSlc,
                                     const int interp) const
 {
     if (interp == NEAREST_INTERP)
         return getRL(AROUND(iCol), AROUND(iRow), AROUND(iSlc));
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, interp);
     WG_TRI_INTERP_LINEAR(w, x0, x);
@@ -307,9 +307,9 @@ double Volume::getByInterpolationRL(const double iCol,
     return getRL(w, x0);
 }
 
-Complex Volume::getByInterpolationFT(double iCol,
-                                     double iRow,
-                                     double iSlc,
+Complex Volume::getByInterpolationFT(RFLOAT iCol,
+                                     RFLOAT iRow,
+                                     RFLOAT iSlc,
                                      const int interp) const
 {
     bool conj = conjHalf(iCol, iRow, iSlc);
@@ -321,9 +321,9 @@ Complex Volume::getByInterpolationFT(double iCol,
         return conj ? CONJUGATE(result) : result;
     }
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, interp);
     WG_TRI_INTERP_LINEAR(w, x0, x);
@@ -334,15 +334,15 @@ Complex Volume::getByInterpolationFT(double iCol,
 }
 
 void Volume::addFT(const Complex value,
-                   double iCol,
-                   double iRow,
-                   double iSlc)
+                   RFLOAT iCol,
+                   RFLOAT iRow,
+                   RFLOAT iSlc)
 {
     bool conj = conjHalf(iCol, iRow, iSlc);
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
     WG_TRI_INTERP_LINEAR(w, x0, x);
@@ -352,16 +352,16 @@ void Volume::addFT(const Complex value,
               x0);
 }
 
-void Volume::addFT(const double value,
-                   double iCol,
-                   double iRow,
-                   double iSlc)
+void Volume::addFT(const RFLOAT value,
+                   RFLOAT iCol,
+                   RFLOAT iRow,
+                   RFLOAT iSlc)
 {
     conjHalf(iCol, iRow, iSlc);
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
     WG_TRI_INTERP_LINEAR(w, x0, x);
@@ -370,61 +370,61 @@ void Volume::addFT(const double value,
 }
 
 void Volume::addFT(const Complex value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
-                   const double alpha)
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
+                   const RFLOAT alpha)
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        RFLOAT r = NORM_3(iCol - i, iRow - j, iSlc - k);
         if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
     }
 }
 
-void Volume::addFT(const double value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
-                   const double alpha)
+void Volume::addFT(const RFLOAT value,
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
+                   const RFLOAT alpha)
 {
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r = NORM_3(iCol - i, iRow - j, iSlc - k);
+        RFLOAT r = NORM_3(iCol - i, iRow - j, iSlc - k);
         if (r < a) addFT(value * MKB_FT(r, a, alpha), i, j, k);
     }
 }
 
 void Volume::addFT(const Complex value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
                    const TabFunction& kernel)
 {
-    double a2 = TSGSL_pow_2(a);
+    RFLOAT a2 = TSGSL_pow_2(a);
 
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        RFLOAT r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
         if (r2 < a2) addFT(value * kernel(r2), i, j, k);
     }
 }
 
-void Volume::addFT(const double value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
+void Volume::addFT(const RFLOAT value,
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
                    const TabFunction& kernel)
 {
-    double a2 = TSGSL_pow_2(a);
+    RFLOAT a2 = TSGSL_pow_2(a);
 
     VOLUME_SUB_SPHERE_FT(a)
     {
-        double r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
+        RFLOAT r2 = QUAD_3(iCol - i, iRow - j, iSlc - k);
         if (r2 < a2) addFT(value * kernel(r2), i, j, k);
     }
 }
@@ -468,16 +468,16 @@ void Volume::coordinatesInBoundaryFT(const int iCol,
         REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
 }
 
-double Volume::getRL(const double w[2][2][2],
+RFLOAT Volume::getRL(const RFLOAT w[2][2][2],
                      const int x0[3]) const
 {
-    double result = 0;
+    RFLOAT result = 0;
     FOR_CELL_DIM_3 result += getRL(x0[0] + i, x0[1] + j, x0[2] + k)
                            * w[k][j][i];
     return result;
 }
 
-Complex Volume::getFTHalf(const double w[2][2][2],
+Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
                           const int x0[3]) const
 {
     Complex result = COMPLEX(0, 0);
@@ -495,7 +495,7 @@ Complex Volume::getFTHalf(const double w[2][2][2],
             BOUNDARY_CHECK_FT(index);
 #endif
 
-            result += _dataFT[index] * ((double*)w)[i];
+            result += _dataFT[index] * ((RFLOAT*)w)[i];
         }
     }
     else
@@ -510,7 +510,7 @@ Complex Volume::getFTHalf(const double w[2][2][2],
 }
 
 void Volume::addFTHalf(const Complex value,
-                       const double w[2][2][2],
+                       const RFLOAT w[2][2][2],
                        const int x0[3])
 {
     if ((x0[1] != -1) &&
@@ -527,9 +527,9 @@ void Volume::addFTHalf(const Complex value,
 #endif
             
             #pragma omp atomic
-            _dataFT[index].dat[0] += value.dat[0] * ((double*)w)[i];
+            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
             #pragma omp atomic
-            _dataFT[index].dat[1] += value.dat[1] * ((double*)w)[i];
+            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
         }
     }
     else
@@ -541,8 +541,8 @@ void Volume::addFTHalf(const Complex value,
     }
 }
 
-void Volume::addFTHalf(const double value,
-                       const double w[2][2][2],
+void Volume::addFTHalf(const RFLOAT value,
+                       const RFLOAT w[2][2][2],
                        const int x0[3])
 {
     if ((x0[1] != -1) &&
@@ -559,7 +559,7 @@ void Volume::addFTHalf(const double value,
 #endif
 
             #pragma omp atomic
-            _dataFT[index].dat[0] += value * ((double*)w)[i];
+            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
         }
     }
     else

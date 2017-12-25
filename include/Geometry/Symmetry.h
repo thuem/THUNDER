@@ -43,7 +43,7 @@
  */
 #define ASY_3(PG, phi, theta) \
     ({ \
-         double _phi = (phi), _theta = (theta); \
+         RFLOAT _phi = (phi), _theta = (theta); \
          vec3 norm; \
          direction(norm, _phi, _theta); \
          ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
@@ -53,7 +53,7 @@
 
 #define ASY_4(PG, phi, theta) \
     ({ \
-         double _phi = (phi), _theta = (theta); \
+         RFLOAT _phi = (phi), _theta = (theta); \
          vec3 norm; \
          direction(norm, _phi, _theta); \
          ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \

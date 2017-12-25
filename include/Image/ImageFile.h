@@ -143,16 +143,16 @@ class ImageFile
 
         void writeImage(const char dst[],
                         const Image& src,
-                        const double pixelSize = 1);
+                        const RFLOAT pixelSize = 1);
 
         void writeVolume(const char dst[],
                          const Volume& src,
-                         const double pixelSize = 1);
+                         const RFLOAT pixelSize = 1);
 
         void openStack(const char dst[],
                        const int size,
                        const int nSlc,
-                       const double pixelSize);
+                       const RFLOAT pixelSize);
 
         void writeStack(const Image& src,
                         const int iSlc);
@@ -178,11 +178,11 @@ class ImageFile
 
         void writeImageMRC(const char dst[],
                            const Image& src,
-                           const double pixelSize);
+                           const RFLOAT pixelSize);
 
         void writeVolumeMRC(const char dst[],
                             const Volume& src,
-                            const double pixelSize);
+                            const RFLOAT pixelSize);
 };
 
 
@@ -218,7 +218,7 @@ class ImageFile
         for (int j = 0; j < dst.nRowRL(); j++) \
             for (int i = 0; i < dst.nColRL(); i++) \
                 dst(IMAGE_INDEX(i, j, dst.nColRL())) \
-              = (double)unCast[MESH_IMAGE_INDEX(i, \
+              = (RFLOAT)unCast[MESH_IMAGE_INDEX(i, \
                                                 j, \
                                                 dst.nColRL(), \
                                                 dst.nRowRL())]; \
@@ -237,7 +237,7 @@ template <typename T> inline void  IMAGE_READ_CAST
         for (int j = 0; j < dst.nRowRL(); j++) 
             for (int i = 0; i < dst.nColRL(); i++) 
                 dst(IMAGE_INDEX(i, j, dst.nColRL())) 
-              = (double)unCast[MESH_IMAGE_INDEX(i, 
+              = (RFLOAT)unCast[MESH_IMAGE_INDEX(i, 
                                                 j, 
                                                 dst.nColRL(), 
                                                 dst.nRowRL())]; 
@@ -255,7 +255,7 @@ template <typename T> inline void  IMAGE_READ_CAST
             for (int j = 0; j < dst.nRowRL(); j++) \
                 for (int i = 0; i < dst.nColRL(); i++) \
                     dst(VOLUME_INDEX(i, j, k, dst.nColRL(), dst.nRowRL())) \
-                  = (double)unCast[MESH_VOLUME_INDEX(i, \
+                  = (RFLOAT)unCast[MESH_VOLUME_INDEX(i, \
                                                      j, \
                                                      k, \
                                                      dst.nColRL(), \
@@ -278,7 +278,7 @@ template <typename T> inline void  VOLUME_READ_CAST
             for (int j = 0; j < dst.nRowRL(); j++) 
                 for (int i = 0; i < dst.nColRL(); i++) 
                     dst(VOLUME_INDEX(i, j, k, dst.nColRL(), dst.nRowRL())) 
-                  = (double)unCast[MESH_VOLUME_INDEX(i, 
+                  = (RFLOAT)unCast[MESH_VOLUME_INDEX(i, 
                                                      j, 
                                                      k, 
                                                      dst.nColRL(), 

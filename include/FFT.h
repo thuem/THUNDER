@@ -243,7 +243,7 @@ class FFT
         /**
          * a pointer points to the source of the Fourier transform
          */
-        double* _srcR;
+        RFLOAT* _srcR;
 
         /**
          * a pointer points to the source of the inverse Fourier transform
@@ -253,7 +253,7 @@ class FFT
         /**
          * a pointer points to the destination of the inverse Fourier transform
          */
-        double* _dstR;
+        RFLOAT* _dstR;
 
         /**
          * a pointer points to the destination of the Fourier transform

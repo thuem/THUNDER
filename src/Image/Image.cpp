@@ -63,14 +63,14 @@ void Image::alloc(const int nCol,
         _sizeFT = (nCol / 2 + 1) * nRow;
 
 #ifdef CXX11_PTR
-        _dataRL.reset(new double[_sizeRL]);
+        _dataRL.reset(new RFLOAT[_sizeRL]);
 #endif
 
 #ifdef FFTW_PTR
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        _dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
+        _dataRL = (RFLOAT*)fftw_malloc(_sizeRL * sizeof(RFLOAT));
 #endif
     }
     else if (space == FT_SPACE)
@@ -125,7 +125,7 @@ void Image::saveRLToBMP(const char* filename) const
     delete[] image;
 }
 
-void Image::saveFTToBMP(const char* filename, double c) const
+void Image::saveFTToBMP(const char* filename, RFLOAT c) const
 {
     int nRowBMP = _nRow / 4 * 4;
     int nColBMP = _nCol / 4 * 4;
@@ -139,7 +139,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
     for (int i = 0; i < nRowBMP; i++)
         for (int j = 0; j <= nColBMP / 2; j++)
         {
-            double value = TSGSL_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
+            RFLOAT value = TSGSL_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
             value = log(1 + value * c);
 
             int iImage = (i + nRowBMP / 2) % nRowBMP;
@@ -182,7 +182,7 @@ void Image::saveFTToBMP(const char* filename, double c) const
     delete[] image;
 }
 
-double Image::getRL(const int iCol,
+RFLOAT Image::getRL(const int iCol,
                     const int iRow) const
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
@@ -192,7 +192,7 @@ double Image::getRL(const int iCol,
     return _dataRL[iRL(iCol, iRow)];
 }
 
-void Image::setRL(const double value,
+void Image::setRL(const RFLOAT value,
                   const int iCol,
                   const int iRow)
 {
@@ -276,7 +276,7 @@ void Image::addFTHalf(const Complex value,
     _dataFT[iFTHalf(iCol, iRow)].dat[1] += value.dat[1];
 }
 
-void Image::addFT(const double value,
+void Image::addFT(const RFLOAT value,
                   int iCol,
                   int iRow)
 {
@@ -284,7 +284,7 @@ void Image::addFT(const double value,
     _dataFT[iFT(iCol, iRow)].dat[0] += value;
 }
 
-void Image::addFTHalf(const double value,
+void Image::addFTHalf(const RFLOAT value,
                       const int iCol,
                       const int iRow)
 {
@@ -292,12 +292,12 @@ void Image::addFTHalf(const double value,
     _dataFT[iFTHalf(iCol, iRow)].dat[0] += value;
 }
 
-double Image::getBiLinearRL(const double iCol,
-                            const double iRow) const
+RFLOAT Image::getBiLinearRL(const RFLOAT iCol,
+                            const RFLOAT iRow) const
 {
-    double w[2][2];
+    RFLOAT w[2][2];
     int x0[2];
-    double x[2] = {iCol, iRow};
+    RFLOAT x[2] = {iCol, iRow};
     //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
     WG_BI_INTERP_LINEAR(w, x0, x);
 
@@ -306,17 +306,17 @@ double Image::getBiLinearRL(const double iCol,
     coordinatesInBoundaryRL(x0[0] + 1, x0[1] + 1);
 #endif
 
-    double result = 0;
+    RFLOAT result = 0;
     FOR_CELL_DIM_3 result += w[j][i] * getRL(x0[0] + i, x0[1] + j);
     return result;
 }
 
-Complex Image::getBiLinearFT(const double iCol,
-                             const double iRow) const
+Complex Image::getBiLinearFT(const RFLOAT iCol,
+                             const RFLOAT iRow) const
 {
-    double w[2][2];
+    RFLOAT w[2][2];
     int x0[2];
-    double x[2] = {iCol, iRow};
+    RFLOAT x[2] = {iCol, iRow};
     //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
     WG_BI_INTERP_LINEAR(w, x0, x);
 
@@ -330,8 +330,8 @@ Complex Image::getBiLinearFT(const double iCol,
     return result;
 }
 
-Complex Image::getByInterpolationFT(double iCol,
-                                    double iRow,
+Complex Image::getByInterpolationFT(RFLOAT iCol,
+                                    RFLOAT iRow,
                                     const int interp) const
 {
     bool conj = conjHalf(iCol, iRow);
@@ -343,9 +343,9 @@ Complex Image::getByInterpolationFT(double iCol,
         return conj ? CONJUGATE(result) : result;
     }
 
-    double w[2][2];
+    RFLOAT w[2][2];
     int x0[2];
-    double x[2] = {iCol, iRow};
+    RFLOAT x[2] = {iCol, iRow};
 
     //WG_BI_INTERP(w, x0, x, interp);
     WG_BI_INTERP_LINEAR(w, x0, x);
@@ -356,14 +356,14 @@ Complex Image::getByInterpolationFT(double iCol,
 }
 
 void Image::addFT(const Complex value,
-                  double iCol,
-                  double iRow)
+                  RFLOAT iCol,
+                  RFLOAT iRow)
 {
     bool conj = conjHalf(iCol, iRow);
 
-    double w[2][2];
+    RFLOAT w[2][2];
     int x0[2];
-    double x[2] = {iCol, iRow};
+    RFLOAT x[2] = {iCol, iRow};
 
     //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
     WG_BI_INTERP_LINEAR(w, x0, x);
@@ -373,15 +373,15 @@ void Image::addFT(const Complex value,
               x0);
 }
 
-void Image::addFT(const double value,
-                  double iCol,
-                  double iRow)
+void Image::addFT(const RFLOAT value,
+                  RFLOAT iCol,
+                  RFLOAT iRow)
 {
     conjHalf(iCol, iRow);
 
-    double w[2][2];
+    RFLOAT w[2][2];
     int x0[2];
-    double x[2] = {iCol, iRow};
+    RFLOAT x[2] = {iCol, iRow};
 
     //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
     WG_BI_INTERP_LINEAR(w, x0, x);
@@ -405,7 +405,7 @@ void Image::coordinatesInBoundaryFT(const int iCol,
         REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
 }
 
-Complex Image::getFTHalf(const double w[2][2],
+Complex Image::getFTHalf(const RFLOAT w[2][2],
                          const int x0[2]) const
 {
     Complex result = COMPLEX(0, 0);
@@ -416,7 +416,7 @@ Complex Image::getFTHalf(const double w[2][2],
 }
 
 void Image::addFTHalf(const Complex value,
-                      const double w[2][2],
+                      const RFLOAT w[2][2],
                       const int x0[2])
 {
     FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
@@ -425,8 +425,8 @@ void Image::addFTHalf(const Complex value,
                              
 }
 
-void Image::addFTHalf(const double value,
-                      const double w[2][2],
+void Image::addFTHalf(const RFLOAT value,
+                      const RFLOAT w[2][2],
                       const int x0[2])
 {
     FOR_CELL_DIM_2 addFTHalf(value * w[j][i],

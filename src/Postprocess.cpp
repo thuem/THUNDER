@@ -15,7 +15,7 @@ Postprocess::Postprocess() {}
 Postprocess::Postprocess(const char mapAFilename[],
                          const char mapBFilename[],
                          const char maskFilename[],
-                         const double pixelSize)
+                         const RFLOAT pixelSize)
 {
     _pixelSize = pixelSize;
 
@@ -148,7 +148,7 @@ void Postprocess::run()
 
     CLOG(INFO, "LOGGER_SYS") << "Estimating B-Factor";
 
-    double bFactor;
+    RFLOAT bFactor;
     
     bFactorEst(bFactor,
                _mapI,
@@ -163,8 +163,8 @@ void Postprocess::run()
     
     sharpen(_mapI,
             _mapI,
-            (double)_res / _size,
-            (double)EDGE_WIDTH_FT / _size,
+            (RFLOAT)_res / _size,
+            (RFLOAT)EDGE_WIDTH_FT / _size,
             bFactor);
 
     //CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";

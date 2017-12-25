@@ -105,19 +105,19 @@
 
 struct CTFAttr
 {
-    double voltage;
+    RFLOAT voltage;
 
-    double defocusU;
+    RFLOAT defocusU;
 
-    double defocusV;
+    RFLOAT defocusV;
 
-    double defocusTheta;
+    RFLOAT defocusTheta;
 
-    double Cs;
+    RFLOAT Cs;
 
-    double amplitudeContrast;
+    RFLOAT amplitudeContrast;
 
-    double phaseShift;
+    RFLOAT phaseShift;
 };
 
 class Database : public Parallel
@@ -197,9 +197,9 @@ class Database : public Parallel
 
         long offset(const int i) const;
 
-        double coordX(const int i) const;
+        RFLOAT coordX(const int i) const;
 
-        double coordY(const int i) const;
+        RFLOAT coordY(const int i) const;
         
         int groupID(const int i) const;
 
@@ -207,13 +207,13 @@ class Database : public Parallel
 
         string micrographPath(const int i) const;
         
-        void ctf(double& voltage,
-                 double& defocusU,
-                 double& defocusV,
-                 double& defocusTheta,
-                 double& Cs,
-                 double& amplitudeConstrast,
-                 double& phaseShift,
+        void ctf(RFLOAT& voltage,
+                 RFLOAT& defocusU,
+                 RFLOAT& defocusV,
+                 RFLOAT& defocusTheta,
+                 RFLOAT& Cs,
+                 RFLOAT& amplitudeConstrast,
+                 RFLOAT& phaseShift,
                  const int i) const;
 
         void ctf(CTFAttr& dst,
@@ -223,21 +223,21 @@ class Database : public Parallel
 
         vec4 quat(const int i) const;
 
-        double k1(const int i) const;
+        RFLOAT k1(const int i) const;
 
-        double k2(const int i) const;
+        RFLOAT k2(const int i) const;
 
-        double k3(const int i) const;
+        RFLOAT k3(const int i) const;
 
         vec2 tran(const int i) const;
 
-        double stdTX(const int i) const;
+        RFLOAT stdTX(const int i) const;
 
-        double stdTY(const int i) const;
+        RFLOAT stdTY(const int i) const;
 
-        double d(const int i) const;
+        RFLOAT d(const int i) const;
 
-        double stdD(const int i) const;
+        RFLOAT stdD(const int i) const;
 
     private:
 

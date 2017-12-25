@@ -12,8 +12,8 @@
 
 #include "Euler.h"
 
-void angle(double& phi,
-           double& theta,
+void angle(RFLOAT& phi,
+           RFLOAT& theta,
            const vec3& src)
 {
     theta = acos(src(2));
@@ -23,9 +23,9 @@ void angle(double& phi,
         (phi = 2 * M_PI - phi);
 }
 
-void angle(double& phi,
-           double& theta,
-           double& psi,
+void angle(RFLOAT& phi,
+           RFLOAT& theta,
+           RFLOAT& psi,
            const mat33& src)
 {
     theta = acos(src(2, 2));
@@ -40,9 +40,9 @@ void angle(double& phi,
         (phi = 2 * M_PI - phi);
 }
 
-void angle(double& phi,
-           double& theta,
-           double& psi,
+void angle(RFLOAT& phi,
+           RFLOAT& theta,
+           RFLOAT& psi,
            const vec4& src)
 {
     phi = atan2((src(1) * src(3) + src(0) * src(2)),
@@ -62,9 +62,9 @@ void angle(double& phi,
 }
 
 void quaternion(vec4& dst,
-                const double phi,
-                const double theta,
-                const double psi)
+                const RFLOAT phi,
+                const RFLOAT theta,
+                const RFLOAT psi)
 {
     dst(0) = cos((phi + psi) / 2) * cos(theta / 2);
     dst(1) = cos((phi - psi) / 2) * sin(theta / 2);
@@ -73,7 +73,7 @@ void quaternion(vec4& dst,
 }
 
 void quaternion(vec4& dst,
-                const double phi,
+                const RFLOAT phi,
                 const vec3& axis)
 {
     dst(0) = cos(phi / 2);
@@ -97,7 +97,7 @@ void quaternion(vec4& dst,
     /***
     if (src.trace() > 0)
     {
-        double s = sqrt(src.trace() + 1);
+        RFLOAT s = sqrt(src.trace() + 1);
 
         dst(0) = 0.5 * s;
         dst(1) = 0.5 * (src(2, 1) - src(1, 2)) / s;
@@ -110,7 +110,7 @@ void quaternion(vec4& dst,
             (src(0, 0) > src(2, 2)))
         {
             // src(0, 0) -> biggest
-            double s = sqrt(src(0, 0) - src(1, 1) - src(2, 2) + 1);
+            RFLOAT s = sqrt(src(0, 0) - src(1, 1) - src(2, 2) + 1);
 
             dst(0) = 0.5 * (dst(2, 1) - dst(1, 2)) / s;
             dst(1) = 0.5 * s;
@@ -121,7 +121,7 @@ void quaternion(vec4& dst,
         {
             // src(1, 1) -> biggest
 
-            double s = sqrt(src(1, 1) - src(0, 0) - src(2, 2) + 1);
+            RFLOAT s = sqrt(src(1, 1) - src(0, 0) - src(2, 2) + 1);
 
             dst(0) = 0.5 * (dst(0, 2) - dst(2, 0)) / s;
             dst(1) = 0.5 * (src(0, 1) + src(1, 0)) / s;
@@ -132,7 +132,7 @@ void quaternion(vec4& dst,
         {
             // src(2, 2) -> biggest
 
-            double s = sqrt(src(2, 2) - src(0, 0) - src(1, 1) + 1);
+            RFLOAT s = sqrt(src(2, 2) - src(0, 0) - src(1, 1) + 1);
 
             dst(0) = 0.5 * (dst(1, 0) - dst(0, 1)) / s;
             dst(1) = 0.5 * (src(0, 2) + src(2, 0)) / s;
@@ -156,10 +156,10 @@ void rotate2D(mat22& dst, const vec2& vec)
     dst(1, 1) = vec(0);
 }
 
-void rotate2D(mat22& dst, const double phi)
+void rotate2D(mat22& dst, const RFLOAT phi)
 {
-    double sine = sin(phi);
-    double cosine = cos(phi);
+    RFLOAT sine = sin(phi);
+    RFLOAT cosine = cos(phi);
 
     dst(0, 0) = cosine;
     dst(0, 1) = -sine;
@@ -168,13 +168,13 @@ void rotate2D(mat22& dst, const double phi)
 }
 
 void direction(vec3& dst,
-               const double phi,
-               const double theta)
+               const RFLOAT phi,
+               const RFLOAT theta)
 {
-    double sinPhi = sin(phi);
-    double cosPhi = cos(phi);
-    double sinTheta = sin(theta);
-    double cosTheta = cos(theta);
+    RFLOAT sinPhi = sin(phi);
+    RFLOAT cosPhi = cos(phi);
+    RFLOAT sinTheta = sin(theta);
+    RFLOAT cosTheta = cos(theta);
 
     dst(0) = sinTheta * cosPhi;
     dst(1) = sinTheta * sinPhi;
@@ -182,16 +182,16 @@ void direction(vec3& dst,
 }
 
 void rotate3D(mat33& dst,
-              const double phi,
-              const double theta,
-              const double psi)
+              const RFLOAT phi,
+              const RFLOAT theta,
+              const RFLOAT psi)
 { 
-    double sinPhi = sin(phi);
-    double cosPhi = cos(phi);
-    double sinTheta = sin(theta);
-    double cosTheta = cos(theta);
-    double sinPsi = sin(psi);
-    double cosPsi = cos(psi);
+    RFLOAT sinPhi = sin(phi);
+    RFLOAT cosPhi = cos(phi);
+    RFLOAT sinTheta = sin(theta);
+    RFLOAT cosTheta = cos(theta);
+    RFLOAT sinPsi = sin(psi);
+    RFLOAT cosPsi = cos(psi);
 
     dst(0, 0) = cosPhi * cosPsi - sinPhi * cosTheta * sinPsi;
     dst(0, 1) = -cosPhi * sinPsi - sinPhi * cosTheta * cosPsi;
@@ -221,10 +221,10 @@ void rotate3D(mat33& dst,
     dst = mat33::Identity() + 2 * src(0) * A + 2 * A * A;
 }
 
-void rotate3DX(mat33& dst, const double phi)
+void rotate3DX(mat33& dst, const RFLOAT phi)
 {
-    double sine = sin(phi);
-    double cosine = cos(phi);
+    RFLOAT sine = sin(phi);
+    RFLOAT cosine = cos(phi);
 
     dst(0, 0) = 1;
     dst(0, 1) = 0;
@@ -237,10 +237,10 @@ void rotate3DX(mat33& dst, const double phi)
     dst(2, 2) = cosine;
 }
 
-void rotate3DY(mat33& dst, const double phi)
+void rotate3DY(mat33& dst, const RFLOAT phi)
 {
-    double sine = sin(phi);
-    double cosine = cos(phi);
+    RFLOAT sine = sin(phi);
+    RFLOAT cosine = cos(phi);
 
     dst(0, 0) = cosine;
     dst(0, 1) = 0;
@@ -253,10 +253,10 @@ void rotate3DY(mat33& dst, const double phi)
     dst(2, 2) = cosine;
 }
 
-void rotate3DZ(mat33& dst, const double phi)
+void rotate3DZ(mat33& dst, const RFLOAT phi)
 {
-    double sine = sin(phi);
-    double cosine = cos(phi);
+    RFLOAT sine = sin(phi);
+    RFLOAT cosine = cos(phi);
 
     dst(0, 0) = cosine;
     dst(0, 1) = -sine; 
@@ -272,16 +272,16 @@ void rotate3DZ(mat33& dst, const double phi)
 void alignZ(mat33& dst,
             const vec3& vec)
 {
-    double x = vec(0);
-    double y = vec(1);
-    double z = vec(2);
+    RFLOAT x = vec(0);
+    RFLOAT y = vec(1);
+    RFLOAT z = vec(2);
 
     // compute the length of projection of YZ plane
-    double pYZ = vec.tail<2>().norm();
-    // double pYZ = norm(vec.tail(2));
+    RFLOAT pYZ = vec.tail<2>().norm();
+    // RFLOAT pYZ = norm(vec.tail(2));
     // compute the length of this vector
-    double p = vec.norm();
-    // double p = norm(vec);
+    RFLOAT p = vec.norm();
+    // RFLOAT p = norm(vec);
 
     if ((pYZ / p) > EQUAL_ACCURACY)
     {
@@ -305,7 +305,7 @@ void alignZ(mat33& dst,
 }
 
 void rotate3D(mat33& dst,
-              const double phi,
+              const RFLOAT phi,
               const char axis)
 {
     switch (axis)
@@ -322,7 +322,7 @@ void rotate3D(mat33& dst,
 }
 
 void rotate3D(mat33& dst,
-              const double phi,
+              const RFLOAT phi,
               const vec3& axis)
 {
     vec4 quat;
@@ -376,7 +376,7 @@ void swingTwist(vec4& swing,
                 const vec4& src,
                 const vec3& vec)
 {
-    double p = vec3(src(1), src(2), src(3)).dot(vec);
+    RFLOAT p = vec3(src(1), src(2), src(3)).dot(vec);
 
     twist = vec4(src(0), p * vec(0), p * vec(1), p * vec(2));
 

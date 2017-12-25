@@ -212,7 +212,7 @@ class Model : public Parallel
         /**
          * pixel size of 2D images (in Angstrom)
          */
-        double _pixelSize;
+        RFLOAT _pixelSize;
 
         /**
          * upper boundary of frequency during global search before padding (in
@@ -223,60 +223,60 @@ class Model : public Parallel
         /**
          * width of modified Kaiser-Bessel function
          */
-        double _a;
+        RFLOAT _a;
 
         /**
          * smoothness parameter of modified Kaiser-Bessel function
          */
-        double _alpha;
+        RFLOAT _alpha;
 
         /**
          * the concentration parameter of the rotation
          */
-        double _rVari;
+        RFLOAT _rVari;
 
         /**
          * variance of 2D Gaussian distribution of the translation in X
          */
-        double _tVariS0;
+        RFLOAT _tVariS0;
 
         /**
          * variance of 2D Gaussian distribution of the translation in Y
          */
-        double _tVariS1;
+        RFLOAT _tVariS1;
 
-        double _tVariS0Prev;
+        RFLOAT _tVariS0Prev;
 
-        double _tVariS1Prev;
+        RFLOAT _tVariS1Prev;
 
-        double _stdRVari;
+        RFLOAT _stdRVari;
 
-        double _stdTVariS0;
+        RFLOAT _stdTVariS0;
 
-        double _stdTVariS1;
+        RFLOAT _stdTVariS1;
 
         /**
          * a parameter indicating the change of rotation between iterations
          */
-        double _rChange;
+        RFLOAT _rChange;
 
         /**
          * a parameter indicating the change of rotation between iterations of
          * the previous
          */
-        double _rChangePrev;
+        RFLOAT _rChangePrev;
 
         /**
          * a parameter indicating the standard deviation of rotation between
          * iterations
          */
-        double _stdRChange;
+        RFLOAT _stdRChange;
 
         /**
          * a parameter indicating the standard deviation of rotation between
          * iteration of the previous
          */
-        double _stdRChangePrev;
+        RFLOAT _stdRChangePrev;
 
         /**
          * number of iterations without decreasing in rotation change
@@ -379,9 +379,9 @@ class Model : public Parallel
                   const int size,
                   const int r,
                   const int pf,
-                  const double pixelSize,
-                  const double a,
-                  const double alpha,
+                  const RFLOAT pixelSize,
+                  const RFLOAT a,
+                  const RFLOAT alpha,
                   const Symmetry* sym);
 
         int mode() const;
@@ -526,7 +526,7 @@ class Model : public Parallel
          */
         void compareTwoHemispheres(const bool fscFlag,
                                    const bool avgFlag,
-                                   const double thres);
+                                   const RFLOAT thres);
 
         /**
          * This function performs a low pass filter on each reference.
@@ -534,8 +534,8 @@ class Model : public Parallel
          * @param thres threshold of spatial frequency of low pass filter
          * @param ew    edge width of spatial frequency of low pass filter
          */
-        void lowPassRef(const double thres,
-                        const double ew);
+        void lowPassRef(const RFLOAT thres,
+                        const RFLOAT ew);
 
         /**
          * This function returns the FSCs as each column stands for the FSC of a
@@ -599,7 +599,7 @@ class Model : public Parallel
          *                or not
          */
         int resolutionP(const int i,
-                        const double thres = 0.143,
+                        const RFLOAT thres = 0.143,
                         const bool inverse = false) const;
 
         /**
@@ -610,7 +610,7 @@ class Model : public Parallel
          * @param inverse whether to search from high frequency to low frequency
          *                or not
          */
-        int resolutionP(const double thres = 0.143,
+        int resolutionP(const RFLOAT thres = 0.143,
                         const bool inverse = false) const;
 
         /**
@@ -620,14 +620,14 @@ class Model : public Parallel
          * @param i the index of the reference
          * @param thres the threshold for determining resolution
          */
-        double resolutionA(const int i,
-                           const double thres = 0.143) const;
+        RFLOAT resolutionA(const int i,
+                           const RFLOAT thres = 0.143) const;
 
         /**
          * This function returns the highest resolution in Angstrom(-1) of the
          * references.
          */
-        double resolutionA(const double thres = 0.143) const;
+        RFLOAT resolutionA(const RFLOAT thres = 0.143) const;
 
         /**
          * This function sets the max radius of all projector to a certain
@@ -650,7 +650,7 @@ class Model : public Parallel
          */
         void refreshReco();
 
-        void resetReco(const double thres);
+        void resetReco(const RFLOAT thres);
 
         /***
         void refreshRecoSigTau(const int rSig,
@@ -663,67 +663,67 @@ class Model : public Parallel
          *
          * @param thres the threshold for determining resolution
          */
-        void updateR(const double thres = 0.143);
+        void updateR(const RFLOAT thres = 0.143);
 
-        void elevateR(const double thres = 0.143);
+        void elevateR(const RFLOAT thres = 0.143);
 
         /**
          * This function returns the concentration parameter of the rotation.
          */
-        double rVari() const;
+        RFLOAT rVari() const;
 
         /** 
          * This function returns the variance of 2D Gaussian distribution of the
          * translation in X.
          */
-        double tVariS0() const;
+        RFLOAT tVariS0() const;
         
         /** 
          * This function returns the variance of 2D Gaussian distribution of the
          * translation in Y.
          */
-        double tVariS1() const;
+        RFLOAT tVariS1() const;
 
-        double stdRVari() const;
+        RFLOAT stdRVari() const;
 
-        double stdTVariS0() const;
+        RFLOAT stdTVariS0() const;
 
-        double stdTVariS1() const;
+        RFLOAT stdTVariS1() const;
 
-        double tVariS0Prev() const;
+        RFLOAT tVariS0Prev() const;
 
-        double tVariS1Prev() const;
+        RFLOAT tVariS1Prev() const;
 
-        void setRVari(const double rVari);
+        void setRVari(const RFLOAT rVari);
 
-        void setTVariS0(const double tVariS0);
+        void setTVariS0(const RFLOAT tVariS0);
 
-        void setTVariS1(const double tVariS1);
+        void setTVariS1(const RFLOAT tVariS1);
 
         void resetTVari();
 
-        void setStdRVari(const double stdRVari);
+        void setStdRVari(const RFLOAT stdRVari);
 
-        void setStdTVariS0(const double stdTVariS0);
+        void setStdTVariS0(const RFLOAT stdTVariS0);
 
-        void setStdTVariS1(const double stdTVariS1);
+        void setStdTVariS1(const RFLOAT stdTVariS1);
 
         /**
          * This function returns the average rotation change between iterations.
          */
-        double rChange() const;
+        RFLOAT rChange() const;
 
         /**
          * This function returns the average rotation change between the
          * previous two iterations.
          */
-        double rChangePrev() const;
+        RFLOAT rChangePrev() const;
 
         /**
          * This function returns the standard deviation of the rotation change
          * between iterations.
          */
-        double stdRChange() const;
+        RFLOAT stdRChange() const;
 
         /**
          * This function sets the mean value of rotation change. This function
@@ -732,7 +732,7 @@ class Model : public Parallel
          *
          * @param rChange mean value of rotation change
          */
-        void setRChange(const double rChange);
+        void setRChange(const RFLOAT rChange);
 
         /**
          * This function resets the mean value of rotation change and the
@@ -747,7 +747,7 @@ class Model : public Parallel
          *
          * @param stdRChange standard devation of rotation change
          */
-        void setStdRChange(const double stdRChange);
+        void setStdRChange(const RFLOAT stdRChange);
 
         /**
          * This function returns the number of iterations that rotation change
@@ -822,11 +822,11 @@ class Model : public Parallel
          */
 
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
-        bool determineIncreaseR(const double rChangeDecreaseFactor);
+        bool determineIncreaseR(const RFLOAT rChangeDecreaseFactor);
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-        bool determineIncreaseR(const double tVariDecreaseFactor);
+        bool determineIncreaseR(const RFLOAT tVariDecreaseFactor);
 #endif
 
         void avgHemi();

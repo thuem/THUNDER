@@ -67,7 +67,7 @@
 #define SET_0_RL(base) \
     FOR_EACH_PIXEL_RL(base) \
         base(i) = 0
-    //memset(&base(0), 0, sizeof(double) * base.sizeRL());
+    //memset(&base(0), 0, sizeof(RFLOAT) * base.sizeRL());
 
 /**
  * This macro sets each pixel of an Image / Volume to 0 in Fourier space.
@@ -217,13 +217,13 @@ class ImageBase
     protected:
 
 #ifdef CXX11_PTR
-        boost::movelib::unique_ptr<double[]> _dataRL;
+        boost::movelib::unique_ptr<RFLOAT[]> _dataRL;
 
         boost::movelib::unique_ptr<Complex[]> _dataFT;
 #endif
 
 #ifdef FFTW_PTR
-        double* _dataRL;
+        RFLOAT* _dataRL;
 
         Complex* _dataFT;
 #endif
@@ -258,7 +258,7 @@ class ImageBase
          * return a const pointer which points to the i-th element in real space
          * @param i index of the element
          */
-        inline const double& iGetRL(const size_t i = 0) const
+        inline const RFLOAT& iGetRL(const size_t i = 0) const
         {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_RL(i);
@@ -285,7 +285,7 @@ class ImageBase
          * return the i-th element in real space
          * @param i index of the element
          */
-        inline double& operator()(const size_t i)
+        inline RFLOAT& operator()(const size_t i)
         {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
             BOUNDARY_CHECK_RL(i);
@@ -347,7 +347,7 @@ class ImageBase
         ImageBase copyBase() const;
 };
 
-double norm(ImageBase& base);
+RFLOAT norm(ImageBase& base);
 
 void normalise(ImageBase& base);
 

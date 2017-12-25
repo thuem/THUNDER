@@ -76,8 +76,8 @@ inline bool conjHalf(int& iCol,
     return true;
 };
 
-inline bool conjHalf(double& iCol,
-                     double& iRow)
+inline bool conjHalf(RFLOAT& iCol,
+                     RFLOAT& iRow)
 {
     if (iCol >= 0) return false;
 
@@ -196,7 +196,7 @@ class Image : public ImageBase
          * @param c log(1 + mod(x) * c)
          */
         void saveFTToBMP(const char* filename,
-                         const double c) const;
+                         const RFLOAT c) const;
 
         /**
          * This function returns the value of the pixel at the certain column and
@@ -204,7 +204,7 @@ class Image : public ImageBase
          * @param iCol index of the column
          * @param iRow index of the row
          */
-        double getRL(const int iCol,
+        RFLOAT getRL(const int iCol,
                      const int iRow) const;
 
         /**
@@ -214,7 +214,7 @@ class Image : public ImageBase
          * @param iCol index of the column
          * @param iRow index of the row
          */
-        void setRL(const double value,
+        void setRL(const RFLOAT value,
                    const int iCol,
                    const int iRow);
 
@@ -254,11 +254,11 @@ class Image : public ImageBase
                        const int iCol,
                        const int iRow);
 
-        void addFT(const double value,
+        void addFT(const RFLOAT value,
                    int iCol,
                    int iRow);
 
-        void addFTHalf(const double value,
+        void addFTHalf(const RFLOAT value,
                        const int iCol,
                        const int iRow);
 
@@ -268,8 +268,8 @@ class Image : public ImageBase
          * @param iCol index of the column (irregular)
          * @param iRow index of the row (irregular)
          */
-        double getBiLinearRL(const double iCol,
-                             const double iRow) const;
+        RFLOAT getBiLinearRL(const RFLOAT iCol,
+                             const RFLOAT iRow) const;
 
         /**
          * This function gets the value of an irregular pixel by bi-linear
@@ -277,20 +277,20 @@ class Image : public ImageBase
          * @param iCol index of the column (irregular)
          * @param iRow index of the row (irregular)
          */
-        Complex getBiLinearFT(const double iCol,
-                              const double iRow) const;
+        Complex getBiLinearFT(const RFLOAT iCol,
+                              const RFLOAT iRow) const;
 
-        Complex getByInterpolationFT(double iCol,
-                                     double iRow,
+        Complex getByInterpolationFT(RFLOAT iCol,
+                                     RFLOAT iRow,
                                      const int interp) const;
 
         void addFT(const Complex value,
-                   double iCol,
-                   double iRow);
+                   RFLOAT iCol,
+                   RFLOAT iRow);
 
-        void addFT(const double value,
-                   double iCol,
-                   double iRow);
+        void addFT(const RFLOAT value,
+                   RFLOAT iCol,
+                   RFLOAT iRow);
 
         void clear()
         {
@@ -354,15 +354,15 @@ class Image : public ImageBase
         void coordinatesInBoundaryFT(const int iCol,
                                      const int iRow) const;
 
-        Complex getFTHalf(const double w[2][2],
+        Complex getFTHalf(const RFLOAT w[2][2],
                           const int x0[2]) const;
 
         void addFTHalf(const Complex value,
-                       const double w[2][2],
+                       const RFLOAT w[2][2],
                        const int x0[2]);
 
-        void addFTHalf(const double value,
-                       const double w[2][2],
+        void addFTHalf(const RFLOAT value,
+                       const RFLOAT w[2][2],
                        const int x0[2]);
 };
 

@@ -20,8 +20,8 @@ Reconstructor::Reconstructor(const int mode,
                              const int N,
                              const int pf,
                              const Symmetry* sym,
-                             const double a,
-                             const double alpha)
+                             const RFLOAT a,
+                             const RFLOAT alpha)
 {
     defaultInit();
 
@@ -39,8 +39,8 @@ void Reconstructor::init(const int mode,
                          const int N,
                          const int pf,
                          const Symmetry* sym,
-                         const double a,
-                         const double alpha)
+                         const RFLOAT a,
+                         const RFLOAT alpha)
 {
     _mode = mode;
     _size = size;
@@ -288,7 +288,7 @@ void Reconstructor::setPreCal(const int nPxl,
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
                            const mat22& rot,
-                           const double w)
+                           const RFLOAT w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
@@ -310,7 +310,7 @@ void Reconstructor::insert(const Image& src,
     {
         if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
-            vec2 newCor((double)(i * _pf), (double)(j * _pf));
+            vec2 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf));
             vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -357,7 +357,7 @@ void Reconstructor::insert(const Image& src,
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
                            const mat33& rot,
-                           const double w)
+                           const RFLOAT w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
     IF_MASTER
@@ -379,7 +379,7 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
             {
-                vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+                vec3 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf), 0);
                 vec3 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -430,7 +430,7 @@ void Reconstructor::insert(const Image& src,
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat22& rot,
-                            const double w,
+                            const RFLOAT w,
                             const vec* sig)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -445,7 +445,7 @@ void Reconstructor::insertP(const Image& src,
 
         for (int i = 0; i < _nPxl; i++)
         {
-            vec2 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf));
+            vec2 newCor((RFLOAT)(_iCol[i] * _pf), (RFLOAT)(_iRow[i] * _pf));
             vec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -495,7 +495,7 @@ void Reconstructor::insertP(const Image& src,
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
                             const mat33& rot,
-                            const double w,
+                            const RFLOAT w,
                             const vec* sig)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -510,7 +510,7 @@ void Reconstructor::insertP(const Image& src,
 
         for (int i = 0; i < _nPxl; i++)
         {
-            vec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
+            vec3 newCor((RFLOAT)(_iCol[i] * _pf), (RFLOAT)(_iRow[i] * _pf), 0);
             vec3 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -696,7 +696,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 {
                     int u = AROUND(NORM(i, j));
 
-                    double FSC = (u / _pf >= _FSC.size())
+                    RFLOAT FSC = (u / _pf >= _FSC.size())
                                ? 0
                                : _FSC(u / _pf);
 
@@ -727,7 +727,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 {
                     int u = AROUND(NORM_3(i, j, k));
 
-                    double FSC = (u / _pf >= _FSC.size())
+                    RFLOAT FSC = (u / _pf >= _FSC.size())
                                ? 0
                                : _FSC(u / _pf);
 
@@ -791,8 +791,8 @@ void Reconstructor::reconstruct(Volume& dst)
         abort();
     }
 
-    double diffC = DBL_MAX;
-    double diffCPrev = DBL_MAX;
+    RFLOAT diffC = DBL_MAX;
+    RFLOAT diffCPrev = DBL_MAX;
 
     int m = 0;
 
@@ -1038,7 +1038,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-    double nf = MKB_RL(0, _a * _pf, _alpha);
+    RFLOAT nf = MKB_RL(0, _a * _pf, _alpha);
 #endif
 
     if (_mode == MODE_2D)
@@ -1180,7 +1180,7 @@ void Reconstructor::allReduceT()
 
     if (_mode == MODE_2D)
     {
-        double sf = 1.0 / REAL(_T2D[0]);
+        RFLOAT sf = 1.0 / REAL(_T2D[0]);
 
         #pragma omp parallel for
         SCALE_FT(_T2D, sf);
@@ -1189,7 +1189,7 @@ void Reconstructor::allReduceT()
     }
     else if (_mode == MODE_3D)
     {
-        double sf = 1.0 / REAL(_T3D[0]);
+        RFLOAT sf = 1.0 / REAL(_T3D[0]);
 
         #pragma omp parallel for
         SCALE_FT(_T3D, sf);
@@ -1205,10 +1205,10 @@ void Reconstructor::allReduceT()
 #endif
 }
 
-double Reconstructor::checkC() const
+RFLOAT Reconstructor::checkC() const
 {
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE
-    double diff = 0;
+    RFLOAT diff = 0;
 
     int counter = 0;
 
@@ -1249,7 +1249,7 @@ double Reconstructor::checkC() const
 #ifdef RECONSTRUCTOR_CHECK_C_MAX
     if (_mode == MODE_2D)
     {
-        vector<double> diff(_C2D.sizeFT(), 0);
+        vector<RFLOAT> diff(_C2D.sizeFT(), 0);
         
         #pragma omp parallel for schedule(dynamic)
         IMAGE_FOR_EACH_PIXEL_FT(_C2D)
@@ -1260,7 +1260,7 @@ double Reconstructor::checkC() const
     }
     else if (_mode == MODE_3D)
     {
-        vector<double> diff(_C3D.sizeFT(), 0);
+        vector<RFLOAT> diff(_C3D.sizeFT(), 0);
 
         #pragma omp parallel for schedule(dynamic)
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
@@ -1281,9 +1281,9 @@ double Reconstructor::checkC() const
 void Reconstructor::convoluteC()
 {
 #ifdef RECONSTRUCTOR_KERNEL_PADDING
-    double nf = MKB_RL(0, _a * _pf, _alpha);
+    RFLOAT nf = MKB_RL(0, _a * _pf, _alpha);
 #else
-    double nf = MKB_RL(0, _a, _alpha);
+    RFLOAT nf = MKB_RL(0, _a, _alpha);
 #endif
 
     if (_mode == MODE_2D)

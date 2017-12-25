@@ -20,8 +20,8 @@ Particle::Particle(const int mode,
                    const int nR,
                    const int nT,
                    const int nD,
-                   const double transS,
-                   const double transQ,
+                   const RFLOAT transS,
+                   const RFLOAT transQ,
                    const Symmetry* sym)
 {
     defaultInit();
@@ -35,8 +35,8 @@ Particle::~Particle()
 }
 
 void Particle::init(const int mode,
-                    const double transS,
-                    const double transQ,
+                    const RFLOAT transS,
+                    const RFLOAT transQ,
                     const Symmetry* sym)
 {
     clear();
@@ -54,8 +54,8 @@ void Particle::init(const int mode,
                     const int nR,
                     const int nT,
                     const int nD,
-                    const double transS,
-                    const double transQ,
+                    const RFLOAT transS,
+                    const RFLOAT transQ,
                     const Symmetry* sym)
 {
     init(mode, transS, transQ, sym);
@@ -259,8 +259,8 @@ void Particle::reset(const int nC,
     // sample for 2D Flat Distribution in a Circle
     for (int i = 0; i < nT; i++)
     {
-        double r = TSGSL_ran_flat(engine, 0, _transS);
-        double t = TSGSL_ran_flat(engine, 0, 2 * M_PI);
+        RFLOAT r = TSGSL_ran_flat(engine, 0, _transS);
+        RFLOAT t = TSGSL_ran_flat(engine, 0, 2 * M_PI);
 
         t(i, 0) = r * cos(t);
         t(i, 1) = r * sin(t);
@@ -287,7 +287,7 @@ void Particle::reset(const int nC,
 }
 
 void Particle::initD(const int nD,
-                     const double sD)
+                     const RFLOAT sD)
 {
     gsl_rng* engine = get_random_engine();
 
@@ -323,13 +323,13 @@ int Particle::nD() const { return _nD; }
 
 void Particle::setND(const int nD) { _nD = nD; }
 
-double Particle::transS() const { return _transS; }
+RFLOAT Particle::transS() const { return _transS; }
 
-void Particle::setTransS(const double transS) { _transS = transS; }
+void Particle::setTransS(const RFLOAT transS) { _transS = transS; }
 
-double Particle::transQ() const { return _transQ; }
+RFLOAT Particle::transQ() const { return _transQ; }
 
-void Particle::setTransQ(const double transQ) { _transQ = transQ; }
+void Particle::setTransQ(const RFLOAT transQ) { _transQ = transQ; }
 
 uvec Particle::c() const { return _c; }
 
@@ -387,14 +387,14 @@ void Particle::load(const int nR,
                     const int nT,
                     const int nD,
                     const vec4& q,
-                    const double k1,
-                    const double k2,
-                    const double k3,
+                    const RFLOAT k1,
+                    const RFLOAT k2,
+                    const RFLOAT k3,
                     const vec2& t,
-                    const double s0,
-                    const double s1,
-                    const double d,
-                    const double s)
+                    const RFLOAT s0,
+                    const RFLOAT s1,
+                    const RFLOAT d,
+                    const RFLOAT s)
 {
     _nC = 1;
     _nR = nR;
@@ -516,12 +516,12 @@ void Particle::load(const int nR,
 
 }
 
-void Particle::vari(double& k1,
-                    double& k2,
-                    double& k3,
-                    double& s0,
-                    double& s1,
-                    double& s) const
+void Particle::vari(RFLOAT& k1,
+                    RFLOAT& k2,
+                    RFLOAT& k3,
+                    RFLOAT& s0,
+                    RFLOAT& s1,
+                    RFLOAT& s) const
 {
     k1 = _k1;
     k2 = _k2;
@@ -531,10 +531,10 @@ void Particle::vari(double& k1,
     s = _s;
 }
 
-void Particle::vari(double& rVari,
-                    double& s0,
-                    double& s1,
-                    double& s) const
+void Particle::vari(RFLOAT& rVari,
+                    RFLOAT& s0,
+                    RFLOAT& s1,
+                    RFLOAT& s) const
 {
     switch (_mode)
     {
@@ -569,7 +569,7 @@ void Particle::vari(double& rVari,
     s = _s;
 }
 
-double Particle::compress() const
+RFLOAT Particle::compress() const
 {
     // return _transS / sqrt(_s0 * _s1);
 
@@ -601,93 +601,93 @@ double Particle::compress() const
     //return TSGSL_pow_2(_transS) / _s0 / _s1;
 }
 
-double Particle::wC(const int i) const
+RFLOAT Particle::wC(const int i) const
 {
     return _wC(i);
 }
 
-void Particle::setWC(const double wC,
+void Particle::setWC(const RFLOAT wC,
                      const int i)
 {
     _wC(i) = wC;
 }
 
-void Particle::mulWC(const double wC,
+void Particle::mulWC(const RFLOAT wC,
                      const int i)
 {
     _wC(i) *= wC;
 }
 
-double Particle::wR(const int i) const
+RFLOAT Particle::wR(const int i) const
 {
     return _wR(i);
 }
 
-void Particle::setWR(const double wR,
+void Particle::setWR(const RFLOAT wR,
                      const int i)
 {
     _wR(i) = wR;
 }
 
-void Particle::mulWR(const double wR,
+void Particle::mulWR(const RFLOAT wR,
                      const int i)
 {
     _wR(i) *= wR;
 }
 
-double Particle::wT(const int i) const
+RFLOAT Particle::wT(const int i) const
 {
     return _wT(i);
 }
 
-void Particle::setWT(const double wT,
+void Particle::setWT(const RFLOAT wT,
                      const int i)
 {
     _wT(i) = wT;
 }
 
-void Particle::mulWT(const double wT,
+void Particle::mulWT(const RFLOAT wT,
                      const int i)
 {
     _wT(i) *= wT;
 }
 
-double Particle::wD(const int i) const
+RFLOAT Particle::wD(const int i) const
 {
     return _wD(i);
 }
 
-void Particle::setWD(const double wD,
+void Particle::setWD(const RFLOAT wD,
                      const int i)
 {
     _wD(i) = wD;
 }
 
-void Particle::mulWD(const double wD,
+void Particle::mulWD(const RFLOAT wD,
                      const int i)
 {
     _wD(i) *= wD;
 }
 
-void Particle::setUC(const double uC,
+void Particle::setUC(const RFLOAT uC,
                      const int i)
 {
     _uC(i) = uC;
 }
 
-void Particle::setUR(const double uR,
+void Particle::setUR(const RFLOAT uR,
                      const int i)
 {
     _uR(i) = uR;
 }
 
-void Particle::setUT(const double uT,
+void Particle::setUT(const RFLOAT uT,
                      const int i)
 {
     _uT(i) = uT;
 }
 
-void Particle::setUD(const double uD,
+void Particle::setUD(const RFLOAT uD,
                      const int i)
 {
     _uD(i) = uD;
@@ -764,86 +764,86 @@ void Particle::setQuaternion(const vec4& src,
     _r.row(i) = src.transpose();
 }
 
-void Particle::d(double& d,
+void Particle::d(RFLOAT& d,
                  const int i) const
 {
     d = _d(i);
 }
 
-void Particle::setD(const double d,
+void Particle::setD(const RFLOAT d,
                     const int i)
 {
     _d(i) = d;
 }
 
 /***
-double Particle::k0() const
+RFLOAT Particle::k0() const
 {
     return _k0;
 }
 
-void Particle::setK0(const double k0)
+void Particle::setK0(const RFLOAT k0)
 {
     _k0 = k0;
 }
 ***/
 
-double Particle::k1() const
+RFLOAT Particle::k1() const
 {
     return _k1;
 }
 
-void Particle::setK1(const double k1)
+void Particle::setK1(const RFLOAT k1)
 {
     _k1 = k1;
 }
 
-double Particle::k2() const
+RFLOAT Particle::k2() const
 {
     return _k2;
 }
 
-void Particle::setK2(const double k2)
+void Particle::setK2(const RFLOAT k2)
 {
     _k2 = k2;
 }
 
-double Particle::k3() const
+RFLOAT Particle::k3() const
 {
     return _k3;
 }
 
-void Particle::setK3(const double k3)
+void Particle::setK3(const RFLOAT k3)
 {
     _k3 = k3;
 }
 
-double Particle::s0() const
+RFLOAT Particle::s0() const
 {
     return _s0;
 }
 
-void Particle::setS0(const double s0)
+void Particle::setS0(const RFLOAT s0)
 {
     _s0 = s0;
 }
 
-double Particle::s1() const
+RFLOAT Particle::s1() const
 {
     return _s1;
 }
 
-void Particle::setS1(const double s1)
+void Particle::setS1(const RFLOAT s1)
 {
     _s1 = s1;
 }
 
-double Particle::s() const
+RFLOAT Particle::s() const
 {
     return _s;
 }
 
-void Particle::setS(const double s)
+void Particle::setS(const RFLOAT s)
 {
     _s = s;
 }
@@ -926,7 +926,7 @@ void Particle::calVari(const ParticleType pt)
     }
 }
 
-void Particle::perturb(const double pf,
+void Particle::perturb(const RFLOAT pf,
                        const ParticleType pt)
 {
     if (pt == PAR_C)
@@ -1009,7 +1009,7 @@ void Particle::perturb(const double pf,
 
         for (int i = 0; i < _nT; i++)
         {
-            double x, y;
+            RFLOAT x, y;
 
             TSGSL_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
 
@@ -1082,12 +1082,12 @@ void Particle::resample(const int n,
 
         uvec c(_nC);
 
-        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nC);  
+        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nC);  
 
         int i = 0;
         for (int j = 0; j < _nC; j++)
         {
-            double uj = u0 + j * 1.0 / _nC;
+            RFLOAT uj = u0 + j * 1.0 / _nC;
 
             while (uj > cdf[i])
                 i++;
@@ -1134,12 +1134,12 @@ void Particle::resample(const int n,
 
         mat4 r(_nR, 4);
 
-        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nR);  
+        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nR);  
 
         int i = 0;
         for (int j = 0; j < _nR; j++)
         {
-            double uj = u0 + j * 1.0 / _nR;
+            RFLOAT uj = u0 + j * 1.0 / _nR;
 
             while (uj > cdf[i])
                 i++;
@@ -1185,12 +1185,12 @@ void Particle::resample(const int n,
 
         mat2 t(_nT, 2);
 
-        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nT);  
+        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nT);  
 
         int i = 0;
         for (int j = 0; j < _nT; j++)
         {
-            double uj = u0 + j * 1.0 / _nT;
+            RFLOAT uj = u0 + j * 1.0 / _nT;
 
             while (uj > cdf[i])
                 i++;
@@ -1238,12 +1238,12 @@ void Particle::resample(const int n,
 
         vec d(_nD);
 
-        double u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nD);  
+        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nD);  
 
         int i = 0;
         for (int j = 0; j < _nD; j++)
         {
-            double uj = u0 + j * 1.0 / _nD;
+            RFLOAT uj = u0 + j * 1.0 / _nD;
 
             while (uj > cdf[i])
                 i++;
@@ -1286,13 +1286,13 @@ void Particle::resample()
 ***/
 
 /***
-void Particle::resample(const double alpha)
+void Particle::resample(const RFLOAT alpha)
 {
     resample(_n, alpha);
 }
 
 void Particle::resample(const int n,
-                        const double alpha)
+                        const RFLOAT alpha)
 {
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Recording the Current Most Likely Coordinate";
@@ -1404,12 +1404,12 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Generating Local Sampling Points";
 #endif
 
-    double u0 = TSGSL_ran_flat(engine, 0, 1.0 / nL);  
+    RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / nL);  
 
     int i = 0;
     for (int j = 0; j < nL; j++)
     {
-        double uj = u0 + j * 1.0 / nL;
+        RFLOAT uj = u0 + j * 1.0 / nL;
 
         while (uj > cdf[i])
             i++;
@@ -1450,16 +1450,16 @@ void Particle::resample(const int n,
 ***/
 
 /***
-double Particle::neff() const
+RFLOAT Particle::neff() const
 {
     return 1.0 / _w.squaredNorm();
 }
 
-void Particle::segment(const double thres)
+void Particle::segment(const RFLOAT thres)
 {
     uvec order = iSort();
 
-    double s = 0;
+    RFLOAT s = 0;
     int i;
 
     for (i = 0; i < _n; i++)
@@ -1477,11 +1477,11 @@ void Particle::segment(const double thres)
     resample(n);
 }
 
-void Particle::flatten(const double thres)
+void Particle::flatten(const RFLOAT thres)
 {
     uvec order = iSort();
 
-    double s = 0;
+    RFLOAT s = 0;
     int i;
 
     for (i = 0; i < _n; i++)
@@ -1675,27 +1675,27 @@ bool Particle::diffTopC()
     return diff;
 }
 
-double Particle::diffTopR()
+RFLOAT Particle::diffTopR()
 {
-    double diff = 1 - fabs(_topRPrev.dot(_topR));
+    RFLOAT diff = 1 - fabs(_topRPrev.dot(_topR));
 
     _topRPrev = _topR;
 
     return diff;
 }
 
-double Particle::diffTopT()
+RFLOAT Particle::diffTopT()
 {
-    double diff = (_topTPrev - _topT).norm();
+    RFLOAT diff = (_topTPrev - _topT).norm();
 
     _topTPrev = _topT;
 
     return diff;
 }
 
-double Particle::diffTopD()
+RFLOAT Particle::diffTopD()
 {
-    double diff = fabs(_topDPrev - _topD);
+    RFLOAT diff = fabs(_topDPrev - _topD);
 
     _topDPrev = _topD;
 
@@ -1733,7 +1733,7 @@ void Particle::rank1st(vec2& tran) const
     tran = _topT;
 }
 
-void Particle::rank1st(double& df) const
+void Particle::rank1st(RFLOAT& df) const
 {
     df = _topD;
 }
@@ -1741,7 +1741,7 @@ void Particle::rank1st(double& df) const
 void Particle::rank1st(unsigned int& cls,
                        vec4& quat,
                        vec2& tran,
-                       double& df) const
+                       RFLOAT& df) const
 {
     cls = _topC;
     quat = _topR;
@@ -1752,7 +1752,7 @@ void Particle::rank1st(unsigned int& cls,
 void Particle::rank1st(unsigned int& cls,
                        mat22& rot,
                        vec2& tran,
-                       double& df) const
+                       RFLOAT& df) const
 {
     vec4 quat;
     rank1st(cls, quat, tran, df);
@@ -1763,7 +1763,7 @@ void Particle::rank1st(unsigned int& cls,
 void Particle::rank1st(unsigned int& cls,
                        mat33& rot,
                        vec2& tran,
-                       double& df) const
+                       RFLOAT& df) const
 {
     vec4 quat;
     rank1st(cls, quat, tran, df);
@@ -1814,7 +1814,7 @@ void Particle::rand(vec2& tran) const
     t(tran, u);
 }
 
-void Particle::rand(double& df) const
+void Particle::rand(RFLOAT& df) const
 {
     gsl_rng* engine = get_random_engine();
 
@@ -1826,7 +1826,7 @@ void Particle::rand(double& df) const
 void Particle::rand(unsigned int& cls,
                     vec4& quat,
                     vec2& tran,
-                    double& df) const
+                    RFLOAT& df) const
 {
     rand(cls);
     rand(quat);
@@ -1847,7 +1847,7 @@ void Particle::rand(unsigned int& cls,
 void Particle::rand(unsigned int& cls,
                     mat22& rot,
                     vec2& tran,
-                    double& df) const
+                    RFLOAT& df) const
 {
     vec4 quat;
     rand(cls, quat, tran, df);
@@ -1858,7 +1858,7 @@ void Particle::rand(unsigned int& cls,
 void Particle::rand(unsigned int& cls,
                     mat33& rot,
                     vec2& tran,
-                    double& df) const
+                    RFLOAT& df) const
 {
     vec4 quat;
     rand(cls, quat, tran, df);
@@ -2068,7 +2068,7 @@ void Particle::symmetrise()
 
 void Particle::reCentre()
 {
-    double transM = _transS * TSGSL_cdf_chisq_Qinv(_transQ, 2);
+    RFLOAT transM = _transS * TSGSL_cdf_chisq_Qinv(_transQ, 2);
 
     gsl_rng* engine = get_random_engine();
 
@@ -2093,7 +2093,7 @@ void display(const Particle& par)
     unsigned int c;
     vec4 q;
     vec2 t;
-    double d;
+    RFLOAT d;
 
     FOR_EACH_PAR(par)
     {
@@ -2118,7 +2118,7 @@ void save(const char filename[],
     unsigned int c;
     vec4 q;
     vec2 t;
-    double d;
+    RFLOAT d;
 
     FOR_EACH_PAR(par)
     {
@@ -2188,7 +2188,7 @@ void save(const char filename[],
     }
     else if (pt == PAR_D)
     {
-        double d;
+        RFLOAT d;
 
         FOR_EACH_D(par)
         {
@@ -2212,8 +2212,8 @@ void load(Particle& par,
     int c;
     vec4 q;
     vec2 t;
-    double d;
-    double w;
+    RFLOAT d;
+    RFLOAT w;
 
     char buf[FILE_LINE_LENGTH];
 

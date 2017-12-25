@@ -29,7 +29,7 @@
 
 inline void IMG_EXTRACT_RL(Image& dst,
                            const Image& src,
-                           const double ef)
+                           const RFLOAT ef)
 {
     dst.alloc(AROUND(ef * src.nColRL()),
               AROUND(ef * src.nRowRL()),
@@ -48,7 +48,7 @@ inline void IMG_EXTRACT_RL(Image& dst,
  */
 inline void VOL_EXTRACT_RL(Volume& dst,
                            const Volume& src,
-                           const double ef) 
+                           const RFLOAT ef) 
 { 
     dst.alloc(AROUND(ef * src.nColRL()), 
               AROUND(ef * src.nRowRL()), 
@@ -62,7 +62,7 @@ inline void VOL_EXTRACT_RL(Volume& dst,
 
 inline void IMG_EXTRACT_FT(Image& dst,
                            const Image& src,
-                           const double ef)
+                           const RFLOAT ef)
 {
     dst.alloc(AROUND(ef * src.nColRL()),
               AROUND(ef * src.nRowRL()),
@@ -81,7 +81,7 @@ inline void IMG_EXTRACT_FT(Image& dst,
  */
 inline void VOL_EXTRACT_FT(Volume& dst,
                            const Volume& src,
-                           const double ef) 
+                           const RFLOAT ef) 
 { 
     dst.alloc(AROUND(ef * src.nColRL()), 
               AROUND(ef * src.nRowRL()), 
@@ -285,8 +285,8 @@ void mul(Image& dst,
  * @param nTransRow number of rows for translation
  */
 void translate(Image& dst,
-               const double nTransCol,
-               const double nTransRow);
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow);
 
 /**
  * This function generates a "translation image" with a given vector indicating
@@ -299,8 +299,8 @@ void translate(Image& dst,
  * @param nTransRow number of rows for translation
  */
 void translateMT(Image& dst,
-                 const double nTransCol,
-                 const double nTransRow);
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow);
 
 /**
  * This function generates a "translation image" in a certain frequency
@@ -314,9 +314,9 @@ void translateMT(Image& dst,
  * @param nTransRow number of rows for translation
  */
 void translate(Image& dst,
-               const double r,
-               const double nTransCol,
-               const double nTransRow);
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow);
 
 /**
  * This function generates a "translation image" in a certain frequency
@@ -330,29 +330,29 @@ void translate(Image& dst,
  * @param nTransRow number of rows for translation
  */
 void translateMT(Image& dst,
-                 const double r,
-                 const double nTransCol,
-                 const double nTransRow);
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow);
 
 void translate(Image& dst,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int* iCol,
                const int* iRow,
                const int* iPxl,
                const int nPxl);
 
 void translateMT(Image& dst,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int* iCol,
                  const int* iRow,
                  const int* iPxl,
                  const int nPxl);
 
 void translate(Complex* dst,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int nCol,
                const int nRow,
                const int* iCol,
@@ -360,8 +360,8 @@ void translate(Complex* dst,
                const int nPxl);
 
 void translateMT(Complex* dst,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int nCol,
                  const int nRow,
                  const int* iCol,
@@ -379,8 +379,8 @@ void translateMT(Complex* dst,
  */
 void translate(Image& dst,
                const Image& src,
-               const double nTransCol,
-               const double nTransRow);
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow);
 
 /**
  * This function translations an image with a given vector indicating by the number
@@ -393,8 +393,8 @@ void translate(Image& dst,
  */
 void translateMT(Image& dst,
                  const Image& src,
-                 const double nTransCol,
-                 const double nTransRow);
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow);
 
 /**
  * This function translations an image in a certain frequency threshold with a 
@@ -408,9 +408,9 @@ void translateMT(Image& dst,
  */
 void translate(Image& dst,
                const Image& src,
-               const double r,
-               const double nTransCol,
-               const double nTransRow);
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow);
 
 /**
  * This function translations an image in a certain frequency threshold with a 
@@ -425,14 +425,14 @@ void translate(Image& dst,
  */
 void translateMT(Image& dst,
                  const Image& src,
-                 const double r,
-                 const double nTransCol,
-                 const double nTransRow);
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow);
 
 void translate(Image& dst,
                const Image& src,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int* iCol,
                const int* iRow,
                const int* iPxl,
@@ -440,8 +440,8 @@ void translate(Image& dst,
 
 void translateMT(Image& dst,
                  const Image& src,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int* iCol,
                  const int* iRow,
                  const int* iPxl,
@@ -449,8 +449,8 @@ void translateMT(Image& dst,
 
 void translate(Complex* dst,
                const Complex* src,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int nCol,
                const int nRow,
                const int* iCol,
@@ -460,8 +460,8 @@ void translate(Complex* dst,
 
 void translateMT(Complex* dst,
                  const Complex* src,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int nCol,
                  const int nRow,
                  const int* iCol,
@@ -479,7 +479,7 @@ void translateMT(Complex* dst,
 void crossCorrelation(Image& dst,
                       const Image& a,
                       const Image& b,
-                      const double r);
+                      const RFLOAT r);
 
 /**
  * This function calculates the most likely translation between two images using
@@ -496,7 +496,7 @@ void translate(int& nTranCol,
                int& nTranRow,
                const Image& a,
                const Image& b,
-               const double r,
+               const RFLOAT r,
                const int maxX,
                const int maxY);
 
@@ -507,7 +507,7 @@ void translate(int& nTranCol,
  * @param mean the mean value
  * @param the image to be calculated
  */
-double stddev(const double mean,
+RFLOAT stddev(const RFLOAT mean,
               const Image& src);
 
 /**
@@ -517,18 +517,18 @@ double stddev(const double mean,
  * @param stddev the standard devation
  * @param src the image to be calculated
  */
-void meanStddev(double& mean,
-                double& stddev,
+void meanStddev(RFLOAT& mean,
+                RFLOAT& stddev,
                 const Image& src);
 
-double centreStddev(const double mean,
+RFLOAT centreStddev(const RFLOAT mean,
                     const Image& src,
-                    const double r);
+                    const RFLOAT r);
 
-void centreMeanStddev(double& mean,
-                      double& stddev,
+void centreMeanStddev(RFLOAT& mean,
+                      RFLOAT& stddev,
                       const Image& src,
-                      const double r);
+                      const RFLOAT r);
 
 /**
  * This function calculates the standard deviation of the background when the
@@ -538,13 +538,13 @@ void centreMeanStddev(double& mean,
  * @param src the image to be calculated
  * @param r the radius
  */
-double bgStddev(const double mean,
+RFLOAT bgStddev(const RFLOAT mean,
                 const Image& src,
-                const double r);
+                const RFLOAT r);
 
-double bgSttdev(const double mean,
+RFLOAT bgSttdev(const RFLOAT mean,
                 const Volume& src,
-                const double r);
+                const RFLOAT r);
 
 /**
  * This function calculates the mean and standard deviation of the background.
@@ -555,21 +555,21 @@ double bgSttdev(const double mean,
  * @param src the image to be calculated
  * @param r the radius
  */
-void bgMeanStddev(double& mean,
-                  double& stddev,
+void bgMeanStddev(RFLOAT& mean,
+                  RFLOAT& stddev,
                   const Image& src,
-                  const double r);
+                  const RFLOAT r);
 
-void bgMeanStddev(double& mean,
-                  double& stddev,
+void bgMeanStddev(RFLOAT& mean,
+                  RFLOAT& stddev,
                   const Volume& src,
-                  const double r);
+                  const RFLOAT r);
 
-void bgMeanStddev(double& mean,
-                  double& stddev,
+void bgMeanStddev(RFLOAT& mean,
+                  RFLOAT& stddev,
                   const Volume& src,
-                  const double rU,
-                  const double rL);
+                  const RFLOAT rU,
+                  const RFLOAT rL);
 
 
 /**
@@ -583,10 +583,10 @@ void bgMeanStddev(double& mean,
  * @param stddev the standard deviation
  */
 void removeDust(Image& img,
-                const double wDust,
-                const double bDust,
-                const double mean,
-                const double stddev);
+                const RFLOAT wDust,
+                const RFLOAT bDust,
+                const RFLOAT mean,
+                const RFLOAT stddev);
 
 /**
  * This fucntion normalises the image according to the mean and stddev of the
@@ -598,9 +598,9 @@ void removeDust(Image& img,
  * @param r     the radius
  */
 void normalise(Image& img,
-               const double wDust,
-               const double bDust,
-               const double r);
+               const RFLOAT wDust,
+               const RFLOAT bDust,
+               const RFLOAT r);
 
 /**
  * This function extracts a sub-image from an image.

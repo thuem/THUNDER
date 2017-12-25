@@ -96,25 +96,25 @@
  * @param xd the distance between the interpolation point and the first sampling
  *           point
  */
-inline void W_INTERP_LINEAR(double w[2], 
-                            const double xd) 
+inline void W_INTERP_LINEAR(RFLOAT w[2], 
+                            const RFLOAT xd) 
 {
     w[0] = 1 - xd;
     w[1] = xd;
 }
 
-inline void WG_INTERP_LINEAR(double w[2],
+inline void WG_INTERP_LINEAR(RFLOAT w[2],
                              int& x0,
-                             const double x)
+                             const RFLOAT x)
 {   
     x0 = floor(x);
     W_INTERP_LINEAR(w, x - x0);
 }
 
-inline void W_BI_INTERP_LINEAR(double w[2][2], 
-                               const double xd[2])
+inline void W_BI_INTERP_LINEAR(RFLOAT w[2][2], 
+                               const RFLOAT xd[2])
 {
-    double v[2][2];
+    RFLOAT v[2][2];
     for (int i = 0; i < 2; i++) 
         W_INTERP_LINEAR(v[i], xd[i]);
 
@@ -125,11 +125,11 @@ inline void W_BI_INTERP_LINEAR(double w[2][2],
     }
 }
 
-inline void WG_BI_INTERP_LINEAR(double w[2][2], 
+inline void WG_BI_INTERP_LINEAR(RFLOAT w[2][2], 
                                 int x0[2], 
-                                const double x[2])
+                                const RFLOAT x[2])
 {
-    double xd[2];
+    RFLOAT xd[2];
     for (int i = 0; i < 2; i++) 
     {
         x0[i] = floor(x[i]);
@@ -139,10 +139,10 @@ inline void WG_BI_INTERP_LINEAR(double w[2][2],
     W_BI_INTERP_LINEAR(w, xd);
 }
 
-inline void W_TRI_INTERP_LINEAR(double w[2][2][2], 
-                                const double xd[3])
+inline void W_TRI_INTERP_LINEAR(RFLOAT w[2][2][2], 
+                                const RFLOAT xd[3])
 {
-    double v[3][2];
+    RFLOAT v[3][2];
     for (int i = 0; i < 3; i++) 
         W_INTERP_LINEAR(v[i], xd[i]);
 
@@ -153,11 +153,11 @@ inline void W_TRI_INTERP_LINEAR(double w[2][2][2],
     }
 }
 
-inline void WG_TRI_INTERP_LINEAR(double w[2][2][2],
+inline void WG_TRI_INTERP_LINEAR(RFLOAT w[2][2][2],
                                  int x0[3], 
-                                 const double x[3])
+                                 const RFLOAT x[3])
 {
-    double xd[3];
+    RFLOAT xd[3];
     for (int i = 0; i < 3; i++)
     {
         x0[i] = floor(x[i]);

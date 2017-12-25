@@ -113,8 +113,8 @@ uvec index_sort_descend(const vec& v);
  * @param x the period value
  * @param p the period (should be positive)
  */
-int periodic(double& x,
-             const double p);
+int periodic(RFLOAT& x,
+             const RFLOAT p);
 
 /**
  * Multiplication between two quaterions.
@@ -136,9 +136,9 @@ vec4 quaternion_conj(const vec4& quat);
  * @param a     maximum radius
  * @param alpha smooth factor
  */
-double MKB_FT(const double r,
-              const double a,
-              const double alpha);
+RFLOAT MKB_FT(const RFLOAT r,
+              const RFLOAT a,
+              const RFLOAT alpha);
 
 /**
  * Modified Kaiser Bessel Function with n = 3.
@@ -147,9 +147,9 @@ double MKB_FT(const double r,
  * @param a     maximum radius
  * @param alpha smooth factor
  */
-double MKB_FT_R2(const double r2,
-                 const double a,
-                 const double alpha);
+RFLOAT MKB_FT_R2(const RFLOAT r2,
+                 const RFLOAT a,
+                 const RFLOAT alpha);
 
 /**
  * Inverse Fourier Transform of Modified Kaiser Bessel Function with n = 3.
@@ -158,9 +158,9 @@ double MKB_FT_R2(const double r2,
  * @param a     maximum radius
  * @param alpha smooth factor
  */
-double MKB_RL(const double r,
-              const double a,
-              const double alpha);
+RFLOAT MKB_RL(const RFLOAT r,
+              const RFLOAT a,
+              const RFLOAT alpha);
 
 /**
  * Inverse Fourier Transform of Modified Kaiser Bessel Function with n = 3.
@@ -169,9 +169,9 @@ double MKB_RL(const double r,
  * @param a     maximum radius
  * @param alpha smooth factor
  */
-double MKB_RL_R2(const double r2,
-                 const double a,
-                 const double alpha);
+RFLOAT MKB_RL_R2(const RFLOAT r2,
+                 const RFLOAT a,
+                 const RFLOAT alpha);
 
 /**
  * Volume of a 3D Modified Kaiser Bessel Function Blob.
@@ -179,22 +179,22 @@ double MKB_RL_R2(const double r2,
  * @param a     maximum radius
  * @param alpha smooth factor
  */
-double MKB_BLOB_VOL(const double a,
-                    const double alpha);
+RFLOAT MKB_BLOB_VOL(const RFLOAT a,
+                    const RFLOAT alpha);
 
 /**
  * Estimate form of Inverse Fourier Transform of Trilinear Interpolation Function
  *
  * @param r radius
  */
-double TIK_RL(const double r);
+RFLOAT TIK_RL(const RFLOAT r);
 
 /**
  * Estimate form of Inverse Fourier Transform of Nearest Neighbor Interpolation Function
  */
-double NIK_RL(const double r);
+RFLOAT NIK_RL(const RFLOAT r);
 
-double median(vec src,
+RFLOAT median(vec src,
               const int n);
 
 /**
@@ -205,8 +205,8 @@ double median(vec src,
  * @param src  the input data
  * @param n    the length of the the data
  */
-void stat_MAS(double& mean,
-              double& std,
+void stat_MAS(RFLOAT& mean,
+              RFLOAT& std,
               vec src,
               const int n);
 

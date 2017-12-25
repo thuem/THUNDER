@@ -34,11 +34,11 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    double pixelSize = 1.32;
-    double voltage = 3e5;
-    double defocusU = atof(argv[1]);
-    double theta = 0;
-    double Cs = 0;
+    RFLOAT pixelSize = 1.32;
+    RFLOAT voltage = 3e5;
+    RFLOAT defocusU = atof(argv[1]);
+    RFLOAT theta = 0;
+    RFLOAT Cs = 0;
 
     // std::cout << "200 Angstrom = " << resA2P(1.0 / 200, N, pixelSize) << std::endl;
 
@@ -63,9 +63,9 @@ int main(int argc, char* argv[])
     }
     ***/
 
-    for (double i = 0.01; i < N / 2; i += 0.01)
+    for (RFLOAT i = 0.01; i < N / 2; i += 0.01)
     {
-        double f = i / (pixelSize * N);
+        RFLOAT f = i / (pixelSize * N);
 
         printf("%12.6f    %12.6f    %12.6f\n",
                i,

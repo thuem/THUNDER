@@ -21,13 +21,13 @@
 
 #define CTF_TAU 0.01
 
-const double w1 = sqrt(1 - CTF_A * CTF_A);
-const double w2 = CTF_A;
+const RFLOAT w1 = sqrt(1 - CTF_A * CTF_A);
+const RFLOAT w2 = CTF_A;
 
-double CTF(const double f,
-           const double voltage,
-           const double defocus,
-           const double CS);
+RFLOAT CTF(const RFLOAT f,
+           const RFLOAT voltage,
+           const RFLOAT defocus,
+           const RFLOAT CS);
 
 /**
  * This function generates a CTF using parameters given.
@@ -41,11 +41,11 @@ double CTF(const double f,
  * @param Cs Cs
  */
 void CTF(Image& dst,
-         const double pixelSize,
-         const double voltage,
-         const double defocusU,
-         const double defocusV,
-         const double theta,
-         const double Cs);
+         const RFLOAT pixelSize,
+         const RFLOAT voltage,
+         const RFLOAT defocusU,
+         const RFLOAT defocusV,
+         const RFLOAT theta,
+         const RFLOAT Cs);
 
 #endif // CTF_H

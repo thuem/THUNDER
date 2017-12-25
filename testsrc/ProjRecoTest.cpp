@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
         projector.project(image, coord);
         fft.bw(image);
 
-        double std = TSGSL_stats_sd(&image(0), 1, image.sizeRL());
+        RFLOAT std = TSGSL_stats_sd(&image(0), 1, image.sizeRL());
         ***/
 
         #pragma omp parallel for

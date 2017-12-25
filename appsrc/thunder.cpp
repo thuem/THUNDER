@@ -178,8 +178,8 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
 
-    double startTime = 0.0;
-    double endTime = 0.0;
+    RFLOAT startTime = 0.0;
+    RFLOAT endTime = 0.0;
     MPI_Init(&argc, &argv);
 
     int rank;

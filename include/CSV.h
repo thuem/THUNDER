@@ -23,12 +23,12 @@ enum CSVParseState
  * Parse a single line in a CSV file. Quoting and escaping are not supported.
  * @param buffer string buffer
  * @param length string length
- * @param format format specifiers consisting of 'd' (int) 'l' (long) 's' (std::string) or 'f' (double)
+ * @param format format specifiers consisting of 'd' (int) 'l' (long) 's' (std::string) or 'f' (RFLOAT)
  * @param ... Variable args as pointers to variables to store the results
  * @return Parse state
  *
  * @example
- * int a; long b; std::string c; double d;
+ * int a; long b; std::string c; RFLOAT d;
  * const char* line = "2,345308542354,Hello world,0.125\n";
  * parseCSVLine(line, strlen(line), "dlsf", &a, &b, &c, &d);
  * // a == 2; b == 345308542354L; c == "Hello world"; d == 0.125;

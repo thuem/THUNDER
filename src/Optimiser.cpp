@@ -479,14 +479,14 @@ void Optimiser::init()
 
 struct Sp
 {
-    double _w;
+    RFLOAT _w;
     unsigned int _k;
     unsigned int _iR;
     unsigned int _iT;
 
     Sp() : _w(-DBL_MAX), _k(0), _iR(0), _iT(0) {};
 
-    Sp(const double w,
+    Sp(const RFLOAT w,
        const unsigned int k,
        const unsigned int iR,
        const unsigned int iT)
@@ -551,7 +551,7 @@ void Optimiser::expectation()
                                             * TSGSL_cdf_chisq_Qinv(0.5, 2))
                                   * _para.transSearchFactor));
 
-        double scanMinStdR;
+        RFLOAT scanMinStdR;
         if (_para.mode == MODE_2D)
         { 
             scanMinStdR = 1.0 / _para.mS;
@@ -567,7 +567,7 @@ void Optimiser::expectation()
             abort();
         }
 
-        double scanMinStdT = 1.0
+        RFLOAT scanMinStdT = 1.0
                            / TSGSL_cdf_chisq_Qinv(0.5, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
 
@@ -639,7 +639,7 @@ void Optimiser::expectation()
 
         omp_lock_t* mtx = new omp_lock_t[_ID.size()];
 
-        double* baseLine = new double[_ID.size()];
+        RFLOAT* baseLine = new RFLOAT[_ID.size()];
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
@@ -652,7 +652,7 @@ void Optimiser::expectation()
         // m -> rotation
         // n -> translation
         
-        // double baseLine = GSL_NAN;
+        // RFLOAT baseLine = GSL_NAN;
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
@@ -763,9 +763,9 @@ void Optimiser::expectation()
                         {
                             if (dvp(l) > baseLine[l])
                             {
-                                double offset = dvp(l) - baseLine[l];
+                                RFLOAT offset = dvp(l) - baseLine[l];
 
-                                double nf = exp(offset);
+                                RFLOAT nf = exp(offset);
 
                                 if (TSGSL_isinf(nf))
                                 {
@@ -784,7 +784,7 @@ void Optimiser::expectation()
                             }
                         }
 
-                        double w = exp(dvp(l) - baseLine[l]);
+                        RFLOAT w = exp(dvp(l) - baseLine[l]);
 
                         wC(l, t) += w;
 
@@ -799,7 +799,7 @@ void Optimiser::expectation()
                     FOR_EACH_2D_IMAGE
                     {
                         {
-                            double w = exp(dvp(l) - baseLine);
+                            RFLOAT w = exp(dvp(l) - baseLine);
                         
                             #pragma omp atomic
                             wC(l, t) += w;
@@ -903,11 +903,11 @@ void Optimiser::expectation()
             vec v = topW.col(l);
 
 #ifdef OPTIMISER_EXPECTATION_REMOVE_TAIL
-            double s = 0;
+            RFLOAT s = 0;
             for (int i = 0; i < v.size(); i++)
                 s += exp(v(i));
 
-            double c = 0;
+            RFLOAT c = 0;
             for (int i = v.size() - 1; i >= 0; i--)
             {
                 if (c < s * 0.9999)
@@ -1145,15 +1145,15 @@ void Optimiser::expectation()
 
     Complex* poolTraP = (Complex*)fftw_malloc(_para.mLT * _nPxl * omp_get_max_threads() * sizeof(Complex));
 
-    double* poolCtfP;
+    RFLOAT* poolCtfP;
 
     if (_searchType == SEARCH_TYPE_CTF)
-        poolCtfP = (double*)fftw_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(double));
+        poolCtfP = (RFLOAT*)fftw_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(RFLOAT));
 
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        double baseLine = GSL_NAN;
+        RFLOAT baseLine = GSL_NAN;
 
         Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
         Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
@@ -1161,14 +1161,14 @@ void Optimiser::expectation()
         int nPhaseWithNoVariDecrease = 0;
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-        double topCmp = 0;
+        RFLOAT topCmp = 0;
 #else
-        double k1 = 1;
-        double k2 = 1;
-        double k3 = 1;
-        double tVariS0 = 5 * _para.transS;
-        double tVariS1 = 5 * _para.transS;
-        double dVari = 5 * _para.ctfRefineS;
+        RFLOAT k1 = 1;
+        RFLOAT k2 = 1;
+        RFLOAT k3 = 1;
+        RFLOAT tVariS0 = 5 * _para.transS;
+        RFLOAT tVariS1 = 5 * _para.transS;
+        RFLOAT dVari = 5 * _para.ctfRefineS;
 #endif
 
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
@@ -1228,7 +1228,7 @@ void Optimiser::expectation()
             unsigned int c;
             mat22 rot2D;
             mat33 rot3D;
-            double d;
+            RFLOAT d;
             vec2 t;
 
             //FOR_EACH_PAR(_par[l])
@@ -1255,14 +1255,14 @@ void Optimiser::expectation()
                               _nPxl);
                 }
 
-                double* ctfP;
+                RFLOAT* ctfP;
 
                 if (_searchType == SEARCH_TYPE_CTF)
                 {
                     /***
-                    ctfP = (double*)fftw_malloc(_par[l].nD() * _nPxl * sizeof(double));
+                    ctfP = (RFLOAT*)fftw_malloc(_par[l].nD() * _nPxl * sizeof(RFLOAT));
 
-                    ctfP = new double[_par[l].nD() * _nPxl];
+                    ctfP = new RFLOAT[_par[l].nD() * _nPxl];
                     ***/
 
                     ctfP = poolCtfP + _par[l].nD() * _nPxl * omp_get_thread_num();
@@ -1273,7 +1273,7 @@ void Optimiser::expectation()
 
                         for (int i = 0; i < _nPxl; i++)
                         {
-                            double ki = _K1[l]
+                            RFLOAT ki = _K1[l]
                                       * _defocusP[l * _nPxl + i]
                                       * d
                                       * TSGSL_pow_2(_frequency[i])
@@ -1281,13 +1281,13 @@ void Optimiser::expectation()
                                       * TSGSL_pow_4(_frequency[i]);
 
                             /***
-                            double ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
+                            RFLOAT ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
                                       + K2 * TSGSL_pow_4(frequency[i]);
                             ***/
 
                             ctfP[_nPxl * iD + i] = -w1 * sin(ki) + w2 * cos(ki);
 
-                            // double ctf = -w1 * sin(ki) + w2 * cos(ki);
+                            // RFLOAT ctf = -w1 * sin(ki) + w2 * cos(ki);
                         }
                     }
                 }
@@ -1369,7 +1369,7 @@ void Optimiser::expectation()
                         {
                             _par[l].d(d, iD);
 
-                            double w;
+                            RFLOAT w;
 
                             if (_searchType != SEARCH_TYPE_CTF)
                                 w = logDataVSPrior(_datP + l * _nPxl,
@@ -1492,9 +1492,9 @@ void Optimiser::expectation()
             }
 
             /***
-            double k1 = _par[l].k1();
-            double s0 = _par[l].s0();
-            double s1 = _par[l].s1();
+            RFLOAT k1 = _par[l].k1();
+            RFLOAT s0 = _par[l].s0();
+            RFLOAT s1 = _par[l].s1();
 
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
@@ -1515,12 +1515,12 @@ void Optimiser::expectation()
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
                         : MIN_N_PHASE_PER_ITER_LOCAL))
             {
-                double k1Cur;
-                double k2Cur;
-                double k3Cur;
-                double tVariS0Cur;
-                double tVariS1Cur;
-                double dVariCur;
+                RFLOAT k1Cur;
+                RFLOAT k2Cur;
+                RFLOAT k3Cur;
+                RFLOAT tVariS0Cur;
+                RFLOAT tVariS1Cur;
+                RFLOAT dVariCur;
 
                 // _par[l].vari(rVariCur, tVariS0Cur, tVariS1Cur, dVariCur);
 
@@ -2587,7 +2587,7 @@ void Optimiser::substractBgImg()
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
-        double bgMean, bgStddev;
+        RFLOAT bgMean, bgStddev;
 
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
         bgMeanStddev(bgMean,
@@ -2608,7 +2608,7 @@ void Optimiser::substractBgImg()
         }
 
         /***
-        double bg = background(_img[l],
+        RFLOAT bg = background(_img[l],
                                _para.maskRadius / _para.pixelSize,
                                EDGE_WIDTH_RL);
 
@@ -2652,7 +2652,7 @@ void Optimiser::maskImg()
 
 void Optimiser::normaliseImg()
 {
-    double scale = 1.0 / _stdN;
+    RFLOAT scale = 1.0 / _stdN;
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -2846,7 +2846,7 @@ void Optimiser::initSigma()
     {
         psAvg(i) = ringAverage(i,
                                avg,
-                               function<double(const Complex)>(&gsl_real_imag_sum));
+                               function<RFLOAT(const Complex)>(&gsl_real_imag_sum));
         psAvg(i) = TSGSL_pow_2(psAvg(i));
     }
 
@@ -2886,7 +2886,7 @@ void Optimiser::initParticles()
     }
 }
 
-void Optimiser::avgStdR(double& stdR)
+void Optimiser::avgStdR(RFLOAT& stdR)
 {
     IF_MASTER return;
 
@@ -2907,7 +2907,7 @@ void Optimiser::avgStdR(double& stdR)
     ***/
 }
 
-void Optimiser::avgStdT(double& stdT)
+void Optimiser::avgStdT(RFLOAT& stdT)
 {
     IF_MASTER return;
 
@@ -2937,7 +2937,7 @@ void Optimiser::loadParticles()
     IF_MASTER return;
 
     /***
-    double stdR, stdT;
+    RFLOAT stdR, stdT;
 
     avgStdR(stdR);
     avgStdT(stdT);
@@ -2952,9 +2952,9 @@ void Optimiser::loadParticles()
     // unsigned int cls;
     vec4 quat;
     vec2 tran;
-    double d;
+    RFLOAT d;
 
-    double k1, k2, k3, stdTX, stdTY, stdD;
+    RFLOAT k1, k2, k3, stdTX, stdTY, stdD;
 
     //#pragma omp parallel for private(cls, quat, stdR, tran, d)
 
@@ -3004,8 +3004,8 @@ void Optimiser::loadParticles()
 void Optimiser::refreshRotationChange()
 {
     /***
-    double mean = 0;
-    double std = 0;
+    RFLOAT mean = 0;
+    RFLOAT std = 0;
 
     int num = 0;
 
@@ -3013,7 +3013,7 @@ void Optimiser::refreshRotationChange()
     {
         FOR_EACH_2D_IMAGE
         {
-            double diffR = _par[l].diffTopR();
+            RFLOAT diffR = _par[l].diffTopR();
 
             if (_par[l].diffTopC())
             {
@@ -3056,7 +3056,7 @@ void Optimiser::refreshRotationChange()
     {
         FOR_EACH_2D_IMAGE
         {
-            double diff = _par[l].diffTopR();
+            RFLOAT diff = _par[l].diffTopR();
 
             rc(_ID[l]) = diff;
 
@@ -3089,7 +3089,7 @@ void Optimiser::refreshRotationChange()
     //TSGSL_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
     TSGSL_sort(rc.data(), 1, _nPar);
 
-    double mean, std;
+    RFLOAT mean, std;
     stat_MAS(mean, std, rc, _nPar);
     //stat_MAS(mean, std, rc, nNoZero);
     //stat_MAS(mean, std, rcNoZero, nNoZero);
@@ -3131,11 +3131,11 @@ void Optimiser::refreshClassDistr()
     _cDistr.array() /= (_nPar * _para.k);
 }
 
-void Optimiser::balanceClass(const double thres,
+void Optimiser::balanceClass(const RFLOAT thres,
                              const bool refreshDistr)
 {
     int cls;
-    double num = _cDistr.maxCoeff(&cls);
+    RFLOAT num = _cDistr.maxCoeff(&cls);
 
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
@@ -3156,7 +3156,7 @@ void Optimiser::refreshVariance()
 
     NT_MASTER
     {
-        double rVari, tVariS0, tVariS1, dVari;
+        RFLOAT rVari, tVariS0, tVariS1, dVari;
 
         #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
@@ -3200,7 +3200,7 @@ void Optimiser::refreshVariance()
     ALOG(INFO, "LOGGER_SYS") << "Maximum Rotation Variance: " << rv.maxCoeff();
     BLOG(INFO, "LOGGER_SYS") << "Maximum Rotation Variance: " << rv.maxCoeff();
 
-    double mean, std;
+    RFLOAT mean, std;
 
     stat_MAS(mean, std, rv, _nPar);
 
@@ -3247,7 +3247,7 @@ void Optimiser::refreshScale(const bool coord,
         mat22 rot2D;
         mat33 rot3D;
         vec2 tran;
-        double d;
+        RFLOAT d;
 
         FOR_EACH_2D_IMAGE
         {
@@ -3335,9 +3335,9 @@ void Optimiser::refreshScale(const bool coord,
 #endif
 
 #ifdef OPTIMISER_REFRESH_SCALE_RL_ZERO
-            double rL = 0;
+            RFLOAT rL = 0;
 #else
-            double rL = _rL;
+            RFLOAT rL = _rL;
 #endif
 
 #ifdef OPTIMISER_SCALE_MASK
@@ -3403,7 +3403,7 @@ void Optimiser::refreshScale(const bool coord,
         for (int i = 0; i < _nGroup; i++)
         {
 #ifdef OPTIMISER_REFRESH_SCALE_SPECTRUM
-            double sum = 0;
+            RFLOAT sum = 0;
             int count = 0;
 
             for (int r = (int)rL; r < _rS; r++)
@@ -3421,7 +3421,7 @@ void Optimiser::refreshScale(const bool coord,
     else
     {
 #ifdef OPTIMISER_REFRESH_SCALE_SPECTRUM
-        double sum = 0;
+        RFLOAT sum = 0;
         int count = 0;
 
         for (int r = (int)rL; r < _rS; r++)
@@ -3444,7 +3444,7 @@ void Optimiser::refreshScale(const bool coord,
 #endif
     }
 
-    double medianScale = median(_scale, _scale.size());
+    RFLOAT medianScale = median(_scale, _scale.size());
 
     MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
 
@@ -3458,7 +3458,7 @@ void Optimiser::refreshScale(const bool coord,
             _scale(i) = medianScale / 5;
     }
 
-    double meanScale = _scale.mean();
+    RFLOAT meanScale = _scale.mean();
     
     MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
 
@@ -3557,7 +3557,7 @@ void Optimiser::normCorrection()
     // skip norm correction in the first iteration
     if (_iter == 0) return;
 
-    double rNorm = GSL_MIN_DBL(_r, _model.resolutionP(0.75, false));
+    RFLOAT rNorm = GSL_MIN_DBL(_r, _model.resolutionP(0.75, false));
 
     vec norm = vec::Zero(_nPar);
 
@@ -3568,7 +3568,7 @@ void Optimiser::normCorrection()
 
     vec2 tran;
 
-    double d;
+    RFLOAT d;
 
     NT_MASTER
     {
@@ -3681,9 +3681,9 @@ void Optimiser::normCorrection()
     MLOG(INFO, "LOGGER_SYS") << "Min of Norm of Noise : "
                              << TSGSL_stats_min(norm.data(), 1, norm.size());
 
-    //double m = TSGSL_stats_mean(norm.data(), 1, norm.size());
+    //RFLOAT m = TSGSL_stats_mean(norm.data(), 1, norm.size());
 
-    double m = median(norm, norm.size());
+    RFLOAT m = median(norm, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
                              << m;
@@ -3699,7 +3699,7 @@ void Optimiser::normCorrection()
     ***/
 
     /***
-    double sd = TSGSL_stats_sd_m(norm.data(), 1, norm.size(), m);
+    RFLOAT sd = TSGSL_stats_sd_m(norm.data(), 1, norm.size(), m);
 
     MLOG(INFO, "LOGGER_SYS") << "Standard Deviation of Norm of Noise : "
                              << sd;
@@ -3778,7 +3778,7 @@ void Optimiser::allReduceSigma(const bool group)
 
     vec2 tran;
 
-    double d;
+    RFLOAT d;
 
     omp_lock_t* mtx = new omp_lock_t[_nGroup];
 
@@ -3790,7 +3790,7 @@ void Optimiser::allReduceSigma(const bool group)
     FOR_EACH_2D_IMAGE
     {
             /***
-            double w;
+            RFLOAT w;
 
             if (_para.parGra) 
                 w = TSGSL_pow_2(_par[l].compress());
@@ -3798,7 +3798,7 @@ void Optimiser::allReduceSigma(const bool group)
                 w = 1;
             ***/
 
-            double w = 1;
+            RFLOAT w = 1;
 
             Image img(size(), size(), FT_SPACE);
 
@@ -3836,7 +3836,7 @@ void Optimiser::allReduceSigma(const bool group)
             }
 
             /***
-            double weight = logDataVSPrior(_img[l],
+            RFLOAT weight = logDataVSPrior(_img[l],
                                            img,
                                            _ctf[l],
                                            _sigRcp.row(_groupID[l] - 1).transpose(),
@@ -3985,7 +3985,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             Image ctf(_para.size, _para.size, FT_SPACE);
 
-            double w;
+            RFLOAT w;
 
             if ((_para.parGra) && (_para.k == 1))
                 w = _par[l].compress();
@@ -4001,7 +4001,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 unsigned int cls;
                 vec4 quat;
                 vec2 tran;
-                double d;
+                RFLOAT d;
 
                 if (_para.mode == MODE_2D)
                 {
@@ -4332,8 +4332,8 @@ void Optimiser::solventFlatten(const bool mask)
 
         lowPassFilter(_model.ref(t),
                       _model.ref(t),
-                      (double)_r  / _para.size,
-                      (double)EDGE_WIDTH_FT / _para.size);
+                      (RFLOAT)_r  / _para.size,
+                      (RFLOAT)EDGE_WIDTH_FT / _para.size);
 #endif
 
         ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
@@ -4344,7 +4344,7 @@ void Optimiser::solventFlatten(const bool mask)
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_STAT_REMOVE_BG
 
-        double bgMean, bgStddev;
+        RFLOAT bgMean, bgStddev;
 
         bgMeanStddev(bgMean,
                      bgStddev,
@@ -4376,8 +4376,8 @@ void Optimiser::solventFlatten(const bool mask)
                                    << ": "
                                    << bgStddev;
 
-        //double bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(0.01, 1);
-        double bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(1e-3, 1);
+        //RFLOAT bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(0.01, 1);
+        RFLOAT bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(1e-3, 1);
 
         ALOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
                                    << t
@@ -4402,7 +4402,7 @@ void Optimiser::solventFlatten(const bool mask)
         ALOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
 
-        double bg = regionMean(_model.ref(t),
+        RFLOAT bg = regionMean(_model.ref(t),
                                _para.maskRadius / _para.pixelSize + EDGE_WIDTH_RL);
 
         ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
@@ -4512,8 +4512,8 @@ void Optimiser::solventFlatten(const bool mask)
     }
 }
 
-void Optimiser::allocPreCalIdx(const double rU,
-                               const double rL)
+void Optimiser::allocPreCalIdx(const RFLOAT rU,
+                               const RFLOAT rL)
 {
     IF_MASTER return;
 
@@ -4525,14 +4525,14 @@ void Optimiser::allocPreCalIdx(const double rU,
 
     _iSig = new int[_img[0].sizeFT()];
 
-    double rU2 = TSGSL_pow_2(rU);
-    double rL2 = TSGSL_pow_2(rL);
+    RFLOAT rU2 = TSGSL_pow_2(rU);
+    RFLOAT rL2 = TSGSL_pow_2(rL);
 
     _nPxl = 0;
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
-        double u = QUAD(i, j);
+        RFLOAT u = QUAD(i, j);
 
         if ((u < rU2) && (u >= rL2))
         {
@@ -4561,9 +4561,9 @@ void Optimiser::allocPreCal(const bool pixelMajor,
 
     _datP = (Complex*)fftw_malloc(_ID.size() * _nPxl * sizeof(Complex));
 
-    _ctfP = (double*)fftw_malloc(_ID.size() * _nPxl * sizeof(double));
+    _ctfP = (RFLOAT*)fftw_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
-    _sigRcpP = (double*)fftw_malloc(_ID.size() * _nPxl * sizeof(double));
+    _sigRcpP = (RFLOAT*)fftw_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -4586,13 +4586,13 @@ void Optimiser::allocPreCal(const bool pixelMajor,
 
     if (ctf)
     {
-        _frequency = new double[_nPxl];
+        _frequency = new RFLOAT[_nPxl];
 
-        _defocusP = new double[_ID.size() * _nPxl];
+        _defocusP = new RFLOAT[_ID.size() * _nPxl];
 
-        _K1 = new double[_ID.size()];
+        _K1 = new RFLOAT[_ID.size()];
 
-        _K2 = new double[_ID.size()];
+        _K2 = new RFLOAT[_ID.size()];
 
         for (int i = 0; i < _nPxl; i++)
             _frequency[i] = NORM(_iCol[i],
@@ -4605,11 +4605,11 @@ void Optimiser::allocPreCal(const bool pixelMajor,
         {
             for (int i = 0; i < _nPxl; i++)
             {
-                double angle = atan2(_iRow[i],
+                RFLOAT angle = atan2(_iRow[i],
                                      _iCol[i])
                              - _ctfAttr[l].defocusTheta;
 
-                double defocus = -(_ctfAttr[l].defocusU
+                RFLOAT defocus = -(_ctfAttr[l].defocusU
                                  + _ctfAttr[l].defocusV
                                  + (_ctfAttr[l].defocusU - _ctfAttr[l].defocusV)
                                  * cos(2 * angle))
@@ -4620,7 +4620,7 @@ void Optimiser::allocPreCal(const bool pixelMajor,
                         : (_nPxl * l + i)] = defocus;
             }
 
-            double lambda = 12.2643274 / sqrt(_ctfAttr[l].voltage
+            RFLOAT lambda = 12.2643274 / sqrt(_ctfAttr[l].voltage
                                             * (1 + _ctfAttr[l].voltage * 0.978466e-6));
 
             _K1[l] = M_PI * lambda;
@@ -4682,10 +4682,10 @@ void Optimiser::saveDatabase() const
     unsigned int cls;
     vec4 quat;
     vec2 tran;
-    double df;
+    RFLOAT df;
 
-    // double rVari, s0, s1, s;
-    double k1, k2, k3, s0, s1, s;
+    // RFLOAT rVari, s0, s1, s;
+    RFLOAT k1, k2, k3, s0, s1, s;
 
     FOR_EACH_2D_IMAGE
     {
@@ -4759,7 +4759,7 @@ void Optimiser::saveBestProjections()
     mat22 rot2D;
     mat33 rot3D;
     vec2 tran;
-    double d;
+    RFLOAT d;
 
     FOR_EACH_2D_IMAGE
     {
@@ -4930,8 +4930,8 @@ void Optimiser::saveMapHalf(const bool finished)
 #ifdef OPTIMISER_SAVE_LOW_PASS_REFERENCE
                 lowPassFilter(lowPass,
                               _model.ref(t),
-                              (double)_resReport / _para.size,
-                              (double)EDGE_WIDTH_FT / _para.size);
+                              (RFLOAT)_resReport / _para.size,
+                              (RFLOAT)EDGE_WIDTH_FT / _para.size);
 #else
                 lowPass = _model.ref(t).copyVolume();
 #endif
@@ -5185,21 +5185,21 @@ void Optimiser::saveTau() const
     fclose(file);
 }
 
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sigRcp,
-                      const double rU,
-                      const double rL)
+                      const RFLOAT rU,
+                      const RFLOAT rL)
 {
-    double result = 0;
+    RFLOAT result = 0;
 
-    double rU2 = TSGSL_pow_2(rU);
-    double rL2 = TSGSL_pow_2(rL);
+    RFLOAT rU2 = TSGSL_pow_2(rU);
+    RFLOAT rL2 = TSGSL_pow_2(rL);
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
-        double u = QUAD(i, j);
+        RFLOAT u = QUAD(i, j);
 
         if ((u < rU2) && (u >= rL2))
         {
@@ -5220,7 +5220,7 @@ double logDataVSPrior(const Image& dat,
     return result;
 }
 
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sigRcp,
@@ -5228,7 +5228,7 @@ double logDataVSPrior(const Image& dat,
                       const int* iSig,
                       const int m)
 {
-    double result = 0;
+    RFLOAT result = 0;
 
     for (int i = 0; i < m; i++)
         result += ABS2(dat.iGetFT(iPxl[i])
@@ -5239,13 +5239,13 @@ double logDataVSPrior(const Image& dat,
     return result;
 }
 
-double logDataVSPrior(const Complex* dat,
+RFLOAT logDataVSPrior(const Complex* dat,
                       const Complex* pri,
-                      const double* ctf,
-                      const double* sigRcp,
+                      const RFLOAT* ctf,
+                      const RFLOAT* sigRcp,
                       const int m)
 {
-    double result = 0;
+    RFLOAT result = 0;
 
     for (int i = 0; i < m; i++)
         result += ABS2(dat[i] - ctf[i] * pri[i])
@@ -5254,24 +5254,24 @@ double logDataVSPrior(const Complex* dat,
     return result;
 }
 
-double logDataVSPrior(const Complex* dat,
+RFLOAT logDataVSPrior(const Complex* dat,
                       const Complex* pri,
-                      const double* frequency,
-                      const double* defocus,
-                      const double df,
-                      const double K1,
-                      const double K2,
-                      const double* sigRcp,
+                      const RFLOAT* frequency,
+                      const RFLOAT* defocus,
+                      const RFLOAT df,
+                      const RFLOAT K1,
+                      const RFLOAT K2,
+                      const RFLOAT* sigRcp,
                       const int m)
 {
-    double result = 0;
+    RFLOAT result = 0;
 
     for (int i = 0; i < m; i++)
     {
-        double ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
+        RFLOAT ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
                   + K2 * TSGSL_pow_4(frequency[i]);
 
-        double ctf = -w1 * sin(ki) + w2 * cos(ki);
+        RFLOAT ctf = -w1 * sin(ki) + w2 * cos(ki);
 
         result += ABS2(dat[i] - ctf * pri[i])
                 * sigRcp[i];
@@ -5281,22 +5281,22 @@ double logDataVSPrior(const Complex* dat,
     return result;
 }
 
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
                       const Image& ctf,
                       const vec& sigRcp,
-                      const double rU,
-                      const double rL)
+                      const RFLOAT rU,
+                      const RFLOAT rL)
 {
-    double result = 0;
+    RFLOAT result = 0;
 
-    double rU2 = TSGSL_pow_2(rU);
-    double rL2 = TSGSL_pow_2(rL);
+    RFLOAT rU2 = TSGSL_pow_2(rU);
+    RFLOAT rL2 = TSGSL_pow_2(rL);
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
-        double u = QUAD(i, j);
+        RFLOAT u = QUAD(i, j);
 
         if ((u < rU2) && (u >= rL2))
         {
@@ -5318,7 +5318,7 @@ double logDataVSPrior(const Image& dat,
     return result;
 }
 
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
                       const Image& ctf,
@@ -5327,7 +5327,7 @@ double logDataVSPrior(const Image& dat,
                       const int* iSig,
                       const int m)
 {
-    double result = 0;
+    RFLOAT result = 0;
 
     for (int i = 0; i < m; i++)
     {
@@ -5348,19 +5348,19 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
                    const mat& sigRcp,
-                   const double rU,
-                   const double rL)
+                   const RFLOAT rU,
+                   const RFLOAT rL)
 {
     int n = dat.size();
 
     vec result = vec::Zero(n);
 
-    double rU2 = TSGSL_pow_2(rU);
-    double rL2 = TSGSL_pow_2(rL);
+    RFLOAT rU2 = TSGSL_pow_2(rU);
+    RFLOAT rL2 = TSGSL_pow_2(rL);
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
-        double u = QUAD(i, j);
+        RFLOAT u = QUAD(i, j);
 
         if ((u < rU2) && (u >= rL2))
         {
@@ -5421,8 +5421,8 @@ vec logDataVSPrior(const vector<Image>& dat,
 /***
 vec logDataVSPrior(const Complex* const* dat,
                    const Complex* pri,
-                   const double* const* ctf,
-                   const double* const* sigRcp,
+                   const RFLOAT* const* ctf,
+                   const RFLOAT* const* sigRcp,
                    const int n,
                    const int m)
 {
@@ -5441,8 +5441,8 @@ vec logDataVSPrior(const Complex* const* dat,
 
 vec logDataVSPrior(const Complex* dat,
                    const Complex* pri,
-                   const double* ctf,
-                   const double* sigRcp,
+                   const RFLOAT* ctf,
+                   const RFLOAT* sigRcp,
                    const int n,
                    const int m)
 {
@@ -5473,23 +5473,23 @@ vec logDataVSPrior(const Complex* dat,
     return result;
 }
 
-double dataVSPrior(const Image& dat,
+RFLOAT dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sigRcp,
-                   const double rU,
-                   const double rL)
+                   const RFLOAT rU,
+                   const RFLOAT rL)
 {
     return exp(logDataVSPrior(dat, pri, ctf, sigRcp, rU, rL));
 }
 
-double dataVSPrior(const Image& dat,
+RFLOAT dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& tra,
                    const Image& ctf,
                    const vec& sigRcp,
-                   const double rU,
-                   const double rL)
+                   const RFLOAT rU,
+                   const RFLOAT rL)
 {
     return exp(logDataVSPrior(dat, pri, tra, ctf, sigRcp, rU, rL));
 }
@@ -5499,11 +5499,11 @@ void scaleDataVSPrior(vec& sXA,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,
-                      const double rU,
-                      const double rL)
+                      const RFLOAT rU,
+                      const RFLOAT rL)
 {
-    double rU2 = TSGSL_pow_2(rU);
-    double rL2 = TSGSL_pow_2(rL);
+    RFLOAT rU2 = TSGSL_pow_2(rU);
+    RFLOAT rL2 = TSGSL_pow_2(rL);
 
     for (int i = 0; i < rU; i++)
     {
@@ -5514,7 +5514,7 @@ void scaleDataVSPrior(vec& sXA,
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_PIXEL_R_FT(CEIL(rU) + 1)
     {
-        double u = QUAD(i, j);
+        RFLOAT u = QUAD(i, j);
 
         if ((u < rU2) && (u >= rL2))
         {

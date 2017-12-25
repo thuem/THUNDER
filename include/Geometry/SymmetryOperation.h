@@ -43,9 +43,9 @@ struct RotationSO
      * @param z z component of rotation axis
      */
     RotationSO(const int fold,
-               const double x,
-               const double y,
-               const double z);
+               const RFLOAT x,
+               const RFLOAT y,
+               const RFLOAT z);
 };
 
 /**
@@ -56,9 +56,9 @@ struct ReflexionSO
 {
     vec3 plane;
 
-    ReflexionSO(const double x,
-                const double y,
-                const double z);
+    ReflexionSO(const RFLOAT x,
+                const RFLOAT y,
+                const RFLOAT z);
 };
 
 /**

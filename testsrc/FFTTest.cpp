@@ -33,9 +33,9 @@ int main(int argc, char* argv[])
 
     VOLUME_FOR_EACH_PIXEL_RL(head)
     {
-        double ii = i * 0.8;
-        double jj = j * 0.8;
-        double kk = k * 0.8;
+        RFLOAT ii = i * 0.8;
+        RFLOAT jj = j * 0.8;
+        RFLOAT kk = k * 0.8;
         if ((NORM_3(ii, jj, kk) < N / 8) ||
             (NORM_3(ii - N / 8, jj, kk - N / 8) < N / 16) ||
             (NORM_3(ii - N / 8, jj - N / 8, kk - N / 8) < N / 16) ||

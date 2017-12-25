@@ -30,8 +30,8 @@
  * @param theta theta
  * @param src   3-vector indicating the direction
  */
-void angle(double& phi,
-           double& theta,
+void angle(RFLOAT& phi,
+           RFLOAT& theta,
            const vec3& src);
 
 /**
@@ -42,9 +42,9 @@ void angle(double& phi,
  * @param psi   psi
  * @param src   the rotation matrix
  */
-void angle(double& phi,
-           double& theta,
-           double& psi,
+void angle(RFLOAT& phi,
+           RFLOAT& theta,
+           RFLOAT& psi,
            const mat33& src);
 
 /**
@@ -56,9 +56,9 @@ void angle(double& phi,
  * @param psi   psi
  * @param src   the quaternion
  */
-void angle(double& phi,
-           double& theta,
-           double& psi,
+void angle(RFLOAT& phi,
+           RFLOAT& theta,
+           RFLOAT& psi,
            const vec4& src);
 
 /**
@@ -70,9 +70,9 @@ void angle(double& phi,
  * @param psi   psi
  */
 void quaternion(vec4& dst,
-                const double phi,
-                const double theta,
-                const double psi);
+                const RFLOAT phi,
+                const RFLOAT theta,
+                const RFLOAT psi);
 
 /**
  * This function calculates the quaternion given rotation angle and rotation axis.
@@ -82,7 +82,7 @@ void quaternion(vec4& dst,
  * @param axis the rotation axis (unit vector)
  */
 void quaternion(vec4& dst,
-                const double phi,
+                const RFLOAT phi,
                 const vec3& axis);
 
 void quaternion(vec4& dst,
@@ -102,7 +102,7 @@ void rotate2D(mat22& dst, const vec2& vec);
  * @param dst the rotation matrix
  * @param phi phi
  */
-void rotate2D(mat22& dst, const double phi);
+void rotate2D(mat22& dst, const RFLOAT phi);
 
 /**
  * This function calculates the direction vector given phi and theta. The 2-norm
@@ -113,8 +113,8 @@ void rotate2D(mat22& dst, const double phi);
  * @param theta theta
  */
 void direction(vec3& dst,
-               const double phi,
-               const double theta);
+               const RFLOAT phi,
+               const RFLOAT theta);
 
 /**
  * This function calculates the rotation matrix given phi, theta and psi.
@@ -125,9 +125,9 @@ void direction(vec3& dst,
  * @param psi   psi
  */
 void rotate3D(mat33& dst,
-              const double phi,
-              const double theta,
-              const double psi);
+              const RFLOAT phi,
+              const RFLOAT theta,
+              const RFLOAT psi);
 
 /**
  * This function calculates the rotation matrix given a quaternion.
@@ -144,7 +144,7 @@ void rotate3D(mat33& dst,
  * @param dst the rotation matrix
  * @param phi phi
  */
-void rotate3DX(mat33& dst, const double phi);
+void rotate3DX(mat33& dst, const RFLOAT phi);
 
 /**
  * This function calculates the rotation matrix of rotation along Y-axis of phi.
@@ -152,7 +152,7 @@ void rotate3DX(mat33& dst, const double phi);
  * @param dst the rotation matrix
  * @param phi phi
  */
-void rotate3DY(mat33& dst, const double phi);
+void rotate3DY(mat33& dst, const RFLOAT phi);
 
 /**
  * This function calculates the rotation matrix of rotation along Z-axis of phi.
@@ -160,7 +160,7 @@ void rotate3DY(mat33& dst, const double phi);
  * @param dst the rotation matrix
  * @param phi phi
  */
-void rotate3DZ(mat33& dst, const double phi);
+void rotate3DZ(mat33& dst, const RFLOAT phi);
 
 /**
  * This function calculates the rotation matrix for aligning a direction vector
@@ -180,7 +180,7 @@ void alignZ(mat33& dst,
  * @param axis a character indicating which axis the rotation is along
  */
 void rotate3D(mat33& dst,
-              const double phi,
+              const RFLOAT phi,
               const char axis);
 
 /**
@@ -192,7 +192,7 @@ void rotate3D(mat33& dst,
  * @param axis the direction vector indicating the axis
  */
 void rotate3D(mat33& dst,
-              const double phi,
+              const RFLOAT phi,
               const vec3& axis);
 
 /**

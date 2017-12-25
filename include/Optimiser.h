@@ -102,32 +102,32 @@ struct OptimiserPara
     /**
      * pixel size (Angstrom)
      */
-    double pixelSize;
+    RFLOAT pixelSize;
 
     /**
      * radius of mask on images (Angstrom)
      */
-    double maskRadius;
+    RFLOAT maskRadius;
 
     /**
      * estimated translation (pixel)
      */
-    double transS;
+    RFLOAT transS;
 
     /**
      * initial resolution (Angstrom)
      */
-    double initRes;
+    RFLOAT initRes;
 
     /**
      * scan resolution (Angstrom)
      */
-    double scanRes;
+    RFLOAT scanRes;
 
     /**
      * resolution threshold for performing global search
      */
-    double globalSearchRes;
+    RFLOAT globalSearchRes;
 
     /**
      * symmetry
@@ -182,12 +182,12 @@ struct OptimiserPara
     /**
      * MKB kernel radius
      */
-    double a;
+    RFLOAT a;
 
     /**
      * MKB kernel smooth factor
      */
-    double alpha;
+    RFLOAT alpha;
 
     /**
      * number of sampling points for scanning in global search
@@ -211,24 +211,24 @@ struct OptimiserPara
     /**
      * the information below this resolution will be ignored
      */
-    double ignoreRes;
+    RFLOAT ignoreRes;
 
     /**
      * the resolution boundary for performing intensity scale correction
      */
-    double sclCorRes;
+    RFLOAT sclCorRes;
 
     /**
      * the FSC threshold for determining cutoff frequency
      */
-    double thresCutoffFSC;
+    RFLOAT thresCutoffFSC;
 
     /**
      * the FSC threshold for reporting resolution
      */
-    double thresReportFSC;
+    RFLOAT thresReportFSC;
 
-    double thresSclCorFSC;
+    RFLOAT thresSclCorFSC;
 
     /**
      * grouping or not when calculating sigma
@@ -247,17 +247,17 @@ struct OptimiserPara
 
     bool parGra;
 
-    double transSearchFactor;
+    RFLOAT transSearchFactor;
 
-    double perturbFactorL;
+    RFLOAT perturbFactorL;
 
-    double perturbFactorSGlobal;
+    RFLOAT perturbFactorSGlobal;
 
-    double perturbFactorSLocal;
+    RFLOAT perturbFactorSLocal;
 
-    double perturbFactorSCTF;
+    RFLOAT perturbFactorSCTF;
 
-    double ctfRefineS;
+    RFLOAT ctfRefineS;
 
     /**
      * whether skip expectation or not
@@ -331,7 +331,7 @@ class Optimiser : public Parallel
          * the information below this frequency will be ignored during
          * comparison
          */
-        double _rL;
+        RFLOAT _rL;
 
         /**
          * the information below this frequency will be used for performing
@@ -347,12 +347,12 @@ class Optimiser : public Parallel
         /**
          * current cutoff resolution (Angstrom)
          */
-        double _resCutoff;
+        RFLOAT _resCutoff;
 
         /**
          * current report resolution (Angstrom)
          */
-        double _resReport;
+        RFLOAT _resReport;
 
         /**
          * current search type
@@ -441,27 +441,27 @@ class Optimiser : public Parallel
          */
         vector<int> _groupID;
 
-        double _mean;
+        RFLOAT _mean;
 
         /*
          * standard deviation of noise
          */
-        double _stdN;
+        RFLOAT _stdN;
 
         /*
          * standard deviation of data
          */
-        double _stdD;
+        RFLOAT _stdD;
 
         /*
          * standard deviation of signal
          */
-        double _stdS;
+        RFLOAT _stdS;
 
         /*
          * standard deviation of standard deviation of noise
          */
-        double _stdStdN;
+        RFLOAT _stdStdN;
 
         /**
          * images distribution over classes
@@ -506,29 +506,29 @@ class Optimiser : public Parallel
 
         Complex* _datP;
 
-        double* _ctfP;
+        RFLOAT* _ctfP;
 
-        double* _sigRcpP;
+        RFLOAT* _sigRcpP;
 
         /**
          * spatial frequency of each pixel
          */
-        double* _frequency;
+        RFLOAT* _frequency;
 
         /**
          * defocus of each pixel of each image
          */
-        double* _defocusP;
+        RFLOAT* _defocusP;
 
         /**
          * K1 of CTF of each image
          */
-        double* _K1;
+        RFLOAT* _K1;
 
         /**
          * K2 of CTF of each image
          */
-        double* _K2;
+        RFLOAT* _K2;
 
         FFT _fftImg;
 
@@ -683,9 +683,9 @@ class Optimiser : public Parallel
          */
         void initParticles();
 
-        void avgStdR(double& stdR);
+        void avgStdR(RFLOAT& stdR);
 
-        void avgStdT(double& stdT);
+        void avgStdT(RFLOAT& stdT);
 
         void loadParticles();
 
@@ -697,7 +697,7 @@ class Optimiser : public Parallel
 
         void refreshClassDistr();
 
-        void balanceClass(const double thres,
+        void balanceClass(const RFLOAT thres,
                           const bool refreshDistr);
 
         /**
@@ -750,8 +750,8 @@ class Optimiser : public Parallel
          */
         void solventFlatten(const bool mask = true);
 
-        void allocPreCalIdx(const double rU,
-                            const double rL);
+        void allocPreCalIdx(const RFLOAT rU,
+                            const RFLOAT rL);
 
         void allocPreCal(const bool pixelMajor,
                          const bool ctf);
@@ -799,15 +799,15 @@ class Optimiser : public Parallel
 };
 
 /***
-int searchPlace(double* topW,
-                const double w,
+int searchPlace(RFLOAT* topW,
+                const RFLOAT w,
                 const int l,
                 const int r);
 
-void recordTopK(double* topW,
+void recordTopK(RFLOAT* topW,
                 unsigned int* iTopR,
                 unsigned int* iTopT,
-                const double w,
+                const RFLOAT w,
                 const unsigned int iR,
                 const unsigned int iT,
                 const int k);
@@ -824,14 +824,14 @@ void recordTopK(double* topW,
  * @param rU  the upper boundary of frequency of the signal for comparison
  * @param rL  the lower boundary of frequency of the signal for comparison
  */
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sigRcp,
-                      const double rU,
-                      const double rL);
+                      const RFLOAT rU,
+                      const RFLOAT rL);
 
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& ctf,
                       const vec& sigRcp,
@@ -839,20 +839,20 @@ double logDataVSPrior(const Image& dat,
                       const int* iSig,
                       const int m);
 
-double logDataVSPrior(const Complex* dat,
+RFLOAT logDataVSPrior(const Complex* dat,
                       const Complex* pri,
-                      const double* ctf,
-                      const double* sigRcp,
+                      const RFLOAT* ctf,
+                      const RFLOAT* sigRcp,
                       const int m);
 
-double logDataVSPrior(const Complex* dat,
+RFLOAT logDataVSPrior(const Complex* dat,
                       const Complex* pri,
-                      const double* frequency,
-                      const double* defocus,
-                      const double df,
-                      const double K1,
-                      const double K2,
-                      const double* sigRcp,
+                      const RFLOAT* frequency,
+                      const RFLOAT* defocus,
+                      const RFLOAT df,
+                      const RFLOAT K1,
+                      const RFLOAT K2,
+                      const RFLOAT* sigRcp,
                       const int m);
 
 /**
@@ -867,13 +867,13 @@ double logDataVSPrior(const Complex* dat,
  * @param rU  the upper boundary of frequency of the signal for comparison
  * @param rL  the lower boundary of frequency of the signal for comparison
  */
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
                       const Image& ctf,
                       const vec& sigRcp,
-                      const double rU,
-                      const double rL);
+                      const RFLOAT rU,
+                      const RFLOAT rL);
 
 /**
  * This function calculates th logarithm of possibility that images is from the
@@ -888,7 +888,7 @@ double logDataVSPrior(const Image& dat,
  * @param iPxl the indices of the pixels
  * @param iSig the indices of the sigma of the corresponding pixels
  */
-double logDataVSPrior(const Image& dat,
+RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
                       const Image& tra,
                       const Image& ctf,
@@ -914,8 +914,8 @@ vec logDataVSPrior(const vector<Image>& dat,
                    const vector<Image>& ctf,
                    const vector<int>& groupID,
                    const mat& sigRcp,
-                   const double rU,
-                   const double rL);
+                   const RFLOAT rU,
+                   const RFLOAT rL);
 
 vec logDataVSPrior(const vector<Image>& dat,
                    const Image& pri,
@@ -929,8 +929,8 @@ vec logDataVSPrior(const vector<Image>& dat,
 /***
 vec logDataVSPrior(const Complex* const* dat,
                    const Complex* pri,
-                   const double* const* ctf,
-                   const double* const* sigRcp,
+                   const RFLOAT* const* ctf,
+                   const RFLOAT* const* sigRcp,
                    const int n,
                    const int m);
 ***/
@@ -951,32 +951,32 @@ vec logDataVSPrior(const Complex* const* dat,
  */
 vec logDataVSPrior(const Complex* dat,
                    const Complex* pri,
-                   const double* ctf,
-                   const double* sigRcp,
+                   const RFLOAT* ctf,
+                   const RFLOAT* sigRcp,
                    const int n,
                    const int m);
 
-double dataVSPrior(const Image& dat,
+RFLOAT dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& ctf,
                    const vec& sigRcp,
-                   const double rU,
-                   const double rL);
+                   const RFLOAT rU,
+                   const RFLOAT rL);
 
-double dataVSPrior(const Image& dat,
+RFLOAT dataVSPrior(const Image& dat,
                    const Image& pri,
                    const Image& tra,
                    const Image& ctf,
                    const vec& sigRcp,
-                   const double rU,
-                   const double rL);
+                   const RFLOAT rU,
+                   const RFLOAT rL);
 
 void scaleDataVSPrior(vec& sXA,
                       vec& sAA,
                       const Image& dat,
                       const Image& pri,
                       const Image& ctf,
-                      const double rU,
-                      const double rL);
+                      const RFLOAT rU,
+                      const RFLOAT rL);
 
 #endif // OPTIMSER_H

@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
             printf("%02d\n", k);
             sprintf(name, "%02d.bmp", k);
 
-            double phi = 2 * M_PI / M * k;
+            RFLOAT phi = 2 * M_PI / M * k;
 
             mat22 rot;
 

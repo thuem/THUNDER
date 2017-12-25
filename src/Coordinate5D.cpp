@@ -14,11 +14,11 @@
 
 Coordinate5D::Coordinate5D() {}
 
-Coordinate5D::Coordinate5D(const double phi,
-                           const double theta,
-                           const double psi,
-                           const double x,
-                           const double y)
+Coordinate5D::Coordinate5D(const RFLOAT phi,
+                           const RFLOAT theta,
+                           const RFLOAT psi,
+                           const RFLOAT x,
+                           const RFLOAT y)
 {
     this->phi = phi;
     this->theta = theta;

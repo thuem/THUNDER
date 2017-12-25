@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     vec fsc = vec(N / 2 - 1);
     FSC(fsc, refA, refB);
 
-    double pixelSize = atof(argv[3]);
+    RFLOAT pixelSize = atof(argv[3]);
 
     for (int i = 1; i < N / 2 - 1; i++)
         printf("%05d   %10.6lf   %10.6lf\n",

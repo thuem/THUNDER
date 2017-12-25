@@ -15,69 +15,69 @@
  *******************************************************************/
 #include "huabin.h"
 
-double TSGSL_cdf_chisq_Qinv (const double Q, const double nu)
+RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu)
 {
     return gsl_cdf_chisq_Qinv(Q, nu); 
 }
 
-double TSGSL_cdf_gaussian_Qinv (const double Q, const double sigma)
+RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma)
 {
     return gsl_cdf_gaussian_Qinv(Q, sigma);
 }
 
-double TSGSL_complex_abs2 (gsl_complex z)
+RFLOAT TSGSL_complex_abs2 (gsl_complex z)
 {
     return gsl_complex_abs2(z); 
 }
 
-int TSGSL_fit_linear (const double * x, const size_t xstride, const double * y, const size_t ystride, const size_t n, double * c0, double * c1, double * cov00, double * cov01, double * cov11, double * sumsq)
+int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, const size_t ystride, const size_t n, RFLOAT * c0, RFLOAT * c1, RFLOAT * cov00, RFLOAT * cov01, RFLOAT * cov11, RFLOAT * sumsq)
 {
     return gsl_fit_linear (x, xstride, y, ystride,  n,  c0, c1, cov00, cov01, cov11, sumsq);
 }
 
 
-int TSGSL_isinf (const double x)
+int TSGSL_isinf (const RFLOAT x)
 {
     return gsl_isinf(x); 
 }
 
-int TSGSL_isnan (const double x)
+int TSGSL_isnan (const RFLOAT x)
 {
 
     return gsl_isnan(x); 
 }
 
-double TSGSL_pow_2(const double x)
+RFLOAT TSGSL_pow_2(const RFLOAT x)
 {
     return gsl_pow_2(x);
 }
 
-double TSGSL_pow_3(const double x)
+RFLOAT TSGSL_pow_3(const RFLOAT x)
 {
     return  gsl_pow_3(x);
 }
 
-double TSGSL_pow_4(const double x)
+RFLOAT TSGSL_pow_4(const RFLOAT x)
 {
     return gsl_pow_4(x);
 }
 
-void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, double sigma_x, double sigma_y, double rho, double *x, double *y)
+void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, RFLOAT sigma_x, RFLOAT sigma_y, RFLOAT rho, RFLOAT *x, RFLOAT *y)
 {
     return gsl_ran_bivariate_gaussian (r,  sigma_x,  sigma_y,  rho,  x,  y);
 }
 
-void TSGSL_ran_dir_2d (const gsl_rng * r, double * x, double * y)
+void TSGSL_ran_dir_2d (const gsl_rng * r, RFLOAT * x, RFLOAT * y)
 {
     return gsl_ran_dir_2d(r, x, y);;
 }
 
-double TSGSL_ran_flat (const gsl_rng * r, const double a, const double b)
+RFLOAT TSGSL_ran_flat (const gsl_rng * r, const RFLOAT a, const RFLOAT b)
 {
     return gsl_ran_flat(r, a, b);
 }
 
-double TSGSL_ran_gaussian (const gsl_rng * r, const double sigma)
+RFLOAT TSGSL_ran_gaussian (const gsl_rng * r, const RFLOAT sigma)
 {
     return gsl_ran_gaussian (r, sigma);
 }
@@ -110,7 +110,7 @@ void TSGSL_rng_set (const gsl_rng * r, unsigned long int seed)
 }
 
 
-double TSGSL_rng_uniform (const gsl_rng * r)
+RFLOAT TSGSL_rng_uniform (const gsl_rng * r)
 {
     return gsl_rng_uniform ( r);
 }
@@ -121,81 +121,81 @@ unsigned long int TSGSL_rng_uniform_int (const gsl_rng * r, unsigned long int n)
 }
 
 
-double TSGSL_sf_bessel_I0(const double x)
+RFLOAT TSGSL_sf_bessel_I0(const RFLOAT x)
 {
     return gsl_sf_bessel_I0( x);
 }
 
-double TSGSL_sf_bessel_In(const int n, const double x)
+RFLOAT TSGSL_sf_bessel_In(const int n, const RFLOAT x)
 {
     return gsl_sf_bessel_In(n,  x);
 }
 
 
-double TSGSL_sf_bessel_Inu(double nu, double x)
+RFLOAT TSGSL_sf_bessel_Inu(RFLOAT nu, RFLOAT x)
 {
     return gsl_sf_bessel_Inu(nu, x);
 }
 
 
-double TSGSL_sf_bessel_j0(const double x)
+RFLOAT TSGSL_sf_bessel_j0(const RFLOAT x)
 {
     return gsl_sf_bessel_j0( x);
 }
 
 
-double TSGSL_sf_bessel_Jnu(const double nu, const double x)
+RFLOAT TSGSL_sf_bessel_Jnu(const RFLOAT nu, const RFLOAT x)
 {
     return gsl_sf_bessel_Jnu( nu,  x);
 }
 
 
-double TSGSL_sf_sinc(const double x)
+RFLOAT TSGSL_sf_sinc(const RFLOAT x)
 {
     return gsl_sf_sinc( x);
 }
 
 
-void TSGSL_sort (double * data, const size_t stride, const size_t n)
+void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n)
 {
     return gsl_sort ( data, stride, n);
 }
 
-int TSGSL_sort_largest (double * dest, const size_t k, const double * src, const size_t stride, const size_t n)
+int TSGSL_sort_largest (RFLOAT * dest, const size_t k, const RFLOAT * src, const size_t stride, const size_t n)
 {
     return gsl_sort_largest ( dest, k,  src, stride, n);
 }
 
 
-double TSGSL_stats_max (const double data[], const size_t stride, const size_t n)
+RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n)
 {
     return gsl_stats_max ( data,  stride,  n);
 }
 
 
-double TSGSL_stats_mean (const double data[], const size_t stride, const size_t n)
+RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t n)
 {
     return gsl_stats_mean ( data,  stride,  n);
 }
 
 
-double TSGSL_stats_min (const double data[], const size_t stride, const size_t n)
+RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n)
 {
     return gsl_stats_min ( data,  stride,  n);
 }
-double TSGSL_stats_quantile_from_sorted_data (const double sorted_data[], const size_t stride, const size_t n, const double f)
+RFLOAT TSGSL_stats_quantile_from_sorted_data (const RFLOAT sorted_data[], const size_t stride, const size_t n, const RFLOAT f)
 {
     return gsl_stats_quantile_from_sorted_data ( sorted_data,  stride,  n,  f);
 } 
 
 
-double TSGSL_stats_sd (const double data[], const size_t stride, const size_t n)
+RFLOAT TSGSL_stats_sd (const RFLOAT data[], const size_t stride, const size_t n)
 {
     return gsl_stats_sd ( data,  stride,  n);
 }
 
 
-double TSGSL_stats_sd_m (const double data[], const size_t stride, const size_t n, const double mean)
+RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t n, const RFLOAT mean)
 {
     return gsl_stats_sd_m ( data,  stride,  n,  mean);
 }

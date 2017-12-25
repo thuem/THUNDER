@@ -34,7 +34,7 @@ class Postprocess
 
         int _size;
 
-        double _pixelSize;
+        RFLOAT _pixelSize;
 
         Volume _mapA;
 
@@ -69,7 +69,7 @@ class Postprocess
         Postprocess(const char mapAFilename[],
                     const char mapBFilename[],
                     const char maskFilename[],
-                    const double pixelSize);
+                    const RFLOAT pixelSize);
 
         void run();
 

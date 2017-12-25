@@ -153,7 +153,7 @@ long Database::offset(const int i) const
     return _offset[_reg[i]];
 }
 
-double Database::coordX(const int i) const
+RFLOAT Database::coordX(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -170,7 +170,7 @@ double Database::coordX(const int i) const
     return atoi(word);
 }
 
-double Database::coordY(const int i) const
+RFLOAT Database::coordY(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -238,13 +238,13 @@ string Database::micrographPath(const int i) const
     return string(word);
 }
 
-void Database::ctf(double& voltage,
-                   double& defocusU,
-                   double& defocusV,
-                   double& defocusTheta,
-                   double& Cs,
-                   double& amplitudeConstrast,
-                   double& phaseShift,
+void Database::ctf(RFLOAT& voltage,
+                   RFLOAT& defocusU,
+                   RFLOAT& defocusV,
+                   RFLOAT& defocusTheta,
+                   RFLOAT& Cs,
+                   RFLOAT& amplitudeConstrast,
+                   RFLOAT& phaseShift,
                    const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
@@ -346,7 +346,7 @@ vec4 Database::quat(const int i) const
     return result;
 }
 
-double Database::k1(const int i) const
+RFLOAT Database::k1(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -363,7 +363,7 @@ double Database::k1(const int i) const
     return atof(word);
 }
 
-double Database::k2(const int i) const
+RFLOAT Database::k2(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -380,7 +380,7 @@ double Database::k2(const int i) const
     return atof(word);
 }
 
-double Database::k3(const int i) const
+RFLOAT Database::k3(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -422,7 +422,7 @@ vec2 Database::tran(const int i) const
     return result;
 }
 
-double Database::stdTX(const int i) const
+RFLOAT Database::stdTX(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -439,7 +439,7 @@ double Database::stdTX(const int i) const
     return atof(word);
 }
 
-double Database::stdTY(const int i) const
+RFLOAT Database::stdTY(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -456,7 +456,7 @@ double Database::stdTY(const int i) const
     return atof(word);
 }
 
-double Database::d(const int i) const
+RFLOAT Database::d(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -473,7 +473,7 @@ double Database::d(const int i) const
     return atof(word);
 }
 
-double Database::stdD(const int i) const
+RFLOAT Database::stdD(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 

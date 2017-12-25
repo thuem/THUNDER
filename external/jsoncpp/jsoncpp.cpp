@@ -714,7 +714,7 @@ bool Reader::decodeNumber(Token& token) {
 bool Reader::decodeNumber(Token& token, Value& decoded) {
   // Attempts to parse the number as an integer. If the number is
   // larger than the maximum supported value of an integer then
-  // we decode the number as a double.
+  // we decode the number as a RFLOAT.
   Location current = token.start_;
   bool isNegative = *current == '-';
   if (isNegative)
@@ -734,7 +734,7 @@ bool Reader::decodeNumber(Token& token, Value& decoded) {
       // We've hit or exceeded the max value divided by 10 (rounded down). If
       // a) we've only just touched the limit, b) this is the last digit, and
       // c) it's small enough to fit in that rounding delta, we're okay.
-      // Otherwise treat this number as a double to avoid overflow.
+      // Otherwise treat this number as a RFLOAT to avoid overflow.
       if (value > threshold || current != token.end_ ||
           digit > maxIntegerValue % 10) {
         return decodeDouble(token, decoded);
@@ -762,7 +762,7 @@ bool Reader::decodeDouble(Token& token) {
 }
 
 bool Reader::decodeDouble(Token& token, Value& decoded) {
-  double value = 0;
+  RFLOAT value = 0;
   std::string buffer(token.start_, token.end_);
   std::istringstream is(buffer);
   if (!(is >> value))
@@ -1232,19 +1232,19 @@ bool OurReader::readValue() {
     break;
   case tokenNaN:
     {
-    Value v(std::numeric_limits<double>::quiet_NaN());
+    Value v(std::numeric_limits<RFLOAT>::quiet_NaN());
     currentValue().swapPayload(v);
     }
     break;
   case tokenPosInf:
     {
-    Value v(std::numeric_limits<double>::infinity());
+    Value v(std::numeric_limits<RFLOAT>::infinity());
     currentValue().swapPayload(v);
     }
     break;
   case tokenNegInf:
     {
-    Value v(-std::numeric_limits<double>::infinity());
+    Value v(-std::numeric_limits<RFLOAT>::infinity());
     currentValue().swapPayload(v);
     }
     break;
@@ -1623,7 +1623,7 @@ bool OurReader::decodeNumber(Token& token) {
 bool OurReader::decodeNumber(Token& token, Value& decoded) {
   // Attempts to parse the number as an integer. If the number is
   // larger than the maximum supported value of an integer then
-  // we decode the number as a double.
+  // we decode the number as a RFLOAT.
   Location current = token.start_;
   bool isNegative = *current == '-';
   if (isNegative)
@@ -1643,7 +1643,7 @@ bool OurReader::decodeNumber(Token& token, Value& decoded) {
       // We've hit or exceeded the max value divided by 10 (rounded down). If
       // a) we've only just touched the limit, b) this is the last digit, and
       // c) it's small enough to fit in that rounding delta, we're okay.
-      // Otherwise treat this number as a double to avoid overflow.
+      // Otherwise treat this number as a RFLOAT to avoid overflow.
       if (value > threshold || current != token.end_ ||
           digit > maxIntegerValue % 10) {
         return decodeDouble(token, decoded);
@@ -1669,7 +1669,7 @@ bool OurReader::decodeDouble(Token& token) {
 }
 
 bool OurReader::decodeDouble(Token& token, Value& decoded) {
-  double value = 0;
+  RFLOAT value = 0;
   std::string buffer( token.start_, token.end_ );
   std::istringstream is(buffer);
   if (!(is >> value))
@@ -2262,9 +2262,9 @@ const Int64 Value::minInt64 = Int64(~(UInt64(-1) / 2));
 const Int64 Value::maxInt64 = Int64(UInt64(-1) / 2);
 const UInt64 Value::maxUInt64 = UInt64(-1);
 // The constant is hard-coded because some compiler have trouble
-// converting Value::maxUInt64 to a double correctly (AIX/xlC).
+// converting Value::maxUInt64 to a RFLOAT correctly (AIX/xlC).
 // Assumes that UInt64 is a 64 bits integer.
-static const double maxUInt64AsDouble = 18446744073709551615.0;
+static const RFLOAT maxUInt64AsDouble = 18446744073709551615.0;
 #endif // defined(JSON_HAS_INT64)
 const LargestInt Value::minLargestInt = LargestInt(~(LargestUInt(-1) / 2));
 const LargestInt Value::maxLargestInt = LargestInt(LargestUInt(-1) / 2);
@@ -2272,20 +2272,20 @@ const LargestUInt Value::maxLargestUInt = LargestUInt(-1);
 
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
 template <typename T, typename U>
-static inline bool InRange(double d, T min, U max) {
+static inline bool InRange(RFLOAT d, T min, U max) {
   return d >= min && d <= max;
 }
 #else  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-static inline double integerToDouble(Json::UInt64 value) {
-  return static_cast<double>(Int64(value / 2)) * 2.0 + Int64(value & 1);
+static inline RFLOAT integerToDouble(Json::UInt64 value) {
+  return static_cast<RFLOAT>(Int64(value / 2)) * 2.0 + Int64(value & 1);
 }
 
-template <typename T> static inline double integerToDouble(T value) {
-  return static_cast<double>(value);
+template <typename T> static inline RFLOAT integerToDouble(T value) {
+  return static_cast<RFLOAT>(value);
 }
 
 template <typename T, typename U>
-static inline bool InRange(double d, T min, U max) {
+static inline bool InRange(RFLOAT d, T min, U max) {
   return d >= integerToDouble(min) && d <= integerToDouble(max);
 }
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
@@ -2560,7 +2560,7 @@ Value::Value(UInt64 value) {
 }
 #endif // defined(JSON_HAS_INT64)
 
-Value::Value(double value) {
+Value::Value(RFLOAT value) {
   initBasic(realValue);
   value_.real_ = value;
 }
@@ -2860,7 +2860,7 @@ Value::Int Value::asInt() const {
     return Int(value_.uint_);
   case realValue:
     JSON_ASSERT_MESSAGE(InRange(value_.real_, minInt, maxInt),
-                        "double out of Int range");
+                        "RFLOAT out of Int range");
     return Int(value_.real_);
   case nullValue:
     return 0;
@@ -2882,7 +2882,7 @@ Value::UInt Value::asUInt() const {
     return UInt(value_.uint_);
   case realValue:
     JSON_ASSERT_MESSAGE(InRange(value_.real_, 0, maxUInt),
-                        "double out of UInt range");
+                        "RFLOAT out of UInt range");
     return UInt(value_.real_);
   case nullValue:
     return 0;
@@ -2905,7 +2905,7 @@ Value::Int64 Value::asInt64() const {
     return Int64(value_.uint_);
   case realValue:
     JSON_ASSERT_MESSAGE(InRange(value_.real_, minInt64, maxInt64),
-                        "double out of Int64 range");
+                        "RFLOAT out of Int64 range");
     return Int64(value_.real_);
   case nullValue:
     return 0;
@@ -2926,7 +2926,7 @@ Value::UInt64 Value::asUInt64() const {
     return UInt64(value_.uint_);
   case realValue:
     JSON_ASSERT_MESSAGE(InRange(value_.real_, 0, maxUInt64),
-                        "double out of UInt64 range");
+                        "RFLOAT out of UInt64 range");
     return UInt64(value_.real_);
   case nullValue:
     return 0;
@@ -2955,13 +2955,13 @@ LargestUInt Value::asLargestUInt() const {
 #endif
 }
 
-double Value::asDouble() const {
+RFLOAT Value::asDouble() const {
   switch (type_) {
   case intValue:
-    return static_cast<double>(value_.int_);
+    return static_cast<RFLOAT>(value_.int_);
   case uintValue:
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-    return static_cast<double>(value_.uint_);
+    return static_cast<RFLOAT>(value_.uint_);
 #else  // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
     return integerToDouble(value_.uint_);
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
@@ -2974,7 +2974,7 @@ double Value::asDouble() const {
   default:
     break;
   }
-  JSON_FAIL_MESSAGE("Value is not convertible to double.");
+  JSON_FAIL_MESSAGE("Value is not convertible to RFLOAT.");
 }
 
 float Value::asFloat() const {
@@ -3407,8 +3407,8 @@ Value::Members Value::getMemberNames() const {
 //
 //# endif
 
-static bool IsIntegral(double d) {
-  double integral_part;
+static bool IsIntegral(RFLOAT d) {
+  RFLOAT integral_part;
   return modf(d, &integral_part) == 0.0;
 }
 
@@ -3455,10 +3455,10 @@ bool Value::isInt64() const {
     return value_.uint_ <= UInt64(maxInt64);
   case realValue:
     // Note that maxInt64 (= 2^63 - 1) is not exactly representable as a
-    // double, so double(maxInt64) will be rounded up to 2^63. Therefore we
+    // RFLOAT, so RFLOAT(maxInt64) will be rounded up to 2^63. Therefore we
     // require the value to be strictly less than the limit.
-    return value_.real_ >= double(minInt64) &&
-           value_.real_ < double(maxInt64) && IsIntegral(value_.real_);
+    return value_.real_ >= RFLOAT(minInt64) &&
+           value_.real_ < RFLOAT(maxInt64) && IsIntegral(value_.real_);
   default:
     break;
   }
@@ -3475,7 +3475,7 @@ bool Value::isUInt64() const {
     return true;
   case realValue:
     // Note that maxUInt64 (= 2^64 - 1) is not exactly representable as a
-    // double, so double(maxUInt64) will be rounded up to 2^64. Therefore we
+    // RFLOAT, so RFLOAT(maxUInt64) will be rounded up to 2^64. Therefore we
     // require the value to be strictly less than the limit.
     return value_.real_ >= 0 && value_.real_ < maxUInt64AsDouble &&
            IsIntegral(value_.real_);
@@ -3861,7 +3861,7 @@ std::string valueToString(UInt value) {
 
 #endif // # if defined(JSON_HAS_INT64)
 
-std::string valueToString(double value, bool useSpecialFloats, unsigned int precision) {
+std::string valueToString(RFLOAT value, bool useSpecialFloats, unsigned int precision) {
   // Allocate a buffer that is more than large enough to store the 16 digits of
   // precision requested below.
   char buffer[32];
@@ -3891,7 +3891,7 @@ std::string valueToString(double value, bool useSpecialFloats, unsigned int prec
   return buffer;
 }
 
-std::string valueToString(double value) { return valueToString(value, false, 17); }
+std::string valueToString(RFLOAT value) { return valueToString(value, false, 17); }
 
 std::string valueToString(bool value) { return value ? "true" : "false"; }
 

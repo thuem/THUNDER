@@ -29,9 +29,9 @@ void Model::init(const int mode,
                    const int size,
                    const int r,
                    const int pf,
-                   const double pixelSize,
-                   const double a,
-                   const double alpha,
+                   const RFLOAT pixelSize,
+                   const RFLOAT a,
+                   const RFLOAT alpha,
                    const Symmetry* sym)
 {
     _mode = mode;
@@ -288,7 +288,7 @@ Reconstructor& Model::reco(const int i)
 
 void Model::compareTwoHemispheres(const bool fscFlag,
                                   const bool avgFlag,
-                                  const double thres)
+                                  const RFLOAT thres)
 {
     if (fscFlag)
     {
@@ -485,7 +485,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                                                  << " x "
                                                  << (2 * _coreR);
 
-                    double ef = (2.0 * _coreR) / _size;
+                    RFLOAT ef = (2.0 * _coreR) / _size;
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Core Region Extract Factor: " << ef;
 
@@ -780,8 +780,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
     }
 }
 
-void Model::lowPassRef(const double thres,
-                         const double ew)
+void Model::lowPassRef(const RFLOAT thres,
+                         const RFLOAT ew)
 {
     FOR_EACH_CLASS
     {
@@ -875,13 +875,13 @@ vec Model::tau(const int i) const
 }
 
 int Model::resolutionP(const int i,
-                       const double thres,
+                       const RFLOAT thres,
                        const bool inverse) const
 {
     return resP(_FSC.col(i), thres, 1, 1, inverse);
 }
 
-int Model::resolutionP(const double thres,
+int Model::resolutionP(const RFLOAT thres,
                        const bool inverse) const
 {
     int result = 0;
@@ -893,13 +893,13 @@ int Model::resolutionP(const double thres,
     return result;
 }
 
-double Model::resolutionA(const int i,
-                          const double thres) const
+RFLOAT Model::resolutionA(const int i,
+                          const RFLOAT thres) const
 {
     return resP2A(resolutionP(i, thres), _size, _pixelSize);
 }
 
-double Model::resolutionA(const double thres) const
+RFLOAT Model::resolutionA(const RFLOAT thres) const
 {
     return resP2A(resolutionP(thres), _size, _pixelSize);
 }
@@ -999,7 +999,7 @@ void Model::refreshReco()
     }
 }
 
-void Model::resetReco(const double thres)
+void Model::resetReco(const RFLOAT thres)
 {
     ALOG(INFO, "LOGGER_SYS") << "Resetting Reconstructor(s) with Frequency Upper Boundary : "
                              << _rU;
@@ -1050,7 +1050,7 @@ void Model::refreshRecoSigTau(const int rSig,
 }
 ***/
 
-void Model::updateR(const double thres)
+void Model::updateR(const RFLOAT thres)
 {
     // record the frequency
     _rPrev = _r;
@@ -1117,74 +1117,74 @@ void Model::updateR(const double thres)
     }
 }
 
-void Model::elevateR(const double thres)
+void Model::elevateR(const RFLOAT thres)
 {
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + AROUND((double)_rGlobal / 3)));
+                                     _r + AROUND((RFLOAT)_rGlobal / 3)));
     else
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + AROUND((double)maxR() / 6)));
+                                     _r + AROUND((RFLOAT)maxR() / 6)));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
 }
 
-double Model::rVari() const
+RFLOAT Model::rVari() const
 {
     return _rVari;
 }
 
-double Model::tVariS0() const
+RFLOAT Model::tVariS0() const
 {
     return _tVariS0;
 }
 
-double Model::tVariS1() const
+RFLOAT Model::tVariS1() const
 {
     return _tVariS1;
 }
 
-double Model::stdRVari() const
+RFLOAT Model::stdRVari() const
 {
     return _stdRVari;
 }
 
-double Model::stdTVariS0() const
+RFLOAT Model::stdTVariS0() const
 {
     return _stdTVariS0;
 }
 
-double Model::stdTVariS1() const
+RFLOAT Model::stdTVariS1() const
 {
     return _stdTVariS1;
 }
 
-double Model::tVariS0Prev() const
+RFLOAT Model::tVariS0Prev() const
 {
     return _tVariS0Prev;
 }
 
-double Model::tVariS1Prev() const
+RFLOAT Model::tVariS1Prev() const
 {
     return _tVariS1Prev;
 }
 
-void Model::setRVari(const double rVari)
+void Model::setRVari(const RFLOAT rVari)
 {
     _rVari = rVari;
 }
 
-void Model::setTVariS0(const double tVariS0)
+void Model::setTVariS0(const RFLOAT tVariS0)
 {
     _tVariS0Prev = _tVariS0;
 
     _tVariS0 = tVariS0;
 }
 
-void Model::setTVariS1(const double tVariS1)
+void Model::setTVariS1(const RFLOAT tVariS1)
 {
     _tVariS1Prev = _tVariS1;
 
@@ -1200,37 +1200,37 @@ void Model::resetTVari()
     _tVariS1 = DBL_MAX;
 }
 
-void Model::setStdRVari(const double stdRVari)
+void Model::setStdRVari(const RFLOAT stdRVari)
 {
     _stdRVari = stdRVari;
 }
 
-void Model::setStdTVariS0(const double stdTVariS0)
+void Model::setStdTVariS0(const RFLOAT stdTVariS0)
 {
     _stdTVariS0 = stdTVariS0;
 }
 
-void Model::setStdTVariS1(const double stdTVariS1)
+void Model::setStdTVariS1(const RFLOAT stdTVariS1)
 {
     _stdTVariS1 = stdTVariS1;
 }
 
-double Model::rChange() const
+RFLOAT Model::rChange() const
 {
     return _rChange;
 }
 
-double Model::rChangePrev() const
+RFLOAT Model::rChangePrev() const
 {
     return _rChangePrev;
 }
 
-double Model::stdRChange() const
+RFLOAT Model::stdRChange() const
 {
     return _stdRChange;
 }
 
-void Model::setRChange(const double rChange)
+void Model::setRChange(const RFLOAT rChange)
 {
     _rChangePrev = _rChange;
 
@@ -1246,7 +1246,7 @@ void Model::resetRChange()
     _stdRChange = 0;
 }
 
-void Model::setStdRChange(const double stdRChange)
+void Model::setStdRChange(const RFLOAT stdRChange)
 {
     _stdRChangePrev = _stdRChange;
 
@@ -1392,13 +1392,13 @@ void Model::updateRU()
     _rU = maxR();
 #else
 
-    _rU = GSL_MIN_INT(_r + AROUND((double)maxR() / 3), maxR());
+    _rU = GSL_MIN_INT(_r + AROUND((RFLOAT)maxR() / 3), maxR());
 
     /***
     _rU = GSL_MIN_INT(_r
                    + ((_searchType == SEARCH_TYPE_GLOBAL)
-                    ? AROUND((double)_rGlobal / 3)
-                    : AROUND((double)maxR() / 3)),
+                    ? AROUND((RFLOAT)_rGlobal / 3)
+                    : AROUND((RFLOAT)maxR() / 3)),
                       maxR());
     ***/
 #endif
@@ -1417,7 +1417,7 @@ void Model::clear()
 
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
 
-bool Model::determineIncreaseR(const double rChangeDecreaseFactor)
+bool Model::determineIncreaseR(const RFLOAT rChangeDecreaseFactor)
 {
     IF_MASTER
     {
@@ -1464,7 +1464,7 @@ bool Model::determineIncreaseR(const double rChangeDecreaseFactor)
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
 
-bool Model::determineIncreaseR(const double tVariDecreaseFactor)
+bool Model::determineIncreaseR(const RFLOAT tVariDecreaseFactor)
 {
     IF_MASTER
     {

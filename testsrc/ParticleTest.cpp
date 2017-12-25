@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
     {
         par.quaternion(quat, i);
 
-        double phi, theta, psi;
+        RFLOAT phi, theta, psi;
 
         angle(phi, theta, psi, quat);
 
@@ -81,13 +81,13 @@ int main(int argc, char* argv[])
 
     Particle par(MODE_3D, 1, N, 5, 0.01, &sym);
 
-    double stdR = 0.01;
+    RFLOAT stdR = 0.01;
 
-    double stdTX = 1;
+    RFLOAT stdTX = 1;
 
-    double stdTY = 1;
+    RFLOAT stdTY = 1;
 
-    double stdD = 0;
+    RFLOAT stdD = 0;
 
     par.load(2,
              N,

@@ -116,9 +116,9 @@ inline bool conjHalf(int& iCol,
     return true;
 };
 
-inline bool conjHalf(double& iCol,
-                     double& iRow,
-                     double& iSlc)
+inline bool conjHalf(RFLOAT& iCol,
+                     RFLOAT& iRow,
+                     RFLOAT& iSlc)
 {
     if (iCol >= 0) return false;
 
@@ -277,7 +277,7 @@ class Volume : public ImageBase
          * @param iRow the index of the row of this voxel in real space
          * @param iSlc the index of the slice of this voxel in real space
          */
-        double getRL(const int iCol,
+        RFLOAT getRL(const int iCol,
                      const int iRow,
                      const int iSlc) const;
 
@@ -290,7 +290,7 @@ class Volume : public ImageBase
          * @param iRow the index of the row of this voxel in real space
          * @param iSlc the index of the slice of this voxel in real space
          */
-        void setRL(const double value,
+        void setRL(const RFLOAT value,
                    const int iCol,
                    const int iRow,
                    const int iSlc);
@@ -304,7 +304,7 @@ class Volume : public ImageBase
          * @param iRow the index of the row of this voxel in real space
          * @param iSlc the index of the slice of this voxel in real space
          */
-        void addRL(const double value,
+        void addRL(const RFLOAT value,
                    const int iCol,
                    const int iRow,
                    const int iSlc);
@@ -398,7 +398,7 @@ class Volume : public ImageBase
          * @param iRow  the index of the row of this voxel in Fourier space
          * @param iSlc  the index of the slice of this voxel in real space
          */
-        void addFT(const double value,
+        void addFT(const RFLOAT value,
                    int iCol,
                    int iRow,
                    int iSlc);
@@ -412,7 +412,7 @@ class Volume : public ImageBase
          * @param iRow  the index of the row of this voxel in Fourier space
          * @param iSlc  the index of the slice of this voxel in real space
          */
-        void addFTHalf(const double value,
+        void addFTHalf(const RFLOAT value,
                        const int iCol,
                        const int iRow,
                        const int iSlc);
@@ -432,9 +432,9 @@ class Volume : public ImageBase
          *               INTERP_LINEAR stands for the trilinear interpolation
          *               and INTERP_SINC stands for the sinc interpolation
          */
-        double getByInterpolationRL(const double iCol,
-                                    const double iRow,
-                                    const double iSlc,
+        RFLOAT getByInterpolationRL(const RFLOAT iCol,
+                                    const RFLOAT iRow,
+                                    const RFLOAT iSlc,
                                     const int interp) const;
 
         /**
@@ -452,20 +452,20 @@ class Volume : public ImageBase
          *               INTERP_LINEAR stands for the trilinear interpolation
          *               and INTERP_SINC stands for the sinc interpolation
          */
-        Complex getByInterpolationFT(double iCol,
-                                     double iRow,
-                                     double iSlc,
+        Complex getByInterpolationFT(RFLOAT iCol,
+                                     RFLOAT iRow,
+                                     RFLOAT iSlc,
                                      const int interp) const;
 
         void addFT(const Complex value,
-                   double iCol,
-                   double iRow,
-                   double iSlc);
+                   RFLOAT iCol,
+                   RFLOAT iRow,
+                   RFLOAT iSlc);
 
-        void addFT(const double value,
-                   double iCol,
-                   double iRow,
-                   double iSlc);
+        void addFT(const RFLOAT value,
+                   RFLOAT iCol,
+                   RFLOAT iRow,
+                   RFLOAT iSlc);
 
         /**
          * This function adds a certain value on an unregular voxel in Fourier
@@ -482,11 +482,11 @@ class Volume : public ImageBase
          * @param alpha the smooth factor of Modified Kaiser Bessel Function
          */
         void addFT(const Complex value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
-                   const double alpha);
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
+                   const RFLOAT alpha);
 
         /**
          * This function adds a certain value on the real part of an unregular
@@ -503,12 +503,12 @@ class Volume : public ImageBase
          * @param a the radius of Modified Kaiser Bessel Function
          * @param alpha the smooth factor of Modified Kaiser Bessel Function
          */
-        void addFT(const double value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
-                   const double alpha);
+        void addFT(const RFLOAT value,
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
+                   const RFLOAT alpha);
 
         /**
          * This function adds a certain value on an unregualr voxel in Fourier
@@ -526,10 +526,10 @@ class Volume : public ImageBase
          *               function of only one parameter, the square of radius
          */
         void addFT(const Complex value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
                    const TabFunction& kernel);
 
         /**
@@ -547,11 +547,11 @@ class Volume : public ImageBase
          * @param kernel a tabular function indicating the kernel which is a
          *               function of only one paramter, the square of radius
          */
-        void addFT(const double value,
-                   const double iCol,
-                   const double iRow,
-                   const double iSlc,
-                   const double a,
+        void addFT(const RFLOAT value,
+                   const RFLOAT iCol,
+                   const RFLOAT iRow,
+                   const RFLOAT iSlc,
+                   const RFLOAT a,
                    const TabFunction& kernel);
 
         /**
@@ -628,18 +628,18 @@ class Volume : public ImageBase
                                      const int iRow,
                                      const int iSlc) const;
 
-        double getRL(const double w[2][2][2],
+        RFLOAT getRL(const RFLOAT w[2][2][2],
                      const int x0[3]) const;
 
-        Complex getFTHalf(const double w[2][2][2],
+        Complex getFTHalf(const RFLOAT w[2][2][2],
                           const int x0[3]) const;
 
         void addFTHalf(const Complex value,
-                       const double w[2][2][2],
+                       const RFLOAT w[2][2][2],
                        const int x0[3]);
 
-        void addFTHalf(const double value,
-                       const double w[2][2][2],
+        void addFTHalf(const RFLOAT value,
+                       const RFLOAT w[2][2][2],
                        const int x0[3]);
 };
 

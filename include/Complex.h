@@ -30,17 +30,17 @@
 
 #define IMAG(a) GSL_IMAG(a)
 
-inline double gsl_real(const Complex a)
+inline RFLOAT gsl_real(const Complex a)
 {
     return REAL(a);
 };
 
-inline double gsl_imag(const Complex a)
+inline RFLOAT gsl_imag(const Complex a)
 {
     return IMAG(a);
 };
 
-inline double gsl_real_imag_sum(const Complex a)
+inline RFLOAT gsl_real_imag_sum(const Complex a)
 {
     return REAL(a) + IMAG(a);
 };
@@ -78,23 +78,23 @@ inline void operator*=(Complex& a, const Complex b) { a = a * b; };
 
 inline void operator/=(Complex& a, const Complex b) { a = a / b; };
 
-inline Complex operator*(const Complex a, const double x)
+inline Complex operator*(const Complex a, const RFLOAT x)
 {
     return gsl_complex_mul_real(a, x);
 };
 
-inline Complex operator*(const double x, const Complex a)
+inline Complex operator*(const RFLOAT x, const Complex a)
 {
     return a * x;
 };
 
-inline void operator*=(Complex& a, const double x) { a = a * x; };
+inline void operator*=(Complex& a, const RFLOAT x) { a = a * x; };
 
-inline Complex operator/(const Complex a, const double x)
+inline Complex operator/(const Complex a, const RFLOAT x)
 {
     return gsl_complex_div_real(a, x);
 };
 
-inline void operator/=(Complex& a, const double x) { a = a / x; };
+inline void operator/=(Complex& a, const RFLOAT x) { a = a / x; };
 
 #endif // COMPLEX_H

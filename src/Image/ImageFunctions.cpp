@@ -43,224 +43,224 @@ void mul(Image& dst,
 }
 
 void translate(Image& dst,
-               const double nTransCol,
-               const double nTransRow)
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / dst.nColRL();
-    double rRow = nTransRow / dst.nRowRL();
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
 
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
         dst.setFT(COMPLEX_POLAR(-phase), i, j);
     }
 }
 
 void translateMT(Image& dst,
-                 const double nTransCol,
-                 const double nTransRow)
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / dst.nColRL();
-    double rRow = nTransRow / dst.nRowRL();
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
 
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
         dst.setFT(COMPLEX_POLAR(-phase), i, j);
     }
 }
 
 void translate(Image& dst,
-               const double r,
-               const double nTransCol,
-               const double nTransRow)
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / dst.nColRL();
-    double rRow = nTransRow / dst.nRowRL();
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
 
     IMAGE_FOR_PIXEL_R_FT(r)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
         }
 }
 
 void translateMT(Image& dst,
-                 const double r,
-                 const double nTransCol,
-                 const double nTransRow)
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / dst.nColRL();
-    double rRow = nTransRow / dst.nRowRL();
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
 
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(dst)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
         }
 }
 
 void translate(Image& dst,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int* iCol,
                const int* iRow,
                const int* iPxl,
                const int nPxl)
 {
-    double rCol = nTransCol / dst.nColRL();
-    double rRow = nTransRow / dst.nRowRL();
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
 
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[iPxl[i]] = COMPLEX_POLAR(-phase);
     }
 }
 
 void translateMT(Image& dst,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int* iCol,
                  const int* iRow,
                  const int* iPxl,
                  const int nPxl)
 {
-    double rCol = nTransCol / dst.nColRL();
-    double rRow = nTransRow / dst.nRowRL();
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
 
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[iPxl[i]] = COMPLEX_POLAR(-phase);
     }
 }
 
 void translate(Complex* dst,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int nCol,
                const int nRow,
                const int* iCol,
                const int* iRow,
                const int nPxl)
 {
-    double rCol = nTransCol / nCol;
-    double rRow = nTransRow / nRow;
+    RFLOAT rCol = nTransCol / nCol;
+    RFLOAT rRow = nTransRow / nRow;
 
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[i] = COMPLEX_POLAR(-phase);
     }
 }
 
 void translateMT(Complex* dst,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int nCol,
                  const int nRow,
                  const int* iCol,
                  const int* iRow,
                  const int nPxl)
 {
-    double rCol = nTransCol / nCol;
-    double rRow = nTransRow / nRow;
+    RFLOAT rCol = nTransCol / nCol;
+    RFLOAT rRow = nTransRow / nRow;
 
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[i] = COMPLEX_POLAR(-phase);
     }
 }
 
 void translate(Image& dst,
                const Image& src,
-               const double nTransCol,
-               const double nTransRow)
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / src.nColRL();
-    double rRow = nTransRow / src.nRowRL();
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
         dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
     }
 }
 
 void translateMT(Image& dst,
                  const Image& src,
-                 const double nTransCol,
-                 const double nTransRow)
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / src.nColRL();
-    double rRow = nTransRow / src.nRowRL();
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
 
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        double phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
         dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
     }
 }
 
 void translate(Image& dst,
                const Image& src,
-               const double r,
-               const double nTransCol,
-               const double nTransRow)
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / src.nColRL();
-    double rRow = nTransRow / src.nRowRL();
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
 
     IMAGE_FOR_PIXEL_R_FT(r)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
 }
 
 void translateMT(Image& dst,
                  const Image& src,
-                 const double r,
-                 const double nTransCol,
-                 const double nTransRow)
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow)
 {
-    double rCol = nTransCol / src.nColRL();
-    double rRow = nTransRow / src.nRowRL();
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
 
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_EACH_PIXEL_FT(src)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            double phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
 }
 
 void translate(Image& dst,
                const Image& src,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int* iCol,
                const int* iRow,
                const int* iPxl,
                const int nPxl)
 {
-    double rCol = nTransCol / src.nColRL();
-    double rRow = nTransRow / src.nRowRL();
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
 
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
     }
@@ -268,20 +268,20 @@ void translate(Image& dst,
 
 void translateMT(Image& dst,
                  const Image& src,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int* iCol,
                  const int* iRow,
                  const int* iPxl,
                  const int nPxl)
 {
-    double rCol = nTransCol / src.nColRL();
-    double rRow = nTransRow / src.nRowRL();
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
 
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
     }
@@ -289,20 +289,20 @@ void translateMT(Image& dst,
 
 void translate(Complex* dst,
                const Complex* src,
-               const double nTransCol,
-               const double nTransRow,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
                const int nCol,
                const int nRow,
                const int* iCol,
                const int* iRow,
                const int nPxl)
 {
-    double rCol = nTransCol / nCol;
-    double rRow = nTransRow / nRow;
+    RFLOAT rCol = nTransCol / nCol;
+    RFLOAT rRow = nTransRow / nRow;
 
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[i] = src[i] * COMPLEX_POLAR(-phase);
     }
@@ -310,21 +310,21 @@ void translate(Complex* dst,
 
 void translateMT(Complex* dst,
                  const Complex* src,
-                 const double nTransCol,
-                 const double nTransRow,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
                  const int nCol,
                  const int nRow,
                  const int* iCol,
                  const int* iRow,
                  const int nPxl)
 {
-    double rCol = nTransCol / nCol;
-    double rRow = nTransRow / nRow;
+    RFLOAT rCol = nTransCol / nCol;
+    RFLOAT rRow = nTransRow / nRow;
 
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        double phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[i] = src[i] * COMPLEX_POLAR(-phase);
     }
@@ -333,7 +333,7 @@ void translateMT(Complex* dst,
 void crossCorrelation(Image& dst,
                       const Image& a,
                       const Image& b,
-                      const double r)
+                      const RFLOAT r)
 {
     IMAGE_FOR_EACH_PIXEL_FT(dst)
         if (QUAD(i, j) < TSGSL_pow_2(r))
@@ -344,7 +344,7 @@ void translate(int& nTransCol,
                int& nTransRow,
                const Image& a,
                const Image& b,
-               const double r,
+               const RFLOAT r,
                const int maxX,
                const int maxY)
 {
@@ -361,7 +361,7 @@ void translate(int& nTransCol,
 
     fft.bw(cc);
 
-    double max = 0;
+    RFLOAT max = 0;
 
     nTransCol = 0;
     nTransRow = 0;
@@ -378,25 +378,25 @@ void translate(int& nTransCol,
         }
 }
 
-double stddev(const double mean,
+RFLOAT stddev(const RFLOAT mean,
               const Image& src)
 {
     return TSGSL_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
-void meanStddev(double& mean,
-                double& stddev,
+void meanStddev(RFLOAT& mean,
+                RFLOAT& stddev,
                 const Image& src)
 {
     mean = TSGSL_stats_mean(&src.iGetRL(0), 1, src.sizeRL());
     stddev = TSGSL_stats_sd_m(&src.iGetRL(0), 1, src.sizeRL(), mean);
 }
 
-double centreStddev(const double mean,
+RFLOAT centreStddev(const RFLOAT mean,
                     const Image& src,
-                    const double r)
+                    const RFLOAT r)
 {
-    vector<double> centre;
+    vector<RFLOAT> centre;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (QUAD(i, j) < TSGSL_pow_2(r))
@@ -405,12 +405,12 @@ double centreStddev(const double mean,
     return TSGSL_stats_sd_m(&centre[0], 1, centre.size(), mean);
 }
 
-void centreMeanStddev(double& mean,
-                      double& stddev,
+void centreMeanStddev(RFLOAT& mean,
+                      RFLOAT& stddev,
                       const Image& src,
-                      const double r)
+                      const RFLOAT r)
 {
-    vector<double> centre;
+    vector<RFLOAT> centre;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (QUAD(i, j) < TSGSL_pow_2(r))
@@ -420,11 +420,11 @@ void centreMeanStddev(double& mean,
     stddev = TSGSL_stats_sd_m(&centre[0], 1, centre.size(), mean);
 }
 
-double bgStddev(const double mean,
+RFLOAT bgStddev(const RFLOAT mean,
                 const Image& src,
-                const double r)
+                const RFLOAT r)
 {
-    vector<double> bg;
+    vector<RFLOAT> bg;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (QUAD(i, j) > TSGSL_pow_2(r))
@@ -433,21 +433,21 @@ double bgStddev(const double mean,
     return TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
-double bgStddev(const double mean,
+RFLOAT bgStddev(const RFLOAT mean,
                 const Volume& src,
-                const double r)
+                const RFLOAT r)
 {
     // TODO
     //
     return 0;
 }
 
-void bgMeanStddev(double& mean,
-                  double& stddev,
+void bgMeanStddev(RFLOAT& mean,
+                  RFLOAT& stddev,
                   const Image& src,
-                  const double r)
+                  const RFLOAT r)
 {
-    vector<double> bg;
+    vector<RFLOAT> bg;
 
     IMAGE_FOR_EACH_PIXEL_RL(src)
         if (QUAD(i, j) > TSGSL_pow_2(r))
@@ -457,12 +457,12 @@ void bgMeanStddev(double& mean,
     stddev = TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
-void bgMeanStddev(double& mean,
-                  double& stddev,
+void bgMeanStddev(RFLOAT& mean,
+                  RFLOAT& stddev,
                   const Volume& src,
-                  const double r)
+                  const RFLOAT r)
 {
-    vector<double> bg;
+    vector<RFLOAT> bg;
 
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if (QUAD_3(i, j, k) > TSGSL_pow_2(r))
@@ -472,13 +472,13 @@ void bgMeanStddev(double& mean,
     stddev = TSGSL_stats_sd_m(&bg[0], 1, bg.size(), mean);
 }
 
-void bgMeanStddev(double& mean,
-                  double& stddev,
+void bgMeanStddev(RFLOAT& mean,
+                  RFLOAT& stddev,
                   const Volume& src,
-                  const double rU,
-                  const double rL)
+                  const RFLOAT rU,
+                  const RFLOAT rL)
 {
-    vector<double> bg;
+    vector<RFLOAT> bg;
 
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if ((QUAD_3(i, j, k) >= TSGSL_pow_2(rL)) &&
@@ -490,10 +490,10 @@ void bgMeanStddev(double& mean,
 }
 
 void removeDust(Image& img,
-                const double wDust,
-                const double bDust,
-                const double mean,
-                const double stddev)
+                const RFLOAT wDust,
+                const RFLOAT bDust,
+                const RFLOAT mean,
+                const RFLOAT stddev)
 {
     gsl_rng* engine = get_random_engine();
 
@@ -504,12 +504,12 @@ void removeDust(Image& img,
 }
 
 void normalise(Image& img,
-               const double wDust,
-               const double bDust,
-               const double r)
+               const RFLOAT wDust,
+               const RFLOAT bDust,
+               const RFLOAT r)
 {
-    double mean;
-    double stddev;
+    RFLOAT mean;
+    RFLOAT stddev;
 
     bgMeanStddev(mean, stddev, img, r);
 
@@ -543,7 +543,7 @@ void binning(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_RL(dst)
     {
-        double sum = 0;
+        RFLOAT sum = 0;
 
         for (int y = 0; y < bf; y++)
             for (int x = 0; x < bf; x++)

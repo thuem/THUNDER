@@ -27,7 +27,7 @@
  */
 void bFactorFilter(Image& dst,
                    const Image& src,
-                   const double bFactor);
+                   const RFLOAT bFactor);
 
 /**
  * This function performs a B-factor filtering on a volume.
@@ -38,7 +38,7 @@ void bFactorFilter(Image& dst,
  */
 void bFactorFilter(Volume& dst,
                    const Volume& src,
-                   const double bFactor);
+                   const RFLOAT bFactor);
 
 /**
  * This function performs a low pass filtering on an image.
@@ -50,8 +50,8 @@ void bFactorFilter(Volume& dst,
  */
 void lowPassFilter(Image& dst,
                    const Image& src,
-                   const double thres,
-                   const double ew);
+                   const RFLOAT thres,
+                   const RFLOAT ew);
 
 /**
  * This function performs a low pass filtering on a volume.
@@ -63,8 +63,8 @@ void lowPassFilter(Image& dst,
  */
 void lowPassFilter(Volume& dst,
                    const Volume& src,
-                   const double thres,
-                   const double ew);
+                   const RFLOAT thres,
+                   const RFLOAT ew);
 
 /**
  * This function performs a high pass filtering on an image.
@@ -76,8 +76,8 @@ void lowPassFilter(Volume& dst,
  */
 void highPassFilter(Image& dst,
                     const Image& src,
-                    const double thres,
-                    const double ew);
+                    const RFLOAT thres,
+                    const RFLOAT ew);
 
 /**
  * This function performs a high pass filtering on a volume.
@@ -89,8 +89,8 @@ void highPassFilter(Image& dst,
  */
 void highPassFilter(Volume& dst,
                     const Volume& src,
-                    const double thres,
-                    const double ew);
+                    const RFLOAT thres,
+                    const RFLOAT ew);
 
 /**
  * This functions performs a weighting filtering on a volume based on FSC.

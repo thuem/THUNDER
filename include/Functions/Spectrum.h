@@ -28,7 +28,7 @@
  *
  * @param pixelSize pixel size in Angstrom
  */
-double nyquist(const double pixelSize);
+RFLOAT nyquist(const RFLOAT pixelSize);
 
 /**
  * This function converts resolution from pixel to Angstrom(-1).
@@ -37,9 +37,9 @@ double nyquist(const double pixelSize);
  * @param imageSize the size of image in pixel
  * @param pixelSize pixel size in Angstrom
  */
-double resP2A(const double resP,
+RFLOAT resP2A(const RFLOAT resP,
               const int imageSize,
-              const double pixelSize);
+              const RFLOAT pixelSize);
 
 /**
  * This function converts resolution from Angstrom(-1) to pixel.
@@ -48,9 +48,9 @@ double resP2A(const double resP,
  * @param imageSize the size of image in pixel
  * @param pixelSize pixel size in Angstrom
  */
-double resA2P(const double resA,
+RFLOAT resA2P(const RFLOAT resA,
               const int imageSize,
-              const double pixelSize);
+              const RFLOAT pixelSize);
 
 /**
  * This function converts a vector of resolution from pixel to Angstorm(-1).
@@ -61,7 +61,7 @@ double resA2P(const double resA,
  */
 void resP2A(vec& res,
             const int imageSize,
-            const double pixelSize);
+            const RFLOAT pixelSize);
 
 /**
  * This function converts a vector of resolution from Angstrom(-1) to pixel.
@@ -72,7 +72,7 @@ void resP2A(vec& res,
  */
 void resA2P(vec& res,
             const int imageSize,
-            const double pixelSize);
+            const RFLOAT pixelSize);
 
 /**
  * This function calculates the ring average at a certain resolution with a
@@ -80,12 +80,12 @@ void resA2P(vec& res,
  *
  * @param resP resolution in pixel
  * @param img  image in Fourier space
- * @param func With this function from complex to double, the ring average of 
+ * @param func With this function from complex to RFLOAT, the ring average of 
  *             this image is calculated.
  */
-double ringAverage(const int resP,
+RFLOAT ringAverage(const int resP,
                    const Image& img,
-                   const function<double(const Complex)> func); 
+                   const function<RFLOAT(const Complex)> func); 
 
 /**
  * This function calculates the ring average at a certain resolution with
@@ -102,7 +102,7 @@ Complex ringAverage(const int resP,
 
 void ringAverage(vec& dst,
                  const Image& src,
-                 const function<double(const Complex)> func,
+                 const function<RFLOAT(const Complex)> func,
                  const int r);
 
 /**
@@ -111,16 +111,16 @@ void ringAverage(vec& dst,
  *
  * @param resP resolution in pixel
  * @param vol  volume in Fourier space
- * @param func With this function from complex to double, the shell average of 
+ * @param func With this function from complex to RFLOAT, the shell average of 
  *             this volume is calculated.
  */
-double shellAverage(const int resP,
+RFLOAT shellAverage(const int resP,
                     const Volume& vol,
-                    const function<double(const Complex)> func);
+                    const function<RFLOAT(const Complex)> func);
 
 void shellAverage(vec& dst,
                   const Volume& src,
-                  const function<double(const Complex)> func,
+                  const function<RFLOAT(const Complex)> func,
                   const int r);
 
 /**
@@ -188,7 +188,7 @@ void FSC(vec& dst,
  * @param inverse whether to search from high frequency to low frequency
  */
 int resP(const vec& fsc,
-         const double thres,
+         const RFLOAT thres,
          const int pf = 1,
          const int rL = 1,
          const bool inverse = false);
@@ -218,8 +218,8 @@ void randomPhase(Volume& dst,
  */
 void sharpen(Volume& dst,
              const Volume& src,
-             const double thres,
-             const double ew,
+             const RFLOAT thres,
+             const RFLOAT ew,
              const int rU,
              const int rL);
 
@@ -235,9 +235,9 @@ void sharpen(Volume& dst,
  */
 void sharpen(Volume& dst,
              const Volume& src,
-             const double thres,
-             const double ew,
-             const double bFactor);
+             const RFLOAT thres,
+             const RFLOAT ew,
+             const RFLOAT bFactor);
 
 /**
  * This function estimates B-factor by least-square regression method.
@@ -247,7 +247,7 @@ void sharpen(Volume& dst,
  * @param rU      the upper boundary for B-factor estimation
  * @param rL      the lower boundary for B-factor estimation
  */
-void bFactorEst(double& bFactor,
+void bFactorEst(RFLOAT& bFactor,
                 const Volume& vol,
                 const int rU,
                 const int rL);

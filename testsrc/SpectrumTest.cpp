@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
     vec fsc(nLine / 2 + 1);
     fsc(0) = 1;
     int idx;
-    double res;
-    double val;
+    RFLOAT res;
+    RFLOAT val;
     for (int i = 0; i < nLine; i++)
     {
         fscanf(file, "%d %lf %lf", &idx, &res, &val);
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
 
     fft.fw(map);
 
-    double bFactor;
+    RFLOAT bFactor;
 
     bFactorEst(bFactor,
                map,
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     
     lowPassFilter(map,
                   map,
-                  (double)atoi(argv[3]) / size,
+                  (RFLOAT)atoi(argv[3]) / size,
                   2.0 / size);
 
     fft.bw(map);

@@ -39,8 +39,8 @@
  * @param r  radius of the circle
  * @param ew edge width of the circle 
  */
-double nPixel(const double r,
-              const double ew);
+RFLOAT nPixel(const RFLOAT r,
+              const RFLOAT ew);
 
 /**
  * This function calculates the number of voxels inside the cirlce of a certain radius.
@@ -48,22 +48,22 @@ double nPixel(const double r,
  * @param r  radius of the circle
  * @param ew edge width of the circle
  */
-double nVoxel(const double r,
-              const double ew);
+RFLOAT nVoxel(const RFLOAT r,
+              const RFLOAT ew);
 
-double regionMean(const Image& img,
+RFLOAT regionMean(const Image& img,
                   const int r);
 
-double regionMean(const Volume& vol,
+RFLOAT regionMean(const Volume& vol,
                   const int r);
 
-double regionMean(const Image& img,
-                  const double rU,
-                  const double rL);
+RFLOAT regionMean(const Image& img,
+                  const RFLOAT rU,
+                  const RFLOAT rL);
 
-double regionMean(const Volume& vol,
-                  const double rU,
-                  const double rL);
+RFLOAT regionMean(const Volume& vol,
+                  const RFLOAT rU,
+                  const RFLOAT rL);
 
 /**
  * This function calculates the average value of pixels outside the circle of
@@ -73,9 +73,9 @@ double regionMean(const Volume& vol,
  * @param r   radius of the circle
  * @param ew  edge width of the circle
  */
-double background(const Image& img,
-                  const double r,
-                  const double ew);
+RFLOAT background(const Image& img,
+                  const RFLOAT r,
+                  const RFLOAT ew);
 
 /**
  * This function calculates the average value of pixels not belonging to a
@@ -84,7 +84,7 @@ double background(const Image& img,
  * @param img   the image to be calcualted
  * @param alpha the layer
  */
-double background(const Image& img,
+RFLOAT background(const Image& img,
                   const Image& alpha); 
 
 /**
@@ -95,9 +95,9 @@ double background(const Image& img,
  * @param r   radius of the sphere
  * @param ew  edge width of the sphere
  */
-double background(const Volume& vol,
-                  const double r,
-                  const double ew);
+RFLOAT background(const Volume& vol,
+                  const RFLOAT r,
+                  const RFLOAT ew);
 
 /**
  * This function calculates the average value of pixels not belonging to a
@@ -106,17 +106,17 @@ double background(const Volume& vol,
  * @param vol   the volume to be calculated
  * @param alpha the layer
  */
-double background(const Volume& vol,
+RFLOAT background(const Volume& vol,
                   const Volume& alpha);
 
-double background(const Volume& vol,
-                  const double rU,
-                  const double rL,
-                  const double ew);
+RFLOAT background(const Volume& vol,
+                  const RFLOAT rU,
+                  const RFLOAT rL,
+                  const RFLOAT ew);
 
 void softMask(Image& mask,
-              const double r,
-              const double ew);
+              const RFLOAT r,
+              const RFLOAT ew);
 
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
@@ -129,8 +129,8 @@ void softMask(Image& mask,
  */
 void softMask(Image& dst,
               const Image& src,
-              const double r,
-              const double ew);
+              const RFLOAT r,
+              const RFLOAT ew);
 
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
@@ -144,9 +144,9 @@ void softMask(Image& dst,
  */
 void softMask(Image& dst,
               const Image& src,
-              const double r,
-              const double ew,
-              const double bg);
+              const RFLOAT r,
+              const RFLOAT ew,
+              const RFLOAT bg);
 
 /**
  * This function applys a soft mask on an image. The background will be
@@ -161,10 +161,10 @@ void softMask(Image& dst,
  */
 void softMask(Image& dst,
               const Image& src,
-              const double r,
-              const double ew,
-              const double bgMean,
-              const double bgStd);
+              const RFLOAT r,
+              const RFLOAT ew,
+              const RFLOAT bgMean,
+              const RFLOAT bgStd);
 
 /**
  * This function applys a soft mask on an image. The soft mask is calculated
@@ -189,7 +189,7 @@ void softMask(Image& dst,
 void softMask(Image& dst,
               const Image& src,
               const Image& alpha,
-              const double bg);
+              const RFLOAT bg);
 
 /**
  * This function applys a soft mask on an image. The background will be
@@ -204,12 +204,12 @@ void softMask(Image& dst,
 void softMask(Image& dst,
               const Image& src,
               const Image& alpha,
-              const double bgMean,
-              const double bgStd);
+              const RFLOAT bgMean,
+              const RFLOAT bgStd);
 
 void softMask(Volume& mask,
-              const double r,
-              const double ew);
+              const RFLOAT r,
+              const RFLOAT ew);
 
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated
@@ -222,14 +222,14 @@ void softMask(Volume& mask,
  */
 void softMask(Volume& dst,
               const Volume& src,
-              const double r,
-              const double ew);
+              const RFLOAT r,
+              const RFLOAT ew);
 
 void softMask(Volume& dst,
               const Volume& src,
-              const double r,
-              const double ew,
-              const double bg);
+              const RFLOAT r,
+              const RFLOAT ew,
+              const RFLOAT bg);
 
 /**
  * This function applys a soft mask on a volume. The soft mask is calculated
@@ -256,44 +256,44 @@ void softMask(Volume& dst,
 void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha,
-              const double bg);
+              const RFLOAT bg);
 
 void regionBgSoftMask(Image& dst,
                       const Image& src,
-                      const double r,
-                      const double ew,
-                      const double rU,
-                      const double rL);
+                      const RFLOAT r,
+                      const RFLOAT ew,
+                      const RFLOAT rU,
+                      const RFLOAT rL);
 
 void regionBgSoftMask(Volume& dst,
                       const Volume& src,
-                      const double r,
-                      const double ew,
-                      const double rU,
-                      const double rL);
+                      const RFLOAT r,
+                      const RFLOAT ew,
+                      const RFLOAT rU,
+                      const RFLOAT rL);
 
 void removeIsolatedPoint(Volume& vol);
 
 void extMask(Volume& vol,
-             const double ext);
+             const RFLOAT ext);
 
 void softEdge(Volume& vol,
-              const double ew);
+              const RFLOAT ew);
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double thres);
+             const RFLOAT thres);
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double thres,
-             const double ext);
+             const RFLOAT thres,
+             const RFLOAT ext);
 
 void genMask(Volume& dst,
              const Volume& src,
-             const double thres,
-             const double ext,
-             const double ew);
+             const RFLOAT thres,
+             const RFLOAT ext,
+             const RFLOAT ew);
 
 /**
  * This function generates a mask on a volume. The standard for generating mask is
@@ -306,7 +306,7 @@ void genMask(Volume& dst,
  */
 void autoMask(Volume& dst,
               const Volume& src,
-              const double r);
+              const RFLOAT r);
 
 /**
  * This function generates a mask on a volume. The mask is generated in the
@@ -332,8 +332,8 @@ void autoMask(Volume& dst,
  */
 void autoMask(Volume& dst,
               const Volume& src,
-              const double ext,
-              const double r);
+              const RFLOAT ext,
+              const RFLOAT r);
 
 /**
  * This function generates a mask on a volume. The mask is generated in the
@@ -361,8 +361,8 @@ void autoMask(Volume& dst,
  */
 void autoMask(Volume& dst,
               const Volume& src,
-              const double ext,
-              const double ew,
-              const double r);
+              const RFLOAT ext,
+              const RFLOAT ew,
+              const RFLOAT r);
 
 #endif // MASK_H

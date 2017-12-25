@@ -140,7 +140,7 @@ void ImageBase::copyBase(ImageBase& other) const
     if (_dataRL)
     {
 #ifdef CXX11_PTR
-        other._dataRL.reset(new double[_sizeRL]);
+        other._dataRL.reset(new RFLOAT[_sizeRL]);
 
         memcpy(other._dataRL.get(), _dataRL.get(), _sizeRL * sizeof(_dataRL[0]));
 #endif
@@ -149,9 +149,9 @@ void ImageBase::copyBase(ImageBase& other) const
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        other._dataRL = (double*)fftw_malloc(_sizeRL * sizeof(double));
+        other._dataRL = (RFLOAT*)fftw_malloc(_sizeRL * sizeof(RFLOAT));
 
-        memcpy(other._dataRL, _dataRL, _sizeRL * sizeof(double));
+        memcpy(other._dataRL, _dataRL, _sizeRL * sizeof(RFLOAT));
 #endif
     }
     else
@@ -205,15 +205,15 @@ ImageBase ImageBase::copyBase() const
     return that;
 }
 
-double norm(ImageBase& base)
+RFLOAT norm(ImageBase& base)
 {
     return sqrt(cblas_dznrm2(base.sizeFT(), &base[0], 1));
 }
 
 void normalise(ImageBase& base)
 {
-    double mean = TSGSL_stats_mean(&base(0), 1, base.sizeRL());
-    double stddev = TSGSL_stats_sd_m(&base(0), 1, base.sizeRL(), mean);
+    RFLOAT mean = TSGSL_stats_mean(&base(0), 1, base.sizeRL());
+    RFLOAT stddev = TSGSL_stats_sd_m(&base(0), 1, base.sizeRL(), mean);
 
     FOR_EACH_PIXEL_RL(base)
         base(i) -= mean;

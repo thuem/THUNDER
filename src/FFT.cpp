@@ -242,7 +242,7 @@ void FFT::fwCreatePlan(const int nCol,
 {
     //fwCreatePlan(nCol, nRow, 1);
 
-    _srcR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+    _srcR = (RFLOAT*)fftw_malloc(nCol * nRow * sizeof(RFLOAT));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
     fwPlan = fftw_plan_dft_r2c_2d(nRow,
@@ -259,7 +259,7 @@ void FFT::fwCreatePlan(const int nCol,
                        const int nRow,
                        const int nSlc)
 {
-    _srcR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
+    _srcR = (RFLOAT*)fftw_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
     fwPlan = fftw_plan_dft_r2c_3d(nRow,
@@ -279,7 +279,7 @@ void FFT::bwCreatePlan(const int nCol,
     // bwCreatePlan(nCol, nRow, 1);
 
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
-    _dstR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+    _dstR = (RFLOAT*)fftw_malloc(nCol * nRow * sizeof(RFLOAT));
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_2d(nRow,
@@ -297,7 +297,7 @@ void FFT::bwCreatePlan(const int nCol,
                        const int nSlc)
 {
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
-    _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
+    _dstR = (RFLOAT*)fftw_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
     #pragma omp critical
     bwPlan = fftw_plan_dft_c2r_3d(nRow,
@@ -316,7 +316,7 @@ void FFT::fwCreatePlanMT(const int nCol,
 {
     //fwCreatePlanMT(nCol, nRow, 1);
 
-    _srcR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+    _srcR = (RFLOAT*)fftw_malloc(nCol * nRow * sizeof(RFLOAT));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
     fftw_plan_with_nthreads(omp_get_max_threads());
@@ -337,7 +337,7 @@ void FFT::fwCreatePlanMT(const int nCol,
                          const int nRow,
                          const int nSlc)
 {
-    _srcR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
+    _srcR = (RFLOAT*)fftw_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
     _dstC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
     fftw_plan_with_nthreads(omp_get_max_threads());
@@ -361,7 +361,7 @@ void FFT::bwCreatePlanMT(const int nCol,
     //bwCreatePlanMT(nCol, nRow, 1);
 
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
-    _dstR = (double*)fftw_malloc(nCol * nRow * sizeof(double));
+    _dstR = (RFLOAT*)fftw_malloc(nCol * nRow * sizeof(RFLOAT));
  
     fftw_plan_with_nthreads(omp_get_max_threads());
 
@@ -382,7 +382,7 @@ void FFT::bwCreatePlanMT(const int nCol,
                          const int nSlc)
 {
     _srcC = (fftw_complex*)fftw_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
-    _dstR = (double*)fftw_malloc(nCol * nRow * nSlc * sizeof(double));
+    _dstR = (RFLOAT*)fftw_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
     fftw_plan_with_nthreads(omp_get_max_threads());
 

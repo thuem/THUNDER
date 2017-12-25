@@ -155,7 +155,7 @@ void Projector::project(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
-            vec2 newCor((double)(i * _pf), (double)(j * _pf));
+            vec2 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf));
             vec2 oldCor = mat * newCor;
 
             dst.setFT(_projectee2D.getByInterpolationFT(oldCor(0),
@@ -172,7 +172,7 @@ void Projector::project(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
-            vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+            vec3 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf), 0);
             vec3 oldCor = mat * newCor;
 
             dst.setFT(_projectee3D.getByInterpolationFT(oldCor(0),
@@ -193,7 +193,7 @@ void Projector::project(Image& dst,
 {
     for (int i = 0; i < nPxl; i++)
     {
-        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf));
         vec2 oldCor = mat * newCor;
 
         dst[iPxl[i]] = _projectee2D.getByInterpolationFT(oldCor(0),
@@ -211,7 +211,7 @@ void Projector::project(Image& dst,
 {
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
+        vec3 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[iPxl[i]] = _projectee3D.getByInterpolationFT(oldCor(0),
@@ -229,7 +229,7 @@ void Projector::project(Complex* dst,
 {
     for (int i = 0; i < nPxl; i++)
     {
-        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf));
         vec2 oldCor = mat * newCor;
 
         dst[i] = _projectee2D.getByInterpolationFT(oldCor(0),
@@ -246,7 +246,7 @@ void Projector::project(Complex* dst,
 {
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
+        vec3 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[i] = _projectee3D.getByInterpolationFT(oldCor(0),
@@ -263,7 +263,7 @@ void Projector::projectMT(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
-            vec2 newCor((double)(i * _pf), (double)(j * _pf));
+            vec2 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf));
             vec2 oldCor = mat * newCor;
 
             dst.setFT(_projectee2D.getByInterpolationFT(oldCor(0),
@@ -281,7 +281,7 @@ void Projector::projectMT(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
         {
-            vec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+            vec3 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf), 0);
             vec3 oldCor = mat * newCor;
 
             dst.setFT(_projectee3D.getByInterpolationFT(oldCor(0),
@@ -303,7 +303,7 @@ void Projector::projectMT(Image& dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf));
         vec2 oldCor = mat * newCor;
 
         dst[iPxl[i]] = _projectee2D.getByInterpolationFT(oldCor(0),
@@ -322,7 +322,7 @@ void Projector::projectMT(Image& dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
+        vec3 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[iPxl[i]] = _projectee3D.getByInterpolationFT(oldCor(0),
@@ -341,7 +341,7 @@ void Projector::projectMT(Complex* dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        vec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
+        vec2 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf));
         vec2 oldCor = mat * newCor;
 
         dst[i] = _projectee2D.getByInterpolationFT(oldCor(0),
@@ -359,7 +359,7 @@ void Projector::projectMT(Complex* dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        vec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
+        vec3 newCor((RFLOAT)(iCol[i] * _pf), (RFLOAT)(iRow[i] * _pf), 0);
         vec3 oldCor = mat * newCor;
 
         dst[i] = _projectee3D.getByInterpolationFT(oldCor(0),

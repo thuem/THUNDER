@@ -13,44 +13,44 @@
 #include "Spectrum.h"
 #include "Functions/Random.h"
 
-double nyquist(const double pixelSize)
+RFLOAT nyquist(const RFLOAT pixelSize)
 {
     return 2 / pixelSize;
 }
 
-double resP2A(const double resP,
+RFLOAT resP2A(const RFLOAT resP,
               const int imageSize,
-              const double pixelSize)
+              const RFLOAT pixelSize)
 {
     return resP / imageSize / pixelSize;
 }
 
-double resA2P(const double resA,
+RFLOAT resA2P(const RFLOAT resA,
               const int imageSize,
-              const double pixelSize)
+              const RFLOAT pixelSize)
 {
     return resA * imageSize * pixelSize;
 }
 
 void resP2A(vec& res,
             const int imageSize,
-            const double pixelSize)
+            const RFLOAT pixelSize)
 {
     res /= imageSize * pixelSize;
 }
 
 void resA2P(vec& res,
             const int imageSize,
-            const double pixelSize)
+            const RFLOAT pixelSize)
 {
     res *= imageSize * pixelSize;
 }
 
-double ringAverage(const int resP,
+RFLOAT ringAverage(const int resP,
                    const Image& img,
-                   const function<double(const Complex)> func)
+                   const function<RFLOAT(const Complex)> func)
 {
-    double result = 0;
+    RFLOAT result = 0;
     int counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(img)
@@ -68,7 +68,7 @@ Complex ringAverage(const int resP,
                     const function<Complex(const Complex)> func)
 {
     Complex result = COMPLEX(0, 0);
-    double counter = 0;
+    RFLOAT counter = 0;
 
     IMAGE_FOR_EACH_PIXEL_FT(img)
         if (AROUND(NORM(i, j)) == resP)
@@ -82,7 +82,7 @@ Complex ringAverage(const int resP,
 
 void ringAverage(vec& dst,
                  const Image& src,
-                 const function<double(const Complex)> func,
+                 const function<RFLOAT(const Complex)> func,
                  const int r)
 {
     dst.setZero();
@@ -107,11 +107,11 @@ void ringAverage(vec& dst,
         dst(i) /= counter(i);
 }
 
-double shellAverage(const int resP,
+RFLOAT shellAverage(const int resP,
                     const Volume& vol,
-                    const function<double(const Complex)> func)
+                    const function<RFLOAT(const Complex)> func)
 {
-    double result = 0;
+    RFLOAT result = 0;
     int counter = 0;
 
     VOLUME_FOR_EACH_PIXEL_FT(vol)
@@ -126,7 +126,7 @@ double shellAverage(const int resP,
 
 void shellAverage(vec& dst,
                   const Volume& src,
-                  const function<double(const Complex)> func,
+                  const function<RFLOAT(const Complex)> func,
                   const int r)
 {
     dst.setZero();
@@ -236,7 +236,7 @@ void FRC(vec& dst,
 
     for (int i = 0; i < dst.size(); i++)
     {
-        double AB = sqrt(vecA(i) * vecB(i));
+        RFLOAT AB = sqrt(vecA(i) * vecB(i));
         if (AB == 0)
             dst(i) = 0;
         else
@@ -273,7 +273,7 @@ void FRC(vec& dst,
 
     for (int i = 0; i < dst.size(); i++)
     {
-        double AB = sqrt(vecA(i) * vecB(i));
+        RFLOAT AB = sqrt(vecA(i) * vecB(i));
         if (AB == 0)
             dst(i) = 0;
         else
@@ -302,7 +302,7 @@ void FSC(vec& dst,
 
     for (int i = 0; i < dst.size(); i++)
     {
-        double AB = sqrt(vecA(i) * vecB(i));
+        RFLOAT AB = sqrt(vecA(i) * vecB(i));
         if (AB == 0)
             dst(i) = 0;
         else
@@ -311,7 +311,7 @@ void FSC(vec& dst,
 }
 
 int resP(const vec& fsc,
-         const double thres,
+         const RFLOAT thres,
          const int pf,
          const int rL,
          const bool inverse)
@@ -360,12 +360,12 @@ void randomPhase(Volume& dst,
 
 void sharpen(Volume& dst,
              const Volume& src,
-             const double thres,
-             const double ew,
+             const RFLOAT thres,
+             const RFLOAT ew,
              const int rU,
              const int rL)
 {
-    double bFactor;
+    RFLOAT bFactor;
     bFactorEst(bFactor, src, rU, rL);
 
     sharpen(dst, src, thres, ew, bFactor);
@@ -373,16 +373,16 @@ void sharpen(Volume& dst,
 
 void sharpen(Volume& dst,
              const Volume& src,
-             const double thres,
-             const double ew,
-             const double bFactor)
+             const RFLOAT thres,
+             const RFLOAT ew,
+             const RFLOAT bFactor)
 {
     bFactorFilter(dst, src, bFactor);
 
     lowPassFilter(dst, dst, thres, ew);
 }
 
-void bFactorEst(double& bFactor,
+void bFactorEst(RFLOAT& bFactor,
                 const Volume& vol,
                 const int rU,
                 const int rL)
@@ -403,10 +403,10 @@ void bFactorEst(double& bFactor,
     for (int i = 0; i < rU - rL; i++)
     {
         I[i] = log(I[i] / C[i]);
-        C[i] = TSGSL_pow_2((double)(i + rL) / vol.nColRL());
+        C[i] = TSGSL_pow_2((RFLOAT)(i + rL) / vol.nColRL());
     }
 
-    double c0, c1, cov00, cov01, cov11, sumsq;
+    RFLOAT c0, c1, cov00, cov01, cov11, sumsq;
 
     TSGSL_fit_linear(C.data(),
                    1,

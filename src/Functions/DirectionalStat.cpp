@@ -12,16 +12,16 @@
 
 #include "DirectionalStat.h"
 
-double pdfACG(const vec4& x,
+RFLOAT pdfACG(const vec4& x,
               const mat44& sig)
 {
     return pow(sig.determinant(), -0.5)
          * pow(x.transpose() * sig.inverse() * x, -2);
 }
 
-double pdfACG(const vec4& x,
-              const double k0,
-              const double k1)
+RFLOAT pdfACG(const vec4& x,
+              const RFLOAT k0,
+              const RFLOAT k1)
 {
     mat44 sig;
     sig << k0, 0, 0, 0,
@@ -58,8 +58,8 @@ void sampleACG(mat4& dst,
 }
 
 void sampleACG(mat4& dst,
-               const double k0,
-               const double k1,
+               const RFLOAT k0,
+               const RFLOAT k1,
                const int n)
 {
     mat44 src;
@@ -72,9 +72,9 @@ void sampleACG(mat4& dst,
 }
 
 void sampleACG(mat4& dst,
-               const double k1,
-               const double k2,
-               const double k3,
+               const RFLOAT k1,
+               const RFLOAT k2,
+               const RFLOAT k3,
                const int n)
 {
     mat44 src;
@@ -97,7 +97,7 @@ void inferACG(mat44& dst,
         A = B;
 
         B = mat44::Zero();
-        double nf = 0;
+        RFLOAT nf = 0;
 
         for (int i = 0; i < src.rows(); i++)
         {
@@ -108,7 +108,7 @@ void inferACG(mat44& dst,
                     tensor(j, k) = src(i, j) * src(i, k);
 
             // get the factor
-            double u = src.row(i) * A.inverse() * src.row(i).transpose();
+            RFLOAT u = src.row(i) * A.inverse() * src.row(i).transpose();
 
             B += tensor / u;
 
@@ -140,8 +140,8 @@ void inferACG(mat44& dst,
 #endif
 }
 
-void inferACG(double& k0,
-              double& k1,
+void inferACG(RFLOAT& k0,
+              RFLOAT& k1,
               const mat4& src)
 {
     mat44 A;
@@ -157,9 +157,9 @@ void inferACG(double& k0,
     k1 = eigenSolver.eigenvalues().minCoeff();
 }
 
-void inferACG(double& k1,
-              double& k2,
-              double& k3,
+void inferACG(RFLOAT& k1,
+              RFLOAT& k2,
+              RFLOAT& k3,
               const mat4& src)
 {
     mat44 A;
@@ -211,21 +211,21 @@ void inferACG(vec4& mean,
 #endif
 }
 
-double pdfVMS(const vec2& x,
+RFLOAT pdfVMS(const vec2& x,
               const vec2& mu,
-              const double k)
+              const RFLOAT k)
 {
-    double kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
+    RFLOAT kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
 
     return exp(kappa * x.dot(mu)) / (2 * M_PI * TSGSL_sf_bessel_I0(kappa));
 }
 
 void sampleVMS(mat2& dst,
                const vec2& mu,
-               const double k,
-               const double n)
+               const RFLOAT k,
+               const RFLOAT n)
 {
-    double kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
+    RFLOAT kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
 
     gsl_rng* engine = get_random_engine();
 
@@ -236,31 +236,31 @@ void sampleVMS(mat2& dst,
     }
     else
     {
-        double a = 1 + sqrt(1 + 4 * TSGSL_pow_2(kappa));
-        double b = (a - sqrt(2 * a)) / (2 * kappa);
-        double r = (1 + TSGSL_pow_2(b)) / (2 * b);
+        RFLOAT a = 1 + sqrt(1 + 4 * TSGSL_pow_2(kappa));
+        RFLOAT b = (a - sqrt(2 * a)) / (2 * kappa);
+        RFLOAT r = (1 + TSGSL_pow_2(b)) / (2 * b);
 
         for (int i = 0; i < n; i++)
         {
-            double f;
+            RFLOAT f;
 
             while (true)
             {
-                double z = cos(M_PI * TSGSL_rng_uniform(engine));
+                RFLOAT z = cos(M_PI * TSGSL_rng_uniform(engine));
 
                 f = (1 + r * z) / (r + z);
 
-                double c = kappa * (r - f);
+                RFLOAT c = kappa * (r - f);
 
-                double u2 = TSGSL_rng_uniform(engine);
+                RFLOAT u2 = TSGSL_rng_uniform(engine);
 
                 if (c * (2 - c) > u2) break;
 
                 if (log(c / u2) + 1 - c >= 0) break;
             }
 
-            double delta0 = sqrt((1 - f) * (f + 1)) * mu(1);
-            double delta1 = sqrt((1 - f) * (f + 1)) * mu(0);
+            RFLOAT delta0 = sqrt((1 - f) * (f + 1)) * mu(1);
+            RFLOAT delta1 = sqrt((1 - f) * (f + 1)) * mu(0);
 
             if (TSGSL_rng_uniform(engine) > 0.5)
             {
@@ -278,8 +278,8 @@ void sampleVMS(mat2& dst,
 
 void sampleVMS(mat4& dst,
                const vec4& mu,
-               const double k,
-               const double n)
+               const RFLOAT k,
+               const RFLOAT n)
 {
     dst = mat4::Zero(dst.rows(), 4);
 
@@ -291,7 +291,7 @@ void sampleVMS(mat4& dst,
 }
 
 void inferVMS(vec2& mu,
-              double& k,
+              RFLOAT& k,
               const mat2& src)
 {
     mu = vec2::Zero();
@@ -302,7 +302,7 @@ void inferVMS(vec2& mu,
         mu(1) += src(i, 1);
     }
 
-    double R = mu.norm() / src.rows();
+    RFLOAT R = mu.norm() / src.rows();
 
     mu /= mu.norm();
 
@@ -315,7 +315,7 @@ void inferVMS(vec2& mu,
     k = 1 - R;
 }
 
-void inferVMS(double& k,
+void inferVMS(RFLOAT& k,
               const mat2& src)
 {
     vec2 mu;
@@ -324,7 +324,7 @@ void inferVMS(double& k,
 }
 
 void inferVMS(vec4& mu,
-              double& k,
+              RFLOAT& k,
               const mat4& src)
 {
     vec2 mu2D;
@@ -334,7 +334,7 @@ void inferVMS(vec4& mu,
     mu = vec4(mu2D(0), mu2D(1), 0, 0);
 }
 
-void inferVMS(double& k,
+void inferVMS(RFLOAT& k,
               const mat4& src)
 {
     vec4 mu;

@@ -157,7 +157,7 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
         {
             // rotation
 
-            double angle = 2 * M_PI / entry[i].fold;
+            RFLOAT angle = 2 * M_PI / entry[i].fold;
 
             for (int j = 1; j < entry[i].fold; j++)
             {
@@ -320,17 +320,17 @@ void symmetryCounterpart(vec4& dst,
     {
         if (entry[i].id == 0)
         {
-            double phi, theta, psi;
+            RFLOAT phi, theta, psi;
 
             angle(phi, theta, psi, dst);
 
             cout << "phi_1 = " << phi << endl;
 
-            double d = 2 * M_PI / entry[i].fold;
+            RFLOAT d = 2 * M_PI / entry[i].fold;
 
-            double t = vec3(dst(1), dst(2), dst(3)).dot(entry[i].axisPlane);
+            RFLOAT t = vec3(dst(1), dst(2), dst(3)).dot(entry[i].axisPlane);
 
-            double p = 2 * acos(dst(0) / sqrt(TSGSL_pow_2(dst(0)) + TSGSL_pow_2(t)));
+            RFLOAT p = 2 * acos(dst(0) / sqrt(TSGSL_pow_2(dst(0)) + TSGSL_pow_2(t)));
 
             cout << "phi_2 = " << p << endl;
 
@@ -363,13 +363,13 @@ void symmetryCounterpart(vec4& dst,
     ***/
 
     /***
-    double s = fabs(dst(0));
+    RFLOAT s = fabs(dst(0));
 
     int j = 0;
 
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
-        double t = fabs(dst.dot(sym.quat(i)));
+        RFLOAT t = fabs(dst.dot(sym.quat(i)));
 
         if (t > s)
         {
@@ -385,7 +385,7 @@ void symmetryCounterpart(vec4& dst,
 
     vec4 q = dst;
 
-    double s = fabs(dst.dot(ANCHOR_POINT_2));
+    RFLOAT s = fabs(dst.dot(ANCHOR_POINT_2));
 
     vec4 p;
 
@@ -395,7 +395,7 @@ void symmetryCounterpart(vec4& dst,
         //quaternion_mul(p, sym.quat(i), dst);
         //quaternion_mul(p, dst, sym.quat(i));
 
-        double t = fabs(p.dot(ANCHOR_POINT_2));
+        RFLOAT t = fabs(p.dot(ANCHOR_POINT_2));
 
         if (t > s)
         {
@@ -423,11 +423,11 @@ void symmetryCounterpart(vec4& dst,
     quaternion_mul(r, r, quaternion_conj(dst));
 
     int j = 0; // index of the nearest anchor
-    double s = r.dot(ANCHOR_POINT_1);
+    RFLOAT s = r.dot(ANCHOR_POINT_1);
 
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
-        double t = r.dot(anchors.row(i).transpose());
+        RFLOAT t = r.dot(anchors.row(i).transpose());
 
         if (t > s)
         {
@@ -454,7 +454,7 @@ void symmetryCounterpart(vec4& dst,
     quaternion_mul(r, q, ANCHOR_POINT_1);
     quaternion_mul(r, r, quaternion_conj(q));
 
-    double s = r.dot(ANCHOR_POINT_1);
+    RFLOAT s = r.dot(ANCHOR_POINT_1);
 
     vec4 p;
 
@@ -465,7 +465,7 @@ void symmetryCounterpart(vec4& dst,
         quaternion_mul(r, p, ANCHOR_POINT_1);
         quaternion_mul(r, r, quaternion_conj(p));
 
-        double t = r.dot(ANCHOR_POINT_1);
+        RFLOAT t = r.dot(ANCHOR_POINT_1);
 
         if (t > s)
         {

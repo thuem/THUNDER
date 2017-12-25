@@ -25,17 +25,17 @@
 int main(int argc, const char* argv[])
 {
 #ifdef TEST_MKB_FT
-    for (double i = 0; i <= BLOB_A * PF; i += 0.01)
+    for (RFLOAT i = 0; i <= BLOB_A * PF; i += 0.01)
         std::cout << i << " " << MKB_FT(i, BLOB_A * PF, BLOB_ALPHA) << std::endl;
 #endif
 
 #ifdef TEST_MKB_RL
-    for (double i = 0; i <= 0.5; i += 0.01)
+    for (RFLOAT i = 0; i <= 0.5; i += 0.01)
         std::cout << i << " " << MKB_RL(i, BLOB_A * PF, BLOB_ALPHA) << std::endl;
 #endif
 
 #ifdef TEST_TIL_RL
-    for (double i = 0; i <= 0.5; i += 0.01)
+    for (RFLOAT i = 0; i <= 0.5; i += 0.01)
         std::cout << i << " " << TIK_RL(i) << std::endl;
 #endif
 

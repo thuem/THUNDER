@@ -14,12 +14,12 @@
 
 void bFactorFilter(Image& dst,
                    const Image& src,
-                   const double bFactor)
+                   const RFLOAT bFactor)
 {
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        double f = TSGSL_pow_2(double(i) / src.nColRL())
-                 + TSGSL_pow_2(double(j) / src.nRowRL());
+        RFLOAT f = TSGSL_pow_2(RFLOAT(i) / src.nColRL())
+                 + TSGSL_pow_2(RFLOAT(j) / src.nRowRL());
 
         //dst.setFT(src.getFT(i, j) * exp(-0.25 * bFactor * f), i, j);
         dst.setFT(src.getFT(i, j) * exp(-0.5 * bFactor * f), i, j);
@@ -28,14 +28,14 @@ void bFactorFilter(Image& dst,
 
 void bFactorFilter(Volume& dst,
                    const Volume& src,
-                   const double bFactor)
+                   const RFLOAT bFactor)
 {
     #pragma omp parallel for
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        double f = TSGSL_pow_2(double(i) / src.nColRL())
-                 + TSGSL_pow_2(double(j) / src.nRowRL())
-                 + TSGSL_pow_2(double(k) / src.nSlcRL());
+        RFLOAT f = TSGSL_pow_2(RFLOAT(i) / src.nColRL())
+                 + TSGSL_pow_2(RFLOAT(j) / src.nRowRL())
+                 + TSGSL_pow_2(RFLOAT(k) / src.nSlcRL());
 
         //dst.setFT(src.getFT(i, j, k) * exp(-0.25 * bFactor * f), i, j, k);
         dst.setFT(src.getFT(i, j, k) * exp(-0.5 * bFactor * f), i, j, k);
@@ -44,13 +44,13 @@ void bFactorFilter(Volume& dst,
 
 void lowPassFilter(Image& dst,
                    const Image& src,
-                   const double thres,
-                   const double ew)
+                   const RFLOAT thres,
+                   const RFLOAT ew)
 {
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        double f = NORM(double(i) / src.nColRL(),
-                        double(j) / src.nRowRL());
+        RFLOAT f = NORM(RFLOAT(i) / src.nColRL(),
+                        RFLOAT(j) / src.nRowRL());
         if (f < thres)
             dst.setFT(src.getFT(i, j), i, j);
         else if (f > thres + ew)
@@ -65,15 +65,15 @@ void lowPassFilter(Image& dst,
 
 void lowPassFilter(Volume& dst,
                    const Volume& src,
-                   const double thres,
-                   const double ew)
+                   const RFLOAT thres,
+                   const RFLOAT ew)
 {
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        double f = NORM_3(double(i) / src.nColRL(),
-                          double(j) / src.nRowRL(),
-                          double(k) / src.nSlcRL());
+        RFLOAT f = NORM_3(RFLOAT(i) / src.nColRL(),
+                          RFLOAT(j) / src.nRowRL(),
+                          RFLOAT(k) / src.nSlcRL());
         if (f < thres)
             dst.setFT(src.getFT(i, j, k), i, j, k);
         else if (f > thres + ew)
@@ -89,13 +89,13 @@ void lowPassFilter(Volume& dst,
 
 void highPassFilter(Image& dst,
                     const Image& src,
-                    const double thres,
-                    const double ew)
+                    const RFLOAT thres,
+                    const RFLOAT ew)
 {
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        double f = NORM(double(i) / src.nColRL(),
-                        double(j) / src.nRowRL());
+        RFLOAT f = NORM(RFLOAT(i) / src.nColRL(),
+                        RFLOAT(j) / src.nRowRL());
 
         if (f > thres)
             dst.setFT(src.getFT(i, j), i, j);
@@ -111,15 +111,15 @@ void highPassFilter(Image& dst,
 
 void highPassFilter(Volume& dst,
                     const Volume& src,
-                    const double thres,
-                    const double ew)
+                    const RFLOAT thres,
+                    const RFLOAT ew)
 {
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        double f = NORM_3(double(i) / src.nColRL(),
-                          double(j) / src.nRowRL(),
-                          double(k) / src.nSlcRL());
+        RFLOAT f = NORM_3(RFLOAT(i) / src.nColRL(),
+                          RFLOAT(j) / src.nRowRL(),
+                          RFLOAT(k) / src.nSlcRL());
 
         if (f > thres)
             dst.setFT(src.getFT(i, j, k), i, j, k);
@@ -141,9 +141,9 @@ void fscWeightingFilter(Volume& dst,
     #pragma omp parallel for schedule(dynamic)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
-        double f = NORM_3(double(i) / src.nColRL(),
-                          double(j) / src.nRowRL(),
-                          double(k) / src.nSlcRL());
+        RFLOAT f = NORM_3(RFLOAT(i) / src.nColRL(),
+                          RFLOAT(j) / src.nRowRL(),
+                          RFLOAT(k) / src.nSlcRL());
 
         int idx = AROUND(f * src.nColRL());
 

@@ -184,7 +184,7 @@ class Reconstructor : public Parallel
 
         //vector<vec> _sig;
 
-        //vector<const double*> _ctfP;
+        //vector<const RFLOAT*> _ctfP;
 
         int _nPxl;
 
@@ -204,7 +204,7 @@ class Reconstructor : public Parallel
          * can be inserted. Every inserting operation will also insert the
          * weights into this vector.
          */
-        vector<double> _w;
+        vector<RFLOAT> _w;
         
         /**
          * The max radius within the distance of which other point can be 
@@ -232,12 +232,12 @@ class Reconstructor : public Parallel
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _a;
+        RFLOAT _a;
 
         /**
          * The smoothness parameter. Parameter of modified Kaiser-Bessel Kernel.
          */
-        double _alpha;
+        RFLOAT _alpha;
         
         /**
          * the blob kernel stored as a tabular function
@@ -296,8 +296,8 @@ class Reconstructor : public Parallel
                       const int N,
                       const int pf = 2,
                       const Symmetry* sym = NULL,
-                      const double a = 1.9,
-                      const double alpha = 15);
+                      const RFLOAT a = 1.9,
+                      const RFLOAT alpha = 15);
 
         /**
          * default deconstructor
@@ -320,8 +320,8 @@ class Reconstructor : public Parallel
                   const int N,
                   const int pf = 2,
                   const Symmetry* sym = NULL,
-                  const double a = 1.9,
-                  const double alpha = 15);
+                  const RFLOAT a = 1.9,
+                  const RFLOAT alpha = 15);
 
         void allocSpace();
 
@@ -383,7 +383,7 @@ class Reconstructor : public Parallel
         void insert(const Image& src,
                     const Image& ctf,
                     const mat22& rot,
-                    const double w);
+                    const RFLOAT w);
 
         /**
          * Insert a 2D Fourier transform of image pixel data with associated
@@ -404,18 +404,18 @@ class Reconstructor : public Parallel
         void insert(const Image& src,
                     const Image& ctf,
                     const mat33& rot,
-                    const double w);
+                    const RFLOAT w);
 
         void insertP(const Image& src,
                      const Image& ctf,
                      const mat22& rot,
-                     const double w,
+                     const RFLOAT w,
                      const vec* sig = NULL);
 
         void insertP(const Image& src,
                      const Image& ctf,
                      const mat33& rot,
-                     const double w,
+                     const RFLOAT w,
                      const vec* sig = NULL);
 
         void prepareTF();
@@ -443,7 +443,7 @@ class Reconstructor : public Parallel
 
         void allReduceT();
 
-        double checkC() const;
+        RFLOAT checkC() const;
 
         void convoluteC();
 

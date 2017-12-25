@@ -25,13 +25,13 @@ class TabFunction
 {
 	private:
 
-        boost::movelib::unique_ptr<double[]> _tab;
+        boost::movelib::unique_ptr<RFLOAT[]> _tab;
 
-        double _a;
+        RFLOAT _a;
 
-        double _b;
+        RFLOAT _b;
 
-        double _s;
+        RFLOAT _s;
 
         int _n;
 
@@ -47,17 +47,17 @@ class TabFunction
          */
         ~TabFunction();
         
-        TabFunction(function<double(const double)> func,
-                    const double a,
-                    const double b,
+        TabFunction(function<RFLOAT(const RFLOAT)> func,
+                    const RFLOAT a,
+                    const RFLOAT b,
                     const int n);
 
-        void init(function<double(const double)> func,
-                  const double a,
-                  const double b,
+        void init(function<RFLOAT(const RFLOAT)> func,
+                  const RFLOAT a,
+                  const RFLOAT b,
                   const int n);
 
-        double operator()(const double x) const;
+        RFLOAT operator()(const RFLOAT x) const;
 };
 
 #endif // TAB_FUNCTION_H

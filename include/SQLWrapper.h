@@ -150,7 +150,7 @@ public:
     {
         check(sqlite3_bind_text(getNativeHandle(), index, str, length, copy ? SQLITE_TRANSIENT : SQLITE_STATIC));
     }
-    void bind_double(int index, double val)
+    void bind_double(int index, RFLOAT val)
     {
         check(sqlite3_bind_double(getNativeHandle(), index, val));
     }
@@ -158,7 +158,7 @@ public:
     {
         return sqlite3_column_int(getNativeHandle(), col);
     }
-    double get_double(int col)
+    RFLOAT get_double(int col)
     {
         return sqlite3_column_double(getNativeHandle(), col);
     }

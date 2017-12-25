@@ -44,7 +44,7 @@ struct Coordinate5D
      * The range of phi is defined modulo 2PI radians, which can be set as
      * [-PI, PI].
      */
-    double phi;
+    RFLOAT phi;
     
     /**
      * The angle rotates from fixed z axis to moved z1 axis is called nutation
@@ -53,7 +53,7 @@ struct Coordinate5D
      * The range of theta cover PI radians but cannot be saided to be modulo
      * PI, which can be set as [-PI/2, PI/2] or [0, PI].
      */
-    double theta;
+    RFLOAT theta;
     
     /**
      * The angle rotates from N axis to the moved x1 axis is called precession
@@ -62,19 +62,19 @@ struct Coordinate5D
      * The range of psi is defined modulo 2PI radians, which can be set as
      * [-PI, PI].
      */
-    double psi;
+    RFLOAT psi;
     
     /**
      * The offset between the center of the image and the center of protein 
      * projection in x-direction.
      */
-    double x;
+    RFLOAT x;
     
     /**
      * The offset between the center of the image and the center of protein 
      * projection in y-direction.
      */
-    double y;
+    RFLOAT y;
 
     /**
      * Construct a empty Coordinate5D object.
@@ -90,11 +90,11 @@ struct Coordinate5D
      * @param x Offset in X direction. Details see @ref x.
      * @param y Offset in Y direction. Details see @ref y
      */
-    Coordinate5D(const double phi,
-                 const double theta,
-                 const double psi,
-                 const double x,
-                 const double y);
+    Coordinate5D(const RFLOAT phi,
+                 const RFLOAT theta,
+                 const RFLOAT psi,
+                 const RFLOAT x,
+                 const RFLOAT y);
 };
 
 /**

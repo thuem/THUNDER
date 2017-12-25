@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 
 #ifdef TEST_CTF
     std::cout << "CTF " << std::endl;
-    double voltage, defocusU, defocusV, defocusTheta, Cs, amplitudeContrast, phaseShift;
+    RFLOAT voltage, defocusU, defocusV, defocusTheta, Cs, amplitudeContrast, phaseShift;
 
     for (int i = 0; i < 10; i++)
     {

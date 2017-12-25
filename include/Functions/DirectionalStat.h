@@ -32,7 +32,7 @@
  * @param x   a quaternion
  * @param sig a symmetric positive definite parameter matrix
  */
-double pdfACG(const vec4& x,
+RFLOAT pdfACG(const vec4& x,
               const mat44& sig);
 
 /**
@@ -48,9 +48,9 @@ double pdfACG(const vec4& x,
  * @param k0 the first paramter
  * @param k1 the second parameter
  */
-double pdfACG(const vec4& x,
-              const double k0,
-              const double k1);
+RFLOAT pdfACG(const vec4& x,
+              const RFLOAT k0,
+              const RFLOAT k1);
 
 /**
  * Sample from an Angular Central Gaussian Distribution
@@ -78,8 +78,8 @@ void sampleACG(mat4& dst,
  * @param n   the number of samples
  */
 void sampleACG(mat4& dst,
-               const double k0,
-               const double k1,
+               const RFLOAT k0,
+               const RFLOAT k1,
                const int n);
 
 /**
@@ -98,9 +98,9 @@ void sampleACG(mat4& dst,
  * @param n   the number of samples
  */
 void sampleACG(mat4& dst,
-               const double k1,
-               const double k2,
-               const double k3,
+               const RFLOAT k1,
+               const RFLOAT k2,
+               const RFLOAT k3,
                const int n);
 
 /**
@@ -121,13 +121,13 @@ void inferACG(mat44& dst,
  * @param k1  the second paramter
  * @param src the data
  */
-void inferACG(double& k0,
-              double& k1,
+void inferACG(RFLOAT& k0,
+              RFLOAT& k1,
               const mat4& src);
 
-void inferACG(double& k1,
-              double& k2,
-              double& k3,
+void inferACG(RFLOAT& k1,
+              RFLOAT& k2,
+              RFLOAT& k3,
               const mat4& src);
 
 /**
@@ -147,9 +147,9 @@ void inferACG(vec4& mean,
  * @param mu    the mode of the von Mises distribution in unit vector
  * @param kappa the concnetration parameter of the von Mises distribution
  */
-double pdfVMS(const vec2& x,
+RFLOAT pdfVMS(const vec2& x,
               const vec2& mu,
-              const double k);
+              const RFLOAT k);
 
 /**
  * Sample from von Mises Distribution M(mu, kappa), the algorithm is from Best &
@@ -162,13 +162,13 @@ double pdfVMS(const vec2& x,
  */
 void sampleVMS(mat2& dst,
                const vec2& mu,
-               const double k,
-               const double n);
+               const RFLOAT k,
+               const RFLOAT n);
 
 void sampleVMS(mat4& dst,
                const vec4& mu,
-               const double k,
-               const double n);
+               const RFLOAT k,
+               const RFLOAT n);
 
 /**
  * Mode and Concentration Paramter Inference from Data Assuming the Distribution
@@ -179,17 +179,17 @@ void sampleVMS(mat4& dst,
  * @param src    the data
  */
 void inferVMS(vec2& mu,
-              double& k,
+              RFLOAT& k,
               const mat2& src);
 
-void inferVMS(double& kappa,
+void inferVMS(RFLOAT& kappa,
               const mat2& src);
 
 void inferVMS(vec4& mu,
-              double& k,
+              RFLOAT& k,
               const mat4& src);
 
-void inferVMS(double& k,
+void inferVMS(RFLOAT& k,
               const mat4& src);
 
 #endif // DIRECTIONAL_STAT_H

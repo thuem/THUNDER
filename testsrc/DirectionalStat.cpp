@@ -96,7 +96,7 @@ int main(int argc, const char* argv[])
     cout << A << endl;
 
     /***
-    double k0, k1;
+    RFLOAT k0, k1;
 
     inferACG(k0, k1, acg);
 
@@ -129,7 +129,7 @@ int main(int argc, const char* argv[])
                ***/
 
     /***
-    double k0, k1;
+    RFLOAT k0, k1;
 
     inferACG(k0, k1, acg);
 
@@ -137,7 +137,7 @@ int main(int argc, const char* argv[])
     ***/
 
     /***
-    double k1, k2, k3;
+    RFLOAT k1, k2, k3;
 
     inferACG(k1, k2, k3, acg);
 
@@ -153,7 +153,7 @@ int main(int argc, const char* argv[])
 #endif
 
 #ifdef TEST_PDF_VMS
-    for (double theta = -M_PI; theta < M_PI; theta += 0.01)
+    for (RFLOAT theta = -M_PI; theta < M_PI; theta += 0.01)
         printf("%6f   %6f   %6f   %6f   %6f   %6f\n",
                theta,
                pdfVMS(vec2(cos(theta), sin(theta)), vec2(cos(MU), sin(MU)), KAPPA_0),
@@ -204,7 +204,7 @@ int main(int argc, const char* argv[])
 
 #ifdef TEST_INFER_VMS
     vec2 mu;
-    double kappa;
+    RFLOAT kappa;
 
     inferVMS(mu, kappa, VMS_0);
     printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);

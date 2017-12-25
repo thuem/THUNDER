@@ -130,14 +130,14 @@ void ImageFile::readVolume(Volume& dst,
 
 void ImageFile::writeImage(const char dst[],
                            const Image& src,
-                           const double pixelSize)
+                           const RFLOAT pixelSize)
 {
     writeImageMRC(dst, src, pixelSize);
 }
 
 void ImageFile::writeVolume(const char dst[],
                             const Volume& src,
-                            const double pixelSize)
+                            const RFLOAT pixelSize)
 {
     writeVolumeMRC(dst, src, pixelSize);
 }
@@ -276,7 +276,7 @@ void ImageFile::readVolumeMRC(Volume& dst)
 
 void ImageFile::writeImageMRC(const char dst[],
                               const Image& src,
-                              const double pixelSize)
+                              const RFLOAT pixelSize)
 {
     _file = fopen(dst, "w");
 
@@ -300,7 +300,7 @@ void ImageFile::writeImageMRC(const char dst[],
 
 void ImageFile::writeVolumeMRC(const char dst[],
                                const Volume& src,
-                               const double pixelSize)
+                               const RFLOAT pixelSize)
 {
     _file = fopen(dst, "w");
 
@@ -326,7 +326,7 @@ void ImageFile::writeVolumeMRC(const char dst[],
 void ImageFile::openStack(const char dst[],
                           const int size,
                           const int nSlc,
-                          const double pixelSize)
+                          const RFLOAT pixelSize)
 {
     _file = fopen(dst, "w");
 
