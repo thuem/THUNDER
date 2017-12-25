@@ -330,7 +330,7 @@ void symmetryCounterpart(vec4& dst,
 
             double t = vec3(dst(1), dst(2), dst(3)).dot(entry[i].axisPlane);
 
-            double p = 2 * acos(dst(0) / sqrt(TSGSL_pow_2(dst(0)) + gsl_pow_2(t)));
+            double p = 2 * acos(dst(0) / sqrt(TSGSL_pow_2(dst(0)) + TSGSL_pow_2(t)));
 
             cout << "phi_2 = " << p << endl;
 

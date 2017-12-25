@@ -112,12 +112,12 @@ double MKB_FT(const double r,
 
 #ifdef FUNCTIONS_MKB_ORDER_2
     return (1 - TSGSL_pow_2(u))
-         * TSGSL_sf_bessel_In(2, alpha * sqrt(1 - gsl_pow_2(u)))
+         * TSGSL_sf_bessel_In(2, alpha * sqrt(1 - TSGSL_pow_2(u)))
          / TSGSL_sf_bessel_In(2, alpha);
 #endif
 
 #ifdef FUNCTIONS_MKB_ORDER_0
-    return TSGSL_sf_bessel_I0(alpha * sqrt(1 - gsl_pow_2(u)))
+    return TSGSL_sf_bessel_I0(alpha * sqrt(1 - TSGSL_pow_2(u)))
          / TSGSL_sf_bessel_I0(alpha);
 #endif
 }
@@ -148,8 +148,8 @@ double MKB_RL(const double r,
 {
     double u = 2 * M_PI * a * r;
 
-    double v = (u <= alpha) ? sqrt(TSGSL_pow_2(alpha) - gsl_pow_2(u))
-                            : sqrt(TSGSL_pow_2(u) - gsl_pow_2(alpha));
+    double v = (u <= alpha) ? sqrt(TSGSL_pow_2(alpha) - TSGSL_pow_2(u))
+                            : sqrt(TSGSL_pow_2(u) - TSGSL_pow_2(alpha));
 
 #ifdef FUNCTIONS_MKB_ORDER_2
     double w = pow(2 * M_PI, 1.5)
@@ -233,7 +233,7 @@ double MKB_BLOB_VOL(const double a,
 
 double TIK_RL(const double r)
 {
-    return TSGSL_pow_2(gsl_sf_bessel_j0(M_PI * r));
+    return TSGSL_pow_2(TSGSL_sf_bessel_j0(M_PI * r));
 }
 
 double NIK_RL(const double r)

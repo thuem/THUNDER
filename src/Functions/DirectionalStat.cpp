@@ -309,7 +309,7 @@ void inferVMS(vec2& mu,
     /***
     R = GSL_MIN_DBL(R, 1 - 1e-3); // for the purpose of avoiding extreme value
 
-    kappa = R * (2 - TSGSL_pow_2(R)) / (1 - gsl_pow_2(R));
+    kappa = R * (2 - TSGSL_pow_2(R)) / (1 - TSGSL_pow_2(R));
     ***/
 
     k = 1 - R;
