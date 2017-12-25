@@ -22,6 +22,31 @@
 
 using namespace std;
 
+/**
+ *  This function is added by huabin
+ *  This function is used to covert seconds to day:hour:min:sec format
+ */
+
+void fmt_time(int timeInSeconds, char *outputBuffer)
+{
+    int day = 0;
+    int hour = 0;
+    int min = 0;
+    int sec = 0;
+    int inputSeconds = timeInSeconds;
+
+    day = timeInSeconds / (24 * 3600);
+    timeInSeconds = timeInSeconds % (24 * 3600);
+    hour = timeInSeconds/3600;
+    timeInSeconds = timeInSeconds%3600;
+    min = timeInSeconds/60;
+    timeInSeconds = timeInSeconds%60;
+    sec = timeInSeconds;
+    snprintf(outputBuffer, 512, "%ds (%d days:%d hours:%d mins:%d seconds)\n", inputSeconds, day, hour, min, sec);
+
+}
+
+
 template <size_t N>
 static inline void copy_string(char (&array)[N], const std::string& source)
 {
@@ -153,10 +178,17 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
 
+    double startTime = 0.0;
+    double endTime = 0.0;
     MPI_Init(&argc, &argv);
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if(rank == 0)
+    {
+        startTime = MPI_Wtime();
+    }
 
     CLOG(INFO, "LOGGER_SYS") << "Process " << rank << " Initialised";
 
@@ -220,6 +252,17 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Running";
 
     opt.run();
+
+    if(rank == 0)
+    {
+        endTime = MPI_Wtime();
+        int totalSeconds = (int)(endTime - startTime);
+        char timeBuffer[512];
+        memset(timeBuffer, '\0', sizeof(timeBuffer));
+        fmt_time(totalSeconds, timeBuffer);
+        fprintf(stderr, "Elapse Time: %s\n", timeBuffer);
+        
+    }
 
     MPI_Finalize();
 
