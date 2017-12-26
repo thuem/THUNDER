@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 {
     loggerInit(argc, argv);
 
-    fftw_init_threads();
+    TSFFTW_init_threads();
 
     std::cout << "Define a head." << std::endl;
 
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     imf.readMetaData(head);
     imf.writeVolume("head_2.mrc", head);
 
-    fftw_cleanup_threads();
+    TSFFTW_cleanup_threads();
 
     return 0;
 }

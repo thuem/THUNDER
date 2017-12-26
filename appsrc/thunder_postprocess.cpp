@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 {   
     loggerInit(argc, argv);
 
-    fftw_init_threads();
+    TSFFTW_init_threads();
 
     Postprocess pp(argv[1],
                    argv[2],
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 
     pp.run();
 
-    fftw_cleanup_threads();
+    TSFFTW_cleanup_threads();
 
     return 0;
 }

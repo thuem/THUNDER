@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     MPI_Init(&argc, &argv);
 
-    fftw_init_threads();
+    TSFFTW_init_threads();
 
     int commSize, commRank;
     MPI_Comm_size(MPI_COMM_WORLD, &commSize);

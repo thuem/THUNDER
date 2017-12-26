@@ -201,4 +201,68 @@ RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t 
 }
 
 
+int TSFFTW_init_threads()
+{
+	return fftw_init_threads();
+}
+void TSFFTW_cleanup_threads(void)
+{
+	fftw_cleanup_threads();
+}
+void TSFFTW_destroy_plan(fftw_plan plan)
+{
+	fftw_destroy_plan(plan);
+}
+void TSFFTW_execute(const fftw_plan plan)
+{
+	fftw_execute(plan);
+}
+void TSFFTW_execute_split_dft_r2c( const fftw_plan p, double *in, double *ro, double *io)
+{
+	fftw_execute_split_dft_r2c( p, in, ro, io);
+}
+void TSFFTW_execute_dft_r2c( const fftw_plan p, double *in, fftw_complex *out)
+{
+    fftw_execute_dft_r2c( p, in, out);
+}
+void TSFFTW_execute_dft_c2r( const fftw_plan p, fftw_complex *in, double *out)
+{
+	fftw_execute_dft_c2r( p, in, out);
+} 
+void *TSFFTW_malloc(size_t n)
+{
+	return fftw_malloc(n);
+}
+void TSFFTW_free(void *p)
+{
+	fftw_free(p);
+}
+
+fftw_plan TSFFTW_plan_dft_r2c_2d(int n0, int n1, double *in, fftw_complex *out, unsigned flags)
+{
+	return fftw_plan_dft_r2c_2d(n0, n1, in, out, flags);
+}
+fftw_plan TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, double *in, fftw_complex *out, unsigned flags)
+{
+	return fftw_plan_dft_r2c_3d(n0, n1, n2, in, out, flags);
+}
+
+fftw_plan TSFFTW_plan_dft_c2r_2d(int n0, int n1, fftw_complex *in, double *out, unsigned flags)
+{
+	return fftw_plan_dft_c2r_2d(n0, n1, in, out, flags);
+}
+fftw_plan TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, fftw_complex *in, double *out, unsigned flags)
+{
+	return fftw_plan_dft_c2r_3d(n0, n1, n2, in, out, flags);
+}
+
+void TSFFTW_plan_with_nthreads(int nthreads)
+{
+	fftw_plan_with_nthreads(nthreads);
+}
+
+void TSFFTW_set_timelimit(double seconds)
+{
+	fftw_set_timelimit(seconds);
+}
 

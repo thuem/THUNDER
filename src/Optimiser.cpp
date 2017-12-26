@@ -604,7 +604,7 @@ void Optimiser::expectation()
         ***/
 
         //Complex* traP = new Complex[nT * _nPxl];
-        Complex* traP = (Complex*)fftw_malloc(nT * _nPxl * sizeof(Complex));
+        Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
 
         #pragma omp parallel for schedule(dynamic) private(t)
         for (unsigned int m = 0; m < (unsigned int)nT; m++)
@@ -656,8 +656,8 @@ void Optimiser::expectation()
 
         for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
         {
-            Complex* poolPriRotP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
-            Complex* poolPriAllP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+            Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+            Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
 
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (unsigned int m = 0; m < (unsigned int)nR; m++)
@@ -667,7 +667,7 @@ void Optimiser::expectation()
                 #pragma omp critical
 #endif
                 #pragma omp critical
-                Complex* priRotP = (Complex*)fftw_malloc(_nPxl * sizeof(Complex));
+                Complex* priRotP = (Complex*)TSFFTW_malloc(_nPxl * sizeof(Complex));
                 ***/
 
                 Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
@@ -678,7 +678,7 @@ void Optimiser::expectation()
 #ifdef FFTW_PTR_THREAD_SAFETY
                 #pragma omp critical
 #endif
-                Complex* priAllP = (Complex*)fftw_malloc(_nPxl * sizeof(Complex));
+                Complex* priAllP = (Complex*)TSFFTW_malloc(_nPxl * sizeof(Complex));
                 ***/
 
                 /***
@@ -852,12 +852,12 @@ void Optimiser::expectation()
 #ifdef FFTW_PTR_THREAD_SAFETY
                 #pragma omp critical
 #endif
-                fftw_free(priRotP);
+                TSFFTW_free(priRotP);
 
 #ifdef FFTW_PTR_THREAD_SAFETY
                 #pragma omp critical
 #endif
-                fftw_free(priAllP);
+                TSFFTW_free(priAllP);
                 ***/
 
                 /***
@@ -866,8 +866,8 @@ void Optimiser::expectation()
                 ***/
             }
 
-            fftw_free(poolPriRotP);
-            fftw_free(poolPriAllP);
+            TSFFTW_free(poolPriRotP);
+            TSFFTW_free(poolPriAllP);
         }
 
         delete[] mtx;
@@ -1117,7 +1117,7 @@ void Optimiser::expectation()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
-        fftw_free(traP);
+        TSFFTW_free(traP);
         //delete[] traP;
 
         if (_searchType != SEARCH_TYPE_CTF)
@@ -1140,15 +1140,15 @@ void Optimiser::expectation()
 
     nPer = 0;
 
-    Complex* poolPriRotP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
-    Complex* poolPriAllP = (Complex*)fftw_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+    Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+    Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
 
-    Complex* poolTraP = (Complex*)fftw_malloc(_para.mLT * _nPxl * omp_get_max_threads() * sizeof(Complex));
+    Complex* poolTraP = (Complex*)TSFFTW_malloc(_para.mLT * _nPxl * omp_get_max_threads() * sizeof(Complex));
 
     RFLOAT* poolCtfP;
 
     if (_searchType == SEARCH_TYPE_CTF)
-        poolCtfP = (RFLOAT*)fftw_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(RFLOAT));
+        poolCtfP = (RFLOAT*)TSFFTW_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(RFLOAT));
 
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
@@ -1260,7 +1260,7 @@ void Optimiser::expectation()
                 if (_searchType == SEARCH_TYPE_CTF)
                 {
                     /***
-                    ctfP = (RFLOAT*)fftw_malloc(_par[l].nD() * _nPxl * sizeof(RFLOAT));
+                    ctfP = (RFLOAT*)TSFFTW_malloc(_par[l].nD() * _nPxl * sizeof(RFLOAT));
 
                     ctfP = new RFLOAT[_par[l].nD() * _nPxl];
                     ***/
@@ -1616,13 +1616,13 @@ void Optimiser::expectation()
         ***/
     }
 
-    fftw_free(poolPriRotP);
-    fftw_free(poolPriAllP);
+    TSFFTW_free(poolPriRotP);
+    TSFFTW_free(poolPriAllP);
 
-    fftw_free(poolTraP);
+    TSFFTW_free(poolTraP);
 
     if (_searchType == SEARCH_TYPE_CTF)
-        fftw_free(poolCtfP);
+        TSFFTW_free(poolCtfP);
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
@@ -4559,11 +4559,11 @@ void Optimiser::allocPreCal(const bool pixelMajor,
 {
     IF_MASTER return;
 
-    _datP = (Complex*)fftw_malloc(_ID.size() * _nPxl * sizeof(Complex));
+    _datP = (Complex*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(Complex));
 
-    _ctfP = (RFLOAT*)fftw_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
+    _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
-    _sigRcpP = (RFLOAT*)fftw_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
+    _sigRcpP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -4643,9 +4643,9 @@ void Optimiser::freePreCal(const bool ctf)
 {
     IF_MASTER return;
 
-    fftw_free(_datP);
-    fftw_free(_ctfP);
-    fftw_free(_sigRcpP);
+    TSFFTW_free(_datP);
+    TSFFTW_free(_ctfP);
+    TSFFTW_free(_sigRcpP);
 
     /***
     delete[] _datP;

@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
 
-    if (fftw_init_threads() == 0)
+    if (TSFFTW_init_threads() == 0)
     {
         REPORT_ERROR("ERROR IN INITIALISING FFTW THREADS");
 
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
     }
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
-    fftw_set_timelimit(60);
+    TSFFTW_set_timelimit(60);
 
     CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
     
@@ -266,7 +266,7 @@ int main(int argc, char* argv[])
 
     MPI_Finalize();
 
-    fftw_cleanup_threads();
+    TSFFTW_cleanup_threads();
 
     return 0;
 }

@@ -44,7 +44,7 @@ ImageBase::~ImageBase()
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        fftw_free(_dataRL);
+        TSFFTW_free(_dataRL);
         _dataRL = NULL;
     }
 
@@ -53,7 +53,7 @@ ImageBase::~ImageBase()
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        fftw_free(_dataFT);
+        TSFFTW_free(_dataFT);
         _dataFT = NULL;
     }
 #endif
@@ -107,7 +107,7 @@ void ImageBase::clearRL()
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        fftw_free(_dataRL);
+        TSFFTW_free(_dataRL);
 
         _dataRL = NULL;
     }
@@ -126,7 +126,7 @@ void ImageBase::clearFT()
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        fftw_free(_dataFT);
+        TSFFTW_free(_dataFT);
 
         _dataFT = NULL;
     }
@@ -149,7 +149,7 @@ void ImageBase::copyBase(ImageBase& other) const
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        other._dataRL = (RFLOAT*)fftw_malloc(_sizeRL * sizeof(RFLOAT));
+        other._dataRL = (RFLOAT*)TSFFTW_malloc(_sizeRL * sizeof(RFLOAT));
 
         memcpy(other._dataRL, _dataRL, _sizeRL * sizeof(RFLOAT));
 #endif
@@ -179,7 +179,7 @@ void ImageBase::copyBase(ImageBase& other) const
 #ifdef FFTW_PTR_THREAD_SAFETY
         #pragma omp critical
 #endif
-        other._dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
+        other._dataFT = (Complex*)TSFFTW_malloc(_sizeFT * sizeof(Complex));
         
         memcpy(other._dataFT, _dataFT, _sizeFT * sizeof(Complex));
 #endif
