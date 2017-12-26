@@ -1879,9 +1879,7 @@ void Particle::shuffle(const ParticleType pt)
         gsl_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
 
         uvec c(_nC);
-
         vec wC(_nC);
-
         vec uC(_nC);
 
         for (int i = 0; i < _nC; i++)

@@ -33,7 +33,7 @@
 
 #define TEST_SAMPLE_VMS
 
-//#define TEST_INFER_VMS
+#define TEST_INFER_VMS
 
 //#define TEST_EIGEN_SORT
 
@@ -173,24 +173,10 @@ int main(int argc, const char* argv[])
 
 #ifdef TEST_INFER_VMS
     vec2 mu;
-    double kappa;
+    double k;
 
-    inferVMS(mu, kappa, VMS_0);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_1);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_2);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_3);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_4);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_5);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_6);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
-    inferVMS(mu, kappa, VMS_7);
-    printf("mu = (%lf, %lf), kappa = %lf\n", mu(0), mu(1), kappa);
+    inferVMS(mu, k, VMS);
+    printf("mu = (%lf, %lf), k = %lf\n", mu(0), mu(1), k);
 #endif
 
 #ifdef TEST_EIGEN_SORT

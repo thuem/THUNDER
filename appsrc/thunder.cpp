@@ -77,6 +77,7 @@ void readPara(OptimiserPara& dst,
     dst.parGra = src["Particle Grading"].asBool();
 
     dst.performMask = src["Reference Mask"]["Perform Reference Mask"].asBool();
+    dst.globalMask = src["Reference Mask"]["Perform Reference Mask During Global Search"].asBool();
     dst.autoMask = src["Reference Mask"]["Automask"].asBool();
     copy_string(dst.mask, src["Reference Mask"]["Provided Mask"].asString());
 

@@ -1750,7 +1750,7 @@ void Optimiser::run()
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN
 
-        if (_searchType != SEARCH_TYPE_GLOBAL)
+        if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
 
