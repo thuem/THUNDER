@@ -1161,6 +1161,18 @@ void Optimiser::expectation()
 
                             baseLine = gsl_isnan(baseLine) ? w : baseLine;
 
+                            if (w > baseLine)
+                            {
+                                double nf = exp(baseLine - w);
+
+                                wC *= nf;
+                                wR *= nf;
+                                wT *= nf;
+                                wD *= nf;
+
+                                baseLine = w;
+                            }
+
                             w = exp(w - baseLine);
 
                             wC(iC) += w;
