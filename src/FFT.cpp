@@ -26,7 +26,7 @@ void FFT::fw(Image& img)
     FW_EXTRACT_P(img);
     /***
     img.alloc(FT_SPACE);
-    _dstC = (fftw_complex*)&img[0];
+    _dstC = (TSFFTW_COMPLEX*)&img[0];
     _srcR = &img(0);
     CHECK_SPACE_VALID(_dstC, _srcR);
     ***/
@@ -49,7 +49,7 @@ void FFT::bw(Image& img)
     /***
     img.alloc(RL_SPACE);
     _dstR = &img(0);
-    _srcC = (fftw_complex*)&img[0];
+    _srcC = (TSFFTW_COMPLEX*)&img[0];
     CHECK_SPACE_VALID(_dstR, _srcC);
     ***/
 
@@ -131,7 +131,7 @@ void FFT::fwMT(Image& img)
 {
     /***
     img.alloc(FT_SPACE);
-    _dstC = (fftw_complex*)&img[0];
+    _dstC = (TSFFTW_COMPLEX*)&img[0];
     _srcR = &img(0);
     CHECK_SPACE_VALID(_dstC, _srcR);
     ***/
@@ -157,7 +157,7 @@ void FFT::bwMT(Image& img)
     /***
     img.alloc(RL_SPACE);
     _dstR = &img(0);
-    _srcC = (fftw_complex*)&img[0];
+    _srcC = (TSFFTW_COMPLEX*)&img[0];
     CHECK_SPACE_VALID(_dstR, _srcC);
     ***/
     BW_EXTRACT_P(img);
@@ -243,7 +243,7 @@ void FFT::fwCreatePlan(const int nCol,
     //fwCreatePlan(nCol, nRow, 1);
 
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
-    _dstC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+    _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
     fwPlan = fftw_plan_dft_r2c_2d(nRow,
                                   nCol,
@@ -260,7 +260,7 @@ void FFT::fwCreatePlan(const int nCol,
                        const int nSlc)
 {
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
-    _dstC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
+    _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
     fwPlan = fftw_plan_dft_r2c_3d(nRow,
                                   nCol,
@@ -278,7 +278,7 @@ void FFT::bwCreatePlan(const int nCol,
 {
     // bwCreatePlan(nCol, nRow, 1);
 
-    _srcC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+    _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
 
     #pragma omp critical
@@ -296,7 +296,7 @@ void FFT::bwCreatePlan(const int nCol,
                        const int nRow,
                        const int nSlc)
 {
-    _srcC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
+    _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
     #pragma omp critical
@@ -317,7 +317,7 @@ void FFT::fwCreatePlanMT(const int nCol,
     //fwCreatePlanMT(nCol, nRow, 1);
 
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
-    _dstC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+    _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
 
@@ -338,7 +338,7 @@ void FFT::fwCreatePlanMT(const int nCol,
                          const int nSlc)
 {
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
-    _dstC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
+    _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
 
@@ -360,7 +360,7 @@ void FFT::bwCreatePlanMT(const int nCol,
 {
     //bwCreatePlanMT(nCol, nRow, 1);
 
-    _srcC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
+    _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
  
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
@@ -381,7 +381,7 @@ void FFT::bwCreatePlanMT(const int nCol,
                          const int nRow,
                          const int nSlc)
 {
-    _srcC = (fftw_complex*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
+    _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
     TSFFTW_plan_with_nthreads(omp_get_max_threads());

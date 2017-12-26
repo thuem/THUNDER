@@ -54,6 +54,8 @@
 #include <fftw3.h>
 typedef double RFLOAT;
 
+#define TSFFTW_COMPLEX fftw_complex
+#define TSFFTW_PLAN fftw_plan
 RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
 RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
 RFLOAT TSGSL_complex_abs2 (gsl_complex z);  /* return |z|^2 */
@@ -94,21 +96,21 @@ RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t 
 
 int TSFFTW_init_threads(void);
 void TSFFTW_cleanup_threads(void);
-void TSFFTW_destroy_plan(fftw_plan plan);
-void TSFFTW_execute(const fftw_plan plan);
-void TSFFTW_execute_dft_r2c( const fftw_plan p, double *in, fftw_complex *out);
-void TSFFTW_execute_dft_c2r( const fftw_plan p, fftw_complex *in, double *out); 
+void TSFFTW_destroy_plan(TSFFTW_PLAN plan);
+void TSFFTW_execute(const TSFFTW_PLAN plan);
+void TSFFTW_execute_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *out);
+void TSFFTW_execute_dft_c2r( const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *out); 
 void *TSFFTW_malloc(size_t n);
 void TSFFTW_free(void *p);
 
-fftw_plan TSFFTW_plan_dft_r2c_2d(int n0, int n1, double *in, fftw_complex *out, unsigned flags);
-fftw_plan TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, double *in, fftw_complex *out, unsigned flags);
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0, int n1, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags);
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags);
 
-fftw_plan TSFFTW_plan_dft_c2r_2d(int n0, int n1, fftw_complex *in, double *out, unsigned flags);
-fftw_plan TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, fftw_complex *in, double *out, unsigned flags);
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0, int n1, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags);
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags);
 
 void TSFFTW_plan_with_nthreads(int nthreads);
 
-void TSFFTW_set_timelimit(double seconds);
+void TSFFTW_set_timelimit(RFLOAT seconds);
 #endif
 

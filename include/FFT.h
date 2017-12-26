@@ -49,7 +49,7 @@
 #define FW_EXTRACT_P(obj) \
 { \
     obj.alloc(FT_SPACE); \
-    _dstC = (fftw_complex*)&obj[0]; \
+    _dstC = (TSFFTW_COMPLEX*)&obj[0]; \
     _srcR = &obj(0); \
     CHECK_SPACE_VALID(_dstC, _srcR); \
 }
@@ -90,7 +90,7 @@
 { \
     obj.alloc(RL_SPACE); \
     _dstR = &obj(0); \
-    _srcC = (fftw_complex*)&obj[0]; \
+    _srcC = (TSFFTW_COMPLEX*)&obj[0]; \
     CHECK_SPACE_VALID(_dstR, _srcC); \
 }
 
@@ -248,7 +248,7 @@ class FFT
         /**
          * a pointer points to the source of the inverse Fourier transform
          */
-        fftw_complex* _srcC;
+        TSFFTW_COMPLEX* _srcC;
 
         /**
          * a pointer points to the destination of the inverse Fourier transform
@@ -258,17 +258,17 @@ class FFT
         /**
          * a pointer points to the destination of the Fourier transform
          */
-        fftw_complex* _dstC;
+        TSFFTW_COMPLEX* _dstC;
 
         /**
          * the plan of Fourier transform
          */
-        fftw_plan fwPlan;
+        TSFFTW_PLAN fwPlan;
 
         /**
          * the plan of inverse Fourier transform
          */
-        fftw_plan bwPlan;
+        TSFFTW_PLAN bwPlan;
 
     public:
 

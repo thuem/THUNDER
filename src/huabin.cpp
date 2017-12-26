@@ -209,23 +209,23 @@ void TSFFTW_cleanup_threads(void)
 {
 	fftw_cleanup_threads();
 }
-void TSFFTW_destroy_plan(fftw_plan plan)
+void TSFFTW_destroy_plan(TSFFTW_PLAN plan)
 {
 	fftw_destroy_plan(plan);
 }
-void TSFFTW_execute(const fftw_plan plan)
+void TSFFTW_execute(const TSFFTW_PLAN plan)
 {
 	fftw_execute(plan);
 }
-void TSFFTW_execute_split_dft_r2c( const fftw_plan p, double *in, double *ro, double *io)
+void TSFFTW_execute_split_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, RFLOAT *ro, RFLOAT *io)
 {
 	fftw_execute_split_dft_r2c( p, in, ro, io);
 }
-void TSFFTW_execute_dft_r2c( const fftw_plan p, double *in, fftw_complex *out)
+void TSFFTW_execute_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *out)
 {
     fftw_execute_dft_r2c( p, in, out);
 }
-void TSFFTW_execute_dft_c2r( const fftw_plan p, fftw_complex *in, double *out)
+void TSFFTW_execute_dft_c2r( const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *out)
 {
 	fftw_execute_dft_c2r( p, in, out);
 } 
@@ -238,20 +238,20 @@ void TSFFTW_free(void *p)
 	fftw_free(p);
 }
 
-fftw_plan TSFFTW_plan_dft_r2c_2d(int n0, int n1, double *in, fftw_complex *out, unsigned flags)
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0, int n1, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags)
 {
 	return fftw_plan_dft_r2c_2d(n0, n1, in, out, flags);
 }
-fftw_plan TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, double *in, fftw_complex *out, unsigned flags)
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags)
 {
 	return fftw_plan_dft_r2c_3d(n0, n1, n2, in, out, flags);
 }
 
-fftw_plan TSFFTW_plan_dft_c2r_2d(int n0, int n1, fftw_complex *in, double *out, unsigned flags)
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0, int n1, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags)
 {
 	return fftw_plan_dft_c2r_2d(n0, n1, in, out, flags);
 }
-fftw_plan TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, fftw_complex *in, double *out, unsigned flags)
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags)
 {
 	return fftw_plan_dft_c2r_3d(n0, n1, n2, in, out, flags);
 }
@@ -261,7 +261,7 @@ void TSFFTW_plan_with_nthreads(int nthreads)
 	fftw_plan_with_nthreads(nthreads);
 }
 
-void TSFFTW_set_timelimit(double seconds)
+void TSFFTW_set_timelimit(RFLOAT seconds)
 {
 	fftw_set_timelimit(seconds);
 }
