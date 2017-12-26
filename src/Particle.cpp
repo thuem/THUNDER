@@ -1043,22 +1043,6 @@ void Particle::resample(const int n,
 
         c(_topC, rank(0));
 
-        /***
-        if (n != 1)
-        {
-            REPORT_ERROR("ONLY KEEP ONE CLASS");
-            abort();
-        }
-
-        _nC = 1;
-
-        _c.resize(1);
-        _c(0) = _topC;
-        
-        _wC.resize(1);
-        _wC(0) = 1;
-        ***/
-
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
 
@@ -1090,12 +1074,22 @@ void Particle::resample(const int n,
             while (uj > cdf[i])
                 i++;
 
+#ifdef PARTICLE_CLASS_RESAMPLE_KEEP_ONLY_ONE
+
+            c(j) = _topC;
+
+            _wC(j) = 1.0 / _nC;
+
+#else
+
             c(j) = _c(i);
 
 #ifdef PARTICLE_PRIOR_ONE
             _wC(j) = 1.0 / _uC(i);
 #else
             _wC(j) = 1.0 / _nC;
+#endif
+
 #endif
         }
 
@@ -1247,7 +1241,6 @@ void Particle::resample(const int n,
                 i++;
 
             d(j) = _d(i);
-
 
 #ifdef PARTICLE_PRIOR_ONE
             _wD(j) = 1.0 / _uD(i);
