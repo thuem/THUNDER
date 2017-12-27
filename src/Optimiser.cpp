@@ -926,6 +926,7 @@ void Optimiser::expectation()
 
             unsigned int cls;
             _par[l].rand(cls);
+            _par[l].setNC(1);
             _par[l].setC(uvec::Constant(1, cls));
             _par[l].setWC(vec::Constant(1, 1));
             _par[l].setUC(vec::Constant(1, 1));
