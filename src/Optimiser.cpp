@@ -933,6 +933,9 @@ void Optimiser::expectation()
             //_par[l].setWC(vec::Constant(1, 1));
             //_par[l].setUC(vec::Constant(1, 1));
             
+            _par[l].calVari(PAR_R);
+            _par[l].calVari(PAR_T);
+
             /***
             _par[l].setC(uvec::Constant(_para.k, cls));
             _par[l].setWC(vec::Constant(_para.k, 1.0 / _para.k));
