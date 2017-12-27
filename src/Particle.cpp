@@ -1069,22 +1069,12 @@ void Particle::resample(const int n,
             while (uj > cdf[i])
                 i++;
 
-#ifdef PARTICLE_CLASS_RESAMPLE_KEEP_ONLY_ONE
-
-            c(j) = _topC;
-
-            _wC(j) = 1.0 / _nC;
-
-#else
-
             c(j) = _c(i);
 
 #ifdef PARTICLE_PRIOR_ONE
             _wC(j) = 1.0 / _uC(i);
 #else
             _wC(j) = 1.0 / _nC;
-#endif
-
 #endif
         }
 

@@ -921,6 +921,16 @@ void Optimiser::expectation()
                 save(filename, _par[l], PAR_D);
             }
 #endif
+
+#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
+
+            unsigned int cls;
+            _par[l].rand(cls);
+            _par[l].setC(uvec::Constant(1, cls));
+            _par[l].setWC(vec::Constant(1, 1));
+            _par[l].setUC(vec::Constant(1, 1));
+
+#endif
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
