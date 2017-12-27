@@ -926,11 +926,17 @@ void Optimiser::expectation()
 
             unsigned int cls;
             _par[l].rand(cls);
+
             _par[l].setNC(1);
             _par[l].setC(uvec::Constant(1, cls));
             _par[l].setWC(vec::Constant(1, 1));
             _par[l].setUC(vec::Constant(1, 1));
 
+            /***
+            _par[l].setC(uvec::Constant(_para.k, cls));
+            _par[l].setWC(vec::Constant(_para.k, 1.0 / _para.k));
+            _par[l].setUC(vec::Constant(_para.k, 1.0 / _para.k));
+            ***/
 #endif
         }
 
@@ -1046,7 +1052,12 @@ void Optimiser::expectation()
                     _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
             }
 
+#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
+            vec wC = vec::Zero(1);
+#else
             vec wC = vec::Zero(_para.k);
+#endif
+
             vec wR = vec::Zero(_para.mLR);
             vec wT = vec::Zero(_para.mLT);
             vec wD = vec::Zero(_para.mLD);
@@ -1195,8 +1206,13 @@ void Optimiser::expectation()
                 }
             }
 
+#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
+            _par[l].setUC(wC(0), 0);
+#else
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
+#endif
+
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
             for (int iT = 0; iT < _para.mLT; iT++)
@@ -1244,7 +1260,9 @@ void Optimiser::expectation()
             }
 #endif
 
+#ifndef OPTIMISER_KEEP_ONLY_ONE_CLASS
             _par[l].resample(_para.k, PAR_C);
+#endif
 
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
