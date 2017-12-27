@@ -1860,9 +1860,6 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
-
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Class Information";
-    saveClassInfo(true);
 }
 
 void Optimiser::clear()
@@ -4995,10 +4992,10 @@ void Optimiser::saveClassInfo(const bool finished) const
     for (int t = 0; t < _para.k; t++)
     {
         fprintf(file,
-               "%05d   %10.6lf   %10.6lf\n",
-               t,
-               1.0 / _model.resolutionA(t, _para.thresReportFSC),
-               _cDistr(t));
+                "%05d   %10.6lf   %10.6lf\n",
+                t,
+                1.0 / _model.resolutionA(t, _para.thresReportFSC),
+                _cDistr(t));
     }
 
     fclose(file);
