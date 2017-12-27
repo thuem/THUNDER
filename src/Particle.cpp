@@ -1766,6 +1766,8 @@ void Particle::rand(unsigned int& cls) const
 {
     gsl_rng* engine = get_random_engine();
 
+    if (_nC == 0) { REPORT_ERROR("_nC SHOULD NOT BE ZERO"); abort(); }
+
     size_t u = gsl_rng_uniform_int(engine, _nC);
 
     c(cls, u);
@@ -1774,6 +1776,8 @@ void Particle::rand(unsigned int& cls) const
 void Particle::rand(vec4& quat) const
 {
     gsl_rng* engine = get_random_engine();
+
+    if (_nR == 0) { REPORT_ERROR("_nR SHOULD NOT BE ZERO"); abort(); }
 
     size_t u = gsl_rng_uniform_int(engine, _nR);
 
@@ -1800,6 +1804,8 @@ void Particle::rand(vec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
 
+    if (_nT == 0) { REPORT_ERROR("_nT SHOULD NOT BE ZERO"); abort(); }
+
     size_t u = gsl_rng_uniform_int(engine, _nT);
 
     t(tran, u);
@@ -1808,6 +1814,8 @@ void Particle::rand(vec2& tran) const
 void Particle::rand(double& df) const
 {
     gsl_rng* engine = get_random_engine();
+
+    if (_nD == 0) { REPORT_ERROR("_nD SHOULD NOT BE ZERO"); abort(); }
 
     size_t u = gsl_rng_uniform_int(engine, _nD);
 
@@ -1823,16 +1831,6 @@ void Particle::rand(unsigned int& cls,
     rand(quat);
     rand(tran);
     rand(df);
-    /***
-    gsl_rng* engine = get_random_engine();
-
-    size_t u = gsl_rng_uniform_int(engine, _n);
-
-    c(cls, u);
-    quaternion(quat, u);
-    t(tran, u);
-    d(df, u);
-    ***/
 }
 
 void Particle::rand(unsigned int& cls,
