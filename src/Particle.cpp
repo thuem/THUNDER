@@ -22,8 +22,6 @@ Particle::Particle(const int mode,
                    const double transQ,
                    const Symmetry* sym)
 {
-    defaultInit();
-
     init(mode, nC, nR, nT, nD, transS, transQ, sym);
 }
 
@@ -38,6 +36,8 @@ void Particle::init(const int mode,
                     const Symmetry* sym)
 {
     clear();
+
+    defaultInit();
 
     _mode = mode;
 

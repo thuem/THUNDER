@@ -842,7 +842,6 @@ void Optimiser::expectation()
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
-
             if (_para.mode == MODE_2D)
             {
                 _par[l].setK1(GSL_MAX_DBL((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
@@ -927,11 +926,13 @@ void Optimiser::expectation()
             unsigned int cls;
             _par[l].rand(cls);
 
-            _par[l].setNC(1);
-            _par[l].setC(uvec::Constant(1, cls));
-            _par[l].setWC(vec::Constant(1, 1));
-            _par[l].setUC(vec::Constant(1, 1));
+            _par[l].reset(1, _para.mLR, _para.mLT, 1);
 
+            //_par[l].setNC(1);
+            _par[l].setC(uvec::Constant(1, cls));
+            //_par[l].setWC(vec::Constant(1, 1));
+            //_par[l].setUC(vec::Constant(1, 1));
+            
             /***
             _par[l].setC(uvec::Constant(_para.k, cls));
             _par[l].setWC(vec::Constant(_para.k, 1.0 / _para.k));
