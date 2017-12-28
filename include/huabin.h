@@ -50,12 +50,35 @@
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
-
 #include <fftw3.h>
-typedef double RFLOAT;
 
+/*
+gsl_fit_float_linear 
+gsl_ran_float_bivariate_gaussian ###
+gsl_ran_float_bivariate_gaussian_pdf ### 
+gsl_ran_float_dir_2d ###
+gsl_ran_float_dir_2d_trig_method ### 
+gsl_ran_float_dir_3d ### 
+gsl_ran_float_dir_nd ###
+gsl_sort_float
+gsl_stats_float_max
+gsl_stats_float_mean
+gsl_stats_float_min
+gsl_stats_float_quantile_from_sorted_data
+gsl_stats_float_sd
+gsl_stats_float_sd_m
+*/
+
+#ifdef USING_SINGLE_PRECISION
+typedef float RFLOAT;
+#define TSFFTW_COMPLEX fftwf_complex
+#define TSFFTW_PLAN fftwf_plan
+#else
+typedef double RFLOAT;
 #define TSFFTW_COMPLEX fftw_complex
 #define TSFFTW_PLAN fftw_plan
+#endif
+
 RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
 RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
 RFLOAT TSGSL_complex_abs2 (gsl_complex z);  /* return |z|^2 */
