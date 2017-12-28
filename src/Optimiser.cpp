@@ -48,6 +48,10 @@ void display(const OptimiserPara& para)
     printf("CTF Refine Standard Deviation                            %12.6lf\n", para.ctfRefineS);
 }
 ***/
+RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
+
+vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+
 
 Optimiser::~Optimiser()
 {
@@ -718,21 +722,13 @@ void Optimiser::expectation()
 
                 for (unsigned int n = 0; n < (unsigned int)nT; n++)
                 {
-                    /***
-                    mul(imgAll, imgRot, trans[n], _iPxl, _nPxl);
-
-                    Complex* priP = new Complex[_nPxl];
-
-                    for (int i = 0; i < _nPxl; i++)
-                        priP[i] = imgAll.iGetFT(_iPxl[i]);
-                    ***/
-
+                    
                     for (int i = 0; i < _nPxl; i++)
                         priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
 
                     // higher logDataVSPrior, higher prabibility
 
-                    vec dvp = logDataVSPrior(_datP,
+                    vec dvp = logDataVSPrior_m_n_huabin(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
@@ -1372,29 +1368,18 @@ void Optimiser::expectation()
                             RFLOAT w;
 
                             if (_searchType != SEARCH_TYPE_CTF)
-                                w = logDataVSPrior(_datP + l * _nPxl,
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
                                                    priAllP,
                                                    _ctfP + l * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             else
                             {
-                                w = logDataVSPrior(_datP + l * _nPxl,
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
                                                    priAllP,
                                                    ctfP + iD * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
-                                /***
-                                w = logDataVSPrior(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   _frequency,
-                                                   _defocusP + l * _nPxl,
-                                                   d,
-                                                   _K1[l],
-                                                   _K2[l],
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                                ***/
                             }
 
                             //if (TSGSL_isnan(baseLine)) baseLine = w;
@@ -5184,6 +5169,96 @@ void Optimiser::saveTau() const
 
     fclose(file);
 }
+
+
+/**
+ *  This function is add by huabin
+ */
+//Change by huabin doubleToRFLOAT
+RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+{
+
+//Change by huabin doubleToRFLOAT
+    RFLOAT result2 = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmpReal = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmpImag = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmp1Real = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmp1Imag = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmp2;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmp3;
+    for (int i = 0; i < m; i++)
+    {
+            
+        tmpReal = ctf[i] * pri[i].dat[0];
+        tmpImag = ctf[i] * pri[i].dat[1];
+        tmp1Real = dat[i].dat[0] - tmpReal;
+        tmp1Imag = dat[i].dat[1] - tmpImag;
+
+        tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
+        tmp3 = tmp2 * sigRcp[i];
+        
+        result2 += tmp3;
+
+    }
+
+    return result2;
+}
+
+/**
+ *  This function is add by huabin
+ */
+vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+{
+
+
+    vec result2 = vec::Zero(n);
+
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmpCPMulReal  = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmpCPMulImag  = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmpDSubCPReal = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmpDSubCPImag = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmp1          = 0.0;
+//Change by huabin doubleToRFLOAT
+    RFLOAT tmp2          = 0.0;
+
+
+    for(int i = 0; i < m; i ++)
+    {
+        for(int j = 0; j < n; j ++)
+        {
+            int idx       = i * n + j;
+            tmpCPMulReal  = ctf[idx] * pri[i].dat[0];
+            tmpCPMulImag  = ctf[idx] * pri[i].dat[1];
+
+            tmpDSubCPReal = dat[idx].dat[0] - tmpCPMulReal; //temp.real
+            tmpDSubCPImag = dat[idx].dat[1] - tmpCPMulImag;//temp.imag
+
+            tmp1          = tmpDSubCPReal * tmpDSubCPReal + tmpDSubCPImag * tmpDSubCPImag; //tmp1
+            tmp2          = tmp1 * sigRcp[idx];//temp2
+            result2(j)    += tmp2;//result2
+        }
+    }
+    
+    return result2;
+}
+
+
+
+
+
+
+
 
 RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
