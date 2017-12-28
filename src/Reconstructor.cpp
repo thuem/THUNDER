@@ -1191,7 +1191,11 @@ void Reconstructor::allReduceF()
                             MPI_SUM,
                             _hemi);
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     MPI_Barrier(_hemi);
 }

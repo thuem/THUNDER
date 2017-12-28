@@ -464,7 +464,20 @@ void Optimiser::init()
             ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
             BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
 
-            allReduceSigma(false);
+            if (_para.k == 1)
+            {
+#ifdef OPTIMISER_SIGMA_MASK
+                allReduceSigma(true, false);
+#else
+                // refinement, focus on avoiding over-refinement
+                allReduceSigma(false, false);
+#endif
+            }
+            else
+            {
+                // classification, focus on searching for difference
+                allReduceSigma(true, false);
+            }
         }
     }
 
@@ -1453,7 +1466,20 @@ void Optimiser::maximization()
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
-    allReduceSigma(_para.groupSig);
+    if (_para.k == 1)
+    {
+#ifdef OPTIMISER_SIGMA_MASK
+        allReduceSigma(true, _para.groupSig);
+#else
+        // refinement, focus on avoiding over-refinement
+        allReduceSigma(false, _para.groupSig);
+#endif
+    }
+    else
+    {
+        // classification, focus on searching for difference
+        allReduceSigma(true, _para.groupSig);
+    }
 #endif
 
 #ifdef OPTIMISER_CORRECT_SCALE
@@ -3552,7 +3578,8 @@ void Optimiser::normCorrection()
     }
 }
 
-void Optimiser::allReduceSigma(const bool group)
+void Optimiser::allReduceSigma(const bool mask,
+                               const bool group)
 {
     IF_MASTER return;
 
@@ -3612,11 +3639,10 @@ void Optimiser::allReduceSigma(const bool group)
                 _par[l].rank1st(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-#ifdef OPTIMISER_SIGMA_MASK
-                _model.proj(cls).project(img, rot2D, tran);
-#else
-                _model.proj(cls).project(img, rot2D, tran - _offset[l]);
-#endif
+                if (mask)
+                    _model.proj(cls).project(img, rot2D, tran);
+                else
+                    _model.proj(cls).project(img, rot2D, tran - _offset[l]);
 #else
                 _model.proj(cls).project(img, rot2D, tran);
 #endif
@@ -3626,29 +3652,14 @@ void Optimiser::allReduceSigma(const bool group)
                 _par[l].rank1st(cls, rot3D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-#ifdef OPTIMISER_SIGMA_MASK
-                _model.proj(cls).project(img, rot3D, tran);
-#else
-                _model.proj(cls).project(img, rot3D, tran - _offset[l]);
-#endif
+                if (mask)
+                    _model.proj(cls).project(img, rot3D, tran);
+                else
+                    _model.proj(cls).project(img, rot3D, tran - _offset[l]);
 #else
                 _model.proj(cls).project(img, rot3D, tran);
 #endif
             }
-
-            /***
-            double weight = logDataVSPrior(_img[l],
-                                           img,
-                                           _ctf[l],
-                                           _sigRcp.row(_groupID[l] - 1).transpose(),
-                                           _r,
-                                           2.5);
-
-            ALOG(INFO, "LOGGER_SYS") << "_ID = "
-                                     << _ID[l]
-                                     << ", Final dataVSPrior = "
-                                     << exp(weight);
-                                     ***/
 
             if (_searchType != SEARCH_TYPE_CTF)
             {
@@ -3672,11 +3683,10 @@ void Optimiser::allReduceSigma(const bool group)
 
             NEG_FT(img);
 
-#ifdef OPTIMISER_SIGMA_MASK
-            ADD_FT(img, _img[l]);
-#else
-            ADD_FT(img, _imgOri[l]);
-#endif
+            if (mask)
+                ADD_FT(img, _img[l]);
+            else
+                ADD_FT(img, _imgOri[l]);
 
             powerSpectrum(sig, img, rSig);
 
