@@ -932,7 +932,7 @@ void Particle::perturb(const double pf,
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, vec4(1, 0, 0, 0), _k1 * pf, _nR);
+            sampleVMS(d, vec4(1, 0, 0, 0), GSL_MIN_DBL(1, _k1 * pf), _nR);
 
             vec4 quat;
 
