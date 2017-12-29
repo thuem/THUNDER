@@ -3618,6 +3618,8 @@ void Optimiser::allReduceSigma(const bool mask,
     #pragma omp parallel for private(cls, rot2D, rot3D, tran, d) schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
+        for (int m = 0; m < _para.mReco; m++)
+        {
             /***
             double w;
 
@@ -3637,7 +3639,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].rank1st(cls, rot2D, tran, d);
+                _par[l].rand(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 if (mask)
@@ -3650,7 +3652,7 @@ void Optimiser::allReduceSigma(const bool mask,
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].rank1st(cls, rot3D, tran, d);
+                _par[l].rand(cls, rot3D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 if (mask)
@@ -3711,6 +3713,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
                 omp_unset_lock(&mtx[0]);
             }
+        }
     }
 
     delete[] mtx;
