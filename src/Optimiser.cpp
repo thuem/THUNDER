@@ -4236,13 +4236,6 @@ void Optimiser::solventFlatten(const bool mask)
                      _para.size / 2,
                      _para.maskRadius / _para.pixelSize);
 
-        /***
-        bgMeanStddev(bgMean,
-                     bgStddev,
-                     _model.ref(t),
-                     _para.maskRadius / _para.pixelSize);
-        ***/
-
         ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
                                    << t
                                    << ": "
@@ -4324,10 +4317,34 @@ void Optimiser::solventFlatten(const bool mask)
             }
             else if (_para.mode == MODE_3D)
             {
+#ifdef OPTIMISER_SOLVENT_FLATTEN_LOW_PASS_MASK
+
+                fft.fwMT(_mask);
+                _mask.clearRL();
+
+                Volume lowPassMask(_para.size, _para.size, _para.size, FT_SPACE);
+
+                lowPassFilter(lowPassMask,
+                              _mask,
+                              (double)_r / _para.size,
+                              (double)EDGE_WIDTH_FT / _para.size);
+
+                fft.bwMT(lowPassMask);
+
+#ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
+                softMask(_model.ref(t), _model.ref(t), lowPassMask, 0);
+#else
+                softMask(_model.ref(t), _model.ref(t), lowPassMask);
+#endif
+
+#else
+                
 #ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
                 softMask(_model.ref(t), _model.ref(t), _mask, 0);
 #else
                 softMask(_model.ref(t), _model.ref(t), _mask);
+#endif
+
 #endif
             }
             else

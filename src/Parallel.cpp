@@ -255,9 +255,13 @@ void MPI_Bcast_Large(void* buf,
 
         MPI_Barrier(comm);
 
+#ifdef VERBOSE_LEVEL_2
+
         if (nBlock != 1)
             CLOG(INFO, "LOGGER_MPI") << "MPI_Bcast_Large: Transmitting Block "
                                      << i;
+
+#endif
 
         MPI_Bcast(ptr,
                   blockSize,
@@ -300,9 +304,13 @@ void MPI_Allreduce_Large(void* buf,
 
         MPI_Barrier(comm);
         
+#ifdef VERBOSE_LEVEL_2
+
         if (nBlock != 1)
             CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting Block "
                                      << i;
+
+#endif
 
         MPI_Allreduce(MPI_IN_PLACE,
                       ptr,
