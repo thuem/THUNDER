@@ -437,9 +437,28 @@ Complex Image::getFTHalf(const double w[2][2],
                          const int x0[2]) const
 {
     Complex result = COMPLEX(0, 0);
-    FOR_CELL_DIM_2 result += getFTHalf(x0[0] + i,
-                                       x0[1] + j)
-                           * w[j][i];
+
+    if (x0[1] != -1)
+    {
+        size_t index0 = iFTHalf(x0[0], x0[1]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
+
+            result += _dataFT[index] * ((double*)w)[i];
+        }
+    }
+    else
+    {
+        FOR_CELL_DIM_2 result += getFTHalf(x0[0] + i,
+                                           x0[1] + j)
+                               * w[j][i];
+    }
     return result;
 }
 
@@ -447,18 +466,56 @@ void Image::addFTHalf(const Complex value,
                       const double w[2][2],
                       const int x0[2])
 {
-    FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
-                             x0[0] + i,
-                             x0[1] + j);
-                             
+    if (x0[1] != -1)
+    {
+        size_t index0 = iFTHalf(x0[0], x0[1]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
+
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value.dat[0] * ((double*)w)[i];
+            #pragma omp atomic
+            _dataFT[index].dat[1] += value.dat[1] * ((double*)w)[i];
+        }
+    }
+    else
+    {
+        FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
+                                 x0[0] + i,
+                                 x0[1] + j);
+    }
 }
 
 void Image::addFTHalf(const double value,
                       const double w[2][2],
                       const int x0[2])
 {
-    FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
-                             x0[0] + i,
-                             x0[1] + j);
-                             
+    if (x0[1] != -1)
+    {
+        size_t index0 = iFTHalf(x0[0], x0[1]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
+
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value * ((double*)w)[i];
+        }
+    }
+    else
+    {
+        FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
+                                 x0[0] + i,
+                                 x0[1] + j);
+    }
 }
