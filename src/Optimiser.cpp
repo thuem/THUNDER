@@ -1536,27 +1536,27 @@ void Optimiser::run()
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
                                        << _iter
-                                       << ", Search Type : Global Search";
+                                       << " ) : Global Search";
         }
         else if (_searchType == SEARCH_TYPE_LOCAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
                                        << _iter
-                                       << ", Search Type : Local Search";
+                                       << " ) : Local Search";
         }
         else if (_searchType == SEARCH_TYPE_CTF)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
                                        << _iter
-                                       << ", Search Type : CTF Refine";
+                                       << " ) : CTF Search";
         }
         else
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
                                        << _iter
-                                       << ", Search Type : Stop Search";
+                                       << " ) : Stop Search";
 
             MLOG(INFO, "LOGGER_ROUND") << "Exitting Searching";
 
@@ -1625,14 +1625,14 @@ void Optimiser::run()
 
         refreshVariance();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Rotation Variance ( Round "
                                    << _iter
-                                   << ", Rotation Variance : "
+                                   << " ) : "
                                    << _model.rVari();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Translation Variance ( Round "
                                    << _iter
-                                   << ", Translation Variance : "
+                                   << " ) : "
                                    << _model.tVariS0()
                                    << ", "
                                    << _model.tVariS1();
@@ -1726,9 +1726,9 @@ void Optimiser::run()
 
         _resReport = _model.resolutionP(_para.thresReportFSC, false);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution for Report, ( Round "
                                    << _iter
-                                   << ", Current Resolution (Report): "
+                                   << " ) : "
                                    << _resReport
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_resReport, _para.size, _para.pixelSize)
@@ -1738,9 +1738,9 @@ void Optimiser::run()
 
         _resCutoff = _model.resolutionP(_para.thresCutoffFSC, false);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution for Cutoff, ( Round "
                                    << _iter
-                                   << ", Current Resolution (Cutoff): "
+                                   << " ) : "
                                    << _resCutoff
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_resCutoff, _para.size, _para.pixelSize)
