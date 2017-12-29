@@ -1390,7 +1390,11 @@ void Model::updateRU()
     _rU = maxR();
 #else
 
-    _rU = GSL_MIN_INT(_r + AROUND((double)maxR() / 3), maxR());
+    // _rU = GSL_MIN_INT(_r + AROUND((double)maxR() / 3), maxR());
+
+    _rU = (_searchType == SEARCH_TYPE_GLOBAL)
+        ? GSL_MIN_INT(_r + AROUND((double)maxR() / 3), maxR())
+        : maxR();
 
     /***
     _rU = GSL_MIN_INT(_r
