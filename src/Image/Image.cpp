@@ -27,6 +27,11 @@ void Image::swap(Image& that)
 
     std::swap(_nCol, that._nCol);
     std::swap(_nRow, that._nRow);
+
+    std::swap(_nColFT, that._nColFT);
+
+    FOR_CELL_DIM_2
+        std::swap(_box[j][i], that._box[j][i]);
 }
 
 Image Image::copyImage() const
@@ -37,6 +42,11 @@ Image Image::copyImage() const
 
     out._nCol = _nCol;
     out._nRow = _nRow;
+
+    out._nColFT = _nColFT;
+
+    FOR_CELL_DIM_2
+        out._box[j][i] = _box[j][i];
 
     return out;
 }
@@ -89,6 +99,8 @@ void Image::alloc(const int nCol,
         _dataFT = (Complex*)fftw_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
+
+    initBox();
 }
 
 void Image::saveRLToBMP(const char* filename) const
@@ -385,6 +397,24 @@ void Image::addFT(const double value,
     WG_BI_INTERP_LINEAR(w, x0, x);
 
     addFTHalf(value, w, x0);
+}
+
+void Image::clear()
+{
+    ImageBase::clear();
+
+    _nCol = 0;
+    _nRow = 0;
+
+    _nColFT = 0;
+}
+
+void Image::initBox()
+{
+    _nColFT = _nCol / 2 + 1;
+
+    FOR_CELL_DIM_2
+        _box[j][i] = j * _nColFT + i;
 }
 
 void Image::coordinatesInBoundaryRL(const int iCol,
