@@ -146,10 +146,14 @@ void MPI_Recv_Large(void* buf,
 
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
+#ifdef VERBOSE_LEVEL_2
+
     if (nBlock != 1)
         CLOG(INFO, "LOGGER_MPI") << "MPI_Recv_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+
+#endif
 
     char* ptr = static_cast<char*>(buf);
 
@@ -191,10 +195,14 @@ void MPI_Ssend_Large(const void* buf,
 
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
+#ifdef VERBOSE_LEVEL_2
+
     if (nBlock != 1)
         CLOG(INFO, "LOGGER_MPI") << "MPI_Ssend_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+
+#endif
 
     const char* ptr = static_cast<const char*>(buf);
 
@@ -227,10 +235,14 @@ void MPI_Bcast_Large(void* buf,
 
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
+#ifdef VERBOSE_LEVEL_2
+
     if (nBlock != 1)
         CLOG(INFO, "LOGGER_MPI") << "MPI_Bcast_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+
+#endif
 
     char* ptr = static_cast<char*>(buf);
 
@@ -257,23 +269,6 @@ void MPI_Bcast_Large(void* buf,
     }
 }
 
-/***
-void MPI_Allreduce_Large(const void* sendbuf,
-                         void* recvbuf,
-                         size_t count,
-                         MPI_Datatype datatype,
-                         MPI_Op op,
-                         MPI_Comm comm)
-{
-    MPI_Allreduce(sendbuf,
-                  recvbuf,
-                  count,
-                  datatype,
-                  op,
-                  comm);
-}
-***/
-
 void MPI_Allreduce_Large(void* buf,
                          size_t count,
                          MPI_Datatype datatype,
@@ -285,14 +280,14 @@ void MPI_Allreduce_Large(void* buf,
 
     int nBlock = (count - 1) / (MPI_MAX_BUF / dataTypeSize) + 1;
 
-    //CLOG(INFO, "LOGGER_MPI") << "count = " << count;
-    //CLOG(INFO, "LOGGER_MPI") << "MPI_MAX_BUF = " << MPI_MAX_BUF;
-    //CLOG(INFO, "LOGGER_MPI") << "dataTypeSize = " << dataTypeSize;
+#ifdef VERBOSE_LEVEL_2
 
     if (nBlock != 1)
         CLOG(INFO, "LOGGER_MPI") << "MPI_Allreduce_Large: Transmitting "
                                  << nBlock
                                  << " Block(s).";
+
+#endif
 
     char* ptr = static_cast<char*>(buf);
 
