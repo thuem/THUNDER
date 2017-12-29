@@ -134,22 +134,17 @@ void Particle::reset()
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
     // sample from 2D Gaussian Distribution
     for (int i = 0; i < _nT; i++)
-        gsl_ran_bivariate_gaussian(engine,
-                                   _transS,
-                                   _transS,
-                                   0,
-                                   &_t(i, 0),
-                                   &_t(i, 1));
+        TSGSL_ran_bivariate_gaussian(engine, _transS, _transS, 0, &_t(i, 0), &_t(i, 1));
 #endif
 
 #ifdef PARTICLE_TRANS_INIT_FLAT
     // sample for 2D Flat Distribution in a Square
     for (int i = 0; i < _nT; i++)
     {
-        _t(i, 0) = gsl_ran_flat(engine,
+        _t(i, 0) = TSGSL_ran_flat(engine,
                                 -TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS,
                                 TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS);
-        _t(i, 1) = gsl_ran_flat(engine,
+        _t(i, 1) = TSGSL_ran_flat(engine,
                                 -TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS,
                                 TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS);
     }
@@ -484,7 +479,7 @@ void Particle::load(const int nR,
 
     for (int i = 0; i < _nT; i++)
     {
-       gsl_ran_bivariate_gaussian(engine,
+       TSGSL_ran_bivariate_gaussian(engine,
                                   _s0,
                                   _s1,
                                   0,
@@ -2077,7 +2072,7 @@ void Particle::reCentre()
         {
             // _t.row(i) *= transM / NORM(_t(i, 0), _t(i, 1));
 
-            gsl_ran_bivariate_gaussian(engine,
+            TSGSL_ran_bivariate_gaussian(engine,
                                        _transS,
                                        _transS,
                                        0,

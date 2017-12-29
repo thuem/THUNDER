@@ -19,7 +19,9 @@
 *.thubox
 
 *.sh
-
+*bak
+cscope*
+*.orig
 .dirstamp
 .deps/
 tmp/

@@ -226,7 +226,9 @@ int main(int argc, char* argv[])
         {
             FFT fftThread;
 
-            gsl_rng* engine = get_random_engine();
+            /*
+             *gsl_rng* engine = get_random_engine();
+             */
 
             char name[256];
 

@@ -50,7 +50,12 @@
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
-#include <fftw3.h>
+
+#ifdef USING_SINGLE_PRECISION
+#include <fftw3float/fftw3.h>
+#else
+#include <fftw3double/fftw3.h>
+#endif
 
 /*
 gsl_fit_float_linear 
@@ -69,20 +74,37 @@ gsl_stats_float_sd
 gsl_stats_float_sd_m
 */
 
+
+#define USING_SINGLE_PRECISION 1
+
+
+
 #ifdef USING_SINGLE_PRECISION
 typedef float RFLOAT;
 #define TSFFTW_COMPLEX fftwf_complex
 #define TSFFTW_PLAN fftwf_plan
+#define TS_MPI_DOUBLE MPI_FLOAT
+#define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
+typedef struct _complex_float_t
+{
+    float dat[2];
+}Complex;
 #else
 typedef double RFLOAT;
 #define TSFFTW_COMPLEX fftw_complex
 #define TSFFTW_PLAN fftw_plan
-#endif
+#define TS_MPI_DOUBLE MPI_DOUBLE
+#define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
+typedef struct _complex_float_t
+{
+    double dat[2];
+}Complex;
 
+#endif
 
 RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
 RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
-RFLOAT TSGSL_complex_abs2 (gsl_complex z);  /* return |z|^2 */
+RFLOAT TSGSL_complex_abs2 (Complex z);  /* return |z|^2 */
 int TSGSL_isinf (const RFLOAT x);
 int TSGSL_isnan (const RFLOAT x);
 RFLOAT TSGSL_pow_2(const RFLOAT x);

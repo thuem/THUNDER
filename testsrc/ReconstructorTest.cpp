@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 
     SET_1_FT(ctf);
 
-    Reconstructor reconstructor(MODE_2D, N, 2, NULL);
+    Reconstructor reconstructor(MODE_2D, N, 2, 0);
 
     reconstructor.setMPIEnv();
 

@@ -27,7 +27,9 @@ using namespace Eigen;
 
 typedef unsigned long size_t;
 
-typedef gsl_complex Complex;
+/*
+ *typedef gsl_complex Complex;
+ */
 
 typedef Matrix<RFLOAT, Dynamic, Dynamic> mat;
 typedef Matrix<RFLOAT, Dynamic, 1> vec;

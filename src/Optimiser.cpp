@@ -2524,13 +2524,13 @@ void Optimiser::statImg()
 
     MPI_Barrier(_hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, &_mean, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_mean, 1, TS_MPI_DOUBLE, MPI_SUM, _hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, &_stdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_stdN, 1, TS_MPI_DOUBLE, MPI_SUM, _hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, &_stdD, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_stdD, 1, TS_MPI_DOUBLE, MPI_SUM, _hemi);
 
-    MPI_Allreduce(MPI_IN_PLACE, &_stdStdN, 1, MPI_DOUBLE, MPI_SUM, _hemi);
+    MPI_Allreduce(MPI_IN_PLACE, &_stdStdN, 1, TS_MPI_DOUBLE, MPI_SUM, _hemi);
 
     MPI_Barrier(_hemi);
 
@@ -2781,7 +2781,7 @@ void Optimiser::initSigma()
     MPI_Allreduce(MPI_IN_PLACE,
                   &avg[0],
                   avg.sizeFT(),
-                  MPI_DOUBLE_COMPLEX,
+                  TS_MPI_DOUBLE_COMPLEX,
                   MPI_SUM,
                   _hemi);
 
@@ -2815,11 +2815,12 @@ void Optimiser::initSigma()
     MPI_Allreduce(MPI_IN_PLACE,
                   avgPs.data(),
                   maxR(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
-
+    
     MPI_Barrier(_hemi);
+
 
     avgPs /= _N;
 
@@ -2884,7 +2885,7 @@ void Optimiser::avgStdR(RFLOAT& stdR)
     MPI_Allreduce(MPI_IN_PLACE,
                  &stdR,
                  1,
-                 MPI_DOUBLE,
+                 TS_MPI_DOUBLE,
                  MPI_SUM,
                  _hemi);
 
@@ -2908,7 +2909,7 @@ void Optimiser::avgStdT(RFLOAT& stdT)
     MPI_Allreduce(MPI_IN_PLACE,
                   &stdT,
                   1,
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
@@ -3012,14 +3013,14 @@ void Optimiser::refreshRotationChange()
     MPI_Allreduce(MPI_IN_PLACE,
                   &mean,
                   1,
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &std,
                   1,
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
@@ -3054,14 +3055,14 @@ void Optimiser::refreshRotationChange()
         }
     }
 
+
     MPI_Allreduce(MPI_IN_PLACE,
                   rc.data(),
                   rc.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD); 
-
-    /***
+/***
     int nNoZero = 0;
     for (int i = 0; i < _nPar; i++)
         if (rc(i) != 0)
@@ -3109,7 +3110,7 @@ void Optimiser::refreshClassDistr()
     MPI_Allreduce(MPI_IN_PLACE,
                   _cDistr.data(),
                   _cDistr.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
@@ -3162,21 +3163,21 @@ void Optimiser::refreshVariance()
     MPI_Allreduce(MPI_IN_PLACE,
                   rv.data(),
                   rv.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
     MPI_Allreduce(MPI_IN_PLACE,
                   t0v.data(),
                   t0v.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
     MPI_Allreduce(MPI_IN_PLACE,
                   t1v.data(),
                   t1v.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
@@ -3372,17 +3373,16 @@ void Optimiser::refreshScale(const bool coord,
     MPI_Allreduce(MPI_IN_PLACE,
                   mXA.data(),
                   mXA.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mAA.data(),
                   mAA.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD);
-
     if (group)
     {
         for (int i = 0; i < _nGroup; i++)
@@ -3640,10 +3640,10 @@ void Optimiser::normCorrection()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MPI_Allreduce(MPI_IN_PLACE,
+     MPI_Allreduce(MPI_IN_PLACE,
                   norm.data(),
                   norm.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD); 
 
@@ -3893,17 +3893,18 @@ void Optimiser::allReduceSigma(const bool group)
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
+    
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.data(),
                   rSig * _nGroup,
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   _sig.col(_sig.cols() - 1).data(),
                   _nGroup,
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
@@ -5007,7 +5008,7 @@ void Optimiser::saveMapJoin(const bool finished)
 
                 MPI_Recv_Large(&A[0],
                                A.sizeFT(),
-                               MPI_DOUBLE_COMPLEX,
+                               TS_MPI_DOUBLE_COMPLEX,
                                HEMI_A_LEAD,
                                l,
                                MPI_COMM_WORLD);
@@ -5016,7 +5017,7 @@ void Optimiser::saveMapJoin(const bool finished)
 
                 MPI_Recv_Large(&B[0],
                                B.sizeFT(),
-                               MPI_DOUBLE_COMPLEX,
+                               TS_MPI_DOUBLE_COMPLEX,
                                HEMI_B_LEAD,
                                l,
                                MPI_COMM_WORLD);
@@ -5044,7 +5045,7 @@ void Optimiser::saveMapJoin(const bool finished)
 
                     MPI_Ssend_Large(&_model.ref(l)[0],
                                     _model.ref(l).sizeFT(),
-                                    MPI_DOUBLE_COMPLEX,
+                                    TS_MPI_DOUBLE_COMPLEX,
                                     MASTER_ID,
                                     l,
                                     MPI_COMM_WORLD);

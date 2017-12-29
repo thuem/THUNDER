@@ -180,7 +180,6 @@ void ImageBase::copyBase(ImageBase& other) const
         #pragma omp critical
 #endif
         other._dataFT = (Complex*)TSFFTW_malloc(_sizeFT * sizeof(Complex));
-        
         memcpy(other._dataFT, _dataFT, _sizeFT * sizeof(Complex));
 #endif
     }

@@ -214,9 +214,16 @@ RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma)
     return gsl_cdf_gaussian_Qinv(Q, sigma);
 }
 
-RFLOAT TSGSL_complex_abs2 (gsl_complex z)
+RFLOAT TSGSL_complex_abs2 (Complex z)
 {
-    return gsl_complex_abs2(z); 
+    RFLOAT x = z.dat[0];
+    RFLOAT y = z.dat[1];
+
+    return (x * x + y * y);
+
+    /*
+     *return gsl_complex_abs2(z); 
+     */
 }
 
 int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, const size_t ystride, const size_t n, RFLOAT * c0, RFLOAT * c1, RFLOAT * cov00, RFLOAT * cov01, RFLOAT * cov11, RFLOAT * sumsq)
@@ -399,7 +406,7 @@ RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t 
 RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n)
 {
 #ifdef USING_SINGLE_PRECISION
-    return gsl_stat_float_min(data, stride, n);
+    return gsl_stats_float_min(data, stride, n);
 #else
     return gsl_stats_min ( data,  stride,  n);
 #endif
@@ -495,17 +502,17 @@ void TSFFTW_execute_dft_c2r( const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *ou
 void *TSFFTW_malloc(size_t n)
 {
 #ifdef USING_SINGLE_PRECISION
-	return fftwf_malloc(n);
+    return fftwf_malloc(n);
 #else
-	return fftw_malloc(n);
+    return fftw_malloc(n);
 #endif
 }
 void TSFFTW_free(void *p)
 {
 #ifdef USING_SINGLE_PRECISION
-	fftwf_free(p);
+    fftwf_free(p);
 #else
-	fftw_free(p);
+    fftw_free(p);
 #endif
 }
 

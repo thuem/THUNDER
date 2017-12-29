@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(thuem)
 
+set(USING_SINGLE_PRECISION "yes")
+
 set (COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 set (CMAKE_C_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing")
 set (CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
@@ -9,6 +11,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE Release)
 endif()
 
+#message(FATAL_ERROR "USING SINGLE PRECISION:${USING_SINGLE_PRECISION}")
 option (SANITIZE "Turn on sanitization" OFF)
 if (SANITIZE)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
@@ -23,7 +26,29 @@ if (SHENWEI)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-find_package(FFTW REQUIRED)
+
+#This line is commented by huabin
+#find_package(FFTW REQUIRED)
+
+#########################################################################
+#Following lines are added by huabin
+if(USING_SINGLE_PRECISION STREQUAL "yes")
+    find_path (FFTW_INCLUDES fftw3float/fftw3.h)
+    find_library (FFTWOMP_LIBRARIES NAMES fftw3f_threads fftw3f)
+    find_library (FFTW_LIBRARIES NAMES fftw3f)
+else()
+    find_path (FFTW_INCLUDES fftw3double/fftw3.h)
+    find_library (FFTWOMP_LIBRARIES NAMES fftw3_threads fftw3)
+    find_library (FFTW_LIBRARIES NAMES fftw3)
+endif()
+# handle the QUIETLY and REQUIRED arguments and set FFTW_FOUND to TRUE if
+# all listed variables are TRUE
+include (FindPackageHandleStandardArgs)
+find_package_handle_standard_args (FFTW DEFAULT_MSG FFTW_LIBRARIES FFTWOMP_LIBRARIES FFTW_INCLUDES)
+find_package_handle_standard_args (FFTW DEFAULT_MSG FFTWOMP_LIBRARIES FFTW_INCLUDES)
+mark_as_advanced (FFTW_LIBRARIES FFTWOMP_LIBRARIES FFTW_INCLUDES)
+##############################################################################
+
 find_package(GSL REQUIRED)
 
 if (NOT SHENWEI)

@@ -355,7 +355,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
             MPI_Recv_Large(&A[0],
                            A.sizeFT(),
-                           MPI_DOUBLE_COMPLEX,
+                           TS_MPI_DOUBLE_COMPLEX,
                            HEMI_A_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -364,7 +364,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
             MPI_Recv_Large(&B[0],
                            B.sizeFT(),
-                           MPI_DOUBLE_COMPLEX,
+                           TS_MPI_DOUBLE_COMPLEX,
                            HEMI_B_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -630,14 +630,14 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 #ifdef MODEL_SWAP_HEMISPHERE
                 MPI_Ssend_Large(&B[0],
                                 A.sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 HEMI_A_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
 #else
                 MPI_Ssend_Large(&A[0],
                                 A.sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 HEMI_A_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
@@ -654,14 +654,14 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 #ifdef MODEL_SWAP_HEMISPHERE
                 MPI_Ssend_Large(&A[0],
                                 B.sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 HEMI_B_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
 #else
                 MPI_Ssend_Large(&B[0],
                                 B.sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 HEMI_B_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
@@ -709,7 +709,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                 MPI_Ssend_Large(&_ref[l][0],
                                 _ref[l].sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 MASTER_ID,
                                 l,
                                 MPI_COMM_WORLD);
@@ -722,7 +722,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     MPI_Recv_Large(&_ref[l][0],
                                    _ref[l].sizeFT(),
-                                   MPI_DOUBLE_COMPLEX,
+                                   TS_MPI_DOUBLE_COMPLEX,
                                    MASTER_ID,
                                    l,
                                    MPI_COMM_WORLD);
@@ -740,7 +740,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
                 MPI_Bcast_Large(&_ref[l][0],
                                 _ref[l].sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 0,
                                 _hemi);
             }
@@ -750,7 +750,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
                 MPI_Bcast_Large(&_ref[l][0],
                                 _ref[l].sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 0,
                                 _hemi);
             }
@@ -770,7 +770,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
         MPI_Bcast(_FSC.data(),
                   _FSC.size(),
-                  MPI_DOUBLE,
+                  TS_MPI_DOUBLE,
                   MASTER_ID,
                   MPI_COMM_WORLD);
 
@@ -1551,7 +1551,7 @@ void Model::avgHemi()
 
             MPI_Recv_Large(&A[0],
                            A.sizeFT(),
-                           MPI_DOUBLE_COMPLEX,
+                           TS_MPI_DOUBLE_COMPLEX,
                            HEMI_A_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -1560,7 +1560,7 @@ void Model::avgHemi()
 
             MPI_Recv_Large(&B[0],
                            B.sizeFT(),
-                           MPI_DOUBLE_COMPLEX,
+                           TS_MPI_DOUBLE_COMPLEX,
                            HEMI_B_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -1584,7 +1584,7 @@ void Model::avgHemi()
 
                 MPI_Ssend_Large(&_ref[l][0],
                                 _ref[l].sizeFT(),
-                                MPI_DOUBLE_COMPLEX,
+                                TS_MPI_DOUBLE_COMPLEX,
                                 MASTER_ID,
                                 l,
                                 MPI_COMM_WORLD);

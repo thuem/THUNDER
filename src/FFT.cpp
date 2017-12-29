@@ -24,13 +24,7 @@ FFT::~FFT() {}
 void FFT::fw(Image& img)
 {
     FW_EXTRACT_P(img);
-    /***
-    img.alloc(FT_SPACE);
-    _dstC = (TSFFTW_COMPLEX*)&img[0];
-    _srcR = &img(0);
-    CHECK_SPACE_VALID(_dstC, _srcR);
-    ***/
-
+    
     #pragma omp critical
     fwPlan = TSFFTW_plan_dft_r2c_2d(img.nRowRL(),
                                   img.nColRL(),
@@ -46,13 +40,7 @@ void FFT::fw(Image& img)
 void FFT::bw(Image& img)
 {
     BW_EXTRACT_P(img);
-    /***
-    img.alloc(RL_SPACE);
-    _dstR = &img(0);
-    _srcC = (TSFFTW_COMPLEX*)&img[0];
-    CHECK_SPACE_VALID(_dstR, _srcC);
-    ***/
-
+   
     #pragma omp critical
     bwPlan = TSFFTW_plan_dft_c2r_2d(img.nRowRL(),
                                   img.nColRL(),
@@ -245,7 +233,7 @@ void FFT::fwCreatePlan(const int nCol,
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
-    fwPlan = fftw_plan_dft_r2c_2d(nRow,
+    fwPlan = TSFFTW_plan_dft_r2c_2d(nRow,
                                   nCol,
                                   _srcR,
                                   _dstC,
@@ -262,7 +250,7 @@ void FFT::fwCreatePlan(const int nCol,
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
-    fwPlan = fftw_plan_dft_r2c_3d(nRow,
+    fwPlan = TSFFTW_plan_dft_r2c_3d(nRow,
                                   nCol,
                                   nSlc,
                                   _srcR,
@@ -282,7 +270,7 @@ void FFT::bwCreatePlan(const int nCol,
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
 
     #pragma omp critical
-    bwPlan = fftw_plan_dft_c2r_2d(nRow,
+    bwPlan = TSFFTW_plan_dft_c2r_2d(nRow,
                                   nCol,
                                   _srcC,
                                   _dstR,
@@ -300,7 +288,7 @@ void FFT::bwCreatePlan(const int nCol,
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
     #pragma omp critical
-    bwPlan = fftw_plan_dft_c2r_3d(nRow,
+    bwPlan = TSFFTW_plan_dft_c2r_3d(nRow,
                                   nCol,
                                   nSlc,
                                   _srcC,
@@ -321,7 +309,7 @@ void FFT::fwCreatePlanMT(const int nCol,
 
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
 
-    fwPlan = fftw_plan_dft_r2c_2d(nRow,
+    fwPlan = TSFFTW_plan_dft_r2c_2d(nRow,
                                   nCol,
                                   _srcR,
                                   _dstC,
@@ -342,7 +330,7 @@ void FFT::fwCreatePlanMT(const int nCol,
 
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
 
-    fwPlan = fftw_plan_dft_r2c_3d(nRow,
+    fwPlan = TSFFTW_plan_dft_r2c_3d(nRow,
                                   nCol,
                                   nSlc,
                                   _srcR,
@@ -365,7 +353,7 @@ void FFT::bwCreatePlanMT(const int nCol,
  
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
 
-    bwPlan = fftw_plan_dft_c2r_2d(nRow,
+    bwPlan = TSFFTW_plan_dft_c2r_2d(nRow,
                                   nCol,
                                   _srcC,
                                   _dstR,
@@ -386,7 +374,7 @@ void FFT::bwCreatePlanMT(const int nCol,
 
     TSFFTW_plan_with_nthreads(omp_get_max_threads());
 
-    bwPlan = fftw_plan_dft_c2r_3d(nRow,
+    bwPlan = TSFFTW_plan_dft_c2r_3d(nRow,
                                   nCol,
                                   nSlc,
                                   _srcC,
@@ -399,54 +387,58 @@ void FFT::bwCreatePlanMT(const int nCol,
     TSFFTW_free(_dstR);
 }
 
-void FFT::fwExecutePlan(Image& img)
-{
-    FW_EXTRACT_P(img);
-
-    TSFFTW_execute_dft_r2c(fwPlan, _srcR, _dstC);
-
-    _srcR = NULL;
-    _dstC = NULL;
-}
-
-void FFT::fwExecutePlan(Volume& vol)
-{
-    FW_EXTRACT_P(vol);
-
-    TSFFTW_execute_dft_r2c(fwPlan, _srcR, _dstC);
-
-    _srcR = NULL;
-    _dstC = NULL;
-}
-
-void FFT::bwExecutePlan(Image& img)
-{
-    BW_EXTRACT_P(img);
-
-    TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
-
-    SCALE_RL(img, 1.0 / img.sizeRL());
-
-    _srcC = NULL;
-    _dstR = NULL;
-
-    img.clearFT();
-}
-
-void FFT::bwExecutePlan(Volume& vol)
-{
-    BW_EXTRACT_P(vol);
-
-    TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
-
-    SCALE_RL(vol, 1.0 / vol.sizeRL());
-
-    _srcC = NULL;
-    _dstR = NULL;
-
-    vol.clearFT();
-}
-
+/*
+ *void FFT::fwExecutePlan(Image& img)
+ *{
+ *    FW_EXTRACT_P(img);
+ *
+ *    TSFFTW_execute_dft_r2c(fwPlan, _srcR, _dstC);
+ *
+ *    _srcR = NULL;
+ *    _dstC = NULL;
+ *}
+ *
+ *void FFT::fwExecutePlan(Volume& vol)
+ *{
+ *    FW_EXTRACT_P(vol);
+ *
+ *    TSFFTW_execute_dft_r2c(fwPlan, _srcR, _dstC);
+ *
+ *    _srcR = NULL;
+ *    _dstC = NULL;
+ *}
+ *
+ */
+/*
+ *void FFT::bwExecutePlan(Image& img)
+ *{
+ *    BW_EXTRACT_P(img);
+ *
+ *    TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
+ *
+ *    SCALE_RL(img, 1.0 / img.sizeRL());
+ *
+ *    _srcC = NULL;
+ *    _dstR = NULL;
+ *
+ *    img.clearFT();
+ *}
+ *
+ *void FFT::bwExecutePlan(Volume& vol)
+ *{
+ *    BW_EXTRACT_P(vol);
+ *
+ *    TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
+ *
+ *    SCALE_RL(vol, 1.0 / vol.sizeRL());
+ *
+ *    _srcC = NULL;
+ *    _dstR = NULL;
+ *
+ *    vol.clearFT();
+ *}
+ *
+ */
 void FFT::fwExecutePlanMT(Image& img)
 {
     FW_EXTRACT_P(img);

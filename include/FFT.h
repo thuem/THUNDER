@@ -13,7 +13,11 @@
 #ifndef FFT_H
 #define FFT_H
 
-#include <fftw3.h>
+#ifdef USING_SINGLE_PRECISION
+#include <fftw3float/fftw3.h>
+#else
+#include <fftw3double/fftw3.h>
+#endif
 
 #include "Logging.h"
 
@@ -61,14 +65,14 @@
 #define FW_CLEAN_UP \
 { \
     _Pragma("omp critical"); \
-    fftw_destroy_plan(fwPlan); \
+    TSFFTW_destroy_plan(fwPlan); \
     _dstC = NULL; \
     _srcR = NULL; \
 }
 
 #define FW_CLEAN_UP_MT \
 { \
-    fftw_destroy_plan(fwPlan); \
+    TSFFTW_destroy_plan(fwPlan); \
     _dstC = NULL; \
     _srcR = NULL; \
 }
@@ -80,7 +84,7 @@
 /***
 #define FWMT_CLEAN_UP \
 { \
-    fftw_destroy_plan(fwPlan); \
+    TSFFTW_destroy_plan(fwPlan); \
     _dstC = NULL; \
     _srcR = NULL; \
 }
@@ -104,7 +108,7 @@
 #define BW_CLEAN_UP(obj) \
 { \
     _Pragma("omp critical"); \
-    fftw_destroy_plan(bwPlan); \
+    TSFFTW_destroy_plan(bwPlan); \
     _dstR = NULL; \
     _srcC = NULL; \
     obj.clearFT(); \
@@ -112,7 +116,7 @@
 
 #define BW_CLEAN_UP_MT(obj) \
 { \
-    fftw_destroy_plan(bwPlan); \
+    TSFFTW_destroy_plan(bwPlan); \
     _dstR = NULL; \
     _srcC = NULL; \
     obj.clearFT(); \
@@ -128,7 +132,7 @@
 /***
 #define BWMT_CLEAN_UP(obj) \
 { \
-    fftw_destroy_plan(bwPlan); \
+    TSFFTW_destroy_plan(bwPlan); \
     _dstR = NULL; \
     _srcC = NULL; \
     obj.clearFT(); \

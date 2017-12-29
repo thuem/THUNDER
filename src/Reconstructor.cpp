@@ -1131,13 +1131,13 @@ void Reconstructor::allReduceF()
     if (_mode == MODE_2D)
         MPI_Allreduce_Large(&_F2D[0],
                             _F2D.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
+                            TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
     else if (_mode == MODE_3D)
         MPI_Allreduce_Large(&_F3D[0],
                             _F3D.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
+                            TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
     else
@@ -1156,13 +1156,13 @@ void Reconstructor::allReduceT()
     if (_mode == MODE_2D)
         MPI_Allreduce_Large(&_T2D[0],
                             _T2D.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
+                            TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
     else if (_mode == MODE_3D)
         MPI_Allreduce_Large(&_T3D[0],
                             _T3D.sizeFT(),
-                            MPI_DOUBLE_COMPLEX,
+                            TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
     else
