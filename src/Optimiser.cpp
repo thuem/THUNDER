@@ -1786,6 +1786,25 @@ void Optimiser::run()
             _model.setRT(_model.r());
         }
 
+#ifdef OPTIMISER_SOLVENT_FLATTEN
+
+        if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+
+            solventFlatten(_para.performMask);
+        }
+
+#endif
+
+#ifdef OPTIMISER_SAVE_SOLVENT_FLATTENED_REFERENCE
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Solvent Flattened Reference(s)";
+
+        saveReference();
+
+#endif
+
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
@@ -1819,24 +1838,6 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
-#ifdef OPTIMISER_SOLVENT_FLATTEN
-
-        if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
-        {
-            MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
-
-            solventFlatten(_para.performMask);
-        }
-
-#endif
-
-#ifdef OPTIMISER_SAVE_SOLVENT_FLATTENED_REFERENCE
-
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Solvent Flattened Reference(s)";
-
-        saveReference();
-
-#endif
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
