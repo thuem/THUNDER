@@ -1859,12 +1859,6 @@ void Optimiser::run()
             BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
 
             _model.resetReco(_para.thresReportFSC);
-
-            if (!_para.goldenStandard)
-            {
-                for (int k = 0; k < _para.k; k++)
-                    _model.reco(k).setJoinHalf(true);
-            }
         }
     }
 
@@ -1877,13 +1871,6 @@ void Optimiser::run()
     NT_MASTER
     {
         _model.resetReco(_para.thresReportFSC);
-
-        /***
-        _model.reco(0).setMAP(false);
-
-        for (int k = 0; k < _para.k; k++)
-            _model.reco(k).setJoinHalf(true);
-        ***/
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
@@ -3971,6 +3958,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
             {
                 _model.reco(t).setMAP(false);
 
+#ifdef OPTIMISER_RECONSTRUCT_JOIN_HALF
+                _model.reco(t).setJoinHalf(true);
+#else
+                _model.reco(t).setJoinHalf(false);
+#endif
+
                 if (_para.mode == MODE_2D)
                 {
 #ifdef OPTIMISER_2D_GRID_CORR
@@ -4085,6 +4078,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(true);
+
+#ifdef OPTIMISER_RECONSTRUCT_JOIN_HALF
+                _model.reco(t).setJoinHalf(true);
+#else
+                _model.reco(t).setJoinHalf(false);
+#endif
 
                 if (_para.mode == MODE_2D)
                 {
