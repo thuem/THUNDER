@@ -1051,6 +1051,8 @@ class Particle
          */
         void shuffle();
 
+        void balanceWeight(const ParticleType pt);
+
         /**
          * This function will copy the content to another Particle object.
          *

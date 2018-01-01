@@ -1945,36 +1945,22 @@ void Particle::shuffle()
     shuffle(PAR_R);
     shuffle(PAR_T);
     shuffle(PAR_D);
-    /***
-    uvec s = uvec(_n);
+}
 
-    for (int i = 0; i < _n; i++) s(i) = i;
-
-    gsl_rng* engine = get_random_engine();
-
-    gsl_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
-
-    uvec c(_n);
-    mat4 r(_n, 4);
-    mat2 t(_n, 2);
-    vec d(_n);
-    vec w(_n);
-
-    for (int i = 0; i < _n; i++)
+void Particle::balanceWeight(const ParticleType pt)
+{
+    if (pt == PAR_C)
     {
-        c(s(i)) = _c(i);
-        r.row(s(i)) = _r.row(i);
-        t.row(s(i)) = _t.row(i);
-        d(s(i)) = _d(i);
-        w(s(i)) = _w(i);
     }
-
-    _c = c;
-    _r = r;
-    _t = t;
-    _d = d;
-    _w = w;
-    ***/
+    else if (pt == PAR_R)
+    {
+    }
+    else if (pt == PAR_T)
+    {
+    }
+    else if (pt == PAR_D)
+    {
+    }
 }
 
 void Particle::copy(Particle& that) const
