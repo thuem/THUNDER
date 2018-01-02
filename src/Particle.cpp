@@ -24,8 +24,6 @@ Particle::Particle(const int mode,
                    const RFLOAT transQ,
                    const Symmetry* sym)
 {
-    defaultInit();
-
     init(mode, nC, nR, nT, nD, transS, transQ, sym);
 }
 
@@ -40,6 +38,8 @@ void Particle::init(const int mode,
                     const Symmetry* sym)
 {
     clear();
+
+    defaultInit();
 
     _mode = mode;
 
@@ -91,11 +91,6 @@ void Particle::reset()
     gsl_rng* engine = get_random_engine();
 
     // initialise class distribution
-
-    /***
-    for (int i = 0; i < _nC; i++)
-        _c(i) = TSGSL_rng_uniform_int(engine, _nC);
-    ***/
 
     for (int i = 0; i < _nC; i++)
         _c(i) = i;
@@ -934,7 +929,7 @@ void Particle::perturb(const RFLOAT pf,
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, vec4(1, 0, 0, 0), _k1 * pf, _nR);
+            sampleVMS(d, vec4(1, 0, 0, 0), GSL_MIN_DBL(1, _k1 * pf), _nR);
 
             vec4 quat;
 
@@ -1039,22 +1034,6 @@ void Particle::resample(const int n,
         uvec rank = iSort(pt);
 
         c(_topC, rank(0));
-
-        /***
-        if (n != 1)
-        {
-            REPORT_ERROR("ONLY KEEP ONE CLASS");
-            abort();
-        }
-
-        _nC = 1;
-
-        _c.resize(1);
-        _c(0) = _topC;
-        
-        _wC.resize(1);
-        _wC(0) = 1;
-        ***/
 
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
@@ -1244,7 +1223,6 @@ void Particle::resample(const int n,
                 i++;
 
             d(j) = _d(i);
-
 
 #ifdef PARTICLE_PRIOR_ONE
             _wD(j) = 1.0 / _uD(i);
@@ -1770,6 +1748,8 @@ void Particle::rand(unsigned int& cls) const
 {
     gsl_rng* engine = get_random_engine();
 
+    if (_nC == 0) { REPORT_ERROR("_nC SHOULD NOT BE ZERO"); abort(); }
+
     size_t u = TSGSL_rng_uniform_int(engine, _nC);
 
     c(cls, u);
@@ -1778,6 +1758,8 @@ void Particle::rand(unsigned int& cls) const
 void Particle::rand(vec4& quat) const
 {
     gsl_rng* engine = get_random_engine();
+
+    if (_nR == 0) { REPORT_ERROR("_nR SHOULD NOT BE ZERO"); abort(); }
 
     size_t u = TSGSL_rng_uniform_int(engine, _nR);
 
@@ -1804,6 +1786,8 @@ void Particle::rand(vec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
 
+    if (_nT == 0) { REPORT_ERROR("_nT SHOULD NOT BE ZERO"); abort(); }
+
     size_t u = TSGSL_rng_uniform_int(engine, _nT);
 
     t(tran, u);
@@ -1812,6 +1796,8 @@ void Particle::rand(vec2& tran) const
 void Particle::rand(RFLOAT& df) const
 {
     gsl_rng* engine = get_random_engine();
+
+    if (_nD == 0) { REPORT_ERROR("_nD SHOULD NOT BE ZERO"); abort(); }
 
     size_t u = TSGSL_rng_uniform_int(engine, _nD);
 
@@ -1827,16 +1813,6 @@ void Particle::rand(unsigned int& cls,
     rand(quat);
     rand(tran);
     rand(df);
-    /***
-    gsl_rng* engine = get_random_engine();
-
-    size_t u = TSGSL_rng_uniform_int(engine, _n);
-
-    c(cls, u);
-    quaternion(quat, u);
-    t(tran, u);
-    d(df, u);
-    ***/
 }
 
 void Particle::rand(unsigned int& cls,
@@ -1876,9 +1852,7 @@ void Particle::shuffle(const ParticleType pt)
         TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
 
         uvec c(_nC);
-
         vec wC(_nC);
-
         vec uC(_nC);
 
         for (int i = 0; i < _nC; i++)

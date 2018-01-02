@@ -231,12 +231,12 @@ class Particle
 
             _sym = NULL;
 
-            _k1 = 0;
-            _k2 = 0;
-            _k3 = 0;
+            _k1 = 1;
+            _k2 = 1;
+            _k3 = 1;
 
-            _s0 = 0;
-            _s1 = 0;
+            _s0 = DBL_MAX;
+            _s1 = DBL_MAX;
 
             _rho = 0;
 

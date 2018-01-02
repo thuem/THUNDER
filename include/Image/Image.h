@@ -103,6 +103,10 @@ class Image : public ImageBase
          */
         int _nRow;
 
+        int _nColFT;
+
+        size_t _box[2][2];
+
     public:
 
         /**
@@ -292,12 +296,7 @@ class Image : public ImageBase
                    RFLOAT iCol,
                    RFLOAT iRow);
 
-        void clear()
-        {
-            ImageBase::clear();
-            _nRow = 0;
-            _nCol = 0;
-        }
+        void clear();
 
         inline int iRL(const int i,
                        const int j) const
@@ -331,6 +330,8 @@ class Image : public ImageBase
         }
 
     private:
+
+        void initBox();
 
         /**
          * This function checks whether the given coordinates is in the boundary

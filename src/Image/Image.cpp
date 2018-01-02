@@ -29,6 +29,11 @@ void Image::swap(Image& that)
 
     std::swap(_nCol, that._nCol);
     std::swap(_nRow, that._nRow);
+
+    std::swap(_nColFT, that._nColFT);
+
+    FOR_CELL_DIM_2
+        std::swap(_box[j][i], that._box[j][i]);
 }
 
 Image Image::copyImage() const
@@ -39,6 +44,11 @@ Image Image::copyImage() const
 
     out._nCol = _nCol;
     out._nRow = _nRow;
+
+    out._nColFT = _nColFT;
+
+    FOR_CELL_DIM_2
+        out._box[j][i] = _box[j][i];
 
     return out;
 }
@@ -91,6 +101,8 @@ void Image::alloc(const int nCol,
         _dataFT = (Complex*)TSFFTW_malloc(_sizeFT * sizeof(Complex));
 #endif
     }
+
+    initBox();
 }
 
 void Image::saveRLToBMP(const char* filename) const
@@ -389,6 +401,24 @@ void Image::addFT(const RFLOAT value,
     addFTHalf(value, w, x0);
 }
 
+void Image::clear()
+{
+    ImageBase::clear();
+
+    _nCol = 0;
+    _nRow = 0;
+
+    _nColFT = 0;
+}
+
+void Image::initBox()
+{
+    _nColFT = _nCol / 2 + 1;
+
+    FOR_CELL_DIM_2
+        _box[j][i] = j * _nColFT + i;
+}
+
 void Image::coordinatesInBoundaryRL(const int iCol,
                                     const int iRow) const
 {
@@ -409,9 +439,28 @@ Complex Image::getFTHalf(const RFLOAT w[2][2],
                          const int x0[2]) const
 {
     Complex result = COMPLEX(0, 0);
-    FOR_CELL_DIM_2 result += getFTHalf(x0[0] + i,
-                                       x0[1] + j)
-                           * w[j][i];
+
+    if (x0[1] != -1)
+    {
+        size_t index0 = iFTHalf(x0[0], x0[1]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
+
+            result += _dataFT[index] * ((double*)w)[i];
+        }
+    }
+    else
+    {
+        FOR_CELL_DIM_2 result += getFTHalf(x0[0] + i,
+                                           x0[1] + j)
+                               * w[j][i];
+    }
     return result;
 }
 
@@ -419,18 +468,56 @@ void Image::addFTHalf(const Complex value,
                       const RFLOAT w[2][2],
                       const int x0[2])
 {
-    FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
-                             x0[0] + i,
-                             x0[1] + j);
-                             
+    if (x0[1] != -1)
+    {
+        size_t index0 = iFTHalf(x0[0], x0[1]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
+
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value.dat[0] * ((double*)w)[i];
+            #pragma omp atomic
+            _dataFT[index].dat[1] += value.dat[1] * ((double*)w)[i];
+        }
+    }
+    else
+    {
+        FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
+                                 x0[0] + i,
+                                 x0[1] + j);
+    }
 }
 
 void Image::addFTHalf(const RFLOAT value,
                       const RFLOAT w[2][2],
                       const int x0[2])
 {
-    FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
-                             x0[0] + i,
-                             x0[1] + j);
-                             
+    if (x0[1] != -1)
+    {
+        size_t index0 = iFTHalf(x0[0], x0[1]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
+
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value * ((double*)w)[i];
+        }
+    }
+    else
+    {
+        FOR_CELL_DIM_2 addFTHalf(value * w[j][i],
+                                 x0[0] + i,
+                                 x0[1] + j);
+    }
 }

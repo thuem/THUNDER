@@ -1389,18 +1389,22 @@ void Model::updateRU()
     _rUPrev = _rU;
 
 #ifdef MODEL_ALWAYS_MAX_RU
+
     _rU = maxR();
+
+#else
+
+#ifdef MODEL_ALWAYS_MAX_RU_EXCEPT_GLOBAL
+
+    _rU = (_searchType == SEARCH_TYPE_GLOBAL)
+        ? GSL_MIN_INT(_r + AROUND((double)maxR() / 3), maxR())
+        : maxR();
 #else
 
     _rU = GSL_MIN_INT(_r + AROUND((RFLOAT)maxR() / 3), maxR());
 
-    /***
-    _rU = GSL_MIN_INT(_r
-                   + ((_searchType == SEARCH_TYPE_GLOBAL)
-                    ? AROUND((RFLOAT)_rGlobal / 3)
-                    : AROUND((RFLOAT)maxR() / 3)),
-                      maxR());
-    ***/
+#endif
+
 #endif
 
     MLOG(INFO, "LOGGER_SYS") << "Resetting Frequency Boundary of Reconstructor to "

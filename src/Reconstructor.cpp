@@ -159,6 +159,10 @@ void Reconstructor::reset()
 
     _MAP = true;
 
+    _gridCorr = true;
+
+    _joinHalf = false;
+
     if (_mode == MODE_2D)
     {
         #pragma omp parallel for
@@ -213,6 +217,16 @@ bool Reconstructor::MAP() const
 void Reconstructor::setMAP(const bool MAP)
 {
     _MAP = MAP;
+}
+
+bool Reconstructor::gridCorr() const
+{
+    return _gridCorr;
+}
+
+void Reconstructor::setGridCorr(const bool gridCorr)
+{
+    _gridCorr = gridCorr;
 }
 
 bool Reconstructor::joinHalf() const
@@ -791,68 +805,132 @@ void Reconstructor::reconstruct(Volume& dst)
         abort();
     }
 
-    RFLOAT diffC = DBL_MAX;
-    RFLOAT diffCPrev = DBL_MAX;
-
-    int m = 0;
-
-    int nDiffCNoDecrease = 0;
-
-    for (m = 0; m < MAX_N_ITER_BALANCE; m++)
+    if (_gridCorr)
     {
+        RFLOAT diffC = DBL_MAX;
+        RFLOAT diffCPrev = DBL_MAX;
+
+        int m = 0;
+
+        int nDiffCNoDecrease = 0;
+
+        for (m = 0; m < MAX_N_ITER_BALANCE; m++)
+        {
 #ifdef VERBOSE_LEVEL_2
 
-        ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
-        BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
+            ALOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
+            BLOG(INFO, "LOGGER_RECO") << "Balancing Weights Round " << m;
 
-        ALOG(INFO, "LOGGER_RECO") << "Determining C";
-        BLOG(INFO, "LOGGER_RECO") << "Determining C";
+            ALOG(INFO, "LOGGER_RECO") << "Determining C";
+            BLOG(INFO, "LOGGER_RECO") << "Determining C";
 
 #endif
         
-        if (_mode == MODE_2D)
-        {
-            #pragma omp parallel for
-            FOR_EACH_PIXEL_FT(_C2D)
-                _C2D[i] = _T2D[i] * _W2D[i];
-        }
-        else if (_mode == MODE_3D)
-        {
-            #pragma omp parallel for
-            FOR_EACH_PIXEL_FT(_C3D)
-                _C3D[i] = _T3D[i] * _W3D[i];
-        }
-        else
-        {
-            REPORT_ERROR("INEXISTENT MODE");
+            if (_mode == MODE_2D)
+            {
+                #pragma omp parallel for
+                FOR_EACH_PIXEL_FT(_C2D)
+                    _C2D[i] = _T2D[i] * _W2D[i];
+            }
+            else if (_mode == MODE_3D)
+            {
+                #pragma omp parallel for
+                FOR_EACH_PIXEL_FT(_C3D)
+                    _C3D[i] = _T3D[i] * _W3D[i];
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
 
-            abort();
-        }
-
-#ifdef VERBOSE_LEVEL_2
-
-        ALOG(INFO, "LOGGER_RECO") << "Convoluting C";
-        BLOG(INFO, "LOGGER_RECO") << "Convoluting C";
-
-#endif
-
-        convoluteC();
+                abort();
+            }
 
 #ifdef VERBOSE_LEVEL_2
 
-        ALOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
-        BLOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+            ALOG(INFO, "LOGGER_RECO") << "Convoluting C";
+            BLOG(INFO, "LOGGER_RECO") << "Convoluting C";
 
 #endif
 
+            convoluteC();
+
+#ifdef VERBOSE_LEVEL_2
+
+            ALOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+            BLOG(INFO, "LOGGER_RECO") << "Re-Calculating W";
+
+#endif
+
+            if (_mode == MODE_2D)
+            {
+                #pragma omp parallel for schedule(dynamic)
+                IMAGE_FOR_EACH_PIXEL_FT(_W2D)
+                    if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                        _W2D.setFTHalf(_W2D.getFTHalf(i, j)
+                                     / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
+                                                   1e-6),
+                                       i,
+                                       j);
+            }
+            else if (_mode == MODE_3D)
+            {
+                #pragma omp parallel for schedule(dynamic)
+                VOLUME_FOR_EACH_PIXEL_FT(_W3D)
+                    if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
+                        _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
+                                     / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
+                                                   1e-6),
+                                       i,
+                                       j,
+                                       k);
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
+
+#ifdef VERBOSE_LEVEL_2
+
+            ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+            BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
+
+#endif
+        
+            diffCPrev = diffC;
+
+            diffC = checkC();
+
+#ifdef VERBOSE_LEVEL_2
+
+            ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
+            BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
+
+#endif
+
+            if (diffC > diffCPrev * DIFF_C_DECREASE_THRES)
+                nDiffCNoDecrease += 1;
+            else
+                nDiffCNoDecrease = 0;
+
+            if ((diffC < DIFF_C_THRES) ||
+                ((m >= MIN_N_ITER_BALANCE) &&
+                (nDiffCNoDecrease == N_DIFF_C_NO_DECREASE))) break;
+        }
+    }
+    else
+    {
+        // no grid correction
         if (_mode == MODE_2D)
         {
             #pragma omp parallel for schedule(dynamic)
             IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                 if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
-                    _W2D.setFTHalf(_W2D.getFTHalf(i, j)
-                                 / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
-                                               1e-6),
+                    _W2D.setFTHalf(COMPLEX(1.0
+                                         / GSL_MAX_DBL(ABS(_T2D.getFTHalf(i, j)),
+                                                       1e-6),
+                                           0),
                                    i,
                                    j);
         }
@@ -861,9 +939,10 @@ void Reconstructor::reconstruct(Volume& dst)
             #pragma omp parallel for schedule(dynamic)
             VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                 if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
-                    _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
-                                 / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
-                                               1e-6),
+                    _W3D.setFTHalf(COMPLEX(1.0
+                                         / GSL_MAX_DBL(ABS(_T3D.getFTHalf(i, j, k)),
+                                                       1e-6),
+                                           0),
                                    i,
                                    j,
                                    k);
@@ -874,33 +953,6 @@ void Reconstructor::reconstruct(Volume& dst)
 
             abort();
         }
-
-#ifdef VERBOSE_LEVEL_2
-
-        ALOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
-        BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
-
-#endif
-        
-        diffCPrev = diffC;
-
-        diffC = checkC();
-
-#ifdef VERBOSE_LEVEL_2
-
-        ALOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
-        BLOG(INFO, "LOGGER_RECO") << "Distance to Total Balanced: " << diffC;
-
-#endif
-
-        if (diffC > diffCPrev * DIFF_C_DECREASE_THRES)
-            nDiffCNoDecrease += 1;
-        else
-            nDiffCNoDecrease = 0;
-
-        if ((diffC < DIFF_C_THRES) ||
-            ((m >= MIN_N_ITER_BALANCE) &&
-             (nDiffCNoDecrease == N_DIFF_C_NO_DECREASE))) break;
     }
 
 #ifdef VERBOSE_LEVEL_2
@@ -1141,7 +1193,11 @@ void Reconstructor::allReduceF()
                             MPI_SUM,
                             _hemi);
     else
+    {
         REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 
     MPI_Barrier(_hemi);
 }

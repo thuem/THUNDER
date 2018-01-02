@@ -436,6 +436,8 @@ void Volume::clear()
     _nCol = 0;
     _nRow = 0;
     _nSlc = 0;
+
+    _nColFT = 0;
 }
 
 void Volume::initBox()

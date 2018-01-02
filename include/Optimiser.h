@@ -158,6 +158,11 @@ struct OptimiserPara
     bool performMask;
 
     /**
+     * whether to perform masking during global search
+     */
+    bool globalMask;
+
+    /**
      * whether to automatically generate a mask
      */
     bool autoMask;
@@ -284,6 +289,7 @@ struct OptimiserPara
         coreFSC = false;
         maskFSC = false;
         performMask = false;
+        globalMask = false;
         autoMask = false;
         goldenStandard = true;
         pf = 2;
@@ -731,8 +737,8 @@ class Optimiser : public Parallel
          *
          * @param group grouping or not
          */
-        void allReduceSigma(const bool group = true);
-
+        void allReduceSigma(const bool mask,
+                            const bool group);
         /**
          * reconstruct reference
          */

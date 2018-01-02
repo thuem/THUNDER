@@ -34,7 +34,7 @@
  *
  */
  #define COMPLEX_POLAR(phi) ts_complex_polar(1.0, phi)
-inline Complex ts_complex_polar(float r, float phi)
+inline Complex ts_complex_polar(RFLOAT r, RFLOAT phi)
 {
     Complex z;
     z.dat[0] = r * cosf(phi);
@@ -51,11 +51,18 @@ inline Complex CONJUGATE(const Complex &a)
     return z;
 }
 
-static float ts_hypot (const float x, const float y)
+static RFLOAT ts_hypot (const RFLOAT x, const RFLOAT y)
 {
-  float xabs = fabsf(x) ;
-  float yabs = fabsf(y) ;
-  float min, max;
+#ifdef USING_SINGLE_PRECISION
+  RFLOAT xabs = fabsf(x) ;
+  RFLOAT yabs = fabsf(y) ;
+#else
+  RFLOAT xabs = fabs(x) ;
+  RFLOAT yabs = fabs(y) ;
+#endif
+
+
+  RFLOAT min, max;
 
   if (xabs < yabs) {
     min = xabs ;
@@ -71,51 +78,55 @@ static float ts_hypot (const float x, const float y)
     }
 
   {
-    float u = min / max ;
+    RFLOAT u = min / max ;
+#ifdef USING_SINGLE_PRECISION
     return max * sqrtf (1 + u * u) ;
+#else
+    return max * sqrt (1 + u * u) ;
+#endif
   }
 };
 
 
-inline float ABS(const Complex &a)
+inline RFLOAT ABS(const Complex &a)
 {
     return ts_hypot(a.dat[0], a.dat[1]);
 
 };
 
-inline float ABS2(const Complex &a)
+inline RFLOAT ABS2(const Complex &a)
 {
-    float result = a.dat[0] * a.dat[0] + a.dat[1] * a.dat[1];
+    RFLOAT result = a.dat[0] * a.dat[0] + a.dat[1] * a.dat[1];
     return result;
 };
 
-inline Complex COMPLEX(float a, float b)
+inline Complex COMPLEX(RFLOAT a, RFLOAT b)
 {
     Complex z;
     z.dat[0] = a;
     z.dat[1] = b;
     return z;
 };
-inline float REAL(const Complex& a)
+inline RFLOAT REAL(const Complex& a)
 {
     return a.dat[0];
 };
-inline float IMAG(const Complex& a)
+inline RFLOAT IMAG(const Complex& a)
 {
     return a.dat[1];
 };
 
-inline float gsl_real(const Complex& a)
+inline RFLOAT gsl_real(const Complex& a)
 {
     return a.dat[0];
 };
 
-inline float gsl_imag(const Complex& a)
+inline RFLOAT gsl_imag(const Complex& a)
 {
     return a.dat[1];
 };
 
-inline float gsl_real_imag_sum(const Complex& a)
+inline RFLOAT gsl_real_imag_sum(const Complex& a)
 {
     return a.dat[0] + a.dat[1];
 };
@@ -176,7 +187,7 @@ inline void operator*=(Complex& a, const Complex b) { a = a * b; };
 
 inline void operator/=(Complex& a, const Complex b) { a = a / b; };
 
-inline Complex operator*(const Complex a, const float x)
+inline Complex operator*(const Complex a, const RFLOAT x)
 {
     /*
      *return gsl_complex_mul_real(a, x);
@@ -188,7 +199,7 @@ inline Complex operator*(const Complex a, const float x)
 
 };
 
-inline Complex operator*(const float x, const Complex a)
+inline Complex operator*(const RFLOAT x, const Complex a)
 {
     /*
      *return a * x;
@@ -200,7 +211,7 @@ inline Complex operator*(const float x, const Complex a)
 
 };
 
-inline void operator*=(Complex& a, const float x)
+inline void operator*=(Complex& a, const RFLOAT x)
 {
     /*
      *a = a * x;
@@ -209,7 +220,7 @@ inline void operator*=(Complex& a, const float x)
     a.dat[1] = a.dat[1] * x;
 };
 
-inline Complex operator/(const Complex a, const float x)
+inline Complex operator/(const Complex a, const RFLOAT x)
 {
     /*
      *return gsl_complex_div_real(a, x);
@@ -221,7 +232,7 @@ inline Complex operator/(const Complex a, const float x)
 
 };
 
-inline void operator/=(Complex& a, const float x)
+inline void operator/=(Complex& a, const RFLOAT x)
 {
     /*
      *a = a / x; 

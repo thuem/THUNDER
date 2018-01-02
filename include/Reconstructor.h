@@ -98,6 +98,8 @@ class Reconstructor : public Parallel
 
         bool _MAP;
 
+        bool _gridCorr;
+
         bool _joinHalf;
 
         /**
@@ -256,6 +258,8 @@ class Reconstructor : public Parallel
 
             _MAP = true;
 
+            _gridCorr = true;
+
             _joinHalf = false;
 
             _pf = 2;
@@ -336,6 +340,10 @@ class Reconstructor : public Parallel
         bool MAP() const;
 
         void setMAP(const bool MAP);
+
+        bool gridCorr() const;
+
+        void setGridCorr(const bool gridCorr);
 
         bool joinHalf() const;
 

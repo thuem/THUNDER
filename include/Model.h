@@ -68,11 +68,11 @@
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
 
-#define T_VARI_DECREASE_GLOBAL 0.05
+#define T_VARI_DECREASE_GLOBAL 0.02
 
-#define T_VARI_DECREASE_STUN 0.05
+#define T_VARI_DECREASE_STUN 0.02
 
-#define T_VARI_DECREASE_LOCAL 0.05
+#define T_VARI_DECREASE_LOCAL 0.02
 
 #endif
 
@@ -85,7 +85,7 @@
  * resolution resolution for averaging reference(s) from A hemisphere and B
  * hemisphere
  */
-#define A_B_AVERAGE_THRES 15
+#define A_B_AVERAGE_THRES 40
 
 #define CUTOFF_BEYOND_RES 0
 
