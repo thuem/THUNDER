@@ -6,6 +6,8 @@ set(USING_SINGLE_PRECISION "yes")
 set (COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 set (CMAKE_C_FLAGS "${COMMON_FLAGS} -fno-strict-aliasing")
 set (CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
+#set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -O0 -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ")
+#set(CMAKE_CXX_FLAGS_RELEASE "-Wall -O2 -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ")
 
 if(NOT CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE Release)
@@ -60,7 +62,6 @@ if (NOT SHENWEI)
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
     endif()
 endif()
-
 # includes and linker flags
 include_directories(${FFTW_INCLUDES} ${GSL_INCLUDE_DIRS})
 

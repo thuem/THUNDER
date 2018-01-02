@@ -53,6 +53,64 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
 vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
 
 
+
+void compareDVPVariable(vec& dvpHuabin, vec& dvpOrig, int processRank, int threadID, int n ,int m)
+{
+    fprintf(stderr, "n = %d, m = %d\n", n, m);
+    fprintf(stderr, "[%d:%d]: Elements number in dvpHuabin: [rows, cols] = [%ld, %ld]\n", processRank ,threadID, dvpHuabin.rows(), dvpHuabin.cols());
+    fprintf(stderr, "[%d:%d]: Elements number in dvpHuabin: [rows, cols] = [%ld, %ld]\n", processRank ,threadID, dvpOrig.rows(), dvpOrig.cols());
+    size_t cnt = 0;
+    for(int i = 0; i < dvpHuabin.rows(); i ++)
+    {
+        RFLOAT v1 = dvpHuabin(i);
+        RFLOAT v2 = dvpOrig(i);
+
+        RFLOAT error = fabsf(v1 -v2);
+        if(error >= 10E-6)
+        {
+            fprintf(stderr, "[%d:%d]: [v1hb, v2orig, error] = [%f, %f, %f]\n", processRank ,threadID, v1, v2, error);
+            cnt ++;
+
+            if(cnt == 100)
+            {
+                abort();
+            }
+        }
+    }
+
+    if(cnt == 0)
+    {
+    
+        fprintf(stderr, "[%d:%d]: dvpHuabin and dvpOrig is exactly the same\n", processRank ,threadID);
+    }
+}
+
+void compareWInmHuabin(RFLOAT wOrig, RFLOAT wHuabin, int processRank, int threadID, int m)
+{
+
+    fprintf(stderr, "[%d:%d]:  m = %d\n", processRank, threadID, m);
+    RFLOAT error = fabs(wOrig - wHuabin);
+    size_t cnt = 0;
+    if(error >= 10E-6)
+    {
+        fprintf(stderr, "[%d:%d]: [wOrig, wHuabin, error] = [%f, %f, %f]\n", processRank ,threadID, wOrig, wHuabin, error);
+
+        cnt ++;
+
+        if(cnt == 100)
+        {
+            abort();
+        }
+    }
+
+    if(cnt == 0)
+    {
+    
+        fprintf(stderr, "[%d:%d]: wHuabin and wOrig is exactly the same\n", processRank ,threadID);
+    }
+}
+
+
 Optimiser::~Optimiser()
 {
     clear();
@@ -735,6 +793,18 @@ void Optimiser::expectation()
                                              (int)_ID.size(),
                                              _nPxl);
 
+/*
+ *                    vec dvpOrig = logDataVSPrior(_datP,
+ *                                             priAllP,
+ *                                             _ctfP,
+ *                                             _sigRcpP,
+ *                                             (int)_ID.size(),
+ *                                             _nPxl);
+ *
+ *                    compareDVPVariable(dvp, dvpOrig, _commRank, omp_get_thread_num(), (int)_ID.size(), _nPxl
+ *);
+ */
+
 #ifndef NAN_NO_CHECK
 
                     FOR_EACH_2D_IMAGE
@@ -1367,12 +1437,22 @@ void Optimiser::expectation()
 
                             RFLOAT w;
 
+                            RFLOAT wOrig;
                             if (_searchType != SEARCH_TYPE_CTF)
+                            {
                                 w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
                                                    priAllP,
                                                    _ctfP + l * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
+                                /*
+                                 *wOrig = logDataVSPrior(_datP + l * _nPxl,
+                                 *                   priAllP,
+                                 *                   _ctfP + l * _nPxl,
+                                 *                   _sigRcpP + l * _nPxl,
+                                 *                   _nPxl);
+                                 */
+                            }
                             else
                             {
                                 w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
@@ -1380,7 +1460,18 @@ void Optimiser::expectation()
                                                    ctfP + iD * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
+                                /*
+                                 *wOrig = logDataVSPrior(_datP + l * _nPxl,
+                                 *                   priAllP,
+                                 *                   ctfP + iD * _nPxl,
+                                 *                   _sigRcpP + l * _nPxl,
+                                 *                   _nPxl);
+                                 */
                             }
+
+                            /*
+                             *compareWInmHuabin(wOrig, w, _commRank, omp_get_thread_num(), _nPxl);
+                             */
 
                             //if (TSGSL_isnan(baseLine)) baseLine = w;
                             baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
