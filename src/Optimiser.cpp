@@ -795,7 +795,7 @@ void Optimiser::expectation()
                                 wT.row(l) *= nf;
 
                                 /***
-                                double nf = exp(offset);
+                                RFLOAT nf = exp(offset);
 
                                 if (TSGSL_isinf(nf))
                                 {
@@ -1302,7 +1302,8 @@ void Optimiser::expectation()
 
                             if (w > baseLine)
                             {
-                                double nf = exp(baseLine - w);
+
+                                RFLOAT nf = exp(baseLine - w);
 
                                 wC *= nf;
                                 wR *= nf;
@@ -4426,8 +4427,8 @@ void Optimiser::solventFlatten(const bool mask)
 
                 lowPassFilter(lowPassMask,
                               _mask,
-                              (double)_r / _para.size,
-                              (double)EDGE_WIDTH_FT / _para.size);
+                              (RFLOAT)_r / _para.size,
+                              (RFLOAT)EDGE_WIDTH_FT / _para.size);
 
                 fft.bwMT(lowPassMask);
 

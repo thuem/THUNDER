@@ -452,7 +452,7 @@ Complex Image::getFTHalf(const RFLOAT w[2][2],
             BOUNDARY_CHECK_FT(index);
 #endif
 
-            result += _dataFT[index] * ((double*)w)[i];
+            result += _dataFT[index] * ((RFLOAT*)w)[i];
         }
     }
     else
@@ -481,9 +481,9 @@ void Image::addFTHalf(const Complex value,
 #endif
 
             #pragma omp atomic
-            _dataFT[index].dat[0] += value.dat[0] * ((double*)w)[i];
+            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
             #pragma omp atomic
-            _dataFT[index].dat[1] += value.dat[1] * ((double*)w)[i];
+            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
         }
     }
     else
@@ -511,7 +511,7 @@ void Image::addFTHalf(const RFLOAT value,
 #endif
 
             #pragma omp atomic
-            _dataFT[index].dat[0] += value * ((double*)w)[i];
+            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
         }
     }
     else

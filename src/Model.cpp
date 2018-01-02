@@ -1397,7 +1397,7 @@ void Model::updateRU()
 #ifdef MODEL_ALWAYS_MAX_RU_EXCEPT_GLOBAL
 
     _rU = (_searchType == SEARCH_TYPE_GLOBAL)
-        ? GSL_MIN_INT(_r + AROUND((double)maxR() / 3), maxR())
+        ? GSL_MIN_INT(_r + AROUND((RFLOAT)maxR() / 3), maxR())
         : maxR();
 #else
 
