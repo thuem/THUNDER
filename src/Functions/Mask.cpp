@@ -685,7 +685,7 @@ void autoMask(Volume& dst,
     vector<RFLOAT> data;
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
-            data.push_back(TSGSL_MAX_DBL(0, src.getRL(i, j, k)));
+            data.push_back(TSGSL_MAX_RFLOAT(0, src.getRL(i, j, k)));
 
     size_t n = data.size();
 

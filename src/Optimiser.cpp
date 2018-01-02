@@ -933,7 +933,7 @@ void Optimiser::expectation()
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].setK1(TSGSL_MAX_DBL((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].setK1(TSGSL_MAX_RFLOAT((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                 ? _para.perturbFactorSGlobal
                                                 : _para.perturbFactorSLocal))
                                         * MIN_STD_FACTOR * scanMinStdR,
@@ -941,18 +941,18 @@ void Optimiser::expectation()
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].setK1(TSGSL_MAX_DBL(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].setK1(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
                                                   * MIN_STD_FACTOR * scanMinStdR),
                                           _par[l].k1()));
-                _par[l].setK2(TSGSL_MAX_DBL(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].setK2(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
                                                   * MIN_STD_FACTOR * scanMinStdR),
                                           _par[l].k2()));
 
-                _par[l].setK3(TSGSL_MAX_DBL(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                _par[l].setK3(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
                                                    * MIN_STD_FACTOR * scanMinStdR),
@@ -965,13 +965,13 @@ void Optimiser::expectation()
                 abort();
             }
 
-            _par[l].setS0(TSGSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setS0(TSGSL_MAX_RFLOAT(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal
                                            : _para.perturbFactorSLocal)
                                     * MIN_STD_FACTOR * scanMinStdT,
                                       _par[l].s0()));
 
-            _par[l].setS1(TSGSL_MAX_DBL(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+            _par[l].setS1(TSGSL_MAX_RFLOAT(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal
                                            : _para.perturbFactorSLocal)
                                     * MIN_STD_FACTOR * scanMinStdT,
@@ -1261,7 +1261,9 @@ void Optimiser::expectation()
 
                             RFLOAT w;
 
-                            RFLOAT wOrig;
+                            /*
+                             *RFLOAT wOrig;
+                             */
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
                                 w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
@@ -1405,13 +1407,13 @@ void Optimiser::expectation()
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
-            _par[l].setK1(TSGSL_MAX_DBL(k1 * gsl_pow_2(MIN_STD_FACTOR
+            _par[l].setK1(TSGSL_MAX_RFLOAT(k1 * gsl_pow_2(MIN_STD_FACTOR
                                                    * pow(_par[l].nR(), -1.0 / 3)),
                                       _par[l].k1()));
 
-            _par[l].setS0(TSGSL_MAX_DBL(MIN_STD_FACTOR * s0 / sqrt(_par[l].nT()), _par[l].s0()));
+            _par[l].setS0(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * s0 / sqrt(_par[l].nT()), _par[l].s0()));
 
-            _par[l].setS1(TSGSL_MAX_DBL(MIN_STD_FACTOR * s1 / sqrt(_par[l].nT()), _par[l].s1()));
+            _par[l].setS1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * s1 / sqrt(_par[l].nT()), _par[l].s1()));
             ***/
 
             if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
@@ -3473,7 +3475,7 @@ void Optimiser::normCorrection()
     // skip norm correction in the first iteration
     if (_iter == 0) return;
 
-    RFLOAT rNorm = TSGSL_MIN_DBL(_r, _model.resolutionP(0.75, false));
+    RFLOAT rNorm = TSGSL_MIN_RFLOAT(_r, _model.resolutionP(0.75, false));
 
     vec norm = vec::Zero(_nPar);
 

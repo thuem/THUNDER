@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     RFLOAT val;
     for (int i = 0; i < nLine; i++)
     {
-        fscanf(file, "%d %lf %lf", &idx, &res, &val);
+        fscanf(file, "%d %f %f", &idx, &res, &val);
         //std::cout << val << std::endl;
         fsc(i / 2) = val;
     }

@@ -307,7 +307,7 @@ void inferVMS(vec2& mu,
     mu /= mu.norm();
 
     /***
-    R = TSGSL_MIN_DBL(R, 1 - 1e-3); // for the purpose of avoiding extreme value
+    R = TSGSL_MIN_RFLOAT(R, 1 - 1e-3); // for the purpose of avoiding extreme value
 
     kappa = R * (2 - TSGSL_pow_2(R)) / (1 - TSGSL_pow_2(R));
     ***/
