@@ -149,7 +149,7 @@ void fscWeightingFilter(Volume& dst,
 
         if (idx < fsc.size())
             dst.setFT(src.getFT(i, j, k)
-                    * sqrt(GSL_MAX_DBL(0, 2 * fsc(idx) / (1 + fsc(idx)))),
+                    * sqrt(TSGSL_MAX_DBL(0, 2 * fsc(idx) / (1 + fsc(idx)))),
                       i,
                       j,
                       k);

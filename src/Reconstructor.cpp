@@ -714,7 +714,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                ? 0
                                : _FSC(u / _pf);
 
-                    FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
+                    FSC = TSGSL_MAX_DBL(FSC_BASE_L, TSGSL_MIN_DBL(FSC_BASE_H, FSC));
 
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
                     FSC = sqrt(2 * FSC / (1 + FSC));
@@ -745,7 +745,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                ? 0
                                : _FSC(u / _pf);
 
-                    FSC = GSL_MAX_DBL(FSC_BASE_L, GSL_MIN_DBL(FSC_BASE_H, FSC));
+                    FSC = TSGSL_MAX_DBL(FSC_BASE_L, TSGSL_MIN_DBL(FSC_BASE_H, FSC));
 
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
                     FSC = sqrt(2 * FSC / (1 + FSC));
@@ -811,8 +811,8 @@ void Reconstructor::reconstruct(Volume& dst)
         RFLOAT diffC = FLT_MAX;
         RFLOAT diffCPrev = FLT_MAX;
 #else
-        RFLOAT diffC = DBL_MAX;
-        RFLOAT diffCPrev = DBL_MAX;
+        RFLOAT diffC = TS_MAX_RFLOAT_VALUE;
+        RFLOAT diffCPrev = TS_MAX_RFLOAT_VALUE;
 #endif
 
         int m = 0;
@@ -872,7 +872,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                         _W2D.setFTHalf(_W2D.getFTHalf(i, j)
-                                     / GSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
+                                     / TSGSL_MAX_DBL(ABS(_C2D.getFTHalf(i, j)),
                                                    1e-6),
                                        i,
                                        j);
@@ -883,7 +883,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                     if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                         _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
-                                     / GSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
+                                     / TSGSL_MAX_DBL(ABS(_C3D.getFTHalf(i, j, k)),
                                                    1e-6),
                                        i,
                                        j,
@@ -933,7 +933,7 @@ void Reconstructor::reconstruct(Volume& dst)
             IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                 if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                     _W2D.setFTHalf(COMPLEX(1.0
-                                         / GSL_MAX_DBL(ABS(_T2D.getFTHalf(i, j)),
+                                         / TSGSL_MAX_DBL(ABS(_T2D.getFTHalf(i, j)),
                                                        1e-6),
                                            0),
                                    i,
@@ -945,7 +945,7 @@ void Reconstructor::reconstruct(Volume& dst)
             VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                 if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                     _W3D.setFTHalf(COMPLEX(1.0
-                                         / GSL_MAX_DBL(ABS(_T3D.getFTHalf(i, j, k)),
+                                         / TSGSL_MAX_DBL(ABS(_T3D.getFTHalf(i, j, k)),
                                                        1e-6),
                                            0),
                                    i,

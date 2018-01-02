@@ -235,8 +235,8 @@ class Particle
             _k2 = 1;
             _k3 = 1;
 
-            _s0 = DBL_MAX;
-            _s1 = DBL_MAX;
+            _s0 = TS_MAX_RFLOAT_VALUE;
+            _s1 = TS_MAX_RFLOAT_VALUE;
 
             _rho = 0;
 

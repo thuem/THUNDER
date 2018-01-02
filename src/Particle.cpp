@@ -929,7 +929,7 @@ void Particle::perturb(const RFLOAT pf,
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, vec4(1, 0, 0, 0), GSL_MIN_DBL(1, _k1 * pf), _nR);
+            sampleVMS(d, vec4(1, 0, 0, 0), TSGSL_MIN_DBL(1, _k1 * pf), _nR);
 
             vec4 quat;
 
@@ -945,9 +945,9 @@ void Particle::perturb(const RFLOAT pf,
         else if (_mode == MODE_3D)
         {
             sampleACG(d,
-                      TSGSL_pow_2(pf) * GSL_MIN_DBL(1, _k1),
-                      TSGSL_pow_2(pf) * GSL_MIN_DBL(1, _k2),
-                      TSGSL_pow_2(pf) * GSL_MIN_DBL(1, _k3),
+                      TSGSL_pow_2(pf) * TSGSL_MIN_DBL(1, _k1),
+                      TSGSL_pow_2(pf) * TSGSL_MIN_DBL(1, _k2),
+                      TSGSL_pow_2(pf) * TSGSL_MIN_DBL(1, _k3),
                       _nR);
 
             vec4 mean;

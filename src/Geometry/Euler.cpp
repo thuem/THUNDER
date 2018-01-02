@@ -85,10 +85,10 @@ void quaternion(vec4& dst,
 void quaternion(vec4& dst,
                 const mat33& src)
 {
-    dst(0) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 + src(0, 0) + src(1, 1) + src(2, 2)));
-    dst(1) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 + src(0, 0) - src(1, 1) - src(2, 2)));
-    dst(2) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 - src(0, 0) + src(1, 1) - src(2, 2)));
-    dst(3) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 - src(0, 0) - src(1, 1) + src(2, 2)));
+    dst(0) = 0.5 * sqrt(TSGSL_MAX_DBL(0, 1 + src(0, 0) + src(1, 1) + src(2, 2)));
+    dst(1) = 0.5 * sqrt(TSGSL_MAX_DBL(0, 1 + src(0, 0) - src(1, 1) - src(2, 2)));
+    dst(2) = 0.5 * sqrt(TSGSL_MAX_DBL(0, 1 - src(0, 0) + src(1, 1) - src(2, 2)));
+    dst(3) = 0.5 * sqrt(TSGSL_MAX_DBL(0, 1 - src(0, 0) - src(1, 1) + src(2, 2)));
 
     dst(1) = copysign(dst(1), src(2, 1) - src(1, 2));
     dst(2) = copysign(dst(2), src(0, 2) - src(2, 0));

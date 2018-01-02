@@ -236,6 +236,19 @@ int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, 
 }
 
 
+
+/*
+ *RFLOAT TSGSL_MAX_DBL(RFLOAT a, RFLOAT b)
+ *{
+ *    return  a > b ? a : b;
+ *}
+ *
+ *RFLOAT TSGSL_MIN_DBL(RFLOAT a, RFLOAT b)
+ *{
+ *    return a < b ? a: b;
+ *}
+ *
+ */
 int TSGSL_isinf (const RFLOAT x)
 {
     return gsl_isinf(x); 

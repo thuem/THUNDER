@@ -57,7 +57,7 @@ void Model::init(const int mode,
     _sym = sym;
 
     _FSC = mat::Constant(1, _k, 1);
-    _tau = mat::Constant(1, _k, DBL_MAX);
+    _tau = mat::Constant(1, _k, TS_MAX_RFLOAT_VALUE);
 }
 
 int Model::mode() const
@@ -859,7 +859,7 @@ void Model::refreshSig(const vec& sig)
 /***
 void Model::resetTau()
 {
-    _tau = mat::Constant(_tau.rows(), _tau.rows(), DBL_MAX);
+    _tau = mat::Constant(_tau.rows(), _tau.rows(), TS_MAX_RFLOAT_VALUE);
 }
 
 void Model::resetTau(const vec tau)
@@ -1193,11 +1193,11 @@ void Model::setTVariS1(const RFLOAT tVariS1)
 
 void Model::resetTVari()
 {
-    _tVariS0Prev = DBL_MAX;
-    _tVariS1Prev = DBL_MAX;
+    _tVariS0Prev = TS_MAX_RFLOAT_VALUE;
+    _tVariS1Prev = TS_MAX_RFLOAT_VALUE;
 
-    _tVariS0 = DBL_MAX;
-    _tVariS1 = DBL_MAX;
+    _tVariS0 = TS_MAX_RFLOAT_VALUE;
+    _tVariS1 = TS_MAX_RFLOAT_VALUE;
 }
 
 void Model::setStdRVari(const RFLOAT stdRVari)

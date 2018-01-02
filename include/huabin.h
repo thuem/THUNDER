@@ -80,27 +80,40 @@ gsl_stats_float_sd_m
 
 
 #ifdef USING_SINGLE_PRECISION
-typedef float RFLOAT;
-#define TSFFTW_COMPLEX fftwf_complex
-#define TSFFTW_PLAN fftwf_plan
-#define TS_MPI_DOUBLE MPI_FLOAT
-#define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
-typedef struct _complex_float_t
-{
-    float dat[2];
-}Complex;
+    typedef float RFLOAT;
+    #define TSFFTW_COMPLEX fftwf_complex
+    #define TSFFTW_PLAN fftwf_plan
+    #define TS_MPI_DOUBLE MPI_FLOAT
+    #define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
+    #define TS_MAX_RFLOAT_VALUE FLT_MAX
+    typedef struct _complex_float_t
+    {
+        float dat[2];
+    }Complex;
 #else
-typedef double RFLOAT;
-#define TSFFTW_COMPLEX fftw_complex
-#define TSFFTW_PLAN fftw_plan
-#define TS_MPI_DOUBLE MPI_DOUBLE
-#define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
-typedef struct _complex_float_t
-{
-    double dat[2];
-}Complex;
+    typedef double RFLOAT;
+    #define TSFFTW_COMPLEX fftw_complex
+    #define TSFFTW_PLAN fftw_plan
+    #define TS_MPI_DOUBLE MPI_DOUBLE
+    #define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
+    #define TS_MAX_RFLOAT_VALUE DBL_MAX
+    typedef struct _complex_float_t
+    {
+        double dat[2];
+    }Complex;
 
 #endif
+
+
+inline RFLOAT TSGSL_MAX_DBL(RFLOAT a, RFLOAT b)
+{
+    return  a > b ? a : b;
+}
+
+inline RFLOAT TSGSL_MIN_DBL(RFLOAT a, RFLOAT b)
+{
+    return a < b ? a: b;
+}
 
 RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
 RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
