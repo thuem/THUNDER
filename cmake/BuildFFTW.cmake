@@ -22,8 +22,8 @@ include(externalproject)
 externalproject_add(FFTW
                     SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/packages/fftw-3.3.7
                     CONFIGURE_COMMAND <SOURCE_DIR>/configure ${ext_conf_flags_fft}
-                    INSTALL_DIR ${FFTW_PATH}/fftw3
-                    BINARY_DIR ${FFTW_PATH}/fftw3
+                    INSTALL_DIR ${FFTW_PATH}
+                    BINARY_DIR ${FFTW_PATH}/build
                     LOG_INSTALL)
 
                 #set(BUILD_OWN_FFTW TRUE)
