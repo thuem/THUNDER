@@ -1,8 +1,11 @@
-cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
-
+cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR) 
 project(THUNDER)
 
 option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
+
+set(COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
+set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
+set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
 #if(USING_SINGLE_PRECISION STREQUAL "yes")
 #    add_definitions(-DUSING_SINGLE_PRECISION)
@@ -92,6 +95,12 @@ include_directories(${PROJECT_BINARY_DIR}/external/fftw/include)
 
 # Build GSL
 
+include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
+
+# Add Header of GSL
+
+include_directories(${PROJECT_SOURCE_DIR}/external/gsl/include)
+
 # Add Header of Eigen3
 
 include_directories(${PROJECT_SOURCE_DIR}/external/Eigen3)
@@ -108,18 +117,14 @@ include_directories(${PROJECT_SOURCE_DIR}/external/boost)
 
 include_directories(${PROJECT_SOURCE_DIR}/external/easylogging)
 
-# Add Header of GSL
-
-include_directories(${PROJECT_SOURCE_DIR}/external/gsl-2.4)
-
-# Add Header of FFTW-3
-
 include_directories(${PROJECT_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}/include/Functions
                     ${PROJECT_SOURCE_DIR}/include/Geometry
                     ${PROJECT_SOURCE_DIR}/include/Image)
 
-                #file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+
+add_library(thunder STATIC ${SOURCES})
 
 #set (EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external)
 #file (GLOB EXTERNAL_SUBDIR ${EXTERNAL_DIR}/*)

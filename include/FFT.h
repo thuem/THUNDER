@@ -14,9 +14,9 @@
 #define FFT_H
 
 #ifdef USING_SINGLE_PRECISION
-#include <fftw3float/fftw3.h>
+#include <fftw3.h>
 #else
-#include <fftw3double/fftw3.h>
+#include <fftw3.h>
 #endif
 
 #include "Logging.h"
