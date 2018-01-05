@@ -86,6 +86,10 @@ option(SINGLE_PRECISION "Whether to use single float precision in caculation?" O
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
+# Add Header of FFTW
+
+include_directories(${PROJECT_BINARY_DIR}/external/fftw/include)
+
 # Build GSL
 
 # Add Header of Eigen3
@@ -94,19 +98,19 @@ include_directories(${PROJECT_SOURCE_DIR}/external/Eigen3)
 
 # Add Header of jsoncpp
 
-include_directories(${PROJECT_SOURCE_DIR/external/jsoncpp)
+include_directories(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
 # Add Header of boost
 
-include_directories(${PROJECT_SOURCE_DIR/external/boost)
+include_directories(${PROJECT_SOURCE_DIR}/external/boost)
 
 # Add Header of easylogging
 
-include_directories(${PROJECT_SOURCE_DIR/external/easylogging)
+include_directories(${PROJECT_SOURCE_DIR}/external/easylogging)
 
 # Add Header of GSL
 
-include_directories(${PROJECT_SOURCE_DIR/external/gsl-2.4)
+include_directories(${PROJECT_SOURCE_DIR}/external/gsl-2.4)
 
 # Add Header of FFTW-3
 
