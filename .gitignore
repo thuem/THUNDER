@@ -17,7 +17,6 @@
 
 *.thubox
 
-*.sh
 *bak
 cscope*
 *.orig
