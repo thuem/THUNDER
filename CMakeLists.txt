@@ -7,6 +7,30 @@ set(COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-c
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
+# MPI
+
+find_package(MPI REQUIRED)
+
+include_directories(${MPI_INCLUDE_PATH})
+
+message(STATUS "MPI_INCLUDE_PATH : ${MPI_INCLUDE_PATH}")
+message(STATUS "MPI_LIBRARIES : ${MPI_LIBRARIES}")
+message(STATUS "MPI_CXX_INCLUDE_PATH : ${MPI_CXX_INCLUDE_PATH}")
+message(STATUS "MPI_CXX_LIBRARIES : ${MPI_CXX_LIBRARIES}")
+
+set(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+
+message(STATUS "MPI_C_COMPILER : ${MPI_C_COMPILER}")
+message(STATUS "MPI_CXX_COMPILER : ${MPI_CXX_COMPILER}")
+
+# Config
+
+configure_file("${PROJECT_SOURCE_DIR}/THUNDERConfig.h.in"
+               "${PROJECT_BINARY_DIR}/THUNDERConfig.h")
+
+include_directories(${PROJECT_BINARY_DIR})
+
 #if(USING_SINGLE_PRECISION STREQUAL "yes")
 #    add_definitions(-DUSING_SINGLE_PRECISION)
 #    set(USING_SINGLE_PRECISION "yes")
@@ -117,19 +141,29 @@ include_directories(${PROJECT_SOURCE_DIR}/external/boost)
 
 include_directories(${PROJECT_SOURCE_DIR}/external/easylogging)
 
+# Add Header of THUNDER core
+
 include_directories(${PROJECT_SOURCE_DIR}/include
                     ${PROJECT_SOURCE_DIR}/include/Functions
                     ${PROJECT_SOURCE_DIR}/include/Geometry
                     ${PROJECT_SOURCE_DIR}/include/Image)
 
+# Compile Binary of THUNDER core
+
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_library(core STATIC ${SOURCES})
 
+# Link Libraries
+
+link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES})
+
+# Compile Executables
+
 file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
 
 foreach(BINSRC ${BIN_SOURCES})
-    get_filename_component(BINNAME ${BINSRC} NAME_WE)
+    get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
     add_executable(${BINNAME} ${BINSRC})
 endforeach()
 

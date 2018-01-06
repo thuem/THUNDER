@@ -26,7 +26,7 @@
 #include <algorithm>
 
 
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else
 #include <fftw3.h>

@@ -15,6 +15,8 @@
 #include <gsl/gsl_complex_math.h>
 #include <math.h>
 
+#include "Config.h"
+
 #include "Typedef.h"
 
 /*
@@ -36,7 +38,7 @@
  #define COMPLEX_POLAR(phi) ts_complex_polar(1.0, phi)
 inline Complex ts_complex_polar(RFLOAT r, RFLOAT phi)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     Complex z;
     z.dat[0] = r * cosf(phi);
     z.dat[1] = r * sinf(phi);
@@ -58,7 +60,7 @@ inline Complex CONJUGATE(const Complex &a)
 
 static RFLOAT ts_hypot (const RFLOAT x, const RFLOAT y)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
   RFLOAT xabs = fabsf(x) ;
   RFLOAT yabs = fabsf(y) ;
 #else
@@ -84,7 +86,7 @@ static RFLOAT ts_hypot (const RFLOAT x, const RFLOAT y)
 
   {
     RFLOAT u = min / max ;
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return max * sqrtf (1 + u * u) ;
 #else
     return max * sqrt (1 + u * u) ;

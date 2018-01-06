@@ -1,18 +1,20 @@
 set(FFTW_PATH "${PROJECT_BINARY_DIR}/external/fftw")
 
 if(SINGLE_PRECISION)
-    set(libfft "thunderfftw3f")
+    set(libfft "fftw3f")
     set(ext_conf_flags_fft --enable-shared --enable-float --prefix=${FFTW_PATH})
     if(TARGET_X86)
         set(ext_conf_flags_fft ${ext_conf_flags_fft} --enable-sse --enable-avx)
     endif(TARGET_X86)
 else(SINGLE_PRECISION)
-    set(libfft "thunderfftw3")
+    set(libfft "fftw3")
     set(ext_conf_flags_fft --enable-shared --prefix=${FFTW_PATH})
     if(TARGET_X86)
         set(ext_conf_flags_fft ${ext_conf_flags_fft} --enable-sse2 --enable-avx)
     endif(TARGET_X86)
 endif(SINGLE_PRECISION)
+
+set(FFTW_LIBRARIES ${FFTW_PATH}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${libfft}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 #set(FFTW_LIB "${FFTW_PATH}/lib/${libfft}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 #set(FFTW_INCLUDE "${FFTW_PATH}/include")

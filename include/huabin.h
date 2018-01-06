@@ -51,8 +51,10 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 
+#include "Config.h"
 
-#ifdef USING_SINGLE_PRECISION
+
+#ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else
 #include <fftw3.h>
@@ -77,12 +79,12 @@ gsl_stats_float_sd_m
 
 
 /*
- *#define USING_SINGLE_PRECISION 1
+ *#define SINGLE_PRECISION 1
  */
 
 
 
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     typedef float RFLOAT;
     #define TSFFTW_COMPLEX fftwf_complex
     #define TSFFTW_PLAN fftwf_plan

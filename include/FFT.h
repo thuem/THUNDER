@@ -13,7 +13,7 @@
 #ifndef FFT_H
 #define FFT_H
 
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else
 #include <fftw3.h>
@@ -23,6 +23,7 @@
 
 #include <omp_compat.h>
 
+#include "Config.h"
 #include "Complex.h"
 
 #include "Image.h"

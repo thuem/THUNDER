@@ -1,10 +1,12 @@
 set(GSL_PATH "${PROJECT_BINARY_DIR}/external/gsl")
 
-set(libgsl "thundergsl")
+set(libgsl "gsl")
 set(ext_conf_flags_gsl --prefix=${GSL_PATH})
 
 #set(FFTW_LIB "${FFTW_PATH}/lib/${libfft}${CMAKE_SHARED_LIBRARY_SUFFIX}")
 #set(FFTW_INCLUDE "${FFTW_PATH}/include")
+
+set(GSL_LIBRARIES ${GSL_PATH}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}${libgsl}${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 include(externalproject)
 

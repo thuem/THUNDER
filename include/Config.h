@@ -1,5 +1,4 @@
 //This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -12,6 +11,9 @@
 
 #ifndef CONFIG_H
 #define CONFIG_H
+
+#include "THUNDERConfig.h"
+#include "huabin.h"
 
 #define VERBOSE_LEVEL_0
 
