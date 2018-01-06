@@ -10,7 +10,7 @@ set(GSL_LIBRARIES ${GSL_LIBRARIES} ${GSL_PATH}/lib/${CMAKE_STATIC_LIBRARY_PREFIX
 
 message(STATUS "GSL_LIBRARIES : ${GSL_LIBRARIES}")
 
-include(externalproject)
+include(ExternalProject)
 
 externalproject_add(GSL
                     SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/packages/gsl-2.4

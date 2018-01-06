@@ -15,7 +15,7 @@ endif(SINGLE_PRECISION)
 
 message(STATUS "FFTW_LIBRARIES : ${FFTW_LIBRARIES}")
 
-include(externalproject)
+include(ExternalProject)
 
 externalproject_add(FFTW
                     SOURCE_DIR ${PROJECT_SOURCE_DIR}/external/packages/fftw-3.3.7
