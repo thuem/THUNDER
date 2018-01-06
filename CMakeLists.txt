@@ -53,7 +53,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
 
 # Add Header of GSL
 
-include_directories(${PROJECT_SOURCE_DIR}/external/gsl/include)
+include_directories(${PROJECT_BINARY_DIR}/external/gsl/include)
 
 # Add Header of Eigen3
 
