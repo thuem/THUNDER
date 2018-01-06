@@ -124,7 +124,14 @@ include_directories(${PROJECT_SOURCE_DIR}/include
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
-add_library(thunder STATIC ${SOURCES})
+add_library(core STATIC ${SOURCES})
+
+file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
+
+foreach(BINSRC ${BIN_SOURCES})
+    get_filename_component(BINNAME ${BINSRC} NAME_WE)
+    add_executable(${BINNAME} ${BINSRC})
+endforeach()
 
 #set (EXTERNAL_DIR ${PROJECT_SOURCE_DIR}/external)
 #file (GLOB EXTERNAL_SUBDIR ${EXTERNAL_DIR}/*)
