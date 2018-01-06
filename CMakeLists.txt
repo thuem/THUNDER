@@ -38,7 +38,7 @@ install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
 
 include_directories(${PROJECT_BINARY_DIR})
 
-message(STATUS "Build FFTW-3")
+message(STATUS "Getting Ready for Building FFTW-3")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
@@ -46,7 +46,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
 include_directories(${PROJECT_BINARY_DIR}/external/fftw/include)
 
-message(STATUS "Build GSL")
+message(STATUS "Getting Ready for Building GSL")
 
 # Build GSL
 
@@ -66,7 +66,7 @@ include_directories(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
 # Compile Libary of jsoncpp
 
-message(STATUS "Build jsoncpp")
+message(STATUS "Getting Ready for Building jsoncpp")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
@@ -91,6 +91,14 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_library(core STATIC ${SOURCES})
 
+# Make Sure FFTW and GSL is Built Before Linking
+
+add_dependencies(core FFTW)
+add_dependencies(core GSL)
+
+install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
+install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
+
 # Link Libraries
 
 link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
@@ -102,5 +110,5 @@ file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
 foreach(BINSRC ${BIN_SOURCES})
     get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
     add_executable(${BINNAME} ${BINSRC})
-    install(TARGETS ${BINNAME} DESTINATION bin)
+    install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
 endforeach()
