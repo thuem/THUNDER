@@ -37,7 +37,7 @@ install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
 
 include_directories(${PROJECT_BINARY_DIR})
 
-message(STATUS "Getting Ready for Building FFTW-3")
+message(STATUS "Getting ready for building FFTW-3")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
@@ -45,7 +45,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
 include_directories(${PROJECT_BINARY_DIR}/external/fftw/include)
 
-message(STATUS "Getting Ready for Building GSL")
+message(STATUS "Getting ready for building GSL")
 
 # Build GSL
 
@@ -65,7 +65,7 @@ include_directories(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
 # Compile Libary of jsoncpp
 
-message(STATUS "Getting Ready for Building jsoncpp")
+message(STATUS "Getting ready for building jsoncpp")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
