@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
 find_package(MPI REQUIRED)
 
-include_directories(${MPI_INCLUDE_PATH})
+include_directories("${MPI_INCLUDE_PATH}")
 
 message(STATUS "MPI_INCLUDE_PATH : ${MPI_INCLUDE_PATH}")
 message(STATUS "MPI_LIBRARIES : ${MPI_LIBRARIES}")
