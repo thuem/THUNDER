@@ -48,6 +48,6 @@ void CTF(Image& dst,
          const RFLOAT defocusV,
          const RFLOAT theta,
          const RFLOAT Cs,
-         const RFLOAT phaseShift);
+         const RFLOAT phaseShift = 0);
 
 #endif // CTF_H

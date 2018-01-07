@@ -17,7 +17,7 @@ RFLOAT CTF(const RFLOAT f,
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
     RFLOAT K1 = M_PI * lambda;
-    RFLOAT K2 = M_PI / 2 * Cs * TSGSL_pow_3(lambda);
+    RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
 
     RFLOAT ki = -K1 * defocus * TSGSL_pow_2(f) + K2 * TSGSL_pow_4(f);
 
@@ -36,7 +36,7 @@ void CTF(Image& dst,
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
     RFLOAT K1 = M_PI * lambda;
-    RFLOAT K2 = M_PI / 2 * Cs * TSGSL_pow_3(lambda);
+    RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
 
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
