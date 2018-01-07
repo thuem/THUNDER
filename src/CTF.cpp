@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependecy:
@@ -13,7 +11,8 @@
 RFLOAT CTF(const RFLOAT f,
            const RFLOAT voltage,
            const RFLOAT defocus,
-           const RFLOAT Cs)
+           const RFLOAT Cs,
+           const RFLOAT phaseShift)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
@@ -31,11 +30,10 @@ void CTF(Image& dst,
          const RFLOAT defocusU,
          const RFLOAT defocusV,
          const RFLOAT theta,
-         const RFLOAT Cs)
+         const RFLOAT Cs,
+         const RFLOAT phaseShift)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
-
-    //std::cout << "lambda = " << lambda << std::endl;
 
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI / 2 * Cs * TSGSL_pow_3(lambda);
