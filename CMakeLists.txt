@@ -8,7 +8,29 @@ message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MI
 
 option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
 
-set(COMMON_FLAGS "-Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
+#option(CMAKE_BUILD_TYPE "Build THUNDER for releasing or debugging?" "release")
+
+#add_definitions(-DCMAKE_BUILD_TYPE="release")
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "")
+    set(CMAKE_BUILD_TYPE "release")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+    set(COMMON_FLAGS "-O3")
+    message(STATUS
+            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -O3 flag.")
+elseif("${CMAKE_BUILD_TYPE}" STREQUAL "debug")
+    set(COMM_FLAGS "-g O0")
+    message(STATUS
+            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -g -O0 flag.")
+else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+    message(FATAL_ERROR
+            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE} is not valid."
+            "Valid option is release or debug.")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+
+set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
