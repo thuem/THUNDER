@@ -19,6 +19,7 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_cdf.h>
 
+#include "huabin.h"
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
@@ -1052,6 +1053,8 @@ class Particle
          * This function shuffles the sampling points.
          */
         void shuffle();
+
+        void balanceWeight(const ParticleType pt);
 
         /**
          * This function will copy the content to another Particle object.
