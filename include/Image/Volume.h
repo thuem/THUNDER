@@ -184,9 +184,10 @@ class Volume : public ImageBase
         Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                             _nCol(that._nCol),
                                             _nRow(that._nRow),
-                                            _nSlc(that._nSlc),
-                                            _nColFT(that._nColFT)
+                                            _nSlc(that._nSlc)
         {
+            _nColFT = that._nColFT;
+
             FOR_CELL_DIM_3
                 _box[k][j][i] = that._box[k][j][i];
 
@@ -256,7 +257,7 @@ class Volume : public ImageBase
          * This function returns the number of columns of this volume in Fourier
          * space.
          */
-        inline int nColFT() const { return _nColFT; };
+        inline int nColFT() const { return _nCol / 2 + 1; };
 
         /**
          * This function returns the number of rows of this volume in Fourier

@@ -13,7 +13,6 @@
 #define CONFIG_H
 
 #include "THUNDERConfig.h"
-#include "huabin.h"
 
 #define VERBOSE_LEVEL_0
 

@@ -1937,7 +1937,6 @@ void Particle::shuffle(const ParticleType pt)
 
 void Particle::shuffle()
 {
-    shuffle(PAR_C);
     shuffle(PAR_R);
     shuffle(PAR_T);
     shuffle(PAR_D);
