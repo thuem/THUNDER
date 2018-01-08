@@ -78,12 +78,6 @@ gsl_stats_float_sd_m
 */
 
 
-/*
- *#define SINGLE_PRECISION 1
- */
-
-
-
 #ifdef SINGLE_PRECISION
     typedef float RFLOAT;
     #define TSFFTW_COMPLEX fftwf_complex
