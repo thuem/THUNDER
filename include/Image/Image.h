@@ -185,7 +185,7 @@ class Image : public ImageBase
         /**
          * This function returns the number of columns in Fourier space.
          */
-        inline int nColFT() const { return _nColFT; };
+        inline int nColFT() const { return _nCol / 2 + 1; };
 
         /**
          * This function returns the number of rows in Fourier space.
@@ -332,7 +332,7 @@ class Image : public ImageBase
         inline int iFTHalf(const int i,
                            const int j) const
         {
-            return (j >= 0 ? j : j + _nRow) * _nColFT + i;
+            return (j >= 0 ? j : j + _nRow) * (_nColFT / + 1) + i;
             //return 0;
         }
 
