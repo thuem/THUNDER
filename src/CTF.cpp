@@ -49,13 +49,13 @@ void CTF(Image& dst,
 
         RFLOAT ki = K1 * defocus * TSGSL_pow_2(u) + K2 * TSGSL_pow_4(u);
 
-        dst.setFTHalf(0,
-                      i,
-                      j);
         /***
-        dst.setFTHalf(COMPLEX(-w1 * sin(ki) + w2 * cos(ki), 0),
+        dst.setFTHalf(COMPLEX(0, 0),
                       i,
                       j);
         ***/
+        dst.setFTHalf(COMPLEX(-w1 * sin(ki) + w2 * cos(ki), 0),
+                      i,
+                      j);
     }
 }
