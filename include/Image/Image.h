@@ -326,8 +326,8 @@ class Image : public ImageBase
         inline int iFTHalf(const int i,
                            const int j) const
         {
-            //return (j >= 0 ? j : j + _nRow) * _nColFT + i;
-            return 0;
+            return (j >= 0 ? j : j + _nRow) * _nColFT + i;
+            //return 0;
         }
 
     private:
