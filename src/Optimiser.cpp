@@ -2640,7 +2640,8 @@ void Optimiser::initCTF()
             _ctfAttr[l].defocusU,
             _ctfAttr[l].defocusV,
             _ctfAttr[l].defocusTheta,
-            _ctfAttr[l].Cs);
+            _ctfAttr[l].Cs,
+            0);
     }
 }
 
