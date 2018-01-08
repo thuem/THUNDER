@@ -5254,9 +5254,12 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
 
     for(int i = 0; i < m; i ++)
     {
-        for(int j = 0; j < n; j ++)
+        int idx = i * n;
+
+        for(int j = 0; j < n; j++)
         {
-            int idx       = i * n + j;
+            idx++;
+
             tmpCPMulReal  = ctf[idx] * pri[i].dat[0];
             tmpCPMulImag  = ctf[idx] * pri[i].dat[1];
 
@@ -5271,13 +5274,6 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
     
     return result2;
 }
-
-
-
-
-
-
-
 
 RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,
