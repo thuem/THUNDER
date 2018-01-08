@@ -424,7 +424,10 @@ void Image::coordinatesInBoundaryRL(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
+    {
         REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
+        abort();
+    }
 }
 
 void Image::coordinatesInBoundaryFT(const int iCol,
@@ -432,7 +435,10 @@ void Image::coordinatesInBoundaryFT(const int iCol,
 {
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
+    {
         REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
+        abort();
+    }
 }
 
 Complex Image::getFTHalf(const RFLOAT w[2][2],
