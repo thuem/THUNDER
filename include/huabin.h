@@ -53,7 +53,6 @@
 
 #include "Config.h"
 
-
 #ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else
