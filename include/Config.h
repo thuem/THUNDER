@@ -17,11 +17,11 @@
 
 #define VERBOSE_LEVEL_0
 
-#define VERBOSE_LEVEL_1
+//#define VERBOSE_LEVEL_1
 
 //#define VERBOSE_LEVEL_2
 
-#define VERBOSE_LEVEL_3
+//#define VERBOSE_LEVEL_3
 
 //#define VERBOSE_LEVEL_4
 
@@ -29,7 +29,7 @@
 
 //#define FUNCTIONS_MKB_ORDER_2
 
-//#define IMG_VOL_BOUNDARY_NO_CHECK
+#define IMG_VOL_BOUNDARY_NO_CHECK
 
 #define MATRIX_BOUNDARY_NO_CHECK
 
