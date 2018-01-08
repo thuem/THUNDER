@@ -21,7 +21,7 @@
 
 //#define VERBOSE_LEVEL_2
 
-//#define VERBOSE_LEVEL_3
+#define VERBOSE_LEVEL_3
 
 //#define VERBOSE_LEVEL_4
 
