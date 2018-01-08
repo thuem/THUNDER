@@ -128,10 +128,16 @@ class Image : public ImageBase
 
         Image(BOOST_RV_REF(Image) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                           _nCol(that._nCol),
-                                          _nRow(that._nRow)
+                                          _nRow(that._nRow),
+                                          _nColFT(that._nColFT)
         {
+            FOR_CELL_DIM_2
+                _box[j][i] = that._box[j][i];
+
             that._nCol = 0;
             that._nRow = 0;
+
+            that._nColFT = 0;
         }
 
         /**
@@ -326,7 +332,7 @@ class Image : public ImageBase
         inline int iFTHalf(const int i,
                            const int j) const
         {
-            return (j >= 0 ? j : j + _nRow) * (_nCol / 2 + 1) + i;
+            return (j >= 0 ? j : j + _nRow) * _nColFT + i;
             //return 0;
         }
 
