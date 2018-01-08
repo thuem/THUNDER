@@ -13,8 +13,6 @@
 #ifndef TYPEDEF_H
 #define TYPEDEF_H
 
-#include <gsl/gsl_complex.h>
-
 #include <Eigen/Dense>
 
 #include "Macro.h"
@@ -26,10 +24,6 @@
 using namespace Eigen;
 
 typedef unsigned long size_t;
-
-/*
- *typedef gsl_complex Complex;
- */
 
 typedef Matrix<RFLOAT, Dynamic, Dynamic> mat;
 typedef Matrix<RFLOAT, Dynamic, 1> vec;

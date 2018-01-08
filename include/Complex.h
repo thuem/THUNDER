@@ -35,7 +35,8 @@
  *#define IMAG(a) GSL_IMAG(a)
  *
  */
- #define COMPLEX_POLAR(phi) ts_complex_polar(1.0, phi)
+#define COMPLEX_POLAR(phi) ts_complex_polar(1.0, phi)
+
 inline Complex ts_complex_polar(RFLOAT r, RFLOAT phi)
 {
 #ifdef SINGLE_PRECISION
@@ -114,6 +115,7 @@ inline Complex COMPLEX(RFLOAT a, RFLOAT b)
     z.dat[1] = b;
     return z;
 };
+
 inline RFLOAT REAL(const Complex& a)
 {
     return a.dat[0];
