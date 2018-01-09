@@ -65,7 +65,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
 # Add Header of FFTW
 
-include_directories(${PROJECT_BINARY_DIR}/external/fftw/include)
+include_directories(AFTER ${PROJECT_BINARY_DIR}/external/fftw/include)
 
 message(STATUS "Getting ready for building GSL")
 
@@ -75,7 +75,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
 
 # Add Header of GSL
 
-include_directories(${PROJECT_BINARY_DIR}/external/gsl/include)
+include_directories(AFTER ${PROJECT_BINARY_DIR}/external/gsl/include)
 
 # Add Header of Eigen3
 
