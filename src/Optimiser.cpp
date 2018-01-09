@@ -1745,8 +1745,14 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Variance of Rotation and Translation Calculated";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation Between Iterations";
         refreshRotationChange();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Changes of Rotation Between Iterations Calculated";
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
