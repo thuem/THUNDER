@@ -1326,14 +1326,12 @@ void Optimiser::expectation()
                 }
             }
 
-            /***
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             _par[l].setUC(wC(0), 0);
 #else
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
 #endif
-            ***/
 
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
@@ -1382,11 +1380,9 @@ void Optimiser::expectation()
             }
 #endif
 
-            /***
 #ifndef OPTIMISER_KEEP_ONLY_ONE_CLASS
             _par[l].resample(_para.k, PAR_C);
 #endif
-            ***/
 
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
