@@ -257,7 +257,7 @@ class Volume : public ImageBase
          * This function returns the number of columns of this volume in Fourier
          * space.
          */
-        inline int nColFT() const { return _nCol / 2 + 1; };
+        inline int nColFT() const { return _nColFT; };
 
         /**
          * This function returns the number of rows of this volume in Fourier
