@@ -51,6 +51,7 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 
+#include "THUNDERConfig.h"
 #include "Config.h"
 
 #ifdef SINGLE_PRECISION

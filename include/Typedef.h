@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -15,7 +13,9 @@
 
 #include <Eigen/Dense>
 
+#include "THUNDERConfig.h"
 #include "Macro.h"
+#include "huabin.h"
 
 #ifdef MATRIX_BOUNDARY_NO_CHECK
 #define EIGEN_NO_DEBUG
