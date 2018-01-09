@@ -1099,6 +1099,7 @@ void Particle::resample(const int n,
 
         _wR /= _wR.sum();
 
+        /***
         if (_wR.sum() != 1)
         {
             CLOG(WARNING, "LOGGER_SYS") << _wR.sum();
@@ -1107,8 +1108,11 @@ void Particle::resample(const int n,
 
             abort();
         }
+        ***/
 
         vec cdf = cumsum(_wR);
+
+        int nOld = _nR;
 
         _nR = n;
         _wR.resize(_nR);
@@ -1123,7 +1127,17 @@ void Particle::resample(const int n,
             RFLOAT uj = u0 + j * 1.0 / _nR;
 
             while (uj > cdf[i])
+            {
                 i++;
+
+                if (i >= nOld)
+                {
+                    CLOG(WARNING, "LOGGER_SYS") << "cdf = " << cdf[i - 1];
+                    CLOG(WARNING, "LOGGER_SYS") << "uj = " << uj;
+
+                    abort();
+                }
+            }
         
             r.row(j) = _r.row(i);
 
