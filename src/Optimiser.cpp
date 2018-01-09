@@ -752,18 +752,18 @@ void Optimiser::expectation()
                                              (int)_ID.size(),
                                              _nPxl);
 
-/*
- *                    vec dvpOrig = logDataVSPrior(_datP,
- *                                             priAllP,
- *                                             _ctfP,
- *                                             _sigRcpP,
- *                                             (int)_ID.size(),
- *                                             _nPxl);
- *
- *                    compareDVPVariable(dvp, dvpOrig, _commRank, omp_get_thread_num(), (int)_ID.size(), _nPxl
- *);
- */
+                    /*
+                     *vec dvp = logDataVSPrior(_datP,
+                     *                         priAllP,
+                     *                         _ctfP,
+                     *                         _sigRcpP,
+                     *                         (int)_ID.size(),
+                     *                         _nPxl);
+                     */
 
+                    /*
+                     *compareDVPVariable(dvp, dvpOrig, _commRank, omp_get_thread_num(), (int)_ID.size(), _nPxl); 
+                     */
 #ifndef NAN_NO_CHECK
 
                     FOR_EACH_2D_IMAGE
@@ -1272,7 +1272,7 @@ void Optimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                                 /*
-                                 *wOrig = logDataVSPrior(_datP + l * _nPxl,
+                                 *w = logDataVSPrior(_datP + l * _nPxl,
                                  *                   priAllP,
                                  *                   _ctfP + l * _nPxl,
                                  *                   _sigRcpP + l * _nPxl,
@@ -1287,7 +1287,7 @@ void Optimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                                 /*
-                                 *wOrig = logDataVSPrior(_datP + l * _nPxl,
+                                 *w = logDataVSPrior(_datP + l * _nPxl,
                                  *                   priAllP,
                                  *                   ctfP + iD * _nPxl,
                                  *                   _sigRcpP + l * _nPxl,
