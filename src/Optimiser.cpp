@@ -923,12 +923,10 @@ void Optimiser::expectation()
             }
 #endif
 
-            /***
             _par[l].resample(_para.k, PAR_C);
 
-            _par[l].resample(_para.mLR, PAR_R);
+            // _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
-            ***/
 
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
