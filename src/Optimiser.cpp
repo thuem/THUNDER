@@ -1808,8 +1808,10 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 
+#ifdef OPTIMISER_SAVE_FSC
         MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
         saveFSC();
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Class Information";
         saveClassInfo();
