@@ -184,9 +184,10 @@ class Volume : public ImageBase
         Volume(BOOST_RV_REF(Volume) that) : ImageBase(BOOST_MOVE_BASE(ImageBase, that)),
                                             _nCol(that._nCol),
                                             _nRow(that._nRow),
-                                            _nSlc(that._nSlc)
+                                            _nSlc(that._nSlc),
+                                            _nColFT(that._nColFT)
         {
-            _nColFT = that._nColFT;
+            // _nColFT = that._nColFT;
 
             FOR_CELL_DIM_3
                 _box[k][j][i] = that._box[k][j][i];
