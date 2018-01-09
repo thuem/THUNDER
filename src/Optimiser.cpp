@@ -853,6 +853,7 @@ void Optimiser::expectation()
         
         // reset weights of particle filter
 
+        /***
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
@@ -1015,23 +1016,13 @@ void Optimiser::expectation()
             unsigned int cls;
             _par[l].rand(cls);
 
-            // _par[l].reset(1, _para.mLR, _para.mLT, 1);
-
             _par[l].setNC(1);
             _par[l].setC(uvec::Constant(1, cls));
             _par[l].setWC(vec::Constant(1, 1));
             _par[l].setUC(vec::Constant(1, 1));
-            
-            // _par[l].calVari(PAR_R);
-            // _par[l].calVari(PAR_T);
-
-            /***
-            _par[l].setC(uvec::Constant(_para.k, cls));
-            _par[l].setWC(vec::Constant(_para.k, 1.0 / _para.k));
-            _par[l].setUC(vec::Constant(_para.k, 1.0 / _para.k));
-            ***/
 #endif
         }
+        ***/
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
