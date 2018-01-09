@@ -1047,6 +1047,13 @@ void Particle::resample(const int n,
 
         _wC /= _wC.sum();
 
+        if (_wC.sum() != 1)
+        {
+            REPORT_ERROR("WRONG!");
+
+            abort();
+        }
+
         vec cdf = cumsum(_wC);
         
         _nC = n;
