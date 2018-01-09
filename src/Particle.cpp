@@ -1101,6 +1101,8 @@ void Particle::resample(const int n,
 
         if (_wR.sum() != 1)
         {
+            CLOG(WARNING, "LOGGER_SYS") << _wR.sum();
+
             REPORT_ERROR("WRONG!");
 
             abort();
