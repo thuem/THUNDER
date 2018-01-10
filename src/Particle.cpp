@@ -1112,6 +1112,8 @@ void Particle::resample(const int n,
 
         vec cdf = cumsum(_wR);
 
+        cdf /= cdf(_nR - 1);
+
         int nOld = _nR;
 
         _nR = n;
