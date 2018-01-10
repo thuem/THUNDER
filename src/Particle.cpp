@@ -1048,6 +1048,7 @@ void Particle::resample(const int n,
 #ifndef NAN_NO_CHECK
         if ((_wC.sum() == 0) || (TSGSL_isnan(_wC.sum())))
         {
+
             REPORT_ERROR("_wC, NAN DETECTED");
 
             abort();
@@ -1111,6 +1112,12 @@ void Particle::resample(const int n,
 #ifndef NAN_NO_CHECK
         if ((_wR.sum() == 0) || (TSGSL_isnan(_wR.sum())))
         {
+            for (int i = 0; i < _nR; i++)
+            {
+                CLOG(WARNING, "LOGGER_SYS") << "_uC " << i << ": " << _uC(i);
+                CLOG(WARNING, "LOGGER_SYS") << "_wC " << i << ": " << _wC(i);
+            }
+
             REPORT_ERROR("_wR, NAN DETECTED");
 
             abort();
