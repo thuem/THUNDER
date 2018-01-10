@@ -1033,13 +1033,22 @@ void Particle::resample(const int n,
 
         c(_topC, rank(0));
 
+#ifndef NAN_NO_CHECK
+        if ((_uC.sum() == 0) || (TSGSL_isnan(_uC.sum())))
+        {
+            REPORT_ERROR("_uC, NAN DETECTED");
+
+            abort();
+        }
+#endif
+
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
 
 #ifndef NAN_NO_CHECK
         if ((_wC.sum() == 0) || (TSGSL_isnan(_wC.sum())))
         {
-            REPORT_ERROR("NAN DETECTED");
+            REPORT_ERROR("_wC, NAN DETECTED");
 
             abort();
         }
@@ -1087,13 +1096,22 @@ void Particle::resample(const int n,
 
         quaternion(_topR, rank(0));
 
+#ifndef NAN_NO_CHECK
+        if ((_uR.sum() == 0) || (TSGSL_isnan(_uR.sum())))
+        {
+            REPORT_ERROR("_uR, NAN DETECTED");
+
+            abort();
+        }
+#endif
+
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
 
 #ifndef NAN_NO_CHECK
         if ((_wR.sum() == 0) || (TSGSL_isnan(_wR.sum())))
         {
-            REPORT_ERROR("NAN DETECTED");
+            REPORT_ERROR("_wR, NAN DETECTED");
 
             abort();
         }
@@ -1141,19 +1159,29 @@ void Particle::resample(const int n,
 
         t(_topT, rank(0));
 
-        for (int i = 0; i < _nT; i++)
-            _wT(i) *= _uT(i);
-
-        _wT /= _wT.sum();
-
 #ifndef NAN_NO_CHECK
-        if ((_wT.sum() == 0) || (TSGSL_isnan(_wT.sum())))
+        if ((_uT.sum() == 0) || (TSGSL_isnan(_uT.sum())))
         {
-            REPORT_ERROR("NAN DETECTED");
+            REPORT_ERROR("_uT, NAN DETECTED");
 
             abort();
         }
 #endif
+
+        for (int i = 0; i < _nT; i++)
+            _wT(i) *= _uT(i);
+
+#ifndef NAN_NO_CHECK
+        if ((_wT.sum() == 0) || (TSGSL_isnan(_wT.sum())))
+        {
+            REPORT_ERROR("_wT, NAN DETECTED");
+
+            abort();
+        }
+#endif
+
+        _wT /= _wT.sum();
+
         vec cdf = cumsum(_wT);
 
         cdf /= cdf(_nT - 1);
@@ -1195,13 +1223,22 @@ void Particle::resample(const int n,
 
         d(_topD, rank(0));
 
+#ifndef NAN_NO_CHECK
+        if ((_uD.sum() == 0) || (TSGSL_isnan(_uD.sum())))
+        {
+            REPORT_ERROR("_uD, NAN DETECTED");
+
+            abort();
+        }
+#endif
+
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);
 
 #ifndef NAN_NO_CHECK
         if ((_wD.sum() == 0) || (TSGSL_isnan(_wD.sum())))
         {
-            REPORT_ERROR("NAN DETECTED");
+            REPORT_ERROR("_wD, NAN DETECTED");
 
             abort();
         }
