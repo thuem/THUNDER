@@ -1315,6 +1315,38 @@ void Optimiser::expectation()
                 }
             }
 
+#ifndef NAN_NO_CHECK
+
+            if ((wC.sum() == 0) || (TSGSL_isnan(wC.sum())))
+            {
+                REPORT_ERROR("WC, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wR.sum() == 0) || (TSGSL_isnan(wR.sum())))
+            {
+                REPORT_ERROR("WR, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wT.sum() == 0) || (TSGSL_isnan(wT.sum())))
+            {
+                REPORT_ERROR("WT, NAN DETECTED");
+
+                abort();
+            }
+
+            if ((wD.sum() == 0) || (TSGSL_isnan(wD.sum())))
+            {
+                REPORT_ERROR("WT, NAN DETECTED");
+
+                abort();
+            }
+#endif
+
+
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             _par[l].setUC(wC(0), 0);
 #else
