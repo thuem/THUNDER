@@ -1323,7 +1323,7 @@ void Optimiser::expectation()
                 abort();
             }
 
-            for (int i = 0; i < wR.size(); i++)
+            for (int i = 0; i < _para.mLR; i++)
             {
                 if (wR(i) < 0)
                 {
