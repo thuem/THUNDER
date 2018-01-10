@@ -16,7 +16,7 @@
 
 #define VERBOSE_LEVEL_0
 
-#define VERBOSE_LEVEL_1
+//#define VERBOSE_LEVEL_1
 
 //#define VERBOSE_LEVEL_2
 
@@ -173,7 +173,7 @@
 
 //#define OPTIMISER_SAVE_SIGMA
 
-//#define OPTIMISER_SAVE_FSC
+#define OPTIMISER_SAVE_FSC
 
 //#define OPTIMISER_REFRESH_SCALE_SPECTRUM
 
