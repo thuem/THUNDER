@@ -1293,7 +1293,6 @@ void Optimiser::expectation()
 
                             if (w > baseLine)
                             {
-
                                 RFLOAT nf = exp(baseLine - w);
 
                                 wC *= nf;
@@ -1322,6 +1321,18 @@ void Optimiser::expectation()
                 REPORT_ERROR("WC, NAN DETECTED");
 
                 abort();
+            }
+
+            for (int i = 0; i < wR.size(); i++)
+            {
+                if (wR(i) < 0)
+                {
+                    CLOG(WARNING, "LOGGER_SYS") << "wR " << i << ": " << wR(i);
+
+                    REPORT_ERROR("WRONG!");
+
+                    abort();
+                }
             }
 
             if ((wR.sum() == 0) || (TSGSL_isnan(wR.sum())))
