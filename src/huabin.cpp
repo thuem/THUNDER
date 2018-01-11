@@ -386,15 +386,23 @@ void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n)
 #endif
 }
 
-int TSGSL_sort_largest (RFLOAT * dest, const size_t k, const RFLOAT * src, const size_t stride, const size_t n)
+int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n)
 {
 #ifdef SINGLE_PRECISION
-    return gsl_sort_float_largest ( dest, k,  src, stride, n);
+    return gsl_sort_float_largest (dst, k,  src, stride, n);
 #else
-    return gsl_sort_largest ( dest, k,  src, stride, n);
+    return gsl_sort_largest (dst, k,  src, stride, n);
 #endif
 }
 
+void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const int n)
+{
+#ifdef SINGLE_PRECISION
+    return gsl_sort_float_index(dst, src, stride, n);
+#else
+    return gsl_sort_index(dst, src, stride, n);
+#endif
+}
 
 RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n)
 {

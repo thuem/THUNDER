@@ -28,8 +28,8 @@ typedef unsigned long size_t;
 typedef Matrix<RFLOAT, Dynamic, Dynamic> mat;
 typedef Matrix<RFLOAT, Dynamic, 1> vec;
 
-typedef Matrix<unsigned int, Dynamic, Dynamic> umat;
-typedef Matrix<unsigned int, Dynamic, 1> uvec;
+typedef Matrix<size_t, Dynamic, Dynamic> umat;
+typedef Matrix<size_t, Dynamic, 1> uvec;
 
 typedef Matrix<RFLOAT, 2, 1> vec2;
 typedef Matrix<RFLOAT, 3, 1> vec3;

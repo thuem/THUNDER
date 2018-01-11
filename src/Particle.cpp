@@ -704,13 +704,13 @@ void Particle::coord(Coordinate5D& dst,
 }
 ***/
 
-void Particle::c(unsigned int& dst,
+void Particle::c(size_t& dst,
                  const int i) const
 {
     dst = _c(i);
 }
 
-void Particle::setC(const unsigned int src,
+void Particle::setC(const size_t src,
                     const int i)
 {
     _c(i) = src;
@@ -1725,7 +1725,7 @@ RFLOAT Particle::diffTopD()
     return diff;
 }
 
-void Particle::rank1st(unsigned int& cls) const
+void Particle::rank1st(size_t& cls) const
 {
     cls = _topC;
 }
@@ -1761,7 +1761,7 @@ void Particle::rank1st(RFLOAT& df) const
     df = _topD;
 }
 
-void Particle::rank1st(unsigned int& cls,
+void Particle::rank1st(size_t& cls,
                        vec4& quat,
                        vec2& tran,
                        RFLOAT& df) const
@@ -1772,7 +1772,7 @@ void Particle::rank1st(unsigned int& cls,
     df = _topD;
 }
 
-void Particle::rank1st(unsigned int& cls,
+void Particle::rank1st(size_t& cls,
                        mat22& rot,
                        vec2& tran,
                        RFLOAT& df) const
@@ -1783,7 +1783,7 @@ void Particle::rank1st(unsigned int& cls,
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
-void Particle::rank1st(unsigned int& cls,
+void Particle::rank1st(size_t& cls,
                        mat33& rot,
                        vec2& tran,
                        RFLOAT& df) const
@@ -1794,7 +1794,7 @@ void Particle::rank1st(unsigned int& cls,
     rotate3D(rot, quat);
 }
 
-void Particle::rand(unsigned int& cls) const
+void Particle::rand(size_t& cls) const
 {
     gsl_rng* engine = get_random_engine();
 
@@ -1854,7 +1854,7 @@ void Particle::rand(RFLOAT& df) const
     d(df, u);
 }
 
-void Particle::rand(unsigned int& cls,
+void Particle::rand(size_t& cls,
                     vec4& quat,
                     vec2& tran,
                     RFLOAT& df) const
@@ -1865,7 +1865,7 @@ void Particle::rand(unsigned int& cls,
     rand(df);
 }
 
-void Particle::rand(unsigned int& cls,
+void Particle::rand(size_t& cls,
                     mat22& rot,
                     vec2& tran,
                     RFLOAT& df) const
@@ -1876,7 +1876,7 @@ void Particle::rand(unsigned int& cls,
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
-void Particle::rand(unsigned int& cls,
+void Particle::rand(size_t& cls,
                     mat33& rot,
                     vec2& tran,
                     RFLOAT& df) const
@@ -1899,7 +1899,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nC; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(size_t));
 
         uvec c(_nC);
         vec wC(_nC);
@@ -1922,7 +1922,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nR; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nR, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nR, sizeof(size_t));
 
         mat4 r(_nR, 4);
         vec wR(_nR);
@@ -1945,7 +1945,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nT; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nT, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nT, sizeof(size_t));
 
         mat2 t(_nT, 2);
         vec wT(_nT);
@@ -1968,7 +1968,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nD; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nD, sizeof(size_t));
 
         vec d(_nD);
         vec wD(_nD);
@@ -2095,7 +2095,7 @@ void Particle::clear() {}
 
 void display(const Particle& par)
 {
-    unsigned int c;
+    size_t c;
     vec4 q;
     vec2 t;
     RFLOAT d;
@@ -2106,7 +2106,7 @@ void display(const Particle& par)
         par.quaternion(q, iR);
         par.t(t, iT);
         par.d(d, iD);
-        printf("%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+        printf("%03lu %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                c,
                q(0), q(1), q(2), q(3),
                t(0), t(1),
@@ -2120,7 +2120,7 @@ void save(const char filename[],
 {
     FILE* file = fopen(filename, "w");
 
-    unsigned int c;
+    size_t c;
     vec4 q;
     vec2 t;
     RFLOAT d;
@@ -2132,7 +2132,7 @@ void save(const char filename[],
         par.t(t, iT);
         par.d(d, iD);
         fprintf(file,
-                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                "%03lu %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                 c,
                 q(0), q(1), q(2), q(3),
                 t(0), t(1),
@@ -2151,14 +2151,14 @@ void save(const char filename[],
 
     if (pt == PAR_C)
     {
-        unsigned int c;
+        size_t c;
 
         FOR_EACH_C(par)
         {
             par.c(c, iC);
 
             fprintf(file,
-                    "%03d %.24lf\n",
+                    "%03lu %.24lf\n",
                     c,
                     par.wC(iC));
         }

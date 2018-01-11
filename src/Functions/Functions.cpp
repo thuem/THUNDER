@@ -37,9 +37,11 @@ uvec index_sort_ascend(const vec& v)
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
 
+    /***
     IndexSortAscendComparator cmp;
     cmp.pv = &v;
     sort(idx.data(), idx.data() + idx.size(), cmp);
+    ***/
 
     return idx;
 }

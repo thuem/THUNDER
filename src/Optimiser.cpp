@@ -555,16 +555,16 @@ void Optimiser::init()
 struct Sp
 {
     RFLOAT _w;
-    unsigned int _k;
-    unsigned int _iR;
-    unsigned int _iT;
+    size_t _k;
+    size_t _iR;
+    size_t _iT;
 
     Sp() : _w(-TS_MAX_RFLOAT_VALUE), _k(0), _iR(0), _iT(0) {};
 
     Sp(const RFLOAT w,
-       const unsigned int k,
-       const unsigned int iR,
-       const unsigned int iT)
+       const size_t k,
+       const size_t iR,
+       const size_t iT)
     {
         _w = w;
         _k = k;
@@ -670,7 +670,7 @@ void Optimiser::expectation()
         Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
 
         #pragma omp parallel for schedule(dynamic) private(t)
-        for (unsigned int m = 0; m < (unsigned int)nT; m++)
+        for (size_t m = 0; m < (size_t)nT; m++)
         {
             par.t(t, m);
 
@@ -705,13 +705,13 @@ void Optimiser::expectation()
         // m -> rotation
         // n -> translation
         
-        for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
+        for (size_t t = 0; t < (size_t)_para.k; t++)
         {
             Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
             Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
 
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
-            for (unsigned int m = 0; m < (unsigned int)nR; m++)
+            for (size_t m = 0; m < (size_t)nR; m++)
             {
                 Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
 
@@ -738,7 +738,7 @@ void Optimiser::expectation()
                     abort();
                 }
 
-                for (unsigned int n = 0; n < (unsigned int)nT; n++)
+                for (size_t n = 0; n < (size_t)nT; n++)
                 {
                     for (int i = 0; i < _nPxl; i++)
                         priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
@@ -1012,7 +1012,7 @@ void Optimiser::expectation()
 
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
 
-            unsigned int cls;
+            size_t cls;
             _par[l].rand(cls);
 
             _par[l].setNC(1);
@@ -1144,7 +1144,7 @@ void Optimiser::expectation()
             vec wT = vec::Zero(_para.mLT);
             vec wD = vec::Zero(_para.mLD);
 
-            unsigned int c;
+            size_t c;
             mat22 rot2D;
             mat33 rot3D;
             RFLOAT d;
@@ -2909,7 +2909,7 @@ void Optimiser::loadParticles()
     BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
     ***/
 
-    // unsigned int cls;
+    // size_t cls;
     vec4 quat;
     vec2 tran;
     RFLOAT d;
@@ -3064,7 +3064,7 @@ void Optimiser::refreshClassDistr()
 
     NT_MASTER
     {
-        unsigned int cls;
+        size_t cls;
 
         #pragma omp parallel for private(cls)
         FOR_EACH_2D_IMAGE
@@ -3203,7 +3203,7 @@ void Optimiser::refreshScale(const bool coord,
     {
         Image img(size(), size(), FT_SPACE);
 
-        unsigned int cls;
+        size_t cls;
         mat22 rot2D;
         mat33 rot3D;
         vec2 tran;
@@ -3520,7 +3520,7 @@ void Optimiser::normCorrection()
 
     vec norm = vec::Zero(_nPar);
 
-    unsigned int cls;
+    size_t cls;
 
     mat22 rot2D;
     mat33 rot3D;
@@ -3731,7 +3731,7 @@ void Optimiser::allReduceSigma(const bool mask,
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
-    unsigned int cls;
+    size_t cls;
 
     mat22 rot2D;
     mat33 rot3D;
@@ -3945,7 +3945,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
             for (int m = 0; m < _para.mReco; m++)
             {
-                unsigned int cls;
+                size_t cls;
                 vec4 quat;
                 vec2 tran;
                 RFLOAT d;
@@ -4724,7 +4724,7 @@ void Optimiser::saveDatabase() const
                ? fopen(filename, "w")
                : fopen(filename, "a");
 
-    unsigned int cls;
+    size_t cls;
     vec4 quat;
     vec2 tran;
     RFLOAT df;
@@ -4800,7 +4800,7 @@ void Optimiser::saveBestProjections()
     Image diff(_para.size, _para.size, FT_SPACE);
     char filename[FILE_NAME_LENGTH];
 
-    unsigned int cls;
+    size_t cls;
     mat22 rot2D;
     mat33 rot3D;
     vec2 tran;
