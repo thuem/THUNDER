@@ -4749,7 +4749,7 @@ void Optimiser::saveDatabase() const
         fprintf(file,
                 "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
                  %s %s %18.9lf %18.9lf \
-                 %6d %6d \
+                 %6d %6lu \
                  %18.9lf %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf %18.9lf %18.9lf \

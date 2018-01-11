@@ -21,6 +21,7 @@ vec cumsum(const vec& v)
     return sum;
 }
 
+/***
 struct IndexSortAscendComparator
 {
     const vec* pv;
@@ -29,13 +30,17 @@ struct IndexSortAscendComparator
         return (*pv)(i) < (*pv)(j);
     }
 };
+***/
 
 uvec index_sort_ascend(const vec& v)
 {
     uvec idx(v.size());
 
+    TSGSL_sort_smallest_index(idx.data(), idx.size(), v.data(), 1, v.size());
+    /***
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
+    ***/
 
     /***
     IndexSortAscendComparator cmp;
@@ -46,6 +51,7 @@ uvec index_sort_ascend(const vec& v)
     return idx;
 }
 
+/***
 struct IndexSortDescendComparator
 {
     const vec* pv;
@@ -54,17 +60,22 @@ struct IndexSortDescendComparator
         return (*pv)(i) > (*pv)(j);
     }
 };
+***/
 
 uvec index_sort_descend(const vec& v)
 {
     uvec idx(v.size());
 
+    TSGSL_sort_largest_index(idx.data(), idx.size(), v.data(), 1, v.size());
+
+    /***
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
 
     IndexSortDescendComparator cmp;
     cmp.pv = &v;
     sort(idx.data(), idx.data() + idx.size(), cmp);
+    ***/
 
     return idx;
 }

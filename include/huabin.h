@@ -142,6 +142,8 @@ RFLOAT TSGSL_sf_sinc(const RFLOAT x);
 void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n);
 int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n);
 void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const size_t n);
+void TSGSL_sort_smallest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
+void TSGSL_sort_largest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n);
