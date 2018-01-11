@@ -1114,8 +1114,8 @@ void Particle::resample(const int n,
         {
             for (int i = 0; i < _nR; i++)
             {
-                CLOG(WARNING, "LOGGER_SYS") << "_uC " << i << ": " << _uC(i);
-                CLOG(WARNING, "LOGGER_SYS") << "_wC " << i << ": " << _wC(i);
+                CLOG(WARNING, "LOGGER_SYS") << "_uR " << i << ": " << _uR(i);
+                CLOG(WARNING, "LOGGER_SYS") << "_wR " << i << ": " << _wR(i);
             }
 
             REPORT_ERROR("_wR, NAN DETECTED");
