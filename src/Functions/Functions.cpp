@@ -16,7 +16,16 @@ vec cumsum(const vec& v)
 {
     vec sum(v.size());
 
-    std::partial_sum(v.data(), v.data() + v.size(), sum.data());
+    RFLOAT s = 0;
+
+    for (size_t i = 0; i < (size_t)v.size(); i++)
+    {
+        s += v(i);
+
+        sum(i) = s;
+    }
+
+    // std::partial_sum(v.data(), v.data() + v.size(), sum.data());
 
     return sum;
 }

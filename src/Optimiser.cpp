@@ -1325,7 +1325,7 @@ void Optimiser::expectation()
 
             for (int i = 0; i < _para.mLR; i++)
             {
-                if (wR(i) < 0)
+                if ((wR(i) < 0) || (TSGSL_isnan(wR(i))))
                 {
                     CLOG(WARNING, "LOGGER_SYS") << "wR " << i << ": " << wR(i);
 
