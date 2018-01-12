@@ -58,7 +58,7 @@
 
 #define TRANS_Q 0.01
 
-#define MIN_STD_FACTOR 2
+#define MIN_STD_FACTOR 3
 
 #define CLASS_BALANCE_FACTOR 0.05
 
@@ -811,11 +811,11 @@ int searchPlace(RFLOAT* topW,
                 const int r);
 
 void recordTopK(RFLOAT* topW,
-                unsigned int* iTopR,
-                unsigned int* iTopT,
+                size_t* iTopR,
+                size_t* iTopT,
                 const RFLOAT w,
-                const unsigned int iR,
-                const unsigned int iT,
+                const size_t iR,
+                const size_t iT,
                 const int k);
                 ***/
 

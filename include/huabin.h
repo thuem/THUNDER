@@ -51,11 +51,13 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 #include <immintrin.h>
+#include "THUNDERConfig.h"
+#include "Config.h"
 
-#ifdef USING_SINGLE_PRECISION
-#include <fftw3float/fftw3.h>
+#ifdef SINGLE_PRECISION
+#include <fftw3.h>
 #else
-#include <fftw3double/fftw3.h>
+#include <fftw3.h>
 #endif
 
 /*
@@ -75,14 +77,7 @@ gsl_stats_float_sd
 gsl_stats_float_sd_m
 */
 
-
-/*
- *#define USING_SINGLE_PRECISION 1
- */
-
-
-
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     typedef float RFLOAT;
     #define TSFFTW_COMPLEX fftwf_complex
     #define TSFFTW_PLAN fftwf_plan
@@ -134,10 +129,10 @@ RFLOAT TSGSL_ran_gaussian (const gsl_rng * r, const RFLOAT sigma);
 void TSGSL_ran_shuffle (const gsl_rng * r, void * base, size_t nmembm, size_t size);
 gsl_rng *TSGSL_rng_alloc (const gsl_rng_type * T);
 void TSGSL_rng_free (gsl_rng * r);
-unsigned long int TSGSL_rng_get (const gsl_rng * r);
-void TSGSL_rng_set (const gsl_rng * r, unsigned long int seed);
+size_t TSGSL_rng_get (const gsl_rng * r);
+void TSGSL_rng_set (const gsl_rng * r, size_t seed);
 RFLOAT TSGSL_rng_uniform (const gsl_rng * r);
-unsigned long int TSGSL_rng_uniform_int (const gsl_rng * r, unsigned long int n);
+size_t TSGSL_rng_uniform_int (const gsl_rng * r, size_t n);
 RFLOAT TSGSL_sf_bessel_I0(const RFLOAT x);
 RFLOAT TSGSL_sf_bessel_In(const int n, const RFLOAT x);
 RFLOAT TSGSL_sf_bessel_Inu(RFLOAT nu, RFLOAT x);
@@ -145,7 +140,10 @@ RFLOAT TSGSL_sf_bessel_j0(const RFLOAT x);
 RFLOAT TSGSL_sf_bessel_Jnu(const RFLOAT nu, const RFLOAT x);
 RFLOAT TSGSL_sf_sinc(const RFLOAT x);
 void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n);
-int TSGSL_sort_largest (RFLOAT * dest, const size_t k, const RFLOAT * src, const size_t stride, const size_t n);
+int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n);
+void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const size_t n);
+void TSGSL_sort_smallest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
+void TSGSL_sort_largest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n);

@@ -1,5 +1,4 @@
 //This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependecy:
@@ -19,6 +18,7 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_cdf.h>
 
+#include "huabin.h"
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
@@ -177,12 +177,12 @@ class Particle
         /**
          * the previous most likely class
          */
-        unsigned int _topCPrev;
+        size_t _topCPrev;
 
         /**
          * the most likely class
          */
-        unsigned int _topC;
+        size_t _topC;
 
         /**
          * MODE_2D: the first element stands for the previous most likely
@@ -654,7 +654,7 @@ class Particle
          * @param dst the class
          * @param i   the index of particle
          */
-        void c(unsigned int& dst,
+        void c(size_t& dst,
                const int i) const;
 
         /**
@@ -663,7 +663,7 @@ class Particle
          * @param src the class
          * @param i   the index of particle
          */
-        void setC(const unsigned int src,
+        void setC(const size_t src,
                   const int i);
 
         /**
@@ -884,7 +884,7 @@ class Particle
          *
          * @param cls the most likely class
          */
-        void rank1st(unsigned int& cls) const;
+        void rank1st(size_t& cls) const;
         
         /**
          * This function gives the most likely quaternion of rotation.
@@ -930,7 +930,7 @@ class Particle
          * @param tran the most likely translation vector
          * @param d    the most likely defocus factor
          */
-        void rank1st(unsigned int& cls,
+        void rank1st(size_t& cls,
                      vec4& quat,
                      vec2& tran,
                      RFLOAT& d) const;
@@ -944,7 +944,7 @@ class Particle
          * @param tran the most likely translation vector
          * @param d    the most likely defocus factor
          */
-        void rank1st(unsigned int& cls,
+        void rank1st(size_t& cls,
                      mat22& rot,
                      vec2& tran,
                      RFLOAT& d) const;
@@ -957,7 +957,7 @@ class Particle
          * @param tran the most likely translation vector
          * @param d    the most likely defocus factor
          */
-        void rank1st(unsigned int& cls,
+        void rank1st(size_t& cls,
                      mat33& rot,
                      vec2& tran,
                      RFLOAT& d) const;
@@ -967,7 +967,7 @@ class Particle
          *
          * @param cls the class of a random particle
          */
-        void rand(unsigned int& cls) const;
+        void rand(size_t& cls) const;
 
         /**
          * This function gives the quaternion of rotation of a random particle.
@@ -1013,7 +1013,7 @@ class Particle
          * @param tran the translation vector of a random particle
          * @param d    the defocus factor of a random particle
          */
-        void rand(unsigned int& cls,
+        void rand(size_t& cls,
                   vec4& quat,
                   vec2& tran,
                   RFLOAT& d) const;
@@ -1027,7 +1027,7 @@ class Particle
          * @param tran the translation vector of a random particle
          * @param d    the defocus factor of a random particle
          */
-        void rand(unsigned int& cls,
+        void rand(size_t& cls,
                   mat22& rot,
                   vec2& tran,
                   RFLOAT& d) const;
@@ -1041,7 +1041,7 @@ class Particle
          * @param tran the translation vector of a random particle
          * @param d    the defocus factor of a random particle
          */
-        void rand(unsigned int& cls,
+        void rand(size_t& cls,
                   mat33& rot,
                   vec2& tran,
                   RFLOAT& d) const;
@@ -1052,6 +1052,8 @@ class Particle
          * This function shuffles the sampling points.
          */
         void shuffle();
+
+        void balanceWeight(const ParticleType pt);
 
         /**
          * This function will copy the content to another Particle object.

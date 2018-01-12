@@ -7,7 +7,6 @@
 *.swp
 *.bmp
 *.mrc
-*.txt
 *.csv
 *.lo
 *.Po
@@ -17,7 +16,6 @@
 
 *.thubox
 
-*.sh
 *bak
 cscope*
 *.orig

@@ -1,5 +1,4 @@
 //This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -13,9 +12,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "THUNDERConfig.h"
+
 #define VERBOSE_LEVEL_0
 
-#define VERBOSE_LEVEL_1
+//#define VERBOSE_LEVEL_1
 
 //#define VERBOSE_LEVEL_2
 
@@ -31,7 +32,7 @@
 
 #define MATRIX_BOUNDARY_NO_CHECK
 
-#define NAN_NO_CHECK
+//#define NAN_NO_CHECK
 
 #define NOISE_ZERO_MEAN
 
@@ -171,6 +172,8 @@
 //#define OPTIMISER_SAVE_BEST_PROJECTIONS
 
 //#define OPTIMISER_SAVE_SIGMA
+
+#define OPTIMISER_SAVE_FSC
 
 //#define OPTIMISER_REFRESH_SCALE_SPECTRUM
 

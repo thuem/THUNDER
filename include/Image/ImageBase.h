@@ -26,10 +26,10 @@
 #include <algorithm>
 
 
-#ifdef USING_SINGLE_PRECISION
-#include <fftw3float/fftw3.h>
+#ifdef SINGLE_PRECISION
+#include <fftw3.h>
 #else
-#include <fftw3double/fftw3.h>
+#include <fftw3.h>
 #endif
 
 #include <gsl/gsl_math.h>

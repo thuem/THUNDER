@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Siyuan Ren
  * Dependecy:
@@ -706,13 +704,13 @@ void Particle::coord(Coordinate5D& dst,
 }
 ***/
 
-void Particle::c(unsigned int& dst,
+void Particle::c(size_t& dst,
                  const int i) const
 {
     dst = _c(i);
 }
 
-void Particle::setC(const unsigned int src,
+void Particle::setC(const size_t src,
                     const int i)
 {
     _c(i) = src;
@@ -1038,19 +1036,12 @@ void Particle::resample(const int n,
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
 
-#ifndef NAN_NO_CHECK
-        if ((_wC.sum() == 0) || (TSGSL_isnan(_wC.sum())))
-        {
-            REPORT_ERROR("NAN DETECTED");
-
-            abort();
-        }
-#endif
-
         _wC /= _wC.sum();
 
         vec cdf = cumsum(_wC);
         
+        cdf /= cdf(_nC - 1);
+
         _nC = n;
         _wC.resize(_nC);
 
@@ -1090,18 +1081,11 @@ void Particle::resample(const int n,
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
 
-#ifndef NAN_NO_CHECK
-        if ((_wR.sum() == 0) || (TSGSL_isnan(_wR.sum())))
-        {
-            REPORT_ERROR("NAN DETECTED");
-
-            abort();
-        }
-#endif
-
         _wR /= _wR.sum();
 
         vec cdf = cumsum(_wR);
+
+        cdf /= cdf(_nR - 1);
 
         _nR = n;
         _wR.resize(_nR);
@@ -1144,15 +1128,9 @@ void Particle::resample(const int n,
 
         _wT /= _wT.sum();
 
-#ifndef NAN_NO_CHECK
-        if ((_wT.sum() == 0) || (TSGSL_isnan(_wT.sum())))
-        {
-            REPORT_ERROR("NAN DETECTED");
-
-            abort();
-        }
-#endif
         vec cdf = cumsum(_wT);
+
+        cdf /= cdf(_nT - 1);
 
         _nT = n;
         _wT.resize(_nT);
@@ -1170,7 +1148,6 @@ void Particle::resample(const int n,
                 i++;
         
             t.row(j) = _t.row(i);
-
 
 #ifdef PARTICLE_PRIOR_ONE
             _wT(j) = 1.0 / _uT(i);
@@ -1194,18 +1171,11 @@ void Particle::resample(const int n,
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);
 
-#ifndef NAN_NO_CHECK
-        if ((_wD.sum() == 0) || (TSGSL_isnan(_wD.sum())))
-        {
-            REPORT_ERROR("NAN DETECTED");
-
-            abort();
-        }
-#endif
-
         _wD /= _wD.sum();
 
         vec cdf = cumsum(_wD);
+
+        cdf /= cdf(_nD - 1);
 
         _nD = n;
         _wD.resize(_nD);
@@ -1675,7 +1645,7 @@ RFLOAT Particle::diffTopD()
     return diff;
 }
 
-void Particle::rank1st(unsigned int& cls) const
+void Particle::rank1st(size_t& cls) const
 {
     cls = _topC;
 }
@@ -1711,7 +1681,7 @@ void Particle::rank1st(RFLOAT& df) const
     df = _topD;
 }
 
-void Particle::rank1st(unsigned int& cls,
+void Particle::rank1st(size_t& cls,
                        vec4& quat,
                        vec2& tran,
                        RFLOAT& df) const
@@ -1722,7 +1692,7 @@ void Particle::rank1st(unsigned int& cls,
     df = _topD;
 }
 
-void Particle::rank1st(unsigned int& cls,
+void Particle::rank1st(size_t& cls,
                        mat22& rot,
                        vec2& tran,
                        RFLOAT& df) const
@@ -1733,7 +1703,7 @@ void Particle::rank1st(unsigned int& cls,
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
-void Particle::rank1st(unsigned int& cls,
+void Particle::rank1st(size_t& cls,
                        mat33& rot,
                        vec2& tran,
                        RFLOAT& df) const
@@ -1744,7 +1714,7 @@ void Particle::rank1st(unsigned int& cls,
     rotate3D(rot, quat);
 }
 
-void Particle::rand(unsigned int& cls) const
+void Particle::rand(size_t& cls) const
 {
     gsl_rng* engine = get_random_engine();
 
@@ -1804,7 +1774,7 @@ void Particle::rand(RFLOAT& df) const
     d(df, u);
 }
 
-void Particle::rand(unsigned int& cls,
+void Particle::rand(size_t& cls,
                     vec4& quat,
                     vec2& tran,
                     RFLOAT& df) const
@@ -1815,7 +1785,7 @@ void Particle::rand(unsigned int& cls,
     rand(df);
 }
 
-void Particle::rand(unsigned int& cls,
+void Particle::rand(size_t& cls,
                     mat22& rot,
                     vec2& tran,
                     RFLOAT& df) const
@@ -1826,7 +1796,7 @@ void Particle::rand(unsigned int& cls,
     rotate2D(rot, vec2(quat(0), quat(1)));
 }
 
-void Particle::rand(unsigned int& cls,
+void Particle::rand(size_t& cls,
                     mat33& rot,
                     vec2& tran,
                     RFLOAT& df) const
@@ -1849,7 +1819,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nC; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(size_t));
 
         uvec c(_nC);
         vec wC(_nC);
@@ -1872,7 +1842,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nR; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nR, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nR, sizeof(size_t));
 
         mat4 r(_nR, 4);
         vec wR(_nR);
@@ -1895,7 +1865,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nT; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nT, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nT, sizeof(size_t));
 
         mat2 t(_nT, 2);
         vec wT(_nT);
@@ -1918,7 +1888,7 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nD; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nD, sizeof(unsigned int));
+        TSGSL_ran_shuffle(engine, s.data(), _nD, sizeof(size_t));
 
         vec d(_nD);
         vec wD(_nD);
@@ -1942,36 +1912,22 @@ void Particle::shuffle()
     shuffle(PAR_R);
     shuffle(PAR_T);
     shuffle(PAR_D);
-    /***
-    uvec s = uvec(_n);
+}
 
-    for (int i = 0; i < _n; i++) s(i) = i;
-
-    gsl_rng* engine = get_random_engine();
-
-    TSGSL_ran_shuffle(engine, s.data(), _n, sizeof(unsigned int));
-
-    uvec c(_n);
-    mat4 r(_n, 4);
-    mat2 t(_n, 2);
-    vec d(_n);
-    vec w(_n);
-
-    for (int i = 0; i < _n; i++)
+void Particle::balanceWeight(const ParticleType pt)
+{
+    if (pt == PAR_C)
     {
-        c(s(i)) = _c(i);
-        r.row(s(i)) = _r.row(i);
-        t.row(s(i)) = _t.row(i);
-        d(s(i)) = _d(i);
-        w(s(i)) = _w(i);
     }
-
-    _c = c;
-    _r = r;
-    _t = t;
-    _d = d;
-    _w = w;
-    ***/
+    else if (pt == PAR_R)
+    {
+    }
+    else if (pt == PAR_T)
+    {
+    }
+    else if (pt == PAR_D)
+    {
+    }
 }
 
 void Particle::copy(Particle& that) const
@@ -2059,7 +2015,7 @@ void Particle::clear() {}
 
 void display(const Particle& par)
 {
-    unsigned int c;
+    size_t c;
     vec4 q;
     vec2 t;
     RFLOAT d;
@@ -2070,7 +2026,7 @@ void display(const Particle& par)
         par.quaternion(q, iR);
         par.t(t, iT);
         par.d(d, iD);
-        printf("%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+        printf("%03lu %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                c,
                q(0), q(1), q(2), q(3),
                t(0), t(1),
@@ -2084,7 +2040,7 @@ void save(const char filename[],
 {
     FILE* file = fopen(filename, "w");
 
-    unsigned int c;
+    size_t c;
     vec4 q;
     vec2 t;
     RFLOAT d;
@@ -2096,7 +2052,7 @@ void save(const char filename[],
         par.t(t, iT);
         par.d(d, iD);
         fprintf(file,
-                "%03d %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
+                "%03lu %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf %15.9lf\n",
                 c,
                 q(0), q(1), q(2), q(3),
                 t(0), t(1),
@@ -2115,14 +2071,14 @@ void save(const char filename[],
 
     if (pt == PAR_C)
     {
-        unsigned int c;
+        size_t c;
 
         FOR_EACH_C(par)
         {
             par.c(c, iC);
 
             fprintf(file,
-                    "%03d %.24lf\n",
+                    "%03lu %.24lf\n",
                     c,
                     par.wC(iC));
         }

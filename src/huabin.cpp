@@ -228,7 +228,7 @@ RFLOAT TSGSL_complex_abs2 (Complex z)
 
 int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, const size_t ystride, const size_t n, RFLOAT * c0, RFLOAT * c1, RFLOAT * cov00, RFLOAT * cov01, RFLOAT * cov11, RFLOAT * sumsq)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_fit_float_linear (x, xstride, y, ystride,  n,  c0, c1, cov00, cov01, cov11, sumsq);
 #else
     return gsl_fit_linear (x, xstride, y, ystride,  n,  c0, c1, cov00, cov01, cov11, sumsq);
@@ -277,7 +277,7 @@ RFLOAT TSGSL_pow_4(const RFLOAT x)
 
 void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, RFLOAT sigma_x, RFLOAT sigma_y, RFLOAT rho, RFLOAT *x, RFLOAT *y)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_ran_float_bivariate_gaussian (r,  sigma_x,  sigma_y,  rho,  x,  y);
 #else
     return gsl_ran_bivariate_gaussian (r,  sigma_x,  sigma_y,  rho,  x,  y);
@@ -286,7 +286,7 @@ void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, RFLOAT sigma_x, RFLOAT sig
 
 void TSGSL_ran_dir_2d (const gsl_rng * r, RFLOAT * x, RFLOAT * y)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_ran_float_dir_2d(r, x, y);;
 #else
     return gsl_ran_dir_2d(r, x, y);;
@@ -379,26 +379,52 @@ RFLOAT TSGSL_sf_sinc(const RFLOAT x)
 
 void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     gsl_sort_float(data, stride, n);
 #else
     gsl_sort ( data, stride, n);
 #endif
 }
 
-int TSGSL_sort_largest (RFLOAT * dest, const size_t k, const RFLOAT * src, const size_t stride, const size_t n)
+int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
-    return gsl_sort_float_largest ( dest, k,  src, stride, n);
+#ifdef SINGLE_PRECISION
+    return gsl_sort_float_largest (dst, k,  src, stride, n);
 #else
-    return gsl_sort_largest ( dest, k,  src, stride, n);
+    return gsl_sort_largest (dst, k,  src, stride, n);
 #endif
 }
 
+void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const int n)
+{
+#ifdef SINGLE_PRECISION
+    return gsl_sort_float_index(dst, src, stride, n);
+#else
+    return gsl_sort_index(dst, src, stride, n);
+#endif
+}
+
+void TSGSL_sort_smallest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n)
+{
+#ifdef SINGLE_PRECISION
+    gsl_sort_float_smallest_index(dst, k, src, stride, n);
+#else
+    gsl_sort_smallest_index(dst, k, src, stride, n);
+#endif
+}
+
+void TSGSL_sort_largest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n)
+{
+#ifdef SINGLE_PRECISION
+    gsl_sort_float_largest_index(dst, k, src, stride, n);
+#else
+    gsl_sort_largest_index(dst, k, src, stride, n);
+#endif
+}
 
 RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_stats_float_max(data, stride, n);
 #else
     return gsl_stats_max ( data,  stride,  n);
@@ -408,7 +434,7 @@ RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n
 
 RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_stats_float_mean(data, stride, n);
 #else
     return gsl_stats_mean ( data,  stride,  n);
@@ -418,7 +444,7 @@ RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t 
 
 RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_stats_float_min(data, stride, n);
 #else
     return gsl_stats_min ( data,  stride,  n);
@@ -427,7 +453,7 @@ RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n
 
 RFLOAT TSGSL_stats_quantile_from_sorted_data (const RFLOAT sorted_data[], const size_t stride, const size_t n, const RFLOAT f)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_stats_float_quantile_from_sorted_data(sorted_data,  stride,  n,  f);
 #else
     return gsl_stats_quantile_from_sorted_data ( sorted_data,  stride,  n,  f);
@@ -437,7 +463,7 @@ RFLOAT TSGSL_stats_quantile_from_sorted_data (const RFLOAT sorted_data[], const 
 
 RFLOAT TSGSL_stats_sd (const RFLOAT data[], const size_t stride, const size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_stats_float_sd(data, stride, n);
 #else
     return gsl_stats_sd ( data,  stride,  n);
@@ -447,7 +473,7 @@ RFLOAT TSGSL_stats_sd (const RFLOAT data[], const size_t stride, const size_t n)
 
 RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t n, const RFLOAT mean)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return gsl_stats_float_sd_m(data, stride, n, mean);
 #else
     return gsl_stats_sd_m ( data,  stride,  n,  mean);
@@ -457,7 +483,7 @@ RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t 
 
 int TSFFTW_init_threads()
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	return fftwf_init_threads();
 #else
 	return fftw_init_threads();
@@ -465,7 +491,7 @@ int TSFFTW_init_threads()
 }
 void TSFFTW_cleanup_threads(void)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_cleanup_threads();
 #else
 	fftw_cleanup_threads();
@@ -473,7 +499,7 @@ void TSFFTW_cleanup_threads(void)
 }
 void TSFFTW_destroy_plan(TSFFTW_PLAN plan)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_destroy_plan(plan);
 #else
     fftw_destroy_plan(plan);
@@ -481,7 +507,7 @@ void TSFFTW_destroy_plan(TSFFTW_PLAN plan)
 }
 void TSFFTW_execute(const TSFFTW_PLAN plan)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_execute(plan);
 #else
 	fftw_execute(plan);
@@ -490,7 +516,7 @@ void TSFFTW_execute(const TSFFTW_PLAN plan)
 void TSFFTW_execute_split_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, RFLOAT *ro, RFLOAT *io)
 {
     
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_execute_split_dft_r2c( p, in, ro, io);
 #else
 	fftw_execute_split_dft_r2c( p, in, ro, io);
@@ -498,7 +524,7 @@ void TSFFTW_execute_split_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, RFLOAT *ro, 
 }
 void TSFFTW_execute_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *out)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     fftwf_execute_dft_r2c( p, in, out);
 #else
     fftw_execute_dft_r2c( p, in, out);
@@ -506,7 +532,7 @@ void TSFFTW_execute_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *ou
 }
 void TSFFTW_execute_dft_c2r( const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *out)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_execute_dft_c2r( p, in, out);
 #else
 	fftw_execute_dft_c2r( p, in, out);
@@ -514,7 +540,7 @@ void TSFFTW_execute_dft_c2r( const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *ou
 } 
 void *TSFFTW_malloc(size_t n)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return fftwf_malloc(n);
 #else
     return fftw_malloc(n);
@@ -522,7 +548,7 @@ void *TSFFTW_malloc(size_t n)
 }
 void TSFFTW_free(void *p)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     fftwf_free(p);
 #else
     fftw_free(p);
@@ -531,7 +557,7 @@ void TSFFTW_free(void *p)
 
 TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0, int n1, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	return fftwf_plan_dft_r2c_2d(n0, n1, in, out, flags);
 #else
 	return fftw_plan_dft_r2c_2d(n0, n1, in, out, flags);
@@ -539,7 +565,7 @@ TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0, int n1, RFLOAT *in, TSFFTW_COMPLEX *o
 }
 TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	return fftwf_plan_dft_r2c_3d(n0, n1, n2, in, out, flags);
 #else
 	return fftw_plan_dft_r2c_3d(n0, n1, n2, in, out, flags);
@@ -548,7 +574,7 @@ TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, RFLOAT *in, TSFFTW_CO
 
 TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0, int n1, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	return fftwf_plan_dft_c2r_2d(n0, n1, in, out, flags);
 #else
 	return fftw_plan_dft_c2r_2d(n0, n1, in, out, flags);
@@ -556,7 +582,7 @@ TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0, int n1, TSFFTW_COMPLEX *in, RFLOAT *o
 }
 TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	return fftwf_plan_dft_c2r_3d(n0, n1, n2, in, out, flags);
 #else
 	return fftw_plan_dft_c2r_3d(n0, n1, n2, in, out, flags);
@@ -565,7 +591,7 @@ TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, TSFFTW_COMPLEX *in, R
 
 void TSFFTW_plan_with_nthreads(int nthreads)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_plan_with_nthreads(nthreads);
 #else
 	fftw_plan_with_nthreads(nthreads);
@@ -574,7 +600,7 @@ void TSFFTW_plan_with_nthreads(int nthreads)
 
 void TSFFTW_set_timelimit(RFLOAT seconds)
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 	fftwf_set_timelimit(seconds);
 #else
 	fftw_set_timelimit(seconds);

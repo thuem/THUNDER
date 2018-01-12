@@ -555,16 +555,16 @@ void Optimiser::init()
 struct Sp
 {
     RFLOAT _w;
-    unsigned int _k;
-    unsigned int _iR;
-    unsigned int _iT;
+    size_t _k;
+    size_t _iR;
+    size_t _iT;
 
     Sp() : _w(-TS_MAX_RFLOAT_VALUE), _k(0), _iR(0), _iT(0) {};
 
     Sp(const RFLOAT w,
-       const unsigned int k,
-       const unsigned int iR,
-       const unsigned int iT)
+       const size_t k,
+       const size_t iR,
+       const size_t iT)
     {
         _w = w;
         _k = k;
@@ -670,7 +670,7 @@ void Optimiser::expectation()
         Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
 
         #pragma omp parallel for schedule(dynamic) private(t)
-        for (unsigned int m = 0; m < (unsigned int)nT; m++)
+        for (size_t m = 0; m < (size_t)nT; m++)
         {
             par.t(t, m);
 
@@ -705,13 +705,13 @@ void Optimiser::expectation()
         // m -> rotation
         // n -> translation
         
-        for (unsigned int t = 0; t < (unsigned int)_para.k; t++)
+        for (size_t t = 0; t < (size_t)_para.k; t++)
         {
             Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
             Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
 
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
-            for (unsigned int m = 0; m < (unsigned int)nR; m++)
+            for (size_t m = 0; m < (size_t)nR; m++)
             {
                 Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
 
@@ -738,7 +738,7 @@ void Optimiser::expectation()
                     abort();
                 }
 
-                for (unsigned int n = 0; n < (unsigned int)nT; n++)
+                for (size_t n = 0; n < (size_t)nT; n++)
                 {
                     for (int i = 0; i < _nPxl; i++)
                         priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
@@ -1012,24 +1012,13 @@ void Optimiser::expectation()
 
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
 
-            unsigned int cls;
+            size_t cls;
             _par[l].rand(cls);
-
-            // _par[l].reset(1, _para.mLR, _para.mLT, 1);
 
             _par[l].setNC(1);
             _par[l].setC(uvec::Constant(1, cls));
             _par[l].setWC(vec::Constant(1, 1));
             _par[l].setUC(vec::Constant(1, 1));
-            
-            // _par[l].calVari(PAR_R);
-            // _par[l].calVari(PAR_T);
-
-            /***
-            _par[l].setC(uvec::Constant(_para.k, cls));
-            _par[l].setWC(vec::Constant(_para.k, 1.0 / _para.k));
-            _par[l].setUC(vec::Constant(_para.k, 1.0 / _para.k));
-            ***/
 #endif
         }
 
@@ -1078,7 +1067,6 @@ void Optimiser::expectation()
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        RFLOAT baseLine = GSL_NAN;
 
         Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
         Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
@@ -1095,7 +1083,6 @@ void Optimiser::expectation()
         RFLOAT tVariS1 = 5 * _para.transS;
         RFLOAT dVari = 5 * _para.ctfRefineS;
 #endif
-
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if (phase == 0)
@@ -1145,6 +1132,8 @@ void Optimiser::expectation()
                     _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
             }
 
+            RFLOAT baseLine = GSL_NAN;
+
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             vec wC = vec::Zero(1);
 #else
@@ -1155,7 +1144,7 @@ void Optimiser::expectation()
             vec wT = vec::Zero(_para.mLT);
             vec wD = vec::Zero(_para.mLD);
 
-            unsigned int c;
+            size_t c;
             mat22 rot2D;
             mat33 rot3D;
             RFLOAT d;
@@ -1299,12 +1288,10 @@ void Optimiser::expectation()
                              *compareWInmHuabin(wOrig, w, _commRank, omp_get_thread_num(), _nPxl);
                              */
 
-                            //if (TSGSL_isnan(baseLine)) baseLine = w;
                             baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
 
                             if (w > baseLine)
                             {
-
                                 RFLOAT nf = exp(baseLine - w);
 
                                 wC *= nf;
@@ -1315,12 +1302,12 @@ void Optimiser::expectation()
                                 baseLine = w;
                             }
 
-                            w = exp(w - baseLine);
+                            RFLOAT s = exp(w - baseLine);
 
-                            wC(iC) += w;
-                            wR(iR) += w;
-                            wT(iT) += w;
-                            wD(iD) += w;
+                            wC(iC) += s;
+                            wR(iR) += s;
+                            wT(iT) += s;
+                            wD(iD) += s;
                         }
                     }
                 }
@@ -1754,8 +1741,14 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Variance of Rotation and Translation Calculated";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation between Iterations";
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation Between Iterations";
         refreshRotationChange();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Changes of Rotation Between Iterations Calculated";
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
         MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
@@ -1811,8 +1804,10 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
         _model.refreshSNR();
 
+#ifdef OPTIMISER_SAVE_FSC
         MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
         saveFSC();
+#endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Class Information";
         saveClassInfo();
@@ -2640,7 +2635,8 @@ void Optimiser::initCTF()
             _ctfAttr[l].defocusU,
             _ctfAttr[l].defocusV,
             _ctfAttr[l].defocusTheta,
-            _ctfAttr[l].Cs);
+            _ctfAttr[l].Cs,
+            0);
     }
 }
 
@@ -2868,7 +2864,7 @@ void Optimiser::loadParticles()
     BLOG(INFO, "LOGGER_SYS") << "Average Standard Deviation of Translation: " << stdT;
     ***/
 
-    // unsigned int cls;
+    // size_t cls;
     vec4 quat;
     vec2 tran;
     RFLOAT d;
@@ -2988,7 +2984,6 @@ void Optimiser::refreshRotationChange()
         }
     }
 
-
     MPI_Allreduce(MPI_IN_PLACE,
                   rc.data(),
                   rc.size(),
@@ -3006,12 +3001,14 @@ void Optimiser::refreshRotationChange()
 
     //TSGSL_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
     //TSGSL_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
-    TSGSL_sort(rc.data(), 1, _nPar);
+
+    //RFLOAT mean = TSGSL_stats_mean(rc.data(), 1, _nPar);
+    //RFLOAT std = TSGSL_stats_sd_m(rc.data(), 1, _nPar, mean);
 
     RFLOAT mean, std;
+    TSGSL_sort(rc.data(), 1, _nPar);
+
     stat_MAS(mean, std, rc, _nPar);
-    //stat_MAS(mean, std, rc, nNoZero);
-    //stat_MAS(mean, std, rcNoZero, nNoZero);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
@@ -3023,7 +3020,7 @@ void Optimiser::refreshClassDistr()
 
     NT_MASTER
     {
-        unsigned int cls;
+        size_t cls;
 
         #pragma omp parallel for private(cls)
         FOR_EACH_2D_IMAGE
@@ -3162,7 +3159,7 @@ void Optimiser::refreshScale(const bool coord,
     {
         Image img(size(), size(), FT_SPACE);
 
-        unsigned int cls;
+        size_t cls;
         mat22 rot2D;
         mat33 rot3D;
         vec2 tran;
@@ -3479,7 +3476,7 @@ void Optimiser::normCorrection()
 
     vec norm = vec::Zero(_nPar);
 
-    unsigned int cls;
+    size_t cls;
 
     mat22 rot2D;
     mat33 rot3D;
@@ -3690,7 +3687,7 @@ void Optimiser::allReduceSigma(const bool mask,
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
-    unsigned int cls;
+    size_t cls;
 
     mat22 rot2D;
     mat33 rot3D;
@@ -3904,7 +3901,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
             for (int m = 0; m < _para.mReco; m++)
             {
-                unsigned int cls;
+                size_t cls;
                 vec4 quat;
                 vec2 tran;
                 RFLOAT d;
@@ -4683,7 +4680,7 @@ void Optimiser::saveDatabase() const
                ? fopen(filename, "w")
                : fopen(filename, "a");
 
-    unsigned int cls;
+    size_t cls;
     vec4 quat;
     vec2 tran;
     RFLOAT df;
@@ -4708,7 +4705,7 @@ void Optimiser::saveDatabase() const
         fprintf(file,
                 "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
                  %s %s %18.9lf %18.9lf \
-                 %6d %6d \
+                 %6d %6lu \
                  %18.9lf %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf %18.9lf %18.9lf \
@@ -4759,7 +4756,7 @@ void Optimiser::saveBestProjections()
     Image diff(_para.size, _para.size, FT_SPACE);
     char filename[FILE_NAME_LENGTH];
 
-    unsigned int cls;
+    size_t cls;
     mat22 rot2D;
     mat33 rot3D;
     vec2 tran;
@@ -5570,9 +5567,10 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
 
     for(int i = 0; i < m; i ++)
     {
-        for(int j = 0; j < n; j ++)
+        for(int j = 0; j < n; j++)
         {
-            int idx       = i * n + j;
+            int idx = i * n + j;
+
             tmpCPMulReal  = ctf[idx] * pri[i].dat[0];
             tmpCPMulImag  = ctf[idx] * pri[i].dat[1];
 
@@ -5587,13 +5585,6 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
     
     return result2;
 }
-
-
-
-
-
-
-
 
 RFLOAT logDataVSPrior(const Image& dat,
                       const Image& pri,

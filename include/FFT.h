@@ -13,16 +13,17 @@
 #ifndef FFT_H
 #define FFT_H
 
-#ifdef USING_SINGLE_PRECISION
-#include <fftw3float/fftw3.h>
+#ifdef SINGLE_PRECISION
+#include <fftw3.h>
 #else
-#include <fftw3double/fftw3.h>
+#include <fftw3.h>
 #endif
 
 #include "Logging.h"
 
 #include <omp_compat.h>
 
+#include "Config.h"
 #include "Complex.h"
 
 #include "Image.h"

@@ -1,5 +1,4 @@
 //This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -13,6 +12,7 @@
 #ifndef CTF_H
 #define CTF_H
 
+#include "huabin.h"
 #include "Complex.h"
 #include "Functions.h"
 #include "Image.h"
@@ -27,7 +27,8 @@ const RFLOAT w2 = CTF_A;
 RFLOAT CTF(const RFLOAT f,
            const RFLOAT voltage,
            const RFLOAT defocus,
-           const RFLOAT CS);
+           const RFLOAT CS,
+           const RFLOAT phaseShift = 0);
 
 /**
  * This function generates a CTF using parameters given.
@@ -46,6 +47,7 @@ void CTF(Image& dst,
          const RFLOAT defocusU,
          const RFLOAT defocusV,
          const RFLOAT theta,
-         const RFLOAT Cs);
+         const RFLOAT Cs,
+         const RFLOAT phaseShift = 0);
 
 #endif // CTF_H

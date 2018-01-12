@@ -16,11 +16,21 @@ vec cumsum(const vec& v)
 {
     vec sum(v.size());
 
-    std::partial_sum(v.data(), v.data() + v.size(), sum.data());
+    RFLOAT s = 0;
+
+    for (size_t i = 0; i < (size_t)v.size(); i++)
+    {
+        s += v(i);
+
+        sum(i) = s;
+    }
+
+    // std::partial_sum(v.data(), v.data() + v.size(), sum.data());
 
     return sum;
 }
 
+/***
 struct IndexSortAscendComparator
 {
     const vec* pv;
@@ -29,21 +39,28 @@ struct IndexSortAscendComparator
         return (*pv)(i) < (*pv)(j);
     }
 };
+***/
 
 uvec index_sort_ascend(const vec& v)
 {
     uvec idx(v.size());
 
+    TSGSL_sort_smallest_index(idx.data(), idx.size(), v.data(), 1, v.size());
+    /***
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
+    ***/
 
+    /***
     IndexSortAscendComparator cmp;
     cmp.pv = &v;
     sort(idx.data(), idx.data() + idx.size(), cmp);
+    ***/
 
     return idx;
 }
 
+/***
 struct IndexSortDescendComparator
 {
     const vec* pv;
@@ -52,17 +69,22 @@ struct IndexSortDescendComparator
         return (*pv)(i) > (*pv)(j);
     }
 };
+***/
 
 uvec index_sort_descend(const vec& v)
 {
     uvec idx(v.size());
 
+    TSGSL_sort_largest_index(idx.data(), idx.size(), v.data(), 1, v.size());
+
+    /***
     for (unsigned int i = 0; i < idx.size(); i++)
         idx(i) = i;
 
     IndexSortDescendComparator cmp;
     cmp.pv = &v;
     sort(idx.data(), idx.data() + idx.size(), cmp);
+    ***/
 
     return idx;
 }
@@ -257,17 +279,17 @@ void stat_MAS(RFLOAT& mean,
     TSGSL_sort(src.data(), 1, n);
 
     mean = TSGSL_stats_quantile_from_sorted_data(src.data(),
-                                               1,
-                                               n,
-                                               0.5);
+                                                 1,
+                                                 n,
+                                                 0.5);
 
     src = abs(src.array() - mean);
 
     TSGSL_sort(src.data(), 1, n);
 
     std = TSGSL_stats_quantile_from_sorted_data(src.data(),
-                                              1,
-                                              n,
-                                              0.5)
+                                                1,
+                                                n,
+                                                0.5)
         * 1.4826;
 }

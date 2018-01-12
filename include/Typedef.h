@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -13,11 +11,11 @@
 #ifndef TYPEDEF_H
 #define TYPEDEF_H
 
-#include <gsl/gsl_complex.h>
-
 #include <Eigen/Dense>
 
+#include "THUNDERConfig.h"
 #include "Macro.h"
+#include "huabin.h"
 
 #ifdef MATRIX_BOUNDARY_NO_CHECK
 #define EIGEN_NO_DEBUG
@@ -27,15 +25,11 @@ using namespace Eigen;
 
 typedef unsigned long size_t;
 
-/*
- *typedef gsl_complex Complex;
- */
-
 typedef Matrix<RFLOAT, Dynamic, Dynamic> mat;
 typedef Matrix<RFLOAT, Dynamic, 1> vec;
 
-typedef Matrix<unsigned int, Dynamic, Dynamic> umat;
-typedef Matrix<unsigned int, Dynamic, 1> uvec;
+typedef Matrix<size_t, Dynamic, Dynamic> umat;
+typedef Matrix<size_t, Dynamic, 1> uvec;
 
 typedef Matrix<RFLOAT, 2, 1> vec2;
 typedef Matrix<RFLOAT, 3, 1> vec3;
