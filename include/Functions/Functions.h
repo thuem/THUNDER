@@ -25,8 +25,6 @@
 #include "Config.h"
 #include "Typedef.h"
 
-using std::sort;
-
 /**
  * This macros returns the nearest integer number of a.
  */

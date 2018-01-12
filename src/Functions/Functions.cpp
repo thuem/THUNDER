@@ -279,17 +279,17 @@ void stat_MAS(RFLOAT& mean,
     TSGSL_sort(src.data(), 1, n);
 
     mean = TSGSL_stats_quantile_from_sorted_data(src.data(),
-                                               1,
-                                               n,
-                                               0.5);
+                                                 1,
+                                                 n,
+                                                 0.5);
 
     src = abs(src.array() - mean);
 
     TSGSL_sort(src.data(), 1, n);
 
     std = TSGSL_stats_quantile_from_sorted_data(src.data(),
-                                              1,
-                                              n,
-                                              0.5)
+                                                1,
+                                                n,
+                                                0.5)
         * 1.4826;
 }

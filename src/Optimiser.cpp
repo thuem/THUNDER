@@ -1291,7 +1291,7 @@ void Optimiser::expectation()
 #ifndef NAN_NO_CHECK
                             if (TSGSL_isnan(w))
                             {
-                                REPORT_ERROR("w is NAN");
+                                REPORT_ERROR("w IS NAN");
 
                                 abort();
                             }
@@ -1319,6 +1319,7 @@ void Optimiser::expectation()
                             wT(iT) += s;
                             wD(iD) += s;
                             
+                            /***
                             if (wC(0) < 1)
                             {
                                 CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", s = " << s;
@@ -1328,6 +1329,7 @@ void Optimiser::expectation()
 
                                 abort();
                             }
+                            ***/
 
                             /***
                             if (_ID[l] == 2)
@@ -3086,10 +3088,12 @@ void Optimiser::refreshRotationChange()
 
     //TSGSL_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
     //TSGSL_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
-    TSGSL_sort(rc.data(), 1, _nPar);
+    //TSGSL_sort(rc.data(), 1, _nPar);
 
-    RFLOAT mean, std;
-    stat_MAS(mean, std, rc, _nPar);
+    //RFLOAT mean, std;
+    RFLOAT mean = TSGSL_stats_mean(rc.data(), 1, _nPar);
+    RFLOAT std = TSGSL_stats_sd_m(rc.data(), 1, _nPar, mean);
+    //stat_MAS(mean, std, rc, _nPar);
     //stat_MAS(mean, std, rc, nNoZero);
     //stat_MAS(mean, std, rcNoZero, nNoZero);
 
