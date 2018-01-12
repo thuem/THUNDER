@@ -1310,9 +1310,10 @@ void Optimiser::expectation()
                             wT(iT) += w;
                             wD(iD) += w;
 
-                            if (_ID[l] == 1)
+                            if (_ID[l] == 2)
                             {
-                                CLOG(INFO, "LOGGER_SYS") << "wC(0) = " << wC(0);
+                                CLOG(INFO, "LOGGER_SYS") << "Add, wC(0) = " << wC(0);
+                                CLOG(INFO, "LOGGER_SYS") << "Add, wC.sum() = " << wC.sum();
                             }
                         }
                     }
