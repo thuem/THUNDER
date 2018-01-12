@@ -3070,7 +3070,6 @@ void Optimiser::refreshRotationChange()
         }
     }
 
-
     MPI_Allreduce(MPI_IN_PLACE,
                   rc.data(),
                   rc.size(),
@@ -3088,14 +3087,14 @@ void Optimiser::refreshRotationChange()
 
     //TSGSL_sort_largest(rcNoZero.data(), nNoZero, rc.data(), 1, _nPar);
     //TSGSL_sort_largest(rc.data(), nNoZero, rc.data(), 1, _nPar);
-    //TSGSL_sort(rc.data(), 1, _nPar);
 
-    //RFLOAT mean, std;
-    RFLOAT mean = TSGSL_stats_mean(rc.data(), 1, _nPar);
-    RFLOAT std = TSGSL_stats_sd_m(rc.data(), 1, _nPar, mean);
-    //stat_MAS(mean, std, rc, _nPar);
-    //stat_MAS(mean, std, rc, nNoZero);
-    //stat_MAS(mean, std, rcNoZero, nNoZero);
+    //RFLOAT mean = TSGSL_stats_mean(rc.data(), 1, _nPar);
+    //RFLOAT std = TSGSL_stats_sd_m(rc.data(), 1, _nPar, mean);
+
+    RFLOAT mean, std;
+    TSGSL_sort(rc.data(), 1, _nPar);
+
+    stat_MAS(mean, std, rc, _nPar);
 
     _model.setRChange(mean);
     _model.setStdRChange(std);
