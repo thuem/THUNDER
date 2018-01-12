@@ -1067,7 +1067,6 @@ void Optimiser::expectation()
     #pragma omp parallel for schedule(dynamic)
     FOR_EACH_2D_IMAGE
     {
-        RFLOAT baseLine = GSL_NAN;
 
         Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
         Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
@@ -1084,7 +1083,6 @@ void Optimiser::expectation()
         RFLOAT tVariS1 = 5 * _para.transS;
         RFLOAT dVari = 5 * _para.ctfRefineS;
 #endif
-
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
             if (phase == 0)
@@ -1133,6 +1131,8 @@ void Optimiser::expectation()
                 if (_searchType == SEARCH_TYPE_CTF)
                     _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
             }
+
+            RFLOAT baseLine = GSL_NAN;
 
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             vec wC = vec::Zero(1);
