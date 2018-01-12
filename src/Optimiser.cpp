@@ -1288,6 +1288,15 @@ void Optimiser::expectation()
                              *compareWInmHuabin(wOrig, w, _commRank, omp_get_thread_num(), _nPxl);
                              */
 
+#ifndef NAN_NO_CHECK
+                            if (TSGSL_isnan(w))
+                            {
+                                REPORT_ERROR("w is NAN");
+
+                                abort();
+                            }
+#endif
+
                             //if (TSGSL_isnan(baseLine)) baseLine = w;
                             baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
 
@@ -1303,17 +1312,21 @@ void Optimiser::expectation()
                                 baseLine = w;
                             }
 
-                            w = exp(w - baseLine);
+                            RFLOAT s = exp(w - baseLine);
 
-                            wC(iC) += w;
-                            wR(iR) += w;
-                            wT(iT) += w;
-                            wD(iD) += w;
+                            wC(iC) += s;
+                            wR(iR) += s;
+                            wT(iT) += s;
+                            wD(iD) += s;
                             
                             if (wC(0) < 1)
                             {
-                                CLOG(INFO, "LOGGER_SYS") << "wC = " << w;
-                                CLOG(INFO, "LOGGER_SYS") << "wC(0) = " << wC(0);
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", s = " << s;
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", w = " << w;
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", baseLine = " << baseLine;
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", wC(0) = " << wC(0);
+
+                                abort();
                             }
 
                             /***
