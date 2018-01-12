@@ -1309,6 +1309,11 @@ void Optimiser::expectation()
                             wR(iR) += w;
                             wT(iT) += w;
                             wD(iD) += w;
+
+                            if (_ID[l] == 1)
+                            {
+                                CLOG(INFO, "LOGGER_SYS") << wC(0);
+                            }
                         }
                     }
                 }
