@@ -1312,7 +1312,7 @@ void Optimiser::expectation()
 
                             if (_ID[l] == 1)
                             {
-                                CLOG(INFO, "LOGGER_SYS") << wC(0);
+                                CLOG(INFO, "LOGGER_SYS") << "wC(0) = " << wC(0);
                             }
                         }
                     }
