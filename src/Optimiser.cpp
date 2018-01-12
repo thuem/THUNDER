@@ -1320,18 +1320,21 @@ void Optimiser::expectation()
                 }
             }
 
-            /***
 #ifndef NAN_NO_CHECK
 
-            if ((wC.sum() < 1) || (TSGSL_isnan(wC.sum())))
+            if (_ID[l] == 2)
             {
-                CLOG(INFO, "LOGGER_SYS") << "wC.sum() = " << wC.sum();
+                if ((wC.sum() < 1) || (TSGSL_isnan(wC.sum())))
+                {
+                    CLOG(INFO, "LOGGER_SYS") << "wC.sum() = " << wC.sum();
 
-                REPORT_ERROR("WC ERROR");
+                    REPORT_ERROR("WC ERROR");
 
-                abort();
+                    abort();
+                }
             }
 
+            /***
             if ((wR.sum() < 1) || (TSGSL_isnan(wR.sum())))
             {
                 CLOG(INFO, "LOGGER_SYS") << "wR.sum() = " << wR.sum();
@@ -1355,7 +1358,7 @@ void Optimiser::expectation()
 
             if ((wT.sum() < 1) || (TSGSL_isnan(wT.sum())))
             {
-                CLOG(INFO, "LOGGER_SYS") << "wT.sum() = " << wR.sum();
+                CLOG(INFO, "LOGGER_SYS") << "wT.sum() = " << wT.sum();
 
                 REPORT_ERROR("WT ERROR");
 
@@ -1364,14 +1367,14 @@ void Optimiser::expectation()
 
             if ((wD.sum() < 1) || (TSGSL_isnan(wD.sum())))
             {
-                CLOG(INFO, "LOGGER_SYS") << "wD.sum() = " << wR.sum();
+                CLOG(INFO, "LOGGER_SYS") << "wD.sum() = " << wD.sum();
 
                 REPORT_ERROR("WD ERROR");
 
                 abort();
             }
-#endif
             ***/
+#endif
 
 
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
