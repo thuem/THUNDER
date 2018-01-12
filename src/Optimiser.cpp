@@ -1288,16 +1288,6 @@ void Optimiser::expectation()
                              *compareWInmHuabin(wOrig, w, _commRank, omp_get_thread_num(), _nPxl);
                              */
 
-#ifndef NAN_NO_CHECK
-                            if (TSGSL_isnan(w))
-                            {
-                                REPORT_ERROR("w IS NAN");
-
-                                abort();
-                            }
-#endif
-
-                            //if (TSGSL_isnan(baseLine)) baseLine = w;
                             baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
 
                             if (w > baseLine)
@@ -1318,86 +1308,10 @@ void Optimiser::expectation()
                             wR(iR) += s;
                             wT(iT) += s;
                             wD(iD) += s;
-                            
-                            /***
-                            if (wC(0) < 1)
-                            {
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", s = " << s;
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", w = " << w;
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", baseLine = " << baseLine;
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", wC(0) = " << wC(0);
-
-                                abort();
-                            }
-                            ***/
-
-                            /***
-                            if (_ID[l] == 2)
-                            {
-                                CLOG(INFO, "LOGGER_SYS") << "Add, wC(0) = " << wC(0);
-                                CLOG(INFO, "LOGGER_SYS") << "Add, wC.sum() = " << wC.sum();
-                            }
-                            ***/
                         }
                     }
                 }
             }
-
-#ifndef NAN_NO_CHECK
-
-                /***
-                if ((wC.sum() < 1) || (TSGSL_isnan(wC.sum())))
-                {
-                    CLOG(INFO, "LOGGER_SYS") << "wC.sum() = " << wC.sum();
-
-                    REPORT_ERROR("WC ERROR");
-
-                    abort();
-                }
-                ***/
-
-            /***
-            if ((wR.sum() < 1) || (TSGSL_isnan(wR.sum())))
-            {
-                CLOG(INFO, "LOGGER_SYS") << "wR.sum() = " << wR.sum();
-
-                REPORT_ERROR("WC ERROR");
-
-                abort();
-            }
-
-            for (int i = 0; i < _para.mLR; i++)
-            {
-                if ((wR(i) < 0) || (TSGSL_isnan(wR(i))))
-                {
-                    CLOG(WARNING, "LOGGER_SYS") << "wR " << i << ": " << wR(i);
-
-                    REPORT_ERROR("WRONG!");
-
-                    abort();
-                }
-            }
-
-            if ((wT.sum() < 1) || (TSGSL_isnan(wT.sum())))
-            {
-                CLOG(INFO, "LOGGER_SYS") << "wT.sum() = " << wT.sum();
-
-                REPORT_ERROR("WT ERROR");
-
-                abort();
-            }
-
-            if ((wD.sum() < 1) || (TSGSL_isnan(wD.sum())))
-            {
-                CLOG(INFO, "LOGGER_SYS") << "wD.sum() = " << wD.sum();
-
-                REPORT_ERROR("WD ERROR");
-
-                abort();
-            }
-            ***/
-#endif
-
 
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             _par[l].setUC(wC(0), 0);
