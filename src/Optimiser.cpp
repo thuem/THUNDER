@@ -1310,11 +1310,13 @@ void Optimiser::expectation()
                             wT(iT) += w;
                             wD(iD) += w;
 
+                            /***
                             if (_ID[l] == 2)
                             {
                                 CLOG(INFO, "LOGGER_SYS") << "Add, wC(0) = " << wC(0);
                                 CLOG(INFO, "LOGGER_SYS") << "Add, wC.sum() = " << wC.sum();
                             }
+                            ***/
                         }
                     }
                 }
@@ -1322,8 +1324,9 @@ void Optimiser::expectation()
 
 #ifndef NAN_NO_CHECK
 
-            if (_ID[l] == 2)
-            {
+                CLOG(INFO, "LOGGER_SYS") << "wC.sum() = " << wC.sum();
+
+                /***
                 if ((wC.sum() < 1) || (TSGSL_isnan(wC.sum())))
                 {
                     CLOG(INFO, "LOGGER_SYS") << "wC.sum() = " << wC.sum();
@@ -1332,7 +1335,7 @@ void Optimiser::expectation()
 
                     abort();
                 }
-            }
+                ***/
 
             /***
             if ((wR.sum() < 1) || (TSGSL_isnan(wR.sum())))
