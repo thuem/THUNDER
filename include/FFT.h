@@ -64,7 +64,7 @@
  */
 #define FW_CLEAN_UP \
 { \
-    _Pragma("omp critical"); \
+    _Pragma("omp critical (line67)"); \
     TSFFTW_destroy_plan(fwPlan); \
     _dstC = NULL; \
     _srcR = NULL; \
@@ -107,7 +107,7 @@
  */
 #define BW_CLEAN_UP(obj) \
 { \
-    _Pragma("omp critical"); \
+    _Pragma("omp critical (line110)"); \
     TSFFTW_destroy_plan(bwPlan); \
     _dstR = NULL; \
     _srcC = NULL; \

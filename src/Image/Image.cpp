@@ -78,7 +78,7 @@ void Image::alloc(const int nCol,
 
 #ifdef FFTW_PTR
 #ifdef FFTW_PTR_THREAD_SAFETY
-        #pragma omp critical
+        #pragma omp critical  (line81)
 #endif
         _dataRL = (RFLOAT*)TSFFTW_malloc(_sizeRL * sizeof(RFLOAT));
 #endif
@@ -96,7 +96,7 @@ void Image::alloc(const int nCol,
 
 #ifdef FFTW_PTR
 #ifdef FFTW_PTR_THREAD_SAFETY
-        #pragma omp critical
+        #pragma omp critical  (line99)
 #endif
         _dataFT = (Complex*)TSFFTW_malloc(_sizeFT * sizeof(Complex));
 #endif

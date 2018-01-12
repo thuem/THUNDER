@@ -25,7 +25,7 @@ void FFT::fw(Image& img)
 {
     FW_EXTRACT_P(img);
     
-    #pragma omp critical
+    #pragma omp critical  (line28)
     fwPlan = TSFFTW_plan_dft_r2c_2d(img.nRowRL(),
                                   img.nColRL(),
                                   _srcR,
@@ -41,7 +41,7 @@ void FFT::bw(Image& img)
 {
     BW_EXTRACT_P(img);
    
-    #pragma omp critical
+    #pragma omp critical  (line44)
     bwPlan = TSFFTW_plan_dft_c2r_2d(img.nRowRL(),
                                   img.nColRL(),
                                   _srcC,
@@ -61,7 +61,7 @@ void FFT::fw(Volume& vol)
 
     if (vol.nSlcRL() == 1)
     {
-        #pragma omp critical
+        #pragma omp critical  (line64)
         fwPlan = TSFFTW_plan_dft_r2c_2d(vol.nRowRL(),
                                       vol.nColRL(),
                                       _srcR,
@@ -70,7 +70,7 @@ void FFT::fw(Volume& vol)
     }
     else
     {
-        #pragma omp critical
+        #pragma omp critical  (line73)
         fwPlan = TSFFTW_plan_dft_r2c_3d(vol.nRowRL(),
                                       vol.nColRL(),
                                       vol.nSlcRL(),
@@ -90,7 +90,7 @@ void FFT::bw(Volume& vol)
 
     if (vol.nSlcRL() == 1)
     {
-        #pragma omp critical
+        #pragma omp critical  (line92)
         fwPlan = TSFFTW_plan_dft_r2c_2d(vol.nRowRL(),
                                       vol.nColRL(),
                                       _srcR,
@@ -99,7 +99,7 @@ void FFT::bw(Volume& vol)
     }
     else
     {
-        #pragma omp critical
+        #pragma omp critical  (line102)
         bwPlan = TSFFTW_plan_dft_c2r_3d(vol.nRowRL(),
                                       vol.nColRL(),
                                       vol.nSlcRL(),
@@ -269,7 +269,7 @@ void FFT::bwCreatePlan(const int nCol,
     _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
 
-    #pragma omp critical
+    #pragma omp critical  (line272)
     bwPlan = TSFFTW_plan_dft_c2r_2d(nRow,
                                   nCol,
                                   _srcC,
@@ -287,7 +287,7 @@ void FFT::bwCreatePlan(const int nCol,
     _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
-    #pragma omp critical
+    #pragma omp critical  (line290)
     bwPlan = TSFFTW_plan_dft_c2r_3d(nRow,
                                   nCol,
                                   nSlc,
@@ -491,13 +491,13 @@ void FFT::bwExecutePlanMT(Volume& vol)
 
 void FFT::fwDestroyPlan()
 {
-    #pragma omp critical
+    #pragma omp critical  (line494)
     TSFFTW_destroy_plan(fwPlan);
 }
 
 void FFT::bwDestroyPlan()
 {
-    #pragma omp critical
+    #pragma omp critical  (line500)
     TSFFTW_destroy_plan(bwPlan);
 }
 

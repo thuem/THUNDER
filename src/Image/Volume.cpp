@@ -83,7 +83,7 @@ void Volume::alloc(const int nCol,
 
 #ifdef FFTW_PTR
 #ifdef FFTW_PTR_THREAD_SAFETY
-        #pragma omp critical
+        #pragma omp critical  (line86)
 #endif
         _dataRL = (RFLOAT*)TSFFTW_malloc(_sizeRL * sizeof(RFLOAT));
 
@@ -108,7 +108,7 @@ void Volume::alloc(const int nCol,
 
 #ifdef FFTW_PTR
 #ifdef FFTW_PTR_THREAD_SAFETY
-        #pragma omp critical
+        #pragma omp critical  (line111)
 #endif
         _dataFT = (Complex*)TSFFTW_malloc(_sizeFT * sizeof(Complex));
 

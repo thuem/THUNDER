@@ -50,7 +50,7 @@
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
-
+#include <immintrin.h>
 
 #ifdef USING_SINGLE_PRECISION
 #include <fftw3float/fftw3.h>
