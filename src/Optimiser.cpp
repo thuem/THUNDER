@@ -1320,6 +1320,7 @@ void Optimiser::expectation()
                 }
             }
 
+            /***
 #ifndef NAN_NO_CHECK
 
             if ((wC.sum() < 1) || (TSGSL_isnan(wC.sum())))
@@ -1370,6 +1371,7 @@ void Optimiser::expectation()
                 abort();
             }
 #endif
+            ***/
 
 
 #ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
