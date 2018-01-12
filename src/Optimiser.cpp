@@ -1321,10 +1321,10 @@ void Optimiser::expectation()
                             
                             if (wC(0) < 1)
                             {
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", s = " << s;
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", w = " << w;
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", baseLine = " << baseLine;
-                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l], ", wC(0) = " << wC(0);
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", s = " << s;
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", w = " << w;
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", baseLine = " << baseLine;
+                                CLOG(INFO, "LOGGER_SYS") << "_ID[l] = " << _ID[l] << ", wC(0) = " << wC(0);
 
                                 abort();
                             }
