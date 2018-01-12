@@ -1318,14 +1318,18 @@ void Optimiser::expectation()
 
             if ((wC.sum() < 1) || (TSGSL_isnan(wC.sum())))
             {
-                REPORT_ERROR("WC, NAN DETECTED");
+                CLOG(INFO, "LOGGER_SYS") << "wC.sum() = " << wC.sum();
+
+                REPORT_ERROR("WC ERROR");
 
                 abort();
             }
 
             if ((wR.sum() < 1) || (TSGSL_isnan(wR.sum())))
             {
-                REPORT_ERROR("WR, NAN DETECTED");
+                CLOG(INFO, "LOGGER_SYS") << "wR.sum() = " << wR.sum();
+
+                REPORT_ERROR("WC ERROR");
 
                 abort();
             }
@@ -1344,14 +1348,18 @@ void Optimiser::expectation()
 
             if ((wT.sum() < 1) || (TSGSL_isnan(wT.sum())))
             {
-                REPORT_ERROR("WT, NAN DETECTED");
+                CLOG(INFO, "LOGGER_SYS") << "wT.sum() = " << wR.sum();
+
+                REPORT_ERROR("WT ERROR");
 
                 abort();
             }
 
             if ((wD.sum() < 1) || (TSGSL_isnan(wD.sum())))
             {
-                REPORT_ERROR("WT, NAN DETECTED");
+                CLOG(INFO, "LOGGER_SYS") << "wD.sum() = " << wR.sum();
+
+                REPORT_ERROR("WD ERROR");
 
                 abort();
             }
