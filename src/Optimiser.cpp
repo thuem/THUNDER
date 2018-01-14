@@ -2636,7 +2636,7 @@ void Optimiser::initCTF()
             _ctfAttr[l].defocusV,
             _ctfAttr[l].defocusTheta,
             _ctfAttr[l].Cs,
-            0);
+            _ctfAttr[l].phaseShift);
     }
 }
 
@@ -3539,7 +3539,8 @@ void Optimiser::normCorrection()
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
                         _ctfAttr[l].defocusTheta,
-                        _ctfAttr[l].Cs);
+                        _ctfAttr[l].Cs,
+                        _ctfAttr[l].phaseShift);
 
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(ctf[i]);
@@ -3765,7 +3766,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].defocusU * d,
                     _ctfAttr[l].defocusV * d,
                     _ctfAttr[l].defocusTheta,
-                    _ctfAttr[l].Cs);
+                    _ctfAttr[l].Cs,
+                    _ctfAttr[l].phaseShift);
 
                 FOR_EACH_PIXEL_FT(img)
                     img[i] *= REAL(ctf[i]);
@@ -3941,7 +3943,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusU * d,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
-                            _ctfAttr[l].Cs);
+                            _ctfAttr[l].Cs,
+                            _ctfAttr[l].phaseShift);
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
                     vec sig = _sig.row(_groupID[l] - 1).transpose();
@@ -4006,7 +4009,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusU * d,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
-                            _ctfAttr[l].Cs);
+                            _ctfAttr[l].Cs,
+                            _ctfAttr[l].phaseShift);
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
                     vec sig = _sig.row(_groupID[l] - 1).transpose();
