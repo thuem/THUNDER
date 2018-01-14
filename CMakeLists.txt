@@ -6,7 +6,13 @@ set(THUNDER_VERSION_MINOR 3)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}!")
 
-option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
+option(SINGLE_PRECISION "Whether to use single float precision in caculation?" OFF)
+
+if ("${SINGLE_PRECISION}")
+    message(STATUS "Build THUNDER in single-float precision.")
+else("${SINGLE_PRECISION}")
+    message(STATUS "Build THUNDER in double-float precision.")
+endif("${SINGLE_PRECISION}")
 
 #option(CMAKE_BUILD_TYPE "Build THUNDER for releasing or debugging?" "release")
 
