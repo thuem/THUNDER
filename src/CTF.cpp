@@ -19,7 +19,7 @@ RFLOAT CTF(const RFLOAT f,
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI / 2 * Cs * TSGSL_pow_3(lambda);
 
-    RFLOAT ki = K1 * defocus * TSGSL_pow_2(f) + K2 * TSGSL_pow_4(f) + phaseShift;
+    RFLOAT ki = K1 * defocus * TSGSL_pow_2(f) + K2 * TSGSL_pow_4(f) - phaseShift;
 
     return -w1 * sin(ki) + w2 * cos(ki);
 }
@@ -47,7 +47,7 @@ void CTF(Image& dst,
         RFLOAT defocus = -(defocusU + defocusV
                          + (defocusU - defocusV) * cos(2 * angle)) / 2;
 
-        RFLOAT ki = K1 * defocus * TSGSL_pow_2(u) + K2 * TSGSL_pow_4(u) + phaseShift;
+        RFLOAT ki = K1 * defocus * TSGSL_pow_2(u) + K2 * TSGSL_pow_4(u) - phaseShift;
 
         dst.setFTHalf(COMPLEX(-w1 * sin(ki) + w2 * cos(ki), 0),
                       i,
