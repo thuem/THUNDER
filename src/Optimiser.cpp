@@ -1187,7 +1187,8 @@ void Optimiser::expectation()
                                       * d
                                       * TSGSL_pow_2(_frequency[i])
                                       + _K2[l]
-                                      * TSGSL_pow_4(_frequency[i]);
+                                      * TSGSL_pow_4(_frequency[i])
+                                      - _ctfAttr[l].phaseShift;
 
                             /***
                             RFLOAT ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
