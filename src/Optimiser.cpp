@@ -162,6 +162,9 @@ void Optimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Initialising Class Distribution";
     _cDistr.resize(_para.k);
 
+    MLOG(INFO, "LOGGER_INIT") << "Modifying the Number of Sampling Points Used in Global Search Scanning Phase";
+    _para.mS = GSL_MAX_INT(_para.mS, MIN_M_S * (1 + _sym.nSymmetryElement()));
+
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.mode,
                 _para.gSearch,
