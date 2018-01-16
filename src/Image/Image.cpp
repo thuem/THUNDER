@@ -448,18 +448,42 @@ Complex Image::getFTHalf(const RFLOAT w[2][2],
 
     if (x0[1] != -1)
     {
-        size_t index0 = iFTHalf(x0[0], x0[1]);
+        //Following codes are commented out by huabin
+//        size_t index0 = iFTHalf(x0[0], x0[1]);
 
-        for (int i = 0; i < 4; i++)
-        {
-            size_t index = index0 + ((size_t*)_box)[i];
+//        for (int i = 0; i < 4; i++)
+//        {
+//            size_t index = index0 + ((size_t*)_box)[i];
 
-#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            BOUNDARY_CHECK_FT(index);
-#endif
+//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+//            BOUNDARY_CHECK_FT(index);
+//#endif
 
-            result += _dataFT[index] * ((RFLOAT*)w)[i];
-        }
+//            result += _dataFT[index] * ((RFLOAT*)w)[i];
+//        }
+
+
+//Follwing codes are added by huabin
+        size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
+        size_t index = index0 + _box[0][0];
+        result.dat[0] += _dataFT[index].dat[0] * w[0][0];
+        result.dat[1] += _dataFT[index].dat[1] * w[0][0];
+
+        index = index0 + _box[0][1];
+        result.dat[0] += _dataFT[index].dat[0] * w[0][1];
+        result.dat[1] += _dataFT[index].dat[1] * w[0][1];
+
+        index = index0 + _box[1][0];
+        result.dat[0] += _dataFT[index].dat[0] * w[1][0];
+        result.dat[1] += _dataFT[index].dat[1] * w[1][0];
+
+        index = index0 + _box[1][1];
+        result.dat[0] += _dataFT[index].dat[0] * w[1][1];
+        result.dat[1] += _dataFT[index].dat[1] * w[1][1];
+
+
+
+
     }
     else
     {
@@ -476,21 +500,46 @@ void Image::addFTHalf(const Complex value,
 {
     if (x0[1] != -1)
     {
-        size_t index0 = iFTHalf(x0[0], x0[1]);
+        //Following codes are commented out by huabin
+//        size_t index0 = iFTHalf(x0[0], x0[1]);
 
-        for (int i = 0; i < 4; i++)
-        {
-            size_t index = index0 + ((size_t*)_box)[i];
+//        for (int i = 0; i < 4; i++)
+//        {
+//            size_t index = index0 + ((size_t*)_box)[i];
 
-#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            BOUNDARY_CHECK_FT(index);
-#endif
+//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+//            BOUNDARY_CHECK_FT(index);
+//#endif
 
-            #pragma omp atomic
-            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
-            #pragma omp atomic
-            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
-        }
+//            #pragma omp atomic
+//            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
+//            #pragma omp atomic
+//            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
+//        }
+
+    //Following codes are added by huabin
+    size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
+    #pragma omp atomic
+    _dataFT[index0 + _box[0][0]].dat[0] += value.dat[0] * w[0][0];
+    #pragma omp atomic
+    _dataFT[index0 + _box[0][0]].dat[1] += value.dat[1] * w[0][0];
+
+    #pragma omp atomic
+    _dataFT[index0 + _box[0][1]].dat[0] += value.dat[0] * w[0][1];
+    #pragma omp atomic
+    _dataFT[index0 + _box[0][1]].dat[1] += value.dat[1] * w[0][1];
+
+    #pragma omp atomic
+    _dataFT[index0 + _box[1][0]].dat[0] += value.dat[0] * w[1][0];
+    #pragma omp atomic
+    _dataFT[index0 + _box[1][0]].dat[1] += value.dat[1] * w[1][0];
+
+    #pragma omp atomic
+    _dataFT[index0 + _box[1][1]].dat[0] += value.dat[0] * w[1][1];
+    #pragma omp atomic
+    _dataFT[index0 + _box[1][1]].dat[1] += value.dat[1] * w[1][1];
+
+
     }
     else
     {
@@ -506,19 +555,33 @@ void Image::addFTHalf(const RFLOAT value,
 {
     if (x0[1] != -1)
     {
-        size_t index0 = iFTHalf(x0[0], x0[1]);
+// Following codes are commented out by huabin
+//        size_t index0 = iFTHalf(x0[0], x0[1]);
 
-        for (int i = 0; i < 4; i++)
-        {
-            size_t index = index0 + ((size_t*)_box)[i];
+//        for (int i = 0; i < 4; i++)
+//        {
+//            size_t index = index0 + ((size_t*)_box)[i];
 
-#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-            BOUNDARY_CHECK_FT(index);
-#endif
+//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+//            BOUNDARY_CHECK_FT(index);
+//#endif
 
-            #pragma omp atomic
-            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
-        }
+//            #pragma omp atomic
+//            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
+//        }
+
+
+    //Following codes are added by huabin
+    size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
+    #pragma omp atomic
+    _dataFT[index0 + _box[0][0]].dat[0] += value * w[0][0];
+    #pragma omp atomic
+    _dataFT[index0 + _box[0][1]].dat[0] += value * w[0][1];
+    #pragma omp atomic
+    _dataFT[index0 + _box[1][0]].dat[0] += value * w[1][0];
+    #pragma omp atomic
+    _dataFT[index0 + _box[1][1]].dat[0] += value * w[1][1];
+
     }
     else
     {
