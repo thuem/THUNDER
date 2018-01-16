@@ -745,25 +745,22 @@ void Optimiser::expectation()
 
                     // higher logDataVSPrior, higher prabibility
 
-                    vec dvp = logDataVSPrior_m_n_huabin_SIMD(_datP,
+#ifndef ENABLE_SIMD
+            vec dvp = logDataVSPrior_m_n_huabin(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
                                              (int)_ID.size(),
                                              _nPxl);
+#else
+            vec dvp = logDataVSPrior_m_n_huabin_SIMD(_datP,
+                                             priAllP,
+                                             _ctfP,
+                                             _sigRcpP,
+                                             (int)_ID.size(),
+                                             _nPxl);
+#endif
 
-                    /*
-                     *vec dvp = logDataVSPrior(_datP,
-                     *                         priAllP,
-                     *                         _ctfP,
-                     *                         _sigRcpP,
-                     *                         (int)_ID.size(),
-                     *                         _nPxl);
-                     */
-
-                    /*
-                     *compareDVPVariable(dvp, dvpOrig, _commRank, omp_get_thread_num(), (int)_ID.size(), _nPxl); 
-                     */
 #ifndef NAN_NO_CHECK
 
                     FOR_EACH_2D_IMAGE
@@ -1250,9 +1247,24 @@ void Optimiser::expectation()
 
                             RFLOAT w;
 
-                            /*
-                             *RFLOAT wOrig;
-                             */
+                        #ifndef ENABLE_SIMD
+                            if (_searchType != SEARCH_TYPE_CTF)
+                            {
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   _ctfP + l * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                            else
+                            {
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   ctfP + iD * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                        #else
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
                                 w = logDataVSPrior_m_huabin_SIMD(_datP + l * _nPxl,
@@ -1260,13 +1272,6 @@ void Optimiser::expectation()
                                                    _ctfP + l * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
-                                /*
-                                 *w = logDataVSPrior(_datP + l * _nPxl,
-                                 *                   priAllP,
-                                 *                   _ctfP + l * _nPxl,
-                                 *                   _sigRcpP + l * _nPxl,
-                                 *                   _nPxl);
-                                 */
                             }
                             else
                             {
@@ -1275,19 +1280,9 @@ void Optimiser::expectation()
                                                    ctfP + iD * _nPxl,
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
-                                /*
-                                 *w = logDataVSPrior(_datP + l * _nPxl,
-                                 *                   priAllP,
-                                 *                   ctfP + iD * _nPxl,
-                                 *                   _sigRcpP + l * _nPxl,
-                                 *                   _nPxl);
-                                 */
                             }
-
-                            /*
-                             *compareWInmHuabin(wOrig, w, _commRank, omp_get_thread_num(), _nPxl);
-                             */
-
+                        #endif
+                            
                             baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
 
                             if (w > baseLine)
