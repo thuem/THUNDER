@@ -5206,7 +5206,6 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
 //Change by huabin doubleToRFLOAT
     RFLOAT tmp2;
 //Change by huabin doubleToRFLOAT
-    RFLOAT tmp3;
     for (int i = 0; i < m; i++)
     {
             
@@ -5216,11 +5215,10 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
         tmp1Imag = dat[i].dat[1] - tmpImag;
 
         tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
-        result2 += tmp2 * sigRcp[i];
-        /*
-         *tmp3 = tmp2 * sigRcp[i];
-         *result2 += tmp3;
-         */
+        result2 += (tmp2 * sigRcp[i]);
+
+        //tmp3 = tmp2 * sigRcp[i];
+        //result2 += tmp3;
 
     }
 
@@ -5567,7 +5565,7 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
 //Change by huabin doubleToRFLOAT
     RFLOAT tmp1          = 0.0;
 //Change by huabin doubleToRFLOAT
-    RFLOAT tmp2          = 0.0;
+    //RFLOAT tmp2          = 0.0;
 
 
     for(int i = 0; i < m; i ++)
