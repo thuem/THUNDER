@@ -43,7 +43,7 @@
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
-#define MIN_M_S 3000
+#define MIN_M_S 1500
 
 #define ALPHA_GLOBAL_SEARCH 1.0
 #define ALPHA_LOCAL_SEARCH 0
