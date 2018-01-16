@@ -54,28 +54,16 @@
 #include "THUNDERConfig.h"
 #include "Config.h"
 
+/*
+ *#define ENABLE_SIMD 1
+ */
+
 #ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else
 #include <fftw3.h>
 #endif
 
-/*
-gsl_fit_float_linear 
-gsl_ran_float_bivariate_gaussian ###
-gsl_ran_float_bivariate_gaussian_pdf ### 
-gsl_ran_float_dir_2d ###
-gsl_ran_float_dir_2d_trig_method ### 
-gsl_ran_float_dir_3d ### 
-gsl_ran_float_dir_nd ###
-gsl_sort_float
-gsl_stats_float_max
-gsl_stats_float_mean
-gsl_stats_float_min
-gsl_stats_float_quantile_from_sorted_data
-gsl_stats_float_sd
-gsl_stats_float_sd_m
-*/
 
 #ifdef SINGLE_PRECISION
     typedef float RFLOAT;

@@ -48,10 +48,14 @@ void display(const OptimiserPara& para)
     printf("CTF Refine Standard Deviation                            %12.6lf\n", para.ctfRefineS);
 }
 ***/
+
+#ifndef ENABLE_SIMD
 RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
-RFLOAT logDataVSPrior_m_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
 vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+#else
 vec logDataVSPrior_m_n_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+RFLOAT logDataVSPrior_m_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
+#endif
 
 
 void compareDVPVariable(vec& dvpHuabin, vec& dvpOrig, int processRank, int threadID, int n ,int m)
@@ -5212,9 +5216,11 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
         tmp1Imag = dat[i].dat[1] - tmpImag;
 
         tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
-        tmp3 = tmp2 * sigRcp[i];
-        
-        result2 += tmp3;
+        result2 += tmp2 * sigRcp[i];
+        /*
+         *tmp3 = tmp2 * sigRcp[i];
+         *result2 += tmp3;
+         */
 
     }
 
@@ -5225,7 +5231,7 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
 /**
  *  SIMDFloat() and SIMDDouble() are added by huabin
  */
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
 vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
 {
 
@@ -5383,17 +5389,20 @@ vec SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT
 
 #endif
 
+#ifdef ENABLE_SIMD
 vec logDataVSPrior_m_n_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
 
 {
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return SIMDFloat(dat, pri, ctf, sigRcp, n, m);
 #else
     return SIMDDouble(dat, pri, ctf, sigRcp, n, m);
 #endif
 }
+#endif
 
-#ifdef USING_SINGLE_PRECISION
+
+#ifdef SINGLE_PRECISION
 RFLOAT SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
 
@@ -5525,16 +5534,17 @@ RFLOAT SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
 }
 #endif
 
+#ifdef ENABLE_SIMD
 RFLOAT logDataVSPrior_m_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
 
-#ifdef USING_SINGLE_PRECISION
+#ifdef SINGLE_PRECISION
     return SIMDFloat(dat, pri, ctf, sigRcp, m);
 #else
     return SIMDDouble(dat, pri, ctf, sigRcp, m);
 #endif
 }
-
+#endif
 
 
 /**
@@ -5573,8 +5583,9 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
             tmpDSubCPImag = dat[idx].dat[1] - tmpCPMulImag;//temp.imag
 
             tmp1          = tmpDSubCPReal * tmpDSubCPReal + tmpDSubCPImag * tmpDSubCPImag; //tmp1
-            tmp2          = tmp1 * sigRcp[idx];//temp2
-            result2(j)    += tmp2;//result2
+            result2(j)    += (tmp1 * sigRcp[idx]);//temp2
+            //tmp2          = tmp1 * sigRcp[idx];//temp2
+            //result2(j)    += tmp2;//result2
         }
     }
     

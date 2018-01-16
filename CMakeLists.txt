@@ -30,7 +30,8 @@ else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
             "Valid option is release or debug.")
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
-set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
+#-mavx is added by huabin
+set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -mavx ${ADDITIONAL_FLAGS}")
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 

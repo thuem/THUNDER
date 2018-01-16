@@ -1,4 +1,4 @@
-This is fftw3.info, produced by makeinfo version 6.3 from fftw3.texi.
+This is fftw3.info, produced by makeinfo version 5.1 from fftw3.texi.
 
 This manual is for FFTW (version 3.3.7, 29 October 2017).
 
@@ -66,7 +66,7 @@ special cases thereof.
      known as the discrete cosine or sine transform, respectively), and
      the discrete Hartley transform (DHT) of real data.
 
-   * The input data can have arbitrary length.  FFTW employs O(n log n)
+   * The input data can have arbitrary length. FFTW employs O(n log n)
      algorithms for all lengths, including prime numbers.
 
    * FFTW supports arbitrary multi-dimensional data.
@@ -752,7 +752,7 @@ correspond to N=0, and so are _not defined_ (the planner will return
 by FFTW, see *note What FFTW Really Computes::.  (For people accustomed
 to the DCT/DST, FFTW's definitions have a coefficient of 2 in front of
 the cos/sin functions so that they correspond precisely to an even/odd
-DFT of size N. Some authors also include additional multiplicative
+DFT of size N.  Some authors also include additional multiplicative
 factors of sqrt(2) for selected inputs and outputs; this makes the
 transform orthogonal, but sacrifices the direct equivalence to a
 symmetric DFT.)
@@ -3532,7 +3532,7 @@ therefore to divide the problem as equally as possible.
    For a multi-dimensional complex DFT, FFTW can divide the problem
 equally among the processes if: (i) the _first_ dimension 'n0' is
 divisible by P; and (ii), the _product_ of the subsequent dimensions is
-divisible by P. (For the advanced interface, where you can specify
+divisible by P.  (For the advanced interface, where you can specify
 multiple simultaneous transforms via some "vector" length 'howmany', a
 factor of 'howmany' is included in the product of the subsequent
 dimensions.)
