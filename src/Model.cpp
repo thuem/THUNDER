@@ -579,7 +579,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                                         _r);
 #endif
 
-                    MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Belower Resolution "
+                    MLOG(INFO, "LOGGER_COMPARE") << "Averaging A and B Below Resolution "
                                                  << 1.0 / resP2A(r, _size, _pixelSize)
                                                  << "(Angstrom)";
 
