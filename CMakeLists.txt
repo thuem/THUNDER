@@ -45,14 +45,16 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 
-if("${ENABLE_SIMD}")
-    set(COMMON_FLAGS "${COMMON_FLAG} -mavx")
+if(ENABLE_SIMD)
+    set(COMMON_FLAGS "${COMMON_FLAG} -mavx" )
     message(STATUS "ENABLE_SIMD, t stsCompile THUNDER with -mavx flag.")
-endif("${ENABLE_SIMD}")
+endif(ENABLE_SIMD)
 
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
+message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 # MPI
 
 find_package(MPI REQUIRED)
