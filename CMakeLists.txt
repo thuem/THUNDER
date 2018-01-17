@@ -35,7 +35,7 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 
 if(NOT ENABLE_SIMD)
-    set(COMMON_FLAGS "${COMMON_FLAG}" -mavx)
+    set(COMMON_FLAGS "${COMMON_FLAG} -mavx")
 endif(NOT ENABLE_SIMD)
 
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
