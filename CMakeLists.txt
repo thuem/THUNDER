@@ -56,7 +56,7 @@ set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-decla
 
 if(ENABLE_SIMD)
     set(COMMON_FLAGS "${COMMON_FLAGS} -mavx")
-    message(STATUS "ENABLE_SIMD, t stsCompile THUNDER with -mavx flag.")
+    message(STATUS "ENABLE_SIMD, Compile THUNDER with -mavx flag.")
 endif(ENABLE_SIMD)
 
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
