@@ -14,26 +14,43 @@ else("${SINGLE_PRECISION}")
     message(STATUS "Build THUNDER in double-float precision.")
 endif("${SINGLE_PRECISION}")
 
+set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
+
+#if(ENABLE_SIMD)
+#    set(COMMON_FLAGS "${COMMON_FLAGS} -mavx")
+#    message(STATUS "ENABLE_SIMD, Compile THUNDER with -mavx flag.")
+#endif(ENABLE_SIMD)
+
+#set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
+#set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
+
 option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
 
 if("${ENABLE_SIMD}")
     if(APPLE)
         message(WARNING "THUNDER does not suppot SIMD on Apple.")
         set(ENABLE_SIMD OFF)
+        set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
     else(APPLE)
+        set(CMAKE_C_FLAGS "${COMMON_FLAGS} -mavx")
+        set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -mavx")
         try_compile(AVX_SUPPORT
                     ${CMAKE_BINARY_DIR}
-                    "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX.c"
-                    CMAKE_FLAGS "-mavx")
+                    "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX.c")
         if(AVX_SUPPORT)
             message(STATUS "Build THUNDER using SIMD.")
         else(AVX_SUPPORT)
             message(WARNING "Compiler does not support AVX.")
             set(ENABLE_SIMD OFF)
+            set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
+            set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
         endif(AVX_SUPPORT)
     endif(APPLE)
 else ("${ENABLE_SIMD}")
     message(STATUS "Build THUNDER without using SIMD.")
+    set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
 endif("${ENABLE_SIMD}")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -52,16 +69,6 @@ else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
             "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE} is not valid."
             "Valid option is release or debug.")
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
-
-set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
-
-if(ENABLE_SIMD)
-    set(COMMON_FLAGS "${COMMON_FLAGS} -mavx")
-    message(STATUS "ENABLE_SIMD, Compile THUNDER with -mavx flag.")
-endif(ENABLE_SIMD)
-
-set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
-set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
 message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
