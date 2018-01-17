@@ -16,13 +16,26 @@ endif("${SINGLE_PRECISION}")
 
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 
-#if(ENABLE_SIMD)
-#    set(COMMON_FLAGS "${COMMON_FLAGS} -mavx")
-#    message(STATUS "ENABLE_SIMD, Compile THUNDER with -mavx flag.")
-#endif(ENABLE_SIMD)
+# Build Type
 
-#set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
-#set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "")
+    set(CMAKE_BUILD_TYPE "release")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+    set(COMMON_FLAGS "-O2")
+    message(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -O2 flag.")
+elseif("${CMAKE_BUILD_TYPE}" STREQUAL "debug")
+    set(COMMON_FLAGS "-g -O0")
+    message(STATUS
+            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -g -O0 flag.")
+else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+    message(FATAL_ERROR
+            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE} is not valid."
+            "Valid option is release or debug.")
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
+
+# SIMD
 
 option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
 
@@ -53,25 +66,10 @@ else ("${ENABLE_SIMD}")
     set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
 endif("${ENABLE_SIMD}")
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-    set(CMAKE_BUILD_TYPE "release")
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
-
-if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
-    set(COMMON_FLAGS "-O2")
-    message(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -O2 flag.")
-elseif("${CMAKE_BUILD_TYPE}" STREQUAL "debug")
-    set(COMM_FLAGS "-g -O0")
-    message(STATUS
-            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -g -O0 flag.")
-else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
-    message(FATAL_ERROR
-            "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE} is not valid."
-            "Valid option is release or debug.")
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
-
+# Output Flags
 message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+
 # MPI
 
 find_package(MPI REQUIRED)
