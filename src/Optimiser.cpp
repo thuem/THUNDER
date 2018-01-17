@@ -166,6 +166,9 @@ void Optimiser::init()
     MLOG(INFO, "LOGGER_INIT") << "Initialising Class Distribution";
     _cDistr.resize(_para.k);
 
+    MLOG(INFO, "LOGGER_INIT") << "Modifying the Number of Sampling Points Used in Global Search Scanning Phase";
+    _para.mS = GSL_MAX_INT(_para.mS, MIN_M_S * (1 + _sym.nSymmetryElement()));
+
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.mode,
                 _para.gSearch,
@@ -1188,7 +1191,8 @@ void Optimiser::expectation()
                                       * d
                                       * TSGSL_pow_2(_frequency[i])
                                       + _K2[l]
-                                      * TSGSL_pow_4(_frequency[i]);
+                                      * TSGSL_pow_4(_frequency[i])
+                                      - _ctfAttr[l].phaseShift;
 
                             /***
                             RFLOAT ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
@@ -2635,7 +2639,7 @@ void Optimiser::initCTF()
             _ctfAttr[l].defocusV,
             _ctfAttr[l].defocusTheta,
             _ctfAttr[l].Cs,
-            0);
+            _ctfAttr[l].phaseShift);
     }
 }
 
@@ -3538,7 +3542,8 @@ void Optimiser::normCorrection()
                         _ctfAttr[l].defocusU * d,
                         _ctfAttr[l].defocusV * d,
                         _ctfAttr[l].defocusTheta,
-                        _ctfAttr[l].Cs);
+                        _ctfAttr[l].Cs,
+                        _ctfAttr[l].phaseShift);
 
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(ctf[i]);
@@ -3764,7 +3769,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].defocusU * d,
                     _ctfAttr[l].defocusV * d,
                     _ctfAttr[l].defocusTheta,
-                    _ctfAttr[l].Cs);
+                    _ctfAttr[l].Cs,
+                    _ctfAttr[l].phaseShift);
 
                 FOR_EACH_PIXEL_FT(img)
                     img[i] *= REAL(ctf[i]);
@@ -3940,7 +3946,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusU * d,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
-                            _ctfAttr[l].Cs);
+                            _ctfAttr[l].Cs,
+                            _ctfAttr[l].phaseShift);
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
                     vec sig = _sig.row(_groupID[l] - 1).transpose();
@@ -4005,7 +4012,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusU * d,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
-                            _ctfAttr[l].Cs);
+                            _ctfAttr[l].Cs,
+                            _ctfAttr[l].phaseShift);
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
                     vec sig = _sig.row(_groupID[l] - 1).transpose();
