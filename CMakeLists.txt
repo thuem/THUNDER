@@ -21,7 +21,10 @@ if("${ENABLE_SIMD}")
         message(WARNING "THUNDER does not suppot SIMD on Apple.")
         set(ENABLE_SIMD OFF)
     else(APPLE)
-        try_compile(AVX_SUPPORT ${CMAKE_BINARY_DIR} "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX.c")
+        try_compile(AVX_SUPPORT
+                    ${CMAKE_BINARY_DIR}
+                    "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX.c"
+                    CMAKE_FLAGS -maxv)
         if(AVX_SUPPORT)
             message(STATUS "Build THUNDER using SIMD.")
         else(AVX_SUPPORT)
