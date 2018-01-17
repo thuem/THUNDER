@@ -500,46 +500,49 @@ void Image::addFTHalf(const Complex value,
 {
     if (x0[1] != -1)
     {
-        //Following codes are commented out by huabin
-//        size_t index0 = iFTHalf(x0[0], x0[1]);
+#ifdef IMG_VOL_BOX_UNFOLD
 
-//        for (int i = 0; i < 4; i++)
-//        {
-//            size_t index = index0 + ((size_t*)_box)[i];
+        size_t index0 = iFTHalf(x0[0], x0[1]);
 
-//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-//            BOUNDARY_CHECK_FT(index);
-//#endif
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
 
-//            #pragma omp atomic
-//            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
-//            #pragma omp atomic
-//            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
-//        }
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
 
-    //Following codes are added by huabin
-    size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
-    #pragma omp atomic
-    _dataFT[index0 + _box[0][0]].dat[0] += value.dat[0] * w[0][0];
-    #pragma omp atomic
-    _dataFT[index0 + _box[0][0]].dat[1] += value.dat[1] * w[0][0];
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
+            #pragma omp atomic
+            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
+        }
 
-    #pragma omp atomic
-    _dataFT[index0 + _box[0][1]].dat[0] += value.dat[0] * w[0][1];
-    #pragma omp atomic
-    _dataFT[index0 + _box[0][1]].dat[1] += value.dat[1] * w[0][1];
+#else
 
-    #pragma omp atomic
-    _dataFT[index0 + _box[1][0]].dat[0] += value.dat[0] * w[1][0];
-    #pragma omp atomic
-    _dataFT[index0 + _box[1][0]].dat[1] += value.dat[1] * w[1][0];
+        size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
 
-    #pragma omp atomic
-    _dataFT[index0 + _box[1][1]].dat[0] += value.dat[0] * w[1][1];
-    #pragma omp atomic
-    _dataFT[index0 + _box[1][1]].dat[1] += value.dat[1] * w[1][1];
+        #pragma omp atomic
+        _dataFT[index0 + _box[0][0]].dat[0] += value.dat[0] * w[0][0];
+        #pragma omp atomic
+        _dataFT[index0 + _box[0][0]].dat[1] += value.dat[1] * w[0][0];
 
+        #pragma omp atomic
+        _dataFT[index0 + _box[0][1]].dat[0] += value.dat[0] * w[0][1];
+        #pragma omp atomic
+        _dataFT[index0 + _box[0][1]].dat[1] += value.dat[1] * w[0][1];
 
+        #pragma omp atomic
+        _dataFT[index0 + _box[1][0]].dat[0] += value.dat[0] * w[1][0];
+        #pragma omp atomic
+        _dataFT[index0 + _box[1][0]].dat[1] += value.dat[1] * w[1][0];
+
+        #pragma omp atomic
+        _dataFT[index0 + _box[1][1]].dat[0] += value.dat[0] * w[1][1];
+        #pragma omp atomic
+        _dataFT[index0 + _box[1][1]].dat[1] += value.dat[1] * w[1][1];
+
+#endif
     }
     else
     {
@@ -555,33 +558,35 @@ void Image::addFTHalf(const RFLOAT value,
 {
     if (x0[1] != -1)
     {
-// Following codes are commented out by huabin
-//        size_t index0 = iFTHalf(x0[0], x0[1]);
+#ifdef IMG_VOL_BOX_UNFOLD
+        size_t index0 = iFTHalf(x0[0], x0[1]);
 
-//        for (int i = 0; i < 4; i++)
-//        {
-//            size_t index = index0 + ((size_t*)_box)[i];
+        for (int i = 0; i < 4; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
 
-//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-//            BOUNDARY_CHECK_FT(index);
-//#endif
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
 
-//            #pragma omp atomic
-//            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
-//        }
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
+        }
 
+#else
 
-    //Following codes are added by huabin
-    size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
-    #pragma omp atomic
-    _dataFT[index0 + _box[0][0]].dat[0] += value * w[0][0];
-    #pragma omp atomic
-    _dataFT[index0 + _box[0][1]].dat[0] += value * w[0][1];
-    #pragma omp atomic
-    _dataFT[index0 + _box[1][0]].dat[0] += value * w[1][0];
-    #pragma omp atomic
-    _dataFT[index0 + _box[1][1]].dat[0] += value * w[1][1];
+        size_t index0 = (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
 
+        #pragma omp atomic
+        _dataFT[index0 + _box[0][0]].dat[0] += value * w[0][0];
+        #pragma omp atomic
+        _dataFT[index0 + _box[0][1]].dat[0] += value * w[0][1];
+        #pragma omp atomic
+        _dataFT[index0 + _box[1][0]].dat[0] += value * w[1][0];
+        #pragma omp atomic
+        _dataFT[index0 + _box[1][1]].dat[0] += value * w[1][1];
+
+#endif
     }
     else
     {

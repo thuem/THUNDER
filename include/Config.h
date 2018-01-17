@@ -30,6 +30,8 @@
 
 #define IMG_VOL_BOUNDARY_NO_CHECK
 
+#define IMG_VOL_BOX_UNFOLD
+
 #define MATRIX_BOUNDARY_NO_CHECK
 
 //#define NAN_NO_CHECK

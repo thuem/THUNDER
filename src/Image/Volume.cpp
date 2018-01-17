@@ -557,24 +557,30 @@ void Volume::addFTHalf(const Complex value,
     if ((x0[1] != -1) &&
         (x0[2] != -1))
     {
-        // Following code is commented out by huabin
-//        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
+#ifndef IMG_VOL_BOX_UNFOLD
 
-//        for (int i = 0; i < 8; i++)
-//        {
-//            size_t index = index0 + ((size_t*)_box)[i];
+        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
-//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-//            BOUNDARY_CHECK_FT(index);
-//#endif
+        for (int i = 0; i < 8; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
+
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
             
-//            #pragma omp atomic
-//            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
-//            #pragma omp atomic
-//            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
-//        }
-       //Follwing code is add by huabin
-        size_t index0 = (x0[2] >= 0 ? x0[2] : x0[2] + _nSlc) * _nColFT * _nRow + (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value.dat[0] * ((RFLOAT*)w)[i];
+            #pragma omp atomic
+            _dataFT[index].dat[1] += value.dat[1] * ((RFLOAT*)w)[i];
+        }
+
+#else
+
+        size_t index0 = (x0[2] >= 0 ? x0[2] : x0[2] + _nSlc) * _nColFT * _nRow
+                      + (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT
+                      + x0[0];
+
         #pragma omp atomic
         _dataFT[index0+_box[0][0][0]].dat[0] += value.dat[0] * w[0][0][0];
         #pragma omp atomic
@@ -601,7 +607,6 @@ void Volume::addFTHalf(const Complex value,
         #pragma omp atomic
         _dataFT[index0+_box[1][0][0]].dat[1] += value.dat[1] * w[1][0][0];
 
-
         #pragma omp atomic
         _dataFT[index0+_box[1][0][1]].dat[0] += value.dat[0] * w[1][0][1];
         #pragma omp atomic
@@ -616,6 +621,8 @@ void Volume::addFTHalf(const Complex value,
         _dataFT[index0+_box[1][1][1]].dat[0] += value.dat[0] * w[1][1][1];
         #pragma omp atomic
         _dataFT[index0+_box[1][1][1]].dat[1] += value.dat[1] * w[1][1][1];
+
+#endif
     }
     else
     {
@@ -626,7 +633,6 @@ void Volume::addFTHalf(const Complex value,
     }
 }
 
-//huabin
 void Volume::addFTHalf(const RFLOAT value,
                        const RFLOAT w[2][2][2],
                        const int x0[3])
@@ -634,26 +640,28 @@ void Volume::addFTHalf(const RFLOAT value,
     if ((x0[1] != -1) &&
         (x0[2] != -1))
     {
-        //Following code is commented out by huabin
-//        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
+#ifndef IMG_VOL_BOX_UNFOLD
 
-//        for (int i = 0; i < 8; i++)
-//        {
-//            size_t index = index0 + ((size_t*)_box)[i];
+        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
-//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-//            BOUNDARY_CHECK_FT(index);
-//#endif
+        for (int i = 0; i < 8; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
 
-//            #pragma omp atomic
-//            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
-//        }
-        
-        
-        
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
 
-        //Follwing code is add by huabin
-         size_t index0 = (x0[2] >= 0 ? x0[2] : x0[2] + _nSlc) * _nColFT * _nRow + (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
+            #pragma omp atomic
+            _dataFT[index].dat[0] += value * ((RFLOAT*)w)[i];
+        }
+
+#else
+
+        size_t index0 = (x0[2] >= 0 ? x0[2] : x0[2] + _nSlc) * _nColFT * _nRow
+                      + (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT
+                      + x0[0];
+
         #pragma omp atomic
         _dataFT[index0+_box[0][0][0]].dat[0] += value * w[0][0][0];
         #pragma omp atomic
@@ -671,7 +679,7 @@ void Volume::addFTHalf(const RFLOAT value,
         #pragma omp atomic
         _dataFT[index0+_box[1][1][1]].dat[0] += value * w[1][1][1];
 
-
+#endif
     }
     else
     {
