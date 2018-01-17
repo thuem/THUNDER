@@ -23,10 +23,10 @@ if("${CMAKE_BUILD_TYPE}" STREQUAL "")
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
-    set(COMMON_FLAGS "-O2")
+    set(COMMON_FLAGS "${COMMON_FLAGS} -O2")
     message(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -O2 flag.")
 elseif("${CMAKE_BUILD_TYPE}" STREQUAL "debug")
-    set(COMMON_FLAGS "-g -O0")
+    set(COMMON_FLAGS "${COMMON_FLAGS} -g -O0")
     message(STATUS
             "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -g -O0 flag.")
 else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
