@@ -6,9 +6,21 @@ set(THUNDER_VERSION_MINOR 3)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}!")
 
-option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
+option(SINGLE_PRECISION "Whether to use single float precision in caculation?" OFF)
+
+if ("${SINGLE_PRECISION}")
+    message(STATUS "Build THUNDER in single-float precision.")
+else("${SINGLE_PRECISION}")
+    message(STATUS "Build THUNDER in double-float precision.")
+endif("${SINGLE_PRECISION}")
 
 option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
+
+if("${ENABLE_SIMD}")
+    message(STATUS "Build THUNDER using SIMD.")
+else ("${ENABLE_SIMD}")
+    message(STATUS "Build THUNDER without using SIMD.")
+endif("${ENABLE_SIMD}")
 
 #option(CMAKE_BUILD_TYPE "Build THUNDER for releasing or debugging?" "release")
 
@@ -20,7 +32,7 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "")
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "release")
     set(COMMON_FLAGS "-O2")
-    message(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -O3 flag.")
+    message(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}, compile THUNDER with -O2 flag.")
 elseif("${CMAKE_BUILD_TYPE}" STREQUAL "debug")
     set(COMM_FLAGS "-g -O0")
     message(STATUS
@@ -35,7 +47,8 @@ set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-decla
 
 if(ENABLE_SIMD)
     set(COMMON_FLAGS "${COMMON_FLAG} -mavx" )
-endif(NOT ENABLE_SIMD)
+    message(STATUS "ENABLE_SIMD, t stsCompile THUNDER with -mavx flag.")
+endif(ENABLE_SIMD)
 
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
