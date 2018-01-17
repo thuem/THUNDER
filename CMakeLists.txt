@@ -8,6 +8,8 @@ message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MI
 
 option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
 
+option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
+
 #option(CMAKE_BUILD_TYPE "Build THUNDER for releasing or debugging?" "release")
 
 #add_definitions(-DCMAKE_BUILD_TYPE="release")
@@ -29,8 +31,12 @@ else("${CMAKE_BUILD_TYPE}" STREQUAL "release")
             "Valid option is release or debug.")
 endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
-#-mavx is added by huabin
-set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -mavx ${ADDITIONAL_FLAGS}")
+set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
+
+if(NOT ENABLE_SIMD)
+    set(COMMON_FLAGS "${COMMON_FLAG}" -mavx)
+endif(NOT ENABLE_SIMD)
+
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
 
