@@ -16,6 +16,12 @@ endif("${SINGLE_PRECISION}")
 
 option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
 
+if("${ENABLE_SIMD}")
+    message(STATUS "Build THUNDER using SIMD.")
+else ("${ENABLE_SIMD}")
+    message(STATUS "Build THUNDER without using SIMD.")
+endif("${ENABLE_SIMD}")
+
 #option(CMAKE_BUILD_TYPE "Build THUNDER for releasing or debugging?" "release")
 
 #add_definitions(-DCMAKE_BUILD_TYPE="release")
@@ -40,9 +46,10 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread ${ADDITIONAL_FLAGS}")
 
-if(NOT ENABLE_SIMD)
+if("${ENABLE_SIMD}")
     set(COMMON_FLAGS "${COMMON_FLAG} -mavx")
-endif(NOT ENABLE_SIMD)
+    message(STATUS "ENABLE_SIMD, t stsCompile THUNDER with -mavx flag.")
+endif("${ENABLE_SIMD}")
 
 set(CMAKE_C_FLAGS "${COMMON_FLAGS} -fopenmp")
 set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -fopenmp")
