@@ -5229,6 +5229,8 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
 /**
  *  SIMDFloat() and SIMDDouble() are added by huabin
  */
+
+#ifdef ENABLE_SIMD
 #ifdef SINGLE_PRECISION
 vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
 {
@@ -5386,6 +5388,8 @@ vec SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT
 }
 
 #endif
+#endif
+
 
 #ifdef ENABLE_SIMD
 vec logDataVSPrior_m_n_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
@@ -5400,6 +5404,7 @@ vec logDataVSPrior_m_n_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOA
 #endif
 
 
+#ifdef ENABLE_SIMD
 #ifdef SINGLE_PRECISION
 RFLOAT SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
@@ -5530,6 +5535,7 @@ RFLOAT SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
     return result;
 
 }
+#endif
 #endif
 
 #ifdef ENABLE_SIMD
