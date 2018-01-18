@@ -28,7 +28,7 @@ inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src)
 {
     if (src == Json::nullValue)
     {
-        REPORT_ERROR("INVALID JSON KEY");
+        REPORT_ERROR("INVALID JSON PARAMETER FILE KEY");
         abort();
     }
     else
