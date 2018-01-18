@@ -80,13 +80,13 @@ static inline void copy_string(char (&array)[N], const std::string& source)
 void readPara(OptimiserPara& dst,
               const Json::Value src)
 {
-    dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src["Number of Threads Per Process"]).asInt();
+    dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src[KEY_N_THREADS_PER_PROCESS]).asInt();
 
-    if (JSONCPP_READ_ERROR_HANDLER(src["2D or 3D Mode"]).asString() == "2D")
+    if (JSONCPP_READ_ERROR_HANDLER(src[KEY_MODE]).asString() == "2D")
     {
         dst.mode = MODE_2D;
     }
-    else if (JSONCPP_READ_ERROR_HANDLER(src["2D or 3D Mode"]).asString() == "3D")
+    else if (JSONCPP_READ_ERROR_HANDLER(src[KEY_MODE]).asString() == "3D")
     {
         dst.mode = MODE_3D;
     }
@@ -97,12 +97,12 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
-    dst.gSearch = JSONCPP_READ_ERROR_HANDLER(src["Global Search"]).asBool();
-    dst.lSearch = JSONCPP_READ_ERROR_HANDLER(src["Local Search"]).asBool();
-    dst.cSearch = JSONCPP_READ_ERROR_HANDLER(src["CTF Search"]).asBool();
+    dst.gSearch = JSONCPP_READ_ERROR_HANDLER(src[KEY_G_SEARCH]).asBool();
+    dst.lSearch = JSONCPP_READ_ERROR_HANDLER(src[KEY_L_SEARCH]).asBool();
+    dst.cSearch = JSONCPP_READ_ERROR_HANDLER(src[KEY_C_SEARCH]).asBool();
 
-    dst.k = JSONCPP_READ_ERROR_HANDLER(src["Number of Classes"]).asInt();
-    dst.size = JSONCPP_READ_ERROR_HANDLER(src["Size of Image"]).asInt();
+    dst.k = JSONCPP_READ_ERROR_HANDLER(src[KEY_K]).asInt();
+    dst.size = JSONCPP_READ_ERROR_HANDLER(src[KEY_SIZE]).asInt();
     dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src["Pixel Size (Angstrom)"]).asFloat();
     dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src["Radius of Mask on Images (Angstrom)"]).asFloat();
     dst.transS = JSONCPP_READ_ERROR_HANDLER(src["Estimated Translation (Pixel)"]).asFloat();

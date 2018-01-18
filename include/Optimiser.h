@@ -66,35 +66,50 @@
 
 struct OptimiserPara
 {
+
+#define KEY_N_THREADS_PER_PROCESS "Number of Threads Per Process"
+
     /**
      * maximum number of threads in a process
      */
     int nThreadsPerProcess;
+
+#define KEY_MODE "2D or 3D Mode"
 
     /**
      * 2D or 3D mode
      */
     int mode;
 
+#define KEY_G_SEARCH "Global Search"
+
     /**
      * perform global search or not
      */
     bool gSearch;
+
+#define KEY_L_SEARCH "Local Search"
 
     /**
      * perform local search or not
      */
     bool lSearch;
 
+#define KEY_C_SEARCH "CTF Search"
+
     /**
      * perform ctf search or not
      */
     bool cSearch;
 
+#define KEY_K "Number of Classes"
+
     /**
      * number of classes
      */
     int k;
+
+#define KEY_SIZE "Size of Image"
 
     /**
      * size of image (pixel)
