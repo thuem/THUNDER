@@ -175,3 +175,15 @@ foreach(BINSRC ${BIN_SOURCES})
     add_executable(${BINNAME} ${BINSRC})
     install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
 endforeach()
+
+# Copy Scripts
+
+install(FILES "${PROJECT_SOURCE_DIR}/script/STAR_2_THU.py" DESTINATION script)
+install(FILES "${PROJECT_SOURCE_DIR}/script/STAR_2_THU_NO_GROUP.py" DESTINATION script)
+install(FILES "${PROJECT_SOURCE_DIR}/script/demo.json" DESTINATION script)
+install(FILES "${PROJECT_SOURCE_DIR}/script/demo_2D.json" DESTINATION script)
+install(FILES "${PROJECT_SOURCE_DIR}/script/demo_3D.json" DESTINATION script)
+
+# Copy Manual
+
+install(FILES "${PROJECT_SOURCE_DIR}/manual/THUNDER_v1_3_User_Guide.pdf" DESTINATION manual)
