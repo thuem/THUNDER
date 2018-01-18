@@ -1,4 +1,5 @@
 .DS_Store
+manual/.texpadtmp/
 *.h.swp
 *.o
 *.exe

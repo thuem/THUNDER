@@ -60,16 +60,16 @@
         
             \subsubsection{Preparation Before Configuring Source Code}
             
-                Firstly, make sure \textsf{fftw3}, \textsf{gsl} and \textsf{cmake} have been installed and correctly placed in environment. Secondly, set up system variable \textsf{CC} and \textsf{CXX} to be C compiler and C++ compiler with MPI wrapper, such as \textsf{mpicc} and \textsf{mpicxx}, respectively. Thus, \textsf{cmake} can correctly set up the C/C++ compiler for compiling THUNDER source code.
+                Make sure \textsf{cmake} have been installed and correctly placed in environment. Thus, \textsf{cmake} can correctly set up the environment for compiling THUNDER.
         
             \subsubsection{Configure Using \textsf{cmake}}
             
-                In THUNDER source code directory, assuming it is \textsf{THUNDER\_dir}, please type in the following commands for configuring source code.
+                In THUNDER source code directory, please type in the following commands for configuring source code. \textsf{install\_dir} stands for where you want THUNDER to be installed.
             
                 \begin{lstlisting}[language={sh}]
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
                 \end{lstlisting}
             
             \subsubsection{Compile and Stage Binaries into Environment}
@@ -78,9 +78,10 @@ cmake ..
                 
                 \begin{lstlisting}[language={sh}]
 make -j20
+make install
                 \end{lstlisting}
                 
-                After compiling, the compiled binaries can all placed in directory \textsf{THUNDER\_dir/build/app}, which are listed below.
+                After compiling and insllation, the compiled binaries can all placed in directory \textsf{THUNDER\_dir/build/app}, which are listed below.
                 \begin{itemize}
                     \item \textsf{thunder}
                     \item \textsf{thunder\_average}
