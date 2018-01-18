@@ -14,6 +14,7 @@
 
 #include "Config.h"
 #include "Logging.h"
+#include "Macro.h"
 #include "Projector.h"
 #include "Reconstructor.h"
 #include "FFT.h"
@@ -58,7 +59,6 @@ void fmt_time(int timeInSeconds, char *outputBuffer)
     timeInSeconds = timeInSeconds%60;
     sec = timeInSeconds;
     snprintf(outputBuffer, 512, "%ds (%d days:%d hours:%d mins:%d seconds)\n", inputSeconds, day, hour, min, sec);
-
 }
 
 template <size_t N>
@@ -190,34 +190,41 @@ int main(int argc, char* argv[])
 
     loggerInit(argc, argv);
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
-
-    RFLOAT startTime = 0.0;
-    RFLOAT endTime = 0.0;
     MPI_Init(&argc, &argv);
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    if(rank == 0)
-    {
-        startTime = MPI_Wtime();
-    }
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "THUNDER v"
+                                            << THUNDER_VERSION_MAJOR
+                                            << "." 
+                                            << THUNDER_VERSION_MINOR;
 
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
+#endif
+
+    RFLOAT sTime = 0.0;
+    RFLOAT eTime = 0.0;
+
+    if (rank == 0) sTime = MPI_Wtime();
+
+#ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_SYS") << "Process " << rank << " Initialised";
+#endif
 
     Json::Reader reader;
     Json::Value root;
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
 
     ifstream in(argv[1], ios::binary);
 
-    CLOG(INFO, "LOGGER_SYS") << "Openning Parameter File";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Openning Parameter File";
 
     if (!in.is_open())
     {
-        CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Parameter File";
+        if (rank == 0) CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Parameter File";
 
         abort();
     }
@@ -230,18 +237,18 @@ int main(int argc, char* argv[])
     }
     else
     {
-        CLOG(FATAL, "LOGGER_SYS") << "Fail to Parse Parameter File";
+        if (rank == 0) CLOG(FATAL, "LOGGER_SYS") << "Fail to Parse Parameter File";
 
         abort();
     }
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
 
     omp_set_num_threads(para.nThreadsPerProcess);
 
-    CLOG(INFO, "LOGGER_SYS") << "Maximum Number of Threads in a Process is " << omp_get_max_threads();
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Maximum Number of Threads in a Process is " << omp_get_max_threads();
 
-    CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
 
     if (TSFFTW_init_threads() == 0)
     {
@@ -250,32 +257,37 @@ int main(int argc, char* argv[])
         abort();
     }
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
+
     TSFFTW_set_timelimit(60);
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
     
     Optimiser opt;
 
     opt.setPara(para);
 
-    CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment";
 
     opt.setMPIEnv();
 
-    CLOG(INFO, "LOGGER_SYS") << "Running";
+    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Running";
 
     opt.run();
 
-    if(rank == 0)
+    if (rank == 0)
     {
-        endTime = MPI_Wtime();
-        int totalSeconds = (int)(endTime - startTime);
+        eTime = MPI_Wtime();
+
+        int totalSeconds = (int)(eTime - sTime);
+
         char timeBuffer[512];
+
         memset(timeBuffer, '\0', sizeof(timeBuffer));
+
         fmt_time(totalSeconds, timeBuffer);
+
         fprintf(stderr, "Elapse Time: %s\n", timeBuffer);
-        
     }
 
     MPI_Finalize();
