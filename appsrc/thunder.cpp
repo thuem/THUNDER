@@ -119,7 +119,6 @@ void readPara(OptimiserPara& dst,
 
     dst.performMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Perform Reference Mask"]).asBool();
     dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Perform Reference Mask During Global Search"]).asBool();
-    dst.autoMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Automask"]).asBool();
     copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Provided Mask"]).asString());
 
     dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Max Number of Iteration"]).asInt();
