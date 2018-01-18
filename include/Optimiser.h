@@ -216,7 +216,7 @@ struct OptimiserPara
      */
     char mask[FILE_NAME_LENGTH];
 
-#define KEY_ITER_MAX "Max Number of Iterations"
+#define KEY_ITER_MAX "Max Number of Iteration"
 
     /**
      * max number of iteration
