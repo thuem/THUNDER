@@ -103,16 +103,16 @@ void readPara(OptimiserPara& dst,
 
     dst.k = JSONCPP_READ_ERROR_HANDLER(src[KEY_K]).asInt();
     dst.size = JSONCPP_READ_ERROR_HANDLER(src[KEY_SIZE]).asInt();
-    dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src["Pixel Size (Angstrom)"]).asFloat();
-    dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src["Radius of Mask on Images (Angstrom)"]).asFloat();
-    dst.transS = JSONCPP_READ_ERROR_HANDLER(src["Estimated Translation (Pixel)"]).asFloat();
-    dst.initRes = JSONCPP_READ_ERROR_HANDLER(src["Initial Resolution (Angstrom)"]).asFloat();
-    dst.globalSearchRes = JSONCPP_READ_ERROR_HANDLER(src["Perform Global Search Under (Angstrom)"]).asFloat();
-    copy_string(dst.sym, JSONCPP_READ_ERROR_HANDLER(src["Symmetry"]).asString());
-    copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src["Initial Model"]).asString());
-    copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src[".thu File Storing Paths and CTFs of Images"]).asString());
-    copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src["Prefix of Particles"]).asString());
-    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src["Prefix of Destination"]).asString());
+    dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src[KEY_PIXEL_SIZE]).asFloat();
+    dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src[KEY_MASK_RADIUS]).asFloat();
+    dst.transS = JSONCPP_READ_ERROR_HANDLER(src[KEY_TRANS_S]).asFloat();
+    dst.initRes = JSONCPP_READ_ERROR_HANDLER(src[KEY_INIT_RES]).asFloat();
+    dst.globalSearchRes = JSONCPP_READ_ERROR_HANDLER(src[KEY_GLOBAL_SEARCH_RES]).asFloat();
+    copy_string(dst.sym, JSONCPP_READ_ERROR_HANDLER(src[KEY_SYM]).asString());
+    copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src[KEY_INIT_MODEL]).asString());
+    copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src[KEY_DB]).asString());
+    copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src[KEY_PAR_PREFIX]).asString());
+    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src[KEY_DST_PREFIX]).asString());
     dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src["Calculate FSC Using Core Region"]).asBool();
     dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src["Calculate FSC Using Masked Region"]).asBool();
     dst.parGra = JSONCPP_READ_ERROR_HANDLER(src["Particle Grading"]).asBool();

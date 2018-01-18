@@ -116,56 +116,75 @@ struct OptimiserPara
      */
     int size;
 
+#define KEY_PIXEL_SIZE "Pixel Size (Angstrom)"
+
     /**
      * pixel size (Angstrom)
      */
     RFLOAT pixelSize;
+
+#define KEY_MASK_RADIUS "Radius of Mask on Images (Angstrom)"
 
     /**
      * radius of mask on images (Angstrom)
      */
     RFLOAT maskRadius;
 
+#define KEY_TRANS_S "Estimated Translation (Pixel)"
+
     /**
      * estimated translation (pixel)
      */
     RFLOAT transS;
+
+#define KEY_INIT_RES "Initial Resolution (Angstrom)"
 
     /**
      * initial resolution (Angstrom)
      */
     RFLOAT initRes;
 
-    /**
-     * scan resolution (Angstrom)
-     */
-    RFLOAT scanRes;
+#define KEY_GLOBAL_SEARCH_RES "Perform Global Search Under (Angstrom)"
 
     /**
      * resolution threshold for performing global search
      */
     RFLOAT globalSearchRes;
 
+#define KEY_SYM "Symmetry"
+
     /**
      * symmetry
      */
     char sym[SYM_ID_LENGTH];
+
+#define KEY_INIT_MODEL "Initial Model"
 
     /**
      * initial model
      */
     char initModel[FILE_NAME_LENGTH];
 
+#define KEY_DB ".thu File Storing Paths and CTFs of Images"
+
     /**
      * sqlite3 file storing paths and CTFs of images
      */
     char db[FILE_NAME_LENGTH];
 
+#define KEY_PAR_PREFIX "Prefix of Particles"
+
     char parPrefix[FILE_NAME_LENGTH];
+
+#define KEY_DST_PREFIX "Prefix of Destination"
 
     char dstPrefix[FILE_NAME_LENGTH];
 
+#define KEY_CORE_FSC "Calculate FSC Using Core Region"
+
     bool coreFSC;
+
+#define KEY_MASK_FSC "Calculate FSC Using Masked Region"
 
     bool maskFSC;
 
