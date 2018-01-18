@@ -188,66 +188,98 @@ struct OptimiserPara
 
     bool maskFSC;
 
+#define KEY_PAR_GRA "Particle Grading"
+
+    bool parGra;
+
+#define KEY_PERFORM_MASK "Perform Reference Mask"
+
     /**
      * whether to perform masking on the reference
      */
     bool performMask;
+
+#define KEY_GLOBAL_MASK "Perform Reference Mask During Global Search"
 
     /**
      * whether to perform masking during global search
      */
     bool globalMask;
 
-    /**
-     * whether to automatically generate a mask
-     */
+    // TODO
     bool autoMask;
+
+#define KEY_MASK "Provided Mask"
 
     /**
      * mask
      */
     char mask[FILE_NAME_LENGTH];
 
+#define KEY_ITER_MAX "Max Number of Iterations"
+
     /**
      * max number of iteration
      */
     int iterMax;
 
+#define KEY_GOLDEN_STANDARD "Using Golden Standard FSC"
+
     bool goldenStandard;
     
+#define KEY_PF "Padding Factor"
+
     /**
      * padding factor
      */
     int pf;
+
+#define KEY_A "MKB Kernel Radius"
     
     /**
      * MKB kernel radius
      */
     RFLOAT a;
 
+#define KEY_ALPHA "MKB Kernel Smooth Factor"
+
     /**
      * MKB kernel smooth factor
      */
     RFLOAT alpha;
+
+#define KEY_M_S_2D "Number of Sampling Points for Scanning in Global Search (2D)"
+#define KEY_M_S_3D "Number of Sampling Points for Scanning in Global Search (3D)"
 
     /**
      * number of sampling points for scanning in global search
      */
     int mS;
 
+#define KEY_M_L_R_2D "Number of Sampling Points of Rotation in Local Search (2D)"
+#define KEY_M_L_R_3D "Number of Sampling Points of Rotation in Local Search (3D)"
+
     int mLR;
+
+#define KEY_M_L_T "Number of Sampling Points of Translation in Local Search"
 
     /**
      * number of sampling points in local search
      */
     int mLT;
 
+#define KEY_M_L_D "Number of Sampling Points of Defocus in Local Search"
+
     int mLD;
+
+#define KEY_M_RECO "Number of Sampling Points Used in Reconstruction"
 
     /**
      * number of sampling points used in reconstruction
      */
     int mReco;
+
+#define KEY_IGNORE_RES "Ignore Signal Under (Angstrom)"
 
     /**
      * the information below this resolution will be ignored
@@ -286,7 +318,6 @@ struct OptimiserPara
      */
     bool zeroMask;
 
-    bool parGra;
 
     RFLOAT transSearchFactor;
 

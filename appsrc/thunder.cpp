@@ -113,31 +113,31 @@ void readPara(OptimiserPara& dst,
     copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src[KEY_DB]).asString());
     copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src[KEY_PAR_PREFIX]).asString());
     copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src[KEY_DST_PREFIX]).asString());
-    dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src["Calculate FSC Using Core Region"]).asBool();
-    dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src["Calculate FSC Using Masked Region"]).asBool();
-    dst.parGra = JSONCPP_READ_ERROR_HANDLER(src["Particle Grading"]).asBool();
+    dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src[KEY_CORE_FSC]).asBool();
+    dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src[KEY_MASK_FSC]).asBool();
+    dst.parGra = JSONCPP_READ_ERROR_HANDLER(src[KEY_PAR_GRA]).asBool();
 
-    dst.performMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Perform Reference Mask"]).asBool();
-    dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Perform Reference Mask During Global Search"]).asBool();
-    copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"]["Provided Mask"]).asString());
+    dst.performMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_PERFORM_MASK]).asBool();
+    dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_GLOBAL_MASK]).asBool();
+    copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_MASK]).asString());
 
-    dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Max Number of Iteration"]).asInt();
-    dst.goldenStandard = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Using Golden Standard FSC"]).asBool();
-    dst.pf = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Padding Factor"]).asInt();
-    dst.a = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["MKB Kernel Radius"]).asFloat();
-    dst.alpha = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["MKB Kernel Smooth Factor"]).asFloat();
+    dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ITER_MAX]).asInt();
+    dst.goldenStandard = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GOLDEN_STANDARD]).asBool();
+    dst.pf = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_PF]).asInt();
+    dst.a = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_A]).asFloat();
+    dst.alpha = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ALPHA]).asFloat();
 
     if (dst.mode == MODE_2D)
     {
-        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points for Scanning in Global Search (2D)"]).asInt();
+        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_S_2D]).asInt();
 
-        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points of Rotation in Local Search (2D)"]).asInt();
+        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_R_2D]).asInt();
     }
     else if (dst.mode == MODE_3D)
     {
-        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points for Scanning in Global Search (3D)"]).asInt();
+        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_S_3D]).asInt();
 
-        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points of Rotation in Local Search (3D)"]).asInt();
+        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_R_3D]).asInt();
     }
     else
     {
@@ -146,10 +146,10 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
-    dst.mLT = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points of Translation in Local Search"]).asInt();
-    dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points of Defocus in Local Search"]).asInt();
-    dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Number of Sampling Points Used in Reconstruction"]).asInt();
-    dst.ignoreRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Ignore Signal Under (Angstrom)"]).asFloat();
+    dst.mLT = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_T]).asInt();
+    dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_D]).asInt();
+    dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_RECO]).asInt();
+    dst.ignoreRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_IGNORE_RES]).asFloat();
     dst.sclCorRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Correct Intensity Scale Using Signal Under (Angstrom)"]).asFloat();
     dst.thresCutoffFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["FSC Threshold for Cutoff Frequency"]).asFloat();
     dst.thresReportFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["FSC Threshold for Reporting Resolution"]).asFloat();
