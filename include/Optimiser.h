@@ -62,7 +62,8 @@
 
 #define MIN_STD_FACTOR 3
 
-#define CLASS_BALANCE_FACTOR 0.05
+//#define CLASS_BALANCE_FACTOR 0.05
+#define CLASS_BALANCE_FACTOR 0.2
 
 struct OptimiserPara
 {
