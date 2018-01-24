@@ -55,9 +55,12 @@
 #include "Config.h"
 
 /*
- *#define ENABLE_SIMD 1
+ *#define ENABLE_SIMD_256 1
  */
 
+/*
+ *#define ENABLE_SIMD_512 1
+ */
 #ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else

@@ -22,7 +22,6 @@
 #include <gsl/gsl_randist.h>
 
 
-
 void gsl_ran_float_dir_2d (const gsl_rng * r, float *x, float *y)
 {
   /* This method avoids trig, but it does take an average of 8/pi =

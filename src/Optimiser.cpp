@@ -49,13 +49,17 @@ void display(const OptimiserPara& para)
 }
 ***/
 
-#ifndef ENABLE_SIMD
-RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
-vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+#ifdef ENABLE_SIMD_512
+ vec logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+ RFLOAT logDataVSPrior_m_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
+#elif ENABLE_SIMD_256
+ vec logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+ RFLOAT logDataVSPrior_m_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
 #else
-vec logDataVSPrior_m_n_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
-RFLOAT logDataVSPrior_m_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
+   RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
+   vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
 #endif
+
 
 
 void compareDVPVariable(vec& dvpHuabin, vec& dvpOrig, int processRank, int threadID, int n ,int m)
@@ -756,15 +760,22 @@ void Optimiser::expectation()
 
                     // higher logDataVSPrior, higher prabibility
 
-#ifndef ENABLE_SIMD
-            vec dvp = logDataVSPrior_m_n_huabin(_datP,
+#ifdef ENABLE_SIMD_512
+            vec dvp = logDataVSPrior_m_n_huabin_SIMD512(_datP,
+                                             priAllP,
+                                             _ctfP,
+                                             _sigRcpP,
+                                             (int)_ID.size(),
+                                             _nPxl);
+#elif ENABLE_SIMD_256
+            vec dvp = logDataVSPrior_m_n_huabin_SIMD256(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
                                              (int)_ID.size(),
                                              _nPxl);
 #else
-            vec dvp = logDataVSPrior_m_n_huabin_SIMD(_datP,
+            vec dvp = logDataVSPrior_m_n_huabin(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
@@ -1259,10 +1270,10 @@ void Optimiser::expectation()
 
                             RFLOAT w;
 
-                        #ifndef ENABLE_SIMD
+                        #ifdef ENABLE_SIMD_512
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
-                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
+                                w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
                                                    priAllP,
                                                    _ctfP + l * _nPxl,
                                                    _sigRcpP + l * _nPxl,
@@ -1270,7 +1281,24 @@ void Optimiser::expectation()
                             }
                             else
                             {
-                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
+                                w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   ctfP + iD * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                        #elif ENABLE_SIMD_256
+                            if (_searchType != SEARCH_TYPE_CTF)
+                            {
+                                w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   _ctfP + l * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                            else
+                            {
+                                w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
                                                    priAllP,
                                                    ctfP + iD * _nPxl,
                                                    _sigRcpP + l * _nPxl,
@@ -1279,7 +1307,7 @@ void Optimiser::expectation()
                         #else
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
-                                w = logDataVSPrior_m_huabin_SIMD(_datP + l * _nPxl,
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
                                                    priAllP,
                                                    _ctfP + l * _nPxl,
                                                    _sigRcpP + l * _nPxl,
@@ -1287,7 +1315,7 @@ void Optimiser::expectation()
                             }
                             else
                             {
-                                w = logDataVSPrior_m_huabin_SIMD(_datP + l * _nPxl,
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
                                                    priAllP,
                                                    ctfP + iD * _nPxl,
                                                    _sigRcpP + l * _nPxl,
@@ -5205,50 +5233,44 @@ void Optimiser::saveTau() const
 RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
 
-//Change by huabin doubleToRFLOAT
-    RFLOAT result2 = 0.0;
-//Change by huabin doubleToRFLOAT
-    RFLOAT tmpReal = 0.0;
-//Change by huabin doubleToRFLOAT
-    RFLOAT tmpImag = 0.0;
-//Change by huabin doubleToRFLOAT
-    RFLOAT tmp1Real = 0.0;
-//Change by huabin doubleToRFLOAT
-    RFLOAT tmp1Imag = 0.0;
-//Change by huabin doubleToRFLOAT
-    RFLOAT tmp2;
-//Change by huabin doubleToRFLOAT
-    for (int i = 0; i < m; i++)
-    {
+   RFLOAT result2 = 0.0;
+   RFLOAT tmpReal = 0.0;
+   RFLOAT tmpImag = 0.0;
+   RFLOAT tmp1Real = 0.0;
+   RFLOAT tmp1Imag = 0.0;
+   RFLOAT tmp2;
+   for (int i = 0; i < m; i++)
+   {
             
-        tmpReal = ctf[i] * pri[i].dat[0];
-        tmpImag = ctf[i] * pri[i].dat[1];
-        tmp1Real = dat[i].dat[0] - tmpReal;
-        tmp1Imag = dat[i].dat[1] - tmpImag;
+       tmpReal = ctf[i] * pri[i].dat[0];
+       tmpImag = ctf[i] * pri[i].dat[1];
+       tmp1Real = dat[i].dat[0] - tmpReal;
+       tmp1Imag = dat[i].dat[1] - tmpImag;
 
-        tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
-        result2 += (tmp2 * sigRcp[i]);
+       tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
+       result2 += (tmp2 * sigRcp[i]);
 
-        //tmp3 = tmp2 * sigRcp[i];
-        //result2 += tmp3;
+       //tmp3 = tmp2 * sigRcp[i];
+       //result2 += tmp3;
 
-    }
+   }
 
-    return result2;
+   return result2;
 }
 
 
 /**
- *  SIMDFloat() and SIMDDouble() are added by huabin
+ *  SIMD256Float() and SIMD256Double() are added by huabin
  */
 
-#ifdef ENABLE_SIMD
+#ifdef ENABLE_SIMD_256
 #ifdef SINGLE_PRECISION
-vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+vec SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
 {
 
     vec resultSIMDFloat = vec::Zero(n);
     __m256 ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
+    __m256 xmm4, xmm5;
     int i = 0;
     int j = 0;
     int idx = 0;
@@ -5263,6 +5285,8 @@ vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT*
 
     for(i = 0; i < m; i ++)
     {   
+        xmm4 = _mm256_set_ps(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+        xmm5 = _mm256_set_ps(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
         for(j = 0; j <= (n - 8); j += 8)
         {
             ymm6 = _mm256_setzero_ps();
@@ -5270,13 +5294,14 @@ vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT*
             ymm1 = _mm256_set_ps(ctf[idx+7], ctf[idx+6], ctf[idx+5], ctf[idx + 4], ctf[idx+3], ctf[idx+2], ctf[idx+1], ctf[idx]); //ctf[idx]
             ymm2 = _mm256_set_ps(dat[idx + 7].dat[0], dat[idx + 6].dat[0], dat[idx + 5].dat[0],dat[idx + 4].dat[0], dat[idx + 3].dat[0], dat[idx + 2].dat[0], dat[idx + 1].dat[0],dat[idx].dat[0]);//dat[idx].dat[0]
             ymm3 = _mm256_set_ps(dat[idx + 7].dat[1], dat[idx + 6].dat[1], dat[idx + 5].dat[1],dat[idx + 4].dat[1], dat[idx + 3].dat[1], dat[idx + 2].dat[1], dat[idx + 1].dat[1],dat[idx].dat[1]);//dat[idx].dat[1]
-            ymm4 = _mm256_set_ps(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
-            ymm5 = _mm256_set_ps(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
-            
-            
-            ymm4 = _mm256_mul_ps(ymm1, ymm4); //tmpReal
-            ymm5 = _mm256_mul_ps(ymm1, ymm5);//tmpImag
+            //ymm4 = _mm256_set_ps(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+            //ymm5 = _mm256_set_ps(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+            //ymm4 = _mm256_mul_ps(ymm1, ymm4); //tmpReal
+            //ymm5 = _mm256_mul_ps(ymm1, ymm5);//tmpImag
                     
+            ymm4 = _mm256_mul_ps(ymm1, xmm4); //tmpReal
+            ymm5 = _mm256_mul_ps(ymm1, xmm5);//tmpImag
+
             ymm4 = _mm256_sub_ps(ymm2, ymm4);//tmp1Real
             ymm5 = _mm256_sub_ps(ymm3, ymm5); //tmp1Imag
 
@@ -5300,7 +5325,7 @@ vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT*
             resultSIMDFloat(j + 5) += tmp[5];
             resultSIMDFloat(j + 6) += tmp[6];
             resultSIMDFloat(j + 7) += tmp[7];
-}
+        }
 
         //Process remainning value 
         for(; j < n; j ++)
@@ -5324,11 +5349,12 @@ vec SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT*
 }
 #else
 
-vec SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+vec SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
 {
 
     vec resultSIMDDouble = vec::Zero(n);
     __m256d ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
+    __m256d xmm4, xmm5;
     int i = 0;
     int j = 0;
     int idx = 0;
@@ -5343,6 +5369,8 @@ vec SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT
 
     for(i = 0; i < m; i ++)
     {   
+        xmm4 = _mm256_set_pd(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+        xmm5 = _mm256_set_pd(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
         for(j = 0; j <= (n -4); j += 4)
         {
             ymm6 = _mm256_setzero_pd();
@@ -5350,13 +5378,15 @@ vec SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT
             ymm1 = _mm256_set_pd(ctf[idx+3], ctf[idx+2], ctf[idx+1], ctf[idx]); //ctf[idx]
             ymm2 = _mm256_set_pd(dat[idx + 3].dat[0], dat[idx + 2].dat[0], dat[idx + 1].dat[0],dat[idx].dat[0]);//dat[idx].dat[0]
             ymm3 = _mm256_set_pd(dat[idx + 3].dat[1], dat[idx + 2].dat[1], dat[idx + 1].dat[1],dat[idx].dat[1]);//dat[idx].dat[1]
-            ymm4 = _mm256_set_pd(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
-            ymm5 = _mm256_set_pd(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
-            
-            
-            ymm4 = _mm256_mul_pd(ymm1, ymm4); //tmpReal
-            ymm5 = _mm256_mul_pd(ymm1, ymm5);//tmpImag
+            //ymm4 = _mm256_set_pd(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+            //ymm5 = _mm256_set_pd(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+            //ymm4 = _mm256_mul_pd(ymm1, ymm4); //tmpReal
+            //ymm5 = _mm256_mul_pd(ymm1, ymm5);//tmpImag
                     
+            ymm4 = _mm256_mul_pd(ymm1, xmm4); //tmpReal
+            ymm5 = _mm256_mul_pd(ymm1, xmm5);//tmpImag
+
+
             ymm4 = _mm256_sub_pd(ymm2, ymm4);//tmp1Real
             ymm5 = _mm256_sub_pd(ymm3, ymm5); //tmp1Imag
 
@@ -5403,22 +5433,22 @@ vec SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT
 #endif
 
 
-#ifdef ENABLE_SIMD
-vec logDataVSPrior_m_n_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+#ifdef ENABLE_SIMD_256
+vec logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
 
 {
 #ifdef SINGLE_PRECISION
-    return SIMDFloat(dat, pri, ctf, sigRcp, n, m);
+    return SIMD256Float(dat, pri, ctf, sigRcp, n, m);
 #else
-    return SIMDDouble(dat, pri, ctf, sigRcp, n, m);
+    return SIMD256Double(dat, pri, ctf, sigRcp, n, m);
 #endif
 }
 #endif
 
 
-#ifdef ENABLE_SIMD
+#ifdef ENABLE_SIMD_256
 #ifdef SINGLE_PRECISION
-RFLOAT SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+RFLOAT SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
 
     __m256 ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
@@ -5481,7 +5511,7 @@ RFLOAT SIMDFloat(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLO
 
 }
 #else
-RFLOAT SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+RFLOAT SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
 
     __m256d ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
@@ -5550,18 +5580,387 @@ RFLOAT SIMDDouble(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
 #endif
 #endif
 
-#ifdef ENABLE_SIMD
-RFLOAT logDataVSPrior_m_huabin_SIMD(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+#ifdef ENABLE_SIMD_256
+RFLOAT logDataVSPrior_m_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
 {
 
 #ifdef SINGLE_PRECISION
-    return SIMDFloat(dat, pri, ctf, sigRcp, m);
+    return SIMD256Float(dat, pri, ctf, sigRcp, m);
 #else
-    return SIMDDouble(dat, pri, ctf, sigRcp, m);
+    return SIMD256Double(dat, pri, ctf, sigRcp, m);
 #endif
 }
 #endif
 
+
+
+/* *************************************************************************************************** */
+
+
+#ifdef ENABLE_SIMD_512
+#ifdef SINGLE_PRECISION
+vec SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+{
+
+    vec resultSIMDFloat = vec::Zero(n);
+    __m512 ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
+    __m512 xmm4, xmm5;
+    int i = 0;
+    int j = 0;
+    int idx = 0;
+    RFLOAT  tmp[16] __attribute__((aligned(64)));
+    RFLOAT tmpReal  = 0.0;
+    RFLOAT tmpImag  = 0.0;
+    RFLOAT tmp1Real = 0.0;
+    RFLOAT tmp1Imag = 0.0;
+    RFLOAT tmp1     = 0.0;
+    RFLOAT tmp2     = 0.0;
+
+
+    for(i = 0; i < m; i ++)
+    {   
+            xmm4 = _mm512_set_ps(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0],\
+                                 pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+            xmm5 = _mm512_set_ps(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1],\
+                                 pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+
+        for(j = 0; j <= (n - 16); j += 16)
+        {
+            ymm6 = _mm512_setzero_ps();
+            idx = i * n + j;
+            ymm1 = _mm512_set_ps(ctf[idx+15], ctf[idx+14], ctf[idx+13], ctf[idx+12], ctf[idx+11], ctf[idx+10], ctf[idx+9], ctf[idx+8],\
+                                 ctf[idx+7],  ctf[idx+6],  ctf[idx+5],  ctf[idx+4],  ctf[idx+3],  ctf[idx+2],  ctf[idx+1], ctf[idx]); //ctf[idx]
+            ymm2 = _mm512_set_ps(dat[idx+15].dat[0], dat[idx+14].dat[0], dat[idx+13].dat[0],dat[idx+12].dat[0], dat[idx+11].dat[0], dat[idx+10].dat[0], dat[idx+9].dat[0],dat[idx+8].dat[0],\
+                                 dat[idx+7].dat[0], dat[idx+6].dat[0], dat[idx+5].dat[0],dat[idx+4].dat[0], dat[idx+3].dat[0], dat[idx+2].dat[0], dat[idx+1].dat[0],dat[idx].dat[0]);//dat[idx].dat[0]
+            ymm3 = _mm512_set_ps(dat[idx+15].dat[1], dat[idx+14].dat[1], dat[idx+13].dat[1],dat[idx+12].dat[1], dat[idx+11].dat[1], dat[idx+10].dat[1], dat[idx+9].dat[1],dat[idx+8].dat[1],\
+                                 dat[idx+7].dat[1], dat[idx+6].dat[1], dat[idx+5].dat[1],dat[idx+4].dat[1], dat[idx+3].dat[1], dat[idx+2].dat[1], dat[idx+1].dat[1],dat[idx].dat[1]);//dat[idx].dat[1]
+            //Following two lines seems can be moved to outter loop
+            //ymm4 = _mm512_set_ps(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+            //ymm5 = _mm512_set_ps(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1],                     pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+            
+            
+            ymm4 = _mm512_mul_ps(ymm1, xmm4); //tmpReal
+            ymm5 = _mm512_mul_ps(ymm1, xmm5);//tmpImag
+                    
+            ymm4 = _mm512_sub_ps(ymm2, ymm4);//tmp1Real
+            ymm5 = _mm512_sub_ps(ymm3, ymm5); //tmp1Imag
+
+            ymm4 = _mm512_mul_ps(ymm4, ymm4);
+            ymm5 = _mm512_mul_ps(ymm5, ymm5);
+
+            ymm4 = _mm512_add_ps(ymm4, ymm5); //tmp1
+
+            ymm5 = _mm512_set_ps(sigRcp[idx+15], sigRcp[idx+14], sigRcp[idx+13], sigRcp[idx+12], sigRcp[idx+11], sigRcp[idx+10], sigRcp[idx+9], sigRcp[idx+8],\
+                                 sigRcp[idx+7],  sigRcp[idx+6],  sigRcp[idx+5],  sigRcp[idx+4],  sigRcp[idx+3],  sigRcp[idx+2],  sigRcp[idx+1], sigRcp[idx]); //sigRcp
+
+            ymm4 = _mm512_mul_ps(ymm4, ymm5);//tmp2
+
+            ymm6 = _mm512_add_ps(ymm6, ymm4);//result2
+
+            _mm512_store_ps(tmp, ymm6);
+            resultSIMDFloat(j)+= tmp[0];
+            resultSIMDFloat(j + 1) += tmp[1];
+            resultSIMDFloat(j + 2) += tmp[2];
+            resultSIMDFloat(j + 3) += tmp[3];
+            resultSIMDFloat(j + 4) += tmp[4];
+            resultSIMDFloat(j + 5) += tmp[5];
+            resultSIMDFloat(j + 6) += tmp[6];
+            resultSIMDFloat(j + 7) += tmp[7];
+            resultSIMDFloat(j + 8) += tmp[8];
+            resultSIMDFloat(j + 9) += tmp[9];
+            resultSIMDFloat(j + 10) += tmp[10];
+            resultSIMDFloat(j + 11) += tmp[11];
+            resultSIMDFloat(j + 12) += tmp[12];
+            resultSIMDFloat(j + 13) += tmp[13];
+            resultSIMDFloat(j + 14) += tmp[14];
+            resultSIMDFloat(j + 15) += tmp[15];
+        }
+
+        //Process remainning value 
+        for(; j < n; j ++)
+        {
+            int idx       = i * n + j;
+            tmpReal  = ctf[idx] * pri[i].dat[0];
+            tmpImag  = ctf[idx] * pri[i].dat[1];
+
+            tmp1Real = dat[idx].dat[0] - tmpReal; //temp.real
+            tmp1Imag = dat[idx].dat[1] - tmpImag;//temp.imag
+
+            tmp1          = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag; //tmp1
+            tmp2          = tmp1 * sigRcp[idx];//temp2
+            resultSIMDFloat(j)    += tmp2;
+
+        }
+        
+    }
+
+    return resultSIMDFloat;
+}
+
+#else
+
+vec SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+{
+
+    vec resultSIMDDouble = vec::Zero(n);
+    __m512d ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
+    __m512d xmm4, xmm5;
+    int i = 0;
+    int j = 0;
+    int idx = 0;
+    RFLOAT  tmp[8] __attribute__((aligned(64)));
+    RFLOAT tmpReal  = 0.0;
+    RFLOAT tmpImag  = 0.0;
+    RFLOAT tmp1Real = 0.0;
+    RFLOAT tmp1Imag = 0.0;
+    RFLOAT tmp1     = 0.0;
+    RFLOAT tmp2     = 0.0;
+
+
+    for(i = 0; i < m; i ++)
+    {   
+        xmm4 = _mm512_set_pd(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+        xmm5 = _mm512_set_pd(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+        for(j = 0; j <= (n - 8); j += 8)
+        {
+            ymm6 = _mm512_setzero_pd();
+            idx = i * n + j;
+            ymm1 = _mm512_set_pd(ctf[idx+7], ctf[idx+6], ctf[idx+5], ctf[idx+4],\
+                                 ctf[idx+3], ctf[idx+2], ctf[idx+1], ctf[idx]); //ctf[idx]
+            ymm2 = _mm512_set_pd(dat[idx+7].dat[0], dat[idx+6].dat[0], dat[idx+5].dat[0],dat[idx+4].dat[0],\
+                                 dat[idx+3].dat[0], dat[idx+2].dat[0], dat[idx+1].dat[0],dat[idx].dat[0]);//dat[idx].dat[0]
+            ymm3 = _mm512_set_pd(dat[idx+7].dat[1], dat[idx+6].dat[1], dat[idx+5].dat[1],dat[idx+4].dat[1],\
+                                 dat[idx+3].dat[1], dat[idx+2].dat[1], dat[idx+1].dat[1],dat[idx].dat[1]);//dat[idx].dat[1]
+            //ymm4 = _mm512_set_pd(pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0], pri[i].dat[0], pri[i].dat[0], pri[i].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+            //ymm5 = _mm512_set_pd(pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1], pri[i].dat[1], pri[i].dat[1], pri[i].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+            
+            
+            ymm4 = _mm512_mul_pd(ymm1, xmm4); //tmpReal
+            ymm5 = _mm512_mul_pd(ymm1, xmm5);//tmpImag
+                    
+            ymm4 = _mm512_sub_pd(ymm2, ymm4);//tmp1Real
+            ymm5 = _mm512_sub_pd(ymm3, ymm5); //tmp1Imag
+
+            ymm4 = _mm512_mul_pd(ymm4, ymm4);
+            ymm5 = _mm512_mul_pd(ymm5, ymm5);
+
+            ymm4 = _mm512_add_pd(ymm4, ymm5); //tmp1
+
+            ymm5 = _mm512_set_pd(sigRcp[idx+7], sigRcp[idx+6], sigRcp[idx+5], sigRcp[idx+4],\
+                                 sigRcp[idx+3], sigRcp[idx+2], sigRcp[idx+1], sigRcp[idx]); //sigRcp
+
+            ymm4 = _mm512_mul_pd(ymm4, ymm5);//tmp2
+
+            ymm6 = _mm512_add_pd(ymm6, ymm4);//result2
+
+            _mm512_store_pd(tmp, ymm6);
+            resultSIMDDouble(j)     += tmp[0];
+            resultSIMDDouble(j + 1) += tmp[1];
+            resultSIMDDouble(j + 2) += tmp[2];
+            resultSIMDDouble(j + 3) += tmp[3];
+            resultSIMDDouble(j + 4) += tmp[4];
+            resultSIMDDouble(j + 5) += tmp[5];
+            resultSIMDDouble(j + 6) += tmp[6];
+            resultSIMDDouble(j + 7) += tmp[7];
+        }
+
+        //Process remainning value 
+        for(; j < n; j ++)
+        {
+            int idx       = i * n + j;
+            tmpReal  = ctf[idx] * pri[i].dat[0];
+            tmpImag  = ctf[idx] * pri[i].dat[1];
+
+            tmp1Real = dat[idx].dat[0] - tmpReal; //temp.real
+            tmp1Imag = dat[idx].dat[1] - tmpImag;//temp.imag
+
+            tmp1          = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag; //tmp1
+            tmp2          = tmp1 * sigRcp[idx];//temp2
+            resultSIMDDouble(j)    += tmp2;//resultFoo
+
+        }
+        
+    }
+
+    return resultSIMDDouble;
+}
+
+#endif
+#endif
+
+
+#ifdef ENABLE_SIMD_512
+vec logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+
+{
+#ifdef SINGLE_PRECISION
+    return SIMD512Float(dat, pri, ctf, sigRcp, n, m);
+#else
+    return SIMD512Double(dat, pri, ctf, sigRcp, n, m);
+#endif
+}
+#endif
+
+
+#ifdef ENABLE_SIMD_512
+#ifdef SINGLE_PRECISION
+RFLOAT SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+{
+
+    __m512 ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
+    ymm6 = _mm512_setzero_ps();
+    int i = 0;
+    for(i = 0; i <= (m - 16); i +=16)
+    {
+        ymm1 = _mm512_set_ps(ctf[i+15], ctf[i+14], ctf[i+13], ctf[i+12], ctf[i+11], ctf[i+10], ctf[i+9], ctf[i+8],ctf[i+7], ctf[i+6], ctf[i+5], ctf[i+4], ctf[i+3], ctf[i+2], ctf[i+1], ctf[i]); //ctf[i]
+
+        ymm2 = _mm512_set_ps(dat[i+15].dat[0], dat[i+14].dat[0], dat[i+13].dat[0],dat[i+12].dat[0], dat[i+11].dat[0], dat[i+10].dat[0], dat[i+9].dat[0],dat[i+8].dat[0],\
+                             dat[i+7].dat[0],  dat[i+6].dat[0],  dat[i+5].dat[0], dat[i+4].dat[0],  dat[i +3].dat[0], dat[i +2].dat[0], dat[i+1].dat[0],dat[i].dat[0]);//dat[i].dat[0]
+
+        ymm3 = _mm512_set_ps(dat[i+15].dat[1], dat[i+14].dat[1], dat[i+13].dat[1],dat[i+12].dat[1], dat[i+11].dat[1], dat[i+10].dat[1], dat[i+9].dat[1],dat[i+8].dat[1],\
+                             dat[i+7].dat[1],  dat[i+6].dat[1],  dat[i+5].dat[1], dat[i+4].dat[1],  dat[i+3].dat[1],  dat[i+2].dat[1],  dat[i+1].dat[1],dat[i].dat[1]);//dat[i].dat[1]
+        
+        ymm4 = _mm512_set_ps(pri[i+15].dat[0], pri[i+14].dat[0], pri[i+13].dat[0],pri[i+12].dat[0], pri[i+11].dat[0], pri[i+10].dat[0], pri[i+9].dat[0],pri[i+8].dat[0],\
+                             pri[i+7].dat[0],  pri[i+6].dat[0],  pri[i+5].dat[0], pri[i+4].dat[0],  pri[i+3].dat[0],  pri[i+2].dat[0],  pri[i+1].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+        
+        ymm5 = _mm512_set_ps(pri[i+15].dat[1], pri[i+14].dat[1], pri[i+13].dat[1],pri[i+12].dat[1], pri[i+11].dat[1], pri[i+10].dat[1], pri[i+9].dat[1],pri[i+8].dat[1],\
+                             pri[i+7].dat[1],  pri[i+6].dat[1],  pri[i+5].dat[1], pri[i+4].dat[1],  pri[i+3].dat[1],  pri[i+2].dat[1],  pri[i+1].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+        
+        ymm4 = _mm512_mul_ps(ymm1, ymm4); //tmpReal
+        ymm5 = _mm512_mul_ps(ymm1, ymm5);//tmpImag
+
+        ymm4 = _mm512_sub_ps(ymm2, ymm4);//tmp1Real
+        ymm5 = _mm512_sub_ps(ymm3, ymm5); //tmp1Imag
+
+        ymm4 = _mm512_mul_ps(ymm4, ymm4);
+        ymm5 = _mm512_mul_ps(ymm5, ymm5);
+
+        ymm4 = _mm512_add_ps(ymm4, ymm5); //tmp2
+        ymm5 = _mm512_set_ps(sigRcp[i+15], sigRcp[i+14], sigRcp[i+13], sigRcp[i+12], sigRcp[i+11], sigRcp[i+10], sigRcp[i+9], sigRcp[i+8],\
+                             sigRcp[i+7],  sigRcp[i+6],  sigRcp[i+5],  sigRcp[i + 4], sigRcp[i+3], sigRcp[i+2], sigRcp[i+1], sigRcp[i]); //sigRcp
+
+        ymm4 = _mm512_mul_ps(ymm4, ymm5);//tmp3
+        ymm6 = _mm512_add_ps(ymm6, ymm4);//result2
+
+    }
+
+
+    float tmp[16] __attribute__((aligned(64)));
+    _mm512_store_ps(tmp, ymm6);
+
+    RFLOAT result = tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7] + \
+                    tmp[8] + tmp[9] + tmp[10] + tmp[11] + tmp[12] + tmp[13] + tmp[14] + tmp[15];
+    RFLOAT tmpReal = 0.0;
+    RFLOAT tmpImag = 0.0;
+    RFLOAT tmp1Real = 0.0;
+    RFLOAT tmp1Imag = 0.0;
+    RFLOAT tmp2;
+    RFLOAT tmp3;
+
+    for (; i < m; i++)
+    {
+            
+        tmpReal = ctf[i] * pri[i].dat[0];
+        tmpImag = ctf[i] * pri[i].dat[1];
+        tmp1Real = dat[i].dat[0] - tmpReal;
+        tmp1Imag = dat[i].dat[1] - tmpImag;
+
+        tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
+        tmp3 = tmp2 * sigRcp[i];
+
+        
+        result += tmp3;
+
+    }
+
+    return result;
+
+}
+
+#else
+RFLOAT SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+{
+
+    __m512d ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
+    ymm6 = _mm512_setzero_pd();
+    int i = 0;
+    for(i = 0; i <= (m - 8); i +=8)
+    {
+        ymm1 = _mm512_set_pd(ctf[i+7], ctf[i+6], ctf[i+5], ctf[i + 4], ctf[i+3], ctf[i+2], ctf[i+1], ctf[i]); //ctf[i]
+        ymm2 = _mm512_set_pd(dat[i+7].dat[0], dat[i+6].dat[0], dat[i+5].dat[0],dat[i + 4].dat[0],dat[i+3].dat[0], dat[i+2].dat[0], dat[i+1].dat[0],dat[i].dat[0]);//dat[i].dat[0]
+        ymm3 = _mm512_set_pd(dat[i+7].dat[1], dat[i+6].dat[1], dat[i+5].dat[1],dat[i + 4].dat[1],dat[i+3].dat[1], dat[i+2].dat[1], dat[i+1].dat[1],dat[i].dat[1]);//dat[i].dat[1]
+        ymm4 = _mm512_set_pd(pri[i+7].dat[0], pri[i+6].dat[0], pri[i+5].dat[0],pri[i + 4].dat[0],pri[i+3].dat[0], pri[i+2].dat[0], pri[i+1].dat[0],pri[i].dat[0]);//pri[i].dat[0]
+        ymm5 = _mm512_set_pd(pri[i+7].dat[1], pri[i+6].dat[1], pri[i+5].dat[1],pri[i + 4].dat[1],pri[i+3].dat[1], pri[i+2].dat[1], pri[i+1].dat[1],pri[i].dat[1]);//pri[i].dat[1]
+        
+        
+        ymm4 = _mm512_mul_pd(ymm1, ymm4); //tmpReal
+        ymm5 = _mm512_mul_pd(ymm1, ymm5);//tmpImag
+                
+        ymm4 = _mm512_sub_pd(ymm2, ymm4);//tmp1Real
+        ymm5 = _mm512_sub_pd(ymm3, ymm5); //tmp1Imag
+
+        ymm4 = _mm512_mul_pd(ymm4, ymm4);
+        ymm5 = _mm512_mul_pd(ymm5, ymm5);
+
+        ymm4 = _mm512_add_pd(ymm4, ymm5); //tmp2
+
+        ymm5 = _mm512_set_pd(sigRcp[i+7], sigRcp[i+6], sigRcp[i+5], sigRcp[i+4], sigRcp[i+3], sigRcp[i+2], sigRcp[i+1], sigRcp[i]); //sigRcp
+
+        ymm4 = _mm512_mul_pd(ymm4, ymm5);//tmp3
+
+        ymm6 = _mm512_add_pd(ymm6, ymm4);//result2
+
+    }
+
+
+   double  tmp[8] __attribute__((aligned(64)));
+    _mm512_store_pd(tmp, ymm6);
+
+    RFLOAT result = tmp[0] + tmp[1] + tmp[2] + tmp[3] + tmp[4] + tmp[5] + tmp[6] + tmp[7];
+
+    RFLOAT tmpReal = 0.0;
+    RFLOAT tmpImag = 0.0;
+    RFLOAT tmp1Real = 0.0;
+    RFLOAT tmp1Imag = 0.0;
+    RFLOAT tmp2;
+    RFLOAT tmp3;
+
+    for (; i < m; i++)
+    {
+            
+        tmpReal = ctf[i] * pri[i].dat[0];
+        tmpImag = ctf[i] * pri[i].dat[1];
+        tmp1Real = dat[i].dat[0] - tmpReal;
+        tmp1Imag = dat[i].dat[1] - tmpImag;
+
+        tmp2 = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag;
+        tmp3 = tmp2 * sigRcp[i];
+
+        
+        result += tmp3;
+
+    }
+
+    return result;
+
+}
+
+#endif
+#endif
+
+#ifdef ENABLE_SIMD_512
+RFLOAT logDataVSPrior_m_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m)
+{
+
+    #ifdef SINGLE_PRECISION
+        return SIMD512Float(dat, pri, ctf, sigRcp, m);
+    #else
+        return SIMD512Double(dat, pri, ctf, sigRcp, m);
+    #endif
+}
+#endif
+
+/* **************************************************************************************************** */
 
 /**
  *  This function is add by huabin

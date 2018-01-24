@@ -43,17 +43,17 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
 # SIMD
 
-option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
+option(ENABLE_SIMD_256 "Whether to use SIMD(avx) to accelerate?" ON)
 
-if("${ENABLE_SIMD}")
+if("${ENABLE_SIMD_256}")
     if(APPLE)
         message(WARNING "THUNDER does not suppot SIMD on Apple.")
-        set(ENABLE_SIMD OFF)
+        set(ENABLE_SIMD_256 OFF)
         set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
         set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
     else(APPLE)
-        set(CMAKE_C_FLAGS "${COMMON_FLAGS} -mavx")
-        set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -mavx")
+        set(CMAKE_C_FLAGS "${COMMON_FLAGS} -mavx -mavx512f -mavx512cd")
+        set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -mavx -mavx512f -mavx512cd")
         try_compile(AVX_SUPPORT
                     ${CMAKE_BINARY_DIR}
                     "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX.c")
@@ -61,16 +61,17 @@ if("${ENABLE_SIMD}")
             message(STATUS "Build THUNDER using SIMD.")
         else(AVX_SUPPORT)
             message(WARNING "Compiler does not support AVX.")
-            set(ENABLE_SIMD OFF)
+            set(ENABLE_SIMD_256 OFF)
             set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
             set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
         endif(AVX_SUPPORT)
     endif(APPLE)
-else ("${ENABLE_SIMD}")
+else ("${ENABLE_SIMD_256}")
     message(STATUS "Build THUNDER without using SIMD.")
     set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
     set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
-endif("${ENABLE_SIMD}")
+endif("${ENABLE_SIMD_256}")
+
 
 # Output Flags
 message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
