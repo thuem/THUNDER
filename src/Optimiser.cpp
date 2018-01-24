@@ -332,6 +332,17 @@ void Optimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Total Number of Images: " << _nPar;
 
+    int nClass = FLOOR(_nPar * CLASS_BALANCE_FACTOR / MIN_N_IMAGES_PER_CLASS);
+
+    if (nClass < _para.k)
+    {
+        MLOG(FATAL, "LOGGER_INIT") << "According to Total Number of Images, "
+                                   << "Maximum "
+                                   << nClass
+                                   << " Classes is Recommended for Classification";
+        abort();
+    }
+
     if ((_para.maskFSC) ||
         (_para.performMask && !_para.autoMask))
     {
@@ -1893,22 +1904,21 @@ void Optimiser::run()
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN
 
-        /***
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
 
             solventFlatten(_para.performMask);
         }
-        ***/
 
+        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
 
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
             solventFlatten(_para.performMask);
         else
             solventFlatten(false);
-
+        ***/
 #endif
 
 #ifdef OPTIMISER_SAVE_SOLVENT_FLATTENED_REFERENCE
