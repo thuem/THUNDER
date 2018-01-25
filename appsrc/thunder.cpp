@@ -186,7 +186,19 @@ void logPara(const Json::Value src)
         }
         else if (src[mem[i]].type() == Json::stringValue)
         {
-            CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << "\t: " << src[mem[i]].asString();
+            CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asString();
+        }
+        else if (src[mem[i]].type() == Json::realValue)
+        {
+            CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asFloat();
+        }
+        else if (src[mem[i]].type() == Json::uintValue)
+        {
+            CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asUInt();
+        }
+        else
+        {
+            CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asInt();
         }
     }
 }
