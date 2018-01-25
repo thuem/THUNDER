@@ -175,7 +175,19 @@ void logPara(const Json::Value src)
 
     for (size_t i = 0; i < mem.size(); i++)
     {
-        CLOG(INFO, "LOGGER_SYS") << mem[i];
+        if (src[mem[i]].type() == Json::objectValue)
+        {
+            logPara(src[mem[i]]);
+        }
+        else if (src[mem[i]].type() == Json::arrayValue)
+        {
+            for (int j = 0; j < (int)src[mem[i]].size(); j++)
+                logPara(src[mem[i]][j]);
+        }
+        else if (src[mem[i]].type() == Json::stringValue)
+        {
+            CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << "\t: " << src[mem[i]].asString();
+        }
     }
 }
 
