@@ -93,63 +93,10 @@ void quaternion(vec4& dst,
     dst(1) = copysign(dst(1), src(2, 1) - src(1, 2));
     dst(2) = copysign(dst(2), src(0, 2) - src(2, 0));
     dst(3) = copysign(dst(3), src(1, 0) - src(0, 1));
-
-    /***
-    if (src.trace() > 0)
-    {
-        RFLOAT s = sqrt(src.trace() + 1);
-
-        dst(0) = 0.5 * s;
-        dst(1) = 0.5 * (src(2, 1) - src(1, 2)) / s;
-        dst(2) = 0.5 * (src(0, 2) - src(2, 0)) / s;
-        dst(3) = 0.5 * (src(1, 0) - src(0, 1)) / s;
-    }
-    else
-    {
-        if ((src(0, 0) > src(1, 1)) &&
-            (src(0, 0) > src(2, 2)))
-        {
-            // src(0, 0) -> biggest
-            RFLOAT s = sqrt(src(0, 0) - src(1, 1) - src(2, 2) + 1);
-
-            dst(0) = 0.5 * (dst(2, 1) - dst(1, 2)) / s;
-            dst(1) = 0.5 * s;
-            dst(2) = 0.5 * (src(0, 1) + src(1, 0)) / s;
-            dst(3) = 0.5 * (src(0, 2) + src(2, 0)) / s;
-        }
-        else if (src(1, 1) > src(2, 2))
-        {
-            // src(1, 1) -> biggest
-
-            RFLOAT s = sqrt(src(1, 1) - src(0, 0) - src(2, 2) + 1);
-
-            dst(0) = 0.5 * (dst(0, 2) - dst(2, 0)) / s;
-            dst(1) = 0.5 * (src(0, 1) + src(1, 0)) / s;
-            dst(2) = 0.5 * s;
-            dst(3) = 0.5 * (src(1, 2) + src(2, 1)) / s;
-        }
-        else
-        {
-            // src(2, 2) -> biggest
-
-            RFLOAT s = sqrt(src(2, 2) - src(0, 0) - src(1, 1) + 1);
-
-            dst(0) = 0.5 * (dst(1, 0) - dst(0, 1)) / s;
-            dst(1) = 0.5 * (src(0, 2) + src(2, 0)) / s;
-            dst(2) = 0.5 * (src(1, 2) + src(2, 1)) / s;
-            dst(3) = 0.5 * s;
-        }
-    }
-    ***/
 }
 
 void rotate2D(mat22& dst, const vec2& vec)
 {
-    /***
-    vec(0) = cos(phi);
-    vec(1) = sin(phi);
-    ***/
-
     dst(0, 0) = vec(0);
     dst(0, 1) = -vec(1);
     dst(1, 0) = vec(1);
@@ -207,13 +154,6 @@ void rotate3D(mat33& dst,
 void rotate3D(mat33& dst,
               const vec4& src)
 {
-    /***
-    mat33 A = {{0, -src(3), src(2)},
-               {src(3), 0, -src(1)},
-               {-src(2), src(1), 0}};
-    dst = mat33(fill::eye) + 2 * src(0) * A + 2 * A * A;
-    ***/
-
     mat33 A;
     A << 0, -src(3), src(2),
          src(3), 0, -src(1),
@@ -278,10 +218,8 @@ void alignZ(mat33& dst,
 
     // compute the length of projection of YZ plane
     RFLOAT pYZ = vec.tail<2>().norm();
-    // RFLOAT pYZ = norm(vec.tail(2));
-    // compute the length of this vector
+
     RFLOAT p = vec.norm();
-    // RFLOAT p = norm(vec);
 
     if ((pYZ / p) > EQUAL_ACCURACY)
     {
@@ -330,16 +268,6 @@ void rotate3D(mat33& dst,
     quaternion(quat, phi, axis);
 
     rotate3D(dst, quat);
-
-    /***
-    mat33 A, R;
-
-    alignZ(A, axis);
-
-    rotate3DZ(R, phi);
-
-    dst = A.transpose() * R * A;
-    ***/
 }
 
 void reflect3D(mat33& dst,
