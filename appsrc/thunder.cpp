@@ -167,7 +167,17 @@ void readPara(OptimiserPara& dst,
     dst.skipE = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_E]).asBool();
     dst.skipM = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_M]).asBool();
     dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R]).asBool();
-};
+}
+
+void logPara(const Json::Value src)
+{
+    Json::Value::Members mem = src.getMemberNames();
+
+    for (size_t i = 0; i < mem.size(); i++)
+    {
+        CLOG(INFO, "LOGGER_SYS") << mem[i];
+    }
+}
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -240,6 +250,13 @@ int main(int argc, char* argv[])
         if (rank == 0) CLOG(FATAL, "LOGGER_SYS") << "Fail to Parse Parameter File";
 
         abort();
+    }
+
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Logging JSON Parameters";
+
+        logPara(root);
     }
 
     if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
