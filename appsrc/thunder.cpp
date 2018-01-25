@@ -150,23 +150,23 @@ void readPara(OptimiserPara& dst,
     dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_D]).asInt();
     dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_RECO]).asInt();
     dst.ignoreRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_IGNORE_RES]).asFloat();
-    dst.sclCorRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Correct Intensity Scale Using Signal Under (Angstrom)"]).asFloat();
-    dst.thresCutoffFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["FSC Threshold for Cutoff Frequency"]).asFloat();
-    dst.thresReportFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["FSC Threshold for Reporting Resolution"]).asFloat();
-    dst.thresSclCorFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["FSC Threshold for Scale Correction"]).asFloat();
-    dst.groupSig = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Grouping when Calculating Sigma"]).asBool();
-    dst.groupScl = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Grouping when Correcting Intensity Scale"]).asBool();
-    dst.zeroMask = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["Mask Images with Zero Noise"]).asBool();
-    dst.ctfRefineS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"]["CTF Refine Standard Deviation"]).asFloat();
+    dst.sclCorRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SCL_COR_RES]).asFloat();
+    dst.thresCutoffFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_CUTOFF_FSC]).asFloat();
+    dst.thresReportFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_REPORT_FSC]).asFloat();
+    dst.thresSclCorFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_SCL_COR_FSC]).asFloat();
+    dst.groupSig = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GROUP_SIG]).asBool();
+    dst.groupScl = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GROUP_SCL]).asBool();
+    dst.zeroMask = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ZERO_MASK]).asBool();
+    dst.ctfRefineS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_CTF_REFINE_S]).asFloat();
 
-    dst.transSearchFactor = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Translation Search Factor"]).asFloat();
-    dst.perturbFactorL = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Perturbation Factor (Large)"]).asFloat();
-    dst.perturbFactorSGlobal = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Perturbation Factor (Small, Global)"]).asFloat();
-    dst.perturbFactorSLocal = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Perturbation Factor (Small, Local)"]).asFloat();
-    dst.perturbFactorSCTF = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Perturbation Factor (Small, CTF)"]).asFloat();
-    dst.skipE = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Skip Expectation"]).asBool();
-    dst.skipM = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Skip Maximization"]).asBool();
-    dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"]["Skip Reconstruction"]).asBool();
+    dst.transSearchFactor = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_TRANS_SEARCH_FACTOR]).asFloat();
+    dst.perturbFactorL = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_L]).asFloat();
+    dst.perturbFactorSGlobal = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_GLOBAL]).asFloat();
+    dst.perturbFactorSLocal = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_LOCAL]).asFloat();
+    dst.perturbFactorSCTF = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_CTF]).asFloat();
+    dst.skipE = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_E]).asBool();
+    dst.skipM = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_M]).asBool();
+    dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R]).asBool();
 };
 
 INITIALIZE_EASYLOGGINGPP
