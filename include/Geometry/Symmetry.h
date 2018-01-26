@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -17,6 +15,7 @@
 
 #include <iostream>
 
+#include "huabin.h"
 #include "Macro.h"
 #include "Typedef.h"
 #include "Logging.h"
@@ -74,13 +73,6 @@ inline bool SAME_MATRIX(const mat33& A,
 };
 
 static const vec4 ANCHOR_POINT_2(1, 0, 0, 0);
-
-/***
-static const vec4 ANCHOR_POINT_2(-0.320523,
-                                 0.239029,
-                                 0.0310742,
-                                 -0.916059);
-***/
 
 static const vec4 ANCHOR_POINT_0(0, 0, 0, 1);
 

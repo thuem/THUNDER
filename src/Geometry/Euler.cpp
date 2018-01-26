@@ -12,6 +12,33 @@
 
 #include "Euler.h"
 
+void quaternion_mul(dvec4& dst,
+                    const dvec4& a,
+                    const dvec4& b)
+{
+    double w = a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3];
+    double x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
+    double y = a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1];
+    double z = a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0];
+
+    dst[0] = w;
+    dst[1] = x;
+    dst[2] = y;
+    dst[3] = z;
+}
+
+dvec4 quaternion_conj(const dvec4& quat)
+{
+    dvec4 conj;
+
+    conj << quat(0),
+            -quat(1),
+            -quat(2),
+            -quat(3);
+
+    return conj;
+}
+
 void angle(double& phi,
            double& theta,
            const dvec3& src)

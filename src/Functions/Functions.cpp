@@ -96,34 +96,6 @@ int periodic(RFLOAT& x,
     x -= n * p;
     return n;
 }
-
-void quaternion_mul(vec4& dst,
-                    const vec4& a,
-                    const vec4& b)
-{
-    RFLOAT w = a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3];
-    RFLOAT x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
-    RFLOAT y = a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1];
-    RFLOAT z = a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0];
-
-    dst[0] = w;
-    dst[1] = x;
-    dst[2] = y;
-    dst[3] = z;
-}
-
-vec4 quaternion_conj(const vec4& quat)
-{
-    vec4 conj;
-
-    conj << quat(0),
-            -quat(1),
-            -quat(2),
-            -quat(3);
-
-    return conj;
-}
-
 RFLOAT MKB_FT(const RFLOAT r,
               const RFLOAT a,
               const RFLOAT alpha)

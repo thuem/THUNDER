@@ -23,6 +23,19 @@
 #include "Functions.h"
 
 /**
+ * Multiplication between two quaterions.
+ *
+ * @param dst result
+ * @param a   left multiplier
+ * @param b   right multiplier
+ */
+void quaternion_mul(vec4& dst,
+                    const vec4& a,
+                    const vec4& b);
+
+vec4 quaternion_conj(const vec4& quat);
+
+/**
  * This function calculates phi and theta given a certain direction indicated by
  * a 3-vector.
  *
