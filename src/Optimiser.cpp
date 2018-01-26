@@ -683,9 +683,9 @@ void Optimiser::expectation()
             par.copy(_par[l]);
         }
 
-        mat22 rot2D;
-        mat33 rot3D;
-        vec2 t;
+        dmat22 rot2D;
+        dmat33 rot3D;
+        dvec2 t;
 
         // generate "translations"
 
@@ -3186,9 +3186,9 @@ void Optimiser::refreshScale(const bool coord,
         Image img(size(), size(), FT_SPACE);
 
         size_t cls;
-        mat22 rot2D;
-        mat33 rot3D;
-        vec2 tran;
+        dmat22 rot2D;
+        dmat33 rot3D;
+        dvec2 tran;
         RFLOAT d;
 
         FOR_EACH_2D_IMAGE
