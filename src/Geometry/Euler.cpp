@@ -12,9 +12,9 @@
 
 #include "Euler.h"
 
-void angle(RFLOAT& phi,
-           RFLOAT& theta,
-           const vec3& src)
+void angle(double& phi,
+           double& theta,
+           const dvec3& src)
 {
     theta = acos(src(2));
     phi = acos(src(0) / sin(theta));
@@ -23,10 +23,10 @@ void angle(RFLOAT& phi,
         (phi = 2 * M_PI - phi);
 }
 
-void angle(RFLOAT& phi,
-           RFLOAT& theta,
-           RFLOAT& psi,
-           const mat33& src)
+void angle(double& phi,
+           double& theta,
+           double& psi,
+           const dmat33& src)
 {
     theta = acos(src(2, 2));
     psi = acos(src(2, 1) / sin(theta));
@@ -40,20 +40,20 @@ void angle(RFLOAT& phi,
         (phi = 2 * M_PI - phi);
 }
 
-void angle(RFLOAT& phi,
-           RFLOAT& theta,
-           RFLOAT& psi,
-           const vec4& src)
+void angle(double& phi,
+           double& theta,
+           double& psi,
+           const dvec4& src)
 {
     phi = atan2((src(1) * src(3) + src(0) * src(2)),
                 (src(0) * src(1) - src(2) * src(3)));
 
     if (phi < 0) phi += 2 * M_PI;
 
-    theta = acos(TSGSL_pow_2(src(0))
-               - TSGSL_pow_2(src(1))
-               - TSGSL_pow_2(src(2))
-               + TSGSL_pow_2(src(3)));
+    theta = acos(gsl_pow_2(src(0))
+               - gsl_pow_2(src(1))
+               - gsl_pow_2(src(2))
+               + gsl_pow_2(src(3)));
 
     psi = atan2((src(1) * src(3) - src(0) * src(2)),
                 (src(0) * src(1) + src(2) * src(3)));
@@ -61,10 +61,10 @@ void angle(RFLOAT& phi,
     if (psi < 0) psi += 2 * M_PI;
 }
 
-void quaternion(vec4& dst,
-                const RFLOAT phi,
-                const RFLOAT theta,
-                const RFLOAT psi)
+void quaternion(dvec4& dst,
+                const double phi,
+                const double theta,
+                const double psi)
 {
     dst(0) = cos((phi + psi) / 2) * cos(theta / 2);
     dst(1) = cos((phi - psi) / 2) * sin(theta / 2);
@@ -72,9 +72,9 @@ void quaternion(vec4& dst,
     dst(3) = sin((phi + psi) / 2) * cos(theta / 2);
 }
 
-void quaternion(vec4& dst,
-                const RFLOAT phi,
-                const vec3& axis)
+void quaternion(dvec4& dst,
+                const double phi,
+                const dvec3& axis)
 {
     dst(0) = cos(phi / 2);
     dst(1) = sin(phi / 2) * axis(0);
@@ -82,13 +82,13 @@ void quaternion(vec4& dst,
     dst(3) = sin(phi / 2) * axis(2);
 }
 
-void quaternion(vec4& dst,
-                const mat33& src)
+void quaternion(dvec4& dst,
+                const dmat33& src)
 {
-    dst(0) = 0.5 * sqrt(TSGSL_MAX_RFLOAT(0, 1 + src(0, 0) + src(1, 1) + src(2, 2)));
-    dst(1) = 0.5 * sqrt(TSGSL_MAX_RFLOAT(0, 1 + src(0, 0) - src(1, 1) - src(2, 2)));
-    dst(2) = 0.5 * sqrt(TSGSL_MAX_RFLOAT(0, 1 - src(0, 0) + src(1, 1) - src(2, 2)));
-    dst(3) = 0.5 * sqrt(TSGSL_MAX_RFLOAT(0, 1 - src(0, 0) - src(1, 1) + src(2, 2)));
+    dst(0) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 + src(0, 0) + src(1, 1) + src(2, 2)));
+    dst(1) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 + src(0, 0) - src(1, 1) - src(2, 2)));
+    dst(2) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 - src(0, 0) + src(1, 1) - src(2, 2)));
+    dst(3) = 0.5 * sqrt(GSL_MAX_DBL(0, 1 - src(0, 0) - src(1, 1) + src(2, 2)));
 
     dst(1) = copysign(dst(1), src(2, 1) - src(1, 2));
     dst(2) = copysign(dst(2), src(0, 2) - src(2, 0));
@@ -103,10 +103,10 @@ void rotate2D(mat22& dst, const vec2& vec)
     dst(1, 1) = vec(0);
 }
 
-void rotate2D(mat22& dst, const RFLOAT phi)
+void rotate2D(mat22& dst, const double phi)
 {
-    RFLOAT sine = sin(phi);
-    RFLOAT cosine = cos(phi);
+    double sine = sin(phi);
+    double cosine = cos(phi);
 
     dst(0, 0) = cosine;
     dst(0, 1) = -sine;
@@ -114,31 +114,31 @@ void rotate2D(mat22& dst, const RFLOAT phi)
     dst(1, 1) = cosine;
 }
 
-void direction(vec3& dst,
-               const RFLOAT phi,
-               const RFLOAT theta)
+void direction(dvec3& dst,
+               const double phi,
+               const double theta)
 {
-    RFLOAT sinPhi = sin(phi);
-    RFLOAT cosPhi = cos(phi);
-    RFLOAT sinTheta = sin(theta);
-    RFLOAT cosTheta = cos(theta);
+    double sinPhi = sin(phi);
+    double cosPhi = cos(phi);
+    double sinTheta = sin(theta);
+    double cosTheta = cos(theta);
 
     dst(0) = sinTheta * cosPhi;
     dst(1) = sinTheta * sinPhi;
     dst(2) = cosTheta;
 }
 
-void rotate3D(mat33& dst,
-              const RFLOAT phi,
-              const RFLOAT theta,
-              const RFLOAT psi)
+void rotate3D(dmat33& dst,
+              const double phi,
+              const double theta,
+              const double psi)
 { 
-    RFLOAT sinPhi = sin(phi);
-    RFLOAT cosPhi = cos(phi);
-    RFLOAT sinTheta = sin(theta);
-    RFLOAT cosTheta = cos(theta);
-    RFLOAT sinPsi = sin(psi);
-    RFLOAT cosPsi = cos(psi);
+    double sinPhi = sin(phi);
+    double cosPhi = cos(phi);
+    double sinTheta = sin(theta);
+    double cosTheta = cos(theta);
+    double sinPsi = sin(psi);
+    double cosPsi = cos(psi);
 
     dst(0, 0) = cosPhi * cosPsi - sinPhi * cosTheta * sinPsi;
     dst(0, 1) = -cosPhi * sinPsi - sinPhi * cosTheta * cosPsi;
@@ -151,20 +151,20 @@ void rotate3D(mat33& dst,
     dst(2, 2) = cosTheta;
 } 
 
-void rotate3D(mat33& dst,
-              const vec4& src)
+void rotate3D(dmat33& dst,
+              const dvec4& src)
 {
-    mat33 A;
+    dmat33 A;
     A << 0, -src(3), src(2),
          src(3), 0, -src(1),
          -src(2), src(1), 0;
-    dst = mat33::Identity() + 2 * src(0) * A + 2 * A * A;
+    dst = dmat33::Identity() + 2 * src(0) * A + 2 * A * A;
 }
 
-void rotate3DX(mat33& dst, const RFLOAT phi)
+void rotate3DX(dmat33& dst, const double phi)
 {
-    RFLOAT sine = sin(phi);
-    RFLOAT cosine = cos(phi);
+    double sine = sin(phi);
+    double cosine = cos(phi);
 
     dst(0, 0) = 1;
     dst(0, 1) = 0;
@@ -177,10 +177,10 @@ void rotate3DX(mat33& dst, const RFLOAT phi)
     dst(2, 2) = cosine;
 }
 
-void rotate3DY(mat33& dst, const RFLOAT phi)
+void rotate3DY(dmat33& dst, const double phi)
 {
-    RFLOAT sine = sin(phi);
-    RFLOAT cosine = cos(phi);
+    double sine = sin(phi);
+    double cosine = cos(phi);
 
     dst(0, 0) = cosine;
     dst(0, 1) = 0;
@@ -193,10 +193,10 @@ void rotate3DY(mat33& dst, const RFLOAT phi)
     dst(2, 2) = cosine;
 }
 
-void rotate3DZ(mat33& dst, const RFLOAT phi)
+void rotate3DZ(dmat33& dst, const double phi)
 {
-    RFLOAT sine = sin(phi);
-    RFLOAT cosine = cos(phi);
+    double sine = sin(phi);
+    double cosine = cos(phi);
 
     dst(0, 0) = cosine;
     dst(0, 1) = -sine; 
@@ -209,17 +209,17 @@ void rotate3DZ(mat33& dst, const RFLOAT phi)
     dst(2, 2) = 1; 
 }
 
-void alignZ(mat33& dst,
-            const vec3& vec)
+void alignZ(dmat33& dst,
+            const dvec3& vec)
 {
-    RFLOAT x = vec(0);
-    RFLOAT y = vec(1);
-    RFLOAT z = vec(2);
+    double x = vec(0);
+    double y = vec(1);
+    double z = vec(2);
 
     // compute the length of projection of YZ plane
-    RFLOAT pYZ = vec.tail<2>().norm();
+    double pYZ = vec.tail<2>().norm();
 
-    RFLOAT p = vec.norm();
+    double p = vec.norm();
 
     if ((pYZ / p) > EQUAL_ACCURACY)
     {
@@ -242,8 +242,8 @@ void alignZ(mat33& dst,
     }
 }
 
-void rotate3D(mat33& dst,
-              const RFLOAT phi,
+void rotate3D(dmat33& dst,
+              const double phi,
               const char axis)
 {
     switch (axis)
@@ -259,21 +259,21 @@ void rotate3D(mat33& dst,
     }
 }
 
-void rotate3D(mat33& dst,
-              const RFLOAT phi,
-              const vec3& axis)
+void rotate3D(dmat33& dst,
+              const double phi,
+              const dvec3& axis)
 {
-    vec4 quat;
+    dvec4 quat;
 
     quaternion(quat, phi, axis);
 
     rotate3D(dst, quat);
 }
 
-void reflect3D(mat33& dst,
-               const vec3& plane)
+void reflect3D(dmat33& dst,
+               const dvec3& plane)
 {
-    mat33 A, M;
+    dmat33 A, M;
 
     alignZ(A, plane);
 
@@ -283,15 +283,15 @@ void reflect3D(mat33& dst,
     dst = A.transpose() * M * A;
 }
 
-void translate3D(mat44& dst,
-                 const vec3& vec)
+void translate3D(dmat44& dst,
+                 const dvec3& vec)
 {
     dst.setIdentity();
     dst.col(3).head<3>() = vec;
 }
 
-void scale3D(mat33& dst,
-             const vec3& vec)
+void scale3D(dmat33& dst,
+             const dvec3& vec)
 {
     dst.setZero();
     dst(0, 0) = vec(0);
@@ -299,14 +299,14 @@ void scale3D(mat33& dst,
     dst(2, 2) = vec(2);
 }
 
-void swingTwist(vec4& swing,
-                vec4& twist,
-                const vec4& src,
-                const vec3& vec)
+void swingTwist(dvec4& swing,
+                dvec4& twist,
+                const dvec4& src,
+                const dvec3& vec)
 {
-    RFLOAT p = vec3(src(1), src(2), src(3)).dot(vec);
+    double p = dvec3(src(1), src(2), src(3)).dot(vec);
 
-    twist = vec4(src(0), p * vec(0), p * vec(1), p * vec(2));
+    twist = dvec4(src(0), p * vec(0), p * vec(1), p * vec(2));
 
     twist /= twist.norm();
 
@@ -317,8 +317,8 @@ void randDirection(vec2& dir)
 {
     gsl_rng* engine = get_random_engine();
 
-    dir(0) = TSGSL_ran_gaussian(engine, 1);
-    dir(1) = TSGSL_ran_gaussian(engine, 1);
+    dir(0) = gsl_ran_gaussian(engine, 1);
+    dir(1) = gsl_ran_gaussian(engine, 1);
 
     dir /= dir.norm();
 }
@@ -331,21 +331,21 @@ void randRotate2D(mat22& rot)
     rotate2D(rot, dir);
 }
 
-void randQuaternion(vec4& quat)
+void randQuaternion(dvec4& quat)
 {
     gsl_rng* engine = get_random_engine();
 
-    quat(0) = TSGSL_ran_gaussian(engine, 1);
-    quat(1) = TSGSL_ran_gaussian(engine, 1);
-    quat(2) = TSGSL_ran_gaussian(engine, 1);
-    quat(3) = TSGSL_ran_gaussian(engine, 1);
+    quat(0) = gsl_ran_gaussian(engine, 1);
+    quat(1) = gsl_ran_gaussian(engine, 1);
+    quat(2) = gsl_ran_gaussian(engine, 1);
+    quat(3) = gsl_ran_gaussian(engine, 1);
 
     quat /= quat.norm();
 }
 
-void randRotate3D(mat33& rot)
+void randRotate3D(dmat33& rot)
 {
-    vec4 quat;
+    dvec4 quat;
 
     randQuaternion(quat);
 
