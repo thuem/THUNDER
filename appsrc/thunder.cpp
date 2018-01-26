@@ -232,7 +232,9 @@ int main(int argc, char* argv[])
     if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "THUNDER v"
                                             << THUNDER_VERSION_MAJOR
                                             << "." 
-                                            << THUNDER_VERSION_MINOR;
+                                            << THUNDER_VERSION_MINOR
+                                            << "."
+                                            << THUNDER_VERSION_ADDIT;
 
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";

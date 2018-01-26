@@ -1038,7 +1038,7 @@ void Particle::resample(const int n,
 
         _wC /= _wC.sum();
 
-        dvec cdf = cumsum(_wC);
+        dvec cdf = d_cumsum(_wC);
         
         cdf /= cdf(_nC - 1);
 
@@ -1083,7 +1083,7 @@ void Particle::resample(const int n,
 
         _wR /= _wR.sum();
 
-        dvec cdf = cumsum(_wR);
+        dvec cdf = d_cumsum(_wR);
 
         cdf /= cdf(_nR - 1);
 
@@ -1128,7 +1128,7 @@ void Particle::resample(const int n,
 
         _wT /= _wT.sum();
 
-        dvec cdf = cumsum(_wT);
+        dvec cdf = d_cumsum(_wT);
 
         cdf /= cdf(_nT - 1);
 
@@ -1173,7 +1173,7 @@ void Particle::resample(const int n,
 
         _wD /= _wD.sum();
 
-        dvec cdf = cumsum(_wD);
+        dvec cdf = d_cumsum(_wD);
 
         cdf /= cdf(_nD - 1);
 
