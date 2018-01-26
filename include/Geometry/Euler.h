@@ -107,7 +107,7 @@ void quaternion(dvec4& dst,
  * @param dst the rotation matrix
  * @param vec the unit vector
  */
-void rotate2D(dmat22& dst, const vec2& vec);
+void rotate2D(dmat22& dst, const dvec2& vec);
 
 /**
  * This function calculates the rotation matrix given phi in 2D.
@@ -244,7 +244,7 @@ void swingTwist(dvec4& swing,
                 const dvec4& src,
                 const dvec3& vec);
 
-void randDirection(vec2& dir);
+void randDirection(dvec2& dir);
 
 /**
  * This function generates a random unit quaternion.

@@ -1036,8 +1036,8 @@ void Optimiser::expectation()
 
             _par[l].setNC(1);
             _par[l].setC(uvec::Constant(1, cls));
-            _par[l].setWC(vec::Constant(1, 1));
-            _par[l].setUC(vec::Constant(1, 1));
+            _par[l].setWC(dvec::Constant(1, 1));
+            _par[l].setUC(dvec::Constant(1, 1));
 #endif
         }
 
@@ -1095,12 +1095,12 @@ void Optimiser::expectation()
 #ifdef OPTIMISER_COMPRESS_CRITERIA
         RFLOAT topCmp = 0;
 #else
-        RFLOAT k1 = 1;
-        RFLOAT k2 = 1;
-        RFLOAT k3 = 1;
-        RFLOAT tVariS0 = 5 * _para.transS;
-        RFLOAT tVariS1 = 5 * _para.transS;
-        RFLOAT dVari = 5 * _para.ctfRefineS;
+        double k1 = 1;
+        double k2 = 1;
+        double k3 = 1;
+        double tVariS0 = 5 * _para.transS;
+        double tVariS1 = 5 * _para.transS;
+        double dVari = 5 * _para.ctfRefineS;
 #endif
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
@@ -1164,10 +1164,10 @@ void Optimiser::expectation()
             vec wD = vec::Zero(_para.mLD);
 
             size_t c;
-            mat22 rot2D;
-            mat33 rot3D;
-            RFLOAT d;
-            vec2 t;
+            dmat22 rot2D;
+            dmat33 rot3D;
+            double d;
+            dvec2 t;
 
             FOR_EACH_C(_par[l])
             {
@@ -1425,12 +1425,12 @@ void Optimiser::expectation()
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
                         : MIN_N_PHASE_PER_ITER_LOCAL))
             {
-                RFLOAT k1Cur;
-                RFLOAT k2Cur;
-                RFLOAT k3Cur;
-                RFLOAT tVariS0Cur;
-                RFLOAT tVariS1Cur;
-                RFLOAT dVariCur;
+                double k1Cur;
+                double k2Cur;
+                double k3Cur;
+                double tVariS0Cur;
+                double tVariS1Cur;
+                double dVariCur;
 
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
 
@@ -2328,7 +2328,7 @@ void Optimiser::initImg()
     ALOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
     BLOG(INFO, "LOGGER_INIT") << "Setting 0 to Offset between Images and Original Images";
 
-    _offset = vector<vec2>(_img.size(), vec2(0, 0));
+    _offset = vector<dvec2>(_img.size(), dvec2(0, 0));
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -2891,11 +2891,11 @@ void Optimiser::loadParticles()
     ***/
 
     // size_t cls;
-    vec4 quat;
-    vec2 tran;
-    RFLOAT d;
+    dvec4 quat;
+    dvec2 tran;
+    double d;
 
-    RFLOAT k1, k2, k3, stdTX, stdTY, stdD;
+    double k1, k2, k3, stdTX, stdTY, stdD;
 
     //#pragma omp parallel for private(cls, quat, stdR, tran, d)
 
@@ -3098,7 +3098,7 @@ void Optimiser::refreshVariance()
 
     NT_MASTER
     {
-        RFLOAT rVari, tVariS0, tVariS1, dVari;
+        double rVari, tVariS0, tVariS1, dVari;
 
         #pragma omp parallel for private(rVari, tVariS0, tVariS1)
         FOR_EACH_2D_IMAGE
@@ -3189,7 +3189,7 @@ void Optimiser::refreshScale(const bool coord,
         dmat22 rot2D;
         dmat33 rot3D;
         dvec2 tran;
-        RFLOAT d;
+        double d;
 
         FOR_EACH_2D_IMAGE
         {
@@ -3441,7 +3441,7 @@ void Optimiser::reCentreImg()
 {
     IF_MASTER return;
 
-    vec2 tran;
+    dvec2 tran;
 
     #pragma omp parallel for private(tran)
     FOR_EACH_2D_IMAGE
@@ -3504,12 +3504,12 @@ void Optimiser::normCorrection()
 
     size_t cls;
 
-    mat22 rot2D;
-    mat33 rot3D;
+    dmat22 rot2D;
+    dmat33 rot3D;
 
-    vec2 tran;
+    dvec2 tran;
 
-    RFLOAT d;
+    double d;
 
     NT_MASTER
     {
@@ -3716,12 +3716,12 @@ void Optimiser::allReduceSigma(const bool mask,
 
     size_t cls;
 
-    mat22 rot2D;
-    mat33 rot3D;
+    dmat22 rot2D;
+    dmat33 rot3D;
 
-    vec2 tran;
+    dvec2 tran;
 
-    RFLOAT d;
+    double d;
 
     omp_lock_t* mtx = new omp_lock_t[_nGroup];
 
@@ -3930,17 +3930,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
             for (int m = 0; m < _para.mReco; m++)
             {
                 size_t cls;
-                vec4 quat;
-                vec2 tran;
-                RFLOAT d;
+                dvec4 quat;
+                dvec2 tran;
+                double d;
 
                 if (_para.mode == MODE_2D)
                 {
                     _par[l].rand(cls, quat, tran, d);
 
-                    mat22 rot2D;
+                    dmat22 rot2D;
 
-                    rotate2D(rot2D, vec2(quat(0), quat(1)));
+                    rotate2D(rot2D, dvec2(quat(0), quat(1)));
 
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE ///huabin
                     translate(transImg,
@@ -3991,7 +3991,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 {
                     _par[l].rand(cls, quat, tran, d);
 
-                    mat33 rot3D;
+                    dmat33 rot3D;
 
                     rotate3D(rot3D, quat);
                 
@@ -4711,12 +4711,11 @@ void Optimiser::saveDatabase() const
                : fopen(filename, "a");
 
     size_t cls;
-    vec4 quat;
-    vec2 tran;
-    RFLOAT df;
+    dvec4 quat;
+    dvec2 tran;
+    double df;
 
-    // RFLOAT rVari, s0, s1, s;
-    RFLOAT k1, k2, k3, s0, s1, s;
+    double k1, k2, k3, s0, s1, s;
 
     FOR_EACH_2D_IMAGE
     {
@@ -4787,10 +4786,10 @@ void Optimiser::saveBestProjections()
     char filename[FILE_NAME_LENGTH];
 
     size_t cls;
-    mat22 rot2D;
-    mat33 rot3D;
-    vec2 tran;
-    RFLOAT d;
+    dmat22 rot2D;
+    dmat33 rot3D;
+    dvec2 tran;
+    double d;
 
     FOR_EACH_2D_IMAGE
     {

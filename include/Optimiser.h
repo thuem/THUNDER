@@ -503,7 +503,7 @@ class Optimiser : public Parallel
          * an original image will become the corresponding image by this
          * translation
          */
-        vector<vec2> _offset;
+        vector<dvec2> _offset;
 #endif
 
         /**

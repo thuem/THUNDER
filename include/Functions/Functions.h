@@ -87,6 +87,8 @@
  */
 vec cumsum(const vec& v);
 
+dvec cumsum(const dvec& v);
+
 /**
  * This function sorts a vector in ascending order and stores the result by its
  * indices.
@@ -95,6 +97,8 @@ vec cumsum(const vec& v);
  */
 uvec index_sort_ascend(const vec& v);
 
+uvec index_sort_ascend(const dvec& v);
+
 /**
  * This function sorts a vector in descending order and stores the result by its
  * indices.
@@ -102,6 +106,8 @@ uvec index_sort_ascend(const vec& v);
  * @param v the vector to be sorted
  */
 uvec index_sort_descend(const vec& v);
+
+uvec index_sort_descend(const dvec& v);
 
 /**
  * If x is peroidic and has a period of p, change x to the counterpart in [0, p)

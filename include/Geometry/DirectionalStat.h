@@ -32,8 +32,8 @@
  * @param x   a quaternion
  * @param sig a symmetric positive definite parameter matrix
  */
-RFLOAT pdfACG(const vec4& x,
-              const mat44& sig);
+double pdfACG(const dvec4& x,
+              const dmat44& sig);
 
 /**
  * Probability Density Function of Angular Central Gaussian Distribution
@@ -48,9 +48,9 @@ RFLOAT pdfACG(const vec4& x,
  * @param k0 the first paramter
  * @param k1 the second parameter
  */
-RFLOAT pdfACG(const vec4& x,
-              const RFLOAT k0,
-              const RFLOAT k1);
+double pdfACG(const dvec4& x,
+              const double k0,
+              const double k1);
 
 /**
  * Sample from an Angular Central Gaussian Distribution
@@ -59,8 +59,8 @@ RFLOAT pdfACG(const vec4& x,
  * @param src the symmetric positive definite parameter matrix
  * @param n   the number of samples
  */
-void sampleACG(mat4& dst,
-               const mat44& src,
+void sampleACG(dmat4& dst,
+               const dmat44& src,
                const int n);
 
 /**
@@ -77,9 +77,9 @@ void sampleACG(mat4& dst,
  * @param k1  the second parameter
  * @param n   the number of samples
  */
-void sampleACG(mat4& dst,
-               const RFLOAT k0,
-               const RFLOAT k1,
+void sampleACG(dmat4& dst,
+               const double k0,
+               const double k1,
                const int n);
 
 /**
@@ -97,10 +97,10 @@ void sampleACG(mat4& dst,
  * @param k3  the 3rd parameter
  * @param n   the number of samples
  */
-void sampleACG(mat4& dst,
-               const RFLOAT k1,
-               const RFLOAT k2,
-               const RFLOAT k3,
+void sampleACG(dmat4& dst,
+               const double k1,
+               const double k2,
+               const double k3,
                const int n);
 
 /**
@@ -110,8 +110,8 @@ void sampleACG(mat4& dst,
  * @param dst the paramter matrix
  * @param src the data
  */
-void inferACG(mat44& dst,
-              const mat4& src);
+void inferACG(dmat44& dst,
+              const dmat4& src);
 
 /**
  * Parameter Inference from Data Assuming the Distribution Follows an Angular
@@ -121,14 +121,14 @@ void inferACG(mat44& dst,
  * @param k1  the second paramter
  * @param src the data
  */
-void inferACG(RFLOAT& k0,
-              RFLOAT& k1,
-              const mat4& src);
+void inferACG(double& k0,
+              double& k1,
+              const dmat4& src);
 
-void inferACG(RFLOAT& k1,
-              RFLOAT& k2,
-              RFLOAT& k3,
-              const mat4& src);
+void inferACG(double& k1,
+              double& k2,
+              double& k3,
+              const dmat4& src);
 
 /**
  * Parameter Inference from Data Assuming the Distribution Follows an Angular
@@ -137,8 +137,8 @@ void inferACG(RFLOAT& k1,
  * @param mean the mean of ACG distribution
  * @param src  the data
  */
-void inferACG(vec4& mean,
-              const mat4& src);
+void inferACG(dvec4& mean,
+              const dmat4& src);
 
 /**
  * Probabilty Density Function of von Mises Distribution M(mu, kappa)
@@ -147,9 +147,9 @@ void inferACG(vec4& mean,
  * @param mu    the mode of the von Mises distribution in unit vector
  * @param kappa the concnetration parameter of the von Mises distribution
  */
-RFLOAT pdfVMS(const vec2& x,
-              const vec2& mu,
-              const RFLOAT k);
+double pdfVMS(const dvec2& x,
+              const dvec2& mu,
+              const double k);
 
 /**
  * Sample from von Mises Distribution M(mu, kappa), the algorithm is from Best &
@@ -160,15 +160,15 @@ RFLOAT pdfVMS(const vec2& x,
  * @param kappa the concentration parameter of the von Mises distribution
  * @param n     number of sample
  */
-void sampleVMS(mat2& dst,
-               const vec2& mu,
-               const RFLOAT k,
-               const RFLOAT n);
+void sampleVMS(dmat2& dst,
+               const dvec2& mu,
+               const double k,
+               const double n);
 
-void sampleVMS(mat4& dst,
-               const vec4& mu,
-               const RFLOAT k,
-               const RFLOAT n);
+void sampleVMS(dmat4& dst,
+               const dvec4& mu,
+               const double k,
+               const double n);
 
 /**
  * Mode and Concentration Paramter Inference from Data Assuming the Distribution
@@ -178,18 +178,18 @@ void sampleVMS(mat4& dst,
  * @param kappa the concentration paramter of the von Mises distribution
  * @param src    the data
  */
-void inferVMS(vec2& mu,
-              RFLOAT& k,
-              const mat2& src);
+void inferVMS(dvec2& mu,
+              double& k,
+              const dmat2& src);
 
-void inferVMS(RFLOAT& kappa,
-              const mat2& src);
+void inferVMS(double& kappa,
+              const dmat2& src);
 
-void inferVMS(vec4& mu,
-              RFLOAT& k,
-              const mat4& src);
+void inferVMS(dvec4& mu,
+              double& k,
+              const dmat4& src);
 
-void inferVMS(RFLOAT& k,
-              const mat4& src);
+void inferVMS(double& k,
+              const dmat4& src);
 
 #endif // DIRECTIONAL_STAT_H

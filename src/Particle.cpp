@@ -18,8 +18,8 @@ Particle::Particle(const int mode,
                    const int nR,
                    const int nT,
                    const int nD,
-                   const RFLOAT transS,
-                   const RFLOAT transQ,
+                   const double transS,
+                   const double transQ,
                    const Symmetry* sym)
 {
     init(mode, nC, nR, nT, nD, transS, transQ, sym);
@@ -31,8 +31,8 @@ Particle::~Particle()
 }
 
 void Particle::init(const int mode,
-                    const RFLOAT transS,
-                    const RFLOAT transQ,
+                    const double transS,
+                    const double transQ,
                     const Symmetry* sym)
 {
     clear();
@@ -52,8 +52,8 @@ void Particle::init(const int mode,
                     const int nR,
                     const int nT,
                     const int nD,
-                    const RFLOAT transS,
-                    const RFLOAT transQ,
+                    const double transS,
+                    const double transQ,
                     const Symmetry* sym)
 {
     init(mode, transS, transQ, sym);
@@ -100,7 +100,7 @@ void Particle::reset()
         // rotation, MODE_2D, sample from von Mises Distribution with k = 1
         case MODE_2D:
 
-            sampleVMS(_r, vec4(1, 0, 0, 0), 1, _nR);
+            sampleVMS(_r, dvec4(1, 0, 0, 0), 1, _nR);
 
             break;
 
@@ -127,37 +127,37 @@ void Particle::reset()
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
     // sample from 2D Gaussian Distribution
     for (int i = 0; i < _nT; i++)
-        TSGSL_ran_bivariate_gaussian(engine, _transS, _transS, 0, &_t(i, 0), &_t(i, 1));
+        gsl_ran_bivariate_gaussian(engine, _transS, _transS, 0, &_t(i, 0), &_t(i, 1));
 #endif
 
 #ifdef PARTICLE_TRANS_INIT_FLAT
     // sample for 2D Flat Distribution in a Square
     for (int i = 0; i < _nT; i++)
     {
-        _t(i, 0) = TSGSL_ran_flat(engine,
-                                -TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS);
-        _t(i, 1) = TSGSL_ran_flat(engine,
-                                -TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                TSGSL_cdf_chisq_Qinv(0.5, 2) * _transS);
+        _t(i, 0) = gsl_ran_flat(engine,
+                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+        _t(i, 1) = gsl_ran_flat(engine,
+                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
     }
 #endif
 
     // initialise defocus distribution
 
-    _d = vec::Constant(_nD, 1);
+    _d = dvec::Constant(_nD, 1);
 
     // initialise weight
 
-    _wC = vec::Constant(_nC, 1.0 / _nC);
-    _wR = vec::Constant(_nR, 1.0 / _nR);
-    _wT = vec::Constant(_nT, 1.0 / _nT);
-    _wD = vec::Constant(_nD, 1.0 / _nD);
+    _wC = dvec::Constant(_nC, 1.0 / _nC);
+    _wR = dvec::Constant(_nR, 1.0 / _nR);
+    _wT = dvec::Constant(_nT, 1.0 / _nT);
+    _wD = dvec::Constant(_nD, 1.0 / _nD);
 
-    _uC = vec::Constant(_nC, 1.0 / _nC);
-    _uR = vec::Constant(_nR, 1.0 / _nR);
-    _uT = vec::Constant(_nT, 1.0 / _nT);
-    _uD = vec::Constant(_nD, 1.0 / _nD);
+    _uC = dvec::Constant(_nC, 1.0 / _nC);
+    _uR = dvec::Constant(_nR, 1.0 / _nR);
+    _uT = dvec::Constant(_nT, 1.0 / _nT);
+    _uD = dvec::Constant(_nD, 1.0 / _nD);
 
     // symmetrise
 
@@ -211,13 +211,13 @@ void Particle::reset(const int nC,
     for (int i = 0; i < m; i++)
         c(i) = i;
 
-    mat4 r(nR, 4);
+    dmat4 r(nR, 4);
 
     switch (_mode)
     {
         case MODE_2D:
             // sample from von Mises Distribution with kappa = 0
-            sampleVMS(r, vec4(1, 0, 0, 0), 0, nR);
+            sampleVMS(r, dvec4(1, 0, 0, 0), 0, nR);
             break;
 
         case MODE_3D:
@@ -230,7 +230,7 @@ void Particle::reset(const int nC,
             break;
     }
 
-    mat2 t(nT, 2);
+    dmat2 t(nT, 2);
 
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
     // sample from 2D Gaussian Distribution
@@ -247,8 +247,8 @@ void Particle::reset(const int nC,
     // sample for 2D Flat Distribution in a Circle
     for (int i = 0; i < nT; i++)
     {
-        RFLOAT r = TSGSL_ran_flat(engine, 0, _transS);
-        RFLOAT t = TSGSL_ran_flat(engine, 0, 2 * M_PI);
+        double r = gsl_ran_flat(engine, 0, _transS);
+        double t = gsl_ran_flat(engine, 0, 2 * M_PI);
 
         t(i, 0) = r * cos(t);
         t(i, 1) = r * sin(t);
@@ -275,7 +275,7 @@ void Particle::reset(const int nC,
 }
 
 void Particle::initD(const int nD,
-                     const RFLOAT sD)
+                     const double sD)
 {
     gsl_rng* engine = get_random_engine();
 
@@ -284,11 +284,11 @@ void Particle::initD(const int nD,
     _d.resize(nD);
 
     for (int i = 0; i < _nD; i++)
-        _d(i) = 1 + TSGSL_ran_gaussian(engine, sD);
+        _d(i) = 1 + gsl_ran_gaussian(engine, sD);
 
-    _wD = vec::Constant(_nD, 1.0 / _nD);
+    _wD = dvec::Constant(_nD, 1.0 / _nD);
     
-    _uD = vec::Constant(_nD, 1.0 / _nD);
+    _uD = dvec::Constant(_nD, 1.0 / _nD);
 }
 
 int Particle::mode() const { return _mode; }
@@ -311,61 +311,61 @@ int Particle::nD() const { return _nD; }
 
 void Particle::setND(const int nD) { _nD = nD; }
 
-RFLOAT Particle::transS() const { return _transS; }
+double Particle::transS() const { return _transS; }
 
-void Particle::setTransS(const RFLOAT transS) { _transS = transS; }
+void Particle::setTransS(const double transS) { _transS = transS; }
 
-RFLOAT Particle::transQ() const { return _transQ; }
+double Particle::transQ() const { return _transQ; }
 
-void Particle::setTransQ(const RFLOAT transQ) { _transQ = transQ; }
+void Particle::setTransQ(const double transQ) { _transQ = transQ; }
 
 uvec Particle::c() const { return _c; }
 
 void Particle::setC(const uvec& c) { _c = c; }
 
-mat4 Particle::r() const { return _r; }
+dmat4 Particle::r() const { return _r; }
 
-void Particle::setR(const mat4& r) { _r = r; }
+void Particle::setR(const dmat4& r) { _r = r; }
 
-mat2 Particle::t() const { return _t; }
+dmat2 Particle::t() const { return _t; }
 
-void Particle::setT(const mat2& t) { _t = t; }
+void Particle::setT(const dmat2& t) { _t = t; }
 
-vec Particle::d() const { return _d; }
+dvec Particle::d() const { return _d; }
 
-void Particle::setD(const vec& d) { _d = d; }
+void Particle::setD(const dvec& d) { _d = d; }
 
-vec Particle::wC() const { return _wC; }
+dvec Particle::wC() const { return _wC; }
 
-void Particle::setWC(const vec& wC) { _wC = wC; }
+void Particle::setWC(const dvec& wC) { _wC = wC; }
 
-vec Particle::wR() const { return _wR; }
+dvec Particle::wR() const { return _wR; }
 
-void Particle::setWR(const vec& wR) { _wR = wR; }
+void Particle::setWR(const dvec& wR) { _wR = wR; }
 
-vec Particle::wT() const { return _wT; }
+dvec Particle::wT() const { return _wT; }
 
-void Particle::setWT(const vec& wT) { _wT = wT; }
+void Particle::setWT(const dvec& wT) { _wT = wT; }
 
-vec Particle::wD() const { return _wD; }
+dvec Particle::wD() const { return _wD; }
 
-void Particle::setWD(const vec& wD) { _wD = wD; }
+void Particle::setWD(const dvec& wD) { _wD = wD; }
 
-vec Particle::uC() const { return _uC; }
+dvec Particle::uC() const { return _uC; }
 
-void Particle::setUC(const vec& uC) { _uC = uC; }
+void Particle::setUC(const dvec& uC) { _uC = uC; }
 
-vec Particle::uR() const { return _uR; }
+dvec Particle::uR() const { return _uR; }
 
-void Particle::setUR(const vec& uR) { _uR = uR; }
+void Particle::setUR(const dvec& uR) { _uR = uR; }
 
-vec Particle::uT() const { return _uT; }
+dvec Particle::uT() const { return _uT; }
 
-void Particle::setUT(const vec& uT) { _uT = uT; }
+void Particle::setUT(const dvec& uT) { _uT = uT; }
 
-vec Particle::uD() const { return _uD; }
+dvec Particle::uD() const { return _uD; }
 
-void Particle::setUD(const vec& uD) { _uD = uD; }
+void Particle::setUD(const dvec& uD) { _uD = uD; }
 
 const Symmetry* Particle::symmetry() const { return _sym; }
 
@@ -374,15 +374,15 @@ void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }
 void Particle::load(const int nR,
                     const int nT,
                     const int nD,
-                    const vec4& q,
-                    const RFLOAT k1,
-                    const RFLOAT k2,
-                    const RFLOAT k3,
-                    const vec2& t,
-                    const RFLOAT s0,
-                    const RFLOAT s1,
-                    const RFLOAT d,
-                    const RFLOAT s)
+                    const dvec4& q,
+                    const double k1,
+                    const double k2,
+                    const double k3,
+                    const dvec2& t,
+                    const double s0,
+                    const double s1,
+                    const double d,
+                    const double s)
 {
     _nC = 1;
     _nR = nR;
@@ -422,35 +422,35 @@ void Particle::load(const int nR,
     
     // _k0 = 1;
     
-    // _k1 = TSGSL_pow_2(stdR);
+    // _k1 = gsl_pow_2(stdR);
     
     _topRPrev = q;
     _topR = q;
 
-    // mat4 p(_nR, 4);
+    // dmat4 p(_nR, 4);
 
     // sampleACG(_r, _k0, _k1, _nR);
 
     sampleACG(_r, _k1, _k2, _k3, _nR);
 
-    //sampleACG(p, 1, TSGSL_pow_2(stdR), _nR);
+    //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
 
     if (_mode == MODE_3D) symmetrise();
     
     for (int i = 0; i < _nR; i++)
     {
-        vec4 pert = _r.row(i).transpose();
+        dvec4 pert = _r.row(i).transpose();
 
-        vec4 part;
+        dvec4 part;
 
         /***
-        if (TSGSL_ran_flat(engine, -1, 1) >= 0)
+        if (gsl_ran_flat(engine, -1, 1) >= 0)
             quaternion_mul(part, quat, pert);
         else
             quaternion_mul(part, -quat, pert);
         ***/
 
-        if (TSGSL_ran_flat(engine, -1, 1) >= 0)
+        if (gsl_ran_flat(engine, -1, 1) >= 0)
             quaternion_mul(part, pert, q);
         else
             quaternion_mul(part, pert, -q);
@@ -472,7 +472,7 @@ void Particle::load(const int nR,
 
     for (int i = 0; i < _nT; i++)
     {
-       TSGSL_ran_bivariate_gaussian(engine,
+       gsl_ran_bivariate_gaussian(engine,
                                   _s0,
                                   _s1,
                                   0,
@@ -496,7 +496,7 @@ void Particle::load(const int nR,
 
     for (int i = 0; i < _nD; i++)
     {
-        _d(i) = d + TSGSL_ran_gaussian(engine, _s);
+        _d(i) = d + gsl_ran_gaussian(engine, _s);
 
         _wD(i) = 1.0 / _nD;
         _uD(i) = 1.0 / _nD;
@@ -504,12 +504,12 @@ void Particle::load(const int nR,
 
 }
 
-void Particle::vari(RFLOAT& k1,
-                    RFLOAT& k2,
-                    RFLOAT& k3,
-                    RFLOAT& s0,
-                    RFLOAT& s1,
-                    RFLOAT& s) const
+void Particle::vari(double& k1,
+                    double& k2,
+                    double& k3,
+                    double& s0,
+                    double& s1,
+                    double& s) const
 {
     k1 = _k1;
     k2 = _k2;
@@ -519,10 +519,10 @@ void Particle::vari(RFLOAT& k1,
     s = _s;
 }
 
-void Particle::vari(RFLOAT& rVari,
-                    RFLOAT& s0,
-                    RFLOAT& s1,
-                    RFLOAT& s) const
+void Particle::vari(double& rVari,
+                    double& s0,
+                    double& s1,
+                    double& s) const
 {
     switch (_mode)
     {
@@ -535,8 +535,8 @@ void Particle::vari(RFLOAT& rVari,
         case MODE_3D:
             /***
             if (_k0 == 0) CLOG(FATAL, "LOGGER_SYS") << "k0 = 0";
-            if (TSGSL_isnan(_k0)) CLOG(FATAL, "LOGGER_SYS") << "k0 NAN";
-            if (TSGSL_isnan(_k1)) CLOG(FATAL, "LOGGER_SYS") << "k1 NAN";
+            if (gsl_isnan(_k0)) CLOG(FATAL, "LOGGER_SYS") << "k0 NAN";
+            if (gsl_isnan(_k1)) CLOG(FATAL, "LOGGER_SYS") << "k1 NAN";
             ***/
             // more cencentrate, smaller rVari, bigger _k0 / _k1;
 
@@ -557,7 +557,7 @@ void Particle::vari(RFLOAT& rVari,
     s = _s;
 }
 
-RFLOAT Particle::compress() const
+double Particle::compress() const
 {
     // return _transS / sqrt(_s0 * _s1);
 
@@ -584,98 +584,98 @@ RFLOAT Particle::compress() const
 
     // return _k0 / _k1;
 
-    // return pow(_k0 / _k1, 1.5) * TSGSL_pow_2(_transS) / _s0 / _s1;
+    // return pow(_k0 / _k1, 1.5) * gsl_pow_2(_transS) / _s0 / _s1;
 
-    //return TSGSL_pow_2(_transS) / _s0 / _s1;
+    //return gsl_pow_2(_transS) / _s0 / _s1;
 }
 
-RFLOAT Particle::wC(const int i) const
+double Particle::wC(const int i) const
 {
     return _wC(i);
 }
 
-void Particle::setWC(const RFLOAT wC,
+void Particle::setWC(const double wC,
                      const int i)
 {
     _wC(i) = wC;
 }
 
-void Particle::mulWC(const RFLOAT wC,
+void Particle::mulWC(const double wC,
                      const int i)
 {
     _wC(i) *= wC;
 }
 
-RFLOAT Particle::wR(const int i) const
+double Particle::wR(const int i) const
 {
     return _wR(i);
 }
 
-void Particle::setWR(const RFLOAT wR,
+void Particle::setWR(const double wR,
                      const int i)
 {
     _wR(i) = wR;
 }
 
-void Particle::mulWR(const RFLOAT wR,
+void Particle::mulWR(const double wR,
                      const int i)
 {
     _wR(i) *= wR;
 }
 
-RFLOAT Particle::wT(const int i) const
+double Particle::wT(const int i) const
 {
     return _wT(i);
 }
 
-void Particle::setWT(const RFLOAT wT,
+void Particle::setWT(const double wT,
                      const int i)
 {
     _wT(i) = wT;
 }
 
-void Particle::mulWT(const RFLOAT wT,
+void Particle::mulWT(const double wT,
                      const int i)
 {
     _wT(i) *= wT;
 }
 
-RFLOAT Particle::wD(const int i) const
+double Particle::wD(const int i) const
 {
     return _wD(i);
 }
 
-void Particle::setWD(const RFLOAT wD,
+void Particle::setWD(const double wD,
                      const int i)
 {
     _wD(i) = wD;
 }
 
-void Particle::mulWD(const RFLOAT wD,
+void Particle::mulWD(const double wD,
                      const int i)
 {
     _wD(i) *= wD;
 }
 
-void Particle::setUC(const RFLOAT uC,
+void Particle::setUC(const double uC,
                      const int i)
 {
     _uC(i) = uC;
 }
 
-void Particle::setUR(const RFLOAT uR,
+void Particle::setUR(const double uR,
                      const int i)
 {
     _uR(i) = uR;
 }
 
-void Particle::setUT(const RFLOAT uT,
+void Particle::setUT(const double uT,
                      const int i)
 {
     _uT(i) = uT;
 }
 
-void Particle::setUD(const RFLOAT uD,
+void Particle::setUD(const double uD,
                      const int i)
 {
     _uD(i) = uD;
@@ -693,7 +693,7 @@ void Particle::normW()
 void Particle::coord(Coordinate5D& dst,
                      const int i) const
 {
-    vec4 quat = _r.row(i).transpose();
+    dvec4 quat = _r.row(i).transpose();
     angle(dst.phi,
           dst.theta,
           dst.psi,
@@ -716,122 +716,122 @@ void Particle::setC(const size_t src,
     _c(i) = src;
 }
 
-void Particle::rot(mat22& dst,
+void Particle::rot(dmat22& dst,
                    const int i) const
 {
-    rotate2D(dst, vec2(_r(i, 0), _r(i, 1)));
+    rotate2D(dst, dvec2(_r(i, 0), _r(i, 1)));
 }
 
-void Particle::rot(mat33& dst,
+void Particle::rot(dmat33& dst,
                    const int i) const
 {
     rotate3D(dst, _r.row(i).transpose());
 }
 
-void Particle::t(vec2& dst,
+void Particle::t(dvec2& dst,
                  const int i) const
 {
     dst = _t.row(i).transpose();
 }
 
-void Particle::setT(const vec2& src,
+void Particle::setT(const dvec2& src,
                     const int i)
 {
     _t.row(i) = src.transpose();
 }
 
-void Particle::quaternion(vec4& dst,
+void Particle::quaternion(dvec4& dst,
                           const int i) const
 {
     dst = _r.row(i).transpose();
 }
 
-void Particle::setQuaternion(const vec4& src,
+void Particle::setQuaternion(const dvec4& src,
                              const int i) 
 {
     _r.row(i) = src.transpose();
 }
 
-void Particle::d(RFLOAT& d,
+void Particle::d(double& d,
                  const int i) const
 {
     d = _d(i);
 }
 
-void Particle::setD(const RFLOAT d,
+void Particle::setD(const double d,
                     const int i)
 {
     _d(i) = d;
 }
 
 /***
-RFLOAT Particle::k0() const
+double Particle::k0() const
 {
     return _k0;
 }
 
-void Particle::setK0(const RFLOAT k0)
+void Particle::setK0(const double k0)
 {
     _k0 = k0;
 }
 ***/
 
-RFLOAT Particle::k1() const
+double Particle::k1() const
 {
     return _k1;
 }
 
-void Particle::setK1(const RFLOAT k1)
+void Particle::setK1(const double k1)
 {
     _k1 = k1;
 }
 
-RFLOAT Particle::k2() const
+double Particle::k2() const
 {
     return _k2;
 }
 
-void Particle::setK2(const RFLOAT k2)
+void Particle::setK2(const double k2)
 {
     _k2 = k2;
 }
 
-RFLOAT Particle::k3() const
+double Particle::k3() const
 {
     return _k3;
 }
 
-void Particle::setK3(const RFLOAT k3)
+void Particle::setK3(const double k3)
 {
     _k3 = k3;
 }
 
-RFLOAT Particle::s0() const
+double Particle::s0() const
 {
     return _s0;
 }
 
-void Particle::setS0(const RFLOAT s0)
+void Particle::setS0(const double s0)
 {
     _s0 = s0;
 }
 
-RFLOAT Particle::s1() const
+double Particle::s1() const
 {
     return _s1;
 }
 
-void Particle::setS1(const RFLOAT s1)
+void Particle::setS1(const double s1)
 {
     _s1 = s1;
 }
 
-RFLOAT Particle::s() const
+double Particle::s() const
 {
     return _s;
 }
 
-void Particle::setS(const RFLOAT s)
+void Particle::setS(const double s)
 {
     _s = s;
 }
@@ -863,11 +863,11 @@ void Particle::calVari(const ParticleType pt)
         }
         else if (_mode == MODE_3D)
         {
-            vec4 mean;
+            dvec4 mean;
 
             inferACG(mean, _r);
 
-            vec4 quat;
+            dvec4 quat;
 
             for (int i = 0; i < _nR; i++)
             {
@@ -899,22 +899,22 @@ void Particle::calVari(const ParticleType pt)
     else if (pt == PAR_T)
     {
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
-        _s0 = TSGSL_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
-        _s1 = TSGSL_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
+        _s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), 0);
+        _s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), 0);
 #else
-        _s0 = TSGSL_stats_sd(_t.col(0).data(), 1, _t.rows());
-        _s1 = TSGSL_stats_sd(_t.col(1).data(), 1, _t.rows());
+        _s0 = gsl_stats_sd(_t.col(0).data(), 1, _t.rows());
+        _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
         _rho = 0;
     }
     else if (pt == PAR_D)
     {
-        _s = TSGSL_stats_sd(_d.data(), 1, _d.size());
+        _s = gsl_stats_sd(_d.data(), 1, _d.size());
     }
 }
 
-void Particle::perturb(const RFLOAT pf,
+void Particle::perturb(const double pf,
                        const ParticleType pt)
 {
     if (pt == PAR_C)
@@ -923,13 +923,13 @@ void Particle::perturb(const RFLOAT pf,
     }
     else if (pt == PAR_R)
     {
-        mat4 d(_nR, 4);
+        dmat4 d(_nR, 4);
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, vec4(1, 0, 0, 0), TSGSL_MIN_RFLOAT(1, _k1 * pf), _nR);
+            sampleVMS(d, dvec4(1, 0, 0, 0), GSL_MIN_DBL(1, _k1 * pf), _nR);
 
-            vec4 quat;
+            dvec4 quat;
 
             for (int i = 0; i < _nR; i++)
             {
@@ -943,16 +943,16 @@ void Particle::perturb(const RFLOAT pf,
         else if (_mode == MODE_3D)
         {
             sampleACG(d,
-                      TSGSL_pow_2(pf) * TSGSL_MIN_RFLOAT(1, _k1),
-                      TSGSL_pow_2(pf) * TSGSL_MIN_RFLOAT(1, _k2),
-                      TSGSL_pow_2(pf) * TSGSL_MIN_RFLOAT(1, _k3),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
 
-            vec4 mean;
+            dvec4 mean;
 
             inferACG(mean, _r);
 
-            vec4 quat;
+            dvec4 quat;
 
             for (int i = 0; i < _nR; i++)
             {
@@ -963,7 +963,7 @@ void Particle::perturb(const RFLOAT pf,
                 _r.row(i) = quat.transpose();
             }
 
-            vec4 pert;
+            dvec4 pert;
            
             for (int i = 0; i < _nR; i++)
             {
@@ -997,9 +997,9 @@ void Particle::perturb(const RFLOAT pf,
 
         for (int i = 0; i < _nT; i++)
         {
-            RFLOAT x, y;
+            double x, y;
 
-            TSGSL_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
 
             _t(i, 0) += x * pf;
             _t(i, 1) += y * pf;
@@ -1016,7 +1016,7 @@ void Particle::perturb(const RFLOAT pf,
         gsl_rng* engine = get_random_engine();
 
         for (int i = 0; i < _nD; i++)
-            _d(i) += TSGSL_ran_gaussian(engine, _s) * pf;
+            _d(i) += gsl_ran_gaussian(engine, _s) * pf;
     }
 }
 
@@ -1038,7 +1038,7 @@ void Particle::resample(const int n,
 
         _wC /= _wC.sum();
 
-        vec cdf = cumsum(_wC);
+        dvec cdf = cumsum(_wC);
         
         cdf /= cdf(_nC - 1);
 
@@ -1047,12 +1047,12 @@ void Particle::resample(const int n,
 
         uvec c(_nC);
 
-        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nC);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nC);  
 
         int i = 0;
         for (int j = 0; j < _nC; j++)
         {
-            RFLOAT uj = u0 + j * 1.0 / _nC;
+            double uj = u0 + j * 1.0 / _nC;
 
             while (uj > cdf[i])
                 i++;
@@ -1083,21 +1083,21 @@ void Particle::resample(const int n,
 
         _wR /= _wR.sum();
 
-        vec cdf = cumsum(_wR);
+        dvec cdf = cumsum(_wR);
 
         cdf /= cdf(_nR - 1);
 
         _nR = n;
         _wR.resize(_nR);
 
-        mat4 r(_nR, 4);
+        dmat4 r(_nR, 4);
 
-        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nR);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nR);  
 
         int i = 0;
         for (int j = 0; j < _nR; j++)
         {
-            RFLOAT uj = u0 + j * 1.0 / _nR;
+            double uj = u0 + j * 1.0 / _nR;
 
             while (uj > cdf[i])
                 i++;
@@ -1128,21 +1128,21 @@ void Particle::resample(const int n,
 
         _wT /= _wT.sum();
 
-        vec cdf = cumsum(_wT);
+        dvec cdf = cumsum(_wT);
 
         cdf /= cdf(_nT - 1);
 
         _nT = n;
         _wT.resize(_nT);
 
-        mat2 t(_nT, 2);
+        dmat2 t(_nT, 2);
 
-        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nT);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nT);  
 
         int i = 0;
         for (int j = 0; j < _nT; j++)
         {
-            RFLOAT uj = u0 + j * 1.0 / _nT;
+            double uj = u0 + j * 1.0 / _nT;
 
             while (uj > cdf[i])
                 i++;
@@ -1173,21 +1173,21 @@ void Particle::resample(const int n,
 
         _wD /= _wD.sum();
 
-        vec cdf = cumsum(_wD);
+        dvec cdf = cumsum(_wD);
 
         cdf /= cdf(_nD - 1);
 
         _nD = n;
         _wD.resize(_nD);
 
-        vec d(_nD);
+        dvec d(_nD);
 
-        RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / _nD);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nD);  
 
         int i = 0;
         for (int j = 0; j < _nD; j++)
         {
-            RFLOAT uj = u0 + j * 1.0 / _nD;
+            double uj = u0 + j * 1.0 / _nD;
 
             while (uj > cdf[i])
                 i++;
@@ -1229,13 +1229,13 @@ void Particle::resample()
 ***/
 
 /***
-void Particle::resample(const RFLOAT alpha)
+void Particle::resample(const double alpha)
 {
     resample(_n, alpha);
 }
 
 void Particle::resample(const int n,
-                        const RFLOAT alpha)
+                        const double alpha)
 {
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Recording the Current Most Likely Coordinate";
@@ -1258,7 +1258,7 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Performing Resampling";
 #endif
 
-    vec cdf = cumsum(_w);
+    dvec cdf = cumsum(_w);
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Recording New Number of Sampling Points";
@@ -1278,9 +1278,9 @@ void Particle::resample(const int n,
 #endif
 
     uvec c(n);
-    mat4 r(n, 4);
-    mat2 t(n, 2);
-    vec d(n);
+    dmat4 r(n, 4);
+    dmat2 t(n, 2);
+    dvec d(n);
     
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points";
@@ -1293,7 +1293,7 @@ void Particle::resample(const int n,
 #endif
 
     for (int i = 0; i < nG; i++)
-        c(i) = TSGSL_rng_uniform_int(engine, _m);
+        c(i) = gsl_rng_uniform_int(engine, _m);
 
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Rotation";
@@ -1302,7 +1302,7 @@ void Particle::resample(const int n,
     switch (_mode)
     {
         case MODE_2D:
-            sampleVMS(r, vec4(1, 0, 0, 0), 0, nG);
+            sampleVMS(r, dvec4(1, 0, 0, 0), 0, nG);
             break;
 
         case MODE_3D:
@@ -1347,12 +1347,12 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Generating Local Sampling Points";
 #endif
 
-    RFLOAT u0 = TSGSL_ran_flat(engine, 0, 1.0 / nL);  
+    double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
 
     int i = 0;
     for (int j = 0; j < nL; j++)
     {
-        RFLOAT uj = u0 + j * 1.0 / nL;
+        double uj = u0 + j * 1.0 / nL;
 
         while (uj > cdf[i])
             i++;
@@ -1393,16 +1393,16 @@ void Particle::resample(const int n,
 ***/
 
 /***
-RFLOAT Particle::neff() const
+double Particle::neff() const
 {
     return 1.0 / _w.squaredNorm();
 }
 
-void Particle::segment(const RFLOAT thres)
+void Particle::segment(const double thres)
 {
     uvec order = iSort();
 
-    RFLOAT s = 0;
+    double s = 0;
     int i;
 
     for (i = 0; i < _n; i++)
@@ -1420,11 +1420,11 @@ void Particle::segment(const RFLOAT thres)
     resample(n);
 }
 
-void Particle::flatten(const RFLOAT thres)
+void Particle::flatten(const double thres)
 {
     uvec order = iSort();
 
-    RFLOAT s = 0;
+    double s = 0;
     int i;
 
     for (i = 0; i < _n; i++)
@@ -1458,10 +1458,10 @@ void Particle::sort(const int n)
     uvec order = iSort();
 
     uvec c(n);
-    mat4 r(n, 4);
-    mat2 t(n, 2);
-    vec d(n);
-    vec w(n);
+    dmat4 r(n, 4);
+    dmat2 t(n, 2);
+    dvec d(n);
+    dvec w(n);
 
     for (int i = 0; i < n; i++)
     {
@@ -1496,8 +1496,8 @@ void Particle::sort(const int n,
             REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
 
         uvec c(n);
-        vec wC(n);
-        vec uC(n);
+        dvec wC(n);
+        dvec uC(n);
 
         for (int i = 0; i < n; i++)
         {
@@ -1517,9 +1517,9 @@ void Particle::sort(const int n,
         if (n > _nR)
             REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
 
-        mat4 r(n, 4);
-        vec wR(n);
-        vec uR(n);
+        dmat4 r(n, 4);
+        dvec wR(n);
+        dvec uR(n);
 
         for (int i = 0; i < n; i++)
         {
@@ -1539,9 +1539,9 @@ void Particle::sort(const int n,
         if (n > _nT)
             REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
 
-        mat2 t(n, 2);
-        vec wT(n);
-        vec uT(n);
+        dmat2 t(n, 2);
+        dvec wT(n);
+        dvec uT(n);
 
         for (int i = 0; i < n; i++)
         {
@@ -1561,9 +1561,9 @@ void Particle::sort(const int n,
         if (n > _nD)
             REPORT_ERROR("CANNOT SELECT TOP K FROM N WHEN K > N");
 
-        vec d(n);
-        vec wD(n);
-        vec uD(n);
+        dvec d(n);
+        dvec wD(n);
+        dvec uD(n);
 
         for (int i = 0; i < n; i++)
         {
@@ -1618,27 +1618,27 @@ bool Particle::diffTopC()
     return diff;
 }
 
-RFLOAT Particle::diffTopR()
+double Particle::diffTopR()
 {
-    RFLOAT diff = 1 - fabs(_topRPrev.dot(_topR));
+    double diff = 1 - fabs(_topRPrev.dot(_topR));
 
     _topRPrev = _topR;
 
     return diff;
 }
 
-RFLOAT Particle::diffTopT()
+double Particle::diffTopT()
 {
-    RFLOAT diff = (_topTPrev - _topT).norm();
+    double diff = (_topTPrev - _topT).norm();
 
     _topTPrev = _topT;
 
     return diff;
 }
 
-RFLOAT Particle::diffTopD()
+double Particle::diffTopD()
 {
-    RFLOAT diff = fabs(_topDPrev - _topD);
+    double diff = fabs(_topDPrev - _topD);
 
     _topDPrev = _topD;
 
@@ -1650,41 +1650,41 @@ void Particle::rank1st(size_t& cls) const
     cls = _topC;
 }
 
-void Particle::rank1st(vec4& quat) const
+void Particle::rank1st(dvec4& quat) const
 {
     quat = _topR;
 }
 
-void Particle::rank1st(mat22& rot) const
+void Particle::rank1st(dmat22& rot) const
 {
-    vec4 quat;
+    dvec4 quat;
     rank1st(quat);
 
-    rotate2D(rot, vec2(quat(0), quat(1)));
+    rotate2D(rot, dvec2(quat(0), quat(1)));
 }
 
-void Particle::rank1st(mat33& rot) const
+void Particle::rank1st(dmat33& rot) const
 {
-    vec4 quat;
+    dvec4 quat;
     rank1st(quat);
 
     rotate3D(rot, quat);
 }
 
-void Particle::rank1st(vec2& tran) const
+void Particle::rank1st(dvec2& tran) const
 {
     tran = _topT;
 }
 
-void Particle::rank1st(RFLOAT& df) const
+void Particle::rank1st(double& df) const
 {
     df = _topD;
 }
 
 void Particle::rank1st(size_t& cls,
-                       vec4& quat,
-                       vec2& tran,
-                       RFLOAT& df) const
+                       dvec4& quat,
+                       dvec2& tran,
+                       double& df) const
 {
     cls = _topC;
     quat = _topR;
@@ -1693,22 +1693,22 @@ void Particle::rank1st(size_t& cls,
 }
 
 void Particle::rank1st(size_t& cls,
-                       mat22& rot,
-                       vec2& tran,
-                       RFLOAT& df) const
+                       dmat22& rot,
+                       dvec2& tran,
+                       double& df) const
 {
-    vec4 quat;
+    dvec4 quat;
     rank1st(cls, quat, tran, df);
 
-    rotate2D(rot, vec2(quat(0), quat(1)));
+    rotate2D(rot, dvec2(quat(0), quat(1)));
 }
 
 void Particle::rank1st(size_t& cls,
-                       mat33& rot,
-                       vec2& tran,
-                       RFLOAT& df) const
+                       dmat33& rot,
+                       dvec2& tran,
+                       double& df) const
 {
-    vec4 quat;
+    dvec4 quat;
     rank1st(cls, quat, tran, df);
 
     rotate3D(rot, quat);
@@ -1720,64 +1720,64 @@ void Particle::rand(size_t& cls) const
 
     if (_nC == 0) { REPORT_ERROR("_nC SHOULD NOT BE ZERO"); abort(); }
 
-    size_t u = TSGSL_rng_uniform_int(engine, _nC);
+    size_t u = gsl_rng_uniform_int(engine, _nC);
 
     c(cls, u);
 }
 
-void Particle::rand(vec4& quat) const
+void Particle::rand(dvec4& quat) const
 {
     gsl_rng* engine = get_random_engine();
 
     if (_nR == 0) { REPORT_ERROR("_nR SHOULD NOT BE ZERO"); abort(); }
 
-    size_t u = TSGSL_rng_uniform_int(engine, _nR);
+    size_t u = gsl_rng_uniform_int(engine, _nR);
 
     quaternion(quat, u);
 }
 
-void Particle::rand(mat22& rot) const
+void Particle::rand(dmat22& rot) const
 {
-    vec4 quat;
+    dvec4 quat;
     rand(quat);
 
-    rotate2D(rot, vec2(quat(0), quat(1)));
+    rotate2D(rot, dvec2(quat(0), quat(1)));
 }
 
-void Particle::rand(mat33& rot) const
+void Particle::rand(dmat33& rot) const
 {
-    vec4 quat;
+    dvec4 quat;
     rand(quat);
 
     rotate3D(rot, quat);
 }
 
-void Particle::rand(vec2& tran) const
+void Particle::rand(dvec2& tran) const
 {
     gsl_rng* engine = get_random_engine();
 
     if (_nT == 0) { REPORT_ERROR("_nT SHOULD NOT BE ZERO"); abort(); }
 
-    size_t u = TSGSL_rng_uniform_int(engine, _nT);
+    size_t u = gsl_rng_uniform_int(engine, _nT);
 
     t(tran, u);
 }
 
-void Particle::rand(RFLOAT& df) const
+void Particle::rand(double& df) const
 {
     gsl_rng* engine = get_random_engine();
 
     if (_nD == 0) { REPORT_ERROR("_nD SHOULD NOT BE ZERO"); abort(); }
 
-    size_t u = TSGSL_rng_uniform_int(engine, _nD);
+    size_t u = gsl_rng_uniform_int(engine, _nD);
 
     d(df, u);
 }
 
 void Particle::rand(size_t& cls,
-                    vec4& quat,
-                    vec2& tran,
-                    RFLOAT& df) const
+                    dvec4& quat,
+                    dvec2& tran,
+                    double& df) const
 {
     rand(cls);
     rand(quat);
@@ -1786,22 +1786,22 @@ void Particle::rand(size_t& cls,
 }
 
 void Particle::rand(size_t& cls,
-                    mat22& rot,
-                    vec2& tran,
-                    RFLOAT& df) const
+                    dmat22& rot,
+                    dvec2& tran,
+                    double& df) const
 {
-    vec4 quat;
+    dvec4 quat;
     rand(cls, quat, tran, df);
 
-    rotate2D(rot, vec2(quat(0), quat(1)));
+    rotate2D(rot, dvec2(quat(0), quat(1)));
 }
 
 void Particle::rand(size_t& cls,
-                    mat33& rot,
-                    vec2& tran,
-                    RFLOAT& df) const
+                    dmat33& rot,
+                    dvec2& tran,
+                    double& df) const
 {
-    vec4 quat;
+    dvec4 quat;
     rand(cls, quat, tran, df);
 
     rotate3D(rot, quat);
@@ -1819,11 +1819,11 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nC; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nC, sizeof(size_t));
+        gsl_ran_shuffle(engine, s.data(), _nC, sizeof(size_t));
 
         uvec c(_nC);
-        vec wC(_nC);
-        vec uC(_nC);
+        dvec wC(_nC);
+        dvec uC(_nC);
 
         for (int i = 0; i < _nC; i++)
         {
@@ -1842,11 +1842,11 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nR; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nR, sizeof(size_t));
+        gsl_ran_shuffle(engine, s.data(), _nR, sizeof(size_t));
 
-        mat4 r(_nR, 4);
-        vec wR(_nR);
-        vec uR(_nR);
+        dmat4 r(_nR, 4);
+        dvec wR(_nR);
+        dvec uR(_nR);
 
         for (int i = 0; i < _nR; i++)
         {
@@ -1865,11 +1865,11 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nT; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nT, sizeof(size_t));
+        gsl_ran_shuffle(engine, s.data(), _nT, sizeof(size_t));
 
-        mat2 t(_nT, 2);
-        vec wT(_nT);
-        vec uT(_nT);
+        dmat2 t(_nT, 2);
+        dvec wT(_nT);
+        dvec uT(_nT);
 
         for (int i = 0; i < _nT; i++)
         {
@@ -1888,11 +1888,11 @@ void Particle::shuffle(const ParticleType pt)
 
         for (int i = 0; i < _nD; i++) s(i) = i;
 
-        TSGSL_ran_shuffle(engine, s.data(), _nD, sizeof(size_t));
+        gsl_ran_shuffle(engine, s.data(), _nD, sizeof(size_t));
 
-        vec d(_nD);
-        vec wD(_nD);
-        vec uD(_nD);
+        dvec d(_nD);
+        dvec wD(_nD);
+        dvec uD(_nD);
 
         for (int i = 0; i < _nD; i++)
         {
@@ -1970,16 +1970,16 @@ void Particle::symmetrise()
     if (asymmetry(*_sym)) return;
 
     /***
-    vec4 mean;
+    dvec4 mean;
 
     inferACG(mean, _r);
     ***/
 
-    vec4 quat;
+    dvec4 quat;
 
     for (int i = 0; i < _nR; i++)
     {
-        vec4 quat = _r.row(i).transpose();
+        dvec4 quat = _r.row(i).transpose();
 
         // quaternion_mul(quat, quaternion_conj(mean), quat);
 
@@ -1993,7 +1993,7 @@ void Particle::symmetrise()
 
 void Particle::reCentre()
 {
-    RFLOAT transM = _transS * TSGSL_cdf_chisq_Qinv(_transQ, 2);
+    double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
 
     gsl_rng* engine = get_random_engine();
 
@@ -2002,7 +2002,7 @@ void Particle::reCentre()
         {
             // _t.row(i) *= transM / NORM(_t(i, 0), _t(i, 1));
 
-            TSGSL_ran_bivariate_gaussian(engine,
+            gsl_ran_bivariate_gaussian(engine,
                                        _transS,
                                        _transS,
                                        0,
@@ -2016,9 +2016,9 @@ void Particle::clear() {}
 void display(const Particle& par)
 {
     size_t c;
-    vec4 q;
-    vec2 t;
-    RFLOAT d;
+    dvec4 q;
+    dvec2 t;
+    double d;
 
     FOR_EACH_PAR(par)
     {
@@ -2041,9 +2041,9 @@ void save(const char filename[],
     FILE* file = fopen(filename, "w");
 
     size_t c;
-    vec4 q;
-    vec2 t;
-    RFLOAT d;
+    dvec4 q;
+    dvec2 t;
+    double d;
 
     FOR_EACH_PAR(par)
     {
@@ -2085,7 +2085,7 @@ void save(const char filename[],
     }
     else if (pt == PAR_R)
     {
-        vec4 q;
+        dvec4 q;
  
         FOR_EACH_R(par)
         {
@@ -2099,7 +2099,7 @@ void save(const char filename[],
     }
     else if (pt == PAR_T)
     {
-        vec2 t;
+        dvec2 t;
 
         FOR_EACH_T(par)
         {
@@ -2113,7 +2113,7 @@ void save(const char filename[],
     }
     else if (pt == PAR_D)
     {
-        RFLOAT d;
+        double d;
 
         FOR_EACH_D(par)
         {
@@ -2135,10 +2135,10 @@ void load(Particle& par,
     FILE* file = fopen(filename, "r");
 
     int c;
-    vec4 q;
-    vec2 t;
-    RFLOAT d;
-    RFLOAT w;
+    dvec4 q;
+    dvec2 t;
+    double d;
+    double w;
 
     char buf[FILE_LINE_LENGTH];
 

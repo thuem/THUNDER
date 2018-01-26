@@ -25,51 +25,42 @@ vec cumsum(const vec& v)
         sum(i) = s;
     }
 
-    // std::partial_sum(v.data(), v.data() + v.size(), sum.data());
-
     return sum;
 }
 
-/***
-struct IndexSortAscendComparator
+dvec cumsum(const dvec& v)
 {
-    const vec* pv;
-    bool operator()(unsigned int i, unsigned int j) const
+    dvec sum(v.size());
+
+    double s = 0;
+
+    for (size_t i = 0; i < (size_t)v.size(); i++)
     {
-        return (*pv)(i) < (*pv)(j);
+        s += v(i);
+
+        sum(i) = s;
     }
-};
-***/
+
+    return sum;
+}
 
 uvec index_sort_ascend(const vec& v)
 {
     uvec idx(v.size());
 
     TSGSL_sort_smallest_index(idx.data(), idx.size(), v.data(), 1, v.size());
-    /***
-    for (unsigned int i = 0; i < idx.size(); i++)
-        idx(i) = i;
-    ***/
-
-    /***
-    IndexSortAscendComparator cmp;
-    cmp.pv = &v;
-    sort(idx.data(), idx.data() + idx.size(), cmp);
-    ***/
 
     return idx;
 }
 
-/***
-struct IndexSortDescendComparator
+uvec index_sort_ascend(const dvec& v)
 {
-    const vec* pv;
-    bool operator()(unsigned int i, unsigned int j) const
-    {
-        return (*pv)(i) > (*pv)(j);
-    }
-};
-***/
+    uvec idx(v.size());
+
+    gsl_sort_smallest_index(idx.data(), idx.size(), v.data(), 1, v.size());
+
+    return idx;
+}
 
 uvec index_sort_descend(const vec& v)
 {
@@ -77,14 +68,14 @@ uvec index_sort_descend(const vec& v)
 
     TSGSL_sort_largest_index(idx.data(), idx.size(), v.data(), 1, v.size());
 
-    /***
-    for (unsigned int i = 0; i < idx.size(); i++)
-        idx(i) = i;
+    return idx;
+}
 
-    IndexSortDescendComparator cmp;
-    cmp.pv = &v;
-    sort(idx.data(), idx.data() + idx.size(), cmp);
-    ***/
+uvec index_sort_descend(const dvec& v)
+{
+    uvec idx(v.size());
+
+    gsl_sort_largest_index(idx.data(), idx.size(), v.data(), 1, v.size());
 
     return idx;
 }

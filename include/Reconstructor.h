@@ -177,9 +177,9 @@ class Reconstructor : public Parallel
          * 5D coordinates in a single image. 
          */
         /***
-        vector<mat33> _rot3D;
+        vector<dmat33> _rot3D;
 
-        vector<mat33> _rot2D;
+        vector<dmat33> _rot2D;
 
         vector<const Image*> _ctf;
         ***/
@@ -390,7 +390,7 @@ class Reconstructor : public Parallel
 
         void insert(const Image& src,
                     const Image& ctf,
-                    const mat22& rot,
+                    const dmat22& rot,
                     const RFLOAT w);
 
         /**
@@ -411,18 +411,18 @@ class Reconstructor : public Parallel
          */
         void insert(const Image& src,
                     const Image& ctf,
-                    const mat33& rot,
+                    const dmat33& rot,
                     const RFLOAT w);
 
         void insertP(const Image& src,
                      const Image& ctf,
-                     const mat22& rot,
+                     const dmat22& rot,
                      const RFLOAT w,
                      const vec* sig = NULL);
 
         void insertP(const Image& src,
                      const Image& ctf,
-                     const mat33& rot,
+                     const dmat33& rot,
                      const RFLOAT w,
                      const vec* sig = NULL);
 

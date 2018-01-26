@@ -178,7 +178,7 @@ class Projector
          * @param mat the rotation matrix
          */
         void project(Image& dst,
-                     const mat33& mat) const;
+                     const dmat33& mat) const;
 
         void project(Image& dst,
                      const dmat22& mat,

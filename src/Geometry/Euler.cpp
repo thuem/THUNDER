@@ -122,7 +122,7 @@ void quaternion(dvec4& dst,
     dst(3) = copysign(dst(3), src(1, 0) - src(0, 1));
 }
 
-void rotate2D(mat22& dst, const vec2& vec)
+void rotate2D(dmat22& dst, const dvec2& vec)
 {
     dst(0, 0) = vec(0);
     dst(0, 1) = -vec(1);
@@ -130,7 +130,7 @@ void rotate2D(mat22& dst, const vec2& vec)
     dst(1, 1) = vec(0);
 }
 
-void rotate2D(mat22& dst, const double phi)
+void rotate2D(dmat22& dst, const double phi)
 {
     double sine = sin(phi);
     double cosine = cos(phi);
@@ -340,7 +340,7 @@ void swingTwist(dvec4& swing,
     quaternion_mul(swing, src, quaternion_conj(twist));
 }
 
-void randDirection(vec2& dir)
+void randDirection(dvec2& dir)
 {
     gsl_rng* engine = get_random_engine();
 
@@ -350,9 +350,9 @@ void randDirection(vec2& dir)
     dir /= dir.norm();
 }
 
-void randRotate2D(mat22& rot)
+void randRotate2D(dmat22& rot)
 {
-    vec2 dir;
+    dvec2 dir;
     randDirection(dir);
     
     rotate2D(rot, dir);
