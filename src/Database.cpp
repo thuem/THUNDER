@@ -313,7 +313,7 @@ int Database::cls(const int i) const
     return atoi(word);
 }
 
-vec4 Database::quat(const int i) const
+dvec4 Database::quat(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -327,7 +327,7 @@ vec4 Database::quat(const int i) const
     for (int i = 0; i < THU_QUATERNION_0; i++)
         word = strtok(NULL, " ");
 
-    vec4 result;
+    dvec4 result;
 
     result(0) = atof(word);
 
@@ -397,7 +397,7 @@ RFLOAT Database::k3(const int i) const
     return atof(word);
 }
 
-vec2 Database::tran(const int i) const
+dvec2 Database::tran(const int i) const
 {
     fseek(_db, _offset[_reg[i]], SEEK_SET);
 
@@ -411,7 +411,7 @@ vec2 Database::tran(const int i) const
     for (int i = 0; i < THU_TRANSLATION_X; i++)
         word = strtok(NULL, " ");
 
-    vec2 result;
+    dvec2 result;
 
     result(0) = atof(word);
 

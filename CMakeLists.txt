@@ -12,7 +12,7 @@ set(THUNDER_VERSION_MINOR 3)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}!")
 
-option(SINGLE_PRECISION "Whether to use single float precision in caculation?" OFF)
+option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
 
 if ("${SINGLE_PRECISION}")
     message(STATUS "Build THUNDER in single-float precision.")
@@ -43,35 +43,45 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 
 # SIMD
 
-option(ENABLE_SIMD_256 "Whether to use SIMD(avx) to accelerate?" ON)
+option(ENABLE_SIMD "Whether to use AVX256 to accelerate?" ON)
 
-if("${ENABLE_SIMD_256}")
+if("${ENABLE_SIMD}")
     if(APPLE)
         message(WARNING "THUNDER does not suppot SIMD on Apple.")
-        set(ENABLE_SIMD_256 OFF)
+        set(ENABLE_SIMD OFF)
         set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
         set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
     else(APPLE)
-        set(CMAKE_C_FLAGS "${COMMON_FLAGS} -mavx -mavx512f -mavx512cd")
-        set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -mavx -mavx512f -mavx512cd")
-        try_compile(AVX_SUPPORT
+        set(CMAKE_C_FLAGS "${COMMON_FLAGS} -mavx512f -mavx512cd")
+        set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -mavx512f -mavx512cd")
+        try_compile(AVX512_SUPPORT
                     ${CMAKE_BINARY_DIR}
-                    "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX.c")
-        if(AVX_SUPPORT)
-            message(STATUS "Build THUNDER using SIMD.")
-        else(AVX_SUPPORT)
-            message(WARNING "Compiler does not support AVX.")
-            set(ENABLE_SIMD_256 OFF)
-            set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
-            set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
+                    "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX512.c")
+        if(AVX512_SUPPORT)
+            message(STATUS "Build THUNDER using AVX512.")
+            set(ENABLE_SIMD_512 ON)
+        else(AVX512_SUPPORT)
+            message(WARNING "Compiler does not support AVX512.")
+            set(CMAKE_C_FLAGS "${COMMON_FLAGS} -mavx")
+            set(CMAKE_CXX_FLAGS "${COMMON_FLAGS} -mavx")
+            try_compile(AVX256_SUPPORT
+                        ${CMAKE_BINARY_DIR}
+                        "${CMAKE_SOURCE_DIR}/cmake/SIMD/AVX256.c")
+            if(AVX256_SUPPORT)
+                message(STATUS "Build THUNDER using AVX256.")
+                set(ENABLE_SIMD_256 ON)
+            else(AVX256_SUPPORT)
+                set(ENABLE_SIMD OFF)
+                set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
+                set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
+            endif(AVX256_SUPPORT)
         endif(AVX_SUPPORT)
     endif(APPLE)
-else ("${ENABLE_SIMD_256}")
+else("${ENABLE_SIMD}")
     message(STATUS "Build THUNDER without using SIMD.")
     set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
     set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
-endif("${ENABLE_SIMD_256}")
-
+endif("${ENABLE_SIMD}")
 
 # Output Flags
 message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")

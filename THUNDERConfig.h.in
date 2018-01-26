@@ -2,4 +2,5 @@
 #define THUNDER_VERSION_MINOR @THUNDER_VERSION_MINOR@
 
 #cmakedefine SINGLE_PRECISION
-#cmakedefine ENABLE_SIMD
+#cmakedefine ENABLE_SIMD_256
+#cmakedefine ENABLE_SIMD_512

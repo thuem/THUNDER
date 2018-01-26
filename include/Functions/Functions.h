@@ -87,6 +87,8 @@
  */
 vec cumsum(const vec& v);
 
+dvec cumsum(const dvec& v);
+
 /**
  * This function sorts a vector in ascending order and stores the result by its
  * indices.
@@ -95,6 +97,8 @@ vec cumsum(const vec& v);
  */
 uvec index_sort_ascend(const vec& v);
 
+uvec index_sort_ascend(const dvec& v);
+
 /**
  * This function sorts a vector in descending order and stores the result by its
  * indices.
@@ -102,6 +106,8 @@ uvec index_sort_ascend(const vec& v);
  * @param v the vector to be sorted
  */
 uvec index_sort_descend(const vec& v);
+
+uvec index_sort_descend(const dvec& v);
 
 /**
  * If x is peroidic and has a period of p, change x to the counterpart in [0, p)
@@ -113,20 +119,6 @@ uvec index_sort_descend(const vec& v);
  */
 int periodic(RFLOAT& x,
              const RFLOAT p);
-
-/**
- * Multiplication between two quaterions.
- *
- * @param dst result
- * @param a   left multiplier
- * @param b   right multiplier
- */
-void quaternion_mul(vec4& dst,
-                    const vec4& a,
-                    const vec4& b);
-
-vec4 quaternion_conj(const vec4& quat);
-
 /**
  * Modified Kaiser Bessel Function with n = 3.
  *

@@ -301,7 +301,7 @@ void Reconstructor::setPreCal(const int nPxl,
 
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
-                           const mat22& rot,
+                           const dmat22& rot,
                            const RFLOAT w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -322,17 +322,17 @@ void Reconstructor::insert(const Image& src,
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
+        if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
-            vec2 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf));
-            vec2 oldCor = rot * newCor;
+            dvec2 newCor((double)(i * _pf), (double)(j * _pf));
+            dvec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F2D.addFT(src.getFTHalf(i, j)
                      * REAL(ctf.getFTHalf(i, j))
                      * w, 
-                       oldCor(0), 
-                       oldCor(1), 
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
                        _pf * _a, 
                        _kernelFT);
 #endif
@@ -341,8 +341,8 @@ void Reconstructor::insert(const Image& src,
             _F2D.addFT(src.getFTHalf(i, j)
                      * REAL(ctf.getFTHalf(i, j))
                      * w, 
-                       oldCor(0), 
-                       oldCor(1));
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1));
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -350,8 +350,8 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _T2D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                      * w, 
-                       oldCor(0), 
-                       oldCor(1), 
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
                        _pf * _a,
                        _kernelFT);
 #endif
@@ -359,8 +359,8 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
              _T2D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                       * w, 
-                        oldCor(0), 
-                        oldCor(1));
+                        (RFLOAT)oldCor(0), 
+                        (RFLOAT)oldCor(1));
 #endif
 
 #endif
@@ -370,7 +370,7 @@ void Reconstructor::insert(const Image& src,
 
 void Reconstructor::insert(const Image& src,
                            const Image& ctf,
-                           const mat33& rot,
+                           const dmat33& rot,
                            const RFLOAT w)
 {
 #ifdef RECONSTRUCTOR_ASSERT_CHECK
@@ -391,18 +391,18 @@ void Reconstructor::insert(const Image& src,
 
         IMAGE_FOR_EACH_PIXEL_FT(src)
         {
-            if (QUAD(i, j) < TSGSL_pow_2(_maxRadius))
+            if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
-                vec3 newCor((RFLOAT)(i * _pf), (RFLOAT)(j * _pf), 0);
-                vec3 oldCor = rot * newCor;
+                dvec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+                dvec3 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _F3D.addFT(src.getFTHalf(i, j)
                          * REAL(ctf.getFTHalf(i, j))
                          * w, 
-                           oldCor(0), 
-                           oldCor(1), 
-                           oldCor(2), 
+                           (RFLOAT)oldCor(0), 
+                           (RFLOAT)oldCor(1), 
+                           (RFLOAT)oldCor(2), 
                            _pf * _a, 
                            _kernelFT);
 #endif
@@ -411,9 +411,9 @@ void Reconstructor::insert(const Image& src,
                 _F3D.addFT(src.getFTHalf(i, j)
                          * REAL(ctf.getFTHalf(i, j))
                          * w, 
-                           oldCor(0), 
-                           oldCor(1), 
-                           oldCor(2));
+                           (RFLOAT)oldCor(0), 
+                           (RFLOAT)oldCor(1), 
+                           (RFLOAT)oldCor(2));
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -421,9 +421,9 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _T3D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                          * w, 
-                           oldCor(0), 
-                           oldCor(1), 
-                           oldCor(2),
+                           (RFLOAT)oldCor(0), 
+                           (RFLOAT)oldCor(1), 
+                           (RFLOAT)oldCor(2),
                            _pf * _a,
                            _kernelFT);
 #endif
@@ -431,9 +431,9 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                 _T3D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                          * w, 
-                           oldCor(0), 
-                           oldCor(1), 
-                           oldCor(2));
+                           (RFLOAT)oldCor(0), 
+                           (RFLOAT)oldCor(1), 
+                           (RFLOAT)oldCor(2));
 #endif
 
 #endif
@@ -443,7 +443,7 @@ void Reconstructor::insert(const Image& src,
 
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
-                            const mat22& rot,
+                            const dmat22& rot,
                             const RFLOAT w,
                             const vec* sig)
 {
@@ -459,16 +459,16 @@ void Reconstructor::insertP(const Image& src,
 
         for (int i = 0; i < _nPxl; i++)
         {
-            vec2 newCor((RFLOAT)(_iCol[i] * _pf), (RFLOAT)(_iRow[i] * _pf));
-            vec2 oldCor = rot * newCor;
+            dvec2 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf));
+            dvec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F2D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1), 
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
                        _pf * _a, 
                        _kernelFT);
 #endif
@@ -478,8 +478,8 @@ void Reconstructor::insertP(const Image& src,
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1));
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1));
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -488,8 +488,8 @@ void Reconstructor::insertP(const Image& src,
             _T2D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1), 
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
                        _pf * _a,
                        _kernelFT);
 #endif
@@ -498,8 +498,8 @@ void Reconstructor::insertP(const Image& src,
             _T2D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1));
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1));
 #endif
 
 #endif
@@ -508,7 +508,7 @@ void Reconstructor::insertP(const Image& src,
 
 void Reconstructor::insertP(const Image& src,
                             const Image& ctf,
-                            const mat33& rot,
+                            const dmat33& rot,
                             const RFLOAT w,
                             const vec* sig)
 {
@@ -524,17 +524,17 @@ void Reconstructor::insertP(const Image& src,
 
         for (int i = 0; i < _nPxl; i++)
         {
-            vec3 newCor((RFLOAT)(_iCol[i] * _pf), (RFLOAT)(_iRow[i] * _pf), 0);
-            vec3 oldCor = rot * newCor;
+            dvec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
+            dvec3 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
             _F3D.addFT(src.iGetFT(_iPxl[i])
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1), 
-                       oldCor(2), 
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
+                       (RFLOAT)oldCor(2), 
                        _pf * _a, 
                        _kernelFT);
 #endif
@@ -544,9 +544,9 @@ void Reconstructor::insertP(const Image& src,
                      * REAL(ctf.iGetFT(_iPxl[i]))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1), 
-                       oldCor(2));
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
+                       (RFLOAT)oldCor(2));
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -555,9 +555,9 @@ void Reconstructor::insertP(const Image& src,
             _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1), 
-                       oldCor(2),
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
+                       (RFLOAT)oldCor(2),
                        _pf * _a,
                        _kernelFT);
 #endif
@@ -566,9 +566,9 @@ void Reconstructor::insertP(const Image& src,
             _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                      * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                      * w,
-                       oldCor(0), 
-                       oldCor(1), 
-                       oldCor(2));
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
+                       (RFLOAT)oldCor(2));
 #endif
 
 #endif

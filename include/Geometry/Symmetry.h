@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -17,6 +15,7 @@
 
 #include <iostream>
 
+#include "huabin.h"
 #include "Macro.h"
 #include "Typedef.h"
 #include "Logging.h"
@@ -43,27 +42,27 @@
  */
 #define ASY_3(PG, phi, theta) \
     ({ \
-         RFLOAT _phi = (phi), _theta = (theta); \
-         vec3 norm; \
+         double _phi = (phi), _theta = (theta); \
+         dvec3 norm; \
          direction(norm, _phi, _theta); \
-         ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
-          (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
-          (norm.dot(vec3(pg_##PG##_a3)) >= 0)); \
+         ((norm.dot(dvec3(pg_##PG##_a1)) >= 0) && \
+          (norm.dot(dvec3(pg_##PG##_a2)) >= 0) && \
+          (norm.dot(dvec3(pg_##PG##_a3)) >= 0)); \
      })
 
 #define ASY_4(PG, phi, theta) \
     ({ \
-         RFLOAT _phi = (phi), _theta = (theta); \
-         vec3 norm; \
+         double _phi = (phi), _theta = (theta); \
+         dvec3 norm; \
          direction(norm, _phi, _theta); \
-         ((norm.dot(vec3(pg_##PG##_a1)) >= 0) && \
-          (norm.dot(vec3(pg_##PG##_a2)) >= 0) && \
-          (norm.dot(vec3(pg_##PG##_a3)) >= 0) && \
-          (norm.dot(vec3(pg_##PG##_a4)) >= 0)); \
+         ((norm.dot(dvec3(pg_##PG##_a1)) >= 0) && \
+          (norm.dot(dvec3(pg_##PG##_a2)) >= 0) && \
+          (norm.dot(dvec3(pg_##PG##_a3)) >= 0) && \
+          (norm.dot(dvec3(pg_##PG##_a4)) >= 0)); \
      })
 
-inline bool SAME_MATRIX(const mat33& A,
-                        const mat33& B)
+inline bool SAME_MATRIX(const dmat33& A,
+                        const dmat33& B)
 {
     for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
@@ -73,18 +72,11 @@ inline bool SAME_MATRIX(const mat33& A,
     return true;
 };
 
-static const vec4 ANCHOR_POINT_2(1, 0, 0, 0);
+static const dvec4 ANCHOR_POINT_2(1, 0, 0, 0);
 
-/***
-static const vec4 ANCHOR_POINT_2(-0.320523,
-                                 0.239029,
-                                 0.0310742,
-                                 -0.916059);
-***/
+static const dvec4 ANCHOR_POINT_0(0, 0, 0, 1);
 
-static const vec4 ANCHOR_POINT_0(0, 0, 0, 1);
-
-static const vec4 ANCHOR_POINT_1(0,
+static const dvec4 ANCHOR_POINT_1(0,
                                  0.395009,
                                  0.893974,
                                  0.211607);
@@ -111,14 +103,14 @@ class Symmetry
         /**
          * a vector of left transformation matrices
          */
-        vector<mat33> _L;
+        vector<dmat33> _L;
 
         /**
          * a vector of right transformation matices
          */
-        vector<mat33> _R;
+        vector<dmat33> _R;
 
-        vector<vec4> _quat;
+        vector<dvec4> _quat;
 
     public:
 
@@ -185,11 +177,11 @@ class Symmetry
          * @param R the right transformation matrix
          * @param i the rank of symmetry element
          */
-        void get(mat33& L,
-                 mat33& R,
+        void get(dmat33& L,
+                 dmat33& R,
                  const int i) const;
 
-        vec4 quat(const int i) const;
+        dvec4 quat(const int i) const;
 
         /**
          * This function calculates how many symmetry elements there are in this
@@ -222,10 +214,10 @@ class Symmetry
          * @param L the left matrix
          * @param R the right matrix
          */
-        void append(const mat33& L,
-                    const mat33& R);
+        void append(const dmat33& L,
+                    const dmat33& R);
 
-        void append(const vec4& quat);
+        void append(const dvec4& quat);
 
         /**
          * This function sets the i-th left matrix and right matrix.
@@ -233,11 +225,11 @@ class Symmetry
          * @param L the left matrix
          * @param R the right matrix
          */
-        void set(const mat33& L,
-                 const mat33& R,
+        void set(const dmat33& L,
+                 const dmat33& R,
                  const int i);
 
-        void set(const vec4& quat,
+        void set(const dvec4& quat,
                  const int i);
 
         /**
@@ -254,8 +246,8 @@ class Symmetry
          * @param L the left matrix
          * @param R the right matrix
          */
-        bool novo(const mat33& L,
-                  const mat33& R) const;
+        bool novo(const dmat33& L,
+                  const dmat33& R) const;
 
         /**
          * This function completes the transformation matrices of the certain
@@ -273,11 +265,11 @@ void display(const Symmetry& sym);
 
 bool asymmetry(const Symmetry& sym);
 
-void symmetryCounterpart(vec4& quat,
+void symmetryCounterpart(dvec4& quat,
                          const Symmetry& sym);
 
-void symmetryRotation(vector<mat33>& sr,
-                      const mat33 rot,
+void symmetryRotation(vector<dmat33>& sr,
+                      const dmat33 rot,
                       const Symmetry* sym = NULL);
 
 #endif // SYMMETRY_H

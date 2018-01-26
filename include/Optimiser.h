@@ -64,6 +64,8 @@
 
 #define CLASS_BALANCE_FACTOR 0.05
 
+#define MIN_N_IMAGES_PER_CLASS 30
+
 struct OptimiserPara
 {
 
@@ -286,60 +288,91 @@ struct OptimiserPara
      */
     RFLOAT ignoreRes;
 
+#define KEY_SCL_COR_RES "Correct Intensity Scale Using Signal Under (Angstrom)"
+
     /**
      * the resolution boundary for performing intensity scale correction
      */
     RFLOAT sclCorRes;
+
+#define KEY_THRES_CUTOFF_FSC "FSC Threshold for Cutoff Frequency"
 
     /**
      * the FSC threshold for determining cutoff frequency
      */
     RFLOAT thresCutoffFSC;
 
+#define KEY_THRES_REPORT_FSC "FSC Threshold for Reporting Resolution"
+
     /**
      * the FSC threshold for reporting resolution
      */
     RFLOAT thresReportFSC;
 
+#define KEY_THRES_SCL_COR_FSC "FSC Threshold for Scale Correction"
+
     RFLOAT thresSclCorFSC;
+
+#define KEY_GROUP_SIG "Grouping when Calculating Sigma"
 
     /**
      * grouping or not when calculating sigma
      */
     bool groupSig;
 
+#define KEY_GROUP_SCL "Grouping when Correcting Intensity Scale"
+
     /**
      * grouping or not when calculating intensity scale
      */
     bool groupScl;
+
+#define KEY_ZERO_MASK "Mask Images with Zero Noise"
 
     /**
      * mask the 2D images with zero background or gaussian noise
      */
     bool zeroMask;
 
+#define KEY_CTF_REFINE_S "CTF Refine Standard Deviation"
+
+    RFLOAT ctfRefineS;
+
+#define KEY_TRANS_SEARCH_FACTOR "Translation Search Factor"
 
     RFLOAT transSearchFactor;
 
+#define KEY_PERTURB_FACTOR_L "Perturbation Factor (Large)"
+
     RFLOAT perturbFactorL;
+
+#define KEY_PERTURB_FACTOR_S_GLOBAL "Perturbation Factor (Small, Global)"
 
     RFLOAT perturbFactorSGlobal;
 
+#define KEY_PERTURB_FACTOR_S_LOCAL "Perturbation Factor (Small, Local)"
+
     RFLOAT perturbFactorSLocal;
+
+#define KEY_PERTURB_FACTOR_S_CTF "Perturbation Factor (Small, CTF)"
 
     RFLOAT perturbFactorSCTF;
 
-    RFLOAT ctfRefineS;
+#define KEY_SKIP_E "Skip Expectation"
 
     /**
      * whether skip expectation or not
      */
     bool skipE;
 
+#define KEY_SKIP_M "Skip Maximization"
+
     /**
      * whether skip maximization or not
      */
     bool skipM;
+
+#define KEY_SKIP_R "Skip Reconstruction"
 
     /**
      * whether skip reconstruction or not
@@ -470,7 +503,7 @@ class Optimiser : public Parallel
          * an original image will become the corresponding image by this
          * translation
          */
-        vector<vec2> _offset;
+        vector<dvec2> _offset;
 #endif
 
         /**

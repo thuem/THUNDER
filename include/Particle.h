@@ -81,7 +81,7 @@ class Particle
          * the standard deviation of translation, assuming the translation
          * follows a 2D Gaussian distribution
          */
-        RFLOAT _transS;
+        double _transS;
 
         /**
          * the re-center threshold of translation
@@ -89,52 +89,52 @@ class Particle
          * the confidence area of 99%, this translation will be re-centre to the
          * original point.
          */
-        RFLOAT _transQ;
+        double _transQ;
 
         /**
-         * a vector storing the class of each particle
+         * a dvector storing the class of each particle
          */
         uvec _c;
 
         /**
          * MODE_2D: a table storing the rotation information as the first and
-         * second elements stand for a unit vector in circle and the other two
+         * second elements stand for a unit dvector in circle and the other two
          * elements are zero
          *
          * MODE_3D: a table storing the rotation information with each row
          * storing a quaternion
          */
-        mat4 _r;
+        dmat4 _r;
 
         /**
          * a table storing the translation information with each row storing a
-         * 2-vector with x and y respectively
+         * 2-dvector with x and y respectively
          */
-        mat2 _t;
+        dmat2 _t;
 
         /**
-         * a vector storing the defocus factor of each particle
+         * a dvector storing the defocus factor of each particle
          */
-        vec _d;
+        dvec _d;
 
         /**
-         * a vector storing the weight of each particle
+         * a dvector storing the weight of each particle
          */
-        vec _wC;
+        dvec _wC;
 
-        vec _wR;
+        dvec _wR;
 
-        vec _wT;
+        dvec _wT;
 
-        vec _wD;
+        dvec _wD;
 
-        vec _uC;
+        dvec _uC;
 
-        vec _uR;
+        dvec _uR;
 
-        vec _uT;
+        dvec _uT;
 
-        vec _uD;
+        dvec _uD;
         
         /**
          * a pointer points to a Symmetry object which indicating the symmetry
@@ -148,31 +148,31 @@ class Particle
         /**
          * concnetration paramter of von Mises distribution of rotation (kappa)
          */
-        RFLOAT _k1;
+        double _k1;
 
-        RFLOAT _k2;
+        double _k2;
 
-        RFLOAT _k3;
+        double _k3;
 
         /**
          * sigma0 of 2D Gaussian distribution of translation
          */
-        RFLOAT _s0;
+        double _s0;
 
         /**
          * sigma1 of 2D Gaussian distribution of translation
          */
-        RFLOAT _s1;
+        double _s1;
 
         /**
          * rho of 2D Gaussian distribution of translation
          */
-        RFLOAT _rho;
+        double _rho;
 
         /**
          * sigma of 1D Gaussian distribution of defocus factor
          */
-        RFLOAT _s;
+        double _s;
 
         /**
          * the previous most likely class
@@ -190,35 +190,35 @@ class Particle
          *
          * MODE_3D: quaternion of the previous most likely rotation
          */
-        vec4 _topRPrev;
+        dvec4 _topRPrev;
 
         /**
          * MODE_2D: the first element stands for the most likely rotation
          *
          * MODE_3D: quaternion of the most likely rotation
          */
-        vec4 _topR;
+        dvec4 _topR;
 
         /**
          * the previous most likely translation
          */
-        vec2 _topTPrev;
+        dvec2 _topTPrev;
 
         /**
          * the most likely translation
          * it will be refreshed by resampling
          */
-        vec2 _topT;
+        dvec2 _topT;
 
         /**
          * the previous most likely defocus factor
          */
-        RFLOAT _topDPrev;
+        double _topDPrev;
 
         /**
          * the most likely defocus factor
          */
-        RFLOAT _topD;
+        double _topD;
 
         /**
          * default initialiser
@@ -235,8 +235,8 @@ class Particle
             _k2 = 1;
             _k3 = 1;
 
-            _s0 = TS_MAX_RFLOAT_VALUE;
-            _s1 = TS_MAX_RFLOAT_VALUE;
+            _s0 = DBL_MAX;
+            _s1 = DBL_MAX;
 
             _rho = 0;
 
@@ -245,11 +245,11 @@ class Particle
             _topCPrev = 0;
             _topC = 0;
 
-            _topRPrev = vec4(1, 0, 0, 0);
-            _topR = vec4(1, 0, 0, 0);
+            _topRPrev = dvec4(1, 0, 0, 0);
+            _topR = dvec4(1, 0, 0, 0);
 
-            _topTPrev = vec2(0, 0);
-            _topT = vec2(0, 0);
+            _topTPrev = dvec2(0, 0);
+            _topT = dvec2(0, 0);
 
             _topDPrev = 1;
             _topD = 1;
@@ -276,8 +276,8 @@ class Particle
                  const int nR,
                  const int nT,
                  const int nD,
-                 const RFLOAT transS,
-                 const RFLOAT transQ = 0.01,
+                 const double transS,
+                 const double transQ = 0.01,
                  const Symmetry* sym = NULL);
 
         /**
@@ -293,8 +293,8 @@ class Particle
          * @param sym    symmetry of resampling space
          */
         void init(const int mode,
-                  const RFLOAT transS,
-                  const RFLOAT transQ = 0.01,
+                  const double transS,
+                  const double transQ = 0.01,
                   const Symmetry* sym = NULL);
 
         /**
@@ -310,8 +310,8 @@ class Particle
                   const int nR,
                   const int nT,
                   const int nD,
-                  const RFLOAT transS,
-                  const RFLOAT transQ = 0.01,
+                  const double transS,
+                  const double transQ = 0.01,
                   const Symmetry* sym = NULL);
 
         /**
@@ -356,7 +356,7 @@ class Particle
          * @param sD the standard deviation of defocus factor
          */
         void initD(const int nD,
-                   const RFLOAT sD = 0.05);
+                   const double sD = 0.05);
 
         int mode() const;
 
@@ -394,7 +394,7 @@ class Particle
          * This function returns the standard deviation of translation, assuming
          * the translation follows a 2D Gaussian distribution.
          */
-        RFLOAT transS() const;
+        double transS() const;
 
         /**
          * This function sets the standard deviation of translation, assuming
@@ -402,19 +402,19 @@ class Particle
          *
          * @param transS the standard deviation of translation
          */
-        void setTransS(const RFLOAT transS);
+        void setTransS(const double transS);
 
         /**
          * This function returns the re-center threshold of translation.
          */
-        RFLOAT transQ() const;
+        double transQ() const;
 
         /**
          * This function sets the re-center theshold of translation.
          *
          * @param the re-center threshold of translation
          */
-        void setTransQ(const RFLOAT transQ);
+        void setTransQ(const double transQ);
 
         uvec c() const;
 
@@ -424,7 +424,7 @@ class Particle
          * This function returns the table storing the rotation information
          * with each row storing a quaternion.
          */
-        mat4 r() const;
+        dmat4 r() const;
 
         /**
          * This function sets the table storing the rotation information with
@@ -433,66 +433,66 @@ class Particle
          * @param r the table storing the rotation information with each row
          * storing a quaternion
          */
-        void setR(const mat4& r);
+        void setR(const dmat4& r);
 
         /**
          * This function returns the table storing the translation information
-         * with each row storing a 2-vector with x and y respectively.
+         * with each row storing a 2-dvector with x and y respectively.
          */
-        mat2 t() const;
+        dmat2 t() const;
 
         /**
          * This function sets the table storing the translation information
-         * with each row storing a 2-vector with x and y respectively.
+         * with each row storing a 2-dvector with x and y respectively.
          *
          * @param t the table storing the translation information with each row
-         * storing a 2-vector with x and y respectively
+         * storing a 2-dvector with x and y respectively
          */
-        void setT(const mat2& t);
+        void setT(const dmat2& t);
 
-        vec d() const;
+        dvec d() const;
 
-        void setD(const vec& d);
+        void setD(const dvec& d);
 
-        vec wC() const;
+        dvec wC() const;
 
-        void setWC(const vec& wC);
+        void setWC(const dvec& wC);
 
         /**
-         * This function returns the vector storing the weight of each particle.
+         * This function returns the dvector storing the weight of each particle.
          */
-        vec wR() const;
+        dvec wR() const;
 
         /**
-         * This function sets the vector storing the weight of each particle.
+         * This function sets the dvector storing the weight of each particle.
          *
-         * @param w the vector storing the weight of each particle
+         * @param w the dvector storing the weight of each particle
          */
-        void setWR(const vec& wR);
+        void setWR(const dvec& wR);
 
-        vec wT() const;
+        dvec wT() const;
 
-        void setWT(const vec& wT);
+        void setWT(const dvec& wT);
 
-        vec wD() const;
+        dvec wD() const;
 
-        void setWD(const vec& wD);
+        void setWD(const dvec& wD);
 
-        vec uC() const;
+        dvec uC() const;
 
-        void setUC(const vec& uC);
+        void setUC(const dvec& uC);
 
-        vec uR() const;
+        dvec uR() const;
 
-        void setUR(const vec& uR);
+        void setUR(const dvec& uR);
 
-        vec uT() const;
+        dvec uT() const;
 
-        void setUT(const vec& uT);
+        void setUT(const dvec& uT);
 
-        vec uD() const;
+        dvec uD() const;
 
-        void setUD(const vec& uD);
+        void setUD(const dvec& uD);
 
         /**
          * This function returns the symmetry.
@@ -509,7 +509,7 @@ class Particle
         /**
          * This function generates the particles by loading the class,
          * quaternion of translation, standard devaation of rotation,
-         * translation vector, standard deviation of translation X,
+         * translation dvector, standard deviation of translation X,
          * standard deviation of translation Y, defocus factor and
          * standard deviation of defocus factor.
          *
@@ -518,7 +518,7 @@ class Particle
          * @param cls   the class
          * @param quat  the quaternion of rotation
          * @param stdR  the standard deviation of rotation
-         * @param tran  the translation vector
+         * @param tran  the translation dvector
          * @param stdTX the standard deviation of translation X
          * @param stdTY the standard deviation of translation Y
          * @param d     the defocus factor
@@ -527,15 +527,15 @@ class Particle
         void load(const int nR,
                   const int nT,
                   const int nD,
-                  const vec4& q,
-                  const RFLOAT k1,
-                  const RFLOAT k2,
-                  const RFLOAT k3,
-                  const vec2& t,
-                  const RFLOAT s0,
-                  const RFLOAT s1,
-                  const RFLOAT d,
-                  const RFLOAT s);
+                  const dvec4& q,
+                  const double k1,
+                  const double k2,
+                  const double k3,
+                  const dvec2& t,
+                  const double s0,
+                  const double s1,
+                  const double d,
+                  const double s);
 
         /**
          * This function returns the concentration parameters, including
@@ -547,12 +547,12 @@ class Particle
          * @param s1  sigma1 of 2D Gaussian distribution of the translation
          * @param rho rho of 2D Gaussian distribution of the translation
          */
-        void vari(RFLOAT& k1,
-                  RFLOAT& k2,
-                  RFLOAT& k3,
-                  RFLOAT& s0,
-                  RFLOAT& s1,
-                  RFLOAT& s) const;
+        void vari(double& k1,
+                  double& k2,
+                  double& k3,
+                  double& s0,
+                  double& s1,
+                  double& s) const;
 
         /**
          * This function returns the concentration parameters, including
@@ -562,19 +562,19 @@ class Particle
          * @param s0    sigma0 of 2D Gaussian distribution of the translation
          * @param s1    sigma1 of 2D Gaussian distribution of the translation
          */
-        void vari(RFLOAT& rVari,
-                  RFLOAT& s0,
-                  RFLOAT& s1,
-                  RFLOAT& s) const;
+        void vari(double& rVari,
+                  double& s0,
+                  double& s1,
+                  double& s) const;
 
-        RFLOAT compress() const;
+        double compress() const;
 
-        RFLOAT wC(const int i) const;
+        double wC(const int i) const;
 
-        void setWC(const RFLOAT wC,
+        void setWC(const double wC,
                    const int i);
 
-        void mulWC(const RFLOAT wC,
+        void mulWC(const double wC,
                    const int i);
 
         /**
@@ -583,7 +583,7 @@ class Particle
          *
          * @param i the index of particle
          */
-        RFLOAT wR(const int i) const;
+        double wR(const int i) const;
 
         /**
          * This function sets the weight of the i-th particle in this particle
@@ -592,7 +592,7 @@ class Particle
          * @param w the weight of particle
          * @param i the index of particle
          */
-        void setWR(const RFLOAT wR,
+        void setWR(const double wR,
                    const int i);
 
         /**
@@ -602,38 +602,38 @@ class Particle
          * @param w the factor
          * @param i the index of particle
          */
-        void mulWR(const RFLOAT wR,
+        void mulWR(const double wR,
                    const int i);
 
-        RFLOAT wT(const int i) const;
+        double wT(const int i) const;
 
-        void setWT(const RFLOAT wT,
+        void setWT(const double wT,
                    const int i);
 
-        void mulWT(const RFLOAT wT,
+        void mulWT(const double wT,
                    const int i);
 
-        RFLOAT wD(const int i) const;
+        double wD(const int i) const;
 
-        void setWD(const RFLOAT wD,
+        void setWD(const double wD,
                    const int i);
 
-        void mulWD(const RFLOAT wD,
+        void mulWD(const double wD,
                    const int i);
 
-        void setUC(const RFLOAT uC,
+        void setUC(const double uC,
                    const int i);
 
-        void setUR(const RFLOAT uR,
+        void setUR(const double uR,
                    const int i);
 
-        void setUT(const RFLOAT uT,
+        void setUT(const double uT,
                    const int i);
 
-        void setUD(const RFLOAT uD,
+        void setUD(const double uD,
                    const int i);
         /**
-         * This function normalizes the vector of the weights.
+         * This function normalizes the dvector of the weights.
          */
         void normW();
 
@@ -672,7 +672,7 @@ class Particle
          * @param dst the 2D rotation matrix
          * @param i   the index of particle
          */
-        void rot(mat22& dst,
+        void rot(dmat22& dst,
                  const int i) const;
 
         /**
@@ -681,25 +681,25 @@ class Particle
          * @param dst the 3D rotation matrix
          * @param i   the index of particle
          */
-        void rot(mat33& dst,
+        void rot(dmat33& dst,
                  const int i) const;
 
         /**
-         * This function returns the translation vector of the i-th particle.
+         * This function returns the translation dvector of the i-th particle.
          *
-         * @param dst the translation vector
+         * @param dst the translation dvector
          * @param i   the index of particle
          */
-        void t(vec2& dst,
+        void t(dvec2& dst,
                const int i) const;
 
         /**
-         * This function sets the translation vector of the i-th particle.
+         * This function sets the translation dvector of the i-th particle.
          *
-         * @param src the translation vector
+         * @param src the translation dvector
          * @param i   the index of particle
          */
-        void setT(const vec2& src,
+        void setT(const dvec2& src,
                   const int i);
 
         /**
@@ -708,7 +708,7 @@ class Particle
          * @param dst the quaternion
          * @param i   the index of particle
          */
-        void quaternion(vec4& dst,
+        void quaternion(dvec4& dst,
                         const int i) const;
 
         /**
@@ -717,44 +717,44 @@ class Particle
          * @param src the quaternion
          * @param i the index of particle
          */
-        void setQuaternion(const vec4& src,
+        void setQuaternion(const dvec4& src,
                            const int i);
 
-        void d(RFLOAT& d,
+        void d(double& d,
                const int i) const;
 
-        void setD(const RFLOAT d,
+        void setD(const double d,
                   const int i);
 
         /***
-        RFLOAT k0() const;
+        double k0() const;
 
-        void setK0(const RFLOAT k0);
+        void setK0(const double k0);
         ***/
 
-        RFLOAT k1() const;
+        double k1() const;
 
-        void setK1(const RFLOAT k1);
+        void setK1(const double k1);
 
-        RFLOAT k2() const;
+        double k2() const;
 
-        void setK2(const RFLOAT k2);
+        void setK2(const double k2);
 
-        RFLOAT k3() const;
+        double k3() const;
 
-        void setK3(const RFLOAT k3);
+        void setK3(const double k3);
 
-        RFLOAT s0() const;
+        double s0() const;
 
-        void setS0(const RFLOAT s0);
+        void setS0(const double s0);
 
-        RFLOAT s1() const;
+        double s1() const;
 
-        void setS1(const RFLOAT s1);
+        void setS1(const double s1);
 
-        RFLOAT s() const;
+        double s() const;
 
-        void setS(const RFLOAT s);
+        void setS(const double s);
 
         //void calClassDistr();
 
@@ -764,7 +764,7 @@ class Particle
          */
         void calVari(const ParticleType pt);
 
-        void perturb(const RFLOAT pf,
+        void perturb(const double pf,
                      const ParticleType pt);
 
         /**
@@ -776,9 +776,9 @@ class Particle
          *           of the sampling points
          */
         /***
-        void perturb(const RFLOAT pfR,
-                     const RFLOAT pfT,
-                     const RFLOAT pfD);
+        void perturb(const double pfR,
+                     const double pfT,
+                     const double pfD);
         ***/
 
         void resample(const int n,
@@ -800,7 +800,7 @@ class Particle
          *              particles
          */
         /***
-        void resample(const RFLOAT alpha = 0);
+        void resample(const double alpha = 0);
         ***/
 
         /**
@@ -815,7 +815,7 @@ class Particle
          */
         /***
         void resample(const int n,
-                      const RFLOAT alpha = 0);
+                      const double alpha = 0);
         ***/
 
         /**
@@ -823,11 +823,11 @@ class Particle
          * indicates the degengency of it.
          */
         /***
-        RFLOAT neff() const;
+        double neff() const;
 
-        void segment(const RFLOAT thres);
+        void segment(const double thres);
 
-        void flatten(const RFLOAT thres);
+        void flatten(const double thres);
 
         void sort();
         ***/
@@ -863,21 +863,21 @@ class Particle
          * rotations between two iterations. This function also resets the most likely
          * rotatation.
          */
-        RFLOAT diffTopR();
+        double diffTopR();
 
         /**
          * This function returns the difference between the most likely
          * translations between two iterations. This function also resets the
          * most likely translation.
          */
-        RFLOAT diffTopT();
+        double diffTopT();
 
         /**
          * This function returns the difference between the most likely
          * defocus factor between two iterations. This function also resets the
          * most likely defocus factor.
          */
-        RFLOAT diffTopD();
+        double diffTopD();
 
         /**
          * This function gives the most likely class.
@@ -891,35 +891,35 @@ class Particle
          *
          * @param quat the most likely quaternion of rotation
          */
-        void rank1st(vec4& quat) const;
+        void rank1st(dvec4& quat) const;
 
         /**
          * This function gives the most likely rotation matrix in 2D.
          *
          * @param rot the most likely rotation matrix in 2D
          */
-        void rank1st(mat22& rot) const;
+        void rank1st(dmat22& rot) const;
 
         /**
          * This function gives the most likely rotation matrix in 3D.
          *
          * @param rot the most likely rotation matrix in 3D
          */
-        void rank1st(mat33& rot) const;
+        void rank1st(dmat33& rot) const;
 
         /**
          * This function gives the most likely translation vector.
          *
          * @param tran the most likely translation vector
          */
-        void rank1st(vec2& tran) const;
+        void rank1st(dvec2& tran) const;
 
         /**
          * This function gives the most likely defocus factor.
          *
          * @param d the most likely defocus factor
          */
-        void rank1st(RFLOAT& d) const;
+        void rank1st(double& d) const;
 
         /**
          * This function reports the most likely class, quaternion of rotation,
@@ -931,9 +931,9 @@ class Particle
          * @param d    the most likely defocus factor
          */
         void rank1st(size_t& cls,
-                     vec4& quat,
-                     vec2& tran,
-                     RFLOAT& d) const;
+                     dvec4& quat,
+                     dvec2& tran,
+                     double& d) const;
 
         /**
          * This function reports the most likely class, rotation matrix in 2D,
@@ -945,9 +945,9 @@ class Particle
          * @param d    the most likely defocus factor
          */
         void rank1st(size_t& cls,
-                     mat22& rot,
-                     vec2& tran,
-                     RFLOAT& d) const;
+                     dmat22& rot,
+                     dvec2& tran,
+                     double& d) const;
         /**
          * This function reports the most likely class, rotation matrix in 3D,
          * translation vector and defocus factor.
@@ -958,9 +958,9 @@ class Particle
          * @param d    the most likely defocus factor
          */
         void rank1st(size_t& cls,
-                     mat33& rot,
-                     vec2& tran,
-                     RFLOAT& d) const;
+                     dmat33& rot,
+                     dvec2& tran,
+                     double& d) const;
 
         /**
          * This function gives the class of a random particle.
@@ -974,35 +974,35 @@ class Particle
          *
          * @param quat the quaternion of rotation of a random particle
          */
-        void rand(vec4& quat) const;
+        void rand(dvec4& quat) const;
 
         /**
          * This function gives the rotation matrix in 2D of a random particle.
          *
          * @param rot the rotation matrix in 2D of a random particle
          */
-        void rand(mat22& rot) const;
+        void rand(dmat22& rot) const;
 
         /**
          * This function gives the rotation matrix in 3D of a random particle.
          *
          * @param rot the rotation martrix in 3D of a random particle
          */
-        void rand(mat33& rot) const;
+        void rand(dmat33& rot) const;
 
         /**
          * This function gives the translation vector of a random particle.
          *
          * @param tran the translation vector of a random particle
          */
-        void rand(vec2& tran) const;
+        void rand(dvec2& tran) const;
 
         /**
          * This function gives the defocus factor of a random particle.
          *
          * @param d the defocus factor
          */
-        void rand(RFLOAT& d) const;
+        void rand(double& d) const;
 
         /**
          * This function gives the class, quaternion of rotation, translation
@@ -1014,13 +1014,13 @@ class Particle
          * @param d    the defocus factor of a random particle
          */
         void rand(size_t& cls,
-                  vec4& quat,
-                  vec2& tran,
-                  RFLOAT& d) const;
+                  dvec4& quat,
+                  dvec2& tran,
+                  double& d) const;
 
         /**
          * This function gives the class, rotation matrix in 2D, translation
-         * vector and defocus factor of a random particle.
+         * dvector and defocus factor of a random particle.
          *
          * @param cls  the class of a random particle of a random particle
          * @param rot  the rotation matrix in 2D of a random particle
@@ -1028,9 +1028,9 @@ class Particle
          * @param d    the defocus factor of a random particle
          */
         void rand(size_t& cls,
-                  mat22& rot,
-                  vec2& tran,
-                  RFLOAT& d) const;
+                  dmat22& rot,
+                  dvec2& tran,
+                  double& d) const;
 
         /**
          * This function gives the class, rotation matrix in 3D, translation
@@ -1042,9 +1042,9 @@ class Particle
          * @param d    the defocus factor of a random particle
          */
         void rand(size_t& cls,
-                  mat33& rot,
-                  vec2& tran,
-                  RFLOAT& d) const;
+                  dmat33& rot,
+                  dvec2& tran,
+                  double& d) const;
 
         void shuffle(const ParticleType pt);
 

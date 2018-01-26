@@ -169,7 +169,7 @@ class Projector
         void setProjectee(Volume src);
 
         void project(Image& dst,
-                     const mat22& mat) const;
+                     const dmat22& mat) const;
 
         /**
          * This function projects given the rotation matrix.
@@ -178,10 +178,10 @@ class Projector
          * @param mat the rotation matrix
          */
         void project(Image& dst,
-                     const mat33& mat) const;
+                     const dmat33& mat) const;
 
         void project(Image& dst,
-                     const mat22& mat,
+                     const dmat22& mat,
                      const int* iCol,
                      const int* iRow,
                      const int* iPxl,
@@ -199,26 +199,26 @@ class Projector
          * @param nPxl the number of pixels
          */
         void project(Image& dst,
-                     const mat33& mat,
+                     const dmat33& mat,
                      const int* iCol,
                      const int* iRow,
                      const int* iPxl,
                      const int nPxl) const;
 
         void project(Complex* dst,
-                     const mat22& mat,
+                     const dmat22& mat,
                      const int* iCol,
                      const int* iRow,
                      const int nPxl) const;
 
         void project(Complex* dst,
-                     const mat33& mat,
+                     const dmat33& mat,
                      const int* iCol,
                      const int* iRow,
                      const int nPxl) const;
 
         void projectMT(Image& dst,
-                       const mat22& mat) const;
+                       const dmat22& mat) const;
 
         /**
          * This function projects given the rotation matrix using multiple
@@ -228,10 +228,10 @@ class Projector
          * @param mat the rotation matrix
          */
         void projectMT(Image& dst,
-                       const mat33& mat) const;
+                       const dmat33& mat) const;
 
         void projectMT(Image& dst,
-                       const mat22& mat,
+                       const dmat22& mat,
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
@@ -249,27 +249,27 @@ class Projector
          * @param nPxl the number of pixels
          */
         void projectMT(Image& dst,
-                       const mat33& mat,
+                       const dmat33& mat,
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
                        const int nPxl) const;
 
         void projectMT(Complex* dst,
-                       const mat22& mat,
+                       const dmat22& mat,
                        const int* iCol,
                        const int* iRow,
                        const int nPxl) const;
 
         void projectMT(Complex* dst,
-                       const mat33& mat,
+                       const dmat33& mat,
                        const int* iCol,
                        const int* iRow,
                        const int nPxl) const;
 
         void project(Image& dst,
-                     const mat22& rot,
-                     const vec2& t) const;
+                     const dmat22& rot,
+                     const dvec2& t) const;
         /**
          * This function projects given a rotation matrix and a translation
          * vector.
@@ -279,28 +279,28 @@ class Projector
          * @param t   the translation vector
          */
         void project(Image& dst,
-                     const mat33& rot,
-                     const vec2& t) const;
+                     const dmat33& rot,
+                     const dvec2& t) const;
 
         void project(Image& dst,
-                     const mat22& rot,
-                     const vec2& t,
+                     const dmat22& rot,
+                     const dvec2& t,
                      const int* iCol,
                      const int* iRow,
                      const int* iPxl,
                      const int nPxl) const;
 
         void project(Image& dst,
-                     const mat33& rot,
-                     const vec2& t,
+                     const dmat33& rot,
+                     const dvec2& t,
                      const int* iCol,
                      const int* iRow,
                      const int* iPxl,
                      const int nPxl) const;
 
         void project(Complex* dst,
-                     const mat22& rot,
-                     const vec2& t,
+                     const dmat22& rot,
+                     const dvec2& t,
                      const int nCol,
                      const int nRow,
                      const int* iCol,
@@ -308,8 +308,8 @@ class Projector
                      const int nPxl) const;
 
         void project(Complex* dst,
-                     const mat33& rot,
-                     const vec2& t,
+                     const dmat33& rot,
+                     const dvec2& t,
                      const int nCol,
                      const int nRow,
                      const int* iCol,
@@ -317,8 +317,8 @@ class Projector
                      const int nPxl) const;
 
         void projectMT(Image& dst,
-                       const mat22& rot,
-                       const vec2& t) const;
+                       const dmat22& rot,
+                       const dvec2& t) const;
 
         /**
          * This function projects given a rotation matrix and a translation
@@ -329,28 +329,28 @@ class Projector
          * @param t   the translation vector
          */
         void projectMT(Image& dst,
-                       const mat33& rot,
-                       const vec2& t) const;
+                       const dmat33& rot,
+                       const dvec2& t) const;
 
         void projectMT(Image& dst,
-                       const mat22& rot,
-                       const vec2& t,
+                       const dmat22& rot,
+                       const dvec2& t,
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
                        const int nPxl) const;
 
         void projectMT(Image& dst,
-                       const mat33& rot,
-                       const vec2& t,
+                       const dmat33& rot,
+                       const dvec2& t,
                        const int* iCol,
                        const int* iRow,
                        const int* iPxl,
                        const int nPxl) const;
 
         void projectMT(Complex* dst,
-                       const mat22& rot,
-                       const vec2& t,
+                       const dmat22& rot,
+                       const dvec2& t,
                        const int nCol,
                        const int nRow,
                        const int* iCol,
@@ -358,8 +358,8 @@ class Projector
                        const int nPxl) const;
 
         void projectMT(Complex* dst,
-                       const mat33& rot,
-                       const vec2& t,
+                       const dmat33& rot,
+                       const dvec2& t,
                        const int nCol,
                        const int nRow,
                        const int* iCol,

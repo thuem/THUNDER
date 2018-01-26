@@ -221,7 +221,7 @@ class Database : public Parallel
 
         int cls(const int i) const;
 
-        vec4 quat(const int i) const;
+        dvec4 quat(const int i) const;
 
         RFLOAT k1(const int i) const;
 
@@ -229,7 +229,7 @@ class Database : public Parallel
 
         RFLOAT k3(const int i) const;
 
-        vec2 tran(const int i) const;
+        dvec2 tran(const int i) const;
 
         RFLOAT stdTX(const int i) const;
 

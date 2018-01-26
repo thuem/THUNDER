@@ -12,18 +12,18 @@
 
 #include "DirectionalStat.h"
 
-RFLOAT pdfACG(const vec4& x,
-              const mat44& sig)
+double pdfACG(const dvec4& x,
+              const dmat44& sig)
 {
     return pow(sig.determinant(), -0.5)
          * pow(x.transpose() * sig.inverse() * x, -2);
 }
 
-RFLOAT pdfACG(const vec4& x,
-              const RFLOAT k0,
-              const RFLOAT k1)
+double pdfACG(const dvec4& x,
+              const double k0,
+              const double k1)
 {
-    mat44 sig;
+    dmat44 sig;
     sig << k0, 0, 0, 0,
            0, k1, 0, 0,
            0, 0, k1, 0,
@@ -32,23 +32,23 @@ RFLOAT pdfACG(const vec4& x,
     return pdfACG(x, sig);
 }
 
-void sampleACG(mat4& dst,
-               const mat44& src,
+void sampleACG(dmat4& dst,
+               const dmat44& src,
                const int n)
 {
     // assuming src is a positive definite matrix
     // perform a L*LT decomposition
-    LLT<mat44> llt(src);
-    mat44 L = llt.matrixL();
+    LLT<dmat44> llt(src);
+    dmat44 L = llt.matrixL();
 
     gsl_rng* engine = get_random_engine();
 
     for (int i = 0; i < n; i++)
     {
         // sample from a standard Gaussian distribution
-        vec4 v;
+        dvec4 v;
         for (int j = 0; j < 4; j++)
-            v(j) = TSGSL_ran_gaussian(engine, 1);
+            v(j) = gsl_ran_gaussian(engine, 1);
 
         v = L * v;
         v /= v.norm();
@@ -57,12 +57,12 @@ void sampleACG(mat4& dst,
     }
 }
 
-void sampleACG(mat4& dst,
-               const RFLOAT k0,
-               const RFLOAT k1,
+void sampleACG(dmat4& dst,
+               const double k0,
+               const double k1,
                const int n)
 {
-    mat44 src;
+    dmat44 src;
     src << k0, 0, 0, 0,
            0, k1, 0, 0,
            0, 0, k1, 0,
@@ -71,13 +71,13 @@ void sampleACG(mat4& dst,
     sampleACG(dst, src, n);
 }
 
-void sampleACG(mat4& dst,
-               const RFLOAT k1,
-               const RFLOAT k2,
-               const RFLOAT k3,
+void sampleACG(dmat4& dst,
+               const double k1,
+               const double k2,
+               const double k3,
                const int n)
 {
-    mat44 src;
+    dmat44 src;
     src << 1, 0, 0, 0,
            0, k1, 0, 0,
            0, 0, k2, 0,
@@ -86,29 +86,29 @@ void sampleACG(mat4& dst,
     sampleACG(dst, src, n);
 }
 
-void inferACG(mat44& dst,
-              const mat4& src)
+void inferACG(dmat44& dst,
+              const dmat4& src)
 {
-    mat44 A;
-    mat44 B = mat44::Identity();
+    dmat44 A;
+    dmat44 B = dmat44::Identity();
 
     do
     {
         A = B;
 
-        B = mat44::Zero();
-        RFLOAT nf = 0;
+        B = dmat44::Zero();
+        double nf = 0;
 
         for (int i = 0; i < src.rows(); i++)
         {
             // get the tensor product of the i-th quaternion and itself
-            mat44 tensor;
+            dmat44 tensor;
             for (int j = 0; j < 4; j++)
                 for (int k = 0; k < 4; k++)
                     tensor(j, k) = src(i, j) * src(i, k);
 
             // get the factor
-            RFLOAT u = src.row(i) * A.inverse() * src.row(i).transpose();
+            double u = src.row(i) * A.inverse() * src.row(i).transpose();
 
             B += tensor / u;
 
@@ -131,7 +131,7 @@ void inferACG(mat44& dst,
 
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            if (TSGSL_isnan(dst(i, j)))
+            if (gsl_isnan(dst(i, j)))
             {
                 REPORT_ERROR("NAN DETECTED");
                 abort();
@@ -140,16 +140,16 @@ void inferACG(mat44& dst,
 #endif
 }
 
-void inferACG(RFLOAT& k0,
-              RFLOAT& k1,
-              const mat4& src)
+void inferACG(double& k0,
+              double& k1,
+              const dmat4& src)
 {
-    mat44 A;
+    dmat44 A;
     inferACG(A, src);
 
-    SelfAdjointEigenSolver<mat44> eigenSolver(A);
+    SelfAdjointEigenSolver<dmat44> eigenSolver(A);
 
-    //vec4 ev = eigenSolver.eigenvalues();
+    //dvec4 ev = eigenSolver.eigenvalues();
 
     //ev = ev.cwiseAbs();
     
@@ -157,12 +157,12 @@ void inferACG(RFLOAT& k0,
     k1 = eigenSolver.eigenvalues().minCoeff();
 }
 
-void inferACG(RFLOAT& k1,
-              RFLOAT& k2,
-              RFLOAT& k3,
-              const mat4& src)
+void inferACG(double& k1,
+              double& k2,
+              double& k3,
+              const dmat4& src)
 {
-    mat44 A;
+    dmat44 A;
     inferACG(A, src);
 
     k1 = A(1, 1) / A(0, 0);
@@ -170,12 +170,12 @@ void inferACG(RFLOAT& k1,
     k3 = A(3, 3) / A(0, 0);
 
     /***
-    SelfAdjointEigenSolver<mat44> eigenSolver(A);
+    SelfAdjointEigenSolver<dmat44> eigenSolver(A);
 
-    vec4 ev = eigenSolver.eigenvalues();
+    dvec4 ev = eigenSolver.eigenvalues();
 
     // sort eigenvalues in ascending sort
-    TSGSL_sort(ev.data(), 1, 4);
+    gsl_sort(ev.data(), 1, 4);
 
     k1 = ev(2) / ev(3);
     k2 = ev(1) / ev(3);
@@ -183,13 +183,13 @@ void inferACG(RFLOAT& k1,
     ***/
 }
 
-void inferACG(vec4& mean,
-              const mat4& src)
+void inferACG(dvec4& mean,
+              const dmat4& src)
 {
-    mat44 A;
+    dmat44 A;
     inferACG(A, src);
 
-    SelfAdjointEigenSolver<mat44> eigenSolver(A);
+    SelfAdjointEigenSolver<dmat44> eigenSolver(A);
 
     int i;
 
@@ -202,7 +202,7 @@ void inferACG(vec4& mean,
 #ifndef NAN_NO_CHECK
     
     for (int i = 0; i < 4; i++)
-        if (TSGSL_isnan(mean(i)))
+        if (gsl_isnan(mean(i)))
         {
             REPORT_ERROR("NAN DETECTED");
             abort();
@@ -211,58 +211,58 @@ void inferACG(vec4& mean,
 #endif
 }
 
-RFLOAT pdfVMS(const vec2& x,
+double pdfVMS(const vec2& x,
               const vec2& mu,
-              const RFLOAT k)
+              const double k)
 {
-    RFLOAT kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
+    double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
 
-    return exp(kappa * x.dot(mu)) / (2 * M_PI * TSGSL_sf_bessel_I0(kappa));
+    return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
 }
 
-void sampleVMS(mat2& dst,
+void sampleVMS(dmat2& dst,
                const vec2& mu,
-               const RFLOAT k,
-               const RFLOAT n)
+               const double k,
+               const double n)
 {
-    RFLOAT kappa = (1 - k) * (1 + 2 * k - TSGSL_pow_2(k)) / k / (2 - k);
+    double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
 
     gsl_rng* engine = get_random_engine();
 
     if (kappa < 1e-1)
     {
         for (int i = 0; i < n; i++)
-            TSGSL_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
+            gsl_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
     }
     else
     {
-        RFLOAT a = 1 + sqrt(1 + 4 * TSGSL_pow_2(kappa));
-        RFLOAT b = (a - sqrt(2 * a)) / (2 * kappa);
-        RFLOAT r = (1 + TSGSL_pow_2(b)) / (2 * b);
+        double a = 1 + sqrt(1 + 4 * gsl_pow_2(kappa));
+        double b = (a - sqrt(2 * a)) / (2 * kappa);
+        double r = (1 + gsl_pow_2(b)) / (2 * b);
 
         for (int i = 0; i < n; i++)
         {
-            RFLOAT f;
+            double f;
 
             while (true)
             {
-                RFLOAT z = cos(M_PI * TSGSL_rng_uniform(engine));
+                double z = cos(M_PI * gsl_rng_uniform(engine));
 
                 f = (1 + r * z) / (r + z);
 
-                RFLOAT c = kappa * (r - f);
+                double c = kappa * (r - f);
 
-                RFLOAT u2 = TSGSL_rng_uniform(engine);
+                double u2 = gsl_rng_uniform(engine);
 
                 if (c * (2 - c) > u2) break;
 
                 if (log(c / u2) + 1 - c >= 0) break;
             }
 
-            RFLOAT delta0 = sqrt((1 - f) * (f + 1)) * mu(1);
-            RFLOAT delta1 = sqrt((1 - f) * (f + 1)) * mu(0);
+            double delta0 = sqrt((1 - f) * (f + 1)) * mu(1);
+            double delta1 = sqrt((1 - f) * (f + 1)) * mu(0);
 
-            if (TSGSL_rng_uniform(engine) > 0.5)
+            if (gsl_rng_uniform(engine) > 0.5)
             {
                 dst(i, 0) = mu(0) * f + delta0;
                 dst(i, 1) = mu(1) * f - delta1;
@@ -276,14 +276,14 @@ void sampleVMS(mat2& dst,
     }
 }
 
-void sampleVMS(mat4& dst,
-               const vec4& mu,
-               const RFLOAT k,
-               const RFLOAT n)
+void sampleVMS(dmat4& dst,
+               const dvec4& mu,
+               const double k,
+               const double n)
 {
-    dst = mat4::Zero(dst.rows(), 4);
+    dst = dmat4::Zero(dst.rows(), 4);
 
-    mat2 dst2D = dst.leftCols<2>();
+    dmat2 dst2D = dst.leftCols<2>();
 
     sampleVMS(dst2D, vec2(mu(0), mu(1)), k, n);
 
@@ -291,8 +291,8 @@ void sampleVMS(mat4& dst,
 }
 
 void inferVMS(vec2& mu,
-              RFLOAT& k,
-              const mat2& src)
+              double& k,
+              const dmat2& src)
 {
     mu = vec2::Zero();
 
@@ -302,42 +302,42 @@ void inferVMS(vec2& mu,
         mu(1) += src(i, 1);
     }
 
-    RFLOAT R = mu.norm() / src.rows();
+    double R = mu.norm() / src.rows();
 
     mu /= mu.norm();
 
     /***
-    R = TSGSL_MIN_RFLOAT(R, 1 - 1e-3); // for the purpose of avoiding extreme value
+    R = gsl_MIN_double(R, 1 - 1e-3); // for the purpose of avoiding extreme value
 
-    kappa = R * (2 - TSGSL_pow_2(R)) / (1 - TSGSL_pow_2(R));
+    kappa = R * (2 - gsl_pow_2(R)) / (1 - gsl_pow_2(R));
     ***/
 
     k = 1 - R;
 }
 
-void inferVMS(RFLOAT& k,
-              const mat2& src)
+void inferVMS(double& k,
+              const dmat2& src)
 {
     vec2 mu;
 
     inferVMS(mu, k, src);
 }
 
-void inferVMS(vec4& mu,
-              RFLOAT& k,
-              const mat4& src)
+void inferVMS(dvec4& mu,
+              double& k,
+              const dmat4& src)
 {
     vec2 mu2D;
 
     inferVMS(mu2D, k, src.leftCols<2>());
 
-    mu = vec4(mu2D(0), mu2D(1), 0, 0);
+    mu = dvec4(mu2D(0), mu2D(1), 0, 0);
 }
 
-void inferVMS(RFLOAT& k,
-              const mat4& src)
+void inferVMS(double& k,
+              const dmat4& src)
 {
-    vec4 mu;
+    dvec4 mu;
 
     inferVMS(mu, k, src);
 }

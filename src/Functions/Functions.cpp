@@ -25,51 +25,42 @@ vec cumsum(const vec& v)
         sum(i) = s;
     }
 
-    // std::partial_sum(v.data(), v.data() + v.size(), sum.data());
-
     return sum;
 }
 
-/***
-struct IndexSortAscendComparator
+dvec cumsum(const dvec& v)
 {
-    const vec* pv;
-    bool operator()(unsigned int i, unsigned int j) const
+    dvec sum(v.size());
+
+    double s = 0;
+
+    for (size_t i = 0; i < (size_t)v.size(); i++)
     {
-        return (*pv)(i) < (*pv)(j);
+        s += v(i);
+
+        sum(i) = s;
     }
-};
-***/
+
+    return sum;
+}
 
 uvec index_sort_ascend(const vec& v)
 {
     uvec idx(v.size());
 
     TSGSL_sort_smallest_index(idx.data(), idx.size(), v.data(), 1, v.size());
-    /***
-    for (unsigned int i = 0; i < idx.size(); i++)
-        idx(i) = i;
-    ***/
-
-    /***
-    IndexSortAscendComparator cmp;
-    cmp.pv = &v;
-    sort(idx.data(), idx.data() + idx.size(), cmp);
-    ***/
 
     return idx;
 }
 
-/***
-struct IndexSortDescendComparator
+uvec index_sort_ascend(const dvec& v)
 {
-    const vec* pv;
-    bool operator()(unsigned int i, unsigned int j) const
-    {
-        return (*pv)(i) > (*pv)(j);
-    }
-};
-***/
+    uvec idx(v.size());
+
+    gsl_sort_smallest_index(idx.data(), idx.size(), v.data(), 1, v.size());
+
+    return idx;
+}
 
 uvec index_sort_descend(const vec& v)
 {
@@ -77,14 +68,14 @@ uvec index_sort_descend(const vec& v)
 
     TSGSL_sort_largest_index(idx.data(), idx.size(), v.data(), 1, v.size());
 
-    /***
-    for (unsigned int i = 0; i < idx.size(); i++)
-        idx(i) = i;
+    return idx;
+}
 
-    IndexSortDescendComparator cmp;
-    cmp.pv = &v;
-    sort(idx.data(), idx.data() + idx.size(), cmp);
-    ***/
+uvec index_sort_descend(const dvec& v)
+{
+    uvec idx(v.size());
+
+    gsl_sort_largest_index(idx.data(), idx.size(), v.data(), 1, v.size());
 
     return idx;
 }
@@ -96,34 +87,6 @@ int periodic(RFLOAT& x,
     x -= n * p;
     return n;
 }
-
-void quaternion_mul(vec4& dst,
-                    const vec4& a,
-                    const vec4& b)
-{
-    RFLOAT w = a[0] * b[0] - a[1] * b[1] - a[2] * b[2] - a[3] * b[3];
-    RFLOAT x = a[0] * b[1] + a[1] * b[0] + a[2] * b[3] - a[3] * b[2];
-    RFLOAT y = a[0] * b[2] - a[1] * b[3] + a[2] * b[0] + a[3] * b[1];
-    RFLOAT z = a[0] * b[3] + a[1] * b[2] - a[2] * b[1] + a[3] * b[0];
-
-    dst[0] = w;
-    dst[1] = x;
-    dst[2] = y;
-    dst[3] = z;
-}
-
-vec4 quaternion_conj(const vec4& quat)
-{
-    vec4 conj;
-
-    conj << quat(0),
-            -quat(1),
-            -quat(2),
-            -quat(3);
-
-    return conj;
-}
-
 RFLOAT MKB_FT(const RFLOAT r,
               const RFLOAT a,
               const RFLOAT alpha)
