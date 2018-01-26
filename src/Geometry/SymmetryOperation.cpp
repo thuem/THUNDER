@@ -13,35 +13,24 @@
 #include "SymmetryOperation.h"
 
 RotationSO::RotationSO(const int fold,
-                       const RFLOAT x,
-                       const RFLOAT y,
-                       const RFLOAT z)
+                       const double x,
+                       const double y,
+                       const double z)
 {
     this->fold = fold;
 
     axis(0) = x;
     axis(1) = y;
     axis(2) = z;
-    /***
-    axis.set(x, 0);
-    axis.set(y, 1);
-    axis.set(z, 2);
-    ***/
 }
 
-ReflexionSO::ReflexionSO(const RFLOAT x,
-                         const RFLOAT y,
-                         const RFLOAT z)
+ReflexionSO::ReflexionSO(const double x,
+                         const double y,
+                         const double z)
 {
     plane(0) = x;
     plane(1) = y;
     plane(2) = z;
-    /***
-    plane.resize(3);
-    plane.set(x, 0);
-    plane.set(y, 1);
-    plane.set(z, 2);
-    ***/
 }
 
 InversionSO::InversionSO()

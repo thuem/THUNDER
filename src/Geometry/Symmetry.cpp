@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -48,7 +46,7 @@ Symmetry& Symmetry::operator=(const Symmetry& that)
     _pgGroup = that.pgGroup();
     _pgOrder = that.pgOrder();
 
-    mat33 L, R;
+    dmat33 L, R;
     for (ptrdiff_t i = 0; i < that.nSymmetryElement(); i++)
     {
         that.get(L, R, i);
@@ -77,15 +75,15 @@ int Symmetry::pgOrder() const
     return _pgOrder;
 }
 
-void Symmetry::get(mat33& L,
-                   mat33& R,
+void Symmetry::get(dmat33& L,
+                   dmat33& R,
                    const int i) const
 {
     L = _L[i];
     R = _R[i];
 }
 
-vec4 Symmetry::quat(const int i) const
+dvec4 Symmetry::quat(const int i) const
 {
     return _quat[i];
 }
@@ -119,27 +117,27 @@ void Symmetry::init(const vector<SymmetryOperation>& entry)
     completePointGroup();
 }
 
-void Symmetry::append(const mat33& L,
-                      const mat33& R)
+void Symmetry::append(const dmat33& L,
+                      const dmat33& R)
 {
     _L.push_back(L);
     _R.push_back(R);
 }
 
-void Symmetry::append(const vec4& quat)
+void Symmetry::append(const dvec4& quat)
 {
     _quat.push_back(quat);
 }
 
-void Symmetry::set(const mat33& L,
-                   const mat33& R,
+void Symmetry::set(const dmat33& L,
+                   const dmat33& R,
                    const int i)
 {
     _L[i] = L;
     _R[i] = R;
 }
 
-void Symmetry::set(const vec4& quat,
+void Symmetry::set(const dvec4& quat,
                    const int i)
 {
     _quat[i] = quat;
@@ -147,7 +145,7 @@ void Symmetry::set(const vec4& quat,
 
 void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
 {
-    mat33 L, R;
+    dmat33 L, R;
 
     for (size_t i = 0; i < entry.size(); i++)
     {
@@ -167,7 +165,7 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
                 {
                     append(L, R);
 
-                    vec4 quat;
+                    dvec4 quat;
                     quaternion(quat, R);
                     append(quat);
                 }
@@ -177,7 +175,7 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
                 {
                     append(L, R.transpose());
 
-                    vec4 quat;
+                    dvec4 quat;
                     quaternion(quat, R.transpose());
                     append(quat);
                 }
@@ -208,18 +206,18 @@ void Symmetry::fillLR(const vector<SymmetryOperation>& entry)
 
             L(2, 2) = -1;
 
-            R = vec3(-1, -1, -1).asDiagonal();
+            R = dvec3(-1, -1, -1).asDiagonal();
 
             if (novo(L, R)) append(L, R);
         }
     }
 }
 
-bool Symmetry::novo(const mat33& L,
-                    const mat33& R) const
+bool Symmetry::novo(const dmat33& L,
+                    const dmat33& R) const
 {
     // check whether L and R are both identity matrix or not
-    mat33 I = mat33::Identity();
+    dmat33 I = dmat33::Identity();
     if (SAME_MATRIX(L, I) && SAME_MATRIX(R, I))
         return false;
 
@@ -257,14 +255,14 @@ void Symmetry::completePointGroup()
     int i = -1, j = -1;
     while (completePointGroupHelper(table, i, j))
     {
-        mat33 L = _L[i] * _L[j];
-        mat33 R = _R[i] * _R[j];
+        dmat33 L = _L[i] * _L[j];
+        dmat33 R = _R[i] * _R[j];
 
         if (novo(L, R))
         {
             append(L, R);
 
-            vec4 quat;
+            dvec4 quat;
             quaternion(quat, R);
 
             append(quat);
@@ -281,7 +279,7 @@ void Symmetry::completePointGroup()
 
 void display(const Symmetry& sym)
 {
-    mat33 L, R;
+    dmat33 L, R;
 
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
@@ -308,92 +306,18 @@ bool asymmetry(const Symmetry& sym)
         return false;
 }
 
-void symmetryCounterpart(vec4& dst,
+void symmetryCounterpart(dvec4& dst,
                          const Symmetry& sym)
 {
-    /***
-    vector<SymmetryOperation> entry;
-
-    fillSymmetryEntry(entry, sym.pgGroup(), sym.pgOrder());
-
-    for (size_t i = 0; i < entry.size(); i++)
-    {
-        if (entry[i].id == 0)
-        {
-            RFLOAT phi, theta, psi;
-
-            angle(phi, theta, psi, dst);
-
-            cout << "phi_1 = " << phi << endl;
-
-            RFLOAT d = 2 * M_PI / entry[i].fold;
-
-            RFLOAT t = vec3(dst(1), dst(2), dst(3)).dot(entry[i].axisPlane);
-
-            RFLOAT p = 2 * acos(dst(0) / sqrt(TSGSL_pow_2(dst(0)) + TSGSL_pow_2(t)));
-
-            cout << "phi_2 = " << p << endl;
-
-            // cout << "phi = " << phi * 180 / M_PI << endl;
-
-            int n = periodic(p, d);
-
-            // cout << "n = " << n << endl;
-
-            if (n < 0) REPORT_ERROR("N WRONG!");
-
-            for (int j = 0; j < n; j++)
-                quaternion_mul(dst,
-                               quaternion_conj(vec4(cos(d / 2),
-                                                    entry[i].axisPlane(0) * sin(d / 2),
-                                                    entry[i].axisPlane(1) * sin(d / 2),
-                                                    entry[i].axisPlane(2) * sin(d / 2))),
-                               dst);
-
-            angle(phi, theta, psi, dst);
-
-            cout << "phi_3 = " << phi << endl;
-        }
-        else
-        {
-            REPORT_ERROR("WRONG");
-            abort();
-        }
-    }
-    ***/
-
-    /***
-    RFLOAT s = fabs(dst(0));
-
-    int j = 0;
-
-    for (int i = 0; i < sym.nSymmetryElement(); i++)
-    {
-        RFLOAT t = fabs(dst.dot(sym.quat(i)));
-
-        if (t > s)
-        {
-            s = t;
-
-            j = i + 1;
-        }
-    }
-
-    if (j != 0)
-        quaternion_mul(dst, quaternion_conj(sym.quat(j - 1)), dst);
-    ***/
-
-    vec4 q = dst;
+    dvec4 q = dst;
 
     RFLOAT s = fabs(dst.dot(ANCHOR_POINT_2));
 
-    vec4 p;
+    dvec4 p;
 
     for (int i = 0; i < sym.nSymmetryElement(); i++)
     {
         quaternion_mul(p, quaternion_conj(sym.quat(i)), dst);
-        //quaternion_mul(p, sym.quat(i), dst);
-        //quaternion_mul(p, dst, sym.quat(i));
 
         RFLOAT t = fabs(p.dot(ANCHOR_POINT_2));
 
@@ -405,82 +329,10 @@ void symmetryCounterpart(vec4& dst,
     }
 
     dst = q;
-
-    /***
-    mat4 anchors(sym.nSymmetryElement(), 4);
-
-    vec4 anchor;
-    for (int i = 0; i < sym.nSymmetryElement(); i++)
-    {
-        quaternion_mul(anchor, sym.quat(i), ANCHOR_POINT_1);
-        quaternion_mul(anchor, anchor, quaternion_conj(sym.quat(i)));
-
-        anchors.row(i) = anchor.transpose();
-    }
-
-    vec4 r;
-    quaternion_mul(r, dst, ANCHOR_POINT_0);
-    quaternion_mul(r, r, quaternion_conj(dst));
-
-    int j = 0; // index of the nearest anchor
-    RFLOAT s = r.dot(ANCHOR_POINT_1);
-
-    for (int i = 0; i < sym.nSymmetryElement(); i++)
-    {
-        RFLOAT t = r.dot(anchors.row(i).transpose());
-
-        if (t > s)
-        {
-            s = t;
-            j = i + 1;
-        }
-    }
-
-    if (j != 0)
-    {
-        dst(0) = 1;
-        dst(1) = 0;
-        dst(2) = 0;
-        dst(3) = 0;
-
-        //quaternion_mul(dst, quaternion_conj(sym.quat(j - 1)), dst);
-    }
-    ***/
-
-    /***
-    vec4 q = dst;
-
-    vec4 r;
-    quaternion_mul(r, q, ANCHOR_POINT_1);
-    quaternion_mul(r, r, quaternion_conj(q));
-
-    RFLOAT s = r.dot(ANCHOR_POINT_1);
-
-    vec4 p;
-
-    for (int i = 0; i < sym.nSymmetryElement(); i++)
-    {
-        quaternion_mul(p, sym.quat(i), dst);
-
-        quaternion_mul(r, p, ANCHOR_POINT_1);
-        quaternion_mul(r, r, quaternion_conj(p));
-
-        RFLOAT t = r.dot(ANCHOR_POINT_1);
-
-        if (t > s)
-        {
-            s = t;
-
-            q = p;
-        }
-    }
-
-    dst = q;
-    ***/
 }
 
-void symmetryRotation(vector<mat33>& sr,
-                      const mat33 rot,
+void symmetryRotation(vector<dmat33>& sr,
+                      const dmat33 rot,
                       const Symmetry* sym)
 {
     sr.clear();
@@ -491,7 +343,7 @@ void symmetryRotation(vector<mat33>& sr,
 
     if (asymmetry(*sym)) return;
 
-    mat33 L, R;
+    dmat33 L, R;
 
     for (int i = 0; i < sym->nSymmetryElement(); i++)
     {

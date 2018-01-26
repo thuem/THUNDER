@@ -29,11 +29,11 @@
  * @param a   left multiplier
  * @param b   right multiplier
  */
-void quaternion_mul(vec4& dst,
-                    const vec4& a,
-                    const vec4& b);
+void quaternion_mul(dvec4& dst,
+                    const dvec4& a,
+                    const dvec4& b);
 
-vec4 quaternion_conj(const vec4& quat);
+dvec4 quaternion_conj(const dvec4& quat);
 
 /**
  * This function calculates phi and theta given a certain direction indicated by

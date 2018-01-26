@@ -33,7 +33,7 @@ struct RotationSO
     /**
      * The rotation axis indicated by a vector.
      */
-    vec3 axis;
+    dvec3 axis;
 
     /**
      * Construct a specific RotationSO with a fold and a rotation axis.
@@ -43,9 +43,9 @@ struct RotationSO
      * @param z z component of rotation axis
      */
     RotationSO(const int fold,
-               const RFLOAT x,
-               const RFLOAT y,
-               const RFLOAT z);
+               const double x,
+               const double y,
+               const double z);
 };
 
 /**
@@ -54,11 +54,11 @@ struct RotationSO
  */
 struct ReflexionSO
 {
-    vec3 plane;
+    dvec3 plane;
 
-    ReflexionSO(const RFLOAT x,
-                const RFLOAT y,
-                const RFLOAT z);
+    ReflexionSO(const double x,
+                const double y,
+                const double z);
 };
 
 /**
@@ -88,7 +88,7 @@ struct SymmetryOperation
      * If it is a rotation, this 3-vector stores the rotation axis.
      * If it is a reflexion, this 3-vector stores the reflexion plane.
      */
-    vec3 axisPlane;
+    dvec3 axisPlane;
 
     /**
      * If it s a rotation, it stores the fold of the rotation.
