@@ -44,7 +44,7 @@ endif("${CMAKE_BUILD_TYPE}" STREQUAL "release")
 # SIMD
 
 option(ENABLE_SIMD "Whether to use SIMD to accelerate?" ON)
-option(ENABLE_AVX512 "Whether to use AVX512 to accelerate?" ON)
+option(ENABLE_AVX512 "Whether to use AVX512 to accelerate?" OFF)
 option(ENABLE_AVX256 "Whether to use AVX256 to accelerate?" ON)
 
 if("${ENABLE_SIMD}")
