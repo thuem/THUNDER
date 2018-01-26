@@ -28,7 +28,7 @@ vec cumsum(const vec& v)
     return sum;
 }
 
-dvec cumsum(const dvec& v)
+dvec d_cumsum(const dvec& v)
 {
     dvec sum(v.size());
 
@@ -53,7 +53,7 @@ uvec index_sort_ascend(const vec& v)
     return idx;
 }
 
-uvec index_sort_ascend(const dvec& v)
+uvec d_index_sort_ascend(const dvec& v)
 {
     uvec idx(v.size());
 
@@ -71,7 +71,7 @@ uvec index_sort_descend(const vec& v)
     return idx;
 }
 
-uvec index_sort_descend(const dvec& v)
+uvec d_index_sort_descend(const dvec& v)
 {
     uvec idx(v.size());
 
