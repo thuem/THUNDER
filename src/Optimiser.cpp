@@ -2474,7 +2474,7 @@ void Optimiser::statImg()
         #pragma omp atomic
         nImg += 1;
 
-        #pragma omp critical (line 2477)
+        #pragma omp critical (line2477)
         if (nImg >= (int)_ID.size() / 10)
         {
             nPer += 1;
