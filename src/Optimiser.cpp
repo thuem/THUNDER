@@ -2433,9 +2433,24 @@ void Optimiser::statImg()
     
     _stdStdN = 0;
 
+    int nPer = 0;
+    int nImg = 0;
+
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
+        nImg += 1;
+
+        if (nImg >= (int)_ID.size() / 10)
+        {
+            nPer += 1;
+
+            ALOG(INFO, "LOGGER_SYS") << nPer * 10 << "\% Percentage of Images Performed Statistics";
+            BLOG(INFO, "LOGGER_SYS") << nPer * 10 << "\% Percentage of Images Performed Statistics";
+
+            nImg = 0;
+        }
+
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
         #pragma omp atomic
         _mean += regionMean(_img[l],
