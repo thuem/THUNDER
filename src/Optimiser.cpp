@@ -52,15 +52,15 @@ void display(const OptimiserPara& para)
 #ifdef ENABLE_SIMD_512
  vec logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
  RFLOAT logDataVSPrior_m_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
-#elif ENABLE_SIMD_256
+#else
+#ifdef ENABLE_SIMD_256
  vec logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
  RFLOAT logDataVSPrior_m_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
 #else
    RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
    vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
 #endif
-
-
+#endif
 
 void compareDVPVariable(vec& dvpHuabin, vec& dvpOrig, int processRank, int threadID, int n ,int m)
 {
@@ -778,7 +778,8 @@ void Optimiser::expectation()
                                              _sigRcpP,
                                              (int)_ID.size(),
                                              _nPxl);
-#elif ENABLE_SIMD_256
+#else
+#ifdef ENABLE_SIMD_256
             vec dvp = logDataVSPrior_m_n_huabin_SIMD256(_datP,
                                              priAllP,
                                              _ctfP,
@@ -792,6 +793,7 @@ void Optimiser::expectation()
                                              _sigRcpP,
                                              (int)_ID.size(),
                                              _nPxl);
+#endif
 #endif
 
 #ifndef NAN_NO_CHECK
@@ -1281,7 +1283,7 @@ void Optimiser::expectation()
 
                             RFLOAT w;
 
-                        #ifdef ENABLE_SIMD_512
+#ifdef ENABLE_SIMD_512
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
                                 w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
@@ -1298,7 +1300,8 @@ void Optimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             }
-                        #elif ENABLE_SIMD_256
+#else
+#ifdef ENABLE_SIMD_256
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
                                 w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
@@ -1315,7 +1318,7 @@ void Optimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             }
-                        #else
+#else
                             if (_searchType != SEARCH_TYPE_CTF)
                             {
                                 w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
@@ -1332,7 +1335,8 @@ void Optimiser::expectation()
                                                    _sigRcpP + l * _nPxl,
                                                    _nPxl);
                             }
-                        #endif
+#endif
+#endif
                             
                             baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
 
