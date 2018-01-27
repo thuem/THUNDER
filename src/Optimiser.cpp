@@ -2525,6 +2525,10 @@ void Optimiser::statImg()
 #endif
     }
 
+#ifdef VERBOSE_LEVEL_1
+    ILOG(INFO, "LOGGER_ROUND") << "Performing Statistics on Images Accomplished";
+#endif
+
     MPI_Barrier(_hemi);
 
     MPI_Allreduce(MPI_IN_PLACE, &_mean, 1, TS_MPI_DOUBLE, MPI_SUM, _hemi);
