@@ -393,8 +393,16 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
+#ifdef RECONSTRUCTOR_ROT_MAT_OPT
+                const double* ptr = rot.data();
+                dvec3 oldCor;
+                oldCor(0) = (ptr[0] * i + ptr[3] * j) * _pf;
+                oldCor(1) = (ptr[1] * i + ptr[4] * j) * _pf;
+                oldCor(2) = (ptr[2] * i + ptr[5] * j) * _pf;
+#else
                 dvec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
                 dvec3 oldCor = rot * newCor;
+#endif
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _F3D.addFT(src.getFTHalf(i, j)
@@ -522,57 +530,65 @@ void Reconstructor::insertP(const Image& src,
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 #endif
 
-        for (int i = 0; i < _nPxl; i++)
-        {
-            dvec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
-            dvec3 oldCor = rot * newCor;
+    for (int i = 0; i < _nPxl; i++)
+    {
+#ifdef RECONSTRUCTOR_ROT_MAT_OPT
+        const double* ptr = rot.data();
+        dvec3 oldCor;
+        oldCor(0) = (ptr[0] * _iCol[i] + ptr[3] * _iRow[i]) * _pf;
+        oldCor(1) = (ptr[1] * _iCol[i] + ptr[4] * _iRow[i]) * _pf;
+        oldCor(2) = (ptr[2] * _iCol[i] + ptr[5] * _iRow[i]) * _pf;
+#else
+        dvec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
+        dvec3 oldCor = rot * newCor;
+#endif
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _F3D.addFT(src.iGetFT(_iPxl[i])
-                     * REAL(ctf.iGetFT(_iPxl[i]))
-                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
-                     * w,
-                       (RFLOAT)oldCor(0), 
-                       (RFLOAT)oldCor(1), 
-                       (RFLOAT)oldCor(2), 
-                       _pf * _a, 
-                       _kernelFT);
+        _F3D.addFT(src.iGetFT(_iPxl[i])
+                 * REAL(ctf.iGetFT(_iPxl[i]))
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2), 
+                   _pf * _a, 
+                   _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _F3D.addFT(src.iGetFT(_iPxl[i])
-                     * REAL(ctf.iGetFT(_iPxl[i]))
-                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
-                     * w,
-                       (RFLOAT)oldCor(0), 
-                       (RFLOAT)oldCor(1), 
-                       (RFLOAT)oldCor(2));
+        _F3D.addFT(src.iGetFT(_iPxl[i])
+                 * REAL(ctf.iGetFT(_iPxl[i]))
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2));
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
-            _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
-                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
-                     * w,
-                       (RFLOAT)oldCor(0), 
-                       (RFLOAT)oldCor(1), 
-                       (RFLOAT)oldCor(2),
-                       _pf * _a,
-                       _kernelFT);
+        _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2),
+                   _pf * _a,
+                   _kernelFT);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-            _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
-                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
-                     * w,
-                       (RFLOAT)oldCor(0), 
-                       (RFLOAT)oldCor(1), 
-                       (RFLOAT)oldCor(2));
+        _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2));
 #endif
 
 #endif
-        }
+    }
 }
 
 void Reconstructor::prepareTF()
