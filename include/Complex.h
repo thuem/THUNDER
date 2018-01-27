@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependecy:
@@ -15,6 +13,7 @@
 #include <gsl/gsl_complex_math.h>
 #include <math.h>
 
+#include "huabin.h"
 #include "Config.h"
 
 #include "Typedef.h"
@@ -35,21 +34,26 @@
  *#define IMAG(a) GSL_IMAG(a)
  *
  */
-#define COMPLEX_POLAR(phi) ts_complex_polar(1.0, phi)
 
-inline Complex ts_complex_polar(RFLOAT r, RFLOAT phi)
+inline Complex COMPLEX_POLAR(const RFLOAT phi)
 {
-#ifdef SINGLE_PRECISION
     Complex z;
-    z.dat[0] = r * cosf(phi);
-    z.dat[1] = r * sinf(phi);
-#else
-    Complex z;
-    z.dat[0] = r * cos(phi);
-    z.dat[1] = r * sin(phi);
-#endif
+
+    z.dat[0] = TS_COS(phi);
+    z.dat[1] = TS_SIN(phi);
+
     return z;
 };
+
+inline Complex ts_complex_polar(const RFLOAT r,
+                                const RFLOAT phi)
+{
+    Complex z;
+    z.dat[0] = r * TS_COS(phi);
+    z.dat[1] = r * TS_SIN(phi);
+
+    return z;
+}
 
 inline Complex CONJUGATE(const Complex &a)
 {
@@ -59,47 +63,43 @@ inline Complex CONJUGATE(const Complex &a)
     return z;
 }
 
-static RFLOAT ts_hypot (const RFLOAT x, const RFLOAT y)
+static RFLOAT ts_hypot(const RFLOAT x,
+                       const RFLOAT y)
 {
 #ifdef SINGLE_PRECISION
-  RFLOAT xabs = fabsf(x) ;
-  RFLOAT yabs = fabsf(y) ;
+    RFLOAT xabs = fabsf(x) ;
+    RFLOAT yabs = fabsf(y) ;
 #else
-  RFLOAT xabs = fabs(x) ;
-  RFLOAT yabs = fabs(y) ;
+    RFLOAT xabs = fabs(x) ;
+    RFLOAT yabs = fabs(y) ;
 #endif
 
+    RFLOAT min, max;
 
-  RFLOAT min, max;
-
-  if (xabs < yabs) {
-    min = xabs ;
-    max = yabs ;
-  } else {
-    min = yabs ;
-    max = xabs ;
-  }
-
-  if (min == 0) 
+    if (xabs < yabs)
     {
-      return max ;
+        min = xabs;
+        max = yabs;
+    }
+    else
+    {
+        min = yabs;
+        max = xabs;
     }
 
-  {
-    RFLOAT u = min / max ;
-#ifdef SINGLE_PRECISION
-    return max * sqrtf (1 + u * u) ;
-#else
-    return max * sqrt (1 + u * u) ;
-#endif
-  }
+    if (min == 0) 
+    {
+        return max;
+    }
+
+    RFLOAT u = min / max;
+
+    return max * TS_SQRT(1 + u * u);
 };
 
-
-inline RFLOAT ABS(const Complex &a)
+inline RFLOAT ABS(const Complex& a)
 {
     return ts_hypot(a.dat[0], a.dat[1]);
-
 };
 
 inline RFLOAT ABS2(const Complex &a)
@@ -120,6 +120,7 @@ inline RFLOAT REAL(const Complex& a)
 {
     return a.dat[0];
 };
+
 inline RFLOAT IMAG(const Complex& a)
 {
     return a.dat[1];
@@ -142,77 +143,57 @@ inline RFLOAT gsl_real_imag_sum(const Complex& a)
 
 inline Complex operator-(const Complex& a)
 {
-    //return COMPLEX(-REAL(a), -IMAG(a));
     Complex newa;
-    newa.dat[0] =  -a.dat[0];
-    newa.dat[1] =  -a.dat[1];
+
+    newa.dat[0] = -a.dat[0];
+    newa.dat[1] = -a.dat[1];
+
     return newa;
 };
 
 inline Complex operator+(const Complex& a, const Complex& b)
 {
-    //return gsl_complex_add(a, b);
     Complex result;
+
     result.dat[0] = a.dat[0] + b.dat[0];
     result.dat[1] = a.dat[1] + b.dat[1];
+
     return result;
 };
 
 inline Complex operator-(const Complex& a, const Complex& b)
 {
     Complex result;
+
     result.dat[0] = a.dat[0] - b.dat[0];
     result.dat[1] = a.dat[1] - b.dat[1];
-    return result;
 
+    return result;
 };
 
 inline Complex operator*(const Complex& a, const Complex& b)
 {
     Complex result;
-    /*
-     *result.dat[0] = a.dat[0] * b.dat[0];
-     *result.dat[1] = a.dat[1] * b.dat[1];
-     */
+
     result.dat[0] = a.dat[0] * b.dat[0] - a.dat[1] * b.dat[1];
     result.dat[1] = a.dat[0] * b.dat[1] + a.dat[1] * b.dat[0];
-    return result;
 
+    return result;
 };
 
 inline Complex operator/(const Complex& a, const Complex& b)
 {
-    //return gsl_complex_div(a, b);
-    /* 
-     RFLOAT cd = op.norm();
-     RFLOAT realval = real*op.real + imag*op.imag;
-     RFLOAT imagval = imag*op.real - real*op.imag;
-     return Complex(realval/cd, imagval/cd);*
-
-
-    RFLOAT Complex::norm()
-    {
-        return real*real + imag*imag;
-    }
-    RFLOAT norm(const Complex& op)
-    {
-        return op.real*op.real + op.imag*op.imag;
-    }
-     * */
     Complex result;
+
     result.dat[0] = a.dat[0] * b.dat[0] + a.dat[1] * b.dat[1];
     result.dat[1] = a.dat[1] * b.dat[0] - a.dat[0] * b.dat[1]; 
     
-
     RFLOAT norm = b.dat[0] * b.dat[0] + b.dat[1] * b.dat[1];
+
     result.dat[0] /= norm;
     result.dat[1] /= norm;
-    /*
-     *result.dat[0] = a.dat[0] / b.dat[0];
-     *result.dat[1] = a.dat[1] / b.dat[1];
-     */
-    return result;
 
+    return result;
 };
 
 inline void operator+=(Complex& a, const Complex b) { a = a + b; };
@@ -225,57 +206,45 @@ inline void operator/=(Complex& a, const Complex b) { a = a / b; };
 
 inline Complex operator*(const Complex a, const RFLOAT x)
 {
-    /*
-     *return gsl_complex_mul_real(a, x);
-     */
     Complex result;
+
     result.dat[0] = a.dat[0] * x;
     result.dat[1] = a.dat[1] * x;
-    return result;
 
+    return result;
 };
 
 inline Complex operator*(const RFLOAT x, const Complex a)
 {
-    /*
-     *return a * x;
-     */
     Complex result;
+
     result.dat[0] = a.dat[0] * x;
     result.dat[1] = a.dat[1] * x;
-    return result;
 
+    return result;
 };
 
 inline void operator*=(Complex& a, const RFLOAT x)
 {
-    /*
-     *a = a * x;
-     */
     a.dat[0] = a.dat[0] * x;
     a.dat[1] = a.dat[1] * x;
 };
 
 inline Complex operator/(const Complex a, const RFLOAT x)
 {
-    /*
-     *return gsl_complex_div_real(a, x);
-     */
     Complex result;
+
     result.dat[0] = a.dat[0] / x;
     result.dat[1] = a.dat[1] / x;
+
     return result;
 
 };
 
 inline void operator/=(Complex& a, const RFLOAT x)
 {
-    /*
-     *a = a / x; 
-     */
     a.dat[0] = a.dat[0] / x;
     a.dat[1] = a.dat[1] / x;
-
 };
 
 #endif // COMPLEX_H

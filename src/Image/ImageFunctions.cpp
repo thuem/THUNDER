@@ -51,7 +51,7 @@ void translate(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
         dst.setFT(COMPLEX_POLAR(-phase), i, j);
     }
 }
@@ -66,7 +66,7 @@ void translateMT(Image& dst,
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
-        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
         dst.setFT(COMPLEX_POLAR(-phase), i, j);
     }
 }
@@ -82,7 +82,7 @@ void translate(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(r)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
         }
 }
@@ -99,7 +99,7 @@ void translateMT(Image& dst,
     IMAGE_FOR_EACH_PIXEL_FT(dst)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
             dst.setFT(COMPLEX_POLAR(-phase), i, j);
         }
 }
@@ -117,7 +117,7 @@ void translate(Image& dst,
 
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[iPxl[i]] = COMPLEX_POLAR(-phase);
     }
 }
@@ -136,7 +136,7 @@ void translateMT(Image& dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[iPxl[i]] = COMPLEX_POLAR(-phase);
     }
 }
@@ -155,7 +155,7 @@ void translate(Complex* dst,
 
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[i] = COMPLEX_POLAR(-phase);
     }
 }
@@ -175,7 +175,7 @@ void translateMT(Complex* dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
         dst[i] = COMPLEX_POLAR(-phase);
     }
 }
@@ -190,7 +190,7 @@ void translate(Image& dst,
 
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
         dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
     }
 }
@@ -206,7 +206,7 @@ void translateMT(Image& dst,
     #pragma omp parallel for
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
-        RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
         dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
     }
 }
@@ -223,7 +223,7 @@ void translate(Image& dst,
     IMAGE_FOR_PIXEL_R_FT(r)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
 }
@@ -241,7 +241,7 @@ void translateMT(Image& dst,
     IMAGE_FOR_EACH_PIXEL_FT(src)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
-            RFLOAT phase = 2 * M_PI * (i * rCol + j * rRow);
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
             dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
 }
@@ -260,7 +260,7 @@ void translate(Image& dst,
 
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
     }
@@ -281,7 +281,7 @@ void translateMT(Image& dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
     }
@@ -302,7 +302,7 @@ void translate(Complex* dst,
 
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[i] = src[i] * COMPLEX_POLAR(-phase);
     }
@@ -324,7 +324,7 @@ void translateMT(Complex* dst,
     #pragma omp parallel for
     for (int i = 0; i < nPxl; i++)
     {
-        RFLOAT phase = 2 * M_PI * (iCol[i] * rCol + iRow[i] * rRow);
+        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
 
         dst[i] = src[i] * COMPLEX_POLAR(-phase);
     }

@@ -90,19 +90,46 @@
     {
         double dat[2];
     }Complex;
-
 #endif
 
-
-inline RFLOAT TSGSL_MAX_RFLOAT(RFLOAT a, RFLOAT b)
+inline RFLOAT TS_SIN(const RFLOAT x)
 {
-    return  a > b ? a : b;
-}
+#ifdef SINGLE_PRECISION
+    return sinf(x);
+#else
+    return sin(x);
+#endif
+};
 
-inline RFLOAT TSGSL_MIN_RFLOAT(RFLOAT a, RFLOAT b)
+inline RFLOAT TS_COS(const RFLOAT x)
 {
-    return a < b ? a: b;
-}
+#ifdef SINGLE_PRECISION
+    return cosf(x);
+#else
+    return sinf(x);
+#endif
+};
+
+inline RFLOAT TS_SQRT(const RFLOAT x)
+{
+#ifdef SINGLE_PRECISION
+    return sqrtf(x);
+#else
+    return sqrt(x);
+#endif
+};
+
+inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a,
+                               const RFLOAT b)
+{
+    return a > b ? a : b;
+};
+
+inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a,
+                               const RFLOAT b)
+{
+    return a < b ? a : b;
+};
 
 RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
 RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
@@ -141,9 +168,6 @@ RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n
 RFLOAT TSGSL_stats_quantile_from_sorted_data (const RFLOAT sorted_data[], const size_t stride, const size_t n, const RFLOAT f) ;
 RFLOAT TSGSL_stats_sd (const RFLOAT data[], const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t n, const RFLOAT mean);
-
-
-
 
 int TSFFTW_init_threads(void);
 void TSFFTW_cleanup_threads(void);

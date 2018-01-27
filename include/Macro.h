@@ -13,6 +13,9 @@
 #ifndef MACRO_H
 #define MACRO_H
 
+#define M_2X_PI 6.28318530717959
+#define M_3X_PI 9.42477796076938
+
 #define VERBOSE_LEVEL_0
 
 //#define VERBOSE_LEVEL_1
