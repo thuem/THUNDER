@@ -38,7 +38,7 @@
 
 \begin{document}
 
-    \title{THUNDER v1.3 User Guide}
+    \title{THUNDER v1.3.1 User Guide}
     \maketitle
     
     \section{Installation}
@@ -71,7 +71,19 @@ mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
                 \end{lstlisting}
+                
+            \subsubsection{Configuration Variables}
             
+                You may configure the compilation of THUNDER with several variables.
+                
+                THUNDER can be compiled into single-float precision version or double-float precision version, by \textsf{SINGLE\_PRECISION} variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter \textsf{-DSINGLE\_PRECISION='off'} during configuring using \textsf{cmake}.
+                
+                THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by \textsf{ENABLE\_SIMD} variable. The default version is using SIMD instructions. However, you may force it compiling into a non-SIMD version, by adding parameter \textsf{-DENABLE\_SIMD='off'} during configuring using \textsf{cmake}.
+                
+                AVX256 and AVX512 SIMD instructions are currently supported by THUNDER. By default, AVX256 is enabled and AVX512 is disabled. You can manually enable or disable them by the variable \textsf{ENABLE\_AVX256} and \textsf{ENABLE\_AVX512}, respectively, by the same method as described above.
+                
+                It is worth mentioned that you may check whether the CPUs and C/C++ compiler support AVX512 or not, before compiling THUNDER using AVX512. For example, CPUs should be KNL or Xeon newer than Skylake. Meanwhile, if you compile using \textsf{GCC}, please make sure it is newer than version 4.9.3. If you compile with icc, please check up its support on AVX512.
+                
             \subsubsection{Compile and Stage Binaries into Environment}
             
                 Please type in the following command for compiling source code using 20 threads. You may change the number after \textsf{-j} to be number of threads you desire for compiling.
