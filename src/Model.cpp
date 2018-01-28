@@ -1076,6 +1076,12 @@ void Model::updateR(const RFLOAT thres)
         elevate = determineIncreaseR(T_VARI_DECREASE_STUN);
 #endif
 
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+        MLOG(INFO, "LOGGER_SYS") << "Using fscIncreaseFactor "
+                                 << FSC_INCREASE_STUN;
+        elevate = determineIncreaseR(FSC_INCREASE_STUN);
+#endif
+
     }
     else if (_searchType == SEARCH_TYPE_GLOBAL)
     {
@@ -1092,10 +1098,15 @@ void Model::updateR(const RFLOAT thres)
         elevate = determineIncreaseR(T_VARI_DECREASE_GLOBAL);
 #endif
 
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+        MLOG(INFO, "LOGGER_SYS") << "Using fscIncreaseFactor "
+                                 << FSC_INCREASE_GLOBAL;
+        elevate = determineIncreaseR(FSC_INCREASE_GLOBAL);
+#endif
+
     }
     else
     {
-
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
         MLOG(INFO, "LOGGER_SYS") << "Using rChangeDecreaseFactor "
                                  << R_CHANGE_DECREASE_LOCAL;
@@ -1106,6 +1117,12 @@ void Model::updateR(const RFLOAT thres)
         MLOG(INFO, "LOGGER_SYS") << "Using rVariDecreaseFactor "
                                  << T_VARI_DECREASE_LOCAL;
         elevate = determineIncreaseR(T_VARI_DECREASE_LOCAL);
+#endif
+        
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+        MLOG(INFO, "LOGGER_SYS") << "Using fscIncreaseFactor "
+                                 << FSC_INCREASE_LOCAL;
+        elevate = determineIncreaseR(FSC_INCREASE_LOCAL);
 #endif
     }
 
@@ -1213,6 +1230,19 @@ void Model::setStdTVariS0(const RFLOAT stdTVariS0)
 void Model::setStdTVariS1(const RFLOAT stdTVariS1)
 {
     _stdTVariS1 = stdTVariS1;
+}
+
+void Model::setFSCArea(const RFLOAT fscArea)
+{
+    _fscAreaPrev = _fscArea;
+
+    _fscArea = fscArea;
+}
+
+void Model::resetFSCArea()
+{
+    _fscAreaPrev = 0;
+    _fscArea = 0;
 }
 
 RFLOAT Model::rChange() const
@@ -1474,6 +1504,57 @@ bool Model::determineIncreaseR(const RFLOAT tVariDecreaseFactor)
     {
         if ((_tVariS0 > (1 - tVariDecreaseFactor) * _tVariS0Prev) &&
             (_tVariS1 > (1 - tVariDecreaseFactor) * _tVariS1Prev))
+        {
+            // When the frequency remains the same as the last iteration, check
+            // whether there is a decrease of rotation change.
+            _nRChangeNoDecrease += 1;
+        }
+        else
+            _nRChangeNoDecrease = 0;
+
+        switch (_searchType)
+        {
+            case SEARCH_TYPE_STOP:
+                _increaseR = false;
+                break;
+
+            case SEARCH_TYPE_GLOBAL:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL);
+                break;
+
+            case SEARCH_TYPE_LOCAL:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL);
+                break;
+
+            case SEARCH_TYPE_CTF:
+                _increaseR = (_nRChangeNoDecrease
+                           >= MAX_ITER_R_CHANGE_NO_DECREASE_CTF);
+                break;
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MPI_Bcast(&_increaseR,
+              1,
+              MPI_C_BOOL,
+              MASTER_ID,
+              MPI_COMM_WORLD);
+
+    return _increaseR;
+}
+
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+
+bool Model::determineIncreaseR(const RFLOAT fscIncreaseFactor)
+{
+    IF_MASTER
+    {
+        if (_fscArea > (1 - fscIncreaseFactor) * _fscAreaPrev)
         {
             // When the frequency remains the same as the last iteration, check
             // whether there is a decrease of rotation change.

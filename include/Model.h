@@ -50,7 +50,7 @@
 #define MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL 0
 ***/
 
-#define MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL 2
+#define MAX_ITER_R_CHANGE_NO_DECREASE_GLOBAL 1
 
 #define MAX_ITER_R_CHANGE_NO_DECREASE_LOCAL 0
 
@@ -75,6 +75,16 @@
 #define T_VARI_DECREASE_STUN 0.02
 
 #define T_VARI_DECREASE_LOCAL 0.02
+
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+
+#define FSC_INCREASE_GLOBAL 0.01
+
+#define FSC_INCREASE_STUN 0.01
+
+#define FSC_INCREASE_LOCAL 0.01
 
 #endif
 
@@ -257,6 +267,10 @@ class Model : public Parallel
 
         RFLOAT _stdTVariS1;
 
+        RFLOAT _fscArea;
+
+        RFLOAT _fscAreaPrev;
+
         /**
          * a parameter indicating the change of rotation between iterations
          */
@@ -334,10 +348,13 @@ class Model : public Parallel
             _rVari = 0;
             _tVariS0Prev = TS_MAX_RFLOAT_VALUE;
             _tVariS0 = TS_MAX_RFLOAT_VALUE;
+            _tVariS1Prev = TS_MAX_RFLOAT_VALUE;
             _tVariS1 = TS_MAX_RFLOAT_VALUE;
             _stdRVari = 0;
             _stdTVariS0 = 0;
             _stdTVariS1 = 0;
+            _fscArea = 0;
+            _fscAreaPrev = 0;
             _rChange = TS_MAX_RFLOAT_VALUE;
             _rChangePrev = TS_MAX_RFLOAT_VALUE;
             _stdRChange = 0;
@@ -709,6 +726,10 @@ class Model : public Parallel
 
         void setStdTVariS1(const RFLOAT stdTVariS1);
 
+        void setFSCArea(const RFLOAT fscArea);
+
+        void resetFSCArea();
+
         /**
          * This function returns the average rotation change between iterations.
          */
@@ -828,6 +849,10 @@ class Model : public Parallel
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
         bool determineIncreaseR(const RFLOAT tVariDecreaseFactor);
+#endif
+
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+        bool determineIncreaseR(const RFLOAT fscIncreaseFactor);
 #endif
 
         void avgHemi();
