@@ -4031,8 +4031,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     if (cSearch)
                     {
-                        // TODO
-                        /***
+                        ctf = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
+
                         CTF(ctf,
                             _para.pixelSize,
                             _ctfAttr[l].voltage,
@@ -4040,8 +4040,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs,
-                            _ctfAttr[l].phaseShift);
-                        ***/
+                            _ctfAttr[l].phaseShift,
+                            _para.size,
+                            _para.size,
+                            _iCol,
+                            _iRow,
+                            _nPxl);
                     }
                     else
                     {
@@ -4062,6 +4066,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                              rot2D,
                                              w);
 #endif
+
+                    if (cSearch) TSFFTW_free(_ctfP);
                 }
                 else if (_para.mode == MODE_3D)
                 {
@@ -4083,8 +4089,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     if (cSearch)
                     {
-                        // TODO
-                        /***
+                        ctf = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
+
                         CTF(ctf,
                             _para.pixelSize,
                             _ctfAttr[l].voltage,
@@ -4092,8 +4098,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs,
-                            _ctfAttr[l].phaseShift);
-                        ***/
+                            _ctfAttr[l].phaseShift,
+                            _para.size,
+                            _para.size,
+                            _iCol,
+                            _iRow,
+                            _nPxl);
                     }
                     else
                     {
@@ -4114,6 +4124,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                              rot3D,
                                              w);
 #endif
+
+                    if (cSearch) TSFFTW_free(_ctfP);
                 }
                 else
                 {

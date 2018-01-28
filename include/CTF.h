@@ -28,7 +28,7 @@ RFLOAT CTF(const RFLOAT f,
            const RFLOAT voltage,
            const RFLOAT defocus,
            const RFLOAT CS,
-           const RFLOAT phaseShift = 0);
+           const RFLOAT phaseShift);
 
 /**
  * This function generates a CTF using parameters given.
@@ -48,6 +48,20 @@ void CTF(Image& dst,
          const RFLOAT defocusV,
          const RFLOAT theta,
          const RFLOAT Cs,
-         const RFLOAT phaseShift = 0);
+         const RFLOAT phaseShift);
+
+void CTF(RFLOAT* dst,
+         const RFLOAT pixelSize,
+         const RFLOAT voltage,
+         const RFLOAT defocusU,
+         const RFLOAT defocusV,
+         const RFLOAT theta,
+         const RFLOAT Cs,
+         const RFLOAT phaseShift,
+         const int nCol,
+         const int nRow,
+         const int* iCol,
+         const int* iRow,
+         const int _nPxl);
 
 #endif // CTF_H
