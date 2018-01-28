@@ -476,6 +476,7 @@ class Model : public Parallel
 
         void setRU(const int rU);
 
+
         void setMaxRU();
 
         /**
@@ -484,7 +485,11 @@ class Model : public Parallel
          */
         int rPrev() const;
 
+        void setRPrev(const int rPrev);
+
         int rUPrev() const;
+
+        void setRUPrev(const int rUPrev);
 
         /**
          * This function returns the highest frequency ever reached.

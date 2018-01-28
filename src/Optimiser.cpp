@@ -312,6 +312,7 @@ void Optimiser::init()
 
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
     _model.setR(_r);
+    _model.setRPrev(_r);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _exp";
     _db.setMPIEnv(_commSize, _commRank, _hemi);

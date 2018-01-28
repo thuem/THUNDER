@@ -231,9 +231,19 @@ int Model::rPrev() const
     return _rPrev;
 }
 
+void Model::setRPrev(const int rPrev)
+{
+    _rPrev = rPrev;
+}
+
 int Model::rUPrev() const
 {
     return _rUPrev;
+}
+
+void Model::setRUPrev(const int rUPrev)
+{
+    _rUPrev = rUPrev;
 }
 
 int Model::rT() const
