@@ -1937,6 +1937,7 @@ void Optimiser::run()
 
             _model.resetTVari();
             _model.resetRChange();
+            _model.resetFSCArea();
             _model.setNRChangeNoDecrease(0);
             _model.setIncreaseR(false);
 
