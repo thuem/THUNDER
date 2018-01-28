@@ -4007,7 +4007,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     rotate2D(rot2D, dvec2(quat(0), quat(1)));
 
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE ///huabin
                     translate(transImgP,
                               orignImgP,
                               -(tran - _offset[l])(0),
@@ -4017,17 +4016,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl);
-#else
-                    translate(transImgP, //huabin
-                              orignImgP,
-                              -tran(0),
-                              -tran(1),
-                              _para.size,
-                              _para.size,
-                              _iCol,
-                              _iRow,
-                              _nPxl);
-#endif
 
                     if (cSearch)
                     {
@@ -4071,7 +4059,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     rotate3D(rot3D, quat);
                 
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE ///huabin
                     translate(transImgP,
                               orignImgP,
                               -(tran - _offset[l])(0),
@@ -4081,17 +4068,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl);
-#else
-                    translate(transImgP, //huabin
-                              orignImgP,
-                              -tran(0),
-                              -tran(1),
-                              _para.size,
-                              _para.size,
-                              _iCol,
-                              _iRow,
-                              _nPxl);
-#endif
 
                     if (cSearch)
                     {
