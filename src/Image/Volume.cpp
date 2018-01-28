@@ -488,24 +488,28 @@ Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
     if ((x0[1] != -1) &&
         (x0[2] != -1))
     {
-        //Following codes are commented out by huabin
-//        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
+#ifndef IMG_VOL_BOX_UNFOLD
 
-//        for (int i = 0; i < 8; i++)
-//        {
-//            size_t index = index0 + ((size_t*)_box)[i];
+        size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
-//#ifndef IMG_VOL_BOUNDARY_NO_CHECK
-//            BOUNDARY_CHECK_FT(index);
-//#endif
+        for (int i = 0; i < 8; i++)
+        {
+            size_t index = index0 + ((size_t*)_box)[i];
 
-//            result += _dataFT[index] * ((RFLOAT*)w)[i];
-//        }
+#ifndef IMG_VOL_BOUNDARY_NO_CHECK
+            BOUNDARY_CHECK_FT(index);
+#endif
 
-//Follwing codes are added by huabin
+            result += _dataFT[index] * ((RFLOAT*)w)[i];
+        }
+
+#else
+
         size_t index0 = (x0[2] >= 0 ? x0[2] : x0[2] + _nSlc) * _nColFT * _nRow + (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT + x0[0];
 
-        size_t index = index0 + _box[0][0][0];
+        size_t index;
+
+        index = index0 + _box[0][0][0];
         result.dat[0] += _dataFT[index].dat[0] * w[0][0][0];
         result.dat[1] += _dataFT[index].dat[1] * w[0][0][0];
 
@@ -537,6 +541,7 @@ Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
         result.dat[0] += _dataFT[index].dat[0] * w[1][1][1];
         result.dat[1] += _dataFT[index].dat[1] * w[1][1][1];
 
+#endif
     }
     else
     {
@@ -549,7 +554,6 @@ Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
     return result;
 }
 
-//huabin
 void Volume::addFTHalf(const Complex value,
                        const RFLOAT w[2][2][2],
                        const int x0[3])
@@ -581,46 +585,55 @@ void Volume::addFTHalf(const Complex value,
                       + (x0[1] >= 0 ? x0[1] : x0[1] + _nRow) * _nColFT
                       + x0[0];
 
-        #pragma omp atomic
-        _dataFT[index0+_box[0][0][0]].dat[0] += value.dat[0] * w[0][0][0];
-        #pragma omp atomic
-        _dataFT[index0+_box[0][0][0]].dat[1] += value.dat[1] * w[0][0][0];
+        size_t index;
 
+        index = index0 + _box[0][0][0];
         #pragma omp atomic
-        _dataFT[index0+_box[0][0][1]].dat[0] += value.dat[0] * w[0][0][1];
+        _dataFT[index].dat[0] += value.dat[0] * w[0][0][0];
         #pragma omp atomic
-        _dataFT[index0+_box[0][0][1]].dat[1] += value.dat[1] * w[0][0][1];
+        _dataFT[index].dat[1] += value.dat[1] * w[0][0][0];
 
+        index = index0 + _box[0][0][1];
         #pragma omp atomic
-        _dataFT[index0+_box[0][1][0]].dat[0] += value.dat[0] * w[0][1][0];
+        _dataFT[index].dat[0] += value.dat[0] * w[0][0][1];
         #pragma omp atomic
-        _dataFT[index0+_box[0][1][0]].dat[1] += value.dat[1] * w[0][1][0];
+        _dataFT[index].dat[1] += value.dat[1] * w[0][0][1];
 
+        index = index0 + _box[0][1][0];
         #pragma omp atomic
-        _dataFT[index0+_box[0][1][1]].dat[0] += value.dat[0]* w[0][1][1];
+        _dataFT[index].dat[0] += value.dat[0] * w[0][1][0];
+        #pragma omp atomic
+        _dataFT[index].dat[1] += value.dat[1] * w[0][1][0];
 
+        index = index0 + _box[0][1][1];
         #pragma omp atomic
-        _dataFT[index0+_box[0][1][1]].dat[1] += value.dat[1] * w[0][1][1];
+        _dataFT[index].dat[0] += value.dat[0] * w[0][1][1];
+        #pragma omp atomic
+        _dataFT[index].dat[1] += value.dat[1] * w[0][1][1];
 
+        index = index0 + _box[1][0][0];
         #pragma omp atomic
-        _dataFT[index0+_box[1][0][0]].dat[0] += value.dat[0] * w[1][0][0];
+        _dataFT[index].dat[0] += value.dat[0] * w[1][0][0];
         #pragma omp atomic
-        _dataFT[index0+_box[1][0][0]].dat[1] += value.dat[1] * w[1][0][0];
+        _dataFT[index].dat[1] += value.dat[1] * w[1][0][0];
 
+        index = index0 + _box[1][0][1];
         #pragma omp atomic
-        _dataFT[index0+_box[1][0][1]].dat[0] += value.dat[0] * w[1][0][1];
+        _dataFT[index].dat[0] += value.dat[0] * w[1][0][1];
         #pragma omp atomic
-        _dataFT[index0+_box[1][0][1]].dat[1] += value.dat[1] * w[1][0][1];
+        _dataFT[index].dat[1] += value.dat[1] * w[1][0][1];
 
+        index = index0 + _box[1][1][0];
         #pragma omp atomic
-        _dataFT[index0+_box[1][1][0]].dat[0] += value.dat[0]* w[1][1][0];
+        _dataFT[index].dat[0] += value.dat[0] * w[1][1][0];
         #pragma omp atomic
-        _dataFT[index0+_box[1][1][0]].dat[1] += value.dat[1] * w[1][1][0];
+        _dataFT[index].dat[1] += value.dat[1] * w[1][1][0];
 
+        index = index0 + _box[1][1][1];
         #pragma omp atomic
-        _dataFT[index0+_box[1][1][1]].dat[0] += value.dat[0] * w[1][1][1];
+        _dataFT[index].dat[0] += value.dat[0] * w[1][1][1];
         #pragma omp atomic
-        _dataFT[index0+_box[1][1][1]].dat[1] += value.dat[1] * w[1][1][1];
+        _dataFT[index].dat[1] += value.dat[1] * w[1][1][1];
 
 #endif
     }
