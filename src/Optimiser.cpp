@@ -4729,6 +4729,9 @@ void Optimiser::freePreCalIdx()
     delete[] _iCol;
     delete[] _iRow;
     delete[] _iSig;
+
+    delete[] _iColPad;
+    delete[] _iRowPad;
 }
 
 void Optimiser::freePreCal(const bool ctf)
