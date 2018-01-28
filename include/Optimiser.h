@@ -865,7 +865,8 @@ class Optimiser : public Parallel
         void allocPreCalIdx(const RFLOAT rU,
                             const RFLOAT rL);
 
-        void allocPreCal(const bool pixelMajor,
+        void allocPreCal(const bool mask,
+                         const bool pixelMajor,
                          const bool ctf);
 
         void freePreCalIdx();

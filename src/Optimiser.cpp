@@ -621,9 +621,9 @@ void Optimiser::expectation()
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         if (_searchType != SEARCH_TYPE_CTF)
-            allocPreCal(true, false);
+            allocPreCal(true, true, false);
         else
-            allocPreCal(true, true);
+            allocPreCal(true, true, true);
 
         ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
         BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
@@ -1075,9 +1075,9 @@ void Optimiser::expectation()
 #ifdef OPTIMISER_PARTICLE_FILTER
 
     if (_searchType != SEARCH_TYPE_CTF)
-        allocPreCal(false, false);
+        allocPreCal(true, false, false);
     else
-        allocPreCal(false, true);
+        allocPreCal(true, false, true);
 
     _nP.resize(_ID.size(), 0);
 
@@ -3947,9 +3947,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
     allocPreCalIdx(_model.rU(), 0);
 
     if (_searchType != SEARCH_TYPE_CTF)
-        allocPreCal(false, false);
+        allocPreCal(false, false, false);
     else
-        allocPreCal(false, true);
+        allocPreCal(false, false, true);
 
     NT_MASTER
     {
@@ -4672,7 +4672,8 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
     }
 }
 
-void Optimiser::allocPreCal(const bool pixelMajor,
+void Optimiser::allocPreCal(const bool mask,
+                            const bool pixelMajor,
                             const bool ctf)
 {
     IF_MASTER return;
@@ -4690,7 +4691,7 @@ void Optimiser::allocPreCal(const bool pixelMajor,
         {
             _datP[pixelMajor
                 ? (i * _ID.size() + l)
-                : (_nPxl * l + i)] = _img[l].iGetFT(_iPxl[i]);
+                : (_nPxl * l + i)] = mask ? _img[l].iGetFT(_iPxl[i]) : _imgOri[l].iGetFT(_iPxl[i]);
 
             _ctfP[pixelMajor
                 ? (i * _ID.size() + l)
@@ -4742,7 +4743,7 @@ void Optimiser::allocPreCal(const bool pixelMajor,
                                             * (1 + _ctfAttr[l].voltage * 0.978466e-6));
 
             _K1[l] = M_PI * lambda;
-            _K2[l] = M_PI / 2 * _ctfAttr[l].Cs * TSGSL_pow_3(lambda);
+            _K2[l] = M_PI_2 * _ctfAttr[l].Cs * TSGSL_pow_3(lambda);
         }
     }
 }
