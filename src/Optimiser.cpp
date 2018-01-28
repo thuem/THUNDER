@@ -1222,12 +1222,7 @@ void Optimiser::expectation()
                                       * TSGSL_pow_4(_frequency[i])
                                       - _ctfAttr[l].phaseShift;
 
-                            /***
-                            RFLOAT ki = K1 * defocus[i] * df * TSGSL_pow_2(frequency[i])
-                                      + K2 * TSGSL_pow_4(frequency[i]);
-                            ***/
-
-                            ctfP[_nPxl * iD + i] = -w1 * sin(ki) + w2 * cos(ki);
+                            ctfP[_nPxl * iD + i] = -w1 * TS_SIN(ki) + w2 * TS_COS(ki);
                         }
                     }
                 }
@@ -1862,9 +1857,6 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Saving Class Information";
         saveClassInfo();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC Area";
-        _model.setFSCArea(_r * _model.fsc().cols() - _model.fsc().topRows(_r).sum());
-
         MLOG(INFO, "LOGGER_ROUND") << "Current Cutoff Frequency: "
                                    << _r - 1
                                    << " (Spatial), "
@@ -1872,6 +1864,13 @@ void Optimiser::run()
                                                    _para.size,
                                                    _para.pixelSize)
                                    << " (Angstrom)";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC Area";
+
+        _model.setFSCArea(_r * _model.fsc().cols() - _model.fsc().topRows(_r).sum());
+
+        MLOG(INFO, "LOGGER_ROUND") << "FSC Area Below Cutoff Frequency: "
+                                   << _model.fscArea();
 
         MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
 

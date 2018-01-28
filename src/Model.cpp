@@ -1232,6 +1232,16 @@ void Model::setStdTVariS1(const RFLOAT stdTVariS1)
     _stdTVariS1 = stdTVariS1;
 }
 
+RFLOAT Model::fscArea() const
+{
+    return _fscArea;
+}
+
+RFLOAT Model::fscAreaPrev() const
+{
+    return _fscAreaPrev;
+}
+
 void Model::setFSCArea(const RFLOAT fscArea)
 {
     _fscAreaPrev = _fscArea;

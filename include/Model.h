@@ -726,6 +726,10 @@ class Model : public Parallel
 
         void setStdTVariS1(const RFLOAT stdTVariS1);
 
+        RFLOAT fscArea() const;
+
+        RFLOAT fscAreaPrev() const;
+
         void setFSCArea(const RFLOAT fscArea);
 
         void resetFSCArea();
