@@ -992,13 +992,13 @@ void Reconstructor::reconstruct(Volume& dst)
             {
                 #pragma omp parallel for
                 FOR_EACH_PIXEL_FT(_C2D)
-                    _C2D[i] = _T2D[i] * _W2D[i];
+                    _C2D[i] = _T2D[i] * REAL(_W2D[i]);
             }
             else if (_mode == MODE_3D)
             {
                 #pragma omp parallel for
                 FOR_EACH_PIXEL_FT(_C3D)
-                    _C3D[i] = _T3D[i] * _W3D[i];
+                    _C3D[i] = _T3D[i] * REAL(_W3D[i]);
             }
             else
             {
