@@ -1251,8 +1251,8 @@ void Model::setFSCArea(const RFLOAT fscArea)
 
 void Model::resetFSCArea()
 {
-    _fscAreaPrev = 0;
-    _fscArea = 0;
+    _fscAreaPrev = TS_MAX_RFLOAT_VALUE;
+    _fscArea = TS_MAX_RFLOAT_VALUE;
 }
 
 RFLOAT Model::rChange() const

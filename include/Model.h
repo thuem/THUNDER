@@ -353,8 +353,8 @@ class Model : public Parallel
             _stdRVari = 0;
             _stdTVariS0 = 0;
             _stdTVariS1 = 0;
-            _fscArea = 0;
-            _fscAreaPrev = 0;
+            _fscArea = TS_MAX_RFLOAT_VALUE;
+            _fscAreaPrev = TS_MAX_RFLOAT_VALUE;
             _rChange = TS_MAX_RFLOAT_VALUE;
             _rChangePrev = TS_MAX_RFLOAT_VALUE;
             _stdRChange = 0;

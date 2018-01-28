@@ -1922,6 +1922,15 @@ void Optimiser::run()
                                    << _model.tVariS1Prev();
 #endif
 
+#ifdef MODEL_DETERMINE_INCREASE_FSC
+        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+                                   << _model.increaseR()
+                                   << ", as the FSC Area is "
+                                   << _model.fscArea()
+                                   << ", and the Previous FSC Area is "
+                                   << _model.fscAreaPrev();
+#endif
+
         if (_model.r() > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
