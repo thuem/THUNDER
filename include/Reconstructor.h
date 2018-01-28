@@ -425,6 +425,18 @@ class Reconstructor : public Parallel
                      const dmat33& rot,
                      const RFLOAT w,
                      const vec* sig = NULL);
+        
+        void insertP(const Complex* src,
+                     const RFLOAT* ctf,
+                     const dmat22& rot,
+                     const RFLOAT w,
+                     const vec* sig = NULL);
+
+        void insertP(const Complex* src,
+                     const RFLOAT* ctf,
+                     const dmat33& rot,
+                     const RFLOAT w,
+                     const vec* sig = NULL);
 
         void prepareTF();
 

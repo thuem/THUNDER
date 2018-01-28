@@ -593,6 +593,150 @@ void Reconstructor::insertP(const Image& src,
     }
 }
 
+void Reconstructor::insertP(const Complex* src,
+                            const RFLOAT* ctf,
+                            const dmat22& rot,
+                            const RFLOAT w,
+                            const vec* sig)
+{
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
+    IF_MASTER
+        REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
+
+    NT_MODE_2D REPORT_ERROR("WRONG MODE");
+
+    if (_calMode != PRE_CAL_MODE)
+        REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+#endif
+
+        for (int i = 0; i < _nPxl; i++)
+        {
+            dvec2 newCor((double)(_iCol[i]), (double)(_iRow[i]));
+            dvec2 oldCor = rot * newCor;
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            _F2D.addFT(src[i]
+                     * ctf[i]
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                     * w,
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
+                       _pf * _a, 
+                       _kernelFT);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            _F2D.addFT(src[i]
+                     * ctf[i]
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                     * w,
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1));
+#endif
+
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+            _T2D.addFT(TSGSL_pow_2(ctf[i])
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                     * w,
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1), 
+                       _pf * _a,
+                       _kernelFT);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+            _T2D.addFT(TSGSL_pow_2(ctf[i])
+                     * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                     * w,
+                       (RFLOAT)oldCor(0), 
+                       (RFLOAT)oldCor(1));
+#endif
+
+#endif
+        }
+}
+
+void Reconstructor::insertP(const Complex* src,
+                            const RFLOAT* ctf,
+                            const dmat33& rot,
+                            const RFLOAT w,
+                            const vec* sig)
+{
+#ifdef RECONSTRUCTOR_ASSERT_CHECK
+    IF_MASTER
+        REPORT_ERROR("INSERTING IMAGES INTO RECONSTRUCTOR IN MASTER");
+
+    NT_MODE_3D REPORT_ERROR("WRONG MODE");
+
+    if (_calMode != PRE_CAL_MODE)
+        REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+#endif
+
+    for (int i = 0; i < _nPxl; i++)
+    {
+#ifdef RECONSTRUCTOR_ROT_MAT_OPT
+        const double* ptr = rot.data();
+        dvec3 oldCor;
+        int iCol = _iCol[i];
+        int iRow = _iRow[i];
+        oldCor(0) = ptr[0] * iCol + ptr[3] * iRow;
+        oldCor(1) = ptr[1] * iCol + ptr[4] * iRow;
+        oldCor(2) = ptr[2] * iCol + ptr[5] * iRow;
+#else
+        dvec3 newCor((double)(_iCol[i]), (double)(_iRow[i]), 0);
+        dvec3 oldCor = rot * newCor;
+#endif
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+        _F3D.addFT(src[i]
+                 * ctf[i]
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2), 
+                   _pf * _a, 
+                   _kernelFT);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+        _F3D.addFT(src[i]
+                 * ctf[i]
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2));
+#endif
+
+#ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+        _T3D.addFT(TSGSL_pow_2(ctf[i])
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2),
+                   _pf * _a,
+                   _kernelFT);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+        _T3D.addFT(TSGSL_pow_2(ctf[i])
+                 * (sig == NULL ? 1 : (*sig)(_iSig[i]))
+                 * w,
+                   (RFLOAT)oldCor(0), 
+                   (RFLOAT)oldCor(1), 
+                   (RFLOAT)oldCor(2));
+#endif
+
+#endif
+    }
+}
+
 void Reconstructor::prepareTF()
 {
     IF_MASTER return;

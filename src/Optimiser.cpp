@@ -3946,6 +3946,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
     
     allocPreCalIdx(_model.rU(), 0);
 
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(false, false);
+    else
+        allocPreCal(false, true);
+
     NT_MASTER
     {
         if ((_para.parGra) && (_para.k != 1))
@@ -3964,10 +3969,13 @@ void Optimiser::reconstructRef(const bool fscFlag,
                         ((_para.cSearch) &&
                         (_searchType == SEARCH_TYPE_STOP)));
 
+        Complex* poolTransImgP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            Image ctf(_para.size, _para.size, FT_SPACE);
+            //Image ctf(_para.size, _para.size, FT_SPACE);
+            RFLOAT* ctf;
 
             RFLOAT w;
 
@@ -3978,7 +3986,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
             w /= _para.mReco;
 
-            Image transImg(_para.size, _para.size, FT_SPACE);
+            Complex* transImgP = poolTransImgP + _nPxl * omp_get_thread_num();
+
+            Complex* orignImgP = _datP + _nPxl * l;
+
+            // Image transImg(_para.size, _para.size, FT_SPACE);
 
             for (int m = 0; m < _para.mReco; m++)
             {
@@ -3996,26 +4008,31 @@ void Optimiser::reconstructRef(const bool fscFlag,
                     rotate2D(rot2D, dvec2(quat(0), quat(1)));
 
 #ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE ///huabin
-                    translate(transImg,
-                              _imgOri[l],
+                    translate(transImgP,
+                              orignImgP,
                               -(tran - _offset[l])(0),
                               -(tran - _offset[l])(1),
+                              _para.size,
+                              _para.size,
                               _iCol,
                               _iRow,
-                              _iPxl,
                               _nPxl);
 #else
-                    translate(transImg, //huabin
-                              _img[l],
+                    translate(transImgP, //huabin
+                              orignImgP,
                               -tran(0),
                               -tran(1),
+                              _para.size,
+                              _para.size,
                               _iCol,
                               _iRow,
-                              _iPxl,
                               _nPxl);
 #endif
 
                     if (cSearch)
+                    {
+                        // TODO
+                        /***
                         CTF(ctf,
                             _para.pixelSize,
                             _ctfAttr[l].voltage,
@@ -4024,18 +4041,24 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs,
                             _ctfAttr[l].phaseShift);
+                        ***/
+                    }
+                    else
+                    {
+                        ctf = _ctfP + _nPxl * l;
+                    }
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
                     vec sig = _sig.row(_groupID[l] - 1).transpose();
 
-                    _model.reco(cls).insertP(transImg,
-                                             cSearch ? ctf : _ctf[l],
+                    _model.reco(cls).insertP(transImgP,
+                                             ctf,
                                              rot2D,
                                              w,
                                              &sig);
 #else
-                    _model.reco(cls).insertP(transImg,
-                                             cSearch ? ctf : _ctf[l],
+                    _model.reco(cls).insertP(transImgP,
+                                             ctf,
                                              rot2D,
                                              w);
 #endif
@@ -4048,40 +4071,32 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     rotate3D(rot3D, quat);
                 
-#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE
-                    translate(transImg,
-                              _imgOri[l],
+#ifdef OPTIMISER_RECONSTRUCT_WITH_UNMASK_IMAGE ///huabin
+                    translate(transImgP,
+                              orignImgP,
                               -(tran - _offset[l])(0),
                               -(tran - _offset[l])(1),
+                              _para.size,
+                              _para.size,
                               _iCol,
                               _iRow,
-                              _iPxl,
                               _nPxl);
 #else
-                    translate(transImg,
-                              _img[l],
+                    translate(transImgP, //huabin
+                              orignImgP,
                               -tran(0),
                               -tran(1),
+                              _para.size,
+                              _para.size,
                               _iCol,
                               _iRow,
-                              _iPxl,
                               _nPxl);
 #endif
 
-                    /***
-#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-
-                    IMAGE_FOR_EACH_PIXEL_FT(transImg)
-                        if (QUAD(i, j) < TSGSL_pow_2(_model.reco(cls).maxRadius()))
-                            transImg.setFTHalf(transImg.getFTHalf(i, j)
-                                             / _sig(_groupID[l] - 1, AROUND(NORM(i, j))),
-                                               i,
-                                               j);
-                                         
-#endif
-                    **/
-
                     if (cSearch)
+                    {
+                        // TODO
+                        /***
                         CTF(ctf,
                             _para.pixelSize,
                             _ctfAttr[l].voltage,
@@ -4090,18 +4105,24 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs,
                             _ctfAttr[l].phaseShift);
+                        ***/
+                    }
+                    else
+                    {
+                        ctf = _ctfP + _nPxl * l;
+                    }
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
                     vec sig = _sig.row(_groupID[l] - 1).transpose();
 
-                    _model.reco(cls).insertP(transImg,
-                                             cSearch ? ctf : _ctf[l],
+                    _model.reco(cls).insertP(transImgP,
+                                             ctf,
                                              rot3D,
                                              w,
                                              &sig);
 #else
-                    _model.reco(cls).insertP(transImg,
-                                             cSearch ? ctf : _ctf[l],
+                    _model.reco(cls).insertP(transImgP,
+                                             ctf,
                                              rot3D,
                                              w);
 #endif
@@ -4375,6 +4396,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
     }
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        freePreCal(false);
+    else
+        freePreCal(true);
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
