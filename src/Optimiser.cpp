@@ -3958,7 +3958,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
 
         for (int t = 0; t < _para.k; t++)
-            _model.reco(t).setPreCal(_nPxl, _iCol, _iRow, _iPxl, _iSig);
+            _model.reco(t).setPreCal(_nPxl, _iColPad, _iRowPad, _iPxl, _iSig);
 
         bool cSearch = ((_searchType == SEARCH_TYPE_CTF) ||
                         ((_para.cSearch) &&
@@ -4609,6 +4609,10 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 
     _iSig = new int[_img[0].sizeFT()];
 
+    _iColPad = new int[_img[0].sizeFT()];
+
+    _iRowPad = new int[_img[0].sizeFT()];
+
     RFLOAT rU2 = TSGSL_pow_2(rU);
     RFLOAT rL2 = TSGSL_pow_2(rL);
 
@@ -4631,6 +4635,10 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
                 _iRow[_nPxl] = j;
 
                 _iSig[_nPxl] = v;
+
+                _iCol[_nPxl] = i * _para.pf;
+
+                _iRow[_nPxl] = j * _para.pf;
 
                 _nPxl++;
             }

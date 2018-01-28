@@ -400,7 +400,7 @@ void Reconstructor::insert(const Image& src,
                 oldCor(1) = (ptr[1] * i + ptr[4] * j) * _pf;
                 oldCor(2) = (ptr[2] * i + ptr[5] * j) * _pf;
 #else
-                dvec3 newCor((double)(i * _pf), (double)(j * _pf), 0);
+                dvec3 newCor((double)(i), (double)(j), 0);
                 dvec3 oldCor = rot * newCor;
 #endif
 
@@ -467,7 +467,7 @@ void Reconstructor::insertP(const Image& src,
 
         for (int i = 0; i < _nPxl; i++)
         {
-            dvec2 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf));
+            dvec2 newCor((double)(_iCol[i]), (double)(_iRow[i]));
             dvec2 oldCor = rot * newCor;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -535,11 +535,13 @@ void Reconstructor::insertP(const Image& src,
 #ifdef RECONSTRUCTOR_ROT_MAT_OPT
         const double* ptr = rot.data();
         dvec3 oldCor;
-        oldCor(0) = (ptr[0] * _iCol[i] + ptr[3] * _iRow[i]) * _pf;
-        oldCor(1) = (ptr[1] * _iCol[i] + ptr[4] * _iRow[i]) * _pf;
-        oldCor(2) = (ptr[2] * _iCol[i] + ptr[5] * _iRow[i]) * _pf;
+        int iCol = _iCol[i];
+        int iRow = _iRow[i];
+        oldCor(0) = ptr[0] * iCol + ptr[3] * iRow;
+        oldCor(1) = ptr[1] * iCol + ptr[4] * iRow;
+        oldCor(2) = ptr[2] * iCol + ptr[5] * iRow;
 #else
-        dvec3 newCor((double)(_iCol[i] * _pf), (double)(_iRow[i] * _pf), 0);
+        dvec3 newCor((double)(_iCol[i]), (double)(_iRow[i]), 0);
         dvec3 oldCor = rot * newCor;
 #endif
 

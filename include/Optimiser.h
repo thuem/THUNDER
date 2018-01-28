@@ -610,6 +610,10 @@ class Optimiser : public Parallel
 
         int* _iSig;
 
+        int* _iColPad;
+
+        int* _iRowPad;
+
         Complex* _datP;
 
         RFLOAT* _ctfP;
@@ -658,6 +662,8 @@ class Optimiser : public Parallel
             _iCol = NULL;
             _iRow = NULL;
             _iSig = NULL;
+            _iColPad = NULL;
+            _iRowPad = NULL;
 
             _datP = NULL;
             _ctfP = NULL;
