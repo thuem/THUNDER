@@ -4067,7 +4067,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                              w);
 #endif
 
-                    if (cSearch) TSFFTW_free(_ctfP);
+                    if (cSearch) TSFFTW_free(ctf);
                 }
                 else if (_para.mode == MODE_3D)
                 {
@@ -4125,7 +4125,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                              w);
 #endif
 
-                    if (cSearch) TSFFTW_free(_ctfP);
+                    if (cSearch) TSFFTW_free(ctf);
                 }
                 else
                 {
