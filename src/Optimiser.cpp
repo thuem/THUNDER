@@ -4636,9 +4636,9 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 
                 _iSig[_nPxl] = v;
 
-                _iCol[_nPxl] = i * _para.pf;
+                _iColPad[_nPxl] = i * _para.pf;
 
-                _iRow[_nPxl] = j * _para.pf;
+                _iRowPad[_nPxl] = j * _para.pf;
 
                 _nPxl++;
             }
