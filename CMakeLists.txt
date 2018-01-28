@@ -92,8 +92,8 @@ else("${ENABLE_SIMD}")
 endif("${ENABLE_SIMD}")
 
 # Output Flags
-message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
-message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message(STATUS "CMAKE_C_FLAGS : ${CMAKE_C_FLAGS}")
+message(STATUS "CMAKE_CXX_FLAGS : ${CMAKE_CXX_FLAGS}")
 
 # MPI
 
