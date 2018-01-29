@@ -5793,7 +5793,7 @@ RFLOAT* SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const 
 
             tmp1          = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag; //tmp1
             tmp2          = tmp1 * sigRcp[idx];//temp2
-            resultSIMDFloat(j)    += tmp2;
+            resultSIMDFloat[j]    += tmp2;
 
         }
         
@@ -5883,7 +5883,7 @@ RFLOAT* SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const
 
             tmp1          = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag; //tmp1
             tmp2          = tmp1 * sigRcp[idx];//temp2
-            resultSIMDDouble(j)    += tmp2;//resultFoo
+            resultSIMDDouble[j]    += tmp2;//resultFoo
 
         }
         
