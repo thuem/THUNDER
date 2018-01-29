@@ -50,15 +50,15 @@ void display(const OptimiserPara& para)
 ***/
 
 #ifdef ENABLE_SIMD_512
- vec logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+ RFLOAT* logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult);
  RFLOAT logDataVSPrior_m_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
 #else
 #ifdef ENABLE_SIMD_256
- vec logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+ RFLOAT* logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult);
  RFLOAT logDataVSPrior_m_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
 #else
    RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int m);
-   vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m);
+   RFLOAT*  logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *result);
 #endif
 #endif
 
@@ -731,10 +731,16 @@ void Optimiser::expectation()
         // m -> rotation
         // n -> translation
         
+        //Add by huabin
+        RFLOAT *poolSIMDResult = (RFLOAT *)TSFFTW_malloc(_ID.size() * omp_get_max_threads() * sizeof(RFLOAT));
+        Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+        Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+
         for (size_t t = 0; t < (size_t)_para.k; t++)
         {
-            Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
-            Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+            //Following two lines can be moved out of for loop
+            
+
 
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (size_t m = 0; m < (size_t)nR; m++)
@@ -742,6 +748,10 @@ void Optimiser::expectation()
                 Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
 
                 Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
+
+
+                //Add by huabin
+                RFLOAT *SIMDResult = poolSIMDResult + omp_get_thread_num() * _ID.size();
 
                 // perform projection
 
@@ -771,35 +781,40 @@ void Optimiser::expectation()
 
                     // higher logDataVSPrior, higher prabibility
 
+                    //Add by huabin
+                    memset(SIMDResult, '\0', _ID.size() * sizeof(RFLOAT));
 #ifdef ENABLE_SIMD_512
-            vec dvp = logDataVSPrior_m_n_huabin_SIMD512(_datP,
+            RFLOAT* dvp = logDataVSPrior_m_n_huabin_SIMD512(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
                                              (int)_ID.size(),
-                                             _nPxl);
+                                             _nPxl,
+                                             SIMDResult);
 #else
 #ifdef ENABLE_SIMD_256
-            vec dvp = logDataVSPrior_m_n_huabin_SIMD256(_datP,
+            RFLOAT* dvp = logDataVSPrior_m_n_huabin_SIMD256(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
                                              (int)_ID.size(),
-                                             _nPxl);
+                                             _nPxl,
+                                             SIMDResult);
 #else
-            vec dvp = logDataVSPrior_m_n_huabin(_datP,
+            RFLOAT* dvp = logDataVSPrior_m_n_huabin(_datP,
                                              priAllP,
                                              _ctfP,
                                              _sigRcpP,
                                              (int)_ID.size(),
-                                             _nPxl);
+                                             _nPxl,
+                                             SIMDResult);
 #endif
 #endif
 
 #ifndef NAN_NO_CHECK
 
                     FOR_EACH_2D_IMAGE
-                        if (TSGSL_isnan(dvp(l)))
+                        if (TSGSL_isnan(dvp[l]))
                         {
                             REPORT_ERROR("DVP CONTAINS NAN");
 
@@ -813,12 +828,12 @@ void Optimiser::expectation()
                         omp_set_lock(&mtx[l]);
 
                         if (TSGSL_isnan(baseLine[l]))
-                            baseLine[l] = dvp(l);
+                            baseLine[l] = dvp[l];
                         else
                         {
-                            if (dvp(l) > baseLine[l])
+                            if (dvp[l] > baseLine[l])
                             {
-                                RFLOAT offset = dvp(l) - baseLine[l];
+                                RFLOAT offset = dvp[l] - baseLine[l];
 
                                 RFLOAT nf = exp(-offset);
 
@@ -847,7 +862,7 @@ void Optimiser::expectation()
                             }
                         }
 
-                        RFLOAT w = exp(dvp(l) - baseLine[l]);
+                        RFLOAT w = exp(dvp[l] - baseLine[l]);
 
                         wC(l, t) += w;
 
@@ -876,9 +891,11 @@ void Optimiser::expectation()
                 }
             }
 
-            TSFFTW_free(poolPriRotP);
-            TSFFTW_free(poolPriAllP);
         }
+
+        TSFFTW_free(poolSIMDResult);
+        TSFFTW_free(poolPriRotP);
+        TSFFTW_free(poolPriAllP);
 
         delete[] mtx;
         delete[] baseLine;
@@ -5346,10 +5363,13 @@ RFLOAT logDataVSPrior_m_huabin(const Complex* dat, const Complex* pri, const RFL
 
 #ifdef ENABLE_SIMD_256
 #ifdef SINGLE_PRECISION
-vec SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult)
 {
 
-    vec resultSIMDFloat = vec::Zero(n);
+    //vec resultSIMDFloat = vec::Zero(n);
+    RFLOAT* resultSIMDFloat = SIMDResult;
+    //memset(resultSIMDFloat, '\0', _ID.size() * sizeof(RFLOAT));
+
     __m256 ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
     __m256 xmm4, xmm5;
     int i = 0;
@@ -5398,14 +5418,14 @@ vec SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLO
             ymm6 = _mm256_add_ps(ymm6, ymm4);//result2
 
             _mm256_store_ps(tmp, ymm6);
-            resultSIMDFloat(j)+= tmp[0];
-            resultSIMDFloat(j + 1) += tmp[1];
-            resultSIMDFloat(j + 2) += tmp[2];
-            resultSIMDFloat(j + 3) += tmp[3];
-            resultSIMDFloat(j + 4) += tmp[4];
-            resultSIMDFloat(j + 5) += tmp[5];
-            resultSIMDFloat(j + 6) += tmp[6];
-            resultSIMDFloat(j + 7) += tmp[7];
+            resultSIMDFloat[j]+= tmp[0];
+            resultSIMDFloat[j + 1] += tmp[1];
+            resultSIMDFloat[j + 2] += tmp[2];
+            resultSIMDFloat[j + 3] += tmp[3];
+            resultSIMDFloat[j + 4] += tmp[4];
+            resultSIMDFloat[j + 5] += tmp[5];
+            resultSIMDFloat[j + 6] += tmp[6];
+            resultSIMDFloat[j + 7] += tmp[7];
         }
 
         //Process remainning value 
@@ -5420,7 +5440,7 @@ vec SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLO
 
             tmp1          = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag; //tmp1
             tmp2          = tmp1 * sigRcp[idx];//temp2
-            resultSIMDFloat(j)    += tmp2;
+            resultSIMDFloat[j]    += tmp2;
 
         }
         
@@ -5430,10 +5450,12 @@ vec SIMD256Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLO
 }
 #else
 
-vec SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult)
 {
 
-    vec resultSIMDDouble = vec::Zero(n);
+    //vec resultSIMDDouble = vec::Zero(n);
+    RFLOAT *resultSIMDDouble = SIMDResult;
+    //memset(resultSIMDDouble, '\0', _ID.size() * sizeof(RFLOAT));
     __m256d ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
     __m256d xmm4, xmm5;
     int i = 0;
@@ -5483,10 +5505,10 @@ vec SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
             ymm6 = _mm256_add_pd(ymm6, ymm4);//result2
 
             _mm256_store_pd(tmp, ymm6);
-            resultSIMDDouble(j) += tmp[0];
-            resultSIMDDouble(j + 1) += tmp[1];
-            resultSIMDDouble(j + 2) += tmp[2];
-            resultSIMDDouble(j + 3) += tmp[3];
+            resultSIMDDouble[j] += tmp[0];
+            resultSIMDDouble[j + 1] += tmp[1];
+            resultSIMDDouble[j + 2] += tmp[2];
+            resultSIMDDouble[j + 3] += tmp[3];
         }
 
         //Process remainning value 
@@ -5501,7 +5523,7 @@ vec SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
 
             tmp1          = tmp1Real * tmp1Real + tmp1Imag * tmp1Imag; //tmp1
             tmp2          = tmp1 * sigRcp[idx];//temp2
-            resultSIMDDouble(j)    += tmp2;//resultFoo
+            resultSIMDDouble[j]    += tmp2;//resultFoo
 
         }
         
@@ -5515,13 +5537,13 @@ vec SIMD256Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
 
 
 #ifdef ENABLE_SIMD_256
-vec logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* logDataVSPrior_m_n_huabin_SIMD256(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult)
 
 {
 #ifdef SINGLE_PRECISION
-    return SIMD256Float(dat, pri, ctf, sigRcp, n, m);
+    return SIMD256Float(dat, pri, ctf, sigRcp, n, m, SIMDResult);
 #else
-    return SIMD256Double(dat, pri, ctf, sigRcp, n, m);
+    return SIMD256Double(dat, pri, ctf, sigRcp, n, m, SIMDResult);
 #endif
 }
 #endif
@@ -5680,10 +5702,12 @@ RFLOAT logDataVSPrior_m_huabin_SIMD256(Complex* dat, const Complex* pri, const R
 
 #ifdef ENABLE_SIMD_512
 #ifdef SINGLE_PRECISION
-vec SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult)
 {
 
-    vec resultSIMDFloat = vec::Zero(n);
+    //vec resultSIMDFloat = vec::Zero(n);
+    RFLOAT *resultSIMDFloat = SIMDResult;
+    //memset(resultSIMDFloat, '\0', _ID.size() * sizeof(RFLOAT));
     __m512 ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
     __m512 xmm4, xmm5;
     int i = 0;
@@ -5739,22 +5763,22 @@ vec SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLO
             ymm6 = _mm512_add_ps(ymm6, ymm4);//result2
 
             _mm512_store_ps(tmp, ymm6);
-            resultSIMDFloat(j)+= tmp[0];
-            resultSIMDFloat(j + 1) += tmp[1];
-            resultSIMDFloat(j + 2) += tmp[2];
-            resultSIMDFloat(j + 3) += tmp[3];
-            resultSIMDFloat(j + 4) += tmp[4];
-            resultSIMDFloat(j + 5) += tmp[5];
-            resultSIMDFloat(j + 6) += tmp[6];
-            resultSIMDFloat(j + 7) += tmp[7];
-            resultSIMDFloat(j + 8) += tmp[8];
-            resultSIMDFloat(j + 9) += tmp[9];
-            resultSIMDFloat(j + 10) += tmp[10];
-            resultSIMDFloat(j + 11) += tmp[11];
-            resultSIMDFloat(j + 12) += tmp[12];
-            resultSIMDFloat(j + 13) += tmp[13];
-            resultSIMDFloat(j + 14) += tmp[14];
-            resultSIMDFloat(j + 15) += tmp[15];
+            resultSIMDFloat[j]+= tmp[0];
+            resultSIMDFloat[j + 1] += tmp[1];
+            resultSIMDFloat[j + 2] += tmp[2];
+            resultSIMDFloat[j + 3] += tmp[3];
+            resultSIMDFloat[j + 4] += tmp[4];
+            resultSIMDFloat[j + 5] += tmp[5];
+            resultSIMDFloat[j + 6] += tmp[6];
+            resultSIMDFloat[j + 7] += tmp[7];
+            resultSIMDFloat[j + 8] += tmp[8];
+            resultSIMDFloat[j + 9] += tmp[9];
+            resultSIMDFloat[j + 10] += tmp[10];
+            resultSIMDFloat[j + 11] += tmp[11];
+            resultSIMDFloat[j + 12] += tmp[12];
+            resultSIMDFloat[j + 13] += tmp[13];
+            resultSIMDFloat[j + 14] += tmp[14];
+            resultSIMDFloat[j + 15] += tmp[15];
         }
 
         //Process remainning value 
@@ -5780,10 +5804,12 @@ vec SIMD512Float(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLO
 
 #else
 
-vec SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDFloat)
 {
 
-    vec resultSIMDDouble = vec::Zero(n);
+    //vec resultSIMDDouble = vec::Zero(n);
+    RFLOAT *resultSIMDDouble = SIMDFloat;
+    //memset(resultSIMDDouble, '\0', _ID.size() * sizeof(RFLOAT));
     __m512d ymm1, ymm2, ymm3, ymm4, ymm5,ymm6;
     __m512d xmm4, xmm5;
     int i = 0;
@@ -5835,14 +5861,14 @@ vec SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
             ymm6 = _mm512_add_pd(ymm6, ymm4);//result2
 
             _mm512_store_pd(tmp, ymm6);
-            resultSIMDDouble(j)     += tmp[0];
-            resultSIMDDouble(j + 1) += tmp[1];
-            resultSIMDDouble(j + 2) += tmp[2];
-            resultSIMDDouble(j + 3) += tmp[3];
-            resultSIMDDouble(j + 4) += tmp[4];
-            resultSIMDDouble(j + 5) += tmp[5];
-            resultSIMDDouble(j + 6) += tmp[6];
-            resultSIMDDouble(j + 7) += tmp[7];
+            resultSIMDDouble[j]     += tmp[0];
+            resultSIMDDouble[j + 1] += tmp[1];
+            resultSIMDDouble[j + 2] += tmp[2];
+            resultSIMDDouble[j + 3] += tmp[3];
+            resultSIMDDouble[j + 4] += tmp[4];
+            resultSIMDDouble[j + 5] += tmp[5];
+            resultSIMDDouble[j + 6] += tmp[6];
+            resultSIMDDouble[j + 7] += tmp[7];
         }
 
         //Process remainning value 
@@ -5871,13 +5897,13 @@ vec SIMD512Double(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFL
 
 
 #ifdef ENABLE_SIMD_512
-vec logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult)
 
 {
 #ifdef SINGLE_PRECISION
-    return SIMD512Float(dat, pri, ctf, sigRcp, n, m);
+    return SIMD512Float(dat, pri, ctf, sigRcp, n, m, SIMDResult);
 #else
-    return SIMD512Double(dat, pri, ctf, sigRcp, n, m);
+    return SIMD512Double(dat, pri, ctf, sigRcp, n, m, SIMDResult);
 #endif
 }
 #endif
@@ -6046,11 +6072,13 @@ RFLOAT logDataVSPrior_m_huabin_SIMD512(Complex* dat, const Complex* pri, const R
 /**
  *  This function is add by huabin
  */
-vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m)
+RFLOAT* logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *result)
 {
 
 
-    vec result2 = vec::Zero(n);
+    //vec result2 = vec::Zero(n);
+    RFLOAT *result2 = result;
+    //memset(result2, '\0', _ID.size() * sizeof(RFLOAT));
 
 //Change by huabin doubleToRFLOAT
     RFLOAT tmpCPMulReal  = 0.0;
@@ -6079,7 +6107,7 @@ vec logDataVSPrior_m_n_huabin(const Complex* dat, const Complex* pri, const RFLO
             tmpDSubCPImag = dat[idx].dat[1] - tmpCPMulImag;//temp.imag
 
             tmp1          = tmpDSubCPReal * tmpDSubCPReal + tmpDSubCPImag * tmpDSubCPImag; //tmp1
-            result2(j)    += (tmp1 * sigRcp[idx]);//temp2
+            result2[j]    += (tmp1 * sigRcp[idx]);//temp2
             //tmp2          = tmp1 * sigRcp[idx];//temp2
             //result2(j)    += tmp2;//result2
         }
