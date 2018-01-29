@@ -1261,8 +1261,8 @@ void Model::setFSCArea(const RFLOAT fscArea)
 
 void Model::resetFSCArea()
 {
-    _fscAreaPrev = TS_MAX_RFLOAT_VALUE;
-    _fscArea = TS_MAX_RFLOAT_VALUE;
+    _fscAreaPrev = 0;
+    _fscArea = 0;
 }
 
 RFLOAT Model::rChange() const
@@ -1370,6 +1370,7 @@ int Model::searchType()
 
                         resetTVari();
                         resetRChange();
+                        resetFSCArea();
                         setNRChangeNoDecrease(0);
                         setIncreaseR(false);
                     }
@@ -1574,7 +1575,7 @@ bool Model::determineIncreaseR(const RFLOAT fscIncreaseFactor)
 {
     IF_MASTER
     {
-        if (_fscArea > (1 - fscIncreaseFactor) * _fscAreaPrev)
+        if (_fscArea < (1 + fscIncreaseFactor) * _fscAreaPrev)
         {
             // When the frequency remains the same as the last iteration, check
             // whether there is a decrease of rotation change.

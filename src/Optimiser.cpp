@@ -1896,7 +1896,7 @@ void Optimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC Area";
 
-        _model.setFSCArea(_resCutoff * _model.fsc().cols() - _model.fsc().topRows(_resCutoff).sum());
+        _model.setFSCArea(_model.fsc().topRows(_resCutoff).sum());
 
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
 
