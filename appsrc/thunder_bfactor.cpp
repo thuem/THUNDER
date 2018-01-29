@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     imf.readVolume(ref);
 
     FFT fft;
-    fft.fw(ref);
+    fft.fwMT(ref);
 
     bFactorFilter(ref,
                   ref,
