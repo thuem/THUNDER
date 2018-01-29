@@ -1967,21 +1967,22 @@ void Optimiser::run()
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN
 
+        /***
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
 
             solventFlatten(_para.performMask);
         }
+        ***/
 
-        /***
         MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
 
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
             solventFlatten(_para.performMask);
         else
             solventFlatten(false);
-        ***/
+
 #endif
 
 #ifdef OPTIMISER_SAVE_SOLVENT_FLATTENED_REFERENCE
