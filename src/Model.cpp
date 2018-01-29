@@ -1149,11 +1149,11 @@ void Model::elevateR(const RFLOAT thres)
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + AROUND((RFLOAT)_rGlobal / 3)));
+                                     _r + CEIL((RFLOAT)_rGlobal / 3)));
     else
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + AROUND((RFLOAT)maxR() / 6)));
+                                     _r + CEIL((RFLOAT)maxR() / 6)));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
