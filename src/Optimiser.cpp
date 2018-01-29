@@ -313,6 +313,7 @@ void Optimiser::init()
     _r = AROUND(resA2P(1.0 / _para.initRes, _para.size, _para.pixelSize)) + 1;
     _model.setR(_r);
     _model.setRPrev(_r);
+    _model.setRT(_r);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _exp";
     _db.setMPIEnv(_commSize, _commRank, _hemi);
@@ -1866,10 +1867,6 @@ void Optimiser::run()
                                                    _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC Area";
-
-        _model.setFSCArea(_r * _model.fsc().cols() - _model.fsc().topRows(_r).sum());
-
         MLOG(INFO, "LOGGER_ROUND") << "FSC Area Below Cutoff Frequency: "
                                    << _model.fscArea();
 
@@ -1896,6 +1893,10 @@ void Optimiser::run()
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_resCutoff, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC Area";
+
+        _model.setFSCArea(_resCutoff * _model.fsc().cols() - _model.fsc().topRows(_resCutoff).sum());
 
         MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
 
