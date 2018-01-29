@@ -1579,6 +1579,10 @@ bool Model::determineIncreaseR(const RFLOAT fscIncreaseFactor)
             // When the frequency remains the same as the last iteration, check
             // whether there is a decrease of rotation change.
             _nRChangeNoDecrease += 1;
+
+            MLOG(INFO, "LOGGER_SYS") << "_fscArea = " << _fscArea;
+            MLOG(INFO, "LOGGER_SYS") << "_fscAreaPrev = " << _fscAreaPrev;
+            MLOG(INFO, "LOGGER_SYS") << "fscIncreaseFactor = " << fscIncreaseFactor;
         }
         else
             _nRChangeNoDecrease = 0;
