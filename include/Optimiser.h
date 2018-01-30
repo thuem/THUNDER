@@ -965,6 +965,8 @@ RFLOAT logDataVSPrior(const Complex* dat,
                       const RFLOAT df,
                       const RFLOAT K1,
                       const RFLOAT K2,
+                      const RFLOAT w1,
+                      const RFLOAT w2,
                       const RFLOAT* sigRcp,
                       const int m);
 

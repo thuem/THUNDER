@@ -12,9 +12,13 @@ RFLOAT CTF(const RFLOAT f,
            const RFLOAT voltage,
            const RFLOAT defocus,
            const RFLOAT Cs,
+           const RFLOAT amplitudeContrast,
            const RFLOAT phaseShift)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
+
+    RFLOAT w1 = TS_SQRT(1 - TSGSL_pow_2(amplitudeContrast));
+    RFLOAT w2 = amplitudeContrast;
 
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
@@ -31,9 +35,13 @@ void CTF(Image& dst,
          const RFLOAT defocusV,
          const RFLOAT theta,
          const RFLOAT Cs,
+         const RFLOAT amplitudeContrast,
          const RFLOAT phaseShift)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
+
+    RFLOAT w1 = TS_SQRT(1 - TSGSL_pow_2(amplitudeContrast));
+    RFLOAT w2 = amplitudeContrast;
 
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
@@ -62,6 +70,7 @@ void CTF(RFLOAT* dst,
          const RFLOAT defocusV,
          const RFLOAT theta,
          const RFLOAT Cs,
+         const RFLOAT amplitudeContrast,
          const RFLOAT phaseShift,
          const int nCol,
          const int nRow,
@@ -70,6 +79,9 @@ void CTF(RFLOAT* dst,
          const int _nPxl)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
+
+    RFLOAT w1 = TS_SQRT(1 - TSGSL_pow_2(amplitudeContrast));
+    RFLOAT w2 = amplitudeContrast;
 
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);

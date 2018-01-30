@@ -21,13 +21,14 @@
 
 #define CTF_TAU 0.01
 
-const RFLOAT w1 = sqrt(1 - CTF_A * CTF_A);
-const RFLOAT w2 = CTF_A;
+//const RFLOAT w1 = sqrt(1 - CTF_A * CTF_A);
+//const RFLOAT w2 = CTF_A;
 
 RFLOAT CTF(const RFLOAT f,
            const RFLOAT voltage,
            const RFLOAT defocus,
            const RFLOAT CS,
+           const RFLOAT amplitudeContrast,
            const RFLOAT phaseShift);
 
 /**
@@ -48,6 +49,7 @@ void CTF(Image& dst,
          const RFLOAT defocusV,
          const RFLOAT theta,
          const RFLOAT Cs,
+         const RFLOAT amplitudeContrast,
          const RFLOAT phaseShift);
 
 void CTF(RFLOAT* dst,
@@ -58,6 +60,7 @@ void CTF(RFLOAT* dst,
          const RFLOAT theta,
          const RFLOAT Cs,
          const RFLOAT phaseShift,
+         const RFLOAT amplitudeContrast,
          const int nCol,
          const int nRow,
          const int* iCol,

@@ -1241,7 +1241,11 @@ void Optimiser::expectation()
                                       * TSGSL_pow_4(_frequency[i])
                                       - _ctfAttr[l].phaseShift;
 
-                            ctfP[_nPxl * iD + i] = -w1 * TS_SIN(ki) + w2 * TS_COS(ki);
+                            //ctfP[_nPxl * iD + i] = -w1 * TS_SIN(ki) + w2 * TS_COS(ki);
+                            ctfP[_nPxl * iD + i] = -TS_SQRT(1 - TSGSL_pow_2(_ctfAttr[l].amplitudeContrast))
+                                                 * TS_SIN(ki)
+                                                 + _ctfAttr[l].amplitudeContrast
+                                                 * TS_COS(ki);
                         }
                     }
                 }
@@ -2747,6 +2751,7 @@ void Optimiser::initCTF()
             _ctfAttr[l].defocusV,
             _ctfAttr[l].defocusTheta,
             _ctfAttr[l].Cs,
+            _ctfAttr[l].amplitudeContrast,
             _ctfAttr[l].phaseShift);
     }
 }
@@ -3651,6 +3656,7 @@ void Optimiser::normCorrection()
                         _ctfAttr[l].defocusV * d,
                         _ctfAttr[l].defocusTheta,
                         _ctfAttr[l].Cs,
+                        _ctfAttr[l].amplitudeContrast,
                         _ctfAttr[l].phaseShift);
 
                     FOR_EACH_PIXEL_FT(img)
@@ -3890,6 +3896,7 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].defocusV * d,
                     _ctfAttr[l].defocusTheta,
                     _ctfAttr[l].Cs,
+                    _ctfAttr[l].amplitudeContrast,
                     _ctfAttr[l].phaseShift);
 
                 FOR_EACH_PIXEL_FT(img)
@@ -4072,6 +4079,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs,
+                            _ctfAttr[l].amplitudeContrast,
                             _ctfAttr[l].phaseShift,
                             _para.size,
                             _para.size,
@@ -4130,6 +4138,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _ctfAttr[l].defocusV * d,
                             _ctfAttr[l].defocusTheta,
                             _ctfAttr[l].Cs,
+                            _ctfAttr[l].amplitudeContrast,
                             _ctfAttr[l].phaseShift,
                             _para.size,
                             _para.size,
@@ -6207,6 +6216,8 @@ RFLOAT logDataVSPrior(const Complex* dat,
                       const RFLOAT df,
                       const RFLOAT K1,
                       const RFLOAT K2,
+                      const RFLOAT w1,
+                      const RFLOAT w2,
                       const RFLOAT* sigRcp,
                       const int m)
 {
