@@ -17,9 +17,9 @@
 #include "Functions.h"
 #include "Image.h"
 
-#define CTF_A 0.1
+//#define CTF_A 0.1
 
-#define CTF_TAU 0.01
+//#define CTF_TAU 0.01
 
 //const RFLOAT w1 = sqrt(1 - CTF_A * CTF_A);
 //const RFLOAT w2 = CTF_A;
