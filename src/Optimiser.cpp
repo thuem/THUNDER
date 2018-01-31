@@ -4949,15 +4949,15 @@ void Optimiser::saveBestProjections()
             else
                 REPORT_ERROR("INEXISTENT MODE");
 
-            #pragma omp parallel for
-            FOR_EACH_PIXEL_FT(diff)
-                diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
-
             sprintf(filename, "%sResult_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
 
             fft.bw(result);
             result.saveRLToBMP(filename);
             fft.fw(result);
+
+            #pragma omp parallel for
+            FOR_EACH_PIXEL_FT(diff)
+                diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
 
             sprintf(filename, "%sDiff_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
             fft.bw(diff);
