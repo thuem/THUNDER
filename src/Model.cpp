@@ -209,6 +209,16 @@ void Model::setR(const int r)
     updateRU();
 }
 
+int Model::rInit() const
+{
+    return _rInit;
+}
+
+void Model::setRInit(const int rInit)
+{
+    _rInit = rInit;
+}
+
 int Model::rU() const
 {
     return _rU;
@@ -1149,11 +1159,11 @@ void Model::elevateR(const RFLOAT thres)
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + CEIL((RFLOAT)_rGlobal / 2)));
+                                     _r + CEIL((RFLOAT)(_rGlobal - _rInit) / 2)));
     else
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + CEIL((RFLOAT)maxR() / 6)));
+                                     _r + CEIL((RFLOAT)(maxR() - _rGlobal) / 4)));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);

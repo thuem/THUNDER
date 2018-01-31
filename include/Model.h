@@ -189,6 +189,8 @@ class Model : public Parallel
          */
         int _r;
 
+        int _rInit;
+
         /**
          * frequency for reconstruction and calculating FSC, SNR 
          */
@@ -467,6 +469,10 @@ class Model : public Parallel
          * @param r the frequency before padding (in pixel)
          */
         void setR(const int r);
+
+        int rInit() const;
+
+        void setRInit(const int rInit);
 
         /**
          * This function returns the frequency for reconstruction and
