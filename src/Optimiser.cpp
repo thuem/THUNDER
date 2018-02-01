@@ -3796,16 +3796,16 @@ void Optimiser::allReduceSigma(const bool mask,
         for (int m = 0; m < _para.mReco; m++)
 #endif
         {
-            /***
+#ifdef OPTIMIDSER_SIGMA_GRADING
             RFLOAT w;
 
             if (_para.parGra) 
-                w = TSGSL_pow_2(_par[l].compress());
+                w = _par[l].compress();
             else
                 w = 1;
-            ***/
-
+#else
             RFLOAT w = 1;
+#endif
 
             Image img(size(), size(), FT_SPACE);
 
