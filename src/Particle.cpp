@@ -571,8 +571,8 @@ double Particle::compress() const
     }
     else if (_mode == MODE_3D)
     {
-        //return pow(_k1 * _k2 * _k3, -1.0 / 6);
-        return pow(_k1 * _k2 * _k3, -1.0 / 3);
+        return pow(_k1 * _k2 * _k3, -1.0 / 6);
+        //return pow(_k1 * _k2 * _k3, -1.0 / 3);
     }
     else
     {
