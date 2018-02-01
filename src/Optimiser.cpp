@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Bing Li, Heng Guo
  * Dependency:
@@ -10,44 +8,6 @@
  * ****************************************************************************/
 
 #include "Optimiser.h"
-
-/***
-void display(const OptimiserPara& para)
-{
-    printf("Number of Classes:                                       %12d\n", para.k);
-    printf("Size of Image:                                           %12d\n", para.size);
-    printf("Pixel Size (Angstrom):                                   %12.6lf\n", para.pixelSize); 
-    printf("Radius of Mask on Images (Angstrom):                     %12.6lf\n", para.maskRadius);
-    printf("Number of Sampling Points for Scanning in Global Search: %12d\n", para.mS);
-    printf("Estimated Translation (Pixel):                           %12.6lf\n", para.transS);
-    printf("Initial Resolution (Angstrom):                           %12.6lf\n", para.initRes);
-    printf("Perform Global Search Under (Angstrom):                  %12.6lf\n", para.globalSearchRes);
-    printf("Symmetry:                                                %12s\n", para.sym);
-    printf("Initial Model:                                           %12s\n", para.initModel);
-    printf(".thu File Storing Paths and CTFs of Images:           %12s\n", para.db);
-    
-    printf("Perform Reference Mask:                                  %12d\n", para.performMask);
-    printf("Automask:                                                %12d\n", para.autoMask);
-    printf("Mask:                                                    %12s\n", para.mask);
-
-    printf("Max Number of Iteration:                                 %12d\n", para.iterMax);
-    printf("Padding Factor:                                          %12d\n", para.pf);
-    printf("MKB Kernel Radius:                                       %12.6lf\n", para.a);
-    printf("MKB Kernel Smooth Factor:                                %12.6lf\n", para.alpha);
-    printf("Number of Sampling Points in Global Search (Max):        %12d\n", para.mGMax);
-    printf("Number of Sampling Points in Global Search (Min):        %12d\n", para.mGMin);
-    //printf("Number of Sampling Points in Local Search:               %12d\n", para.mL);
-    printf("Ignore Signal Under (Angstrom):                          %12.6lf\n", para.ignoreRes);
-    printf("Correct Intensity Scale Using Signal Under (Angstrom):   %12.6lf\n", para.sclCorRes);
-    printf("FSC Threshold for Cutoff Frequency:                      %12.6lf\n", para.thresCutoffFSC);
-    printf("FSC Threshold for Reporting Resolution:                  %12.6lf\n", para.thresReportFSC);
-    printf("Grouping when Calculating Sigma:                         %12d\n", para.groupSig);
-    printf("Grouping when Correcting Intensity Scale:                %12d\n", para.groupScl);
-    printf("Mask Images with Zero Noise:                             %12d\n", para.zeroMask);
-    printf("CTF Refine Factor:                                       %12.6lf\n", para.ctfRefineFactor);
-    printf("CTF Refine Standard Deviation                            %12.6lf\n", para.ctfRefineS);
-}
-***/
 
 #ifdef ENABLE_SIMD_512
  RFLOAT* logDataVSPrior_m_n_huabin_SIMD512(Complex* dat, const Complex* pri, const RFLOAT* ctf, const RFLOAT* sigRcp, const int n, const int m, RFLOAT *SIMDResult);
