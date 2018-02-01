@@ -858,8 +858,6 @@ void Particle::calVari(const ParticleType pt)
         if (_mode == MODE_2D)
         {
             inferVMS(_k1, _r);
-
-            // _k1 = 1.0 / (1 + _k1); // converting range, extreme sparse, _k1 = 1, extreme dense, _k1 = 0
         }
         else if (_mode == MODE_3D)
         {
@@ -877,6 +875,8 @@ void Particle::calVari(const ParticleType pt)
 
                 _r.row(i) = quat.transpose();
             }
+
+            symmetrise();
 
             inferACG(_k1, _k2, _k3, _r);
 
