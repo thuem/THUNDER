@@ -2990,6 +2990,7 @@ void Optimiser::loadParticles()
                      stdD);
     }
 
+    /***
     for (int l = 0; l < 10; l++)
     {
         ALOG(INFO, "LOGGER_SYS") << "Compress of "
@@ -2997,6 +2998,7 @@ void Optimiser::loadParticles()
                                  << " : "
                                  << _par[l].compress();
     }
+    ***/
 }
 
 void Optimiser::refreshRotationChange()
