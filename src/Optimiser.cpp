@@ -1727,11 +1727,14 @@ void Optimiser::run()
             expectation();
 
             MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
+
+#ifdef VERBOSE_LEVEL_1
             ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
                                        << _nF
                                        << " Times over "
                                        << _ID.size()
                                        << " Images";
+#endif
 
             MPI_Barrier(MPI_COMM_WORLD);
 
@@ -2337,11 +2340,6 @@ void Optimiser::initImg()
         }
 
         imgName = _db.path(_ID[l]);
-
-        /***
-        ILOG(INFO, "LOGGER_SYS") << "Path of Image: "
-                                 << imgName;
-                                 ***/
 
         if (imgName.find('@') == string::npos)
         {
@@ -3404,7 +3402,7 @@ void Optimiser::refreshScale(const bool coord,
         }
     }
 
-#ifdef VERBOSE_LEVEL_2
+#ifdef VERBOSE_LEVEL_1
     ILOG(INFO, "LOGGER_SYS") << "Intensity Scale Information Calculated";
 #endif
 
