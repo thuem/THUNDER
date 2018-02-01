@@ -696,6 +696,8 @@ class Model : public Parallel
 
         void elevateR(const RFLOAT thres = 0.143);
 
+        void setFSC(const mat FSC);
+
         /**
          * This function returns the concentration parameter of the rotation.
          */

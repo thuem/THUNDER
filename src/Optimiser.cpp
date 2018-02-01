@@ -1829,6 +1829,10 @@ void Optimiser::run()
 
             maximization();
         }
+        else
+        {
+            _model.setFSC(mat::Ones(_model.rU(), _para.k));
+        }
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 

@@ -1169,6 +1169,11 @@ void Model::elevateR(const RFLOAT thres)
         _r = GSL_MIN_INT(_rGlobal, _r);
 }
 
+void Model::setFSC(const mat FSC)
+{
+    _FSC = FSC;
+}
+
 RFLOAT Model::rVari() const
 {
     return _rVari;
