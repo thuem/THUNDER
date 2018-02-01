@@ -1163,7 +1163,7 @@ void Model::elevateR(const RFLOAT thres)
     else
         _r = GSL_MAX_INT(_r,
                          GSL_MIN_INT(resolutionP(thres, false) + 1 + CUTOFF_BEYOND_RES,
-                                     _r + CEIL(TSGSL_MAX_RFLOAT(_r * M_SQRT2, (RFLOAT)(maxR() - _rGlobal) / 4)));
+                                     _r + CEIL(TSGSL_MAX_RFLOAT(_r * M_SQRT2, (RFLOAT)(maxR() - _rGlobal) / 4))));
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
