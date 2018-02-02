@@ -621,14 +621,22 @@ class Particle
         void mulWD(const double wD,
                    const int i);
 
+        double uC(const int i) const;
+
         void setUC(const double uC,
                    const int i);
+
+        double uR(const int i) const;
 
         void setUR(const double uR,
                    const int i);
 
+        double uT(const int i) const;
+
         void setUT(const double uT,
                    const int i);
+
+        double uD(const int i) const;
 
         void setUD(const double uD,
                    const int i);

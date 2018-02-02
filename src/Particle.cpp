@@ -658,10 +658,20 @@ void Particle::mulWD(const double wD,
     _wD(i) *= wD;
 }
 
+double Particle::uC(const int i) const
+{
+    return _uC(i);
+}
+
 void Particle::setUC(const double uC,
                      const int i)
 {
     _uC(i) = uC;
+}
+
+double Particle::uR(const int i) const
+{
+    return _uR(i);
 }
 
 void Particle::setUR(const double uR,
@@ -670,10 +680,20 @@ void Particle::setUR(const double uR,
     _uR(i) = uR;
 }
 
+double Particle::uT(const int i) const
+{
+    return _uT(i);
+}
+
 void Particle::setUT(const double uT,
                      const int i)
 {
     _uT(i) = uT;
+}
+
+double Particle::uD(const int i) const
+{
+    return _uD(i);
 }
 
 void Particle::setUD(const double uD,
