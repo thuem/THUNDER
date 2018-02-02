@@ -42,7 +42,7 @@
             FOR_EACH_T(par) \
                 FOR_EACH_D(par)
 
-#define PEAK_FACTOR 4
+#define PEAK_FACTOR 8
 
 enum ParticleType
 {
