@@ -1347,16 +1347,26 @@ void Optimiser::expectation()
 #else
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
+
+            _par[l].keepHalfHeightPeak(PAR_C);
 #endif
 
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
+
+            _par[l].keepHalfHeightPeak(PAR_R);
+
             for (int iT = 0; iT < _para.mLT; iT++)
                 _par[l].setUT(wT(iT), iT);
 
+            _par[l].keepHalfHeightPeak(PAR_T);
+
             if (_searchType == SEARCH_TYPE_CTF)
+            {
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
+                _par[l].keepHalfHeightPeak(PAR_D);
+            }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
@@ -1371,28 +1381,28 @@ void Optimiser::expectation()
                          _ID[l],
                          _iter,
                          phase);
-                save(filename, _par[l], PAR_C);
+                save(filename, _par[l], PAR_C, true);
                 snprintf(filename,
                          sizeof(filename),
                          "R_Particle_%04d_Round_%03d_%03d.par",
                          _ID[l],
                          _iter,
                          phase);
-                save(filename, _par[l], PAR_R);
+                save(filename, _par[l], PAR_R, true);
                 snprintf(filename,
                          sizeof(filename),
                          "T_Particle_%04d_Round_%03d_%03d.par",
                          _ID[l],
                          _iter,
                          phase);
-                save(filename, _par[l], PAR_T);
+                save(filename, _par[l], PAR_T, true);
                 snprintf(filename,
                          sizeof(filename),
                          "D_Particle_%04d_Round_%03d_%03d.par",
                          _ID[l],
                          _iter,
                          phase);
-                save(filename, _par[l], PAR_D);
+                save(filename, _par[l], PAR_D, true);
             }
 #endif
 
