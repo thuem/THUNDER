@@ -1661,28 +1661,30 @@ void Particle::keepHalfHeightPeak(const ParticleType pt)
         double hh = _uC(order(0)) * _peakFactorC;
 
         for (int i = 0; i < _nC; i++)
-            if (_uC(i) < hh) _uC(i) = 0;
+            if (_uC(i) < hh) _uC(i) = 0; else _uC(i) -= hh;
+
     }
     else if (pt == PAR_R)
     {
         double hh = _uR(order(0)) * _peakFactorR;
 
         for (int i = 0; i < _nR; i++)
-            if (_uR(i) < hh) _uR(i) = 0;
+            if (_uR(i) < hh) _uR(i) = 0; else _uR(i) -= hh;
+
     }
     else if (pt == PAR_T)
     {
         double hh = _uT(order(0)) * _peakFactorT;
 
         for (int i = 0; i < _nT; i++)
-            if (_uT(i) < hh) _uT(i) = 0;
+            if (_uT(i) < hh) _uT(i) = 0; else _uT(i) -= hh;
     }
     else if (pt == PAR_D)
     {
         double hh = _uT(order(0)) * _peakFactorD;
 
         for (int i = 0; i < _nD; i++)
-            if (_uD(i) < hh) _uD(i) = 0;
+            if (_uD(i) < hh) _uD(i) = 0; else _uD(i) -= hh;
     }
 }
 
