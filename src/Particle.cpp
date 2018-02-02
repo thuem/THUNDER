@@ -1635,13 +1635,13 @@ void Particle::setPeakFactor(const ParticleType pt)
     uvec order = iSort(pt);
 
     if (pt == PAR_C)
-        _peakFactorC = GSL_MIN_DBL(0.5, _uC(2 * order(_nC - 1)) / _uC(order(0)));
+        _peakFactorC = GSL_MIN_DBL(0.5, 2 * _uC(order(_nC - 1)) / _uC(order(0)));
     else if (pt == PAR_R)
-        _peakFactorR = GSL_MIN_DBL(0.5, _uR(2 * order(_nR - 1)) / _uR(order(0)));
+        _peakFactorR = GSL_MIN_DBL(0.5, 2 * _uR(order(_nR - 1)) / _uR(order(0)));
     else if (pt == PAR_T)
-        _peakFactorT = GSL_MIN_DBL(0.5, _uT(2 * order(_nT - 1)) / _uT(order(0)));
+        _peakFactorT = GSL_MIN_DBL(0.5, 2 * _uT(order(_nT - 1)) / _uT(order(0)));
     else if (pt == PAR_D)
-        _peakFactorD = GSL_MIN_DBL(0.5, _uD(2 * order(_nD - 1)) / _uD(order(0)));
+        _peakFactorD = GSL_MIN_DBL(0.5, 2 * _uD(order(_nD - 1)) / _uD(order(0)));
 }
 
 void Particle::resetPeakFactor()
