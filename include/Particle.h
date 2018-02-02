@@ -42,8 +42,6 @@
             FOR_EACH_T(par) \
                 FOR_EACH_D(par)
 
-#define PEAK_FACTOR 8
-
 enum ParticleType
 {
     PAR_C,
@@ -92,6 +90,14 @@ class Particle
          * original point.
          */
         double _transQ;
+
+        double _peakFactorC;
+
+        double _peakFactorR;
+
+        double _peakFactorT;
+        
+        double _peakFactorD;
 
         /**
          * a dvector storing the class of each particle
@@ -865,6 +871,10 @@ class Particle
          * in a descending order.
          */
         uvec iSort(const ParticleType pt) const;
+
+        void setPeakFactor(const ParticleType pt);
+        
+        void resetPeakFactor();
 
         void keepHalfHeightPeak(const ParticleType pt);
 

@@ -897,6 +897,10 @@ void Optimiser::expectation()
             for (int iT = 0; iT < nT; iT++)
                 _par[l].setUT(wT(l, iT), iT);
 
+            _par[l].setPeakFactor(PAR_C);
+            _par[l].setPeakFactor(PAR_R);
+            _par[l].setPeakFactor(PAR_T);
+
             _par[l].keepHalfHeightPeak(PAR_C);
             _par[l].keepHalfHeightPeak(PAR_R);
             _par[l].keepHalfHeightPeak(PAR_T);
@@ -1103,6 +1107,8 @@ void Optimiser::expectation()
                 _par[l].resample(_para.mLR, PAR_R);
                 _par[l].resample(_para.mLT, PAR_T);
                 ***/
+
+                _par[l].resetPeakFactor(); // do not do it when global
 
                 _par[l].perturb(_para.perturbFactorL, PAR_R);
                 _par[l].perturb(_para.perturbFactorL, PAR_T);
@@ -1365,6 +1371,7 @@ void Optimiser::expectation()
             {
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
+
                 _par[l].keepHalfHeightPeak(PAR_D);
             }
 

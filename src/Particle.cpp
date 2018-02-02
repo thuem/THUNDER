@@ -1630,34 +1630,56 @@ uvec Particle::iSort(const ParticleType pt) const
     else abort();
 }
 
+void Particle::setPeakFactor(const ParticleType pt)
+{
+    uvec order = iSort(pt);
+
+    if (pt == PAR_C)
+        _peakFactorC = GSL_MIN_DBL(0.5, _uC(2 * order(_nC - 1)) / _uC(order(0)));
+    else if (pt == PAR_R)
+        _peakFactorR = GSL_MIN_DBL(0.5, _uR(2 * order(_nC - 1)) / _uR(order(0)));
+    else if (pt == PAR_T)
+        _peakFactorT = GSL_MIN_DBL(0.5, _uT(2 * order(_nT - 1)) / _uT(order(0)));
+    else if (pt == PAR_D)
+        _peakFactorD = GSL_MIN_DBL(0.5, _uD(2 * order(_nT - 1)) / _uD(order(0)));
+}
+
+void Particle::resetPeakFactor()
+{
+    _peakFactorC = 0;
+    _peakFactorR = 0;
+    _peakFactorT = 0;
+    _peakFactorD = 0;
+}
+
 void Particle::keepHalfHeightPeak(const ParticleType pt)
 {
     uvec order = iSort(pt);
 
     if (pt == PAR_C)
     {
-        double hh = uC(order(0)) / PEAK_FACTOR;
+        double hh = _uC(order(0)) * _peakFactorC;
 
         for (int i = 0; i < _nC; i++)
-            if (_uC(i) < hh) _uC(i) = 0;
+            if (_uC(i) <= hh) _uC(i) = 0;
     }
     else if (pt == PAR_R)
     {
-        double hh = uR(order(0)) / PEAK_FACTOR;
+        double hh = _uR(order(0)) * _peakFactorR;
 
         for (int i = 0; i < _nR; i++)
             if (_uR(i) < hh) _uR(i) = 0;
     }
     else if (pt == PAR_T)
     {
-        double hh = uT(order(0)) / PEAK_FACTOR;
+        double hh = _uT(order(0)) * _peakFactorT;
 
         for (int i = 0; i < _nT; i++)
             if (_uT(i) < hh) _uT(i) = 0;
     }
     else if (pt == PAR_D)
     {
-        double hh = uD(order(0)) / PEAK_FACTOR;
+        double hh = _uT(order(0)) * _peakFactorD;
 
         for (int i = 0; i < _nD; i++)
             if (_uD(i) < hh) _uD(i) = 0;
