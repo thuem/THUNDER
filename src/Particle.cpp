@@ -1630,6 +1630,40 @@ uvec Particle::iSort(const ParticleType pt) const
     else abort();
 }
 
+void Particle::keepHalfHeightPeak(const ParticleType pt)
+{
+    uvec order = iSort(pt);
+
+    if (pt == PAR_C)
+    {
+        double hh = uC(order(0));
+
+        for (int i = 0; i < _nC; i++)
+            if (_uC(i) < hh) _uC(i) = 0;
+    }
+    else if (pt == PAR_R)
+    {
+        double hh = uR(order(0));
+
+        for (int i = 0; i < _nR; i++)
+            if (_uR(i) < hh) _uR(i) = 0;
+    }
+    else if (pt == PAR_T)
+    {
+        double hh = uT(order(0));
+
+        for (int i = 0; i < _nT; i++)
+            if (_uT(i) < hh) _uT(i) = 0;
+    }
+    else if (pt == PAR_D)
+    {
+        double hh = uD(order(0));
+
+        for (int i = 0; i < _nD; i++)
+            if (_uD(i) < hh) _uD(i) = 0;
+    }
+}
+
 bool Particle::diffTopC()
 {
     bool diff = (_topCPrev == _topC);

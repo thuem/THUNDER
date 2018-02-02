@@ -864,6 +864,8 @@ class Particle
          */
         uvec iSort(const ParticleType pt) const;
 
+        void keepHalfHeightPeak(const ParticleType pt);
+
         bool diffTopC();
 
         /**

@@ -701,10 +701,6 @@ void Optimiser::expectation()
 
         for (size_t t = 0; t < (size_t)_para.k; t++)
         {
-            //Following two lines can be moved out of for loop
-            
-
-
             #pragma omp parallel for schedule(dynamic) private(rot2D, rot3D)
             for (size_t m = 0; m < (size_t)nR; m++)
             {
@@ -900,6 +896,10 @@ void Optimiser::expectation()
                 _par[l].setUR(wR(l, iR), iR);
             for (int iT = 0; iT < nT; iT++)
                 _par[l].setUT(wT(l, iT), iT);
+
+            _par[l].keepHalfHeightPeak(PAR_C);
+            _par[l].keepHalfHeightPeak(PAR_R);
+            _par[l].keepHalfHeightPeak(PAR_T);
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
