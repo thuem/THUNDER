@@ -2037,7 +2037,8 @@ void display(const Particle& par)
 }
 
 void save(const char filename[],
-          const Particle& par)
+          const Particle& par,
+          const bool saveU)
 {
     FILE* file = fopen(filename, "w");
 
@@ -2058,7 +2059,9 @@ void save(const char filename[],
                 q(0), q(1), q(2), q(3),
                 t(0), t(1),
                 d,
-                par.wC(iC) * par.wR(iR) * par.wT(iT) * par.wD(iD));
+                saveU
+              ? par.uC(iC) * par.uR(iR) * par.uT(iT) * par.uD(iD)
+              : par.wC(iC) * par.wR(iR) * par.wT(iT) * par.wD(iD));
     }
 
     fclose(file);
@@ -2066,7 +2069,8 @@ void save(const char filename[],
 
 void save(const char filename[],
           const Particle& par,
-          const ParticleType pt)
+          const ParticleType pt,
+          const bool saveU)
 {
     FILE* file = fopen(filename, "w");
 
@@ -2081,7 +2085,7 @@ void save(const char filename[],
             fprintf(file,
                     "%03lu %.24lf\n",
                     c,
-                    par.wC(iC));
+                    saveU ? par.uC(iC) : par.wC(iC));
         }
     }
     else if (pt == PAR_R)
@@ -2095,7 +2099,7 @@ void save(const char filename[],
             fprintf(file,
                     "%15.9lf %15.9lf %15.9lf %15.9lf %.24lf\n",
                     q(0), q(1), q(2), q(3),
-                    par.wR(iR));
+                    saveU ? par.uR(iR) : par.wR(iR));
         }
     }
     else if (pt == PAR_T)
@@ -2109,7 +2113,7 @@ void save(const char filename[],
             fprintf(file,
                     "%15.9lf %15.9lf %.24lf\n",
                     t(0), t(1),
-                    par.wT(iT));
+                    saveU ? par.uT(iT) : par.wT(iT));
         }
     }
     else if (pt == PAR_D)
@@ -2123,50 +2127,9 @@ void save(const char filename[],
             fprintf(file,
                    "%15.9lf %.24lf\n",
                    d,
-                   par.wD(iD));
+                   saveU ? par.uD(iD) : par.wD(iD));
         }
     }
 
     fclose(file);
 }
-/***
-void load(Particle& par,
-          const char filename[])
-{
-    FILE* file = fopen(filename, "r");
-
-    int c;
-    dvec4 q;
-    dvec2 t;
-    double d;
-    double w;
-
-    char buf[FILE_LINE_LENGTH];
-
-    int nLine = 0;
-    while (fgets(buf, FILE_LINE_LENGTH, file)) nLine++;
-
-    par.reset(1, nLine);
-
-    rewind(file);
-
-    for (int i = 0; i < nLine; i++) 
-    {
-        fscanf(file,
-               "%d %lf %lf %lf %lf %lf %lf %lf %lf",
-               &c,
-               &q(0), &q(1), &q(2), &q(3),
-               &t(0), &t(1),
-               &d,
-               &w);
-
-        par.setC(c, i);
-        par.setQuaternion(q, i);
-        par.setT(t, i);
-        par.setD(d, i);
-        par.setW(w, i);
-    }
-
-    fclose(file);
-}
-***/

@@ -1102,11 +1102,13 @@ void display(const Particle& par);
  * @param particle the particle filter to be saved
  */
 void save(const char filename[],
-          const Particle& par);
+          const Particle& par,
+          const bool saveU = false);
 
 void save(const char filenamep[],
           const Particle& par,
-          const ParticleType pt);
+          const ParticleType pt,
+          const bool saveU = false);
 
 /**
  * This function load a particle filter from a file.

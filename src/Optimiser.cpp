@@ -913,25 +913,25 @@ void Optimiser::expectation()
                          "C_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
-                save(filename, _par[l], PAR_C);
+                save(filename, _par[l], PAR_C, true);
                 snprintf(filename,
                          sizeof(filename),
                          "R_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
-                save(filename, _par[l], PAR_R);
+                save(filename, _par[l], PAR_R, true);
                 snprintf(filename,
                          sizeof(filename),
                          "T_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
-                save(filename, _par[l], PAR_T);
+                save(filename, _par[l], PAR_T, true);
                 snprintf(filename,
                          sizeof(filename),
                          "D_Particle_%04d_Round_%03d_Initial.par",
                          _ID[l],
                          _iter);
-                save(filename, _par[l], PAR_D);
+                save(filename, _par[l], PAR_D, true);
             }
 #endif
 
