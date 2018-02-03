@@ -528,8 +528,12 @@ void Optimiser::init()
             }
             else
             {
+#ifdef OPTIMISER_SIGMA_MASK_CLASS
                 // classification, focus on searching for difference
                 allReduceSigma(true, false);
+#else
+                allReduceSigma(false, false);
+#endif
             }
         }
     }
@@ -1613,8 +1617,12 @@ void Optimiser::maximization()
     }
     else
     {
+#ifdef OPTIMISER_SIGMA_MASK_CLASS
         // classification, focus on searching for difference
         allReduceSigma(true, _para.groupSig);
+#else
+        allReduceSigma(false, _para.groupSig);
+#endif
     }
 #endif
 
