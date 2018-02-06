@@ -205,4 +205,4 @@ install(FILES "${PROJECT_SOURCE_DIR}/script/demo_3D.json" DESTINATION script)
 
 # Copy Manual
 
-install(FILES "${PROJECT_SOURCE_DIR}/manual/THUNDER_v1_3_User_Guide.pdf" DESTINATION manual)
+install(FILES "${PROJECT_SOURCE_DIR}/manual/THUNDER_v${THUNDER_VERSION_MAJOR}_${THUNDER_VERSION_MINOR}_${THUNDER_VERSION_ADDIT}_User_Guide.pdf" DESTINATION manual)
