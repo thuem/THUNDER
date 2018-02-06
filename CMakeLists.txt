@@ -198,7 +198,6 @@ endforeach()
 # Copy Scripts
 
 install(FILES "${PROJECT_SOURCE_DIR}/script/STAR_2_THU.py" DESTINATION script)
-install(FILES "${PROJECT_SOURCE_DIR}/script/STAR_2_THU_NO_GROUP.py" DESTINATION script)
 install(FILES "${PROJECT_SOURCE_DIR}/script/demo.json" DESTINATION script)
 install(FILES "${PROJECT_SOURCE_DIR}/script/demo_2D.json" DESTINATION script)
 install(FILES "${PROJECT_SOURCE_DIR}/script/demo_3D.json" DESTINATION script)
