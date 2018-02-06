@@ -1648,6 +1648,7 @@ void Particle::setPeakFactor(const ParticleType pt)
 {
     uvec order = iSort(pt);
 
+    /***
     if (pt == PAR_C)
         _peakFactorC = GSL_MIN_DBL(0.5, _uC.mean() / _uC(order(0)));
     else if (pt == PAR_R)
@@ -1656,6 +1657,26 @@ void Particle::setPeakFactor(const ParticleType pt)
         _peakFactorT = GSL_MIN_DBL(0.5, _uT.mean() / _uT(order(0)));
     else if (pt == PAR_D)
         _peakFactorD = GSL_MIN_DBL(0.5, _uD.mean() / _uD(order(0)));
+    ***/
+
+    if (pt == PAR_C)
+        _peakFactorC = GSL_MIN_DBL(0.5, _uC(order(_nC / 2)) / _uC(order(0)));
+    else if (pt == PAR_R)
+    {
+        if (_mode == MODE_2D)
+            _peakFactorR = GSL_MIN_DBL(0.5, _uR(order(_nR / 2)) / _uR(order(0)));
+        else if (_mode == MODE_3D)
+            _peakFactorR = GSL_MIN_DBL(0.5, _uR(order(_nR / 8)) / _uR(order(0)));
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+            abort();
+        }
+    }
+    else if (pt == PAR_T)
+        _peakFactorT = GSL_MIN_DBL(0.5, _uT(order(_nT / 4)) / _uT(order(0)));
+    else if (pt == PAR_D)
+        _peakFactorD = GSL_MIN_DBL(0.5, _uD(order(_nD / 2)) / _uD(order(0)));
 }
 
 void Particle::resetPeakFactor()
