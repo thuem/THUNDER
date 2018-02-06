@@ -963,11 +963,20 @@ void Particle::perturb(const double pf,
         }
         else if (_mode == MODE_3D)
         {
+#ifdef PARTICLE_ROTATION_KAPPA
+            double kappa = GSL_MIN_DBL(1, GSL_MAX_DBL(_k1, GSL_MAX_DBL(_k2, _k3)));
+            sampleACG(d,
+                      gsl_pow_2(pf) * kappa,
+                      gsl_pow_2(pf) * kappa,
+                      gsl_pow_2(pf) * kappa,
+                      _nR);
+#else
             sampleACG(d,
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
                       gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
                       _nR);
+#endif
 
             dvec4 mean;
 
@@ -1020,7 +1029,12 @@ void Particle::perturb(const double pf,
         {
             double x, y;
 
+#ifdef PARTICLE_TRANSLATION_S
+            double s = GSL_MAX_DBL(_s0, _s1);
+            gsl_ran_bivariate_gaussian(engine, s, s, _rho, &x, &y);
+#else
             gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+#endif
 
             _t(i, 0) += x * pf;
             _t(i, 1) += y * pf;
