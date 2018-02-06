@@ -70,13 +70,13 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,
         dvec3 oldCor = mat * newCor; 
 
         if (oldCor.squaredNorm() < gsl_pow_2(r))
-            dst.setFT(src.getByInterpolationFT(oldCor(0),
-                                               oldCor(1),
-                                               oldCor(2),
-                                               interp),
-                      i, 
-                      j, 
-                      k);
+            dst.setFTHalf(src.getByInterpolationFT(oldCor(0),
+                                                   oldCor(1),
+                                                   oldCor(2),
+                                                   interp),
+                          i, 
+                          j, 
+                          k);
     }
 }
 
