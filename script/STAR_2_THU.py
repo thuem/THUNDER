@@ -20,17 +20,36 @@ def main():
                 header_dict[match.group(1).lower()] = int(match.group(2)) - 1
                 continue
             sp = sline.split()
+
+            try:
+                ps = float(sp[header_dict['phaseshift']]) * (math.pi / 180)
+            except (ValueError, IndexError):
+                sys.stderr.write(
+                    'Warning: skipping line #{} ({}) that cannot be parsed\n'.format(num + 1, sline))
+                continue
+            except KeyError:
+                ps = 0
+                #sys.stderr.write('Warning: line #{} ({}) missed phaseshift\n'.format(num + 1, sline))
+
+            try:
+                gI = int(sp[header_dict['groupnumber']])
+            except (ValueError, IndexError):
+                sys.stderr.write(
+                    'Warning: skipping line #{} ({}) that cannot be parsed\n'.format(num + 1, sline))
+                continue
+            except KeyError:
+                gI = 1
+                #sys.stderr.write('Warning: line #{} ({}) missed groupnumber\n'.format(num + 1, sline))
+
             try:
                 volt = float(sp[header_dict['voltage']]) * 1000.0
                 dU = float(sp[header_dict['defocusu']])
                 dV = float(sp[header_dict['defocusv']])
                 dT = float(sp[header_dict['defocusangle']]) * (math.pi / 180)
-                ps = float(sp[header_dict['phaseshift']]) * (math.pi / 180)
                 c = float(sp[header_dict['sphericalaberration']]) * 1e7
                 aC = float(sp[header_dict['amplitudecontrast']])
                 iN = sp[header_dict['imagename']]
                 mN = sp[header_dict['micrographname']]
-                gI = int(sp[header_dict['groupnumber']])
                 coordX = float(sp[header_dict['coordinatex']])
                 coordY = float(sp[header_dict['coordinatey']])
             except (ValueError, IndexError):
