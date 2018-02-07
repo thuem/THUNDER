@@ -1376,7 +1376,7 @@ void Optimiser::expectation()
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
 
-                if (_iter == 0) _par[l].setPeakFactor(PAR_D);
+                if (phase == 0) _par[l].setPeakFactor(PAR_D);
 
                 _par[l].keepHalfHeightPeak(PAR_D);
             }
