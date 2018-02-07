@@ -1112,7 +1112,7 @@ void Optimiser::expectation()
                 _par[l].resample(_para.mLT, PAR_T);
                 ***/
 
-                //_par[l].resetPeakFactor(); // do not do it when global
+                _par[l].resetPeakFactor(); // do not do it when global
 
                 _par[l].perturb(_para.perturbFactorL, PAR_R);
                 _par[l].perturb(_para.perturbFactorL, PAR_T);
