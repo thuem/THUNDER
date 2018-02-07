@@ -3630,7 +3630,7 @@ void Optimiser::normCorrection()
                 else if (_para.mode == MODE_3D)
                 {
                     //_par[l].rand(cls, rot3D, tran, d);
-                    _par[l].rank1st(cls, rot2D, tran, d);
+                    _par[l].rank1st(cls, rot3D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
