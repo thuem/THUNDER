@@ -1681,7 +1681,7 @@ void Particle::keepHalfHeightPeak(const ParticleType pt)
     }
     else if (pt == PAR_D)
     {
-        double hh = _uT(order(0)) * _peakFactorD;
+        double hh = _uD(order(0)) * _peakFactorD;
 
         for (int i = 0; i < _nD; i++)
             if (_uD(i) < hh) _uD(i) = 0; else _uD(i) -= hh;
