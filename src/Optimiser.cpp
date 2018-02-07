@@ -3609,11 +3609,13 @@ void Optimiser::normCorrection()
 
             SET_0_FT(img);
 
-            for (int m = 0; m < _para.mReco; m++)
+            //for (int m = 0; m < _para.mReco; m++)
+            for (int m = 0; m < 1; m++)
             {
                 if (_para.mode == MODE_2D)
                 {
-                    _par[l].rand(cls, rot2D, tran, d);
+                    //_par[l].rand(cls, rot2D, tran, d);
+                    _par[l].rank1st(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
@@ -3627,7 +3629,8 @@ void Optimiser::normCorrection()
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    _par[l].rand(cls, rot3D, tran, d);
+                    //_par[l].rand(cls, rot3D, tran, d);
+                    _par[l].rank1st(cls, rot2D, tran, d);
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
@@ -3687,7 +3690,7 @@ void Optimiser::normCorrection()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-     MPI_Allreduce(MPI_IN_PLACE,
+    MPI_Allreduce(MPI_IN_PLACE,
                   norm.data(),
                   norm.size(),
                   TS_MPI_DOUBLE,
@@ -3696,84 +3699,22 @@ void Optimiser::normCorrection()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    /***
-    IF_MASTER
-    {
-        for (int i = 0; i < 100; i++)
-            MLOG(INFO, "LOGGER_SYS") << "norm "
-                                     << i
-                                     << " = "
-                                     << norm[i];
-    }
-    ***/
-
     MLOG(INFO, "LOGGER_SYS") << "Max of Norm of Noise : "
                              << TSGSL_stats_max(norm.data(), 1, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Min of Norm of Noise : "
                              << TSGSL_stats_min(norm.data(), 1, norm.size());
 
-    //RFLOAT m = TSGSL_stats_mean(norm.data(), 1, norm.size());
-
     RFLOAT m = median(norm, norm.size());
 
     MLOG(INFO, "LOGGER_SYS") << "Mean of Norm of Noise : "
                              << m;
-
-    /***
-    for (int i = 0; i < norm.size(); i++)
-    {
-        if (norm(i) < m / 5)
-            norm(i) = m / 5;
-        else if (norm(i) > m * 5)
-            norm(i) = m * 5;
-    }
-    ***/
-
-    /***
-    RFLOAT sd = TSGSL_stats_sd_m(norm.data(), 1, norm.size(), m);
-
-    MLOG(INFO, "LOGGER_SYS") << "Standard Deviation of Norm of Noise : "
-                             << sd;
-                             ***/
 
     NT_MASTER
     {
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            /***
-            ALOG(INFO, "LOGGER_SYS") << "isEmptyRL of img " << _img[l].isEmptyRL();
-            ALOG(INFO, "LOGGER_SYS") << "isEmptyFT of img " << _img[l].isEmptyFT();
-
-            ALOG(INFO, "LOGGER_SYS") << "SizeRL of img " << _img[l].sizeRL();
-            ALOG(INFO, "LOGGER_SYS") << "SizeFT of img " << _img[l].sizeFT();
-
-            ALOG(INFO, "LOGGER_SYS") << "isEmptyRL of imgOri " << _imgOri[l].isEmptyRL();
-            ALOG(INFO, "LOGGER_SYS") << "isEmptyFT of imgOri " << _imgOri[l].isEmptyFT();
-
-            ALOG(INFO, "LOGGER_SYS") << "SizeRL of imgOri " << _imgOri[l].sizeRL();
-            ALOG(INFO, "LOGGER_SYS") << "SizeFT of imgOri " << _imgOri[l].sizeFT();
-
-            FFT fft;
-
-            fft.bw(_imgOri[l]);
-
-            FOR_EACH_PIXEL_RL(_imgOri[l])
-                _imgOri[l](i) /= 2;
-
-            fft.fw(_imgOri[l]);
-            ***/
-            
-            /***
-            fft.bw(_img[l]);
-
-            FOR_EACH_PIXEL_RL(_img[l])
-                _img[l](i) /= 2;
-
-            fft.fw(_img[l]);
-            ***/
-
             FOR_EACH_PIXEL_FT(_img[l])
             {
                 _img[l][i] *= sqrt(m / norm(_ID[l]));
