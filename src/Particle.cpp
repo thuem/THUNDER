@@ -1660,13 +1660,13 @@ void Particle::setPeakFactor(const ParticleType pt)
     ***/
 
     if (pt == PAR_C)
-        _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(0.5, _uC(order(_nC / 2)) / _uC(order(0))));
+        _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uC(order(_nC / 2)) / _uC(order(0))));
     else if (pt == PAR_R)
     {
         if (_mode == MODE_2D)
-            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(0.5, _uR(order(_nR / 2)) / _uR(order(0))));
+            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
         else if (_mode == MODE_3D)
-            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(0.5, _uR(order(_nR / 8)) / _uR(order(0))));
+            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 8)) / _uR(order(0))));
         else
         {
             REPORT_ERROR("INEXISTENT MODE");
@@ -1674,9 +1674,9 @@ void Particle::setPeakFactor(const ParticleType pt)
         }
     }
     else if (pt == PAR_T)
-        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(0.5, _uT(order(_nT / 4)) / _uT(order(0))));
+        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(_nT / 4)) / _uT(order(0))));
     else if (pt == PAR_D)
-        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(0.5, _uD(order(_nD / 2)) / _uD(order(0))));
+        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(_nD / 2)) / _uD(order(0))));
 }
 
 void Particle::resetPeakFactor()
