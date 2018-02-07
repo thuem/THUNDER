@@ -1955,10 +1955,12 @@ void Optimiser::run()
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
 
-            _model.resetTVari();
+            //_model.resetTVari();
+            //_model.resetFSCArea();
+
             _model.resetRChange();
-            _model.resetFSCArea();
             _model.setNRChangeNoDecrease(0);
+
             _model.setNTopResNoImprove(0);
             _model.setIncreaseR(false);
 
