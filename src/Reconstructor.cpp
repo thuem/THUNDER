@@ -1059,10 +1059,23 @@ void Reconstructor::reconstruct(Volume& dst)
             BLOG(INFO, "LOGGER_RECO") << "Calculating Distance to Total Balanced";
 
 #endif
-        
+
             diffCPrev = diffC;
 
             diffC = checkC();
+ 
+#ifdef VERBOSE_LEVEL_2
+
+            ALOG(INFO, "LOGGER_SYS") << "After "
+                                     << m
+                                     << " Iterations, Distance to Total Balanced: "
+                                     << diffC;
+            BLOG(INFO, "LOGGER_SYS") << "After "
+                                     << m
+                                     << " Iterations, Distance to Total Balanced: "
+                                     << diffC;
+
+#endif
 
 #ifdef VERBOSE_LEVEL_2
 
@@ -1116,18 +1129,6 @@ void Reconstructor::reconstruct(Volume& dst)
             abort();
         }
     }
-
-#ifdef VERBOSE_LEVEL_2
-
-    ALOG(INFO, "LOGGER_SYS") << "After "
-                             << m
-                             << " Iterations, Distance to Total Balanced: "
-                             << diffC;
-    BLOG(INFO, "LOGGER_SYS") << "After "
-                             << m
-                             << " Iterations, Distance to Total Balanced: "
-                             << diffC;
-#endif
 
     if (_mode == MODE_2D)
     {
