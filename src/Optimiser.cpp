@@ -4259,6 +4259,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
     if (avgFlag)
     {
+
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
+
         NT_MASTER
         {
             for (int t = 0; t < _para.k; t++)
@@ -4323,6 +4326,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
             }
         }
+
+#endif
 
         if (avgSave)
         {
