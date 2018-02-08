@@ -4258,7 +4258,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
         _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+#else
+        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
+#endif
     }
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
