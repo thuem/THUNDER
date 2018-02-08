@@ -43,7 +43,7 @@
                 FOR_EACH_D(par)
 
 #define PEAK_FACTOR_MAX (1 - 1e-1)
-#define PEAK_FACTOR_MIN 1e-2
+#define PEAK_FACTOR_MIN 1e-3
 
 enum ParticleType
 {
