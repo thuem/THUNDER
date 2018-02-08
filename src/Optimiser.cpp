@@ -4239,7 +4239,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
             balanceClass(CLASS_BALANCE_FACTOR, false);
+#else
+            balanceClass(CLASS_BALANCE_FACTOR, true);
+#endif
 
 #ifdef VERBOSE_LEVEL_1
 
@@ -4257,11 +4261,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
         _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
     }
 
-    if (avgFlag)
-    {
-
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
 
+    if (avgFlag)
+    {
         NT_MASTER
         {
             for (int t = 0; t < _para.k; t++)
@@ -4327,7 +4330,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
-#endif
 
         if (avgSave)
         {
@@ -4382,6 +4384,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
     }
+
+#endif
 
     if (_searchType != SEARCH_TYPE_CTF)
         freePreCal(false);
