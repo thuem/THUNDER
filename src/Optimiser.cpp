@@ -901,6 +901,7 @@ void Optimiser::expectation()
             for (int iT = 0; iT < nT; iT++)
                 _par[l].setUT(wT(l, iT), iT);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].setPeakFactor(PAR_C);
             _par[l].setPeakFactor(PAR_R);
             _par[l].setPeakFactor(PAR_T);
@@ -908,6 +909,7 @@ void Optimiser::expectation()
             _par[l].keepHalfHeightPeak(PAR_C);
             _par[l].keepHalfHeightPeak(PAR_R);
             _par[l].keepHalfHeightPeak(PAR_T);
+#endif
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
@@ -1358,27 +1360,35 @@ void Optimiser::expectation()
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].keepHalfHeightPeak(PAR_C);
+#endif
 #endif
 
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].keepHalfHeightPeak(PAR_R);
+#endif
 
             for (int iT = 0; iT < _para.mLT; iT++)
                 _par[l].setUT(wT(iT), iT);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].keepHalfHeightPeak(PAR_T);
+#endif
 
             if (_searchType == SEARCH_TYPE_CTF)
             {
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
 
+#ifdef OPTIMISER_PEAK_FACTOR
                 if (phase == 0) _par[l].setPeakFactor(PAR_D);
 
                 _par[l].keepHalfHeightPeak(PAR_D);
+#endif
             }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
