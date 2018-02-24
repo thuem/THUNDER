@@ -1053,6 +1053,10 @@ void Particle::perturb(const double pf,
         reCentre();
 
 #endif
+
+#ifdef PARTILCE_BALANCE_WEIGHT
+        balanceWeight(PAR_T);
+#endif
     }
     else if (pt == PAR_D)
     {
@@ -1060,6 +1064,10 @@ void Particle::perturb(const double pf,
 
         for (int i = 0; i < _nD; i++)
             _d(i) += gsl_ran_gaussian(engine, _s) * pf;
+
+#ifdef PARTILCE_BALANCE_WEIGHT
+        balanceWeight(PAR_D);
+#endif
     }
 }
 
