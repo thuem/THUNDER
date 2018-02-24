@@ -742,10 +742,11 @@ void Optimiser::expectation()
                     for (int i = 0; i < _nPxl; i++)
                         priAllP[i] = traP[_nPxl * n + i] * priRotP[i];
 
-                    // higher logDataVSPrior, higher prabibility
+                    // higher logDataVSPrior, higher probability
 
                     //Add by huabin
                     memset(SIMDResult, '\0', _ID.size() * sizeof(RFLOAT));
+
 #ifdef ENABLE_SIMD_512
             RFLOAT* dvp = logDataVSPrior_m_n_huabin_SIMD512(_datP,
                                              priAllP,
