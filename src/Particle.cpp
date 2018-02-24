@@ -2095,7 +2095,7 @@ void Particle::balanceWeight(const ParticleType pt)
         s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
         s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
 
-        for (int i = 0; i < _nR; i++)
+        for (int i = 0; i < _nT; i++)
         {
             _wT(i) = 1.0 / gsl_ran_bivariate_gaussian_pdf(_t(i, 0) - m0,
                                                           _t(i, 1) - m1,
