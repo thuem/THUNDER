@@ -1024,6 +1024,10 @@ void Particle::perturb(const double pf,
 
             abort();
         }
+
+#ifdef PARTILCE_BALANCE_WEIGHT
+        balanceWeight(PAR_R);
+#endif
     }
     else if (pt == PAR_T)
     {
@@ -1153,10 +1157,6 @@ void Particle::resample(const int n,
         _r = r;
 
         _uR.resize(_nR);
-
-#ifdef PARTICLE_BALANCE_WEIGHT
-        balanceWeight(PAR_R);
-#endif
     }
     else if (pt == PAR_T)
     {
@@ -1202,10 +1202,6 @@ void Particle::resample(const int n,
         _t = t;
 
         _uT.resize(_nT);
-
-#ifdef PARTICLE_BALANCE_WEIGHT
-        balanceWeight(PAR_T);
-#endif
     }
     else if (pt == PAR_D)
     {
@@ -1251,10 +1247,6 @@ void Particle::resample(const int n,
         _d = d;
 
         _uD.resize(_nD);
-
-#ifdef PARTICLE_BALANCE_WEIGHT
-        balanceWeight(PAR_D);
-#endif
     }
 
     normW();
