@@ -211,8 +211,8 @@ void inferACG(dvec4& mean,
 #endif
 }
 
-double pdfVMS(const vec2& x,
-              const vec2& mu,
+double pdfVMS(const dvec2& x,
+              const dvec2& mu,
               const double k)
 {
     double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
@@ -290,11 +290,11 @@ void sampleVMS(dmat4& dst,
     dst.leftCols<2>() = dst2D;
 }
 
-void inferVMS(vec2& mu,
+void inferVMS(dvec2& mu,
               double& k,
               const dmat2& src)
 {
-    mu = vec2::Zero();
+    mu = dvec2::Zero();
 
     for (int i = 0; i < src.rows(); i++)
     {
@@ -318,7 +318,7 @@ void inferVMS(vec2& mu,
 void inferVMS(double& k,
               const dmat2& src)
 {
-    vec2 mu;
+    dvec2 mu;
 
     inferVMS(mu, k, src);
 }
@@ -327,7 +327,7 @@ void inferVMS(dvec4& mu,
               double& k,
               const dmat4& src)
 {
-    vec2 mu2D;
+    dvec2 mu2D;
 
     inferVMS(mu2D, k, src.leftCols<2>());
 

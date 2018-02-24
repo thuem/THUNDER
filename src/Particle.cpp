@@ -931,7 +931,11 @@ void Particle::calVari(const ParticleType pt)
     }
     else if (pt == PAR_D)
     {
+#ifdef PARTICLE_CAL_VARI_DEFOCUS_ZERO_MEAN
+        _s = gsl_stats_sd_m(_d.data(), 1, _d.size(), 0);
+#else
         _s = gsl_stats_sd(_d.data(), 1, _d.size());
+#endif
     }
 }
 
@@ -1149,6 +1153,10 @@ void Particle::resample(const int n,
         _r = r;
 
         _uR.resize(_nR);
+
+#ifdef PARTICLE_BALANCE_WEIGHT
+        balanceWeight(PAR_R);
+#endif
     }
     else if (pt == PAR_T)
     {
@@ -1194,6 +1202,10 @@ void Particle::resample(const int n,
         _t = t;
 
         _uT.resize(_nT);
+
+#ifdef PARTICLE_BALANCE_WEIGHT
+        balanceWeight(PAR_T);
+#endif
     }
     else if (pt == PAR_D)
     {
@@ -1239,6 +1251,10 @@ void Particle::resample(const int n,
         _d = d;
 
         _uD.resize(_nD);
+
+#ifdef PARTICLE_BALANCE_WEIGHT
+        balanceWeight(PAR_D);
+#endif
     }
 
     normW();
@@ -2036,16 +2052,77 @@ void Particle::balanceWeight(const ParticleType pt)
 {
     if (pt == PAR_C)
     {
+        CLOG(FATAL, "LOGGER_SYS") << "PAR_C WEIGHT SHOULD NOT BE BALANCED";
     }
     else if (pt == PAR_R)
     {
+        if (_mode == MODE_2D)
+        {
+            dvec2 mu;
+            double k;
+
+            inferVMS(mu, k, _r.leftCols<2>());
+
+            for (int i = 0; i < _nR; i++)
+            {
+                _wR(i) = 1.0 / pdfVMS(dvec2(_r(i, 0), _r(i, 1)), mu, k);
+            }
+        }
+        else if (_mode == MODE_3D)
+        {
+            dmat44 A;
+
+            inferACG(A, _r);
+
+            for (int i = 0; i < _nR; i++)
+            {
+                _wR(i) = 1.0 / pdfACG(_r.row(i).transpose(), A);
+            }
+        }
     }
     else if (pt == PAR_T)
     {
+        double m0, m1, s0, s1;
+
+#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
+        m0 = 0;
+        m1 = 0;
+#else
+        m0 = gsl_stats_mean(_t.col(0).data(), 1, _t.rows());
+        m1 = gsl_stats_mean(_t.col(1).data(), 1, _t.rows());
+#endif
+
+        s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
+        s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
+
+        for (int i = 0; i < _nR; i++)
+        {
+            _wT(i) = 1.0 / gsl_ran_bivariate_gaussian_pdf(_t(i, 0) - m0,
+                                                          _t(i, 1) - m1,
+                                                          s0,
+                                                          s1,
+                                                          0);
+        }
     }
     else if (pt == PAR_D)
     {
+        double m, s;
+
+#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
+        m = 0;
+#else
+        m = gsl_stats_mean(_d.data(), 1, _d.size());
+#endif
+
+        s = gsl_stats_sd_m(_d.data(), 1, _d.size(), m);
+
+        for (int i = 0; i < _nD; i++)
+        {
+            _wD(i) = 1.0 / gsl_ran_gaussian_pdf(_d(i) - m, s);
+        }
     }
+
+    normW();
 }
 
 void Particle::copy(Particle& that) const

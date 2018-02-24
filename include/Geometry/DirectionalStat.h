@@ -182,7 +182,7 @@ void inferVMS(dvec2& mu,
               double& k,
               const dmat2& src);
 
-void inferVMS(double& kappa,
+void inferVMS(double& k,
               const dmat2& src);
 
 void inferVMS(dvec4& mu,
