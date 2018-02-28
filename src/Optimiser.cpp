@@ -902,13 +902,18 @@ void Optimiser::expectation()
             for (int iT = 0; iT < nT; iT++)
                 _par[l].setUT(wT(l, iT), iT);
 
-#ifdef OPTIMISER_PEAK_FACTOR
+#ifdef OPTIMISER_PEAK_FACTOR_C
             _par[l].setPeakFactor(PAR_C);
-            _par[l].setPeakFactor(PAR_R);
-            _par[l].setPeakFactor(PAR_T);
-
             _par[l].keepHalfHeightPeak(PAR_C);
+#endif
+
+#ifdef OPTIMISER_PEAK_FACTOR_R
+            _par[l].setPeakFactor(PAR_R);
             _par[l].keepHalfHeightPeak(PAR_R);
+#endif
+
+#ifdef OPTIMISER_PEAK_FACTOR_T
+            _par[l].setPeakFactor(PAR_T);
             _par[l].keepHalfHeightPeak(PAR_T);
 #endif
 
@@ -1361,7 +1366,7 @@ void Optimiser::expectation()
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
 
-#ifdef OPTIMISER_PEAK_FACTOR
+#ifdef OPTIMISER_PEAK_FACTOR_C
             _par[l].keepHalfHeightPeak(PAR_C);
 #endif
 #endif
@@ -1369,14 +1374,14 @@ void Optimiser::expectation()
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
 
-#ifdef OPTIMISER_PEAK_FACTOR
+#ifdef OPTIMISER_PEAK_FACTOR_R
             _par[l].keepHalfHeightPeak(PAR_R);
 #endif
 
             for (int iT = 0; iT < _para.mLT; iT++)
                 _par[l].setUT(wT(iT), iT);
 
-#ifdef OPTIMISER_PEAK_FACTOR
+#ifdef OPTIMISER_PEAK_FACTOR_T
             _par[l].keepHalfHeightPeak(PAR_T);
 #endif
 
@@ -1385,7 +1390,7 @@ void Optimiser::expectation()
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
 
-#ifdef OPTIMISER_PEAK_FACTOR
+#ifdef OPTIMISER_PEAK_FACTOR_D
                 if (phase == 0) _par[l].setPeakFactor(PAR_D);
 
                 _par[l].keepHalfHeightPeak(PAR_D);
