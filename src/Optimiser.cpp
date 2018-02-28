@@ -636,7 +636,7 @@ void Optimiser::expectation()
         }
 
         RFLOAT scanMinStdT = 1.0
-                           / TSGSL_cdf_chisq_Qinv(0.5, 2)
+                           / TSGSL_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
 
         ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "

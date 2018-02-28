@@ -135,11 +135,11 @@ void Particle::reset()
     for (int i = 0; i < _nT; i++)
     {
         _t(i, 0) = gsl_ran_flat(engine,
-                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+                                -gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS);
         _t(i, 1) = gsl_ran_flat(engine,
-                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+                                -gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS);
     }
 #endif
 
@@ -291,8 +291,8 @@ void Particle::initD(const int nD,
 #ifdef PARTICLE_DEFOCUS_INIT_FLAT
     for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_flat(engine,
-                                 -gsl_cdf_chisq_Qinv(0.5, 1) * sD,
-                                 gsl_cdf_chisq_Qinv(0.5, 1) * sD);
+                                 -gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 1) * sD,
+                                 gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 1) * sD);
 #endif
 
     _wD = dvec::Constant(_nD, 1.0 / _nD);
