@@ -283,8 +283,17 @@ void Particle::initD(const int nD,
 
     _d.resize(nD);
 
+#ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
     for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
+#endif
+
+#ifdef PARTICLE_DEFOCUS_INIT_FLAT
+    for (int i = 0; i < _nD; i++)
+        _d(i) = 1 + gsl_ran_flat(engine,
+                                 -gsl_cdf_chisq_Qinv(0.5, 1) * sD,
+                                 gsl_cdf_chisq_Qinv(0.5, 1) * sD);
+#endif
 
     _wD = dvec::Constant(_nD, 1.0 / _nD);
     
