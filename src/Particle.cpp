@@ -128,6 +128,11 @@ void Particle::reset()
     // sample from 2D Gaussian Distribution
     for (int i = 0; i < _nT; i++)
         gsl_ran_bivariate_gaussian(engine, _transS, _transS, 0, &_t(i, 0), &_t(i, 1));
+
+#ifdef PARTILCE_BALANCE_WEIGHT
+    balanceWeight(PAR_T);
+#endif
+
 #endif
 
 #ifdef PARTICLE_TRANS_INIT_FLAT
@@ -286,6 +291,11 @@ void Particle::initD(const int nD,
 #ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
     for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
+
+#ifdef PARTILCE_BALANCE_WEIGHT
+    balanceWeight(PAR_D);
+#endif
+
 #endif
 
 #ifdef PARTICLE_DEFOCUS_INIT_FLAT
