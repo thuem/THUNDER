@@ -1,0 +1,18 @@
+#
+# Build cuthuemcore without interface
+#
+
+# Set output path
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+
+# cuda sources
+FILE(GLOB_RECURSE CUDA_SOURCES ${CUDA_BASE}/src/*.cu)
+
+# Set nvcc seperate build mode
+SET(BUILD_SHARED_LIBS OFF)
+SET(CUDA_SEPARABLE_COMPILATION ON)
+
+LINK_LIBRARIES(cuthuem ${EXTERNAL_LIBS})
+# Build library
+CUDA_INCLUDE_DIRECTORIES(${CUDA_INCLUDE} ${EXTERNAL_INCLUDE})
+CUDA_ADD_LIBRARY(cuthuemcore STATIC ${CUDA_SOURCES})
