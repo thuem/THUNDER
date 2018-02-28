@@ -21,6 +21,14 @@ else("${SINGLE_PRECISION}")
     message(STATUS "Build THUNDER in double-float precision.")
 endif("${SINGLE_PRECISION}")
 
+option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
+
+if ("${GPU_VERSION}")
+    message(STATUS "Build THUNDER in gpu version.")
+else("${GPU_VERSION}")
+    message(STATUS "Build THUNDER in cpu version.")
+endif("${GPU_VERSION}")
+
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 
 # Build Type
@@ -120,6 +128,16 @@ install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
 
 include_directories(${PROJECT_BINARY_DIR})
 
+## CMake module file location
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
+# Add Header of THUNDER core
+
+include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${PROJECT_SOURCE_DIR}/include/Functions
+                    ${PROJECT_SOURCE_DIR}/include/Geometry
+                    ${PROJECT_SOURCE_DIR}/include/Image)
+
 message(STATUS "Getting ready for building FFTW-3")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
@@ -160,18 +178,58 @@ include_directories(${PROJECT_SOURCE_DIR}/external/boost)
 
 include_directories(${PROJECT_SOURCE_DIR}/external/easylogging)
 
-# Add Header of THUNDER core
+SET(INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
+SET(CUR_INCLUDE ${INCLUDE_BASE})
 
-include_directories(${PROJECT_SOURCE_DIR}/include
-                    ${PROJECT_SOURCE_DIR}/include/Functions
-                    ${PROJECT_SOURCE_DIR}/include/Geometry
-                    ${PROJECT_SOURCE_DIR}/include/Image)
+LIST(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Functions)
+LIST(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Geometry)
+LIST(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Image)
+
+# CUDA toolkit
+FIND_PACKAGE(CUDA 8.0 REQUIRED)
+IF(CUDA_FOUND)
+  MESSAGE(STATUS "CUDA version:" ${CUDA_VERSION})
+  MESSAGE(STATUS "CUDA toolkit root dir: " ${CUDA_TOOLKIT_ROOT_DIR})
+  MESSAGE(STATUS "CUDA include dir: " ${CUDA_INCLUDE_DIRS})
+  MESSAGE(STATUS "CUDA librares: " ${CUDA_LIBRARIES})
+  MESSAGE(STATUS "CUDA cublas librares: " ${CUDA_CUBLAS_LIBRARIES})
+  MESSAGE(STATUS "CUDA curand librares: " ${CUDA_curand_LIBRARY})
+  MESSAGE(STATUS "CUDA FFT librares: " ${CUDA_CUFFT_LIBRARIES})
+  INCLUDE_DIRECTORIES(SYSTEM ${CUDA_INCLUDE_DIRS})
+  SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
+  # Hard-code the gpu arch spec
+  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_30,code=sm_30")
+  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_35,code=sm_35")
+  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_50,code=sm_50")
+  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
+  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
+  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
+  LIST(APPEND CUDA_NVCC_FLAGS "-std=c++11")
+  LIST(APPEND EXTERNAL_LIBS ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES})
+  LIST(APPEND EXTERNAL_LIBS ${CUDA_CUFFT_LIBRARIES})
+  LIST(APPEND EXTERNAL_LIBS ${CUDA_curand_LIBRARY})
+
+  # NCCL
+  FIND_PACKAGE(NCCL)
+  IF(NCCL_FOUND)
+    MESSAGE(STATUS "NCCL include dir: " ${NCCL_INCLUDES})
+    MESSAGE(STATUS "NCCL librares: " ${NCCL_LIBRARIES})
+    INCLUDE_DIRECTORIES(SYSTEM ${NCCL_INCLUDES})
+    LIST(APPEND EXTERNAL_LIBS ${NCCL_LIBRARIES})
+  ENDIF()
+ENDIF()
+
+# Build routine
+ADD_SUBDIRECTORY(gpu)
 
 # Compile Binary of THUNDER core
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_library(core STATIC ${SOURCES})
+
+TARGET_INCLUDE_DIRECTORIES(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
+TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
 
 # Make Sure FFTW and GSL is Built Before Linking
 

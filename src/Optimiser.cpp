@@ -574,6 +574,890 @@ struct SpWeightComparator
     }
 };
 
+void Optimiser::expectationG()
+{
+    IF_MASTER return;
+
+    int nPer = 0;
+
+    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+
+    allocPreCalIdx(_r, _rL);
+
+    if (_searchType == SEARCH_TYPE_GLOBAL)
+    {
+        if (_searchType != SEARCH_TYPE_CTF)
+            allocPreCal(true, false, false);
+        else
+            allocPreCal(true, false, true);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
+        BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
+
+        // initialse a particle filter
+
+        int nR;
+        if (_para.mode == MODE_2D)
+        { 
+            nR = _para.mS;
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            nR = _para.mS / (1 + _sym.nSymmetryElement());
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
+        int nT = GSL_MAX_INT(30,
+                             AROUND(M_PI
+                                  * TSGSL_pow_2(_para.transS
+                                            * TSGSL_cdf_chisq_Qinv(0.5, 2))
+                                  * _para.transSearchFactor));
+
+        RFLOAT scanMinStdR;
+        if (_para.mode == MODE_2D)
+        { 
+            scanMinStdR = 1.0 / _para.mS;
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            scanMinStdR =  pow(_para.mS, -1.0 / 3);
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
+        RFLOAT scanMinStdT = 1.0
+                           / TSGSL_cdf_chisq_Qinv(0.5, 2)
+                           / sqrt(_para.transSearchFactor * M_PI);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
+                                   << scanMinStdR;
+        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Translation in Scanning Phase: "
+                                   << scanMinStdT;
+
+        Particle par = _par[0].copy();
+
+        par.reset(_para.k, nR, nT, 1);
+
+        FOR_EACH_2D_IMAGE
+        {
+            // the previous top class, translation, rotation remain
+            par.copy(_par[l]);
+        }
+
+        dmat22 rot2D;
+        dmat33 rot3D;
+        dvec2 t;
+ 
+        RFLOAT* wc = new RFLOAT[_ID.size() * _para.k];
+        RFLOAT* wr = new RFLOAT[_ID.size() * nR];
+        RFLOAT* wt = new RFLOAT[_ID.size() * nT];
+
+        Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
+
+        if (_para.mode == MODE_3D)
+        {            
+            Complex* vol = &((const_cast<Volume&>(_model.proj(0).projectee3D()))[0]);    
+            double* trans = new double[nT * 2];
+            double* rot = new double[nR * 4];
+
+            for (int k = 0; k < nT; k++)
+                Map<dvec2>(trans + k * 2, 2, 1) = par.t().row(k).transpose();
+            
+            for (int k = 0; k < nR; k++)
+                Map<dvec4>(rot + k * 4, 4, 1) = par.r().row(k).transpose();
+        
+            ExpectGlobal3D(vol,
+                           _datP,
+                           _ctfP,
+                           _sigRcpP,
+                           trans,
+                           wc,
+                           wr,
+                           wt,
+                           rot,
+                           _iCol, 
+                           _iRow,
+                           _para.k,
+                           nR,
+                           nT,
+                           _model.proj(0).pf(),
+                           _model.proj(0).interp(),
+                           _para.size,
+                           _model.proj(0).projectee3D().nSlcFT(), 
+                           _nPxl,
+                           _ID.size());
+            
+            delete[] vol;
+            delete[] trans;
+            delete[] rot;
+        }
+        else
+        {
+            int sizeModel = _model.proj(0).projectee2D().sizeFT();
+            Complex* vol = new Complex[sizeModel * _para.k];
+            Complex* temp;    
+
+            for (int k = 0; k < _para.k; k++)
+            {
+                temp = &((const_cast<Image&>(_model.proj(k).projectee2D()))[0]);    
+                for (int z = 0; z < sizeModel; z++)
+                    vol[k * sizeModel + z] = temp[z];
+            }
+
+            double* trans = new double[nT * 2];
+            double* rot = new double[nR * 2];
+
+            for (int k = 0; k < nT; k++)
+                Map<dvec2>(trans + k * 2, 2, 1) = par.t().row(k).transpose();
+            
+            for (int k = 0; k < nR; k++)
+            {
+                rot[k * 2] = (par.r())(k, 0);
+                rot[k * 2 + 1] = (par.r())(k, 1);
+                 
+            }
+        
+            ExpectGlobal2D(vol,
+                           _datP,
+                           _ctfP,
+                           _sigRcpP,
+                           trans,
+                           wc,
+                           wr,
+                           wt,
+                           rot,
+                           _iCol, 
+                           _iRow,
+                           _para.k,
+                           nR,
+                           nT,
+                           _model.proj(0).pf(),
+                           _model.proj(0).interp(),
+                           _para.size,
+                           _model.proj(0).projectee2D().nRowFT(), 
+                           _nPxl,
+                           _ID.size());
+            
+            delete[] vol;
+            delete[] trans;
+            delete[] rot;
+        }
+        // reset weights of particle filter
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+
+            for (int iC = 0; iC < _para.k; iC++)
+                _par[l].setUC(wc[l * _para.k + iC], iC);
+            for (int iR = 0; iR < nR; iR++)
+                _par[l].setUR(wr[l * nR + iR], iR);
+            for (int iT = 0; iT < nT; iT++)
+                _par[l].setUT(wt[l * nT + iT], iT);
+
+            _par[l].setPeakFactor(PAR_C);
+            _par[l].setPeakFactor(PAR_R);
+            _par[l].setPeakFactor(PAR_T);
+
+            _par[l].keepHalfHeightPeak(PAR_C);
+            _par[l].keepHalfHeightPeak(PAR_R);
+            _par[l].keepHalfHeightPeak(PAR_T);
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+            if (_ID[l] < N_SAVE_IMG)
+            {
+                _par[l].sort();
+
+                char filename[FILE_NAME_LENGTH];
+
+                snprintf(filename,
+                         sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_C, true);
+                snprintf(filename,
+                         sizeof(filename),
+                         "R_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_R, true);
+                snprintf(filename,
+                         sizeof(filename),
+                         "T_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_T, true);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_D, true);
+            }
+#endif
+
+            _par[l].resample(_para.k, PAR_C);
+
+            _par[l].resample(_para.mLR, PAR_R);
+            _par[l].resample(_para.mLT, PAR_T);
+
+            _par[l].calVari(PAR_R);
+            _par[l].calVari(PAR_T);
+
+            if (_para.mode == MODE_2D)
+            {
+                _par[l].setK1(TSGSL_MAX_RFLOAT((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                ? _para.perturbFactorSGlobal
+                                                : _para.perturbFactorSLocal))
+                                        * MIN_STD_FACTOR * scanMinStdR,
+                                          _par[l].k1()));
+            }
+            else if (_para.mode == MODE_3D)
+            {
+                _par[l].setK1(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                  * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k1()));
+                _par[l].setK2(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                  * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k2()));
+
+                _par[l].setK3(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                                          ? _para.perturbFactorSGlobal
+                                                          : _para.perturbFactorSLocal))
+                                                   * MIN_STD_FACTOR * scanMinStdR),
+                                          _par[l].k3()));
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
+
+            _par[l].setS0(TSGSL_MAX_RFLOAT(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                           ? _para.perturbFactorSGlobal
+                                           : _para.perturbFactorSLocal)
+                                    * MIN_STD_FACTOR * scanMinStdT,
+                                      _par[l].s0()));
+
+            _par[l].setS1(TSGSL_MAX_RFLOAT(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
+                                           ? _para.perturbFactorSGlobal
+                                           : _para.perturbFactorSLocal)
+                                    * MIN_STD_FACTOR * scanMinStdT,
+                                      _par[l].s1()));
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+            if (_ID[l] < N_SAVE_IMG)
+            {
+                _par[l].sort();
+
+                char filename[FILE_NAME_LENGTH];
+                snprintf(filename,
+                         sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_C);
+                snprintf(filename,
+                         sizeof(filename),
+                         "R_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_R);
+                snprintf(filename,
+                         sizeof(filename),
+                         "T_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_T);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_Resampled_Initial.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_D);
+            }
+#endif
+
+#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
+
+            size_t cls;
+            _par[l].rand(cls);
+
+            _par[l].setNC(1);
+            _par[l].setC(uvec::Constant(1, cls));
+            _par[l].setWC(dvec::Constant(1, 1));
+            _par[l].setUC(dvec::Constant(1, 1));
+#endif
+        }
+
+        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
+        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
+#endif
+
+        TSFFTW_free(traP);
+
+        if (_searchType != SEARCH_TYPE_CTF)
+            freePreCal(false);
+        else
+            freePreCal(true);
+    }
+
+#ifdef OPTIMISER_PARTICLE_FILTER
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(true, false, false);
+    else
+        allocPreCal(true, false, true);
+
+    _nP.resize(_ID.size(), 0);
+
+    _nF = 0;
+    _nI = 0;
+
+    nPer = 0;
+
+    Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+    Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+
+    Complex* poolTraP = (Complex*)TSFFTW_malloc(_para.mLT * _nPxl * omp_get_max_threads() * sizeof(Complex));
+
+    RFLOAT* poolCtfP;
+
+    if (_searchType == SEARCH_TYPE_CTF)
+        poolCtfP = (RFLOAT*)TSFFTW_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(RFLOAT));
+
+    #pragma omp parallel for schedule(dynamic)
+    FOR_EACH_2D_IMAGE
+    {
+
+        Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
+        Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
+
+        int nPhaseWithNoVariDecrease = 0;
+
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+        RFLOAT topCmp = 0;
+#else
+        double k1 = 1;
+        double k2 = 1;
+        double k3 = 1;
+        double tVariS0 = 5 * _para.transS;
+        double tVariS1 = 5 * _para.transS;
+        double dVari = 5 * _para.ctfRefineS;
+#endif
+        for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+        {
+            if (phase == 0)
+            {
+                /***
+                _par[l].resample(_para.mLR, PAR_R);
+                _par[l].resample(_para.mLT, PAR_T);
+                ***/
+
+                _par[l].resetPeakFactor(); // do not do it when global
+
+                _par[l].perturb(_para.perturbFactorL, PAR_R);
+                _par[l].perturb(_para.perturbFactorL, PAR_T);
+
+                /***
+                if (_model.r() > _model.rPrev())
+                {
+                    _par[l].perturb(_para.perturbFactorL, PAR_R);
+                    _par[l].perturb(_para.perturbFactorL, PAR_T);
+                }
+                else
+                {
+                    _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                  ? _para.perturbFactorSGlobal
+                                  : _para.perturbFactorSLocal,
+                                    PAR_R);
+                    _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                  ? _para.perturbFactorSGlobal
+                                  : _para.perturbFactorSLocal,
+                                    PAR_T);
+                }
+                ***/
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                    _par[l].initD(_para.mLD, _para.ctfRefineS);
+            }
+            else
+            {
+                _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                              ? _para.perturbFactorSGlobal
+                              : _para.perturbFactorSLocal,
+                                PAR_R);
+                _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                              ? _para.perturbFactorSGlobal
+                              : _para.perturbFactorSLocal,
+                                PAR_T);
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                    _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
+            }
+
+            RFLOAT baseLine = GSL_NAN;
+
+#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
+            vec wC = vec::Zero(1);
+#else
+            vec wC = vec::Zero(_para.k);
+#endif
+
+            vec wR = vec::Zero(_para.mLR);
+            vec wT = vec::Zero(_para.mLT);
+            vec wD = vec::Zero(_para.mLD);
+
+            size_t c;
+            dmat22 rot2D;
+            dmat33 rot3D;
+            double d;
+            dvec2 t;
+
+            FOR_EACH_C(_par[l])
+            {
+                _par[l].c(c, iC);
+
+                Complex* traP = poolTraP + _par[l].nT() * _nPxl * omp_get_thread_num();
+
+                FOR_EACH_T(_par[l])
+                {
+                    _par[l].t(t, iT);
+
+                    translate(traP + iT * _nPxl,
+                              t(0),
+                              t(1),
+                              _para.size,
+                              _para.size,
+                              _iCol,
+                              _iRow,
+                              _nPxl);
+                }
+
+                RFLOAT* ctfP;
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                {
+                    ctfP = poolCtfP + _par[l].nD() * _nPxl * omp_get_thread_num();
+
+                    FOR_EACH_D(_par[l])
+                    {
+                        _par[l].d(d, iD);
+
+                        for (int i = 0; i < _nPxl; i++)
+                        {
+                            RFLOAT ki = _K1[l]
+                                      * _defocusP[l * _nPxl + i]
+                                      * d
+                                      * TSGSL_pow_2(_frequency[i])
+                                      + _K2[l]
+                                      * TSGSL_pow_4(_frequency[i])
+                                      - _ctfAttr[l].phaseShift;
+
+                            //ctfP[_nPxl * iD + i] = -w1 * TS_SIN(ki) + w2 * TS_COS(ki);
+                            ctfP[_nPxl * iD + i] = -TS_SQRT(1 - TSGSL_pow_2(_ctfAttr[l].amplitudeContrast))
+                                                 * TS_SIN(ki)
+                                                 + _ctfAttr[l].amplitudeContrast
+                                                 * TS_COS(ki);
+                        }
+                    }
+                }
+
+                FOR_EACH_R(_par[l])
+                {
+                    if (_para.mode == MODE_2D)
+                    {
+                        _par[l].rot(rot2D, iR);
+                    }
+                    else if (_para.mode == MODE_3D)
+                    {
+                        _par[l].rot(rot3D, iR);
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
+                    }
+
+                    if (_para.mode == MODE_2D)
+                    {
+                        _model.proj(c).project(priRotP,
+                                               rot2D,
+                                               _iCol,
+                                               _iRow,
+                                               _nPxl);
+                    }
+                    else if (_para.mode == MODE_3D)
+                    {
+                        _model.proj(c).project(priRotP,
+                                               rot3D,
+                                               _iCol,
+                                               _iRow,
+                                               _nPxl);
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+
+                        abort();
+                    }
+
+                    FOR_EACH_T(_par[l])
+                    {
+                        for (int i = 0; i < _nPxl; i++)
+                            priAllP[i] = traP[_nPxl * iT + i] * priRotP[i];
+
+                        FOR_EACH_D(_par[l])
+                        {
+                            _par[l].d(d, iD);
+
+                            RFLOAT w;
+
+#ifdef ENABLE_SIMD_512
+                            if (_searchType != SEARCH_TYPE_CTF)
+                            {
+                                w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   _ctfP + l * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                            else
+                            {
+                                w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   ctfP + iD * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+#else
+#ifdef ENABLE_SIMD_256
+                            if (_searchType != SEARCH_TYPE_CTF)
+                            {
+                                w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   _ctfP + l * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                            else
+                            {
+                                w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   ctfP + iD * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+#else
+                            if (_searchType != SEARCH_TYPE_CTF)
+                            {
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   _ctfP + l * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+                            else
+                            {
+                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
+                                                   priAllP,
+                                                   ctfP + iD * _nPxl,
+                                                   _sigRcpP + l * _nPxl,
+                                                   _nPxl);
+                            }
+#endif
+#endif
+                            
+                            baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
+
+                            if (w > baseLine)
+                            {
+                                RFLOAT nf = exp(baseLine - w);
+
+                                wC *= nf;
+                                wR *= nf;
+                                wT *= nf;
+                                wD *= nf;
+
+                                baseLine = w;
+                            }
+
+                            RFLOAT s = exp(w - baseLine);
+
+                            wC(iC) += s;
+                            wR(iR) += s;
+                            wT(iT) += s;
+                            wD(iD) += s;
+                        }
+                    }
+                }
+            }
+
+#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
+            _par[l].setUC(wC(0), 0);
+#else
+            for (int iC = 0; iC < _para.k; iC++)
+                _par[l].setUC(wC(iC), iC);
+
+            _par[l].keepHalfHeightPeak(PAR_C);
+#endif
+
+            for (int iR = 0; iR < _para.mLR; iR++)
+                _par[l].setUR(wR(iR), iR);
+
+            _par[l].keepHalfHeightPeak(PAR_R);
+
+            for (int iT = 0; iT < _para.mLT; iT++)
+                _par[l].setUT(wT(iT), iT);
+
+            _par[l].keepHalfHeightPeak(PAR_T);
+
+            if (_searchType == SEARCH_TYPE_CTF)
+            {
+                for (int iD = 0; iD < _para.mLD; iD++)
+                    _par[l].setUD(wD(iD), iD);
+
+                _par[l].keepHalfHeightPeak(PAR_D);
+            }
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+            if (_ID[l] < N_SAVE_IMG)
+            {
+                _par[l].sort();
+
+                char filename[FILE_NAME_LENGTH];
+
+                snprintf(filename,
+                         sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
+                save(filename, _par[l], PAR_C, true);
+                snprintf(filename,
+                         sizeof(filename),
+                         "R_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
+                save(filename, _par[l], PAR_R, true);
+                snprintf(filename,
+                         sizeof(filename),
+                         "T_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
+                save(filename, _par[l], PAR_T, true);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_%03d.par",
+                         _ID[l],
+                         _iter,
+                         phase);
+                save(filename, _par[l], PAR_D, true);
+            }
+#endif
+
+#ifndef OPTIMISER_KEEP_ONLY_ONE_CLASS
+            _par[l].resample(_para.k, PAR_C);
+#endif
+
+            _par[l].calVari(PAR_R);
+            _par[l].calVari(PAR_T);
+
+            _par[l].resample(_para.mLR, PAR_R);
+            _par[l].resample(_para.mLT, PAR_T);
+
+            if (_searchType == SEARCH_TYPE_CTF)
+            {
+                _par[l].calVari(PAR_D);
+                _par[l].resample(_para.mLD, PAR_D);
+            }
+
+            /***
+            RFLOAT k1 = _par[l].k1();
+            RFLOAT s0 = _par[l].s0();
+            RFLOAT s1 = _par[l].s1();
+
+            _par[l].resample(_para.mLR, PAR_R);
+            _par[l].resample(_para.mLT, PAR_T);
+
+            _par[l].calVari(PAR_R);
+            _par[l].calVari(PAR_T);
+
+            _par[l].setK1(TSGSL_MAX_RFLOAT(k1 * gsl_pow_2(MIN_STD_FACTOR
+                                                   * pow(_par[l].nR(), -1.0 / 3)),
+                                      _par[l].k1()));
+
+            _par[l].setS0(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * s0 / sqrt(_par[l].nT()), _par[l].s0()));
+
+            _par[l].setS1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * s1 / sqrt(_par[l].nT()), _par[l].s1()));
+            ***/
+
+            if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
+                        ? MIN_N_PHASE_PER_ITER_GLOBAL
+                        : MIN_N_PHASE_PER_ITER_LOCAL))
+            {
+                double k1Cur;
+                double k2Cur;
+                double k3Cur;
+                double tVariS0Cur;
+                double tVariS1Cur;
+                double dVariCur;
+
+                _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
+
+                if (_para.mode == MODE_2D)
+                {
+                    if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+                    {
+                        // there is still room for searching
+                        nPhaseWithNoVariDecrease = 0;
+                    }
+                    else
+                        nPhaseWithNoVariDecrease += 1;
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                        (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                        (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                        (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+                    {
+                        // there is still room for searching
+                        nPhaseWithNoVariDecrease = 0;
+                    }
+                    else
+                        nPhaseWithNoVariDecrease += 1;
+                }
+                else
+                {
+                    REPORT_ERROR("EXISTENT MODE");
+
+                    abort();
+                }
+
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                topCmp = _par[l].compress();
+#else
+                // make tVariS0, tVariS1, rVari the smallest variance ever got
+                if (k1Cur < k1) k1 = k1Cur;
+                if (k2Cur < k2) k2 = k2Cur;
+                if (k3Cur < k3) k3 = k3Cur;
+                if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
+                if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
+                if (dVariCur < dVari) dVari = dVariCur;
+#endif
+
+                // break if in a few continuous searching, there is no improvement
+                if (nPhaseWithNoVariDecrease == N_PHASE_WITH_NO_VARI_DECREASE)
+                {
+                    _nP[l] = phase;
+
+                    #pragma omp atomic
+                    _nF += phase;
+
+                    #pragma omp atomic
+                    _nI += 1;
+
+                    break;
+                }
+            }
+        }
+
+        #pragma omp critical  (line1495)
+        if (_nI > (int)(_ID.size() / 10))
+        {
+            _nI = 0;
+
+            nPer += 1;
+
+            ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+            BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+        }
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+        if (_ID[l] < N_SAVE_IMG)
+        {
+            char filename[FILE_NAME_LENGTH];
+
+            snprintf(filename,
+                     sizeof(filename),
+                     "C_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l], PAR_C);
+            snprintf(filename,
+                     sizeof(filename),
+                     "R_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l], PAR_R);
+            snprintf(filename,
+                     sizeof(filename),
+                     "T_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l], PAR_T);
+            snprintf(filename,
+                     sizeof(filename),
+                     "D_Particle_%04d_Round_%03d_Final.par",
+                     _ID[l],
+                     _iter);
+            save(filename, _par[l], PAR_D);
+        }
+#endif
+    }
+
+    TSFFTW_free(poolPriRotP);
+    TSFFTW_free(poolPriAllP);
+
+    TSFFTW_free(poolTraP);
+
+    if (_searchType == SEARCH_TYPE_CTF)
+        TSFFTW_free(poolCtfP);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        freePreCal(false);
+    else
+        freePreCal(true);
+
+#endif // OPTIMISER_PARTICLE_FILTER
+
+    freePreCalIdx();
+}
+
 void Optimiser::expectation()
 {
     IF_MASTER return;
@@ -1654,8 +2538,11 @@ void Optimiser::maximization()
     {
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
-
+#ifdef GPU_VERSION
+        reconstructRefG(true, true, true, false, false);
+#else
         reconstructRef(true, true, true, false, false);
+#endif
     }
     else
     {
@@ -1729,7 +2616,11 @@ void Optimiser::run()
         {
             MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
+#ifdef GPU_VERSION
+            expectationG();
+#else
             expectation();
+#endif
 
             MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
 
@@ -2078,7 +2969,11 @@ void Optimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-    reconstructRef(true, false, true, false, true);
+#ifdef GPU_VERSION
+        reconstructRefG(true, false, true, false, true);
+#else
+        reconstructRef(true, false, true, false, true);
+#endif
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
@@ -3932,6 +4827,437 @@ void Optimiser::allReduceSigma(const bool mask,
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < rSig; j++)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
+}
+
+void Optimiser::reconstructRefG(const bool fscFlag,
+                                const bool avgFlag,
+                                const bool fscSave,
+                                const bool avgSave,
+                                const bool finished)
+{
+    FFT fft;
+
+    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
+    
+    allocPreCalIdx(_model.rU(), 0);
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        allocPreCal(false, false, false);
+    else
+        allocPreCal(false, false, true);
+
+    NT_MASTER
+    {
+        if ((_para.parGra) && (_para.k != 1))
+        {
+            ALOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+            BLOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+        }
+
+        ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
+        BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
+
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).setPreCal(_nPxl, _iColPad, _iRowPad, _iPxl, _iSig);
+
+        bool cSearch = ((_searchType == SEARCH_TYPE_CTF) ||
+                        ((_para.cSearch) &&
+                        (_searchType == SEARCH_TYPE_STOP)));
+
+        Complex* poolTransImgP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+
+        if (_para.mode == MODE_2D)
+        {
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                //Image ctf(_para.size, _para.size, FT_SPACE);
+                RFLOAT* ctf;
+
+                RFLOAT w;
+
+                if ((_para.parGra) && (_para.k == 1))
+                    w = _par[l].compress();
+                else
+                    w = 1;
+
+                w /= _para.mReco;
+
+                Complex* transImgP = poolTransImgP + _nPxl * omp_get_thread_num();
+
+                Complex* orignImgP = _datP + _nPxl * l;
+
+                // Image transImg(_para.size, _para.size, FT_SPACE);
+
+                for (int m = 0; m < _para.mReco; m++)
+                {
+                    size_t cls;
+                    dvec4 quat;
+                    dvec2 tran;
+                    double d;
+
+                    _par[l].rand(cls, quat, tran, d);
+
+                    dmat22 rot2D;
+
+                    rotate2D(rot2D, dvec2(quat(0), quat(1)));
+
+                    translate(transImgP,
+                              orignImgP,
+                              -(tran - _offset[l])(0),
+                              -(tran - _offset[l])(1),
+                              _para.size,
+                              _para.size,
+                              _iCol,
+                              _iRow,
+                              _nPxl);
+
+                    if (cSearch)
+                    {
+                        ctf = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
+
+                        CTF(ctf,
+                            _para.pixelSize,
+                            _ctfAttr[l].voltage,
+                            _ctfAttr[l].defocusU * d,
+                            _ctfAttr[l].defocusV * d,
+                            _ctfAttr[l].defocusTheta,
+                            _ctfAttr[l].Cs,
+                            _ctfAttr[l].amplitudeContrast,
+                            _ctfAttr[l].phaseShift,
+                            _para.size,
+                            _para.size,
+                            _iCol,
+                            _iRow,
+                            _nPxl);
+                    }
+                    else
+                    {
+                        ctf = _ctfP + _nPxl * l;
+                    }
+#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
+                    vec sig = _sig.row(_groupID[l] - 1).transpose();
+
+                    _model.reco(cls).insertP(transImgP,
+                                             ctf,
+                                             rot2D,
+                                             w,
+                                             &sig);
+#else
+                    _model.reco(cls).insertP(transImgP,
+                                             ctf,
+                                             rot2D,
+                                             w);
+#endif
+
+                    if (cSearch) TSFFTW_free(ctf);
+                }
+            }
+
+        }    
+        else if (_para.mode == MODE_3D)
+        {
+            _model.reco(0).insertFT(_datP, _ctfP, _sigRcpP, _par,
+                                    _offset, _ctfAttr, _para.pixelSize, cSearch,
+                                    _para.parGra, 1, _para.mReco, _para.size, 
+                                    _ID.size()); 
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+            abort();
+        }
+#ifdef VERBOSE_LEVEL_2
+        ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
+#endif
+
+        MPI_Barrier(_hemi);
+
+        for (int t = 0; t < _para.k; t++)
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                       << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                       << t;
+
+            if (_para.mode == MODE_2D)
+                _model.reco(t).prepareTF();
+        }
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    if (fscFlag)
+    {
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).setMAP(false);
+
+#ifdef OPTIMISER_RECONSTRUCT_JOIN_HALF
+                _model.reco(t).setJoinHalf(true);
+#else
+                _model.reco(t).setJoinHalf(false);
+#endif
+
+                if (_para.mode == MODE_2D)
+                {
+#ifdef OPTIMISER_2D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
+                    _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else if (_para.mode == MODE_3D)
+                {
+#ifdef OPTIMISER_3D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
+                    _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
+
+                ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Determining FSC";
+                BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Determining FSC";
+
+                Volume ref;
+
+                if (_para.mode == MODE_2D)
+                {
+                    _model.reco(t).reconstruct(ref);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _model.reco(t).reconstructG(ref);
+                }
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+#endif
+
+                fft.fwMT(ref);
+
+                #pragma omp parallel for
+                SET_0_FT(_model.ref(t));
+
+                COPY_FT(_model.ref(t), ref);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
+            }
+        }
+
+        if (fscSave)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+
+            if (_para.mode == MODE_2D)
+            {
+#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
+                saveMapJoin(finished);
+#else
+                saveMapHalf(finished);
+#endif
+            }
+            else if (_para.mode == MODE_3D)
+            {
+#ifdef OPTIMISER_3D_SAVE_JOIN_MAP
+                saveMapJoin(finished);
+#else
+                saveMapHalf(finished);
+#endif
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+            balanceClass(CLASS_BALANCE_FACTOR, false);
+
+#ifdef VERBOSE_LEVEL_1
+
+            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+            for (int t = 0; t < _para.k; t++)
+                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                           << "\% Percentage of Images Belonging to Class "
+                                           << t;
+#endif
+        }
+
+#endif
+
+        _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+    }
+
+    if (avgFlag)
+    {
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).setMAP(true);
+
+#ifdef OPTIMISER_RECONSTRUCT_JOIN_HALF
+                _model.reco(t).setJoinHalf(true);
+#else
+                _model.reco(t).setJoinHalf(false);
+#endif
+
+                if (_para.mode == MODE_2D)
+                {
+#ifdef OPTIMISER_2D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
+                    _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else if (_para.mode == MODE_3D)
+                {
+#ifdef OPTIMISER_3D_GRID_CORR
+                    _model.reco(t).setGridCorr(true);
+#else
+                    _model.reco(t).setGridCorr(false);
+#endif
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
+
+                ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Next Iteration";
+                BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                                           << t
+                                           << " for Next Iteration";
+
+                Volume ref;
+
+                if (_para.mode == MODE_2D)
+                {
+                    _model.reco(t).reconstruct(ref);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    _model.reco(t).reconstructG(ref);
+                }
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+#endif
+
+                fft.fwMT(ref);
+
+                #pragma omp parallel for
+                SET_0_FT(_model.ref(t));
+
+                COPY_FT(_model.ref(t), ref);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+#endif
+            }
+        }
+
+        if (avgSave)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+
+            if (_para.mode == MODE_2D)
+            {
+#ifdef OPTIMISER_2D_SAVE_JOIN_MAP
+                saveMapJoin(finished);
+#else
+                saveMapHalf(finished);
+#endif
+            }
+            else if (_para.mode == MODE_3D)
+            {
+#ifdef OPTIMISER_3D_SAVE_JOIN_MAP
+                saveMapJoin(finished);
+#else
+                saveMapHalf(finished);
+#endif
+            }
+            else
+            {
+                REPORT_ERROR("INEXISTENT MODE");
+
+                abort();
+            }
+        }
+
+        MPI_Barrier(MPI_COMM_WORLD);
+
+#ifdef OPTIMISER_BALANCE_CLASS
+
+        if (_searchType == SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+
+            balanceClass(CLASS_BALANCE_FACTOR, true);
+
+#ifdef VERBOSE_LEVEL_1
+
+            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+
+            for (int t = 0; t < _para.k; t++)
+                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                                           << "\% Percentage of Images Belonging to Class "
+                                           << t;
+#endif
+        }
+
+#endif
+
+        _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
+    }
+
+    if (_searchType != SEARCH_TYPE_CTF)
+        freePreCal(false);
+    else
+        freePreCal(true);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
+
+    freePreCalIdx();
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
+    BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
 }
 
 void Optimiser::reconstructRef(const bool fscFlag,

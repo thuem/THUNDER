@@ -31,12 +31,14 @@
 #include "FFT.h"
 #include "Image.h"
 #include "Volume.h"
+#include "Particle.h"
 #include "ImageFunctions.h"
 #include "Symmetry.h"
 #include "Transformation.h"
 #include "TabFunction.h"
 #include "Spectrum.h"
 #include "Mask.h"
+#include "Interface.h"
 
 #define PRE_CAL_MODE 0
 
@@ -438,6 +440,20 @@ class Reconstructor : public Parallel
                      const RFLOAT w,
                      const vec* sig = NULL);
 
+        void insertFT(Complex* datP,
+                      double* ctfP,
+                      double* sigRcpP,
+                      vector<Particle>& par,
+                      vector<vec2>& offset,
+                      vector<CTFAttr>& ctfAttr,
+                      double pixelSize,
+                      bool cSearch,
+                      bool parGra,
+                      int nK,
+                      int mReco,
+                      int idim,
+                      int imgNum);
+
         void prepareTF();
 
         void reconstruct(Image& dst);
@@ -452,6 +468,7 @@ class Reconstructor : public Parallel
          *            result of reconstruction into.
          */
         void reconstruct(Volume& dst);
+        void reconstructG(Volume& dst);
 
     private:
 

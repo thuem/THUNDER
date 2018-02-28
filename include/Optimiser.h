@@ -40,6 +40,7 @@
 #include "Particle.h"
 #include "Database.h"
 #include "Model.h"
+#include "Interface.h"
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
@@ -680,6 +681,8 @@ class Optimiser : public Parallel
 
         void expectation();
 
+        void expectationG();
+
         void maximization();
 
         void run();
@@ -853,6 +856,13 @@ class Optimiser : public Parallel
                             const bool fscSave,
                             const bool avgSave,
                             const bool finished = false);
+        
+        void reconstructRefG(const bool fscFlag,
+                             const bool avgFlag,
+                             const bool fscSave,
+                             const bool avgSave,
+                             const bool finished = false);
+
 
         /***
          * @param mask           whether mask on the reference is allowed or
