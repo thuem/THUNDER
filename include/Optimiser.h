@@ -60,7 +60,7 @@
 
 #define TRANS_Q 0.01
 
-#define MIN_STD_FACTOR 3
+#define MIN_STD_FACTOR 1
 
 #define CLASS_BALANCE_FACTOR 0.05
 
