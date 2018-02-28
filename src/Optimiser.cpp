@@ -961,25 +961,20 @@ void Optimiser::expectation()
 
             if (_para.mode == MODE_2D)
             {
-                _par[l].setK1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * scanMinStdR,
-                                               _par[l].k1()));
-                /***
+#ifdef OPTIMISER_SCAN_SET_MIN_STD_WITH_PERTURB
                 _par[l].setK1(TSGSL_MAX_RFLOAT((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                 ? _para.perturbFactorSGlobal
                                                 : _para.perturbFactorSLocal))
                                         * MIN_STD_FACTOR * scanMinStdR,
                                           _par[l].k1()));
-                ***/
+#else
+                _par[l].setK1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * scanMinStdR,
+                                               _par[l].k1()));
+#endif
             }
             else if (_para.mode == MODE_3D)
             {
-                _par[l].setK1(TSGSL_MAX_RFLOAT(TSGSL_pow_2(MIN_STD_FACTOR * scanMinStdR),
-                                               _par[l].k1()));
-                _par[l].setK2(TSGSL_MAX_RFLOAT(TSGSL_pow_2(MIN_STD_FACTOR * scanMinStdR),
-                                               _par[l].k2()));
-                _par[l].setK3(TSGSL_MAX_RFLOAT(TSGSL_pow_2(MIN_STD_FACTOR * scanMinStdR),
-                                               _par[l].k3()));
-                /***
+#ifdef OPTIMISER_SCAN_SET_MIN_STD_WITH_PERTURB
                 _par[l].setK1(TSGSL_MAX_RFLOAT(TSGSL_pow_2((1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                                           ? _para.perturbFactorSGlobal
                                                           : _para.perturbFactorSLocal))
@@ -996,7 +991,14 @@ void Optimiser::expectation()
                                                           : _para.perturbFactorSLocal))
                                                    * MIN_STD_FACTOR * scanMinStdR),
                                           _par[l].k3()));
-                ***/
+#else
+                _par[l].setK1(TSGSL_MAX_RFLOAT(TSGSL_pow_2(MIN_STD_FACTOR * scanMinStdR),
+                                               _par[l].k1()));
+                _par[l].setK2(TSGSL_MAX_RFLOAT(TSGSL_pow_2(MIN_STD_FACTOR * scanMinStdR),
+                                               _par[l].k2()));
+                _par[l].setK3(TSGSL_MAX_RFLOAT(TSGSL_pow_2(MIN_STD_FACTOR * scanMinStdR),
+                                               _par[l].k3()));
+#endif
             }
             else
             {
@@ -1131,7 +1133,8 @@ void Optimiser::expectation()
 #endif
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
+            //if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
+            if (phase == 0)
             {
                 _par[l].perturb(_para.perturbFactorL, PAR_R);
                 _par[l].perturb(_para.perturbFactorL, PAR_T);
