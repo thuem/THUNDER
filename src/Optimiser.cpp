@@ -1007,11 +1007,7 @@ void Optimiser::expectation()
                 abort();
             }
 
-            _par[l].setS0(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * scanMinStdT,
-                                           _par[l].s0()));
-            _par[l].setS1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * scanMinStdT,
-                                           _par[l].s1()));
-            /***
+#ifdef OPTIMISER_SCAN_SET_MIN_STD_WITH_PERTURB
             _par[l].setS0(TSGSL_MAX_RFLOAT(1.0 / ((_searchType == SEARCH_TYPE_GLOBAL)
                                            ? _para.perturbFactorSGlobal
                                            : _para.perturbFactorSLocal)
@@ -1023,7 +1019,12 @@ void Optimiser::expectation()
                                            : _para.perturbFactorSLocal)
                                     * MIN_STD_FACTOR * scanMinStdT,
                                       _par[l].s1()));
-            ***/
+#else
+            _par[l].setS0(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * scanMinStdT,
+                                           _par[l].s0()));
+            _par[l].setS1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * scanMinStdT,
+                                           _par[l].s1()));
+#endif
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
