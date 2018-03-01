@@ -128,11 +128,6 @@ void Particle::reset()
     // sample from 2D Gaussian Distribution
     for (int i = 0; i < _nT; i++)
         gsl_ran_bivariate_gaussian(engine, _transS, _transS, 0, &_t(i, 0), &_t(i, 1));
-
-#ifdef PARTILCE_BALANCE_WEIGHT
-    balanceWeight(PAR_T);
-#endif
-
 #endif
 
 #ifdef PARTICLE_TRANS_INIT_FLAT
@@ -164,7 +159,11 @@ void Particle::reset()
     _uT = dvec::Constant(_nT, 1.0 / _nT);
     _uD = dvec::Constant(_nD, 1.0 / _nD);
 
-    // symmetrise
+#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
+#ifdef PARTILCE_BALANCE_WEIGHT
+    balanceWeight(PAR_T);
+#endif
+#endif
 
     if (_mode == MODE_3D) symmetrise();
 }
@@ -291,11 +290,6 @@ void Particle::initD(const int nD,
 #ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
     for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
-
-#ifdef PARTILCE_BALANCE_WEIGHT
-    balanceWeight(PAR_D);
-#endif
-
 #endif
 
 #ifdef PARTICLE_DEFOCUS_INIT_FLAT
@@ -306,8 +300,14 @@ void Particle::initD(const int nD,
 #endif
 
     _wD = dvec::Constant(_nD, 1.0 / _nD);
-    
+
     _uD = dvec::Constant(_nD, 1.0 / _nD);
+
+#ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
+#ifdef PARTILCE_BALANCE_WEIGHT
+    balanceWeight(PAR_D);
+#endif
+#endif
 }
 
 int Particle::mode() const { return _mode; }
