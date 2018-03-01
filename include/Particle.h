@@ -42,7 +42,7 @@
             FOR_EACH_T(par) \
                 FOR_EACH_D(par)
 
-#define PEAK_FACTOR_MAX (1 - 1e-1)
+#define PEAK_FACTOR_MAX 0.5
 #define PEAK_FACTOR_MIN 1e-3
 
 #define INIT_OUTSIDE_CONFIDENCE_AREA 0.5
