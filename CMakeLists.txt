@@ -99,7 +99,7 @@ message(STATUS "CMAKE_CXX_FLAGS : ${CMAKE_CXX_FLAGS}")
 
 find_package(MPI REQUIRED)
 
-include_directories("${MPI_INCLUDE_PATH}") # Old Version Support
+#include_directories("${MPI_INCLUDE_PATH}") # Old Version Support
 
 message(STATUS "MPI_COMPILER : ${MPI_COMPILER}") # Old Version Support
 message(STATUS "MPI_INCLUDE_PATH : ${MPI_INCLUDE_PATH}") # Old Version Support
