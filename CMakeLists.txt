@@ -222,6 +222,14 @@ ENDIF()
 # Build routine
 ADD_SUBDIRECTORY(gpu)
 
+# Make Sure FFTW and GSL is Built Before Linking
+
+add_dependencies(cuthuem FFTW)
+add_dependencies(cuthuem GSL)
+
+install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
+install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
+
 # Compile Binary of THUNDER core
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
@@ -235,9 +243,6 @@ TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
 
 add_dependencies(core FFTW)
 add_dependencies(core GSL)
-
-install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
-install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
 
 # Link Libraries
 
