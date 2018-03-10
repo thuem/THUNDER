@@ -828,11 +828,19 @@ void Optimiser::expectation()
 
                         RFLOAT w = exp(dvp[l] - baseLine[l]);
 
+                        /***
                         wC(l, t) += w;
 
                         wR(l, m) += w;
 
                         wT(l, n) += w;
+                        ***/
+
+                        wC(l, t) += w * (_par[l].wR(m) * _par[l].wT(n));
+
+                        wR(l, m) += w * (_par[l].wC(t) * _par[l].wT(n));
+
+                        wT(l, n) += w * (_par[l].wC(t) * _par[l].wR(m));
 
                         omp_unset_lock(&mtx[l]);
                     }
@@ -1347,10 +1355,17 @@ void Optimiser::expectation()
 
                             RFLOAT s = exp(w - baseLine);
 
+                            /***
                             wC(iC) += s;
                             wR(iR) += s;
                             wT(iT) += s;
                             wD(iD) += s;
+                            ***/
+
+                            wC(iC) += s * (_par[l].wR(iR) * _par[l].wT(iT) * _par[l].wD(iD));
+                            wR(iR) += s * (_par[l].wC(iC) * _par[l].wT(iT) * _par[l].wD(iD));
+                            wT(iT) += s * (_par[l].wC(iC) * _par[l].wR(iR) * _par[l].wD(iD));
+                            wD(iD) += s * (_par[l].wC(iC) * _par[l].wR(iR) * _par[l].wT(iT));
                         }
                     }
                 }
