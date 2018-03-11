@@ -1450,10 +1450,6 @@ void Optimiser::expectation()
             _par[l].resample(_para.k, PAR_C);
 #endif
 
-#ifndef PARTICLE_ROT_MEAN_USING_STAT
-            _par[l].calRank1st(PAR_R);
-#endif
-
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
