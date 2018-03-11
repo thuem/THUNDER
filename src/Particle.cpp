@@ -916,7 +916,7 @@ void Particle::calVari(const ParticleType pt)
                 _r.row(i) = quat.transpose();
             }
 
-            //symmetrise(); // TODO
+            // symmetrise(); // TODO
 
             inferACG(_k1, _k2, _k3, _r);
 
