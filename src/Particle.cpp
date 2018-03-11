@@ -903,7 +903,11 @@ void Particle::calVari(const ParticleType pt)
         {
             dvec4 mean;
 
+#ifdef PARTICLE_SYMMETRISE_USING_STAT
             inferACG(mean, _r);
+#else
+            mean = _topR;
+#endif
 
             dvec4 quat;
 
