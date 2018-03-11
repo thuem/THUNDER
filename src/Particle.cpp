@@ -886,6 +886,20 @@ void Particle::calClassDistr()
 }
 ***/
 
+void Particle::calRank1st(const ParticleType pt)
+{
+    uvec rank = iSort(pt);
+
+    if (pt == PAR_C)
+        c(_topC, rank(0));
+    else if (pt == PAR_R)
+        quaternion(_topR, rank(0));
+    else if (pt == PAR_T)
+        t(_topT, rank(0));
+    else if (pt == PAR_D)
+        d(_topD, rank(0));
+}
+
 void Particle::calVari(const ParticleType pt)
 {
 

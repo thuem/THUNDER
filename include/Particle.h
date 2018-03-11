@@ -778,6 +778,8 @@ class Particle
         void setS(const double s);
 
         //void calClassDistr();
+        
+        void calRank1st(const ParticleType pt);
 
         /**
          * This function calculates the concentration paramters, including
