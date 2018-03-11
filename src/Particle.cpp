@@ -903,7 +903,7 @@ void Particle::calVari(const ParticleType pt)
         {
             dvec4 mean;
 
-#ifdef PARTICLE_SYMMETRISE_USING_STAT
+#ifdef PARTICLE_ROT_MEAN_USING_STAT
             inferACG(mean, _r);
 #else
             mean = _topR;
@@ -1007,7 +1007,11 @@ void Particle::perturb(const double pf,
 
             dvec4 mean;
 
+#ifdef PARTICLE_ROT_MEAN_USING_STAT
             inferACG(mean, _r);
+#else
+            mean = _topR;
+#endif
 
             dvec4 quat;
 
