@@ -1733,7 +1733,8 @@ void Particle::setPeakFactor(const ParticleType pt)
     else if (pt == PAR_T)
     {
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
-        int t = FLOOR(_nT * (gsl_cdf_gaussian_P(1, 2) - gsl_cdf_gaussian_P(-1, 2)));
+        //int t = FLOOR(_nT * (gsl_cdf_gaussian_P(1, 2) - gsl_cdf_gaussian_P(-1, 2)));
+        int t = FLOOR(_nT * gsl_cdf_chisq_P(1, 2));
         _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(t)) / _uT(order(0))));
 #endif
 
@@ -1744,7 +1745,8 @@ void Particle::setPeakFactor(const ParticleType pt)
     else if (pt == PAR_D)
     {
 #ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
-        int t = FLOOR(_nD * (gsl_cdf_gaussian_P(1, 1) - gsl_cdf_gaussian_P(-1, 1)));
+        //int t = FLOOR(_nD * (gsl_cdf_gaussian_P(1, 1) - gsl_cdf_gaussian_P(-1, 1)));
+        int t = FLOOR(_nT * gsl_cdf_chisq_P(1, 1));
         _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(t)) / _uD(order(0))));
 #endif
 
