@@ -697,7 +697,6 @@ void Optimiser::expectationG()
                            _nPxl,
                            _ID.size());
             
-            delete[] vol;
             delete[] trans;
             delete[] rot;
         }
