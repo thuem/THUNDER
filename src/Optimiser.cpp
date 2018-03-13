@@ -678,8 +678,12 @@ void Optimiser::expectation()
         }
 
         mat wC = mat::Zero(_ID.size(), _para.k);
-        mat wR = mat::Zero(_ID.size(), nR);
-        mat wT = mat::Zero(_ID.size(), nT);
+
+        vector<mat> wR(_para.k, mat::Zero(_ID.size(), nR));
+        vector<mat> wT(_para.k, mat::Zero(_ID.size(), nT));
+
+        //mat wR = mat::Zero(_ID.size(), nR);
+        //mat wT = mat::Zero(_ID.size(), nT);
 
         _nR = 0;
 
@@ -714,7 +718,7 @@ void Optimiser::expectation()
 
 
                 //Add by huabin
-                RFLOAT *SIMDResult = poolSIMDResult + omp_get_thread_num() * _ID.size();
+                RFLOAT* SIMDResult = poolSIMDResult + omp_get_thread_num() * _ID.size();
 
                 // perform projection
 
@@ -802,8 +806,9 @@ void Optimiser::expectation()
                                 RFLOAT nf = exp(-offset);
 
                                 wC.row(l) *= nf;
-                                wR.row(l) *= nf;
-                                wT.row(l) *= nf;
+
+                                wR[t].row(l) *= nf;
+                                wT[t].row(l) *= nf;
 
                                 /***
                                 RFLOAT nf = exp(offset);
@@ -838,9 +843,9 @@ void Optimiser::expectation()
 
                         wC(l, t) += w * (_par[l].wR(m) * _par[l].wT(n));
 
-                        wR(l, m) += w * (_par[l].wC(t) * _par[l].wT(n));
+                        wR[t](l, m) += w * _par[l].wT(n);
 
-                        wT(l, n) += w * (_par[l].wC(t) * _par[l].wR(m));
+                        wT[t](l, n) += w * _par[l].wR(m);
 
                         omp_unset_lock(&mtx[l]);
                     }
@@ -905,24 +910,10 @@ void Optimiser::expectation()
 
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(l, iC), iC);
-            for (int iR = 0; iR < nR; iR++)
-                _par[l].setUR(wR(l, iR), iR);
-            for (int iT = 0; iT < nT; iT++)
-                _par[l].setUT(wT(l, iT), iT);
 
 #ifdef OPTIMISER_PEAK_FACTOR_C
             _par[l].setPeakFactor(PAR_C);
             _par[l].keepHalfHeightPeak(PAR_C);
-#endif
-
-#ifdef OPTIMISER_PEAK_FACTOR_R
-            _par[l].setPeakFactor(PAR_R);
-            _par[l].keepHalfHeightPeak(PAR_R);
-#endif
-
-#ifdef OPTIMISER_PEAK_FACTOR_T
-            _par[l].setPeakFactor(PAR_T);
-            _par[l].keepHalfHeightPeak(PAR_T);
 #endif
 
 #ifdef OPTIMISER_SAVE_PARTICLES
@@ -938,6 +929,42 @@ void Optimiser::expectation()
                          _ID[l],
                          _iter);
                 save(filename, _par[l], PAR_C, true);
+            }
+#endif
+
+            _par[l].resample(_para.k, PAR_C);
+
+            size_t cls;
+            _par[l].rand(cls);
+
+            _par[l].setNC(1);
+            _par[l].setC(uvec::Constant(1, cls));
+            _par[l].setWC(dvec::Constant(1, 1));
+            _par[l].setUC(dvec::Constant(1, 1));
+
+            for (int iR = 0; iR < nR; iR++)
+                _par[l].setUR(wR[cls](l, iR), iR);
+            for (int iT = 0; iT < nT; iT++)
+                _par[l].setUT(wT[cls](l, iT), iT);
+
+#ifdef OPTIMISER_PEAK_FACTOR_R
+            _par[l].setPeakFactor(PAR_R);
+            _par[l].keepHalfHeightPeak(PAR_R);
+#endif
+
+#ifdef OPTIMISER_PEAK_FACTOR_T
+            _par[l].setPeakFactor(PAR_T);
+            _par[l].keepHalfHeightPeak(PAR_T);
+#endif
+
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+            if (_ID[l] < N_SAVE_IMG)
+            {
+                _par[l].sort();
+
+                char filename[FILE_NAME_LENGTH];
+
                 snprintf(filename,
                          sizeof(filename),
                          "R_Particle_%04d_Round_%03d_Initial.par",
@@ -958,8 +985,6 @@ void Optimiser::expectation()
                 save(filename, _par[l], PAR_D, true);
             }
 #endif
-
-            _par[l].resample(_para.k, PAR_C);
 
             _par[l].resample(_para.mLR, PAR_R);
             _par[l].resample(_para.mLT, PAR_T);
@@ -1066,17 +1091,6 @@ void Optimiser::expectation()
                 save(filename, _par[l], PAR_D);
             }
 #endif
-
-#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
-
-            size_t cls;
-            _par[l].rand(cls);
-
-            _par[l].setNC(1);
-            _par[l].setC(uvec::Constant(1, cls));
-            _par[l].setWC(dvec::Constant(1, 1));
-            _par[l].setUC(dvec::Constant(1, 1));
-#endif
         }
 
         ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
@@ -1171,12 +1185,7 @@ void Optimiser::expectation()
 
             RFLOAT baseLine = GSL_NAN;
 
-#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             vec wC = vec::Zero(1);
-#else
-            vec wC = vec::Zero(_para.k);
-#endif
-
             vec wR = vec::Zero(_para.mLR);
             vec wT = vec::Zero(_para.mLT);
             vec wD = vec::Zero(_para.mLD);
@@ -1374,16 +1383,7 @@ void Optimiser::expectation()
                 }
             }
 
-#ifdef OPTIMISER_KEEP_ONLY_ONE_CLASS
             _par[l].setUC(wC(0), 0);
-#else
-            for (int iC = 0; iC < _para.k; iC++)
-                _par[l].setUC(wC(iC), iC);
-
-#ifdef OPTIMISER_PEAK_FACTOR_C
-            _par[l].keepHalfHeightPeak(PAR_C);
-#endif
-#endif
 
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
