@@ -4028,6 +4028,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     rotate2D(rot2D, dvec2(quat(0), quat(1)));
 
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                     translate(transImgP,
                               orignImgP,
                               -(tran - _offset[l])(0),
@@ -4037,6 +4038,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl);
+#else
+                    translate(transImgP,
+                              orignImgP,
+                              -(tran)(0),
+                              -(tran)(1),
+                              _para.size,
+                              _para.size,
+                              _iCol,
+                              _iRow,
+                              _nPxl);
+#endif
 
                     if (cSearch)
                     {
@@ -4087,6 +4099,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     rotate3D(rot3D, quat);
                 
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                     translate(transImgP,
                               orignImgP,
                               -(tran - _offset[l])(0),
@@ -4096,6 +4109,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl);
+#else
+                    translate(transImgP,
+                              orignImgP,
+                              -(tran)(0),
+                              -(tran)(1),
+                              _para.size,
+                              _para.size,
+                              _iCol,
+                              _iRow,
+                              _nPxl);
+#endif
 
                     if (cSearch)
                     {
@@ -4875,8 +4899,13 @@ void Optimiser::saveDatabase() const
                  k1,
                  k2,
                  k3,
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                  tran(0) - _offset[l](0),
                  tran(1) - _offset[l](1),
+#else
+                 tran(0),
+                 tran(1),
+#endif
                  s0,
                  s1,
                  df,
