@@ -1983,6 +1983,12 @@ void Optimiser::run()
                                    << _model.fscAreaPrev();
 #endif
 
+        if (_iter == 0)
+        {
+            _model.resetTVari();
+            _model.resetFSCArea();
+        }
+
         if (_model.r() > _model.rT())
         {
             MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
