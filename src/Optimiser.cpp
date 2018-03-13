@@ -1142,8 +1142,11 @@ void Optimiser::expectation()
 #endif
         for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
         {
-            //if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
+#ifdef OPTIMISER_GLOBAL_PERTURB_LARGE
+            if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
+#else
             if (phase == 0)
+#endif
             {
                 _par[l].perturb(_para.perturbFactorL, PAR_R);
                 _par[l].perturb(_para.perturbFactorL, PAR_T);
