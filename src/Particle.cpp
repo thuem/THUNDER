@@ -1717,7 +1717,13 @@ void Particle::setPeakFactor(const ParticleType pt)
     ***/
 
     if (pt == PAR_C)
+    {
+#ifdef PARTICLE_PEAK_FACTOR_C
+        _peakFactorC = PEAK_FACTOR_C;
+#else
         _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uC(order(_nC / 2)) / _uC(order(0))));
+#endif
+    }
     else if (pt == PAR_R)
     {
         _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));

@@ -45,6 +45,8 @@
 #define PEAK_FACTOR_MAX 0.5
 #define PEAK_FACTOR_MIN 1e-3
 
+#define PEAK_FACTOR_C (1 - 1e-2)
+
 #define INIT_OUTSIDE_CONFIDENCE_AREA 0.5
 
 enum ParticleType
