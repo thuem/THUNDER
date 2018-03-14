@@ -1449,10 +1449,6 @@ void Optimiser::expectation()
             }
 #endif
 
-#ifndef OPTIMISER_KEEP_ONLY_ONE_CLASS
-            _par[l].resample(_para.k, PAR_C);
-#endif
-
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
