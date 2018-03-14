@@ -807,8 +807,11 @@ void Optimiser::expectation()
 
                                 wC.row(l) *= nf;
 
-                                wR[t].row(l) *= nf;
-                                wT[t].row(l) *= nf;
+                                for (int td = 0; td < _para.k; td++)
+                                {
+                                    wR[td].row(l) *= nf;
+                                    wT[td].row(l) *= nf;
+                                }
 
                                 /***
                                 RFLOAT nf = exp(offset);
