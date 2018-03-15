@@ -866,6 +866,16 @@ void Particle::setS1(const double s1)
     _s1 = s1;
 }
 
+double Particle::rho() const
+{
+    return _rho;
+}
+
+void Particle::setRho(const double rho)
+{
+    _rho = rho;
+}
+
 double Particle::s() const
 {
     return _s;

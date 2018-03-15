@@ -775,6 +775,10 @@ class Particle
 
         void setS1(const double s1);
 
+        double rho() const;
+
+        void setRho(const double rho);
+
         double s() const;
 
         void setS(const double s);

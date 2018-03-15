@@ -1062,6 +1062,8 @@ void Optimiser::expectation()
                                            _par[l].s1()));
 #endif
 
+            _par[l].setRho(0);
+
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
             {
