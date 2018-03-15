@@ -964,6 +964,7 @@ void Particle::calVari(const ParticleType pt)
         _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
+        _rho = gsl_stats_correlation(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
         // _rho = 0;
     }
     else if (pt == PAR_D)
