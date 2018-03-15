@@ -974,8 +974,11 @@ void Particle::calVari(const ParticleType pt)
         _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
+#ifdef PARTICLE_RHO
         _rho = gsl_stats_correlation(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
-        // _rho = 0;
+#else
+        _rho = 0;
+#endif
     }
     else if (pt == PAR_D)
     {
@@ -2176,7 +2179,11 @@ void Particle::balanceWeight(const ParticleType pt)
         s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
         s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
 
+#ifdef PARTICLE_RHO
         rho = gsl_stats_correlation(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+#else
+        rho = 0;
+#endif
 
         for (int i = 0; i < _nT; i++)
         {
