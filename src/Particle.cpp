@@ -2163,7 +2163,7 @@ void Particle::balanceWeight(const ParticleType pt)
     }
     else if (pt == PAR_T)
     {
-        double m0, m1, s0, s1;
+        double m0, m1, s0, s1, rho;
 
 #ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
         m0 = 0;
@@ -2176,13 +2176,15 @@ void Particle::balanceWeight(const ParticleType pt)
         s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
         s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
 
+        rho = gsl_stats_correlation(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+
         for (int i = 0; i < _nT; i++)
         {
             _wT(i) = 1.0 / gsl_ran_bivariate_gaussian_pdf(_t(i, 0) - m0,
                                                           _t(i, 1) - m1,
                                                           s0,
                                                           s1,
-                                                          0);
+                                                          rho);
         }
     }
     else if (pt == PAR_D)
