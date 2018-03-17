@@ -1121,11 +1121,11 @@ void Particle::perturb(const double pf,
 
 #ifdef PARTICLE_TRANSLATION_S
             double s = GSL_MAX_DBL(_s0, _s1);
-            gsl_ran_bivariate_gaussian(engine, s, s, 0, &x, &y);
-            //gsl_ran_bivariate_gaussian(engine, s, s, _rho, &x, &y);
+            //gsl_ran_bivariate_gaussian(engine, s, s, 0, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, s, s, _rho / s / s, &x, &y);
 #else
-            gsl_ran_bivariate_gaussian(engine, _s0, _s1, 0, &x, &y);
-            //gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+            //gsl_ran_bivariate_gaussian(engine, _s0, _s1, 0, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho / _s0 / _s1, &x, &y);
 #endif
 
             _t(i, 0) += x * pf;
@@ -2208,11 +2208,15 @@ void Particle::balanceWeight(const ParticleType pt)
         s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
         s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
 
+        rho = gsl_stats_covariance(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+
+        /***
 #ifdef PARTICLE_RHO
-        rho = gsl_stats_correlation(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+        rho = gsl_stats_covariance(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
 #else
         rho = 0;
 #endif
+        ***/
 
         for (int i = 0; i < _nT; i++)
         {
@@ -2220,7 +2224,7 @@ void Particle::balanceWeight(const ParticleType pt)
                                                           _t(i, 1) - m1,
                                                           s0,
                                                           s1,
-                                                          rho);
+                                                          rho / s0 / s1);
         }
     }
     else if (pt == PAR_D)
