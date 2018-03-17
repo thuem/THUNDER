@@ -4865,7 +4865,7 @@ void Optimiser::saveDatabase() const
     dvec2 tran;
     double df;
 
-    double k1, k2, k3, s0, s1, s;
+    double k1, k2, k3, s0, s1, rho, s;
 
     FOR_EACH_2D_IMAGE
     {
@@ -4873,6 +4873,7 @@ void Optimiser::saveDatabase() const
 
         //_par[l].vari(rVari, s0, s1, s);
         _par[l].vari(k1, k2, k3, s0, s1, s);
+        rho = _par[l].rho();
 
         /***
         rVari = 0;
@@ -4917,6 +4918,7 @@ void Optimiser::saveDatabase() const
                  tran(0),
                  tran(1),
 #endif
+                 rho,
                  s0,
                  s1,
                  df,
