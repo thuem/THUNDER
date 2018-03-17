@@ -1492,9 +1492,9 @@ void Optimiser::expectation()
                 if (_para.mode == MODE_2D)
                 {
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                    if ((compressRCur < compressR * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (compressTCur < compressT * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (compressDCur < compressD * PARTICLE_FILTER_DECREASE_FACTOR))
+                    if ((compressRCur > compressR * PARTICLE_FILTER_INCREASE_FACTOR) ||
+                        (compressTCur > compressT * PARTICLE_FILTER_INCREASE_FACTOR) ||
+                        (compressDCur > compressD * PARTICLE_FILTER_INCREASE_FACTOR))
 #else
                     if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
@@ -1511,9 +1511,9 @@ void Optimiser::expectation()
                 else if (_para.mode == MODE_3D)
                 {
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                    if ((compressRCur < compressR * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (compressTCur < compressT * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (compressDCur < compressD * PARTICLE_FILTER_DECREASE_FACTOR))
+                    if ((compressRCur > compressR * PARTICLE_FILTER_INCREASE_FACTOR) ||
+                        (compressTCur > compressT * PARTICLE_FILTER_INCREASE_FACTOR) ||
+                        (compressDCur > compressD * PARTICLE_FILTER_INCREASE_FACTOR))
 #else
                     if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                         (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
@@ -1544,9 +1544,9 @@ void Optimiser::expectation()
                 if (TSGSL_isnan(compressD)) { REPORT_ERROR("NAN DETECTED"); abort(); };
 #endif
 
-                if (compressRCur < compressR) compressR = compressRCur;
-                if (compressTCur < compressT) compressT = compressTCur;
-                if (compressDCur < compressD) compressD = compressDCur;
+                if (compressRCur > compressR) compressR = compressRCur;
+                if (compressTCur > compressT) compressT = compressTCur;
+                if (compressDCur > compressD) compressD = compressDCur;
 #else
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (k1Cur < k1) k1 = k1Cur;
