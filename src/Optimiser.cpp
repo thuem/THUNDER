@@ -4888,7 +4888,7 @@ void Optimiser::saveDatabase() const
                  %6d %6lu \
                  %18.9lf %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf %18.9lf \
-                 %18.9lf %18.9lf %18.9lf %18.9lf \
+                 %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf \
                  %18.9lf\n",
                  _ctfAttr[l].voltage,
