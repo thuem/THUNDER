@@ -576,6 +576,42 @@ void Particle::vari(double& rVari,
     s = _s;
 }
 
+double Particle::variR() const
+{
+    if (_mode == MODE_2D)
+    {
+        return _k1;
+    }
+    else if (_mode == MODE_3D)
+    {
+        return pow(_k1 * _k2 * _k3, 1.0 / 6);
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+}
+
+double Particle::variT() const
+{
+    mat22 A;
+
+    A << gsl_pow_2(_s0), _rho,
+         _rho, gsl_pow_2(_s1);
+
+    SelfAdjointEigenSolver<mat22> eigenSolver(A);
+
+    return sqrt(eigenSolver.eigenvalues()[0]
+              * eigenSolver.eigenvalues()[1]);
+}
+
+double Particle::variD() const
+{
+    return _s;
+}
+
 double Particle::compressR() const
 {
     // return _transS / sqrt(_s0 * _s1);

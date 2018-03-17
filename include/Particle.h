@@ -582,6 +582,12 @@ class Particle
                   double& s1,
                   double& s) const;
 
+        double variR() const;
+
+        double variT() const;
+
+        double variD() const;
+
         double compressR() const;
 
         double compressT() const;

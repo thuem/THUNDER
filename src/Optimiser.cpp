@@ -1126,9 +1126,9 @@ void Optimiser::expectation()
         int nPhaseWithNoVariDecrease = 0;
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-        double compressR = 0;
-        double compressT = 0;
-        double compressD = 0;
+        double variR = DBL_MAX;
+        double variT = DBL_MAX;
+        double variD = DBL_MAX;
 #else
         double k1 = 1;
         double k2 = 1;
@@ -1469,9 +1469,9 @@ void Optimiser::expectation()
                         : MIN_N_PHASE_PER_ITER_LOCAL))
             {
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                double compressRCur;
-                double compressTCur;
-                double compressDCur;
+                double variRCur;
+                double variTCur;
+                double variDCur;
 #else
                 double k1Cur;
                 double k2Cur;
@@ -1482,9 +1482,9 @@ void Optimiser::expectation()
 #endif
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                compressRCur = _par[l].compressR();
-                compressTCur = _par[l].compressT();
-                compressDCur = _par[l].compressD();
+                variRCur = _par[l].variR();
+                variTCur = _par[l].variT();
+                variDCur = _par[l].variD();
 #else
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
 #endif
@@ -1492,9 +1492,9 @@ void Optimiser::expectation()
                 if (_para.mode == MODE_2D)
                 {
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                    if ((compressRCur > compressR * PARTICLE_FILTER_INCREASE_FACTOR) ||
-                        (compressTCur > compressT * PARTICLE_FILTER_INCREASE_FACTOR) ||
-                        (compressDCur > compressD * PARTICLE_FILTER_INCREASE_FACTOR))
+                    if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
 #else
                     if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
@@ -1511,9 +1511,9 @@ void Optimiser::expectation()
                 else if (_para.mode == MODE_3D)
                 {
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                    if ((compressRCur > compressR * PARTICLE_FILTER_INCREASE_FACTOR) ||
-                        (compressTCur > compressT * PARTICLE_FILTER_INCREASE_FACTOR) ||
-                        (compressDCur > compressD * PARTICLE_FILTER_INCREASE_FACTOR))
+                    if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
 #else
                     if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                         (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
@@ -1539,14 +1539,14 @@ void Optimiser::expectation()
 #ifdef OPTIMISER_COMPRESS_CRITERIA
 
 #ifndef NAN_NO_CHECK
-                if (TSGSL_isnan(compressR)) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                if (TSGSL_isnan(compressT)) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                if (TSGSL_isnan(compressD)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(variRCur)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(variTCur)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(variDCur)) { REPORT_ERROR("NAN DETECTED"); abort(); };
 #endif
 
-                if (compressRCur > compressR) compressR = compressRCur;
-                if (compressTCur > compressT) compressT = compressTCur;
-                if (compressDCur > compressD) compressD = compressDCur;
+                if (variRCur < variR) variR = variRCur;
+                if (variTCur < variT) variR = variTCur;
+                if (variDCur < variD) variR = variDCur;
 #else
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (k1Cur < k1) k1 = k1Cur;
