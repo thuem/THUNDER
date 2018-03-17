@@ -978,9 +978,7 @@ void Particle::calVari(const ParticleType pt)
                                       1,
                                       _t.col(1).data(),
                                       1,
-                                      _t.rows(),
-                                      _s0,
-                                      _s1);
+                                      _t.rows());
         // _rho = gsl_stats_(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
 
         /***
