@@ -974,7 +974,14 @@ void Particle::calVari(const ParticleType pt)
         _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
-        _rho = gsl_stats_correlation(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+        _rho = gsl_stats_covariance_m(_t.col(0).data(),
+                                      1,
+                                      _t.col(1).data(),
+                                      1,
+                                      _t.rows(),
+                                      _s0,
+                                      _s1);
+        // _rho = gsl_stats_(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
 
         /***
 #ifdef PARTICLE_RHO

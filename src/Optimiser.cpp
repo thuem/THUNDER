@@ -4918,9 +4918,9 @@ void Optimiser::saveDatabase() const
                  tran(0),
                  tran(1),
 #endif
-                 rho,
                  s0,
                  s1,
+                 rho,
                  df,
                  s,
                  _par[l].compress());
