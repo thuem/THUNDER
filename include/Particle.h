@@ -582,7 +582,11 @@ class Particle
                   double& s1,
                   double& s) const;
 
-        double compress() const;
+        double compressR() const;
+
+        double compressT() const;
+
+        double compressD() const;
 
         double wC(const int i) const;
 

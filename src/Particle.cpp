@@ -576,7 +576,7 @@ void Particle::vari(double& rVari,
     s = _s;
 }
 
-double Particle::compress() const
+double Particle::compressR() const
 {
     // return _transS / sqrt(_s0 * _s1);
 
@@ -607,6 +607,24 @@ double Particle::compress() const
     // return pow(_k0 / _k1, 1.5) * gsl_pow_2(_transS) / _s0 / _s1;
 
     //return gsl_pow_2(_transS) / _s0 / _s1;
+}
+
+double Particle::compressT() const
+{
+    mat22 A;
+
+    A << gsl_pow_2(_s0), _rho,
+         _rho, gsl_pow_2(_s1);
+
+    SelfAdjointEigenSolver<mat22> eigenSolver(A);
+
+    return 1.0 / sqrt(eigenSolver.eigenvalues()[0]
+                    * eigenSolver.eigenvalues()[1]);
+}
+
+double Particle::compressD() const
+{
+    return 1.0 / _s;
 }
 
 double Particle::wC(const int i) const

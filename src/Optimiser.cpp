@@ -4012,7 +4012,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
             RFLOAT w;
 
             if ((_para.parGra) && (_para.k == 1))
-                w = _par[l].compress();
+                w = _par[l].compressR();
             else
                 w = 1;
 
@@ -4923,7 +4923,7 @@ void Optimiser::saveDatabase() const
                  rho,
                  df,
                  s,
-                 _par[l].compress());
+                 _par[l].compressR());
     }
 
     fclose(file);
