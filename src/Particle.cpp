@@ -1105,9 +1105,11 @@ void Particle::perturb(const double pf,
 
 #ifdef PARTICLE_TRANSLATION_S
             double s = GSL_MAX_DBL(_s0, _s1);
-            gsl_ran_bivariate_gaussian(engine, s, s, _rho, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, s, s, 0, &x, &y);
+            //gsl_ran_bivariate_gaussian(engine, s, s, _rho, &x, &y);
 #else
-            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, _s0, _s1, 0, &x, &y);
+            //gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
 #endif
 
             _t(i, 0) += x * pf;
