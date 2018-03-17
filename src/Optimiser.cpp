@@ -885,32 +885,6 @@ void Optimiser::expectation()
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-
-#ifndef NAN_NO_CHECK
-
-            if ((wC.row(l).sum() == 0) || (TSGSL_isnan(wC.row(l).sum())))
-            {
-                REPORT_ERROR("WC, NAN DETECTED");
-
-                abort();
-            }
-
-            if ((wR.row(l).sum() == 0) || (TSGSL_isnan(wR.row(l).sum())))
-            {
-                REPORT_ERROR("WR, NAN DETECTED");
-
-                abort();
-            }
-
-            if ((wT.row(l).sum() == 0) || (TSGSL_isnan(wT.row(l).sum())))
-            {
-                REPORT_ERROR("WT, NAN DETECTED");
-
-                abort();
-            }
-
-#endif
-
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(l, iC), iC);
 
@@ -1152,7 +1126,9 @@ void Optimiser::expectation()
         int nPhaseWithNoVariDecrease = 0;
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-        RFLOAT topCmp = 0;
+        double compressR = 0;
+        double compressT = 0;
+        double compressD = 0;
 #else
         double k1 = 1;
         double k2 = 1;
@@ -1492,21 +1468,39 @@ void Optimiser::expectation()
                         ? MIN_N_PHASE_PER_ITER_GLOBAL
                         : MIN_N_PHASE_PER_ITER_LOCAL))
             {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                double compressRCur;
+                double compressTCur;
+                double compressDCur;
+#else
                 double k1Cur;
                 double k2Cur;
                 double k3Cur;
                 double tVariS0Cur;
                 double tVariS1Cur;
                 double dVariCur;
+#endif
 
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                compressRCur = _par[l].compressR();
+                compressTCur = _par[l].compressT();
+                compressDCur = _par[l].compressD();
+#else
                 _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
+#endif
 
                 if (_para.mode == MODE_2D)
                 {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                    if ((compressRCur < compressR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (compressTCur < compressT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (compressDCur < compressD * PARTICLE_FILTER_DECREASE_FACTOR))
+#else
                     if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
                     {
                         // there is still room for searching
                         nPhaseWithNoVariDecrease = 0;
@@ -1516,12 +1510,18 @@ void Optimiser::expectation()
                 }
                 else if (_para.mode == MODE_3D)
                 {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                    if ((compressRCur < compressR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (compressTCur < compressT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                        (compressDCur < compressD * PARTICLE_FILTER_DECREASE_FACTOR))
+#else
                     if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                         (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                         (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
                         (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
                         (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
                     {
                         // there is still room for searching
                         nPhaseWithNoVariDecrease = 0;
@@ -1537,7 +1537,16 @@ void Optimiser::expectation()
                 }
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
-                topCmp = _par[l].compress();
+
+#ifndef NAN_NO_CHECK
+                if (TSGSL_isnan(compressR)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(compressT)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(compressD)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+#endif
+
+                if (compressRCur < compressR) compressR = compressRCur;
+                if (compressTCur < compressT) compressT = compressTCur;
+                if (compressDCur < compressD) compressD = compressDCur;
 #else
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (k1Cur < k1) k1 = k1Cur;

@@ -2208,9 +2208,9 @@ void Particle::balanceWeight(const ParticleType pt)
         s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
         s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
 
-        // rho = gsl_stats_covariance(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+        rho = gsl_stats_covariance(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
         
-        rho = 0;
+        //rho = 0;
 
         /***
 #ifdef PARTICLE_RHO
