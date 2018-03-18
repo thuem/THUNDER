@@ -1036,10 +1036,6 @@ void Optimiser::expectation()
                                            _par[l].s1()));
 #endif
 
-#ifdef PARTICLE_RHO
-            _par[l].setRho(0);
-#endif
-
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
             {
