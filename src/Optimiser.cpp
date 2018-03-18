@@ -1538,20 +1538,19 @@ void Optimiser::expectation()
                 if (TSGSL_isnan(_par[l].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
                 if (TSGSL_isnan(_par[l].compressT()))
                 {
-                    CLOG(INFO, "INFO") << "s0 = " << _par[l].s0();
-                    CLOG(INFO, "INFO") << "s1 = " << _par[l].s1();
-                    CLOG(INFO, "INFO") << "rho = " << _par[l].rho();
+                    CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[l].s0();
+                    CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[l].s1();
+                    CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[l].rho();
 
-                    //char filename[FILE_NAME_LENGTH];
+                    char filename[FILE_NAME_LENGTH];
 
-                    /***
                     snprintf(filename,
                              sizeof(filename),
-                             "C_Particle_%04d_DEBUG",
-                         _ID[l]);
-                    ***/
-                    //save(filename, _par[l], PAR_T);
-                    save("T_Particle_DEBUG", _par[l], PAR_T);
+                             "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
+                             _ID[l],
+                             _iter,
+                             phase);
+                    save(filename, _par[l], PAR_T, true);
 
                     REPORT_ERROR("NAN DETECTED");
                     abort();
