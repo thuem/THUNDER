@@ -1535,9 +1535,8 @@ void Optimiser::expectation()
 #ifdef OPTIMISER_COMPRESS_CRITERIA
 
 #ifndef NAN_NO_CHECK
-                if (TSGSL_isnan(variRCur)) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                if (TSGSL_isnan(variTCur)) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                if (TSGSL_isnan(variDCur)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(_par[l].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                if (TSGSL_isnan(_par[l].compressT())) { REPORT_ERROR("NAN DETECTED"); abort(); };
 #endif
 
                 if (variRCur < variR) variR = variRCur;
