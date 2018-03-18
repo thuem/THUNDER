@@ -1150,7 +1150,7 @@ void save(const char filename[],
           const Particle& par,
           const bool saveU = false);
 
-void save(const char filenamep[],
+void save(const char filename[],
           const Particle& par,
           const ParticleType pt,
           const bool saveU = false);
