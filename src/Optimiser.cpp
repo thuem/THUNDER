@@ -969,6 +969,13 @@ void Optimiser::expectation()
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
+#ifdef PARTICLE_RHO
+            _par[l].setRho(0);
+            // if there is only two resampled points in translation, it is possible making pho be 1
+            // then it will crash down
+            // make rho to be 0
+#endif
+
             if (_para.mode == MODE_2D)
             {
 #ifdef OPTIMISER_SCAN_SET_MIN_STD_WITH_PERTURB
