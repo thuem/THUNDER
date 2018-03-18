@@ -1034,6 +1034,8 @@ void Particle::calVari(const ParticleType pt)
                                     _t.col(1).data(),
                                     1,
                                     _t.rows());
+        if (_rho > _s0 * _s1 * RHO_MAX) _rho = _s0 * _s1 * RHO_MAX;
+        if (_rho < _s0 * _s1 * RHO_MIN) _rho = _s0 * _s1 * RHO_MIN;
 #else
         _rho = 0;
 #endif
@@ -2241,6 +2243,8 @@ void Particle::balanceWeight(const ParticleType pt)
 
 #ifdef PARTICLE_RHO
         rho = gsl_stats_covariance(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+        if (rho > s0 * s1 * RHO_MAX) rho = s0 * s1 * RHO_MAX;
+        if (rho < s0 * s1 * RHO_MIN) rho = s0 * s1 * RHO_MIN;
 #else
         rho = 0;
 #endif
