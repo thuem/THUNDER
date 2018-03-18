@@ -1541,8 +1541,8 @@ void Optimiser::expectation()
 #endif
 
                 if (variRCur < variR) variR = variRCur;
-                if (variTCur < variT) variR = variTCur;
-                if (variDCur < variD) variR = variDCur;
+                if (variTCur < variT) variT = variTCur;
+                if (variDCur < variD) variD = variDCur;
 #else
                 // make tVariS0, tVariS1, rVari the smallest variance ever got
                 if (k1Cur < k1) k1 = k1Cur;
