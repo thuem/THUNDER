@@ -49,8 +49,8 @@
 
 #define INIT_OUTSIDE_CONFIDENCE_AREA 0.5
 
-#define RHO_MAX (1 - 1e-2)
-#define RHO_MIN (-1 + 1e-2)
+#define RHO_MAX (1 - 1e-1)
+#define RHO_MIN (-1 + 1e-1)
 
 enum ParticleType
 {
