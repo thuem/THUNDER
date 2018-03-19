@@ -3843,7 +3843,7 @@ void Optimiser::allReduceSigma(const bool mask,
             RFLOAT w;
 
             if (_para.parGra) 
-                w = _par[l].compressR();
+                w = gsl_pow_2(_par[l].compressR());
             else
                 w = 1;
 #else
