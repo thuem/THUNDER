@@ -3229,7 +3229,8 @@ void Optimiser::refreshClassDistr()
                   MPI_SUM,
                   MPI_COMM_WORLD);
 
-    _cDistr.array() /= (_nPar * _para.k);
+    //_cDistr.array() /= (_nPar * _para.k);
+    _cDistr.array() /= _cDistr.sum();
 }
 
 void Optimiser::balanceClass(const RFLOAT thres,
