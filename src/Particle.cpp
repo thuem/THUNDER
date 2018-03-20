@@ -1063,7 +1063,7 @@ void Particle::perturb(const double pf,
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, dvec4(1, 0, 0, 0), GSL_MIN_DBL(1, _k1 * pf), _nR);
+            sampleVMS(d, dvec4(1, 0, 0, 0), GSL_MIN_DBL(PERTURB_K_MAX, _k1 * pf), _nR);
 
             dvec4 quat;
 
@@ -1079,7 +1079,7 @@ void Particle::perturb(const double pf,
         else if (_mode == MODE_3D)
         {
 #ifdef PARTICLE_ROTATION_KAPPA
-            double kappa = GSL_MIN_DBL(1, GSL_MAX_DBL(_k1, GSL_MAX_DBL(_k2, _k3)));
+            double kappa = GSL_MIN_DBL(PERTURB_K_MAX, GSL_MAX_DBL(_k1, GSL_MAX_DBL(_k2, _k3)));
             sampleACG(d,
                       gsl_pow_2(pf) * kappa,
                       gsl_pow_2(pf) * kappa,
@@ -1087,9 +1087,9 @@ void Particle::perturb(const double pf,
                       _nR);
 #else
             sampleACG(d,
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(PERTURB_K_MAX, _k1),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(PERTURB_K_MAX, _k2),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(PERTURB_K_MAX, _k3),
                       _nR);
 #endif
 

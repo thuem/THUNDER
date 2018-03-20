@@ -3241,6 +3241,8 @@ void Optimiser::balanceClass(const RFLOAT thres,
     for (int t = 0; t < _para.k; t++)
         if (_cDistr(t) < thres / _para.k)
         {
+            MLOG(INFO, "LOGGER_SYS") << "Class " << t << "is Empty. Resigned it with Class " << cls << ".";
+
             NT_MASTER _model.ref(t) = _model.ref(cls).copyVolume();
 
             if (refreshDistr) _cDistr(t) = num;
