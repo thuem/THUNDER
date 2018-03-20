@@ -810,8 +810,10 @@ class Optimiser : public Parallel
 
         void refreshClassDistr();
 
-        void balanceClass(const RFLOAT thres,
-                          const bool refreshDistr);
+        void determineBalanceClass(umat2& dst,
+                                   const RFLOAT thres);
+
+        void balanceClass(const umat2& bm);
 
         /**
          * re-calculate the rotation and translation variance

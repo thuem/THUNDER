@@ -3233,6 +3233,64 @@ void Optimiser::refreshClassDistr()
     _cDistr.array() /= _cDistr.sum();
 }
 
+void Optimiser::determineBalanceClass(umat2& dst,
+                                      const RFLOAT thres)
+{
+    int num = 0;
+
+    for (int t = 0; t < _para.k; t++)
+        if (_cDistr(t) < thres / _para.k)
+            num++;
+
+    dst = umat2::Zero(num, 2);
+
+    dvec cum = dvec::Zero(_para.k);
+
+    for (int t = 0; t < _para.k; t++)
+    {
+        if (_cDistr(t) < thres / _para.k)
+            cum(t) = 0;
+        else
+            cum(t) = _cDistr(t) - (thres / _para.k);
+    }
+
+    cum = d_cumsum(cum);
+
+    cum.array() /= cum.sum();
+
+    gsl_rng* engine = get_random_engine();
+
+    int i = 0;
+
+    for (int t = 0; t < _para.k; t++)
+    {
+        if (_cDistr(t) < thres / _para.k)
+        {
+            RFLOAT indice = TSGSL_ran_flat(engine, 0, 1);
+
+            int j = 0;
+            while (cum(j) < indice) j++;
+
+            MLOG(INFO, "LOGGER_SYS") << "Class " << t << " is Empty ( Round "
+                                     << _iter
+                                     << " ), Resigned it with Class "
+                                     << j;
+
+            dst(i, 0) = t;
+            dst(i, 1) = j;
+        }
+    }
+}
+
+void Optimiser::balanceClass(const umat2& bm)
+{
+    for (int i = 0; i < bm.rows(); i++)
+    {
+        NT_MASTER _model.ref(bm(i, 0)) = _model.ref(bm(i, 1)).copyVolume();
+    }
+}
+
+/***
 void Optimiser::balanceClass(const RFLOAT thres,
                              const bool refreshDistr)
 {
@@ -3254,6 +3312,7 @@ void Optimiser::balanceClass(const RFLOAT thres,
 
     if (refreshDistr) _cDistr.array() /= _cDistr.sum();
 }
+***/
 
 void Optimiser::refreshVariance()
 {
@@ -4236,6 +4295,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
     MPI_Barrier(MPI_COMM_WORLD);
 
+#ifdef OPTIMISER_BALANCE_CLASS
+    umat2 bm;
+#endif
+
     if (fscFlag)
     {
         NT_MASTER
@@ -4337,13 +4400,20 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
+            MLOG(INFO, "LOGGER_ROUND") << "Determining How to Balancing Class(es)";
+
+            determineBalanceClass(bm, CLASS_BALANCE_FACTOR);
+
             MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
+            balanceClass(bm);
+            /***
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
             balanceClass(CLASS_BALANCE_FACTOR, false);
 #else
             balanceClass(CLASS_BALANCE_FACTOR, true);
 #endif
+            ***/
 
 #ifdef VERBOSE_LEVEL_1
 
@@ -4471,7 +4541,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
-            balanceClass(CLASS_BALANCE_FACTOR, true);
+            //balanceClass(CLASS_BALANCE_FACTOR, true);
+            balanceClass(bm);
 
 #ifdef VERBOSE_LEVEL_1
 
