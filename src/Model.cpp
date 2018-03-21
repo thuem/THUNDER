@@ -900,12 +900,25 @@ int Model::bestClass(const RFLOAT thres,
     int cls = 0;
     int res = 0;
 
+    double val = 0;
+
     FOR_EACH_CLASS
+    {
         if (res < resolutionP(l, thres, inverse))
         {
             res = resolutionP(l, thres, inverse);
+            val = _FSC(res, l);
             cls = l;
         }
+        else if (res == resolutionP(l, thres, inverse))
+        {
+            if (val < _FSC(res, l))
+            {
+                val = _FSC(res, l);
+                cls = l;
+            }
+        }
+    }
 
     return cls;
 }
