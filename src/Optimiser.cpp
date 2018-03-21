@@ -3339,13 +3339,19 @@ void Optimiser::refreshVariance()
     vec t0v = vec::Zero(_nPar);
     vec t1v = vec::Zero(_nPar);
 
+#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
+
+    int bestClass = _model.bestClass(_para.thresCutoffFSC, false);
+
+#ifdef VERBOSE_LEVEL_1
+    MLOG(INFO, "LOGGER_SYS") << "Best Class is " << bestClass;
+#endif
+    
+#endif
+
     NT_MASTER
     {
         double rVari, tVariS0, tVariS1, dVari;
-
-#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
-        int bestClass = _model.bestClass(_para.thresCutoffFSC, false);
-#endif
 
         #pragma omp parallel for private(rVari, tVariS0, tVariS1, dVari)
         FOR_EACH_2D_IMAGE
