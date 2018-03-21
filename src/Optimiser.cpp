@@ -3260,9 +3260,9 @@ void Optimiser::determineBalanceClass(umat2& dst,
                 cum(t) = _cDistr(t) - (thres / _para.k);
         }
 
-        cum = d_cumsum(cum);
-
         cum.array() /= cum.sum();
+
+        cum = d_cumsum(cum);
 
 #ifdef VERBOSE_LEVEL_1
         MLOG(INFO, "LOGGER_SYS") << "Summation of Percentage Calculated";
