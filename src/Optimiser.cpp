@@ -3428,11 +3428,14 @@ void Optimiser::refreshVariance()
     int j = 0;
     for (int i = 0; i < _nPar; i++)
     {
-        if (!TSGSL_isnan(rv(i))) rvt(j) = rv(i);
-        if (!TSGSL_isnan(t0v(i))) t0vt(j) = t0v(i);
-        if (!TSGSL_isnan(t1v(i))) t1vt(j) = t1v(i);
-
-        j++;
+        if (!TSGSL_isnan(rv(i)))
+        {
+            rvt(j) = rv(i);
+            t0vt(j) = t0v(i);
+            t1vt(j) = t1v(i);
+            
+            j++;
+        }
     }
 
     rv = rvt;
