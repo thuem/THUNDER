@@ -3242,6 +3242,10 @@ void Optimiser::determineBalanceClass(umat2& dst,
         if (_cDistr(t) < thres / _para.k)
             num++;
 
+#ifdef VERBOSE_LEVEL_1
+    MLOG(INFO, "LOGGER_SYS") << num << " Classes Empty and Needing Resigning";
+#endif
+
     dst = umat2::Zero(num, 2);
 
     IF_MASTER
@@ -3259,6 +3263,10 @@ void Optimiser::determineBalanceClass(umat2& dst,
         cum = d_cumsum(cum);
 
         cum.array() /= cum.sum();
+
+#ifdef VERBOSE_LEVEL_1
+        MLOG(INFO, "LOGGER_SYS") << "Summation of Percentage Calculated";
+#endif
 
         gsl_rng* engine = get_random_engine();
 
