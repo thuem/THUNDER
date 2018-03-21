@@ -3389,30 +3389,6 @@ void Optimiser::refreshVariance()
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
-    int num = 0;
-    for (int i = 0; i < _nPar; i++)
-        if (!TSGSL_isnan(rv(i))) num++;
-
-    vec rvt = vec::Zero(num);
-    vec t0vt = vec::Zero(num);
-    vec t1vt = vec::Zero(num);
-
-    int j = 0;
-    for (int i = 0; i < _nPar; i++)
-    {
-        if (!TSGSL_isnan(rv(i))) rvt(j) = rv(i);
-        if (!TSGSL_isnan(t0v(i))) t0vt(j) = t0v(i);
-        if (!TSGSL_isnan(t1v(i))) t1vt(j) = t1v(i);
-
-        j++;
-    }
-
-    rv = rvt;
-    t0v = t0vt;
-    t1v = t1vt;
-#endif
-
     MPI_Allreduce(MPI_IN_PLACE,
                   rv.data(),
                   rv.size(),
@@ -3435,6 +3411,34 @@ void Optimiser::refreshVariance()
                   MPI_COMM_WORLD); 
 
     MPI_Barrier(MPI_COMM_WORLD);
+
+#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
+    int num = 0;
+    for (int i = 0; i < _nPar; i++)
+        if (!TSGSL_isnan(rv(i))) num++;
+
+#ifdef VERBOSE_LEVEL_1
+    MLOG(INFO, "LOGGER_SYS") << num << " Particles Belonging to Best Class";
+#endif
+
+    vec rvt = vec::Zero(num);
+    vec t0vt = vec::Zero(num);
+    vec t1vt = vec::Zero(num);
+
+    int j = 0;
+    for (int i = 0; i < _nPar; i++)
+    {
+        if (!TSGSL_isnan(rv(i))) rvt(j) = rv(i);
+        if (!TSGSL_isnan(t0v(i))) t0vt(j) = t0v(i);
+        if (!TSGSL_isnan(t1v(i))) t1vt(j) = t1v(i);
+
+        j++;
+    }
+
+    rv = rvt;
+    t0v = t0vt;
+    t1v = t1vt;
+#endif
 
     ALOG(INFO, "LOGGER_SYS") << "Maximum Rotation Variance: " << rv.maxCoeff();
     BLOG(INFO, "LOGGER_SYS") << "Maximum Rotation Variance: " << rv.maxCoeff();
