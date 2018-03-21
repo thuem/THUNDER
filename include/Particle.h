@@ -52,7 +52,7 @@
 #define RHO_MAX (1 - 1e-1)
 #define RHO_MIN (-1 + 1e-1)
 
-#define PERTURB_K_MAX 0.5
+#define PERTURB_K_MAX 1
 
 enum ParticleType
 {
