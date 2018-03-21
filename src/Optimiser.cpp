@@ -3244,42 +3244,53 @@ void Optimiser::determineBalanceClass(umat2& dst,
 
     dst = umat2::Zero(num, 2);
 
-    dvec cum = dvec::Zero(_para.k);
-
-    for (int t = 0; t < _para.k; t++)
+    IF_MASTER
     {
-        if (_cDistr(t) < thres / _para.k)
-            cum(t) = 0;
-        else
-            cum(t) = _cDistr(t) - (thres / _para.k);
-    }
+        dvec cum = dvec::Zero(_para.k);
 
-    cum = d_cumsum(cum);
-
-    cum.array() /= cum.sum();
-
-    gsl_rng* engine = get_random_engine();
-
-    int i = 0;
-
-    for (int t = 0; t < _para.k; t++)
-    {
-        if (_cDistr(t) < thres / _para.k)
+        for (int t = 0; t < _para.k; t++)
         {
-            RFLOAT indice = TSGSL_ran_flat(engine, 0, 1);
+            if (_cDistr(t) < thres / _para.k)
+                cum(t) = 0;
+            else
+                cum(t) = _cDistr(t) - (thres / _para.k);
+        }
 
-            int j = 0;
-            while (cum(j) < indice) j++;
+        cum = d_cumsum(cum);
 
-            MLOG(INFO, "LOGGER_SYS") << "Class " << t << " is Empty ( Round "
-                                     << _iter
-                                     << " ), Resigned it with Class "
-                                     << j;
+        cum.array() /= cum.sum();
 
-            dst(i, 0) = t;
-            dst(i, 1) = j;
+        gsl_rng* engine = get_random_engine();
+
+        int i = 0;
+
+        for (int t = 0; t < _para.k; t++)
+        {
+            if (_cDistr(t) < thres / _para.k)
+            {
+                RFLOAT indice = TSGSL_ran_flat(engine, 0, 1);
+
+                int j = 0;
+                while (cum(j) < indice) j++;
+
+                MLOG(INFO, "LOGGER_SYS") << "Class " << t << " is Empty ( Round "
+                                         << _iter
+                                         << " ), Resigned it with Class "
+                                         << j;
+
+                dst(i, 0) = t;
+                dst(i, 1) = j;
+
+                i++;
+            }
         }
     }
+
+    MPI_Bcast(dst.data(),
+              dst.size(),
+              MPI_LONG,
+              MASTER_ID,
+              MPI_COMM_WORLD);
 }
 
 void Optimiser::balanceClass(const umat2& bm)
