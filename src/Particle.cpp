@@ -1802,8 +1802,8 @@ void Particle::setPeakFactor(const ParticleType pt)
     }
     else if (pt == PAR_R)
     {
-        _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
-        /***
+        //_peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
+
         if (_mode == MODE_2D)
             _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
         else if (_mode == MODE_3D)
@@ -1813,7 +1813,6 @@ void Particle::setPeakFactor(const ParticleType pt)
             REPORT_ERROR("INEXISTENT MODE");
             abort();
         }
-        ***/
     }
     else if (pt == PAR_T)
     {
