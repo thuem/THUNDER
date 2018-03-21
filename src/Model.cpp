@@ -894,6 +894,22 @@ vec Model::tau(const int i) const
     return _tau.col(i);
 }
 
+int Model::bestClass(const RFLOAT thres,
+                     const bool inverse) const
+{
+    int cls = 0;
+    int res = 0;
+
+    FOR_EACH_CLASS
+        if (res < resolutionP(l, thres, inverse))
+        {
+            res = resolutionP(l, thres, inverse);
+            cls = l;
+        }
+
+    return cls;
+}
+
 int Model::resolutionP(const int i,
                        const RFLOAT thres,
                        const bool inverse) const

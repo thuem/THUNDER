@@ -3343,13 +3343,37 @@ void Optimiser::refreshVariance()
     {
         double rVari, tVariS0, tVariS1, dVari;
 
-        #pragma omp parallel for private(rVari, tVariS0, tVariS1)
+#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
+        int bestClass = _model.bestClass(_para.thresCutoffFSC, false);
+#endif
+
+        #pragma omp parallel for private(rVari, tVariS0, tVariS1, dVari)
         FOR_EACH_2D_IMAGE
         {
+#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
+            size_t cls;
+            _par[l].rand(cls);
+
+            if (cls == (size_t)bestClass)
+            {
+                _par[l].vari(rVari,
+                             tVariS0,
+                             tVariS1,
+                             dVari);
+            }
+            else
+            {
+                rVari = GSL_NAN;
+                tVariS0 = GSL_NAN;
+                tVariS1 = GSL_NAN;
+                dVari = GSL_NAN;
+            }
+#else
             _par[l].vari(rVari,
                          tVariS0,
                          tVariS1,
                          dVari);
+#endif
 
             rv(_ID[l]) = rVari;
             t0v(_ID[l]) = tVariS0;
@@ -3358,6 +3382,30 @@ void Optimiser::refreshVariance()
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
+
+#ifdef OPTIMISER_REFRESH_VARIANCE_BEST_CLASS
+    int num = 0;
+    for (int i = 0; i < _nPar; i++)
+        if (!TSGSL_isnan(rv(i))) num++;
+
+    vec rvt = vec::Zero(num);
+    vec t0vt = vec::Zero(num);
+    vec t1vt = vec::Zero(num);
+
+    int j = 0;
+    for (int i = 0; i < _nPar; i++)
+    {
+        if (!TSGSL_isnan(rv(i))) rvt(j) = rv(i);
+        if (!TSGSL_isnan(t0v(i))) t0vt(j) = t0v(i);
+        if (!TSGSL_isnan(t1v(i))) t1vt(j) = t1v(i);
+
+        j++;
+    }
+
+    rv = rvt;
+    t0v = t0vt;
+    t1v = t1vt;
+#endif
 
     MPI_Allreduce(MPI_IN_PLACE,
                   rv.data(),
@@ -3387,17 +3435,17 @@ void Optimiser::refreshVariance()
 
     RFLOAT mean, std;
 
-    stat_MAS(mean, std, rv, _nPar);
+    stat_MAS(mean, std, rv, rv.size());
 
     _model.setRVari(mean);
     _model.setStdRVari(std);
 
-    stat_MAS(mean, std, t0v, _nPar);
+    stat_MAS(mean, std, t0v, t0v.size());
 
     _model.setTVariS0(mean);
     _model.setStdTVariS0(std);
 
-    stat_MAS(mean, std, t1v, _nPar);
+    stat_MAS(mean, std, t1v, t1v.size());
 
     _model.setTVariS1(mean);
     _model.setStdTVariS1(std);

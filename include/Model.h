@@ -618,6 +618,9 @@ class Model : public Parallel
          */
         vec tau(const int i) const;
 
+        int bestClass(const RFLOAT thres,
+                      const bool inverse) const;
+
         /**
          * This function returns the resolution in pixel of the i-th
          * reference.
