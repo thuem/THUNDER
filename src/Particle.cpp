@@ -304,7 +304,7 @@ void Particle::initD(const int nD,
     _uD = dvec::Constant(_nD, 1.0 / _nD);
 
 #ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
-#ifdef PARTILCE_BALANCE_WEIGHT
+#ifdef PARTILCE_BALANCE_WEIGHT_D
     balanceWeight(PAR_D);
 #endif
 #endif
@@ -1140,7 +1140,7 @@ void Particle::perturb(const double pf,
             abort();
         }
 
-#ifdef PARTILCE_BALANCE_WEIGHT
+#ifdef PARTILCE_BALANCE_WEIGHT_R
         balanceWeight(PAR_R);
 #endif
     }
@@ -1171,7 +1171,7 @@ void Particle::perturb(const double pf,
 
 #endif
 
-#ifdef PARTILCE_BALANCE_WEIGHT
+#ifdef PARTILCE_BALANCE_WEIGHT_T
         balanceWeight(PAR_T);
 #endif
     }
@@ -1182,7 +1182,7 @@ void Particle::perturb(const double pf,
         for (int i = 0; i < _nD; i++)
             _d(i) += gsl_ran_gaussian(engine, _s) * pf;
 
-#ifdef PARTILCE_BALANCE_WEIGHT
+#ifdef PARTILCE_BALANCE_WEIGHT_D
         balanceWeight(PAR_D);
 #endif
     }
@@ -1226,12 +1226,6 @@ void Particle::resample(const int n,
                 i++;
 
             c(j) = _c(i);
-
-#ifdef PARTICLE_PRIOR_ONE
-            _wC(j) = 1.0 / _uC(i);
-#else
-            _wC(j) = 1.0 / _nC;
-#endif
         }
 
         _c = c;
@@ -1271,12 +1265,6 @@ void Particle::resample(const int n,
                 i++;
         
             r.row(j) = _r.row(i);
-
-#ifdef PARTICLE_PRIOR_ONE
-            _wR(j) = 1.0 / _uR(i);
-#else
-            _wR(j) = 1.0 / _nR;
-#endif
         }
 
         _r = r;
@@ -1316,12 +1304,6 @@ void Particle::resample(const int n,
                 i++;
         
             t.row(j) = _t.row(i);
-
-#ifdef PARTICLE_PRIOR_ONE
-            _wT(j) = 1.0 / _uT(i);
-#else
-            _wT(j) = 1.0 / _nT;
-#endif
         }
 
         _t = t;
@@ -1361,12 +1343,6 @@ void Particle::resample(const int n,
                 i++;
 
             d(j) = _d(i);
-
-#ifdef PARTICLE_PRIOR_ONE
-            _wD(j) = 1.0 / _uD(i);
-#else
-            _wD(j) = 1.0 / _nD;
-#endif
         }
 
         _d = d;
