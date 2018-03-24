@@ -1196,6 +1196,8 @@ void Model::elevateR(const RFLOAT thres)
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
+
+    _r = GSL_MIN_INT(_r, maxR());
 }
 
 void Model::setFSC(const mat FSC)
