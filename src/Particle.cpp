@@ -160,7 +160,7 @@ void Particle::reset()
     _uD = dvec::Constant(_nD, 1.0 / _nD);
 
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
-#ifdef PARTILCE_BALANCE_WEIGHT
+#ifdef PARTICLE_BALANCE_WEIGHT
     balanceWeight(PAR_T);
 #endif
 #endif
@@ -304,7 +304,7 @@ void Particle::initD(const int nD,
     _uD = dvec::Constant(_nD, 1.0 / _nD);
 
 #ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
-#ifdef PARTILCE_BALANCE_WEIGHT_D
+#ifdef PARTICLE_BALANCE_WEIGHT_D
     balanceWeight(PAR_D);
 #endif
 #endif
@@ -1140,7 +1140,7 @@ void Particle::perturb(const double pf,
             abort();
         }
 
-#ifdef PARTILCE_BALANCE_WEIGHT_R
+#ifdef PARTICLE_BALANCE_WEIGHT_R
         balanceWeight(PAR_R);
 #endif
     }
@@ -1171,7 +1171,7 @@ void Particle::perturb(const double pf,
 
 #endif
 
-#ifdef PARTILCE_BALANCE_WEIGHT_T
+#ifdef PARTICLE_BALANCE_WEIGHT_T
         balanceWeight(PAR_T);
 #endif
     }
@@ -1182,7 +1182,7 @@ void Particle::perturb(const double pf,
         for (int i = 0; i < _nD; i++)
             _d(i) += gsl_ran_gaussian(engine, _s) * pf;
 
-#ifdef PARTILCE_BALANCE_WEIGHT_D
+#ifdef PARTICLE_BALANCE_WEIGHT_D
         balanceWeight(PAR_D);
 #endif
     }
