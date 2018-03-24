@@ -99,7 +99,7 @@
  */
 #define A_B_AVERAGE_THRES 10
 
-#define CUTOFF_BEYOND_RES 1
+#define CUTOFF_BEYOND_RES 3
 
 class Model : public Parallel
 {
