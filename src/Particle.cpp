@@ -160,7 +160,7 @@ void Particle::reset()
     _uD = dvec::Constant(_nD, 1.0 / _nD);
 
 #ifdef PARTICLE_TRANS_INIT_GAUSSIAN
-#ifdef PARTICLE_BALANCE_WEIGHT
+#ifdef PARTICLE_BALANCE_WEIGHT_T
     balanceWeight(PAR_T);
 #endif
 #endif
