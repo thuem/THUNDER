@@ -217,7 +217,10 @@ double pdfVMS(const dvec2& x,
 {
     double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
 
-    return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+    if (kappa < 10) // avoiding overflow
+        return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+    else
+        return gsl_ran_gaussian_pdf((x - mu).norm(), 1.0 / kappa);
 }
 
 void sampleVMS(dmat2& dst,
@@ -229,7 +232,7 @@ void sampleVMS(dmat2& dst,
 
     gsl_rng* engine = get_random_engine();
 
-    if (kappa < 1e-1)
+    if (kappa < 1e-1) // avoiding overflow
     {
         for (int i = 0; i < n; i++)
             gsl_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
