@@ -1075,6 +1075,10 @@ void Particle::perturb(const double pf,
 
                 _r.row(i) = quat.transpose();
             }
+
+#ifdef PARTICLE_BALANCE_WEIGHT_R
+        balanceWeight(PAR_R);
+#endif
         }
         else if (_mode == MODE_3D)
         {
