@@ -59,7 +59,7 @@
 
 #define N_SAVE_IMG 20 
 
-#define TRANS_Q 0.01
+#define TRANS_Q 0.05
 
 #define MIN_STD_FACTOR 3
 
