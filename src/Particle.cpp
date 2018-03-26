@@ -1231,6 +1231,8 @@ void Particle::resample(const int n,
         _c = c;
 
         _uC.resize(_nC);
+        
+        _wC = dvec::Constant(_nC, 1.0 / _nC);
     }
     else if (pt == PAR_R)
     {
@@ -1270,6 +1272,8 @@ void Particle::resample(const int n,
         _r = r;
 
         _uR.resize(_nR);
+
+        _wR = dvec::Constant(_nR, 1.0 / _nR);
     }
     else if (pt == PAR_T)
     {
@@ -1309,6 +1313,8 @@ void Particle::resample(const int n,
         _t = t;
 
         _uT.resize(_nT);
+
+        _wT = dvec::Constant(_nT, 1.0 / _nT);
     }
     else if (pt == PAR_D)
     {
@@ -1348,6 +1354,8 @@ void Particle::resample(const int n,
         _d = d;
 
         _uD.resize(_nD);
+
+        _wD = dvec::Constant(_nD, 1.0 / _nD);
     }
 
     normW();
