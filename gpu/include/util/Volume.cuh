@@ -11,6 +11,7 @@
 #define VOLUME_CUH
 
 #include "Device.cuh"
+#include "Config.cuh"
 #include "Complex.cuh"
 #include "TabFunction.cuh"
 #include "Interpolation.cuh"
@@ -73,9 +74,9 @@ class Volume
                                   const int iRow,
                                   const int iSlc) const;
 
-        HD_CALLABLE Complex getByInterpolationFT(const double iCol,
-                                                 const double iRow,
-                                                 const double iSlc) const;
+        HD_CALLABLE Complex getByInterpolationFT(const RFLOAT iCol,
+                                                 const RFLOAT iRow,
+                                                 const RFLOAT iSlc) const;
 
         HD_CALLABLE void setFT(Complex value,
                                const int iCol,
@@ -96,9 +97,9 @@ class Volume
                               bool debug = false);
         
         
-        D_CALLABLE bool conjHalf(double& iCol, 
-                                 double& iRow, 
-                                 double& iSlc) const;
+        D_CALLABLE bool conjHalf(RFLOAT& iCol, 
+                                 RFLOAT& iRow, 
+                                 RFLOAT& iSlc) const;
 
         D_CALLABLE void getFromIndex(const int index, 
                                      int& i, 
@@ -111,9 +112,9 @@ class Volume
                                      const int iRow, 
                                      const int iSlc) const;
 
-        D_CALLABLE Complex getByInterpolationFT(double iCol, 
-                                                double iRow, 
-                                                double iSlc, 
+        D_CALLABLE Complex getByInterpolationFT(RFLOAT iCol, 
+                                                RFLOAT iRow, 
+                                                RFLOAT iSlc, 
                                                 const int interp) const;
 
 

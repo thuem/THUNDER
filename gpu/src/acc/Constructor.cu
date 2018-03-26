@@ -13,18 +13,13 @@ namespace cuthunder {
 
 //////////////////////////////////////////////////////////////////////////
 
-static __inline__ D_CALLABLE double fetch_double(int hi, int lo){
-    
-    return __hiloint2double(hi, lo);
-}
-
 HD_CALLABLE Constructor::Constructor(Volume vol,
                                      ImageStream imgss,
                                      TabFunction tabfunc,
                                      double dimsize,
                                      double weight,
                                      double alpha,
-                                     double pf)
+                                     int pf)
     : _F3D(vol), _images(imgss), _MKBessel(tabfunc)
 {
     _w  = weight;
@@ -385,146 +380,10 @@ D_CALLABLE void Constructor::addSurfaceC(Complex value,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::addFTD(double* devDataT,
-                                    double value,
-                                    double iCol,
-                                    double iRow,
-                                    double iSlc,
-                                    const int dim) const
-{
-    if (iCol < 0)
-    {
-        iCol *= -1;
-        iRow *= -1;
-        iSlc *= -1;
-    }
-
-    double w[2][2][2];
-    int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
-    int index;
-
-    WG_TRI_LINEAR_INTERPF(w, x0, x);
-
-    for (int k = 0; k < 2; k++)
-        for (int j = 0; j < 2; j++)
-            for (int i = 0; i < 2; i++)
-            {    
-                index = getIndexHalf(x0[0] + i,
-                                     x0[1] + j,
-                                     x0[2] + k,
-                                     dim);
-                //if (index < 0 || index >= dim * dim * (dim / 2 + 1))
-                //    printf("index error!\n");
-                atomicAdd(&devDataT[index], value * w[k][j][i]);
-            } 
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::addFTC(Complex* devDataF,
-                                    Complex& value,
-                                    double iCol,
-                                    double iRow,
-                                    double iSlc,
-                                    const int dim) const
-{
-    bool conjug = false;
-
-    if (iCol < 0)
-    {
-        iCol *= -1;
-        iRow *= -1;
-        iSlc *= -1;
-        conjug = true;
-    }
-
-    double w[2][2][2];
-    int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
-    int index;
-
-    WG_TRI_LINEAR_INTERPF(w, x0, x);
-
-    conjug ? value.conj() : value;
-
-    for (int k = 0; k < 2; k++)
-        for (int j = 0; j < 2; j++)
-            for (int i = 0; i < 2; i++)
-            {
-                index = getIndexHalf(x0[0] + i,
-                                     x0[1] + j,
-                                     x0[2] + k,
-                                     dim);
-
-                //if (index < 0 || index >= dim * dim * (dim / 2 + 1))
-                //    printf("index error!\n");
-                atomicAdd(devDataF[index].realAddr(), value.real() * w[k][j][i]);
-                atomicAdd(devDataF[index].imagAddr(), value.imag() * w[k][j][i]);
-            } 
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::addFTCD(Complex* devDataF,
-                                     double* devDataT,
-                                     Complex& cvalue,
-                                     double dvalue,
-                                     double iCol,
-                                     double iRow,
-                                     double iSlc,
-                                     const int dim) const
-{
-    bool conjug = false;
-
-    if (iCol < 0)
-    {
-        iCol *= -1;
-        iRow *= -1;
-        iSlc *= -1;
-        conjug = true;
-    }
-
-    double w[2][2][2];
-    int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
-    int index;
-
-    WG_TRI_LINEAR_INTERPF(w, x0, x);
-
-    conjug ? cvalue.conj() : cvalue;
-
-    for (int k = 0; k < 2; k++)
-        for (int j = 0; j < 2; j++)
-            for (int i = 0; i < 2; i++)
-            {
-                index = getIndexHalf(x0[0] + i,
-                                     x0[1] + j,
-                                     x0[2] + k,
-                                     dim);
-                if (index < 0 || index >= dim * dim * (dim / 2 + 1))
-                    printf("index error!\n");
-                atomicAdd(devDataF[index].realAddr(), cvalue.real() * w[k][j][i]);
-                atomicAdd(devDataF[index].imagAddr(), cvalue.imag() * w[k][j][i]);
-                atomicAdd(&devDataT[index], dvalue * w[k][j][i]);
-            } 
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
 D_CALLABLE void Constructor::expectPrectf(CTFAttr* dev_ctfa,
-                                          double* dev_def,
-                                          double* dev_k1,
-                                          double* dev_k2,
+                                          RFLOAT* dev_def,
+                                          RFLOAT* dev_k1,
+                                          RFLOAT* dev_k2,
                                           int* deviCol,
                                           int* deviRow,
                                           int imgidx,
@@ -535,8 +394,13 @@ D_CALLABLE void Constructor::expectPrectf(CTFAttr* dev_ctfa,
     int shift = imgidx * npxl; 
     double lambda, angle;
     
+#ifdef SINGLE_PRECISION
+    lambda = 12.2643274 / sqrtf(dev_ctfa[imgidx].voltage 
+                        * (1 + dev_ctfa[imgidx].voltage * 0.978466e-6));
+#else
     lambda = 12.2643274 / sqrt(dev_ctfa[imgidx].voltage 
                         * (1 + dev_ctfa[imgidx].voltage * 0.978466e-6));
+#endif    
     dev_k1[imgidx] = PI * lambda;
     dev_k2[imgidx] = PI / 2 * dev_ctfa[imgidx].Cs * lambda * lambda * lambda;
     
@@ -545,12 +409,21 @@ D_CALLABLE void Constructor::expectPrectf(CTFAttr* dev_ctfa,
         i = deviCol[itr];
         j = deviRow[itr];
         
+#ifdef SINGLE_PRECISION
+        angle = atan2f((float)j, (float)i) - dev_ctfa[imgidx].defocusTheta;
+        
+        dev_def[shift + itr] = -(dev_ctfa[imgidx].defocusU 
+                                 + dev_ctfa[imgidx].defocusV 
+                                 + (dev_ctfa[imgidx].defocusU - dev_ctfa[imgidx].defocusV) 
+                                 * cosf(2 * angle)) / 2;
+#else
         angle = atan2((double)j, (double)i) - dev_ctfa[imgidx].defocusTheta;
         
         dev_def[shift + itr] = -(dev_ctfa[imgidx].defocusU 
                                  + dev_ctfa[imgidx].defocusV 
                                  + (dev_ctfa[imgidx].defocusU - dev_ctfa[imgidx].defocusV) 
                                  * cos(2 * angle)) / 2;
+#endif    
     }
 
 }
@@ -560,107 +433,20 @@ D_CALLABLE void Constructor::expectPrectf(CTFAttr* dev_ctfa,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::translate(Complex* devtraP,
-                                       double* dev_trans,
-                                       int* deviCol,
-                                       int* deviRow,
-                                       int idim,
-                                       int npxl,
-                                       int imgidx,
-                                       int blockSize)
+D_CALLABLE void Constructor::normalizeTF(Complex *devDataF,
+                                         RFLOAT *devDataT, 
+                                         const int length,
+                                         const int num, 
+                                         const RFLOAT sf)
 {
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::getRotMat(double* devRotm,
-                                       double* matS,
-                                       double* devnR,
-                                       int nR,
-                                       int threadId)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::project(Complex* priRotP,
-                                     double* devRotm,
-                                     int* deviCol,
-                                     int* deviRow,
-                                     int shift,
-                                     int pf,
-                                     int vdim,
-                                     int npxl,
-                                     int interp,
-                                     int rIndex,
-                                     int blockSize,
-                                     cudaTextureObject_t texObject)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::logDataVS(Complex* devdatP,
-                                       Complex* priRotP,
-                                       Complex* devtraP,
-                                       double* devctfP,
-                                       double* devsigP,
-                                       double* devDvp,
-                                       double* result,
-                                       int nT,
-                                       int rbatch,
-                                       int blockId,
-                                       int blockSize,
-                                       int npxl)
-{
-}
+    int index = _tid;
+    while(index < length)
+    {
+        devDataF[index + num] *= sf;
+        devDataT[index] *= sf;
         
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::updateW(double* devDvp,
-                                     double* devbaseL,
-                                     double* devwC,
-                                     double* devwR,
-                                     double* devwT,
-                                     int rIdx,
-                                     int nK,
-                                     int nR,
-                                     int nT,
-                                     int rSize)
-{
-}
-        
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::getRandomCTD(double* dev_nt,
-                                          double* dev_tran,
-                                          double* dev_nd,
-                                          double* dev_ramD,
-                                          double* dev_nr,
-                                          double* dev_ramR,
-                                          int* dev_ramC,
-                                          unsigned long out,
-                                          int nC,
-                                          int nR,
-                                          int nT,
-                                          int nD,
-                                          int blockId)
-{
+        index += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -668,157 +454,10 @@ D_CALLABLE void Constructor::getRandomCTD(double* dev_nt,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::getRandomCTD(double* dev_nt,
-                                          double* dev_tran,
-                                          double* dev_nr,
-                                          double* dev_ramR,
-                                          int* dev_ramC,
-                                          unsigned long out,
-                                          int nC,
-                                          int nR,
-                                          int nT,
-                                          int blockId)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::getRandomR(double* dev_mat,
-                                        double* matS,
-                                        double* dev_ramR,
-                                        int threadId)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::translate(Complex* dev_images,
-                                       Complex* tranImgs,
-                                       double* dev_offs,
-                                       double* tran,
-                                       int* deviCol,
-                                       int* deviRow,
-                                       int* deviPxl,
-                                       int insertIdx,
-                                       int npxl,
-                                       int mReco,
-                                       int idim,
-                                       int imgidx,
-                                       int blockSize,
-                                       int imgSize)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::translate(Complex* dev_images,
-                                       Complex* tranImgs,
-                                       double* tran,
-                                       int* deviCol,
-                                       int* deviRow,
-                                       int* deviPxl,
-                                       int insertIdx,
-                                       int npxl,
-                                       int mReco,
-                                       int idim,
-                                       int imgidx,
-                                       int blockSize,
-                                       int imgSize)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::calculateCTF(Complex* dev_ctfs,
-                                          CTFAttr* dev_ctfas,
-                                          double* dev_ramD,
-                                          int* deviCol,
-                                          int* deviRow,
-                                          int* deviPxl,
-                                          double pixel,
-                                          double w1,
-                                          double w2,
-                                          int insertIdx,
-                                          int npxl,
-                                          int mReco,
-                                          int imgidx,
-                                          int blockSize,
-                                          int imgSize)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::insertT(double* devDataT,
-                                     Complex* dev_ctfs,
-                                     double* dev_ws,
-                                     double* dev_mat,
-                                     double* rotMat,
-                                     int* deviCol,
-                                     int* deviRow,
-                                     int* deviPxl,
-                                     int insertIdx,
-                                     int npxl,
-                                     int mReco,
-                                     int pf,
-                                     int vdim,
-                                     int imgidx,
-                                     int blockSize,
-                                     int imgSize)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::insertF(Complex* devDataF,
-                                     double* devDataT,
-                                     Complex* tranImgs,
-                                     Complex* dev_ctfs,
-                                     double* dev_ws,
-                                     double* dev_mat,
-                                     double* rotMat,
-                                     int* dev_ramC,
-                                     int* deviCol,
-                                     int* deviRow,
-                                     int* deviPxl,
-                                     int insertIdx,
-                                     int npxl,
-                                     int mReco,
-                                     int pf,
-                                     int vdim,
-                                     int imgidx,
-                                     int blockSize,
-                                     int imgSize)
-{
-}
-
-/**
- * @brief ...
- * @param ...
- * @param ...
- */
-D_CALLABLE void Constructor::normalizeT(double *devDataT, 
+D_CALLABLE void Constructor::normalizeT(RFLOAT *devDataT, 
                                         const int length,
                                         const int num, 
-                                        const double sf)
+                                        const RFLOAT sf)
 {
     int index = _tid;
     while(index < length)
@@ -833,18 +472,22 @@ D_CALLABLE void Constructor::normalizeT(double *devDataT,
  * @param ...
  * @param ...
  */
-D_CALLABLE double Constructor::getTexture(double iCol,
-                                          double iRow,
-                                          double iSlc,
+D_CALLABLE RFLOAT Constructor::getTexture(RFLOAT iCol,
+                                          RFLOAT iRow,
+                                          RFLOAT iSlc,
                                           const int dim,
                                           cudaTextureObject_t texObject) const
 {
     if (iRow < 0) iRow += dim;
     if (iSlc < 0) iSlc += dim;
 
+#ifdef SINGLE_PRECISION
+    float dval = tex3D<float>(texObject, iCol, iRow, iSlc);
+    return dval;
+#else
     int2 dval = tex3D<int2>(texObject, iCol, iRow, iSlc);
-
-    return fetch_double(dval.y, dval.x);
+    return __hiloint2double(dval.y, dval.x);
+#endif    
 }
 
 /**
@@ -852,9 +495,9 @@ D_CALLABLE double Constructor::getTexture(double iCol,
  * @param ...
  * @param ...
  */
-D_CALLABLE double Constructor::getByInterpolationFT(double iCol,
-                                                    double iRow,
-                                                    double iSlc,
+D_CALLABLE RFLOAT Constructor::getByInterpolationFT(RFLOAT iCol,
+                                                    RFLOAT iRow,
+                                                    RFLOAT iSlc,
                                                     const int interp,
                                                     const int dim,
                                                     cudaTextureObject_t texObject) const
@@ -868,7 +511,7 @@ D_CALLABLE double Constructor::getByInterpolationFT(double iCol,
 
     if(interp == 0)
     {
-        double result = getTexture(iCol, 
+        RFLOAT result = getTexture(iCol, 
                                    iRow,
                                    iSlc,
                                    dim,
@@ -876,19 +519,19 @@ D_CALLABLE double Constructor::getByInterpolationFT(double iCol,
         return result;
     }
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     WG_TRI_LINEAR_INTERPF(w, x0, x);
 
-    double result = 0.0;
+    RFLOAT result = 0.0;
     for (int k = 0; k < 2; k++)
         for (int j = 0; j < 2; j++)
             for (int i = 0; i < 2; i++){
-                result += getTexture((double)x0[0] + i, 
-                                     (double)x0[1] + j, 
-                                     (double)x0[2] + k, 
+                result += getTexture((RFLOAT)x0[0] + i, 
+                                     (RFLOAT)x0[1] + j, 
+                                     (RFLOAT)x0[2] + k, 
                                      dim, 
                                      texObject)
                         * w[k][j][i];
@@ -901,9 +544,9 @@ D_CALLABLE double Constructor::getByInterpolationFT(double iCol,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::symmetrizeT(double *devDataT,
+D_CALLABLE void Constructor::symmetrizeT(RFLOAT *devDataT,
                                          double *matBase, 
-                                         double r, 
+                                         int r, 
                                          int numSymmat,
                                          int interp,
                                          int num,
@@ -926,28 +569,39 @@ D_CALLABLE void Constructor::symmetrizeT(double *devDataT,
         {
             _mat.init(matBase, m);
             
-            double inc = 0.0;
+            RFLOAT inc = 0.0;
             
             Vec3 newCor((double)i, (double)j, (double)k);
             Vec3 oldCor = _mat * newCor;
             
-            if (rint(oldCor.squaredNorm3()) < rint(r * r))
+#ifdef SINGLE_PRECISION
+            if ((int)floorf(oldCor.squaredNorm3()) < r)
             {
-                inc = getByInterpolationFT(oldCor(0),
-                                           oldCor(1),
-                                           oldCor(2),
+                inc = getByInterpolationFT((RFLOAT)oldCor(0),
+                                           (RFLOAT)oldCor(1),
+                                           (RFLOAT)oldCor(2),
                                            interp,
                                            dim,
                                            texObject);
                 
                 devDataT[index + num] += inc;
             }
-
+#else
+            if ((int)floor(oldCor.squaredNorm3()) < r)
+            {
+                inc = getByInterpolationFT((RFLOAT)oldCor(0),
+                                           (RFLOAT)oldCor(1),
+                                           (RFLOAT)oldCor(2),
+                                           interp,
+                                           dim,
+                                           texObject);
+                
+                devDataT[index + num] += inc;
+            }
+#endif    
         }        
-        
         index += blockDim.x * gridDim.x;
     }
-
 }
 
 
@@ -956,10 +610,10 @@ D_CALLABLE void Constructor::symmetrizeT(double *devDataT,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::shellAverage(double *devAvg2D, 
+D_CALLABLE void Constructor::shellAverage(RFLOAT *devAvg2D, 
                                           int *devCount2D, 
-                                          double *devDataT,
-                                          double *sumAvg,
+                                          RFLOAT *devDataT,
+                                          RFLOAT *sumAvg,
                                           int *sumCount, 
                                           int r,
                                           int dim,
@@ -986,10 +640,16 @@ D_CALLABLE void Constructor::shellAverage(double *devAvg2D,
         
         if(quad < r * r)
         {
+#ifdef SINGLE_PRECISION
+            int u = (int)rintf(sqrtf((float)quad));
+#else
             int u = (int)rint(sqrt((double)quad));
-            
-            atomicAdd(&sumAvg[u], devDataT[index]);
-            atomicAdd(&sumCount[u], 1);
+#endif    
+            if (u < r)
+            {
+                atomicAdd(&sumAvg[u], devDataT[index]);
+                atomicAdd(&sumCount[u], 1);
+            }
         }
         index += blockDim.x * gridDim.x;
     }
@@ -1008,9 +668,9 @@ D_CALLABLE void Constructor::shellAverage(double *devAvg2D,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::calculateAvg(double *devAvg2D, 
+D_CALLABLE void Constructor::calculateAvg(RFLOAT *devAvg2D, 
                                           int *devCount2D,
-                                          double *devAvg,
+                                          RFLOAT *devAvg,
                                           int *devCount,
                                           int dim, 
                                           int r)
@@ -1045,9 +705,9 @@ D_CALLABLE void Constructor::calculateAvg(double *devAvg2D,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::calculateFSC(double *devFSC,
-                                          double *devAvg, 
-                                          double *devDataT,
+D_CALLABLE void Constructor::calculateFSC(RFLOAT *devFSC,
+                                          RFLOAT *devAvg, 
+                                          RFLOAT *devDataT,
                                           int num,
                                           int dim,
                                           int dimSize,
@@ -1071,14 +731,27 @@ D_CALLABLE void Constructor::calculateFSC(double *devFSC,
         
         if(quad >= wiener && quad < r)
         {
-            int u = (int)rint(sqrt((double)quad));
+#ifdef SINGLE_PRECISION
+            int u = (int)rintf(sqrtf((float)quad));
+            float FSC = (u / _pf >= fscMatsize)
+                      ? 0 
+                      : devFSC[u / _pf];
             
+            FSC = fmaxf(1e-3, fminf(1 - 1e-3, FSC));
+#ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
+            FSC = sqrtf(2 * FSC / (1 + FSC));
+#else
+            if (joinHalf) 
+                FSC = sqrtf(2 * FSC / (1 + FSC));
+#endif
+
+#else
+            int u = (int)rint(sqrt((double)quad));
             double FSC = (u / _pf >= fscMatsize)
                        ? 0 
                        : devFSC[u / _pf];
             
             FSC = fmax(1e-3, fmin(1 - 1e-3, FSC));
-
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
             FSC = sqrt(2 * FSC / (1 + FSC));
 #else
@@ -1086,12 +759,13 @@ D_CALLABLE void Constructor::calculateFSC(double *devFSC,
                 FSC = sqrt(2 * FSC / (1 + FSC));
 #endif
 
+#endif    
+            
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
             devDataT[index + num] += (1 - FSC) / FSC * devAvg[u];
 #else
             devDataT[index + num] /= FSC;
 #endif
-            
         }
         index += blockDim.x * gridDim.x;
     }
@@ -1103,7 +777,7 @@ D_CALLABLE void Constructor::calculateFSC(double *devFSC,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::wienerConst(double *devDataT,
+D_CALLABLE void Constructor::wienerConst(RFLOAT *devDataT,
                                          int wiener,
                                          int r,
                                          int num,
@@ -1137,8 +811,8 @@ D_CALLABLE void Constructor::wienerConst(double *devDataT,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::calculateW(double *devDataW, 
-                                        double *devDataT,
+D_CALLABLE void Constructor::calculateW(RFLOAT *devDataW, 
+                                        RFLOAT *devDataT,
                                         const int length,
                                         const int num,
                                         const int dim, 
@@ -1159,7 +833,11 @@ D_CALLABLE void Constructor::calculateW(double *devDataW,
 
         if (quad < r)
         {
+#ifdef SINGLE_PRECISION
+            devDataW[index + num] = 1.0 / fmaxf(fabsf(devDataT[index + num]), 1e-6);
+#else
             devDataW[index + num] = 1.0 / fmax(fabs(devDataT[index + num]), 1e-6);
+#endif    
         }
         
         index += blockDim.x * gridDim.x;
@@ -1171,7 +849,7 @@ D_CALLABLE void Constructor::calculateW(double *devDataW,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::initialW(double *devDataW,
+D_CALLABLE void Constructor::initialW(RFLOAT *devDataW,
                                       int initWR,
                                       int dim,
                                       int dimSize)
@@ -1208,8 +886,8 @@ D_CALLABLE void Constructor::initialW(double *devDataW,
  * @param ...
  */
 D_CALLABLE void Constructor::determiningC(Complex *devDataC,
-                                          double *devDataT,
-                                          double *devDataW,
+                                          RFLOAT *devDataT,
+                                          RFLOAT *devDataW,
                                           int length)
 {
     int index = _tid;
@@ -1226,9 +904,9 @@ D_CALLABLE void Constructor::determiningC(Complex *devDataC,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::convoluteC(double *devDoubleC,
+D_CALLABLE void Constructor::convoluteC(RFLOAT *devDoubleC,
                                         TabFunction &tabfunc,
-                                        double nf,
+                                        RFLOAT nf,
                                         int padSize,
                                         int dim,
                                         int dimSize)
@@ -1248,9 +926,8 @@ D_CALLABLE void Constructor::convoluteC(double *devDoubleC,
         
         devDoubleC[index] = devDoubleC[index] 
                           / dimSize
-                          * tabfunc((i*i + j*j + k*k) / pow(padSize, 2))
+                          * tabfunc((RFLOAT)(i*i + j*j + k*k) / (padSize * padSize))
                           / nf;
-
         index += blockDim.x * gridDim.x;
     }
 }
@@ -1261,7 +938,7 @@ D_CALLABLE void Constructor::convoluteC(double *devDoubleC,
  * @param ...
  */
 D_CALLABLE void Constructor::recalculateW(Complex *devDataC,
-                                          double *devDataW,
+                                          RFLOAT *devDataW,
                                           int initWR,
                                           int dim,
                                           int dimSize)
@@ -1269,7 +946,7 @@ D_CALLABLE void Constructor::recalculateW(Complex *devDataC,
     int i, j, k;
     int index = _tid;
 
-    double mode = 0.0;
+    RFLOAT mode = 0.0, u, x, y;
     while(index < dimSize)
     {
         i = (index) % (dim / 2 + 1);
@@ -1282,10 +959,57 @@ D_CALLABLE void Constructor::recalculateW(Complex *devDataC,
 
         if (quad < initWR)
         {
-            mode = devDataC[index].real() * devDataC[index].real()
-                 + devDataC[index].imag() * devDataC[index].imag();
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[index].real());
+            y = fabsf(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
 
-            devDataW[index] /= fmax(sqrt(mode), 1e-6);
+            devDataW[index] /= fmaxf(mode, 1e-6);
+#else
+            x = fabs(devDataC[index].real());
+            y = fabs(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            devDataW[index] /= fmax(mode, 1e-6);
+#endif    
         }
         
         index += blockDim.x * gridDim.x;
@@ -1298,10 +1022,10 @@ D_CALLABLE void Constructor::recalculateW(Complex *devDataC,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::checkCAVG(double *sumDiff,
-                                       double *sumCount,
-                                       double *diff,
-                                       double *counter,
+D_CALLABLE void Constructor::checkCAVG(RFLOAT *sumDiff,
+                                       RFLOAT *sumCount,
+                                       RFLOAT *diff,
+                                       RFLOAT *counter,
                                        Complex *devDataC,
                                        int r,
                                        int dim,
@@ -1309,7 +1033,7 @@ D_CALLABLE void Constructor::checkCAVG(double *sumDiff,
                                        int indexDiff,
                                        int blockId)
 {
-    double tempD = 0, mode = 0;
+    RFLOAT tempD = 0, mode = 0, u, x, y;
     int tempC = 0;
     int index = _tid;
     int i, j, k;
@@ -1327,12 +1051,57 @@ D_CALLABLE void Constructor::checkCAVG(double *sumDiff,
         
         if(quad < r)
         {
-            mode = devDataC[index].real() 
-                 * devDataC[index].real()
-                 + devDataC[index].imag()
-                 * devDataC[index].imag();
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[index].real());
+            y = fabsf(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
 
-            tempD += fabs(sqrt(mode) - 1);
+            tempD += fabsf(mode - 1);
+#else
+            x = fabs(devDataC[index].real());
+            y = fabs(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            tempD += fabs(mode - 1);
+#endif    
             tempC += 1;
         }
         index += blockDim.x * gridDim.x;
@@ -1401,8 +1170,8 @@ D_CALLABLE void Constructor::checkCAVG(double *sumDiff,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::checkCMAX(double *singleMax,
-                                       double *devMax,
+D_CALLABLE void Constructor::checkCMAX(RFLOAT *singleMax,
+                                       RFLOAT *devMax,
                                        Complex *devDataC,
                                        int r,
                                        int dim,
@@ -1412,7 +1181,7 @@ D_CALLABLE void Constructor::checkCMAX(double *singleMax,
 {
     int index = _tid;
     int i, j, k;
-    double temp = 0.0, mode = 0.0;;
+    RFLOAT temp = 0.0, mode = 0.0, u, x, y;
     bool flag = true;
     
     while(index < dimSize)
@@ -1427,13 +1196,59 @@ D_CALLABLE void Constructor::checkCMAX(double *singleMax,
         
         if(quad < r)
         {
-            mode = sqrt(devDataC[index].real() 
-                        * devDataC[index].real()
-                        + devDataC[index].imag()
-                        * devDataC[index].imag());
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[index].real());
+            y = fabsf(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
+
+            if (fabsf(mode - 1) >= temp)
+                temp = fabsf(mode - 1);
+#else
+            x = fabs(devDataC[index].real());
+            y = fabs(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
 
             if (fabs(mode - 1) >= temp)
                 temp = fabs(mode - 1);
+#endif    
         }
         index += blockDim.x * gridDim.x;
     }
@@ -1504,7 +1319,7 @@ D_CALLABLE void Constructor::checkCMAX(double *singleMax,
 D_CALLABLE void Constructor::normalizeF(Complex *devDataF, 
                                         const int length, 
                                         const int num, 
-                                        const double sf)
+                                        const RFLOAT sf)
 {
     int index = _tid;
 
@@ -1520,19 +1335,23 @@ D_CALLABLE void Constructor::normalizeF(Complex *devDataF,
  * @param ...
  * @param ...
  */
-D_CALLABLE Complex Constructor::getTextureC(double iCol,
-                                            double iRow,
-                                            double iSlc,
+D_CALLABLE Complex Constructor::getTextureC(RFLOAT iCol,
+                                            RFLOAT iRow,
+                                            RFLOAT iSlc,
                                             const int dim,
                                             cudaTextureObject_t texObject) const
 {
     if (iRow < 0) iRow += dim;
     if (iSlc < 0) iSlc += dim;
 
+#ifdef SINGLE_PRECISION
+    float2 cval = tex3D<float2>(texObject, iCol, iRow, iSlc);
+    return Complex(cval.x, cval.y);
+#else
     int4 cval = tex3D<int4>(texObject, iCol, iRow, iSlc);
-
-    return Complex(fetch_double(cval.y,cval.x),
-                   fetch_double(cval.w,cval.z));
+    return Complex(__hiloint2double(cval.y,cval.x),
+                   __hiloint2double(cval.w,cval.z));
+#endif    
 }
 
 /**
@@ -1540,9 +1359,9 @@ D_CALLABLE Complex Constructor::getTextureC(double iCol,
  * @param ...
  * @param ...
  */
-D_CALLABLE Complex Constructor::getByInterpolationFTC(double iCol,
-                                                      double iRow,
-                                                      double iSlc,
+D_CALLABLE Complex Constructor::getByInterpolationFTC(RFLOAT iCol,
+                                                      RFLOAT iRow,
+                                                      RFLOAT iSlc,
                                                       const int interp,
                                                       const int dim,
                                                       cudaTextureObject_t texObject) const
@@ -1567,9 +1386,9 @@ D_CALLABLE Complex Constructor::getByInterpolationFTC(double iCol,
         return conjug ? result.conj() : result;
     }
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     WG_TRI_LINEAR_INTERPF(w, x0, x);
 
@@ -1578,9 +1397,9 @@ D_CALLABLE Complex Constructor::getByInterpolationFTC(double iCol,
         for (int j = 0; j < 2; j++)
             for (int i = 0; i < 2; i++){
                 
-                result += getTextureC((double)x0[0] + i, 
-                                      (double)x0[1] + j, 
-                                      (double)x0[2] + k, 
+                result += getTextureC((RFLOAT)x0[0] + i, 
+                                      (RFLOAT)x0[1] + j, 
+                                      (RFLOAT)x0[2] + k, 
                                       dim, 
                                       texObject)
                        * w[k][j][i];
@@ -1595,7 +1414,7 @@ D_CALLABLE Complex Constructor::getByInterpolationFTC(double iCol,
  */
 D_CALLABLE void Constructor::symmetrizeF(Complex *devDataF,
                                          double *matBase, 
-                                         double r, 
+                                         int r, 
                                          int numSymmat,
                                          int interp,
                                          int num,
@@ -1622,20 +1441,31 @@ D_CALLABLE void Constructor::symmetrizeF(Complex *devDataF,
             
             Vec3 newCor((double)i, (double)j, (double)k);
             Vec3 oldCor = _mat * newCor;
-            
-            if (rint(oldCor.squaredNorm3()) < rint(r * r))
+#ifdef SINGLE_PRECISION
+            if ((int)floorf(oldCor.squaredNorm3()) < r)
             {
-                
-                inc = getByInterpolationFTC(oldCor(0),
-                                            oldCor(1),
-                                            oldCor(2),
+                inc = getByInterpolationFTC((RFLOAT)oldCor(0),
+                                            (RFLOAT)oldCor(1),
+                                            (RFLOAT)oldCor(2),
                                             interp,
                                             dim,
                                             texObject);
                 
                 devDataF[index + num] += inc;
             }
-
+#else
+            if ((int)floor(oldCor.squaredNorm3()) < r)
+            {
+                inc = getByInterpolationFTC((RFLOAT)oldCor(0),
+                                            (RFLOAT)oldCor(1),
+                                            (RFLOAT)oldCor(2),
+                                            interp,
+                                            dim,
+                                            texObject);
+                
+                devDataF[index + num] += inc;
+            }
+#endif    
         }        
         index += blockDim.x * gridDim.x;
     }
@@ -1647,17 +1477,53 @@ D_CALLABLE void Constructor::symmetrizeF(Complex *devDataF,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::normalizeFW(Complex *F3D,
-                                         double *devDataW,
-                                         const int length, 
-                                         const int shiftF,
-                                         const int shiftW)
+D_CALLABLE void Constructor::normalizeFW(Complex *devDst,
+                                         Complex *devDataF,
+                                         RFLOAT *devDataW,
+                                         const int dimSize, 
+                                         const int num,
+                                         const int r,
+                                         const int pdim,
+                                         const int fdim)
 {
+    int i, j, k, pj, pk, quad;
     int index = _tid;
+    int dIdx;
 
-    while(index < length)
+    Complex inc(0, 0);
+    while(index < dimSize)
     {
-        F3D[index + shiftF] *= devDataW[index + shiftW];
+        i = (index + num) % (fdim / 2 + 1);
+        j = ((index + num) / (fdim / 2 + 1)) % fdim;
+        k = ((index + num) / (fdim / 2 + 1)) / fdim;
+        
+        if(j >= fdim / 2) 
+        {
+            j = j - fdim;
+            pj = j + pdim;
+        }
+        else
+            pj = j;
+        
+        if(k >= fdim / 2) 
+        {
+            k = k - fdim;
+            pk = k + pdim;
+        }
+        else
+            pk = k;
+        
+        dIdx = i + pj * (pdim / 2 + 1)
+                 + pk * (pdim / 2 + 1) * pdim; 
+        
+        quad = i * i + j * j + k * k;
+
+        if (quad < r)
+        {
+            devDst[dIdx] = devDataF[index] 
+                         * devDataW[index];
+        }
+
         index += blockDim.x * gridDim.x;
     }
 }
@@ -1668,8 +1534,8 @@ D_CALLABLE void Constructor::normalizeFW(Complex *F3D,
  * @param ...
  */
 D_CALLABLE void Constructor::lowpassF(Complex *devDataF, 
-                                      const double thres, 
-                                      const double ew,
+                                      const RFLOAT thres, 
+                                      const RFLOAT ew,
                                       const int num,
                                       const int dim,
                                       const int dimSize)
@@ -1685,6 +1551,23 @@ D_CALLABLE void Constructor::lowpassF(Complex *devDataF,
         if(j >= dim / 2) j = j - dim;
         if(k >= dim / 2) k = k - dim;
         
+#ifdef SINGLE_PRECISION
+        float f = norm3df((float)i / dim, 
+                          (float)j / dim, 
+                          (float)k / dim);
+        
+        if (f > thres + ew)
+        {
+            devDataF[index + num] = 0;
+        }
+        else
+        {
+            if (f >= thres)
+            {
+                devDataF[index + num] *= (cosf((f - thres) * PI / ew) / 2 + 0.5);
+            }
+        }
+#else
         double f = norm3d((double)i / dim, 
                           (double)j / dim, 
                           (double)k / dim);
@@ -1700,6 +1583,7 @@ D_CALLABLE void Constructor::lowpassF(Complex *devDataF,
                 devDataF[index + num] *= (cos((f - thres) * PI / ew) / 2 + 0.5);
             }
         }
+#endif    
         index += blockDim.x * gridDim.x;
     }
 
@@ -1710,9 +1594,9 @@ D_CALLABLE void Constructor::lowpassF(Complex *devDataF,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::correctF(double *devDst,
-                                      double *devMkb,
-                                      double nf,
+D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
+                                      RFLOAT *devMkb,
+                                      RFLOAT nf,
                                       int dim,
                                       int dimSize,
                                       int shift) 
@@ -1744,8 +1628,8 @@ D_CALLABLE void Constructor::correctF(double *devDst,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::correctF(double *devDst,
-                                      double *devTik,
+D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
+                                      RFLOAT *devTik,
                                       int dim,
                                       int dimSize,
                                       int shift)
@@ -1777,20 +1661,20 @@ D_CALLABLE void Constructor::correctF(double *devDst,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::background(double *devDst,
-                                        double *sumWeight,
-                                        double *sumS,
-                                        double *devSumG,
-                                        double *devSumWG,
-                                        double r,
-                                        double ew,
+D_CALLABLE void Constructor::background(RFLOAT *devDst,
+                                        RFLOAT *sumWeight,
+                                        RFLOAT *sumS,
+                                        RFLOAT *devSumG,
+                                        RFLOAT *devSumWG,
+                                        RFLOAT r,
+                                        RFLOAT ew,
                                         int dim,
                                         int dimSize,
                                         int indexDiff,
                                         int blockId)
 {
-    double weightSum = 0;
-    double sumt = 0;
+    RFLOAT weightSum = 0;
+    RFLOAT sumt = 0;
     int index = _tid;
     int i, j, k;
     bool flag = true;
@@ -1805,10 +1689,15 @@ D_CALLABLE void Constructor::background(double *devDst,
         if(j >= dim / 2) j = j - dim;
         if(k >= dim / 2) k = k - dim;
         
-        double u = norm3d((double)i, 
-                          (double)j, 
-                          (double)k);
-        
+#ifdef SINGLE_PRECISION
+        float u = norm3df((float)i / dim, 
+                          (float)j / dim, 
+                          (float)k / dim);
+#else
+        double u = norm3d((double)i / dim, 
+                          (double)j / dim, 
+                          (double)k / dim);
+#endif    
         if(u > r + ew)
         {
             weightSum += 1;
@@ -1816,8 +1705,11 @@ D_CALLABLE void Constructor::background(double *devDst,
         }
         else if (u >= r)
         {
+#ifdef SINGLE_PRECISION
+            float w = 0.5 - 0.5 * cosf((u - r) / ew * PI); 
+#else
             double w = 0.5 - 0.5 * cos((u - r) / ew * PI); 
-            
+#endif    
             weightSum += w;
             sumt += devDst[index] * w;
         }
@@ -1887,9 +1779,9 @@ D_CALLABLE void Constructor::background(double *devDst,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::calculateBg(double *devSumG, 
-                                         double *devSumWG,
-                                         double *bg,
+D_CALLABLE void Constructor::calculateBg(RFLOAT *devSumG, 
+                                         RFLOAT *devSumWG,
+                                         RFLOAT *bg,
                                          int dim)
 {
     int index = _tid;
@@ -1952,10 +1844,10 @@ D_CALLABLE void Constructor::calculateBg(double *devSumG,
  * @param ...
  * @param ...
  */
-D_CALLABLE void Constructor::softMaskD(double *devDst,
-                                       double *bg,
-                                       double r,
-                                       double ew,
+D_CALLABLE void Constructor::softMaskD(RFLOAT *devDst,
+                                       RFLOAT *bg,
+                                       RFLOAT r,
+                                       RFLOAT ew,
                                        int dim,
                                        int dimSize,
                                        int shift)
@@ -1973,19 +1865,31 @@ D_CALLABLE void Constructor::softMaskD(double *devDst,
         if(j >= dim / 2) j = dim - j;
         if(k >= dim / 2) k = dim - k;
         
-        double u = norm3d((double)i, (double)j, (double)k);
+#ifdef SINGLE_PRECISION
+        float u = norm3df((float)i / dim, 
+                          (float)j / dim, 
+                          (float)k / dim);
+#else
+        double u = norm3d((double)i / dim, 
+                          (double)j / dim, 
+                          (double)k / dim);
+#endif    
         
         if (u > r + ew)
             devDst[index + shift] = bg[0];
         else if (u >= r)
         {
-            double w = 0.5 - 0.5 * cos((u - r) / ew * PI);
+#ifdef SINGLE_PRECISION
+            float w = 0.5 - 0.5 * cosf((u - r) / ew * PI); 
+#else
+            double w = 0.5 - 0.5 * cos((u - r) / ew * PI); 
+#endif    
             devDst[index + shift] = bg[0] * w + devDst[index + shift] * (1 - w);
         }
-        
         index += blockDim.x * gridDim.x;
     }
 }
+
 
 //////////////////////////////////////////////////////////////////////////
 

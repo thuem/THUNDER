@@ -10,6 +10,7 @@
 #ifndef COMPLEX_CUH
 #define COMPLEX_CUH
 
+#include "Config.cuh"
 #include "Device.cuh"
 
 namespace cuthunder {
@@ -18,7 +19,7 @@ class Complex
 {
     public:
 
-        HD_CALLABLE Complex(double r = 0, double i = 0)
+        HD_CALLABLE Complex(RFLOAT r = 0, RFLOAT i = 0)
                     : _real(r), _imag(i) {}
 
         HD_CALLABLE ~Complex() {}
@@ -26,15 +27,15 @@ class Complex
         HD_CALLABLE Complex(const Complex& that)
                     : _real(that._real), _imag(that._imag) {}
 
-        HD_CALLABLE __forceinline__ double real() const { return _real; }
+        HD_CALLABLE __forceinline__ RFLOAT real() const { return _real; }
         
-        HD_CALLABLE __forceinline__ double imag() const { return _imag; }
+        HD_CALLABLE __forceinline__ RFLOAT imag() const { return _imag; }
 
-        HD_CALLABLE __forceinline__ double* realAddr() { return &_real; }
+        HD_CALLABLE __forceinline__ RFLOAT* realAddr() { return &_real; }
         
-        HD_CALLABLE __forceinline__ double* imagAddr() { return &_imag; }
+        HD_CALLABLE __forceinline__ RFLOAT* imagAddr() { return &_imag; }
 
-        HD_CALLABLE __forceinline__ void set(const double real, const double imag) {
+        HD_CALLABLE __forceinline__ void set(const RFLOAT real, const RFLOAT imag) {
         	_real = real; _imag = imag;
         }
 
@@ -57,35 +58,36 @@ class Complex
             return Complex(_real - that._real, _imag - that._imag);
         }
 
-        HD_CALLABLE __forceinline__ Complex& operator*=(const double scale) {
+        HD_CALLABLE __forceinline__ Complex& operator*=(const RFLOAT scale) {
             _real *= scale;
             _imag *= scale;
             return *this;
         }
 
         HD_CALLABLE __forceinline__ Complex& operator*=(const Complex& that) {
-            double real = _real * that._real - _imag * that._imag;
-            double imag = _real * that._imag + _imag * that._real;
+            RFLOAT real = _real * that._real - _imag * that._imag;
+            RFLOAT imag = _real * that._imag + _imag * that._real;
 
             _real = real;
             _imag = imag;
             return *this;
         }
         
-        HD_CALLABLE __forceinline__ Complex operator*(const double scale) const {
+        HD_CALLABLE __forceinline__ Complex operator*(const RFLOAT scale) const {
             return Complex(_real * scale, _imag * scale);
         }
 
         HD_CALLABLE __forceinline__ Complex operator*(const Complex& that) const {
-            double real = _real * that._real - _imag * that._imag;
-            double imag = _real * that._imag + _imag * that._real;
+            RFLOAT real = _real * that._real - _imag * that._imag;
+            RFLOAT imag = _real * that._imag + _imag * that._real;
             return Complex(real, imag);
         }
     
+    
     private:
 
-        double _real;
-        double _imag;
+        RFLOAT _real;
+        RFLOAT _imag;
         
 };
 

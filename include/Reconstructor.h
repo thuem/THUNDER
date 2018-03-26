@@ -440,19 +440,38 @@ class Reconstructor : public Parallel
                      const RFLOAT w,
                      const vec* sig = NULL);
 
+        void insertI(Complex* datP,
+                     RFLOAT* ctfP,
+                     RFLOAT* sigP,
+                     RFLOAT* w,
+                     double* offS,
+                     double* nr,
+                     double* nt,
+                     double* nd,
+                     CTFAttr* ctfaData, 
+                     RFLOAT pixelSize,
+                     bool cSearch,
+                     int opf,
+                     int mReco,
+                     int idim,
+                     int imgNum);
+
         void insertFT(Complex* datP,
-                      double* ctfP,
-                      double* sigRcpP,
+                      RFLOAT* ctfP,
+                      RFLOAT* sigRcpP,
                       vector<Particle>& par,
                       vector<vec2>& offset,
                       vector<CTFAttr>& ctfAttr,
-                      double pixelSize,
+                      RFLOAT pixelSize,
                       bool cSearch,
                       bool parGra,
+                      int opf,
                       int nK,
                       int mReco,
                       int idim,
                       int imgNum);
+
+        void prepareTFG();
 
         void prepareTF();
 

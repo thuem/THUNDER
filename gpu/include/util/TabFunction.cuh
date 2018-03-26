@@ -10,6 +10,7 @@
 #ifndef TABFUNCTION_CUH
 #define TABFUNCTION_CUH
 
+#include "Config.cuh"
 #include "Device.cuh"
 
 namespace cuthunder {
@@ -28,34 +29,34 @@ class TabFunction
 
 		HD_CALLABLE ~TabFunction() {}
 
-		HD_CALLABLE TabFunction(double a,
-			                    double b,
-			                    double s,
-			                    double *tab,
+		HD_CALLABLE TabFunction(RFLOAT a,
+			                    RFLOAT b,
+			                    RFLOAT s,
+			                    RFLOAT *tab,
 			                    int size);
 
-		HD_CALLABLE void init(double a,
-		                      double b,
-		                      double s,
-		                      double *tab,
+		HD_CALLABLE void init(RFLOAT a,
+		                      RFLOAT b,
+		                      RFLOAT s,
+		                      RFLOAT *tab,
 		                      int size);
 
         HD_CALLABLE int size() const { return _size; }
 
-        HD_CALLABLE void devPtr(double *tab) { _table = tab; }
+        HD_CALLABLE void devPtr(RFLOAT *tab) { _table = tab; }
 
-        HD_CALLABLE double* devPtr() const { return _table; }
+        HD_CALLABLE RFLOAT* devPtr() const { return _table; }
 
-		HD_CALLABLE double operator()(const double x) const;
+		HD_CALLABLE RFLOAT operator()(const RFLOAT x) const;
 
 	private:
-
-		double* _table = NULL;
+		
+        RFLOAT* _table = NULL;
 		int _size = 0;
 
-        double _begin = 0;
-        double _end = 0;
-        double _step = 0;
+        RFLOAT _begin = 0;
+        RFLOAT _end = 0;
+        RFLOAT _step = 0;
 
 };
 

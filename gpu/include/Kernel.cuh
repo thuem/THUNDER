@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "Config.cuh"
 #include "Mat33.cuh"
 #include "Vec3.cuh"
 #include "Complex.cuh"
@@ -38,7 +39,7 @@ namespace cuthunder {
 //
 
 //__constant__ extern double dev_mat_data[][DEV_CONST_MAT_SIZE * 9];
-__constant__ extern double dev_ws_data[][DEV_CONST_MAT_SIZE];
+__constant__ extern RFLOAT dev_ws_data[][DEV_CONST_MAT_SIZE];
 //__constant__ extern double devRot[][DEV_CONST_MAT_SIZE * 4];
 
 ///////////////////////////////////////////////////////////////
@@ -50,9 +51,9 @@ __constant__ extern double dev_ws_data[][DEV_CONST_MAT_SIZE];
  * @param ...
  * @param ...
  */
-D_CALLABLE Complex getTextureC(double iCol,
-                               double iRow,
-                               double iSlc,
+D_CALLABLE Complex getTextureC(RFLOAT iCol,
+                               RFLOAT iRow,
+                               RFLOAT iSlc,
                                const int dim,
                                cudaTextureObject_t texObject);
 
@@ -61,8 +62,8 @@ D_CALLABLE Complex getTextureC(double iCol,
  * @param ...
  * @param ...
  */
-D_CALLABLE Complex getTextureC2D(double iCol,
-                                 double iRow,
+D_CALLABLE Complex getTextureC2D(RFLOAT iCol,
+                                 RFLOAT iRow,
                                  const int dim,
                                  cudaTextureObject_t texObject);
 
@@ -71,8 +72,8 @@ D_CALLABLE Complex getTextureC2D(double iCol,
  * @param ...
  * @param ...
  */
-D_CALLABLE Complex getByInterp2D(double iCol,
-                                 double iRow,
+D_CALLABLE Complex getByInterp2D(RFLOAT iCol,
+                                 RFLOAT iRow,
                                  const int interp,
                                  const int dim,
                                  cudaTextureObject_t texObject);
@@ -82,9 +83,9 @@ D_CALLABLE Complex getByInterp2D(double iCol,
  * @param ...
  * @param ...
  */
-D_CALLABLE Complex getByInterpolationFTC(double iCol,
-                                         double iRow,
-                                         double iSlc,
+D_CALLABLE Complex getByInterpolationFTC(RFLOAT iCol,
+                                         RFLOAT iRow,
+                                         RFLOAT iSlc,
                                          const int interp,
                                          const int dim,
                                          cudaTextureObject_t texObject);
@@ -96,9 +97,9 @@ D_CALLABLE Complex getByInterpolationFTC(double iCol,
  * @param ...
  */
 __global__ void kernel_ExpectPrectf(CTFAttr* dev_ctfa,
-                                    double* dev_def,
-                                    double* dev_k1,
-                                    double* dev_k2,
+                                    RFLOAT* dev_def,
+                                    RFLOAT* dev_k1,
+                                    RFLOAT* dev_k2,
                                     int* deviCol,
                                     int* deviRow,
                                     int npxl);
@@ -168,9 +169,9 @@ __global__ void kernel_Project2D(Complex* priRotP,
 __global__ void kernel_logDataVS(Complex* devdatP,
                                  Complex* priRotP,
                                  Complex* devtraP,
-                                 double* devctfP,
-                                 double* devsigP,
-                                 double* devDvp,
+                                 RFLOAT* devctfP,
+                                 RFLOAT* devsigP,
+                                 RFLOAT* devDvp,
                                  int nT,
                                  int rbatch,
                                  int npxl);
@@ -181,11 +182,11 @@ __global__ void kernel_logDataVS(Complex* devdatP,
  * @param ...
  * @param ...
  */
-__global__ void kernel_UpdateW3D(double* devDvp,
-                                 double* devbaseL,
-                                 double* devwC,
-                                 double* devwR,
-                                 double* devwT,
+__global__ void kernel_UpdateW3D(RFLOAT* devDvp,
+                                 RFLOAT* devbaseL,
+                                 RFLOAT* devwC,
+                                 RFLOAT* devwR,
+                                 RFLOAT* devwT,
                                  int rIdx,
                                  int nK,
                                  int nR,
@@ -198,11 +199,11 @@ __global__ void kernel_UpdateW3D(double* devDvp,
  * @param ...
  * @param ...
  */
-__global__ void kernel_UpdateW2D(double* devDvp,
-                                 double* devbaseL,
-                                 double* devwC,
-                                 double* devwR,
-                                 double* devwT,
+__global__ void kernel_UpdateW2D(RFLOAT* devDvp,
+                                 RFLOAT* devbaseL,
+                                 RFLOAT* devwC,
+                                 RFLOAT* devwR,
+                                 RFLOAT* devwT,
                                  int kIdx,
                                  int rIdx,
                                  int nK,
@@ -265,6 +266,7 @@ __global__ void kernel_Translate(Complex* devdatP,
                                  int* deviCol,
                                  int* deviRow,
                                  int insertIdx,
+                                 int opf,
                                  int npxl,
                                  int mReco,
                                  int idim);
@@ -275,13 +277,14 @@ __global__ void kernel_Translate(Complex* devdatP,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CalculateCTF(double* devctfP,
+__global__ void kernel_CalculateCTF(RFLOAT* devctfP,
                                     CTFAttr* dev_ctfas,
                                     double* dev_ramD,
                                     int* deviCol,
                                     int* deviRow,
-                                    double pixel,
+                                    RFLOAT pixel,
                                     int insertIdx,
+                                    int opf,
                                     int npxl,
                                     int mReco);
 
@@ -291,9 +294,9 @@ __global__ void kernel_CalculateCTF(double* devctfP,
  * @param ...
  * @param ...
  */
-__global__ void kernel_InsertT(double* devDataT,
-                               double* devctfP,
-                               double* devsigRcpP,
+__global__ void kernel_InsertT(RFLOAT* devDataT,
+                               RFLOAT* devctfP,
+                               RFLOAT* devsigRcpP,
                                double* dev_mat,
                                int* deviCol,
                                int* deviRow,
@@ -305,8 +308,8 @@ __global__ void kernel_InsertT(double* devDataT,
 
 __global__ void kernel_InsertF(Complex* devDataF,
                                Complex* devtranP,
-                               double* devctfP,
-                               double* devsigRcpP,
+                               RFLOAT* devctfP,
+                               RFLOAT* devsigRcpP,
                                double* dev_mat,
                                int* deviCol,
                                int* deviRow,
@@ -321,8 +324,8 @@ __global__ void kernel_InsertF(Complex* devDataF,
  * @param ...
  * @param ...
  */
-__global__ void kernel_InsertT(double* devDataT,
-                               double* devctfP,
+__global__ void kernel_InsertT(RFLOAT* devDataT,
+                               RFLOAT* devctfP,
                                double* dev_mat,
                                int* deviCol,
                                int* deviRow,
@@ -334,7 +337,7 @@ __global__ void kernel_InsertT(double* devDataT,
 
 __global__ void kernel_InsertF(Complex* devDataF,
                                Complex* devtranP,
-                               double* devctfP,
+                               RFLOAT* devctfP,
                                double* dev_mat,
                                int* deviCol,
                                int* deviRow,
@@ -351,10 +354,23 @@ __global__ void kernel_InsertF(Complex* devDataF,
  * @param length : T3D's size
  * @param sf : the coefficient to Normalize T
  */
-__global__ void kernel_NormalizeT(double *devDataT,
+__global__ void kernel_NormalizeTF(Complex *devDataF,
+                                   RFLOAT *devDataT,
+                                   const int dimSize,
+                                   const int num,
+                                   const RFLOAT sf);
+
+/**
+ * @brief Normalize T: T = T * sf
+ *
+ * @param devDataT : the pointer of T3D
+ * @param length : T3D's size
+ * @param sf : the coefficient to Normalize T
+ */
+__global__ void kernel_NormalizeT(RFLOAT *devDataT,
                                   const int dimSize,
                                   const int num,
-                                  const double sf);
+                                  const RFLOAT sf);
 
 /**
  * @brief Symmetrize T3D
@@ -367,10 +383,10 @@ __global__ void kernel_NormalizeT(double *devDataT,
  * @param interp : the way of interpolating
  * @param dim : the length of one side of T3D
  */
-__global__ void kernel_SymmetrizeT(double *devDataT,
+__global__ void kernel_SymmetrizeT(RFLOAT *devDataT,
                                    double *devSymmat, 
                                    const int numSymMat,
-                                   const double r, 
+                                   const int r, 
                                    const int interp,
                                    const int num,
                                    const int dim,
@@ -383,9 +399,9 @@ __global__ void kernel_SymmetrizeT(double *devDataT,
  * @param ...
  * @param ...
  */
-__global__ void kernel_ShellAverage(double *devAvg, 
+__global__ void kernel_ShellAverage(RFLOAT *devAvg, 
                                     int *devCount, 
-                                    double *devDataT,
+                                    RFLOAT *devDataT,
                                     int dim, 
                                     int r,
                                     int dimSize);
@@ -396,9 +412,9 @@ __global__ void kernel_ShellAverage(double *devAvg,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CalculateAvg(double *devAvg2D,
+__global__ void kernel_CalculateAvg(RFLOAT *devAvg2D,
                                     int *devCount2D,
-                                    double *devAvg,
+                                    RFLOAT *devAvg,
                                     int *devCount,
                                     int dim,
                                     int r);
@@ -409,9 +425,9 @@ __global__ void kernel_CalculateAvg(double *devAvg2D,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CalculateFSC(double *devDataT,
-                                    double *devFSC,
-                                    double *devAvg,
+__global__ void kernel_CalculateFSC(RFLOAT *devDataT,
+                                    RFLOAT *devFSC,
+                                    RFLOAT *devAvg,
                                     int fscMatsize,
                                     bool joinHalf, 
                                     int wiener, 
@@ -426,7 +442,7 @@ __global__ void kernel_CalculateFSC(double *devDataT,
  * @param ...
  * @param ...
  */
-__global__ void kernel_WienerConst(double *devDataT,
+__global__ void kernel_WienerConst(RFLOAT *devDataT,
                                    int wiener,
                                    int r,
                                    int num, 
@@ -439,8 +455,8 @@ __global__ void kernel_WienerConst(double *devDataT,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CalculateW(double *devDataW,  
-                                  double *devDataT,  
+__global__ void kernel_CalculateW(RFLOAT *devDataW,  
+                                  RFLOAT *devDataT,  
                                   const int length,
                                   const int num,
                                   const int dim,
@@ -452,7 +468,7 @@ __global__ void kernel_CalculateW(double *devDataW,
  * @param ...
  * @param ...
  */
-__global__ void kernel_InitialW(double *devDataW,  
+__global__ void kernel_InitialW(RFLOAT *devDataW,  
                                 int initWR, 
                                 int dim,
                                 int dimSize);
@@ -464,8 +480,8 @@ __global__ void kernel_InitialW(double *devDataW,
  * @param ...
  */
 __global__ void kernel_DeterminingC(Complex *devDataC,
-                                    double *devDataT, 
-                                    double *devDataW,
+                                    RFLOAT *devDataT, 
+                                    RFLOAT *devDataW,
                                     const int length);
 
 /**
@@ -474,9 +490,9 @@ __global__ void kernel_DeterminingC(Complex *devDataC,
  * @param ...
  * @param ...
  */
-__global__ void kernel_convoluteC(double *devDoubleC,
+__global__ void kernel_convoluteC(RFLOAT *devDoubleC,
                                   TabFunction tabfunc,
-                                  double nf,
+                                  RFLOAT nf,
                                   int padSize,
                                   int dim,
                                   int dimSize);
@@ -487,7 +503,7 @@ __global__ void kernel_convoluteC(double *devDoubleC,
  * @param ...
  * @param ...
  */
-__global__ void kernel_RecalculateW(double *devDataW,
+__global__ void kernel_RecalculateW(RFLOAT *devDataW,
                                     Complex *devDataC,  
                                     int initWR, 
                                     int dim,
@@ -499,8 +515,8 @@ __global__ void kernel_RecalculateW(double *devDataW,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CheckCAVG(double *diff,
-                                 double *counter,
+__global__ void kernel_CheckCAVG(RFLOAT *diff,
+                                 RFLOAT *counter,
                                  Complex *devDataT,  
                                  int r, 
                                  int dim,
@@ -512,7 +528,7 @@ __global__ void kernel_CheckCAVG(double *diff,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CheckCMAX(double *devMax,
+__global__ void kernel_CheckCMAX(RFLOAT *devMax,
                                  Complex *devDataC,  
                                  int r, 
                                  int dim,
@@ -527,7 +543,7 @@ __global__ void kernel_CheckCMAX(double *devMax,
 __global__ void kernel_NormalizeF(Complex *devDataF, 
 	                              const int dimSize, 
                                   const int num, 
-	                              const double sf);
+	                              const RFLOAT sf);
 
 /**
  * @brief Symmetrize F3D
@@ -543,7 +559,7 @@ __global__ void kernel_NormalizeF(Complex *devDataF,
 __global__ void kernel_SymmetrizeF(Complex *devDataF,
                                    double *devSymmat, 
                                    const int numSymMat,
-                                   const double r, 
+                                   const int r, 
                                    const int interp,
                                    const int num,
                                    const int dim,
@@ -556,11 +572,14 @@ __global__ void kernel_SymmetrizeF(Complex *devDataF,
  * @param ...
  * @param ...
  */
-__global__ void kernel_NormalizeFW(Complex *devDataF, 
-	                               double *devDataW, 
+__global__ void kernel_NormalizeFW(Complex *devDst,
+                                   Complex *devDataF, 
+	                               RFLOAT *devDataW, 
 	                               const int dimSize, 
-	                               const int shiftF,
-                                   const int shiftW);
+	                               const int shift,
+                                   const int r,
+                                   const int pdim,
+                                   const int fdim);
 
 /**
  * @brief ...
@@ -569,8 +588,8 @@ __global__ void kernel_NormalizeFW(Complex *devDataF,
  * @param ...
  */
 __global__ void kernel_LowpassF(Complex *devDataF, 
-	                            double thres,
-                                double ew,
+	                            RFLOAT thres,
+                                RFLOAT ew,
                                 const int num,
 	                            const int dim,
                                 const int dimSize); 
@@ -581,9 +600,9 @@ __global__ void kernel_LowpassF(Complex *devDataF,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CorrectF(double *devDst, 
-                                double *devMkb,
-                                double nf,
+__global__ void kernel_CorrectF(RFLOAT *devDst, 
+                                RFLOAT *devMkb,
+                                RFLOAT nf,
                                 const int dim, 
                                 const int dimSize,
                                 const int shift); 
@@ -594,8 +613,8 @@ __global__ void kernel_CorrectF(double *devDst,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CorrectF(double *devDst, 
-                                double *devTik,
+__global__ void kernel_CorrectF(RFLOAT *devDst, 
+                                RFLOAT *devTik,
                                 const int dim, 
                                 const int dimSize,
                                 const int shift);
@@ -606,11 +625,11 @@ __global__ void kernel_CorrectF(double *devDst,
  * @param ...
  * @param ...
  */
-__global__ void kernel_Background(double *devDst,
-                                  double *devSumG,
-                                  double *devSumWG,
-                                  double r,
-                                  double edgeWidth,
+__global__ void kernel_Background(RFLOAT *devDst,
+                                  RFLOAT *devSumG,
+                                  RFLOAT *devSumWG,
+                                  RFLOAT r,
+                                  RFLOAT edgeWidth,
                                   const int dim,
                                   const int dimSize);
 
@@ -620,9 +639,9 @@ __global__ void kernel_Background(double *devDst,
  * @param ...
  * @param ...
  */
-__global__ void kernel_CalculateBg(double *devSumG,
-                                   double *devSumWG,
-                                   double *bg,
+__global__ void kernel_CalculateBg(RFLOAT *devSumG,
+                                   RFLOAT *devSumWG,
+                                   RFLOAT *bg,
                                    int dim);
 /**
  * @brief ...
@@ -630,10 +649,10 @@ __global__ void kernel_CalculateBg(double *devSumG,
  * @param ...
  * @param ...
  */
-__global__ void kernel_SoftMaskD(double *devDst,
-                                 double *bg,
-                                 double r,
-                                 double edgeWidth,
+__global__ void kernel_SoftMaskD(RFLOAT *devDst,
+                                 RFLOAT *bg,
+                                 RFLOAT r,
+                                 RFLOAT edgeWidth,
                                  const int dim,
                                  const int dimSize,
                                  const int shift);

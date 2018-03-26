@@ -657,12 +657,10 @@ void Optimiser::expectationG()
         dmat22 rot2D;
         dmat33 rot3D;
         dvec2 t;
- 
+
         RFLOAT* wc = new RFLOAT[_ID.size() * _para.k];
         RFLOAT* wr = new RFLOAT[_ID.size() * nR];
         RFLOAT* wt = new RFLOAT[_ID.size() * nT];
-
-        Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
 
         if (_para.mode == MODE_3D)
         {            
@@ -764,6 +762,7 @@ void Optimiser::expectationG()
             for (int iT = 0; iT < nT; iT++)
                 _par[l].setUT(wt[l * nT + iT], iT);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].setPeakFactor(PAR_C);
             _par[l].setPeakFactor(PAR_R);
             _par[l].setPeakFactor(PAR_T);
@@ -771,6 +770,7 @@ void Optimiser::expectationG()
             _par[l].keepHalfHeightPeak(PAR_C);
             _par[l].keepHalfHeightPeak(PAR_R);
             _par[l].keepHalfHeightPeak(PAR_T);
+#endif
 
 #ifdef OPTIMISER_SAVE_PARTICLES
             if (_ID[l] < N_SAVE_IMG)
@@ -915,8 +915,6 @@ void Optimiser::expectationG()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
-        TSFFTW_free(traP);
-
         if (_searchType != SEARCH_TYPE_CTF)
             freePreCal(false);
         else
@@ -975,7 +973,7 @@ void Optimiser::expectationG()
                 _par[l].resample(_para.mLT, PAR_T);
                 ***/
 
-                _par[l].resetPeakFactor(); // do not do it when global
+                //_par[l].resetPeakFactor(); // do not do it when global
 
                 _par[l].perturb(_para.perturbFactorL, PAR_R);
                 _par[l].perturb(_para.perturbFactorL, PAR_T);
@@ -1221,25 +1219,35 @@ void Optimiser::expectationG()
             for (int iC = 0; iC < _para.k; iC++)
                 _par[l].setUC(wC(iC), iC);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].keepHalfHeightPeak(PAR_C);
+#endif
 #endif
 
             for (int iR = 0; iR < _para.mLR; iR++)
                 _par[l].setUR(wR(iR), iR);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].keepHalfHeightPeak(PAR_R);
+#endif
 
             for (int iT = 0; iT < _para.mLT; iT++)
                 _par[l].setUT(wT(iT), iT);
 
+#ifdef OPTIMISER_PEAK_FACTOR
             _par[l].keepHalfHeightPeak(PAR_T);
+#endif
 
             if (_searchType == SEARCH_TYPE_CTF)
             {
                 for (int iD = 0; iD < _para.mLD; iD++)
                     _par[l].setUD(wD(iD), iD);
 
+#ifdef OPTIMISER_PEAK_FACTOR
+                if (phase == 0) _par[l].setPeakFactor(PAR_D);
+
                 _par[l].keepHalfHeightPeak(PAR_D);
+#endif
             }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
@@ -4871,9 +4879,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
             #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
-                //Image ctf(_para.size, _para.size, FT_SPACE);
                 RFLOAT* ctf;
-
                 RFLOAT w;
 
                 if ((_para.parGra) && (_para.k == 1))
@@ -4884,10 +4890,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 w /= _para.mReco;
 
                 Complex* transImgP = poolTransImgP + _nPxl * omp_get_thread_num();
-
                 Complex* orignImgP = _datP + _nPxl * l;
-
-                // Image transImg(_para.size, _para.size, FT_SPACE);
 
                 for (int m = 0; m < _para.mReco; m++)
                 {
@@ -4957,10 +4960,77 @@ void Optimiser::reconstructRefG(const bool fscFlag,
         }    
         else if (_para.mode == MODE_3D)
         {
-            _model.reco(0).insertFT(_datP, _ctfP, _sigRcpP, _par,
-                                    _offset, _ctfAttr, _para.pixelSize, cSearch,
-                                    _para.parGra, 1, _para.mReco, _para.size, 
-                                    _ID.size()); 
+            
+            RFLOAT *w = new RFLOAT[_ID.size()];
+            double *offS = new double[_ID.size() * 2];
+            double *nr = new double[_para.mReco * _ID.size() * 4];
+            double *nt = new double[_para.mReco * _ID.size() * 2];
+            double *nd = new double[_para.mReco * _ID.size()];
+            CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+            
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                if (_para.parGra && _para.k == 1)
+                    w[l] = _par[l].compress();
+                else
+                    w[l] = 1;
+
+                w[l] /= _para.mReco;
+
+                if (cSearch)
+                {
+                    ctfaData[l].voltage           = _ctfAttr[l].voltage;
+                    ctfaData[l].defocusU          = _ctfAttr[l].defocusU;
+                    ctfaData[l].defocusV          = _ctfAttr[l].defocusV;
+                    ctfaData[l].defocusTheta      = _ctfAttr[l].defocusTheta;
+                    ctfaData[l].Cs                = _ctfAttr[l].Cs;
+                    ctfaData[l].amplitudeContrast = _ctfAttr[l].amplitudeContrast;
+                    ctfaData[l].phaseShift        = _ctfAttr[l].phaseShift;
+                }
+        
+                offS[l * 2] = _offset[l](0); 
+                offS[l * 2 + 1] = _offset[l](1);
+                
+                int shift = l * _para.mReco;
+                for (int m = 0; m < _para.mReco; m++)
+                {
+                    size_t cls;
+                    dvec4 quat;
+                    dvec2 tran;
+                    double d;
+
+                    _par[l].rand(cls, quat, tran, d);
+
+                    nt[(shift + m) * 2] = tran(0);
+                    nt[(shift + m) * 2 + 1] = tran(1);
+                    nr[(shift + m) * 4] = quat(0);
+                    nr[(shift + m) * 4 + 1] = quat(1);
+                    nr[(shift + m) * 4 + 2] = quat(2);
+                    nr[(shift + m) * 4 + 3] = quat(3);
+                    if (cSearch)
+                    {
+                        nd[shift + m] = d;
+                    }
+                }
+            }
+            
+            _model.reco(0).insertI(_datP, _ctfP, _sigP, w, offS, nr,
+                                   nt, nd, ctfaData, _para.pixelSize, 
+                                   cSearch, _para.pf, _para.mReco, 
+                                   _para.size, _ID.size()); 
+
+            delete[]w;
+            delete[]offS;            
+            delete[]nr;            
+            delete[]nt;            
+            delete[]nd;            
+            delete[]ctfaData;            
+
+            //_model.reco(0).insertFT(_datP, _ctfP, _sigP, _par,
+            //                        _offset, _ctfAttr, _para.pixelSize, cSearch,
+            //                        _para.parGra, _para.pf, 1, _para.mReco, 
+            //                        _para.size, _ID.size()); 
         }
         else
         {
@@ -4980,8 +5050,10 @@ void Optimiser::reconstructRefG(const bool fscFlag,
             BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                        << t;
 
-            if (_para.mode == MODE_2D)
-                _model.reco(t).prepareTF();
+            if (_para.mode == MODE_3D)
+              _model.reco(t).prepareTFG();
+            else
+              _model.reco(t).prepareTF();
         }
     }
 
@@ -5097,7 +5169,11 @@ void Optimiser::reconstructRefG(const bool fscFlag,
         {
             MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
 
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
             balanceClass(CLASS_BALANCE_FACTOR, false);
+#else
+            balanceClass(CLASS_BALANCE_FACTOR, true);
+#endif
 
 #ifdef VERBOSE_LEVEL_1
 
@@ -5112,7 +5188,11 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
 #endif
 
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
         _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+#else
+        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
+#endif
     }
 
     if (avgFlag)
@@ -6011,6 +6091,8 @@ void Optimiser::allocPreCal(const bool mask,
 
     _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
+    _sigP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
+
     _sigRcpP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
     #pragma omp parallel for
@@ -6026,6 +6108,10 @@ void Optimiser::allocPreCal(const bool mask,
                 ? (i * _ID.size() + l)
                 : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
 
+            _sigP[pixelMajor
+                ? (i * _ID.size() + l)
+                : (_nPxl * l + i)] = _sig(_groupID[l] - 1, _iSig[i]);
+            
             _sigRcpP[pixelMajor
                    ? (i * _ID.size() + l)
                    : (_nPxl * l + i)] = _sigRcp(_groupID[l] - 1, _iSig[i]);
@@ -6096,6 +6182,7 @@ void Optimiser::freePreCal(const bool ctf)
 
     TSFFTW_free(_datP);
     TSFFTW_free(_ctfP);
+    TSFFTW_free(_sigP);
     TSFFTW_free(_sigRcpP);
 
     /***

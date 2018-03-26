@@ -3,7 +3,7 @@
 namespace cuthunder {
 
 ///////////////////////////////////////////////////////////////
-
+/*
 ReconstructManager::ReconstructManager() {}
 
 ReconstructManager::~ReconstructManager() {
@@ -64,7 +64,7 @@ TabFunction ReconstructManager::GetTabFunction() const
 {
     return _tabfunc;
 }
-
+*/
 ///////////////////////////////////////////////////////////////
 
 } // end namespace cuthunder

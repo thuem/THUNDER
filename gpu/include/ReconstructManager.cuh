@@ -7,7 +7,7 @@
 namespace cuthunder {
 
 ///////////////////////////////////////////////////////////////
-
+/*
 class ReconstructManager
 {
     public:
@@ -44,7 +44,7 @@ class ReconstructManager
 };
 
 ReconstructManager* ReconstructManager::_instance = NULL;
-
+*/
 ///////////////////////////////////////////////////////////////
 
 } // end namespace cuthunder

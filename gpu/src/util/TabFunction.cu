@@ -11,19 +11,19 @@
 
 namespace cuthunder {
 
-HD_CALLABLE TabFunction::TabFunction(double a,
-                                     double b,
- 			                    	 double s,
- 			                    	 double *tab,
+HD_CALLABLE TabFunction::TabFunction(RFLOAT a,
+                                     RFLOAT b,
+ 			                    	 RFLOAT s,
+ 			                    	 RFLOAT *tab,
  			                    	 int size)
 {
 	init(a, b, s, tab, size);
 }
 
-HD_CALLABLE void TabFunction::init(double a,
-		                           double b,
-		                    	   double s,
-		                    	   double *tab,
+HD_CALLABLE void TabFunction::init(RFLOAT a,
+		                           RFLOAT b,
+		                    	   RFLOAT s,
+		                    	   RFLOAT *tab,
 		                    	   int size)
 {
 	_begin = a;
@@ -34,10 +34,13 @@ HD_CALLABLE void TabFunction::init(double a,
 	_size = size;
 }
 
-HD_CALLABLE double TabFunction::operator()(const double x) const
+HD_CALLABLE RFLOAT TabFunction::operator()(const RFLOAT x) const
 {
+#ifdef SINGLE_PRECISION
+	int index = (int)rintf((x - _begin) / _step);
+#else
 	int index = (int)rint((x - _begin) / _step);
-
+#endif    
 	if (index < 0)
 		return _table[0];
 	else if(index > _size)

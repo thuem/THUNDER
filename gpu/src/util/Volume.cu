@@ -93,13 +93,13 @@ HD_CALLABLE Complex Volume::getFT(const int iCol,
         return _devDataFT[index];
 }
 
-HD_CALLABLE Complex Volume::getByInterpolationFT(const double iCol,
-                                                 const double iRow,
-                                                 const double iSlc) const
+HD_CALLABLE Complex Volume::getByInterpolationFT(const RFLOAT iCol,
+                                                 const RFLOAT iRow,
+                                                 const RFLOAT iSlc) const
 {
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     WG_TRI_LINEAR_INTERPF(w, x0, x);
 
@@ -191,9 +191,9 @@ HD_CALLABLE bool Volume::coordinatesInBoundaryFT(const int iCol,
 }
 
 
-D_CALLABLE bool Volume::conjHalf(double& iCol,
-                                 double& iRow,
-                                 double& iSlc) const
+D_CALLABLE bool Volume::conjHalf(RFLOAT& iCol,
+                                 RFLOAT& iRow,
+                                 RFLOAT& iSlc) const
 {
     if (iCol >= 0) return false;
 
@@ -235,9 +235,9 @@ D_CALLABLE Complex Volume::getFTHalf(const int iCol,
     return _devDataFT[index];
 }
 
-D_CALLABLE Complex Volume::getByInterpolationFT(double iCol,
-                                                double iRow,
-                                                double iSlc,
+D_CALLABLE Complex Volume::getByInterpolationFT(RFLOAT iCol,
+                                                RFLOAT iRow,
+                                                RFLOAT iSlc,
                                                 const int interp) const
 {
     bool conjug = conjHalf(iCol, iRow, iSlc);
@@ -250,9 +250,9 @@ D_CALLABLE Complex Volume::getByInterpolationFT(double iCol,
         return conjug ? result.conj() : result;
     }
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     WG_TRI_LINEAR_INTERPF(w, x0, x);
 

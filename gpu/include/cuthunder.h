@@ -13,6 +13,7 @@
 #include "easylogging++.h"
 #include "cufft.h"
 #include "nccl.h"
+#include "Config.cuh"
 
 #include <mpi.h>
 #include <vector>
@@ -51,9 +52,9 @@ void addTest();
  * @param
  */
 void expectPrecal(vector<CTFAttr*>& ctfaData,
-                  double* def,
-                  double* k1,
-                  double* k2,
+                  RFLOAT* def,
+                  RFLOAT* k1,
+                  RFLOAT* k2,
                   const int *iCol,
                   const int *iRow,
                   int idim,
@@ -68,12 +69,12 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
  */
 void expectGlobal2D(Complex* volume,
                     Complex* datP,
-                    double* ctfP,
-                    double* sigRcpP,
+                    RFLOAT* ctfP,
+                    RFLOAT* sigRcpP,
                     double* trans,
-                    double* wC,
-                    double* wR,
-                    double* wT,
+                    RFLOAT* wC,
+                    RFLOAT* wR,
+                    RFLOAT* wT,
                     double* rot,
                     const int *iCol,
                     const int *iRow,
@@ -95,12 +96,12 @@ void expectGlobal2D(Complex* volume,
  */
 void expectGlobal3D(Complex* volume,
                     Complex* datP,
-                    double* ctfP,
-                    double* sigRcpP,
+                    RFLOAT* ctfP,
+                    RFLOAT* sigRcpP,
                     double* trans,
-                    double* wC,
-                    double* wR,
-                    double* wT,
+                    RFLOAT* wC,
+                    RFLOAT* wR,
+                    RFLOAT* wT,
                     double* rot,
                     const int *iCol,
                     const int *iRow,
@@ -115,28 +116,57 @@ void expectGlobal3D(Complex* volume,
                     int imgNum);
 
 /**
- * @brief Insert a number of images into model F.
+ * @brief Insert images into volume.
  *
  * @param
+ * @param
+ */
+void InsertFT(Complex *F3D,
+              RFLOAT *T3D,
+              MPI_Comm& hemi,
+              Complex *datP,
+              RFLOAT *ctfP,
+              RFLOAT *sigRcpP,
+              CTFAttr *ctfaData,
+              double *offS,
+              RFLOAT *w,
+              double *nR,
+              double *nT,
+              double *nD,
+              const int *iCol,
+              const int *iRow,
+              RFLOAT pixelSize,
+              bool cSearch,
+              int opf,
+              int npxl,
+              int mReco,
+              int imgNum,
+              int idim,
+              int vdim);
+
+/**
+ * @brief Insert images into volume.
+ *
  * @param
  * @param
  */
 void InsertF(Complex *F3D,
-             double *T3D,
+             RFLOAT *T3D,
              MPI_Comm& hemi,
              Complex *datP,
-             double *ctfP,
-             double *sigRcpP,
+             RFLOAT *ctfP,
+             RFLOAT *sigRcpP,
              CTFAttr *ctfaData,
              double *offS,
-             double *w,
+             RFLOAT *w,
              double *nR,
              double *nT,
              double *nD,
              const int *iCol,
              const int *iRow,
-             double pixelSize,
+             RFLOAT pixelSize,
              bool cSearch,
+             int opf,
              int npxl,
              int rSize,
              int tSize,
@@ -153,18 +183,30 @@ void InsertF(Complex *F3D,
  * @param
  * @param
  */
-void PrepareT(double *T3D,
-              const int dim,
-              double *FSC,
-              const int fscMatsize,
-              const double *symMat,
-              const int nSymmetryElement,
-              const int interp,
-              const bool joinHalf,
-              const int maxRadius,
-              const int pf,
-              const int wienerF,
-              const double sf);
+void PrepareTF(Complex *F3D,
+               RFLOAT *T3D,
+               const double *symMat,
+               const RFLOAT sf,
+               const int nSymmetryElement,
+               const int interp,
+               const int dim,
+               const int r);
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void CalculateT(RFLOAT *T3D,
+                RFLOAT *FSC,
+                const int fscMatsize,
+                const bool joinHalf,
+                const int maxRadius,
+                const int wienerF,
+                const int dim,
+                const int pf);
 
 /**
  * @brief ...
@@ -172,8 +214,8 @@ void PrepareT(double *T3D,
  * @param ..
  * @param ..
  */
-void CalculateW(double *T3D,
-                double *W3D,
+void CalculateW(RFLOAT *T3D,
+                RFLOAT *W3D,
                 const int dim,
                 const int r);
 
@@ -184,16 +226,16 @@ void CalculateW(double *T3D,
  * @param ..
  */
 void CalculateW(Complex *C3D,
-                double *T3D,
-                double *W3D,
-                double *tabdata,
-                double begin,
-                double end,
-                double step,
+                RFLOAT *T3D,
+                RFLOAT *W3D,
+                RFLOAT *tabdata,
+                RFLOAT begin,
+                RFLOAT end,
+                RFLOAT step,
                 int tabsize,
                 const int dim,
                 const int r,
-                const double nf,
+                const RFLOAT nf,
                 const int maxIter,
                 const int minIter,
                 const int padSize);
@@ -205,17 +247,12 @@ void CalculateW(Complex *C3D,
  * @param
  * @param
  */
-void PrepareF(Complex *F3D,
-              double *W3D,
-              const double sf,
-              const int nSymmetryElement,
-              const double *symMat,
-              const int interp,
-              const int maxRadius,
-              const int edgeWidth,
-              const int pf,
-              const int dim,
-              const int size);
+void CalculateF(Complex *padDst,
+                Complex *F3D,
+                RFLOAT *W3D,
+                const int r,
+                const int pdim,
+                const int fdim);
 
 /**
  * @brief
@@ -224,8 +261,9 @@ void PrepareF(Complex *F3D,
  * @param
  * @param
  */
-void CorrSoftMaskF(double *dst,
-                   double *mkbRL,
+void CorrSoftMaskF(RFLOAT *dst,
+                   RFLOAT *mkbRL,
+                   RFLOAT nf,
                    const int dim);
 
 /**
@@ -235,13 +273,12 @@ void CorrSoftMaskF(double *dst,
  * @param
  * @param
  */
-void CorrSoftMaskF(double *dst,
-                   double *mkbRL,
-                   double nf,
+void CorrSoftMaskF(RFLOAT *dst,
+                   RFLOAT *mkbRL,
+                   RFLOAT nf,
                    const int dim,
                    const int size,
                    const int edgeWidth);
-
 
 ///////////////////////////////////////////////////////////////
 

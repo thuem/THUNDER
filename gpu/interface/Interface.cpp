@@ -3,9 +3,9 @@
 #include "cuthunder.h"
 
 void ExpectPrecal(vector<CTFAttr>& ctfAttr,
-                  double* def,
-                  double* k1,
-                  double* k2,
+                  RFLOAT* def,
+                  RFLOAT* k1,
+                  RFLOAT* k2,
                   const int *iCol, 
                   const int *iRow,
                   int idim, 
@@ -33,12 +33,12 @@ void ExpectPrecal(vector<CTFAttr>& ctfAttr,
 
 void ExpectGlobal2D(Complex* vol,
                     Complex* datP,
-                    double* ctfP,
-                    double* sigRcpP,
+                    RFLOAT* ctfP,
+                    RFLOAT* sigRcpP,
                     double* trans,
-                    double* wC,
-                    double* wR,
-                    double* wT,
+                    RFLOAT* wC,
+                    RFLOAT* wR,
+                    RFLOAT* wT,
                     double* rot,
                     const int *iCol, 
                     const int *iRow,
@@ -78,12 +78,12 @@ void ExpectGlobal2D(Complex* vol,
 
 void ExpectGlobal3D(Complex* vol,
                     Complex* datP,
-                    double* ctfP,
-                    double* sigRcpP,
+                    RFLOAT* ctfP,
+                    RFLOAT* sigRcpP,
                     double* trans,
-                    double* wC,
-                    double* wR,
-                    double* wT,
+                    RFLOAT* wC,
+                    RFLOAT* wR,
+                    RFLOAT* wT,
                     double* rot,
                     const int *iCol, 
                     const int *iRow,
@@ -121,22 +121,87 @@ void ExpectGlobal3D(Complex* vol,
                               imgNum);
 }
 
+void InsertFT(Volume& F3D,
+              Volume& T3D,
+              MPI_Comm& hemi,
+              Complex* datP,
+              RFLOAT* ctfP,
+              RFLOAT* sigRcpP,
+              CTFAttr* ctfaData,
+              double *offS,
+              RFLOAT *w,
+              double *nR,
+              double *nT,
+              double *nD,
+              const int *iCol,
+              const int *iRow, 
+              RFLOAT pixelSize,
+              bool cSearch,
+              int opf,
+              int npxl,
+              int mReco,
+              int idim,
+              int imgNum)
+{
+    LOG(INFO) << "Prepare Parameter for Tranlate and Insert.";
+
+    Complex *comF3D = &F3D[0];
+    int dimSize = T3D.sizeFT();
+    
+    RFLOAT *douT3D = new RFLOAT[dimSize];
+	for(int i = 0; i < dimSize; i++)
+	{
+        douT3D[i] = REAL(T3D[i]);
+	}
+
+    cuthunder::InsertFT(reinterpret_cast<cuthunder::Complex*>(comF3D),
+                        douT3D,
+                        hemi,
+                        reinterpret_cast<cuthunder::Complex*>(datP),
+                        ctfP,
+                        sigRcpP,
+                        reinterpret_cast<cuthunder::CTFAttr*>(ctfaData),
+                        offS,
+                        w,
+                        nR,
+                        nT,
+                        nD,
+                        iCol,
+                        iRow,
+                        pixelSize,
+                        cSearch,
+                        opf,
+                        npxl,
+                        mReco,
+                        imgNum,
+                        idim,
+                        F3D.nSlcFT());
+
+    for(size_t i = 0; i < T3D.sizeFT(); i++)
+	{
+        T3D[i] = COMPLEX(douT3D[i], 0);
+	}
+    
+    delete[]douT3D;
+}
+
 void InsertF(Volume& F3D,
              Volume& T3D,
              MPI_Comm& hemi,
              Complex* datP,
-             double* ctfP,
-             double* sigRcpP,
+             RFLOAT* ctfP,
+             RFLOAT* sigRcpP,
              CTFAttr* ctfaData,
              double *offS,
-             double *w,
+             RFLOAT *w,
              double *nR,
              double *nT,
              double *nD,
              const int *iCol,
              const int *iRow, 
-             double pixelSize,
+             RFLOAT pixelSize,
              bool cSearch,
+             int opf,
              int rSize,
              int tSize,
              int dSize,
@@ -150,7 +215,7 @@ void InsertF(Volume& F3D,
     Complex *comF3D = &F3D[0];
     int dimSize = T3D.sizeFT();
     
-    double *douT3D = new double[dimSize];
+    RFLOAT *douT3D = new RFLOAT[dimSize];
 	for(int i = 0; i < dimSize; i++)
 	{
         douT3D[i] = REAL(T3D[i]);
@@ -172,6 +237,7 @@ void InsertF(Volume& F3D,
                        iRow,
                        pixelSize,
                        cSearch,
+                       opf,
                        npxl,
                        rSize,
                        tSize,
@@ -189,60 +255,50 @@ void InsertF(Volume& F3D,
     delete[]douT3D;
 }
 
-void ExposePT(Volume& T3D,
-	          const Symmetry& sym,
-	          int maxRadius,
-	          int pf,
-	          vec FSC,
-	          bool joinHalf,
-              const int wienerF)
+void PrepareTF(Volume& F3D,
+	           Volume& T3D,
+               const Symmetry& sym,
+	           int maxRadius,
+	           int pf)
 {
 	LOG(INFO) << "Step1: Prepare Parameter for NormalizeT.";
 
-	double sf = 1.0 / REAL(T3D[0]);
+	RFLOAT sf = 1.0 / REAL(T3D[0]);
 
 	Complex *comT3D = &T3D[0];
-    double *douT3D = new double[T3D.sizeFT()];
+    RFLOAT *douT3D = new RFLOAT[T3D.sizeFT()];
 	for(size_t i = 0; i < T3D.sizeFT(); i++)
 	{
         douT3D[i] = REAL(comT3D[i]);
 	}
     
+    Complex *comF3D = &F3D[0];
 	
     LOG(INFO) << "Step2: Prepare Paramete for SymmetrizeT.";
 
 	int nSymmetryElement = sym.nSymmetryElement();
     double *symMat = new double[nSymmetryElement * 9];
 
-    mat33 L, R;   
+    dmat33 L, R;   
     
 	for(int i = 0; i < nSymmetryElement; i++)
 	{
         sym.get(L, R, i);
-        Map<mat33>(symMat + i * 9, 3, 3) = R;
+        Map<dmat33>(symMat + i * 9, 3, 3) = R;
 	}
-    
-    
-    LOG(INFO) << "Step3: Prepare Paramete for Calculate FSC.";
+   
+    int r = (maxRadius * pf + 1) * (maxRadius * pf + 1);
 
-    int fscMatsize = FSC.size();
-    double *FSCmat = new double[fscMatsize];
-    Map<vec>(FSCmat, FSC.rows(), FSC.cols()) = FSC;
-    
-    LOG(INFO) << "Step4: Start PrepareT...";
+    LOG(INFO) << "Step3: Start PrepareTF...";
 
-    cuthunder::PrepareT(douT3D,
-                        T3D.nSlcFT(),
-                        FSCmat,
-                        fscMatsize,
-                        symMat,
-                        nSymmetryElement, 
-                        LINEAR_INTERP,
-                        joinHalf,
-                        maxRadius,
-                        pf,
-                        wienerF,
-                        sf);
+    cuthunder::PrepareTF(reinterpret_cast<cuthunder::Complex*>(comF3D),
+                         douT3D,
+                         symMat,
+                         sf,
+                         nSymmetryElement, 
+                         LINEAR_INTERP,
+                         T3D.nSlcFT(),
+                         r);
     
     for(size_t i = 0; i < T3D.sizeFT(); i++)
 	{
@@ -251,6 +307,47 @@ void ExposePT(Volume& T3D,
     
     delete[]douT3D;
     delete[]symMat;
+}
+
+void ExposePT(Volume& T3D,
+	          int maxRadius,
+	          int pf,
+	          vec FSC,
+	          bool joinHalf,
+              const int wienerF)
+{
+	LOG(INFO) << "Step1: Prepare Parameter for T.";
+
+	Complex *comT3D = &T3D[0];
+    RFLOAT *douT3D = new RFLOAT[T3D.sizeFT()];
+	for(size_t i = 0; i < T3D.sizeFT(); i++)
+	{
+        douT3D[i] = REAL(comT3D[i]);
+	}
+    
+    LOG(INFO) << "Step2: Prepare Paramete for Calculate FSC.";
+
+    int fscMatsize = FSC.size();
+    RFLOAT *FSCmat = new RFLOAT[fscMatsize];
+    Map<vec>(FSCmat, FSC.rows(), FSC.cols()) = FSC;
+    
+    LOG(INFO) << "Step3: Start CalculateT...";
+
+    cuthunder::CalculateT(douT3D,
+                          FSCmat,
+                          fscMatsize,
+                          joinHalf,
+                          maxRadius,
+                          wienerF,
+                          T3D.nSlcFT(),
+                          pf);
+    
+    for(size_t i = 0; i < T3D.sizeFT(); i++)
+	{
+        comT3D[i] = COMPLEX(douT3D[i], 0);
+	}
+    
+    delete[]douT3D;
     delete[]FSCmat;
 }
 
@@ -260,8 +357,8 @@ void ExposeWT(Volume& C3D,
               TabFunction& kernelRL,
               int maxRadius,
               int pf,
-              double a,
-              double alpha,
+              RFLOAT a,
+              RFLOAT alpha,
               int maxIter,
               int minIter,
               int size)
@@ -269,7 +366,7 @@ void ExposeWT(Volume& C3D,
     LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
     
     Complex *comW3D = &W3D[0];
-    double *comW3DR = new double[W3D.sizeFT()];
+    RFLOAT *comW3DR = new RFLOAT[W3D.sizeFT()];
     for(size_t i = 0; i < W3D.sizeFT(); i++)
     {
         comW3DR[i] = REAL(comW3D[i]);
@@ -278,15 +375,15 @@ void ExposeWT(Volume& C3D,
     LOG(INFO) << "Step2: Prepare Paramete for Calculate C.";
 
 #ifdef RECONSTRUCTOR_KERNEL_PADDING
-    double nf = MKB_RL(0, a * pf, alpha);
+    RFLOAT nf = MKB_RL(0, a * pf, alpha);
 #else
-    double nf = MKB_RL(0, a, alpha);
+    RFLOAT nf = MKB_RL(0, a, alpha);
 #endif
-
+    
     int r = (maxRadius * pf) * (maxRadius * pf);
 
     Complex *comT3D = &T3D[0];
-    double *comT3DR = new double[T3D.sizeFT()];
+    RFLOAT *comT3DR = new RFLOAT[T3D.sizeFT()];
     for(size_t i = 0; i < T3D.sizeFT(); i++)
     {
         comT3DR[i] = REAL(comT3D[i]);
@@ -294,11 +391,10 @@ void ExposeWT(Volume& C3D,
     
     Complex *comC3D = &C3D[0];
     
-    double *tabdata = kernelRL.getData();
-    double step = kernelRL.getStep();
+    RFLOAT *tabdata = kernelRL.getData();
+    RFLOAT step = kernelRL.getStep();
     int padSize = pf * size; 
     
-    printf("padSize:%d\n", padSize);
     LOG(INFO) << "Step3: Start Calculate C...";
       
     cuthunder::CalculateW(reinterpret_cast<cuthunder::Complex*>(comC3D),
@@ -335,14 +431,14 @@ void ExposeWT(Volume& T3D,
     int r = (maxRadius * pf) * (maxRadius * pf);
 
     Complex *comW3D = &W3D[0];
-    double *comW3DR = new double[W3D.sizeFT()];
+    RFLOAT *comW3DR = new RFLOAT[W3D.sizeFT()];
     for(size_t i = 0; i < W3D.sizeFT(); i++)
     {
         comW3DR[i] = REAL(comW3D[i]);
     }
 
     Complex *comT3D = &T3D[0];
-    double *comT3DR = new double[T3D.sizeFT()];
+    RFLOAT *comT3DR = new RFLOAT[T3D.sizeFT()];
     for(size_t i = 0; i < T3D.sizeFT(); i++)
     {
         comT3DR[i] = REAL(comT3D[i]);
@@ -364,62 +460,45 @@ void ExposeWT(Volume& T3D,
     delete[]comT3DR;
 }
 
-void ExposePF(Volume& F3D,
+void ExposePF(Volume& padDst,
+              Volume& F3D,
               Volume& W3D,
-              const Symmetry& sym,
               int maxRadius,
-              int pf,
-              double sf,
-              int size)
+              int pf)
 {
-    LOG(INFO) << "Step1: Prepare Parameter for NormalizeF.";
+    LOG(INFO) << "Step1: Prepare Parameter for pad.";
 
+    Complex *comPAD = &padDst[0];
     Complex *comF3D = &F3D[0];
     
-    LOG(INFO) << "Step2: Prepare Paramete for SymmetrizeF.";
-
-    int nSymmetryElement = sym.nSymmetryElement();
-    double *symMat = new double[nSymmetryElement * 9];
-
-    mat33 L, R;   
-    
-    for(int i = 0; i < nSymmetryElement; i++)
-    {
-        sym.get(L, R, i);
-        Map<mat33>(symMat + i * 9, 3, 3) = R;
-    }
-
-    LOG(INFO) << "Step3: Prepare Paramete for CalculateFW.";
+    LOG(INFO) << "Step2: Prepare Paramete for CalculateFW.";
 
     Complex *comW3D = &W3D[0];
-	double *comW3DR = new double[W3D.sizeFT()];
+	RFLOAT *comW3DR = new RFLOAT[W3D.sizeFT()];
 	for(size_t i = 0; i < W3D.sizeFT(); i++)
 	{
         comW3DR[i] = REAL(comW3D[i]);
 	}
 	
+    int r = (maxRadius * pf) * (maxRadius * pf);
+
     LOG(INFO) << "Step4: Start PrepareF...";
     
-    cuthunder::PrepareF(reinterpret_cast<cuthunder::Complex*>(comF3D),
-                        comW3DR,
-                        sf,
-                        nSymmetryElement,
-                        symMat,
-                        LINEAR_INTERP,
-                        maxRadius,
-                        EDGE_WIDTH_FT,
-                        pf,
-                        F3D.nSlcFT(),
-                        size);
+    cuthunder::CalculateF(reinterpret_cast<cuthunder::Complex*>(comPAD),
+                          reinterpret_cast<cuthunder::Complex*>(comF3D),
+                          comW3DR,
+                          r,
+                          padDst.nSlcFT(),
+                          F3D.nSlcFT());
     
     delete[]comW3DR;
-    delete[]symMat; 
 }
 
 void ExposeCorrF(Volume& padDst,
                  Volume& dst,
-                 double a,
-                 double alpha,
+                 RFLOAT nf,
+                 RFLOAT a,
+                 RFLOAT alpha,
                  int pf,
                  int size)
 {
@@ -427,59 +506,12 @@ void ExposeCorrF(Volume& padDst,
 
     VOL_EXTRACT_RL(dst, padDst, 1.0 / pf);
    
-    double *comDst = &dst(0);
+    RFLOAT *comDst = &dst(0);
 
     int padSize = pf * size;
     int dim = dst.nSlcRL();
     int slcSize = (dim / 2 + 1) * (dim / 2 + 1);
-    double *mkbRL = new double[slcSize * (dim / 2 + 1)];
-    
-    #pragma omp parallel for schedule(dynamic)
-    for (int k = 0; k <= dim / 2; k++) 
-        for (int j = 0; j <= dim / 2; j++) 
-            for (int i = 0; i <= dim / 2; i++) 
-            {
-                size_t index = k * slcSize + j * (dim / 2 + 1) + i;
-        
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-                mkbRL[index] = MKB_RL(NORM_3(i, j, k) / padSize,
-                                  a * pf,
-                                  alpha);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                mkbRL[index] = TIK_RL(NORM_3(i, j, k) / padSize);
-#endif
-            }
-    
-    
-    LOG(INFO) << "Step2: Start CorrSoftMaskF...";
-      
-    cuthunder::CorrSoftMaskF(comDst,
-                             mkbRL,
-                             dim);
-   
-    delete[] mkbRL;
-}
-
-void ExposeCorrF(Volume& F3D,
-                 Volume& dst,
-                 double nf,
-                 double a,
-                 double alpha,
-                 int pf,
-                 int size)
-{
-    LOG(INFO) << "Step1: Prepare Parameter for CorrectingF.";
-
-    VOL_EXTRACT_RL(dst, F3D, 1.0 / pf);
-   
-    double *comDst = &dst(0);
-
-    int padSize = pf * size;
-    int dim = dst.nSlcRL();
-    int slcSize = (dim / 2 + 1) * (dim / 2 + 1);
-    double *mkbRL = new double[slcSize * (dim / 2 + 1)];
+    RFLOAT *mkbRL = new RFLOAT[slcSize * (dim / 2 + 1)];
     
     #pragma omp parallel for schedule(dynamic)
     for (int k = 0; k <= dim / 2; k++) 
@@ -505,9 +537,8 @@ void ExposeCorrF(Volume& F3D,
     cuthunder::CorrSoftMaskF(comDst,
                              mkbRL,
                              nf,
-                             dim,
-                             size,
-                             EDGE_WIDTH_RL);
+                             dim);
    
     delete[] mkbRL;
 }
+

@@ -131,13 +131,6 @@ include_directories(${PROJECT_BINARY_DIR})
 ## CMake module file location
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
-# Add Header of THUNDER core
-
-include_directories(${PROJECT_SOURCE_DIR}/include
-                    ${PROJECT_SOURCE_DIR}/include/Functions
-                    ${PROJECT_SOURCE_DIR}/include/Geometry
-                    ${PROJECT_SOURCE_DIR}/include/Image)
-
 message(STATUS "Getting ready for building FFTW-3")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
@@ -198,12 +191,12 @@ IF(CUDA_FOUND)
   INCLUDE_DIRECTORIES(SYSTEM ${CUDA_INCLUDE_DIRS})
   SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
   # Hard-code the gpu arch spec
-  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_30,code=sm_30")
-  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_35,code=sm_35")
-  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_50,code=sm_50")
-  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
-  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
-  #LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
+  LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_30,code=sm_30")
+  LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_35,code=sm_35")
+  LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_50,code=sm_50")
+  LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
+  LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
+  LIST(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
   LIST(APPEND CUDA_NVCC_FLAGS "-std=c++11")
   LIST(APPEND EXTERNAL_LIBS ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES})
   LIST(APPEND EXTERNAL_LIBS ${CUDA_CUFFT_LIBRARIES})
@@ -229,6 +222,13 @@ add_dependencies(cuthuem GSL)
 
 install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
 install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
+
+# Add Header of THUNDER core
+
+include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${PROJECT_SOURCE_DIR}/include/Functions
+                    ${PROJECT_SOURCE_DIR}/include/Geometry
+                    ${PROJECT_SOURCE_DIR}/include/Image)
 
 # Compile Binary of THUNDER core
 

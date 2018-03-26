@@ -10,6 +10,7 @@
 #ifndef IMAGE_CUH
 #define IMAGE_CUH
 
+#include "Config.cuh"
 #include "Device.cuh"
 #include "Complex.cuh"
 
@@ -24,19 +25,19 @@ namespace cuthunder{
 
 struct CTFAttr
 {
-    double voltage;
+    RFLOAT voltage;
 
-    double defocusU;
+    RFLOAT defocusU;
 
-    double defocusV;
+    RFLOAT defocusV;
 
-    double defocusTheta;
+    RFLOAT defocusTheta;
 
-    double Cs;
+    RFLOAT Cs;
 
-    double amplitudeContrast;
+    RFLOAT amplitudeContrast;
 
-    double phaseShift;
+    RFLOAT phaseShift;
 };
 
 class Image

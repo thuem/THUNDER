@@ -11,6 +11,14 @@
 #ifndef CONFIG_CUH
 #define CONFIG_CUH
 
+#include "Percision.cuh"
+
+#ifdef SINGLE_PRECISION
+    typedef float RFLOAT;
+#else
+    typedef double RFLOAT;
+#endif
+
 #define FFTW_PTR
 #define VERBOSE_LEVEL_0
 
@@ -50,7 +58,7 @@
 
 #define PARTICLE_TRANSLATION_S
 
-#define RECONSTRUCTOR_KERNEL_PADDING
+//#define RECONSTRUCTOR_KERNEL_PADDING
 
 #define RECONSTRUCTOR_ASSERT_CHECK
 
@@ -191,11 +199,5 @@
 //#define OPTIMISER_REFRESH_SCALE_RL_ZERO
 
 #define OPTIMISER_BALANCE_CLASS
-
-#ifdef SINGLE_PREVCISION
-    typedef float RFLOAT;
-#else
-    typedef double RFLOAT;
-#endif
 
 #endif // CONFIG_H

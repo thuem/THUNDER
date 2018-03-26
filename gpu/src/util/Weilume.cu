@@ -22,7 +22,7 @@ HD_CALLABLE int Weilume::getIndex(int i, int j, int k) const
             + i );
 }
 
-HD_CALLABLE double Weilume::get(const int iCol,
+HD_CALLABLE RFLOAT Weilume::get(const int iCol,
                                 const int iRow,
                                 const int iSlc) const
 {
@@ -34,17 +34,17 @@ HD_CALLABLE double Weilume::get(const int iCol,
     return _devDataFT[index];
 }
 
-HD_CALLABLE double Weilume::getByInterpolation(const double iCol,
-                                               const double iRow,
-                                               const double iSlc) const
+HD_CALLABLE RFLOAT Weilume::getByInterpolation(const RFLOAT iCol,
+                                               const RFLOAT iRow,
+                                               const RFLOAT iSlc) const
 {
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     WG_TRI_LINEAR_INTERPF(w, x0, x);
 
-    double result = 0.0;
+    RFLOAT result = 0.0;
     for (int i = 0; i < 2; i++)
         for (int j = 0; j < 2; j++)
             for (int k = 0; k < 2; k++)
@@ -53,7 +53,7 @@ HD_CALLABLE double Weilume::getByInterpolation(const double iCol,
     return result;
 }
 
-HD_CALLABLE void Weilume::set(const double value,
+HD_CALLABLE void Weilume::set(const RFLOAT value,
                               const int iCol,
                               const int iRow,
                               const int iSlc)
@@ -66,7 +66,7 @@ HD_CALLABLE void Weilume::set(const double value,
     _devDataFT[index] = value;
 }
 
-D_CALLABLE void Weilume::add(const double value,
+D_CALLABLE void Weilume::add(const RFLOAT value,
                              const int iCol,
                              const int iRow,
                              const int iSlc)
@@ -166,7 +166,7 @@ HD_CALLABLE void Weilume::init(const int nCol,
     _size = (nCol / 2 + 1) * nRow * nSlc;
 }
 
-HD_CALLABLE void Weilume::init(double* data,
+HD_CALLABLE void Weilume::init(RFLOAT* data,
                                const int nCol,
                                const int nRow,
                                const int nSlc)
@@ -200,9 +200,9 @@ HD_CALLABLE bool Weilume::coordinatesInBoundaryFT(const int iCol,
         return true;
 }
 
-D_CALLABLE bool Weilume::conjHalf(double& iCol,
-                                  double& iRow,
-                                  double& iSlc) const
+D_CALLABLE bool Weilume::conjHalf(RFLOAT& iCol,
+                                  RFLOAT& iRow,
+                                  RFLOAT& iSlc) const
 {
     if (iCol >= 0) return false;
 
@@ -233,7 +233,7 @@ D_CALLABLE int Weilume::getIndexHalf(int i, int j, int k) const
     return CU_WEILUME_INDEX_FT(i, j, k);
 }
 
-D_CALLABLE double Weilume::getFTHalf(const int iCol,
+D_CALLABLE RFLOAT Weilume::getFTHalf(const int iCol,
                                      const int iRow,
                                      const int iSlc) const
 {
@@ -244,29 +244,29 @@ D_CALLABLE double Weilume::getFTHalf(const int iCol,
     return _devDataFT[index];
 }
 
-D_CALLABLE double Weilume::getByInterpolationFT(double iCol,
-                                                double iRow,
-                                                double iSlc,
+D_CALLABLE RFLOAT Weilume::getByInterpolationFT(RFLOAT iCol,
+                                                RFLOAT iRow,
+                                                RFLOAT iSlc,
                                                 const int interp) const
 {
     bool conjug = conjHalf(iCol, iRow, iSlc);
 
     if(interp == 0)
     {
-        double result = getFTHalf((int)rint(iCol), 
+        RFLOAT result = getFTHalf((int)rint(iCol), 
                                   (int)rint(iRow),
                                   (int)rint(iSlc));
         return result;
     }
 
-    double w[2][2][2];
+    RFLOAT w[2][2][2];
     int x0[3];
-    double x[3] = {iCol, iRow, iSlc};
+    RFLOAT x[3] = {iCol, iRow, iSlc};
 
     WG_TRI_LINEAR_INTERPF(w, x0, x);
 
 
-    double result = 0.0;
+    RFLOAT result = 0.0;
     /*
     if((x0[1] != -1) && x0[2] != -1)
     {

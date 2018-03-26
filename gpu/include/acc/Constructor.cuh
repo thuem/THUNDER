@@ -37,22 +37,6 @@ namespace cuthunder {
 #define divPI2 1.57079632679489661923132169164
 #endif
 
-struct insertParam
-{
-    bool cSearch;
-    double rU;
-    double rL;
-    double w1;
-    double w2;
-    double pixelSize;
-    int nC;
-    int nR;
-    int nT;
-    int nD;
-    int mReco;
-    int pf;
-};
-
 class Constructor
 {
     public:
@@ -77,7 +61,7 @@ class Constructor
                                 double dimsize,
                                 double weight,
                                 double alpha,
-                                double pf);
+                                int pf);
         
         /**
          * @brief Initialize insider variable.
@@ -87,6 +71,17 @@ class Constructor
          */
         D_CALLABLE void init(int tid, int batchSize);
 
+        /**
+         * @brief For normalizeF,
+         *            normalizeT,
+         *            CheckCAVG,
+         *            CheckCMAX.
+         *
+         * @param ...
+         * @param ...
+         */
+        D_CALLABLE void init(int tid);
+        
         /**
          * @brief Distribute task along one dimensional side.
          *
@@ -141,48 +136,10 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void addFTD(double* devDataT,
-                               double value,
-                               double iCol,
-                               double iRow,
-                               double iSlc,
-                               const int dim) const;
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void addFTC(Complex* devDataF,
-                               Complex& value,
-                               double iCol,
-                               double iRow,
-                               double iSlc,
-                               const int dim) const;
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void addFTCD(Complex* devDataF,
-                                double* devDataT,
-                                Complex& cvalue,
-                                double dvalue,
-                                double iCol,
-                                double iRow,
-                                double iSlc,
-                                const int dim) const;
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
         D_CALLABLE void expectPrectf(CTFAttr* dev_ctfa,
-                                     double* dev_def,
-                                     double* dev_k1,
-                                     double* dev_k2,
+                                     RFLOAT* dev_def,
+                                     RFLOAT* dev_k1,
+                                     RFLOAT* dev_k2,
                                      int* deviCol,
                                      int* deviRow,
                                      int imgidx,
@@ -191,264 +148,26 @@ class Constructor
         
         /**
          * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void translate(Complex* devtraP,
-                                  double* dev_trans,
-                                  int* deviCol,
-                                  int* deviRow,
-                                  int idim,
-                                  int npxl,
-                                  int imgidx,
-                                  int blockSize);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void getRotMat(double* devRotm,
-                                  double* matS,
-                                  double* devnR,
-                                  int nR,
-                                  int threadId);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void project(Complex* priRotP,
-                                double* devRotm,
-                                int* deviCol,
-                                int* deviRow,
-                                int shift,
-                                int pf,
-                                int vdim,
-                                int npxl,
-                                int interp,
-                                int rIndex,
-                                int blockSize,
-                                cudaTextureObject_t texObject);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void logDataVS(Complex* devdatP,
-                                  Complex* priRotP,
-                                  Complex* devtraP,
-                                  double* devctfP,
-                                  double* devsigP,
-                                  double* devDvp,
-                                  double* result,
-                                  int nT,
-                                  int rbatch,
-                                  int blockId,
-                                  int blockSize,
-                                  int npxl);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void updateW(double* devDvp,
-                                double* devbaseL,
-                                double* devwC,
-                                double* devwR,
-                                double* devwT,
-                                int rIdx,
-                                int nK,
-                                int nR,
-                                int nT,
-                                int rSize);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void getRandomCTD(double* dev_nt,
-                                     double* dev_tran,
-                                     double* dev_nd,
-                                     double* dev_ramD,
-                                     double* dev_nr,
-                                     double* dev_ramR,
-                                     int* dev_ramC,
-                                     unsigned long out,
-                                     int nC,
-                                     int nR,
-                                     int nT,
-                                     int nD,
-                                     int blockId);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void getRandomCTD(double* dev_nt,
-                                     double* dev_tran,
-                                     double* dev_nr,
-                                     double* dev_ramR,
-                                     int* dev_ramC,
-                                     unsigned long out,
-                                     int nC,
-                                     int nR,
-                                     int nT,
-                                     int blockId);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void getRandomR(double* dev_mat,
-                                   double* matS,
-                                   double* dev_ramR,
-                                   int threadId);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void translate(Complex* dev_images,
-                                  Complex* tranImgs,
-                                  double* dev_offs,
-                                  double* tran,
-                                  int* deviCol,
-                                  int* deviRow,
-                                  int* deviPxl,
-                                  int insertIdx,
-                                  int npxl,
-                                  int mReco,
-                                  int idim,
-                                  int imgidx,
-                                  int blockSize,
-                                  int imgSize);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void translate(Complex* dev_images,
-                                  Complex* tranImgs,
-                                  double* tran,
-                                  int* deviCol,
-                                  int* deviRow,
-                                  int* deviPxl,
-                                  int insertIdx,
-                                  int npxl,
-                                  int mReco,
-                                  int idim,
-                                  int imgidx,
-                                  int blockSize,
-                                  int imgSize);
-        
-        /**
-         * @brief ...
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void calculateCTF(Complex* dev_ctfs,
-                                     CTFAttr* dev_ctfas,
-                                     double* dev_ramD,
-                                     int* deviCol,
-                                     int* deviRow,
-                                     int* deviPxl,
-                                     double pixel,
-                                     double w1,
-                                     double w2,
-                                     int insertIdx,
-                                     int npxl,
-                                     int mReco,
-                                     int imgidx,
-                                     int blockSize,
-                                     int imgSize);
-        
-        /**
-         * @brief Perform insertF task.
          *
          * @param ...
          * @param ...
          */
-        D_CALLABLE void insertT(double* devDataT,
-                                Complex* dev_ctfs,
-                                double* dev_ws,
-                                double* dev_mat,
-                                double* rotMat,
-                                int* deviCol,
-                                int* deviRow,
-                                int* deviPxl,
-                                int insertIdx,
-                                int npxl,
-                                int mReco,
-                                int pf,
-                                int vdim,
-                                int imgidx,
-                                int blockSize,
-                                int imgSize);
+        D_CALLABLE void normalizeTF(Complex *devDataF,
+                                    RFLOAT *devDataT, 
+                                    const int dimSize, 
+                                    const int num,
+                                    const RFLOAT sf);
 
-        D_CALLABLE void insertF(Complex* devDataF,
-                                double* devDataT,
-                                Complex* tranImgs,
-                                Complex* dev_ctfs,
-                                double* dev_ws,
-                                double* dev_mat,
-                                double* rotMat,
-                                int* dev_ramC,
-                                int* deviCol,
-                                int* deviRow,
-                                int* deviPxl,
-                                int insertIdx,
-                                int npxl,
-                                int mReco,
-                                int pf,
-                                int vdim,
-                                int imgidx,
-                                int blockSize,
-                                int imgSize);
-
-        D_CALLABLE void insertC();
-
-        D_CALLABLE void symmetrizeF();
-
-        D_CALLABLE void symmetrizeC();
-
-        D_CALLABLE void normalizeW();
-
-        D_CALLABLE void normalizeF();
-
-        D_CALLABLE void checkC();
-
-        D_CALLABLE void construct();
-
-        /**
-         * @brief For normalizeF,
-         *            normalizeT,
-         *            CheckCAVG,
-         *            CheckCMAX.
-         *
-         * @param ...
-         * @param ...
-         */
-        D_CALLABLE void init(int tid);
-        
         /**
          * @brief ...
          *
          * @param ...
          * @param ...
          */
-        D_CALLABLE void normalizeT(double *devDataT, 
+        D_CALLABLE void normalizeT(RFLOAT *devDataT, 
                                    const int dimSize, 
                                    const int num,
-                                   const double sf);
+                                   const RFLOAT sf);
 
         /**
          * @brief ...
@@ -456,9 +175,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE double getTexture(double iCol, 
-                                     double iRow, 
-                                     double iSlc,
+        D_CALLABLE RFLOAT getTexture(RFLOAT iCol, 
+                                     RFLOAT iRow, 
+                                     RFLOAT iSlc,
                                      const int dim,
                                      cudaTextureObject_t texObject) const;
 
@@ -468,9 +187,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE double getByInterpolationFT(double iCol, 
-                                               double iRow, 
-                                               double iSlc, 
+        D_CALLABLE RFLOAT getByInterpolationFT(RFLOAT iCol, 
+                                               RFLOAT iRow, 
+                                               RFLOAT iSlc, 
                                                const int interp,
                                                const int dim,
                                                cudaTextureObject_t texObject) const;
@@ -481,9 +200,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void symmetrizeT(double *devDataT,
+        D_CALLABLE void symmetrizeT(RFLOAT *devDataT,
                                     double *matBase, 
-                                    double r, 
+                                    int r, 
                                     int numSymMat,
                                     int interp,
                                     int num,
@@ -496,10 +215,10 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void shellAverage(double *devAvg2D, 
+        D_CALLABLE void shellAverage(RFLOAT *devAvg2D, 
                                      int *devCount2D, 
-                                     double *devDataT,
-                                     double *sumAvg,
+                                     RFLOAT *devDataT,
+                                     RFLOAT *sumAvg,
                                      int *sumCount, 
                                      int r,
                                      int dim,
@@ -512,9 +231,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void calculateAvg(double *devAvg2D, 
+        D_CALLABLE void calculateAvg(RFLOAT *devAvg2D, 
                                      int *devCount2D,
-                                     double *devAvg,
+                                     RFLOAT *devAvg,
                                      int *devCount,
                                      int dim, 
                                      int r);
@@ -524,9 +243,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void calculateFSC(double *devFSC,
-                                     double *devAvg, 
-                                     double *devDataT,
+        D_CALLABLE void calculateFSC(RFLOAT *devFSC,
+                                     RFLOAT *devAvg, 
+                                     RFLOAT *devDataT,
                                      int num,
                                      int dim,
                                      int dimSize,
@@ -540,7 +259,7 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void wienerConst(double *devDataT,
+        D_CALLABLE void wienerConst(RFLOAT *devDataT,
                                     int wiener,
                                     int r,
                                     int num,
@@ -552,8 +271,8 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void calculateW(double *devDataW, 
-                                   double *devDataT,
+        D_CALLABLE void calculateW(RFLOAT *devDataW, 
+                                   RFLOAT *devDataT,
                                    const int length,
                                    const int num, 
                                    const int dim, 
@@ -563,7 +282,7 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void initialW(double *devDataW,
+        D_CALLABLE void initialW(RFLOAT *devDataW,
                                  int initWR,
                                  int dim,
                                  int dimSize);
@@ -574,8 +293,8 @@ class Constructor
          * @param ...
          */
         D_CALLABLE void determiningC(Complex *devDataC,
-                                     double *devDataT,
-                                     double *devDataW,
+                                     RFLOAT *devDataT,
+                                     RFLOAT *devDataW,
                                      int length);
         
         /**
@@ -583,9 +302,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void convoluteC(double *devDoubleC,
+        D_CALLABLE void convoluteC(RFLOAT *devDoubleC,
                                    TabFunction &tabfunc,
-                                   double nf,
+                                   RFLOAT nf,
                                    int padSize,
                                    int dim,
                                    int dimSize);
@@ -595,7 +314,7 @@ class Constructor
          * @param ...
          */
         D_CALLABLE void recalculateW(Complex *devDataC,
-                                     double *devDataW,
+                                     RFLOAT *devDataW,
                                      int initWR,
                                      int dim,
                                      int dimSize);
@@ -605,10 +324,10 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void checkCAVG(double *sumDiff,
-                                  double *sumCount,
-                                  double *diff,
-                                  double *counter,
+        D_CALLABLE void checkCAVG(RFLOAT *sumDiff,
+                                  RFLOAT *sumCount,
+                                  RFLOAT *diff,
+                                  RFLOAT *counter,
                                   Complex *devDataC,
                                   int r,
                                   int dim,
@@ -621,8 +340,8 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void checkCMAX(double *singleMax,
-                                  double *devMax,
+        D_CALLABLE void checkCMAX(RFLOAT *singleMax,
+                                  RFLOAT *devMax,
                                   Complex *devDataC,
                                   int r,
                                   int dim,
@@ -639,7 +358,7 @@ class Constructor
         D_CALLABLE void normalizeF(Complex *devDataF, 
                                    const int dimSize, 
                                    const int num,
-                                   const double sf);
+                                   const RFLOAT sf);
         
         /**
          * @brief ...
@@ -647,9 +366,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE Complex getTextureC(double iCol, 
-                                       double iRow, 
-                                       double iSlc,
+        D_CALLABLE Complex getTextureC(RFLOAT iCol, 
+                                       RFLOAT iRow, 
+                                       RFLOAT iSlc,
                                        const int dim,
                                        cudaTextureObject_t texObject) const;
 
@@ -659,9 +378,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE Complex getByInterpolationFTC(double iCol, 
-                                                 double iRow, 
-                                                 double iSlc, 
+        D_CALLABLE Complex getByInterpolationFTC(RFLOAT iCol, 
+                                                 RFLOAT iRow, 
+                                                 RFLOAT iSlc, 
                                                  const int interp,
                                                  const int dim,
                                                  cudaTextureObject_t texObject) const;
@@ -674,7 +393,7 @@ class Constructor
          */
         D_CALLABLE void symmetrizeF(Complex *devDataF,
                                     double *matBase, 
-                                    double r, 
+                                    int r, 
                                     int numSymMat,
                                     int interp,
                                     int num,
@@ -688,11 +407,14 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void normalizeFW(Complex *F3D, 
-                                    double *devDataW, 
+        D_CALLABLE void normalizeFW(Complex *devDst,
+                                    Complex *devDataF, 
+                                    RFLOAT *devDataW, 
                                     const int dimSize, 
-                                    const int shiftF,
-                                    const int shiftW);
+                                    const int num,
+                                    const int r,
+                                    const int pdim,
+                                    const int fdim);
         
         /**
          * @brief For LowpassFilter F.
@@ -701,8 +423,8 @@ class Constructor
          * @param ...
          */
         D_CALLABLE void lowpassF(Complex *devDataF, 
-                                 const double thres, 
-                                 const double ew,
+                                 const RFLOAT thres, 
+                                 const RFLOAT ew,
                                  const int num,
                                  const int dim,
                                  const int dimSize);
@@ -712,9 +434,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void correctF(double *devDst,
-                                 double *devMkb,
-                                 double nf,
+        D_CALLABLE void correctF(RFLOAT *devDst,
+                                 RFLOAT *devMkb,
+                                 RFLOAT nf,
                                  int dim,
                                  int dimSize,
                                  int shift); 
@@ -724,8 +446,8 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void correctF(double *devDst,
-                                 double *devTik,
+        D_CALLABLE void correctF(RFLOAT *devDst,
+                                 RFLOAT *devTik,
                                  int dim,
                                  int dimSize,
                                  int shift);
@@ -735,13 +457,13 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void background(double *devDst,
-                                   double *sumWeight,
-                                   double *sumS,
-                                   double *sumGlobal,
-                                   double *sumweightG,
-                                   double r,
-                                   double ew,
+        D_CALLABLE void background(RFLOAT *devDst,
+                                   RFLOAT *sumWeight,
+                                   RFLOAT *sumS,
+                                   RFLOAT *sumGlobal,
+                                   RFLOAT *sumweightG,
+                                   RFLOAT r,
+                                   RFLOAT ew,
                                    int dim,
                                    int dimSize,
                                    int indexDiff,
@@ -752,9 +474,9 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void calculateBg(double *devSumG, 
-                                    double *devSumWG,
-                                    double *bg,
+        D_CALLABLE void calculateBg(RFLOAT *devSumG, 
+                                    RFLOAT *devSumWG,
+                                    RFLOAT *bg,
                                     int dim);
         
         /**
@@ -762,10 +484,10 @@ class Constructor
          * @param ...
          * @param ...
          */
-        D_CALLABLE void softMaskD(double *devDst,
-                                  double *bg,
-                                  double r,
-                                  double ew,
+        D_CALLABLE void softMaskD(RFLOAT *devDst,
+                                  RFLOAT *bg,
+                                  RFLOAT r,
+                                  RFLOAT ew,
                                   int dim,
                                   int dimSize,
                                   int shift);

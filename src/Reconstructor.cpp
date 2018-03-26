@@ -737,15 +737,55 @@ void Reconstructor::insertP(const Complex* src,
     }
 }
 
+void Reconstructor::insertI(Complex* datP,
+                            RFLOAT* ctfP,
+                            RFLOAT* sigP,
+                            RFLOAT* w,
+                            double* offS,
+                            double* nr,
+                            double* nt,
+                            double* nd,
+                            CTFAttr* ctfaData, 
+                            RFLOAT pixelSize,
+                            bool cSearch,
+                            int opf,
+                            int mReco,
+                            int idim,
+                            int imgNum)
+{   
+    InsertFT(_F3D,
+             _T3D,
+             _hemi,
+             datP,
+             ctfP,
+             sigP,
+             ctfaData,
+             offS,
+             w,
+             nr,
+             nt,
+             nd,
+             _iCol,
+             _iRow,
+             pixelSize,
+             cSearch,
+             opf,
+             _nPxl,
+             mReco,
+             idim,
+             imgNum);
+}
+
 void Reconstructor::insertFT(Complex* datP,
-                             double* ctfP,
-                             double* sigRcpP,
+                             RFLOAT* ctfP,
+                             RFLOAT* sigRcpP,
                              vector<Particle>& par,
                              vector<vec2>& offset,
                              vector<CTFAttr>& ctfAttr,
-                             double pixelSize,
+                             RFLOAT pixelSize,
                              bool cSearch,
                              bool parGra,
+                             int opf,
                              int nK,
                              int mReco,
                              int idim,
@@ -755,7 +795,7 @@ void Reconstructor::insertFT(Complex* datP,
     int tSize = par[0].nT();
     int dSize = par[0].nD();
 
-    double *w = new double[imgNum];
+    RFLOAT *w = new RFLOAT[imgNum];
     double *offS = new double[imgNum * 2];
     double *nr = new double[rSize * imgNum * 4];
     double *nt = new double[tSize * imgNum * 2];
@@ -776,15 +816,15 @@ void Reconstructor::insertFT(Complex* datP,
         
         if (cSearch)
         {
-            Map<vec>(nd + i * dSize, dSize, 1) = par[i].d();
+            Map<dvec>(nd + i * dSize, dSize, 1) = par[i].d();
             ctfaData[i] = ctfAttr[i]; 
         }
         
         for (int k = 0; k < tSize; k++)
-            Map<vec2>(nt + k * 2 + i * tSize * 2, 2, 1) = par[i].t().row(k).transpose();
+            Map<dvec2>(nt + k * 2 + i * tSize * 2, 2, 1) = par[i].t().row(k).transpose();
         
         for (int k = 0; k < rSize; k++)
-            Map<vec4>(nr + k * 4 + i * rSize * 4, 4, 1) = par[i].r().row(k).transpose();
+            Map<dvec4>(nr + k * 4 + i * rSize * 4, 4, 1) = par[i].r().row(k).transpose();
         
         offS[j] = offset[i](0); 
         offS[j + 1] = offset[i](1);
@@ -807,6 +847,7 @@ void Reconstructor::insertFT(Complex* datP,
             _iRow,
             pixelSize,
             cSearch,
+            opf,
             rSize,
             tSize,
             dSize,
@@ -821,6 +862,17 @@ void Reconstructor::insertFT(Complex* datP,
     delete[] nt;
     delete[] nd;
     delete[] ctfaData;
+}
+
+void Reconstructor::prepareTFG()
+{
+    IF_MASTER return;
+
+    PrepareTF(_F3D,
+              _T3D,
+              *_sym,
+              _maxRadius,
+              _pf);
 }
 
 void Reconstructor::prepareTF()
@@ -1432,44 +1484,20 @@ void Reconstructor::reconstructG(Volume& dst)
         BLOG(INFO, "LOGGER_RECO") << "Reconstructing Under 3D Mode";
     }
 #endif
-
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
-
-    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
-    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
-
-    MPI_Barrier(_hemi);
-
-    if (_mode == MODE_3D)
-        MPI_Allreduce_Large(&_T3D[0],
-                            _T3D.sizeFT(),
-                            TS_MPI_DOUBLE_COMPLEX,
-                            MPI_SUM,
-                            _hemi);
-    else
-    {
-        REPORT_ERROR("INEXISTENT MODE");
-
-        abort();
-    }
-
-    MPI_Barrier(_hemi);
-
+    
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
     // only in 3D mode, the MAP method is appropriate
-    if (_MAP && (_mode == MODE_3D))
+    if (_MAP)
     {
-        // Obviously, wiener_filter with FSC can be wrong when dealing with
-        // preferrable orienation problem
         ExposePT(_T3D,
-                 *_sym,
                  _maxRadius,
                  _pf,
                  _FSC,
                  _joinHalf,
                  WIENER_FACTOR_MIN_R);
     }
-    
+#endif
+ 
     if (_gridCorr)
     {
         ExposeWT(_C3D,
@@ -1492,29 +1520,6 @@ void Reconstructor::reconstructG(Volume& dst)
                  _pf);
     }
 
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing F";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing F";
-
-    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
-    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
-
-    MPI_Barrier(_hemi);
-
-    if (_mode == MODE_3D)
-        MPI_Allreduce_Large(&_F3D[0],
-                            _F3D.sizeFT(),
-                            TS_MPI_DOUBLE_COMPLEX,
-                            MPI_SUM,
-                            _hemi);
-    else
-    {
-        REPORT_ERROR("INEXISTENT MODE");
-
-        abort();
-    }
-
-    MPI_Barrier(_hemi);
-
     if (_mode == MODE_3D)
     {
 #ifdef VERBOSE_LEVEL_2
@@ -1523,36 +1528,12 @@ void Reconstructor::reconstructG(Volume& dst)
 #endif
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
-        #pragma omp parallel
-        SET_0_FT(padDst);
-
-#ifdef VERBOSE_LEVEL_2
-        ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
-        BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
-#endif
-
-        double sf = 1.0 / REAL(_T3D[0]);
-
-        ExposePF(_F3D,
+        ExposePF(padDst,
+                 _F3D,
                  _W3D,
-                 *_sym,
                  _maxRadius,
-                 _pf,
-                 sf,
-                 _N);
+                 _pf);
         
-        #pragma omp parallel for schedule(dynamic)
-        VOLUME_FOR_EACH_PIXEL_FT(_F3D)
-        {
-            if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
-            {
-                padDst.setFTHalf(_F3D.getFTHalf(i, j, k),
-                                 i,
-                                 j,
-                                 k);
-            }
-        }
-
 #ifdef VERBOSE_LEVEL_2
         ALOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Inverse Fourier Transforming Padded Destination Volume";
@@ -1561,8 +1542,15 @@ void Reconstructor::reconstructG(Volume& dst)
         FFT fft;
         fft.bwMT(padDst);
         
+        RFLOAT nf = 0;
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+        nf = MKB_RL(0, _a * _pf, _alpha);
+#endif
+
         ExposeCorrF(padDst,
                     dst,
+                    nf,
                     _a,
                     _alpha,
                     _pf,

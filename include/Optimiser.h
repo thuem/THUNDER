@@ -619,6 +619,8 @@ class Optimiser : public Parallel
 
         RFLOAT* _ctfP;
 
+        RFLOAT* _sigP;
+
         RFLOAT* _sigRcpP;
 
         /**

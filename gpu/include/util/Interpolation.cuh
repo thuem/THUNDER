@@ -10,6 +10,7 @@
 #ifndef INTERPOLATION_CUH
 #define INTERPOLATION_CUH
 
+#include "Config.cuh"
 #include "Device.cuh"
 #include <cmath>
 
@@ -28,11 +29,12 @@ namespace cuthunder {
 
 /* WG_ -> Weight & Grid */
 
-HD_CALLABLE void WG_LINEAR_INTERP(double w[2], int& x0, const double x);
+HD_CALLABLE void WG_LINEAR_INTERP(RFLOAT w[2], int& x0, const RFLOAT x);
 
-HD_CALLABLE void WG_BI_LINEAR_INTERP(double w[2][2], int x0[2], const double x[2]);
+HD_CALLABLE void WG_BI_LINEAR_INTERP(RFLOAT w[2][2], int x0[2], const RFLOAT x[2]);
 
-HD_CALLABLE void WG_TRI_LINEAR_INTERPF(double w[2][2][2], int x0[3], const double x[3]);
+HD_CALLABLE void WG_TRI_LINEAR_INTERPF(RFLOAT w[2][2][2], int x0[3], const RFLOAT x[3]);
+
 
 } // end namespace cuthunder
 
