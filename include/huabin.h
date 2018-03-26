@@ -106,7 +106,7 @@ inline RFLOAT TS_COS(const RFLOAT x)
 #ifdef SINGLE_PRECISION
     return cosf(x);
 #else
-    return sinf(x);
+    return cos(x);
 #endif
 };
 
