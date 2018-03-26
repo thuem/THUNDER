@@ -220,7 +220,7 @@ double pdfVMS(const dvec2& x,
     if (kappa < 10) // avoiding overflow
         return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
     else
-        return gsl_ran_gaussian_pdf((x - mu).norm(), 1.0 / kappa);
+        return gsl_ran_gaussian_pdf((x - mu).norm(), sqrt(1.0 / kappa));
 }
 
 void sampleVMS(dmat2& dst,
