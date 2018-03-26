@@ -1230,13 +1230,17 @@ void Particle::resample(const int n,
                 i++;
 
             c(j) = _c(i);
+
+#ifdef PARTICLE_PRIOR_ONE
+            _wC(j) = 1.0 / _uC(i);
+#else
+            _wC(j) = 1.0 / _nC;
+#endif
         }
 
         _c = c;
 
         _uC.resize(_nC);
-        
-        _wC = dvec::Constant(_nC, 1.0 / _nC);
     }
     else if (pt == PAR_R)
     {
@@ -1271,13 +1275,17 @@ void Particle::resample(const int n,
                 i++;
         
             r.row(j) = _r.row(i);
+
+#ifdef PARTICLE_PRIOR_ONE
+            _wR(j) = 1.0 / _uR(i);
+#else
+            _wR(j) = 1.0 / _nR;
+#endif
         }
 
         _r = r;
 
         _uR.resize(_nR);
-
-        _wR = dvec::Constant(_nR, 1.0 / _nR);
     }
     else if (pt == PAR_T)
     {
@@ -1312,13 +1320,17 @@ void Particle::resample(const int n,
                 i++;
         
             t.row(j) = _t.row(i);
+
+#ifdef PARTICLE_PRIOR_ONE
+            _wT(j) = 1.0 / _uT(i);
+#else
+            _wT(j) = 1.0 / _nT;
+#endif
         }
 
         _t = t;
 
         _uT.resize(_nT);
-
-        _wT = dvec::Constant(_nT, 1.0 / _nT);
     }
     else if (pt == PAR_D)
     {
@@ -1353,13 +1365,17 @@ void Particle::resample(const int n,
                 i++;
 
             d(j) = _d(i);
+
+#ifdef PARTICLE_PRIOR_ONE
+            _wD(j) = 1.0 / _uD(i);
+#else
+            _wD(j) = 1.0 / _nD;
+#endif
         }
 
         _d = d;
 
         _uD.resize(_nD);
-
-        _wD = dvec::Constant(_nD, 1.0 / _nD);
     }
 
     normW();
