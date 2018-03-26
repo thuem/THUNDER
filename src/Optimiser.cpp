@@ -5051,7 +5051,7 @@ void Optimiser::saveDatabase() const
     dvec2 tran;
     double df;
 
-    double k1, k2, k3, s0, s1, rho, s;
+    double k1, k2, k3, s0, s1, s;
 
     FOR_EACH_2D_IMAGE
     {
@@ -5059,7 +5059,6 @@ void Optimiser::saveDatabase() const
 
         //_par[l].vari(rVari, s0, s1, s);
         _par[l].vari(k1, k2, k3, s0, s1, s);
-        rho = _par[l].rho();
 
         /***
         rVari = 0;
@@ -5074,7 +5073,7 @@ void Optimiser::saveDatabase() const
                  %6d %6lu \
                  %18.9lf %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf %18.9lf \
-                 %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
+                 %18.9lf %18.9lf %18.9lf %18.9lf \
                  %18.9lf %18.9lf \
                  %18.9lf\n",
                  _ctfAttr[l].voltage,
@@ -5106,7 +5105,6 @@ void Optimiser::saveDatabase() const
 #endif
                  s0,
                  s1,
-                 rho,
                  df,
                  s,
                  _par[l].compressR());
