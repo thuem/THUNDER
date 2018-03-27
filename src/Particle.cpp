@@ -2356,7 +2356,11 @@ void Particle::symmetrise()
 
 void Particle::reCentre()
 {
+#ifdef PARTICLE_RECENTRE_TRANSQ
     double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
+#else
+    double transM = 2 * _transS;
+#endif
 
     gsl_rng* engine = get_random_engine();
 
