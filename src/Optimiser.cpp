@@ -2344,9 +2344,9 @@ void Optimiser::initRef()
             }
             ***/
 
-            // softMask(ref, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            softMask(ref, 0.7 * _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
-            SET_0_RL(ref);
+            // SET_0_RL(ref);
 
             _model.clearRef();
 
