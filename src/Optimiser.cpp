@@ -2061,14 +2061,6 @@ void Optimiser::run()
 
 #endif
 
-#ifdef OPTIMISER_SAVE_SOLVENT_FLATTENED_REFERENCE
-
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Solvent Flattened Reference(s)";
-
-        saveReference();
-
-#endif
-
         MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
@@ -4599,11 +4591,18 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else if (_para.mode == MODE_3D)
             {
+                if (_para.k == 1)
+                {
+                    saveMapHalf(finished);
+                }
+                else
+                {
 #ifdef OPTIMISER_3D_SAVE_JOIN_MAP
-                saveMapJoin(finished);
+                    saveMapJoin(finished);
 #else
-                saveMapHalf(finished);
+                    saveMapHalf(finished);
 #endif
+                }
             }
             else
             {
@@ -5442,7 +5441,69 @@ void Optimiser::saveMapJoin(const bool finished)
     }
     else if (_para.mode == MODE_3D)
     {
-        // TODO
+        for (int l = 0; l < _para.k; l++)
+        {
+            IF_MASTER
+            {
+                Volume ref(_para.size, _para.size, _para.size, FT_SPACE);
+
+                Volume A(_para.size, _para.size, _para.size, FT_SPACE);
+                Volume B(_para.size, _para.size, _para.size, FT_SPACE);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere A";
+
+                MPI_Recv_Large(&A[0],
+                               A.sizeFT(),
+                               TS_MPI_DOUBLE_COMPLEX,
+                               HEMI_A_LEAD,
+                               l,
+                               MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere B";
+
+                MPI_Recv_Large(&B[0],
+                               B.sizeFT(),
+                               TS_MPI_DOUBLE_COMPLEX,
+                               HEMI_B_LEAD,
+                               l,
+                               MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Averaging Two Hemispheres";
+                FOR_EACH_PIXEL_FT(ref)
+                    ref[i] = (A[i] + B[i]) / 2;
+
+                fft.bwMT(ref);
+
+                if (finished)
+                    sprintf(filename, "%sReference_%03d_Final.mrc", _para.dstPrefix, l);
+                else
+                    sprintf(filename, "%sReference_%03d_Round_%03d.mrc", _para.dstPrefix, l, _iter);
+
+                imf.readMetaData(ref);
+                imf.writeVolume(filename, ref, _para.pixelSize);
+            }
+            else
+            {
+                if ((_commRank == HEMI_A_LEAD) ||
+                    (_commRank == HEMI_B_LEAD))
+                {
+                    ALOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                                                 << l
+                                                 << " from Hemisphere A";
+
+                    BLOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                                                 << l
+                                                 << " from Hemisphere B";
+
+                    MPI_Ssend_Large(&_model.ref(l)[0],
+                                    _model.ref(l).sizeFT(),
+                                    TS_MPI_DOUBLE_COMPLEX,
+                                    MASTER_ID,
+                                    l,
+                                    MPI_COMM_WORLD);
+                }
+            }
+        }
     }
     else
     {
