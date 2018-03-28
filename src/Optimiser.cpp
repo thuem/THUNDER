@@ -4452,11 +4452,18 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else if (_para.mode == MODE_3D)
             {
+                if (_para.k == 1)
+                {
+                    saveMapHalf(finished);
+                }
+                else
+                {
 #ifdef OPTIMISER_3D_SAVE_JOIN_MAP
-                saveMapJoin(finished);
+                    saveMapJoin(finished);
 #else
-                saveMapHalf(finished);
+                    saveMapHalf(finished);
 #endif
+                }
             }
             else
             {
