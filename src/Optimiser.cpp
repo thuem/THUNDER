@@ -4462,6 +4462,24 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
+#ifdef VERBOSE_LEVEL_1
+                ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+#endif
+
+                if (_para.mode == MODE_2D)
+                {
+                    // TODO
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    translateMT(ref, -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+                }
+
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 

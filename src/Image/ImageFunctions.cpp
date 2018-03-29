@@ -71,6 +71,23 @@ void translateMT(Image& dst,
     }
 }
 
+void translateMT(Volume& dst,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
+                 const RFLOAT nTransSlc)
+{
+    RFLOAT rCol = nTransCol / dst.nColRL();
+    RFLOAT rRow = nTransRow / dst.nRowRL();
+    RFLOAT rSlc = nTransSlc / dst.nSlcRL();
+
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_FT(dst)
+    {
+        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
+        dst.setFT(COMPLEX_POLAR(-phase), i, j, k);
+    }
+}
+
 void translate(Image& dst,
                const RFLOAT r,
                const RFLOAT nTransCol,
