@@ -115,7 +115,7 @@ void Optimiser::init()
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _model";
-    _model.setMPIEnv(_commSize, _commRank, _hemi);
+    _model.setMPIEnv(_commSize, _commRank, _hemi, _slav);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting up Symmetry";
     _sym.init(_para.sym);
@@ -277,7 +277,7 @@ void Optimiser::init()
     //_model.setRT(_r);
 
     MLOG(INFO, "LOGGER_INIT") << "Setting MPI Environment of _exp";
-    _db.setMPIEnv(_commSize, _commRank, _hemi);
+    _db.setMPIEnv(_commSize, _commRank, _hemi, _slav);
 
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
     _db.openDatabase(_para.db);

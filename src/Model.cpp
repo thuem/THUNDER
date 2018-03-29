@@ -131,7 +131,7 @@ void Model::initProjReco()
     BLOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
 
     FOR_EACH_CLASS
-        _reco[l]->setMPIEnv(_commSize, _commRank, _hemi);
+        _reco[l]->setMPIEnv(_commSize, _commRank, _hemi, _slav);
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
