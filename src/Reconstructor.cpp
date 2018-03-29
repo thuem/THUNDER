@@ -835,6 +835,10 @@ void Reconstructor::prepareTF()
         symmetrizeO();
 #endif
     }
+
+    _ox /= _counter;
+    _oy /= _counter;
+    _oz /= _counter;
 }
 
 void Reconstructor::reconstruct(Image& dst)
@@ -1678,9 +1682,9 @@ void Reconstructor::symmetrizeO()
 
         _counter *= (1 + _sym->nSymmetryElement());
 
-        _ox = result(0) / _counter;
-        _oy = result(1) / _counter;
-        _oz = result(2) / _counter;
+        _ox = result(0);
+        _oy = result(1);
+        _oz = result(2);
     }
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
