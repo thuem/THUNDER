@@ -1812,7 +1812,7 @@ void Particle::setPeakFactor(const ParticleType pt)
 #ifdef PARTICLE_PEAK_FACTOR_C
         _peakFactorC = PEAK_FACTOR_C;
 #else
-        _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uC(order(_nC / 2)) / _uC(order(0))));
+        _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uC(order(_nC / PEAK_FACTOR_BASE)) / _uC(order(0))));
 #endif
     }
     else if (pt == PAR_R)
@@ -1820,9 +1820,9 @@ void Particle::setPeakFactor(const ParticleType pt)
         //_peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
 
         if (_mode == MODE_2D)
-            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
+            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / PEAK_FACTOR_BASE)) / _uR(order(0))));
         else if (_mode == MODE_3D)
-            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 8)) / _uR(order(0))));
+            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / gsl_pow_3(PEAK_FACTOR_BASE))) / _uR(order(0))));
         else
         {
             REPORT_ERROR("INEXISTENT MODE");
@@ -1838,7 +1838,7 @@ void Particle::setPeakFactor(const ParticleType pt)
 #endif
 
 #ifdef PARTICLE_TRANS_INIT_FLAT
-        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(_nT / 4)) / _uT(order(0))));
+        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(_nT / gsl_pow_2(PEAK_FACTOR_BASE))) / _uT(order(0))));
 #endif
     }
     else if (pt == PAR_D)
@@ -1850,7 +1850,7 @@ void Particle::setPeakFactor(const ParticleType pt)
 #endif
 
 #ifdef PARTICLE_DEFOCUS_INIT_FLAT
-        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(_nD / 2)) / _uD(order(0))));
+        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(_nD / PEAK_FACTOR_BASE)) / _uD(order(0))));
 #endif
     }
 }
