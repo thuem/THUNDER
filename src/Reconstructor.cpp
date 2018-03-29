@@ -197,6 +197,12 @@ void Reconstructor::reset()
 
         abort();
     }
+
+    _ox = 0;
+    _oy = 0;
+    _oz = 0;
+
+    _counter = 0;
 }
 
 int Reconstructor::mode() const
@@ -297,6 +303,33 @@ void Reconstructor::setPreCal(const int nPxl,
     _iRow = iRow;
     _iPxl = iPxl;
     _iSig = iSig;
+}
+
+void Reconstructor::insertDir(const dvec2& dir)
+{
+    insertDir(dir(0), dir(1), 0);
+}
+
+void Reconstructor::insertDir(const dvec3& dir)
+{
+    insertDir(dir(0), dir(1), dir(2));
+}
+
+void Reconstructor::insertDir(const double ox,
+                              const double oy,
+                              const double oz)
+{
+    #pragma omp atomic
+    _ox += ox;
+
+    #pragma omp atomic
+    _oy += oy;
+
+    #pragma omp atomic
+    _oz += oz;
+
+    #pragma omp atomic
+    _counter +=1;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -770,6 +803,19 @@ void Reconstructor::prepareTF()
         BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
         symmetrizeF();
+#endif
+    }
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
+
+    IF_MODE_3D
+    {
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
+
+        symmetrizeO();
 #endif
     }
 }
@@ -1424,6 +1470,42 @@ void Reconstructor::allReduceT()
 #endif
 }
 
+void Reconstructor::allReduceO()
+{
+    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
+    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
+
+    MPI_Barrier(_hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_ox,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_oy,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_oz,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_counter,
+                  1,
+                  MPI_INT,
+                  MPI_SUM,
+                  _hemi);
+}
+
 RFLOAT Reconstructor::checkC() const
 {
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE
@@ -1558,6 +1640,31 @@ void Reconstructor::symmetrizeT()
 {
     if (_sym != NULL)
         SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
+    else
+        CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
+}
+
+void Reconstructor::symmetrizeO()
+{
+    if (_sym != NULL)
+    {
+        dmat33 L, R;
+
+        dvec3 result = dvec3::Zero();
+
+        for (int i = 0; i < _sym->nSymmetryElement(); i++)
+        {
+            _sym->get(L, R, i);
+
+            result += R * dvec3(_ox, _oy, _oz);
+        }
+
+        _counter *= (1 + _sym->nSymmetryElement());
+
+        _ox = result(0);
+        _oy = result(1);
+        _oz = result(2);
+    }
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }

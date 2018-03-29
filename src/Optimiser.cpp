@@ -4267,7 +4267,15 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
                     if (cSearch) TSFFTW_free(ctf);
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+                    dvec2 dir = -rot2D * (tran - _offset[l]);
+#else
+                    dvec2 dir = -rot2D * tran;
+#endif
+                    _model.reco(cls).insertDir(dir);
                 }
+
                 else if (_para.mode == MODE_3D)
                 {
                     _par[l].rand(cls, quat, tran, d);
@@ -4338,6 +4346,15 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
                     if (cSearch) TSFFTW_free(ctf);
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+                    dvec3 dir = -rot3D * dvec3((tran - _offset[l])[0],
+                                           (tran - _offset[l])[1],
+                                           0);
+#else
+                    dvec3 dir = -rot3D * dvec3(tran[0], tran[1], 0);
+#endif
+                    _model.reco(cls).insertDir(dir);
                 }
                 else
                 {
