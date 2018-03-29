@@ -4379,6 +4379,25 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        << t;
 
             _model.reco(t).prepareTF();
+
+            ALOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
+                                       << t
+                                       << ": "
+                                       << _model.reco(t).ox()
+                                       << ", "
+                                       << _model.reco(t).oy()
+                                       << ", "
+                                       << _model.reco(t).oz()
+                                       << " (Pixel)";
+            BLOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
+                                       << t
+                                       << ": "
+                                       << _model.reco(t).ox()
+                                       << ", "
+                                       << _model.reco(t).oy()
+                                       << ", "
+                                       << _model.reco(t).oz()
+                                       << " (Pixel)";
         }
     }
 

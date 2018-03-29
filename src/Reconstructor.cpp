@@ -265,6 +265,21 @@ void Reconstructor::setSig(const vec& sig)
     _sig = sig;
 }
 
+double Reconstructor::ox() const
+{
+    return _ox;
+}
+
+double Reconstructor::oy() const
+{
+    return _oy;
+}
+
+double Reconstructor::oz() const
+{
+    return _oz;
+}
+
 int Reconstructor::maxRadius() const
 {
     return _maxRadius;

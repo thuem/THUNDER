@@ -376,6 +376,12 @@ class Reconstructor : public Parallel
 
         void setSig(const vec& sig);
 
+        double ox() const;
+
+        double oy() const;
+
+        double oz() const;
+
         /**
          * get the max radius that points can affect each other 
          * during interpolation         
