@@ -61,7 +61,7 @@ void Parallel::setMPIEnv()
     MPI_Group_free(&wGroup);
     MPI_Group_free(&aGroup);
     MPI_Group_free(&bGroup);
-    MPI_Group_free(&bGroup);
+    MPI_Group_free(&sGroup);
     
     delete[] a;
     delete[] b;
