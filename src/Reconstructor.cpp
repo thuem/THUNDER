@@ -1490,35 +1490,35 @@ void Reconstructor::allReduceO()
     ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
     BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
 
-    MPI_Barrier(_hemi);
+    MPI_Barrier(_slav);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &_ox,
                   1,
                   MPI_DOUBLE,
                   MPI_SUM,
-                  _hemi);
+                  _slav);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &_oy,
                   1,
                   MPI_DOUBLE,
                   MPI_SUM,
-                  _hemi);
+                  _slav);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &_oz,
                   1,
                   MPI_DOUBLE,
                   MPI_SUM,
-                  _hemi);
+                  _slav);
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &_counter,
                   1,
                   MPI_INT,
                   MPI_SUM,
-                  _hemi);
+                  _slav);
 }
 
 RFLOAT Reconstructor::checkC() const
