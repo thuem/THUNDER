@@ -35,7 +35,7 @@ void Parallel::setMPIEnv()
 
     for (int i = 0; i < sizeA; i++) a[i] = 2 * i + 1;
     for (int i = 0; i < sizeB; i++) b[i] = 2 * i + 2;
-    for (int i = 0; i < sizeS; i++) b[i] = i + 1;
+    for (int i = 0; i < sizeS; i++) s[i] = i + 1;
 
     MPI_Comm_group(MPI_COMM_WORLD, &wGroup);
 
