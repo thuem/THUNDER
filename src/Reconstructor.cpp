@@ -1665,7 +1665,7 @@ void Reconstructor::symmetrizeO()
     {
         dmat33 L, R;
 
-        dvec3 result = dvec3::Zero();
+        dvec3 result = dvec3(_ox, _oy, _oz);
 
         for (int i = 0; i < _sym->nSymmetryElement(); i++)
         {
@@ -1676,9 +1676,9 @@ void Reconstructor::symmetrizeO()
 
         _counter *= (1 + _sym->nSymmetryElement());
 
-        _ox = result(0);
-        _oy = result(1);
-        _oz = result(2);
+        _ox = result(0) / _counter;
+        _oy = result(1) / _counter;
+        _oz = result(2) / _counter;
     }
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
