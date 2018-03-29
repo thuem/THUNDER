@@ -242,7 +242,7 @@ void translateMT(Volume& dst,
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
-        dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j, k);
+        dst.setFT(src.getFT(i, j, k) * COMPLEX_POLAR(-phase), i, j, k);
     }
 }
 
