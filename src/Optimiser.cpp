@@ -4473,7 +4473,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    translateMT(ref, -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                    translateMT(ref, ref, -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
                 }
                 else
                 {
@@ -4631,7 +4631,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    translateMT(ref, -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                    translateMT(ref, ref, -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
                 }
                 else
                 {

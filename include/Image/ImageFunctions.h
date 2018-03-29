@@ -401,6 +401,12 @@ void translateMT(Image& dst,
                  const RFLOAT nTransCol,
                  const RFLOAT nTransRow);
 
+void translateMT(Volume& dst,
+                 const Volume& src,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
+                 const RFLOAT nTransSlc);
+
 /**
  * This function translations an image in a certain frequency threshold with a 
  * given vector indicating by the number of columns and the number of rows.
