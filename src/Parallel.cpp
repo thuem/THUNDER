@@ -76,7 +76,7 @@ void Parallel::setMPIEnv(const int commSize,
     setCommSize(commSize);
     setCommRank(commRank);
     setHemi(hemi);
-    setHemi(slav);
+    setSlav(slav);
 }
 
 bool Parallel::isMaster() const
