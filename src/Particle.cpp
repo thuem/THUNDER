@@ -1001,6 +1001,7 @@ void Particle::calVari(const ParticleType pt)
 
             dvec4 quat;
 
+            /***
             gsl_rng* engine = get_random_engine();
 
             dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nR)).transpose();
@@ -1008,6 +1009,7 @@ void Particle::calVari(const ParticleType pt)
             // dvec4 anch = _topR;
 
             symmetrise(&anch);
+            ***/
 
             /***
             for (int i = 0; i < _nR; i++)
