@@ -1016,7 +1016,7 @@ void Particle::calVari(const ParticleType pt)
             }
             ***/
 
-            symmetrise(&_topR);
+            // symmetrise(&_topR);
 
 #ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
 
