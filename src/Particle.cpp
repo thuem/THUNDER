@@ -997,15 +997,11 @@ void Particle::calVari(const ParticleType pt)
             _k3 = _k1;
             ***/
 
+            gsl_rng* engine = get_random_engine();
+
             dvec4 mean;
 
-            /***
-#ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
-            inferACG(mean, _r);
-#else
-            mean = _topR;
-#endif
-            ***/
+            dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nT)).transpose();
 
             dvec4 quat;
 
@@ -1013,7 +1009,7 @@ void Particle::calVari(const ParticleType pt)
             {
                 quat = _r.row(i).transpose();
 
-                quaternion_mul(quat, quaternion_conj(_topR), quat);
+                quaternion_mul(quat, quaternion_conj(anch), quat);
 
                 _r.row(i) = quat.transpose();
             }
@@ -1054,7 +1050,7 @@ void Particle::calVari(const ParticleType pt)
             {
                 quat = _r.row(i).transpose();
 
-                quaternion_mul(quat, _topR, quat);
+                quaternion_mul(quat, anch, quat);
 
                 _r.row(i) = quat.transpose();
             }
