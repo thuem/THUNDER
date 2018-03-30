@@ -997,13 +997,18 @@ void Particle::calVari(const ParticleType pt)
             _k3 = _k1;
             ***/
 
-            gsl_rng* engine = get_random_engine();
 
             dvec4 mean;
 
             dvec4 quat;
 
+            /***
+            gsl_rng* engine = get_random_engine();
+
             dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nR)).transpose();
+
+            symmetrise(&anch);
+            ***/
 
             /***
             for (int i = 0; i < _nR; i++)
@@ -1016,7 +1021,6 @@ void Particle::calVari(const ParticleType pt)
             }
             ***/
 
-            symmetrise(&anch);
 
 #ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
 
