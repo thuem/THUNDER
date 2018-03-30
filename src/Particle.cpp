@@ -990,24 +990,39 @@ void Particle::calVari(const ParticleType pt)
         }
         else if (_mode == MODE_3D)
         {
+            /***
             inferACG(_k1, _r);
 
             _k2 = _k1;
             _k3 = _k1;
-
-            /***
+            ***/
 
             dvec4 mean;
 
-            // inferACG(mean, _r);
-
-#ifdef PARTICLE_ROT_MEAN_USING_STAT
+            /***
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
             inferACG(mean, _r);
 #else
             mean = _topR;
 #endif
+            ***/
 
             dvec4 quat;
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, quaternion_conj(_topR), quat);
+
+                _r.row(i) = quat.transpose();
+            }
+
+            symmetrise();
+
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
+
+            inferACG(mean, _r);
 
             for (int i = 0; i < _nR; i++)
             {
@@ -1018,10 +1033,11 @@ void Particle::calVari(const ParticleType pt)
                 _r.row(i) = quat.transpose();
             }
 
-            symmetrise();
+#endif
 
             inferACG(_k1, _k2, _k3, _r);
 
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
 
             for (int i = 0; i < _nR; i++)
             {
@@ -1032,7 +1048,16 @@ void Particle::calVari(const ParticleType pt)
                 _r.row(i) = quat.transpose();
             }
 
-            ***/
+#endif
+
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, _topR, quat);
+
+                _r.row(i) = quat.transpose();
+            }
         }
         else
         {
@@ -1122,7 +1147,7 @@ void Particle::perturb(const double pf,
 
             dvec4 mean;
 
-#ifdef PARTICLE_ROT_MEAN_USING_STAT
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_PERTURB
             inferACG(mean, _r);
 #else
             mean = _topR;

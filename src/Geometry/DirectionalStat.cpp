@@ -197,6 +197,12 @@ void inferACG(double& k1,
 
 #endif
 
+#ifndef NAN_NO_CHECK
+    if (k1 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K1 = " << k1; abort(); };
+    if (k2 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K2 = " << k2; abort(); };
+    if (k3 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K3 = " << k3; abort(); };
+#endif
+
     /***
     SelfAdjointEigenSolver<dmat44> eigenSolver(A);
 
@@ -245,7 +251,7 @@ double pdfVMS(const dvec2& x,
 {
     double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
 
-    if (kappa < 10) // avoiding overflow
+    if (kappa < 5) // avoiding overflow
         return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
     else
         return gsl_ran_gaussian_pdf((x - mu).norm(), sqrt(1.0 / kappa));
