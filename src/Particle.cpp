@@ -997,11 +997,13 @@ void Particle::calVari(const ParticleType pt)
             _k3 = _k1;
             ***/
 
-            gsl_rng* engine = get_random_engine();
+            // gsl_rng* engine = get_random_engine();
 
             dvec4 mean;
 
-            dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nT)).transpose();
+            // dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nR)).transpose();
+
+            dvec4 anch = _topR;
 
             dvec4 quat;
 
@@ -1170,7 +1172,7 @@ void Particle::perturb(const double pf,
                 _r.row(i) = quat.transpose();
             }
 
-            symmetrise();
+            // symmetrise(); // TODO
 
             for (int i = 0; i < _nR; i++)
             {
