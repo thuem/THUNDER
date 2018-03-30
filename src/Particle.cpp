@@ -992,11 +992,15 @@ void Particle::calVari(const ParticleType pt)
         {
             dvec4 mean;
 
+            inferACG(mean, _r);
+
+            /***
 #ifdef PARTICLE_ROT_MEAN_USING_STAT
             inferACG(mean, _r);
 #else
             mean = _topR;
 #endif
+            ***/
 
             dvec4 quat;
 
@@ -1009,7 +1013,7 @@ void Particle::calVari(const ParticleType pt)
                 _r.row(i) = quat.transpose();
             }
 
-            // symmetrise(); // TODO
+            symmetrise(); // TODO
 
             inferACG(_k1, _k2, _k3, _r);
 
@@ -1137,7 +1141,7 @@ void Particle::perturb(const double pf,
                 _r.row(i) = quat.transpose();
             }
 
-            // symmetrise();
+            symmetrise();
 
             for (int i = 0; i < _nR; i++)
             {
