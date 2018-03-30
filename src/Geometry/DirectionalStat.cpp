@@ -171,9 +171,9 @@ void inferACG(double& k1,
 
 #ifndef NAN_NO_CHECK
 
-    if (gsl_isnan(k1)) { REPORT_ERROR("NAN DETECTED"); abort() };
-    if (gsl_isnan(k2)) { REPORT_ERROR("NAN DETECTED"); abort() };
-    if (gsl_isnan(k3)) { REPORT_ERROR("NAN DETECTED"); abort() };
+    if (gsl_isnan(k1)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+    if (gsl_isnan(k2)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+    if (gsl_isnan(k3)) { REPORT_ERROR("NAN DETECTED"); abort(); };
 
 #endif
 
