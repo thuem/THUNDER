@@ -1446,6 +1446,7 @@ void Optimiser::expectation()
 
             if (_searchType == SEARCH_TYPE_CTF)
             {
+                _par[l].calRank1st(PAR_D);
                 _par[l].calVari(PAR_D);
                 _par[l].resample(_para.mLD, PAR_D);
             }

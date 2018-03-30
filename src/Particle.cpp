@@ -1172,7 +1172,7 @@ void Particle::perturb(const double pf,
                 _r.row(i) = quat.transpose();
             }
 
-            // symmetrise(); // TODO
+            symmetrise();
 
             for (int i = 0; i < _nR; i++)
             {
