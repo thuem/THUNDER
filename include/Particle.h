@@ -47,7 +47,7 @@
 
 #define PEAK_FACTOR_C (1 - 1e-2)
 
-#define PEAK_FACTOR_BASE 5
+#define PEAK_FACTOR_BASE 2
 
 #define INIT_OUTSIDE_CONFIDENCE_AREA 0.5
 
