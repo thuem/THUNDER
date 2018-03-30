@@ -153,8 +153,9 @@ void inferACG(double& k0,
 
     //ev = ev.cwiseAbs();
     
-    k0 = eigenSolver.eigenvalues().maxCoeff();
-    k1 = eigenSolver.eigenvalues().minCoeff();
+    uvec s = d_index_sort_descend(eigenSolver.eigenvalues());
+    k0 = eigenSolver.eigenvalues()(s[0]);
+    k1 = eigenSolver.eigenvalues()(s[1]);
 }
 
 void inferACG(double& k,
@@ -168,9 +169,11 @@ void inferACG(double& k,
 
 #ifndef NAN_NO_CHECK
     if (gsl_isnan(k)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+    if (k < 0) { REPORT_ERROR("K < 0"); abort(); };
 #endif
 
 }
+
 void inferACG(double& k1,
               double& k2,
               double& k3,

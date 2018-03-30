@@ -25,6 +25,7 @@
 #include "Macro.h"
 #include "Typedef.h"
 #include "Random.h"
+#include "Functions.h"
 
 /**
  * Probabilty Density Function of Angular Central Gaussian Distribution
