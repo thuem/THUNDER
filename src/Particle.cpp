@@ -992,15 +992,13 @@ void Particle::calVari(const ParticleType pt)
         {
             dvec4 mean;
 
-            inferACG(mean, _r);
+            // inferACG(mean, _r);
 
-            /***
 #ifdef PARTICLE_ROT_MEAN_USING_STAT
             inferACG(mean, _r);
 #else
             mean = _topR;
 #endif
-            ***/
 
             dvec4 quat;
 
@@ -1015,7 +1013,12 @@ void Particle::calVari(const ParticleType pt)
 
             symmetrise(); // TODO
 
-            inferACG(_k1, _k2, _k3, _r);
+            //inferACG(_k1, _k2, _k3, _r);
+
+            inferACG(_k1, _r);
+
+            _k2 = _k1;
+            _k3 = _k1;
 
             for (int i = 0; i < _nR; i++)
             {

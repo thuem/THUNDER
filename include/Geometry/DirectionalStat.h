@@ -125,6 +125,9 @@ void inferACG(double& k0,
               double& k1,
               const dmat4& src);
 
+void inferACG(double& k,
+              const dmat4& src);
+
 void inferACG(double& k1,
               double& k2,
               double& k3,

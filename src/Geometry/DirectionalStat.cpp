@@ -157,6 +157,20 @@ void inferACG(double& k0,
     k1 = eigenSolver.eigenvalues().minCoeff();
 }
 
+void inferACG(double& k,
+              const dmat4& src)
+{
+    double k0, k1;
+
+    inferACG(k0, k1, src);
+
+    k = k1 / k0;
+
+#ifndef NAN_NO_CHECK
+    if (gsl_isnan(k)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+#endif
+
+}
 void inferACG(double& k1,
               double& k2,
               double& k3,
