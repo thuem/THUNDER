@@ -1435,6 +1435,9 @@ void Optimiser::expectation()
             }
 #endif
 
+            _par[l].calRank1st(PAR_R);
+            _par[l].calRank1st(PAR_T);
+
             _par[l].calVari(PAR_R);
             _par[l].calVari(PAR_T);
 
