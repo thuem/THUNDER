@@ -454,7 +454,7 @@ void Particle::load(const int nR,
 
     //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
 
-    if (_mode == MODE_3D) symmetrise();
+    if (_mode == MODE_3D) symmetrise(&_topR);
     
     for (int i = 0; i < _nR; i++)
     {
@@ -1001,11 +1001,10 @@ void Particle::calVari(const ParticleType pt)
 
             dvec4 mean;
 
-            // dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nR)).transpose();
-
-            dvec4 anch = _topR;
-
             dvec4 quat;
+
+            /***
+            dvec4 anch = _topR;
 
             for (int i = 0; i < _nR; i++)
             {
@@ -1015,8 +1014,9 @@ void Particle::calVari(const ParticleType pt)
 
                 _r.row(i) = quat.transpose();
             }
+            ***/
 
-            symmetrise();
+            symmetrise(&_topR);
 
 #ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
 
@@ -1048,6 +1048,7 @@ void Particle::calVari(const ParticleType pt)
 
 #endif
 
+            /***
             for (int i = 0; i < _nR; i++)
             {
                 quat = _r.row(i).transpose();
@@ -1056,6 +1057,7 @@ void Particle::calVari(const ParticleType pt)
 
                 _r.row(i) = quat.transpose();
             }
+            ***/
         }
         else
         {
@@ -1172,8 +1174,6 @@ void Particle::perturb(const double pf,
                 _r.row(i) = quat.transpose();
             }
 
-            symmetrise();
-
             for (int i = 0; i < _nR; i++)
             {
                 quat = _r.row(i).transpose();
@@ -1182,6 +1182,8 @@ void Particle::perturb(const double pf,
 
                 _r.row(i) = quat.transpose();
             }
+
+            symmetrise(&mean);
         }
         else
         {
@@ -2361,7 +2363,7 @@ Particle Particle::copy() const
     return that;
 }
 
-void Particle::symmetrise()
+void Particle::symmetrise(const dvec4* anchor)
 {
     if (_sym == NULL) return;
 
@@ -2381,7 +2383,7 @@ void Particle::symmetrise()
 
         // quaternion_mul(quat, quaternion_conj(mean), quat);
 
-        symmetryCounterpart(quat, *_sym);
+        symmetryCounterpart(quat, *_sym, anchor);
 
         // quaternion_mul(quat, mean, quat);
 

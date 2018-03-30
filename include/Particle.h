@@ -1126,7 +1126,7 @@ class Particle
          * according to the symmetry information. This operation will be only
          * performed in 3D mode.
          */
-        void symmetrise();
+        void symmetrise(const dvec4* anchor = NULL);
 
         /**
          * This function re-centres in the translation of the particles in this
