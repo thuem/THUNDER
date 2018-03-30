@@ -156,6 +156,11 @@ void inferACG(double& k0,
     uvec s = d_index_sort_descend(eigenSolver.eigenvalues());
     k0 = eigenSolver.eigenvalues()(s[0]);
     k1 = eigenSolver.eigenvalues()(s[1]);
+
+#ifndef NAN_NO_CHECK
+    if (k0 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K0 = " << k0; abort(); };
+    if (k1 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K1 = " << k1; abort(); };
+#endif
 }
 
 void inferACG(double& k,
@@ -169,9 +174,7 @@ void inferACG(double& k,
 
 #ifndef NAN_NO_CHECK
     if (gsl_isnan(k)) { REPORT_ERROR("NAN DETECTED"); abort(); };
-    if (k < 0) { REPORT_ERROR("K < 0"); abort(); };
 #endif
-
 }
 
 void inferACG(double& k1,
