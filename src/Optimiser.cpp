@@ -4133,6 +4133,15 @@ void Optimiser::allReduceSigma(const bool mask,
     for (int i = rSig; i < _sig.cols() - 1; i++)
         _sig.col(i) = _sig.col(rSig - 1);
 
+    if (!mask)
+    {
+#ifdef OPTIMISER_SIGMA_CORE
+        RFLOAT ratio = M_PI * gsl_pow_2(_para.maskRadius / _para.pixelSize) / gsl_pow_2(_para.size);
+
+        _sig.array() *= ratio;
+#endif
+    }
+
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < rSig; j++)
