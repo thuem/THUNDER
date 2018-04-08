@@ -4138,7 +4138,7 @@ void Optimiser::allReduceSigma(const bool mask,
 #ifdef OPTIMISER_SIGMA_CORE
         RFLOAT ratio = M_PI * gsl_pow_2(_para.maskRadius / _para.pixelSize) / gsl_pow_2(_para.size);
 
-        _sig.array() *= ratio;
+        _sig.array() *= gsl_pow_2(ratio);
 #endif
     }
 
