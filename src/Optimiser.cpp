@@ -4089,7 +4089,6 @@ void Optimiser::allReduceSigma(const bool mask,
             ADD_FT(imgM, _img[l]);
             ADD_FT(imgN, _imgOri[l]);
 
-            /***
             powerSpectrum(sigM, imgM, rSig);
             powerSpectrum(sigN, imgN, rSig);
 
@@ -4117,7 +4116,6 @@ void Optimiser::allReduceSigma(const bool mask,
 
                 omp_unset_lock(&mtx[0]);
             }
-            ***/
         }
     }
 
