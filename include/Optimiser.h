@@ -846,8 +846,14 @@ class Optimiser : public Parallel
          *
          * @param group grouping or not
          */
+
+        void allReduceSigma(const bool mask);
+            
+        /***
         void allReduceSigma(const bool mask,
                             const bool group);
+        ***/
+
         /**
          * reconstruct reference
          */

@@ -517,6 +517,8 @@ void Optimiser::init()
             ALOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
             BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
 
+            allReduceSigma(false);
+            /***
             if (_para.k == 1)
             {
 #ifdef OPTIMISER_SIGMA_MASK
@@ -535,6 +537,7 @@ void Optimiser::init()
                 allReduceSigma(false, false);
 #endif
             }
+            ***/
         }
     }
 
@@ -1674,6 +1677,9 @@ void Optimiser::maximization()
     ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
     BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
 
+    allReduceSigma(_para.groupSig);
+
+    /***
     if (_para.k == 1)
     {
 #ifdef OPTIMISER_SIGMA_MASK
@@ -1696,6 +1702,7 @@ void Optimiser::maximization()
 #endif
 #endif
     }
+    ***/
 #endif
 
 #ifdef OPTIMISER_CORRECT_SCALE
@@ -3939,8 +3946,11 @@ void Optimiser::normCorrection()
     }
 }
 
+void Optimiser::allReduceSigma(const bool group)
+/***
 void Optimiser::allReduceSigma(const bool mask,
                                const bool group)
+***/
 {
     IF_MASTER return;
 
@@ -3956,6 +3966,9 @@ void Optimiser::allReduceSigma(const bool mask,
     // set re-calculating part to zero
     _sig.leftCols(rSig).setZero();
     _sig.rightCols(1).setZero();
+
+    mat sigM = _sig; // masked sigma
+    mat sigN = _sig; // no-masked sigma
 
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
@@ -3995,11 +4008,14 @@ void Optimiser::allReduceSigma(const bool mask,
             RFLOAT w = 1;
 #endif
 
-            Image img(size(), size(), FT_SPACE);
+            Image imgM(size(), size(), FT_SPACE);
+            Image imgN(size(), size(), FT_SPACE);
 
-            SET_0_FT(img);
+            SET_0_FT(imgM);
+            SET_0_FT(imgN);
 
-            vec sig(rSig);
+            vec sigM(rSig);
+            vec sigN(rSig);
 
             if (_para.mode == MODE_2D)
             {
@@ -4010,12 +4026,11 @@ void Optimiser::allReduceSigma(const bool mask,
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                if (mask)
-                    _model.proj(cls).project(img, rot2D, tran);
-                else
-                    _model.proj(cls).project(img, rot2D, tran - _offset[l]);
+                 _model.proj(cls).project(imgM, rot2D, tran);
+                 _model.proj(cls).project(imgN, rot2D, tran - _offset[l]);
 #else
-                _model.proj(cls).project(img, rot2D, tran);
+                _model.proj(cls).project(imgM, rot2D, tran);
+                _model.proj(cls).project(imgN, rot2D, tran);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -4027,19 +4042,20 @@ void Optimiser::allReduceSigma(const bool mask,
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                if (mask)
-                    _model.proj(cls).project(img, rot3D, tran);
-                else
-                    _model.proj(cls).project(img, rot3D, tran - _offset[l]);
+                _model.proj(cls).project(imgM, rot3D, tran);
+                _model.proj(cls).project(imgN, rot3D, tran - _offset[l]);
 #else
-                _model.proj(cls).project(img, rot3D, tran);
+                _model.proj(cls).project(imgM, rot3D, tran);
+                _model.proj(cls).project(imgN, rot3D, tran);
 #endif
             }
 
             if (_searchType != SEARCH_TYPE_CTF)
             {
-                FOR_EACH_PIXEL_FT(img)
-                    img[i] *= REAL(_ctf[l][i]);
+                FOR_EACH_PIXEL_FT(imgM)
+                    imgM[i] *= REAL(_ctf[l][i]);
+                FOR_EACH_PIXEL_FT(imgN)
+                    imgN[i] *= REAL(_ctf[l][i]);
             }
             else
             {
@@ -4054,26 +4070,30 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].amplitudeContrast,
                     _ctfAttr[l].phaseShift);
 
-                FOR_EACH_PIXEL_FT(img)
-                    img[i] *= REAL(ctf[i]);
+                FOR_EACH_PIXEL_FT(imgM)
+                    imgM[i] *= REAL(ctf[i]);
+                FOR_EACH_PIXEL_FT(imgN)
+                    imgN[i] *= REAL(ctf[i]);
             }
 
-            NEG_FT(img);
+            NEG_FT(imgM);
+            NEG_FT(imgN);
 
-            if (mask)
-                ADD_FT(img, _img[l]);
-            else
-                ADD_FT(img, _imgOri[l]);
+            ADD_FT(imgM, _img[l]);
+            ADD_FT(imgN, _imgOri[l]);
 
-            powerSpectrum(sig, img, rSig);
+            powerSpectrum(sigM, imgM, rSig);
+            powerSpectrum(sigN, imgN, rSig);
 
             if (group)
             {
                 omp_set_lock(&mtx[_groupID[l] - 1]);
 
-                _sig.row(_groupID[l] - 1).head(rSig) += w * sig.transpose() / 2;
+                sigM.row(_groupID[l] - 1).head(rSig) += w * sigM.transpose() / 2;
+                sigM(_groupID[l] - 1, _sig.cols() - 1) += w;
 
-                _sig(_groupID[l] - 1, _sig.cols() - 1) += w;
+                sigN.row(_groupID[l] - 1).head(rSig) += w * sigN.transpose() / 2;
+                sigN(_groupID[l] - 1, _sig.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[_groupID[l] - 1]);
             }
@@ -4081,9 +4101,11 @@ void Optimiser::allReduceSigma(const bool mask,
             {
                 omp_set_lock(&mtx[0]);
 
-                _sig.row(0).head(rSig) += w * sig.transpose() / 2;
+                sigM.row(0).head(rSig) += w * sigM.transpose() / 2;
+                sigM(0, _sig.cols() - 1) += w;
 
-                _sig(0, _sig.cols() - 1) += w;
+                sigN.row(0).head(rSig) += w * sigN.transpose() / 2;
+                sigN(0, _sig.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[0]);
             }
@@ -4097,16 +4119,29 @@ void Optimiser::allReduceSigma(const bool mask,
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
-    
     MPI_Allreduce(MPI_IN_PLACE,
-                  _sig.data(),
+                  sigM.data(),
                   rSig * _nGroup,
                   TS_MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  _sig.col(_sig.cols() - 1).data(),
+                  sigM.col(_sig.cols() - 1).data(),
+                  _nGroup,
+                  TS_MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  sigN.data(),
+                  rSig * _nGroup,
+                  TS_MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  sigN.col(_sig.cols() - 1).data(),
                   _nGroup,
                   TS_MPI_DOUBLE,
                   MPI_SUM,
@@ -4118,21 +4153,41 @@ void Optimiser::allReduceSigma(const bool mask,
     {
         #pragma omp parallel for
         for (int i = 0; i < _sig.rows(); i++)
-            _sig.row(i).head(rSig) /= _sig(i, _sig.cols() - 1);
+        {
+            sigM.row(i).head(rSig) /= sigM(i, _sig.cols() - 1);
+            sigN.row(i).head(rSig) /= sigN(i, _sig.cols() - 1);
+        }
     }
     else
     {
-        _sig.row(0).head(rSig) /= _sig(0, _sig.cols() - 1);
+        sigM.row(0).head(rSig) /= sigM(0, _sig.cols() - 1);
+        sigN.row(0).head(rSig) /= sigN(0, _sig.cols() - 1);
 
         #pragma omp parallel for
         for (int i = 1; i < _sig.rows(); i++)
-            _sig.row(i).head(rSig) = _sig.row(0).head(rSig);
+        {
+            sigM.row(i).head(rSig) = sigM.row(0).head(rSig);
+            sigN.row(i).head(rSig) = sigN.row(0).head(rSig);
+        }
     }
 
     #pragma omp parallel for
     for (int i = rSig; i < _sig.cols() - 1; i++)
-        _sig.col(i) = _sig.col(rSig - 1);
+    {
+        sigM.col(i) = sigM.col(rSig - 1);
+        sigN.col(i) = sigN.col(rSig - 1);
+    }
 
+    #pragma omp parallel for
+    for (int i = 0; i < _nGroup; i++)
+        for (int j = 0; j < rSig; j++)
+        {
+            RFLOAT ratio = (j == 0) ? 1 : 0.5 / j;
+
+            _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * sigN(i, j);
+        }
+
+    /***
     if (!mask)
     {
 #ifdef OPTIMISER_SIGMA_CORE
@@ -4141,6 +4196,7 @@ void Optimiser::allReduceSigma(const bool mask,
         _sig.array() *= gsl_pow_2(ratio);
 #endif
     }
+    ***/
 
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
