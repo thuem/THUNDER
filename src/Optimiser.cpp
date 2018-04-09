@@ -3971,8 +3971,11 @@ void Optimiser::allReduceSigma(const bool mask,
     _sig.leftCols(rSig).setZero();
     _sig.rightCols(1).setZero();
 
-    mat sigM = _sig; // masked sigma
-    mat sigN = _sig; // no-masked sigma
+    // mat sigM = _sig; // masked sigma
+    // mat sigN = _sig; // no-masked sigma
+
+    mat sigM = mat::Zero(_sig.rows(), _sig.cols()); // masked sigma
+    mat sigN = mat::Zero(_sig.rows(), _sig.cols()); // no-masked sigma
 
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
@@ -4086,6 +4089,7 @@ void Optimiser::allReduceSigma(const bool mask,
             ADD_FT(imgM, _img[l]);
             ADD_FT(imgN, _imgOri[l]);
 
+            /***
             powerSpectrum(sigM, imgM, rSig);
             powerSpectrum(sigN, imgN, rSig);
 
@@ -4113,6 +4117,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
                 omp_unset_lock(&mtx[0]);
             }
+            ***/
         }
     }
 
@@ -4120,6 +4125,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
     MPI_Barrier(_hemi);
 
+    /***
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
@@ -4181,6 +4187,7 @@ void Optimiser::allReduceSigma(const bool mask,
         sigM.col(i) = sigM.col(rSig - 1);
         sigN.col(i) = sigN.col(rSig - 1);
     }
+    ***/
 
     /***
     #pragma omp parallel for
