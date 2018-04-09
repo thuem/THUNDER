@@ -4021,8 +4021,8 @@ void Optimiser::allReduceSigma(const bool mask,
             SET_0_FT(imgM);
             SET_0_FT(imgN);
 
-            vec sigM(rSig);
-            vec sigN(rSig);
+            vec vSigM(rSig);
+            vec vSigN(rSig);
 
             if (_para.mode == MODE_2D)
             {
@@ -4089,36 +4089,32 @@ void Optimiser::allReduceSigma(const bool mask,
             ADD_FT(imgM, _img[l]);
             ADD_FT(imgN, _imgOri[l]);
 
-            powerSpectrum(sigM, imgM, rSig);
-            powerSpectrum(sigN, imgN, rSig);
+            powerSpectrum(vSigM, imgM, rSig);
+            powerSpectrum(vSigN, imgN, rSig);
 
             if (group)
             {
                 omp_set_lock(&mtx[_groupID[l] - 1]);
 
-                sigM.row(_groupID[l] - 1).head(rSig) += w * sigM.transpose() / 2;
-                /***
+                sigM.row(_groupID[l] - 1).head(rSig) += w * vSigM.transpose() / 2;
                 sigM(_groupID[l] - 1, sigM.cols() - 1) += w;
 
-                sigN.row(_groupID[l] - 1).head(rSig) += w * sigN.transpose() / 2;
+                sigN.row(_groupID[l] - 1).head(rSig) += w * vSigN.transpose() / 2;
                 sigN(_groupID[l] - 1, sigN.cols() - 1) += w;
-                ***/
 
                 omp_unset_lock(&mtx[_groupID[l] - 1]);
             }
             else
             {
-                /***
                 omp_set_lock(&mtx[0]);
 
-                sigM.row(0).head(rSig) += w * sigM.transpose() / 2;
+                sigM.row(0).head(rSig) += w * vSigM.transpose() / 2;
                 sigM(0, sigM.cols() - 1) += w;
 
-                sigN.row(0).head(rSig) += w * sigN.transpose() / 2;
+                sigN.row(0).head(rSig) += w * vSigN.transpose() / 2;
                 sigN(0, sigN.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[0]);
-                ***/
             }
         }
     }
@@ -4127,7 +4123,6 @@ void Optimiser::allReduceSigma(const bool mask,
 
     MPI_Barrier(_hemi);
 
-    /***
     ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
     BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
 
@@ -4189,7 +4184,6 @@ void Optimiser::allReduceSigma(const bool mask,
         sigM.col(i) = sigM.col(rSig - 1);
         sigN.col(i) = sigN.col(rSig - 1);
     }
-    ***/
 
     /***
     #pragma omp parallel for
