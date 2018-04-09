@@ -4092,6 +4092,7 @@ void Optimiser::allReduceSigma(const bool mask,
             powerSpectrum(sigM, imgM, rSig);
             powerSpectrum(sigN, imgN, rSig);
 
+            /***
             if (group)
             {
                 omp_set_lock(&mtx[_groupID[l] - 1]);
@@ -4116,6 +4117,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
                 omp_unset_lock(&mtx[0]);
             }
+            ***/
         }
     }
 
