@@ -4182,14 +4182,16 @@ void Optimiser::allReduceSigma(const bool mask,
         sigN.col(i) = sigN.col(rSig - 1);
     }
 
+    /***
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
-        for (int j = 0; j < rSig; j++)
+        for (int j = 0; j < _sig.cols() - 1; j++)
         {
             RFLOAT ratio = (j == 0) ? 1 : 0.5 / j;
 
             _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * sigN(i, j);
         }
+    ***/
 
     /***
     if (!mask)
@@ -4202,10 +4204,12 @@ void Optimiser::allReduceSigma(const bool mask,
     }
     ***/
 
+    /***
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < rSig; j++)
             _sigRcp(i, j) = -0.5 / _sig(i, j);
+    ***/
 }
 
 void Optimiser::reconstructRef(const bool fscFlag,
