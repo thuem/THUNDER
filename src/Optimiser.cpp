@@ -2919,11 +2919,15 @@ void Optimiser::initSigma()
     {
         vec ps(maxR());
 
+        powerSpectrum(ps, _imgOri[l], maxR());
+
+        /***
 #ifdef OPTIMISER_SIGMA_MASK
         powerSpectrum(ps, _img[l], maxR());
 #else
         powerSpectrum(ps, _imgOri[l], maxR());
 #endif
+        ***/
 
         #pragma omp critical  (line2742)
         avgPs += ps;
@@ -4029,8 +4033,8 @@ void Optimiser::allReduceSigma(const bool mask,
                  _model.proj(cls).project(imgM, rot2D, tran);
                  _model.proj(cls).project(imgN, rot2D, tran - _offset[l]);
 #else
-                _model.proj(cls).project(imgM, rot2D, tran);
-                _model.proj(cls).project(imgN, rot2D, tran);
+                 _model.proj(cls).project(imgM, rot2D, tran);
+                 _model.proj(cls).project(imgN, rot2D, tran);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -4090,10 +4094,10 @@ void Optimiser::allReduceSigma(const bool mask,
                 omp_set_lock(&mtx[_groupID[l] - 1]);
 
                 sigM.row(_groupID[l] - 1).head(rSig) += w * sigM.transpose() / 2;
-                sigM(_groupID[l] - 1, _sig.cols() - 1) += w;
+                sigM(_groupID[l] - 1, sigM.cols() - 1) += w;
 
                 sigN.row(_groupID[l] - 1).head(rSig) += w * sigN.transpose() / 2;
-                sigN(_groupID[l] - 1, _sig.cols() - 1) += w;
+                sigN(_groupID[l] - 1, sigN.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[_groupID[l] - 1]);
             }
@@ -4102,10 +4106,10 @@ void Optimiser::allReduceSigma(const bool mask,
                 omp_set_lock(&mtx[0]);
 
                 sigM.row(0).head(rSig) += w * sigM.transpose() / 2;
-                sigM(0, _sig.cols() - 1) += w;
+                sigM(0, sigM.cols() - 1) += w;
 
                 sigN.row(0).head(rSig) += w * sigN.transpose() / 2;
-                sigN(0, _sig.cols() - 1) += w;
+                sigN(0, sigN.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[0]);
             }
@@ -4127,7 +4131,7 @@ void Optimiser::allReduceSigma(const bool mask,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  sigM.col(_sig.cols() - 1).data(),
+                  sigM.col(sigM.cols() - 1).data(),
                   _nGroup,
                   TS_MPI_DOUBLE,
                   MPI_SUM,
@@ -4141,7 +4145,7 @@ void Optimiser::allReduceSigma(const bool mask,
                   _hemi);
 
     MPI_Allreduce(MPI_IN_PLACE,
-                  sigN.col(_sig.cols() - 1).data(),
+                  sigN.col(sigN.cols() - 1).data(),
                   _nGroup,
                   TS_MPI_DOUBLE,
                   MPI_SUM,
@@ -4154,14 +4158,14 @@ void Optimiser::allReduceSigma(const bool mask,
         #pragma omp parallel for
         for (int i = 0; i < _sig.rows(); i++)
         {
-            sigM.row(i).head(rSig) /= sigM(i, _sig.cols() - 1);
-            sigN.row(i).head(rSig) /= sigN(i, _sig.cols() - 1);
+            sigM.row(i).head(rSig) /= sigM(i, sigM.cols() - 1);
+            sigN.row(i).head(rSig) /= sigN(i, sigN.cols() - 1);
         }
     }
     else
     {
-        sigM.row(0).head(rSig) /= sigM(0, _sig.cols() - 1);
-        sigN.row(0).head(rSig) /= sigN(0, _sig.cols() - 1);
+        sigM.row(0).head(rSig) /= sigM(0, sigM.cols() - 1);
+        sigN.row(0).head(rSig) /= sigN(0, sigN.cols() - 1);
 
         #pragma omp parallel for
         for (int i = 1; i < _sig.rows(); i++)
