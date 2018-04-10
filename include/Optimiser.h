@@ -522,6 +522,12 @@ class Optimiser : public Parallel
         vector<int> _nP;
 
         /**
+         * Each row stands for power spectrum of signal VS power spectrum of data of a certain group, thus
+         * the size of this matrix is _nGroup x (maxR() + 1)
+         */
+        mat _svd;
+
+        /**
          * Each row stands for sigma^2 of a certain group, thus the size of this
          * matrix is _nGroup x (maxR() + 1)
          */

@@ -2207,6 +2207,8 @@ void Optimiser::bcastGroupInfo()
     {
         _sig.resize(_nGroup, maxR() + 1);
         _sigRcp.resize(_nGroup, maxR());
+
+        _svd.resize(_nGroup, maxR() + 1);
     }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Up Space for Storing Intensity Scale";
@@ -3977,6 +3979,9 @@ void Optimiser::allReduceSigma(const bool mask,
     mat sigM = mat::Zero(_sig.rows(), _sig.cols()); // masked sigma
     mat sigN = mat::Zero(_sig.rows(), _sig.cols()); // no-masked sigma
 
+    _svd.leftCols(rSig).setZero();
+    _svd.rightCols(1).setZero();
+
     ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
     BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
 
@@ -4023,6 +4028,9 @@ void Optimiser::allReduceSigma(const bool mask,
 
             vec vSigM(rSig);
             vec vSigN(rSig);
+
+            vec sSVD(rSig);
+            vec dSVD(rSig);
 
             if (_para.mode == MODE_2D)
             {
@@ -4083,6 +4091,9 @@ void Optimiser::allReduceSigma(const bool mask,
                     imgN[i] *= REAL(ctf[i]);
             }
 
+            powerSpectrum(sSVD, imgM, rSig);
+            powerSpectrum(dSVD, _img[l], rSig);
+
             NEG_FT(imgM);
             NEG_FT(imgN);
 
@@ -4102,6 +4113,10 @@ void Optimiser::allReduceSigma(const bool mask,
                 sigN.row(_groupID[l] - 1).head(rSig) += w * vSigN.transpose() / 2;
                 sigN(_groupID[l] - 1, sigN.cols() - 1) += w;
 
+                for (int i = 0; i < rSig; i++)
+                    _svd(_groupID[l] - 1, i) += w * sSVD(i) / dSVD(i);
+                _svd(_groupID[l] - 1, _svd.cols() - 1) += w;
+
                 omp_unset_lock(&mtx[_groupID[l] - 1]);
             }
             else
@@ -4113,6 +4128,10 @@ void Optimiser::allReduceSigma(const bool mask,
 
                 sigN.row(0).head(rSig) += w * vSigN.transpose() / 2;
                 sigN(0, sigN.cols() - 1) += w;
+
+                for (int i = 0; i < rSig; i++)
+                    _svd(0, i) += w * sSVD(i) / dSVD(i);
+                _svd(0, _svd.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[0]);
             }
@@ -4154,6 +4173,20 @@ void Optimiser::allReduceSigma(const bool mask,
                   MPI_SUM,
                   _hemi);
 
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _svd.data(),
+                  rSig * _nGroup,
+                  TS_MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  _svd.col(_svd.cols() - 1).data(),
+                  _nGroup,
+                  TS_MPI_DOUBLE,
+                  MPI_SUM,
+                  _hemi);
+
     MPI_Barrier(_hemi);
 
     if (group)
@@ -4163,18 +4196,21 @@ void Optimiser::allReduceSigma(const bool mask,
         {
             sigM.row(i).head(rSig) /= sigM(i, sigM.cols() - 1);
             sigN.row(i).head(rSig) /= sigN(i, sigN.cols() - 1);
+            _svd.row(i).head(rSig) /= _svd(i, _svd.cols() - 1);
         }
     }
     else
     {
         sigM.row(0).head(rSig) /= sigM(0, sigM.cols() - 1);
         sigN.row(0).head(rSig) /= sigN(0, sigN.cols() - 1);
+        _svd.row(0).head(rSig) /= _svd(0, _svd.cols() - 1);
 
         #pragma omp parallel for
         for (int i = 1; i < _sig.rows(); i++)
         {
             sigM.row(i).head(rSig) = sigM.row(0).head(rSig);
             sigN.row(i).head(rSig) = sigN.row(0).head(rSig);
+            _svd.row(i).head(rSig) = _svd.row(0).head(rSig);
         }
     }
 
@@ -4183,16 +4219,19 @@ void Optimiser::allReduceSigma(const bool mask,
     {
         sigM.col(i) = sigM.col(rSig - 1);
         sigN.col(i) = sigN.col(rSig - 1);
+        _svd.col(i) = _svd.col(rSig - 1);
     }
 
+    /***
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < _sig.cols() - 1; j++)
         {
-            RFLOAT ratio = (j == 0) ? 1 : 0.5 / j;
+            RFLOAT ratio = (j < _model.rU()) : _model.fsc
 
             _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * sigN(i, j);
         }
+    ***/
 
     /***
     if (!mask)
@@ -5742,6 +5781,22 @@ void Optimiser::saveSig() const
                 i,
                 1.0 / resP2A(i, _para.size, _para.pixelSize),
                 _sig(_groupID[0] - 1, i));
+
+    fclose(file);
+
+    if (_commRank == HEMI_A_LEAD)
+        sprintf(filename, "%sSVD_A_Round_%03d.txt", _para.dstPrefix, _iter);
+    else
+        sprintf(filename, "%sSVD_B_Round_%03d.txt", _para.dstPrefix, _iter);
+
+    file = fopen(filename, "w");
+
+    for (int i = 0; i < maxR(); i++)
+        fprintf(file,
+                "%05d   %10.6lf   %10.6lf\n",
+                i,
+                1.0 / resP2A(i, _para.size, _para.pixelSize),
+                _svd(_groupID[0] - 1, i));
 
     fclose(file);
 }
