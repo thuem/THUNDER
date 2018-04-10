@@ -281,6 +281,26 @@ void translateMT(Image& dst,
         }
 }
 
+void translateMT(Volume& dst,
+                 const Volume& src,
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
+                 const RFLOAT nTransSlc)
+{
+    RFLOAT rCol = nTransCol / src.nColRL();
+    RFLOAT rRow = nTransRow / src.nRowRL();
+    RFLOAT rSlc = nTransSlc / src.nSlcRL();
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(src)
+        if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
+        {
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
+            dst.setFTHalf(src.getFTHalf(i, j, k) * COMPLEX_POLAR(-phase), i, j, k);
+        }
+}
+
 void translate(Image& dst,
                const Image& src,
                const RFLOAT nTransCol,

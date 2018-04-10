@@ -440,6 +440,13 @@ void translateMT(Image& dst,
                  const RFLOAT nTransCol,
                  const RFLOAT nTransRow);
 
+void translateMT(Volume& dst,
+                 const Volume& src,
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
+                 const RFLOAT nTransSlc);
+
 void translate(Image& dst,
                const Image& src,
                const RFLOAT nTransCol,
