@@ -4222,13 +4222,17 @@ void Optimiser::allReduceSigma(const bool mask,
         _svd.col(i) = _svd.col(rSig - 1);
     }
 
+    RFLOAT alpha = sqrt(M_PI * gsl_pow_2(_para.maskRadius / (_para.size * _para.pixelSize)));
+    
+    ALOG(INFO, "LOGGER_SYS") << "alpha = " << alpha;
+
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < _sig.cols() - 1; j++)
         {
             RFLOAT ratio = GSL_MIN_DBL(1, _svd(i, j));
 
-            _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * (M_PI / 4) * sigN(i, j);
+            _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * alpha * sigN(i, j);
         }
 
     /***
