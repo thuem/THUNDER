@@ -277,7 +277,7 @@ void translateMT(Image& dst,
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
             RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
-            dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
+            dst.setFTHalf(src.getFTHalf(i, j) * COMPLEX_POLAR(-phase), i, j);
         }
 }
 
