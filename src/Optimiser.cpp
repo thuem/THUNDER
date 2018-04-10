@@ -4114,7 +4114,7 @@ void Optimiser::allReduceSigma(const bool mask,
                 sigN(_groupID[l] - 1, sigN.cols() - 1) += w;
 
                 for (int i = 0; i < rSig; i++)
-                    _svd(_groupID[l] - 1, i) += w * sSVD(i) / dSVD(i);
+                    _svd(_groupID[l] - 1, i) += w * sqrt(sSVD(i) / dSVD(i));
                 _svd(_groupID[l] - 1, _svd.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[_groupID[l] - 1]);
