@@ -4754,11 +4754,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 if (_para.mode == MODE_2D)
                 {
-                    // TODO
+                    Image img(_para.size, _para.size, FT_SPACE);
+
+                    SLC_EXTRACT_FT(img, ref, 0);
+
+                    translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+
+                    SLC_REPLACE_FT(ref, img, 0);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    translateMT(ref, ref, -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                    translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
                 }
                 else
                 {
