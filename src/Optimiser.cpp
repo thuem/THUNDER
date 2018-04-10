@@ -4130,7 +4130,7 @@ void Optimiser::allReduceSigma(const bool mask,
                 sigN(0, sigN.cols() - 1) += w;
 
                 for (int i = 0; i < rSig; i++)
-                    _svd(0, i) += w * sSVD(i) / dSVD(i);
+                    _svd(0, i) += w * sqrt(sSVD(i) / dSVD(i));
                 _svd(0, _svd.cols() - 1) += w;
 
                 omp_unset_lock(&mtx[0]);
@@ -4228,7 +4228,7 @@ void Optimiser::allReduceSigma(const bool mask,
         {
             RFLOAT ratio = GSL_MIN_DBL(1, _svd(i, j));
 
-            _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * sigN(i, j);
+            _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * (M_PI / 4) * sigN(i, j);
         }
 
     /***
