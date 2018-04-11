@@ -440,8 +440,21 @@ void translateMT(Image& dst,
                  const RFLOAT nTransCol,
                  const RFLOAT nTransRow);
 
+void translateMT(const int ip,
+                 Image& img,
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow);
+
 void translateMT(Volume& dst,
                  const Volume& src,
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
+                 const RFLOAT nTransSlc);
+
+void tranlsateMT(const int ip,
+                 Volume& vol,
                  const RFLOAT r,
                  const RFLOAT nTransCol,
                  const RFLOAT nTransRow,

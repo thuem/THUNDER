@@ -281,6 +281,27 @@ void translateMT(Image& dst,
         }
 }
 
+void translateMT(const int ip,
+                 Image& img,
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow)
+{
+    if (ip != THUNDER_IN_PLACE) { REPORT_ERROR("THUNDER_IN_PLACE REQUIRED"); }
+
+    RFLOAT rCol = nTransCol / img.nColRL();
+    RFLOAT rRow = nTransRow / img.nRowRL();
+
+    #pragma omp parallel for schedule(dynamic)
+    IMAGE_FOR_EACH_PIXEL_FT(img)
+        if (QUAD(i, j) < TSGSL_pow_2(r))
+        {
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
+
+            img[img.iFTHalf(i, j)] *= COMPLEX_POLAR(-phase);
+        }
+}
+
 void translateMT(Volume& dst,
                  const Volume& src,
                  const RFLOAT r,
@@ -298,6 +319,29 @@ void translateMT(Volume& dst,
         {
             RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
             dst.setFTHalf(src.getFTHalf(i, j, k) * COMPLEX_POLAR(-phase), i, j, k);
+        }
+}
+
+void translateMT(const int ip,
+                 Volume& vol,
+                 const RFLOAT r,
+                 const RFLOAT nTransCol,
+                 const RFLOAT nTransRow,
+                 const RFLOAT nTransSlc)
+{
+    if (ip != THUNDER_IN_PLACE) { REPORT_ERROR("THUNDER_IN_PLACE REQUIRED"); }
+
+    RFLOAT rCol = nTransCol / vol.nColRL();
+    RFLOAT rRow = nTransRow / vol.nRowRL();
+    RFLOAT rSlc = nTransSlc / vol.nSlcRL();
+
+    #pragma omp parallel for schedule(dynamic)
+    VOLUME_FOR_EACH_PIXEL_FT(vol)
+        if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
+        {
+            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
+
+            vol[vol.iFTHalf(i, j, k)] *= COMPLEX_POLAR(-phase);
         }
 }
 
