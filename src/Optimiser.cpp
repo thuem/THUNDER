@@ -4600,7 +4600,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                    if (_sym.pgGroup() == PG_CN)
+                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
                 }
                 else
                 {
@@ -4752,6 +4753,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
+#ifdef VERBOSE_LEVEL_1
+                ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+#endif
+
                 if (_para.mode == MODE_2D)
                 {
                     Image img(_para.size, _para.size, FT_SPACE);
@@ -4764,7 +4770,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                    if (_sym.pgGroup() == PG_CN)
+                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
                 }
                 else
                 {
