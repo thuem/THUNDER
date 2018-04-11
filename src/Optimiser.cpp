@@ -4583,10 +4583,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
-#ifdef VERBOSE_LEVEL_1
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-#endif
 
                 if (_para.mode == MODE_2D)
                 {
@@ -4753,10 +4751,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
-#ifdef VERBOSE_LEVEL_1
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-#endif
 
                 if (_para.mode == MODE_2D)
                 {
