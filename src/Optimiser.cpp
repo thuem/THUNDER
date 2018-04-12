@@ -4232,7 +4232,8 @@ void Optimiser::allReduceSigma(const bool mask,
         {
             RFLOAT ratio = GSL_MIN_DBL(1, _svd(i, j));
 
-            _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * alpha * sigN(i, j);
+            // _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * alpha * sigN(i, j);
+            _sig(i, j) = (ratio * gsl_pow_2(alpha) + (1 - ratio) * alpha) * sigN(i, j);
         }
 
     /***
