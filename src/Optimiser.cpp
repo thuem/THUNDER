@@ -5100,6 +5100,8 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 
     IMAGE_FOR_PIXEL_R_FT(rU + 1)
     {
+        if ((i == 0) && (j < 0)) continue;
+
         RFLOAT u = QUAD(i, j);
 
         if ((u < rU2) && (u >= rL2))
