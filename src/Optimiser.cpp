@@ -1921,12 +1921,12 @@ void Optimiser::run()
             MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
 
             reCentreImg();
-        }
 
 #ifdef OPTIMISER_MASK_IMG
-        MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
-        reMaskImg();
+            MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+            reMaskImg();
 #endif
+        }
 
 #endif
 
