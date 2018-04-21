@@ -1841,15 +1841,18 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Database";
+        if (_para.saveTHUEachIter)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Saving Database";
  
-        saveDatabase();
+            saveDatabase();
 
 #ifdef VERBOSE_LEVEL_1
-        MPI_Barrier(MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Database Saved";
+            MLOG(INFO, "LOGGER_ROUND") << "Database Saved";
 #endif
+        }
 
         MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
 
@@ -2155,6 +2158,9 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final .thu File";
+    saveDatabase(true);
 }
 
 void Optimiser::clear()
@@ -4625,7 +4631,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
-        if (fscSave)
+        if (fscSave && (_para.saveRefEachIter || finished))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
@@ -4794,7 +4800,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
         }
 
 
-        if (avgSave)
+        if (avgSave && (_para.saveRefEachIter || finished))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
 
@@ -5247,12 +5253,16 @@ void Optimiser::freePreCal(const bool ctf)
     }
 }
 
-void Optimiser::saveDatabase() const
+void Optimiser::saveDatabase(const bool finished) const
 {
     IF_MASTER return;
 
     char filename[FILE_NAME_LENGTH];
-    sprintf(filename, "%sMeta_Round_%03d.thu", _para.dstPrefix, _iter);
+
+    if (finished)
+        sprintf(filename, "%sMeta_Round_Final.thu", _para.dstPrefix);
+    else
+        sprintf(filename, "%sMeta_Round_%03d.thu", _para.dstPrefix, _iter);
 
     bool flag;
     MPI_Status status;

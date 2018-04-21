@@ -380,6 +380,14 @@ struct OptimiserPara
      */
     bool skipR;
 
+#define KEY_SAVE_REF_EACH_ITER "Save Reference(s) Each Iteration"
+
+    bool saveRefEachIter;
+
+#define KEY_SAVE_THU_EACH_ITER "Save .thu File Each Iteration"
+
+    bool saveTHUEachIter;
+
     OptimiserPara()
     {
         nThreadsPerProcess = 1;
@@ -408,6 +416,8 @@ struct OptimiserPara
         skipE = false;
         skipM = false;
         skipR = false;
+        saveRefEachIter = true;
+        saveTHUEachIter = true;
     }
 };
 
@@ -888,7 +898,7 @@ class Optimiser : public Parallel
 
         void freePreCal(const bool ctf);
 
-        void saveDatabase() const;
+        void saveDatabase(const bool finished = false) const;
 
         /**
          * for debug, save the best projections
