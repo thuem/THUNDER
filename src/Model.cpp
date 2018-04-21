@@ -404,7 +404,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             {
                 vec fsc(_rU);
 
-                if ((_maskFSC) && (_mode == MODE_3D))
+                if ((_maskFSC || _coreFSC) && (_mode == MODE_3D))
                 {
                     FFT fft;
 
@@ -460,8 +460,20 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     Volume maskA(_size, _size, _size, RL_SPACE);
                     Volume maskB(_size, _size, _size, RL_SPACE);
 
-                    softMask(maskA, A, *_mask, 0);
-                    softMask(maskB, B, *_mask, 0);
+                    if (_maskFSC)
+                    {
+                        softMask(maskA, A, *_mask, 0);
+                        softMask(maskB, B, *_mask, 0);
+                    }
+                    else if (_coreFSC)
+                    {
+                        Volume mask(_size, _size, _size, RL_SPACE);
+
+                        softMask(mask, _coreR, EDGE_WIDTH_RL);
+
+                        softMask(maskA, A, mask, 0);
+                        softMask(maskB, B, mask, 0);
+                    }
 
                     fft.fwMT(maskA);
                     fft.fwMT(maskB);
@@ -490,6 +502,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     _FSC.col(l) = fsc;
                 }
+                /***
                 else if (_coreFSC && (_mode == MODE_3D))
                 {
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Core Region of Reference " << l;
@@ -539,6 +552,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     _FSC.col(l) = fsc;
                 }
+                ***/
                 else
                 {
                     if (_mode == MODE_2D)
