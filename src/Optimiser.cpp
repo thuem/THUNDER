@@ -1922,6 +1922,23 @@ void Optimiser::run()
 
             reCentreImg();
         }
+
+#ifdef OPTIMISER_MASK_IMG
+        MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+        reMaskImg();
+#endif
+
+#endif
+
+        /***
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+
+        if (_searchType != SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
+
+            reCentreImg();
+        }
         else
         {
             MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
@@ -1945,6 +1962,7 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
         reMaskImg();
 #endif
+        ***/
 
 #ifdef OPTIMISER_SAVE_SIGMA
         MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma";
