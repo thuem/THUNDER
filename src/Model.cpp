@@ -436,8 +436,22 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
 
-                    softMask(randomPhaseA, randomPhaseA, *_mask, 0);
-                    softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+                    Volume mask;
+                    
+                    if (_maskFSC)
+                    {
+                        softMask(randomPhaseA, randomPhaseA, *_mask, 0);
+                        softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+                    }
+                    else if (_coreFSC)
+                    {
+                        mask.alloc(_size, _size, _size, RL_SPACE);
+
+                        softMask(mask, _coreR, EDGE_WIDTH_RL);
+
+                        softMask(randomPhaseA, randomPhaseA, mask, 0);
+                        softMask(randomPhaseB, randomPhaseB, mask, 0);
+                    }
 
                     fft.fwMT(randomPhaseA);
                     fft.fwMT(randomPhaseB);
@@ -467,12 +481,10 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     }
                     else if (_coreFSC)
                     {
-                        Volume mask(_size, _size, _size, RL_SPACE);
-
-                        softMask(mask, _coreR, EDGE_WIDTH_RL);
-
                         softMask(maskA, A, mask, 0);
                         softMask(maskB, B, mask, 0);
+
+                        mask.clearRL();
                     }
 
                     fft.fwMT(maskA);
