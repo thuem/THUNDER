@@ -16,15 +16,7 @@
 #define M_2X_PI 6.28318530717959
 #define M_3X_PI 9.42477796076938
 
-#define VERBOSE_LEVEL_0
-
-//#define VERBOSE_LEVEL_1
-
-//#define VERBOSE_LEVEL_2
-
-//#define VERBOSE_LEVEL_3
-
-//#define VERBOSE_LEVEL_4
+#define THUNDER_IN_PLACE -1
 
 #define IMG_VOL_BOUNDARY_NO_CHECK
 

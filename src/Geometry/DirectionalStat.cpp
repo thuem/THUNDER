@@ -153,8 +153,28 @@ void inferACG(double& k0,
 
     //ev = ev.cwiseAbs();
     
-    k0 = eigenSolver.eigenvalues().maxCoeff();
-    k1 = eigenSolver.eigenvalues().minCoeff();
+    uvec s = d_index_sort_descend(eigenSolver.eigenvalues());
+    k0 = eigenSolver.eigenvalues()(s[0]);
+    k1 = eigenSolver.eigenvalues()(s[1]);
+
+#ifndef NAN_NO_CHECK
+    if (k0 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K0 = " << k0; abort(); };
+    if (k1 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K1 = " << k1; abort(); };
+#endif
+}
+
+void inferACG(double& k,
+              const dmat4& src)
+{
+    double k0, k1;
+
+    inferACG(k0, k1, src);
+
+    k = k1 / k0;
+
+#ifndef NAN_NO_CHECK
+    if (gsl_isnan(k)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+#endif
 }
 
 void inferACG(double& k1,
@@ -168,6 +188,20 @@ void inferACG(double& k1,
     k1 = A(1, 1) / A(0, 0);
     k2 = A(2, 2) / A(0, 0);
     k3 = A(3, 3) / A(0, 0);
+
+#ifndef NAN_NO_CHECK
+
+    if (gsl_isnan(k1)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+    if (gsl_isnan(k2)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+    if (gsl_isnan(k3)) { REPORT_ERROR("NAN DETECTED"); abort(); };
+
+#endif
+
+#ifndef NAN_NO_CHECK
+    if (k1 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K1 = " << k1; abort(); };
+    if (k2 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K2 = " << k2; abort(); };
+    if (k3 < 0) { CLOG(FATAL, "LOGGER_SYS") << "K3 = " << k3; abort(); };
+#endif
 
     /***
     SelfAdjointEigenSolver<dmat44> eigenSolver(A);
@@ -211,13 +245,16 @@ void inferACG(dvec4& mean,
 #endif
 }
 
-double pdfVMS(const vec2& x,
-              const vec2& mu,
+double pdfVMS(const dvec2& x,
+              const dvec2& mu,
               const double k)
 {
     double kappa = (1 - k) * (1 + 2 * k - gsl_pow_2(k)) / k / (2 - k);
 
-    return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+    if (kappa < 5) // avoiding overflow
+        return exp(kappa * x.dot(mu)) / (2 * M_PI * gsl_sf_bessel_I0(kappa));
+    else
+        return gsl_ran_gaussian_pdf((x - mu).norm(), sqrt(1.0 / kappa));
 }
 
 void sampleVMS(dmat2& dst,
@@ -229,7 +266,7 @@ void sampleVMS(dmat2& dst,
 
     gsl_rng* engine = get_random_engine();
 
-    if (kappa < 1e-1)
+    if (kappa < 1e-1) // avoiding overflow
     {
         for (int i = 0; i < n; i++)
             gsl_ran_dir_2d(engine, &dst(i, 0), &dst(i, 1));
@@ -290,11 +327,11 @@ void sampleVMS(dmat4& dst,
     dst.leftCols<2>() = dst2D;
 }
 
-void inferVMS(vec2& mu,
+void inferVMS(dvec2& mu,
               double& k,
               const dmat2& src)
 {
-    mu = vec2::Zero();
+    mu = dvec2::Zero();
 
     for (int i = 0; i < src.rows(); i++)
     {
@@ -318,7 +355,7 @@ void inferVMS(vec2& mu,
 void inferVMS(double& k,
               const dmat2& src)
 {
-    vec2 mu;
+    dvec2 mu;
 
     inferVMS(mu, k, src);
 }
@@ -327,7 +364,7 @@ void inferVMS(dvec4& mu,
               double& k,
               const dmat4& src)
 {
-    vec2 mu2D;
+    dvec2 mu2D;
 
     inferVMS(mu2D, k, src.leftCols<2>());
 

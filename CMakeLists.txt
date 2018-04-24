@@ -9,7 +9,7 @@ project(THUNDER)
 
 set(THUNDER_VERSION_MAJOR 1)
 set(THUNDER_VERSION_MINOR 3)
-set(THUNDER_VERSION_ADDIT 2)
+set(THUNDER_VERSION_ADDIT 3)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}.${THUNDER_VERSION_ADDIT}!")
 
@@ -107,7 +107,7 @@ message(STATUS "CMAKE_CXX_FLAGS : ${CMAKE_CXX_FLAGS}")
 
 find_package(MPI REQUIRED)
 
-include_directories("${MPI_INCLUDE_PATH}") # Old Version Support
+#include_directories("${MPI_INCLUDE_PATH}") # Old Version Support
 
 message(STATUS "MPI_COMPILER : ${MPI_COMPILER}") # Old Version Support
 message(STATUS "MPI_INCLUDE_PATH : ${MPI_INCLUDE_PATH}") # Old Version Support

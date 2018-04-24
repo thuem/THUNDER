@@ -42,8 +42,19 @@
             FOR_EACH_T(par) \
                 FOR_EACH_D(par)
 
-#define PEAK_FACTOR_MAX (1 - 1e-1)
+#define PEAK_FACTOR_MAX 0.5
 #define PEAK_FACTOR_MIN 1e-3
+
+#define PEAK_FACTOR_C (1 - 1e-2)
+
+#define PEAK_FACTOR_BASE 2
+
+#define INIT_OUTSIDE_CONFIDENCE_AREA 0.5
+
+#define RHO_MAX (1 - 1e-1)
+#define RHO_MIN (-1 + 1e-1)
+
+#define PERTURB_K_MAX 1
 
 enum ParticleType
 {
@@ -578,7 +589,17 @@ class Particle
                   double& s1,
                   double& s) const;
 
-        double compress() const;
+        double variR() const;
+
+        double variT() const;
+
+        double variD() const;
+
+        double compressR() const;
+
+        double compressT() const;
+
+        double compressD() const;
 
         double wC(const int i) const;
 
@@ -771,11 +792,17 @@ class Particle
 
         void setS1(const double s1);
 
+        double rho() const;
+
+        void setRho(const double rho);
+
         double s() const;
 
         void setS(const double s);
 
         //void calClassDistr();
+        
+        void calRank1st(const ParticleType pt);
 
         /**
          * This function calculates the concentration paramters, including
@@ -1099,7 +1126,7 @@ class Particle
          * according to the symmetry information. This operation will be only
          * performed in 3D mode.
          */
-        void symmetrise();
+        void symmetrise(const dvec4* anchor = NULL);
 
         /**
          * This function re-centres in the translation of the particles in this
@@ -1130,7 +1157,7 @@ void save(const char filename[],
           const Particle& par,
           const bool saveU = false);
 
-void save(const char filenamep[],
+void save(const char filename[],
           const Particle& par,
           const ParticleType pt,
           const bool saveU = false);

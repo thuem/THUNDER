@@ -58,6 +58,10 @@ typedef Matrix<double, 2, 2> dmat22;
 typedef Matrix<double, 3, 3> dmat33;
 typedef Matrix<double, 4, 4> dmat44;
 
+typedef Matrix<size_t, Dynamic, 2> umat2;
+typedef Matrix<size_t, Dynamic, 3> umat3;
+typedef Matrix<size_t, Dynamic, 4> umat4;
+
 typedef Matrix<RFLOAT, Dynamic, 2> mat2;
 typedef Matrix<RFLOAT, Dynamic, 3> mat3;
 typedef Matrix<RFLOAT, Dynamic, 4> mat4;

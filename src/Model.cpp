@@ -131,7 +131,7 @@ void Model::initProjReco()
     BLOG(INFO, "LOGGER_INIT") << "Setting Up MPI Environment of Reconstructors";
 
     FOR_EACH_CLASS
-        _reco[l]->setMPIEnv(_commSize, _commRank, _hemi);
+        _reco[l]->setMPIEnv(_commSize, _commRank, _hemi, _slav);
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -404,7 +404,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             {
                 vec fsc(_rU);
 
-                if ((_maskFSC) && (_mode == MODE_3D))
+                if ((_maskFSC || _coreFSC) && (_mode == MODE_3D))
                 {
                     FFT fft;
 
@@ -436,8 +436,22 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
 
-                    softMask(randomPhaseA, randomPhaseA, *_mask, 0);
-                    softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+                    Volume mask;
+                    
+                    if (_maskFSC)
+                    {
+                        softMask(randomPhaseA, randomPhaseA, *_mask, 0);
+                        softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+                    }
+                    else if (_coreFSC)
+                    {
+                        mask.alloc(_size, _size, _size, RL_SPACE);
+
+                        softMask(mask, _coreR, EDGE_WIDTH_RL);
+
+                        softMask(randomPhaseA, randomPhaseA, mask, 0);
+                        softMask(randomPhaseB, randomPhaseB, mask, 0);
+                    }
 
                     fft.fwMT(randomPhaseA);
                     fft.fwMT(randomPhaseB);
@@ -460,8 +474,18 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     Volume maskA(_size, _size, _size, RL_SPACE);
                     Volume maskB(_size, _size, _size, RL_SPACE);
 
-                    softMask(maskA, A, *_mask, 0);
-                    softMask(maskB, B, *_mask, 0);
+                    if (_maskFSC)
+                    {
+                        softMask(maskA, A, *_mask, 0);
+                        softMask(maskB, B, *_mask, 0);
+                    }
+                    else if (_coreFSC)
+                    {
+                        softMask(maskA, A, mask, 0);
+                        softMask(maskB, B, mask, 0);
+
+                        mask.clearRL();
+                    }
 
                     fft.fwMT(maskA);
                     fft.fwMT(maskB);
@@ -490,6 +514,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     _FSC.col(l) = fsc;
                 }
+                /***
                 else if (_coreFSC && (_mode == MODE_3D))
                 {
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Core Region of Reference " << l;
@@ -539,6 +564,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     _FSC.col(l) = fsc;
                 }
+                ***/
                 else
                 {
                     if (_mode == MODE_2D)
@@ -894,6 +920,35 @@ vec Model::tau(const int i) const
     return _tau.col(i);
 }
 
+int Model::bestClass(const RFLOAT thres,
+                     const bool inverse) const
+{
+    int cls = 0;
+    int res = 0;
+
+    double val = 0;
+
+    FOR_EACH_CLASS
+    {
+        if (res < resolutionP(l, thres, inverse))
+        {
+            res = resolutionP(l, thres, inverse);
+            val = _FSC(res, l);
+            cls = l;
+        }
+        else if (res == resolutionP(l, thres, inverse))
+        {
+            if (val < _FSC(res, l))
+            {
+                val = _FSC(res, l);
+                cls = l;
+            }
+        }
+    }
+
+    return cls;
+}
+
 int Model::resolutionP(const int i,
                        const RFLOAT thres,
                        const bool inverse) const
@@ -1167,6 +1222,8 @@ void Model::elevateR(const RFLOAT thres)
 
     if (_searchType == SEARCH_TYPE_GLOBAL)
         _r = GSL_MIN_INT(_rGlobal, _r);
+
+    _r = GSL_MIN_INT(_r, maxR());
 }
 
 void Model::setFSC(const mat FSC)

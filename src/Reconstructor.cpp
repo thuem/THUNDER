@@ -197,6 +197,12 @@ void Reconstructor::reset()
 
         abort();
     }
+
+    _ox = 0;
+    _oy = 0;
+    _oz = 0;
+
+    _counter = 0;
 }
 
 int Reconstructor::mode() const
@@ -259,6 +265,21 @@ void Reconstructor::setSig(const vec& sig)
     _sig = sig;
 }
 
+double Reconstructor::ox() const
+{
+    return _ox;
+}
+
+double Reconstructor::oy() const
+{
+    return _oy;
+}
+
+double Reconstructor::oz() const
+{
+    return _oz;
+}
+
 int Reconstructor::maxRadius() const
 {
     return _maxRadius;
@@ -297,6 +318,33 @@ void Reconstructor::setPreCal(const int nPxl,
     _iRow = iRow;
     _iPxl = iPxl;
     _iSig = iSig;
+}
+
+void Reconstructor::insertDir(const dvec2& dir)
+{
+    insertDir(dir(0), dir(1), 0);
+}
+
+void Reconstructor::insertDir(const dvec3& dir)
+{
+    insertDir(dir(0), dir(1), dir(2));
+}
+
+void Reconstructor::insertDir(const double ox,
+                              const double oy,
+                              const double oz)
+{
+    #pragma omp atomic
+    _ox += ox;
+
+    #pragma omp atomic
+    _oy += oy;
+
+    #pragma omp atomic
+    _oz += oz;
+
+    #pragma omp atomic
+    _counter +=1;
 }
 
 void Reconstructor::insert(const Image& src,
@@ -393,24 +441,19 @@ void Reconstructor::insert(const Image& src,
         {
             if (QUAD(i, j) < gsl_pow_2(_maxRadius))
             {
-#ifdef RECONSTRUCTOR_ROT_MAT_OPT
                 const double* ptr = rot.data();
-                dvec3 oldCor;
-                oldCor(0) = (ptr[0] * i + ptr[3] * j) * _pf;
-                oldCor(1) = (ptr[1] * i + ptr[4] * j) * _pf;
-                oldCor(2) = (ptr[2] * i + ptr[5] * j) * _pf;
-#else
-                dvec3 newCor((double)(i), (double)(j), 0);
-                dvec3 oldCor = rot * newCor;
-#endif
+                double oldCor[3];
+                oldCor[0] = (ptr[0] * i + ptr[3] * j) * _pf;
+                oldCor[1] = (ptr[1] * i + ptr[4] * j) * _pf;
+                oldCor[2] = (ptr[2] * i + ptr[5] * j) * _pf;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _F3D.addFT(src.getFTHalf(i, j)
                          * REAL(ctf.getFTHalf(i, j))
                          * w, 
-                           (RFLOAT)oldCor(0), 
-                           (RFLOAT)oldCor(1), 
-                           (RFLOAT)oldCor(2), 
+                           (RFLOAT)oldCor[0], 
+                           (RFLOAT)oldCor[1], 
+                           (RFLOAT)oldCor[2], 
                            _pf * _a, 
                            _kernelFT);
 #endif
@@ -419,9 +462,9 @@ void Reconstructor::insert(const Image& src,
                 _F3D.addFT(src.getFTHalf(i, j)
                          * REAL(ctf.getFTHalf(i, j))
                          * w, 
-                           (RFLOAT)oldCor(0), 
-                           (RFLOAT)oldCor(1), 
-                           (RFLOAT)oldCor(2));
+                           (RFLOAT)oldCor[0], 
+                           (RFLOAT)oldCor[1], 
+                           (RFLOAT)oldCor[2]);
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -429,9 +472,9 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_MKB_KERNEL
                 _T3D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                          * w, 
-                           (RFLOAT)oldCor(0), 
-                           (RFLOAT)oldCor(1), 
-                           (RFLOAT)oldCor(2),
+                           (RFLOAT)oldCor[0], 
+                           (RFLOAT)oldCor[1], 
+                           (RFLOAT)oldCor[2],
                            _pf * _a,
                            _kernelFT);
 #endif
@@ -439,9 +482,9 @@ void Reconstructor::insert(const Image& src,
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
                 _T3D.addFT(TSGSL_pow_2(REAL(ctf.getFTHalf(i, j)))
                          * w, 
-                           (RFLOAT)oldCor(0), 
-                           (RFLOAT)oldCor(1), 
-                           (RFLOAT)oldCor(2));
+                           (RFLOAT)oldCor[0], 
+                           (RFLOAT)oldCor[1], 
+                           (RFLOAT)oldCor[2]);
 #endif
 
 #endif
@@ -532,27 +575,22 @@ void Reconstructor::insertP(const Image& src,
 
     for (int i = 0; i < _nPxl; i++)
     {
-#ifdef RECONSTRUCTOR_ROT_MAT_OPT
         const double* ptr = rot.data();
-        dvec3 oldCor;
+        double oldCor[3];
         int iCol = _iCol[i];
         int iRow = _iRow[i];
-        oldCor(0) = ptr[0] * iCol + ptr[3] * iRow;
-        oldCor(1) = ptr[1] * iCol + ptr[4] * iRow;
-        oldCor(2) = ptr[2] * iCol + ptr[5] * iRow;
-#else
-        dvec3 newCor((double)(_iCol[i]), (double)(_iRow[i]), 0);
-        dvec3 oldCor = rot * newCor;
-#endif
+        oldCor[0] = ptr[0] * iCol + ptr[3] * iRow;
+        oldCor[1] = ptr[1] * iCol + ptr[4] * iRow;
+        oldCor[2] = ptr[2] * iCol + ptr[5] * iRow;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
         _F3D.addFT(src.iGetFT(_iPxl[i])
                  * REAL(ctf.iGetFT(_iPxl[i]))
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2), 
+                   (RFLOAT)oldCor[0],
+                   (RFLOAT)oldCor[1],
+                   (RFLOAT)oldCor[2],
                    _pf * _a, 
                    _kernelFT);
 #endif
@@ -562,9 +600,9 @@ void Reconstructor::insertP(const Image& src,
                  * REAL(ctf.iGetFT(_iPxl[i]))
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2));
+                   (RFLOAT)oldCor[0],
+                   (RFLOAT)oldCor[1],
+                   (RFLOAT)oldCor[2]);
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -573,9 +611,9 @@ void Reconstructor::insertP(const Image& src,
         _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2),
+                   (RFLOAT)oldCor[0],
+                   (RFLOAT)oldCor[1],
+                   (RFLOAT)oldCor[2],
                    _pf * _a,
                    _kernelFT);
 #endif
@@ -584,9 +622,9 @@ void Reconstructor::insertP(const Image& src,
         _T3D.addFT(TSGSL_pow_2(REAL(ctf.iGetFT(_iPxl[i])))
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2));
+                   (RFLOAT)oldCor[0],
+                   (RFLOAT)oldCor[1],
+                   (RFLOAT)oldCor[2]);
 #endif
 
 #endif
@@ -676,27 +714,22 @@ void Reconstructor::insertP(const Complex* src,
 
     for (int i = 0; i < _nPxl; i++)
     {
-#ifdef RECONSTRUCTOR_ROT_MAT_OPT
         const double* ptr = rot.data();
-        dvec3 oldCor;
+        double oldCor[3];
         int iCol = _iCol[i];
         int iRow = _iRow[i];
-        oldCor(0) = ptr[0] * iCol + ptr[3] * iRow;
-        oldCor(1) = ptr[1] * iCol + ptr[4] * iRow;
-        oldCor(2) = ptr[2] * iCol + ptr[5] * iRow;
-#else
-        dvec3 newCor((double)(_iCol[i]), (double)(_iRow[i]), 0);
-        dvec3 oldCor = rot * newCor;
-#endif
+        oldCor[0] = ptr[0] * iCol + ptr[3] * iRow;
+        oldCor[1] = ptr[1] * iCol + ptr[4] * iRow;
+        oldCor[2] = ptr[2] * iCol + ptr[5] * iRow;
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
         _F3D.addFT(src[i]
                  * ctf[i]
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2), 
+                   (RFLOAT)oldCor[0], 
+                   (RFLOAT)oldCor[1], 
+                   (RFLOAT)oldCor[2], 
                    _pf * _a, 
                    _kernelFT);
 #endif
@@ -706,9 +739,9 @@ void Reconstructor::insertP(const Complex* src,
                  * ctf[i]
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2));
+                   (RFLOAT)oldCor[0], 
+                   (RFLOAT)oldCor[1], 
+                   (RFLOAT)oldCor[2]);
 #endif
 
 #ifdef RECONSTRUCTOR_ADD_T_DURING_INSERT
@@ -717,9 +750,9 @@ void Reconstructor::insertP(const Complex* src,
         _T3D.addFT(TSGSL_pow_2(ctf[i])
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2),
+                   (RFLOAT)oldCor[0], 
+                   (RFLOAT)oldCor[1], 
+                   (RFLOAT)oldCor[2],
                    _pf * _a,
                    _kernelFT);
 #endif
@@ -728,9 +761,9 @@ void Reconstructor::insertP(const Complex* src,
         _T3D.addFT(TSGSL_pow_2(ctf[i])
                  * (sig == NULL ? 1 : (*sig)(_iSig[i]))
                  * w,
-                   (RFLOAT)oldCor(0), 
-                   (RFLOAT)oldCor(1), 
-                   (RFLOAT)oldCor(2));
+                   (RFLOAT)oldCor[0], 
+                   (RFLOAT)oldCor[1], 
+                   (RFLOAT)oldCor[2]);
 #endif
 
 #endif
@@ -849,7 +882,7 @@ void Reconstructor::insertFT(Complex* datP,
     for (int i = 0; i < imgNum; i++)
     {
         if (parGra && nK == 1)
-           w[i] = par[i].compress();
+           w[i] = par[i].compressR();
         else
            w[i] = 1;
          
@@ -986,6 +1019,25 @@ void Reconstructor::prepareTF()
         symmetrizeF();
 #endif
     }
+
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
+
+    allReduceO();
+
+    IF_MODE_3D
+    {
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
+
+        symmetrizeO();
+#endif
+    }
+
+    _ox /= _counter;
+    _oy /= _counter;
+    _oz /= _counter;
 }
 
 void Reconstructor::reconstruct(Image& dst)
@@ -1903,6 +1955,42 @@ void Reconstructor::allReduceT()
 #endif
 }
 
+void Reconstructor::allReduceO()
+{
+    ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
+    BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
+
+    MPI_Barrier(_slav);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_ox,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _slav);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_oy,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _slav);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_oz,
+                  1,
+                  MPI_DOUBLE,
+                  MPI_SUM,
+                  _slav);
+
+    MPI_Allreduce(MPI_IN_PLACE,
+                  &_counter,
+                  1,
+                  MPI_INT,
+                  MPI_SUM,
+                  _slav);
+}
+
 RFLOAT Reconstructor::checkC() const
 {
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE
@@ -2037,6 +2125,31 @@ void Reconstructor::symmetrizeT()
 {
     if (_sym != NULL)
         SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
+    else
+        CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
+}
+
+void Reconstructor::symmetrizeO()
+{
+    if (_sym != NULL)
+    {
+        dmat33 L, R;
+
+        dvec3 result = dvec3(_ox, _oy, _oz);
+
+        for (int i = 0; i < _sym->nSymmetryElement(); i++)
+        {
+            _sym->get(L, R, i);
+
+            result += R * dvec3(_ox, _oy, _oz);
+        }
+
+        _counter *= (1 + _sym->nSymmetryElement());
+
+        _ox = result(0);
+        _oy = result(1);
+        _oz = result(2);
+    }
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }

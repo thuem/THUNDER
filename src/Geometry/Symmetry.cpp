@@ -307,11 +307,14 @@ bool asymmetry(const Symmetry& sym)
 }
 
 void symmetryCounterpart(dvec4& dst,
-                         const Symmetry& sym)
+                         const Symmetry& sym,
+                         const dvec4* anchor)
 {
+    if (anchor == NULL) anchor = &ANCHOR_POINT_2;
+
     dvec4 q = dst;
 
-    RFLOAT s = fabs(dst.dot(ANCHOR_POINT_2));
+    RFLOAT s = fabs(dst.dot(*anchor));
 
     dvec4 p;
 
@@ -319,7 +322,7 @@ void symmetryCounterpart(dvec4& dst,
     {
         quaternion_mul(p, quaternion_conj(sym.quat(i)), dst);
 
-        RFLOAT t = fabs(p.dot(ANCHOR_POINT_2));
+        RFLOAT t = fabs(p.dot(*anchor));
 
         if (t > s)
         {

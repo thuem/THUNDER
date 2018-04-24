@@ -146,6 +146,8 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
+    dst.saveRefEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_REF_EACH_ITER]).asInt();
+    dst.saveTHUEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_THU_EACH_ITER]).asInt();
     dst.mLT = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_T]).asInt();
     dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_D]).asInt();
     dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_RECO]).asInt();
@@ -166,6 +168,7 @@ void readPara(OptimiserPara& dst,
     dst.perturbFactorSCTF = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_CTF]).asFloat();
     dst.skipE = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_E]).asBool();
     dst.skipM = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_M]).asBool();
+    dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R]).asBool();
     dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R]).asBool();
 }
 

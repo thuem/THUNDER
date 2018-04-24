@@ -113,6 +113,8 @@ class Parallel: private boost::noncopyable
          */
         MPI_Comm _hemi;
 
+        MPI_Comm _slav;
+
     public:
 
         /**
@@ -142,7 +144,8 @@ class Parallel: private boost::noncopyable
          */
         void setMPIEnv(const int commSize,
                        const int commRank,
-                       const MPI_Comm& hemi);
+                       const MPI_Comm& hemi,
+                       const MPI_Comm& slav);
 
         /**
          * This function returns whether the current process is the master
@@ -199,6 +202,10 @@ class Parallel: private boost::noncopyable
          * @param hemi the hemisphere of the current process
          */
         void setHemi(const MPI_Comm& hemi);
+
+        MPI_Comm slav() const;
+
+        void setSlav(const MPI_Comm& slav);
 };
 
 /**

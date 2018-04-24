@@ -78,7 +78,9 @@ def main():
                    {quat1:18.6f} \
                    {quat2:18.6f} \
                    {quat3:18.6f} \
-                   {stdRot:18.6f} \
+                   {stdRot0:18.6f} \
+                   {stdRot1:18.6f} \
+                   {stdRot2:18.6f} \
                    {transX:18.6f} \
                    {transY:18.6f} \
                    {stdTransX:18.6f} \
@@ -102,7 +104,9 @@ def main():
                                          quat1=0,
                                          quat2=0,
                                          quat3=0,
-                                         stdRot=0,
+                                         stdRot0=0,
+                                         stdRot1=0,
+                                         stdRot2=0,
                                          transX=0,
                                          transY=0,
                                          stdTransX=0,

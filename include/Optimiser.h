@@ -54,12 +54,13 @@
 #define MAX_N_PHASE_PER_ITER 100
 
 #define PARTICLE_FILTER_DECREASE_FACTOR 0.95
+#define PARTICLE_FILTER_INCREASE_FACTOR 1.05
 
 #define N_PHASE_WITH_NO_VARI_DECREASE 1
 
 #define N_SAVE_IMG 20 
 
-#define TRANS_Q 0.01
+#define TRANS_Q 0.05
 
 #define MIN_STD_FACTOR 1
 
@@ -380,6 +381,14 @@ struct OptimiserPara
      */
     bool skipR;
 
+#define KEY_SAVE_REF_EACH_ITER "Save Reference(s) Each Iteration"
+
+    bool saveRefEachIter;
+
+#define KEY_SAVE_THU_EACH_ITER "Save .thu File Each Iteration"
+
+    bool saveTHUEachIter;
+
     OptimiserPara()
     {
         nThreadsPerProcess = 1;
@@ -408,6 +417,8 @@ struct OptimiserPara
         skipE = false;
         skipM = false;
         skipR = false;
+        saveRefEachIter = true;
+        saveTHUEachIter = true;
     }
 };
 
@@ -520,6 +531,12 @@ class Optimiser : public Parallel
         vector<Image> _ctf;
 
         vector<int> _nP;
+
+        /**
+         * Each row stands for power spectrum of signal VS power spectrum of data of a certain group, thus
+         * the size of this matrix is _nGroup x (maxR() + 1)
+         */
+        mat _svd;
 
         /**
          * Each row stands for sigma^2 of a certain group, thus the size of this
@@ -814,8 +831,10 @@ class Optimiser : public Parallel
 
         void refreshClassDistr();
 
-        void balanceClass(const RFLOAT thres,
-                          const bool refreshDistr);
+        void determineBalanceClass(umat2& dst,
+                                   const RFLOAT thres);
+
+        void balanceClass(const umat2& bm);
 
         /**
          * re-calculate the rotation and translation variance
@@ -848,8 +867,14 @@ class Optimiser : public Parallel
          *
          * @param group grouping or not
          */
+
+        void allReduceSigma(const bool mask);
+            
+        /***
         void allReduceSigma(const bool mask,
                             const bool group);
+        ***/
+
         /**
          * reconstruct reference
          */
@@ -885,7 +910,7 @@ class Optimiser : public Parallel
 
         void freePreCal(const bool ctf);
 
-        void saveDatabase() const;
+        void saveDatabase(const bool finished = false) const;
 
         /**
          * for debug, save the best projections

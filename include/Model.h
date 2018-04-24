@@ -97,7 +97,7 @@
  * resolution resolution for averaging reference(s) from A hemisphere and B
  * hemisphere
  */
-#define A_B_AVERAGE_THRES 15
+#define A_B_AVERAGE_THRES 10
 
 #define CUTOFF_BEYOND_RES 0
 
@@ -617,6 +617,9 @@ class Model : public Parallel
          * @param i the index of the refefence
          */
         vec tau(const int i) const;
+
+        int bestClass(const RFLOAT thres,
+                      const bool inverse) const;
 
         /**
          * This function returns the resolution in pixel of the i-th

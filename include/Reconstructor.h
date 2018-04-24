@@ -233,6 +233,14 @@ class Reconstructor : public Parallel
 
         vec _tau;
 
+        double _ox;
+
+        double _oy;
+
+        double _oz;
+
+        int _counter;
+
         /**
          * The width of the Kernel. Parameter of modified Kaiser-Bessel Kernel.
          */
@@ -277,6 +285,12 @@ class Reconstructor : public Parallel
             _FSC = vec::Constant(1, 1);
             _sig = vec::Zero(1);
             _tau = vec::Constant(1, 1);
+
+            _ox = 0;
+            _oy = 0;
+            _oz = 0;
+
+            _counter = 0;
         }
 
     public:
@@ -364,6 +378,12 @@ class Reconstructor : public Parallel
 
         void setSig(const vec& sig);
 
+        double ox() const;
+
+        double oy() const;
+
+        double oz() const;
+
         /**
          * get the max radius that points can affect each other 
          * during interpolation         
@@ -389,6 +409,14 @@ class Reconstructor : public Parallel
                        const int* iRow,
                        const int* iPxl,
                        const int* iSig);
+
+        void insertDir(const dvec2& dir);
+
+        void insertDir(const dvec3& dir);
+
+        void insertDir(const double ox,
+                       const double oy,
+                       const double oz);
 
         void insert(const Image& src,
                     const Image& ctf,
@@ -528,6 +556,8 @@ class Reconstructor : public Parallel
 
         void allReduceT();
 
+        void allReduceO();
+
         RFLOAT checkC() const;
 
         void convoluteC();
@@ -535,6 +565,8 @@ class Reconstructor : public Parallel
         void symmetrizeF();
 
         void symmetrizeT();
+
+        void symmetrizeO();
 };
 
 #endif //RECONSTRUCTOR_H

@@ -135,11 +135,11 @@ void Particle::reset()
     for (int i = 0; i < _nT; i++)
     {
         _t(i, 0) = gsl_ran_flat(engine,
-                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+                                -gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS);
         _t(i, 1) = gsl_ran_flat(engine,
-                                -gsl_cdf_chisq_Qinv(0.5, 2) * _transS,
-                                gsl_cdf_chisq_Qinv(0.5, 2) * _transS);
+                                -gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS,
+                                gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2) * _transS);
     }
 #endif
 
@@ -159,7 +159,11 @@ void Particle::reset()
     _uT = dvec::Constant(_nT, 1.0 / _nT);
     _uD = dvec::Constant(_nD, 1.0 / _nD);
 
-    // symmetrise
+#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
+#ifdef PARTICLE_BALANCE_WEIGHT_T
+    balanceWeight(PAR_T);
+#endif
+#endif
 
     if (_mode == MODE_3D) symmetrise();
 }
@@ -283,12 +287,27 @@ void Particle::initD(const int nD,
 
     _d.resize(nD);
 
+#ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
     for (int i = 0; i < _nD; i++)
         _d(i) = 1 + gsl_ran_gaussian(engine, sD);
+#endif
+
+#ifdef PARTICLE_DEFOCUS_INIT_FLAT
+    for (int i = 0; i < _nD; i++)
+        _d(i) = 1 + gsl_ran_flat(engine,
+                                 -gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 1) * sD,
+                                 gsl_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 1) * sD);
+#endif
 
     _wD = dvec::Constant(_nD, 1.0 / _nD);
-    
+
     _uD = dvec::Constant(_nD, 1.0 / _nD);
+
+#ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
+#ifdef PARTICLE_BALANCE_WEIGHT_D
+    balanceWeight(PAR_D);
+#endif
+#endif
 }
 
 int Particle::mode() const { return _mode; }
@@ -435,7 +454,7 @@ void Particle::load(const int nR,
 
     //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
 
-    if (_mode == MODE_3D) symmetrise();
+    if (_mode == MODE_3D) symmetrise(&_topR);
     
     for (int i = 0; i < _nR; i++)
     {
@@ -462,6 +481,10 @@ void Particle::load(const int nR,
         _uR(i) = 1.0 / _nR;
     }
 
+#ifdef PARTICLE_BALANCE_WEIGHT_R
+    balanceWeight(PAR_R);
+#endif
+
     // load the translation
 
     _s0 = s0;
@@ -487,6 +510,10 @@ void Particle::load(const int nR,
        _uT(i) = 1.0 / _nT;
     }
 
+#ifdef PARTICLE_BALANCE_WEIGHT_T
+    balanceWeight(PAR_T);
+#endif
+
     // load the defocus factor
 
     _s = s;
@@ -502,6 +529,9 @@ void Particle::load(const int nR,
         _uD(i) = 1.0 / _nD;
     }
 
+#ifdef PARTICLE_BALANCE_WEIGHT_D
+    balanceWeight(PAR_D);
+#endif
 }
 
 void Particle::vari(double& k1,
@@ -557,7 +587,43 @@ void Particle::vari(double& rVari,
     s = _s;
 }
 
-double Particle::compress() const
+double Particle::variR() const
+{
+    if (_mode == MODE_2D)
+    {
+        return _k1;
+    }
+    else if (_mode == MODE_3D)
+    {
+        return pow(_k1 * _k2 * _k3, 1.0 / 6);
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+}
+
+double Particle::variT() const
+{
+    mat22 A;
+
+    A << gsl_pow_2(_s0), _rho,
+         _rho, gsl_pow_2(_s1);
+
+    SelfAdjointEigenSolver<mat22> eigenSolver(A);
+
+    return sqrt(eigenSolver.eigenvalues()[0]
+              * eigenSolver.eigenvalues()[1]);
+}
+
+double Particle::variD() const
+{
+    return _s;
+}
+
+double Particle::compressR() const
 {
     // return _transS / sqrt(_s0 * _s1);
 
@@ -588,6 +654,24 @@ double Particle::compress() const
     // return pow(_k0 / _k1, 1.5) * gsl_pow_2(_transS) / _s0 / _s1;
 
     //return gsl_pow_2(_transS) / _s0 / _s1;
+}
+
+double Particle::compressT() const
+{
+    mat22 A;
+
+    A << gsl_pow_2(_s0), _rho,
+         _rho, gsl_pow_2(_s1);
+
+    SelfAdjointEigenSolver<mat22> eigenSolver(A);
+
+    return 1.0 / sqrt(eigenSolver.eigenvalues()[0]
+                    * eigenSolver.eigenvalues()[1]);
+}
+
+double Particle::compressD() const
+{
+    return 1.0 / _s;
 }
 
 double Particle::wC(const int i) const
@@ -847,6 +931,16 @@ void Particle::setS1(const double s1)
     _s1 = s1;
 }
 
+double Particle::rho() const
+{
+    return _rho;
+}
+
+void Particle::setRho(const double rho)
+{
+    _rho = rho;
+}
+
 double Particle::s() const
 {
     return _s;
@@ -867,6 +961,20 @@ void Particle::calClassDistr()
 }
 ***/
 
+void Particle::calRank1st(const ParticleType pt)
+{
+    uvec rank = iSort(pt);
+
+    if (pt == PAR_C)
+        c(_topC, rank(0));
+    else if (pt == PAR_R)
+        quaternion(_topR, rank(0));
+    else if (pt == PAR_T)
+        t(_topT, rank(0));
+    else if (pt == PAR_D)
+        d(_topD, rank(0));
+}
+
 void Particle::calVari(const ParticleType pt)
 {
 
@@ -882,11 +990,40 @@ void Particle::calVari(const ParticleType pt)
         }
         else if (_mode == MODE_3D)
         {
+            /***
+            inferACG(_k1, _r);
+
+            _k2 = _k1;
+            _k3 = _k1;
+            ***/
+
             dvec4 mean;
 
-            inferACG(mean, _r);
-
             dvec4 quat;
+
+            gsl_rng* engine = get_random_engine();
+
+            dvec4 anch = _r.row(gsl_rng_uniform_int(engine, _nR)).transpose();
+
+            // dvec4 anch = _topR;
+
+            symmetrise(&anch);
+
+            /***
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, quaternion_conj(anch), quat);
+
+                _r.row(i) = quat.transpose();
+            }
+            ***/
+
+
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
+
+            inferACG(mean, _r);
 
             for (int i = 0; i < _nR; i++)
             {
@@ -897,9 +1034,11 @@ void Particle::calVari(const ParticleType pt)
                 _r.row(i) = quat.transpose();
             }
 
-            //symmetrise(); // TODO
+#endif
 
             inferACG(_k1, _k2, _k3, _r);
+
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_CAL_VARI
 
             for (int i = 0; i < _nR; i++)
             {
@@ -909,6 +1048,19 @@ void Particle::calVari(const ParticleType pt)
 
                 _r.row(i) = quat.transpose();
             }
+
+#endif
+
+            /***
+            for (int i = 0; i < _nR; i++)
+            {
+                quat = _r.row(i).transpose();
+
+                quaternion_mul(quat, anch, quat);
+
+                _r.row(i) = quat.transpose();
+            }
+            ***/
         }
         else
         {
@@ -927,11 +1079,25 @@ void Particle::calVari(const ParticleType pt)
         _s1 = gsl_stats_sd(_t.col(1).data(), 1, _t.rows());
 #endif
 
+#ifdef PARTICLE_RHO
+        _rho = gsl_stats_covariance(_t.col(0).data(),
+                                    1,
+                                    _t.col(1).data(),
+                                    1,
+                                    _t.rows());
+        if (_rho > _s0 * _s1 * RHO_MAX) _rho = _s0 * _s1 * RHO_MAX;
+        if (_rho < _s0 * _s1 * RHO_MIN) _rho = _s0 * _s1 * RHO_MIN;
+#else
         _rho = 0;
+#endif
     }
     else if (pt == PAR_D)
     {
+#ifdef PARTICLE_CAL_VARI_DEFOCUS_ZERO_MEAN
+        _s = gsl_stats_sd_m(_d.data(), 1, _d.size(), 0);
+#else
         _s = gsl_stats_sd(_d.data(), 1, _d.size());
+#endif
     }
 }
 
@@ -948,7 +1114,7 @@ void Particle::perturb(const double pf,
 
         if (_mode == MODE_2D)
         {
-            sampleVMS(d, dvec4(1, 0, 0, 0), GSL_MIN_DBL(1, _k1 * pf), _nR);
+            sampleVMS(d, dvec4(1, 0, 0, 0), GSL_MIN_DBL(PERTURB_K_MAX, _k1 * pf), _nR);
 
             dvec4 quat;
 
@@ -960,11 +1126,15 @@ void Particle::perturb(const double pf,
 
                 _r.row(i) = quat.transpose();
             }
+
+#ifdef PARTICLE_BALANCE_WEIGHT_R
+        balanceWeight(PAR_R);
+#endif
         }
         else if (_mode == MODE_3D)
         {
 #ifdef PARTICLE_ROTATION_KAPPA
-            double kappa = GSL_MIN_DBL(1, GSL_MAX_DBL(_k1, GSL_MAX_DBL(_k2, _k3)));
+            double kappa = GSL_MIN_DBL(PERTURB_K_MAX, GSL_MAX_DBL(_k1, GSL_MAX_DBL(_k2, _k3)));
             sampleACG(d,
                       gsl_pow_2(pf) * kappa,
                       gsl_pow_2(pf) * kappa,
@@ -972,15 +1142,19 @@ void Particle::perturb(const double pf,
                       _nR);
 #else
             sampleACG(d,
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k1),
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k2),
-                      gsl_pow_2(pf) * GSL_MIN_DBL(1, _k3),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(PERTURB_K_MAX, _k1),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(PERTURB_K_MAX, _k2),
+                      gsl_pow_2(pf) * GSL_MIN_DBL(PERTURB_K_MAX, _k3),
                       _nR);
 #endif
 
             dvec4 mean;
 
+#ifdef PARTICLE_ROT_MEAN_USING_STAT_PERTURB
             inferACG(mean, _r);
+#else
+            mean = _topR;
+#endif
 
             dvec4 quat;
 
@@ -1003,8 +1177,6 @@ void Particle::perturb(const double pf,
                 _r.row(i) = quat.transpose();
             }
 
-            symmetrise();
-
             for (int i = 0; i < _nR; i++)
             {
                 quat = _r.row(i).transpose();
@@ -1013,6 +1185,8 @@ void Particle::perturb(const double pf,
 
                 _r.row(i) = quat.transpose();
             }
+
+            symmetrise(&mean);
         }
         else
         {
@@ -1020,6 +1194,10 @@ void Particle::perturb(const double pf,
 
             abort();
         }
+
+#ifdef PARTICLE_BALANCE_WEIGHT_R
+        balanceWeight(PAR_R);
+#endif
     }
     else if (pt == PAR_T)
     {
@@ -1031,9 +1209,11 @@ void Particle::perturb(const double pf,
 
 #ifdef PARTICLE_TRANSLATION_S
             double s = GSL_MAX_DBL(_s0, _s1);
-            gsl_ran_bivariate_gaussian(engine, s, s, _rho, &x, &y);
+            //gsl_ran_bivariate_gaussian(engine, s, s, 0, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, s, s, _rho / s / s, &x, &y);
 #else
-            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho, &x, &y);
+            //gsl_ran_bivariate_gaussian(engine, _s0, _s1, 0, &x, &y);
+            gsl_ran_bivariate_gaussian(engine, _s0, _s1, _rho / _s0 / _s1, &x, &y);
 #endif
 
             _t(i, 0) += x * pf;
@@ -1045,6 +1225,10 @@ void Particle::perturb(const double pf,
         reCentre();
 
 #endif
+
+#ifdef PARTICLE_BALANCE_WEIGHT_T
+        balanceWeight(PAR_T);
+#endif
     }
     else if (pt == PAR_D)
     {
@@ -1052,6 +1236,10 @@ void Particle::perturb(const double pf,
 
         for (int i = 0; i < _nD; i++)
             _d(i) += gsl_ran_gaussian(engine, _s) * pf;
+
+#ifdef PARTICLE_BALANCE_WEIGHT_D
+        balanceWeight(PAR_D);
+#endif
     }
 }
 
@@ -1660,13 +1848,21 @@ void Particle::setPeakFactor(const ParticleType pt)
     ***/
 
     if (pt == PAR_C)
-        _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uC(order(_nC / 2)) / _uC(order(0))));
+    {
+#ifdef PARTICLE_PEAK_FACTOR_C
+        _peakFactorC = PEAK_FACTOR_C;
+#else
+        _peakFactorC = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uC(order(_nC / PEAK_FACTOR_BASE)) / _uC(order(0))));
+#endif
+    }
     else if (pt == PAR_R)
     {
+        //_peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
+
         if (_mode == MODE_2D)
-            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 2)) / _uR(order(0))));
+            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / PEAK_FACTOR_BASE)) / _uR(order(0))));
         else if (_mode == MODE_3D)
-            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / 8)) / _uR(order(0))));
+            _peakFactorR = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uR(order(_nR / gsl_pow_3(PEAK_FACTOR_BASE))) / _uR(order(0))));
         else
         {
             REPORT_ERROR("INEXISTENT MODE");
@@ -1674,9 +1870,29 @@ void Particle::setPeakFactor(const ParticleType pt)
         }
     }
     else if (pt == PAR_T)
-        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(_nT / 4)) / _uT(order(0))));
+    {
+#ifdef PARTICLE_TRANS_INIT_GAUSSIAN
+        //int t = FLOOR(_nT * (gsl_cdf_gaussian_P(1, 2) - gsl_cdf_gaussian_P(-1, 2)));
+        int t = FLOOR(_nT * gsl_cdf_chisq_P(1, 2));
+        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(t)) / _uT(order(0))));
+#endif
+
+#ifdef PARTICLE_TRANS_INIT_FLAT
+        _peakFactorT = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uT(order(_nT / gsl_pow_2(PEAK_FACTOR_BASE))) / _uT(order(0))));
+#endif
+    }
     else if (pt == PAR_D)
-        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(_nD / 2)) / _uD(order(0))));
+    {
+#ifdef PARTICLE_DEFOCUS_INIT_GAUSSIAN
+        //int t = FLOOR(_nD * (gsl_cdf_gaussian_P(1, 1) - gsl_cdf_gaussian_P(-1, 1)));
+        int t = FLOOR(_nT * gsl_cdf_chisq_P(1, 1));
+        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(t)) / _uD(order(0))));
+#endif
+
+#ifdef PARTICLE_DEFOCUS_INIT_FLAT
+        _peakFactorD = GSL_MAX_DBL(PEAK_FACTOR_MIN, GSL_MIN_DBL(PEAK_FACTOR_MAX, _uD(order(_nD / PEAK_FACTOR_BASE)) / _uD(order(0))));
+#endif
+    }
 }
 
 void Particle::resetPeakFactor()
@@ -2036,16 +2252,85 @@ void Particle::balanceWeight(const ParticleType pt)
 {
     if (pt == PAR_C)
     {
+        CLOG(FATAL, "LOGGER_SYS") << "PAR_C WEIGHT SHOULD NOT BE BALANCED";
     }
     else if (pt == PAR_R)
     {
+        if (_mode == MODE_2D)
+        {
+            dvec2 mu;
+            double k;
+
+            inferVMS(mu, k, _r.leftCols<2>());
+
+            for (int i = 0; i < _nR; i++)
+            {
+                _wR(i) = 1.0 / pdfVMS(dvec2(_r(i, 0), _r(i, 1)), mu, k);
+            }
+        }
+        else if (_mode == MODE_3D)
+        {
+            dmat44 A;
+
+            inferACG(A, _r);
+
+            for (int i = 0; i < _nR; i++)
+            {
+                _wR(i) = 1.0 / pdfACG(_r.row(i).transpose(), A);
+            }
+        }
     }
     else if (pt == PAR_T)
     {
+        double m0, m1, s0, s1, rho;
+
+#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
+        m0 = 0;
+        m1 = 0;
+#else
+        m0 = gsl_stats_mean(_t.col(0).data(), 1, _t.rows());
+        m1 = gsl_stats_mean(_t.col(1).data(), 1, _t.rows());
+#endif
+
+        s0 = gsl_stats_sd_m(_t.col(0).data(), 1, _t.rows(), m0);
+        s1 = gsl_stats_sd_m(_t.col(1).data(), 1, _t.rows(), m1);
+
+#ifdef PARTICLE_RHO
+        rho = gsl_stats_covariance(_t.col(0).data(), 1, _t.col(1).data(), 1, _t.rows());
+        if (rho > s0 * s1 * RHO_MAX) rho = s0 * s1 * RHO_MAX;
+        if (rho < s0 * s1 * RHO_MIN) rho = s0 * s1 * RHO_MIN;
+#else
+        rho = 0;
+#endif
+
+        for (int i = 0; i < _nT; i++)
+        {
+            _wT(i) = 1.0 / gsl_ran_bivariate_gaussian_pdf(_t(i, 0) - m0,
+                                                          _t(i, 1) - m1,
+                                                          s0,
+                                                          s1,
+                                                          rho / s0 / s1);
+        }
     }
     else if (pt == PAR_D)
     {
+        double m, s;
+
+#ifdef PARTICLE_CAL_VARI_TRANS_ZERO_MEAN
+        m = 0;
+#else
+        m = gsl_stats_mean(_d.data(), 1, _d.size());
+#endif
+
+        s = gsl_stats_sd_m(_d.data(), 1, _d.size(), m);
+
+        for (int i = 0; i < _nD; i++)
+        {
+            _wD(i) = 1.0 / gsl_ran_gaussian_pdf(_d(i) - m, s);
+        }
     }
+
+    normW();
 }
 
 void Particle::copy(Particle& that) const
@@ -2081,7 +2366,7 @@ Particle Particle::copy() const
     return that;
 }
 
-void Particle::symmetrise()
+void Particle::symmetrise(const dvec4* anchor)
 {
     if (_sym == NULL) return;
 
@@ -2101,7 +2386,7 @@ void Particle::symmetrise()
 
         // quaternion_mul(quat, quaternion_conj(mean), quat);
 
-        symmetryCounterpart(quat, *_sym);
+        symmetryCounterpart(quat, *_sym, anchor);
 
         // quaternion_mul(quat, mean, quat);
 
@@ -2111,7 +2396,11 @@ void Particle::symmetrise()
 
 void Particle::reCentre()
 {
+#ifdef PARTICLE_RECENTRE_TRANSQ
     double transM = _transS * gsl_cdf_chisq_Qinv(_transQ, 2);
+#else
+    double transM = 2 * _transS;
+#endif
 
     gsl_rng* engine = get_random_engine();
 

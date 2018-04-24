@@ -265,8 +265,9 @@ void display(const Symmetry& sym);
 
 bool asymmetry(const Symmetry& sym);
 
-void symmetryCounterpart(dvec4& quat,
-                         const Symmetry& sym);
+void symmetryCounterpart(dvec4& dst,
+                         const Symmetry& sym,
+                         const dvec4* anchor = NULL);
 
 void symmetryRotation(vector<dmat33>& sr,
                       const dmat33 rot,

@@ -25,6 +25,7 @@
 #include "Macro.h"
 #include "Typedef.h"
 #include "Random.h"
+#include "Functions.h"
 
 /**
  * Probabilty Density Function of Angular Central Gaussian Distribution
@@ -125,6 +126,9 @@ void inferACG(double& k0,
               double& k1,
               const dmat4& src);
 
+void inferACG(double& k,
+              const dmat4& src);
+
 void inferACG(double& k1,
               double& k2,
               double& k3,
@@ -182,7 +186,7 @@ void inferVMS(dvec2& mu,
               double& k,
               const dmat2& src);
 
-void inferVMS(double& kappa,
+void inferVMS(double& k,
               const dmat2& src);
 
 void inferVMS(dvec4& mu,
