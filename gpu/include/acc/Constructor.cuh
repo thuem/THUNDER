@@ -325,9 +325,9 @@ class Constructor
          * @param ...
          */
         D_CALLABLE void checkCAVG(RFLOAT *sumDiff,
-                                  RFLOAT *sumCount,
+                                  int *sumCount,
                                   RFLOAT *diff,
-                                  RFLOAT *counter,
+                                  int *counter,
                                   Complex *devDataC,
                                   int r,
                                   int dim,

@@ -116,6 +116,125 @@ void expectGlobal3D(Complex* volume,
                     int imgNum);
 
 /**
+ * @brief  Expectation GLobal.
+ *
+ * @param
+ * @param
+ */
+void expectRotran(Complex* traP,
+                  double* trans,
+                  double* rot,
+                  double* rotMat,
+                  const int *iCol,
+                  const int *iRow,
+                  int nR,
+                  int nT,
+                  int idim,
+                  int npxl);
+
+/**
+ * @brief  Expectation GLobal.
+ *
+ * @param
+ * @param
+ */
+void expectProject(Complex* volume,
+                   Complex* rotP,
+                   double* rotMat,
+                   const int *iCol,
+                   const int *iRow,
+                   int nR,
+                   int pf,
+                   int interp,
+                   int idim,
+                   int vdim,
+                   int npxl);
+
+/**
+ * @brief  Expectation GLobal.
+ *
+ * @param
+ * @param
+ */
+void expectGlobal3D(Complex* rotP,
+                    Complex* traP,
+                    Complex* datP,
+                    RFLOAT* ctfP,
+                    RFLOAT* sigRcpP,
+                    RFLOAT* wC,
+                    RFLOAT* wR,
+                    RFLOAT* wT,
+                    RFLOAT* baseL,
+                    int kIdx,
+                    int nK,
+                    int nR,
+                    int nT,
+                    int idim,
+                    int npxl,
+                    int imgNum);
+
+/**
+ * @brief Insert images into volume.
+ *
+ * @param
+ * @param
+ */
+void InsertI2D(Complex *F2D,
+               RFLOAT *T2D,
+               MPI_Comm& hemi,
+               Complex *datP,
+               RFLOAT *ctfP,
+               RFLOAT *sigRcpP,
+               RFLOAT *w,
+               double *offS,
+               int *nC,
+               double *nR,
+               double *nT,
+               double *nD,
+               CTFAttr *ctfaData,
+               const int *iCol,
+               const int *iRow,
+               RFLOAT pixelSize,
+               bool cSearch,
+               int nk,
+               int opf,
+               int npxl,
+               int mReco,
+               int idim,
+               int vdim,
+               int imgNum);
+
+/**
+ * @brief Insert images into volume.
+ *
+ * @param
+ * @param
+ */
+void InsertFT(Complex *F3D,
+              RFLOAT *T3D,
+              MPI_Comm& hemi,
+              Complex *datP,
+              RFLOAT *ctfP,
+              RFLOAT *sigRcpP,
+              CTFAttr *ctfaData,
+              double *offS,
+              RFLOAT *w,
+              double *nR,
+              double *nT,
+              double *nD,
+              int *nC,
+              const int *iCol,
+              const int *iRow,
+              RFLOAT pixelSize,
+              bool cSearch,
+              int opf,
+              int npxl,
+              int mReco,
+              int imgNum,
+              int idim,
+              int vdim);
+
+/**
  * @brief Insert images into volume.
  *
  * @param
@@ -183,7 +302,8 @@ void InsertF(Complex *F3D,
  * @param
  * @param
  */
-void PrepareTF(Complex *F3D,
+void PrepareTF(int gpuIdx,
+               Complex *F3D,
                RFLOAT *T3D,
                const double *symMat,
                const RFLOAT sf,
@@ -199,7 +319,25 @@ void PrepareTF(Complex *F3D,
  * @param
  * @param
  */
-void CalculateT(RFLOAT *T3D,
+void CalculateT2D(int gpuIdx,
+                  RFLOAT *T2D,
+                  RFLOAT *FSC,
+                  const int fscMatsize,
+                  const bool joinHalf,
+                  const int maxRadius,
+                  const int wienerF,
+                  const int dim,
+                  const int pf);
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void CalculateT(int gpuIdx,
+                RFLOAT *T3D,
                 RFLOAT *FSC,
                 const int fscMatsize,
                 const bool joinHalf,
@@ -214,7 +352,20 @@ void CalculateT(RFLOAT *T3D,
  * @param ..
  * @param ..
  */
-void CalculateW(RFLOAT *T3D,
+void CalculateW2D(int gpuIdx,
+                  RFLOAT *T2D,
+                  RFLOAT *W2D,
+                  const int dim,
+                  const int r);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void CalculateW(int gpuIdx,
+                RFLOAT *T3D,
                 RFLOAT *W3D,
                 const int dim,
                 const int r);
@@ -225,7 +376,28 @@ void CalculateW(RFLOAT *T3D,
  * @param ..
  * @param ..
  */
-void CalculateW(Complex *C3D,
+void CalculateW2D(int gpuIdx,
+                  RFLOAT *T2D,
+                  RFLOAT *W2D,
+                  RFLOAT *tabdata,
+                  RFLOAT begin,
+                  RFLOAT end,
+                  RFLOAT step,
+                  int tabsize, 
+                  const int dim,
+                  const int r,
+                  const RFLOAT nf,
+                  const int maxIter,
+                  const int minIter,
+                  const int padSize);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void CalculateW(int gpuIdx,
                 RFLOAT *T3D,
                 RFLOAT *W3D,
                 RFLOAT *tabdata,
@@ -243,12 +415,30 @@ void CalculateW(Complex *C3D,
 /**
  * @brief
  *
+ * @param 
+ * @param
+ * @param
+ */
+void CalculateF2D(int gpuIdx,
+                  Complex *padDst,
+                  Complex *F2D,
+                  RFLOAT *padDstR,
+                  RFLOAT *W2D,
+                  const int r,
+                  const int pdim,
+                  const int fdim);
+
+/**
+ * @brief
+ *
  * @param
  * @param
  * @param
  */
-void CalculateF(Complex *padDst,
+void CalculateF(int gpuIdx,
+                Complex *padDst,
                 Complex *F3D,
+                RFLOAT *padDstR,
                 RFLOAT *W3D,
                 const int r,
                 const int pdim,
@@ -261,7 +451,23 @@ void CalculateF(Complex *padDst,
  * @param
  * @param
  */
-void CorrSoftMaskF(RFLOAT *dst,
+void CorrSoftMaskF2D(int gpuIdx,
+                     RFLOAT *dstI,
+                     Complex *dst,
+                     RFLOAT *mkbRL,
+                     RFLOAT nf,
+                     const int dim);
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void CorrSoftMaskF(int gpuIdx,
+                   Complex *dst,
+                   RFLOAT *dstN,
                    RFLOAT *mkbRL,
                    RFLOAT nf,
                    const int dim);
@@ -273,7 +479,8 @@ void CorrSoftMaskF(RFLOAT *dst,
  * @param
  * @param
  */
-void CorrSoftMaskF(RFLOAT *dst,
+void CorrSoftMaskF(int gpuIdx,
+                   RFLOAT *dst,
                    RFLOAT *mkbRL,
                    RFLOAT nf,
                    const int dim,

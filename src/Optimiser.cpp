@@ -654,19 +654,16 @@ void Optimiser::expectationG()
             par.copy(_par[l]);
         }
 
-        dmat22 rot2D;
-        dmat33 rot3D;
-        dvec2 t;
-
         RFLOAT* wc = new RFLOAT[_ID.size() * _para.k];
         RFLOAT* wr = new RFLOAT[_ID.size() * nR];
         RFLOAT* wt = new RFLOAT[_ID.size() * nT];
 
         if (_para.mode == MODE_3D)
         {            
-            Complex* vol = &((const_cast<Volume&>(_model.proj(0).projectee3D()))[0]);    
             double* trans = new double[nT * 2];
             double* rot = new double[nR * 4];
+            double* rotMat = new double[nR * 9];
+            RFLOAT* baseL = new RFLOAT[_ID.size()];
 
             for (int k = 0; k < nT; k++)
                 Map<dvec2>(trans + k * 2, 2, 1) = par.t().row(k).transpose();
@@ -674,29 +671,84 @@ void Optimiser::expectationG()
             for (int k = 0; k < nR; k++)
                 Map<dvec4>(rot + k * 4, 4, 1) = par.r().row(k).transpose();
         
-            ExpectGlobal3D(vol,
-                           _datP,
-                           _ctfP,
-                           _sigRcpP,
-                           trans,
-                           wc,
-                           wr,
-                           wt,
-                           rot,
-                           _iCol, 
-                           _iRow,
-                           _para.k,
-                           nR,
-                           nT,
-                           _model.proj(0).pf(),
-                           _model.proj(0).interp(),
-                           _para.size,
-                           _model.proj(0).projectee3D().nSlcFT(), 
-                           _nPxl,
-                           _ID.size());
+            Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
+
+            ExpectRotran(traP,
+                         trans,
+                         rot,
+                         rotMat,
+                         _iCol,
+                         _iRow,
+                         nR,
+                         nT,
+                         _para.size,
+                         _nPxl);
             
             delete[] trans;
             delete[] rot;
+            
+            Complex* rotP = (Complex*)TSFFTW_malloc(nR * _nPxl * sizeof(Complex));
+            Complex* vol;
+            
+            for (size_t t = 0; t < (size_t)_para.k; t++)
+            {
+                vol = &((const_cast<Volume&>(_model.proj(t).projectee3D()))[0]);    
+                
+                ExpectProject(vol,
+                              rotP,
+                              rotMat,
+                              _iCol,
+                              _iRow,
+                              nR,
+                              _model.proj(t).pf(),
+                              _model.proj(t).interp(),
+                              _para.size,
+                              _model.proj(t).projectee3D().nSlcFT(),
+                              _nPxl);
+
+                ExpectGlobal3D(rotP,
+                               traP,
+                               _datP,
+                               _ctfP,
+                               _sigRcpP,
+                               wc,
+                               wr,
+                               wt,
+                               baseL,
+                               t,
+                               _para.k,
+                               nR,
+                               nT,
+                               _para.size,
+                               _nPxl,
+                               _ID.size());
+            }
+            
+            delete[] baseL;
+            delete[] rotMat;
+            TSFFTW_free(traP);
+            TSFFTW_free(rotP);
+
+            //ExpectGlobal3D(vol,
+            //               _datP,
+            //               _ctfP,
+            //               _sigRcpP,
+            //               trans,
+            //               wc,
+            //               wr,
+            //               wt,
+            //               rot,
+            //               _iCol, 
+            //               _iRow,
+            //               _para.k,
+            //               nR,
+            //               nT,
+            //               _model.proj(0).pf(),
+            //               _model.proj(0).interp(),
+            //               _para.size,
+            //               _model.proj(0).projectee3D().nSlcFT(), 
+            //               _nPxl,
+            //               _ID.size());
         }
         else
         {
@@ -4872,101 +4924,15 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                         ((_para.cSearch) &&
                         (_searchType == SEARCH_TYPE_STOP)));
 
-        Complex* poolTransImgP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
-
         if (_para.mode == MODE_2D)
         {
-            #pragma omp parallel for
-            FOR_EACH_2D_IMAGE
-            {
-                RFLOAT* ctf;
-                RFLOAT w;
-
-                if ((_para.parGra) && (_para.k == 1))
-                    w = _par[l].compress();
-                else
-                    w = 1;
-
-                w /= _para.mReco;
-
-                Complex* transImgP = poolTransImgP + _nPxl * omp_get_thread_num();
-                Complex* orignImgP = _datP + _nPxl * l;
-
-                for (int m = 0; m < _para.mReco; m++)
-                {
-                    size_t cls;
-                    dvec4 quat;
-                    dvec2 tran;
-                    double d;
-
-                    _par[l].rand(cls, quat, tran, d);
-
-                    dmat22 rot2D;
-
-                    rotate2D(rot2D, dvec2(quat(0), quat(1)));
-
-                    translate(transImgP,
-                              orignImgP,
-                              -(tran - _offset[l])(0),
-                              -(tran - _offset[l])(1),
-                              _para.size,
-                              _para.size,
-                              _iCol,
-                              _iRow,
-                              _nPxl);
-
-                    if (cSearch)
-                    {
-                        ctf = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
-
-                        CTF(ctf,
-                            _para.pixelSize,
-                            _ctfAttr[l].voltage,
-                            _ctfAttr[l].defocusU * d,
-                            _ctfAttr[l].defocusV * d,
-                            _ctfAttr[l].defocusTheta,
-                            _ctfAttr[l].Cs,
-                            _ctfAttr[l].amplitudeContrast,
-                            _ctfAttr[l].phaseShift,
-                            _para.size,
-                            _para.size,
-                            _iCol,
-                            _iRow,
-                            _nPxl);
-                    }
-                    else
-                    {
-                        ctf = _ctfP + _nPxl * l;
-                    }
-#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-                    vec sig = _sig.row(_groupID[l] - 1).transpose();
-
-                    _model.reco(cls).insertP(transImgP,
-                                             ctf,
-                                             rot2D,
-                                             w,
-                                             &sig);
-#else
-                    _model.reco(cls).insertP(transImgP,
-                                             ctf,
-                                             rot2D,
-                                             w);
-#endif
-
-                    if (cSearch) TSFFTW_free(ctf);
-                }
-            }
-
-        }    
-        else if (_para.mode == MODE_3D)
-        {
-            
             RFLOAT *w = new RFLOAT[_ID.size()];
             double *offS = new double[_ID.size() * 2];
-            double *nr = new double[_para.mReco * _ID.size() * 4];
+            double *nr = new double[_para.mReco * _ID.size() * 2];
             double *nt = new double[_para.mReco * _ID.size() * 2];
             double *nd = new double[_para.mReco * _ID.size()];
             CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+            int *nc = new int[_para.mReco * _ID.size()];
             
             #pragma omp parallel for
             FOR_EACH_2D_IMAGE
@@ -5002,12 +4968,11 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                     _par[l].rand(cls, quat, tran, d);
 
+                    nc[shift + m] = cls;
                     nt[(shift + m) * 2] = tran(0);
                     nt[(shift + m) * 2 + 1] = tran(1);
-                    nr[(shift + m) * 4] = quat(0);
-                    nr[(shift + m) * 4 + 1] = quat(1);
-                    nr[(shift + m) * 4 + 2] = quat(2);
-                    nr[(shift + m) * 4 + 3] = quat(3);
+                    nr[(shift + m) * 2] = quat(0);
+                    nr[(shift + m) * 2 + 1] = quat(1);
                     if (cSearch)
                     {
                         nd[shift + m] = d;
@@ -5015,17 +4980,213 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 }
             }
             
-            _model.reco(0).insertI(_datP, _ctfP, _sigP, w, offS, nr,
-                                   nt, nd, ctfaData, _para.pixelSize, 
-                                   cSearch, _para.pf, _para.mReco, 
-                                   _para.size, _ID.size()); 
+            int vdim = _model.reco(0).getModelDim();
+            int modelSize = _model.reco(0).getModelSize();
+            Complex* modelF = new Complex[_para.k * modelSize];
+            RFLOAT* modelT = new RFLOAT[_para.k * modelSize];
+            
+            #pragma omp parallel for
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).getF(modelF + t * modelSize);
+                _model.reco(t).getT(modelT + t * modelSize);
+            }
+            
+            InsertI2D(modelF, modelT, _hemi, _datP, _ctfP, 
+                      _sigP, w, offS, nc, nr, nt, nd, ctfaData, 
+                      _iColPad, _iRowPad, _para.pixelSize, 
+                      cSearch, _para.k, _para.pf, _nPxl, 
+                      _para.mReco, _para.size, vdim, _ID.size()); 
 
+            #pragma omp parallel for
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).resetF(modelF + t * modelSize);
+                _model.reco(t).resetT(modelT + t * modelSize);
+            }
+            
+            delete[]modelF;
+            delete[]modelT;
             delete[]w;
             delete[]offS;            
+            delete[]nc;            
             delete[]nr;            
             delete[]nt;            
             delete[]nd;            
             delete[]ctfaData;            
+
+        }    
+        else if (_para.mode == MODE_3D)
+        {
+            
+            if (_para.k != 1)
+            {
+                RFLOAT *w = new RFLOAT[_ID.size()];
+                double *offS = new double[_ID.size() * 2];
+                double *maxC = new double[_para.k];
+                int *nc = new int[_para.k * _ID.size()];
+                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                
+                #pragma omp parallel for
+                FOR_EACH_2D_IMAGE
+                {
+                    if (_para.parGra && _para.k == 1)
+                        w[l] = _par[l].compress();
+                    else
+                        w[l] = 1;
+
+                    w[l] /= _para.mReco;
+
+                    if (cSearch)
+                    {
+                        ctfaData[l].voltage           = _ctfAttr[l].voltage;
+                        ctfaData[l].defocusU          = _ctfAttr[l].defocusU;
+                        ctfaData[l].defocusV          = _ctfAttr[l].defocusV;
+                        ctfaData[l].defocusTheta      = _ctfAttr[l].defocusTheta;
+                        ctfaData[l].Cs                = _ctfAttr[l].Cs;
+                        ctfaData[l].amplitudeContrast = _ctfAttr[l].amplitudeContrast;
+                        ctfaData[l].phaseShift        = _ctfAttr[l].phaseShift;
+                    }
+        
+                    offS[l * 2] = _offset[l](0); 
+                    offS[l * 2 + 1] = _offset[l](1);
+                    
+                    for (int m = 0; m < _para.mReco; m++)
+                    {
+                        size_t cls;
+                        _par[l].rand(cls);
+                        nc[cls * _ID.size() + l]++;
+                    }
+                }
+           
+                int temp = 0;
+                for (int t = 0; t < _para.k; t++)
+                {
+                    temp = 0;
+                    int shiftc = t * _ID.size();
+                    for (size_t l = 0; l < _ID.size(); l++)
+                    {
+                        if (nc[shiftc + l] > temp)
+                            temp = nc[shiftc + l];
+                    }
+
+                    if (temp != 0)
+                    {
+                        double *nr = new double[temp * _ID.size() * 4];
+                        double *nt = new double[temp * _ID.size() * 2];
+                        double *nd = new double[temp * _ID.size()];
+                        
+                        #pragma omp parallel for
+                        FOR_EACH_2D_IMAGE
+                        {
+                            int shift = l * temp;
+                            for (int m = 0; m < temp; m++)
+                            {
+                                dvec4 quat;
+                                dvec2 tran;
+                                double d;
+                                _par[l].rand(quat);
+                                _par[l].rand(tran);
+                                _par[l].rand(d);
+
+                                nt[(shift + m) * 2] = tran(0);
+                                nt[(shift + m) * 2 + 1] = tran(1);
+                                nr[(shift + m) * 4] = quat(0);
+                                nr[(shift + m) * 4 + 1] = quat(1);
+                                nr[(shift + m) * 4 + 2] = quat(2);
+                                nr[(shift + m) * 4 + 3] = quat(3);
+                                if (cSearch)
+                                {
+                                    nd[shift + m] = d;
+                                }
+                            }
+                        }
+           
+                        _model.reco(t).insertI(_datP, _ctfP, _sigP, w, offS, nr, 
+                                               nt, nd, nc + shiftc, ctfaData, 
+                                               _para.pixelSize, cSearch, _para.pf, 
+                                               temp, _para.size, _ID.size()); 
+
+                        delete[]nr;            
+                        delete[]nt;            
+                        delete[]nd;
+                    }            
+                }
+
+                delete[]w;
+                delete[]offS;            
+                delete[]maxC;            
+                delete[]nc;            
+                delete[]ctfaData;            
+            }
+            else
+            {
+                RFLOAT *w = new RFLOAT[_ID.size()];
+                double *offS = new double[_ID.size() * 2];
+                double *nr = new double[_para.mReco * _ID.size() * 4];
+                double *nt = new double[_para.mReco * _ID.size() * 2];
+                double *nd = new double[_para.mReco * _ID.size()];
+                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                
+                #pragma omp parallel for
+                FOR_EACH_2D_IMAGE
+                {
+                    if (_para.parGra && _para.k == 1)
+                        w[l] = _par[l].compress();
+                    else
+                        w[l] = 1;
+
+                    w[l] /= _para.mReco;
+
+                    if (cSearch)
+                    {
+                        ctfaData[l].voltage           = _ctfAttr[l].voltage;
+                        ctfaData[l].defocusU          = _ctfAttr[l].defocusU;
+                        ctfaData[l].defocusV          = _ctfAttr[l].defocusV;
+                        ctfaData[l].defocusTheta      = _ctfAttr[l].defocusTheta;
+                        ctfaData[l].Cs                = _ctfAttr[l].Cs;
+                        ctfaData[l].amplitudeContrast = _ctfAttr[l].amplitudeContrast;
+                        ctfaData[l].phaseShift        = _ctfAttr[l].phaseShift;
+                    }
+        
+                    offS[l * 2] = _offset[l](0); 
+                    offS[l * 2 + 1] = _offset[l](1);
+                    
+                    int shift = l * _para.mReco;
+                    for (int m = 0; m < _para.mReco; m++)
+                    {
+                        size_t cls;
+                        dvec4 quat;
+                        dvec2 tran;
+                        double d;
+
+                        _par[l].rand(cls, quat, tran, d);
+
+                        nt[(shift + m) * 2] = tran(0);
+                        nt[(shift + m) * 2 + 1] = tran(1);
+                        nr[(shift + m) * 4] = quat(0);
+                        nr[(shift + m) * 4 + 1] = quat(1);
+                        nr[(shift + m) * 4 + 2] = quat(2);
+                        nr[(shift + m) * 4 + 3] = quat(3);
+                        if (cSearch)
+                        {
+                            nd[shift + m] = d;
+                        }
+                    }
+                }
+                
+                _model.reco(0).insertI(_datP, _ctfP, _sigP, w, offS, nr,
+                                       nt, nd, ctfaData, _para.pixelSize, 
+                                       cSearch, _para.pf, _para.mReco, 
+                                       _para.size, _ID.size()); 
+
+                delete[]w;
+                delete[]offS;            
+                delete[]nr;            
+                delete[]nt;            
+                delete[]nd;            
+                delete[]ctfaData;            
+            }
 
             //_model.reco(0).insertFT(_datP, _ctfP, _sigP, _par,
             //                        _offset, _ctfAttr, _para.pixelSize, cSearch,
@@ -5043,17 +5204,25 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
         MPI_Barrier(_hemi);
 
-        for (int t = 0; t < _para.k; t++)
+        if (_para.mode == MODE_3D)
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
-                                       << t;
-            BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
-                                       << t;
+            vector<int> gpus;
 
-            if (_para.mode == MODE_3D)
-              _model.reco(t).prepareTFG();
-            else
-              _model.reco(t).prepareTF();
+            getAviDevice(gpus);
+           
+            int deviceNum = gpus.size();
+
+            #pragma omp parallel for num_threads(deviceNum)
+            for (int t = 0; t < _para.k; t++)
+            {
+                ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                           << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                           << t;
+
+                _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
+                //_model.reco(t).prepareTFG(0);
+            }
         }
     }
 
@@ -5063,6 +5232,19 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
+            vector<int> gpus;
+
+            getAviDevice(gpus);
+           
+            int deviceNum = gpus.size();
+
+            for (int t = 0; t < _para.k; t++)
+            {
+                #pragma omp parallel for
+                SET_0_FT(_model.ref(t));
+            }
+
+            #pragma omp parallel for num_threads(deviceNum)
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(false);
@@ -5105,24 +5287,9 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 Volume ref;
 
-                if (_para.mode == MODE_2D)
-                {
-                    _model.reco(t).reconstruct(ref);
-                }
-                else if (_para.mode == MODE_3D)
-                {
-                    _model.reco(t).reconstructG(ref);
-                }
-
-#ifdef VERBOSE_LEVEL_2
-                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-#endif
-
-                fft.fwMT(ref);
-
-                #pragma omp parallel for
-                SET_0_FT(_model.ref(t));
+                //_model.reco(t).reconstruct(ref);
+                _model.reco(t).reconstructG(ref,
+                                            0);
 
                 COPY_FT(_model.ref(t), ref);
 
@@ -5199,6 +5366,19 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
+            vector<int> gpus;
+
+            getAviDevice(gpus);
+           
+            int deviceNum = gpus.size();
+
+            for (int t = 0; t < _para.k; t++)
+            {
+                #pragma omp parallel for
+                SET_0_FT(_model.ref(t));
+            }
+
+            #pragma omp parallel for num_threads(deviceNum)
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(true);
@@ -5241,24 +5421,9 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 Volume ref;
 
-                if (_para.mode == MODE_2D)
-                {
-                    _model.reco(t).reconstruct(ref);
-                }
-                else if (_para.mode == MODE_3D)
-                {
-                    _model.reco(t).reconstructG(ref);
-                }
-
-#ifdef VERBOSE_LEVEL_2
-                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-#endif
-
-                fft.fwMT(ref);
-
-                #pragma omp parallel for
-                SET_0_FT(_model.ref(t));
+                //_model.reco(t).reconstruct(ref);
+                _model.reco(t).reconstructG(ref,
+                                            0);
 
                 COPY_FT(_model.ref(t), ref);
 

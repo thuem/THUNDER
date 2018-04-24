@@ -448,6 +448,23 @@ class Reconstructor : public Parallel
                      double* nr,
                      double* nt,
                      double* nd,
+                     int* nc,
+                     CTFAttr* ctfaData, 
+                     RFLOAT pixelSize,
+                     bool cSearch,
+                     int opf,
+                     int mReco,
+                     int idim,
+                     int imgNum);
+
+        void insertI(Complex* datP,
+                     RFLOAT* ctfP,
+                     RFLOAT* sigP,
+                     RFLOAT* w,
+                     double* offS,
+                     double* nr,
+                     double* nt,
+                     double* nd,
                      CTFAttr* ctfaData, 
                      RFLOAT pixelSize,
                      bool cSearch,
@@ -471,7 +488,18 @@ class Reconstructor : public Parallel
                       int idim,
                       int imgNum);
 
-        void prepareTFG();
+        int getModelDim();
+        int getModelSize();
+
+        void getF(Complex* modelF);
+
+        void getT(RFLOAT* modelT);
+
+        void resetF(Complex* modelF);
+
+        void resetT(RFLOAT* modelT);
+
+        void prepareTFG(int gpuIdx);
 
         void prepareTF();
 
@@ -487,7 +515,8 @@ class Reconstructor : public Parallel
          *            result of reconstruction into.
          */
         void reconstruct(Volume& dst);
-        void reconstructG(Volume& dst);
+        void reconstructG(Volume& dst,
+                          int gpuIdx);
 
     private:
 

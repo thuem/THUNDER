@@ -22,7 +22,7 @@ HD_CALLABLE void WG_LINEAR_INTERP(RFLOAT w[2], int& x0, const RFLOAT x)
     w[1] = x - x0;
 }
 
-HD_CALLABLE void WG_BI_LINEAR_INTERP(RFLOAT w[2][2], int x0[2], const RFLOAT x[2])
+HD_CALLABLE void WG_BI_LINEAR_INTERPF(RFLOAT w[2][2], int x0[2], const RFLOAT x[2])
 {
     RFLOAT xd[2];
     for (int i = 0; i < 2; i++)

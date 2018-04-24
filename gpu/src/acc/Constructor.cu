@@ -604,7 +604,6 @@ D_CALLABLE void Constructor::symmetrizeT(RFLOAT *devDataT,
     }
 }
 
-
 /**
  * @brief ...
  * @param ...
@@ -1023,9 +1022,9 @@ D_CALLABLE void Constructor::recalculateW(Complex *devDataC,
  * @param ...
  */
 D_CALLABLE void Constructor::checkCAVG(RFLOAT *sumDiff,
-                                       RFLOAT *sumCount,
+                                       int *sumCount,
                                        RFLOAT *diff,
-                                       RFLOAT *counter,
+                                       int *counter,
                                        Complex *devDataC,
                                        int r,
                                        int dim,
@@ -1033,12 +1032,16 @@ D_CALLABLE void Constructor::checkCAVG(RFLOAT *sumDiff,
                                        int indexDiff,
                                        int blockId)
 {
-    RFLOAT tempD = 0, mode = 0, u, x, y;
-    int tempC = 0;
+    RFLOAT mode = 0, u, x, y;
     int index = _tid;
     int i, j, k;
     bool flag = true;
     
+    sumDiff[indexDiff] = 0;
+    sumCount[indexDiff] = 0;
+
+    __syncthreads();
+
     while(index < dimSize)
     {
         i = index % (dim / 2 + 1);
@@ -1075,7 +1078,7 @@ D_CALLABLE void Constructor::checkCAVG(RFLOAT *sumDiff,
                 }
             }
 
-            tempD += fabsf(mode - 1);
+            sumDiff[indexDiff] += fabsf(mode - 1);
 #else
             x = fabs(devDataC[index].real());
             y = fabs(devDataC[index].imag());
@@ -1100,15 +1103,12 @@ D_CALLABLE void Constructor::checkCAVG(RFLOAT *sumDiff,
                 }
             }
 
-            tempD += fabs(mode - 1);
+            sumDiff[indexDiff] += fabs(mode - 1);
 #endif    
-            tempC += 1;
+            sumCount[indexDiff] += 1;
         }
         index += blockDim.x * gridDim.x;
     }
-
-    sumDiff[indexDiff] = tempD;
-    sumCount[indexDiff] = tempC;
 
     __syncthreads();
 
@@ -1184,6 +1184,10 @@ D_CALLABLE void Constructor::checkCMAX(RFLOAT *singleMax,
     RFLOAT temp = 0.0, mode = 0.0, u, x, y;
     bool flag = true;
     
+    singleMax[indexDiff] = 0;
+
+    __syncthreads();
+
     while(index < dimSize)
     {
         i = index % (dim / 2 + 1);
@@ -1490,7 +1494,6 @@ D_CALLABLE void Constructor::normalizeFW(Complex *devDst,
     int index = _tid;
     int dIdx;
 
-    Complex inc(0, 0);
     while(index < dimSize)
     {
         i = (index + num) % (fdim / 2 + 1);
@@ -1619,6 +1622,10 @@ D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
         devDst[index + shift] = devDst[index + shift] 
                               / devMkb[mkbIndex]
                               * nf;
+#ifdef RECONSTRUCTOR_REMOVE_NEG
+        if (devDst[index + shift] < 0)
+            devDst[index + shift] = 0; 
+#endif
         index += blockDim.x * gridDim.x;
     }
 }
@@ -1650,6 +1657,11 @@ D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
         mkbIndex = k * (dim / 2 + 1) * (dim / 2 + 1) + j * (dim / 2 + 1) + i;
         
         devDst[index + shift] /= devTik[mkbIndex];
+
+#ifdef RECONSTRUCTOR_REMOVE_NEG
+        if (devDst[index + shift] < 0)
+            devDst[index + shift] = 0; 
+#endif
 
         index += blockDim.x * gridDim.x;
     }
