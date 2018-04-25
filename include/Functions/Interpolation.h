@@ -118,11 +118,21 @@ inline void W_BI_INTERP_LINEAR(RFLOAT w[2][2],
     for (int i = 0; i < 2; i++) 
         W_INTERP_LINEAR(v[i], xd[i]);
 
+#ifndef INTERP_CELL_UNFOLD
+
     FOR_CELL_DIM_2
     {
         w[j][i] = v[0][i] * v[1][j];
-        // w[i][j] = v[0][i] * v[1][j];
     }
+
+#else
+
+    w[0][0] = v[0][0] * v[1][0];
+    w[0][1] = v[0][1] * v[1][0];
+    w[1][0] = v[0][0] * v[1][1];
+    w[1][1] = v[0][1] * v[1][1];
+
+#endif
 }
 
 inline void WG_BI_INTERP_LINEAR(RFLOAT w[2][2], 
@@ -146,11 +156,25 @@ inline void W_TRI_INTERP_LINEAR(RFLOAT w[2][2][2],
     for (int i = 0; i < 3; i++) 
         W_INTERP_LINEAR(v[i], xd[i]);
 
+#ifndef INTERP_CELL_UNFOLD
+
     FOR_CELL_DIM_3 
     {
         w[k][j][i] = v[0][i] * v[1][j] * v[2][k];
-        //w[i][j][k] = v[0][i] * v[1][j] * v[2][k];
     }
+
+#else
+
+    w[0][0][0] = v[0][0] * v[1][0] * v[2][0];
+    w[0][0][1] = v[0][1] * v[1][0] * v[2][0];
+    w[0][1][0] = v[0][0] * v[1][1] * v[2][0];
+    w[0][1][1] = v[0][1] * v[1][1] * v[2][0];
+    w[1][0][0] = v[0][0] * v[1][0] * v[2][1];
+    w[1][0][1] = v[0][1] * v[1][0] * v[2][1];
+    w[1][1][0] = v[0][0] * v[1][1] * v[2][1];
+    w[1][1][1] = v[0][1] * v[1][1] * v[2][1];
+
+#endif
 }
 
 inline void WG_TRI_INTERP_LINEAR(RFLOAT w[2][2][2],

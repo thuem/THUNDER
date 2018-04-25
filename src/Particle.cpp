@@ -454,8 +454,6 @@ void Particle::load(const int nR,
 
     //sampleACG(p, 1, gsl_pow_2(stdR), _nR);
 
-    if (_mode == MODE_3D) symmetrise(&_topR);
-    
     for (int i = 0; i < _nR; i++)
     {
         dvec4 pert = _r.row(i).transpose();
@@ -480,6 +478,8 @@ void Particle::load(const int nR,
 
         _uR(i) = 1.0 / _nR;
     }
+
+    if (_mode == MODE_3D) symmetrise(&_topR);
 
 #ifdef PARTICLE_BALANCE_WEIGHT_R
     balanceWeight(PAR_R);
