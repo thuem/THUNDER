@@ -2265,7 +2265,8 @@ void Particle::balanceWeight(const ParticleType pt)
 
             for (int i = 0; i < _nR; i++)
             {
-                _wR(i) = 1.0 / pdfVMS(dvec2(_r(i, 0), _r(i, 1)), mu, k);
+                //_wR(i) = 1.0 / pdfVMS(dvec2(_r(i, 0), _r(i, 1)), mu, k);
+                _wR(i) = 1.0 / _nR; // TODO
             }
         }
         else if (_mode == MODE_3D)
