@@ -229,6 +229,8 @@ __global__ void kernel_UpdateW(RFLOAT* devDvp,
                                RFLOAT* devwC,
                                RFLOAT* devwR,
                                RFLOAT* devwT,
+                               double* devpR,
+                               double* devpT,
                                int kIdx,
                                int nK,
                                int nR,
@@ -328,9 +330,44 @@ __global__ void kernel_getRandomR(double* dev_mat,
  */
 __global__ void kernel_Translate(Complex* devdatP,
                                  Complex* devtranP,
+                                 double* dev_tran,
+                                 int* dev_nc,
+                                 int* deviCol,
+                                 int* deviRow,
+                                 int insertIdx,
+                                 int opf,
+                                 int npxl,
+                                 int mReco,
+                                 int idim);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_Translate(Complex* devdatP,
+                                 Complex* devtranP,
                                  double* dev_offS,
                                  double* dev_tran,
                                  int* dev_nc,
+                                 int* deviCol,
+                                 int* deviRow,
+                                 int insertIdx,
+                                 int opf,
+                                 int npxl,
+                                 int mReco,
+                                 int idim);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_Translate(Complex* devdatP,
+                                 Complex* devtranP,
+                                 double* dev_tran,
                                  int* deviCol,
                                  int* deviRow,
                                  int insertIdx,
@@ -466,6 +503,35 @@ __global__ void kernel_InsertF2D(Complex* devDataF,
  * @param ...
  * @param ...
  */
+__global__ void kernel_InsertO2D(double* devO,
+                                 int* devC,
+                                 double* dev_nr,
+                                 double* dev_nt,
+                                 double* dev_offs,
+                                 int* dev_nc,
+                                 int insertIdx,
+                                 int mReco);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_InsertO2D(double* devO,
+                                 int* devC,
+                                 double* dev_nr,
+                                 double* dev_nt,
+                                 int* dev_nc,
+                                 int insertIdx,
+                                 int mReco);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
 __global__ void kernel_InsertT(RFLOAT* devDataT,
                                RFLOAT* devctfP,
                                RFLOAT* devsigRcpP,
@@ -529,6 +595,35 @@ __global__ void kernel_InsertF(Complex* devDataF,
  * @param ...
  * @param ...
  */
+__global__ void kernel_InsertO3D(double* devO,
+                                 int* devC,
+                                 double* dev_mat,
+                                 double* dev_nt,
+                                 double* dev_offs,
+                                 int* dev_nc,
+                                 int insertIdx,
+                                 int mReco);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_InsertO3D(double* devO,
+                                 int* devC,
+                                 double* dev_mat,
+                                 double* dev_nt,
+                                 int* dev_nc,
+                                 int insertIdx,
+                                 int mReco);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
 __global__ void kernel_InsertT(RFLOAT* devDataT,
                                RFLOAT* devctfP,
                                RFLOAT* devsigRcpP,
@@ -581,6 +676,33 @@ __global__ void kernel_InsertF(Complex* devDataF,
                                int mReco,
                                int vdim,
                                int smidx);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_InsertO3D(double* devO,
+                                 int* devC,
+                                 double* dev_mat,
+                                 double* dev_nt,
+                                 double* dev_offs,
+                                 int insertIdx,
+                                 int mReco);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_InsertO3D(double* devO,
+                                 int* devC,
+                                 double* dev_mat,
+                                 double* dev_nt,
+                                 int insertIdx,
+                                 int mReco);
 
 /**
  * @brief Normalize T: T = T * sf
@@ -1053,6 +1175,34 @@ __global__ void kernel_CorrectF(RFLOAT *devDst,
                                 const int dimSize,
                                 const int shift);
 
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_TranslateI2D(Complex* devSrc, 
+                                    RFLOAT ox,
+                                    RFLOAT oy,
+                                    int r,
+                                    int shift,
+                                    int dim);
+ 
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_TranslateI(Complex* devRef, 
+                                  RFLOAT ox,
+                                  RFLOAT oy,
+                                  RFLOAT oz,
+                                  int r,
+                                  int shift,
+                                  int dim,
+                                  int batch);
+ 
 /**
  * @brief ...
  *

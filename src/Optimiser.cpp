@@ -1746,11 +1746,16 @@ void Optimiser::expectationG()
         }
 
         RFLOAT* wc = new RFLOAT[_ID.size() * _para.k];
-        RFLOAT* wr = new RFLOAT[_ID.size() * nR];
-        RFLOAT* wt = new RFLOAT[_ID.size() * nT];
+        RFLOAT* wr = new RFLOAT[_ID.size() * _para.k * nR];
+        RFLOAT* wt = new RFLOAT[_ID.size() * _para.k * nT];
 
-        vector<mat> wR(_para.k, mat::Zero(_ID.size(), nR));
-        vector<mat> wT(_para.k, mat::Zero(_ID.size(), nT));
+        double* pr = new double[nR];
+        double* pt = new double[nT];
+
+        for (int i = 0; i < nR; i++)
+            pr[i] = par.wR(i);
+        for (int i = 0; i < nT; i++)
+            pt[i] = par.wT(i);
 
         if (_para.mode == MODE_3D)
         {            
@@ -1808,6 +1813,8 @@ void Optimiser::expectationG()
                                wc,
                                wr,
                                wt,
+                               pr,
+                               pt,
                                baseL,
                                t,
                                _para.k,
@@ -1822,27 +1829,6 @@ void Optimiser::expectationG()
             delete[] rotMat;
             TSFFTW_free(traP);
             TSFFTW_free(rotP);
-
-            //ExpectGlobal3D(vol,
-            //               _datP,
-            //               _ctfP,
-            //               _sigRcpP,
-            //               trans,
-            //               wc,
-            //               wr,
-            //               wt,
-            //               rot,
-            //               _iCol, 
-            //               _iRow,
-            //               _para.k,
-            //               nR,
-            //               nT,
-            //               _model.proj(0).pf(),
-            //               _model.proj(0).interp(),
-            //               _para.size,
-            //               _model.proj(0).projectee3D().nSlcFT(), 
-            //               _nPxl,
-            //               _ID.size());
         }
         else
         {
@@ -1878,6 +1864,8 @@ void Optimiser::expectationG()
                            wc,
                            wr,
                            wt,
+                           pr,
+                           pt,
                            rot,
                            _iCol, 
                            _iRow,
@@ -1934,10 +1922,18 @@ void Optimiser::expectationG()
             _par[l].setWC(dvec::Constant(1, 1));
             _par[l].setUC(dvec::Constant(1, 1));
 
+            //for (int iR = 0; iR < nR; iR++)
+            //    _par[l].setUR(wR[cls](l, iR), iR);
+            //for (int iT = 0; iT < nT; iT++)
+            //    _par[l].setUT(wT[cls](l, iT), iT);
+
+            int shiftR = l * _para.k * nR;
+            int shiftT = l * _para.k * nT;
+        
             for (int iR = 0; iR < nR; iR++)
-                _par[l].setUR(wR[cls](l, iR), iR);
+                _par[l].setUR(wr[shiftR + cls * nR + iR], iR);
             for (int iT = 0; iT < nT; iT++)
-                _par[l].setUT(wT[cls](l, iT), iT);
+                _par[l].setUT(wt[shiftT + cls * nT + iT ], iT);
 
 #ifdef OPTIMISER_PEAK_FACTOR_R
             _par[l].setPeakFactor(PAR_R);
@@ -2102,6 +2098,12 @@ void Optimiser::expectationG()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
+        delete[] wc;
+        delete[] wr;
+        delete[] wt;
+        delete[] pr;
+        delete[] pt;
+        
         if (_searchType != SEARCH_TYPE_CTF)
             freePreCal(false);
         else
@@ -6017,17 +6019,23 @@ void Optimiser::reconstructRefG(const bool fscFlag,
             int modelSize = _model.reco(0).getModelSize();
             Complex* modelF = new Complex[_para.k * modelSize];
             RFLOAT* modelT = new RFLOAT[_para.k * modelSize];
-            
+            double* O2D = new double[_para.k * 2];
+            int* counter = new int[_para.k];
+
             #pragma omp parallel for
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).getF(modelF + t * modelSize);
                 _model.reco(t).getT(modelT + t * modelSize);
+                O2D[t * 2] = _model.reco(t).ox();
+                O2D[t * 2 + 1] = _model.reco(t).oy();
+                counter[t] = _model.reco(t).counter();
             }
-            
-            InsertI2D(modelF, modelT, _hemi, _datP, _ctfP, 
-                      _sigP, w, offS, nc, nr, nt, nd, ctfaData, 
-                      _iColPad, _iRowPad, _para.pixelSize, 
+           
+
+            InsertI2D(modelF, modelT, O2D, counter, _hemi, _slav, 
+                      _datP, _ctfP, _sigP, w, offS, nc, nr, nt, nd, 
+                      ctfaData, _iColPad, _iRowPad, _para.pixelSize, 
                       cSearch, _para.k, _para.pf, _nPxl, 
                       _para.mReco, _para.size, vdim, _ID.size()); 
 
@@ -6036,10 +6044,15 @@ void Optimiser::reconstructRefG(const bool fscFlag,
             {
                 _model.reco(t).resetF(modelF + t * modelSize);
                 _model.reco(t).resetT(modelT + t * modelSize);
+                _model.reco(t).setOx(O2D[t * 2] / counter[t]);
+                _model.reco(t).setOy(O2D[t * 2 + 1] / counter[t]);
+                _model.reco(t).setCounter(counter[t]);
             }
             
             delete[]modelF;
             delete[]modelT;
+            delete[]O2D;
+            delete[]counter;
             delete[]w;
             delete[]offS;            
             delete[]nc;            
@@ -6051,15 +6064,17 @@ void Optimiser::reconstructRefG(const bool fscFlag,
         }    
         else if (_para.mode == MODE_3D)
         {
-            
             if (_para.k != 1)
             {
                 RFLOAT *w = new RFLOAT[_ID.size()];
                 double *offS = new double[_ID.size() * 2];
-                double *maxC = new double[_para.k];
                 int *nc = new int[_para.k * _ID.size()];
                 CTFAttr* ctfaData = new CTFAttr[_ID.size()];
                 
+                #pragma omp parallel for
+                for(int i = 0; i < _para.k * _ID.size(); i++)
+                    nc[i] = 0;
+
                 #pragma omp parallel for
                 FOR_EACH_2D_IMAGE
                 {
@@ -6092,6 +6107,10 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                     }
                 }
            
+                double *nr;
+                double *nt;
+                double *nd;
+                        
                 int temp = 0;
                 for (int t = 0; t < _para.k; t++)
                 {
@@ -6103,11 +6122,12 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                             temp = nc[shiftc + l];
                     }
 
+                    printf("work here:%d\n", temp);
                     if (temp != 0)
                     {
-                        double *nr = new double[temp * _ID.size() * 4];
-                        double *nt = new double[temp * _ID.size() * 2];
-                        double *nd = new double[temp * _ID.size()];
+                        nr = new double[temp * _ID.size() * 4];
+                        nt = new double[temp * _ID.size() * 2];
+                        nd = new double[temp * _ID.size()];
                         
                         #pragma omp parallel for
                         FOR_EACH_2D_IMAGE
@@ -6148,7 +6168,6 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 delete[]w;
                 delete[]offS;            
-                delete[]maxC;            
                 delete[]nc;            
                 delete[]ctfaData;            
             }
@@ -6317,14 +6336,39 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 Volume ref;
 
-                //_model.reco(t).reconstruct(ref);
                 _model.reco(t).reconstructG(ref,
-                                            0);
+                                            gpus[omp_get_thread_num()]);
 
-                //_model.reco(t).reconstructG(ref,
-                //                            gpus[omp_get_thread_num()]);
+                if (_para.mode == MODE_2D)
+                {
+                    Image img(_para.size, _para.size, FT_SPACE);
 
-                //fft.fwMT(ref);
+                    SLC_EXTRACT_FT(img, ref, 0);
+
+                    TranslateI2D(gpus[omp_get_thread_num()],
+                                 img,
+                                 -_model.reco(t).ox(),
+                                 -_model.reco(t).oy(),
+                                 _model.rU());
+
+                    SLC_REPLACE_FT(ref, img, 0);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    if (_sym.pgGroup() == PG_CN)
+                    {
+                        TranslateI(gpus[omp_get_thread_num()],
+                                   ref,
+                                   -_model.reco(t).ox(),
+                                   -_model.reco(t).oy(),
+                                   -_model.reco(t).oz(),
+                                   _model.rU());
+                    }
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+                }
 
                 COPY_FT(_model.ref(t), ref);
             }
@@ -6460,13 +6504,39 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 Volume ref;
 
-                //_model.reco(t).reconstruct(ref);
                 _model.reco(t).reconstructG(ref,
-                                            0);
-                //_model.reco(t).reconstructG(ref,
-                //                            gpus[omp_get_thread_num()]);
+                                            gpus[omp_get_thread_num()]);
 
-                //fft.fwMT(ref);
+                if (_para.mode == MODE_2D)
+                {
+                    Image img(_para.size, _para.size, FT_SPACE);
+
+                    SLC_EXTRACT_FT(img, ref, 0);
+
+                    TranslateI2D(gpus[omp_get_thread_num()],
+                                 img,
+                                 -_model.reco(t).ox(),
+                                 -_model.reco(t).oy(),
+                                 _model.rU());
+
+                    SLC_REPLACE_FT(ref, img, 0);
+                }
+                else if (_para.mode == MODE_3D)
+                {
+                    if (_sym.pgGroup() == PG_CN)
+                    {
+                        TranslateI(gpus[omp_get_thread_num()],
+                                   ref,
+                                   -_model.reco(t).ox(),
+                                   -_model.reco(t).oy(),
+                                   -_model.reco(t).oz(),
+                                   _model.rU());
+                    }
+                }
+                else
+                {
+                    REPORT_ERROR("INEXISTENT MODE");
+                }
 
                 COPY_FT(_model.ref(t), ref);
             }

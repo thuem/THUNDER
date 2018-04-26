@@ -75,6 +75,8 @@ void expectGlobal2D(Complex* volume,
                     RFLOAT* wC,
                     RFLOAT* wR,
                     RFLOAT* wT,
+                    double* pR,
+                    double* pT,
                     double* rot,
                     const int *iCol,
                     const int *iRow,
@@ -164,6 +166,8 @@ void expectGlobal3D(Complex* rotP,
                     RFLOAT* wC,
                     RFLOAT* wR,
                     RFLOAT* wT,
+                    double* pR,
+                    double* pT,
                     RFLOAT* baseL,
                     int kIdx,
                     int nK,
@@ -181,7 +185,10 @@ void expectGlobal3D(Complex* rotP,
  */
 void InsertI2D(Complex *F2D,
                RFLOAT *T2D,
+               double *O2D,
+               int *counter,
                MPI_Comm& hemi,
+               MPI_Comm& slav,
                Complex *datP,
                RFLOAT *ctfP,
                RFLOAT *sigRcpP,
@@ -212,7 +219,10 @@ void InsertI2D(Complex *F2D,
  */
 void InsertFT(Complex *F3D,
               RFLOAT *T3D,
+              double *O3D,
+              int *counter,
               MPI_Comm& hemi,
+              MPI_Comm& slav,
               Complex *datP,
               RFLOAT *ctfP,
               RFLOAT *sigRcpP,
@@ -242,7 +252,10 @@ void InsertFT(Complex *F3D,
  */
 void InsertFT(Complex *F3D,
               RFLOAT *T3D,
+              double *O3D,
+              int *counter,
               MPI_Comm& hemi,
+              MPI_Comm& slav,
               Complex *datP,
               RFLOAT *ctfP,
               RFLOAT *sigRcpP,
@@ -471,6 +484,35 @@ void CorrSoftMaskF(int gpuIdx,
                    RFLOAT *mkbRL,
                    RFLOAT nf,
                    const int dim);
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void TranslateI2D(int gpuIdx,
+                  Complex* src,
+                  RFLOAT ox,
+                  RFLOAT oy,
+                  int r,
+                  int dim);
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void TranslateI(int gpuIdx,
+                Complex* ref,
+                RFLOAT ox,
+                RFLOAT oy,
+                RFLOAT oz,
+                int r,
+                int dim);
 
 /**
  * @brief

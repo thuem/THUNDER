@@ -378,11 +378,21 @@ class Reconstructor : public Parallel
 
         void setSig(const vec& sig);
 
+        void setOx(const double ox);
+                         
+        void setOy(const double oy);
+                         
+        void setOz(const double oz);
+
+        void setCounter(const int counter);
+
         double ox() const;
 
         double oy() const;
 
         double oz() const;
+
+        int counter() const;
 
         /**
          * get the max radius that points can affect each other 

@@ -15,6 +15,7 @@ manual/.texpadtmp/
 *.Plo
 *~
 
+cmcuda.sh
 *.thubox
 
 *bak

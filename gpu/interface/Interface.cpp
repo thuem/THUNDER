@@ -57,6 +57,8 @@ void ExpectGlobal2D(Complex* vol,
                     RFLOAT* wC,
                     RFLOAT* wR,
                     RFLOAT* wT,
+                    double* pR,
+                    double* pT,
                     double* rot,
                     const int *iCol, 
                     const int *iRow,
@@ -80,6 +82,8 @@ void ExpectGlobal2D(Complex* vol,
                               wC,
                               wR,
                               wT,
+                              pR,
+                              pT,
                               rot,
                               iCol,
                               iRow,
@@ -199,6 +203,8 @@ void ExpectGlobal3D(Complex* rotP,
                     RFLOAT* wC,
                     RFLOAT* wR,
                     RFLOAT* wT,
+                    double* pR,
+                    double* pT,
                     RFLOAT* baseL,
                     int kIdx,
                     int nK,
@@ -218,6 +224,8 @@ void ExpectGlobal3D(Complex* rotP,
                               wC,
                               wR,
                               wT,
+                              pR,
+                              pT,
                               baseL,
                               kIdx,
                               nK,
@@ -230,7 +238,10 @@ void ExpectGlobal3D(Complex* rotP,
 
 void InsertI2D(Complex* F2D,
                RFLOAT* T2D,
+               double* O2D,
+               int* counter,
                MPI_Comm& hemi,
+               MPI_Comm& slav,
                Complex* datP,
                RFLOAT* ctfP,
                RFLOAT* sigRcpP,
@@ -257,7 +268,10 @@ void InsertI2D(Complex* F2D,
 
     cuthunder::InsertI2D(reinterpret_cast<cuthunder::Complex*>(F2D),
                          T2D,
+                         O2D,
+                         counter,
                          hemi,
+                         slav,
                          reinterpret_cast<cuthunder::Complex*>(datP),
                          ctfP,
                          sigRcpP,
@@ -283,7 +297,10 @@ void InsertI2D(Complex* F2D,
 
 void InsertFT(Volume& F3D,
               Volume& T3D,
+              double* O3D,
+              int* counter,
               MPI_Comm& hemi,
+              MPI_Comm& slav,
               Complex* datP,
               RFLOAT* ctfP,
               RFLOAT* sigRcpP,
@@ -317,7 +334,10 @@ void InsertFT(Volume& F3D,
 
     cuthunder::InsertFT(reinterpret_cast<cuthunder::Complex*>(comF3D),
                         douT3D,
+                        O3D,
+                        counter,
                         hemi,
+                        slav,
                         reinterpret_cast<cuthunder::Complex*>(datP),
                         ctfP,
                         sigRcpP,
@@ -349,7 +369,10 @@ void InsertFT(Volume& F3D,
 
 void InsertFT(Volume& F3D,
               Volume& T3D,
+              double* O3D,
+              int* counter,
               MPI_Comm& hemi,
+              MPI_Comm& slav,
               Complex* datP,
               RFLOAT* ctfP,
               RFLOAT* sigRcpP,
@@ -382,7 +405,10 @@ void InsertFT(Volume& F3D,
 
     cuthunder::InsertFT(reinterpret_cast<cuthunder::Complex*>(comF3D),
                         douT3D,
+                        O3D,
+                        counter,
                         hemi,
+                        slav,
                         reinterpret_cast<cuthunder::Complex*>(datP),
                         ctfP,
                         sigRcpP,
@@ -1015,5 +1041,49 @@ void ExposeCorrF(int gpuIdx,
                              dim);
    
     delete[] mkbRL;
+}
+
+void TranslateI2D(int gpuIdx,
+                  Image& img,
+                  double ox,
+                  double oy,
+                  int r)
+{
+    LOG(INFO) << "Step1: Prepare Parameter for TransImg.";
+
+    Complex *comImg = &img[0];
+    int dim = img.nRowRL();
+
+    LOG(INFO) << "Step4: Start PrepareF...";
+    
+    cuthunder::TranslateI2D(gpuIdx,
+                            reinterpret_cast<cuthunder::Complex*>(comImg),
+                            (RFLOAT)ox,
+                            (RFLOAT)oy,
+                            r,
+                            dim);
+}
+
+void TranslateI(int gpuIdx,
+                Volume& ref,
+                double ox,
+                double oy,
+                double oz,
+                int r)
+{
+    LOG(INFO) << "Step1: Prepare Parameter for TransImg.";
+
+    Complex *comRef = &ref[0];
+    int dim = ref.nSlcRL();
+
+    LOG(INFO) << "Step4: Start PrepareF...";
+    
+    cuthunder::TranslateI(gpuIdx,
+                          reinterpret_cast<cuthunder::Complex*>(comRef),
+                          (RFLOAT)ox,
+                          (RFLOAT)oy,
+                          (RFLOAT)oz,
+                          r,
+                          dim);
 }
 

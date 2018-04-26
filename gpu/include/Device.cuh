@@ -45,7 +45,7 @@
 
 #define CU_MIN(a, b) (int)fmin((double)a, (double)b)
 
-#if 8 < 8 || (defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 600)
+#if 9 < 8 || (defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 600)
 static __inline__ __device__ double atomicAdd(double* address, const double val)
 {
     unsigned long long int* address_as_ull =

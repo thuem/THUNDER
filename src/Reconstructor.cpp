@@ -265,6 +265,26 @@ void Reconstructor::setSig(const vec& sig)
     _sig = sig;
 }
 
+void Reconstructor::setOx(const double ox)
+{
+    _ox = ox;
+}
+
+void Reconstructor::setOy(const double oy)
+{
+    _oy = oy;
+}
+
+void Reconstructor::setOz(const double oz)
+{
+    _oz = oz;
+}
+
+void Reconstructor::setCounter(const int counter)
+{
+    _counter = counter;
+}
+
 double Reconstructor::ox() const
 {
     return _ox;
@@ -278,6 +298,11 @@ double Reconstructor::oy() const
 double Reconstructor::oz() const
 {
     return _oz;
+}
+
+int Reconstructor::counter() const
+{
+    return _counter;
 }
 
 int Reconstructor::maxRadius() const
@@ -787,9 +812,19 @@ void Reconstructor::insertI(Complex* datP,
                             int idim,
                             int imgNum)
 {   
+    double* O3D = new double[3];
+    int* counter = new int[1];
+    O3D[0] = _ox;
+    O3D[1] = _oy;
+    O3D[2] = _oz;
+    counter[0] = _counter;
+    
     InsertFT(_F3D,
              _T3D,
+             O3D,
+             counter,
              _hemi,
+             _slav,
              datP,
              ctfP,
              sigP,
@@ -809,6 +844,14 @@ void Reconstructor::insertI(Complex* datP,
              mReco,
              idim,
              imgNum);
+    
+    _ox = O3D[0];
+    _oy = O3D[1];
+    _oz = O3D[2];
+    _counter = counter[0];
+    
+    delete[] O3D;
+    delete[] counter;
 }
 
 void Reconstructor::insertI(Complex* datP,
@@ -827,9 +870,19 @@ void Reconstructor::insertI(Complex* datP,
                             int idim,
                             int imgNum)
 {   
+    double* O3D = new double[3];
+    int* counter = new int[1];
+    O3D[0] = _ox;
+    O3D[1] = _oy;
+    O3D[2] = _oz;
+    counter[0] = _counter;
+    
     InsertFT(_F3D,
              _T3D,
+             O3D,
+             counter,
              _hemi,
+             _slav,
              datP,
              ctfP,
              sigP,
@@ -848,6 +901,14 @@ void Reconstructor::insertI(Complex* datP,
              mReco,
              idim,
              imgNum);
+    
+    _ox = O3D[0];
+    _oy = O3D[1];
+    _oz = O3D[2];
+    _counter = counter[0];
+    
+    delete[] O3D;
+    delete[] counter;
 }
 
 void Reconstructor::insertFT(Complex* datP,
@@ -976,12 +1037,30 @@ void Reconstructor::prepareTFG(int gpuIdx)
 {
     IF_MASTER return;
 
-    PrepareTF(gpuIdx,
-              _F3D,
-              _T3D,
-              *_sym,
-              _maxRadius,
-              _pf);
+    // only in 3D mode, symmetry should be considered
+    IF_MODE_3D
+    {
+        PrepareTF(gpuIdx,
+                  _F3D,
+                  _T3D,
+                  *_sym,
+                  _maxRadius,
+                  _pf);
+    }
+    
+    IF_MODE_3D
+    {
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
+        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
+        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
+
+        symmetrizeO();
+#endif
+    }
+
+    _ox /= _counter;
+    _oy /= _counter;
+    _oz /= _counter;
 }
 
 void Reconstructor::prepareTF()
