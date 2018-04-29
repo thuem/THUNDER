@@ -485,6 +485,8 @@ void Particle::load(const int nR,
     balanceWeight(PAR_R);
 #endif
 
+    calVari(PAR_R);
+
     // load the translation
 
     _s0 = s0;
@@ -514,6 +516,8 @@ void Particle::load(const int nR,
     balanceWeight(PAR_T);
 #endif
 
+    calVari(PAR_T);
+
     // load the defocus factor
 
     _s = s;
@@ -532,6 +536,8 @@ void Particle::load(const int nR,
 #ifdef PARTICLE_BALANCE_WEIGHT_D
     balanceWeight(PAR_D);
 #endif
+
+    calVari(PAR_D);
 }
 
 void Particle::vari(double& k1,
