@@ -479,7 +479,9 @@ void Particle::load(const int nR,
         _uR(i) = 1.0 / _nR;
     }
 
-    if (_mode == MODE_3D) symmetrise(&_topR);
+    // It may be more accuratre that determining rotation variance before symmetrise.
+
+    // if (_mode == MODE_3D) symmetrise(&_topR); (symmetrise will be perform in calVari)
 
 #ifdef PARTICLE_BALANCE_WEIGHT_R
     balanceWeight(PAR_R);
