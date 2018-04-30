@@ -196,6 +196,8 @@ class Particle
          */
         double _s;
 
+        double _score;
+
         /**
          * the previous most likely class
          */
@@ -601,6 +603,8 @@ class Particle
 
         double compressD() const;
 
+        double score() const;
+
         double wC(const int i) const;
 
         void setWC(const double wC,
@@ -809,6 +813,8 @@ class Particle
          * rotation and translation.
          */
         void calVari(const ParticleType pt);
+
+        void calScore();
 
         void perturb(const double pf,
                      const ParticleType pt);

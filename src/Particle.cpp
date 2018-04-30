@@ -682,6 +682,11 @@ double Particle::compressD() const
     return 1.0 / _s;
 }
 
+double Particle::score() const
+{
+    return _score;
+}
+
 double Particle::wC(const int i) const
 {
     return _wC(i);
@@ -1107,6 +1112,11 @@ void Particle::calVari(const ParticleType pt)
         _s = gsl_stats_sd(_d.data(), 1, _d.size());
 #endif
     }
+}
+
+void Particle::calScore()
+{
+    _score = compressR();
 }
 
 void Particle::perturb(const double pf,
