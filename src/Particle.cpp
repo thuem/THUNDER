@@ -401,7 +401,8 @@ void Particle::load(const int nR,
                     const double s0,
                     const double s1,
                     const double d,
-                    const double s)
+                    const double s,
+                    const double score)
 {
     _nC = 1;
     _nR = nR;
@@ -540,6 +541,8 @@ void Particle::load(const int nR,
 #endif
 
     calVari(PAR_D);
+
+    _score = score;
 }
 
 void Particle::vari(double& k1,

@@ -559,7 +559,8 @@ class Particle
                   const double s0,
                   const double s1,
                   const double d,
-                  const double s);
+                  const double s,
+                  const double score);
 
         /**
          * This function returns the concentration parameters, including

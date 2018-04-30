@@ -490,6 +490,23 @@ RFLOAT Database::stdD(const int i) const
     return atof(word);
 }
 
+RFLOAT Database::score(const int i) const
+{
+    fseek(_db, _offset[_reg[i]], SEEK_SET);
+
+    char line[FILE_LINE_LENGTH];
+    char* word;
+
+    fgets(line, FILE_LINE_LENGTH - 1, _db);
+
+    word = strtok(line, " ");
+
+    for (int i = 0; i < THU_SCORE; i++)
+        word = strtok(NULL, " ");
+
+    return atof(word);
+}
+
 void Database::split(int& start,
                      int& end,
                      const int commRank)

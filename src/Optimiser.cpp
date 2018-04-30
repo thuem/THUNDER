@@ -3095,7 +3095,7 @@ void Optimiser::loadParticles()
     dvec2 tran;
     double d;
 
-    double k1, k2, k3, stdTX, stdTY, stdD;
+    double k1, k2, k3, stdTX, stdTY, stdD, score;
 
     //#pragma omp parallel for private(cls, quat, stdR, tran, d)
 
@@ -3117,6 +3117,8 @@ void Optimiser::loadParticles()
             stdTX = _db.stdTX(_ID[l]);
             stdTY = _db.stdTY(_ID[l]);
             stdD = _db.stdD(_ID[l]);
+
+            score = _db.score(_ID[l]);
         }
 
         _par[l].load(_para.mLR,
@@ -3130,7 +3132,8 @@ void Optimiser::loadParticles()
                      stdTX,
                      stdTY,
                      d,
-                     stdD);
+                     stdD,
+                     score);
     }
 
     /***
@@ -4328,6 +4331,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
             RFLOAT* ctf;
 
             RFLOAT w;
+
+            if (_searchType != SEARCH_TYPE_STOP)
+            {
+                // allow user change score when only performing a reconstruction without expectation
+                _par[l].calScore();
+            }
 
             if ((_para.parGra) && (_para.k == 1))
                 w = _par[l].compressR();

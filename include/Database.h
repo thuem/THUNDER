@@ -242,6 +242,8 @@ class Database : public Parallel
 
         RFLOAT stdD(const int i) const;
 
+        RFLOAT score(const int i) const;
+
     private:
 
         void split(int& start,
