@@ -140,6 +140,9 @@ void Optimiser::init()
         _para.mS = GSL_MAX_INT(_para.mS, MIN_M_S * (1 + _sym.nSymmetryElement()));
     }
 
+    Symmetry sym;
+    sym.init("I");
+
     MLOG(INFO, "LOGGER_INIT") << "Passing Parameters to _model";
     _model.init(_para.mode,
                 _para.gSearch,
@@ -157,7 +160,8 @@ void Optimiser::init()
                 _para.pixelSize,
                 _para.a,
                 _para.alpha,
-                &_sym);
+                &sym);
+                //&_sym);
 
     MLOG(INFO, "LOGGER_INIT") << "Determining Search Type";
 
