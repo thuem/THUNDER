@@ -119,6 +119,9 @@ void Optimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Setting up Symmetry";
     _sym.init(_para.sym);
+    MLOG(INFO, "LOGGER_INIT") << "Symmetry Group : " << _sym.pgGroup();
+    MLOG(INFO, "LOGGER_INIT") << "Symmetry Order : " << _sym.pgOrder();
+    MLOG(INFO, "LOGGER_INIT") << "Number of Symmetry Element : " << _sym.nSymmetryElement();
 
     MLOG(INFO, "LOGGER_INIT") << "Number of Class(es): " << _para.k;
 

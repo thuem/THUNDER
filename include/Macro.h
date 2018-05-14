@@ -88,7 +88,7 @@
 /**
  * threshold for determining that one is equal to another
  */
-#define EQUAL_ACCURACY 1e-4
+#define EQUAL_ACCURACY 1e-2
 
 /**
  * This macro loops over all pixels in a grid of certain side length.

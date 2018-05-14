@@ -106,7 +106,7 @@ static const RFLOAT pg_I1_a3[] = {-0.309017,
                                   0.5};
 
 /**
- * 5-fold Axis 1 <--> 5-fold Axis 2
+ * 2-fold Axis 1 <--> 5-fold Axis 2
  */
 static const RFLOAT pg_I2_a1[] = {0, 1, 0};
 

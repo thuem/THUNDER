@@ -85,7 +85,7 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             entry.push_back(SymmetryOperation(RotationSO(3,
                                                          0,
                                                          0.3568221,
-                                                         0.9341723)));
+                                                         0.9341724)));
             break;
 
         default:
