@@ -15,7 +15,10 @@
 #define PG_DN   206
 #define PG_T    209
 #define PG_O    212
-#define PG_I    214
+#define PG_I1   216
+#define PG_I2   217
+#define PG_I3   218
+#define PG_I4   219
 
 /**
  * 3-fold Axis 1 <--> 3-fold Axis 2

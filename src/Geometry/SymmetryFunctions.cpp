@@ -36,13 +36,32 @@ void symmetryGroup(int& pgGroup,
         pgGroup = PG_O;
         pgOrder = -1;
     }
-    else if (strcmp(sym, "I") == 0)
+    else if (strcmp(sym, "I1") == 0)
     {
-        pgGroup = PG_I;
+        pgGroup = PG_I1;
+        pgOrder = -1;
+    }
+    else if (strcmp(sym, "I2") == 0)
+    {
+        pgGroup = PG_I2;
+        pgOrder = -1;
+    }
+    else if (strcmp(sym, "I3") == 0)
+    {
+        pgGroup = PG_I3;
+        pgOrder = -1;
+    }
+    else if (strcmp(sym, "I4") == 0)
+    {
+        pgGroup = PG_I4;
         pgOrder = -1;
     }
     else
+    {
         REPORT_ERROR("INVALID SYMMTRY INDEX");
+
+        abort();
+    }
 }
 
 void fillSymmetryEntry(vector<SymmetryOperation>& entry,
@@ -76,7 +95,19 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
             entry.push_back(SymmetryOperation(RotationSO(4, 0, 0, 1)));
             break;
 
-        case PG_I:
+        case PG_I1:
+            entry.push_back(SymmetryOperation(RotationSO(2, 1, 0, 0)));
+            entry.push_back(SymmetryOperation(RotationSO(5,
+                                                         0.8506508,
+                                                         0,
+                                                         -0.5257311)));
+            entry.push_back(SymmetryOperation(RotationSO(3,
+                                                         0.9341724, 
+                                                         0.3568221,
+                                                         0)));
+            break;
+
+        case PG_I2:
             fillSymmetryEntry(entry, PG_CN, 2);
             entry.push_back(SymmetryOperation(RotationSO(5,
                                                          0.5257311,
@@ -86,6 +117,33 @@ void fillSymmetryEntry(vector<SymmetryOperation>& entry,
                                                          0,
                                                          0.3568221,
                                                          0.9341724)));
+            break;
+
+        case PG_I3:
+            entry.push_back(SymmetryOperation(RotationSO(2,
+                                                         -0.5257311,
+                                                         0,
+                                                         0.8506508)));
+            fillSymmetryEntry(entry, PG_CN, 5);
+            entry.push_back(SymmetryOperation(RotationSO(3,
+                                                         -0.4911235,
+                                                         0.3568221,
+                                                         0.7946545)));
+            break;
+
+        case PG_I4:
+            entry.push_back(SymmetryOperation(RotationSO(2,
+                                                         0.5257311,
+                                                         0,
+                                                         0.8506508)));
+            entry.push_back(SymmetryOperation(RotationSO(5,
+                                                         0.8944272,
+                                                         0,
+                                                         0.4472136)));
+            entry.push_back(SymmetryOperation(RotationSO(3,
+                                                         0.4911235,
+                                                         0.3568221,
+                                                         0.7946545)));
             break;
 
         default:
