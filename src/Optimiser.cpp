@@ -187,9 +187,9 @@ void Optimiser::init()
     }
     else
     {
-        REPORT_ERROR("WRONG INITIAL SEARCH TYPE");
+        _searchType = SEARCH_TYPE_STOP;
 
-        abort();
+        MLOG(INFO, "LOGGER_INIT") << "Search Type : Stop";
     }
 
     _model.setSearchType(_searchType);
