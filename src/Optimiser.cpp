@@ -2188,6 +2188,14 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final .thu File";
     saveDatabase(true);
+
+    if (_para.subtract)
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Subtracting Masked Region Reference From Images";
+
+        MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
+        _model.avgHemi();
+    }
 }
 
 void Optimiser::clear()

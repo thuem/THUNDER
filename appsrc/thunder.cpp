@@ -121,6 +121,8 @@ void readPara(OptimiserPara& dst,
     dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_GLOBAL_MASK]).asBool();
     copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_MASK]).asString());
 
+    dst.subtract = JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_SUBTRACT]).asBool();
+
     dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ITER_MAX]).asInt();
     dst.goldenStandard = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GOLDEN_STANDARD]).asBool();
     dst.pf = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_PF]).asInt();
@@ -146,8 +148,8 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
-    dst.saveRefEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_REF_EACH_ITER]).asInt();
-    dst.saveTHUEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_THU_EACH_ITER]).asInt();
+    dst.saveRefEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_REF_EACH_ITER]).asBool();
+    dst.saveTHUEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_THU_EACH_ITER]).asBool();
     dst.mLT = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_T]).asInt();
     dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_D]).asInt();
     dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_RECO]).asInt();

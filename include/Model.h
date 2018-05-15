@@ -855,6 +855,8 @@ class Model : public Parallel
          */
         void clear();
 
+        void avgHemi();
+
     private:
 
         /**
@@ -874,8 +876,6 @@ class Model : public Parallel
 #ifdef MODEL_DETERMINE_INCREASE_FSC
         bool determineIncreaseR(const RFLOAT fscIncreaseFactor);
 #endif
-
-        void avgHemi();
 };
 
 #endif // MODEL_H

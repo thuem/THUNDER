@@ -388,6 +388,10 @@ struct OptimiserPara
 
     bool saveTHUEachIter;
 
+#define KEY_SUBTRACT "Subtract Masked Region Reference From Images"
+
+    bool subtract;
+
     OptimiserPara()
     {
         nThreadsPerProcess = 1;
@@ -418,6 +422,7 @@ struct OptimiserPara
         skipR = false;
         saveRefEachIter = true;
         saveTHUEachIter = true;
+        subtract = false;
     }
 };
 
