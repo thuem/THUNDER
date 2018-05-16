@@ -905,6 +905,8 @@ class Optimiser : public Parallel
 
         void saveDatabase(const bool finished = false) const;
 
+        void saveSubtract();
+
         /**
          * for debug, save the best projections
          */

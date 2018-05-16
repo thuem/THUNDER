@@ -2246,6 +2246,8 @@ void Optimiser::run()
 
 #endif
 
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
+        saveSubtract();
     }
 }
 
@@ -5437,6 +5439,28 @@ void Optimiser::saveDatabase(const bool finished) const
 
     if (_commRank != _commSize - 1)
         MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
+}
+
+void Optimiser::saveSubtract()
+{
+    IF_MASTER return;
+
+    char filename[FILE_NAME_LENGTH];
+
+    sprintf(filename, "%sSubtract_Rank_%06d.mrcs", _para.dstPrefix, _commRank);
+
+    ImageFile imf;
+
+    imf.openStack(filename, _para.size, _ID.size(), _para.pixelSize);
+
+    FOR_EACH_2D_IMAGE
+    {
+        _fftImg.bwExecutePlanMT(_imgOri[l]);
+
+        imf.writeStack(_imgOri[l], l);
+    }
+
+    imf.closeStack();
 }
 
 void Optimiser::saveBestProjections()
