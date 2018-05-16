@@ -2195,6 +2195,8 @@ void Optimiser::run()
 
         _r = maxR();
 
+        _model.setR(_r);
+
         MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
         _model.avgHemi();
 
