@@ -2198,6 +2198,12 @@ void Optimiser::run()
         MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
         _model.avgHemi();
 
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) From Two Hemispheres Averaged";
+#endif
+
         NT_MASTER
         {
             ALOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
@@ -2205,16 +2211,36 @@ void Optimiser::run()
 
             solventFlatten(true);
 
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
+            BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
+#endif
+
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
 
             _model.refreshProj();
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(_hemi);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
+            BLOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
+#endif
         }
 
 #ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
         saveBestProjections();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
+#endif
 
 #endif
 
@@ -5590,7 +5616,11 @@ void Optimiser::saveMapHalf(const bool finished)
                            FT_SPACE);
 
             if (finished)
-                fft.bwMT(_model.ref(t));
+            {
+                lowPass = _model.ref(t).copyVolume();
+
+                fft.bwMT(lowPass);
+            }
             else
             {
 #ifdef OPTIMISER_SAVE_LOW_PASS_REFERENCE
@@ -5612,21 +5642,14 @@ void Optimiser::saveMapHalf(const bool finished)
                 if (finished)
                 {
                     sprintf(filename, "%sReference_%03d_A_Final.mrc", _para.dstPrefix, t);
-
-                    imf.readMetaData(_model.ref(t));
-                    imf.writeVolume(filename, _model.ref(t), _para.pixelSize);
-
-                    fft.fwMT(_model.ref(t));
-                    _model.ref(t).clearRL();
-
                 }
                 else
                 {
                     sprintf(filename, "%sReference_%03d_A_Round_%03d.mrc", _para.dstPrefix, t, _iter);
-
-                    imf.readMetaData(lowPass);
-                    imf.writeVolume(filename, lowPass, _para.pixelSize);
                 }
+
+                imf.readMetaData(lowPass);
+                imf.writeVolume(filename, lowPass, _para.pixelSize);
             }
             else if (_commRank == HEMI_B_LEAD)
             {
@@ -5635,20 +5658,14 @@ void Optimiser::saveMapHalf(const bool finished)
                 if (finished)
                 {
                     sprintf(filename, "%sReference_%03d_B_Final.mrc", _para.dstPrefix, t);
-
-                    imf.readMetaData(_model.ref(t));
-                    imf.writeVolume(filename, _model.ref(t), _para.pixelSize);
-
-                    fft.fwMT(_model.ref(t));
-                    _model.ref(t).clearRL();
                 }
                 else
                 {
                     sprintf(filename, "%sReference_%03d_B_Round_%03d.mrc", _para.dstPrefix, t, _iter);
-
-                    imf.readMetaData(lowPass);
-                    imf.writeVolume(filename, lowPass, _para.pixelSize);
                 }
+
+                imf.readMetaData(lowPass);
+                imf.writeVolume(filename, lowPass, _para.pixelSize);
             }
         }
     }
