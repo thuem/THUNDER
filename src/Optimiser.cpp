@@ -5356,14 +5356,17 @@ void Optimiser::freePreCal(const bool ctf)
     }
 }
 
-void Optimiser::saveDatabase(const bool finished) const
+void Optimiser::saveDatabase(const bool finished,
+                             const bool subtract) const
 {
     IF_MASTER return;
 
     char filename[FILE_NAME_LENGTH];
 
-    if (finished)
-        sprintf(filename, "%sMeta_Round_Final.thu", _para.dstPrefix);
+    if (subtract)
+        sprintf(filename, "%sMeta_Subtract.thu", _para.dstPrefix);
+    else if (finished)
+        sprintf(filename, "%sMeta_Final.thu", _para.dstPrefix);
     else
         sprintf(filename, "%sMeta_Round_%03d.thu", _para.dstPrefix, _iter);
 
@@ -5384,6 +5387,8 @@ void Optimiser::saveDatabase(const bool finished) const
 
     double k1, k2, k3, s0, s1, s;
 
+    char subtractPath[FILE_WORD_LENGTH];
+
     FOR_EACH_2D_IMAGE
     {
         _par[l].rank1st(cls, quat, tran, df);
@@ -5397,6 +5402,13 @@ void Optimiser::saveDatabase(const bool finished) const
         s1 = 0;
         s = 0;
         ***/
+
+        if (subtract)
+            snprintf(subtractPath,
+                     sizeof(subtractPath),
+                     "%12ld@Subtract_Rank_%06d.mrcs",
+                     l,
+                     _commRank);
 
         fprintf(file,
                 "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
@@ -5414,7 +5426,7 @@ void Optimiser::saveDatabase(const bool finished) const
                  _ctfAttr[l].Cs,
                  _ctfAttr[l].amplitudeContrast,
                  _ctfAttr[l].phaseShift,
-                 _db.path(_ID[l]).c_str(),
+                 subtract ? subtractPath : _db.path(_ID[l]).c_str(),
                  _db.micrographPath(_ID[l]).c_str(),
                  _db.coordX(_ID[l]),
                  _db.coordY(_ID[l]),

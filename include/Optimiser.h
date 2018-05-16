@@ -903,7 +903,8 @@ class Optimiser : public Parallel
 
         void freePreCal(const bool ctf);
 
-        void saveDatabase(const bool finished = false) const;
+        void saveDatabase(const bool finished = false,
+                          const bool subtract = false) const;
 
         void saveSubtract();
 
