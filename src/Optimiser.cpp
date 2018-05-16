@@ -2254,6 +2254,15 @@ void Optimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
 #endif
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Database of Masked Region Reference Subtracted Images";
+        saveDatabase(false, true);
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Database of Masked Region Reference Subtracted Images Saved";
+#endif
     }
 }
 
