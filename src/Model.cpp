@@ -1735,8 +1735,8 @@ void Model::avgHemi()
                                              << _size;
 #endif
 
-                Volume A(_size, _size, _size, FT_SPACE);
-                Volume B(_size, _size, _size, FT_SPACE);
+                A.alloc(_size, _size, _size, FT_SPACE);
+                B.alloc(_size, _size, _size, FT_SPACE);
             }
 
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
