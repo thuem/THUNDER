@@ -5415,8 +5415,8 @@ void Optimiser::saveDatabase(const bool finished,
         if (subtract)
             snprintf(subtractPath,
                      sizeof(subtractPath),
-                     "%12ld@Subtract_Rank_%06d.mrcs",
-                     l,
+                     "%012ld@Subtract_Rank_%06d.mrcs",
+                     l + 1,
                      _commRank);
 
         fprintf(file,
