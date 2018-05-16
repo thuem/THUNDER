@@ -5499,11 +5499,11 @@ void Optimiser::saveSubtract()
         FOR_EACH_PIXEL_FT(diff)
             diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
 
-        _fftImg.fwExecutePlanMT(diff);
+        _fftImg.bwExecutePlanMT(diff);
 
         imf.writeStack(diff, l);
 
-        _fftImg.bwExecutePlanMT(diff);
+        _fftImg.fwExecutePlanMT(diff);
     }
 
     imf.closeStack();
