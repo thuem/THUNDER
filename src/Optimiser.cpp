@@ -2193,8 +2193,31 @@ void Optimiser::run()
     {
         MLOG(INFO, "LOGGER_ROUND") << "Subtracting Masked Region Reference From Images";
 
+        _r = maxR();
+
         MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
         _model.avgHemi();
+
+        NT_MASTER
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
+            BLOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
+
+            solventFlatten(true);
+
+            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+
+            _model.refreshProj();
+        }
+
+#ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
+
+        MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
+        saveBestProjections();
+
+#endif
+
     }
 }
 
