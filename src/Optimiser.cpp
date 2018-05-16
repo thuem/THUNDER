@@ -2248,6 +2248,12 @@ void Optimiser::run()
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
         saveSubtract();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
+#endif
     }
 }
 
@@ -5453,11 +5459,51 @@ void Optimiser::saveSubtract()
 
     imf.openStack(filename, _para.size, _ID.size(), _para.pixelSize);
 
+    Image result(_para.size, _para.size, FT_SPACE);
+    Image diff(_para.size, _para.size, FT_SPACE);
+
+    size_t cls;
+    dmat22 rot2D;
+    dmat33 rot3D;
+    dvec2 tran;
+    double d;
+
     FOR_EACH_2D_IMAGE
     {
-        _fftImg.bwExecutePlanMT(_imgOri[l]);
+        #pragma omp parallel for
+        SET_0_FT(result);
 
-        imf.writeStack(_imgOri[l], l);
+        #pragma omp parallel for
+        SET_0_FT(diff);
+
+        if (_para.mode == MODE_2D)
+        {
+            _par[l].rank1st(cls, rot2D, tran, d);
+
+            _model.proj(cls).projectMT(result, rot2D, tran);
+        }
+        else if (_para.mode == MODE_3D)
+        {
+            _par[l].rank1st(cls, rot3D, tran, d);
+
+           _model.proj(cls).projectMT(result, rot3D, tran);
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+
+            abort();
+        }
+
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(diff)
+            diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
+
+        _fftImg.fwExecutePlanMT(diff);
+
+        imf.writeStack(diff, l);
+
+        _fftImg.bwExecutePlanMT(diff);
     }
 
     imf.closeStack();
