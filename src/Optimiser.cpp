@@ -3703,7 +3703,11 @@ void Optimiser::refreshScale(const bool coord,
 #endif
                 }
                 else
+                {
                     REPORT_ERROR("INEXISTENT MODE");
+
+                    abort();
+                }
             }
 
 #ifdef VERBOSE_LEVEL_3
@@ -5501,13 +5505,13 @@ void Optimiser::saveSubtract()
         {
             _par[l].rank1st(cls, rot2D, tran, d);
 
-            _model.proj(cls).projectMT(result, rot2D, tran);
+            _model.proj(cls).projectMT(result, rot2D, tran - _offset[l]);
         }
         else if (_para.mode == MODE_3D)
         {
             _par[l].rank1st(cls, rot3D, tran, d);
 
-           _model.proj(cls).projectMT(result, rot3D, tran);
+            _model.proj(cls).projectMT(result, rot3D, tran - _offset[l]);
         }
         else
         {
@@ -5518,7 +5522,7 @@ void Optimiser::saveSubtract()
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(diff)
-            diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
+            diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
 
         _fftImg.bwExecutePlanMT(diff);
 
