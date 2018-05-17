@@ -5597,8 +5597,6 @@ void Optimiser::saveImages()
 {
     IF_MASTER return;
 
-    FFT fft;
-
     char filename[FILE_NAME_LENGTH];
     FOR_EACH_2D_IMAGE
     {
@@ -5606,13 +5604,13 @@ void Optimiser::saveImages()
         {
             sprintf(filename, "Fourier_Image_%04d.bmp", _ID[l]);
 
-            _img[l].saveFTToBMP(filename, 0.01);
+            _imgOri[l].saveFTToBMP(filename, 0.01);
 
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
-            fft.bw(_img[l]);
-            _img[l].saveRLToBMP(filename);
-            fft.fw(_img[l]);
+            _fftImg.bwExecutePlanMT(_imgOri[l]);
+            _imgOri[l].saveRLToBMP(filename);
+            _fftImg.fwExecutePlanMT(_imgOri[l]);
         }
     }
 }
