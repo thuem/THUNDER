@@ -5522,7 +5522,10 @@ void Optimiser::saveSubtract()
 
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(diff)
-            diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
+        {
+            //diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
+            diff[i] = _imgOri[l][i];
+        }
 
         _fftImg.bwExecutePlanMT(diff);
 
