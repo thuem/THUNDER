@@ -386,6 +386,14 @@ dvec Particle::uD() const { return _uD; }
 
 void Particle::setUD(const dvec& uD) { _uD = uD; }
 
+dvec2 Particle::topT() const { return _topT; }
+
+void Particle::setTopT(const dvec2& topT) { _topT = topT; }
+
+dvec2 Particle::topTPrev() const { return _topTPrev; }
+
+void Particle::setTopTPrev(const dvec2& topTPrev) { _topTPrev = topTPrev; }
+
 const Symmetry* Particle::symmetry() const { return _sym; }
 
 void Particle::setSymmetry(const Symmetry* sym) { _sym = sym; }

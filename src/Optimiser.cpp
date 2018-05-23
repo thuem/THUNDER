@@ -1677,7 +1677,7 @@ void Optimiser::expectation()
 void Optimiser::maximization()
 {
 #ifdef OPTIMISER_NORM_CORRECTION
-    if (_iter != 0)
+    if ((_iter != 0) && (_searchType != SEARCH_TYPE_GLOBAL))
     {
         MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
@@ -3921,6 +3921,9 @@ void Optimiser::reCentreImg()
                   _offset[l](1));
 
         _par[l].setT(_par[l].t().rowwise() - tran.transpose());
+
+        _par[l].setTopT(_par[l].topT() - tran);
+        _par[l].setTopTPrev(_par[l].topTPrev() - tran);
     }
 }
 #endif

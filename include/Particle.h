@@ -518,6 +518,14 @@ class Particle
 
         void setUD(const dvec& uD);
 
+        dvec2 topT() const;
+
+        void setTopT(const dvec2& topT);
+
+        dvec2 topTPrev() const;
+
+        void setTopTPrev(const dvec2& topTPrev);
+
         /**
          * This function returns the symmetry.
          */
