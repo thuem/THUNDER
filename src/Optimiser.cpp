@@ -2197,58 +2197,63 @@ void Optimiser::run()
 
         _model.setR(_r);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
-        _model.avgHemi();
-
-#ifdef VERBOSE_LEVEL_1
-        MPI_Barrier(MPI_COMM_WORLD);
-
-        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) From Two Hemispheres Averaged";
-#endif
-
-        NT_MASTER
+        for (int pass = 0; pass < 2; pass++)
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
-            BLOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
 
-            solventFlatten(true);
-
-#ifdef VERBOSE_LEVEL_1
-            MPI_Barrier(_hemi);
-
-            ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
-            BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
-#endif
-
-            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
-            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
-
-            _model.refreshProj();
+            MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
+            _model.avgHemi();
 
 #ifdef VERBOSE_LEVEL_1
-            MPI_Barrier(_hemi);
+            MPI_Barrier(MPI_COMM_WORLD);
 
-            ALOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
-            BLOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
+            MLOG(INFO, "LOGGER_ROUND") << "Reference(s) From Two Hemispheres Averaged";
 #endif
-        }
+
+            NT_MASTER
+            {
+                ALOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
+                BLOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
+
+                solventFlatten(true);
+
+#ifdef VERBOSE_LEVEL_1
+                MPI_Barrier(_hemi);
+
+                ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
+                BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
+#endif
+
+                ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+                BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+
+                _model.refreshProj();
+
+#ifdef VERBOSE_LEVEL_1
+                MPI_Barrier(_hemi);
+
+                ALOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
+                BLOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
+#endif
+            }
 
 #ifdef OPTIMISER_NORM_CORRECTION
+            if (pass == 0)
+            {
+                MLOG(INFO, "LOGGER_ROUND") << "Normalising Noise";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
+                normCorrection();
 
-        normCorrection();
+                MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+                NT_MASTER
+                {
+                    _model.resetReco(_para.thresReportFSC);
+                }
 
-        MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
-        NT_MASTER
-        {
-            _model.resetReco(_para.thresReportFSC);
-        }
-
-        MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
-        reconstructRef(true, false, true, false, true);
-
+                MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
+                reconstructRef(true, false, true, false, true);
+            }
 #endif
+        }
 
 #ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
 
