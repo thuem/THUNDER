@@ -2233,6 +2233,23 @@ void Optimiser::run()
 #endif
         }
 
+#ifdef OPTIMISER_NORM_CORRECTION
+
+        MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
+
+        normCorrection();
+
+        MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+        NT_MASTER
+        {
+            _model.resetReco(_para.thresReportFSC);
+        }
+
+        MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
+        reconstructRef(true, false, true, false, true);
+
+#endif
+
 #ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
