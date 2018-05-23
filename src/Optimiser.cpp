@@ -1677,9 +1677,12 @@ void Optimiser::expectation()
 void Optimiser::maximization()
 {
 #ifdef OPTIMISER_NORM_CORRECTION
-    MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
+    if (_iter != 0)
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
 
-    normCorrection();
+        normCorrection();
+    }
 #endif
 
 #ifdef OPTIMISER_REFRESH_SIGMA
@@ -3956,9 +3959,6 @@ void Optimiser::reMaskImg()
 
 void Optimiser::normCorrection()
 {
-    // skip norm correction in the first iteration
-    if (_iter == 0) return;
-
     RFLOAT rNorm = TSGSL_MIN_RFLOAT(_r, _model.resolutionP(0.75, false));
 
     vec norm = vec::Zero(_nPar);
