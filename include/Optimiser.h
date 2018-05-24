@@ -392,6 +392,10 @@ struct OptimiserPara
 
     bool subtract;
 
+#define KEY_INVERSE_SUBTRACT_MASK "Inverse Mask for Subtraction"
+
+    bool subtractInverse;
+
     OptimiserPara()
     {
         nThreadsPerProcess = 1;

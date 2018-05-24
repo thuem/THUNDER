@@ -122,6 +122,7 @@ void readPara(OptimiserPara& dst,
     copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_MASK]).asString());
 
     dst.subtract = JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_SUBTRACT]).asBool();
+    dst.subtractInverse = JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_INVERSE_SUBTRACT_MASK]).asBool();
 
     dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ITER_MAX]).asInt();
     dst.goldenStandard = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GOLDEN_STANDARD]).asBool();

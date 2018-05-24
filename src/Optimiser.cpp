@@ -2194,6 +2194,22 @@ void Optimiser::run()
 
     if (_para.subtract)
     {
+        if (_para.subtractInverse)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
+
+            Volume tmp(_para.size, _para.size, _para.size, RL_SPACE);
+
+            #pragma omp parallel
+            SET_1_RL(tmp);
+
+            #pragma omp parallel
+            SUB_RL(tmp, _mask);
+
+            _mask.swap(tmp);
+        }
+
+
         MLOG(INFO, "LOGGER_ROUND") << "Subtracting Masked Region Reference From Images";
 
         _r = maxR();
