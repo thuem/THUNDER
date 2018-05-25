@@ -2242,7 +2242,10 @@ void Optimiser::run()
                 ALOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
                 BLOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
 
-                solventFlatten(true);
+                if (pass == 0)
+                    solventFlatten(false);
+                else
+                    solventFlatten(true);
 
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(_hemi);
