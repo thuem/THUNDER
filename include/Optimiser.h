@@ -668,6 +668,8 @@ class Optimiser : public Parallel
 
         FFT _fftImg;
 
+        vec3 _regionCentre;
+
     public:
         
         Optimiser()

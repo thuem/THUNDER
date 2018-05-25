@@ -2196,6 +2196,9 @@ void Optimiser::run()
     {
         if (_para.subtractInverse)
         {
+            MLOG(INFO, "LOGGER_ROUND") << "Recording Region Centre";
+            _regionCentre = centroid(_mask);
+
             MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
 
             Volume tmp(_para.size, _para.size, _para.size, RL_SPACE);
@@ -2209,6 +2212,10 @@ void Optimiser::run()
             softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
 
             _mask.swap(tmp);
+        }
+        else
+        {
+            _regionCentre = vec3::Zero();
         }
 
 
@@ -5535,6 +5542,7 @@ void Optimiser::saveSubtract()
     dmat33 rot3D;
     dvec2 tran;
     double d;
+    dvec3 regionTrans;
 
     FOR_EACH_2D_IMAGE
     {
@@ -5546,13 +5554,20 @@ void Optimiser::saveSubtract()
 
         if (_para.mode == MODE_2D)
         {
+            ALOG(FATAL, "LOGGER_ROUND") << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
+            BLOG(FATAL, "LOGGER_ROUND") << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
+
+            abort();
+            /***
             _par[l].rank1st(cls, rot2D, tran, d);
 
             _model.proj(cls).projectMT(result, rot2D, tran - _offset[l]);
+            ***/
         }
         else if (_para.mode == MODE_3D)
         {
             _par[l].rank1st(cls, rot3D, tran, d);
+
 
             _model.proj(cls).projectMT(result, rot3D, tran - _offset[l]);
         }
@@ -5569,6 +5584,12 @@ void Optimiser::saveSubtract()
             diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
             //diff[i] = _imgOri[l][i];
         }
+
+        regionTrans = rot3D * dvec3(_regionCentre(0),
+                                    _regionCentre(1),
+                                    _regionCentre(2));
+
+        translateMT(diff, diff, -regionTrans(0), -regionTrans(1));
 
         _fftImg.bwExecutePlanMT(diff);
 

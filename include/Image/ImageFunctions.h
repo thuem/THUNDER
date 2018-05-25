@@ -264,6 +264,10 @@ inline void SLC_EXTRACT_FT(Image& dst, const Volume& src, const int k)
         dst.setFTHalf(src.getFTHalf(i, j, k), i, j); 
 }
 
+vec2 centroid(const Image& img);
+
+vec3 centroid(const Volume& vol);
+
 void mul(Image& dst,
          const Image& a,
          const Image& b,

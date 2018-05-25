@@ -12,6 +12,46 @@
 
 #include "ImageFunctions.h"
 
+vec2 centroid(const Image& img)
+{
+    vec2 c = vec2::Zero();
+    RFLOAT w = 0;
+    
+    IMAGE_FOR_EACH_PIXEL_RL(img)
+    {
+        RFLOAT u = img.getRL(i, j);
+
+        c += vec2(i, j) * u;
+        w += u;
+    }
+
+    return c / w;
+}
+
+vec3 centroid(const Volume& vol)
+{
+    vec3 c = vec3::Zero();
+    RFLOAT w = 0;
+
+    #pragma omp parallel for
+    VOLUME_FOR_EACH_PIXEL_RL(vol)
+    {
+        RFLOAT u = vol.getRL(i, j, k);
+
+        #pragma omp atomic
+        c(0) += i * u;
+
+        #pragma omp atomic
+        c(1) += j * u;
+
+        #pragma omp atomic
+        c(2) += k * u;
+
+        #pragma omp atomic
+        w += u;
+    }
+}
+
 void mul(Image& dst,
          const Image& a,
          const Image& b,
