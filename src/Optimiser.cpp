@@ -2206,6 +2206,8 @@ void Optimiser::run()
             #pragma omp parallel
             SUB_RL(tmp, _mask);
 
+            softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+
             _mask.swap(tmp);
         }
 
