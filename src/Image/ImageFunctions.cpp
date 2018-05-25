@@ -50,6 +50,8 @@ vec3 centroid(const Volume& vol)
         #pragma omp atomic
         w += u;
     }
+
+    return c / w;
 }
 
 void mul(Image& dst,
