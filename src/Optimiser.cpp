@@ -5542,7 +5542,6 @@ void Optimiser::saveSubtract()
     dmat33 rot3D;
     dvec2 tran;
     double d;
-    dvec3 regionTrans;
 
     FOR_EACH_2D_IMAGE
     {
@@ -5585,11 +5584,18 @@ void Optimiser::saveSubtract()
             //diff[i] = _imgOri[l][i];
         }
 
-        regionTrans = rot3D * dvec3(_regionCentre(0),
-                                    _regionCentre(1),
-                                    _regionCentre(2));
+        dvec3 regionTrans = rot3D * dvec3(_regionCentre(0),
+                                          _regionCentre(1),
+                                          _regionCentre(2));
 
-        translateMT(diff, diff, -regionTrans(0), -regionTrans(1));
+        dvec2 tran = dvec2(regionTrans(0), regionTrans(1));
+
+        translateMT(diff, diff, -tran(0), -tran(1));
+
+        _par[l].setT(_par[l].t().rowwise() - tran.transpose());
+
+        _par[l].setTopT(_par[l].topT() - tran);
+        _par[l].setTopTPrev(_par[l].topTPrev() - tran);
 
         _fftImg.bwExecutePlanMT(diff);
 
