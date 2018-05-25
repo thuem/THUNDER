@@ -5584,9 +5584,9 @@ void Optimiser::saveSubtract()
             //diff[i] = _imgOri[l][i];
         }
 
-        dvec3 regionTrans = rot3D * dvec3(_regionCentre(0),
-                                          _regionCentre(1),
-                                          _regionCentre(2));
+        dvec3 regionTrans = rot3D.transpose() * dvec3(_regionCentre(0),
+                                                      _regionCentre(1),
+                                                      _regionCentre(2));
 
         dvec2 tran = dvec2(regionTrans(0), regionTrans(1));
 
