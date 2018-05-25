@@ -2201,6 +2201,9 @@ void Optimiser::run()
 
             MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
 
+            SET_1_RL(_mask);
+
+            /***
             Volume tmp(_para.size, _para.size, _para.size, RL_SPACE);
 
             #pragma omp parallel
@@ -2212,6 +2215,7 @@ void Optimiser::run()
             softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
 
             _mask.swap(tmp);
+            ***/
         }
         else
         {
