@@ -2209,7 +2209,7 @@ void Optimiser::run()
             #pragma omp parallel
             SUB_RL(tmp, _mask);
 
-            softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL);
+            softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
 
             _mask.swap(tmp);
         }
@@ -5569,7 +5569,6 @@ void Optimiser::saveSubtract()
         else if (_para.mode == MODE_3D)
         {
             _par[l].rank1st(cls, rot3D, tran, d);
-
 
             _model.proj(cls).projectMT(result, rot3D, tran - _offset[l]);
         }
