@@ -2208,10 +2208,10 @@ void Optimiser::run()
             #pragma omp parallel
             SET_1_RL(tmp);
 
-            /***
             #pragma omp parallel
             SUB_RL(tmp, _mask);
 
+            /***
             softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
             ***/
 
