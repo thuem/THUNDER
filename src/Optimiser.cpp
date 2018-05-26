@@ -2201,38 +2201,50 @@ void Optimiser::run()
 
             MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
 
+            /***
             IF_MASTER
             {
                 ImageFile imf;
                 imf.readMetaData(_mask);
                 imf.writeVolume("ori_mask.mrc", _mask, _para.pixelSize);
             }
+            ***/
 
             Volume tmp(_para.size, _para.size, _para.size, RL_SPACE);
 
+            /***
             #pragma omp parallel
+            FOR_EACH_PIXEL_RL(tmp)
+                tmp(i) = 1 - _mask(i);
+            ***/
+
+            #pragma omp parallel for
             SET_1_RL(tmp);
 
-            #pragma omp parallel
+            #pragma omp parallel for
             SUB_RL(tmp, _mask);
 
+            /***
             IF_MASTER
             {
                 ImageFile imf;
                 imf.readMetaData(tmp);
                 imf.writeVolume("sub_mask.mrc", tmp, _para.pixelSize);
             }
+            ***/
 
             softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
 
             _mask.swap(tmp);
 
+            /***
             IF_MASTER
             {
                 ImageFile imf;
                 imf.readMetaData(_mask);
                 imf.writeVolume("inverse_mask.mrc", _mask, _para.pixelSize);
             }
+            ***/
         }
         else
         {
