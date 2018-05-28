@@ -2194,29 +2194,22 @@ void Optimiser::run()
 
     if (_para.subtract)
     {
-        if (_para.subtractInverse)
+        if (strcmp(_para.regionCentre, "") != 0)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Recording Region Centre";
-            _regionCentre = centroid(_mask);
+            ImageFile imf(_para.regionCentre, "rb");
+            imf.readMetaData();
 
+            Volume cr;
+
+            imf.readVolume(cr);
+
+            MLOG(INFO, "LOGGER_ROUND") << "Recording Region Centre";
+            _regionCentre = centroid(cr);
+
+            /***
             MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
 
-            /***
-            IF_MASTER
-            {
-                ImageFile imf;
-                imf.readMetaData(_mask);
-                imf.writeVolume("ori_mask.mrc", _mask, _para.pixelSize);
-            }
-            ***/
-
             Volume tmp(_para.size, _para.size, _para.size, RL_SPACE);
-
-            /***
-            #pragma omp parallel
-            FOR_EACH_PIXEL_RL(tmp)
-                tmp(i) = 1 - _mask(i);
-            ***/
 
             #pragma omp parallel for
             SET_1_RL(tmp);
@@ -2224,26 +2217,9 @@ void Optimiser::run()
             #pragma omp parallel for
             SUB_RL(tmp, _mask);
 
-            /***
-            IF_MASTER
-            {
-                ImageFile imf;
-                imf.readMetaData(tmp);
-                imf.writeVolume("sub_mask.mrc", tmp, _para.pixelSize);
-            }
-            ***/
-
             softMask(tmp, tmp, _para.maskRadius / _para.pixelSize, EDGE_WIDTH_RL, 0);
 
             _mask.swap(tmp);
-
-            /***
-            IF_MASTER
-            {
-                ImageFile imf;
-                imf.readMetaData(_mask);
-                imf.writeVolume("inverse_mask.mrc", _mask, _para.pixelSize);
-            }
             ***/
         }
         else

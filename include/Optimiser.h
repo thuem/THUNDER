@@ -392,9 +392,9 @@ struct OptimiserPara
 
     bool subtract;
 
-#define KEY_INVERSE_SUBTRACT_MASK "Inverse Mask for Subtraction"
+#define KEY_REGION_CENTRE "Region Need to Be Centred"
 
-    bool subtractInverse;
+    char regionCentre[FILE_NAME_LENGTH];
 
     OptimiserPara()
     {
