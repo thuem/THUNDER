@@ -5751,6 +5751,12 @@ void Optimiser::saveMapHalf(const bool finished)
 
                 fft.bwMT(ref);
 
+                softMask(ref,
+                         ref,
+                         _para.maskRadius / _para.pixelSize,
+                         EDGE_WIDTH_RL,
+                         0);
+
                 if (finished)
                     sprintf(filename, "%sReference_%03d_A_Final.bmp", _para.dstPrefix, t);
                 else
@@ -5778,6 +5784,12 @@ void Optimiser::saveMapHalf(const bool finished)
                 ***/
 
                 fft.bwMT(ref);
+
+                softMask(ref,
+                         ref,
+                         _para.maskRadius / _para.pixelSize,
+                         EDGE_WIDTH_RL,
+                         0);
 
                 if (finished)
                     sprintf(filename, "%sReference_%03d_B_Final.bmp", _para.dstPrefix, t);
@@ -5903,6 +5915,12 @@ void Optimiser::saveMapJoin(const bool finished)
                     ref[i] = (A[i] + B[i]) / 2;
 
                 fft.bwMT(ref);
+
+                softMask(ref,
+                         ref,
+                         _para.maskRadius / _para.pixelSize,
+                         EDGE_WIDTH_RL,
+                         0);
 
                 imf.writeStack(ref, l);
             }
