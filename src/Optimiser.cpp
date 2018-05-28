@@ -3098,15 +3098,13 @@ void Optimiser::initSigma()
     {
         vec ps(maxR());
 
-        powerSpectrum(ps, _imgOri[l], maxR());
+        // powerSpectrum(ps, _imgOri[l], maxR());
 
-        /***
 #ifdef OPTIMISER_SIGMA_MASK
         powerSpectrum(ps, _img[l], maxR());
 #else
         powerSpectrum(ps, _imgOri[l], maxR());
 #endif
-        ***/
 
         #pragma omp critical  (line2742)
         avgPs += ps;
@@ -4416,7 +4414,11 @@ void Optimiser::allReduceSigma(const bool mask,
         {
             RFLOAT ratio = GSL_MIN_DBL(1, _svd(i, j));
 
+#ifdef OPTIMISER_SIGMA_MASK
+            _sig(i, j) = sigM(i, j);
+#else
             _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * alpha * sigN(i, j);
+#endif
             // _sig(i, j) = (ratio * gsl_pow_2(alpha) + (1 - ratio) * alpha) * sigN(i, j);
         }
 
