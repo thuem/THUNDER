@@ -2291,8 +2291,8 @@ void Optimiser::run()
 
                 MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
 
-                // reconstructRef(true, false, true, false, true);
-                reconstructRef(false, true, false, false, true);
+                reconstructRef(true, false, false, false, true);
+                // reconstructRef(false, true, false, false, true);
             }
 #endif
         }
