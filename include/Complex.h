@@ -13,9 +13,8 @@
 #include <gsl/gsl_complex_math.h>
 #include <math.h>
 
-#include "huabin.h"
 #include "Config.h"
-
+#include "Precision.h"
 #include "Typedef.h"
 
 /*

@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -49,6 +47,7 @@ struct ImageMetaData
 #include <iostream>
 
 #include "Logging.h"
+#include "Precision.h"
 
 #include "MRCHeader.h"
 #include "Image.h"

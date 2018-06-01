@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Authors Mingxu Hu
  * Dependency:
@@ -12,6 +10,8 @@
 
 #ifndef COORDINATE_5D_H
 #define COORDINATE_5D_H
+
+#include "Precision.h"
 
 #include <cstdio>
 

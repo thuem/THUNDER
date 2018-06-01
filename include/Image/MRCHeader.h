@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 #ifndef MRC_HEADER_H
 #define MRC_HEADER_H
 

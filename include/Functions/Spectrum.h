@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -18,6 +16,7 @@
 #include <gsl/gsl_fit.h>
 
 #include "Typedef.h"
+#include "Precision.h"
 
 #include "Image.h"
 #include "Volume.h"

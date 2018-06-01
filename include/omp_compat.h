@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 // Compatibility header to allow build with or without OpenMP
 #pragma once
 

@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
@@ -17,6 +15,8 @@
 #include <cmath>
 
 #include <gsl/gsl_sf_trig.h>
+
+#include "Precision.h"
 
 #include "Functions.h"
 

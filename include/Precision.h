@@ -1,5 +1,13 @@
-#ifndef  HUABIN_H
-#define  HUABIN_H
+/*******************************************************************************
+ * Author: Huabin Ruan
+ * Dependecy:
+ * Test:
+ * Execution:
+ * Description:
+ * ****************************************************************************/
+
+#ifndef  PRECISION_H
+#define  PRECISION_H
 
 /*
  *#define TSGSL_cdf_chisq_Qinv gsl_cdf_chisq_Qinv
@@ -187,5 +195,5 @@ TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, TSFFTW_COMPLEX *in, R
 void TSFFTW_plan_with_nthreads(int nthreads);
 
 void TSFFTW_set_timelimit(RFLOAT seconds);
-#endif
 
+#endif // PRECISION_H

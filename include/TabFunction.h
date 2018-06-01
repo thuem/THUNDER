@@ -1,7 +1,5 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
- * Author: Kunpeng Wang, Mingxu Hu
+ * Author: Kunpeng Wang, Mingxu Hu, Siyuan Ren
  * Dependecy:
  * Test:
  * Execution:
@@ -18,6 +16,7 @@
 
 #include "Macro.h"
 #include "Functions.h"
+#include "Precision.h"
 
 using boost::function;
 

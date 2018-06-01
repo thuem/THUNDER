@@ -15,10 +15,10 @@
 
 #include <iostream>
 
-#include "huabin.h"
 #include "Macro.h"
 #include "Typedef.h"
 #include "Logging.h"
+#include "Precision.h"
 
 #include "PointGroup.h"
 #include "SymmetryOperation.h"

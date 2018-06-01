@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu, Bing Li
  * Dependecy:
@@ -101,6 +99,7 @@
 
 #include "Typedef.h"
 #include "Macro.h"
+#include "Precision.h"
 
 #include "Parallel.h"
 #include "Utils.h"

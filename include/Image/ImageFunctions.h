@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -21,6 +19,8 @@
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_statistics.h>
+
+#include "Precision.h"
 
 #include "Random.h"
 #include "FFT.h"

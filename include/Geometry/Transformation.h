@@ -14,10 +14,10 @@
 #include <cmath>
 #include <iostream>
 
-#include "huabin.h"
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
+#include "Precision.h"
 
 #include "Euler.h"
 

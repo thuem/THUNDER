@@ -1,7 +1,5 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
+ * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang, Huabin Ruan
  * Dependency:
  * Test:
  * Execution:
@@ -29,6 +27,7 @@
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
+#include "Precision.h"
 
 #include "Image.h"
 #include "Volume.h"

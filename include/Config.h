@@ -1,4 +1,3 @@
-//This header file is add by huabin
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:

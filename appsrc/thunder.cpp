@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependecy:
@@ -41,7 +39,6 @@ inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src)
 /**
  *  This function is added by huabin
  *  This function is used to covert seconds to day:hour:min:sec format
- */
 
 void fmt_time(int timeInSeconds, char *outputBuffer)
 {
@@ -60,6 +57,7 @@ void fmt_time(int timeInSeconds, char *outputBuffer)
     sec = timeInSeconds;
     snprintf(outputBuffer, 512, "%ds (%d days:%d hours:%d mins:%d seconds)\n", inputSeconds, day, hour, min, sec);
 }
+***/
 
 template <size_t N>
 static inline void copy_string(char (&array)[N], const std::string& source)
@@ -71,6 +69,8 @@ static inline void copy_string(char (&array)[N], const std::string& source)
                                   << N
                                   << ", while source length is "
                                   << source.size() + 1;
+
+        abort();
                                   
         return;
     }
@@ -246,10 +246,12 @@ int main(int argc, char* argv[])
     CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
 #endif
 
+    /***
     RFLOAT sTime = 0.0;
     RFLOAT eTime = 0.0;
 
     if (rank == 0) sTime = MPI_Wtime();
+    ***/
 
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_SYS") << "Process " << rank << " Initialised";
@@ -324,6 +326,7 @@ int main(int argc, char* argv[])
 
     opt.run();
 
+    /***
     if (rank == 0)
     {
         eTime = MPI_Wtime();
@@ -338,6 +341,7 @@ int main(int argc, char* argv[])
 
         fprintf(stderr, "Elapse Time: %s\n", timeBuffer);
     }
+    ***/
 
     MPI_Finalize();
 

@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -421,5 +419,4 @@ void bFactorEst(RFLOAT& bFactor,
                    &sumsq);
 
     bFactor = 2 * c1;
-    //bFactor = c1;
 }

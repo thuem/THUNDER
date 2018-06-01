@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Siyuan Ren, Mingxu Hu
  * Dependency:
@@ -26,6 +24,7 @@
 #include <gsl/gsl_randist.h>
 
 #include "Logging.h"
+#include "Precision.h"
 
 gsl_rng* get_random_engine();
 

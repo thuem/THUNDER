@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -14,6 +12,8 @@
 #define FILTER_H
 
 #include <cmath>
+
+#include "Precision.h"
 
 #include "Image.h"
 #include "Volume.h"

@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 #ifndef BMP_H
 #define BMP_H
 

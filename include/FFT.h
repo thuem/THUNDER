@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu, Hongkun Yu
  * Dependency:
@@ -20,6 +18,7 @@
 #endif
 
 #include "Logging.h"
+#include "Precision.h"
 
 #include <omp_compat.h>
 

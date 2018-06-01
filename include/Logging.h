@@ -1,7 +1,5 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
- * Author: Mingxu Hu, Hongkun Yu
+ * Author: Mingxu Hu, Hongkun Yu, Siyuan Ren
  * Dependency:
  * Test:
  * Execution:
@@ -18,6 +16,7 @@
 #include "easylogging++.h"
 
 #include "Macro.h"
+#include "Precision.h"
 
 namespace el = easyloggingpp;
 

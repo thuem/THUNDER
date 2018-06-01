@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 #include "Logging.h"
 #include "Utils.h"
 

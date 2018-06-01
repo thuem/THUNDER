@@ -1,4 +1,3 @@
-//This header file is add by huabin
 /*******************************************************************************
  * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
  * Dependecy:
@@ -18,11 +17,11 @@
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_cdf.h>
 
-#include "huabin.h"
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
 #include "Logging.h"
+#include "Precision.h"
 
 #include "Coordinate5D.h"
 #include "Random.h"

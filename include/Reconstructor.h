@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Hongkun Yu, Mingxu Hu
  * Dependecy:
@@ -24,6 +22,7 @@
 #include "Config.h"
 #include "Macro.h"
 #include "Typedef.h"
+#include "Precision.h"
 #include "Parallel.h"
 #include "Coordinate5D.h"
 #include "Functions.h"

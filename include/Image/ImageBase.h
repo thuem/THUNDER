@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -25,7 +23,6 @@
 #include <cstdio>
 #include <algorithm>
 
-
 #ifdef SINGLE_PRECISION
 #include <fftw3.h>
 #else
@@ -43,6 +40,7 @@
 #include "Macro.h"
 #include "Complex.h"
 #include "Typedef.h"
+#include "Precision.h"
 #include "Functions.h"
 #include "Utils.h"
 #include "Logging.h"

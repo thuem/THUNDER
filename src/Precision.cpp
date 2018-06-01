@@ -13,7 +13,7 @@
  *        Company:  Dep. of CS, Tsinghua Unversity                                      
  *                                                                 
  *******************************************************************/
-#include "huabin.h"
+
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_fit.h>
 #include <math.h>
@@ -21,6 +21,7 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
+#include "Precision.h"
 
 void gsl_ran_float_dir_2d (const gsl_rng * r, float *x, float *y)
 {
@@ -605,4 +606,3 @@ void TSFFTW_set_timelimit(RFLOAT seconds)
 	fftw_set_timelimit(seconds);
 #endif
 }
-

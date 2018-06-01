@@ -1,5 +1,3 @@
-//This header file is add by huabin
-#include "huabin.h"
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -21,6 +19,7 @@
 #include "Typedef.h"
 #include "Complex.h"
 #include "Logging.h"
+#include "Precision.h"
 
 #include "Interpolation.h"
 

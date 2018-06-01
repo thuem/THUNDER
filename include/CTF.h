@@ -1,4 +1,3 @@
-//This header file is add by huabin
 /*******************************************************************************
  * Author: Mingxu Hu
  * Dependency:
@@ -12,17 +11,10 @@
 #ifndef CTF_H
 #define CTF_H
 
-#include "huabin.h"
 #include "Complex.h"
 #include "Functions.h"
 #include "Image.h"
-
-//#define CTF_A 0.1
-
-//#define CTF_TAU 0.01
-
-//const RFLOAT w1 = sqrt(1 - CTF_A * CTF_A);
-//const RFLOAT w2 = CTF_A;
+#include "Precision.h"
 
 RFLOAT CTF(const RFLOAT f,
            const RFLOAT voltage,
