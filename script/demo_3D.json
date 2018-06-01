@@ -1,0 +1,74 @@
+{
+   "Number of Threads Per Process" : 24,
+   "2D or 3D Mode" : "3D",
+   "Global Search" : true,
+   "Local Search" : true,
+   "CTF Search" : false,
+   "Number of Classes" : 4,
+   "Size of Image" : 160,
+   "Pixel Size (Angstrom)" : 1.32,
+   "Radius of Mask on Images (Angstrom)" : 80,
+   "Estimated Translation (Pixel)" : 10,
+   "Initial Resolution (Angstrom)" : 60,
+   "Perform Global Search Under (Angstrom)" : 15,
+   "Symmetry" : "C4",
+   "Initial Model" : "init_model.mrc",
+   ".thu File Storing Paths and CTFs of Images" : "particles.thu",
+   "Prefix of Particles" : "../Data/",
+   "Prefix of Destination" : "./destination/",
+   "Calculate FSC Using Core Region" : true,
+   "Calculate FSC Using Masked Region" : false,
+   "Particle Grading" : false,
+
+   "Reference Mask" :
+   {
+       "Perform Reference Mask" : false,
+       "Perform Reference Mask During Global Search" : false,
+       "Provided Mask" : "mask.mrc"
+   },
+
+   "Subtract" :
+   {
+       "Subtract Masked Region Reference From Images" : false,
+       "Region Need to Be Centred" : ""
+   },
+
+   "Advanced" :
+   {
+       "Save Reference(s) Each Iteration" : true,
+       "Save .thu File Each Iteration" : true,
+       "Max Number of Iteration" : 100,
+       "Using Golden Standard FSC" : true,
+       "Padding Factor" : 2,
+       "MKB Kernel Radius" : 1.9,
+       "MKB Kernel Smooth Factor" : 15,
+       "Number of Sampling Points for Scanning in Global Search (3D)" : 10000,
+       "Number of Sampling Points for Scanning in Global Search (2D)" : 100,
+       "Number of Sampling Points of Rotation in Local Search (3D)" : 125,
+       "Number of Sampling Points of Rotation in Local Search (2D)" : 9,
+       "Number of Sampling Points of Translation in Local Search" : 9,
+       "Number of Sampling Points of Defocus in Local Search" : 9,
+       "Number of Sampling Points Used in Reconstruction" : 100,
+       "Ignore Signal Under (Angstrom)" : 200,
+       "Correct Intensity Scale Using Signal Under (Angstrom)" : 40,
+       "FSC Threshold for Cutoff Frequency" : 0.143,
+       "FSC Threshold for Reporting Resolution" : 0.143,
+       "FSC Threshold for Scale Correction" : 0.75,
+       "Grouping when Calculating Sigma" : true,
+       "Grouping when Correcting Intensity Scale" : false,
+       "Mask Images with Zero Noise" : true,
+       "CTF Refine Standard Deviation" : 0.01
+   },
+
+   "Professional" :
+   {
+       "Translation Search Factor" : 0.25,
+       "Perturbation Factor (Large)" : 2,
+       "Perturbation Factor (Small, Global)" : 0.5,
+       "Perturbation Factor (Small, Local)" : 0.5,
+       "Perturbation Factor (Small, CTF)" : 0.5,
+       "Skip Expectation" : false,
+       "Skip Maximization" : false,
+       "Skip Reconstruction" : false
+   }
+}
