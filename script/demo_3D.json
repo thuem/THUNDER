@@ -27,8 +27,16 @@
        "Provided Mask" : "mask.mrc"
    },
 
+   "Subtract" :
+   {
+       "Subtract Masked Region Reference From Images" : false,
+       "Region Need to Be Centred" : ""
+   },
+
    "Advanced" :
    {
+       "Save Reference(s) Each Iteration" : true,
+       "Save .thu File Each Iteration" : true,
        "Max Number of Iteration" : 100,
        "Using Golden Standard FSC" : true,
        "Padding Factor" : 2,
