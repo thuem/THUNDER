@@ -1,7 +1,21 @@
-Mingxu Hu
-Hongkun Yu
-Huabin Ruan
-Kunpeng Wang
-Bin Li
-Heng Guo
-Zhao Wang
+Mingxu Hu (1, 5, 6)
+Hongkun Yu (3, 6)
+Huabin Ruan (5)
+Kai Gu (2)
+Kunpeng Wang (3, 6)
+Siyuan Ren (3, 6)
+Bin Li (3, 6)
+Zhao Wang (1, 5, 6)
+Heng Guo (3, 6)
+Lin Gan(3, 6)
+Shizhen Xu (3, 6)
+Guangwen Yang (3, 6)
+Yuan Shen (2)
+Xueming Li (1, 4, 5)
+
+1. MOE Key Laboratory of Protein Science, School of Life Sciences, Tsinghua University, Beijing 100084, China
+2. Department of Electronic Engineering, Tsinghua University, Beijing 100084, China
+3. Department of Computer Science and Technology, Tsinghua University, Beijing 100084, China
+4. Tsinghua-Peking Joint Center for Life Sciences, Beijing 100084, China
+5. Advanced Innovation Center for Structural Biology, Tsinghua University, Beijing 100084, China
+6. National Supercomputing Center in Wuxi, Wuxi 214072, China
