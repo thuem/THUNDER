@@ -25,11 +25,11 @@ Please view the manual in `manual` folder.
 
 ## Authors
 
-See `AUTHORS` file.
+See [AUTHORS.txt](AUTHORS.txt) file.
 
 ## License
 
-See [LICENSE.md](LICENSE.md) file for details.
+See [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Acknowledgements
 
