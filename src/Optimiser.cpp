@@ -5041,7 +5041,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-        _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
+        // _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
+        _model.compareTwoHemispheres(false, true, _para.thresSclCorFSC);
     }
 
 #endif
