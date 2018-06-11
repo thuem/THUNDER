@@ -860,6 +860,8 @@ class Optimiser : public Parallel
 
         void reMaskImg();
 
+        void reMaskImgG();
+
         void normCorrection();
 
         /**

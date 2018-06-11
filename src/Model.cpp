@@ -1050,7 +1050,11 @@ void Model::refreshReco()
                                  << l
                                  << " Resizing";
 
+#ifdef GPU_VERSION
+        _reco[l]->resizeSpaceG((_rU + CEIL(_a)) * 2);
+#else
         _reco[l]->resizeSpace((_rU + CEIL(_a)) * 2);
+#endif
 #endif
 
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
@@ -1088,7 +1092,11 @@ void Model::resetReco(const RFLOAT thres)
     FOR_EACH_CLASS
     {
 #ifdef MODEL_RECONSTRUCTOR_RESIZE
+#ifdef GPU_VERSION
+        _reco[l]->resizeSpaceG(GSL_MIN_INT(_size, (_rU + CEIL(_a)) * 2));
+#else
         _reco[l]->resizeSpace(GSL_MIN_INT(_size, (_rU + CEIL(_a)) * 2));
+#endif
 #else
         _reco[l]->reset();
 #endif

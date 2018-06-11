@@ -110,6 +110,19 @@ __global__ void kernel_ExpectPrectf(CTFAttr* dev_ctfa,
  * @param ...
  * @param ...
  */
+__global__ void kernel_TranslateL(Complex* devtraP,
+                                  double* devnT,
+                                  int* deviCol,
+                                  int* deviRow,
+                                  int idim,
+                                  int npxl);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
 __global__ void kernel_Translate(Complex* devtraP,
                                  double* dev_trans,
                                  int* deviCol,
@@ -123,9 +136,51 @@ __global__ void kernel_Translate(Complex* devtraP,
  * @param ...
  * @param ...
  */
+__global__ void kernel_CalCTFL(RFLOAT* devctfP,
+                               RFLOAT* devdefO,
+                               RFLOAT* devfreQ,
+                               double* devdP,
+                               RFLOAT phaseShift,
+                               RFLOAT conT,
+                               RFLOAT k1,
+                               RFLOAT k2,
+                               int npxl);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_getRotMatL(double* devRotm,
+                                  double* devnR,
+                                  int nR);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
 __global__ void kernel_getRotMat(double* devRotm,
                                  double* devnR,
                                  int nR);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_Project3DL(Complex* priRotP,
+                                  double* devRotm,
+                                  int* deviCol,
+                                  int* deviRow,
+                                  int pf,
+                                  int vdim,
+                                  int npxl,
+                                  int interp,
+                                  cudaTextureObject_t texObject);
 
 /**
  * @brief ...
@@ -159,6 +214,22 @@ __global__ void kernel_Project3D(Complex* priRotP,
                                  int npxl,
                                  int interp,
                                  cudaTextureObject_t texObject);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_Project2DL(Complex* priRotP,
+                                  double* devnR,
+                                  int* deviCol,
+                                  int* deviRow,
+                                  int pf,
+                                  int vdim,
+                                  int npxl,
+                                  int interp,
+                                  cudaTextureObject_t texObject);
 
 /**
  * @brief ...
@@ -183,15 +254,59 @@ __global__ void kernel_Project2D(Complex* priRotP,
  * @param ...
  * @param ...
  */
+__global__ void kernel_logDataVSL(Complex* priRotP,
+                                  Complex* devtraP,
+                                  Complex* devdatP,
+                                  RFLOAT* devctfP,
+                                  RFLOAT* devsigP,
+                                  RFLOAT* devDvp,
+                                  //RFLOAT* devre,
+                                  int nT,
+                                  int npxl);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_logDataVSLC(Complex* priRotP,
+                                   Complex* devtraP,
+                                   Complex* devdatP,
+                                   RFLOAT* devctfP,
+                                   RFLOAT* devsigP,
+                                   RFLOAT* devDvp,
+                                   int nT,
+                                   int nD,
+                                   int npxl);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
 __global__ void kernel_logDataVS(Complex* devdatP,
                                  Complex* priRotP,
                                  Complex* devtraP,
                                  RFLOAT* devctfP,
                                  RFLOAT* devsigP,
                                  RFLOAT* devDvp,
+                                 int r,
+                                 int nR,
                                  int nT,
                                  int rbatch,
                                  int npxl);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_getMaxBaseL(RFLOAT* devBaseL,
+                                   RFLOAT* devDvp,
+                                   int angleNum);
 
 /**
  * @brief ...
@@ -235,6 +350,72 @@ __global__ void kernel_UpdateW(RFLOAT* devDvp,
                                int nK,
                                int nR,
                                int rSize);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_UpdateWL(RFLOAT* devDvp,
+                                RFLOAT* devBaseL,
+                                RFLOAT* devwC,
+                                RFLOAT* devwR,
+                                RFLOAT* devwT,
+                                RFLOAT* devwD,
+                                double* devR,
+                                double* devT,
+                                double* devD,
+                                double oldC,
+                                int nT,
+                                int l);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_UpdateWL(RFLOAT* devDvp,
+                                RFLOAT* devBaseL,
+                                RFLOAT* devwC,
+                                RFLOAT* devwR,
+                                RFLOAT* devwT,
+                                RFLOAT* devwD,
+                                double* devR,
+                                double* devT,
+                                double* devD,
+                                double oldC,
+                                int nT);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_UpdateWLC(RFLOAT* devDvp,
+                                 RFLOAT* devBaseL,
+                                 RFLOAT* devwC,
+                                 RFLOAT* devwR,
+                                 RFLOAT* devtT,
+                                 RFLOAT* devtD,
+                                 double* devR,
+                                 double* devT,
+                                 double* devD,
+                                 double oldC,
+                                 int nT,
+                                 int nD);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_ReduceW(RFLOAT* devw,
+                               RFLOAT* devt);
+
 /**
  * @brief ...
  *
@@ -602,7 +783,8 @@ __global__ void kernel_InsertO3D(double* devO,
                                  double* dev_offs,
                                  int* dev_nc,
                                  int insertIdx,
-                                 int mReco);
+                                 int mReco,
+                                 int batchSize);
 
 /**
  * @brief ...
@@ -616,7 +798,8 @@ __global__ void kernel_InsertO3D(double* devO,
                                  double* dev_nt,
                                  int* dev_nc,
                                  int insertIdx,
-                                 int mReco);
+                                 int mReco,
+                                 int batchSize);
 
 /**
  * @brief ...
@@ -689,7 +872,8 @@ __global__ void kernel_InsertO3D(double* devO,
                                  double* dev_nt,
                                  double* dev_offs,
                                  int insertIdx,
-                                 int mReco);
+                                 int mReco,
+                                 int batchSize);
 
 /**
  * @brief ...
@@ -702,7 +886,8 @@ __global__ void kernel_InsertO3D(double* devO,
                                  double* dev_mat,
                                  double* dev_nt,
                                  int insertIdx,
-                                 int mReco);
+                                 int mReco,
+                                 int batchSize);
 
 /**
  * @brief Normalize T: T = T * sf
@@ -1203,6 +1388,30 @@ __global__ void kernel_TranslateI(Complex* devRef,
                                   int dim,
                                   int batch);
  
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_SoftMask(RFLOAT *devMask,
+                                RFLOAT r,
+                                RFLOAT ew,
+                                int dim,
+                                int imgSize);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_MulMask(RFLOAT *dev_image,
+                               RFLOAT *devMask,
+                               int imgIdx,
+                               int dim,
+                               int imgSize);
+
 /**
  * @brief ...
  *

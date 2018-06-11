@@ -82,7 +82,11 @@ void Reconstructor::init(const int mode,
 
     _maxRadius = (_size / 2 - CEIL(a));
 
+#ifdef GPU_VERSION
+    allocSpaceG();
+#else
     allocSpace();
+#endif
 
     reset();
 }
@@ -136,6 +140,43 @@ void Reconstructor::allocSpace()
     }
 }
 
+void Reconstructor::allocSpaceG()
+{
+    if (_mode == MODE_2D)
+    {
+        // Create Fourier Plans First, Then Allocate Space
+        // For Save Memory Space
+
+        ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+        BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+
+        _F2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _W2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _C2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _T2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
+    }
+    else if (_mode == MODE_3D)
+    {
+        // Create Fourier Plans First, Then Allocate Space
+        // For Save Memory Space
+
+        ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+        BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
+
+        _F3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _W3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+        _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
+
+    }
+    else 
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+}
+
 void Reconstructor::resizeSpace(const int size)
 {
     _fft.fwDestroyPlanMT();
@@ -144,6 +185,15 @@ void Reconstructor::resizeSpace(const int size)
     _size = size;
 
     allocSpace();
+
+    reset();
+}
+
+void Reconstructor::resizeSpaceG(const int size)
+{
+    _size = size;
+
+    allocSpaceG();
 
     reset();
 }
@@ -818,6 +868,7 @@ void Reconstructor::insertI(Complex* datP,
     O3D[1] = _oy;
     O3D[2] = _oz;
     counter[0] = _counter;
+    int dimSize = _T3D.sizeFT();
     
     InsertFT(_F3D,
              _T3D,
@@ -843,6 +894,7 @@ void Reconstructor::insertI(Complex* datP,
              _nPxl,
              mReco,
              idim,
+             dimSize,
              imgNum);
     
     _ox = O3D[0];
@@ -876,6 +928,7 @@ void Reconstructor::insertI(Complex* datP,
     O3D[1] = _oy;
     O3D[2] = _oz;
     counter[0] = _counter;
+    int dimSize = _T3D.sizeFT();
     
     InsertFT(_F3D,
              _T3D,
@@ -900,6 +953,7 @@ void Reconstructor::insertI(Complex* datP,
              _nPxl,
              mReco,
              idim,
+             dimSize,
              imgNum);
     
     _ox = O3D[0];
@@ -909,94 +963,6 @@ void Reconstructor::insertI(Complex* datP,
     
     delete[] O3D;
     delete[] counter;
-}
-
-void Reconstructor::insertFT(Complex* datP,
-                             RFLOAT* ctfP,
-                             RFLOAT* sigRcpP,
-                             vector<Particle>& par,
-                             vector<vec2>& offset,
-                             vector<CTFAttr>& ctfAttr,
-                             RFLOAT pixelSize,
-                             bool cSearch,
-                             bool parGra,
-                             int opf,
-                             int nK,
-                             int mReco,
-                             int idim,
-                             int imgNum)
-{   
-    int rSize = par[0].nR();
-    int tSize = par[0].nT();
-    int dSize = par[0].nD();
-
-    RFLOAT *w = new RFLOAT[imgNum];
-    double *offS = new double[imgNum * 2];
-    double *nr = new double[rSize * imgNum * 4];
-    double *nt = new double[tSize * imgNum * 2];
-    double *nd = new double[dSize * imgNum];
-    CTFAttr* ctfaData = new CTFAttr[imgNum];
-
-    //printf("npxl:%d, r:%d, t:%d, d:%d\n", _nPxl, rSize, tSize, dSize);
-    
-    int j = 0;
-    for (int i = 0; i < imgNum; i++)
-    {
-        if (parGra && nK == 1)
-           w[i] = par[i].compressR();
-        else
-           w[i] = 1;
-         
-        w[i] /= mReco;
-        
-        if (cSearch)
-        {
-            Map<dvec>(nd + i * dSize, dSize, 1) = par[i].d();
-            ctfaData[i] = ctfAttr[i]; 
-        }
-        
-        for (int k = 0; k < tSize; k++)
-            Map<dvec2>(nt + k * 2 + i * tSize * 2, 2, 1) = par[i].t().row(k).transpose();
-        
-        for (int k = 0; k < rSize; k++)
-            Map<dvec4>(nr + k * 4 + i * rSize * 4, 4, 1) = par[i].r().row(k).transpose();
-        
-        offS[j] = offset[i](0); 
-        offS[j + 1] = offset[i](1);
-        j += 2; 
-    }
-    
-    InsertF(_F3D,
-            _T3D,
-            _hemi,
-            datP,
-            ctfP,
-            sigRcpP,
-            ctfaData,
-            offS,
-            w,
-            nr,
-            nt,
-            nd,
-            _iCol,
-            _iRow,
-            pixelSize,
-            cSearch,
-            opf,
-            rSize,
-            tSize,
-            dSize,
-            _nPxl,
-            mReco,
-            idim,
-            imgNum);
-    
-    delete[] w;
-    delete[] offS;
-    delete[] nr;
-    delete[] nt;
-    delete[] nd;
-    delete[] ctfaData;
 }
 
 int Reconstructor::getModelDim()
@@ -1040,12 +1006,29 @@ void Reconstructor::prepareTFG(int gpuIdx)
     // only in 3D mode, symmetry should be considered
     IF_MODE_3D
     {
+	    int nSymmetryElement = _sym->nSymmetryElement();
+        double *symMat = new double[nSymmetryElement * 9];
+
+#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
+        ALOG(INFO, "LOGGER_RECO") << "Prepare param for Symmetrizing TF";
+        BLOG(INFO, "LOGGER_RECO") << "Prepare param for Symmetrizing TF";
+        dmat33 L, R;   
+        
+	    for(int i = 0; i < nSymmetryElement; i++)
+	    {
+            _sym->get(L, R, i);
+            Map<dmat33>(symMat + i * 9, 3, 3) = R;
+	    }
+#endif
         PrepareTF(gpuIdx,
                   _F3D,
                   _T3D,
-                  *_sym,
+                  symMat,
+                  nSymmetryElement,
                   _maxRadius,
                   _pf);
+        
+        delete[]symMat;
     }
     
     IF_MODE_3D
@@ -1755,6 +1738,11 @@ void Reconstructor::reconstructG(Volume& dst,
 
     if (_gridCorr)
     {
+#ifdef RECONSTRUCTOR_KERNEL_PADDING
+        RFLOAT nf = MKB_RL(0, _a * _pf, _alpha);
+#else
+        RFLOAT nf = MKB_RL(0, _a, _alpha);
+#endif
         if (_mode == MODE_2D)
         {
             ExposeWT2D(gpuIdx,
@@ -1764,6 +1752,7 @@ void Reconstructor::reconstructG(Volume& dst,
                        _maxRadius,
                        _pf,
                        _a,
+                       nf,
                        _alpha,
                        MAX_N_ITER_BALANCE,
                        MIN_N_ITER_BALANCE,
@@ -1778,6 +1767,7 @@ void Reconstructor::reconstructG(Volume& dst,
                      _maxRadius,
                      _pf,
                      _a,
+                     nf,
                      _alpha,
                      MAX_N_ITER_BALANCE,
                      MIN_N_ITER_BALANCE,
@@ -1865,15 +1855,33 @@ void Reconstructor::reconstructG(Volume& dst,
 
         dst.alloc(_N, _N, 1, FT_SPACE);
 
+        int dim = imgDst.nRowRL();
+        RFLOAT *mkbRL = new RFLOAT[(dim / 2 + 1) * (dim / 2 + 1)];
+        int padSize = _pf * _N;
+    
+        for (int j = 0; j <= dim / 2; j++) 
+            for (int i = 0; i <= dim / 2; i++) 
+            {
+                size_t index = j * (dim / 2 + 1) + i;
+        
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+                mkbRL[index] = MKB_RL(NORM(i, j) / padSize,
+                                  _a * _pf,
+                                  _alpha);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+                mkbRL[index] = TIK_RL(NORM(i, j) / padSize);
+#endif
+            }
+    
         ExposeCorrF2D(gpuIdx,
                       imgDst,
                       dst,
-                      nf,
-                      _a,
-                      _alpha,
-                      _pf,
-                      _N);
+                      mkbRL,
+                      nf);
         
+        delete[] mkbRL;
         imgDst.clearRL();
     }
     else if (_mode == MODE_3D)
@@ -1921,15 +1929,35 @@ void Reconstructor::reconstructG(Volume& dst,
         nf = MKB_RL(0, _a * _pf, _alpha);
 #endif
 
+        int padSize = _pf * _N;
+        int dim = dstN.nSlcRL();
+        int slcSize = (dim / 2 + 1) * (dim / 2 + 1);
+        RFLOAT *mkbRL = new RFLOAT[slcSize * (dim / 2 + 1)];
+        
+        for (int k = 0; k <= dim / 2; k++) 
+            for (int j = 0; j <= dim / 2; j++) 
+                for (int i = 0; i <= dim / 2; i++) 
+                {
+                    size_t index = k * slcSize + j * (dim / 2 + 1) + i;
+        
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+                    mkbRL[index] = MKB_RL(NORM_3(i, j, k) / padSize,
+                                      _a * _pf,
+                                      _alpha);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+                    mkbRL[index] = TIK_RL(NORM_3(i, j, k) / padSize);
+#endif
+                }
+    
         ExposeCorrF(gpuIdx,
                     dstN,
                     dst,
-                    nf,
-                    _a,
-                    _alpha,
-                    _pf,
-                    _N);
+                    mkbRL,
+                    nf);
         
+        delete[] mkbRL;
         dstN.clearRL();
     }
     else

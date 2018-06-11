@@ -236,9 +236,6 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_library(core STATIC ${SOURCES})
 
-TARGET_INCLUDE_DIRECTORIES(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
-TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
-
 # Make Sure FFTW and GSL is Built Before Linking
 
 add_dependencies(core FFTW)
@@ -247,6 +244,11 @@ add_dependencies(core GSL)
 # Link Libraries
 
 link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
+
+TARGET_INCLUDE_DIRECTORIES(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
+TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+
+#ADD_SUBDIRECTORY(testsrc)
 
 # Compile Executables
 

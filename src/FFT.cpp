@@ -503,10 +503,12 @@ void FFT::bwDestroyPlan()
 
 void FFT::fwDestroyPlanMT()
 {
-    TSFFTW_destroy_plan(fwPlan);
+    if (fwPlan)
+        TSFFTW_destroy_plan(fwPlan);
 }
 
 void FFT::bwDestroyPlanMT()
 {
-    TSFFTW_destroy_plan(bwPlan);
+    if (bwPlan)
+        TSFFTW_destroy_plan(bwPlan);
 }

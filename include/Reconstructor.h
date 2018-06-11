@@ -345,7 +345,11 @@ class Reconstructor : public Parallel
 
         void allocSpace();
 
+        void allocSpaceG();
+
         void resizeSpace(const int size);
+
+        void resizeSpaceG(const int size);
 
         void reset();
 
@@ -510,21 +514,6 @@ class Reconstructor : public Parallel
                      int mReco,
                      int idim,
                      int imgNum);
-
-        void insertFT(Complex* datP,
-                      RFLOAT* ctfP,
-                      RFLOAT* sigRcpP,
-                      vector<Particle>& par,
-                      vector<vec2>& offset,
-                      vector<CTFAttr>& ctfAttr,
-                      RFLOAT pixelSize,
-                      bool cSearch,
-                      bool parGra,
-                      int opf,
-                      int nK,
-                      int mReco,
-                      int idim,
-                      int imgNum);
 
         int getModelDim();
         int getModelSize();

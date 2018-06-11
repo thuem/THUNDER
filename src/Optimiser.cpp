@@ -421,7 +421,11 @@ void Optimiser::init()
 #ifdef OPTIMISER_MASK_IMG
 
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+#ifdef GPU_VERSION
+            reMaskImgG();
+#else
             reMaskImg();
+#endif
 
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(_hemi);
@@ -1111,7 +1115,7 @@ void Optimiser::expectation()
     _nI = 0;
 
     nPer = 0;
-
+    
     Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
     Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
 
@@ -1355,13 +1359,6 @@ void Optimiser::expectation()
                             }
 
                             RFLOAT s = exp(w - baseLine);
-
-                            /***
-                            wC(iC) += s;
-                            wR(iR) += s;
-                            wT(iT) += s;
-                            wD(iD) += s;
-                            ***/
 
                             wC(iC) += s * (_par[l].wR(iR) * _par[l].wT(iT) * _par[l].wD(iD));
                             wR(iR) += s * (_par[l].wC(iC) * _par[l].wT(iT) * _par[l].wD(iD));
@@ -1676,6 +1673,24 @@ void Optimiser::expectationG()
 
     allocPreCalIdx(_r, _rL);
 
+    std::vector<int> gpus;
+    getAviDevice(gpus);
+    
+    int deviceNum = gpus.size();
+    int *deviCol[deviceNum];
+    int *deviRow[deviceNum];
+
+    #pragma omp parallel for num_threads(deviceNum)
+    for (int i = 0; i < deviceNum; i++)
+    {
+        ExpectPreidx(gpus[i],
+                     &deviCol[i],
+                     &deviRow[i],
+                     _iCol,
+                     _iRow,
+                     _nPxl);
+    }
+
     if (_searchType == SEARCH_TYPE_GLOBAL)
     {
         if (_searchType != SEARCH_TYPE_CTF)
@@ -1745,9 +1760,15 @@ void Optimiser::expectationG()
             par.copy(_par[l]);
         }
 
-        RFLOAT* wc = new RFLOAT[_ID.size() * _para.k];
-        RFLOAT* wr = new RFLOAT[_ID.size() * _para.k * nR];
-        RFLOAT* wt = new RFLOAT[_ID.size() * _para.k * nT];
+        //float time_use = 0;
+        //struct timeval start;
+        //struct timeval end;
+
+        //gettimeofday(&start, NULL);
+        
+        RFLOAT* weightC = (RFLOAT*)malloc(_ID.size() * _para.k * sizeof(RFLOAT));
+        RFLOAT* weightR = (RFLOAT*)malloc(_ID.size() * _para.k * nR * sizeof(RFLOAT));
+        RFLOAT* weightT = (RFLOAT*)malloc(_ID.size() * _para.k * nT * sizeof(RFLOAT));
 
         double* pr = new double[nR];
         double* pt = new double[nT];
@@ -1770,7 +1791,7 @@ void Optimiser::expectationG()
             for (int k = 0; k < nR; k++)
                 Map<dvec4>(rot + k * 4, 4, 1) = par.r().row(k).transpose();
         
-            Complex* traP = (Complex*)TSFFTW_malloc(nT * _nPxl * sizeof(Complex));
+            Complex* traP = (Complex*)TSFFTW_malloc((long long)nT * _nPxl * sizeof(Complex));
 
             ExpectRotran(traP,
                          trans,
@@ -1786,7 +1807,7 @@ void Optimiser::expectationG()
             delete[] trans;
             delete[] rot;
             
-            Complex* rotP = (Complex*)TSFFTW_malloc(nR * _nPxl * sizeof(Complex));
+            Complex* rotP = (Complex*)TSFFTW_malloc((long long)nR * _nPxl * sizeof(Complex));
             Complex* vol;
             
             for (size_t t = 0; t < (size_t)_para.k; t++)
@@ -1801,7 +1822,6 @@ void Optimiser::expectationG()
                               nR,
                               _model.proj(t).pf(),
                               _model.proj(t).interp(),
-                              _para.size,
                               _model.proj(t).projectee3D().nSlcFT(),
                               _nPxl);
 
@@ -1810,9 +1830,9 @@ void Optimiser::expectationG()
                                _datP,
                                _ctfP,
                                _sigRcpP,
-                               wc,
-                               wr,
-                               wt,
+                               weightC,
+                               weightR,
+                               weightT,
                                pr,
                                pt,
                                baseL,
@@ -1820,7 +1840,6 @@ void Optimiser::expectationG()
                                _para.k,
                                nR,
                                nT,
-                               _para.size,
                                _nPxl,
                                _ID.size());
             }
@@ -1861,9 +1880,9 @@ void Optimiser::expectationG()
                            _ctfP,
                            _sigRcpP,
                            trans,
-                           wc,
-                           wr,
-                           wt,
+                           weightC,
+                           weightR,
+                           weightT,
                            pr,
                            pt,
                            rot,
@@ -1883,13 +1902,17 @@ void Optimiser::expectationG()
             delete[] trans;
             delete[] rot;
         }
+        
+        delete[] pr;
+        delete[] pt;
+        
         // reset weights of particle filter
         
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
             for (int iC = 0; iC < _para.k; iC++)
-                _par[l].setUC(wc[l * _para.k + iC], iC);
+                _par[l].setUC(weightC[l * _para.k + iC], iC);
 
 #ifdef OPTIMISER_PEAK_FACTOR_C
             _par[l].setPeakFactor(PAR_C);
@@ -1927,13 +1950,13 @@ void Optimiser::expectationG()
             //for (int iT = 0; iT < nT; iT++)
             //    _par[l].setUT(wT[cls](l, iT), iT);
 
-            int shiftR = l * _para.k * nR;
-            int shiftT = l * _para.k * nT;
+            long long shiftR = (long long)l * _para.k * nR;
+            long long shiftT = (long long)l * _para.k * nT;
         
             for (int iR = 0; iR < nR; iR++)
-                _par[l].setUR(wr[shiftR + cls * nR + iR], iR);
+                _par[l].setUR(weightR[shiftR + cls * nR + iR], iR);
             for (int iT = 0; iT < nT; iT++)
-                _par[l].setUT(wt[shiftT + cls * nT + iT ], iT);
+                _par[l].setUT(weightT[shiftT + cls * nT + iT], iT);
 
 #ifdef OPTIMISER_PEAK_FACTOR_R
             _par[l].setPeakFactor(PAR_R);
@@ -2098,24 +2121,52 @@ void Optimiser::expectationG()
         BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
-        delete[] wc;
-        delete[] wr;
-        delete[] wt;
-        delete[] pr;
-        delete[] pt;
+        delete[] weightC;
+        delete[] weightR;
+        delete[] weightT;
         
         if (_searchType != SEARCH_TYPE_CTF)
             freePreCal(false);
         else
             freePreCal(true);
+        
+        //gettimeofday(&end, NULL);
+        //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+        //if (_commRank == HEMI_A_LEAD)
+        //    printf("Expectation globalA time_use:%lf\n", time_use);
+        //else
+        //    printf("Expectation globalB time_use:%lf\n", time_use);
     }
 
 #ifdef OPTIMISER_PARTICLE_FILTER
 
+    //float time_use = 0;
+    //struct timeval start;
+    //struct timeval end;
+
+    //gettimeofday(&start, NULL);
+        
     if (_searchType != SEARCH_TYPE_CTF)
         allocPreCal(true, false, false);
     else
         allocPreCal(true, false, true);
+
+    RFLOAT* devfreQ[deviceNum];
+    
+    if(_searchType == SEARCH_TYPE_CTF)
+    { 
+        #pragma omp parallel for
+        for (int i = 0; i < deviceNum; i++)
+        {
+            ExpectPrefre(gpus[i],
+                         &devfreQ[i],
+                         _frequency,
+                         _nPxl);
+        }
+    }
+
+    ALOG(INFO, "LOGGER_ROUND") << "Local Search PreImg & frequency done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Local Search PreImg & frequency done.";
 
     _nP.resize(_ID.size(), 0);
 
@@ -2124,558 +2175,1231 @@ void Optimiser::expectationG()
 
     nPer = 0;
 
-    Complex* poolPriRotP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
-    Complex* poolPriAllP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
+    int streamNum = 3;
+    int buffNum = deviceNum * streamNum; 
+   
+    ManagedArrayTexture *mgr2D[deviceNum * _para.k];
+    ManagedArrayTexture *mgr3D[deviceNum];
 
-    Complex* poolTraP = (Complex*)TSFFTW_malloc(_para.mLT * _nPxl * omp_get_max_threads() * sizeof(Complex));
+    int interp = _model.proj(0).interp();
+    int vdim;
+    if (_para.mode == MODE_2D)
+        vdim = _model.proj(0).projectee2D().nRowFT();
+    else
+        vdim = _model.proj(0).projectee3D().nSlcFT();
 
-    RFLOAT* poolCtfP;
-
-    if (_searchType == SEARCH_TYPE_CTF)
-        poolCtfP = (RFLOAT*)TSFFTW_malloc(_para.mLD * _nPxl * omp_get_max_threads() * sizeof(RFLOAT));
-
-    #pragma omp parallel for schedule(dynamic)
-    FOR_EACH_2D_IMAGE
+    if (_para.mode == MODE_2D)
     {
-
-        Complex* priRotP = poolPriRotP + _nPxl * omp_get_thread_num();
-        Complex* priAllP = poolPriAllP + _nPxl * omp_get_thread_num();
-
-        int nPhaseWithNoVariDecrease = 0;
-
-#ifdef OPTIMISER_COMPRESS_CRITERIA
-        double variR = DBL_MAX;
-        double variT = DBL_MAX;
-        double variD = DBL_MAX;
-#else
-        double k1 = 1;
-        double k2 = 1;
-        double k3 = 1;
-        double tVariS0 = 5 * _para.transS;
-        double tVariS1 = 5 * _para.transS;
-        double dVari = 5 * _para.ctfRefineS;
-#endif
-        for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+        #pragma omp parallel for
+        for(int i = 0; i < deviceNum; i++)
         {
-#ifdef OPTIMISER_GLOBAL_PERTURB_LARGE
-            if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
-#else
-            if (phase == 0)
-#endif
+            for (int j = 0; j < _para.k; j++)
             {
-                _par[l].perturb(_para.perturbFactorL, PAR_R);
-                _par[l].perturb(_para.perturbFactorL, PAR_T);
-
-                if (_searchType == SEARCH_TYPE_CTF)
-                    _par[l].initD(_para.mLD, _para.ctfRefineS);
+                mgr2D[i * _para.k + j] = new ManagedArrayTexture();
+                mgr2D[i * _para.k + j]->Init(_para.mode, vdim, gpus[i]);
+                Complex* temp = &((const_cast<Image&>(_model.proj(j).projectee2D()))[0]);
+                int sizeModel = _model.proj(j).projectee2D().sizeFT();
+                ExpectLocalV2D(gpus[i],
+                               mgr2D[i * _para.k + j],
+                               temp,
+                               sizeModel);
             }
-            else
-            {
-                _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
-                              ? _para.perturbFactorSGlobal
-                              : _para.perturbFactorSLocal,
-                                PAR_R);
-                _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
-                              ? _para.perturbFactorSGlobal
-                              : _para.perturbFactorSLocal,
-                                PAR_T);
+        }
+    }
+    else
+    {
+        #pragma omp parallel for
+        for(int i = 0; i < deviceNum; i++)
+        {
+            mgr3D[i] = new ManagedArrayTexture();
+            mgr3D[i]->Init(_para.mode, vdim, gpus[i]);
+        }
+    }
 
-                if (_searchType == SEARCH_TYPE_CTF)
-                    _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
+    ALOG(INFO, "LOGGER_ROUND") << "Local Search texture object done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Local Search texture object done.";
+
+    vector<vector<int> > vecImg(_para.k);
+
+    if(_para.k != 1 && _para.mode == MODE_3D)
+    {
+        FOR_EACH_2D_IMAGE
+        {
+            size_t cls;
+            _par[l].c(cls, 0);
+            vecImg[cls].push_back(l);
+        }
+    }
+
+    int cpyNum = omp_get_max_threads() / deviceNum;
+    int cpyNumL = (omp_get_max_threads() % deviceNum == 0) ? cpyNum : cpyNum + 1;
+
+    Complex* devdatP[deviceNum];
+    RFLOAT* devctfP[deviceNum];
+    RFLOAT* devsigP[deviceNum];
+    RFLOAT* devdefO[deviceNum];
+    
+    #pragma omp parallel for
+    for (int i = 0; i < deviceNum; i++)
+    {
+        ExpectLocalIn(gpus[i],
+                      &devdatP[i],
+                      &devctfP[i],
+                      &devdefO[i],
+                      &devsigP[i],
+                      _nPxl,
+                      cpyNumL,
+                      _searchType);
+    }
+
+    ALOG(INFO, "LOGGER_ROUND") << "Local Search GPU Image alloc done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Local Search GPU Image alloc done.";
+
+    ManagedCalPoint *mcp[buffNum];
+
+    #pragma omp parallel for
+    for (int i = 0; i < deviceNum; i++)
+    {
+        for (int j = 0; j < streamNum; j++)
+        {
+            mcp[i * streamNum + j] = new ManagedCalPoint();
+            mcp[i * streamNum + j]->Init(_para.mode,
+                                         _searchType,
+                                         gpus[i],
+                                         _para.mLR,
+                                         _para.mLT,
+                                         _para.mLD,
+                                         _nPxl);
+        }
+    }
+    
+    ALOG(INFO, "LOGGER_ROUND") << "Local Search GPU Calculate buffer alloc done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Local Search GPU Calculate buffer alloc done.";
+
+    RFLOAT* wC[omp_get_max_threads()];
+    RFLOAT* wR[omp_get_max_threads()];
+    RFLOAT* wT[omp_get_max_threads()];
+    RFLOAT* wD[omp_get_max_threads()];
+    double* oldR[omp_get_max_threads()];
+    double* oldT[omp_get_max_threads()];
+    double* oldD[omp_get_max_threads()];
+    double* trans[omp_get_max_threads()];
+    double* dpara[omp_get_max_threads()];
+    double* rot[omp_get_max_threads()];
+
+    omp_lock_t* mtx = new omp_lock_t[deviceNum];
+
+    #pragma omp parallel for
+    for(int i = 0; i < deviceNum; i++)
+    {
+        omp_init_lock(&mtx[i]);
+    }
+
+    for (int i = 0; i < omp_get_max_threads(); i++)
+    {
+        int gpuIdx;
+        if (i / cpyNum == deviceNum)
+            gpuIdx = i % cpyNum;
+        else
+            gpuIdx = i / cpyNum;
+
+        ExpectLocalHostA(gpus[gpuIdx],
+                         &wC[i],
+                         &wR[i],
+                         &wT[i],
+                         &wD[i],
+                         &oldR[i],
+                         &oldT[i],
+                         &oldD[i],
+                         &trans[i],
+                         &rot[i],
+                         &dpara[i],
+                         _para.mLR,
+                         _para.mLT,
+                         _para.mLD,
+                         _searchType);
+    }
+
+    if (_para.mode == MODE_3D && _para.k != 1)
+    {
+        for (int itr = 0; itr < _para.k; itr++)
+        { 
+            
+            #pragma omp parallel for
+            for (int i = 0; i < deviceNum; i++)
+            {
+                Complex* temp = &((const_cast<Volume&>(_model.proj(itr).projectee3D()))[0]);
+                ExpectLocalV3D(gpus[i],
+                               mgr3D[i],
+                               temp,
+                               vdim);
             }
-
-            RFLOAT baseLine = GSL_NAN;
-
-            vec wC = vec::Zero(1);
-            vec wR = vec::Zero(_para.mLR);
-            vec wT = vec::Zero(_para.mLT);
-            vec wD = vec::Zero(_para.mLD);
-
-            size_t c;
-            dmat22 rot2D;
-            dmat33 rot3D;
-            double d;
-            dvec2 t;
-
-            FOR_EACH_C(_par[l])
+           
+            #pragma omp parallel for schedule(dynamic)
+            for (size_t l = 0; l < vecImg[itr].size(); l++)
             {
-                _par[l].c(c, iC);
+                int threadId = omp_get_thread_num();
+                int gpuIdx;
+                if (threadId / cpyNum == deviceNum)
+                    gpuIdx = threadId % cpyNum;
+                else
+                    gpuIdx = threadId / cpyNum;
 
-                Complex* traP = poolTraP + _par[l].nT() * _nPxl * omp_get_thread_num();
+                omp_set_lock(&mtx[gpuIdx]);
 
-                FOR_EACH_T(_par[l])
+                if (threadId < deviceNum * cpyNum)
                 {
-                    _par[l].t(t, iT);
-
-                    translate(traP + iT * _nPxl,
-                              t(0),
-                              t(1),
-                              _para.size,
-                              _para.size,
-                              _iCol,
-                              _iRow,
-                              _nPxl);
-                }
-
-                RFLOAT* ctfP;
-
-                if (_searchType == SEARCH_TYPE_CTF)
-                {
-                    ctfP = poolCtfP + _par[l].nD() * _nPxl * omp_get_thread_num();
-
-                    FOR_EACH_D(_par[l])
-                    {
-                        _par[l].d(d, iD);
-
-                        for (int i = 0; i < _nPxl; i++)
-                        {
-                            RFLOAT ki = _K1[l]
-                                      * _defocusP[l * _nPxl + i]
-                                      * d
-                                      * TSGSL_pow_2(_frequency[i])
-                                      + _K2[l]
-                                      * TSGSL_pow_4(_frequency[i])
-                                      - _ctfAttr[l].phaseShift;
-
-                            //ctfP[_nPxl * iD + i] = -w1 * TS_SIN(ki) + w2 * TS_COS(ki);
-                            ctfP[_nPxl * iD + i] = -TS_SQRT(1 - TSGSL_pow_2(_ctfAttr[l].amplitudeContrast))
-                                                 * TS_SIN(ki)
-                                                 + _ctfAttr[l].amplitudeContrast
-                                                 * TS_COS(ki);
-                        }
-                    }
-                }
-
-                FOR_EACH_R(_par[l])
-                {
-                    if (_para.mode == MODE_2D)
-                    {
-                        _par[l].rot(rot2D, iR);
-                    }
-                    else if (_para.mode == MODE_3D)
-                    {
-                        _par[l].rot(rot3D, iR);
-                    }
-                    else
-                    {
-                        REPORT_ERROR("INEXISTENT MODE");
-
-                        abort();
-                    }
-
-                    if (_para.mode == MODE_2D)
-                    {
-                        _model.proj(c).project(priRotP,
-                                               rot2D,
-                                               _iCol,
-                                               _iRow,
-                                               _nPxl);
-                    }
-                    else if (_para.mode == MODE_3D)
-                    {
-                        _model.proj(c).project(priRotP,
-                                               rot3D,
-                                               _iCol,
-                                               _iRow,
-                                               _nPxl);
-                    }
-                    else
-                    {
-                        REPORT_ERROR("INEXISTENT MODE");
-
-                        abort();
-                    }
-
-                    FOR_EACH_T(_par[l])
-                    {
-                        for (int i = 0; i < _nPxl; i++)
-                            priAllP[i] = traP[_nPxl * iT + i] * priRotP[i];
-
-                        FOR_EACH_D(_par[l])
-                        {
-                            _par[l].d(d, iD);
-
-                            RFLOAT w;
-
-#ifdef ENABLE_SIMD_512
-                            if (_searchType != SEARCH_TYPE_CTF)
-                            {
-                                w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   _ctfP + l * _nPxl,
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                            }
-                            else
-                            {
-                                w = logDataVSPrior_m_huabin_SIMD512(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   ctfP + iD * _nPxl,
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                            }
-#else
-#ifdef ENABLE_SIMD_256
-                            if (_searchType != SEARCH_TYPE_CTF)
-                            {
-                                w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   _ctfP + l * _nPxl,
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                            }
-                            else
-                            {
-                                w = logDataVSPrior_m_huabin_SIMD256(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   ctfP + iD * _nPxl,
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                            }
-#else
-                            if (_searchType != SEARCH_TYPE_CTF)
-                            {
-                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   _ctfP + l * _nPxl,
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                            }
-                            else
-                            {
-                                w = logDataVSPrior_m_huabin(_datP + l * _nPxl,
-                                                   priAllP,
-                                                   ctfP + iD * _nPxl,
-                                                   _sigRcpP + l * _nPxl,
-                                                   _nPxl);
-                            }
-#endif
-#endif
-                            
-                            baseLine = TSGSL_isnan(baseLine) ? w : baseLine;
-
-                            if (w > baseLine)
-                            {
-                                RFLOAT nf = exp(baseLine - w);
-
-                                wC *= nf;
-                                wR *= nf;
-                                wT *= nf;
-                                wD *= nf;
-
-                                baseLine = w;
-                            }
-
-                            RFLOAT s = exp(w - baseLine);
-
-                            /***
-                            wC(iC) += s;
-                            wR(iR) += s;
-                            wT(iT) += s;
-                            wD(iD) += s;
-                            ***/
-
-                            wC(iC) += s * (_par[l].wR(iR) * _par[l].wT(iT) * _par[l].wD(iD));
-                            wR(iR) += s * (_par[l].wC(iC) * _par[l].wT(iT) * _par[l].wD(iD));
-                            wT(iT) += s * (_par[l].wC(iC) * _par[l].wR(iR) * _par[l].wD(iD));
-                            wD(iD) += s * (_par[l].wC(iC) * _par[l].wR(iR) * _par[l].wT(iT));
-                        }
-                    }
-                }
-            }
-
-            _par[l].setUC(wC(0), 0);
-
-            for (int iR = 0; iR < _para.mLR; iR++)
-                _par[l].setUR(wR(iR), iR);
-
-#ifdef OPTIMISER_PEAK_FACTOR_R
-            _par[l].keepHalfHeightPeak(PAR_R);
-#endif
-
-            for (int iT = 0; iT < _para.mLT; iT++)
-                _par[l].setUT(wT(iT), iT);
-
-#ifdef OPTIMISER_PEAK_FACTOR_T
-            _par[l].keepHalfHeightPeak(PAR_T);
-#endif
-
-            if (_searchType == SEARCH_TYPE_CTF)
-            {
-                for (int iD = 0; iD < _para.mLD; iD++)
-                    _par[l].setUD(wD(iD), iD);
-
-#ifdef OPTIMISER_PEAK_FACTOR_D
-                if (phase == 0) _par[l].setPeakFactor(PAR_D);
-
-                _par[l].keepHalfHeightPeak(PAR_D);
-#endif
-            }
-
-#ifdef OPTIMISER_SAVE_PARTICLES
-            if (_ID[l] < N_SAVE_IMG)
-            {
-                _par[l].sort();
-
-                char filename[FILE_NAME_LENGTH];
-
-                snprintf(filename,
-                         sizeof(filename),
-                         "C_Particle_%04d_Round_%03d_%03d.par",
-                         _ID[l],
-                         _iter,
-                         phase);
-                save(filename, _par[l], PAR_C, true);
-                snprintf(filename,
-                         sizeof(filename),
-                         "R_Particle_%04d_Round_%03d_%03d.par",
-                         _ID[l],
-                         _iter,
-                         phase);
-                save(filename, _par[l], PAR_R, true);
-                snprintf(filename,
-                         sizeof(filename),
-                         "T_Particle_%04d_Round_%03d_%03d.par",
-                         _ID[l],
-                         _iter,
-                         phase);
-                save(filename, _par[l], PAR_T, true);
-                snprintf(filename,
-                         sizeof(filename),
-                         "D_Particle_%04d_Round_%03d_%03d.par",
-                         _ID[l],
-                         _iter,
-                         phase);
-                save(filename, _par[l], PAR_D, true);
-            }
-#endif
-
-            _par[l].calRank1st(PAR_R);
-            _par[l].calRank1st(PAR_T);
-
-            _par[l].calVari(PAR_R);
-            _par[l].calVari(PAR_T);
-
-            _par[l].resample(_para.mLR, PAR_R);
-            _par[l].resample(_para.mLT, PAR_T);
-
-            if (_searchType == SEARCH_TYPE_CTF)
-            {
-                _par[l].calRank1st(PAR_D);
-                _par[l].calVari(PAR_D);
-                _par[l].resample(_para.mLD, PAR_D);
-            }
-
-            /***
-            RFLOAT k1 = _par[l].k1();
-            RFLOAT s0 = _par[l].s0();
-            RFLOAT s1 = _par[l].s1();
-
-            _par[l].resample(_para.mLR, PAR_R);
-            _par[l].resample(_para.mLT, PAR_T);
-
-            _par[l].calVari(PAR_R);
-            _par[l].calVari(PAR_T);
-
-            _par[l].setK1(TSGSL_MAX_RFLOAT(k1 * gsl_pow_2(MIN_STD_FACTOR
-                                                   * pow(_par[l].nR(), -1.0 / 3)),
-                                      _par[l].k1()));
-
-            _par[l].setS0(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * s0 / sqrt(_par[l].nT()), _par[l].s0()));
-
-            _par[l].setS1(TSGSL_MAX_RFLOAT(MIN_STD_FACTOR * s1 / sqrt(_par[l].nT()), _par[l].s1()));
-            ***/
-
-            if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
-                        ? MIN_N_PHASE_PER_ITER_GLOBAL
-                        : MIN_N_PHASE_PER_ITER_LOCAL))
-            {
-#ifdef OPTIMISER_COMPRESS_CRITERIA
-                double variRCur;
-                double variTCur;
-                double variDCur;
-#else
-                double k1Cur;
-                double k2Cur;
-                double k3Cur;
-                double tVariS0Cur;
-                double tVariS1Cur;
-                double dVariCur;
-#endif
-
-#ifdef OPTIMISER_COMPRESS_CRITERIA
-                variRCur = _par[l].variR();
-                variTCur = _par[l].variT();
-                variDCur = _par[l].variD();
-#else
-                _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
-#endif
-
-                if (_para.mode == MODE_2D)
-                {
-#ifdef OPTIMISER_COMPRESS_CRITERIA
-                    if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
-#else
-                    if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
-#endif
-                    {
-                        // there is still room for searching
-                        nPhaseWithNoVariDecrease = 0;
-                    }
-                    else
-                        nPhaseWithNoVariDecrease += 1;
-                }
-                else if (_para.mode == MODE_3D)
-                {
-#ifdef OPTIMISER_COMPRESS_CRITERIA
-                    if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
-#else
-                    if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                        (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                        (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
-                        (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
-                        (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
-#endif
-                    {
-                        // there is still room for searching
-                        nPhaseWithNoVariDecrease = 0;
-                    }
-                    else
-                        nPhaseWithNoVariDecrease += 1;
+                    ExpectLocalP(gpus[gpuIdx],
+                                 devdatP[gpuIdx],
+                                 devctfP[gpuIdx],
+                                 devdefO[gpuIdx],
+                                 devsigP[gpuIdx],
+                                 _datP,
+                                 _ctfP,
+                                 _defocusP,
+                                 _sigRcpP,
+                                 threadId % cpyNum,
+                                 vecImg[itr][l],
+                                 _nPxl,
+                                 _searchType);
                 }
                 else
                 {
-                    REPORT_ERROR("EXISTENT MODE");
-
-                    abort();
+                    ExpectLocalP(gpus[gpuIdx],
+                                 devdatP[gpuIdx],
+                                 devctfP[gpuIdx],
+                                 devdefO[gpuIdx],
+                                 devsigP[gpuIdx],
+                                 _datP,
+                                 _ctfP,
+                                 _defocusP,
+                                 _sigRcpP,
+                                 cpyNum,
+                                 vecImg[itr][l],
+                                 _nPxl,
+                                 _searchType);
                 }
+
+                omp_unset_lock(&mtx[gpuIdx]);
+
+                int nPhaseWithNoVariDecrease = 0;
+
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                double variR = DBL_MAX;
+                double variT = DBL_MAX;
+                double variD = DBL_MAX;
+#else
+                double k1 = 1;
+                double k2 = 1;
+                double k3 = 1;
+                double tVariS0 = 5 * _para.transS;
+                double tVariS1 = 5 * _para.transS;
+                double dVari = 5 * _para.ctfRefineS;
+#endif
+                for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+                {
+#ifdef OPTIMISER_GLOBAL_PERTURB_LARGE
+                    if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
+#else
+                    if (phase == 0)
+#endif
+                    {
+                        _par[vecImg[itr][l]].perturb(_para.perturbFactorL, PAR_R);
+                        _par[vecImg[itr][l]].perturb(_para.perturbFactorL, PAR_T);
+
+                        if (_searchType == SEARCH_TYPE_CTF)
+                            _par[vecImg[itr][l]].initD(_para.mLD, _para.ctfRefineS);
+                    }
+                    else
+                    {
+                        _par[vecImg[itr][l]].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                      ? _para.perturbFactorSGlobal
+                                      : _para.perturbFactorSLocal,
+                                        PAR_R);
+                        _par[vecImg[itr][l]].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                      ? _para.perturbFactorSGlobal
+                                      : _para.perturbFactorSLocal,
+                                        PAR_T);
+
+                        if (_searchType == SEARCH_TYPE_CTF)
+                            _par[vecImg[itr][l]].perturb(_para.perturbFactorSCTF, PAR_D);
+                    }
+
+                    for (int r = 0; r < _para.mLR; r++)
+                        oldR[threadId][r] = _par[vecImg[itr][l]].wR(r);
+
+                    for (int r = 0; r < _para.mLT; r++)
+                        oldT[threadId][r] = _par[vecImg[itr][l]].wT(r);
+
+                    for (int r = 0; r < _par[vecImg[itr][l]].nD(); r++)
+                        oldD[threadId][r] = _par[vecImg[itr][l]].wD(r);
+
+                    dvec2 t;
+                    for (int k = 0; k < _para.mLT; k++)
+                    {
+                        _par[vecImg[itr][l]].t(t, k);
+                        trans[threadId][k * 2] = t(0);
+                        trans[threadId][k * 2 + 1] = t(1);
+                    }
+                    
+                    dvec4 r;
+                    for (int k = 0; k < _para.mLR; k++)
+                    {
+                        _par[vecImg[itr][l]].quaternion(r, k);
+                        rot[threadId][k * 4] = r(0);
+                        rot[threadId][k * 4 + 1] = r(1);
+                        rot[threadId][k * 4 + 2] = r(2);
+                        rot[threadId][k * 4 + 3] = r(3);
+                    }
+
+                    if (_searchType == SEARCH_TYPE_CTF)
+                    {
+                        for (int k = 0; k < _para.mLD; k++)
+                            dpara[threadId][k] = (_par[vecImg[itr][l]].d())(k);        
+                    }
+
+                    int streamId;
+                    int datId;
+                    int datShift;
+                    if (threadId < deviceNum * cpyNum)
+                    {
+                        datShift = threadId % cpyNum;
+                        streamId = (threadId % cpyNum) % streamNum;
+                        datId = gpuIdx * streamNum + streamId;
+                    }
+                    else
+                    {
+                        datShift = cpyNum;
+                        streamId = cpyNum % streamNum;
+                        datId = gpuIdx * streamNum + streamId;
+                    }
+                    
+                    omp_set_lock(&mtx[gpuIdx]);
+
+                    ExpectLocalRTD(gpus[gpuIdx],
+                                   mcp[datId],
+                                   oldR[threadId],
+                                   oldT[threadId],
+                                   oldD[threadId],
+                                   trans[threadId],
+                                   rot[threadId],
+                                   dpara[threadId]);
+
+                    if (_searchType == SEARCH_TYPE_CTF)
+                    {
+                        ExpectLocalPreI3D(gpus[gpuIdx],
+                                          datShift,
+                                          mgr3D[gpuIdx],
+                                          mcp[datId],
+                                          devdefO[gpuIdx],
+                                          devfreQ[gpuIdx],
+                                          deviCol[gpuIdx],
+                                          deviRow[gpuIdx],
+                                          _ctfAttr[vecImg[itr][l]].phaseShift,
+                                          _ctfAttr[vecImg[itr][l]].amplitudeContrast,
+                                          _K1[vecImg[itr][l]],
+                                          _K2[vecImg[itr][l]],
+                                          _para.pf,
+                                          _para.size,
+                                          vdim,
+                                          _nPxl,
+                                          interp);
+                    }
+                    else
+                    {
+                        ExpectLocalPreI3D(gpus[gpuIdx],
+                                          datShift,
+                                          mgr3D[gpuIdx],
+                                          mcp[datId],
+                                          devdefO[gpuIdx],
+                                          devfreQ[gpuIdx],
+                                          deviCol[gpuIdx],
+                                          deviRow[gpuIdx],
+                                          _ctfAttr[vecImg[itr][l]].phaseShift,
+                                          _ctfAttr[vecImg[itr][l]].amplitudeContrast,
+                                          0,
+                                          0,
+                                          _para.pf,
+                                          _para.size,
+                                          vdim,
+                                          _nPxl,
+                                          interp);
+                    }
+                    
+                    ExpectLocalM(gpus[gpuIdx],
+                                 datShift,
+                                 //vecImg[itr][l],
+                                 mcp[datId],
+                                 devdatP[gpuIdx],
+                                 devctfP[gpuIdx],
+                                 devsigP[gpuIdx],
+                                 wC[threadId],
+                                 wR[threadId],
+                                 wT[threadId],
+                                 wD[threadId],
+                                 _par[vecImg[itr][l]].wC(0),
+                                 _nPxl);
+                    
+                    omp_unset_lock(&mtx[gpuIdx]);
+
+                    _par[vecImg[itr][l]].setUC(wC[threadId][0], 0);
+
+                    for (int iR = 0; iR < _para.mLR; iR++)
+                        _par[vecImg[itr][l]].setUR(wR[threadId][iR], iR);
+
+#ifdef OPTIMISER_PEAK_FACTOR_R
+                    _par[vecImg[itr][l]].keepHalfHeightPeak(PAR_R);
+#endif
+
+                    for (int iT = 0; iT < _para.mLT; iT++)
+                        _par[vecImg[itr][l]].setUT(wT[threadId][iT], iT);
+
+#ifdef OPTIMISER_PEAK_FACTOR_T
+                    _par[vecImg[itr][l]].keepHalfHeightPeak(PAR_T);
+#endif
+
+                    if (_searchType == SEARCH_TYPE_CTF)
+                    {
+                        for (int iD = 0; iD < _para.mLD; iD++)
+                            _par[vecImg[itr][l]].setUD(wD[threadId][iD], iD);
+
+#ifdef OPTIMISER_PEAK_FACTOR_D
+                        if (phase == 0) _par[vecImg[itr][l]].setPeakFactor(PAR_D);
+
+                        _par[vecImg[itr][l]].keepHalfHeightPeak(PAR_D);
+#endif
+                    }
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+                    if (_ID[vecImg[itr][l]] < N_SAVE_IMG)
+                    {
+                        _par[vecImg[itr][l]].sort();
+
+                        char filename[FILE_NAME_LENGTH];
+
+                        snprintf(filename,
+                                 sizeof(filename),
+                                 "C_Particle_%04d_Round_%03d_%03d.par",
+                                 _ID[vecImg[itr][l]],
+                                 _iter,
+                                 phase);
+                        save(filename, _par[vecImg[itr][l]], PAR_C, true);
+                        snprintf(filename,
+                                 sizeof(filename),
+                                 "R_Particle_%04d_Round_%03d_%03d.par",
+                                 _ID[vecImg[itr][l]],
+                                 _iter,
+                                 phase);
+                        save(filename, _par[vecImg[itr][l]], PAR_R, true);
+                        snprintf(filename,
+                                 sizeof(filename),
+                                 "T_Particle_%04d_Round_%03d_%03d.par",
+                                 _ID[vecImg[itr][l]],
+                                 _iter,
+                                 phase);
+                        save(filename, _par[vecImg[itr][l]], PAR_T, true);
+                        snprintf(filename,
+                                 sizeof(filename),
+                                 "D_Particle_%04d_Round_%03d_%03d.par",
+                                 _ID[vecImg[itr][l]],
+                                 _iter,
+                                 phase);
+                        save(filename, _par[vecImg[itr][l]], PAR_D, true);
+                    }
+#endif
+
+                    _par[vecImg[itr][l]].calRank1st(PAR_R);
+                    _par[vecImg[itr][l]].calRank1st(PAR_T);
+
+                    _par[vecImg[itr][l]].calVari(PAR_R);
+                    _par[vecImg[itr][l]].calVari(PAR_T);
+
+                    _par[vecImg[itr][l]].resample(_para.mLR, PAR_R);
+                    _par[vecImg[itr][l]].resample(_para.mLT, PAR_T);
+
+                    if (_searchType == SEARCH_TYPE_CTF)
+                    {
+                        _par[vecImg[itr][l]].calRank1st(PAR_D);
+                        _par[vecImg[itr][l]].calVari(PAR_D);
+                        _par[vecImg[itr][l]].resample(_para.mLD, PAR_D);
+                    }
+
+                    if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
+                                ? MIN_N_PHASE_PER_ITER_GLOBAL
+                                : MIN_N_PHASE_PER_ITER_LOCAL))
+                    {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                        double variRCur;
+                        double variTCur;
+                        double variDCur;
+#else
+                        double k1Cur;
+                        double k2Cur;
+                        double k3Cur;
+                        double tVariS0Cur;
+                        double tVariS1Cur;
+                        double dVariCur;
+#endif
+
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                        variRCur = _par[vecImg[itr][l]].variR();
+                        variTCur = _par[vecImg[itr][l]].variT();
+                        variDCur = _par[vecImg[itr][l]].variD();
+#else
+                        _par[vecImg[itr][l]].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
+#endif
+
+                        if (_para.mode == MODE_2D)
+                        {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                            if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
+#else
+                            if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
+                            {
+                                // there is still room for searching
+                                nPhaseWithNoVariDecrease = 0;
+                            }
+                            else
+                                nPhaseWithNoVariDecrease += 1;
+                        }
+                        else if (_para.mode == MODE_3D)
+                        {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                            if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
+#else
+                            if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                                (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                                (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                                (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                                (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
+                            {
+                                // there is still room for searching
+                                nPhaseWithNoVariDecrease = 0;
+                            }
+                            else
+                                nPhaseWithNoVariDecrease += 1;
+                        }
+                        else
+                        {
+                            REPORT_ERROR("EXISTENT MODE");
+
+                            abort();
+                        }
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
 
 #ifndef NAN_NO_CHECK
-                if (TSGSL_isnan(_par[l].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                if (TSGSL_isnan(_par[l].compressT()))
+                        if (TSGSL_isnan(_par[vecImg[itr][l]].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                        if (TSGSL_isnan(_par[vecImg[itr][l]].compressT()))
+                        {
+                            CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[vecImg[itr][l]].s0();
+                            CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[vecImg[itr][l]].s1();
+                            CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[vecImg[itr][l]].rho();
+
+                            char filename[FILE_NAME_LENGTH];
+
+                            snprintf(filename,
+                                     sizeof(filename),
+                                     "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
+                                     _ID[vecImg[itr][l]],
+                                     _iter,
+                                     phase);
+                            save(filename, _par[vecImg[itr][l]], PAR_T, true);
+
+                            REPORT_ERROR("NAN DETECTED");
+                            abort();
+                        }
+#endif
+
+                        if (variRCur < variR) variR = variRCur;
+                        if (variTCur < variT) variT = variTCur;
+                        if (variDCur < variD) variD = variDCur;
+#else
+                        // make tVariS0, tVariS1, rVari the smallest variance ever got
+                        if (k1Cur < k1) k1 = k1Cur;
+                        if (k2Cur < k2) k2 = k2Cur;
+                        if (k3Cur < k3) k3 = k3Cur;
+                        if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
+                        if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
+                        if (dVariCur < dVari) dVari = dVariCur;
+#endif
+
+                        // break if in a few continuous searching, there is no improvement
+                        if (nPhaseWithNoVariDecrease == N_PHASE_WITH_NO_VARI_DECREASE)
+                        {
+                            _nP[vecImg[itr][l]] = phase;
+
+                            #pragma omp atomic
+                            _nF += phase;
+
+                            #pragma omp atomic
+                            _nI += 1;
+
+                            break;
+                        }
+                    }
+                }
+
+                #pragma omp critical  (line1495)
+                if (_nI > (int)(_ID.size() / 10))
                 {
-                    CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[l].s0();
-                    CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[l].s1();
-                    CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[l].rho();
+                    _nI = 0;
+
+                    nPer += 1;
+
+                    ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+                    BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+                }
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+                if (_ID[vecImg[itr][l]] < N_SAVE_IMG)
+                {
+                    char filename[FILE_NAME_LENGTH];
+
+                    snprintf(filename,
+                             sizeof(filename),
+                             "C_Particle_%04d_Round_%03d_Final.par",
+                             _ID[vecImg[itr][l]],
+                             _iter);
+                    save(filename, _par[vecImg[itr][l]], PAR_C);
+                    snprintf(filename,
+                             sizeof(filename),
+                             "R_Particle_%04d_Round_%03d_Final.par",
+                             _ID[vecImg[itr][l]],
+                             _iter);
+                    save(filename, _par[vecImg[itr][l]], PAR_R);
+                    snprintf(filename,
+                             sizeof(filename),
+                             "T_Particle_%04d_Round_%03d_Final.par",
+                             _ID[vecImg[itr][l]],
+                             _iter);
+                    save(filename, _par[vecImg[itr][l]], PAR_T);
+                    snprintf(filename,
+                             sizeof(filename),
+                             "D_Particle_%04d_Round_%03d_Final.par",
+                             _ID[vecImg[itr][l]],
+                             _iter);
+                    save(filename, _par[vecImg[itr][l]], PAR_D);
+                }
+#endif
+            }
+        }
+    }
+    else
+    {
+        if (_para.mode == MODE_3D)
+        {    
+            Complex* temp = &((const_cast<Volume&>(_model.proj(0).projectee3D()))[0]);
+            #pragma omp parallel for
+            for (int i = 0; i < deviceNum; i++)
+            {
+                ExpectLocalV3D(gpus[i],
+                               mgr3D[i],
+                               temp,
+                               vdim);
+            }
+        }
+           
+        #pragma omp parallel for schedule(dynamic)
+        FOR_EACH_2D_IMAGE
+        {
+            int threadId = omp_get_thread_num();
+            int gpuIdx;
+            if (threadId / cpyNum == deviceNum)
+                gpuIdx = threadId % cpyNum;
+            else
+                gpuIdx = threadId / cpyNum;
+
+            omp_set_lock(&mtx[gpuIdx]);
+
+            if (threadId < deviceNum * cpyNum)
+            {
+                ExpectLocalP(gpus[gpuIdx],
+                             devdatP[gpuIdx],
+                             devctfP[gpuIdx],
+                             devdefO[gpuIdx],
+                             devsigP[gpuIdx],
+                             _datP,
+                             _ctfP,
+                             _defocusP,
+                             _sigRcpP,
+                             threadId % cpyNum,
+                             l,
+                             _nPxl,
+                             _searchType);
+            }
+            else
+            {
+                ExpectLocalP(gpus[gpuIdx],
+                             devdatP[gpuIdx],
+                             devctfP[gpuIdx],
+                             devdefO[gpuIdx],
+                             devsigP[gpuIdx],
+                             _datP,
+                             _ctfP,
+                             _defocusP,
+                             _sigRcpP,
+                             cpyNum,
+                             l,
+                             _nPxl,
+                             _searchType);
+            }
+                
+            omp_unset_lock(&mtx[gpuIdx]);
+
+            int nPhaseWithNoVariDecrease = 0;
+
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+            double variR = DBL_MAX;
+            double variT = DBL_MAX;
+            double variD = DBL_MAX;
+#else
+            double k1 = 1;
+            double k2 = 1;
+            double k3 = 1;
+            double tVariS0 = 5 * _para.transS;
+            double tVariS1 = 5 * _para.transS;
+            double dVari = 5 * _para.ctfRefineS;
+#endif
+            for (int phase = (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0; phase < MAX_N_PHASE_PER_ITER; phase++)
+            {
+#ifdef OPTIMISER_GLOBAL_PERTURB_LARGE
+                if (phase == (_searchType == SEARCH_TYPE_GLOBAL) ? 1 : 0)
+#else
+                if (phase == 0)
+#endif
+                {
+                    _par[l].perturb(_para.perturbFactorL, PAR_R);
+                    _par[l].perturb(_para.perturbFactorL, PAR_T);
+
+                    if (_searchType == SEARCH_TYPE_CTF)
+                        _par[l].initD(_para.mLD, _para.ctfRefineS);
+                }
+                else
+                {
+                    _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                  ? _para.perturbFactorSGlobal
+                                  : _para.perturbFactorSLocal,
+                                    PAR_R);
+                    _par[l].perturb((_searchType == SEARCH_TYPE_GLOBAL)
+                                  ? _para.perturbFactorSGlobal
+                                  : _para.perturbFactorSLocal,
+                                    PAR_T);
+
+                    if (_searchType == SEARCH_TYPE_CTF)
+                        _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
+                }
+
+                for (int itr = 0; itr < _para.mLR; itr++)
+                    oldR[threadId][itr] = _par[l].wR(itr);
+
+                for (int itr = 0; itr < _para.mLT; itr++)
+                    oldT[threadId][itr] = _par[l].wT(itr);
+
+                for (int itr = 0; itr < _par[l].nD(); itr++)
+                    oldD[threadId][itr] = _par[l].wD(itr);
+
+                dvec2 t;
+                for (int k = 0; k < _para.mLT; k++)
+                {
+                    _par[l].t(t, k);
+                    trans[threadId][k * 2] = t(0);
+                    trans[threadId][k * 2 + 1] = t(1);
+                }
+                
+                dvec4 r;
+                for (int k = 0; k < _para.mLR; k++)
+                {
+                    _par[l].quaternion(r, k);
+                    rot[threadId][k * 4] = r(0);
+                    rot[threadId][k * 4 + 1] = r(1);
+                    rot[threadId][k * 4 + 2] = r(2);
+                    rot[threadId][k * 4 + 3] = r(3);
+                }
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                {
+                    for (int k = 0; k < _par[l].nD(); k++)
+                        dpara[threadId][k] = (_par[l].d())(k);        
+                }
+
+                size_t cls;
+                _par[l].c(cls, 0);
+
+                int streamId;
+                int datId;
+                int datShift;
+                if (threadId < deviceNum * cpyNum)
+                {
+                    datShift = threadId % cpyNum;
+                    streamId = (threadId % cpyNum) % streamNum;
+                    datId = gpuIdx * streamNum + streamId;
+                }
+                else
+                {
+                    datShift = cpyNum;
+                    streamId = cpyNum % streamNum;
+                    datId = gpuIdx * streamNum + streamId;
+                }
+               
+                omp_set_lock(&mtx[gpuIdx]);
+
+                ExpectLocalRTD(gpus[gpuIdx],
+                               mcp[datId],
+                               oldR[threadId],
+                               oldT[threadId],
+                               oldD[threadId],
+                               trans[threadId],
+                               rot[threadId],
+                               dpara[threadId]);
+
+                if(_para.mode == MODE_2D)
+                {
+                    if (_searchType == SEARCH_TYPE_CTF)
+                    {
+                        ExpectLocalPreI2D(gpus[gpuIdx],
+                                          datShift,
+                                          mgr2D[gpuIdx * _para.k + cls],
+                                          mcp[datId],
+                                          devdefO[gpuIdx],
+                                          devfreQ[gpuIdx],
+                                          deviCol[gpuIdx],
+                                          deviRow[gpuIdx],
+                                          _ctfAttr[l].phaseShift,
+                                          _ctfAttr[l].amplitudeContrast,
+                                          _K1[l],
+                                          _K2[l],
+                                          _para.pf,
+                                          _para.size,
+                                          vdim,
+                                          _nPxl,
+                                          interp);
+                    }
+                    else
+                    {
+                        ExpectLocalPreI2D(gpus[gpuIdx],
+                                          datShift,
+                                          mgr2D[gpuIdx * _para.k + cls],
+                                          mcp[datId],
+                                          devdefO[gpuIdx],
+                                          devfreQ[gpuIdx],
+                                          deviCol[gpuIdx],
+                                          deviRow[gpuIdx],
+                                          _ctfAttr[l].phaseShift,
+                                          _ctfAttr[l].amplitudeContrast,
+                                          0,
+                                          0,
+                                          _para.pf,
+                                          _para.size,
+                                          vdim,
+                                          _nPxl,
+                                          interp);
+                    }
+                }
+                else
+                {
+                    if (_searchType == SEARCH_TYPE_CTF)
+                    {
+                        ExpectLocalPreI3D(gpus[gpuIdx],
+                                          datShift,
+                                          mgr3D[gpuIdx],
+                                          mcp[datId],
+                                          devdefO[gpuIdx],
+                                          devfreQ[gpuIdx],
+                                          deviCol[gpuIdx],
+                                          deviRow[gpuIdx],
+                                          _ctfAttr[l].phaseShift,
+                                          _ctfAttr[l].amplitudeContrast,
+                                          _K1[l],
+                                          _K2[l],
+                                          _para.pf,
+                                          _para.size,
+                                          vdim,
+                                          _nPxl,
+                                          interp);
+                    }
+                    else
+                    {
+                        ExpectLocalPreI3D(gpus[gpuIdx],
+                                          datShift,
+                                          mgr3D[gpuIdx],
+                                          mcp[datId],
+                                          devdefO[gpuIdx],
+                                          devfreQ[gpuIdx],
+                                          deviCol[gpuIdx],
+                                          deviRow[gpuIdx],
+                                          _ctfAttr[l].phaseShift,
+                                          _ctfAttr[l].amplitudeContrast,
+                                          0,
+                                          0,
+                                          _para.pf,
+                                          _para.size,
+                                          vdim,
+                                          _nPxl,
+                                          interp);
+                    }
+                }
+                
+                ExpectLocalM(gpus[gpuIdx],
+                             datShift,
+                             //l,
+                             mcp[datId],
+                             devdatP[gpuIdx],
+                             devctfP[gpuIdx],
+                             devsigP[gpuIdx],
+                             wC[threadId],
+                             wR[threadId],
+                             wT[threadId],
+                             wD[threadId],
+                             _par[l].wC(0),
+                             _nPxl);
+
+                omp_unset_lock(&mtx[gpuIdx]);
+
+                _par[l].setUC(wC[threadId][0], 0);
+
+                for (int iR = 0; iR < _para.mLR; iR++)
+                    _par[l].setUR(wR[threadId][iR], iR);
+
+#ifdef OPTIMISER_PEAK_FACTOR_R
+                _par[l].keepHalfHeightPeak(PAR_R);
+#endif
+
+                for (int iT = 0; iT < _para.mLT; iT++)
+                    _par[l].setUT(wT[threadId][iT], iT);
+
+#ifdef OPTIMISER_PEAK_FACTOR_T
+                _par[l].keepHalfHeightPeak(PAR_T);
+#endif
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                {
+                    for (int iD = 0; iD < _para.mLD; iD++)
+                        _par[l].setUD(wD[threadId][iD], iD);
+
+#ifdef OPTIMISER_PEAK_FACTOR_D
+                    if (phase == 0) _par[l].setPeakFactor(PAR_D);
+
+                    _par[l].keepHalfHeightPeak(PAR_D);
+#endif
+                }
+
+#ifdef OPTIMISER_SAVE_PARTICLES
+                if (_ID[l] < N_SAVE_IMG)
+                {
+                    _par[l].sort();
 
                     char filename[FILE_NAME_LENGTH];
 
                     snprintf(filename,
                              sizeof(filename),
-                             "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
+                             "C_Particle_%04d_Round_%03d_%03d.par",
+                             _ID[l],
+                             _iter,
+                             phase);
+                    save(filename, _par[l], PAR_C, true);
+                    snprintf(filename,
+                             sizeof(filename),
+                             "R_Particle_%04d_Round_%03d_%03d.par",
+                             _ID[l],
+                             _iter,
+                             phase);
+                    save(filename, _par[l], PAR_R, true);
+                    snprintf(filename,
+                             sizeof(filename),
+                             "T_Particle_%04d_Round_%03d_%03d.par",
                              _ID[l],
                              _iter,
                              phase);
                     save(filename, _par[l], PAR_T, true);
-
-                    REPORT_ERROR("NAN DETECTED");
-                    abort();
+                    snprintf(filename,
+                             sizeof(filename),
+                             "D_Particle_%04d_Round_%03d_%03d.par",
+                             _ID[l],
+                             _iter,
+                             phase);
+                    save(filename, _par[l], PAR_D, true);
                 }
 #endif
 
-                if (variRCur < variR) variR = variRCur;
-                if (variTCur < variT) variT = variTCur;
-                if (variDCur < variD) variD = variDCur;
+                _par[l].calRank1st(PAR_R);
+                _par[l].calRank1st(PAR_T);
+
+                _par[l].calVari(PAR_R);
+                _par[l].calVari(PAR_T);
+
+                _par[l].resample(_para.mLR, PAR_R);
+                _par[l].resample(_para.mLT, PAR_T);
+
+                if (_searchType == SEARCH_TYPE_CTF)
+                {
+                    _par[l].calRank1st(PAR_D);
+                    _par[l].calVari(PAR_D);
+                    _par[l].resample(_para.mLD, PAR_D);
+                }
+
+                if (phase >= ((_searchType == SEARCH_TYPE_GLOBAL)
+                            ? MIN_N_PHASE_PER_ITER_GLOBAL
+                            : MIN_N_PHASE_PER_ITER_LOCAL))
+                {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                    double variRCur;
+                    double variTCur;
+                    double variDCur;
 #else
-                // make tVariS0, tVariS1, rVari the smallest variance ever got
-                if (k1Cur < k1) k1 = k1Cur;
-                if (k2Cur < k2) k2 = k2Cur;
-                if (k3Cur < k3) k3 = k3Cur;
-                if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
-                if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
-                if (dVariCur < dVari) dVari = dVariCur;
+                    double k1Cur;
+                    double k2Cur;
+                    double k3Cur;
+                    double tVariS0Cur;
+                    double tVariS1Cur;
+                    double dVariCur;
 #endif
 
-                // break if in a few continuous searching, there is no improvement
-                if (nPhaseWithNoVariDecrease == N_PHASE_WITH_NO_VARI_DECREASE)
-                {
-                    _nP[l] = phase;
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                    variRCur = _par[l].variR();
+                    variTCur = _par[l].variT();
+                    variDCur = _par[l].variD();
+#else
+                    _par[l].vari(k1Cur, k2Cur, k3Cur, tVariS0Cur, tVariS1Cur, dVariCur);
+#endif
 
-                    #pragma omp atomic
-                    _nF += phase;
+                    if (_para.mode == MODE_2D)
+                    {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                        if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
+#else
+                        if ((k1Cur < k1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
+                        {
+                            // there is still room for searching
+                            nPhaseWithNoVariDecrease = 0;
+                        }
+                        else
+                            nPhaseWithNoVariDecrease += 1;
+                    }
+                    else if (_para.mode == MODE_3D)
+                    {
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+                        if ((variRCur < variR * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (variTCur < variT * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (variDCur < variD * PARTICLE_FILTER_DECREASE_FACTOR))
+#else
+                        if ((k1Cur < k1 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                            (k2Cur < k2 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                            (k3Cur < k3 * gsl_pow_2(PARTICLE_FILTER_DECREASE_FACTOR)) ||
+                            (tVariS0Cur < tVariS0 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (tVariS1Cur < tVariS1 * PARTICLE_FILTER_DECREASE_FACTOR) ||
+                            (dVariCur < dVari * PARTICLE_FILTER_DECREASE_FACTOR))
+#endif
+                        {
+                            // there is still room for searching
+                            nPhaseWithNoVariDecrease = 0;
+                        }
+                        else
+                            nPhaseWithNoVariDecrease += 1;
+                    }
+                    else
+                    {
+                        REPORT_ERROR("EXISTENT MODE");
 
-                    #pragma omp atomic
-                    _nI += 1;
+                        abort();
+                    }
 
-                    break;
+#ifdef OPTIMISER_COMPRESS_CRITERIA
+
+#ifndef NAN_NO_CHECK
+                    if (TSGSL_isnan(_par[l].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
+                    if (TSGSL_isnan(_par[l].compressT()))
+                    {
+                        CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[l].s0();
+                        CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[l].s1();
+                        CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[l].rho();
+
+                        char filename[FILE_NAME_LENGTH];
+
+                        snprintf(filename,
+                                 sizeof(filename),
+                                 "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
+                                 _ID[l],
+                                 _iter,
+                                 phase);
+                        save(filename, _par[l], PAR_T, true);
+
+                        REPORT_ERROR("NAN DETECTED");
+                        abort();
+                    }
+#endif
+
+                    if (variRCur < variR) variR = variRCur;
+                    if (variTCur < variT) variT = variTCur;
+                    if (variDCur < variD) variD = variDCur;
+#else
+                    // make tVariS0, tVariS1, rVari the smallest variance ever got
+                    if (k1Cur < k1) k1 = k1Cur;
+                    if (k2Cur < k2) k2 = k2Cur;
+                    if (k3Cur < k3) k3 = k3Cur;
+                    if (tVariS0Cur < tVariS0) tVariS0 = tVariS0Cur;
+                    if (tVariS1Cur < tVariS1) tVariS1 = tVariS1Cur;
+                    if (dVariCur < dVari) dVari = dVariCur;
+#endif
+
+                    // break if in a few continuous searching, there is no improvement
+                    if (nPhaseWithNoVariDecrease == N_PHASE_WITH_NO_VARI_DECREASE)
+                    {
+                        _nP[l] = phase;
+
+                        #pragma omp atomic
+                        _nF += phase;
+
+                        #pragma omp atomic
+                        _nI += 1;
+
+                        break;
+                    }
                 }
             }
-        }
 
-        #pragma omp critical  (line1495)
-        if (_nI > (int)(_ID.size() / 10))
-        {
-            _nI = 0;
+            #pragma omp critical  (line1495)
+            if (_nI > (int)(_ID.size() / 10))
+            {
+                _nI = 0;
 
-            nPer += 1;
+                nPer += 1;
 
-            ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
-            BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
-        }
+                ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+                BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+            }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
-        if (_ID[l] < N_SAVE_IMG)
-        {
-            char filename[FILE_NAME_LENGTH];
+            if (_ID[l] < N_SAVE_IMG)
+            {
+                char filename[FILE_NAME_LENGTH];
 
-            snprintf(filename,
-                     sizeof(filename),
-                     "C_Particle_%04d_Round_%03d_Final.par",
-                     _ID[l],
-                     _iter);
-            save(filename, _par[l], PAR_C);
-            snprintf(filename,
-                     sizeof(filename),
-                     "R_Particle_%04d_Round_%03d_Final.par",
-                     _ID[l],
-                     _iter);
-            save(filename, _par[l], PAR_R);
-            snprintf(filename,
-                     sizeof(filename),
-                     "T_Particle_%04d_Round_%03d_Final.par",
-                     _ID[l],
-                     _iter);
-            save(filename, _par[l], PAR_T);
-            snprintf(filename,
-                     sizeof(filename),
-                     "D_Particle_%04d_Round_%03d_Final.par",
-                     _ID[l],
-                     _iter);
-            save(filename, _par[l], PAR_D);
-        }
+                snprintf(filename,
+                         sizeof(filename),
+                         "C_Particle_%04d_Round_%03d_Final.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_C);
+                snprintf(filename,
+                         sizeof(filename),
+                         "R_Particle_%04d_Round_%03d_Final.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_R);
+                snprintf(filename,
+                         sizeof(filename),
+                         "T_Particle_%04d_Round_%03d_Final.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_T);
+                snprintf(filename,
+                         sizeof(filename),
+                         "D_Particle_%04d_Round_%03d_Final.par",
+                         _ID[l],
+                         _iter);
+                save(filename, _par[l], PAR_D);
+            }
 #endif
+        }
+
     }
-
-    TSFFTW_free(poolPriRotP);
-    TSFFTW_free(poolPriAllP);
-
-    TSFFTW_free(poolTraP);
-
-    if (_searchType == SEARCH_TYPE_CTF)
-        TSFFTW_free(poolCtfP);
 
     ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
     BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
+
+    for (int i = 0; i < omp_get_max_threads(); i++)
+    {
+        int gpuIdx;
+        if (i / cpyNum == deviceNum)
+            gpuIdx = i % cpyNum;
+        else
+            gpuIdx = i / cpyNum;
+
+        ExpectLocalHostF(gpus[gpuIdx],
+                         &wC[i],
+                         &wR[i],
+                         &wT[i],
+                         &wD[i],
+                         &oldR[i],
+                         &oldT[i],
+                         &oldD[i],
+                         &trans[i],
+                         &rot[i],
+                         &dpara[i],
+                         _searchType);
+    }
+
+    #pragma omp parallel for
+    for (int i = 0; i < deviceNum; i++)
+    {
+        ExpectLocalFin(gpus[i],
+                       &devdatP[i],
+                       &devctfP[i],
+                       &devdefO[i],
+                       &devfreQ[i],
+                       &devsigP[i],
+                       _searchType);
+    }
+
+    delete[] mtx;
+    for (int i = 0; i < buffNum; i++)
+        delete mcp[i];
+
+    if (_para.mode == MODE_2D)
+    {
+        for (int i = 0; i < deviceNum * _para.k; i++)
+            delete mgr2D[i];
+    }
+    else
+    {
+        for (int i = 0; i < deviceNum; i++)
+            delete mgr3D[i];
+    }
 
     if (_searchType != SEARCH_TYPE_CTF)
         freePreCal(false);
     else
         freePreCal(true);
 
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space in Expectation GPU";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Expectation GPU";
+
+    //gettimeofday(&end, NULL);
+    //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+    //if (_commRank == HEMI_A_LEAD)
+    //    printf("Expectation LocalA time_use:%lf\n", time_use);
+    //else
+    //    printf("Expectation LocalB time_use:%lf\n", time_use);
 #endif // OPTIMISER_PARTICLE_FILTER
 
-    freePreCalIdx();
+    #pragma omp parallel for num_threads(deviceNum)
+    for (int i = 0; i < deviceNum; i++)
+    {
+        ExpectFreeIdx(gpus[i],
+                      &deviCol[i],
+                      &deviRow[i]);
+    }
 
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space GPU iCol & iRow";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space GPU iCol & iRow";
+
+    freePreCalIdx();
 }
 
 void Optimiser::maximization()
@@ -2736,9 +3460,31 @@ void Optimiser::maximization()
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
 #ifdef GPU_VERSION
+        //float time_use = 0;
+        //struct timeval start;
+        //struct timeval end;
+
+        //gettimeofday(&start, NULL);
         reconstructRefG(true, true, true, false, false);
+        //gettimeofday(&end, NULL);
+        //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+        //if (_commRank == HEMI_A_LEAD)
+        //    printf("itr:%d, reconstructRefA time_use:%lf\n", iter, time_use);
+        //else if (_commRank == HEMI_B_LEAD)
+        //    printf("itr:%d, reconstructRefB time_use:%lf\n", iter, time_use);
 #else
+        //float time_use = 0;
+        //struct timeval start;
+        //struct timeval end;
+
+        //gettimeofday(&start, NULL);
         reconstructRef(true, true, true, false, false);
+        //gettimeofday(&end, NULL);
+        //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+        //if (_commRank == HEMI_A_LEAD)
+        //    printf("itr:%d, reconstructRefA time_use:%lf\n", iter, time_use);
+        //else if (_commRank == HEMI_B_LEAD)
+        //    printf("itr:%d, reconstructRefB time_use:%lf\n", iter, time_use);
 #endif
     }
     else
@@ -2814,9 +3560,31 @@ void Optimiser::run()
             MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
 #ifdef GPU_VERSION
+            //float time_use = 0;
+            //struct timeval start;
+            //struct timeval end;
+
+            //gettimeofday(&start, NULL);
             expectationG();
+            //gettimeofday(&end, NULL);
+            //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+            //if (_commRank == HEMI_A_LEAD)
+            //    printf("itr:%d, ExpectationA time_use:%lf\n", _iter, time_use);
+            //else if (_commRank == HEMI_B_LEAD)
+            //    printf("itr:%d, ExpectationB time_use:%lf\n", _iter, time_use);
 #else
+            //float time_use = 0;
+            //struct timeval start;
+            //struct timeval end;
+
+            //gettimeofday(&start, NULL);
             expectation();
+            //gettimeofday(&end, NULL);
+            //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+            //if (_commRank == HEMI_A_LEAD)
+            //    printf("itr:%d, ExpectationA time_use:%lf\n", _iter, time_use);
+            //else if (_commRank == HEMI_B_LEAD)
+            //    printf("itr:%d, ExpectationB time_use:%lf\n", _iter, time_use);
 #endif
 
             MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
@@ -2945,7 +3713,22 @@ void Optimiser::run()
 
 #ifdef OPTIMISER_MASK_IMG
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+#ifdef GPU_VERSION
+            float time_use = 0;
+            struct timeval start;
+            struct timeval end;
+
+            gettimeofday(&start, NULL);
+            reMaskImgG();
+            gettimeofday(&end, NULL);
+            time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+            if (_commRank == HEMI_A_LEAD)
+                printf("itr:%d, reMaskImgA time_use:%lf\n", _iter, time_use);
+            else if (_commRank == HEMI_B_LEAD)
+                printf("itr:%d, reMaskImgB time_use:%lf\n", _iter, time_use);
+#else
             reMaskImg();
+#endif
 #endif
         }
 
@@ -4840,6 +5623,31 @@ void Optimiser::reMaskImg()
 #ifdef OPTIMISER_MASK_IMG
     if (_para.zeroMask)
     {
+        //if (_commRank == HEMI_B_LEAD)
+        //{
+        //    int imgNum = _ID.size();
+        //    printf("maskR:%lf, pixelS:%lf, idim:%d, imgNum:%d\n",_para.maskRadius,
+        //                                                         _para.pixelSize,
+        //                                                         _para.size,
+        //                                                         imgNum);
+        //    FILE* p;
+        //    for (int i = 0; i < imgNum; i++)
+        //    {
+        //        std::stringstream ss;
+        //        ss<<i; 
+        //        std::string sC = ss.str();
+        //        std::string addT;
+        //        addT.append("image");
+        //        addT.append(sC);
+        //        addT.append(".dat");
+
+        //        p = fopen(addT.c_str(), "wb");
+        //        fwrite(&(_img[i][0]), sizeof(Complex), _img[i].sizeFT(), p);
+        //        fclose (p);
+        //    }
+        //    printf("write done!\n");
+        //}
+
         Image mask(_para.size, _para.size, RL_SPACE);
 
         softMask(mask,
@@ -4857,6 +5665,52 @@ void Optimiser::reMaskImg()
 
             _img[l].clearRL();
         }
+    }
+    else
+    {
+        //TODO Make the background a noise with PowerSpectrum of sigma2
+    }
+#endif
+}
+
+void Optimiser::reMaskImgG()
+{
+    IF_MASTER return;
+
+#ifdef OPTIMISER_MASK_IMG
+    if (_para.zeroMask)
+    {
+        //if (_commRank == HEMI_B_LEAD)
+        //{
+        //    int imgNum = 1200;
+        //    printf("maskR:%lf, pixelS:%lf, idim:%d, imgNum:%d\n",_para.maskRadius,
+        //                                                         _para.pixelSize,
+        //                                                         _para.size,
+        //                                                         imgNum);
+        //    FILE* p;
+        //    for (int i = 0; i < imgNum; i++)
+        //    {
+        //        std::stringstream ss;
+        //        ss<<i; 
+        //        std::string sC = ss.str();
+        //        std::string addT;
+        //        addT.append("image");
+        //        addT.append(sC);
+        //        addT.append(".dat");
+
+        //        p = fopen(addT.c_str(), "wb");
+        //        fwrite(&(_img[i][0]), sizeof(Complex), _img[i].sizeFT(), p);
+        //        fclose (p);
+        //    }
+        //    printf("write done!\n");
+        //}
+
+        ReMask(_img,
+               _para.maskRadius,
+               _para.pixelSize,
+               EDGE_WIDTH_RL,
+               _para.size,
+               (int)_ID.size());
     }
     else
     {
@@ -5943,6 +6797,12 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
     NT_MASTER
     {
+        //float time_use = 0;
+        //struct timeval start;
+        //struct timeval end;
+
+        //gettimeofday(&start, NULL);
+        
         if ((_para.parGra) && (_para.k != 1))
         {
             ALOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
@@ -6072,7 +6932,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 CTFAttr* ctfaData = new CTFAttr[_ID.size()];
                 
                 #pragma omp parallel for
-                for(int i = 0; i < _para.k * _ID.size(); i++)
+                for(size_t i = 0; i < _para.k * _ID.size(); i++)
                     nc[i] = 0;
 
                 #pragma omp parallel for
@@ -6122,7 +6982,6 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                             temp = nc[shiftc + l];
                     }
 
-                    printf("work here:%d\n", temp);
                     if (temp != 0)
                     {
                         nr = new double[temp * _ID.size() * 4];
@@ -6258,7 +7117,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
         if (_para.mode == MODE_3D)
         {
-            vector<int> gpus;
+            std::vector<int> gpus;
 
             getAviDevice(gpus);
            
@@ -6276,6 +7135,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 //_model.reco(t).prepareTFG(0);
             }
         }
+        
+        //gettimeofday(&end, NULL);
+        //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+        //if (_commRank == HEMI_A_LEAD)
+        //    printf("InsertA time_use:%lf\n", time_use);
+        //else
+        //    printf("InsertB time_use:%lf\n", time_use);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
@@ -6288,7 +7154,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
-            vector<int> gpus;
+            std::vector<int> gpus;
 
             getAviDevice(gpus);
            
@@ -6336,6 +7202,11 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 Volume ref;
 
+                //float time_use = 0;
+                //struct timeval start;
+                //struct timeval end;
+
+                //gettimeofday(&start, NULL);
                 _model.reco(t).reconstructG(ref,
                                             gpus[omp_get_thread_num()]);
 
@@ -6369,6 +7240,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 {
                     REPORT_ERROR("INEXISTENT MODE");
                 }
+                
+                //gettimeofday(&end, NULL);
+                //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+                //if (_commRank == HEMI_A_LEAD)
+                //    printf("reconstructA time_use:%lf\n", time_use);
+                //else
+                //    printf("reconstructB time_use:%lf\n", time_use);
 
                 COPY_FT(_model.ref(t), ref);
             }
@@ -6456,7 +7334,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
-            vector<int> gpus;
+            std::vector<int> gpus;
 
             getAviDevice(gpus);
            
@@ -6984,6 +7862,7 @@ void Optimiser::freePreCal(const bool ctf)
 
     TSFFTW_free(_datP);
     TSFFTW_free(_ctfP);
+    TSFFTW_free(_sigP);
     TSFFTW_free(_sigRcpP);
 
     /***

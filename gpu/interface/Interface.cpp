@@ -2,23 +2,324 @@
 
 #include "cuthunder.h"
 
-void getAviDevice(vector<int>& gpus)
+void getAviDevice(std::vector<int>& gpus)
 {
-    int numDevs;
-    cudaGetDeviceCount(&numDevs);
-    //cudaCheckErrors("get devices num.");
-
-    for (int n = 0; n < numDevs; n++)
-    {
-        cudaDeviceProp deviceProperties;
-        cudaGetDeviceProperties(&deviceProperties, n);
-        if (deviceProperties.major >= 3 && deviceProperties.minor >= 0)
-        {
-            gpus.push_back(n);
-        }
-    }
+    cuthunder::getAviDevice(gpus);
 }
 
+void ExpectPreidx(int gpuIdx,
+                  int** deviCol,
+                  int** deviRow,
+                  int* iCol,
+                  int* iRow,
+                  int npxl)
+{
+    cuthunder::expectPreidx(gpuIdx,
+                            deviCol,
+                            deviRow,
+                            iCol,
+                            iRow,
+                            npxl);
+}
+
+void ExpectPrefre(int gpuIdx,
+                  RFLOAT** devfreQ,
+                  RFLOAT* freQ,
+                  int npxl)
+{
+    cuthunder::expectPrefre(gpuIdx,
+                            devfreQ,
+                            freQ,
+                            npxl);
+
+}
+
+void ExpectLocalIn(int gpuIdx,
+                   Complex** devdatP,
+                   RFLOAT** devctfP,
+                   RFLOAT** devdefO,
+                   RFLOAT** devsigP,
+                   int nPxl,
+                   int cpyNumL,
+                   int searchType)
+{
+    cuthunder::expectLocalIn(gpuIdx,
+                             reinterpret_cast<cuthunder::Complex**>(devdatP),
+                             devctfP,
+                             devdefO,
+                             devsigP,
+                             nPxl,
+                             cpyNumL,
+                             searchType);
+
+}
+
+void ExpectLocalV2D(int gpuIdx,
+                    ManagedArrayTexture* mgr,
+                    Complex* volume,
+                    int dimSize)
+{
+    cuthunder::expectLocalV2D(gpuIdx,
+                              mgr,
+                              reinterpret_cast<cuthunder::Complex*>(volume),
+                              dimSize);
+
+}
+
+void ExpectLocalV3D(int gpuIdx,
+                    ManagedArrayTexture* mgr,
+                    Complex* volume,
+                    int vdim)
+{
+    cuthunder::expectLocalV3D(gpuIdx,
+                              mgr,
+                              reinterpret_cast<cuthunder::Complex*>(volume),
+                              vdim);
+
+}
+
+void ExpectLocalP(int gpuIdx,
+                  Complex* devdatP,
+                  RFLOAT* devctfP,
+                  RFLOAT* devdefO,
+                  RFLOAT* devsigP,
+                  Complex* datP,
+                  RFLOAT* ctfP,
+                  RFLOAT* defO,
+                  RFLOAT* sigP,
+                  int threadId,
+                  int imgId,
+                  int npxl,
+                  int cSearch)
+{
+    cuthunder::expectLocalP(gpuIdx,
+                            reinterpret_cast<cuthunder::Complex*>(devdatP),
+                            devctfP,
+                            devdefO,
+                            devsigP,
+                            reinterpret_cast<cuthunder::Complex*>(datP),
+                            ctfP,
+                            defO,
+                            sigP,
+                            threadId,
+                            imgId,
+                            npxl,
+                            cSearch);
+
+}
+
+void ExpectLocalHostA(int gpuIdx,
+                      RFLOAT** wC,
+                      RFLOAT** wR,
+                      RFLOAT** wT,
+                      RFLOAT** wD,
+                      double** oldR,
+                      double** oldT,
+                      double** oldD,
+                      double** trans,
+                      double** rot,
+                      double** dpara,
+                      int mR,
+                      int mT,
+                      int mD,
+                      int cSearch)
+{
+    cuthunder::expectLocalHostA(gpuIdx,
+                                wC,
+                                wR,
+                                wT,
+                                wD,
+                                oldR,
+                                oldT,
+                                oldD,
+                                trans,
+                                rot,
+                                dpara,
+                                mR,
+                                mT,
+                                mD,
+                                cSearch);
+}
+
+void ExpectLocalRTD(int gpuIdx,
+                    ManagedCalPoint* mcp,
+                    double* oldR,
+                    double* oldT,
+                    double* oldD,
+                    double* trans,
+                    double* rot,
+                    double* dpara)
+{
+    cuthunder::expectLocalRTD(gpuIdx,
+                              mcp,
+                              oldR,
+                              oldT,
+                              oldD,
+                              trans,
+                              rot,
+                              dpara);
+}
+
+void ExpectLocalPreI2D(int gpuIdx,
+                       int datShift,
+                       ManagedArrayTexture* mgr,
+                       ManagedCalPoint* mcp,
+                       RFLOAT* devdefO,
+                       RFLOAT* devfreQ,
+                       int *deviCol,
+                       int *deviRow,
+                       RFLOAT phaseShift,
+                       RFLOAT conT,
+                       RFLOAT k1,
+                       RFLOAT k2,
+                       int pf,
+                       int idim,
+                       int vdim,
+                       int npxl,
+                       int interp)
+{
+    cuthunder::expectLocalPreI2D(gpuIdx,
+                                 datShift,
+                                 mgr,
+                                 mcp,
+                                 devdefO,
+                                 devfreQ,
+                                 deviCol,
+                                 deviRow,
+                                 phaseShift,
+                                 conT,
+                                 k1,
+                                 k2,
+                                 pf,
+                                 idim,
+                                 vdim,
+                                 npxl,
+                                 interp);
+}
+
+void ExpectLocalPreI3D(int gpuIdx,
+                       int datShift,
+                       ManagedArrayTexture* mgr,
+                       ManagedCalPoint* mcp,
+                       RFLOAT* devdefO,
+                       RFLOAT* devfreQ,
+                       int *deviCol,
+                       int *deviRow,
+                       RFLOAT phaseShift,
+                       RFLOAT conT,
+                       RFLOAT k1,
+                       RFLOAT k2,
+                       int pf,
+                       int idim,
+                       int vdim,
+                       int npxl,
+                       int interp)
+{
+    cuthunder::expectLocalPreI3D(gpuIdx,
+                                 datShift,
+                                 mgr,
+                                 mcp,
+                                 devdefO,
+                                 devfreQ,
+                                 deviCol,
+                                 deviRow,
+                                 phaseShift,
+                                 conT,
+                                 k1,
+                                 k2,
+                                 pf,
+                                 idim,
+                                 vdim,
+                                 npxl,
+                                 interp);
+}
+
+void ExpectLocalM(int gpuIdx,
+                  int datShift,
+                  //int l,
+                  //RFLOAT* dvpA,
+                  //RFLOAT* baseL,
+                  ManagedCalPoint* mcp,
+                  Complex* devdatP,
+                  RFLOAT* devctfP,
+                  RFLOAT* devsigP,
+                  RFLOAT* wC,
+                  RFLOAT* wR,
+                  RFLOAT* wT,
+                  RFLOAT* wD,
+                  double oldC,
+                  int npxl)
+{
+    cuthunder::expectLocalM(gpuIdx,
+                            datShift,
+                            //l,
+                            //dvpA,
+                            //baseL,
+                            mcp,
+                            reinterpret_cast<cuthunder::Complex*>(devdatP),
+                            devctfP,
+                            devsigP,
+                            wC,
+                            wR,
+                            wT,
+                            wD,
+                            oldC,
+                            npxl);
+}
+
+void ExpectLocalHostF(int gpuIdx,
+                      RFLOAT** wC,
+                      RFLOAT** wR,
+                      RFLOAT** wT,
+                      RFLOAT** wD,
+                      double** oldR,
+                      double** oldT,
+                      double** oldD,
+                      double** trans,
+                      double** rot,
+                      double** dpara,
+                      int cSearch)
+{
+    cuthunder::expectLocalHostF(gpuIdx,
+                                wC,
+                                wR,
+                                wT,
+                                wD,
+                                oldR,
+                                oldT,
+                                oldD,
+                                trans,
+                                rot,
+                                dpara,
+                                cSearch);
+}
+
+void ExpectLocalFin(int gpuIdx,
+                    Complex** devdatP,
+                    RFLOAT** devctfP,
+                    RFLOAT** devdefO,
+                    RFLOAT** devfreQ,
+                    RFLOAT** devsigP,
+                    int cSearch)
+{
+    cuthunder::expectLocalFin(gpuIdx,
+                              reinterpret_cast<cuthunder::Complex**>(devdatP),
+                              devctfP,
+                              devdefO,
+                              devfreQ,
+                              devsigP,
+                              cSearch);
+}
+
+void ExpectFreeIdx(int gpuIdx,
+                   int** deviCol,
+                   int** deviRow)
+{
+    cuthunder::expectFreeIdx(gpuIdx,
+                             deviCol,
+                             deviRow);
+
+}
 
 void ExpectPrecal(vector<CTFAttr>& ctfAttr,
                   RFLOAT* def,
@@ -98,51 +399,6 @@ void ExpectGlobal2D(Complex* vol,
                               imgNum);
 }
 
-void ExpectGlobal3D(Complex* vol,
-                    Complex* datP,
-                    RFLOAT* ctfP,
-                    RFLOAT* sigRcpP,
-                    double* trans,
-                    RFLOAT* wC,
-                    RFLOAT* wR,
-                    RFLOAT* wT,
-                    double* rot,
-                    const int *iCol, 
-                    const int *iRow,
-                    int nK,
-                    int nR,
-                    int nT,
-                    int pf,
-                    int interp,
-                    int idim, 
-                    int vdim, 
-                    int npxl,
-                    int imgNum)
-{
-    LOG(INFO) << "Prepare Parameter for Expectation Global.";
-    
-    cuthunder::expectGlobal3D(reinterpret_cast<cuthunder::Complex*>(vol),
-                              reinterpret_cast<cuthunder::Complex*>(datP),
-                              ctfP,
-                              sigRcpP,
-                              trans,
-                              wC,
-                              wR,
-                              wT,
-                              rot,
-                              iCol,
-                              iRow,
-                              nK,
-                              nR,
-                              nT,
-                              pf,
-                              interp,
-                              idim,
-                              vdim,
-                              npxl,
-                              imgNum);
-}
-
 void ExpectRotran(Complex* traP,
                   double* trans,
                   double* rot,
@@ -176,7 +432,6 @@ void ExpectProject(Complex* volume,
                    int nR,
                    int pf,
                    int interp,
-                   int idim,
                    int vdim,
                    int npxl)
 {
@@ -190,7 +445,6 @@ void ExpectProject(Complex* volume,
                              nR,
                              pf,
                              interp,
-                             idim,
                              vdim,
                              npxl);
 }
@@ -210,7 +464,6 @@ void ExpectGlobal3D(Complex* rotP,
                     int nK,
                     int nR,
                     int nT,
-                    int idim,
                     int npxl,
                     int imgNum)
 {
@@ -231,7 +484,6 @@ void ExpectGlobal3D(Complex* rotP,
                               nK,
                               nR,
                               nT,
-                              idim,
                               npxl,
                               imgNum);
 }
@@ -319,12 +571,12 @@ void InsertFT(Volume& F3D,
               int npxl,
               int mReco,
               int idim,
+              int dimSize,
               int imgNum)
 {
     LOG(INFO) << "Prepare Parameter for Tranlate and Insert.";
 
     Complex *comF3D = &F3D[0];
-    int dimSize = T3D.sizeFT();
     
     RFLOAT *douT3D = new RFLOAT[dimSize];
 	for(int i = 0; i < dimSize; i++)
@@ -359,7 +611,7 @@ void InsertFT(Volume& F3D,
                         idim,
                         F3D.nSlcFT());
 
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
 	{
         T3D[i] = COMPLEX(douT3D[i], 0);
 	}
@@ -390,12 +642,12 @@ void InsertFT(Volume& F3D,
               int npxl,
               int mReco,
               int idim,
+              int dimSize,
               int imgNum)
 {
     LOG(INFO) << "Prepare Parameter for Tranlate and Insert.";
 
     Complex *comF3D = &F3D[0];
-    int dimSize = T3D.sizeFT();
     
     RFLOAT *douT3D = new RFLOAT[dimSize];
 	for(int i = 0; i < dimSize; i++)
@@ -429,77 +681,7 @@ void InsertFT(Volume& F3D,
                         idim,
                         F3D.nSlcFT());
 
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
-	{
-        T3D[i] = COMPLEX(douT3D[i], 0);
-	}
-    
-    delete[]douT3D;
-}
-
-void InsertF(Volume& F3D,
-             Volume& T3D,
-             MPI_Comm& hemi,
-             Complex* datP,
-             RFLOAT* ctfP,
-             RFLOAT* sigRcpP,
-             CTFAttr* ctfaData,
-             double *offS,
-             RFLOAT *w,
-             double *nR,
-             double *nT,
-             double *nD,
-             const int *iCol,
-             const int *iRow, 
-             RFLOAT pixelSize,
-             bool cSearch,
-             int opf,
-             int rSize,
-             int tSize,
-             int dSize,
-             int npxl,
-             int mReco,
-             int idim,
-             int imgNum)
-{
-    LOG(INFO) << "Prepare Parameter for Tranlate and Insert.";
-
-    Complex *comF3D = &F3D[0];
-    int dimSize = T3D.sizeFT();
-    
-    RFLOAT *douT3D = new RFLOAT[dimSize];
-	for(int i = 0; i < dimSize; i++)
-	{
-        douT3D[i] = REAL(T3D[i]);
-	}
-
-    cuthunder::InsertF(reinterpret_cast<cuthunder::Complex*>(comF3D),
-                       douT3D,
-                       hemi,
-                       reinterpret_cast<cuthunder::Complex*>(datP),
-                       ctfP,
-                       sigRcpP,
-                       reinterpret_cast<cuthunder::CTFAttr*>(ctfaData),
-                       offS,
-                       w,
-                       nR,
-                       nT,
-                       nD,
-                       iCol,
-                       iRow,
-                       pixelSize,
-                       cSearch,
-                       opf,
-                       npxl,
-                       rSize,
-                       tSize,
-                       dSize,
-                       mReco,
-                       imgNum,
-                       idim,
-                       F3D.nSlcFT());
-
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
 	{
         T3D[i] = COMPLEX(douT3D[i], 0);
 	}
@@ -510,39 +692,28 @@ void InsertF(Volume& F3D,
 void PrepareTF(int gpuIdx,
                Volume& F3D,
 	           Volume& T3D,
-               const Symmetry& sym,
-	           int maxRadius,
+	           double* symMat,
+               int nSymmetryElement,
+               int maxRadius,
 	           int pf)
 {
 	LOG(INFO) << "Step1: Prepare Parameter for NormalizeT.";
 
 	RFLOAT sf = 1.0 / REAL(T3D[0]);
+    int dim = T3D.nSlcFT(); 
+    int dimSize = dim * dim * (dim / 2 + 1); 
+    int r = (maxRadius * pf + 1) * (maxRadius * pf + 1);
 
+    Complex *comF3D = &F3D[0];
 	Complex *comT3D = &T3D[0];
-    RFLOAT *douT3D = new RFLOAT[T3D.sizeFT()];
-	for(size_t i = 0; i < T3D.sizeFT(); i++)
+    RFLOAT *douT3D = new RFLOAT[dimSize];
+	for(int i = 0; i < dimSize; i++)
 	{
         douT3D[i] = REAL(comT3D[i]);
 	}
     
-    Complex *comF3D = &F3D[0];
-	
-    LOG(INFO) << "Step2: Prepare Paramete for SymmetrizeT.";
 
-	int nSymmetryElement = sym.nSymmetryElement();
-    double *symMat = new double[nSymmetryElement * 9];
-
-    dmat33 L, R;   
-    
-	for(int i = 0; i < nSymmetryElement; i++)
-	{
-        sym.get(L, R, i);
-        Map<dmat33>(symMat + i * 9, 3, 3) = R;
-	}
-   
-    int r = (maxRadius * pf + 1) * (maxRadius * pf + 1);
-
-    LOG(INFO) << "Step3: Start PrepareTF...";
+    LOG(INFO) << "Step2: Start PrepareTF...";
 
     cuthunder::PrepareTF(gpuIdx,
                          reinterpret_cast<cuthunder::Complex*>(comF3D),
@@ -551,16 +722,15 @@ void PrepareTF(int gpuIdx,
                          sf,
                          nSymmetryElement, 
                          LINEAR_INTERP,
-                         T3D.nSlcFT(),
+                         dim,
                          r);
     
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
 	{
         comT3D[i] = COMPLEX(douT3D[i], 0);
 	}
     
     delete[]douT3D;
-    delete[]symMat;
 }
 
 void ExposePT2D(int gpuIdx,
@@ -573,9 +743,11 @@ void ExposePT2D(int gpuIdx,
 {
 	LOG(INFO) << "Step1: Prepare Parameter for T.";
 
+    int dim = T2D.nRowFT(); 
+    int dimSize = dim * (dim / 2 + 1); 
 	Complex *comT2D = &T2D[0];
-    RFLOAT *douT2D = new RFLOAT[T2D.sizeFT()];
-	for(size_t i = 0; i < T2D.sizeFT(); i++)
+    RFLOAT *douT2D = new RFLOAT[dimSize];
+	for(int i = 0; i < dimSize; i++)
 	{
         douT2D[i] = REAL(comT2D[i]);
 	}
@@ -595,10 +767,10 @@ void ExposePT2D(int gpuIdx,
                             joinHalf,
                             maxRadius,
                             wienerF,
-                            T2D.nRowFT(),
+                            dim,
                             pf);
     
-    for(size_t i = 0; i < T2D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
 	{
         comT2D[i] = COMPLEX(douT2D[i], 0);
 	}
@@ -617,9 +789,11 @@ void ExposePT(int gpuIdx,
 {
 	LOG(INFO) << "Step1: Prepare Parameter for T.";
 
+    int dim = T3D.nSlcFT(); 
+    int dimSize = dim * dim * (dim / 2 + 1); 
 	Complex *comT3D = &T3D[0];
-    RFLOAT *douT3D = new RFLOAT[T3D.sizeFT()];
-	for(size_t i = 0; i < T3D.sizeFT(); i++)
+    RFLOAT *douT3D = new RFLOAT[dimSize];
+	for(int i = 0; i < dimSize; i++)
 	{
         douT3D[i] = REAL(comT3D[i]);
 	}
@@ -639,10 +813,10 @@ void ExposePT(int gpuIdx,
                           joinHalf,
                           maxRadius,
                           wienerF,
-                          T3D.nSlcFT(),
+                          dim,
                           pf);
     
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
 	{
         comT3D[i] = COMPLEX(douT3D[i], 0);
 	}
@@ -658,6 +832,7 @@ void ExposeWT2D(int gpuIdx,
                 int maxRadius,
                 int pf,
                 RFLOAT a,
+                RFLOAT nf,
                 RFLOAT alpha,
                 int maxIter,
                 int minIter,
@@ -665,26 +840,22 @@ void ExposeWT2D(int gpuIdx,
 {
     LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
     
+    int dim = T2D.nRowFT(); 
+    int dimSize = dim * (dim / 2 + 1); 
     Complex *comW2D = &W2D[0];
-    RFLOAT *comW2DR = new RFLOAT[W2D.sizeFT()];
-    for(size_t i = 0; i < W2D.sizeFT(); i++)
+    RFLOAT *comW2DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comW2DR[i] = REAL(comW2D[i]);
     }
 
     LOG(INFO) << "Step2: Prepare Paramete for Calculate C.";
 
-#ifdef RECONSTRUCTOR_KERNEL_PADDING
-    RFLOAT nf = MKB_RL(0, a * pf, alpha);
-#else
-    RFLOAT nf = MKB_RL(0, a, alpha);
-#endif
-    
     int r = (maxRadius * pf) * (maxRadius * pf);
 
     Complex *comT2D = &T2D[0];
-    RFLOAT *comT2DR = new RFLOAT[T2D.sizeFT()];
-    for(size_t i = 0; i < T2D.sizeFT(); i++)
+    RFLOAT *comT2DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comT2DR[i] = REAL(comT2D[i]);
     }
@@ -703,14 +874,14 @@ void ExposeWT2D(int gpuIdx,
                             1,
                             step,
                             1e5,
-                            T2D.nRowFT(),
+                            dim,
                             r,
                             nf,
                             maxIter,
                             minIter,
                             padSize);
     
-    for(size_t i = 0; i < W2D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
     {
         comW2D[i] = COMPLEX(comW2DR[i], 0);
     }
@@ -726,6 +897,7 @@ void ExposeWT(int gpuIdx,
               int maxRadius,
               int pf,
               RFLOAT a,
+              RFLOAT nf,
               RFLOAT alpha,
               int maxIter,
               int minIter,
@@ -733,26 +905,22 @@ void ExposeWT(int gpuIdx,
 {
     LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
     
+    int dim = T3D.nSlcFT(); 
+    int dimSize = dim * dim * (dim / 2 + 1); 
     Complex *comW3D = &W3D[0];
-    RFLOAT *comW3DR = new RFLOAT[W3D.sizeFT()];
-    for(size_t i = 0; i < W3D.sizeFT(); i++)
+    RFLOAT *comW3DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comW3DR[i] = REAL(comW3D[i]);
     }
 
     LOG(INFO) << "Step2: Prepare Paramete for Calculate C.";
 
-#ifdef RECONSTRUCTOR_KERNEL_PADDING
-    RFLOAT nf = MKB_RL(0, a * pf, alpha);
-#else
-    RFLOAT nf = MKB_RL(0, a, alpha);
-#endif
-    
     int r = (maxRadius * pf) * (maxRadius * pf);
 
     Complex *comT3D = &T3D[0];
-    RFLOAT *comT3DR = new RFLOAT[T3D.sizeFT()];
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
+    RFLOAT *comT3DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comT3DR[i] = REAL(comT3D[i]);
     }
@@ -771,14 +939,14 @@ void ExposeWT(int gpuIdx,
                           1,
                           step,
                           1e5,
-                          T3D.nSlcFT(),
+                          dim,
                           r,
                           nf,
                           maxIter,
                           minIter,
                           padSize);
     
-    for(size_t i = 0; i < W3D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
     {
         comW3D[i] = COMPLEX(comW3DR[i], 0);
     }
@@ -797,16 +965,18 @@ void ExposeWT2D(int gpuIdx,
     
     int r = (maxRadius * pf) * (maxRadius * pf);
 
+    int dim = T2D.nRowFT(); 
+    int dimSize = dim * (dim / 2 + 1); 
     Complex *comW2D = &W2D[0];
-    RFLOAT *comW2DR = new RFLOAT[W2D.sizeFT()];
-    for(size_t i = 0; i < W2D.sizeFT(); i++)
+    RFLOAT *comW2DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comW2DR[i] = REAL(comW2D[i]);
     }
 
     Complex *comT2D = &T2D[0];
-    RFLOAT *comT2DR = new RFLOAT[T2D.sizeFT()];
-    for(size_t i = 0; i < T2D.sizeFT(); i++)
+    RFLOAT *comT2DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comT2DR[i] = REAL(comT2D[i]);
     }
@@ -816,10 +986,10 @@ void ExposeWT2D(int gpuIdx,
     cuthunder::CalculateW2D(gpuIdx,
                             comT2DR,
                             comW2DR,
-                            T2D.nRowFT(),
+                            dim,
                             r);
     
-    for(size_t i = 0; i < W2D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
     {
         comW2D[i] = COMPLEX(comW2DR[i], 0);
     }
@@ -838,16 +1008,18 @@ void ExposeWT(int gpuIdx,
     
     int r = (maxRadius * pf) * (maxRadius * pf);
 
+    int dim = T3D.nSlcFT(); 
+    int dimSize = dim * dim * (dim / 2 + 1); 
     Complex *comW3D = &W3D[0];
-    RFLOAT *comW3DR = new RFLOAT[W3D.sizeFT()];
-    for(size_t i = 0; i < W3D.sizeFT(); i++)
+    RFLOAT *comW3DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comW3DR[i] = REAL(comW3D[i]);
     }
 
     Complex *comT3D = &T3D[0];
-    RFLOAT *comT3DR = new RFLOAT[T3D.sizeFT()];
-    for(size_t i = 0; i < T3D.sizeFT(); i++)
+    RFLOAT *comT3DR = new RFLOAT[dimSize];
+    for(int i = 0; i < dimSize; i++)
     {
         comT3DR[i] = REAL(comT3D[i]);
     }
@@ -857,10 +1029,10 @@ void ExposeWT(int gpuIdx,
     cuthunder::CalculateW(gpuIdx,
                           comT3DR,
                           comW3DR,
-                          T3D.nSlcFT(),
+                          dim,
                           r);
     
-    for(size_t i = 0; i < W3D.sizeFT(); i++)
+    for(int i = 0; i < dimSize; i++)
     {
         comW3D[i] = COMPLEX(comW3DR[i], 0);
     }
@@ -885,9 +1057,12 @@ void ExposePF2D(int gpuIdx,
     
     LOG(INFO) << "Step2: Prepare Paramete for CalculateFW.";
 
+    int dim = F2D.nRowFT(); 
+    int pdim = padDst.nRowFT(); 
+    int dimSize = dim * (dim / 2 + 1); 
     Complex *comW2D = &W2D[0];
-	RFLOAT *comW2DR = new RFLOAT[W2D.sizeFT()];
-	for(size_t i = 0; i < W2D.sizeFT(); i++)
+	RFLOAT *comW2DR = new RFLOAT[dimSize];
+	for(int i = 0; i < dimSize; i++)
 	{
         comW2DR[i] = REAL(comW2D[i]);
 	}
@@ -902,8 +1077,8 @@ void ExposePF2D(int gpuIdx,
                             comPADR,
                             comW2DR,
                             r,
-                            padDst.nRowFT(),
-                            F2D.nRowFT());
+                            pdim,
+                            dim);
     
     delete[]comW2DR;
 }
@@ -924,9 +1099,12 @@ void ExposePF(int gpuIdx,
     
     LOG(INFO) << "Step2: Prepare Paramete for CalculateFW.";
 
+    int dim = F3D.nSlcFT(); 
+    int pdim = padDst.nSlcFT(); 
+    int dimSize = dim * dim * (dim / 2 + 1); 
     Complex *comW3D = &W3D[0];
-	RFLOAT *comW3DR = new RFLOAT[W3D.sizeFT()];
-	for(size_t i = 0; i < W3D.sizeFT(); i++)
+	RFLOAT *comW3DR = new RFLOAT[dimSize];
+	for(int i = 0; i < dimSize; i++)
 	{
         comW3DR[i] = REAL(comW3D[i]);
 	}
@@ -941,8 +1119,8 @@ void ExposePF(int gpuIdx,
                           comPADR,
                           comW3DR,
                           r,
-                          padDst.nSlcFT(),
-                          F3D.nSlcFT());
+                          pdim,
+                          dim);
     
     delete[]comW3DR;
 }
@@ -950,37 +1128,14 @@ void ExposePF(int gpuIdx,
 void ExposeCorrF2D(int gpuIdx,
                    Image& imgDst,
                    Volume& dst,
-                   RFLOAT nf,
-                   RFLOAT a,
-                   RFLOAT alpha,
-                   int pf,
-                   int size)
+                   RFLOAT* mkbRL,
+                   RFLOAT nf)
 {
     LOG(INFO) << "Step1: Prepare Parameter for CorrectingF.";
     
     RFLOAT *comIDst = &imgDst(0);
     Complex *comDst = &dst[0];
-
-    int padSize = pf * size;
     int dim = imgDst.nRowRL();
-    RFLOAT *mkbRL = new RFLOAT[(dim / 2 + 1) * (dim / 2 + 1)];
-    
-        for (int j = 0; j <= dim / 2; j++) 
-            for (int i = 0; i <= dim / 2; i++) 
-            {
-                size_t index = j * (dim / 2 + 1) + i;
-        
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-                mkbRL[index] = MKB_RL(NORM(i, j) / padSize,
-                                  a * pf,
-                                  alpha);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                mkbRL[index] = TIK_RL(NORM(i, j) / padSize);
-#endif
-            }
-    
     
     LOG(INFO) << "Step2: Start CorrSoftMaskF...";
       
@@ -991,45 +1146,19 @@ void ExposeCorrF2D(int gpuIdx,
                                nf,
                                dim);
 
-    delete[] mkbRL;
 }
 
 void ExposeCorrF(int gpuIdx,
                  Volume& dstN,
                  Volume& dst,
-                 RFLOAT nf,
-                 RFLOAT a,
-                 RFLOAT alpha,
-                 int pf,
-                 int size)
+                 RFLOAT* mkbRL,
+                 RFLOAT nf)
 {
     LOG(INFO) << "Step1: Prepare Parameter for CorrectingF.";
 
     RFLOAT *comDstN = &dstN(0);
     Complex *comDst = &dst[0];
-
-    int padSize = pf * size;
     int dim = dstN.nSlcRL();
-    int slcSize = (dim / 2 + 1) * (dim / 2 + 1);
-    RFLOAT *mkbRL = new RFLOAT[slcSize * (dim / 2 + 1)];
-    
-    for (int k = 0; k <= dim / 2; k++) 
-        for (int j = 0; j <= dim / 2; j++) 
-            for (int i = 0; i <= dim / 2; i++) 
-            {
-                size_t index = k * slcSize + j * (dim / 2 + 1) + i;
-        
-#ifdef RECONSTRUCTOR_MKB_KERNEL
-                mkbRL[index] = MKB_RL(NORM_3(i, j, k) / padSize,
-                                  a * pf,
-                                  alpha);
-#endif
-
-#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
-                mkbRL[index] = TIK_RL(NORM_3(i, j, k) / padSize);
-#endif
-            }
-    
     
     LOG(INFO) << "Step2: Start CorrSoftMaskF...";
       
@@ -1040,7 +1169,6 @@ void ExposeCorrF(int gpuIdx,
                              nf,
                              dim);
    
-    delete[] mkbRL;
 }
 
 void TranslateI2D(int gpuIdx,
@@ -1085,5 +1213,28 @@ void TranslateI(int gpuIdx,
                           (RFLOAT)oz,
                           r,
                           dim);
+}
+
+void ReMask(vector<Image>& img,
+            RFLOAT maskRadius,
+            RFLOAT pixelSize,
+            RFLOAT ew,
+            int idim,
+            int imgNum)
+{
+    LOG(INFO) << "Step1: Prepare Parameter for Remask.";
+
+    std::vector<cuthunder::Complex*> imgData;
+    for (int i = 0; i < imgNum; i++)
+    {
+        imgData.push_back(reinterpret_cast<cuthunder::Complex*>(&img[i][0])); 
+    }
+
+    cuthunder::reMask(imgData,
+                      maskRadius,
+                      pixelSize,
+                      ew,
+                      idim,
+                      imgNum);
 }
 
