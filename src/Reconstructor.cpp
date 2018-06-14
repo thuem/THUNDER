@@ -30,8 +30,11 @@ Reconstructor::Reconstructor(const int mode,
 
 Reconstructor::~Reconstructor()
 {
+#ifdef GPU_VERSION
+#else
     _fft.fwDestroyPlanMT();
     _fft.bwDestroyPlanMT();
+#endif
 }
 
 void Reconstructor::init(const int mode,
