@@ -40,7 +40,10 @@
 #include "Particle.h"
 #include "Database.h"
 #include "Model.h"
+
+#ifdef GPU_VERSION
 #include "Interface.h"
+#endif
 
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 

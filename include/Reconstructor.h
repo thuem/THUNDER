@@ -38,7 +38,10 @@
 #include "TabFunction.h"
 #include "Spectrum.h"
 #include "Mask.h"
+
+#ifdef GPU_VERSION
 #include "Interface.h"
+#endif
 
 #define PRE_CAL_MODE 0
 
