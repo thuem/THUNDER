@@ -849,6 +849,8 @@ void Reconstructor::insertP(const Complex* src,
     }
 }
 
+#ifdef GPU_VERSION
+
 void Reconstructor::insertI(Complex* datP,
                             RFLOAT* ctfP,
                             RFLOAT* sigP,
@@ -1049,6 +1051,8 @@ void Reconstructor::prepareTFG(int gpuIdx)
     _oy /= _counter;
     _oz /= _counter;
 }
+
+#endif // GPU_VERSION
 
 void Reconstructor::prepareTF()
 {
@@ -1667,6 +1671,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 }
 
+#ifdef GPU_VERSION
 void Reconstructor::reconstructG(Volume& dst,
                                  int gpuIdx)
 {
@@ -1976,6 +1981,8 @@ void Reconstructor::reconstructG(Volume& dst,
     BLOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";
 #endif
 }
+
+#endif // GPU_VERSION
 
 void Reconstructor::allReduceF()
 {
