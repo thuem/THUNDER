@@ -1662,6 +1662,7 @@ void Optimiser::expectation()
     freePreCalIdx();
 }
 
+#ifdef GPU_VERSION
 void Optimiser::expectationG()
 {
     IF_MASTER return;
@@ -3401,6 +3402,7 @@ void Optimiser::expectationG()
 
     freePreCalIdx();
 }
+#endif
 
 void Optimiser::maximization()
 {
@@ -6779,6 +6781,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
     BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
 }
 
+#ifdef GPU_VERSION
 void Optimiser::reconstructRefG(const bool fscFlag,
                                 const bool avgFlag,
                                 const bool fscSave,
@@ -7501,6 +7504,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
     BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
 }
+#endif
 
 void Optimiser::solventFlatten(const bool mask)
 {

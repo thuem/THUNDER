@@ -485,6 +485,7 @@ class Reconstructor : public Parallel
                      const RFLOAT w,
                      const vec* sig = NULL);
 
+#ifdef GPU_VERSION
         void insertI(Complex* datP,
                      RFLOAT* ctfP,
                      RFLOAT* sigP,
@@ -530,6 +531,7 @@ class Reconstructor : public Parallel
         void resetT(RFLOAT* modelT);
 
         void prepareTFG(int gpuIdx);
+#endif
 
         void prepareTF();
 
@@ -545,8 +547,11 @@ class Reconstructor : public Parallel
          *            result of reconstruction into.
          */
         void reconstruct(Volume& dst);
+
+#ifdef GPU_VERSION
         void reconstructG(Volume& dst,
                           int gpuIdx);
+#endif
 
     private:
 
