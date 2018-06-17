@@ -216,12 +216,12 @@ ENDIF()
 # Build routine
 ADD_SUBDIRECTORY(gpu)
 
-endif("${GPU_VERSION}")
-
 # Make Sure FFTW and GSL is Built Before Linking
 
 add_dependencies(cuthuem FFTW)
 add_dependencies(cuthuem GSL)
+
+endif("${GPU_VERSION}")
 
 install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
 install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
@@ -249,7 +249,10 @@ add_dependencies(core GSL)
 link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
 
 TARGET_INCLUDE_DIRECTORIES(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
+
+if("${GPU_VERSION}")
 TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+endif("${GPU_VERSION}")
 
 #ADD_SUBDIRECTORY(testsrc)
 
