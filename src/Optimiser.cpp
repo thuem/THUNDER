@@ -5677,6 +5677,8 @@ void Optimiser::reMaskImg()
 #endif
 }
 
+#ifdef GPU_VERSION
+
 void Optimiser::reMaskImgG()
 {
     IF_MASTER return;
@@ -5722,6 +5724,8 @@ void Optimiser::reMaskImgG()
     }
 #endif
 }
+
+#endif // GPU_VERSION
 
 void Optimiser::normCorrection()
 {

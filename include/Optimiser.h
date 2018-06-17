@@ -863,7 +863,9 @@ class Optimiser : public Parallel
 
         void reMaskImg();
 
+#ifdef GPU_VERSION
         void reMaskImgG();
+#endif // GPU_VERSION
 
         void normCorrection();
 
