@@ -11,6 +11,8 @@
  * ****************************************************************************/ 
 #include "Model.h"
 
+#undef GPU_VERSION
+
 Model::~Model()
 {
     clear();
@@ -1792,3 +1794,5 @@ void Model::avgHemi()
         }
     }
 }
+
+#define GPU_VERSION

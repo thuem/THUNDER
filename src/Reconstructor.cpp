@@ -10,6 +10,8 @@
 
 #include "Reconstructor.h"
 
+#undef GPU_VERSION
+
 Reconstructor::Reconstructor()
 {
     defaultInit();
@@ -30,8 +32,7 @@ Reconstructor::Reconstructor(const int mode,
 
 Reconstructor::~Reconstructor()
 {
-#ifdef GPU_VERSION
-#else
+#ifndef GPU_VERSION
     _fft.fwDestroyPlanMT();
     _fft.bwDestroyPlanMT();
 #endif
@@ -2263,3 +2264,5 @@ void Reconstructor::symmetrizeO()
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
+
+#define GPU_VERSION
