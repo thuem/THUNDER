@@ -212,10 +212,11 @@ IF(CUDA_FOUND)
     LIST(APPEND EXTERNAL_LIBS ${NCCL_LIBRARIES})
   ENDIF()
 ENDIF()
-endif("${GPU_VERSION}")
 
 # Build routine
 ADD_SUBDIRECTORY(gpu)
+
+endif("${GPU_VERSION}")
 
 # Make Sure FFTW and GSL is Built Before Linking
 
