@@ -23,7 +23,7 @@ endif("${SINGLE_PRECISION}")
 
 option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
 
-if ("${GPU_VERSION}")
+if("${GPU_VERSION}")
     message(STATUS "Build THUNDER in gpu version.")
 else("${GPU_VERSION}")
     message(STATUS "Build THUNDER in cpu version.")
@@ -178,8 +178,8 @@ LIST(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Functions)
 LIST(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Geometry)
 LIST(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Image)
 
-if ("${GPU_VERSION}")
 # CUDA toolkit
+if("${GPU_VERSION}")
 FIND_PACKAGE(CUDA 8.0 REQUIRED)
 IF(CUDA_FOUND)
   MESSAGE(STATUS "CUDA version:" ${CUDA_VERSION})
@@ -212,7 +212,7 @@ IF(CUDA_FOUND)
     LIST(APPEND EXTERNAL_LIBS ${NCCL_LIBRARIES})
   ENDIF()
 ENDIF()
-if ("${GPU_VERSION}")
+endif("${GPU_VERSION}")
 
 # Build routine
 ADD_SUBDIRECTORY(gpu)
