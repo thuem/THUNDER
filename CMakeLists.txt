@@ -248,8 +248,8 @@ if("${GPU_VERSION}")
 
     # MAKE SURE FFTW AND GSL IS BUILT BEFORE LINKING
 
-    # add_dependencies(cuthuem FFTW)
-    # add_dependencies(cuthuem GSL)
+    add_dependencies(cuthuem FFTW)
+    add_dependencies(cuthuem GSL)
 
 endif("${GPU_VERSION}")
 
@@ -281,8 +281,8 @@ link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
 TARGET_include_directories(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
 
 if("${GPU_VERSION}")
-    #TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
-    TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
 endif("${GPU_VERSION}")
 
 #ADD_SUBDIRECTORY(testsrc)
