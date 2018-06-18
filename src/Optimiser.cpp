@@ -3467,8 +3467,8 @@ void Optimiser::maximization()
         //struct timeval end;
 
         //gettimeofday(&start, NULL);
-        //reconstructRefG(true, true, true, false, false);
-        reconstructRef(true, true, true, false, false);
+        reconstructRefG(true, true, true, false, false);
+        //reconstructRef(true, true, true, false, false);
         //gettimeofday(&end, NULL);
         //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
         //if (_commRank == HEMI_A_LEAD)
@@ -3980,8 +3980,8 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
 #ifdef GPU_VERSION
-        //reconstructRefG(true, false, true, false, true);
-        reconstructRef(true, false, true, false, true);
+        reconstructRefG(true, false, true, false, true);
+        //reconstructRef(true, false, true, false, true);
 #else
         reconstructRef(true, false, true, false, true);
 #endif
