@@ -7229,7 +7229,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 _model.reco(t).reconstructG(ref,
                                             gpus[omp_get_thread_num()]);
 #else
-                _model.reco(t).reconstruct();
+                _model.reco(t).reconstruct(ref);
 #endif
 
                 if (_para.mode == MODE_2D)
@@ -7414,7 +7414,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 _model.reco(t).reconstructG(ref,
                                             gpus[omp_get_thread_num()]);
 #else
-                _model.reco(t).reconstruct();
+                _model.reco(t).reconstruct(ref);
 
                 if (_para.mode == MODE_2D)
                 {
