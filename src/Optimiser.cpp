@@ -7259,14 +7259,14 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                     if (_sym.pgGroup() == PG_CN)
                     {
 #ifdef GPU_RECONSTRUCT
-                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
-#else
                         TranslateI(gpus[omp_get_thread_num()],
                                    ref,
                                    -_model.reco(t).ox(),
                                    -_model.reco(t).oy(),
                                    -_model.reco(t).oz(),
                                    _model.rU());
+#else
+                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
 #endif
                     }
                 }
@@ -7444,14 +7444,14 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                     if (_sym.pgGroup() == PG_CN)
                     {
 #ifdef GPU_RECONSTRUCT
-                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
-#else
                         TranslateI(gpus[omp_get_thread_num()],
                                    ref,
                                    -_model.reco(t).ox(),
                                    -_model.reco(t).oy(),
                                    -_model.reco(t).oz(),
                                    _model.rU());
+#else
+                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
 #endif
                     }
                 }
