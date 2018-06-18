@@ -242,15 +242,14 @@ if("${GPU_VERSION}")
 
     list(APPEND EXTERNAL_LIBS ${NCCL_LIBRARIES})
 
- endif("${GPU_VERSION}")
+    # BUILD GPU SUBROUNTINE
 
-# Build routine
-add_subdirectory(gpu)
+    add_subdirectory(gpu)
 
-# Make Sure FFTW and GSL is Built Before Linking
+    # MAKE SURE FFTW AND GSL IS BUILT BEFORE LINKING
 
-add_dependencies(cuthuem FFTW)
-add_dependencies(cuthuem GSL)
+    add_dependencies(cuthuem FFTW)
+    add_dependencies(cuthuem GSL)
 
 endif("${GPU_VERSION}")
 
