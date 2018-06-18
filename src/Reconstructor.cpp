@@ -10,8 +10,6 @@
 
 #include "Reconstructor.h"
 
-#undef GPU_VERSION
-
 Reconstructor::Reconstructor()
 {
     defaultInit();
@@ -32,7 +30,7 @@ Reconstructor::Reconstructor(const int mode,
 
 Reconstructor::~Reconstructor()
 {
-#ifndef GPU_VERSION
+#ifndef GPU_RECONSTRUCT
     _fft.fwDestroyPlanMT();
     _fft.bwDestroyPlanMT();
 #endif
@@ -86,11 +84,7 @@ void Reconstructor::init(const int mode,
 
     _maxRadius = (_size / 2 - CEIL(a));
 
-#ifdef GPU_VERSION
-    allocSpaceG();
-#else
     allocSpace();
-#endif
 
     reset();
 }
@@ -102,11 +96,13 @@ void Reconstructor::allocSpace()
         // Create Fourier Plans First, Then Allocate Space
         // For Save Memory Space
 
+#ifndef GPU_RECONSTRUCT
         ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
         BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
         _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE);
         _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE);
+#endif
 
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
@@ -121,48 +117,13 @@ void Reconstructor::allocSpace()
         // Create Fourier Plans First, Then Allocate Space
         // For Save Memory Space
 
+#ifndef GPU_RECONSTRUCT
         ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
         BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
         _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
         _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
-
-        ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
-        BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
-
-        _F3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _W3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _C3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _T3D.alloc(PAD_SIZE, PAD_SIZE, PAD_SIZE, FT_SPACE);
-
-    }
-    else 
-    {
-        REPORT_ERROR("INEXISTENT MODE");
-
-        abort();
-    }
-}
-
-void Reconstructor::allocSpaceG()
-{
-    if (_mode == MODE_2D)
-    {
-        // Create Fourier Plans First, Then Allocate Space
-        // For Save Memory Space
-
-        ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
-        BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
-
-        _F2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _W2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _C2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
-        _T2D.alloc(PAD_SIZE, PAD_SIZE, FT_SPACE);
-    }
-    else if (_mode == MODE_3D)
-    {
-        // Create Fourier Plans First, Then Allocate Space
-        // For Save Memory Space
+#endif
 
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
@@ -183,21 +144,14 @@ void Reconstructor::allocSpaceG()
 
 void Reconstructor::resizeSpace(const int size)
 {
+#ifndef GPU_RECONSTRUCT
     _fft.fwDestroyPlanMT();
     _fft.bwDestroyPlanMT();
+#endif
 
     _size = size;
 
     allocSpace();
-
-    reset();
-}
-
-void Reconstructor::resizeSpaceG(const int size)
-{
-    _size = size;
-
-    allocSpaceG();
 
     reset();
 }
@@ -849,7 +803,7 @@ void Reconstructor::insertP(const Complex* src,
     }
 }
 
-#ifdef GPU_VERSION
+#ifdef GPU_INSERT
 
 void Reconstructor::insertI(Complex* datP,
                             RFLOAT* ctfP,
@@ -1052,7 +1006,7 @@ void Reconstructor::prepareTFG(int gpuIdx)
     _oz /= _counter;
 }
 
-#endif // GPU_VERSION
+#endif // GPU_INSERT
 
 void Reconstructor::prepareTF()
 {
@@ -1671,7 +1625,8 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 }
 
-#ifdef GPU_VERSION
+#ifdef GPU_RECONSTRUCT
+
 void Reconstructor::reconstructG(Volume& dst,
                                  int gpuIdx)
 {
@@ -1982,7 +1937,7 @@ void Reconstructor::reconstructG(Volume& dst,
 #endif
 }
 
-#endif // GPU_VERSION
+#endif // GPU_RECONSTRUCT
 
 void Reconstructor::allReduceF()
 {
@@ -2271,5 +2226,3 @@ void Reconstructor::symmetrizeO()
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
-
-#define GPU_VERSION

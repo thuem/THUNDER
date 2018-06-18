@@ -348,11 +348,7 @@ class Reconstructor : public Parallel
 
         void allocSpace();
 
-        void allocSpaceG();
-
         void resizeSpace(const int size);
-
-        void resizeSpaceG(const int size);
 
         void reset();
 
@@ -485,7 +481,7 @@ class Reconstructor : public Parallel
                      const RFLOAT w,
                      const vec* sig = NULL);
 
-#ifdef GPU_VERSION
+#ifdef GPU_INSERT
         void insertI(Complex* datP,
                      RFLOAT* ctfP,
                      RFLOAT* sigP,
@@ -548,7 +544,7 @@ class Reconstructor : public Parallel
          */
         void reconstruct(Volume& dst);
 
-#ifdef GPU_VERSION
+#ifdef GPU_RECONSTRUCT
         void reconstructG(Volume& dst,
                           int gpuIdx);
 #endif

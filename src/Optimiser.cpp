@@ -6786,6 +6786,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 }
 
 #ifdef GPU_VERSION
+
 void Optimiser::reconstructRefG(const bool fscFlag,
                                 const bool avgFlag,
                                 const bool fscSave,
@@ -7126,11 +7127,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
         if (_para.mode == MODE_3D)
         {
+#ifdef GPU_RECONSTRUCT
             std::vector<int> gpus;
 
             getAviDevice(gpus);
            
             int deviceNum = gpus.size();
+#endif
 
             #pragma omp parallel for num_threads(deviceNum)
             for (int t = 0; t < _para.k; t++)
@@ -7140,7 +7143,11 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                            << t;
 
+#ifdef GPU_RECONSTRUCT
                 _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
+#else
+                _model.reco(t).prepareTF();
+#endif
                 //_model.reco(t).prepareTFG(0);
             }
         }
@@ -7163,11 +7170,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
+#ifdef GPU_RECONSTRUCT
             std::vector<int> gpus;
 
             getAviDevice(gpus);
            
             int deviceNum = gpus.size();
+#endif
 
             for (int t = 0; t < _para.k; t++)
             {
@@ -7216,8 +7225,12 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 //struct timeval end;
 
                 //gettimeofday(&start, NULL);
+#ifdef GPU_RECONSTRUCT
                 _model.reco(t).reconstructG(ref,
                                             gpus[omp_get_thread_num()]);
+#else
+                _model.reco(t).reconstruct();
+#endif
 
                 if (_para.mode == MODE_2D)
                 {
@@ -7225,11 +7238,15 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                     SLC_EXTRACT_FT(img, ref, 0);
 
+#ifdef GPU_RECONSTRUCT
                     TranslateI2D(gpus[omp_get_thread_num()],
                                  img,
                                  -_model.reco(t).ox(),
                                  -_model.reco(t).oy(),
                                  _model.rU());
+#else
+                    translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+#endif
 
                     SLC_REPLACE_FT(ref, img, 0);
                 }
@@ -7237,25 +7254,25 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 {
                     if (_sym.pgGroup() == PG_CN)
                     {
+#ifdef GPU_RECONSTRUCT
+                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+#else
                         TranslateI(gpus[omp_get_thread_num()],
                                    ref,
                                    -_model.reco(t).ox(),
                                    -_model.reco(t).oy(),
                                    -_model.reco(t).oz(),
                                    _model.rU());
+#endif
                     }
                 }
                 else
                 {
                     REPORT_ERROR("INEXISTENT MODE");
                 }
-                
-                //gettimeofday(&end, NULL);
-                //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
-                //if (_commRank == HEMI_A_LEAD)
-                //    printf("reconstructA time_use:%lf\n", time_use);
-                //else
-                //    printf("reconstructB time_use:%lf\n", time_use);
+
+                #pragma omp parallel for
+                SET_0_FT(_model.ref(t));
 
                 COPY_FT(_model.ref(t), ref);
             }
@@ -7343,11 +7360,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
+#ifdef GPU_RECONSTRUCT
             std::vector<int> gpus;
 
             getAviDevice(gpus);
            
             int deviceNum = gpus.size();
+#endif
 
             for (int t = 0; t < _para.k; t++)
             {
@@ -7391,8 +7410,11 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                 Volume ref;
 
+#ifdef GPU_RECONSTRUCT
                 _model.reco(t).reconstructG(ref,
                                             gpus[omp_get_thread_num()]);
+#else
+                _model.reco(t).reconstruct();
 
                 if (_para.mode == MODE_2D)
                 {
@@ -7400,11 +7422,15 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                     SLC_EXTRACT_FT(img, ref, 0);
 
+#ifdef GPU_RECONSTRUCT
                     TranslateI2D(gpus[omp_get_thread_num()],
                                  img,
                                  -_model.reco(t).ox(),
                                  -_model.reco(t).oy(),
                                  _model.rU());
+#else
+                    translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+#endif
 
                     SLC_REPLACE_FT(ref, img, 0);
                 }
@@ -7412,18 +7438,25 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 {
                     if (_sym.pgGroup() == PG_CN)
                     {
+#ifdef GPU_RECONSTRUCT
+                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+#else
                         TranslateI(gpus[omp_get_thread_num()],
                                    ref,
                                    -_model.reco(t).ox(),
                                    -_model.reco(t).oy(),
                                    -_model.reco(t).oz(),
                                    _model.rU());
+#endif
                     }
                 }
                 else
                 {
                     REPORT_ERROR("INEXISTENT MODE");
                 }
+
+                #pragma omp parallel for
+                SET_0_FT(_model.ref(t));
 
                 COPY_FT(_model.ref(t), ref);
             }
