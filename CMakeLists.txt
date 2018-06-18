@@ -34,7 +34,7 @@ option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
 if("${GPU_VERSION}")
     message(STATUS "Build THUNDER in GPU version.")
 else("${GPU_VERSION}")
-    message(STATUS "Build THUNDER in GPU version.")
+    message(STATUS "Build THUNDER in CPU version.")
 endif("${GPU_VERSION}")
 
 # COMMON FLAGS
