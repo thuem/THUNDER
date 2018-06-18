@@ -7378,7 +7378,9 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 SET_0_FT(_model.ref(t));
             }
 
+#ifdef GPU_RECONSTRUCT
             #pragma omp parallel for num_threads(deviceNum)
+#endif
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(true);
