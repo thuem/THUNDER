@@ -7415,6 +7415,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                                             gpus[omp_get_thread_num()]);
 #else
                 _model.reco(t).reconstruct(ref);
+#endif
 
                 if (_para.mode == MODE_2D)
                 {
@@ -7541,6 +7542,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
     BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
 }
+
 #endif
 
 void Optimiser::solventFlatten(const bool mask)
