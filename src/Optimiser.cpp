@@ -7234,7 +7234,17 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                                             gpus[omp_get_thread_num()]);
 #else
                 _model.reco(t).reconstruct(ref);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
+
+                fft.fwMT(ref);
+#endif
+
+                ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
 
                 if (_para.mode == MODE_2D)
                 {
@@ -7421,7 +7431,17 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                                             gpus[omp_get_thread_num()]);
 #else
                 _model.reco(t).reconstruct(ref);
+
+#ifdef VERBOSE_LEVEL_2
+                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
+
+                fft.fwMT(ref);
+#endif
+
+                ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
 
                 if (_para.mode == MODE_2D)
                 {
