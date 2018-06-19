@@ -11,6 +11,7 @@
 #define VOLUME_CUH
 
 #include "Config.h"
+#include "huabin.h"
 
 #include "Device.cuh"
 #include "Complex.cuh"

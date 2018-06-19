@@ -10,7 +10,9 @@
 #ifndef TABFUNCTION_CUH
 #define TABFUNCTION_CUH
 
-#include "Config.cuh"
+#include "Config.h"
+#include "huabin.h"
+
 #include "Device.cuh"
 
 namespace cuthunder {

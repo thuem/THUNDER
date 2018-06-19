@@ -13,6 +13,8 @@
 #include "easylogging++.h"
 
 #include "Config.h"
+#include "huabin.h"
+
 #include "ManagedArrayTexture.h"
 #include "ManagedCalPoint.h"
 

@@ -11,6 +11,7 @@
 #define COMPLEX_CUH
 
 #include "Config.h"
+#include "huabin.h"
 
 #include "Device.cuh"
 

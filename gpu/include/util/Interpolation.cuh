@@ -11,6 +11,7 @@
 #define INTERPOLATION_CUH
 
 #include "Config.h"
+#include "huabin.h"
 
 #include "Device.cuh"
 #include <cmath>
