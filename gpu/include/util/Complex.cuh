@@ -10,7 +10,8 @@
 #ifndef COMPLEX_CUH
 #define COMPLEX_CUH
 
-#include "Config.cuh"
+#include "Config.h"
+
 #include "Device.cuh"
 
 namespace cuthunder {

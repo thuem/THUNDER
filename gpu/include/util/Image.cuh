@@ -10,7 +10,8 @@
 #ifndef IMAGE_CUH
 #define IMAGE_CUH
 
-#include "Config.cuh"
+#include "Config.h"
+
 #include "Device.cuh"
 #include "Complex.cuh"
 

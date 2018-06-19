@@ -10,8 +10,9 @@
 #ifndef WEILUME_CUH
 #define WEILUME_CUH
 
+#include "Config.h"
+
 #include "Device.cuh"
-#include "Config.cuh"
 #include "TabFunction.cuh"
 #include "Interpolation.cuh"
 

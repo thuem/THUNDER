@@ -10,7 +10,8 @@
 #ifndef INTERPOLATION_CUH
 #define INTERPOLATION_CUH
 
-#include "Config.cuh"
+#include "Config.h"
+
 #include "Device.cuh"
 #include <cmath>
 

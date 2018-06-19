@@ -1,6 +1,8 @@
 #ifndef RECONSTRUCTMANAGER_CUH
 #define RECONSTRUCTMANAGER_CUH
 
+#include "Config.h"
+
 #include "Device.cuh"
 #include "TabFunction.cuh"
 

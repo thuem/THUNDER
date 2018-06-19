@@ -10,8 +10,9 @@
 #ifndef CUTHUNDER_H
 #define CUTHUNDER_H
 
-#include "Config.cuh"
 #include "easylogging++.h"
+
+#include "Config.h"
 #include "ManagedArrayTexture.h"
 #include "ManagedCalPoint.h"
 

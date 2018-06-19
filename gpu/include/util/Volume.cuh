@@ -10,8 +10,9 @@
 #ifndef VOLUME_CUH
 #define VOLUME_CUH
 
+#include "Config.h"
+
 #include "Device.cuh"
-#include "Config.cuh"
 #include "Complex.cuh"
 #include "TabFunction.cuh"
 #include "Interpolation.cuh"

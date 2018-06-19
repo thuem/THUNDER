@@ -13,7 +13,8 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "Config.cuh"
+#include "Config.h"
+
 #include "Mat33.cuh"
 #include "Vec3.cuh"
 #include "Complex.cuh"
