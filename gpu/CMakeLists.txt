@@ -5,10 +5,9 @@
 SET(CUDA_BASE ${PROJECT_SOURCE_DIR}/gpu)
 
 configure_file(${CUDA_BASE}/config/Device.cuh.in
-               ${CUDA_BASE}/include/Device.cuh)
+               ${PROJECT_BINARY_DIR}/gpu/include/Device.cuh)
 
-           #configure_file(${CUDA_BASE}/config/Percision.cuh.in
-           #    ${CUDA_BASE}/include/Percision.cuh)
+include_directories(${PROJECT_BINARY_DIR}/gpu/include)
 
 ADD_SUBDIRECTORY(include)
 
