@@ -10,6 +10,8 @@
 #ifndef CONSTRUCTOR_CUH
 #define CONSTRUCTOR_CUH
 
+#include "Config.h"
+
 #include "Device.cuh"
 #include "Volume.cuh"
 #include "Weilume.cuh"

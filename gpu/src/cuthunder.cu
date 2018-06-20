@@ -11,7 +11,6 @@
 
 #include "cufft.h"
 #include "nccl.h"
-#include "Config.cuh"
 #include "Device.cuh"
 #include "Complex.cuh"
 #include "Image.cuh"
