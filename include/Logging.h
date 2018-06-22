@@ -33,4 +33,14 @@ namespace el = easyloggingpp;
 
 void loggerInit(int argc, const char* const * argv);
 
+#define FGETS_ERROR_HANDLER(command) \
+    do \
+    { \
+        if (command == NULL) \
+        { \
+            REPORT_ERROR("FAIL TO FGETS"); \
+            abort(); \
+        } \
+    } while (0);
+
 #endif // LOGGING_H
