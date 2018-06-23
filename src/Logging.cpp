@@ -12,7 +12,8 @@ void loggerInit(int argc, const char* const * argv)
     string loggerFileName;
 
     char buf[FILE_NAME_LENGTH];
-    getcwd(buf, sizeof(buf));
+    GETCWD_ERROR_HANDLER(getcwd(buf, sizeof(buf)));
+
     loggerFileName = buf;
     string appname(argv[0]);
 
@@ -41,4 +42,3 @@ void loggerInit(int argc, const char* const * argv)
         el::Loggers::getLogger(loggerNames[i]); // Force creation of loggers
     }
 }
-

@@ -43,4 +43,14 @@ void loggerInit(int argc, const char* const * argv);
         } \
     } while (0);
 
+#define GETCWD_ERROR_HANDLER(command) \
+    do \
+    { \
+        if (command == false) \
+        { \
+            REPORT_ERROR("FAIL TO GETCWD"); \
+            abort(); \
+        } \
+    } while (0);
+
 #endif // LOGGING_H
