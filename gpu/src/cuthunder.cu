@@ -266,16 +266,16 @@ void reduceT3D(cudaArray* symArrayT[],
 {
     cudaExtent extent = make_cudaExtent(dim / 2 + 1, dim, dim);
     
-    double *devDataT[aviDevs];
+    double *__device__T[aviDevs];
 
     for (int i = 0; i < aviDevs; i++)
     {
         cudaSetDevice(i);
-        cudaMalloc((void**)&devDataT[i], dimSize * sizeof(double));
-        //cudaCheckErrors("malloc normal devDataT.");
+        cudaMalloc((void**)&__device__T[i], dimSize * sizeof(double));
+        //cudaCheckErrors("malloc normal __device__T.");
         
         cudaMemcpy3DParms copyParamsT = {0};
-        copyParamsT.dstPtr   = make_cudaPitchedPtr((void*)devDataT[i], (dim / 2 + 1) * sizeof(int2), dim / 2 + 1, dim);
+        copyParamsT.dstPtr   = make_cudaPitchedPtr((void*)__device__T[i], (dim / 2 + 1) * sizeof(int2), dim / 2 + 1, dim);
         copyParamsT.srcArray = symArrayT[i];
         copyParamsT.extent   = extent;
         copyParamsT.kind     = cudaMemcpyDeviceToDevice;
@@ -287,8 +287,8 @@ void reduceT3D(cudaArray* symArrayT[],
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(i); 
-        NCCLCHECK(ncclReduce((const void*)devDataT[i], 
-                             (void*)devDataT[0], 
+        NCCLCHECK(ncclReduce((const void*)__device__T[i], 
+                             (void*)__device__T[0], 
                              dimSize, 
                              ncclDouble, 
                              ncclSum,
@@ -311,7 +311,7 @@ void reduceT3D(cudaArray* symArrayT[],
     {
         cudaSetDevice(0);
         cudaMemcpy(T3D,
-                   devDataT[0],
+                   __device__T[0],
                    dimSize * sizeof(double),
                    cudaMemcpyDeviceToHost);
         //cudaCheckErrors("copy F3D from device to host.");
@@ -321,7 +321,7 @@ void reduceT3D(cudaArray* symArrayT[],
     for (int i = 0; i < aviDevs; ++i) 
     { 
         cudaSetDevice(i);
-        cudaFree(devDataT[i]); 
+        cudaFree(__device__T[i]); 
     } 
     
 }
@@ -343,16 +343,16 @@ void reduceF3D(cudaArray* symArrayF[],
 {
     cudaExtent extent = make_cudaExtent(dim / 2 + 1, dim, dim);
     
-    Complex *devDataF[aviDevs];
+    Complex *__device__F[aviDevs];
 
     for (int i = 0; i < aviDevs; i++)
     {
         cudaSetDevice(i);
-        cudaMalloc((void**)&devDataF[i], dimSize * sizeof(Complex));
-        //cudaCheckErrors("malloc normal devDataF.");
+        cudaMalloc((void**)&__device__F[i], dimSize * sizeof(Complex));
+        //cudaCheckErrors("malloc normal __device__F.");
         
         cudaMemcpy3DParms copyParamsF = {0};
-        copyParamsF.dstPtr   = make_cudaPitchedPtr((void*)devDataF[i], (dim / 2 + 1) * sizeof(int4), dim / 2 + 1, dim);
+        copyParamsF.dstPtr   = make_cudaPitchedPtr((void*)__device__F[i], (dim / 2 + 1) * sizeof(int4), dim / 2 + 1, dim);
         copyParamsF.srcArray = symArrayF[i];
         copyParamsF.extent   = extent;
         copyParamsF.kind     = cudaMemcpyDeviceToDevice;
@@ -364,8 +364,8 @@ void reduceF3D(cudaArray* symArrayF[],
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(i); 
-        NCCLCHECK(ncclReduce((const void*)devDataF[i], 
-                             (void*)devDataF[0], 
+        NCCLCHECK(ncclReduce((const void*)__device__F[i], 
+                             (void*)__device__F[0], 
                              dimSize * 2, 
                              ncclDouble, 
                              ncclSum,
@@ -388,7 +388,7 @@ void reduceF3D(cudaArray* symArrayF[],
     {
         cudaSetDevice(0);
         cudaMemcpy(F3D,
-                   devDataF[0],
+                   __device__F[0],
                    dimSize * sizeof(double),
                    cudaMemcpyDeviceToHost);
         //cudaCheckErrors("copy F3D from device to host.");
@@ -398,7 +398,7 @@ void reduceF3D(cudaArray* symArrayF[],
     for (int i = 0; i < aviDevs; ++i) 
     { 
         cudaSetDevice(i);
-        cudaFree(devDataF[i]); 
+        cudaFree(__device__F[i]); 
     } 
     
 }
@@ -683,8 +683,8 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
 
     CB_UPIB_ta cbArgsA[streamNum];
     
-    int *deviCol[aviDevs];
-    int *deviRow[aviDevs];
+    int *__device__iCol[aviDevs];
+    int *__device__iRow[aviDevs];
     
     LOG(INFO) << "Step1: alloc Memory.";
     
@@ -699,10 +699,10 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
         
         cudaSetDevice(gpus[n]); 
         
-        cudaMalloc((void**)&deviCol[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iCol[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iCol data.");
         
-        cudaMalloc((void**)&deviRow[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iRow data.");
         
         for (int i = 0; i < NUM_STREAM; i++)
@@ -724,13 +724,13 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
     {     
         cudaSetDevice(gpus[n]); 
         
-        cudaMemcpy(deviCol[n],
+        cudaMemcpy(__device__iCol[n],
                    iCol,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
         //cudaCheckErrors("for memcpy iCol.");
         
-        cudaMemcpy(deviRow[n],
+        cudaMemcpy(__device__iRow[n],
                    iRow,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
@@ -774,8 +774,8 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
                                                            dev_def_buf[smidx + baseS],
                                                            dev_k1_buf[smidx + baseS],
                                                            dev_k2_buf[smidx + baseS],
-                                                           deviCol[n],
-                                                           deviRow[n],
+                                                           __device__iCol[n],
+                                                           __device__iRow[n],
                                                            npxl);
             //cudaCheckErrors("kernel expectPrectf error.");
             
@@ -832,8 +832,8 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
         baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
-        cudaFree(deviCol[n]); 
-        cudaFree(deviRow[n]); 
+        cudaFree(__device__iCol[n]); 
+        cudaFree(__device__iRow[n]); 
         
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamDestroy(stream[i + baseS]);
@@ -900,8 +900,8 @@ void expectGlobal2D(Complex* volume,
     double* devpT[aviDevs]; 
     double* devnR[aviDevs]; 
     double* devRotm[aviDevs]; 
-    int *deviCol[aviDevs];
-    int *deviRow[aviDevs];
+    int *__device__iCol[aviDevs];
+    int *__device__iRow[aviDevs];
 
 #ifdef SINGLE_PRECISION
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc(32, 32, 0, 0,cudaChannelFormatKindFloat);
@@ -937,10 +937,10 @@ void expectGlobal2D(Complex* volume,
         cudaMalloc((void**)&devtraP[n], nT * npxl * sizeof(Complex));
         //cudaCheckErrors("Allocate traP data.");
         
-        cudaMalloc((void**)&deviCol[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iCol[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iCol data.");
         
-        cudaMalloc((void**)&deviRow[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iRow data.");
         
         cudaMalloc((void**)&dev_trans[n], nT * 2 * sizeof(double));
@@ -966,13 +966,13 @@ void expectGlobal2D(Complex* volume,
     {     
         cudaSetDevice(gpus[n]); 
         
-        cudaMemcpy(deviCol[n],
+        cudaMemcpy(__device__iCol[n],
                    iCol,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
         //cudaCheckErrors("for memcpy iCol.");
         
-        cudaMemcpy(deviRow[n],
+        cudaMemcpy(__device__iRow[n],
                    iRow,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
@@ -1015,8 +1015,8 @@ void expectGlobal2D(Complex* volume,
                            0, 
                            stream[1 + baseS]>>>(devtraP[n],
                                                 dev_trans[n],
-                                                deviCol[n],
-                                                deviRow[n],
+                                                __device__iCol[n],
+                                                __device__iRow[n],
                                                 idim,
                                                 npxl);
         //cudaCheckErrors("kernel trans.");
@@ -1194,8 +1194,8 @@ void expectGlobal2D(Complex* volume,
                                        2 * sizeof(double),
                                        stream[smidx + baseS]>>>(priRotP[smidx + baseS],
                                                                 devnR[n],
-                                                                deviCol[n],
-                                                                deviRow[n],
+                                                                __device__iCol[n],
+                                                                __device__iRow[n],
                                                                 r,
                                                                 pf,
                                                                 vdim,
@@ -1332,8 +1332,8 @@ void expectGlobal2D(Complex* volume,
         cudaFree(devnR[n]);
         cudaFree(devpR[n]);
         cudaFree(devpT[n]);
-        cudaFree(deviCol[n]); 
-        cudaFree(deviRow[n]); 
+        cudaFree(__device__iCol[n]); 
+        cudaFree(__device__iRow[n]); 
         cudaFree(devtraP[n]); 
         cudaFree(devRotm[n]); 
         
@@ -1399,8 +1399,8 @@ void expectRotran(Complex* traP,
     double* dev_trans; 
     double* devnR; 
     double* devRotm; 
-    int *deviCol;
-    int *deviRow;
+    int *__device__iCol;
+    int *__device__iRow;
 
     cudaStream_t stream[2];
     
@@ -1416,10 +1416,10 @@ void expectRotran(Complex* traP,
     cudaMalloc((void**)&devRotm, nR * 9 * sizeof(double));
     cudaCheckErrors("Allocate rot data.");
         
-    cudaMalloc((void**)&deviCol, npxl * sizeof(int));
+    cudaMalloc((void**)&__device__iCol, npxl * sizeof(int));
     cudaCheckErrors("Allocate iCol data.");
     
-    cudaMalloc((void**)&deviRow, npxl * sizeof(int));
+    cudaMalloc((void**)&__device__iRow, npxl * sizeof(int));
     cudaCheckErrors("Allocate iRow data.");
     
     for (int i = 0; i < 2; i++)
@@ -1428,14 +1428,14 @@ void expectRotran(Complex* traP,
         cudaCheckErrors("stream create.");
     }       
 
-    cudaMemcpyAsync(deviCol,
+    cudaMemcpyAsync(__device__iCol,
                     iCol,
                     npxl * sizeof(int),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     cudaCheckErrors("for memcpy iCol.");
     
-    cudaMemcpyAsync(deviRow,
+    cudaMemcpyAsync(__device__iRow,
                     iRow,
                     npxl * sizeof(int),
                     cudaMemcpyHostToDevice,
@@ -1454,8 +1454,8 @@ void expectRotran(Complex* traP,
                        0, 
                        stream[0]>>>(devtraP,
                                     dev_trans,
-                                    deviCol,
-                                    deviRow,
+                                    __device__iCol,
+                                    __device__iRow,
                                     idim,
                                     npxl);
     cudaCheckErrors("kernel trans.");
@@ -1545,8 +1545,8 @@ void expectRotran(Complex* traP,
   
     cudaFree(devnR);
     cudaFree(dev_trans); 
-    cudaFree(deviCol); 
-    cudaFree(deviRow); 
+    cudaFree(__device__iCol); 
+    cudaFree(__device__iRow); 
     cudaFree(devtraP); 
     cudaFree(devRotm); 
         
@@ -1656,22 +1656,22 @@ void expectProject(Complex* volume,
         cudaCheckErrors("Allocate rot data.");
     }
 
-    int *deviCol;
-    int *deviRow;
+    int *__device__iCol;
+    int *__device__iRow;
 
-    cudaMalloc((void**)&deviCol, npxl * sizeof(int));
+    cudaMalloc((void**)&__device__iCol, npxl * sizeof(int));
     cudaCheckErrors("Allocate iCol data.");
     
-    cudaMalloc((void**)&deviRow, npxl * sizeof(int));
+    cudaMalloc((void**)&__device__iRow, npxl * sizeof(int));
     cudaCheckErrors("Allocate iRow data.");
     
-    cudaMemcpy(deviCol,
+    cudaMemcpy(__device__iCol,
                iCol,
                npxl * sizeof(int),
                cudaMemcpyHostToDevice);
     cudaCheckErrors("for memcpy iCol.");
     
-    cudaMemcpy(deviRow,
+    cudaMemcpy(__device__iRow,
                iRow,
                npxl * sizeof(int),
                cudaMemcpyHostToDevice);
@@ -1706,8 +1706,8 @@ void expectProject(Complex* volume,
                            0,
                            stream[smidx]>>>(devrotP[smidx],
                                             devRotm[smidx],
-                                            deviCol,
-                                            deviRow,
+                                            __device__iCol,
+                                            __device__iRow,
                                             pf,
                                             vdim,
                                             npxl,
@@ -1759,8 +1759,8 @@ void expectProject(Complex* volume,
     cudaHostUnregister(rotMat);
     cudaCheckErrors("unregister rotP.");
    
-    cudaFree(deviCol); 
-    cudaFree(deviRow); 
+    cudaFree(__device__iCol); 
+    cudaFree(__device__iRow); 
     cudaFreeArray(symArray);
     cudaCheckErrors("device memory free.");
         
@@ -2343,27 +2343,27 @@ void expectGlobal3D(Complex* rotP,
  * @param
  */
 void expectPreidx(int gpuIdx,
-                  int** deviCol,
-                  int** deviRow,
+                  int** __device__iCol,
+                  int** __device__iRow,
                   int* iCol,
                   int* iRow,
                   int npxl)
 {
     cudaSetDevice(gpuIdx); 
     
-    cudaMalloc((void**)deviCol, npxl * sizeof(int));
+    cudaMalloc((void**)__device__iCol, npxl * sizeof(int));
     cudaCheckErrors("Allocate iCol data.");
     
-    cudaMalloc((void**)deviRow, npxl * sizeof(int));
+    cudaMalloc((void**)__device__iRow, npxl * sizeof(int));
     cudaCheckErrors("Allocate iRow data.");
     
-    cudaMemcpy(*deviCol,
+    cudaMemcpy(*__device__iCol,
                iCol,
                npxl * sizeof(int),
                cudaMemcpyHostToDevice);
     cudaCheckErrors("for memcpy iCol.");
     
-    cudaMemcpy(*deviRow,
+    cudaMemcpy(*__device__iRow,
                iRow,
                npxl * sizeof(int),
                cudaMemcpyHostToDevice);
@@ -2692,8 +2692,8 @@ void expectLocalPreI2D(int gpuIdx,
                        ManagedCalPoint* mcp,
                        RFLOAT* devdefO,
                        RFLOAT* devfreQ,
-                       int *deviCol,
-                       int *deviRow,
+                       int *__device__iCol,
+                       int *__device__iRow,
                        RFLOAT phaseShift,
                        RFLOAT conT,
                        RFLOAT k1,
@@ -2714,8 +2714,8 @@ void expectLocalPreI2D(int gpuIdx,
                         0, 
                         *((cudaStream_t*)mcp->getStream())>>>(traP,
                                                               mcp->getDevnT(),
-                                                              deviCol,
-                                                              deviRow,
+                                                              __device__iCol,
+                                                              __device__iRow,
                                                               idim,
                                                               npxl);
     cudaCheckErrors("kernel trans.");
@@ -2742,8 +2742,8 @@ void expectLocalPreI2D(int gpuIdx,
                         0,
                         *((cudaStream_t*)mcp->getStream())>>>(rotP,
                                                               mcp->getDevnR(),
-                                                              deviCol,
-                                                              deviRow,
+                                                              __device__iCol,
+                                                              __device__iRow,
                                                               pf,
                                                               vdim,
                                                               npxl,
@@ -2764,8 +2764,8 @@ void expectLocalPreI3D(int gpuIdx,
                        ManagedCalPoint* mcp,
                        RFLOAT* devdefO,
                        RFLOAT* devfreQ,
-                       int *deviCol,
-                       int *deviRow,
+                       int *__device__iCol,
+                       int *__device__iRow,
                        RFLOAT phaseShift,
                        RFLOAT conT,
                        RFLOAT k1,
@@ -2786,8 +2786,8 @@ void expectLocalPreI3D(int gpuIdx,
                         0, 
                         *((cudaStream_t*)mcp->getStream())>>>(traP,
                                                               mcp->getDevnT(),
-                                                              deviCol,
-                                                              deviRow,
+                                                              __device__iCol,
+                                                              __device__iRow,
                                                               idim,
                                                               npxl);
     cudaCheckErrors("kernel trans.");
@@ -2822,8 +2822,8 @@ void expectLocalPreI3D(int gpuIdx,
                         0,
                         *((cudaStream_t*)mcp->getStream())>>>(rotP,
                                                               mcp->getDevRotm(),
-                                                              deviCol,
-                                                              deviRow,
+                                                              __device__iCol,
+                                                              __device__iRow,
                                                               pf,
                                                               vdim,
                                                               npxl,
@@ -3173,13 +3173,13 @@ void expectLocalFin(int gpuIdx,
  * @param
  */
 void expectFreeIdx(int gpuIdx,
-                   int** deviCol,
-                   int** deviRow)
+                   int** __device__iCol,
+                   int** __device__iRow)
 {
     cudaSetDevice(gpuIdx); 
     
-    cudaFree(*deviCol);
-    cudaFree(*deviRow);
+    cudaFree(*__device__iCol);
+    cudaFree(*__device__iRow);
     cudaCheckErrors("Free host Pre iCol & iRow memory.");
 }
 
@@ -3299,12 +3299,12 @@ void InsertI2D(Complex *F2D,
     LOG(INFO) << "rank" << rankO << ": Step1: Insert Image.";
     //printf("rank%d: Step1: Insert Image.\n", nranks);
     
-    Complex *devDataF[aviDevs];
-    RFLOAT *devDataT[aviDevs];
-    double *devO[aviDevs];
-    int *devC[aviDevs];
-    int *deviCol[aviDevs];
-    int *deviRow[aviDevs];
+    Complex *__device__F[aviDevs];
+    RFLOAT *__device__T[aviDevs];
+    double *__device__O[aviDevs];
+    int *__device__C[aviDevs];
+    int *__device__iCol[aviDevs];
+    int *__device__iRow[aviDevs];
     long long imgShift = (long long)imgNum * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
@@ -3369,22 +3369,22 @@ void InsertI2D(Complex *F2D,
         baseS = n * NUM_STREAM;
         
         cudaSetDevice(gpus[n]); 
-        cudaMalloc((void**)&devDataF[n], nk * dimSize * sizeof(Complex));
-        //cudaCheckErrors("Allocate devDataF data.");
+        cudaMalloc((void**)&__device__F[n], nk * dimSize * sizeof(Complex));
+        //cudaCheckErrors("Allocate __device__F data.");
 
-        cudaMalloc((void**)&devDataT[n], nk * dimSize * sizeof(RFLOAT));
-        //cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__T[n], nk * dimSize * sizeof(RFLOAT));
+        //cudaCheckErrors("Allocate __device__T data.");
         
-        cudaMalloc((void**)&devO[n], nk * 2 * sizeof(double));
-        //cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__O[n], nk * 2 * sizeof(double));
+        //cudaCheckErrors("Allocate __device__T data.");
         
-        cudaMalloc((void**)&devC[n], nk * sizeof(int));
-        //cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__C[n], nk * sizeof(int));
+        //cudaCheckErrors("Allocate __device__T data.");
         
-        cudaMalloc((void**)&deviCol[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iCol[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iCol data.");
         
-        cudaMalloc((void**)&deviRow[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iRow data.");
         
         for (int i = 0; i < NUM_STREAM; i++)
@@ -3425,13 +3425,13 @@ void InsertI2D(Complex *F2D,
     {     
         cudaSetDevice(gpus[n]); 
         
-        cudaMemcpy(deviCol[n],
+        cudaMemcpy(__device__iCol[n],
                    iCol,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
         //cudaCheckErrors("for memcpy iCol.");
         
-        cudaMemcpy(deviRow[n],
+        cudaMemcpy(__device__iRow[n],
                    iRow,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
@@ -3441,28 +3441,28 @@ void InsertI2D(Complex *F2D,
         
     cudaSetDevice(gpus[0]); 
     
-    cudaMemcpyAsync(devDataF[0],
+    cudaMemcpyAsync(__device__F[0],
                     F2D,
                     nk * dimSize * sizeof(Complex),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     //cudaCheckErrors("for memcpy F2D.");
     
-    cudaMemcpyAsync(devDataT[0],
+    cudaMemcpyAsync(__device__T[0],
                     T2D,
                     nk * dimSize * sizeof(RFLOAT),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     //cudaCheckErrors("for memcpy T2D.");
 
-    cudaMemcpyAsync(devO[0],
+    cudaMemcpyAsync(__device__O[0],
                     O2D,
                     nk * 2 * sizeof(double),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     //cudaCheckErrors("for memcpy O2D.");
 
-    cudaMemcpyAsync(devC[0],
+    cudaMemcpyAsync(__device__C[0],
                     counter,
                     nk * sizeof(int),
                     cudaMemcpyHostToDevice,
@@ -3474,25 +3474,25 @@ void InsertI2D(Complex *F2D,
         baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
-        cudaMemsetAsync(devDataF[n],
+        cudaMemsetAsync(__device__F[n],
                         0.0,
                         nk * dimSize * sizeof(Complex),
                         stream[0 + baseS]);
         //cudaCheckErrors("for memset F2D.");
         
-        cudaMemsetAsync(devDataT[n],
+        cudaMemsetAsync(__device__T[n],
                         0.0,
                         nk * dimSize * sizeof(RFLOAT),
                         stream[0 + baseS]);
         //cudaCheckErrors("for memset T2D.");
         
-        cudaMemsetAsync(devO[n],
+        cudaMemsetAsync(__device__O[n],
                         0.0,
                         nk * 2 * sizeof(double),
                         stream[0 + baseS]);
         //cudaCheckErrors("for memset O2D.");
         
-        cudaMemsetAsync(devC[n],
+        cudaMemsetAsync(__device__C[n],
                         0.0,
                         nk * sizeof(int),
                         stream[0 + baseS]);
@@ -3620,8 +3620,8 @@ void InsertI2D(Complex *F2D,
                                                             devtranP[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             opf,
                                                             npxl,
@@ -3636,8 +3636,8 @@ void InsertI2D(Complex *F2D,
                                    stream[smidx + baseS]>>>(devdatP[smidx + baseS],
                                                             devtranP[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             opf,
                                                             npxl,
@@ -3655,8 +3655,8 @@ void InsertI2D(Complex *F2D,
                                           stream[smidx + baseS]>>>(devctfP[smidx + baseS],
                                                                    dev_ctfas_buf[smidx + baseS],
                                                                    dev_nd_buf[smidx + baseS],
-                                                                   deviCol[n],
-                                                                   deviRow[n],
+                                                                   __device__iCol[n],
+                                                                   __device__iRow[n],
                                                                    pixel,
                                                                    m,
                                                                    opf,
@@ -3670,13 +3670,13 @@ void InsertI2D(Complex *F2D,
                 kernel_InsertT2D<<<batchSize, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devDataT[n],
+                                   stream[smidx + baseS]>>>(__device__T[n],
                                                             devctfP[smidx + baseS],
                                                             devsigRcpP[smidx + baseS],
                                                             dev_nr_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             npxl,
                                                             mReco,
@@ -3688,14 +3688,14 @@ void InsertI2D(Complex *F2D,
                 kernel_InsertF2D<<<batchSize, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devDataF[n],
+                                   stream[smidx + baseS]>>>(__device__F[n],
                                                             devtranP[smidx + baseS],
                                                             devctfP[smidx + baseS],
                                                             devsigRcpP[smidx + baseS],
                                                             dev_nr_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             npxl,
                                                             mReco,
@@ -3707,12 +3707,12 @@ void InsertI2D(Complex *F2D,
                 kernel_InsertT2D<<<batchSize, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devDataT[n],
+                                   stream[smidx + baseS]>>>(__device__T[n],
                                                             devctfP[smidx + baseS],
                                                             dev_nr_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             npxl,
                                                             mReco,
@@ -3724,13 +3724,13 @@ void InsertI2D(Complex *F2D,
                 kernel_InsertF2D<<<batchSize, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devDataF[n],
+                                   stream[smidx + baseS]>>>(__device__F[n],
                                                             devtranP[smidx + baseS],
                                                             devctfP[smidx + baseS],
                                                             dev_nr_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             npxl,
                                                             mReco,
@@ -3746,8 +3746,8 @@ void InsertI2D(Complex *F2D,
                                    batchSize, 
                                    2 * batchSize * sizeof(double)
                                      + batchSize * sizeof(int), 
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
                                                             dev_nr_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
@@ -3761,8 +3761,8 @@ void InsertI2D(Complex *F2D,
                                    batchSize, 
                                    2 * batchSize * sizeof(double) 
                                      + batchSize * sizeof(int), 
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
                                                             dev_nr_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
@@ -3857,8 +3857,8 @@ void InsertI2D(Complex *F2D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devDataF[i], 
-                                (void*)devDataF[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__F[i], 
+                                (void*)__device__F[i], 
                                 nk * dimSize * 2, 
 #ifdef SINGLE_PRECISION
                                 ncclFloat,
@@ -3875,8 +3875,8 @@ void InsertI2D(Complex *F2D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devDataT[i], 
-                                (void*)devDataT[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__T[i], 
+                                (void*)__device__T[i], 
                                 nk * dimSize, 
 #ifdef SINGLE_PRECISION
                                 ncclFloat,
@@ -3903,7 +3903,7 @@ void InsertI2D(Complex *F2D,
     cudaMalloc((void**)&sf, nk * sizeof(RFLOAT));
     //cudaCheckErrors("Allocate sf data.");
     
-    kernel_SetSF2D<<<1, nk>>>(devDataT[0],
+    kernel_SetSF2D<<<1, nk>>>(__device__T[0],
                               sf,
                               dimSize);
     
@@ -3913,20 +3913,20 @@ void InsertI2D(Complex *F2D,
         kernel_NormalizeTF2D<<<vdim, 
                                vdim / 2 + 1, 
                                0, 
-                               stream[smidx]>>>(devDataF[0] + i * dimSize,
-                                                devDataT[0] + i * dimSize,
+                               stream[smidx]>>>(__device__F[0] + i * dimSize,
+                                                __device__T[0] + i * dimSize,
                                                 sf,
                                                 i);
 
         cudaMemcpyAsync(T2D + i * dimSize,
-                        devDataT[0] + i * dimSize,
+                        __device__T[0] + i * dimSize,
                         dimSize * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[smidx]);
         //cudaCheckErrors("copy T3D from device to host.");
         
         cudaMemcpyAsync(F2D + i * dimSize,
-                        devDataF[0] + i * dimSize,
+                        __device__F[0] + i * dimSize,
                         dimSize * sizeof(Complex),
                         cudaMemcpyDeviceToHost,
                         stream[smidx]);
@@ -3947,8 +3947,8 @@ void InsertI2D(Complex *F2D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devO[i], 
-                                (void*)devO[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__O[i], 
+                                (void*)__device__O[i], 
                                 nk * 2, 
                                 ncclDouble,
                                 ncclSum,
@@ -3961,8 +3961,8 @@ void InsertI2D(Complex *F2D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devC[i], 
-                                (void*)devC[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__C[i], 
+                                (void*)__device__C[i], 
                                 nk, 
                                 ncclInt64,
                                 ncclSum,
@@ -3982,13 +3982,13 @@ void InsertI2D(Complex *F2D,
     
     cudaSetDevice(gpus[0]);
     cudaMemcpy(O2D,
-               devO[0],
+               __device__O[0],
                nk * 2 * sizeof(double),
                cudaMemcpyDeviceToHost);
     //cudaCheckErrors("copy O2D from device to host.");
         
     cudaMemcpy(counter,
-               devC[0],
+               __device__C[0],
                nk * sizeof(int),
                cudaMemcpyDeviceToHost);
     //cudaCheckErrors("copy O2D from device to host.");
@@ -4009,12 +4009,12 @@ void InsertI2D(Complex *F2D,
         baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
-        cudaFree(devDataF[n]); 
-        cudaFree(devDataT[n]); 
-        cudaFree(devO[n]); 
-        cudaFree(devC[n]); 
-        cudaFree(deviCol[n]); 
-        cudaFree(deviRow[n]); 
+        cudaFree(__device__F[n]); 
+        cudaFree(__device__T[n]); 
+        cudaFree(__device__O[n]); 
+        cudaFree(__device__C[n]); 
+        cudaFree(__device__iCol[n]); 
+        cudaFree(__device__iRow[n]); 
         
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamDestroy(stream[i + baseS]);
@@ -4177,16 +4177,20 @@ void InsertFT(Complex *F3D,
     CLOG(INFO, "LOGGER_GPU") << "Inserting Images";
 #endif
     
-    Complex *devDataF[aviDevs];
-    RFLOAT *devDataT[aviDevs];
-    double *devO[aviDevs];
-    int *devC[aviDevs];
-    int *deviCol[aviDevs];
-    int *deviRow[aviDevs];
+    Complex* __device__F[aviDevs];
+    RFLOAT* __device__T[aviDevs];
+    double* __device__O[aviDevs];
+    int* __device__C[aviDevs];
+    int* __device__iCol[aviDevs];
+    int* __device__iRow[aviDevs];
     long long imgShift = (long long)imgNum * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
     RFLOAT *devsigRcpP[streamNum];
+#endif
+
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Registering Pinned Memory in Host";
 #endif
 
     // register pinned memory (page-locked) in host for maximizating the transfering between host and device
@@ -4263,54 +4267,93 @@ void InsertFT(Complex *F3D,
     cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF W");
 #endif
     
-    cudaHostRegister(nC, imgNum * sizeof(int), cudaHostRegisterDefault);
-    cudaCheckErrors("Register nR data.");
+    cudaHostRegister(nC,
+                     imgNum * sizeof(int),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF NC");
+#endif
     
-    cudaHostRegister(nR, mReco * imgNum * 4 * sizeof(double), cudaHostRegisterDefault);
-    cudaCheckErrors("Register nR data.");
+    cudaHostRegister(nR,
+                     mReco * imgNum * 4 * sizeof(double),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF NR");
+#endif
     
-    cudaHostRegister(nT, mReco * imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
-    cudaCheckErrors("Register nT data.");
+    cudaHostRegister(nT,
+                     mReco * imgNum * 2 * sizeof(double),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF NT");
+#endif
     
     if (cSearch)
     {
-        cudaHostRegister(nD, mReco * imgNum * sizeof(double), cudaHostRegisterDefault);
-        cudaCheckErrors("Register nT data.");
+        cudaHostRegister(nD,
+                         mReco * imgNum * sizeof(double),
+                         cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF ND");
+#endif
         
-        cudaHostRegister(ctfaData, imgNum * sizeof(CTFAttr), cudaHostRegisterDefault);
-        cudaCheckErrors("Register ctfAdata data.");
+        cudaHostRegister(ctfaData,
+                         imgNum * sizeof(CTFAttr),
+                         cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF CTFADATA");
+#endif
     }
 
-    /* Create and setup cuda stream */
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Pinned Memory in Host Registered";
+#endif
+
+    // create and set up CUDA stream
+
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Setting Up CUDA Stream";
+#endif
+
     cudaStream_t stream[streamNum];
 
-    //cudaEvent_t start[streamNum], stop[streamNum];
-
-    int baseS;
     const int BATCH_SIZE = BUFF_SIZE;
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM;
         
         cudaSetDevice(gpus[n]); 
-        cudaMalloc((void**)&devDataF[n], dimSize * sizeof(Complex));
-        cudaCheckErrors("Allocate devDataF data.");
 
-        cudaMalloc((void**)&devDataT[n], dimSize * sizeof(RFLOAT));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__F[n], dimSize * sizeof(Complex));
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO ALLOCATE DATAF IN DEVICE");
+#endif
+
+        cudaMalloc((void**)&__device__T[n], dimSize * sizeof(RFLOAT));
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO ALLOCATE DATAT IN DEVICE");
+#endif
         
-        cudaMalloc((void**)&devO[n], 3 * sizeof(double));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__O[n], 3 * sizeof(double));
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO ALLOCATE O IN DEVICE");
+#endif
         
-        cudaMalloc((void**)&devC[n], sizeof(int));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__C[n], sizeof(int));
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO ALLOCATE C IN DEVICE");
+#endif
         
-        cudaMalloc((void**)&deviCol[n], npxl * sizeof(int));
-        cudaCheckErrors("Allocate iCol data.");
+        cudaMalloc((void**)&__device__iCol[n], npxl * sizeof(int));
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO ALLOCATE ICOL IN DEVICE");
+#endif
         
-        cudaMalloc((void**)&deviRow[n], npxl * sizeof(int));
-        cudaCheckErrors("Allocate iRow data.");
+        cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO ALLOCATE IROW IN DEVICE");
+#endif
         
         for (int i = 0; i < NUM_STREAM; i++)
         {
@@ -4336,115 +4379,154 @@ void InsertFT(Complex *F3D,
 #endif        
             
             cudaStreamCreate(&stream[i + baseS]);
-            
-            //cudaEventCreate(&start[i + baseS]); 
-            //cudaEventCreate(&stop[i + baseS]);
-            cudaCheckErrors("CUDA event init.");
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO CREATE CUDA STREAM");
+#endif
         }       
     }
 
-    LOG(INFO) << "alloc memory done, begin to cpy...";
-    //printf("alloc memory done, begin to cpy...\n");
-    
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "CUDA Stream Set Up";
+#endif
+
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Copying Data From Host to Device";
+#endif
+
     for (int n = 0; n < aviDevs; ++n) 
     {     
         cudaSetDevice(gpus[n]); 
         
-        cudaMemcpy(deviCol[n],
+        cudaMemcpy(__device__iCol[n],
                    iCol,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
-        cudaCheckErrors("for memcpy iCol.");
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COPY ICOL FROM HOST TO DEVICE");
+#endif
         
-        cudaMemcpy(deviRow[n],
+        cudaMemcpy(__device__iRow[n],
                    iRow,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
-        cudaCheckErrors("for memcpy iRow.");
-        
-    }        
-        
-    cudaSetDevice(gpus[0]); 
-    
-    cudaMemcpyAsync(devDataF[0],
-                    F3D,
-                    dimSize * sizeof(Complex),
-                    cudaMemcpyHostToDevice,
-                    stream[0]);
-    cudaCheckErrors("for memcpy F3D.");
-    
-    cudaMemcpyAsync(devDataT[0],
-                    T3D,
-                    dimSize * sizeof(RFLOAT),
-                    cudaMemcpyHostToDevice,
-                    stream[0]);
-    cudaCheckErrors("for memcpy T3D.");
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COPY IROW FROM HOST TO DEVICE");
+#endif
+    }
 
-    cudaMemcpyAsync(devO[0],
-                    O3D,
-                    3 * sizeof(double),
-                    cudaMemcpyHostToDevice,
-                    stream[0]);
-    cudaCheckErrors("for memcpy O3D.");
-
-    cudaMemcpyAsync(devC[0],
-                    counter,
-                    sizeof(int),
-                    cudaMemcpyHostToDevice,
-                    stream[0]);
-    cudaCheckErrors("for memcpy O3D.");
-
-    for (int n = 1; n < aviDevs; ++n)
+    for (int n = 0; n < aviDevs; n++)
     {
-        baseS = n * NUM_STREAM;
-        cudaSetDevice(gpus[n]);
-        
-        cudaMemsetAsync(devDataF[n],
-                        0.0,
-                        dimSize * sizeof(Complex),
-                        stream[0 + baseS]);
-        cudaCheckErrors("for memset F3D.");
-        
-        cudaMemsetAsync(devDataT[n],
-                        0.0,
-                        dimSize * sizeof(RFLOAT),
-                        stream[0 + baseS]);
-        cudaCheckErrors("for memset T3D.");
-        
-        cudaMemsetAsync(devO[n],
-                        0.0,
-                        3 * sizeof(double),
-                        stream[0 + baseS]);
-        cudaCheckErrors("for memset O3D.");
-        
-        cudaMemsetAsync(devC[n],
-                        0.0,
-                        sizeof(int),
-                        stream[0 + baseS]);
-        cudaCheckErrors("for memset O3D.");
+        int baseS = n * NUM_STREAM;
+
+        cudaSetDevice(gpus[n]); 
+    
+        if (n == 0)
+        {
+            cudaMemcpyAsync(__device__F[0],
+                            F3D,
+                            dimSize * sizeof(Complex),
+                            cudaMemcpyHostToDevice,
+                            stream[baseS]);
+        }
+        else
+        {
+            cudaMemsetAsync(__device__F[n],
+                            0.0,
+                            dimSize * sizeof(Complex),
+                            stream[baseS]);
+        }
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COPY F FROM HOST TO DEVICE");
+#endif
+    
+        if (n == 0)
+        {
+            cudaMemcpyAsync(__device__T[0],
+                            T3D,
+                            dimSize * sizeof(RFLOAT),
+                            cudaMemcpyHostToDevice,
+                            stream[baseS]);
+            cudaCheckErrors("for memcpy T3D.");
+        }
+        else
+        {
+            cudaMemsetAsync(__device__T[n],
+                            0.0,
+                            dimSize * sizeof(RFLOAT),
+                            stream[baseS]);
+        }
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COPY T FROM HOST TO DEVICE");
+#endif
+
+        if (n == 0)
+        {
+            cudaMemcpyAsync(__device__O[0],
+                            O3D,
+                            3 * sizeof(double),
+                            cudaMemcpyHostToDevice,
+                            stream[baseS]);
+        }
+        else
+        {
+            cudaMemsetAsync(__device__O[n],
+                            0.0,
+                            3 * sizeof(double),
+                            stream[baseS]);
+        }
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COPY O FROM HOST TO DEVICE");
+#endif
+
+        if (n == 0)
+        {
+             cudaMemcpyAsync(__device__C[0],
+                             counter,
+                             sizeof(int),
+                             cudaMemcpyHostToDevice,
+                             stream[baseS]);
+        }
+        else
+        {
+            
+            cudaMemsetAsync(__device__C[n],
+                            0.0,
+                            sizeof(int),
+                            stream[baseS]);
+        }
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COPY C FROM HOST TO DEVICE");
+#endif
     }
 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM;
+
         cudaSetDevice(gpus[n]);
+
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
    
-    LOG(INFO) << "Volume memcpy done...";
-    //printf("device%d:Volume memcpy done...\n", n);
-        
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Data Copyed From Host to Device";
+#endif
+
     int batchSize = 0, smidx = 0;
     
     for (int i = 0; i < imgNum;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
-                break;
+            if (i >= imgNum) break;
            
-            baseS = n * NUM_STREAM;
+            int baseS = n * NUM_STREAM;
+
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
             
@@ -4551,8 +4633,8 @@ void InsertFT(Complex *F3D,
                                                             dev_offs_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             opf,
                                                             npxl,
@@ -4565,8 +4647,8 @@ void InsertFT(Complex *F3D,
                                    128, 
                                    3 * 128 * sizeof(double)
                                      + 128 * sizeof(int), 
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
@@ -4584,8 +4666,8 @@ void InsertFT(Complex *F3D,
                                                             devtranP[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             opf,
                                                             npxl,
@@ -4598,8 +4680,8 @@ void InsertFT(Complex *F3D,
                                    128, 
                                    3 * 128 * sizeof(double)
                                      + 128 * sizeof(int), 
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_nc_buf[smidx + baseS],
@@ -4619,8 +4701,8 @@ void InsertFT(Complex *F3D,
                                                                    dev_ctfas_buf[smidx + baseS],
                                                                    dev_nd_buf[smidx + baseS],
                                                                    dev_nc_buf[smidx + baseS],
-                                                                   deviCol[n],
-                                                                   deviRow[n],
+                                                                   __device__iCol[n],
+                                                                   __device__iRow[n],
                                                                    pixel,
                                                                    m,
                                                                    opf,
@@ -4634,13 +4716,13 @@ void InsertFT(Complex *F3D,
                 kernel_InsertT<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataT[n],
+                                 stream[smidx + baseS]>>>(__device__T[n],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
                                                           dev_nc_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -4651,15 +4733,15 @@ void InsertFT(Complex *F3D,
                 kernel_InsertF<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataF[n],
+                                 stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
                                                           //devdatP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
                                                           dev_nc_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -4670,12 +4752,12 @@ void InsertFT(Complex *F3D,
                 kernel_InsertT<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataT[n],
+                                 stream[smidx + baseS]>>>(__device__T[n],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
                                                           dev_nc_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -4686,14 +4768,14 @@ void InsertFT(Complex *F3D,
                 kernel_InsertF<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataF[n],
+                                 stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
                                                           //devdatP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
                                                           dev_nc_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -4714,7 +4796,7 @@ void InsertFT(Complex *F3D,
     //synchronizing on CUDA streams to wait for start of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
         for (int i = 0; i < NUM_STREAM; i++)
@@ -4790,8 +4872,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devDataF[i], 
-                                (void*)devDataF[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__F[i], 
+                                (void*)__device__F[i], 
                                 dimSize * 2, 
 #ifdef SINGLE_PRECISION
                                 ncclFloat,
@@ -4808,8 +4890,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devDataT[i], 
-                                (void*)devDataT[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__T[i], 
+                                (void*)__device__T[i], 
                                 dimSize, 
 #ifdef SINGLE_PRECISION
                                 ncclFloat,
@@ -4825,8 +4907,10 @@ void InsertFT(Complex *F3D,
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM;
+
         cudaSetDevice(gpus[n]);
+
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
@@ -4836,13 +4920,13 @@ void InsertFT(Complex *F3D,
     
     cudaSetDevice(gpus[0]);
     cudaMemcpy(F3D,
-               devDataF[0],
+               __device__F[0],
                dimSize * sizeof(Complex),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy F3D from device to host.");
         
     cudaMemcpy(T3D,
-               devDataT[0],
+               __device__T[0],
                dimSize * sizeof(RFLOAT),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy T3D from device to host.");
@@ -4854,8 +4938,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devO[i], 
-                                (void*)devO[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__O[i], 
+                                (void*)__device__O[i], 
                                 3, 
                                 ncclDouble,
                                 ncclSum,
@@ -4868,8 +4952,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devC[i], 
-                                (void*)devC[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__C[i], 
+                                (void*)__device__C[i], 
                                 1, 
                                 ncclInt64,
                                 ncclSum,
@@ -4881,7 +4965,7 @@ void InsertFT(Complex *F3D,
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
@@ -4889,13 +4973,13 @@ void InsertFT(Complex *F3D,
     
     cudaSetDevice(gpus[0]);
     cudaMemcpy(O3D,
-               devO[0],
+               __device__O[0],
                3 * sizeof(double),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
     cudaMemcpy(counter,
-               devC[0],
+               __device__C[0],
                sizeof(int),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
@@ -5027,15 +5111,15 @@ void InsertFT(Complex *F3D,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
-        cudaFree(devDataF[n]); 
-        cudaFree(devDataT[n]); 
-        cudaFree(devO[n]); 
-        cudaFree(devC[n]); 
-        cudaFree(deviCol[n]); 
-        cudaFree(deviRow[n]); 
+        cudaFree(__device__F[n]); 
+        cudaFree(__device__T[n]); 
+        cudaFree(__device__O[n]); 
+        cudaFree(__device__C[n]); 
+        cudaFree(__device__iCol[n]); 
+        cudaFree(__device__iRow[n]); 
         
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamDestroy(stream[i + baseS]);
@@ -5162,12 +5246,12 @@ void InsertFT(Complex *F3D,
     LOG(INFO) << "rank" << rankO << ": Step1: Insert Image.";
     //printf("rank%d: Step1: Insert Image.\n", nranks);
     
-    Complex *devDataF[aviDevs];
-    RFLOAT *devDataT[aviDevs];
-    double *devO[aviDevs];
-    int *devC[aviDevs];
-    int *deviCol[aviDevs];
-    int *deviRow[aviDevs];
+    Complex *__device__F[aviDevs];
+    RFLOAT *__device__T[aviDevs];
+    double *__device__O[aviDevs];
+    int *__device__C[aviDevs];
+    int *__device__iCol[aviDevs];
+    int *__device__iRow[aviDevs];
     long long imgSize = (long long)imgNum * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
@@ -5230,22 +5314,22 @@ void InsertFT(Complex *F3D,
         baseS = n * NUM_STREAM;
         
         cudaSetDevice(gpus[n]); 
-        cudaMalloc((void**)&devDataF[n], dimSize * sizeof(Complex));
-        cudaCheckErrors("Allocate devDataF data.");
+        cudaMalloc((void**)&__device__F[n], dimSize * sizeof(Complex));
+        cudaCheckErrors("Allocate __device__F data.");
 
-        cudaMalloc((void**)&devDataT[n], dimSize * sizeof(RFLOAT));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__T[n], dimSize * sizeof(RFLOAT));
+        cudaCheckErrors("Allocate __device__T data.");
         
-        cudaMalloc((void**)&devO[n], 3 * sizeof(double));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__O[n], 3 * sizeof(double));
+        cudaCheckErrors("Allocate __device__T data.");
         
-        cudaMalloc((void**)&devC[n], sizeof(int));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaMalloc((void**)&__device__C[n], sizeof(int));
+        cudaCheckErrors("Allocate __device__T data.");
         
-        cudaMalloc((void**)&deviCol[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iCol[n], npxl * sizeof(int));
         cudaCheckErrors("Allocate iCol data.");
         
-        cudaMalloc((void**)&deviRow[n], npxl * sizeof(int));
+        cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         cudaCheckErrors("Allocate iRow data.");
         
         for (int i = 0; i < NUM_STREAM; i++)
@@ -5286,13 +5370,13 @@ void InsertFT(Complex *F3D,
     {     
         cudaSetDevice(gpus[n]); 
         
-        cudaMemcpy(deviCol[n],
+        cudaMemcpy(__device__iCol[n],
                    iCol,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
         cudaCheckErrors("for memcpy iCol.");
         
-        cudaMemcpy(deviRow[n],
+        cudaMemcpy(__device__iRow[n],
                    iRow,
                    npxl * sizeof(int),
                    cudaMemcpyHostToDevice);
@@ -5302,28 +5386,28 @@ void InsertFT(Complex *F3D,
         
     cudaSetDevice(gpus[0]); 
     
-    cudaMemcpyAsync(devDataF[0],
+    cudaMemcpyAsync(__device__F[0],
                     F3D,
                     dimSize * sizeof(Complex),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     cudaCheckErrors("for memcpy F3D.");
     
-    cudaMemcpyAsync(devDataT[0],
+    cudaMemcpyAsync(__device__T[0],
                     T3D,
                     dimSize * sizeof(RFLOAT),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     cudaCheckErrors("for memcpy T3D.");
 
-    cudaMemcpyAsync(devO[0],
+    cudaMemcpyAsync(__device__O[0],
                     O3D,
                     3 * sizeof(double),
                     cudaMemcpyHostToDevice,
                     stream[0]);
     cudaCheckErrors("for memcpy O3D.");
 
-    cudaMemcpyAsync(devC[0],
+    cudaMemcpyAsync(__device__C[0],
                     counter,
                     sizeof(int),
                     cudaMemcpyHostToDevice,
@@ -5335,25 +5419,25 @@ void InsertFT(Complex *F3D,
         baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
-        cudaMemsetAsync(devDataF[n],
+        cudaMemsetAsync(__device__F[n],
                         0.0,
                         dimSize * sizeof(Complex),
                         stream[0 + baseS]);
         cudaCheckErrors("for memset F3D.");
         
-        cudaMemsetAsync(devDataT[n],
+        cudaMemsetAsync(__device__T[n],
                         0.0,
                         dimSize * sizeof(RFLOAT),
                         stream[0 + baseS]);
         cudaCheckErrors("for memset T3D.");
         
-        cudaMemsetAsync(devO[n],
+        cudaMemsetAsync(__device__O[n],
                         0.0,
                         3 * sizeof(double),
                         stream[0 + baseS]);
         cudaCheckErrors("for memset O3D.");
         
-        cudaMemsetAsync(devC[n],
+        cudaMemsetAsync(__device__C[n],
                         0.0,
                         sizeof(int),
                         stream[0 + baseS]);
@@ -5480,8 +5564,8 @@ void InsertFT(Complex *F3D,
                                                             devtranP[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             opf,
                                                             npxl,
@@ -5494,8 +5578,8 @@ void InsertFT(Complex *F3D,
                                    128, 
                                    3 * 128 * sizeof(double) 
                                      + 128 * sizeof(int),
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
@@ -5511,8 +5595,8 @@ void InsertFT(Complex *F3D,
                                    stream[smidx + baseS]>>>(devdatP[smidx + baseS],
                                                             devtranP[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
-                                                            deviCol[n],
-                                                            deviRow[n],
+                                                            __device__iCol[n],
+                                                            __device__iRow[n],
                                                             m,
                                                             opf,
                                                             npxl,
@@ -5525,8 +5609,8 @@ void InsertFT(Complex *F3D,
                                    128, 
                                    3 * 128 * sizeof(double)
                                      + 128 * sizeof(int),
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
                                                             dev_nt_buf[smidx + baseS],
                                                             m,
@@ -5543,8 +5627,8 @@ void InsertFT(Complex *F3D,
                                           stream[smidx + baseS]>>>(devctfP[smidx + baseS],
                                                                    dev_ctfas_buf[smidx + baseS],
                                                                    dev_nd_buf[smidx + baseS],
-                                                                   deviCol[n],
-                                                                   deviRow[n],
+                                                                   __device__iCol[n],
+                                                                   __device__iRow[n],
                                                                    pixel,
                                                                    m,
                                                                    opf,
@@ -5558,12 +5642,12 @@ void InsertFT(Complex *F3D,
                 kernel_InsertT<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataT[n],
+                                 stream[smidx + baseS]>>>(__device__T[n],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -5574,14 +5658,14 @@ void InsertFT(Complex *F3D,
                 kernel_InsertF<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataF[n],
+                                 stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
                                                           //devdatP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -5592,11 +5676,11 @@ void InsertFT(Complex *F3D,
                 kernel_InsertT<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataT[n],
+                                 stream[smidx + baseS]>>>(__device__T[n],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -5607,13 +5691,13 @@ void InsertFT(Complex *F3D,
                 kernel_InsertF<<<batchSize, 
                                  512, 
                                  9 * sizeof(double), 
-                                 stream[smidx + baseS]>>>(devDataF[n],
+                                 stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
                                                           //devdatP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          deviCol[n],
-                                                          deviRow[n],
+                                                          __device__iCol[n],
+                                                          __device__iRow[n],
                                                           m,
                                                           npxl,
                                                           mReco,
@@ -5710,8 +5794,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devDataF[i], 
-                                (void*)devDataF[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__F[i], 
+                                (void*)__device__F[i], 
                                 dimSize * 2, 
 #ifdef SINGLE_PRECISION
                                 ncclFloat,
@@ -5728,8 +5812,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devDataT[i], 
-                                (void*)devDataT[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__T[i], 
+                                (void*)__device__T[i], 
                                 dimSize, 
 #ifdef SINGLE_PRECISION
                                 ncclFloat,
@@ -5756,13 +5840,13 @@ void InsertFT(Complex *F3D,
     
     cudaSetDevice(gpus[0]);
     cudaMemcpy(F3D,
-               devDataF[0],
+               __device__F[0],
                dimSize * sizeof(Complex),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy F3D from device to host.");
         
     cudaMemcpy(T3D,
-               devDataT[0],
+               __device__T[0],
                dimSize * sizeof(RFLOAT),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy T3D from device to host.");
@@ -5774,8 +5858,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devO[i], 
-                                (void*)devO[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__O[i], 
+                                (void*)__device__O[i], 
                                 3, 
                                 ncclDouble,
                                 ncclSum,
@@ -5788,8 +5872,8 @@ void InsertFT(Complex *F3D,
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclAllReduce((const void*)devC[i], 
-                                (void*)devC[i], 
+        NCCLCHECK(ncclAllReduce((const void*)__device__C[i], 
+                                (void*)__device__C[i], 
                                 1, 
                                 ncclInt64,
                                 ncclSum,
@@ -5809,13 +5893,13 @@ void InsertFT(Complex *F3D,
     
     cudaSetDevice(gpus[0]);
     cudaMemcpy(O3D,
-               devO[0],
+               __device__O[0],
                3 * sizeof(double),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
     cudaMemcpy(counter,
-               devC[0],
+               __device__C[0],
                sizeof(int),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
@@ -5950,12 +6034,12 @@ void InsertFT(Complex *F3D,
         baseS = n * NUM_STREAM;
         cudaSetDevice(gpus[n]);
         
-        cudaFree(devDataF[n]); 
-        cudaFree(devDataT[n]); 
-        cudaFree(devO[n]); 
-        cudaFree(devC[n]); 
-        cudaFree(deviCol[n]); 
-        cudaFree(deviRow[n]); 
+        cudaFree(__device__F[n]); 
+        cudaFree(__device__T[n]); 
+        cudaFree(__device__O[n]); 
+        cudaFree(__device__C[n]); 
+        cudaFree(__device__iCol[n]); 
+        cudaFree(__device__iRow[n]); 
         
         for (int i = 0; i < NUM_STREAM; i++)
             cudaStreamDestroy(stream[i + baseS]);
@@ -6002,15 +6086,15 @@ void PrepareTF(int gpuIdx,
     
     LOG(INFO) << "Step1: NormalizeT.";
     
-    Complex *devDataF;
-    cudaMalloc((void**)&devDataF, dimSize * sizeof(Complex));
-    cudaCheckErrors("Allocate devDataF data.");
+    Complex *__device__F;
+    cudaMalloc((void**)&__device__F, dimSize * sizeof(Complex));
+    cudaCheckErrors("Allocate __device__F data.");
 
     RFLOAT *devPartT[3];
     for (int i = 0; i < 3; i++)
     {
         cudaMalloc((void**)&devPartT[i], batchSize * sizeof(RFLOAT));
-        cudaCheckErrors("Allocate devDataT data.");
+        cudaCheckErrors("Allocate __device__T data.");
     }
 
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
@@ -6029,7 +6113,7 @@ void PrepareTF(int gpuIdx,
     {
         batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
         
-        cudaMemcpyAsync(devDataF + i,
+        cudaMemcpyAsync(__device__F + i,
                         F3D + i,
                         batch * sizeof(Complex),
                         cudaMemcpyHostToDevice,
@@ -6047,7 +6131,7 @@ void PrepareTF(int gpuIdx,
         kernel_NormalizeTF<<<dim, 
                              dim / 2 + 1, 
                              0, 
-                             stream[smidx]>>>(devDataF,
+                             stream[smidx]>>>(__device__F,
                                               devPartT[smidx], 
                                               batch, 
                                               i, 
@@ -6085,7 +6169,7 @@ void PrepareTF(int gpuIdx,
     for (int i = 0; i < 3; i++)
     {
         cudaFree(devPartT[i]);
-        cudaCheckErrors("Free device memory devDataT.");
+        cudaCheckErrors("Free device memory __device__T.");
     }
     
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
@@ -6109,9 +6193,9 @@ void PrepareTF(int gpuIdx,
 
     cudaMemcpy3DParms copyParamsF = {0};
 #ifdef SINGLE_PRECISION
-    copyParamsF.srcPtr   = make_cudaPitchedPtr((void*)devDataF, (dim / 2 + 1) * sizeof(float2), dim / 2 + 1, dim);
+    copyParamsF.srcPtr   = make_cudaPitchedPtr((void*)__device__F, (dim / 2 + 1) * sizeof(float2), dim / 2 + 1, dim);
 #else
-    copyParamsF.srcPtr   = make_cudaPitchedPtr((void*)devDataF, (dim / 2 + 1) * sizeof(int4), dim / 2 + 1, dim);
+    copyParamsF.srcPtr   = make_cudaPitchedPtr((void*)__device__F, (dim / 2 + 1) * sizeof(int4), dim / 2 + 1, dim);
 #endif    
     copyParamsF.dstArray = symArrayF;
     copyParamsF.extent   = extent;
@@ -6137,7 +6221,7 @@ void PrepareTF(int gpuIdx,
         kernel_SymmetrizeF<<<dim, 
                              dim / 2 + 1, 
                              0, 
-                             stream[smidx]>>>(devDataF,
+                             stream[smidx]>>>(__device__F,
                                               devSymmat, 
                                               nSymmetryElement, 
                                               r, 
@@ -6149,7 +6233,7 @@ void PrepareTF(int gpuIdx,
         cudaCheckErrors("symT for stream 0");
 
         cudaMemcpyAsync(F3D + i,
-                        devDataF + i,
+                        __device__F + i,
                         batch * sizeof(Complex),
                         cudaMemcpyDeviceToHost,
                         stream[smidx]);
@@ -6172,8 +6256,8 @@ void PrepareTF(int gpuIdx,
     cudaFreeArray(symArrayF);
     cudaCheckErrors("Free device memory SymArrayF.");
 
-    cudaFree(devDataF);
-    cudaCheckErrors("Free device memory devDataF.");
+    cudaFree(__device__F);
+    cudaCheckErrors("Free device memory __device__F.");
 
 #ifdef SINGLE_PRECISION
     cudaChannelFormatDesc channelDescT = cudaCreateChannelDesc(32, 0, 0, 0,cudaChannelFormatKindFloat);
@@ -6205,16 +6289,16 @@ void PrepareTF(int gpuIdx,
     
     LOG(INFO) << "Step3: SymmetrizeT.";
     
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize * sizeof(RFLOAT));
-    cudaCheckErrors("Allocate devDataF data.");
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate __device__F data.");
 
     smidx = 0;
     for (int i = 0; i < dimSize;)
     {
         batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
 
-        cudaMemcpyAsync(devDataT + i,
+        cudaMemcpyAsync(__device__T + i,
                         T3D + i,
                         batch * sizeof(RFLOAT),
                         cudaMemcpyHostToDevice,
@@ -6224,7 +6308,7 @@ void PrepareTF(int gpuIdx,
         kernel_SymmetrizeT<<<dim, 
                              dim / 2 + 1, 
                              0, 
-                             stream[smidx]>>>(devDataT,
+                             stream[smidx]>>>(__device__T,
                                               devSymmat, 
                                               nSymmetryElement, 
                                               r, 
@@ -6236,7 +6320,7 @@ void PrepareTF(int gpuIdx,
         cudaCheckErrors("symT for stream 0");
 
         cudaMemcpyAsync(T3D + i,
-                        devDataT + i,
+                        __device__T + i,
                         batch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[smidx]);
@@ -6315,8 +6399,8 @@ void PrepareTF(int gpuIdx,
     
 #endif    
     
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
 }
 
 /**
@@ -6341,47 +6425,47 @@ void CalculateT2D(int gpuIdx,
     int dimSize = (dim / 2 + 1) * dim;
     int vecSize = maxRadius * pf + 1;
 
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize * sizeof(RFLOAT));
-    cudaCheckErrors("Allocate devDataT data.");
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate __device__T data.");
 
     RFLOAT *devAvg;
     cudaMalloc((void**)&devAvg, vecSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devAvg data.");
     
-    cudaMemcpy(devDataT, T2D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
+    cudaMemcpy(__device__T, T2D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
     cudaCheckErrors("out for memcpy 0.");
     
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
     LOG(INFO) << "Step1: ShellAverage.";
     
     RFLOAT *devAvg2D;
-    int *devCount2D;
-    int *devCount;
+    int *__device__count2D;
+    int *__device__count;
     cudaMalloc((void**)&devAvg2D, (vecSize - 2) * dim * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devAvg data.");
 
-    cudaMalloc((void**)&devCount2D, (vecSize - 2) * dim * sizeof(int));
-    cudaCheckErrors("Allocate devCount data.");
+    cudaMalloc((void**)&__device__count2D, (vecSize - 2) * dim * sizeof(int));
+    cudaCheckErrors("Allocate __device__count data.");
 
-    cudaMalloc((void**)&devCount, vecSize * sizeof(int));
-    cudaCheckErrors("Allocate devCount data.");
+    cudaMalloc((void**)&__device__count, vecSize * sizeof(int));
+    cudaCheckErrors("Allocate __device__count data.");
     
     kernel_ShellAverage2D<<<dim, 
                             dim / 2 + 1,
                             (vecSize - 2) 
                              * (sizeof(RFLOAT) 
                                 + sizeof(int))>>>(devAvg2D, 
-                                                  devCount2D, 
-                                                  devDataT,
+                                                  __device__count2D, 
+                                                  __device__T,
                                                   dim, 
                                                   vecSize - 2);
     cudaCheckErrors("Shell for stream default.");
     
     kernel_CalculateAvg2D<<<1, vecSize - 2>>>(devAvg2D,
-                                              devCount2D,
+                                              __device__count2D,
                                               devAvg,
-                                              devCount,
+                                              __device__count,
                                               dim,
                                               vecSize - 2);
     cudaCheckErrors("calAvg for stream default.");
@@ -6399,7 +6483,7 @@ void CalculateT2D(int gpuIdx,
     int r = pow(maxRadius * pf, 2);
     
     kernel_CalculateFSC2D<<<dim, 
-                            dim / 2 + 1>>>(devDataT, 
+                            dim / 2 + 1>>>(__device__T, 
                                            devFSC, 
                                            devAvg,
                                            joinHalf,
@@ -6411,7 +6495,7 @@ void CalculateT2D(int gpuIdx,
     cudaCheckErrors("calFSC for stream 0.");
 
     cudaMemcpy(T2D,
-               devDataT,
+               __device__T,
                dimSize * sizeof(RFLOAT),
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("out for memcpy 0.");
@@ -6428,14 +6512,14 @@ void CalculateT2D(int gpuIdx,
     cudaFree(devAvg2D);
     cudaCheckErrors("Free device memory devAvg2D.");
 
-    cudaFree(devCount2D);
-    cudaCheckErrors("Free device memory devCount2D.");
+    cudaFree(__device__count2D);
+    cudaCheckErrors("Free device memory __device__count2D.");
     
-    cudaFree(devCount);
-    cudaCheckErrors("Free device memory devCount.");
+    cudaFree(__device__count);
+    cudaCheckErrors("Free device memory __device__count.");
 #endif
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
 }
 
 /**
@@ -6468,47 +6552,47 @@ void CalculateT(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
     
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize * sizeof(RFLOAT));
-    cudaCheckErrors("Allocate devDataT data.");
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate __device__T data.");
 
     RFLOAT *devAvg;
     cudaMalloc((void**)&devAvg, vecSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devAvg data.");
     
-    cudaMemcpy(devDataT, T3D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
+    cudaMemcpy(__device__T, T3D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
     cudaCheckErrors("out for memcpy 0.");
     
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
     LOG(INFO) << "Step1: ShellAverage.";
     
     RFLOAT *devAvg2D;
-    int *devCount2D;
-    int *devCount;
+    int *__device__count2D;
+    int *__device__count;
     cudaMalloc((void**)&devAvg2D, (vecSize - 2) * dim * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devAvg data.");
 
-    cudaMalloc((void**)&devCount2D, (vecSize - 2) * dim * sizeof(int));
-    cudaCheckErrors("Allocate devCount data.");
+    cudaMalloc((void**)&__device__count2D, (vecSize - 2) * dim * sizeof(int));
+    cudaCheckErrors("Allocate __device__count data.");
 
-    cudaMalloc((void**)&devCount, vecSize * sizeof(int));
-    cudaCheckErrors("Allocate devCount data.");
+    cudaMalloc((void**)&__device__count, vecSize * sizeof(int));
+    cudaCheckErrors("Allocate __device__count data.");
     
     kernel_ShellAverage<<<dim, 
                           dim, 
                           dim * (sizeof(RFLOAT) 
                                 + sizeof(int))>>>(devAvg2D, 
-                                                  devCount2D, 
-                                                  devDataT,
+                                                  __device__count2D, 
+                                                  __device__T,
                                                   dim, 
                                                   vecSize - 2,
                                                   dimSize);
     cudaCheckErrors("Shell for stream default.");
     
     kernel_CalculateAvg<<<1, vecSize - 2>>>(devAvg2D,
-                                            devCount2D,
+                                            __device__count2D,
                                             devAvg,
-                                            devCount,
+                                            __device__count,
                                             dim,
                                             vecSize - 2);
     cudaCheckErrors("calAvg for stream default.");
@@ -6532,7 +6616,7 @@ void CalculateT(int gpuIdx,
     for (int i = 0; i < streamfsc; i++)
     {
         int shift = i * 3 * batchSize;
-        kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(devDataT, 
+        kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
                                                         fscMatsize,
@@ -6545,13 +6629,13 @@ void CalculateT(int gpuIdx,
         cudaCheckErrors("calFSC for stream 0.");
 
         cudaMemcpyAsync(T3D + shift,
-                        devDataT + shift,
+                        __device__T + shift,
                         batchSize * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         cudaCheckErrors("out for memcpy 0.");
     
-        kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(devDataT, 
+        kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
                                                         fscMatsize,
@@ -6564,13 +6648,13 @@ void CalculateT(int gpuIdx,
         cudaCheckErrors("calFSC for stream 1.");
 
         cudaMemcpyAsync(T3D + shift + batchSize,
-                        devDataT + shift + batchSize,
+                        __device__T + shift + batchSize,
                         batchSize * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         cudaCheckErrors("out for memcpy 1.");
 
-        kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(devDataT, 
+        kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
                                                         fscMatsize,
@@ -6583,7 +6667,7 @@ void CalculateT(int gpuIdx,
         cudaCheckErrors("calFSC for stream 2.");
 
         cudaMemcpyAsync(T3D + shift + 2 * batchSize,
-                        devDataT + shift + 2 * batchSize,
+                        __device__T + shift + 2 * batchSize,
                         batchSize * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[2]);
@@ -6593,7 +6677,7 @@ void CalculateT(int gpuIdx,
     if (len % 3 == 2)
     {
         int shift = (len - 2) * batchSize;
-        kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(devDataT, 
+        kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
                                                         fscMatsize,
@@ -6606,13 +6690,13 @@ void CalculateT(int gpuIdx,
         cudaCheckErrors("calFSC last for stream 0.");
 
         cudaMemcpyAsync(T3D + shift,
-                        devDataT + shift,
+                        __device__T + shift,
                         batchSize * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         cudaCheckErrors("out for memcpy 0.");
 
-        kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(devDataT, 
+        kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
                                                         fscMatsize,
@@ -6625,7 +6709,7 @@ void CalculateT(int gpuIdx,
         cudaCheckErrors("calFSC last for stream 1.");
         
         cudaMemcpyAsync(T3D + shift + batchSize,
-                        devDataT + shift + batchSize,
+                        __device__T + shift + batchSize,
                         batchSize * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[1]);
@@ -6634,7 +6718,7 @@ void CalculateT(int gpuIdx,
         if (dimSize % batchSize != 0)
         {
             int shift = len * batchSize;
-            kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(devDataT, 
+            kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(__device__T, 
                                                             devFSC, 
                                                             devAvg,
                                                             fscMatsize,
@@ -6647,7 +6731,7 @@ void CalculateT(int gpuIdx,
             cudaCheckErrors("calFSC last for stream 2.");
         
             cudaMemcpyAsync(T3D + shift,
-                            devDataT + shift,
+                            __device__T + shift,
                             (dimSize - shift) * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[2]);
@@ -6661,7 +6745,7 @@ void CalculateT(int gpuIdx,
         if (len % 3 == 1)
         {
             int shift = (len - 1) * batchSize;
-            kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(devDataT, 
+            kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                             devFSC, 
                                                             devAvg,
                                                             fscMatsize,
@@ -6674,7 +6758,7 @@ void CalculateT(int gpuIdx,
             cudaCheckErrors("calFSC last for stream 0.");
         
             cudaMemcpyAsync(T3D + shift,
-                            devDataT + shift,
+                            __device__T + shift,
                             batchSize * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[0]);
@@ -6683,7 +6767,7 @@ void CalculateT(int gpuIdx,
             if (dimSize % batchSize != 0)
             {
                 int shift = len * batchSize;
-                kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(devDataT, 
+                kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
                                                                 devFSC, 
                                                                 devAvg,
                                                                 fscMatsize,
@@ -6696,7 +6780,7 @@ void CalculateT(int gpuIdx,
                 cudaCheckErrors("calFSC last for stream 1.");
 
                 cudaMemcpyAsync(T3D + shift,
-                                devDataT + shift,
+                                __device__T + shift,
                                 (dimSize - shift) * sizeof(RFLOAT),
                                 cudaMemcpyDeviceToHost,
                                 stream[1]);
@@ -6709,7 +6793,7 @@ void CalculateT(int gpuIdx,
             if (dimSize % batchSize != 0)
             {
                 int shift = len * batchSize;
-                kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(devDataT, 
+                kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                                 devFSC, 
                                                                 devAvg,
                                                                 fscMatsize,
@@ -6722,7 +6806,7 @@ void CalculateT(int gpuIdx,
                 cudaCheckErrors("calFSC last for stream 0.");
 
                 cudaMemcpyAsync(T3D + shift,
-                                devDataT + shift,
+                                __device__T + shift,
                                 (dimSize - shift) * sizeof(RFLOAT),
                                 cudaMemcpyDeviceToHost,
                                 stream[0]);
@@ -6759,14 +6843,14 @@ void CalculateT(int gpuIdx,
     cudaFree(devAvg2D);
     cudaCheckErrors("Free device memory devAvg2D.");
 
-    cudaFree(devCount2D);
-    cudaCheckErrors("Free device memory devCount2D.");
+    cudaFree(__device__count2D);
+    cudaCheckErrors("Free device memory __device__count2D.");
     
-    cudaFree(devCount);
-    cudaCheckErrors("Free device memory devCount.");
+    cudaFree(__device__count);
+    cudaCheckErrors("Free device memory __device__count.");
 #endif
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
 }
 
 /**
@@ -6836,22 +6920,22 @@ void CalculateW2D(int gpuIdx,
     cudaCheckErrors("Allocate device memory for C.");
 #endif    
     
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize *sizeof(RFLOAT));
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for T.");
-    cudaMemcpy(devDataT, T2D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
-    cudaCheckErrors("Copy devDataT volume to device.");
+    cudaMemcpy(__device__T, T2D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
+    cudaCheckErrors("Copy __device__T volume to device.");
 
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
     RFLOAT *diff = new RFLOAT[dim];
     int *counter = new int[dim];
     
     RFLOAT *devDiff;
-    int *devCount;
+    int *__device__count;
     cudaMalloc((void**)&devDiff, dim *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for devDiff.");
-    cudaMalloc((void**)&devCount, dim *sizeof(int));
-    cudaCheckErrors("Allocate device memory for devCount.");
+    cudaMalloc((void**)&__device__count, dim *sizeof(int));
+    cudaCheckErrors("Allocate device memory for __device__count.");
         
 #endif
 
@@ -6885,7 +6969,7 @@ void CalculateW2D(int gpuIdx,
         //LOG(INFO) << "SubStep1: Determining C.";
         kernel_DeterminingC2D<<<dim, 
                                 dim / 2 + 1>>>((Complex*)devDataC,
-                                               devDataT, 
+                                               __device__T, 
                                                devDataW); 
 
         //LOG(INFO) << "SubStep2: Convoluting C.";
@@ -6929,15 +7013,15 @@ void CalculateW2D(int gpuIdx,
                              dim / 2 + 1, 
                              (dim / 2 + 1) * (sizeof(RFLOAT) 
                                            + sizeof(int))>>>(devDiff,
-                                                             devCount,
+                                                             __device__count,
                                                              (Complex*)devDataC,  
                                                              r, 
                                                              dim);
         
         cudaMemcpy(diff, devDiff, dim *sizeof(RFLOAT), cudaMemcpyDeviceToHost);
         cudaCheckErrors("Copy devDiff array to host.");
-        cudaMemcpy(counter, devCount, dim *sizeof(int), cudaMemcpyDeviceToHost);
-        cudaCheckErrors("Copy devCount array to host.");
+        cudaMemcpy(counter, __device__count, dim *sizeof(int), cudaMemcpyDeviceToHost);
+        cudaCheckErrors("Copy __device__count array to host.");
         
         RFLOAT tempD = 0; 
         int tempC = 0;
@@ -6994,8 +7078,8 @@ void CalculateW2D(int gpuIdx,
     cudaFree(devDiff);
     cudaCheckErrors("Free device memory devDiff.");
     
-    cudaFree(devCount);
-    cudaCheckErrors("Free device memory devCount.");
+    cudaFree(__device__count);
+    cudaCheckErrors("Free device memory __device__count.");
 #endif
 
 #ifdef RECONSTRUCTOR_CHECK_C_MAX        
@@ -7020,8 +7104,8 @@ void CalculateW2D(int gpuIdx,
     cufftDestroy(planr2c);
     cudaCheckErrors("DestroyPlan planr2c.");
     
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
     
     cudaFree(tabfunc.devPtr());
     cudaCheckErrors("Free operations.");
@@ -7090,22 +7174,22 @@ void CalculateW(int gpuIdx,
     cudaCheckErrors("Allocate device memory for C.");
 #endif    
     
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize *sizeof(RFLOAT));
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for T.");
-    cudaMemcpy(devDataT, T3D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
-    cudaCheckErrors("Copy devDataT volume to device.");
+    cudaMemcpy(__device__T, T3D, dimSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
+    cudaCheckErrors("Copy __device__T volume to device.");
 
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
     RFLOAT *diff = new RFLOAT[dim];
     int *counter = new int[dim];
     
     RFLOAT *devDiff;
-    int *devCount;
+    int *__device__count;
     cudaMalloc((void**)&devDiff, dim *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for devDiff.");
-    cudaMalloc((void**)&devCount, dim *sizeof(int));
-    cudaCheckErrors("Allocate device memory for devCount.");
+    cudaMalloc((void**)&__device__count, dim *sizeof(int));
+    cudaCheckErrors("Allocate device memory for __device__count.");
         
 #endif
 
@@ -7138,7 +7222,7 @@ void CalculateW(int gpuIdx,
     {
         //LOG(INFO) << "SubStep1: Determining C.";
         kernel_DeterminingC<<<dim, dim>>>((Complex*)devDataC,
-                                          devDataT, 
+                                          __device__T, 
                                           devDataW, 
                                           dimSize);
 
@@ -7226,7 +7310,7 @@ void CalculateW(int gpuIdx,
                            dim, 
                            dim * (sizeof(RFLOAT) 
                                   + sizeof(int))>>>(devDiff,
-                                                    devCount,
+                                                    __device__count,
                                                     (Complex*)devDataC,  
                                                     r, 
                                                     dim,
@@ -7234,8 +7318,8 @@ void CalculateW(int gpuIdx,
         
         cudaMemcpy(diff, devDiff, dim *sizeof(RFLOAT), cudaMemcpyDeviceToHost);
         cudaCheckErrors("Copy devDiff array to host.");
-        cudaMemcpy(counter, devCount, dim *sizeof(int), cudaMemcpyDeviceToHost);
-        cudaCheckErrors("Copy devCount array to host.");
+        cudaMemcpy(counter, __device__count, dim *sizeof(int), cudaMemcpyDeviceToHost);
+        cudaCheckErrors("Copy __device__count array to host.");
         
         RFLOAT tempD = 0; 
         int tempC = 0;
@@ -7313,8 +7397,8 @@ void CalculateW(int gpuIdx,
     cudaFree(devDiff);
     cudaCheckErrors("Free device memory devDiff.");
     
-    cudaFree(devCount);
-    cudaCheckErrors("Free device memory devCount.");
+    cudaFree(__device__count);
+    cudaCheckErrors("Free device memory __device__count.");
 #endif
 
 #ifdef RECONSTRUCTOR_CHECK_C_MAX        
@@ -7339,8 +7423,8 @@ void CalculateW(int gpuIdx,
     cufftDestroy(planr2c);
     cudaCheckErrors("DestroyPlan planr2c.");
     
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
     
     cudaFree(tabfunc.devPtr());
     cudaCheckErrors("Free operations.");
@@ -7366,21 +7450,21 @@ void CalculateW2D(int gpuIdx,
     cudaMalloc((void**)&devDataW, dimSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devDataW data.");
     
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize *sizeof(RFLOAT));
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for T.");
 
     LOG(INFO) << "Step1: CalculateW.";
     
-    cudaMemcpy(devDataT, 
+    cudaMemcpy(__device__T, 
                T2D, 
                dimSize * sizeof(RFLOAT), 
                cudaMemcpyHostToDevice);
-    cudaCheckErrors("Copy devDataT volume to device stream0.");
+    cudaCheckErrors("Copy __device__T volume to device stream0.");
     
     kernel_CalculateW2D<<<dim, 
                           dim / 2 + 1>>>(devDataW,
-                                         devDataT, 
+                                         __device__T, 
                                          dim,
                                          r);
 
@@ -7395,8 +7479,8 @@ void CalculateW2D(int gpuIdx,
     cudaFree(devDataW);
     cudaCheckErrors("Free device memory devDataW.");
     
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
 }
 
 /**
@@ -7425,8 +7509,8 @@ void CalculateW(int gpuIdx,
     cudaMalloc((void**)&devDataW, dimSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devDataW data.");
     
-    RFLOAT *devDataT;
-    cudaMalloc((void**)&devDataT, dimSize *sizeof(RFLOAT));
+    RFLOAT *__device__T;
+    cudaMalloc((void**)&__device__T, dimSize *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for T.");
 
     cudaStream_t stream[3];
@@ -7443,15 +7527,15 @@ void CalculateW(int gpuIdx,
     for (int i = 0; i < streamN; i++)
     {
         int shift = i * 3 * batchSize;
-        cudaMemcpyAsync(devDataT + shift, 
+        cudaMemcpyAsync(__device__T + shift, 
                         T3D + shift, 
                         batchSize * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[0]);
-        cudaCheckErrors("Copy devDataT volume to device stream0.");
+        cudaCheckErrors("Copy __device__T volume to device stream0.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                      devDataT, 
+                                                      __device__T, 
                                                       batchSize, 
                                                       shift,
                                                       dim,
@@ -7464,15 +7548,15 @@ void CalculateW(int gpuIdx,
                         stream[0]);
         cudaCheckErrors("Copy devDataW volume to host stream0.");  
     
-        cudaMemcpyAsync(devDataT + shift + batchSize, 
+        cudaMemcpyAsync(__device__T + shift + batchSize, 
                         T3D + shift + batchSize, 
                         batchSize * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[1]);
-        cudaCheckErrors("Copy devDataT volume to device stream1.");
+        cudaCheckErrors("Copy __device__T volume to device stream1.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
-                                                      devDataT, 
+                                                      __device__T, 
                                                       batchSize, 
                                                       shift + batchSize,
                                                       dim,
@@ -7485,15 +7569,15 @@ void CalculateW(int gpuIdx,
                         stream[1]);
         cudaCheckErrors("Copy devDataW volume to host stream1.");  
     
-        cudaMemcpyAsync(devDataT + shift + 2 * batchSize, 
+        cudaMemcpyAsync(__device__T + shift + 2 * batchSize, 
                         T3D + shift + 2 * batchSize, 
                         batchSize * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[2]);
-        cudaCheckErrors("Copy devDataT volume to device stream2.");
+        cudaCheckErrors("Copy __device__T volume to device stream2.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[2]>>>(devDataW,
-                                                      devDataT, 
+                                                      __device__T, 
                                                       batchSize, 
                                                       shift + 2 * batchSize,
                                                       dim,
@@ -7511,15 +7595,15 @@ void CalculateW(int gpuIdx,
     if (len % 3 == 2)
     {
         int shift = (len - 2) * batchSize;
-        cudaMemcpyAsync(devDataT + shift, 
+        cudaMemcpyAsync(__device__T + shift, 
                         T3D + shift, 
                         batchSize * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[0]);
-        cudaCheckErrors("Copy devDataT volume to device stream0.");
+        cudaCheckErrors("Copy __device__T volume to device stream0.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                      devDataT, 
+                                                      __device__T, 
                                                       batchSize, 
                                                       shift,
                                                       dim,
@@ -7532,15 +7616,15 @@ void CalculateW(int gpuIdx,
                         stream[0]);
         cudaCheckErrors("Copy devDataW volume to host stream0.");  
         
-        cudaMemcpyAsync(devDataT + shift + batchSize, 
+        cudaMemcpyAsync(__device__T + shift + batchSize, 
                         T3D + shift + batchSize, 
                         batchSize * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[1]);
-        cudaCheckErrors("Copy devDataT volume to device stream1.");
+        cudaCheckErrors("Copy __device__T volume to device stream1.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
-                                                      devDataT, 
+                                                      __device__T, 
                                                       batchSize, 
                                                       shift + batchSize,
                                                       dim,
@@ -7557,15 +7641,15 @@ void CalculateW(int gpuIdx,
         if (dimSize % batchSize != 0)
         {
             int shift = len * batchSize;
-            cudaMemcpyAsync(devDataT + shift, 
+            cudaMemcpyAsync(__device__T + shift, 
                             T3D + shift, 
                             (dimSize - shift) * sizeof(RFLOAT), 
                             cudaMemcpyHostToDevice,
                             stream[2]);
-            cudaCheckErrors("Copy devDataT volume to device stream2.");
+            cudaCheckErrors("Copy __device__T volume to device stream2.");
             
             kernel_CalculateW<<<dim, dim, 0, stream[2]>>>(devDataW,
-                                                          devDataT, 
+                                                          __device__T, 
                                                           dimSize - shift, 
                                                           shift,
                                                           dim,
@@ -7585,15 +7669,15 @@ void CalculateW(int gpuIdx,
         if (len % 3 == 1)
         {
             int shift = (len - 1) * batchSize;
-            cudaMemcpyAsync(devDataT + shift, 
+            cudaMemcpyAsync(__device__T + shift, 
                             T3D + shift, 
                             batchSize * sizeof(RFLOAT), 
                             cudaMemcpyHostToDevice,
                             stream[0]);
-            cudaCheckErrors("Copy devDataT volume to device stream0.");
+            cudaCheckErrors("Copy __device__T volume to device stream0.");
             
             kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                          devDataT, 
+                                                          __device__T, 
                                                           batchSize, 
                                                           shift,
                                                           dim,
@@ -7609,15 +7693,15 @@ void CalculateW(int gpuIdx,
             if (dimSize % batchSize != 0)
             {
                 int shift = len * batchSize;
-                cudaMemcpyAsync(devDataT + shift, 
+                cudaMemcpyAsync(__device__T + shift, 
                                 T3D + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
                                 cudaMemcpyHostToDevice,
                                 stream[1]);
-                cudaCheckErrors("Copy devDataT volume to device stream1.");
+                cudaCheckErrors("Copy __device__T volume to device stream1.");
                 
                 kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
-                                                              devDataT, 
+                                                              __device__T, 
                                                               dimSize - shift, 
                                                               shift,
                                                               dim,
@@ -7635,15 +7719,15 @@ void CalculateW(int gpuIdx,
             if (dimSize % batchSize != 0)
             {
                 int shift = len * batchSize;
-                cudaMemcpyAsync(devDataT + shift, 
+                cudaMemcpyAsync(__device__T + shift, 
                                 T3D + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
                                 cudaMemcpyHostToDevice,
                                 stream[0]);
-                cudaCheckErrors("Copy devDataT volume to device stream0.");
+                cudaCheckErrors("Copy __device__T volume to device stream0.");
                 
                 kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                              devDataT, 
+                                                              __device__T, 
                                                               dimSize - shift, 
                                                               shift,
                                                               dim,
@@ -7679,8 +7763,8 @@ void CalculateW(int gpuIdx,
     cudaFree(devDataW);
     cudaCheckErrors("Free device memory devDataW.");
     
-    cudaFree(devDataT);
-    cudaCheckErrors("Free device memory devDataT.");
+    cudaFree(__device__T);
+    cudaCheckErrors("Free device memory __device__T.");
 }
 
 /**
@@ -7707,7 +7791,7 @@ void CalculateF2D(int gpuIdx,
 
     Complex *devDst;
     cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
-    cudaCheckErrors("Allocate devDataF data.");
+    cudaCheckErrors("Allocate __device__F data.");
 
     cudaMemset(devDst, 0.0, dimSizeP * sizeof(Complex));
     cudaCheckErrors("Memset devDst data.");
@@ -7786,7 +7870,7 @@ void CalculateF2D(int gpuIdx,
     cudaFree(devW);
     cudaCheckErrors("Free device memory of W");
     cudaFree(devF);
-    cudaCheckErrors("Free device memory devDataF.");
+    cudaCheckErrors("Free device memory __device__F.");
     cudaFree(devDstR);
     cudaCheckErrors("Free device memory devDst.");
 }
@@ -7822,7 +7906,7 @@ void CalculateF(int gpuIdx,
     
     Complex *devDst;
     cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
-    cudaCheckErrors("Allocate devDataF data.");
+    cudaCheckErrors("Allocate __device__F data.");
 
     cudaMemset(devDst, 0.0, dimSizeP * sizeof(Complex));
     cudaCheckErrors("Memset devDst data.");
@@ -7889,7 +7973,7 @@ void CalculateF(int gpuIdx,
         cudaFree(devPartW[i]);
         cudaCheckErrors("Free device memory of W");
         cudaFree(devPartF[i]);
-    cudaCheckErrors("Free device memory devDataF.");
+    cudaCheckErrors("Free device memory __device__F.");
     }
     
     cudaHostUnregister(F3D);
