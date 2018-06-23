@@ -37,7 +37,7 @@ void loggerInit(int argc, const char* const * argv)
     el::Loggers::setDefaultConfigurations(conf, true);
 
     const char* loggerNames[] = {"LOGGER_SYS","LOGGER_INIT","LOGGER_ROUND","LOGGER_COMPARE",
-                                 "LOGGER_RECO","LOGGER_MPI","LOGGER_FFT"};
+                                 "LOGGER_RECO","LOGGER_MPI","LOGGER_FFT", "LOGGER_GPU"};
     for (size_t i = 0; i < sizeof(loggerNames) / sizeof(*loggerNames); ++i) {
         el::Loggers::getLogger(loggerNames[i]); // Force creation of loggers
     }
