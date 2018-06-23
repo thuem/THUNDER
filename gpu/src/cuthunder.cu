@@ -4187,35 +4187,81 @@ void InsertFT(Complex *F3D,
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
     RFLOAT *devsigRcpP[streamNum];
-    cudaHostRegister(sigRcpP, imgShift * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register sigRcpP data.");
 #endif
-    //register pglk_memory
-    cudaHostRegister(F3D, dimSize * sizeof(Complex), cudaHostRegisterDefault);
-    cudaCheckErrors("Register F3D data.");
-    
-    cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register T3D data.");
-    
-    cudaHostRegister(O3D, 3 * sizeof(double), cudaHostRegisterDefault);
-    cudaCheckErrors("Register O3D data.");
-    
-    cudaHostRegister(counter, sizeof(int), cudaHostRegisterDefault);
-    cudaCheckErrors("Register O3D data.");
-    
-    cudaHostRegister(datP, imgShift * sizeof(Complex), cudaHostRegisterDefault);
-    cudaCheckErrors("Register datP data.");
 
-    cudaHostRegister(ctfP, imgShift * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register ctfP data.");
+    // register pinned memory (page-locked) in host for maximizating the transfering between host and device
+    // register pglk_memory (pglk = page-locked)
+
+    cudaHostRegister(F3D,
+                     dimSize * sizeof(Complex),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF F3D");
+#endif
+    
+    cudaHostRegister(T3D,
+                     dimSize * sizeof(RFLOAT),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF T3D");
+#endif
+    
+    cudaHostRegister(O3D,
+                     3 * sizeof(double),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF O3D");
+#endif
+    
+    cudaHostRegister(counter,
+                     sizeof(int),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF COUNTER");
+#endif
+    
+    cudaHostRegister(datP,
+                     imgShift * sizeof(Complex),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF DATP");
+#endif
+
+    cudaHostRegister(ctfP,
+                     imgShift * sizeof(RFLOAT),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF CTFP");
+#endif
+
+#ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
+
+    cudaHostRegister(sigRcpP,
+                     imgShift * sizeof(RFLOAT),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF SIGRCPP");
+#endif
+
+#endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-    cudaHostRegister(offS, imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
-    cudaCheckErrors("Register offset data.");
+
+    cudaHostRegister(offS,
+                     imgNum * 2 * sizeof(double),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF OFFS");
 #endif
 
-    cudaHostRegister(w, imgNum * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register w data.");
+#endif
+
+    cudaHostRegister(w,
+                     imgNum * sizeof(RFLOAT),
+                     cudaHostRegisterDefault);
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF W");
+#endif
     
     cudaHostRegister(nC, imgNum * sizeof(int), cudaHostRegisterDefault);
     cudaCheckErrors("Register nR data.");
