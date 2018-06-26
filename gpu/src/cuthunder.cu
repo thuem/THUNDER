@@ -5302,7 +5302,7 @@ void InsertFT(Complex *F3D,
     }
 
     /* Create and setup cuda stream */
-    cudaStream_t stream[streamNum];
+    cudaStream_t stream[streamNum]; // NUM_STREAM streams for each GPU device
 
     //cudaEvent_t start[streamNum], stop[streamNum];
 
