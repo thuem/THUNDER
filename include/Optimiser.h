@@ -891,13 +891,6 @@ class Optimiser : public Parallel
                             const bool avgSave,
                             const bool finished = false);
         
-        void reconstructRefG(const bool fscFlag,
-                             const bool avgFlag,
-                             const bool fscSave,
-                             const bool avgSave,
-                             const bool finished = false);
-
-
         /***
          * @param mask           whether mask on the reference is allowed or
          *                       not

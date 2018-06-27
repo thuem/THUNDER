@@ -18,7 +18,7 @@
 
 #define GPU_EXPECTATION
 #define GPU_INSERT
-//#define GPU_RECONSTRUCT
+#define GPU_RECONSTRUCT
 #define GPU_REMASK
 
 #define GPU_ERROR_CHECK
