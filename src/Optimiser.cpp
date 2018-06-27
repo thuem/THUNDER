@@ -3690,18 +3690,22 @@ void Optimiser::run()
 #ifdef OPTIMISER_MASK_IMG
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
 #ifdef GPU_VERSION
+            /***
             float time_use = 0;
             struct timeval start;
             struct timeval end;
 
             gettimeofday(&start, NULL);
+            ***/
             reMaskImgG();
+            /***
             gettimeofday(&end, NULL);
             time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
             if (_commRank == HEMI_A_LEAD)
                 printf("itr:%d, reMaskImgA time_use:%lf\n", _iter, time_use);
             else if (_commRank == HEMI_B_LEAD)
                 printf("itr:%d, reMaskImgB time_use:%lf\n", _iter, time_use);
+            ***/
 #else
             reMaskImg();
 #endif
