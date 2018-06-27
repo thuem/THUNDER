@@ -17,7 +17,7 @@
 #ifdef GPU_VERSION
 #define GPU_EXPECTATION
 #define GPU_INSERT
-//#define GPU_RECONSTRUCT
+#define GPU_RECONSTRUCT
 #define GPU_REMASK
 #endif
 

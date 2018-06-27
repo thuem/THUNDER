@@ -28,6 +28,7 @@ ManagedArrayTexture::DeviceStruct::~DeviceStruct()
 void ManagedArrayTexture::DeviceStruct::Initialize2D(int vdim)
 {
     cudaSetDevice(deviceId);
+    cudaCheckErrors("Set deviceID error.");
 
 #ifdef SINGLE_PRECISION
     channelDesc = cudaCreateChannelDesc(32, 32, 0, 0, cudaChannelFormatKindFloat);
@@ -36,7 +37,7 @@ void ManagedArrayTexture::DeviceStruct::Initialize2D(int vdim)
 #endif    
 
     cudaMallocArray(&symArray, &channelDesc, vdim / 2 + 1, vdim);
-    //cudaCheckErrors("Allocate symArray data.");
+    cudaCheckErrors("Allocate symArray data.");
 
     memset(&resDesc, 0, sizeof(resDesc));
     resDesc.resType = cudaResourceTypeArray;
@@ -49,6 +50,7 @@ void ManagedArrayTexture::DeviceStruct::Initialize2D(int vdim)
     td.readMode = cudaReadModeElementType;
 
     cudaCreateTextureObject(&texObject, &resDesc, &td, NULL);
+    cudaCheckErrors("Create symArray texObject.");
 }
 
 void ManagedArrayTexture::DeviceStruct::Initialize3D(int vdim)

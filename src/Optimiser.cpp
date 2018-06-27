@@ -1175,7 +1175,7 @@ void Optimiser::expectation()
                 if (_searchType == SEARCH_TYPE_CTF)
                     _par[l].perturb(_para.perturbFactorSCTF, PAR_D);
             }
-
+  
             RFLOAT baseLine = GSL_NAN;
 
             vec wC = vec::Zero(1);
@@ -2810,7 +2810,7 @@ void Optimiser::expectationG()
                                vdim);
             }
         }
-           
+       
         #pragma omp parallel for schedule(dynamic)
         FOR_EACH_2D_IMAGE
         {
@@ -2855,7 +2855,7 @@ void Optimiser::expectationG()
                              _nPxl,
                              _searchType);
             }
-                
+              
             omp_unset_lock(&mtx[gpuIdx]);
 
             int nPhaseWithNoVariDecrease = 0;
@@ -2918,14 +2918,27 @@ void Optimiser::expectationG()
                     trans[threadId][k * 2 + 1] = t(1);
                 }
                 
-                dvec4 r;
-                for (int k = 0; k < _para.mLR; k++)
+                if (_para.mode == MODE_2D)
                 {
-                    _par[l].quaternion(r, k);
-                    rot[threadId][k * 4] = r(0);
-                    rot[threadId][k * 4 + 1] = r(1);
-                    rot[threadId][k * 4 + 2] = r(2);
-                    rot[threadId][k * 4 + 3] = r(3);
+                    dvec4 r;
+                    for (int k = 0; k < _para.mLR; k++)
+                    {
+                        _par[l].quaternion(r, k);
+                        rot[threadId][k * 2] = r(0);
+                        rot[threadId][k * 2 + 1] = r(1);
+                    }
+                }
+                else
+                {
+                    dvec4 r;
+                    for (int k = 0; k < _para.mLR; k++)
+                    {
+                        _par[l].quaternion(r, k);
+                        rot[threadId][k * 4] = r(0);
+                        rot[threadId][k * 4 + 1] = r(1);
+                        rot[threadId][k * 4 + 2] = r(2);
+                        rot[threadId][k * 4 + 3] = r(3);
+                    }
                 }
 
                 if (_searchType == SEARCH_TYPE_CTF)
@@ -3717,18 +3730,18 @@ void Optimiser::run()
 #ifdef OPTIMISER_MASK_IMG
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
 #ifdef GPU_VERSION
-            float time_use = 0;
-            struct timeval start;
-            struct timeval end;
+            //float time_use = 0;
+            //struct timeval start;
+            //struct timeval end;
 
-            gettimeofday(&start, NULL);
+            //gettimeofday(&start, NULL);
             reMaskImgG();
-            gettimeofday(&end, NULL);
-            time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
-            if (_commRank == HEMI_A_LEAD)
-                printf("itr:%d, reMaskImgA time_use:%lf\n", _iter, time_use);
-            else if (_commRank == HEMI_B_LEAD)
-                printf("itr:%d, reMaskImgB time_use:%lf\n", _iter, time_use);
+            //gettimeofday(&end, NULL);
+            //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
+            //if (_commRank == HEMI_A_LEAD)
+            //    printf("itr:%d, reMaskImgA time_use:%lf\n", _iter, time_use);
+            //else if (_commRank == HEMI_B_LEAD)
+            //    printf("itr:%d, reMaskImgB time_use:%lf\n", _iter, time_use);
 #else
             reMaskImg();
 #endif
@@ -6831,13 +6844,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
         if (_para.mode == MODE_2D)
         {
-            RFLOAT *w = new RFLOAT[_ID.size()];
-            double *offS = new double[_ID.size() * 2];
-            double *nr = new double[_para.mReco * _ID.size() * 2];
-            double *nt = new double[_para.mReco * _ID.size() * 2];
-            double *nd = new double[_para.mReco * _ID.size()];
-            CTFAttr* ctfaData = new CTFAttr[_ID.size()];
-            int *nc = new int[_para.mReco * _ID.size()];
+            RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+            double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+            double *nr = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+            double *nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+            double *nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
+            CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
+            int *nc = (int*)malloc(_para.mReco * _ID.size() * sizeof(int));
             
             #pragma omp parallel for
             FOR_EACH_2D_IMAGE
@@ -6936,10 +6949,10 @@ void Optimiser::reconstructRefG(const bool fscFlag,
         {
             if (_para.k != 1)
             {
-                RFLOAT *w = new RFLOAT[_ID.size()];
-                double *offS = new double[_ID.size() * 2];
-                int *nc = new int[_para.k * _ID.size()];
-                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+                double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+                CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
+                int *nc = (int*)malloc(_para.k * _ID.size() * sizeof(int));
                 
                 #pragma omp parallel for
                 for(size_t i = 0; i < _para.k * _ID.size(); i++)
@@ -6994,9 +7007,9 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
                     if (temp != 0)
                     {
-                        nr = new double[temp * _ID.size() * 4];
-                        nt = new double[temp * _ID.size() * 2];
-                        nd = new double[temp * _ID.size()];
+                        nr = (double*)malloc(temp * _ID.size() * 4 * sizeof(double));
+                        nt = (double*)malloc(temp * _ID.size() * 2 * sizeof(double));
+                        nd = (double*)malloc(temp * _ID.size() * sizeof(double));
                         
                         #pragma omp parallel for
                         FOR_EACH_2D_IMAGE
@@ -7042,12 +7055,12 @@ void Optimiser::reconstructRefG(const bool fscFlag,
             }
             else
             {
-                RFLOAT *w = new RFLOAT[_ID.size()];
-                double *offS = new double[_ID.size() * 2];
-                double *nr = new double[_para.mReco * _ID.size() * 4];
-                double *nt = new double[_para.mReco * _ID.size() * 2];
-                double *nd = new double[_para.mReco * _ID.size()];
-                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+                double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+                double *nr = (double*)malloc(_para.mReco * _ID.size() * 4 * sizeof(double));
+                double *nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+                double *nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
+                CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
                 
                 #pragma omp parallel for
                 FOR_EACH_2D_IMAGE
@@ -7127,17 +7140,13 @@ void Optimiser::reconstructRefG(const bool fscFlag,
 
         if (_para.mode == MODE_3D)
         {
-#ifdef GPU_RECONSTRUCT
             std::vector<int> gpus;
 
             getAviDevice(gpus);
            
             int deviceNum = gpus.size();
-#endif
 
-#ifdef GPU_RECONSTRUCT
             #pragma omp parallel for num_threads(deviceNum)
-#endif
             for (int t = 0; t < _para.k; t++)
             {
                 ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
@@ -7145,11 +7154,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
                 BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                            << t;
 
-#ifdef GPU_RECONSTRUCT
                 _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
-#else
-                _model.reco(t).prepareTF();
-#endif
                 //_model.reco(t).prepareTFG(0);
             }
         }

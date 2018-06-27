@@ -80,8 +80,16 @@ void ManagedCalPoint::Init(int mode, int cSearch, int gpuIdx, int nR, int nT, in
     
     if (mode == 1)
     {
+        cudaMalloc((void**)&devnR, nR * 4 * sizeof(double));
+        cudaCheckErrors("Allocate nR data.");
+    
         cudaMalloc((void**)&devRotm, nR * 9 * sizeof(double));
         cudaCheckErrors("Allocate rotM data.");
+    }
+    else
+    {
+        cudaMalloc((void**)&devnR, nR * 2 * sizeof(double));
+        cudaCheckErrors("Allocate nR data.");
     }
 
     cudaMalloc((void**)&devnT, nT * 2 * sizeof(double));

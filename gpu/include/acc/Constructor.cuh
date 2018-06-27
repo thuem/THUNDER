@@ -252,6 +252,7 @@ class Constructor
                                      int fscMatsize,
                                      int wiener,
                                      int r,
+                                     int pf,
                                      bool joinHalf);
         
         /**
