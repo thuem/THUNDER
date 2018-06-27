@@ -4520,6 +4520,10 @@ void InsertFT(Complex *F3D,
     CLOG(INFO, "LOGGER_GPU") << "Data Copyed From Host to Device";
 #endif
 
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Inserting Images Batch by Batch";
+#endif
+
     int nImgBatch = 0;
     int smidx = 0;
     
@@ -4811,27 +4815,29 @@ void InsertFT(Complex *F3D,
 
             i += nImgBatch;
         }
+
         smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
+
+
+#ifdef VERBOSE_LEVEL_1
+    CLOG(INFO, "LOGGER_GPU") << "Batch by Batch Images Inserted";
+#endif
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
         int baseS = n * NUM_STREAM_PER_DEVICE;
+
         cudaSetDevice(gpus[n]);
         
         for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
-            
             cudaStreamSynchronize(stream[i + baseS]); 
-            cudaCheckErrors("Stream synchronize.");
-            //cudaEventSynchronize(stop[i + baseS]);
-            //float elapsed_time;
-            //cudaEventElapsedTime(&elapsed_time, start[i + baseS], stop[i + baseS]);
-            //if (n == 0 && i == 0)
-            //{
-            //    printf("insertF:%f\n", elapsed_time);
-            //}
+
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO SYNCHRONIZE STREAM");
+#endif
 
             if (cSearch)
             {
@@ -4852,11 +4858,6 @@ void InsertFT(Complex *F3D,
             cudaFree(__device__batch__nR[i + baseS]);
             cudaFree(__device__batch__nT[i + baseS]);
             cudaFree(dev_mat_buf[i + baseS]);
-           /* 
-            cudaEventDestroy(start[i + baseS]); 
-            cudaEventDestroy(stop[i + baseS]);
-            cudaCheckErrors("Event destory.");
-            */          
         }
     } 
     
@@ -4867,6 +4868,7 @@ void InsertFT(Complex *F3D,
     cudaHostUnregister(nC);
     cudaHostUnregister(nR);
     cudaHostUnregister(nT);
+
     if (cSearch)
     {
         cudaHostUnregister(nD);
@@ -4880,16 +4882,12 @@ void InsertFT(Complex *F3D,
     cudaHostUnregister(sigRcpP);
 #endif
 
-    LOG(INFO) << "Insert done.";
-    //printf("Insert done.\n");
-
     MPI_Barrier(hemi);
-    //MPI_Barrier(MPI_COMM_WORLD);
 
-    LOG(INFO) << "rank" << rankO << ": Step2: Reduce Volume.";
-    //printf("rank%d: Step2: Reduce Volume.\n", nranks);
+    CLOG(INFO, "LOGGER_GPU") << "Reducing Volume F and T";
     
     NCCLCHECK(ncclGroupStart()); 
+
     for (int i = 0; i < aviDevs; i++) 
     { 
         cudaSetDevice(gpus[i]); 
@@ -4926,6 +4924,7 @@ void InsertFT(Complex *F3D,
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
+
     for (int n = 0; n < aviDevs; ++n) 
     { 
         int baseS = n * NUM_STREAM_PER_DEVICE;
@@ -4935,9 +4934,10 @@ void InsertFT(Complex *F3D,
         for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
-    
-    //MPI_Barrier(MPI_COMM_WORLD);
+
     MPI_Barrier(hemi);
+
+    CLOG(INFO, "LOGGER_GPU") << "Volume F and T Reduced";
     
     cudaSetDevice(gpus[0]);
     cudaMemcpy(F3D,

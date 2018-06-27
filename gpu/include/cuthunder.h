@@ -489,38 +489,6 @@ void InsertFT(Complex *F3D,
               int vdim);
 
 /**
- * @brief Insert images into volume.
- *
- * @param
- * @param
- */
-void InsertF(Complex *F3D,
-             RFLOAT *T3D,
-             MPI_Comm& hemi,
-             Complex *datP,
-             RFLOAT *ctfP,
-             RFLOAT *sigRcpP,
-             CTFAttr *ctfaData,
-             double *offS,
-             RFLOAT *w,
-             double *nR,
-             double *nT,
-             double *nD,
-             const int *iCol,
-             const int *iRow,
-             RFLOAT pixelSize,
-             bool cSearch,
-             int opf,
-             int npxl,
-             int rSize,
-             int tSize,
-             int dSize,
-             int mReco,
-             int imgNum,
-             int idim,
-             int vdim);
-
-/**
  * @brief
  *
  * @param 
