@@ -487,17 +487,20 @@ __global__ void kernel_getRandomCTD(double* dev_nt,
                                     );
 
 /**
- * @brief ...
+ * @brief A Kernel for Calcuating Rotation Matrices From Quaternions
+ * 
+ * each block should be an image
+ * each thread of a block should be an insertation of an image
  *
- * @param ...
- * @param ...
+ * @param dev_mat rotation matrices
+ * @param dev_ramR quaternions
  */
 __global__ void kernel_getRandomR(double* dev_mat,
                                   double* dev_ramR,
                                   int* dev_nc);
 
 /**
- * @brief ...
+ * @brief 
  *
  * @param ...
  * @param ...

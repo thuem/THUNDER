@@ -4567,7 +4567,7 @@ void InsertFT(Complex *F3D,
                                                          __device__batch__nC[smidx + baseS]);
 
 #ifdef GPU_ERROR_CHECK
-            cudaCheckErrors("FAIL TO GET A BATCH OF RANDOM R");
+            cudaCheckErrors("FAIL TO CALCULATE ROTATION MARTICES FROM NR");
 #endif
             
             cudaMemcpyAsync(__device__batch__nT[smidx + baseS],

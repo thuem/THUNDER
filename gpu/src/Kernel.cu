@@ -1848,7 +1848,10 @@ __global__ void kernel_getRandomR(double* dev_mat,
                                   double* dev_ramR,
                                   int* dev_nc)
 {
-    if (threadIdx.x < dev_nc[blockIdx.x])
+    // blockIdx.x -> index of each image
+    // threadIdx.x -> index of each insertation of each image
+    
+    if (threadIdx.x < dev_nc[blockIdx.x]) // true if this image should be inserted
     {
         int tid = threadIdx.x + blockIdx.x * blockDim.x;
         extern __shared__ double matS[];
