@@ -431,6 +431,14 @@ class Optimiser : public Parallel
 {
     private:
 
+#ifdef GPU_VERSION
+
+        int _nGPU;
+
+        vector<int> _iGPU;
+
+#endif
+
         OptimiserPara _para;
 
         /**
@@ -692,6 +700,12 @@ class Optimiser : public Parallel
             _ctfP = NULL;
             _sigRcpP = NULL;
         }
+
+#ifdef GPU_VERSION
+
+        void setGPUEnv();
+
+#endif
 
         ~Optimiser();
 

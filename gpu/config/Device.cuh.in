@@ -7,11 +7,16 @@
  * History :
  *
  **********************************************************************/
+
 #ifndef DEVICE_CUH
 #define DEVICE_CUH
 
 #include <cuda.h>
 #include <cstdio>
+
+#define CUDA_MAJOR_MIN 3
+
+#define CUDA_MINOR_MIN 0
 
 #define HD_CALLABLE __host__ __device__
 
