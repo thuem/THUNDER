@@ -14,6 +14,7 @@
 
 #include "Config.h"
 #include "huabin.h"
+#include "Macro.h"
 
 #include "ManagedArrayTexture.h"
 #include "ManagedCalPoint.h"
@@ -54,6 +55,9 @@ void addTest();
  * @param
  */
 void getAviDevice(vector<int>& gpus);
+
+void __host__checkHardware(int& nGPU,
+                           vector<int>& iGPU);
 
 /**
  * @brief  Expectation GLobal.

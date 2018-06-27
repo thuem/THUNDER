@@ -435,7 +435,7 @@ class Optimiser : public Parallel
 
         int _nGPU;
 
-        vector<int> _iGPU;
+        std::vector<int> _iGPU;
 
 #endif
 

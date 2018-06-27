@@ -124,6 +124,37 @@ void getAviDevice(vector<int>& gpus)
     }
 }
 
+void __host__checkHardware(int& nGPU,
+                           vector<int>& iGPU)
+{
+    nGPU = 0;
+    iGPU.clear();
+
+    int deviceCount;
+    cudaGetDeviceCount(&deviceCount);
+
+    for (int i = 0; i < deviceCount; i++)
+    {
+        cudaDeviceProp deviceProperties;
+
+        if (cudaGetDeviceProperties(&deviceProperties, i) == cudaSuccess)
+        {
+            if ((deviceProperties.major >= CUDA_MAJOR_MIN) &&
+                (deviceProperties.minor >= CUDA_MINOR_MIN))
+            {
+                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i << ", NAME : " << deviceProperties.name;
+                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i << ", MEMORY : " << deviceProperties.totalGlobalMem / MEGABYTE;
+                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i << ", CUDA CAPABILITY : " << deviceProperties.major << "." << deviceProperties.minor;
+
+                iGPU.push_back(i);
+                nGPU += 1;
+            }
+         }
+    }
+
+    CLOG(INFO, "LOGGER_GPU") << "NUMBER OF DEVICE FOR COMPUTING : " << nGPU;
+}
+
 /**
  * @brief ...
  *
