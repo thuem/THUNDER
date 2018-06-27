@@ -443,11 +443,11 @@ void updatePGLKImagesBuffer(Complex *pglkptr,
                             const vector<Complex*>& images,
                             int ndim,
                             int basePos,
-                            int batchSize)
+                            int nImgBatch)
 {
     size_t imageSize = (ndim / 2 + 1) * ndim;
 
-    for (int i = 0; i < batchSize; i++) {
+    for (int i = 0; i < nImgBatch; i++) {
         memcpy((void*)(pglkptr + i * imageSize),
                (void*)(images[basePos + i]),
                imageSize * sizeof(Complex));
@@ -463,9 +463,9 @@ void updatePGLKImagesBuffer(Complex *pglkptr,
 void updatePGLKCTFAttrsBuffer(CTFAttr *pglkptr,
                               const vector<CTFAttr*>& ctfas,
                               int basePos,
-                              int batchSize)
+                              int nImgBatch)
 {
-    for (int i = 0; i < batchSize; i++) {
+    for (int i = 0; i < nImgBatch; i++) {
         memcpy((void*)(pglkptr + i),
                (void*)(ctfas[basePos + i]),
                sizeof(CTFAttr));
@@ -481,12 +481,12 @@ void updatePGLKCTFAttrsBuffer(CTFAttr *pglkptr,
 //Complex *cb_pglkptr = NULL;
 //vector<Complex*> *cb_images = NULL;
 //int cb_ndim = 0;
-//int cb_batchSize = 0;
+//int cb_nImgBatch = 0;
 typedef struct {
     Complex *pglkptr;
     vector<Complex*> *images;
     int imageSize;
-    int batchSize;
+    int nImgBatch;
     int basePos;
 } CB_UPIB_t;
 
@@ -497,7 +497,7 @@ void CUDART_CB cbUpdatePGLKImagesBuffer(cudaStream_t stream,
     CB_UPIB_t *args = (CB_UPIB_t *)data;
     long long shift = 0;
 
-    for (int i = 0; i < args->batchSize; i++) {
+    for (int i = 0; i < args->nImgBatch; i++) {
         shift = i * args->imageSize;
         memcpy((void*)(args->pglkptr + shift),
                (void*)(*args->images)[args->basePos + i],
@@ -512,7 +512,7 @@ void CUDART_CB cbUpdateImagesBuffer(cudaStream_t stream,
     CB_UPIB_t *args = (CB_UPIB_t *)data;
     long long shift = 0;
 
-    for (int i = 0; i < args->batchSize; i++) {
+    for (int i = 0; i < args->nImgBatch; i++) {
         shift = i * args->imageSize;
         memcpy((void*)(*args->images)[args->basePos + i],
                (void*)(args->pglkptr + shift),
@@ -523,7 +523,7 @@ void CUDART_CB cbUpdateImagesBuffer(cudaStream_t stream,
 typedef struct {
     CTFAttr *pglkptr;
     vector<CTFAttr*> *ctfa;
-    int batchSize;
+    int nImgBatch;
     int basePos;
 } CB_UPIB_ta;
 
@@ -533,7 +533,7 @@ void CUDART_CB cbUpdatePGLKCTFABuffer(cudaStream_t stream,
 {
     CB_UPIB_ta *args = (CB_UPIB_ta *)data;
 
-    for (int i = 0; i < args->batchSize; i++) {
+    for (int i = 0; i < args->nImgBatch; i++) {
         memcpy((void*)(args->pglkptr + i),
                (void*)(*args->ctfa)[args->basePos + i],
                sizeof(CTFAttr));
@@ -655,7 +655,7 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
                   const int *iRow,
                   int idim,
                   int npxl,
-                  int imgNum)
+                  int nImg)
 {
     int numDevs;
     cudaGetDeviceCount(&numDevs);
@@ -739,35 +739,35 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
         
     LOG(INFO) << "Volume memcpy done...";
         
-    int batchSize = 0, smidx = 0;
+    int nImgBatch = 0, smidx = 0;
     
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
+            if (i >= nImg)
                 break;
            
             baseS = n * NUM_STREAM_PER_DEVICE;
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
-            printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
+            printf("batch:%d, smidx:%d, baseS:%d\n", nImgBatch, smidx, baseS);
             
             cudaSetDevice(gpus[n]); 
 
             cbArgsA[smidx + baseS].pglkptr = pglk_ctfas_buf[smidx + baseS];
             cbArgsA[smidx + baseS].ctfa = &ctfaData;
-            cbArgsA[smidx + baseS].batchSize = batchSize;
+            cbArgsA[smidx + baseS].nImgBatch = nImgBatch;
             cbArgsA[smidx + baseS].basePos = i;
             cudaStreamAddCallback(stream[smidx + baseS], cbUpdatePGLKCTFABuffer, (void*)&cbArgsA[smidx + baseS], 0);
            
             cudaMemcpyAsync(dev_ctfas_buf[smidx + baseS],
                             pglk_ctfas_buf[smidx + baseS],
-                            batchSize * sizeof(CTFAttr),
+                            nImgBatch * sizeof(CTFAttr),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy CTFAttr to device.");
             
-            kernel_ExpectPrectf<<<batchSize, 
+            kernel_ExpectPrectf<<<nImgBatch, 
                                   512, 
                                   0, 
                                   stream[smidx + baseS]>>>(dev_ctfas_buf[smidx + baseS],
@@ -781,29 +781,29 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
             
             cudaMemcpyAsync(def + i * npxl,
                             dev_def_buf[smidx + baseS],
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy def to host.");
             
             cudaMemcpyAsync(k1 + i,
                             dev_k1_buf[smidx + baseS],
-                            batchSize * sizeof(RFLOAT),
+                            nImgBatch * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy k1 to host.");
             
             cudaMemcpyAsync(k2 + i,
                             dev_k2_buf[smidx + baseS],
-                            batchSize * sizeof(RFLOAT),
+                            nImgBatch * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy k2 to host.");
 
-            i += batchSize;
+            i += nImgBatch;
         }
         
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
@@ -870,7 +870,7 @@ void expectGlobal2D(Complex* volume,
                     int idim,
                     int vdim,
                     int npxl,
-                    int imgNum)
+                    int nImg)
 {
     LOG(INFO) << "expectation Global begin.";
     
@@ -1034,22 +1034,22 @@ void expectGlobal2D(Complex* volume,
         }
     }        
     
-    cudaHostRegister(datP, imgNum * npxl * sizeof(Complex), cudaHostRegisterDefault);
+    cudaHostRegister(datP, nImg * npxl * sizeof(Complex), cudaHostRegisterDefault);
     //cudaCheckErrors("Register datP data.");
     
-    cudaHostRegister(ctfP, imgNum * npxl * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(ctfP, nImg * npxl * sizeof(RFLOAT), cudaHostRegisterDefault);
     //cudaCheckErrors("Register ctfP data.");
     
-    cudaHostRegister(sigRcpP, imgNum * npxl * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(sigRcpP, nImg * npxl * sizeof(RFLOAT), cudaHostRegisterDefault);
     //cudaCheckErrors("Register sigRcpP data.");
     
-    cudaHostRegister(wC, imgNum * nK * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(wC, nImg * nK * sizeof(RFLOAT), cudaHostRegisterDefault);
     //cudaCheckErrors("Register wC data.");
     
-    cudaHostRegister(wR, imgNum * nK * nR * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(wR, nImg * nK * nR * sizeof(RFLOAT), cudaHostRegisterDefault);
     //cudaCheckErrors("Register wR data.");
     
-    cudaHostRegister(wT, imgNum * nK * nT * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(wT, nImg * nK * nT * sizeof(RFLOAT), cudaHostRegisterDefault);
     //cudaCheckErrors("Register wT data.");
     
     cudaTextureDesc td;
@@ -1095,7 +1095,7 @@ void expectGlobal2D(Complex* volume,
     cudaHostUnregister(rot);
     //cudaCheckErrors("Unregister rot.");
     
-    Complex* devdatP[nStream];
+    Complex* __device__batch__datP[nStream];
     Complex* priRotP[nStream];
     RFLOAT* devctfP[nStream];
     RFLOAT* devsigP[nStream];
@@ -1114,7 +1114,7 @@ void expectGlobal2D(Complex* volume,
         for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             allocDeviceComplexBuffer(&priRotP[i + baseS], BATCH_SIZE * npxl);
-            allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
+            allocDeviceComplexBuffer(&__device__batch__datP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devctfP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devsigP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devDvp[i + baseS], BATCH_SIZE * nR * nT);
@@ -1130,56 +1130,56 @@ void expectGlobal2D(Complex* volume,
         }       
     }
 
-    int batchSize = 0, rbatch = 0, smidx = 0;
+    int nImgBatch = 0, rbatch = 0, smidx = 0;
    
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
+            if (i >= nImg)
                 break;
            
             baseS = n * NUM_STREAM_PER_DEVICE;
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
             
             cudaSetDevice(gpus[n]); 
 
-            cudaMemcpyAsync(devdatP[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__datP[smidx + baseS],
                             datP + i * npxl,
-                            batchSize * npxl * sizeof(Complex),
+                            nImgBatch * npxl * sizeof(Complex),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy datP to device.");
             
             cudaMemcpyAsync(devctfP[smidx + baseS],
                             ctfP + i * npxl,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy ctfP to device.");
             
             cudaMemcpyAsync(devsigP[smidx + baseS],
                             sigRcpP + i * npxl,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy sigP to device.");
                 
             cudaMemsetAsync(devwC[smidx + baseS],
                             0.0,
-                            batchSize * nK * sizeof(RFLOAT),
+                            nImgBatch * nK * sizeof(RFLOAT),
                             stream[smidx + baseS]);
             //cudaCheckErrors("for memset wC.");
         
             cudaMemsetAsync(devwR[smidx + baseS],
                             0.0,
-                            batchSize * nK * nR * sizeof(RFLOAT),
+                            nImgBatch * nK * nR * sizeof(RFLOAT),
                             stream[smidx + baseS]);
             //cudaCheckErrors("for memset wR.");
         
             cudaMemsetAsync(devwT[smidx + baseS],
                             0.0,
-                            batchSize * nK * nT * sizeof(RFLOAT),
+                            nImgBatch * nK * nT * sizeof(RFLOAT),
                             stream[smidx + baseS]);
             //cudaCheckErrors("for memset wT.");
         
@@ -1203,10 +1203,10 @@ void expectGlobal2D(Complex* volume,
                                                                 interp,
                                                                 texObject[k + n * nK]);
 
-                    kernel_logDataVS<<<rbatch * batchSize * nT, 
+                    kernel_logDataVS<<<rbatch * nImgBatch * nT, 
                                        64, 
                                        64 * sizeof(RFLOAT), 
-                                       stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                       stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                                 priRotP[smidx + baseS],
                                                                 devtraP[n],
                                                                 devctfP[smidx + baseS],
@@ -1223,7 +1223,7 @@ void expectGlobal2D(Complex* volume,
 
                 if (k == 0)
                 {
-                    kernel_getMaxBase<<<batchSize, 
+                    kernel_getMaxBase<<<nImgBatch, 
                                         512, 
                                         512 * sizeof(RFLOAT), 
                                         stream[smidx + baseS]>>>(devbaseL[smidx + baseS],
@@ -1232,14 +1232,14 @@ void expectGlobal2D(Complex* volume,
                 }
                 else
                 {
-                    kernel_getMaxBase<<<batchSize, 
+                    kernel_getMaxBase<<<nImgBatch, 
                                         512, 
                                         512 * sizeof(RFLOAT), 
                                         stream[smidx + baseS]>>>(devcomP[smidx + baseS],
                                                                  devDvp[smidx + baseS],
                                                                  nR * nT);
 
-                    kernel_setBaseLine<<<batchSize, 
+                    kernel_setBaseLine<<<nImgBatch, 
                                          512, 
                                          0, 
                                          stream[smidx + baseS]>>>(devcomP[smidx + baseS],
@@ -1252,7 +1252,7 @@ void expectGlobal2D(Complex* volume,
                                                                   nT);
                 }
 
-                kernel_UpdateW<<<batchSize,
+                kernel_UpdateW<<<nImgBatch,
                                  nT,
                                  nT * sizeof(RFLOAT),
                                  stream[smidx + baseS]>>>(devDvp[smidx + baseS],
@@ -1271,29 +1271,29 @@ void expectGlobal2D(Complex* volume,
 
             cudaMemcpyAsync(wC + i * nK,
                             devwC[smidx + baseS],
-                            batchSize * nK * sizeof(RFLOAT),
+                            nImgBatch * nK * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy wC to host.");
                 
             cudaMemcpyAsync(wR + i * nR * nK,
                             devwR[smidx + baseS],
-                            batchSize * nR  * nK * sizeof(RFLOAT),
+                            nImgBatch * nR  * nK * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy wR to host.");
             
             cudaMemcpyAsync(wT + i * nT * nK,
                             devwT[smidx + baseS],
-                            batchSize * nT * nK * sizeof(RFLOAT),
+                            nImgBatch * nT * nK * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy wT to host.");
                 
-            i += batchSize;
+            i += nImgBatch;
         }
         
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
@@ -1307,7 +1307,7 @@ void expectGlobal2D(Complex* volume,
             cudaStreamSynchronize(stream[i + baseS]); 
             //cudaCheckErrors("Stream synchronize after.");
             
-            cudaFree(devdatP[i + baseS]);
+            cudaFree(__device__batch__datP[i + baseS]);
             cudaFree(devctfP[i + baseS]);
             cudaFree(devsigP[i + baseS]);
             cudaFree(priRotP[i + baseS]);
@@ -1722,7 +1722,7 @@ void expectProject(Complex* volume,
         cudaCheckErrors("memcpy wT to host.");
         
         r += rbatch;
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
             
     for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
@@ -1797,7 +1797,7 @@ void expectGlobal3D(Complex* rotP,
                     int nR,
                     int nT,
                     int npxl,
-                    int imgNum)
+                    int nImg)
 {
     LOG(INFO) << "expectation Global begin.";
  
@@ -1865,7 +1865,7 @@ void expectGlobal3D(Complex* rotP,
         cudaCheckErrors("for memcpy pT.");
     }        
    
-    long long datSize = (long long)imgNum * npxl;
+    long long datSize = (long long)nImg * npxl;
 
     cudaHostRegister(rotP, (long long)nR * npxl * sizeof(Complex), cudaHostRegisterDefault);
     cudaCheckErrors("Register datP data.");
@@ -1879,20 +1879,20 @@ void expectGlobal3D(Complex* rotP,
     cudaHostRegister(sigRcpP, datSize * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register sigRcpP data.");
     
-    cudaHostRegister(baseL, imgNum * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(baseL, nImg * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register wC data.");
     
-    cudaHostRegister(wC, imgNum * nK * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(wC, nImg * nK * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register wC data.");
     
-    cudaHostRegister(wR, (long long)imgNum * nK * nR * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(wR, (long long)nImg * nK * nR * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register wR data.");
     
-    cudaHostRegister(wT, (long long)imgNum * nK * nT * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(wT, (long long)nImg * nK * nT * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register wT data.");
     
     Complex* priRotP[nStream];
-    Complex* devdatP[nStream];
+    Complex* __device__batch__datP[nStream];
     RFLOAT* devctfP[nStream];
     RFLOAT* devsigP[nStream];
     RFLOAT* devDvp[nStream];
@@ -1910,7 +1910,7 @@ void expectGlobal3D(Complex* rotP,
         for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             allocDeviceComplexBuffer(&priRotP[i + baseS], BATCH_SIZE * npxl);
-            allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
+            allocDeviceComplexBuffer(&__device__batch__datP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devctfP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devsigP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devDvp[i + baseS], BATCH_SIZE * nR * nT);
@@ -1939,39 +1939,39 @@ void expectGlobal3D(Complex* rotP,
         }
     } 
     
-    int batchSize = 0, rbatch = 0, smidx = 0;
+    int nImgBatch = 0, rbatch = 0, smidx = 0;
 
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
+            if (i >= nImg)
                 break;
            
             baseS = n * NUM_STREAM_PER_DEVICE;
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
             
             cudaSetDevice(gpus[n]); 
 
             long long imgShift = (long long)i * npxl;
             
-            cudaMemcpyAsync(devdatP[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__datP[smidx + baseS],
                             datP + imgShift,
-                            batchSize * npxl * sizeof(Complex),
+                            nImgBatch * npxl * sizeof(Complex),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy datP to device.");
             
             cudaMemcpyAsync(devctfP[smidx + baseS],
                             ctfP + imgShift,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy ctfP to device.");
             
             cudaMemcpyAsync(devsigP[smidx + baseS],
                             sigRcpP + imgShift,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy sigP to device.");
@@ -1981,19 +1981,19 @@ void expectGlobal3D(Complex* rotP,
 
                 cudaMemsetAsync(devwC[smidx + baseS],
                                 0.0,
-                                batchSize * nK * sizeof(RFLOAT),
+                                nImgBatch * nK * sizeof(RFLOAT),
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset wC.");
         
                 cudaMemsetAsync(devwR[smidx + baseS],
                                 0.0,
-                                batchSize * nK * nR * sizeof(RFLOAT),
+                                nImgBatch * nK * nR * sizeof(RFLOAT),
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset wR.");
         
                 cudaMemsetAsync(devwT[smidx + baseS],
                                 0.0,
-                                batchSize * nK * nT * sizeof(RFLOAT),
+                                nImgBatch * nK * nT * sizeof(RFLOAT),
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset wT.");
             }
@@ -2001,28 +2001,28 @@ void expectGlobal3D(Complex* rotP,
             {
                 cudaMemcpyAsync(devbaseL[smidx + baseS],
                                 baseL + i,
-                                batchSize * sizeof(RFLOAT),
+                                nImgBatch * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset baseL.");
                 
                 cudaMemcpyAsync(devwC[smidx + baseS],
                                 wC + i * nK,
-                                batchSize * nK * sizeof(RFLOAT),
+                                nImgBatch * nK * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset wC.");
         
                 cudaMemcpyAsync(devwR[smidx + baseS],
                                 wR + (long long)i * nR,
-                                batchSize * nK * nR * sizeof(RFLOAT),
+                                nImgBatch * nK * nR * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset wR.");
         
                 cudaMemcpyAsync(devwT[smidx + baseS],
                                 wT + (long long)i * nT,
-                                batchSize * nK * nT * sizeof(RFLOAT),
+                                nImgBatch * nK * nT * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("for memset wT.");
@@ -2041,10 +2041,10 @@ void expectGlobal3D(Complex* rotP,
             
                 //printf("rotP re:%.16lf, im:%.16lf\n", rotP[26 * npxl + 1064].real(), rotP[26 * npxl + 1064].imag());
                 
-                kernel_logDataVS<<<rbatch * batchSize * nT, 
+                kernel_logDataVS<<<rbatch * nImgBatch * nT, 
                                    64, 
                                    64 * sizeof(RFLOAT), 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             priRotP[smidx + baseS],
                                                             devtraP[n],
                                                             devctfP[smidx + baseS],
@@ -2061,7 +2061,7 @@ void expectGlobal3D(Complex* rotP,
             
             if (kIdx == 0)
             {
-                kernel_getMaxBase<<<batchSize, 
+                kernel_getMaxBase<<<nImgBatch, 
                                     512, 
                                     512 * sizeof(RFLOAT), 
                                     stream[smidx + baseS]>>>(devbaseL[smidx + baseS],
@@ -2070,14 +2070,14 @@ void expectGlobal3D(Complex* rotP,
             }
             else
             {
-                kernel_getMaxBase<<<batchSize, 
+                kernel_getMaxBase<<<nImgBatch, 
                                     512, 
                                     512 * sizeof(RFLOAT), 
                                     stream[smidx + baseS]>>>(devcomP[smidx + baseS],
                                                              devDvp[smidx + baseS],
                                                              nR * nT);
 
-                kernel_setBaseLine<<<batchSize, 
+                kernel_setBaseLine<<<nImgBatch, 
                                      512, 
                                      0, 
                                      stream[smidx + baseS]>>>(devcomP[smidx + baseS],
@@ -2090,7 +2090,7 @@ void expectGlobal3D(Complex* rotP,
                                                               nT);
             }
 
-            kernel_UpdateW<<<batchSize,
+            kernel_UpdateW<<<nImgBatch,
                              nT,
                              nT * sizeof(RFLOAT),
                              stream[smidx + baseS]>>>(devDvp[smidx + baseS],
@@ -2107,36 +2107,36 @@ void expectGlobal3D(Complex* rotP,
                     
             cudaMemcpyAsync(baseL + i,
                             devbaseL[smidx + baseS],
-                            batchSize * sizeof(RFLOAT),
+                            nImgBatch * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy baseL to host.");
                 
             cudaMemcpyAsync(wC + i * nK,
                             devwC[smidx + baseS],
-                            batchSize * nK * sizeof(RFLOAT),
+                            nImgBatch * nK * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy wC to host.");
                 
             cudaMemcpyAsync(wR + (long long)i * nK * nR,
                             devwR[smidx + baseS],
-                            batchSize * nK * nR * sizeof(RFLOAT),
+                            nImgBatch * nK * nR * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy wR to host.");
             
             cudaMemcpyAsync(wT + (long long)i * nK * nT,
                             devwT[smidx + baseS],
-                            batchSize * nK * nT * sizeof(RFLOAT),
+                            nImgBatch * nK * nT * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy wT to host.");
                 
-            i += batchSize;
+            i += nImgBatch;
         }
         
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
@@ -2154,7 +2154,7 @@ void expectGlobal3D(Complex* rotP,
             {
                 cudaFree(devcomP[i + baseS]);
             }
-            cudaFree(devdatP[i + baseS]);
+            cudaFree(__device__batch__datP[i + baseS]);
             cudaFree(devctfP[i + baseS]);
             cudaFree(devsigP[i + baseS]);
             cudaFree(priRotP[i + baseS]);
@@ -2166,51 +2166,51 @@ void expectGlobal3D(Complex* rotP,
         }
     } 
     
-    //RFLOAT* dd = new RFLOAT[imgNum];
+    //RFLOAT* dd = new RFLOAT[nImg];
     //FILE* pfile;
     //int t = 0;
     //pfile = fopen("baseL.dat", "rb");
     //if (pfile == NULL)
     //    printf("open base error!\n");
-    //if (fread(dd, sizeof(RFLOAT), imgNum, pfile) != imgNum)
+    //if (fread(dd, sizeof(RFLOAT), nImg, pfile) != nImg)
     //    printf("read base error!\n");
     //fclose(pfile);
     //printf("i:%d,cw:%lf,gw:%lf\n",0,dd[0],baseL[0]);
-    //for (t = 0; t < imgNum; t++){
+    //for (t = 0; t < nImg; t++){
     //    if (fabs(baseL[t] - dd[t]) >= 1e-4){
     //        printf("i:%d,cw:%lf,gw:%lf\n",t,dd[t],baseL[t]);
     //        break;
     //    }
     //}
-    //if (t == imgNum)
-    //    printf("successw:%d\n", imgNum);
+    //if (t == nImg)
+    //    printf("successw:%d\n", nImg);
 
     //cudaSetDevice(0);
-    //RFLOAT* dvp = new RFLOAT[imgNum * nR * nT];
+    //RFLOAT* dvp = new RFLOAT[nImg * nR * nT];
     //cudaMemcpy(dvp,
     //           devDvp[0],
-    //           imgNum * nR * nT * sizeof(RFLOAT),
+    //           nImg * nR * nT * sizeof(RFLOAT),
     //           cudaMemcpyDeviceToHost);
     //cudaCheckErrors("memcpy dvp to host.");
     //            
-    //RFLOAT* dd = new RFLOAT[imgNum * nR * nT];
+    //RFLOAT* dd = new RFLOAT[nImg * nR * nT];
     //FILE* pfile;
     //int t = 0;
     //pfile = fopen("dvp.dat", "rb");
     //if (pfile == NULL)
     //    printf("open dvp error!\n");
-    //if (fread(dd, sizeof(RFLOAT), imgNum * nR * nT, pfile) != imgNum * nR * nT)
+    //if (fread(dd, sizeof(RFLOAT), nImg * nR * nT, pfile) != nImg * nR * nT)
     //    printf("read dvp error!\n");
     //fclose(pfile);
     //printf("i:%d,cw:%lf,gw:%lf\n",0,dd[0],dvp[0]);
-    //for (t = 0; t < imgNum * nR * nT; t++){
+    //for (t = 0; t < nImg * nR * nT; t++){
     //    if (fabs(dvp[t] - dd[t]) >= 1e-4){
     //        printf("i:%d,cw:%lf,gw:%lf\n",t,dd[t],dvp[t]);
     //        break;
     //    }
     //}
-    //if (t == imgNum * nR * nT)
-    //    printf("successw:%d\n", imgNum * nR * nT);
+    //if (t == nImg * nR * nT)
+    //    printf("successw:%d\n", nImg * nR * nT);
 
     //cudaSetDevice(0);
     //cudaMemcpy(re,
@@ -2400,7 +2400,7 @@ void expectPrefre(int gpuIdx,
  * @param
  */
 void expectLocalIn(int gpuIdx,
-                   Complex** devdatP,
+                   Complex** __device__batch__datP,
                    RFLOAT** devctfP,
                    RFLOAT** devdefO,
                    RFLOAT** devsigP,
@@ -2410,7 +2410,7 @@ void expectLocalIn(int gpuIdx,
 {
     cudaSetDevice(gpuIdx); 
 
-    cudaMalloc((void**)devdatP, cpyNum * npxl * sizeof(Complex));
+    cudaMalloc((void**)__device__batch__datP, cpyNum * npxl * sizeof(Complex));
     cudaCheckErrors("Allocate datP data.");
     
     if (cSearch != 2)
@@ -2560,7 +2560,7 @@ void expectLocalHostA(int gpuIdx,
  * @param
  */
 void expectLocalP(int gpuIdx,
-                  Complex* devdatP,
+                  Complex* __device__batch__datP,
                   RFLOAT* devctfP,
                   RFLOAT* devdefO,
                   RFLOAT* devsigP,
@@ -2575,7 +2575,7 @@ void expectLocalP(int gpuIdx,
 {
     cudaSetDevice(gpuIdx); 
  
-    cudaMemcpy(devdatP + threadId * npxl,
+    cudaMemcpy(__device__batch__datP + threadId * npxl,
                datP + imgId * npxl,
                npxl * sizeof(Complex),
                cudaMemcpyHostToDevice);
@@ -2845,7 +2845,7 @@ void expectLocalM(int gpuIdx,
                   //RFLOAT* dvpA,
                   //RFLOAT* baseL,
                   ManagedCalPoint* mcp,
-                  Complex* devdatP,
+                  Complex* __device__batch__datP,
                   RFLOAT* devctfP,
                   RFLOAT* devsigP,
                   RFLOAT* wC,
@@ -2873,7 +2873,7 @@ void expectLocalM(int gpuIdx,
                             64 * sizeof(RFLOAT), 
                             *((cudaStream_t*)mcp->getStream())>>>(rotP,
                                                                   traP,
-                                                                  devdatP + datShift * npxl,
+                                                                  __device__batch__datP + datShift * npxl,
                                                                   devctfP + datShift * npxl,
                                                                   devsigP + datShift * npxl,
                                                                   mcp->getDevDvp(),
@@ -2962,7 +2962,7 @@ void expectLocalM(int gpuIdx,
                              512 * sizeof(RFLOAT), 
                              *((cudaStream_t*)mcp->getStream())>>>(rotP,
                                                                    traP,
-                                                                   devdatP + datShift * npxl,
+                                                                   __device__batch__datP + datShift * npxl,
                                                                    mcp->getDevctfD(),
                                                                    devsigP + datShift * npxl,
                                                                    mcp->getDevDvp(),
@@ -3142,7 +3142,7 @@ void expectLocalHostF(int gpuIdx,
  * @param
  */
 void expectLocalFin(int gpuIdx,
-                    Complex** devdatP,
+                    Complex** __device__batch__datP,
                     RFLOAT** devctfP,
                     RFLOAT** devdefO,
                     RFLOAT** devfreQ,
@@ -3151,7 +3151,7 @@ void expectLocalFin(int gpuIdx,
 {
     cudaSetDevice(gpuIdx); 
     
-    cudaFree(*devdatP);
+    cudaFree(*__device__batch__datP);
     cudaFree(*devsigP);
     
     if (cSearch != 2)
@@ -3215,7 +3215,7 @@ void InsertI2D(Complex *F2D,
                int mReco,
                int idim,
                int vdim,
-               int imgNum)
+               int nImg)
 {
     RFLOAT pixel = pixelSize * idim;
     int dimSize = (vdim / 2 + 1) * vdim;
@@ -3282,14 +3282,14 @@ void InsertI2D(Complex *F2D,
     
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
-    Complex *devdatP[nStream];
+    Complex *__device__batch__datP[nStream];
     Complex *devtranP[nStream];
     RFLOAT *devctfP[nStream];
-    double *dev_nr_buf[nStream];
-    double *dev_nt_buf[nStream];
+    double *__device__batch__nR[nStream];
+    double *__device__batch__nT[nStream];
     double *dev_nd_buf[nStream];
     double *dev_offs_buf[nStream];
-    int *dev_nc_buf[nStream];
+    int *__device__batch__nC[nStream];
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
     RFLOAT *devsigRcpP[nStream];
@@ -3305,7 +3305,7 @@ void InsertI2D(Complex *F2D,
     int *__device__C[aviDevs];
     int *__device__iCol[aviDevs];
     int *__device__iRow[aviDevs];
-    long long imgShift = (long long)imgNum * npxl;
+    long long imgShift = (long long)nImg * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
     cudaHostRegister(sigRcpP, imgShift * sizeof(RFLOAT), cudaHostRegisterDefault);
@@ -3331,28 +3331,28 @@ void InsertI2D(Complex *F2D,
     //cudaCheckErrors("Register ctfP data.");
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-    cudaHostRegister(offS, imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
+    cudaHostRegister(offS, nImg * 2 * sizeof(double), cudaHostRegisterDefault);
     //cudaCheckErrors("Register offset data.");
 #endif
 
-    cudaHostRegister(w, imgNum * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(w, nImg * sizeof(RFLOAT), cudaHostRegisterDefault);
     //cudaCheckErrors("Register w data.");
     
-    cudaHostRegister(nC, mReco * imgNum * sizeof(int), cudaHostRegisterDefault);
+    cudaHostRegister(nC, mReco * nImg * sizeof(int), cudaHostRegisterDefault);
     //cudaCheckErrors("Register nR data.");
     
-    cudaHostRegister(nR, mReco * imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
+    cudaHostRegister(nR, mReco * nImg * 2 * sizeof(double), cudaHostRegisterDefault);
     //cudaCheckErrors("Register nR data.");
     
-    cudaHostRegister(nT, mReco * imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
+    cudaHostRegister(nT, mReco * nImg * 2 * sizeof(double), cudaHostRegisterDefault);
     //cudaCheckErrors("Register nT data.");
     
     if (cSearch)
     {
-        cudaHostRegister(nD, mReco * imgNum * sizeof(double), cudaHostRegisterDefault);
+        cudaHostRegister(nD, mReco * nImg * sizeof(double), cudaHostRegisterDefault);
         //cudaCheckErrors("Register nT data.");
         
-        cudaHostRegister(ctfaData, imgNum * sizeof(CTFAttr), cudaHostRegisterDefault);
+        cudaHostRegister(ctfaData, nImg * sizeof(CTFAttr), cudaHostRegisterDefault);
         //cudaCheckErrors("Register ctfAdata data.");
     }
 
@@ -3395,12 +3395,12 @@ void InsertI2D(Complex *F2D,
                 allocDeviceParamBufferD(&dev_nd_buf[i + baseS], BATCH_SIZE * mReco);
             }
             
-            allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
+            allocDeviceComplexBuffer(&__device__batch__datP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceComplexBuffer(&devtranP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devctfP[i + baseS], BATCH_SIZE * npxl);
-            allocDeviceParamBufferI(&dev_nc_buf[i + baseS], BATCH_SIZE * mReco);
-            allocDeviceParamBufferD(&dev_nr_buf[i + baseS], BATCH_SIZE * mReco * 2);
-            allocDeviceParamBufferD(&dev_nt_buf[i + baseS], BATCH_SIZE * mReco * 2);
+            allocDeviceParamBufferI(&__device__batch__nC[i + baseS], BATCH_SIZE * mReco);
+            allocDeviceParamBufferD(&__device__batch__nR[i + baseS], BATCH_SIZE * mReco * 2);
+            allocDeviceParamBufferD(&__device__batch__nT[i + baseS], BATCH_SIZE * mReco * 2);
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             allocDeviceParamBufferD(&dev_offs_buf[i + baseS], BATCH_SIZE * 2);
 #endif
@@ -3512,39 +3512,39 @@ void InsertI2D(Complex *F2D,
   
     Complex* tranP = new Complex[npxl];
 
-    int batchSize = 0, smidx = 0;
+    int nImgBatch = 0, smidx = 0;
     
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
+            if (i >= nImg)
                 break;
            
             baseS = n * NUM_STREAM_PER_DEVICE;
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
-            //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
+            //printf("batch:%d, smidx:%d, baseS:%d\n", nImgBatch, smidx, baseS);
             
             cudaSetDevice(gpus[n]); 
             long long imgS = (long long)i * npxl;
 
-            cudaMemcpyAsync(dev_nr_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nR[smidx + baseS],
                             nR + i * mReco * 2,
-                            batchSize * mReco * 2 * sizeof(double),
+                            nImgBatch * mReco * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy nr to device.");
             
-            cudaMemcpyAsync(dev_nt_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nT[smidx + baseS],
                             nT + i * mReco * 2,
-                            batchSize * mReco * 2 * sizeof(double),
+                            nImgBatch * mReco * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy nt to device.");
             
-            cudaMemcpyAsync(devdatP[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__datP[smidx + baseS],
                             datP + imgS,
-                            batchSize * npxl * sizeof(Complex),
+                            nImgBatch * npxl * sizeof(Complex),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy reale to device.");
@@ -3553,14 +3553,14 @@ void InsertI2D(Complex *F2D,
             {
                 cudaMemcpyAsync(dev_nd_buf[smidx + baseS],
                                 nD + i * mReco,
-                                batchSize * mReco * sizeof(double),
+                                nImgBatch * mReco * sizeof(double),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 //cudaCheckErrors("memcpy nt to device.");
             
                 cudaMemcpyAsync(dev_ctfas_buf[smidx + baseS],
                                 ctfaData + i,
-                                batchSize * sizeof(CTFAttr),
+                                nImgBatch * sizeof(CTFAttr),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 //cudaCheckErrors("memcpy CTFAttr to device.");
@@ -3569,7 +3569,7 @@ void InsertI2D(Complex *F2D,
             {
                 cudaMemcpyAsync(devctfP[smidx + baseS],
                                 ctfP + imgS,
-                                batchSize * npxl * sizeof(RFLOAT),
+                                nImgBatch * npxl * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 //cudaCheckErrors("memcpy ctf to device.");
@@ -3578,7 +3578,7 @@ void InsertI2D(Complex *F2D,
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
             cudaMemcpyAsync(devsigRcpP[smidx + baseS],
                             sigRcpP + imgS,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("for memcpy sigRcp.");
@@ -3587,7 +3587,7 @@ void InsertI2D(Complex *F2D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             cudaMemcpyAsync(dev_offs_buf[smidx + baseS],
                             offS + 2 * i,
-                            batchSize * 2 * sizeof(double),
+                            nImgBatch * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy offset to device.");
@@ -3595,15 +3595,15 @@ void InsertI2D(Complex *F2D,
             
             cudaMemcpyToSymbolAsync(dev_ws_data,
                                     w + i,
-                                    batchSize * sizeof(RFLOAT),
-                                    smidx * batchSize * sizeof(RFLOAT),
+                                    nImgBatch * sizeof(RFLOAT),
+                                    smidx * nImgBatch * sizeof(RFLOAT),
                                     cudaMemcpyHostToDevice,
                                     stream[smidx + baseS]);
             //cudaCheckErrors("memcpy w to device constant memory.");
            
-            cudaMemcpyAsync(dev_nc_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nC[smidx + baseS],
                             nC + i * mReco,
-                            batchSize * mReco * sizeof(int),
+                            nImgBatch * mReco * sizeof(int),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             //cudaCheckErrors("memcpy nr to device.");
@@ -3613,13 +3613,13 @@ void InsertI2D(Complex *F2D,
             for (int m = 0; m < mReco; m++)
             {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                kernel_Translate<<<batchSize, 
+                kernel_Translate<<<nImgBatch, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             devtranP[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -3630,12 +3630,12 @@ void InsertI2D(Complex *F2D,
                 
                 //cudaCheckErrors("translate kernel.");
 #else
-                kernel_Translate<<<batchSize, 
+                kernel_Translate<<<nImgBatch, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             devtranP[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -3649,7 +3649,7 @@ void InsertI2D(Complex *F2D,
             
                 if (cSearch)
                 {
-                    kernel_CalculateCTF<<<batchSize, 
+                    kernel_CalculateCTF<<<nImgBatch, 
                                           512, 
                                           0, 
                                           stream[smidx + baseS]>>>(devctfP[smidx + baseS],
@@ -3667,14 +3667,14 @@ void InsertI2D(Complex *F2D,
                 }
                 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-                kernel_InsertT2D<<<batchSize, 
+                kernel_InsertT2D<<<nImgBatch, 
                                    512, 
                                    0, 
                                    stream[smidx + baseS]>>>(__device__T[n],
                                                             devctfP[smidx + baseS],
                                                             devsigRcpP[smidx + baseS],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -3685,15 +3685,15 @@ void InsertI2D(Complex *F2D,
                                                             smidx);
                 //cudaCheckErrors("InsertT error.");
                 
-                kernel_InsertF2D<<<batchSize, 
+                kernel_InsertF2D<<<nImgBatch, 
                                    512, 
                                    0, 
                                    stream[smidx + baseS]>>>(__device__F[n],
                                                             devtranP[smidx + baseS],
                                                             devctfP[smidx + baseS],
                                                             devsigRcpP[smidx + baseS],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -3704,13 +3704,13 @@ void InsertI2D(Complex *F2D,
                                                             smidx);
                 //cudaCheckErrors("InsertF error.");
 #else
-                kernel_InsertT2D<<<batchSize, 
+                kernel_InsertT2D<<<nImgBatch, 
                                    512, 
                                    0, 
                                    stream[smidx + baseS]>>>(__device__T[n],
                                                             devctfP[smidx + baseS],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -3721,14 +3721,14 @@ void InsertI2D(Complex *F2D,
                                                             smidx);
                 //cudaCheckErrors("InsertT error.");
                 
-                kernel_InsertF2D<<<batchSize, 
+                kernel_InsertF2D<<<nImgBatch, 
                                    512, 
                                    0, 
                                    stream[smidx + baseS]>>>(__device__F[n],
                                                             devtranP[smidx + baseS],
                                                             devctfP[smidx + baseS],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -3743,29 +3743,29 @@ void InsertI2D(Complex *F2D,
             
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
                 kernel_InsertO2D<<<1, 
-                                   batchSize, 
-                                   2 * batchSize * sizeof(double)
-                                     + batchSize * sizeof(int), 
+                                   nImgBatch, 
+                                   2 * nImgBatch * sizeof(double)
+                                     + nImgBatch * sizeof(int), 
                                    stream[smidx + baseS]>>>(__device__O[n],
                                                             __device__C[n],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             m,
                                                             mReco);
                 
                 //cudaCheckErrors("InsertO kernel.");
 #else
                 kernel_InsertO2D<<<1, 
-                                   batchSize, 
-                                   2 * batchSize * sizeof(double) 
-                                     + batchSize * sizeof(int), 
+                                   nImgBatch, 
+                                   2 * nImgBatch * sizeof(double) 
+                                     + nImgBatch * sizeof(int), 
                                    stream[smidx + baseS]>>>(__device__O[n],
                                                             __device__C[n],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             m,
                                                             mReco);
                 
@@ -3775,9 +3775,9 @@ void InsertI2D(Complex *F2D,
 
             //cudaEventRecord(stop[smidx + baseS], stream[smidx + baseS]);
 
-            i += batchSize;
+            i += nImgBatch;
         }
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
@@ -3811,12 +3811,12 @@ void InsertI2D(Complex *F2D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             cudaFree(dev_offs_buf[i + baseS]);
 #endif
-            cudaFree(devdatP[i + baseS]);
+            cudaFree(__device__batch__datP[i + baseS]);
             cudaFree(devtranP[i + baseS]);
             cudaFree(devctfP[i + baseS]);
-            cudaFree(dev_nc_buf[i + baseS]);
-            cudaFree(dev_nr_buf[i + baseS]);
-            cudaFree(dev_nt_buf[i + baseS]);
+            cudaFree(__device__batch__nC[i + baseS]);
+            cudaFree(__device__batch__nR[i + baseS]);
+            cudaFree(__device__batch__nT[i + baseS]);
            /* 
             cudaEventDestroy(start[i + baseS]); 
             cudaEventDestroy(stop[i + baseS]);
@@ -3932,7 +3932,7 @@ void InsertI2D(Complex *F2D,
                         stream[smidx]);
         //cudaCheckErrors("copy F3D from device to host.");
         
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
     
     for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
@@ -4059,7 +4059,7 @@ void InsertFT(Complex *F3D,
               int opf,
               int npxl,
               int mReco,
-              int imgNum,
+              int nImg,
               int idim, // boxsize of image
               int vdim) // boxsize of volume
 {
@@ -4161,14 +4161,14 @@ void InsertFT(Complex *F3D,
 
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
-    Complex *devdatP[nStream];
+    Complex *__device__batch__datP[nStream];
     Complex *devtranP[nStream];
     RFLOAT *devctfP[nStream];
-    double *dev_nr_buf[nStream];
-    double *dev_nt_buf[nStream];
+    double *__device__batch__nR[nStream];
+    double *__device__batch__nT[nStream];
     double *dev_nd_buf[nStream];
     double *dev_offs_buf[nStream];
-    int *dev_nc_buf[nStream];
+    int *__device__batch__nC[nStream];
 
     CTFAttr *dev_ctfas_buf[nStream];
     double *dev_mat_buf[nStream];
@@ -4183,7 +4183,7 @@ void InsertFT(Complex *F3D,
     int* __device__C[aviDevs];
     int* __device__iCol[aviDevs];
     int* __device__iRow[aviDevs];
-    long long imgShift = (long long)imgNum * npxl;
+    long long imgShift = (long long)nImg * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
     RFLOAT *devsigRcpP[nStream];
@@ -4252,7 +4252,7 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 
     cudaHostRegister(offS,
-                     imgNum * 2 * sizeof(double),
+                     nImg * 2 * sizeof(double),
                      cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
     cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF OFFS");
@@ -4261,28 +4261,28 @@ void InsertFT(Complex *F3D,
 #endif
 
     cudaHostRegister(w,
-                     imgNum * sizeof(RFLOAT),
+                     nImg * sizeof(RFLOAT),
                      cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
     cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF W");
 #endif
     
     cudaHostRegister(nC,
-                     imgNum * sizeof(int),
+                     nImg * sizeof(int),
                      cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
     cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF NC");
 #endif
     
     cudaHostRegister(nR,
-                     mReco * imgNum * 4 * sizeof(double),
+                     mReco * nImg * 4 * sizeof(double),
                      cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
     cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF NR");
 #endif
     
     cudaHostRegister(nT,
-                     mReco * imgNum * 2 * sizeof(double),
+                     mReco * nImg * 2 * sizeof(double),
                      cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
     cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF NT");
@@ -4291,14 +4291,14 @@ void InsertFT(Complex *F3D,
     if (cSearch)
     {
         cudaHostRegister(nD,
-                         mReco * imgNum * sizeof(double),
+                         mReco * nImg * sizeof(double),
                          cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
         cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF ND");
 #endif
         
         cudaHostRegister(ctfaData,
-                         imgNum * sizeof(CTFAttr),
+                         nImg * sizeof(CTFAttr),
                          cudaHostRegisterDefault);
 #ifdef GPU_ERROR_CHECK
         cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF CTFADATA");
@@ -4363,12 +4363,12 @@ void InsertFT(Complex *F3D,
                 allocDeviceParamBufferD(&dev_nd_buf[i + baseS], BATCH_SIZE * mReco);
             }
             
-            allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
+            allocDeviceComplexBuffer(&__device__batch__datP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceComplexBuffer(&devtranP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devctfP[i + baseS], BATCH_SIZE * npxl);
-            allocDeviceParamBufferI(&dev_nc_buf[i + baseS], BATCH_SIZE);
-            allocDeviceParamBufferD(&dev_nr_buf[i + baseS], BATCH_SIZE * mReco * 4);
-            allocDeviceParamBufferD(&dev_nt_buf[i + baseS], BATCH_SIZE * mReco * 2);
+            allocDeviceParamBufferI(&__device__batch__nC[i + baseS], BATCH_SIZE);
+            allocDeviceParamBufferD(&__device__batch__nR[i + baseS], BATCH_SIZE * mReco * 4);
+            allocDeviceParamBufferD(&__device__batch__nT[i + baseS], BATCH_SIZE * mReco * 2);
             allocDeviceParamBufferD(&dev_mat_buf[i + baseS], BATCH_SIZE * mReco * 9);
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             allocDeviceParamBufferD(&dev_offs_buf[i + baseS], BATCH_SIZE * 2);
@@ -4426,7 +4426,7 @@ void InsertFT(Complex *F3D,
                             F3D,
                             dimSize * sizeof(Complex),
                             cudaMemcpyHostToDevice,
-                            stream[baseS]);
+                            stream[0]);
         }
         else
         {
@@ -4446,7 +4446,7 @@ void InsertFT(Complex *F3D,
                             T3D,
                             dimSize * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
-                            stream[baseS]);
+                            stream[0]);
         }
         else
         {
@@ -4466,7 +4466,7 @@ void InsertFT(Complex *F3D,
                             O3D,
                             3 * sizeof(double),
                             cudaMemcpyHostToDevice,
-                            stream[baseS]);
+                            stream[0]);
         }
         else
         {
@@ -4486,7 +4486,7 @@ void InsertFT(Complex *F3D,
                              counter,
                              sizeof(int),
                              cudaMemcpyHostToDevice,
-                             stream[baseS]);
+                             stream[0]);
         }
         else
         {
@@ -4510,76 +4510,98 @@ void InsertFT(Complex *F3D,
 
         for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO COMPLETE COPYING FROM HOST TO DEVICE");
+#endif
     } 
    
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_GPU") << "Data Copyed From Host to Device";
 #endif
 
-    int batchSize = 0, smidx = 0;
+    int nImgBatch = 0;
+    int smidx = 0;
     
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
-        for (int n = 0; n < aviDevs; ++n) 
+        for (int n = 0; n < aviDevs; n++) 
         {     
-            if (i >= imgNum) break;
+            if (i >= nImg) break;
            
             int baseS = n * NUM_STREAM_PER_DEVICE;
 
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
-            //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
+            // number of images used in this batch
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
             
             cudaSetDevice(gpus[n]); 
+
+            // the starting index of the first image in this batch
             long long imgS = (long long)i * npxl;
 
-            cudaMemcpyAsync(dev_nc_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nC[smidx + baseS],
                             nC + i,
-                            batchSize * sizeof(int),
+                            nImgBatch * sizeof(int),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
-            cudaCheckErrors("memcpy nr to device.");
+
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO COPY A BATCH OF NC FROM HOST TO DEVICE");
+#endif
             
-            cudaMemcpyAsync(dev_nr_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nR[smidx + baseS],
                             nR + i * mReco * 4,
-                            batchSize * mReco * 4 * sizeof(double),
+                            nImgBatch * mReco * 4 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
-            cudaCheckErrors("memcpy nr to device.");
+
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO COPY A BATCH OF NR FROM HOST TO DEVICE");
+#endif
             
-            kernel_getRandomR<<<batchSize, 
+            kernel_getRandomR<<<nImgBatch, 
                                 mReco, 
                                 mReco * 18 * sizeof(double), 
                                 stream[smidx + baseS]>>>(dev_mat_buf[smidx + baseS],
-                                                         dev_nr_buf[smidx + baseS],
-                                                         dev_nc_buf[smidx + baseS]);
-            cudaCheckErrors("getrandomR kernel.");
+                                                         __device__batch__nR[smidx + baseS],
+                                                         __device__batch__nC[smidx + baseS]);
+
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO GET A BATCH OF RANDOM R");
+#endif
             
-            cudaMemcpyAsync(dev_nt_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nT[smidx + baseS],
                             nT + i * mReco * 2,
-                            batchSize * mReco * 2 * sizeof(double),
+                            nImgBatch * mReco * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
-            cudaCheckErrors("memcpy nt to device.");
+
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO COPY A BATCH OF NT FROM HOST TO DEVICE");
+#endif
             
-            cudaMemcpyAsync(devdatP[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__datP[smidx + baseS],
                             datP + imgS,
-                            batchSize * npxl * sizeof(Complex),
+                            nImgBatch * npxl * sizeof(Complex),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
-            cudaCheckErrors("memcpy image to device.");
+
+#ifdef GPU_ERROR_CHECK
+            cudaCheckErrors("FAIL TO COPY A BATCH OF IMAGES FROM HOST TO DEVICE");
+#endif
             
             if (cSearch)
             {
                 cudaMemcpyAsync(dev_nd_buf[smidx + baseS],
                                 nD + i * mReco,
-                                batchSize * mReco * sizeof(double),
+                                nImgBatch * mReco * sizeof(double),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("memcpy nt to device.");
             
                 cudaMemcpyAsync(dev_ctfas_buf[smidx + baseS],
                                 ctfaData + i,
-                                batchSize * sizeof(CTFAttr),
+                                nImgBatch * sizeof(CTFAttr),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("memcpy CTFAttr to device.");
@@ -4588,7 +4610,7 @@ void InsertFT(Complex *F3D,
             {
                 cudaMemcpyAsync(devctfP[smidx + baseS],
                                 ctfP + imgS,
-                                batchSize * npxl * sizeof(RFLOAT),
+                                nImgBatch * npxl * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("memcpy ctf to device.");
@@ -4597,7 +4619,7 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
             cudaMemcpyAsync(devsigRcpP[smidx + baseS],
                             sigRcpP + imgS,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("for memcpy sigRcp.");
@@ -4605,7 +4627,7 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             cudaMemcpyAsync(dev_offs_buf[smidx + baseS],
                             offS + 2 * i,
-                            batchSize * 2 * sizeof(double),
+                            nImgBatch * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy offset to device.");
@@ -4613,8 +4635,8 @@ void InsertFT(Complex *F3D,
             
             cudaMemcpyToSymbolAsync(dev_ws_data,
                                     w + i,
-                                    batchSize * sizeof(RFLOAT),
-                                    smidx * batchSize * sizeof(RFLOAT),
+                                    nImgBatch * sizeof(RFLOAT),
+                                    smidx * nImgBatch * sizeof(RFLOAT),
                                     cudaMemcpyHostToDevice,
                                     stream[smidx + baseS]);
             cudaCheckErrors("memcpy w to device constant memory.");
@@ -4624,14 +4646,14 @@ void InsertFT(Complex *F3D,
             for (int m = 0; m < mReco; m++)
             {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                kernel_Translate<<<batchSize, 
+                kernel_Translate<<<nImgBatch, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             devtranP[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -4649,22 +4671,22 @@ void InsertFT(Complex *F3D,
                                    stream[smidx + baseS]>>>(__device__O[n],
                                                             __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             m,
                                                             mReco,
-                                                            batchSize);
+                                                            nImgBatch);
                 
                 cudaCheckErrors("InsertO kernel.");
 #else
-                kernel_Translate<<<batchSize, 
+                kernel_Translate<<<nImgBatch, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             devtranP[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -4682,24 +4704,24 @@ void InsertFT(Complex *F3D,
                                    stream[smidx + baseS]>>>(__device__O[n],
                                                             __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             m,
                                                             mReco,
-                                                            batchSize);
+                                                            nImgBatch);
                 
                 cudaCheckErrors("InsertO kernel.");
 #endif
                 
                 if (cSearch)
                 {
-                    kernel_CalculateCTF<<<batchSize, 
+                    kernel_CalculateCTF<<<nImgBatch, 
                                           512, 
                                           0, 
                                           stream[smidx + baseS]>>>(devctfP[smidx + baseS],
                                                                    dev_ctfas_buf[smidx + baseS],
                                                                    dev_nd_buf[smidx + baseS],
-                                                                   dev_nc_buf[smidx + baseS],
+                                                                   __device__batch__nC[smidx + baseS],
                                                                    __device__iCol[n],
                                                                    __device__iRow[n],
                                                                    pixel,
@@ -4712,14 +4734,14 @@ void InsertFT(Complex *F3D,
                 }
                 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-                kernel_InsertT<<<batchSize, 
+                kernel_InsertT<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__T[n],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          dev_nc_buf[smidx + baseS],
+                                                          __device__batch__nC[smidx + baseS],
                                                           __device__iCol[n],
                                                           __device__iRow[n],
                                                           m,
@@ -4729,16 +4751,16 @@ void InsertFT(Complex *F3D,
                                                           smidx);
                 cudaCheckErrors("InsertT error.");
                 
-                kernel_InsertF<<<batchSize, 
+                kernel_InsertF<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
-                                                          //devdatP[smidx + baseS],
+                                                          //__device__batch__datP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          dev_nc_buf[smidx + baseS],
+                                                          __device__batch__nC[smidx + baseS],
                                                           __device__iCol[n],
                                                           __device__iRow[n],
                                                           m,
@@ -4748,13 +4770,13 @@ void InsertFT(Complex *F3D,
                                                           smidx);
                 cudaCheckErrors("InsertF error.");
 #else
-                kernel_InsertT<<<batchSize, 
+                kernel_InsertT<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__T[n],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          dev_nc_buf[smidx + baseS],
+                                                          __device__batch__nC[smidx + baseS],
                                                           __device__iCol[n],
                                                           __device__iRow[n],
                                                           m,
@@ -4764,15 +4786,15 @@ void InsertFT(Complex *F3D,
                                                           smidx);
                 cudaCheckErrors("InsertT error.");
                 
-                kernel_InsertF<<<batchSize, 
+                kernel_InsertF<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
-                                                          //devdatP[smidx + baseS],
+                                                          //__device__batch__datP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
-                                                          dev_nc_buf[smidx + baseS],
+                                                          __device__batch__nC[smidx + baseS],
                                                           __device__iCol[n],
                                                           __device__iRow[n],
                                                           m,
@@ -4787,9 +4809,9 @@ void InsertFT(Complex *F3D,
 
             //cudaEventRecord(stop[smidx + baseS], stream[smidx + baseS]);
 
-            i += batchSize;
+            i += nImgBatch;
         }
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
@@ -4823,12 +4845,12 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             cudaFree(dev_offs_buf[i + baseS]);
 #endif
-            cudaFree(devdatP[i + baseS]);
+            cudaFree(__device__batch__datP[i + baseS]);
             cudaFree(devtranP[i + baseS]);
             cudaFree(devctfP[i + baseS]);
-            cudaFree(dev_nc_buf[i + baseS]);
-            cudaFree(dev_nr_buf[i + baseS]);
-            cudaFree(dev_nt_buf[i + baseS]);
+            cudaFree(__device__batch__nC[i + baseS]);
+            cudaFree(__device__batch__nR[i + baseS]);
+            cudaFree(__device__batch__nT[i + baseS]);
             cudaFree(dev_mat_buf[i + baseS]);
            /* 
             cudaEventDestroy(start[i + baseS]); 
@@ -5162,7 +5184,7 @@ void InsertFT(Complex *F3D,
               int opf,
               int npxl,
               int mReco,
-              int imgNum,
+              int nImg,
               int idim,
               int vdim)
 {
@@ -5231,11 +5253,11 @@ void InsertFT(Complex *F3D,
     
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
-    Complex *devdatP[nStream];
+    Complex *__device__batch__datP[nStream];
     Complex *devtranP[nStream];
     RFLOAT *devctfP[nStream];
-    double *dev_nr_buf[nStream];
-    double *dev_nt_buf[nStream];
+    double *__device__batch__nR[nStream];
+    double *__device__batch__nT[nStream];
     double *dev_nd_buf[nStream];
     double *dev_offs_buf[nStream];
 
@@ -5251,7 +5273,7 @@ void InsertFT(Complex *F3D,
     int *__device__C[aviDevs];
     int *__device__iCol[aviDevs];
     int *__device__iRow[aviDevs];
-    long long imgSize = (long long)imgNum * npxl;
+    long long imgSize = (long long)nImg * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
     RFLOAT *devsigRcpP[nStream];
@@ -5278,25 +5300,25 @@ void InsertFT(Complex *F3D,
     cudaCheckErrors("Register ctfP data.");
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-    cudaHostRegister(offS, imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
+    cudaHostRegister(offS, nImg * 2 * sizeof(double), cudaHostRegisterDefault);
     cudaCheckErrors("Register offset data.");
 #endif
 
-    cudaHostRegister(w, imgNum * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaHostRegister(w, nImg * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register w data.");
     
-    cudaHostRegister(nR, mReco * imgNum * 4 * sizeof(double), cudaHostRegisterDefault);
+    cudaHostRegister(nR, mReco * nImg * 4 * sizeof(double), cudaHostRegisterDefault);
     cudaCheckErrors("Register nR data.");
     
-    cudaHostRegister(nT, mReco * imgNum * 2 * sizeof(double), cudaHostRegisterDefault);
+    cudaHostRegister(nT, mReco * nImg * 2 * sizeof(double), cudaHostRegisterDefault);
     cudaCheckErrors("Register nT data.");
     
     if (cSearch)
     {
-        cudaHostRegister(nD, mReco * imgNum * sizeof(double), cudaHostRegisterDefault);
+        cudaHostRegister(nD, mReco * nImg * sizeof(double), cudaHostRegisterDefault);
         cudaCheckErrors("Register nT data.");
         
-        cudaHostRegister(ctfaData, imgNum * sizeof(CTFAttr), cudaHostRegisterDefault);
+        cudaHostRegister(ctfaData, nImg * sizeof(CTFAttr), cudaHostRegisterDefault);
         cudaCheckErrors("Register ctfAdata data.");
     }
 
@@ -5339,11 +5361,11 @@ void InsertFT(Complex *F3D,
                 allocDeviceParamBufferD(&dev_nd_buf[i + baseS], BATCH_SIZE * mReco);
             }
             
-            allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
+            allocDeviceComplexBuffer(&__device__batch__datP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceComplexBuffer(&devtranP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceParamBuffer(&devctfP[i + baseS], BATCH_SIZE * npxl);
-            allocDeviceParamBufferD(&dev_nr_buf[i + baseS], BATCH_SIZE * mReco * 4);
-            allocDeviceParamBufferD(&dev_nt_buf[i + baseS], BATCH_SIZE * mReco * 2);
+            allocDeviceParamBufferD(&__device__batch__nR[i + baseS], BATCH_SIZE * mReco * 4);
+            allocDeviceParamBufferD(&__device__batch__nT[i + baseS], BATCH_SIZE * mReco * 2);
             allocDeviceParamBufferD(&dev_mat_buf[i + baseS], BATCH_SIZE * mReco * 9);
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             allocDeviceParamBufferD(&dev_offs_buf[i + baseS], BATCH_SIZE * 2);
@@ -5454,48 +5476,48 @@ void InsertFT(Complex *F3D,
     LOG(INFO) << "Volume memcpy done...";
     //printf("device%d:Volume memcpy done...\n", n);
         
-    int batchSize = 0, smidx = 0;
+    int nImgBatch = 0, smidx = 0;
     
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
+            if (i >= nImg)
                 break;
            
             baseS = n * NUM_STREAM_PER_DEVICE;
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
-            //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
+            //printf("batch:%d, smidx:%d, baseS:%d\n", nImgBatch, smidx, baseS);
             
             cudaSetDevice(gpus[n]); 
 
             long long imgShift = (long long)i * npxl;
             long long mrShift  = (long long)i * mReco;
             
-            cudaMemcpyAsync(dev_nr_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nR[smidx + baseS],
                             nR + mrShift * 4,
-                            batchSize * mReco * 4 * sizeof(double),
+                            nImgBatch * mReco * 4 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy nr to device.");
             
-            kernel_getRandomR<<<batchSize, 
+            kernel_getRandomR<<<nImgBatch, 
                                 mReco, 
                                 mReco * 18 * sizeof(double), 
                                 stream[smidx + baseS]>>>(dev_mat_buf[smidx + baseS],
-                                                         dev_nr_buf[smidx + baseS]);
+                                                         __device__batch__nR[smidx + baseS]);
             cudaCheckErrors("getrandomR kernel.");
             
-            cudaMemcpyAsync(dev_nt_buf[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__nT[smidx + baseS],
                             nT + mrShift * 2,
-                            batchSize * mReco * 2 * sizeof(double),
+                            nImgBatch * mReco * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy nt to device.");
             
-            cudaMemcpyAsync(devdatP[smidx + baseS],
+            cudaMemcpyAsync(__device__batch__datP[smidx + baseS],
                             datP + imgShift,
-                            batchSize * npxl * sizeof(Complex),
+                            nImgBatch * npxl * sizeof(Complex),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy image to device.");
@@ -5504,14 +5526,14 @@ void InsertFT(Complex *F3D,
             {
                 cudaMemcpyAsync(dev_nd_buf[smidx + baseS],
                                 nD + mrShift,
-                                batchSize * mReco * sizeof(double),
+                                nImgBatch * mReco * sizeof(double),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("memcpy nt to device.");
             
                 cudaMemcpyAsync(dev_ctfas_buf[smidx + baseS],
                                 ctfaData + i,
-                                batchSize * sizeof(CTFAttr),
+                                nImgBatch * sizeof(CTFAttr),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("memcpy CTFAttr to device.");
@@ -5520,7 +5542,7 @@ void InsertFT(Complex *F3D,
             {
                 cudaMemcpyAsync(devctfP[smidx + baseS],
                                 ctfP + imgShift,
-                                batchSize * npxl * sizeof(RFLOAT),
+                                nImgBatch * npxl * sizeof(RFLOAT),
                                 cudaMemcpyHostToDevice,
                                 stream[smidx + baseS]);
                 cudaCheckErrors("memcpy ctf to device.");
@@ -5529,7 +5551,7 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
             cudaMemcpyAsync(devsigRcpP[smidx + baseS],
                             sigRcpP + imgShift,
-                            batchSize * npxl * sizeof(RFLOAT),
+                            nImgBatch * npxl * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("for memcpy sigRcp.");
@@ -5537,7 +5559,7 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             cudaMemcpyAsync(dev_offs_buf[smidx + baseS],
                             offS + 2 * i,
-                            batchSize * 2 * sizeof(double),
+                            nImgBatch * 2 * sizeof(double),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy offset to device.");
@@ -5545,8 +5567,8 @@ void InsertFT(Complex *F3D,
             
             cudaMemcpyToSymbolAsync(dev_ws_data,
                                     w + i,
-                                    batchSize * sizeof(RFLOAT),
-                                    smidx * batchSize * sizeof(RFLOAT),
+                                    nImgBatch * sizeof(RFLOAT),
+                                    smidx * nImgBatch * sizeof(RFLOAT),
                                     cudaMemcpyHostToDevice,
                                     stream[smidx + baseS]);
             cudaCheckErrors("memcpy w to device constant memory.");
@@ -5556,13 +5578,13 @@ void InsertFT(Complex *F3D,
             for (int m = 0; m < mReco; m++)
             {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                kernel_Translate<<<batchSize, 
+                kernel_Translate<<<nImgBatch, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             devtranP[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -5580,20 +5602,20 @@ void InsertFT(Complex *F3D,
                                    stream[smidx + baseS]>>>(__device__O[n],
                                                             __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
                                                             m,
                                                             mReco,
-                                                            batchSize);
+                                                            nImgBatch);
                 
                 cudaCheckErrors("InsertO kernel.");
 #else
-                kernel_Translate<<<batchSize, 
+                kernel_Translate<<<nImgBatch, 
                                    512, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devdatP[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__batch__datP[smidx + baseS],
                                                             devtranP[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             __device__iCol[n],
                                                             __device__iRow[n],
                                                             m,
@@ -5611,16 +5633,16 @@ void InsertFT(Complex *F3D,
                                    stream[smidx + baseS]>>>(__device__O[n],
                                                             __device__C[n],
                                                             dev_mat_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             m,
                                                             mReco,
-                                                            batchSize);
+                                                            nImgBatch);
                 
                 cudaCheckErrors("InsertO kernel.");
 #endif
                 if (cSearch)
                 {
-                    kernel_CalculateCTF<<<batchSize, 
+                    kernel_CalculateCTF<<<nImgBatch, 
                                           512, 
                                           0, 
                                           stream[smidx + baseS]>>>(devctfP[smidx + baseS],
@@ -5638,7 +5660,7 @@ void InsertFT(Complex *F3D,
                 }
                 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-                kernel_InsertT<<<batchSize, 
+                kernel_InsertT<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__T[n],
@@ -5654,12 +5676,12 @@ void InsertFT(Complex *F3D,
                                                           smidx);
                 cudaCheckErrors("InsertT error.");
                 
-                kernel_InsertF<<<batchSize, 
+                kernel_InsertF<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
-                                                          //devdatP[smidx + baseS],
+                                                          //__device__batch__datP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           devsigRcpP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
@@ -5672,7 +5694,7 @@ void InsertFT(Complex *F3D,
                                                           smidx);
                 cudaCheckErrors("InsertF error.");
 #else
-                kernel_InsertT<<<batchSize, 
+                kernel_InsertT<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__T[n],
@@ -5687,12 +5709,12 @@ void InsertFT(Complex *F3D,
                                                           smidx);
                 cudaCheckErrors("InsertT error.");
                 
-                kernel_InsertF<<<batchSize, 
+                kernel_InsertF<<<nImgBatch, 
                                  512, 
                                  9 * sizeof(double), 
                                  stream[smidx + baseS]>>>(__device__F[n],
                                                           devtranP[smidx + baseS],
-                                                          //devdatP[smidx + baseS],
+                                                          //__device__batch__datP[smidx + baseS],
                                                           devctfP[smidx + baseS],
                                                           dev_mat_buf[smidx + baseS],
                                                           __device__iCol[n],
@@ -5709,9 +5731,9 @@ void InsertFT(Complex *F3D,
 
             //cudaEventRecord(stop[smidx + baseS], stream[smidx + baseS]);
 
-            i += batchSize;
+            i += nImgBatch;
         }
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
@@ -5745,11 +5767,11 @@ void InsertFT(Complex *F3D,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
             cudaFree(dev_offs_buf[i + baseS]);
 #endif
-            cudaFree(devdatP[i + baseS]);
+            cudaFree(__device__batch__datP[i + baseS]);
             cudaFree(devtranP[i + baseS]);
             cudaFree(devctfP[i + baseS]);
-            cudaFree(dev_nr_buf[i + baseS]);
-            cudaFree(dev_nt_buf[i + baseS]);
+            cudaFree(__device__batch__nR[i + baseS]);
+            cudaFree(__device__batch__nT[i + baseS]);
             cudaFree(dev_mat_buf[i + baseS]);
            /* 
             cudaEventDestroy(start[i + baseS]); 
@@ -6073,7 +6095,7 @@ void PrepareTF(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int batchSize = 8 * dim * (dim / 2 + 1);
+    int nImgBatch = 8 * dim * (dim / 2 + 1);
     int dimSize = (dim / 2 + 1) * dim * dim;
     int symMatsize = nSymmetryElement * 9;
 
@@ -6092,7 +6114,7 @@ void PrepareTF(int gpuIdx,
     RFLOAT *devPartT[3];
     for (int i = 0; i < 3; i++)
     {
-        cudaMalloc((void**)&devPartT[i], batchSize * sizeof(RFLOAT));
+        cudaMalloc((void**)&devPartT[i], nImgBatch * sizeof(RFLOAT));
         cudaCheckErrors("Allocate __device__T data.");
     }
 
@@ -6110,7 +6132,7 @@ void PrepareTF(int gpuIdx,
     int batch, smidx = 0;
     for (int i = 0; i < dimSize;)
     {
-        batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
         
         cudaMemcpyAsync(__device__F + i,
                         F3D + i,
@@ -6146,7 +6168,7 @@ void PrepareTF(int gpuIdx,
         cudaCheckErrors("for memcpy.");
 
         i += batch;
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
@@ -6215,7 +6237,7 @@ void PrepareTF(int gpuIdx,
     smidx = 0;
     for (int i = 0; i < dimSize;)
     {
-        batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
 
         kernel_SymmetrizeF<<<dim, 
                              dim / 2 + 1, 
@@ -6240,7 +6262,7 @@ void PrepareTF(int gpuIdx,
         
         i += batch;
         
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -6295,7 +6317,7 @@ void PrepareTF(int gpuIdx,
     smidx = 0;
     for (int i = 0; i < dimSize;)
     {
-        batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
 
         cudaMemcpyAsync(__device__T + i,
                         T3D + i,
@@ -6327,7 +6349,7 @@ void PrepareTF(int gpuIdx,
         
         i += batch;
         
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -6608,13 +6630,13 @@ void CalculateT(int gpuIdx,
     int wiener = pow(wienerF * pf, 2);
     int r = pow(maxRadius * pf, 2);
     
-    int batchSize = 8 * dim * dim;
-    int len = dimSize / batchSize;
+    int nImgBatch = 8 * dim * dim;
+    int len = dimSize / nImgBatch;
     int streamfsc = len / 3;
     
     for (int i = 0; i < streamfsc; i++)
     {
-        int shift = i * 3 * batchSize;
+        int shift = i * 3 * nImgBatch;
         kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
@@ -6624,12 +6646,12 @@ void CalculateT(int gpuIdx,
                                                         r, 
                                                         shift,
                                                         dim,
-                                                        batchSize);
+                                                        nImgBatch);
         cudaCheckErrors("calFSC for stream 0.");
 
         cudaMemcpyAsync(T3D + shift,
                         __device__T + shift,
-                        batchSize * sizeof(RFLOAT),
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         cudaCheckErrors("out for memcpy 0.");
@@ -6641,14 +6663,14 @@ void CalculateT(int gpuIdx,
                                                         joinHalf,
                                                         wiener,
                                                         r, 
-                                                        shift + batchSize,
+                                                        shift + nImgBatch,
                                                         dim,
-                                                        batchSize);
+                                                        nImgBatch);
         cudaCheckErrors("calFSC for stream 1.");
 
-        cudaMemcpyAsync(T3D + shift + batchSize,
-                        __device__T + shift + batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(T3D + shift + nImgBatch,
+                        __device__T + shift + nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         cudaCheckErrors("out for memcpy 1.");
@@ -6660,14 +6682,14 @@ void CalculateT(int gpuIdx,
                                                         joinHalf,
                                                         wiener,
                                                         r, 
-                                                        shift + 2 * batchSize,
+                                                        shift + 2 * nImgBatch,
                                                         dim,
-                                                        batchSize);
+                                                        nImgBatch);
         cudaCheckErrors("calFSC for stream 2.");
 
-        cudaMemcpyAsync(T3D + shift + 2 * batchSize,
-                        __device__T + shift + 2 * batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(T3D + shift + 2 * nImgBatch,
+                        __device__T + shift + 2 * nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[2]);
         cudaCheckErrors("out for memcpy 2.");
@@ -6675,7 +6697,7 @@ void CalculateT(int gpuIdx,
    
     if (len % 3 == 2)
     {
-        int shift = (len - 2) * batchSize;
+        int shift = (len - 2) * nImgBatch;
         kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                         devFSC, 
                                                         devAvg,
@@ -6685,12 +6707,12 @@ void CalculateT(int gpuIdx,
                                                         r, 
                                                         shift,
                                                         dim,
-                                                        batchSize);
+                                                        nImgBatch);
         cudaCheckErrors("calFSC last for stream 0.");
 
         cudaMemcpyAsync(T3D + shift,
                         __device__T + shift,
-                        batchSize * sizeof(RFLOAT),
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         cudaCheckErrors("out for memcpy 0.");
@@ -6702,21 +6724,21 @@ void CalculateT(int gpuIdx,
                                                         joinHalf,
                                                         wiener,
                                                         r, 
-                                                        shift + batchSize,
+                                                        shift + nImgBatch,
                                                         dim,
-                                                        batchSize);
+                                                        nImgBatch);
         cudaCheckErrors("calFSC last for stream 1.");
         
-        cudaMemcpyAsync(T3D + shift + batchSize,
-                        __device__T + shift + batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(T3D + shift + nImgBatch,
+                        __device__T + shift + nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         cudaCheckErrors("out for memcpy 1.");
         
-        if (dimSize % batchSize != 0)
+        if (dimSize % nImgBatch != 0)
         {
-            int shift = len * batchSize;
+            int shift = len * nImgBatch;
             kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(__device__T, 
                                                             devFSC, 
                                                             devAvg,
@@ -6743,7 +6765,7 @@ void CalculateT(int gpuIdx,
     {
         if (len % 3 == 1)
         {
-            int shift = (len - 1) * batchSize;
+            int shift = (len - 1) * nImgBatch;
             kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                             devFSC, 
                                                             devAvg,
@@ -6753,19 +6775,19 @@ void CalculateT(int gpuIdx,
                                                             r, 
                                                             shift,
                                                             dim,
-                                                            batchSize);
+                                                            nImgBatch);
             cudaCheckErrors("calFSC last for stream 0.");
         
             cudaMemcpyAsync(T3D + shift,
                             __device__T + shift,
-                            batchSize * sizeof(RFLOAT),
+                            nImgBatch * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[0]);
             cudaCheckErrors("out for memcpy 0.");
             
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
                 kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
                                                                 devFSC, 
                                                                 devAvg,
@@ -6789,9 +6811,9 @@ void CalculateT(int gpuIdx,
         }
         else
         {
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
                 kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
                                                                 devFSC, 
                                                                 devAvg,
@@ -7519,72 +7541,72 @@ void CalculateW(int gpuIdx,
     
     LOG(INFO) << "Step1: CalculateW.";
     
-    int batchSize = 8 * dim * dim;
-    int len = dimSize / batchSize;
+    int nImgBatch = 8 * dim * dim;
+    int len = dimSize / nImgBatch;
     int streamN = len / 3;
    
     for (int i = 0; i < streamN; i++)
     {
-        int shift = i * 3 * batchSize;
+        int shift = i * 3 * nImgBatch;
         cudaMemcpyAsync(__device__T + shift, 
                         T3D + shift, 
-                        batchSize * sizeof(RFLOAT), 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[0]);
         cudaCheckErrors("Copy __device__T volume to device stream0.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
                                                       __device__T, 
-                                                      batchSize, 
+                                                      nImgBatch, 
                                                       shift,
                                                       dim,
                                                       r);
 
         cudaMemcpyAsync(W3D + shift, 
                         devDataW + shift, 
-                        batchSize * sizeof(RFLOAT), 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         cudaCheckErrors("Copy devDataW volume to host stream0.");  
     
-        cudaMemcpyAsync(__device__T + shift + batchSize, 
-                        T3D + shift + batchSize, 
-                        batchSize * sizeof(RFLOAT), 
+        cudaMemcpyAsync(__device__T + shift + nImgBatch, 
+                        T3D + shift + nImgBatch, 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[1]);
         cudaCheckErrors("Copy __device__T volume to device stream1.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
                                                       __device__T, 
-                                                      batchSize, 
-                                                      shift + batchSize,
+                                                      nImgBatch, 
+                                                      shift + nImgBatch,
                                                       dim,
                                                       r);
 
-        cudaMemcpyAsync(W3D + shift + batchSize, 
-                        devDataW + shift + batchSize, 
-                        batchSize * sizeof(RFLOAT), 
+        cudaMemcpyAsync(W3D + shift + nImgBatch, 
+                        devDataW + shift + nImgBatch, 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         cudaCheckErrors("Copy devDataW volume to host stream1.");  
     
-        cudaMemcpyAsync(__device__T + shift + 2 * batchSize, 
-                        T3D + shift + 2 * batchSize, 
-                        batchSize * sizeof(RFLOAT), 
+        cudaMemcpyAsync(__device__T + shift + 2 * nImgBatch, 
+                        T3D + shift + 2 * nImgBatch, 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[2]);
         cudaCheckErrors("Copy __device__T volume to device stream2.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[2]>>>(devDataW,
                                                       __device__T, 
-                                                      batchSize, 
-                                                      shift + 2 * batchSize,
+                                                      nImgBatch, 
+                                                      shift + 2 * nImgBatch,
                                                       dim,
                                                       r);
 
-        cudaMemcpyAsync(W3D + shift + 2 * batchSize, 
-                        devDataW + shift + 2 * batchSize, 
-                        batchSize * sizeof(RFLOAT), 
+        cudaMemcpyAsync(W3D + shift + 2 * nImgBatch, 
+                        devDataW + shift + 2 * nImgBatch, 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyDeviceToHost,
                         stream[2]);
         cudaCheckErrors("Copy devDataW volume to host stream2.");  
@@ -7593,53 +7615,53 @@ void CalculateW(int gpuIdx,
 
     if (len % 3 == 2)
     {
-        int shift = (len - 2) * batchSize;
+        int shift = (len - 2) * nImgBatch;
         cudaMemcpyAsync(__device__T + shift, 
                         T3D + shift, 
-                        batchSize * sizeof(RFLOAT), 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[0]);
         cudaCheckErrors("Copy __device__T volume to device stream0.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
                                                       __device__T, 
-                                                      batchSize, 
+                                                      nImgBatch, 
                                                       shift,
                                                       dim,
                                                       r);
 
         cudaMemcpyAsync(W3D + shift, 
                         devDataW + shift, 
-                        batchSize * sizeof(RFLOAT), 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         cudaCheckErrors("Copy devDataW volume to host stream0.");  
         
-        cudaMemcpyAsync(__device__T + shift + batchSize, 
-                        T3D + shift + batchSize, 
-                        batchSize * sizeof(RFLOAT), 
+        cudaMemcpyAsync(__device__T + shift + nImgBatch, 
+                        T3D + shift + nImgBatch, 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyHostToDevice,
                         stream[1]);
         cudaCheckErrors("Copy __device__T volume to device stream1.");
         
         kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
                                                       __device__T, 
-                                                      batchSize, 
-                                                      shift + batchSize,
+                                                      nImgBatch, 
+                                                      shift + nImgBatch,
                                                       dim,
                                                       r);
 
 
-        cudaMemcpyAsync(W3D + shift + batchSize, 
-                        devDataW + shift + batchSize, 
-                        batchSize * sizeof(RFLOAT), 
+        cudaMemcpyAsync(W3D + shift + nImgBatch, 
+                        devDataW + shift + nImgBatch, 
+                        nImgBatch * sizeof(RFLOAT), 
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         cudaCheckErrors("Copy devDataW volume to host stream1.");  
     
-        if (dimSize % batchSize != 0)
+        if (dimSize % nImgBatch != 0)
         {
-            int shift = len * batchSize;
+            int shift = len * nImgBatch;
             cudaMemcpyAsync(__device__T + shift, 
                             T3D + shift, 
                             (dimSize - shift) * sizeof(RFLOAT), 
@@ -7667,31 +7689,31 @@ void CalculateW(int gpuIdx,
         
         if (len % 3 == 1)
         {
-            int shift = (len - 1) * batchSize;
+            int shift = (len - 1) * nImgBatch;
             cudaMemcpyAsync(__device__T + shift, 
                             T3D + shift, 
-                            batchSize * sizeof(RFLOAT), 
+                            nImgBatch * sizeof(RFLOAT), 
                             cudaMemcpyHostToDevice,
                             stream[0]);
             cudaCheckErrors("Copy __device__T volume to device stream0.");
             
             kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
                                                           __device__T, 
-                                                          batchSize, 
+                                                          nImgBatch, 
                                                           shift,
                                                           dim,
                                                           r);
 
             cudaMemcpyAsync(W3D + shift, 
                             devDataW + shift, 
-                            batchSize * sizeof(RFLOAT), 
+                            nImgBatch * sizeof(RFLOAT), 
                             cudaMemcpyDeviceToHost,
                             stream[0]);
             cudaCheckErrors("Copy devDataW volume to host stream0.");  
         
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
                 cudaMemcpyAsync(__device__T + shift, 
                                 T3D + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
@@ -7715,9 +7737,9 @@ void CalculateW(int gpuIdx,
         }
         else
         {
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
                 cudaMemcpyAsync(__device__T + shift, 
                                 T3D + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
@@ -7895,7 +7917,7 @@ void CalculateF(int gpuIdx,
     int dimSizeP = (pdim / 2 + 1) * pdim * pdim;
     int dimSizePRL = pdim * pdim * pdim;
     int dimSizeF = (fdim / 2 + 1) * fdim * fdim;
-    int batchSize = 8 * fdim * fdim;
+    int nImgBatch = 8 * fdim * fdim;
 
     cudaHostRegister(F3D, dimSizeF * sizeof(Complex), cudaHostRegisterDefault);
     cudaCheckErrors("Register F3D data.");
@@ -7914,10 +7936,10 @@ void CalculateF(int gpuIdx,
     RFLOAT *devPartW[3];
     for (int i = 0; i < 3; i++)
     {
-        cudaMalloc((void**)&devPartF[i], batchSize * sizeof(Complex));
+        cudaMalloc((void**)&devPartF[i], nImgBatch * sizeof(Complex));
         cudaCheckErrors("Allocate devDataW data.");
 
-        cudaMalloc((void**)&devPartW[i], batchSize * sizeof(RFLOAT));
+        cudaMalloc((void**)&devPartW[i], nImgBatch * sizeof(RFLOAT));
         cudaCheckErrors("Allocate devDataW data.");
     }
 
@@ -7931,7 +7953,7 @@ void CalculateF(int gpuIdx,
     int batch, smidx = 0;
     for (int i = 0; i < dimSizeF;)
     {
-        batch = (i + batchSize > dimSizeF) ? (dimSizeF - i) : batchSize;
+        batch = (i + nImgBatch > dimSizeF) ? (dimSizeF - i) : nImgBatch;
         
         cudaMemcpyAsync(devPartF[smidx],
                         F3D + i,
@@ -7957,7 +7979,7 @@ void CalculateF(int gpuIdx,
                                                              fdim);
 
         i += batch;
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -8007,11 +8029,11 @@ void CalculateF(int gpuIdx,
     cudaFree(devDst);
     cudaCheckErrors("Free device memory devDst.");
     
-    int pbatchSize = 8 * pdim * pdim;
+    int pnImgBatch = 8 * pdim * pdim;
     smidx = 0;
     for (int i = 0; i < dimSizePRL;)
     {
-        batch = (i + pbatchSize > dimSizePRL) ? (dimSizePRL - i) : pbatchSize;
+        batch = (i + pnImgBatch > dimSizePRL) ? (dimSizePRL - i) : pnImgBatch;
         
         kernel_NormalizeP<<<pdim, 
                             pdim, 
@@ -8029,7 +8051,7 @@ void CalculateF(int gpuIdx,
         cudaCheckErrors("for memcpy.");
 
         i += batch;
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -8224,12 +8246,12 @@ void CorrSoftMaskF(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
 
-    int batchSize = 8 * dim * dim;
+    int nImgBatch = 8 * dim * dim;
     
     int batch, smidx = 0;
     for (int i = 0; i < dimSizeRL;)
     {
-        batch = (i + batchSize > dimSizeRL) ? (dimSizeRL - i) : batchSize;
+        batch = (i + nImgBatch > dimSizeRL) ? (dimSizeRL - i) : nImgBatch;
         
         cudaMemcpyAsync(devDstN + i,
                         dstN + i,
@@ -8262,7 +8284,7 @@ void CorrSoftMaskF(int gpuIdx,
 #endif
 
         i += batch;
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -8359,12 +8381,12 @@ void TranslateI2D(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
 
-    int batchSize = dim / 2 + 1;
+    int nImgBatch = dim / 2 + 1;
     
     int batch, smidx = 0;
     for (int i = 0; i < dimSize;)
     {
-        batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
         
         cudaMemcpyAsync(devSrc + i,
                         src + i,
@@ -8391,7 +8413,7 @@ void TranslateI2D(int gpuIdx,
         cudaCheckErrors("for memcpy 0.");
 
         i += batch;
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -8443,12 +8465,12 @@ void TranslateI(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
 
-    int batchSize = 8 * dim * dim;
+    int nImgBatch = 8 * dim * dim;
     
     int batch, smidx = 0;
     for (int i = 0; i < dimSize;)
     {
-        batch = (i + batchSize > dimSize) ? (dimSize - i) : batchSize;
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
         
         cudaMemcpyAsync(devRef + i,
                         ref + i,
@@ -8477,7 +8499,7 @@ void TranslateI(int gpuIdx,
         cudaCheckErrors("for memcpy 0.");
 
         i += batch;
-        smidx = (++smidx) % 3;
+        smidx = (smidx + 1) % 3;
     }
    
     cudaStreamSynchronize(stream[0]);
@@ -8509,7 +8531,7 @@ void reMask(vector<Complex*>& imgData,
             RFLOAT pixelSize,
             RFLOAT ew,
             int idim,
-            int imgNum)
+            int nImg)
 {
     LOG(INFO) << "ReMask begin.";
     
@@ -8594,25 +8616,25 @@ void reMask(vector<Complex*>& imgData,
 
     LOG(INFO) << "alloc memory done, begin to calculate...";
     
-    int batchSize = 0, smidx = 0;
+    int nImgBatch = 0, smidx = 0;
     
-    for (int i = 0; i < imgNum;) 
+    for (int i = 0; i < nImg;) 
     {    
         for (int n = 0; n < aviDevs; ++n) 
         {     
-            if (i >= imgNum)
+            if (i >= nImg)
                 break;
            
             baseS = n * NUM_STREAM_PER_DEVICE;
-            batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
-            //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
+            nImgBatch = (i + BATCH_SIZE < nImg) ? BATCH_SIZE : (nImg - i);
+            //printf("batch:%d, smidx:%d, baseS:%d\n", nImgBatch, smidx, baseS);
             
             cudaSetDevice(gpus[n]); 
 
             cbArgsA[smidx + baseS].pglkptr = pglk_imageI_buf[smidx + baseS];
             cbArgsA[smidx + baseS].images = &imgData;
             cbArgsA[smidx + baseS].imageSize = imgSize;
-            cbArgsA[smidx + baseS].batchSize = batchSize;
+            cbArgsA[smidx + baseS].nImgBatch = nImgBatch;
             cbArgsA[smidx + baseS].basePos = i;
             
             cudaStreamAddCallback(stream[smidx + baseS], 
@@ -8622,12 +8644,12 @@ void reMask(vector<Complex*>& imgData,
            
             cudaMemcpyAsync(dev_image_buf[smidx + baseS],
                             pglk_imageI_buf[smidx + baseS],
-                            batchSize * imgSize * sizeof(Complex),
+                            nImgBatch * imgSize * sizeof(Complex),
                             cudaMemcpyHostToDevice,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy image to device.");
             
-            for (int r = 0; r < batchSize; r++)
+            for (int r = 0; r < nImgBatch; r++)
             {
 #ifdef SINGLE_PRECISION
                 cufftExecC2R(planc2r[smidx + baseS], 
@@ -8662,7 +8684,7 @@ void reMask(vector<Complex*>& imgData,
             
             cudaMemcpyAsync(pglk_imageO_buf[smidx + baseS],
                             dev_image_buf[smidx + baseS],
-                            batchSize * imgSize * sizeof(Complex),
+                            nImgBatch * imgSize * sizeof(Complex),
                             cudaMemcpyDeviceToHost,
                             stream[smidx + baseS]);
             cudaCheckErrors("memcpy image to host.");
@@ -8670,7 +8692,7 @@ void reMask(vector<Complex*>& imgData,
             cbArgsB[smidx + baseS].pglkptr = pglk_imageO_buf[smidx + baseS];
             cbArgsB[smidx + baseS].images = &imgData;
             cbArgsB[smidx + baseS].imageSize = imgSize;
-            cbArgsB[smidx + baseS].batchSize = batchSize;
+            cbArgsB[smidx + baseS].nImgBatch = nImgBatch;
             cbArgsB[smidx + baseS].basePos = i;
             
             cudaStreamAddCallback(stream[smidx + baseS], 
@@ -8678,10 +8700,10 @@ void reMask(vector<Complex*>& imgData,
                                   (void*)&cbArgsB[smidx + baseS], 
                                   0);
            
-            i += batchSize;
+            i += nImgBatch;
         }
         
-        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
+        smidx = (smidx + 1) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
@@ -8787,17 +8809,17 @@ void CorrSoftMaskF(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
 
-    int batchSize = 8 * dim * dim;
-    int len = dimSize / batchSize;
+    int nImgBatch = 8 * dim * dim;
+    int len = dimSize / nImgBatch;
     int streamN = len / 3;
     
     for (int i = 0; i < streamN; i++)
     {
-        int shift = i * 3 * batchSize;
+        int shift = i * 3 * nImgBatch;
         
         cudaMemcpyAsync(devDst + shift,
                         dst + shift,
-                        batchSize * sizeof(RFLOAT),
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyHostToDevice,
                         stream[0]);
         //cudaCheckErrors("for memcpy 0.");
@@ -8809,7 +8831,7 @@ void CorrSoftMaskF(int gpuIdx,
                                                     devMkb,
                                                     nf,
                                                     dim,
-                                                    batchSize,
+                                                    nImgBatch,
                                                     shift);
 #endif
 
@@ -8817,15 +8839,15 @@ void CorrSoftMaskF(int gpuIdx,
         kernel_CorrectF<<<dim, dim, 0, stream[0]>>>(devDst, 
                                                     devTik,
                                                     dim,
-                                                    batchSize, 
+                                                    nImgBatch, 
                                                     shift);
 #endif
 
 #endif
 
-        cudaMemcpyAsync(devDst + shift + batchSize,
-                        dst + shift + batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(devDst + shift + nImgBatch,
+                        dst + shift + nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyHostToDevice,
                         stream[1]);
         //cudaCheckErrors("for memcpy 1.");
@@ -8837,23 +8859,23 @@ void CorrSoftMaskF(int gpuIdx,
                                                     devMkb,
                                                     nf,
                                                     dim,
-                                                    batchSize,
-                                                    shift + batchSize);
+                                                    nImgBatch,
+                                                    shift + nImgBatch);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
         kernel_CorrectF<<<dim, dim, 0, stream[1]>>>(devDst, 
                                                     devTik,
                                                     dim,
-                                                    batchSize, 
-                                                    shift + batchSize);
+                                                    nImgBatch, 
+                                                    shift + nImgBatch);
 #endif
 
 #endif
         
-        cudaMemcpyAsync(devDst + shift + 2 * batchSize,
-                        dst + shift + 2 * batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(devDst + shift + 2 * nImgBatch,
+                        dst + shift + 2 * nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyHostToDevice,
                         stream[2]);
         //cudaCheckErrors("for memcpy 2.");
@@ -8865,16 +8887,16 @@ void CorrSoftMaskF(int gpuIdx,
                                                     devMkb,
                                                     nf,
                                                     dim,
-                                                    batchSize,
-                                                    shift + 2 * batchSize);
+                                                    nImgBatch,
+                                                    shift + 2 * nImgBatch);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
         kernel_CorrectF<<<dim, dim, 0, stream[2]>>>(devDst, 
                                                     devTik,
                                                     dim,
-                                                    batchSize, 
-                                                    shift + 2 * batchSize);
+                                                    nImgBatch, 
+                                                    shift + 2 * nImgBatch);
 #endif
 
 #endif
@@ -8882,11 +8904,11 @@ void CorrSoftMaskF(int gpuIdx,
 
     if (len % 3 == 2)
     {
-        int shift = (len - 2) * batchSize;
+        int shift = (len - 2) * nImgBatch;
         
         cudaMemcpyAsync(devDst + shift,
                         dst + shift,
-                        batchSize * sizeof(RFLOAT),
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyHostToDevice,
                         stream[0]);
         //cudaCheckErrors("for memcpy 0.");
@@ -8898,7 +8920,7 @@ void CorrSoftMaskF(int gpuIdx,
                                                     devMkb,
                                                     nf,
                                                     dim,
-                                                    batchSize,
+                                                    nImgBatch,
                                                     shift);
 #endif
 
@@ -8906,15 +8928,15 @@ void CorrSoftMaskF(int gpuIdx,
         kernel_CorrectF<<<dim, dim, 0, stream[0]>>>(devDst, 
                                                     devTik,
                                                     dim,
-                                                    batchSize, 
+                                                    nImgBatch, 
                                                     shift);
 #endif
 
 #endif
     
-        cudaMemcpyAsync(devDst + shift + batchSize,
-                        dst + shift + batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(devDst + shift + nImgBatch,
+                        dst + shift + nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyHostToDevice,
                         stream[1]);
         //cudaCheckErrors("for memcpy 1.");
@@ -8926,23 +8948,23 @@ void CorrSoftMaskF(int gpuIdx,
                                                     devMkb,
                                                     nf,
                                                     dim,
-                                                    batchSize,
-                                                    shift + batchSize);
+                                                    nImgBatch,
+                                                    shift + nImgBatch);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
         kernel_CorrectF<<<dim, dim, 0, stream[1]>>>(devDst, 
                                                     devTik,
                                                     dim,
-                                                    batchSize, 
-                                                    shift + batchSize);
+                                                    nImgBatch, 
+                                                    shift + nImgBatch);
 #endif
 
 #endif
         
-        if (dimSize % batchSize != 0)
+        if (dimSize % nImgBatch != 0)
         {
-            int shift = len * batchSize;
+            int shift = len * nImgBatch;
             cudaMemcpyAsync(devDst + shift,
                             dst + shift,
                             (dimSize - shift) * sizeof(RFLOAT),
@@ -8979,10 +9001,10 @@ void CorrSoftMaskF(int gpuIdx,
     {
         if (len % 3 == 1)
         {
-            int shift = (len - 1) * batchSize;
+            int shift = (len - 1) * nImgBatch;
             cudaMemcpyAsync(devDst + shift,
                             dst + shift,
-                            batchSize * sizeof(RFLOAT),
+                            nImgBatch * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[0]);
             //cudaCheckErrors("for memcpy 0.");
@@ -8994,7 +9016,7 @@ void CorrSoftMaskF(int gpuIdx,
                                                         devMkb,
                                                         nf,
                                                         dim,
-                                                        batchSize,
+                                                        nImgBatch,
                                                         shift);
 #endif
 
@@ -9002,15 +9024,15 @@ void CorrSoftMaskF(int gpuIdx,
             kernel_CorrectF<<<dim, dim, 0, stream[0]>>>(devDst, 
                                                         devTik,
                                                         dim,
-                                                        batchSize, 
+                                                        nImgBatch, 
                                                         shift);
 #endif
 
 #endif
             
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
                 cudaMemcpyAsync(devDst + shift,
                                 dst + shift,
                                 (dimSize - shift) * sizeof(RFLOAT),
@@ -9043,9 +9065,9 @@ void CorrSoftMaskF(int gpuIdx,
         }
         else
         {
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
                 cudaMemcpyAsync(devDst + shift,
                                 dst + shift,
                                 (dimSize - shift) * sizeof(RFLOAT),
@@ -9119,20 +9141,20 @@ void CorrSoftMaskF(int gpuIdx,
 
     for (int i = 0; i < streamN; i++)
     {
-        int shift = i * 3 * batchSize;
+        int shift = i * 3 * nImgBatch;
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
         kernel_SoftMaskD<<<dim, dim, 0, stream[0]>>>(devDst,
                                                      bg,
                                                      size / 2,
                                                      edgeWidth,
                                                      dim,
-                                                     batchSize,
+                                                     nImgBatch,
                                                      shift);
 #endif
 
         cudaMemcpyAsync(dst + shift,
                         devDst + shift,
-                        batchSize * sizeof(RFLOAT),
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         //cudaCheckErrors("out for memcpy 0.");
@@ -9143,13 +9165,13 @@ void CorrSoftMaskF(int gpuIdx,
                                                      size / 2,
                                                      edgeWidth,
                                                      dim,
-                                                     batchSize,
-                                                     shift + batchSize);
+                                                     nImgBatch,
+                                                     shift + nImgBatch);
 #endif
         
-        cudaMemcpyAsync(dst + shift + batchSize,
-                        devDst + shift + batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(dst + shift + nImgBatch,
+                        devDst + shift + nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         //cudaCheckErrors("out for memcpy 1.");
@@ -9160,13 +9182,13 @@ void CorrSoftMaskF(int gpuIdx,
                                                      size / 2,
                                                      edgeWidth,
                                                      dim,
-                                                     batchSize,
-                                                     shift + 2 * batchSize);
+                                                     nImgBatch,
+                                                     shift + 2 * nImgBatch);
 #endif
         
-        cudaMemcpyAsync(dst + shift + 2 * batchSize,
-                        devDst + shift + 2 * batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(dst + shift + 2 * nImgBatch,
+                        devDst + shift + 2 * nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[2]);
         //cudaCheckErrors("out for memcpy 2.");
@@ -9174,20 +9196,20 @@ void CorrSoftMaskF(int gpuIdx,
    
     if (len % 3 == 2)
     {
-        int shift = (len - 2) * batchSize;
+        int shift = (len - 2) * nImgBatch;
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
         kernel_SoftMaskD<<<dim, dim, 0, stream[0]>>>(devDst,
                                                      bg,
                                                      size / 2,
                                                      edgeWidth,
                                                      dim,
-                                                     batchSize,
+                                                     nImgBatch,
                                                      shift);
 #endif
 
         cudaMemcpyAsync(dst + shift,
                         devDst + shift,
-                        batchSize * sizeof(RFLOAT),
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[0]);
         //cudaCheckErrors("out for memcpy 0.");
@@ -9198,20 +9220,20 @@ void CorrSoftMaskF(int gpuIdx,
                                                      size / 2,
                                                      edgeWidth,
                                                      dim,
-                                                     batchSize,
-                                                     shift + batchSize);
+                                                     nImgBatch,
+                                                     shift + nImgBatch);
 #endif
         
-        cudaMemcpyAsync(dst + shift + batchSize,
-                        devDst + shift + batchSize,
-                        batchSize * sizeof(RFLOAT),
+        cudaMemcpyAsync(dst + shift + nImgBatch,
+                        devDst + shift + nImgBatch,
+                        nImgBatch * sizeof(RFLOAT),
                         cudaMemcpyDeviceToHost,
                         stream[1]);
         //cudaCheckErrors("out for memcpy 1.");
 
-        if (dimSize % batchSize != 0)
+        if (dimSize % nImgBatch != 0)
         {
-            int shift = len * batchSize;
+            int shift = len * nImgBatch;
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
             kernel_SoftMaskD<<<dim, dim, 0, stream[2]>>>(devDst,
                                                          bg,
@@ -9236,27 +9258,27 @@ void CorrSoftMaskF(int gpuIdx,
     {
         if (len % 3 == 1)
         {
-            int shift = (len - 1) * batchSize;
+            int shift = (len - 1) * nImgBatch;
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
             kernel_SoftMaskD<<<dim, dim, 0, stream[0]>>>(devDst,
                                                          bg,
                                                          size / 2,
                                                          edgeWidth,
                                                          dim,
-                                                         batchSize,
+                                                         nImgBatch,
                                                          shift);
 #endif
 
             cudaMemcpyAsync(dst + shift,
                             devDst + shift,
-                            batchSize * sizeof(RFLOAT),
+                            nImgBatch * sizeof(RFLOAT),
                             cudaMemcpyDeviceToHost,
                             stream[0]);
             //cudaCheckErrors("out for memcpy 0.");
             
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
                 kernel_SoftMaskD<<<dim, dim, 0, stream[1]>>>(devDst,
                                                              bg,
@@ -9278,9 +9300,9 @@ void CorrSoftMaskF(int gpuIdx,
         }
         else
         {
-            if (dimSize % batchSize != 0)
+            if (dimSize % nImgBatch != 0)
             {
-                int shift = len * batchSize;
+                int shift = len * nImgBatch;
 #ifdef RECONSTRUCTOR_REMOVE_CORNER
                 kernel_SoftMaskD<<<dim, dim, 0, stream[0]>>>(devDst,
                                                              bg,
