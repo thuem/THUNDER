@@ -3979,12 +3979,15 @@ void Optimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
+        reconstructRef(true, false, true, false, true);
+        /***
 #ifdef GPU_VERSION
         reconstructRefG(true, false, true, false, true);
         //reconstructRef(true, false, true, false, true);
 #else
         reconstructRef(true, false, true, false, true);
 #endif
+        ***/
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
@@ -6206,12 +6209,300 @@ void Optimiser::reconstructRef(const bool fscFlag,
                         ((_para.cSearch) &&
                         (_searchType == SEARCH_TYPE_STOP)));
 
+#ifdef GPU_VERSION
+
+        if (_para.mode == MODE_2D)
+        {
+            RFLOAT *w = new RFLOAT[_ID.size()];
+            double *offS = new double[_ID.size() * 2];
+            double *nr = new double[_para.mReco * _ID.size() * 2];
+            double *nt = new double[_para.mReco * _ID.size() * 2];
+            double *nd = new double[_para.mReco * _ID.size()];
+            CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+            int *nc = new int[_para.mReco * _ID.size()];
+            
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                if (_para.parGra && _para.k == 1)
+                    w[l] = _par[l].compressR();
+                else
+                    w[l] = 1;
+
+                w[l] /= _para.mReco;
+
+                if (cSearch)
+                {
+                    ctfaData[l].voltage           = _ctfAttr[l].voltage;
+                    ctfaData[l].defocusU          = _ctfAttr[l].defocusU;
+                    ctfaData[l].defocusV          = _ctfAttr[l].defocusV;
+                    ctfaData[l].defocusTheta      = _ctfAttr[l].defocusTheta;
+                    ctfaData[l].Cs                = _ctfAttr[l].Cs;
+                    ctfaData[l].amplitudeContrast = _ctfAttr[l].amplitudeContrast;
+                    ctfaData[l].phaseShift        = _ctfAttr[l].phaseShift;
+                }
+        
+                offS[l * 2] = _offset[l](0); 
+                offS[l * 2 + 1] = _offset[l](1);
+                
+                int shift = l * _para.mReco;
+                for (int m = 0; m < _para.mReco; m++)
+                {
+                    size_t cls;
+                    dvec4 quat;
+                    dvec2 tran;
+                    double d;
+
+                    _par[l].rand(cls, quat, tran, d);
+
+                    nc[shift + m] = cls;
+                    nt[(shift + m) * 2] = tran(0);
+                    nt[(shift + m) * 2 + 1] = tran(1);
+                    nr[(shift + m) * 2] = quat(0);
+                    nr[(shift + m) * 2 + 1] = quat(1);
+                    if (cSearch)
+                    {
+                        nd[shift + m] = d;
+                    }
+                }
+            }
+            
+            int vdim = _model.reco(0).getModelDim();
+            int modelSize = _model.reco(0).getModelSize();
+            Complex* modelF = new Complex[_para.k * modelSize];
+            RFLOAT* modelT = new RFLOAT[_para.k * modelSize];
+            double* O2D = new double[_para.k * 2];
+            int* counter = new int[_para.k];
+
+            #pragma omp parallel for
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).getF(modelF + t * modelSize);
+                _model.reco(t).getT(modelT + t * modelSize);
+                O2D[t * 2] = _model.reco(t).ox();
+                O2D[t * 2 + 1] = _model.reco(t).oy();
+                counter[t] = _model.reco(t).counter();
+            }
+           
+
+            InsertI2D(modelF, modelT, O2D, counter, _hemi, _slav, 
+                      _datP, _ctfP, _sigP, w, offS, nc, nr, nt, nd, 
+                      ctfaData, _iColPad, _iRowPad, _para.pixelSize, 
+                      cSearch, _para.k, _para.pf, _nPxl, 
+                      _para.mReco, _para.size, vdim, _ID.size()); 
+
+            #pragma omp parallel for
+            for (int t = 0; t < _para.k; t++)
+            {
+                _model.reco(t).resetF(modelF + t * modelSize);
+                _model.reco(t).resetT(modelT + t * modelSize);
+                _model.reco(t).setOx(O2D[t * 2] / counter[t]);
+                _model.reco(t).setOy(O2D[t * 2 + 1] / counter[t]);
+                _model.reco(t).setCounter(counter[t]);
+            }
+            
+            delete[]modelF;
+            delete[]modelT;
+            delete[]O2D;
+            delete[]counter;
+            delete[]w;
+            delete[]offS;            
+            delete[]nc;            
+            delete[]nr;            
+            delete[]nt;            
+            delete[]nd;            
+            delete[]ctfaData;            
+
+        }    
+        else if (_para.mode == MODE_3D)
+        {
+            if (_para.k != 1)
+            {
+                RFLOAT *w = new RFLOAT[_ID.size()];
+                double *offS = new double[_ID.size() * 2];
+                int *nc = new int[_para.k * _ID.size()];
+                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                
+                #pragma omp parallel for
+                for(size_t i = 0; i < _para.k * _ID.size(); i++)
+                    nc[i] = 0;
+
+                #pragma omp parallel for
+                FOR_EACH_2D_IMAGE
+                {
+                    if (_para.parGra && _para.k == 1)
+                        w[l] = _par[l].compressR();
+                    else
+                        w[l] = 1;
+
+                    w[l] /= _para.mReco;
+
+                    if (cSearch)
+                    {
+                        ctfaData[l].voltage           = _ctfAttr[l].voltage;
+                        ctfaData[l].defocusU          = _ctfAttr[l].defocusU;
+                        ctfaData[l].defocusV          = _ctfAttr[l].defocusV;
+                        ctfaData[l].defocusTheta      = _ctfAttr[l].defocusTheta;
+                        ctfaData[l].Cs                = _ctfAttr[l].Cs;
+                        ctfaData[l].amplitudeContrast = _ctfAttr[l].amplitudeContrast;
+                        ctfaData[l].phaseShift        = _ctfAttr[l].phaseShift;
+                    }
+        
+                    offS[l * 2] = _offset[l](0); 
+                    offS[l * 2 + 1] = _offset[l](1);
+                    
+                    for (int m = 0; m < _para.mReco; m++)
+                    {
+                        size_t cls;
+                        _par[l].rand(cls);
+                        nc[cls * _ID.size() + l]++;
+                    }
+                }
+           
+                double *nr;
+                double *nt;
+                double *nd;
+                        
+                int temp = 0;
+                for (int t = 0; t < _para.k; t++)
+                {
+                    temp = 0;
+                    int shiftc = t * _ID.size();
+                    for (size_t l = 0; l < _ID.size(); l++)
+                    {
+                        if (nc[shiftc + l] > temp)
+                            temp = nc[shiftc + l];
+                    }
+
+                    if (temp != 0)
+                    {
+                        nr = new double[temp * _ID.size() * 4];
+                        nt = new double[temp * _ID.size() * 2];
+                        nd = new double[temp * _ID.size()];
+                        
+                        #pragma omp parallel for
+                        FOR_EACH_2D_IMAGE
+                        {
+                            int shift = l * temp;
+                            for (int m = 0; m < temp; m++)
+                            {
+                                dvec4 quat;
+                                dvec2 tran;
+                                double d;
+                                _par[l].rand(quat);
+                                _par[l].rand(tran);
+                                _par[l].rand(d);
+
+                                nt[(shift + m) * 2] = tran(0);
+                                nt[(shift + m) * 2 + 1] = tran(1);
+                                nr[(shift + m) * 4] = quat(0);
+                                nr[(shift + m) * 4 + 1] = quat(1);
+                                nr[(shift + m) * 4 + 2] = quat(2);
+                                nr[(shift + m) * 4 + 3] = quat(3);
+                                if (cSearch)
+                                {
+                                    nd[shift + m] = d;
+                                }
+                            }
+                        }
+           
+                        _model.reco(t).insertI(_datP, _ctfP, _sigP, w, offS, nr, 
+                                               nt, nd, nc + shiftc, ctfaData, 
+                                               _para.pixelSize, cSearch, _para.pf, 
+                                               temp, _para.size, _ID.size()); 
+
+                        delete[]nr;            
+                        delete[]nt;            
+                        delete[]nd;
+                    }            
+                }
+
+                delete[]w;
+                delete[]offS;            
+                delete[]nc;            
+                delete[]ctfaData;            
+            }
+            else
+            {
+                RFLOAT *w = new RFLOAT[_ID.size()];
+                double *offS = new double[_ID.size() * 2];
+                double *nr = new double[_para.mReco * _ID.size() * 4];
+                double *nt = new double[_para.mReco * _ID.size() * 2];
+                double *nd = new double[_para.mReco * _ID.size()];
+                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                
+                #pragma omp parallel for
+                FOR_EACH_2D_IMAGE
+                {
+                    if (_para.parGra && _para.k == 1)
+                        w[l] = _par[l].compressR();
+                    else
+                        w[l] = 1;
+
+                    w[l] /= _para.mReco;
+
+                    if (cSearch)
+                    {
+                        ctfaData[l].voltage           = _ctfAttr[l].voltage;
+                        ctfaData[l].defocusU          = _ctfAttr[l].defocusU;
+                        ctfaData[l].defocusV          = _ctfAttr[l].defocusV;
+                        ctfaData[l].defocusTheta      = _ctfAttr[l].defocusTheta;
+                        ctfaData[l].Cs                = _ctfAttr[l].Cs;
+                        ctfaData[l].amplitudeContrast = _ctfAttr[l].amplitudeContrast;
+                        ctfaData[l].phaseShift        = _ctfAttr[l].phaseShift;
+                    }
+        
+                    offS[l * 2] = _offset[l](0); 
+                    offS[l * 2 + 1] = _offset[l](1);
+                    
+                    int shift = l * _para.mReco;
+                    for (int m = 0; m < _para.mReco; m++)
+                    {
+                        size_t cls;
+                        dvec4 quat;
+                        dvec2 tran;
+                        double d;
+
+                        _par[l].rand(cls, quat, tran, d);
+
+                        nt[(shift + m) * 2] = tran(0);
+                        nt[(shift + m) * 2 + 1] = tran(1);
+                        nr[(shift + m) * 4] = quat(0);
+                        nr[(shift + m) * 4 + 1] = quat(1);
+                        nr[(shift + m) * 4 + 2] = quat(2);
+                        nr[(shift + m) * 4 + 3] = quat(3);
+                        if (cSearch)
+                        {
+                            nd[shift + m] = d;
+                        }
+                    }
+                }
+                
+                _model.reco(0).insertI(_datP, _ctfP, _sigP, w, offS, nr,
+                                       nt, nd, ctfaData, _para.pixelSize, 
+                                       cSearch, _para.pf, _para.mReco, 
+                                       _para.size, _ID.size()); 
+
+                delete[]w;
+                delete[]offS;            
+                delete[]nr;            
+                delete[]nt;            
+                delete[]nd;            
+                delete[]ctfaData;            
+            }
+        }
+        else
+        {
+            REPORT_ERROR("INEXISTENT MODE");
+            abort();
+        }
+
+#else
         Complex* poolTransImgP = (Complex*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(Complex));
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-            //Image ctf(_para.size, _para.size, FT_SPACE);
             RFLOAT* ctf;
 
             RFLOAT w;
@@ -6226,8 +6517,6 @@ void Optimiser::reconstructRef(const bool fscFlag,
             Complex* transImgP = poolTransImgP + _nPxl * omp_get_thread_num();
 
             Complex* orignImgP = _datP + _nPxl * l;
-
-            // Image transImg(_para.size, _para.size, FT_SPACE);
 
             for (int m = 0; m < _para.mReco; m++)
             {
@@ -6403,6 +6692,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 }
             }
         }
+#endif
 
 #ifdef VERBOSE_LEVEL_2
         ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
@@ -6410,6 +6700,15 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         MPI_Barrier(_hemi);
 
+#ifdef GPU_VERSION
+        std::vector<int> gpus;
+        getAviDevice(gpus);
+        int deviceNum = gpus.size();
+#endif
+        
+#ifdef GPU_RECONSTRUCT
+        #pragma omp parallel for num_threads(deviceNum)
+#endif
         for (int t = 0; t < _para.k; t++)
         {
             ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
@@ -6417,7 +6716,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
             BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                        << t;
 
+#ifdef GPU_VERSION
+            if (_para.mode == MODE_3D) _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
+#else
             _model.reco(t).prepareTF();
+#endif
 
             ALOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
                                        << t
@@ -6450,6 +6753,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
     {
         NT_MASTER
         {
+#ifdef GPU_RECONSTRUCT
+            std::vector<int> gpus;
+
+            getAviDevice(gpus);
+
+            int deviceNum = gpu.size();
+#endif
+
+#ifdef GPU_RECONSTRUCT
+            #pragma omp parallel for num_threads(deviceNum)
+#endif
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(false);
@@ -6492,6 +6806,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 Volume ref;
 
+#ifdef GPU_RECONSTRUCT
+                _model.reco(t).reconstructG(ref, gpu[omp_get_thread_num()]);
+#else
                 _model.reco(t).reconstruct(ref);
 
 #ifdef VERBOSE_LEVEL_2
@@ -6500,6 +6817,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
                 fft.fwMT(ref);
+
+#endif
 
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
@@ -6510,14 +6829,33 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     SLC_EXTRACT_FT(img, ref, 0);
 
+#ifdef GPU_RECONSTRUCT
+                    TranslateI2D(gpus[omp_get_thread_num()],
+                                 img,
+                                 -_model.reco(t).ox(),
+                                 -_model.reco(t).oy(),
+                                 _model.rU());
+#else
                     translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+#endif
 
                     SLC_REPLACE_FT(ref, img, 0);
                 }
                 else if (_para.mode == MODE_3D)
                 {
                     if (_sym.pgGroup() == PG_CN)
+                    {
+#ifdef GPU_RECONSTRUCT
+                        TranslateI(gpus[omp_get_thread_num()],
+                                   ref,
+                                   -_model.reco(t).ox(),
+                                   -_model.reco(t).oy(),
+                                   -_model.reco(t).oz(),
+                                   _model.rU());
+#else
                         translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+#endif
+                    }
                 }
                 else
                 {
@@ -6618,6 +6956,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
     {
         NT_MASTER
         {
+#ifdef GPU_RECONSTRUCT
+            std::vector<int> gpus;
+
+            getAviDevice(gpus);
+
+            int deviceNum = gpu.size();
+#endif
+
+#ifdef GPU_RECONSTRUCT
+            #pragma omp parallel for num_threads(deviceNum)
+#endif
             for (int t = 0; t < _para.k; t++)
             {
                 _model.reco(t).setMAP(true);
@@ -6660,6 +7009,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 Volume ref;
 
+#ifdef GPU_RECONSTRUCT
+                _model.reco(t).reconstructG(ref, gpu[omp_get_thread_num()]);
+#else
                 _model.reco(t).reconstruct(ref);
 
 #ifdef VERBOSE_LEVEL_2
@@ -6668,6 +7020,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
                 fft.fwMT(ref);
+
+#endif
 
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
@@ -6678,14 +7032,33 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     SLC_EXTRACT_FT(img, ref, 0);
 
+#ifdef GPU_RECONSTRUCT
+                    TranslateI2D(gpus[omp_get_thread_num()],
+                                 img,
+                                 -_model.reco(t).ox(),
+                                 -_model.reco(t).oy(),
+                                 _model.rU());
+#else
                     translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+#endif
 
                     SLC_REPLACE_FT(ref, img, 0);
                 }
                 else if (_para.mode == MODE_3D)
                 {
                     if (_sym.pgGroup() == PG_CN)
+                    {
+#ifdef GPU_RECONSTRUCT
+                        TranslateI(gpus[omp_get_thread_num()],
+                                   ref,
+                                   -_model.reco(t).ox(),
+                                   -_model.reco(t).oy(),
+                                   -_model.reco(t).oz(),
+                                   _model.rU());
+#else
                         translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+#endif
+                    }
                 }
                 else
                 {
@@ -7374,7 +7747,7 @@ void Optimiser::reconstructRefG(const bool fscFlag,
     {
         NT_MASTER
         {
-#ifdef GPU_RECONSTRUCT
+#ifdef GPU_VERSION
             std::vector<int> gpus;
 
             getAviDevice(gpus);
