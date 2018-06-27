@@ -25,7 +25,7 @@
 #include <cuda_profiler_api.h>
 
 /* Index for two stream buffer. */
-#define NUM_STREAM 3
+#define NUM_STREAM_PER_DEVICE 3
 #define A 0
 #define B 1
 
@@ -294,16 +294,16 @@ void reduceT3D(cudaArray* symArrayT[],
                              ncclSum,
                              0, 
                              comm[i], 
-                             stream[0 + i * NUM_STREAM]));
+                             stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(n);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
    
@@ -371,16 +371,16 @@ void reduceF3D(cudaArray* symArrayF[],
                              ncclSum,
                              0, 
                              comm[i], 
-                             stream[0 + i * NUM_STREAM]));
+                             stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(n);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
    
@@ -673,29 +673,29 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
         }
     }
 
-    int streamNum = aviDevs * NUM_STREAM;
-    CTFAttr *pglk_ctfas_buf[streamNum];
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
+    CTFAttr *pglk_ctfas_buf[nStream];
     
-    CTFAttr *dev_ctfas_buf[streamNum];
-    RFLOAT *dev_def_buf[streamNum];
-    RFLOAT *dev_k1_buf[streamNum];
-    RFLOAT *dev_k2_buf[streamNum];
+    CTFAttr *dev_ctfas_buf[nStream];
+    RFLOAT *dev_def_buf[nStream];
+    RFLOAT *dev_k1_buf[nStream];
+    RFLOAT *dev_k2_buf[nStream];
 
-    CB_UPIB_ta cbArgsA[streamNum];
+    CB_UPIB_ta cbArgsA[nStream];
     
     int *__device__iCol[aviDevs];
     int *__device__iRow[aviDevs];
     
     LOG(INFO) << "Step1: alloc Memory.";
     
-    cudaStream_t stream[streamNum];
+    cudaStream_t stream[nStream];
 
     int baseS;
     const int BATCH_SIZE = BUFF_SIZE;
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         
         cudaSetDevice(gpus[n]); 
         
@@ -705,7 +705,7 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
         cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iRow data.");
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             allocPGLKCTFAttrBuffer(&pglk_ctfas_buf[i + baseS], BATCH_SIZE);
             allocDeviceCTFAttrBuffer(&dev_ctfas_buf[i + baseS], BATCH_SIZE);
@@ -748,7 +748,7 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
             if (i >= imgNum)
                 break;
            
-            baseS = n * NUM_STREAM;
+            baseS = n * NUM_STREAM_PER_DEVICE;
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
             
@@ -803,17 +803,17 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
             i += batchSize;
         }
         
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         //cudaDeviceSynchronize();
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamSynchronize(stream[i + baseS]); 
             //cudaCheckErrors("Stream synchronize.");
@@ -829,13 +829,13 @@ void expectPrecal(vector<CTFAttr*>& ctfaData,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaFree(__device__iCol[n]); 
         cudaFree(__device__iRow[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamDestroy(stream[i + baseS]);
     } 
   
@@ -891,8 +891,8 @@ void expectGlobal2D(Complex* volume,
         }
     }
 
-    int streamNum = aviDevs * NUM_STREAM;
-    cudaStream_t stream[streamNum];
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
+    cudaStream_t stream[nStream];
     
     Complex* devtraP[aviDevs];
     double* dev_trans[aviDevs]; 
@@ -925,7 +925,7 @@ void expectGlobal2D(Complex* volume,
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]); 
         
         for (int k = 0; k < nK; k++)
@@ -955,7 +955,7 @@ void expectGlobal2D(Complex* volume,
         cudaMalloc((void**)&devpT[n], nT * sizeof(double));
         //cudaCheckErrors("Allocate pT data.");
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamCreate(&stream[i + baseS]);
             //cudaCheckErrors("stream create.");
@@ -1000,7 +1000,7 @@ void expectGlobal2D(Complex* volume,
     
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]); 
         
         cudaMemcpyAsync(devnR[n],
@@ -1077,10 +1077,10 @@ void expectGlobal2D(Complex* volume,
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamSynchronize(stream[i + baseS]); 
             //cudaCheckErrors("device synchronize.");
@@ -1095,23 +1095,23 @@ void expectGlobal2D(Complex* volume,
     cudaHostUnregister(rot);
     //cudaCheckErrors("Unregister rot.");
     
-    Complex* devdatP[streamNum];
-    Complex* priRotP[streamNum];
-    RFLOAT* devctfP[streamNum];
-    RFLOAT* devsigP[streamNum];
-    RFLOAT* devDvp[streamNum];
-    RFLOAT* devbaseL[streamNum];
-    RFLOAT* devwC[streamNum];
-    RFLOAT* devwR[streamNum];
-    RFLOAT* devwT[streamNum];
-    RFLOAT* devcomP[streamNum];
+    Complex* devdatP[nStream];
+    Complex* priRotP[nStream];
+    RFLOAT* devctfP[nStream];
+    RFLOAT* devsigP[nStream];
+    RFLOAT* devDvp[nStream];
+    RFLOAT* devbaseL[nStream];
+    RFLOAT* devwC[nStream];
+    RFLOAT* devwR[nStream];
+    RFLOAT* devwT[nStream];
+    RFLOAT* devcomP[nStream];
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             allocDeviceComplexBuffer(&priRotP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
@@ -1139,7 +1139,7 @@ void expectGlobal2D(Complex* volume,
             if (i >= imgNum)
                 break;
            
-            baseS = n * NUM_STREAM;
+            baseS = n * NUM_STREAM_PER_DEVICE;
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             
             cudaSetDevice(gpus[n]); 
@@ -1293,16 +1293,16 @@ void expectGlobal2D(Complex* volume,
             i += batchSize;
         }
         
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamSynchronize(stream[i + baseS]); 
             //cudaCheckErrors("Stream synchronize after.");
@@ -1326,7 +1326,7 @@ void expectGlobal2D(Complex* volume,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaFree(devnR[n]);
@@ -1343,7 +1343,7 @@ void expectGlobal2D(Complex* volume,
             cudaDestroyTextureObject(texObject[k + n * nK]);
         }
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamDestroy(stream[i + baseS]);
     } 
   
@@ -1645,9 +1645,9 @@ void expectProject(Complex* volume,
     cudaCreateTextureObject(&texObject, &resDesc, &td, NULL);
     cudaCheckErrors("create TexObject.");
     
-    Complex* devrotP[NUM_STREAM];
-    double* devRotm[NUM_STREAM]; 
-    for (int i = 0; i < NUM_STREAM; i++)
+    Complex* devrotP[NUM_STREAM_PER_DEVICE];
+    double* devRotm[NUM_STREAM_PER_DEVICE]; 
+    for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
     {
         cudaMalloc((void**)&devrotP[i], BATCH_SIZE * npxl * sizeof(Complex));
         cudaCheckErrors("Allocate traP data.");
@@ -1677,10 +1677,10 @@ void expectProject(Complex* volume,
                cudaMemcpyHostToDevice);
     cudaCheckErrors("for memcpy iRow.");
     
-    int streamNum = NUM_STREAM;
-    cudaStream_t stream[streamNum];
+    int nStream = NUM_STREAM_PER_DEVICE;
+    cudaStream_t stream[nStream];
     
-    for (int i = 0; i < NUM_STREAM; i++)
+    for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
     {
         cudaStreamCreate(&stream[i]);
         cudaCheckErrors("stream create.");
@@ -1722,10 +1722,10 @@ void expectProject(Complex* volume,
         cudaCheckErrors("memcpy wT to host.");
         
         r += rbatch;
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
             
-    for (int i = 0; i < NUM_STREAM; i++)
+    for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
     {
         cudaStreamSynchronize(stream[i]); 
         cudaCheckErrors("device synchronize.");
@@ -1764,7 +1764,7 @@ void expectProject(Complex* volume,
     cudaFreeArray(symArray);
     cudaCheckErrors("device memory free.");
         
-    for (int i = 0; i < NUM_STREAM; i++)
+    for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
     {
         cudaFree(devrotP[i]); 
         cudaFree(devRotm[i]); 
@@ -1819,8 +1819,8 @@ void expectGlobal3D(Complex* rotP,
         }
     }
 
-    int streamNum = aviDevs * NUM_STREAM;
-    cudaStream_t stream[streamNum];
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
+    cudaStream_t stream[nStream];
     
     Complex* devtraP[aviDevs];
     double* devpR[aviDevs];
@@ -1828,10 +1828,10 @@ void expectGlobal3D(Complex* rotP,
     int baseS;
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamCreate(&stream[i + baseS]);
             cudaCheckErrors("stream create.");
@@ -1891,23 +1891,23 @@ void expectGlobal3D(Complex* rotP,
     cudaHostRegister(wT, (long long)imgNum * nK * nT * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register wT data.");
     
-    Complex* priRotP[streamNum];
-    Complex* devdatP[streamNum];
-    RFLOAT* devctfP[streamNum];
-    RFLOAT* devsigP[streamNum];
-    RFLOAT* devDvp[streamNum];
-    RFLOAT* devbaseL[streamNum];
-    RFLOAT* devwC[streamNum];
-    RFLOAT* devwR[streamNum];
-    RFLOAT* devwT[streamNum];
-    RFLOAT* devcomP[streamNum];
+    Complex* priRotP[nStream];
+    Complex* devdatP[nStream];
+    RFLOAT* devctfP[nStream];
+    RFLOAT* devsigP[nStream];
+    RFLOAT* devDvp[nStream];
+    RFLOAT* devbaseL[nStream];
+    RFLOAT* devwC[nStream];
+    RFLOAT* devwR[nStream];
+    RFLOAT* devwT[nStream];
+    RFLOAT* devcomP[nStream];
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             allocDeviceComplexBuffer(&priRotP[i + baseS], BATCH_SIZE * npxl);
             allocDeviceComplexBuffer(&devdatP[i + baseS], BATCH_SIZE * npxl);
@@ -1929,10 +1929,10 @@ void expectGlobal3D(Complex* rotP,
     //synchronizing on CUDA streams 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamSynchronize(stream[i + baseS]); 
             cudaCheckErrors("Stream synchronize before expect.");
@@ -1948,7 +1948,7 @@ void expectGlobal3D(Complex* rotP,
             if (i >= imgNum)
                 break;
            
-            baseS = n * NUM_STREAM;
+            baseS = n * NUM_STREAM_PER_DEVICE;
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             
             cudaSetDevice(gpus[n]); 
@@ -2136,16 +2136,16 @@ void expectGlobal3D(Complex* rotP,
             i += batchSize;
         }
         
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamSynchronize(stream[i + baseS]); 
             cudaCheckErrors("Stream synchronize after.");
@@ -2307,14 +2307,14 @@ void expectGlobal3D(Complex* rotP,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         cudaCheckErrors("set device.");
         
         cudaFree(devtraP[n]); 
         cudaFree(devpR[n]); 
         cudaFree(devpT[n]); 
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamDestroy(stream[i + baseS]);
             cudaCheckErrors("Stream destory.");
@@ -3280,21 +3280,21 @@ void InsertI2D(Complex *F2D,
     } 
     NCCLCHECK(ncclGroupEnd());
     
-    int streamNum = aviDevs * NUM_STREAM;
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
-    Complex *devdatP[streamNum];
-    Complex *devtranP[streamNum];
-    RFLOAT *devctfP[streamNum];
-    double *dev_nr_buf[streamNum];
-    double *dev_nt_buf[streamNum];
-    double *dev_nd_buf[streamNum];
-    double *dev_offs_buf[streamNum];
-    int *dev_nc_buf[streamNum];
+    Complex *devdatP[nStream];
+    Complex *devtranP[nStream];
+    RFLOAT *devctfP[nStream];
+    double *dev_nr_buf[nStream];
+    double *dev_nt_buf[nStream];
+    double *dev_nd_buf[nStream];
+    double *dev_offs_buf[nStream];
+    int *dev_nc_buf[nStream];
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-    RFLOAT *devsigRcpP[streamNum];
+    RFLOAT *devsigRcpP[nStream];
 #endif
-    CTFAttr *dev_ctfas_buf[streamNum];
+    CTFAttr *dev_ctfas_buf[nStream];
 
     LOG(INFO) << "rank" << rankO << ": Step1: Insert Image.";
     //printf("rank%d: Step1: Insert Image.\n", nranks);
@@ -3357,16 +3357,16 @@ void InsertI2D(Complex *F2D,
     }
 
     /* Create and setup cuda stream */
-    cudaStream_t stream[streamNum];
+    cudaStream_t stream[nStream];
 
-    //cudaEvent_t start[streamNum], stop[streamNum];
+    //cudaEvent_t start[nStream], stop[nStream];
 
     int baseS;
     const int BATCH_SIZE = BUFF_SIZE;
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         
         cudaSetDevice(gpus[n]); 
         cudaMalloc((void**)&__device__F[n], nk * dimSize * sizeof(Complex));
@@ -3387,7 +3387,7 @@ void InsertI2D(Complex *F2D,
         cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         //cudaCheckErrors("Allocate iRow data.");
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             if (cSearch)
             {
@@ -3471,7 +3471,7 @@ void InsertI2D(Complex *F2D,
 
     for (int n = 1; n < aviDevs; ++n)
     {
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaMemsetAsync(__device__F[n],
@@ -3501,9 +3501,9 @@ void InsertI2D(Complex *F2D,
 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
    
@@ -3521,7 +3521,7 @@ void InsertI2D(Complex *F2D,
             if (i >= imgNum)
                 break;
            
-            baseS = n * NUM_STREAM;
+            baseS = n * NUM_STREAM_PER_DEVICE;
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
             
@@ -3777,16 +3777,16 @@ void InsertI2D(Complex *F2D,
 
             i += batchSize;
         }
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             
             cudaStreamSynchronize(stream[i + baseS]); 
@@ -3867,7 +3867,7 @@ void InsertI2D(Complex *F2D,
 #endif
                                 ncclSum,
                                 commF[i], 
-                                stream[0 + i * NUM_STREAM]));
+                                stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
@@ -3885,16 +3885,16 @@ void InsertI2D(Complex *F2D,
 #endif
                                 ncclSum,
                                 commF[i], 
-                                stream[1 + i * NUM_STREAM]));
+                                stream[1 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
     
@@ -3932,10 +3932,10 @@ void InsertI2D(Complex *F2D,
                         stream[smidx]);
         //cudaCheckErrors("copy F3D from device to host.");
         
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
     
-    for (int i = 0; i < NUM_STREAM; i++)
+    for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         cudaStreamSynchronize(stream[i]); 
     
     cudaFree(sf); 
@@ -3953,7 +3953,7 @@ void InsertI2D(Complex *F2D,
                                 ncclDouble,
                                 ncclSum,
                                 commO[i], 
-                                stream[0 + i * NUM_STREAM]));
+                                stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
@@ -3967,16 +3967,16 @@ void InsertI2D(Complex *F2D,
                                 ncclInt64,
                                 ncclSum,
                                 commO[i], 
-                                stream[1 + i * NUM_STREAM]));
+                                stream[1 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
     
@@ -4006,7 +4006,7 @@ void InsertI2D(Complex *F2D,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaFree(__device__F[n]); 
@@ -4016,7 +4016,7 @@ void InsertI2D(Complex *F2D,
         cudaFree(__device__iCol[n]); 
         cudaFree(__device__iRow[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamDestroy(stream[i + baseS]);
     } 
    
@@ -4159,19 +4159,19 @@ void InsertFT(Complex *F3D,
     CLOG(INFO, "LOGGER_GPU") << "NCCL Communicator of Volume O Created";
 #endif
 
-    int streamNum = aviDevs * NUM_STREAM;
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
-    Complex *devdatP[streamNum];
-    Complex *devtranP[streamNum];
-    RFLOAT *devctfP[streamNum];
-    double *dev_nr_buf[streamNum];
-    double *dev_nt_buf[streamNum];
-    double *dev_nd_buf[streamNum];
-    double *dev_offs_buf[streamNum];
-    int *dev_nc_buf[streamNum];
+    Complex *devdatP[nStream];
+    Complex *devtranP[nStream];
+    RFLOAT *devctfP[nStream];
+    double *dev_nr_buf[nStream];
+    double *dev_nt_buf[nStream];
+    double *dev_nd_buf[nStream];
+    double *dev_offs_buf[nStream];
+    int *dev_nc_buf[nStream];
 
-    CTFAttr *dev_ctfas_buf[streamNum];
-    double *dev_mat_buf[streamNum];
+    CTFAttr *dev_ctfas_buf[nStream];
+    double *dev_mat_buf[nStream];
 
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_GPU") << "Inserting Images";
@@ -4186,7 +4186,7 @@ void InsertFT(Complex *F3D,
     long long imgShift = (long long)imgNum * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-    RFLOAT *devsigRcpP[streamNum];
+    RFLOAT *devsigRcpP[nStream];
 #endif
 
 #ifdef VERBOSE_LEVEL_1
@@ -4315,13 +4315,13 @@ void InsertFT(Complex *F3D,
     CLOG(INFO, "LOGGER_GPU") << "Setting Up CUDA Stream";
 #endif
 
-    cudaStream_t stream[streamNum];
+    cudaStream_t stream[nStream];
 
     const int BATCH_SIZE = BUFF_SIZE;
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
         
         cudaSetDevice(gpus[n]); 
 
@@ -4355,7 +4355,7 @@ void InsertFT(Complex *F3D,
         cudaCheckErrors("FAIL TO ALLOCATE IROW IN DEVICE");
 #endif
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             if (cSearch)
             {
@@ -4416,7 +4416,7 @@ void InsertFT(Complex *F3D,
 
     for (int n = 0; n < aviDevs; n++)
     {
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
 
         cudaSetDevice(gpus[n]); 
     
@@ -4447,7 +4447,6 @@ void InsertFT(Complex *F3D,
                             dimSize * sizeof(RFLOAT),
                             cudaMemcpyHostToDevice,
                             stream[baseS]);
-            cudaCheckErrors("for memcpy T3D.");
         }
         else
         {
@@ -4505,11 +4504,11 @@ void InsertFT(Complex *F3D,
 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
 
         cudaSetDevice(gpus[n]);
 
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
    
@@ -4525,7 +4524,7 @@ void InsertFT(Complex *F3D,
         {     
             if (i >= imgNum) break;
            
-            int baseS = n * NUM_STREAM;
+            int baseS = n * NUM_STREAM_PER_DEVICE;
 
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
@@ -4790,16 +4789,16 @@ void InsertFT(Complex *F3D,
 
             i += batchSize;
         }
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             
             cudaStreamSynchronize(stream[i + baseS]); 
@@ -4882,7 +4881,7 @@ void InsertFT(Complex *F3D,
 #endif
                                 ncclSum,
                                 commF[i], 
-                                stream[0 + i * NUM_STREAM]));
+                                stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
@@ -4900,18 +4899,18 @@ void InsertFT(Complex *F3D,
 #endif
                                 ncclSum,
                                 commF[i], 
-                                stream[1 + i * NUM_STREAM]));
+                                stream[1 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
 
         cudaSetDevice(gpus[n]);
 
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
     
@@ -4944,7 +4943,7 @@ void InsertFT(Complex *F3D,
                                 ncclDouble,
                                 ncclSum,
                                 commO[i], 
-                                stream[0 + i * NUM_STREAM]));
+                                stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
@@ -4958,16 +4957,16 @@ void InsertFT(Complex *F3D,
                                 ncclInt64,
                                 ncclSum,
                                 commO[i], 
-                                stream[1 + i * NUM_STREAM]));
+                                stream[1 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
     
@@ -5111,7 +5110,7 @@ void InsertFT(Complex *F3D,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        int baseS = n * NUM_STREAM;
+        int baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaFree(__device__F[n]); 
@@ -5121,7 +5120,7 @@ void InsertFT(Complex *F3D,
         cudaFree(__device__iCol[n]); 
         cudaFree(__device__iRow[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamDestroy(stream[i + baseS]);
     } 
    
@@ -5230,18 +5229,18 @@ void InsertFT(Complex *F3D,
     } 
     NCCLCHECK(ncclGroupEnd());
     
-    int streamNum = aviDevs * NUM_STREAM;
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
-    Complex *devdatP[streamNum];
-    Complex *devtranP[streamNum];
-    RFLOAT *devctfP[streamNum];
-    double *dev_nr_buf[streamNum];
-    double *dev_nt_buf[streamNum];
-    double *dev_nd_buf[streamNum];
-    double *dev_offs_buf[streamNum];
+    Complex *devdatP[nStream];
+    Complex *devtranP[nStream];
+    RFLOAT *devctfP[nStream];
+    double *dev_nr_buf[nStream];
+    double *dev_nt_buf[nStream];
+    double *dev_nd_buf[nStream];
+    double *dev_offs_buf[nStream];
 
-    CTFAttr *dev_ctfas_buf[streamNum];
-    double *dev_mat_buf[streamNum];
+    CTFAttr *dev_ctfas_buf[nStream];
+    double *dev_mat_buf[nStream];
 
     LOG(INFO) << "rank" << rankO << ": Step1: Insert Image.";
     //printf("rank%d: Step1: Insert Image.\n", nranks);
@@ -5255,7 +5254,7 @@ void InsertFT(Complex *F3D,
     long long imgSize = (long long)imgNum * npxl;
 
 #ifdef OPTIMISER_RECONSTRUCT_SIGMA_REGULARISE
-    RFLOAT *devsigRcpP[streamNum];
+    RFLOAT *devsigRcpP[nStream];
     cudaHostRegister(sigRcpP, imgSize * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register sigRcpP data.");
 #endif
@@ -5302,16 +5301,16 @@ void InsertFT(Complex *F3D,
     }
 
     /* Create and setup cuda stream */
-    cudaStream_t stream[streamNum]; // NUM_STREAM streams for each GPU device
+    cudaStream_t stream[nStream]; // NUM_STREAM_PER_DEVICE streams for each GPU device
 
-    //cudaEvent_t start[streamNum], stop[streamNum];
+    //cudaEvent_t start[nStream], stop[nStream];
 
     int baseS;
     const int BATCH_SIZE = BUFF_SIZE;
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         
         cudaSetDevice(gpus[n]); 
         cudaMalloc((void**)&__device__F[n], dimSize * sizeof(Complex));
@@ -5332,7 +5331,7 @@ void InsertFT(Complex *F3D,
         cudaMalloc((void**)&__device__iRow[n], npxl * sizeof(int));
         cudaCheckErrors("Allocate iRow data.");
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             if (cSearch)
             {
@@ -5416,7 +5415,7 @@ void InsertFT(Complex *F3D,
 
     for (int n = 1; n < aviDevs; ++n)
     {
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaMemsetAsync(__device__F[n],
@@ -5446,9 +5445,9 @@ void InsertFT(Complex *F3D,
 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
    
@@ -5464,7 +5463,7 @@ void InsertFT(Complex *F3D,
             if (i >= imgNum)
                 break;
            
-            baseS = n * NUM_STREAM;
+            baseS = n * NUM_STREAM_PER_DEVICE;
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
             
@@ -5712,16 +5711,16 @@ void InsertFT(Complex *F3D,
 
             i += batchSize;
         }
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams to wait for start of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             
             cudaStreamSynchronize(stream[i + baseS]); 
@@ -5804,7 +5803,7 @@ void InsertFT(Complex *F3D,
 #endif
                                 ncclSum,
                                 commF[i], 
-                                stream[0 + i * NUM_STREAM]));
+                                stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
@@ -5822,16 +5821,16 @@ void InsertFT(Complex *F3D,
 #endif
                                 ncclSum,
                                 commF[i], 
-                                stream[1 + i * NUM_STREAM]));
+                                stream[1 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
     
@@ -5864,7 +5863,7 @@ void InsertFT(Complex *F3D,
                                 ncclDouble,
                                 ncclSum,
                                 commO[i], 
-                                stream[0 + i * NUM_STREAM]));
+                                stream[0 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
@@ -5878,16 +5877,16 @@ void InsertFT(Complex *F3D,
                                 ncclInt64,
                                 ncclSum,
                                 commO[i], 
-                                stream[1 + i * NUM_STREAM]));
+                                stream[1 + i * NUM_STREAM_PER_DEVICE]));
     } 
     NCCLCHECK(ncclGroupEnd());
     
     //synchronizing on CUDA streams to wait for completion of NCCL operation 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamSynchronize(stream[i + baseS]); 
     } 
     
@@ -6031,7 +6030,7 @@ void InsertFT(Complex *F3D,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaFree(__device__F[n]); 
@@ -6041,7 +6040,7 @@ void InsertFT(Complex *F3D,
         cudaFree(__device__iCol[n]); 
         cudaFree(__device__iRow[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
             cudaStreamDestroy(stream[i + baseS]);
     } 
    
@@ -8551,29 +8550,29 @@ void reMask(vector<Complex*>& imgData,
         cudaCheckErrors("kernel SoftMask error.");
     }
 
-    int streamNum = aviDevs * NUM_STREAM;
+    int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
     
-    Complex *pglk_imageI_buf[streamNum];
-    Complex *pglk_imageO_buf[streamNum];
-    Complex *dev_image_buf[streamNum];
-    RFLOAT *dev_imageF_buf[streamNum];
-    CB_UPIB_t cbArgsA[streamNum], cbArgsB[streamNum];
+    Complex *pglk_imageI_buf[nStream];
+    Complex *pglk_imageO_buf[nStream];
+    Complex *dev_image_buf[nStream];
+    RFLOAT *dev_imageF_buf[nStream];
+    CB_UPIB_t cbArgsA[nStream], cbArgsB[nStream];
     
     LOG(INFO) << "alloc Memory.";
     
-    cudaStream_t stream[streamNum];
-    cufftHandle* planc2r = (cufftHandle*)malloc(sizeof(cufftHandle) * streamNum);
-    cufftHandle* planr2c = (cufftHandle*)malloc(sizeof(cufftHandle) * streamNum);
+    cudaStream_t stream[nStream];
+    cufftHandle* planc2r = (cufftHandle*)malloc(sizeof(cufftHandle) * nStream);
+    cufftHandle* planr2c = (cufftHandle*)malloc(sizeof(cufftHandle) * nStream);
     
     int baseS;
     const int BATCH_SIZE = BUFF_SIZE;
 
     for (int n = 0; n < aviDevs; ++n) 
     {     
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]); 
     
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             allocPGLKImagesBuffer(&pglk_imageI_buf[i + baseS], idim, BATCH_SIZE);
             allocPGLKImagesBuffer(&pglk_imageO_buf[i + baseS], idim, BATCH_SIZE);
@@ -8604,7 +8603,7 @@ void reMask(vector<Complex*>& imgData,
             if (i >= imgNum)
                 break;
            
-            baseS = n * NUM_STREAM;
+            baseS = n * NUM_STREAM_PER_DEVICE;
             batchSize = (i + BATCH_SIZE < imgNum) ? BATCH_SIZE : (imgNum - i);
             //printf("batch:%d, smidx:%d, baseS:%d\n", batchSize, smidx, baseS);
             
@@ -8682,17 +8681,17 @@ void reMask(vector<Complex*>& imgData,
             i += batchSize;
         }
         
-        smidx = (++smidx) % NUM_STREAM;
+        smidx = (++smidx) % NUM_STREAM_PER_DEVICE;
     }
 
     //synchronizing on CUDA streams 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         //cudaDeviceSynchronize();
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamSynchronize(stream[i + baseS]); 
             cudaCheckErrors("Stream synchronize.");
@@ -8707,12 +8706,12 @@ void reMask(vector<Complex*>& imgData,
     //free device buffers 
     for (int n = 0; n < aviDevs; ++n) 
     { 
-        baseS = n * NUM_STREAM;
+        baseS = n * NUM_STREAM_PER_DEVICE;
         cudaSetDevice(gpus[n]);
         
         cudaFree(devMask[n]); 
         
-        for (int i = 0; i < NUM_STREAM; i++)
+        for (int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
         {
             cudaStreamDestroy(stream[i + baseS]);
             cudaCheckErrors("Stream destory.");
