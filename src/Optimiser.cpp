@@ -126,6 +126,12 @@ void Optimiser::setPara(const OptimiserPara& para)
 
 void Optimiser::init()
 {
+
+#ifdef GPU_VERSION
+    MLOG(INFO, "LOGGER_GPU") << "Setting Up GPU Devices for Each Process";
+    setGPUEnv();
+#endif
+
     if (_para.mode == MODE_2D)
     {
         MLOG(INFO, "LOGGER_INIT") << "The Program is Running under 2D Mode";
