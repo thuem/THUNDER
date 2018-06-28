@@ -6222,13 +6222,13 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         if (_para.mode == MODE_2D)
         {
-            RFLOAT *w = new RFLOAT[_ID.size()];
-            double *offS = new double[_ID.size() * 2];
-            double *nr = new double[_para.mReco * _ID.size() * 2];
-            double *nt = new double[_para.mReco * _ID.size() * 2];
-            double *nd = new double[_para.mReco * _ID.size()];
-            CTFAttr* ctfaData = new CTFAttr[_ID.size()];
-            int *nc = new int[_para.mReco * _ID.size()];
+            RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+            double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+            double *nr = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+            double *nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+            double *nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
+            CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
+            int *nc = (int*)malloc(_para.mReco * _ID.size() * sizeof(int));
             
             #pragma omp parallel for
             FOR_EACH_2D_IMAGE
@@ -6327,10 +6327,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             if (_para.k != 1)
             {
-                RFLOAT *w = new RFLOAT[_ID.size()];
-                double *offS = new double[_ID.size() * 2];
-                int *nc = new int[_para.k * _ID.size()];
-                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+                double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+                CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
+                int *nc = (int*)malloc(_para.k * _ID.size() * sizeof(int));
                 
                 #pragma omp parallel for
                 for(size_t i = 0; i < _para.k * _ID.size(); i++)
@@ -6385,9 +6385,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                     if (temp != 0)
                     {
-                        nr = new double[temp * _ID.size() * 4];
-                        nt = new double[temp * _ID.size() * 2];
-                        nd = new double[temp * _ID.size()];
+                        nr = (double*)malloc(temp * _ID.size() * 4 * sizeof(double));
+                        nt = (double*)malloc(temp * _ID.size() * 2 * sizeof(double));
+                        nd = (double*)malloc(temp * _ID.size() * sizeof(double));
                         
                         #pragma omp parallel for
                         FOR_EACH_2D_IMAGE
@@ -6433,12 +6433,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else
             {
-                RFLOAT *w = new RFLOAT[_ID.size()];
-                double *offS = new double[_ID.size() * 2];
-                double *nr = new double[_para.mReco * _ID.size() * 4];
-                double *nt = new double[_para.mReco * _ID.size() * 2];
-                double *nd = new double[_para.mReco * _ID.size()];
-                CTFAttr* ctfaData = new CTFAttr[_ID.size()];
+                RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+                double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+                double *nr = (double*)malloc(_para.mReco * _ID.size() * 4 * sizeof(double));
+                double *nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+                double *nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
+                CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
                 
                 #pragma omp parallel for
                 FOR_EACH_2D_IMAGE
