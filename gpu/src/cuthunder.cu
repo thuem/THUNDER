@@ -142,9 +142,12 @@ void __host__checkHardware(int& nGPU,
             if ((deviceProperties.major >= CUDA_MAJOR_MIN) &&
                 (deviceProperties.minor >= CUDA_MINOR_MIN))
             {
-                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i << ", NAME : " << deviceProperties.name;
-                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i << ", MEMORY : " << deviceProperties.totalGlobalMem / MEGABYTE;
-                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i << ", CUDA CAPABILITY : " << deviceProperties.major << "." << deviceProperties.minor;
+                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i
+                                         << ", NAME : " << deviceProperties.name;
+                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i
+                                         << ", MEMORY : " << deviceProperties.totalGlobalMem / MEGABYTE << "MB";
+                CLOG(INFO, "LOGGER_GPU") << "DEVICE #" << i
+                                         << ", CUDA CAPABILITY : " << deviceProperties.major << "." << deviceProperties.minor;
 
                 iGPU.push_back(i);
                 nGPU += 1;
