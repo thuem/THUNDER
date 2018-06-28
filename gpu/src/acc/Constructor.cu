@@ -713,6 +713,7 @@ D_CALLABLE void Constructor::calculateFSC(RFLOAT *devFSC,
                                           int fscMatsize,
                                           int wiener,
                                           int r,
+                                          int pf,
                                           bool joinHalf)
 {
     int i, j, k;
@@ -732,9 +733,9 @@ D_CALLABLE void Constructor::calculateFSC(RFLOAT *devFSC,
         {
 #ifdef SINGLE_PRECISION
             int u = (int)rintf(sqrtf((float)quad));
-            float FSC = (u / _pf >= fscMatsize)
+            float FSC = (u / pf >= fscMatsize)
                       ? 0 
-                      : devFSC[u / _pf];
+                      : devFSC[u / pf];
             
             FSC = fmaxf(1e-3, fminf(1 - 1e-3, FSC));
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
@@ -746,9 +747,9 @@ D_CALLABLE void Constructor::calculateFSC(RFLOAT *devFSC,
 
 #else
             int u = (int)rint(sqrt((double)quad));
-            double FSC = (u / _pf >= fscMatsize)
+            double FSC = (u / pf >= fscMatsize)
                        ? 0 
-                       : devFSC[u / _pf];
+                       : devFSC[u / pf];
             
             FSC = fmax(1e-3, fmin(1 - 1e-3, FSC));
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF

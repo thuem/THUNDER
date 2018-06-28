@@ -920,7 +920,7 @@ __global__ void kernel_logDataVSLC(Complex* priRotP,
     
     __syncthreads();
    
-    int i = 256;
+    int i = 32;
     while (i != 0) 
     {
         if (threadIdx.x < i)
@@ -1025,7 +1025,7 @@ __global__ void kernel_getMaxBaseL(RFLOAT* devBaseL,
     
     __syncthreads();
    
-    int i = 512;
+    int i = 32;
     while (i != 0) 
     {
         if (threadIdx.x < i)
@@ -2444,85 +2444,25 @@ __global__ void kernel_InsertO2D(double* devO,
                                  int insertIdx,
                                  int mReco)
 {
-    extern __shared__ double oCor[];
-
-    double* resX = &oCor[blockDim.x];
-    double* resY = &resX[blockDim.x];
-    int* resC = (int*)&resY[blockDim.x];
-
     int ncIdx = threadIdx.x * mReco + insertIdx;
-    resX[threadIdx.x] = -1 * dev_nr[ncIdx * 2] 
-                           * (dev_nt[ncIdx * 2] 
-                              - dev_offs[threadIdx.x * 2])
-                           + dev_nr[ncIdx * 2 + 1] 
-                           * (dev_nt[ncIdx * 2 + 1] 
-                              - dev_offs[threadIdx.x * 2 + 1]);
+    int oshift = dev_nc[ncIdx];
+    double resX = -1 * dev_nr[ncIdx * 2] 
+                     * (dev_nt[ncIdx * 2] 
+                        - dev_offs[threadIdx.x * 2])
+                     + dev_nr[ncIdx * 2 + 1] 
+                     * (dev_nt[ncIdx * 2 + 1] 
+                        - dev_offs[threadIdx.x * 2 + 1]);
     
-    resY[threadIdx.x] = -1 * (dev_nr[ncIdx * 2 + 1] 
-                              * (dev_nt[ncIdx * 2] 
-                                 - dev_offs[threadIdx.x * 2])
-                              + dev_nr[ncIdx * 2] 
-                              * (dev_nt[ncIdx * 2 + 1] 
-                                 - dev_offs[threadIdx.x * 2 + 1]));
-    resC[threadIdx.x] = 1;
+    double resY = -1 * (dev_nr[ncIdx * 2 + 1] 
+                        * (dev_nt[ncIdx * 2] 
+                           - dev_offs[threadIdx.x * 2])
+                        + dev_nr[ncIdx * 2] 
+                        * (dev_nt[ncIdx * 2 + 1] 
+                           - dev_offs[threadIdx.x * 2 + 1]));
 
-    __syncthreads();
-   
-    int j;
-    bool flag;
-    if (blockDim.x % 2 == 0)
-    {
-        j = blockDim.x / 2;
-        flag = true;
-    }
-    else
-    {
-        j = blockDim.x / 2 + 1;
-        flag = false;
-    }
-    while (j != 0) 
-    {
-        if (flag)
-        {
-            if (threadIdx.x < j)
-            {
-                resX[threadIdx.x] += resX[threadIdx.x + j];
-                resY[threadIdx.x] += resY[threadIdx.x + j];
-                resC[threadIdx.x] += resC[threadIdx.x + j];
-            }
-        
-        }
-        else
-        {
-            if (threadIdx.x < j - 1)
-            {
-                resX[threadIdx.x] += resX[threadIdx.x + j];
-                resY[threadIdx.x] += resY[threadIdx.x + j];
-                resC[threadIdx.x] += resC[threadIdx.x + j];
-            }
-        
-        }
-        
-        __syncthreads();
-        
-        if(j % 2 != 0 && j != 1)
-        {
-            j++;
-            flag = false;
-        }
-        else
-            flag = true;
-        
-        j /= 2; 
-    }
-    
-    if (threadIdx.x == 0) 
-    {
-        int oshift = dev_nc[ncIdx];
-        atomicAdd(&devO[oshift * 2], resX[0]);
-        atomicAdd(&devO[oshift * 2 + 1], resY[0]);
-        atomicAdd(&devC[oshift], resC[0]);
-    }
+    atomicAdd(&devO[oshift * 2], resX);
+    atomicAdd(&devO[oshift * 2 + 1], resY);
+    atomicAdd(&devC[oshift], 1);
 }
 
 /**
@@ -2539,82 +2479,21 @@ __global__ void kernel_InsertO2D(double* devO,
                                  int insertIdx,
                                  int mReco)
 {
-    extern __shared__ double oCor[];
-
-    double* resX = &oCor[blockDim.x];
-    double* resY = &resX[blockDim.x];
-    int* resC = (int*)&resY[blockDim.x];
-
     int ncIdx = threadIdx.x * mReco + insertIdx;
-    resX[threadIdx.x] = -1 * dev_nr[ncIdx * 2] 
-                           * dev_nt[ncIdx * 2] 
-                           + dev_nr[ncIdx * 2 + 1] 
-                           * dev_nt[ncIdx * 2 + 1]; 
+    int oshift = dev_nc[ncIdx];
+    double resX = -1 * dev_nr[ncIdx * 2] 
+                     * dev_nt[ncIdx * 2] 
+                     + dev_nr[ncIdx * 2 + 1] 
+                     * dev_nt[ncIdx * 2 + 1]; 
     
-    resY[threadIdx.x] = -1 * (dev_nr[ncIdx * 2 + 1] 
-                              * dev_nt[ncIdx * 2] 
-                              + dev_nr[ncIdx * 2] 
-                              * dev_nt[ncIdx * 2 + 1]); 
-    resC[threadIdx.x] = 1;
+    double resY = -1 * (dev_nr[ncIdx * 2 + 1] 
+                        * dev_nt[ncIdx * 2] 
+                        + dev_nr[ncIdx * 2] 
+                        * dev_nt[ncIdx * 2 + 1]); 
 
-    __syncthreads();
-   
-    int j;
-    bool flag;
-    if (blockDim.x % 2 == 0)
-    {
-        j = blockDim.x / 2;
-        flag = true;
-    }
-    else
-    {
-        j = blockDim.x / 2 + 1;
-        flag = false;
-    }
-    while (j != 0) 
-    {
-        if (flag)
-        {
-            if (threadIdx.x < j)
-            {
-                resX[threadIdx.x] += resX[threadIdx.x + j];
-                resY[threadIdx.x] += resY[threadIdx.x + j];
-                resC[threadIdx.x] += resC[threadIdx.x + j];
-            }
-        
-        }
-        else
-        {
-            if (threadIdx.x < j - 1)
-            {
-                resX[threadIdx.x] += resX[threadIdx.x + j];
-                resY[threadIdx.x] += resY[threadIdx.x + j];
-                resC[threadIdx.x] += resC[threadIdx.x + j];
-            }
-        
-        }
-        
-        __syncthreads();
-        
-        if(j % 2 != 0 && j != 1)
-        {
-            j++;
-            flag = false;
-        }
-        else
-            flag = true;
-        
-        j /= 2; 
-    }
-    
-    if (threadIdx.x == 0) 
-    {
-
-        int oshift = dev_nc[ncIdx];
-        atomicAdd(&devO[oshift * 2], resX[0]);
-        atomicAdd(&devO[oshift * 2 + 1], resY[0]);
-        atomicAdd(&devC[oshift], resC[0]);
-    }
+    atomicAdd(&devO[oshift * 2], resX);
+    atomicAdd(&devO[oshift * 2 + 1], resY);
+    atomicAdd(&devC[oshift], 1);
 }
 
 /**
@@ -3712,6 +3591,7 @@ __global__ void kernel_CalculateFSC(RFLOAT *devDataT,
                                     bool joinHalf, 
                                     int wiener, 
                                     int r,
+                                    int pf,
                                     int num, 
                                     int dim,
                                     int dimSize)
@@ -3730,6 +3610,7 @@ __global__ void kernel_CalculateFSC(RFLOAT *devDataT,
                              fscMatsize,
                              wiener,
                              r, 
+                             pf, 
                              joinHalf);
 
 }

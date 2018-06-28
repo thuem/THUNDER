@@ -1076,6 +1076,7 @@ __global__ void kernel_CalculateFSC(RFLOAT *devDataT,
                                     bool joinHalf, 
                                     int wiener, 
                                     int r, 
+                                    int pf, 
                                     int num,
                                     int dim,
                                     int dimSize);

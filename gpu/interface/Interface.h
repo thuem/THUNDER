@@ -13,15 +13,6 @@
 #include "ManagedArrayTexture.h"
 #include "ManagedCalPoint.h"
 
-
-#define RECONSTRUCTOR_NORMALISE_T_F
-#define RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-#define RECONSTRUCTOR_WIENER_FILTER_FSC
-
-#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
-#define RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-#endif
-
 void getAviDevice(std::vector<int>& gpus);
 
 void ExpectPreidx(int gpuIdx,
