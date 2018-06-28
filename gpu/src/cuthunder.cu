@@ -3686,14 +3686,14 @@ void InsertI2D(Complex *F2D,
                 cudaCheckErrors("translate kernel.");
                 
                 kernel_InsertO2D<<<1, 
-                                   batchSize, 
+                                   nImgBatch, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
                                                             dev_offs_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             m,
                                                             mReco);
                 
@@ -3716,13 +3716,13 @@ void InsertI2D(Complex *F2D,
                 cudaCheckErrors("translate kernel.");
                 
                 kernel_InsertO2D<<<1, 
-                                   batchSize, 
+                                   nImgBatch, 
                                    0, 
-                                   stream[smidx + baseS]>>>(devO[n],
-                                                            devC[n],
-                                                            dev_nr_buf[smidx + baseS],
-                                                            dev_nt_buf[smidx + baseS],
-                                                            dev_nc_buf[smidx + baseS],
+                                   stream[smidx + baseS]>>>(__device__O[n],
+                                                            __device__C[n],
+                                                            __device__batch__nR[smidx + baseS],
+                                                            __device__batch__nT[smidx + baseS],
+                                                            __device__batch__nC[smidx + baseS],
                                                             m,
                                                             mReco);
                 
