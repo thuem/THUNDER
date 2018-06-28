@@ -82,12 +82,6 @@ void compareWInmHuabin(RFLOAT wOrig, RFLOAT wHuabin, int processRank, int thread
 
 void Optimiser::setGPUEnv()
 {
-    bool flag;
-    MPI_Status status;
-
-    if (_commRank != 1)
-        MPI_Recv(&flag, 1, MPI_C_BOOL, _commRank - 1, 0, MPI_COMM_WORLD, &status);
-
     IF_MASTER
     {
         _nGPU = 0;
@@ -95,13 +89,20 @@ void Optimiser::setGPUEnv()
     }
     else
     {
+        bool flag;
+        MPI_Status status;
+
+        if (_commRank != 1)
+            MPI_Recv(&flag, 1, MPI_C_BOOL, _commRank - 1, 0, MPI_COMM_WORLD, &status);
+
         ILOG(INFO, "LOGGER_GPU") << "GPU DEVICE(S) FOR PROCESS RANK " << _commRank;
 
         cuthunder::__host__checkHardware(_nGPU, _iGPU);
+
+        if (_commRank != _commSize - 1)
+            MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
     }
 
-    if (_commRank != _commSize - 1)
-        MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
 }
 
 #endif
