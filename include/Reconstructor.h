@@ -348,6 +348,8 @@ class Reconstructor : public Parallel
 
         void allocSpace();
 
+        void freeSpace();
+
         void resizeSpace(const int size);
 
         void reset();

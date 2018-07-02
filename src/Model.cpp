@@ -1042,7 +1042,6 @@ void Model::refreshReco()
                        _a,
                        _alpha);
 
-#ifdef MODEL_RECONSTRUCTOR_RESIZE
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l
                                  << " Resizing";
@@ -1051,7 +1050,6 @@ void Model::refreshReco()
                                  << " Resizing";
 
         _reco[l]->resizeSpace((_rU + CEIL(_a)) * 2);
-#endif
 
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l
@@ -1087,11 +1085,7 @@ void Model::resetReco(const RFLOAT thres)
 
     FOR_EACH_CLASS
     {
-#ifdef MODEL_RECONSTRUCTOR_RESIZE
         _reco[l]->resizeSpace(GSL_MIN_INT(_size, (_rU + CEIL(_a)) * 2));
-#else
-        _reco[l]->reset();
-#endif
     
         ALOG(INFO, "LOGGER_SYS") << "Reconstructor of Class "
                                  << l

@@ -3505,10 +3505,53 @@ void Optimiser::maximization()
 
     if (!_para.skipR)
     {
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
+        
+        if (_searchType != SEARCH_TYPE_GLOBAL)
+        {
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                _img[l].clear(); 
+            }
+        }
+
+#endif
+#endif
+
+        ALOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor";
+        BLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor";
+        
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).allocSpace();
+
         ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
         BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
 
         reconstructRef(true, true, true, false, false);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor";
+        BLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor";
+
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).freeSpace();
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
+        
+        if (_searchType != SEARCH_TYPE_GLOBAL)
+        {
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                _img[l].alloc(_para.size, _para.size, FT_SPACE);
+            }
+        }
+
+#endif
+#endif
     }
     else
     {
