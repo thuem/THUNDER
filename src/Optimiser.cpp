@@ -3465,30 +3465,13 @@ void Optimiser::maximization()
 
     allReduceSigma(_para.groupSig);
 
-    /***
-    if (_para.k == 1)
-    {
-#ifdef OPTIMISER_SIGMA_MASK
-        allReduceSigma(true, _para.groupSig);
-#else
-        // refinement, focus on avoiding over-refinement
-        allReduceSigma(false, _para.groupSig);
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
+    BLOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
 #endif
-    }
-    else
-    {
-#ifdef OPTIMISER_SIGMA_MASK
-        allReduceSigma(true, _para.groupSig);
-#else
-#ifdef OPTIMISER_SIGMA_MASK_CLASS
-        // classification, focus on searching for difference
-        allReduceSigma(true, _para.groupSig);
-#else
-        allReduceSigma(false, _para.groupSig);
-#endif
-#endif
-    }
-    ***/
+
 #endif
 
 #ifdef OPTIMISER_CORRECT_SCALE
@@ -3500,6 +3483,13 @@ void Optimiser::maximization()
         BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
         correctScale(false, true);
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(_hemi);
+
+        ALOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
+        BLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
+#endif
     }
 #endif
 
