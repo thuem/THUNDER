@@ -13,11 +13,22 @@
 
 #include "THUNDERConfig.h"
 
+#ifdef GPU_VERSION
+
+#define GPU_EXPECTATION
+#define GPU_INSERT
+#define GPU_RECONSTRUCT
+#define GPU_REMASK
+
+#define GPU_ERROR_CHECK
+
+#endif
+
 #define VERBOSE_LEVEL_0
 
 //#define VERBOSE_LEVEL_1
 
-//#define VERBOSE_LEVEL_2
+#define VERBOSE_LEVEL_2
 
 //#define VERBOSE_LEVEL_3
 

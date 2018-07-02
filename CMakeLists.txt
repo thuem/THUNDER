@@ -1,3 +1,5 @@
+# CMAKE REQUIREMENT
+
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR) 
 
 set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "")
@@ -7,6 +9,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "" CACHE STRING "")
 
 project(THUNDER)
 
+# THUNDER VERSION
+
 set(THUNDER_VERSION_MAJOR 1)
 set(THUNDER_VERSION_MINOR 3)
 set(THUNDER_VERSION_ADDIT 5)
@@ -15,15 +19,29 @@ message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MI
 
 option(SINGLE_PRECISION "Whether to use single float precision in caculation?" ON)
 
-if ("${SINGLE_PRECISION}")
+# WHETHER SINGLE PRECISION OR BOTH PRECISION
+
+if("${SINGLE_PRECISION}")
     message(STATUS "Build THUNDER in single-float precision.")
 else("${SINGLE_PRECISION}")
     message(STATUS "Build THUNDER in double-float precision.")
 endif("${SINGLE_PRECISION}")
 
+# WHETHER GPU VERSION OR CPU VERSION
+
+option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
+
+if("${GPU_VERSION}")
+    message(STATUS "Build THUNDER in GPU version.")
+else("${GPU_VERSION}")
+    message(STATUS "Build THUNDER in CPU version.")
+endif("${GPU_VERSION}")
+
+# COMMON FLAGS
+
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 
-# Build Type
+# BUILD TYPES
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(CMAKE_BUILD_TYPE "release")
@@ -91,7 +109,8 @@ else("${ENABLE_SIMD}")
     set(CMAKE_CXX_FLAGS "${COMMON_FLAGS}")
 endif("${ENABLE_SIMD}")
 
-# Output Flags
+# OUTPUT FLAGS
+
 message(STATUS "CMAKE_C_FLAGS : ${CMAKE_C_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS : ${CMAKE_CXX_FLAGS}")
 
@@ -111,7 +130,7 @@ message(STATUS "MPI_CXX_LIBRARIES : ${MPI_CXX_LIBRARIES}")
 set(CMAKE_C_COMPILER ${MPI_COMPILER})
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
-# Config
+# CONFIG
 
 configure_file("${PROJECT_SOURCE_DIR}/THUNDERConfig.h.in"
                "${PROJECT_BINARY_DIR}/THUNDERConfig.h")
@@ -120,45 +139,122 @@ install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
 
 include_directories(${PROJECT_BINARY_DIR})
 
+# CMAKE MODULE FILE LOCATION
+
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 message(STATUS "Getting ready for building FFTW-3")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildFFTW.cmake)
 
-# Add Header of FFTW
+# ADD HEADER OF FFTW
 
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/fftw/include)
 
 message(STATUS "Getting ready for building GSL")
 
-# Build GSL
+# BUILD GSL
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
 
-# Add Header of GSL
+# ADD HEADER OF GSL
 
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/gsl/include)
 
-# Add Header of Eigen3
+# ADD HEADER OF EIGEN3
 
 include_directories(${PROJECT_SOURCE_DIR}/external/Eigen3)
 
-# Add Header of jsoncpp
+# ADD HEADER OF JSONCPP
 
 include_directories(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
-# Compile Libary of jsoncpp
+# COMPILE LIBRARY OF JSONCPP
 
 message(STATUS "Getting ready for building jsoncpp")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 
-# Add Header of boost
+# ADD HEADER OF BOOST
 
 include_directories(${PROJECT_SOURCE_DIR}/external/boost)
 
-# Add Header of easylogging
+# ADD HEADER OF EASYLOGGING
 
 include_directories(${PROJECT_SOURCE_DIR}/external/easylogging)
+
+set(INCLUDE_BASE ${PROJECT_SOURCE_DIR}/include)
+set(CUR_INCLUDE ${INCLUDE_BASE})
+
+list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Functions)
+list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Geometry)
+list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Image)
+
+# CUDA & NCCL FOR GPU VERSION
+
+if("${GPU_VERSION}")
+
+    # CUDA
+
+    find_package(CUDA 8.0 REQUIRED)
+
+    message(STATUS "CUDA_VERSION : " ${CUDA_VERSION})
+    message(STATUS "CUDA_TOOLKIT_ROOT_DIR : " ${CUDA_TOOLKIT_ROOT_DIR})
+    message(STATUS "CUDA_INCLUDE_DIRS : " ${CUDA_INCLUDE_DIRS})
+    message(STATUS "CUDA_LIBRARIES : " ${CUDA_LIBRARIES})
+    message(STATUS "CUDA_CUBLAS_LIBRARIES : " ${CUDA_CUBLAS_LIBRARIES})
+    message(STATUS "CUDA_curand_LIBRARY : " ${CUDA_curand_LIBRARY})
+    message(STATUS "CUDA_CUFFT_LIBRARIES : " ${CUDA_CUFFT_LIBRARIES})
+
+    # LINK THE CUDA HEADER
+
+    include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+    set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+
+    # THE GPU ARCHITETURE SPECIFIC BINARY
+
+    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_30,code=sm_30")
+    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_35,code=sm_35")
+    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_50,code=sm_50")
+    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
+    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
+    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
+    list(APPEND CUDA_NVCC_FLAGS "-std=c++11")
+
+    # LINK THE CUDA LIBRARIES
+
+    list(APPEND EXTERNAL_LIBS ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES})
+    list(APPEND EXTERNAL_LIBS ${CUDA_CUFFT_LIBRARIES})
+    list(APPEND EXTERNAL_LIBS ${CUDA_curand_LIBRARY})
+
+    # NCCL
+
+    find_package(NCCL REQUIRED)
+
+    message(STATUS "NCCL_INCLUDES : " ${NCCL_INCLUDES})
+    message(STATUS "NCCL_LIBRARIES : " ${NCCL_LIBRARIES})
+
+    # LINK THE NCCL HEADER
+
+    include_directories(SYSTEM ${NCCL_INCLUDES})
+
+    # LINK THE NCLL LIBRARIES
+
+    list(APPEND EXTERNAL_LIBS ${NCCL_LIBRARIES})
+
+    # BUILD GPU SUBROUNTINE
+
+    add_subdirectory(gpu)
+
+    # MAKE SURE FFTW AND GSL IS BUILT BEFORE LINKING
+
+    add_dependencies(cuthuem FFTW)
+    add_dependencies(cuthuem GSL)
+
+endif("${GPU_VERSION}")
+
+install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
+install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
 
 # Add Header of THUNDER core
 
@@ -178,12 +274,18 @@ add_library(core STATIC ${SOURCES})
 add_dependencies(core FFTW)
 add_dependencies(core GSL)
 
-install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
-install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
-
 # Link Libraries
 
 link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
+
+TARGET_include_directories(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
+
+if("${GPU_VERSION}")
+    TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+endif("${GPU_VERSION}")
+
+#ADD_SUBDIRECTORY(testsrc)
 
 # Compile Executables
 

@@ -15,6 +15,7 @@ manual/.texpadtmp/
 *.Plo
 *~
 
+cmcuda.sh
 *.thubox
 
 *bak
@@ -24,8 +25,6 @@ cscope*
 .deps/
 tmp/
 unittest/
-gpu/gpuunittest/
-gpu/
 case/
 case/case1
 case/case2
