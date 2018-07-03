@@ -4089,12 +4089,22 @@ void Optimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
 #endif
 
+    MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Final Reference(s)";
+
     reconstructRef(true, false, true, false, true);
 
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Final Reference(s) Reconstructed";
+#endif
+
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
+
     saveFSC(true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final .thu File";
+
     saveDatabase(true);
 }
 
