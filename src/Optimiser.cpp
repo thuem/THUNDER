@@ -7513,7 +7513,7 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 
             if ((v < rU) && (v >= rL))
             {
-                _iPxl[_nPxl] = _img[0].iFTHalf(i, j);
+                _iPxl[_nPxl] = _imgOri[0].iFTHalf(i, j);
 
                 _iCol[_nPxl] = i;
 
