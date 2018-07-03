@@ -3554,6 +3554,8 @@ void Optimiser::maximization()
             FOR_EACH_2D_IMAGE
             {
                 _img[l].alloc(_para.size, _para.size, FT_SPACE);
+
+                SET_0_FT(_img[l]);
             }
         }
 
