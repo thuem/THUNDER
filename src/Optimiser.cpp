@@ -3460,16 +3460,14 @@ void Optimiser::maximization()
 #endif
 
 #ifdef OPTIMISER_REFRESH_SIGMA
-    ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
-    BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Generating Sigma for the Next Iteration";
 
     allReduceSigma(_para.groupSig);
 
 #ifdef VERBOSE_LEVEL_1
-    MPI_Barrier(_hemi);
+    MPI_Barrier(MPI_COMM_WORLD);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
-    BLOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
 #endif
 
 #endif
@@ -3479,16 +3477,14 @@ void Optimiser::maximization()
         (_para.groupScl) &&
         (_iter != 0))
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
-        BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
         correctScale(false, true);
 
 #ifdef VERBOSE_LEVEL_1
-        MPI_Barrier(_hemi);
+        MPI_Barrier(MPI_COMM_WORLD);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
-        BLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
 #endif
     }
 #endif
@@ -3511,22 +3507,40 @@ void Optimiser::maximization()
 #endif
 #endif
 
-        ALOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor";
-        BLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor";
+        MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
         
-        for (int t = 0; t < _para.k; t++)
-            _model.reco(t).allocSpace();
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+                _model.reco(t).allocSpace();
+        }
 
-        ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
-        BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+#endif
+
+        MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference(s)";
 
         reconstructRef(true, true, true, false, false);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor";
-        BLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor";
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
+#endif
+    
+        MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
 
         for (int t = 0; t < _para.k; t++)
             _model.reco(t).freeSpace();
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Space Freed in Reconstructor(s)";
+#endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
