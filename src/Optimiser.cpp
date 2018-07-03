@@ -3497,11 +3497,19 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+            MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
+            
             #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
                 _img[l].clear(); 
             }
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
+#endif
         }
 
 #endif
@@ -3550,6 +3558,8 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+            MLOG(INFO, "LOGGER_ROUND") << "Allocating Image Stacks";
+
             #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
@@ -3557,6 +3567,12 @@ void Optimiser::maximization()
 
                 SET_0_FT(_img[l]);
             }
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Allocated";
+#endif
         }
 
 #endif
@@ -4040,15 +4056,40 @@ void Optimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-        reconstructRef(true, false, true, false, true);
-        /***
-#ifdef GPU_VERSION
-        reconstructRefG(true, false, true, false, true);
-        //reconstructRef(true, false, true, false, true);
-#else
-        reconstructRef(true, false, true, false, true);
+
+#ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
+        
+    MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
+            
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        _img[l].clear(); 
+    }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
 #endif
-        ***/
+
+#endif
+
+    MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+        
+    NT_MASTER
+    {
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).allocSpace();
+    }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+#endif
+
+    reconstructRef(true, false, true, false, true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
     saveFSC(true);
