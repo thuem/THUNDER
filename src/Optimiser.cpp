@@ -3533,8 +3533,11 @@ void Optimiser::maximization()
     
         MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
 
-        for (int t = 0; t < _para.k; t++)
-            _model.reco(t).freeSpace();
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+                _model.reco(t).freeSpace();
+        }
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
