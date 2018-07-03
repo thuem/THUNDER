@@ -7484,17 +7484,17 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 {
     IF_MASTER return;
 
-    _iPxl = new int[_img[0].sizeFT()];
+    _iPxl = new int[_imgOri[0].sizeFT()];
 
-    _iCol = new int[_img[0].sizeFT()];
+    _iCol = new int[_imgOri[0].sizeFT()];
 
-    _iRow = new int[_img[0].sizeFT()];
+    _iRow = new int[_imgOri[0].sizeFT()];
 
-    _iSig = new int[_img[0].sizeFT()];
+    _iSig = new int[_imgOri[0].sizeFT()];
 
-    _iColPad = new int[_img[0].sizeFT()];
+    _iColPad = new int[_imgOri[0].sizeFT()];
 
-    _iRowPad = new int[_img[0].sizeFT()];
+    _iRowPad = new int[_imgOri[0].sizeFT()];
 
     RFLOAT rU2 = TSGSL_pow_2(rU);
     RFLOAT rL2 = TSGSL_pow_2(rL);
