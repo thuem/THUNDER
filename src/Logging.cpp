@@ -76,7 +76,7 @@ long memoryCheckVM()
 
     while (fgets(line, 128, file) != NULL)
     {
-        if (strncmp(line, "VmData:", 7) == 0)
+        if (strncmp(line, "VmSize:", 7) == 0)
         {
             result = memoryCheckParseLine(line);
 
