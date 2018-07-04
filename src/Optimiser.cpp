@@ -3497,7 +3497,7 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("Before Freeing Image Stacks in Reconstruction");
 
@@ -3516,7 +3516,7 @@ void Optimiser::maximization()
             MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
 #endif
 
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("After Freeing Image Stacks in Reconstruction");
 
@@ -3569,7 +3569,7 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("Before Allocating Image Stacks in Reconstruction");
 
@@ -3590,7 +3590,7 @@ void Optimiser::maximization()
             MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Allocated";
 #endif
 
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("After Allocating Image Stacks in Reconstruction");
 
@@ -3825,7 +3825,7 @@ void Optimiser::run()
 
         if (!_para.skipM)
         {
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("Before Performing Maximization");
 
@@ -3835,7 +3835,7 @@ void Optimiser::run()
 
             maximization();
 
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("After Performing Maximization");
 
@@ -3850,7 +3850,7 @@ void Optimiser::run()
 
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("Before Re-Centring Images");
 
@@ -3859,13 +3859,13 @@ void Optimiser::run()
 
             reCentreImg();
 
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("After Re-Centring Images");
 
 #endif
 
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("Before Re-Masking Images");
 
@@ -3880,7 +3880,7 @@ void Optimiser::run()
 #endif
 #endif
 
-#ifdef OPTIMISER_SAVE_MEM_USAGE
+#ifdef OPTIMISER_LOG_MEM_USAGE
 
             CHECK_MEMORY_USAGE("After Re-Masking Images");
 
@@ -6611,11 +6611,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else
             {
-                RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
-                double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
-                double *nr = (double*)malloc(_para.mReco * _ID.size() * 4 * sizeof(double));
-                double *nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
-                double *nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
+                RFLOAT* w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+                double* offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+                double* nr = (double*)malloc(_para.mReco * _ID.size() * 4 * sizeof(double));
+                double* nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+                double* nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
                 CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
                 
                 #pragma omp parallel for
@@ -6670,12 +6670,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        cSearch, _para.pf, _para.mReco, 
                                        _para.size, _ID.size()); 
 
-                delete[]w;
-                delete[]offS;            
-                delete[]nr;            
-                delete[]nt;            
-                delete[]nd;            
-                delete[]ctfaData;            
+                free(w);
+                free(offS);
+                free(nr);
+                free(nt);
+                free(nd);
+                free(ctfaData);
             }
         }
         else
@@ -7645,13 +7645,17 @@ void Optimiser::allocPreCal(const bool mask,
 
     if (ctf)
     {
-        _frequency = new RFLOAT[_nPxl];
+        _frequency = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
+        //_frequency = new RFLOAT[_nPxl];
 
-        _defocusP = new RFLOAT[_ID.size() * _nPxl];
+        _defocusP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
+        //_defocusP = new RFLOAT[_ID.size() * _nPxl];
 
-        _K1 = new RFLOAT[_ID.size()];
+        _K1 = (RFLOAT*)TSFFTW_malloc(_ID.size() * sizeof(RFLOAT));
+        //_K1 = new RFLOAT[_ID.size()];
 
-        _K2 = new RFLOAT[_ID.size()];
+        _K2 = (RFLOAT*)TSFFTW_malloc(_ID.size() * sizeof(RFLOAT));
+        //_K2 = new RFLOAT[_ID.size()];
 
         for (int i = 0; i < _nPxl; i++)
             _frequency[i] = NORM(_iCol[i],
@@ -7718,10 +7722,14 @@ void Optimiser::freePreCal(const bool ctf)
 
     if (ctf)
     {
-        delete[] _frequency;
-        delete[] _defocusP;
-        delete[] _K1;
-        delete[] _K2;
+        TSFFTW_free(_frequency);
+        //delete[] _frequency;
+        TSFFTW_free(_defocusP);
+        //delete[] _defocusP;
+        TSFFTW_free(_K1);
+        TSFFTW_free(_K2);
+        //delete[] _K1;
+        //delete[] _K2;
     }
 }
 
