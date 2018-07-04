@@ -387,10 +387,22 @@ void Optimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Parameter _N Set";
 #endif
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+       CHECK_MEMORY_USAGE("Before Initialsing 2D Images");
+
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
         BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
 
         initImg();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+       CHECK_MEMORY_USAGE("After Initialising 2D Images");
+
+#endif
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
@@ -3504,7 +3516,6 @@ void Optimiser::maximization()
 #endif
             MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
             
-            #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
                 _img[l].clear(); 
@@ -3576,7 +3587,6 @@ void Optimiser::maximization()
 #endif
             MLOG(INFO, "LOGGER_ROUND") << "Allocating Image Stacks";
 
-            #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
                 _img[l].alloc(_para.size, _para.size, FT_SPACE);
@@ -4438,6 +4448,12 @@ void Optimiser::initImg()
     int nPer = 0;
     int nImg = 0;
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+    CHECK_MEMORY_USAGE("Before Reading 2D Images");
+
+#endif
+
     FOR_EACH_2D_IMAGE
     {
         nImg += 1;
@@ -4489,6 +4505,10 @@ void Optimiser::initImg()
         }
     }
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("After Reading 2D Images");
+#endif
+     
 #ifdef VERBOSE_LEVEL_1
     ILOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
 #endif
@@ -4550,10 +4570,18 @@ void Optimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
 #endif
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("Before Masking on 2D Images");
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
 
     maskImg();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("After Masking on 2D Images");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -4589,7 +4617,15 @@ void Optimiser::initImg()
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("Before Performing Fourier Transfrom on 2D Images");
+#endif
+
     fwImg();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("After Performing Fourier Transfrom on 2D Images");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -7614,8 +7650,6 @@ void Optimiser::allocPreCal(const bool mask,
 
     _datP = (Complex*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(Complex));
 
-    _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
-
     _sigP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
     _sigRcpP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
@@ -7629,10 +7663,6 @@ void Optimiser::allocPreCal(const bool mask,
                 ? (i * _ID.size() + l)
                 : (_nPxl * l + i)] = mask ? _img[l].iGetFT(_iPxl[i]) : _imgOri[l].iGetFT(_iPxl[i]);
 
-            _ctfP[pixelMajor
-                ? (i * _ID.size() + l)
-                : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
-
             _sigP[pixelMajor
                 ? (i * _ID.size() + l)
                 : (_nPxl * l + i)] = _sig(_groupID[l] - 1, _iSig[i]);
@@ -7643,7 +7673,22 @@ void Optimiser::allocPreCal(const bool mask,
         }
     }
 
-    if (ctf)
+    if (!ctf)
+    {
+        _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
+
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+            for (int i = 0; i < _nPxl; i++)
+            {
+                _ctfP[pixelMajor
+                    ? (i * _ID.size() + l)
+                    : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
+            }
+        }
+    }
+    else
     {
         _frequency = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
         //_frequency = new RFLOAT[_nPxl];
@@ -7710,7 +7755,6 @@ void Optimiser::freePreCal(const bool ctf)
     IF_MASTER return;
 
     TSFFTW_free(_datP);
-    TSFFTW_free(_ctfP);
     TSFFTW_free(_sigP);
     TSFFTW_free(_sigRcpP);
 
@@ -7720,7 +7764,11 @@ void Optimiser::freePreCal(const bool ctf)
     delete[] _sigRcpP;
     ***/
 
-    if (ctf)
+    if (!ctf)
+    {
+        TSFFTW_free(_ctfP);
+    }
+    else
     {
         TSFFTW_free(_frequency);
         //delete[] _frequency;
