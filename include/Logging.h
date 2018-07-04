@@ -55,80 +55,10 @@ void loggerInit(int argc, const char* const * argv);
         } \
     } while (0);
 
-long memoryCheckParseLine(char* line)
-{
-    // This assumes that a digit will be found and the line ends in " Kb".
-    long i = strlen(line);
+long memoryCheckParseLine(char* line);
 
-    const char* p = line;
+long memoryCheckVM();
 
-    while (*p <'0' || *p > '9') p++;
-
-    line[i - 3] = '\0';
-
-    i = atoi(p);
-
-    return i;
-};
-
-long memoryCheckVM()
-{
-    FILE* file = fopen("/proc/self/status", "r");
-
-    if (file == NULL)
-    {
-        REPORT_ERROR("FAIL TO OPEN /proc/self/status");
-
-        abort();
-    }
-
-    long result = -1;
-
-    char line[128];
-
-    while (fgets(line, 128, file) != NULL)
-    {
-        if (strncmp(line, "VmSize:", 7) == 0)
-        {
-            result = memoryCheckParseLine(line);
-
-            break;
-        }
-    }
-
-    fclose(file);
-
-    return result;
-};
-
-long memoryCheckRM()
-{
-    FILE* file = fopen("/proc/self/status", "r");
-
-    if (file == NULL)
-    {
-        REPORT_ERROR("FAIL TO OPEN /proc/self/status");
-
-        abort();
-    }
-
-    long result = -1;
-
-    char line[128];
-
-    while (fgets(line, 128, file) != NULL)
-    {
-        if (strncmp(line, "VmRSS:", 6) == 0)
-        {
-            result = memoryCheckParseLine(line);
-
-            break;
-        }
-    }
-
-    fclose(file);
-
-    return result;
-};
+long memoryCheckRM();
 
 #endif // LOGGING_H

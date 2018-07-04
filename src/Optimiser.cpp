@@ -3497,6 +3497,11 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Freeing Image Stacks in Reconstruction");
+
+#endif
             MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
             
             #pragma omp parallel for
@@ -3509,6 +3514,12 @@ void Optimiser::maximization()
             MPI_Barrier(MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
+#endif
+
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Freeing Image Stacks in Reconstruction");
+
 #endif
         }
 
@@ -3558,6 +3569,11 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Allocating Image Stacks in Reconstruction");
+
+#endif
             MLOG(INFO, "LOGGER_ROUND") << "Allocating Image Stacks";
 
             #pragma omp parallel for
@@ -3572,6 +3588,12 @@ void Optimiser::maximization()
             MPI_Barrier(MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Allocated";
+#endif
+
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Allocating Image Stacks in Reconstruction");
+
 #endif
         }
 
@@ -3589,6 +3611,12 @@ void Optimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Initialising Optimiser";
 
     init();
+
+#ifdef OPIMISER_LOG_MEM_USAGE
+
+    CHECK_MEMORY_USAGE("After Initialising Optimiser");
+
+#endif
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
@@ -3648,6 +3676,12 @@ void Optimiser::run()
 
         if ((_iter == 0) || (!_para.skipE))
         {
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Performing Expectation");
+
+#endif
+
             MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
 #ifdef GPU_VERSION
@@ -3691,6 +3725,12 @@ void Optimiser::run()
             MPI_Barrier(MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Performing Expectation");
+
+#endif
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
@@ -3785,9 +3825,21 @@ void Optimiser::run()
 
         if (!_para.skipM)
         {
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Performing Maximization");
+
+#endif
+
             MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
 
             maximization();
+
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Performing Maximization");
+
+#endif
         }
         else
         {
@@ -3798,17 +3850,40 @@ void Optimiser::run()
 
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Re-Centring Images");
+
+#endif
             MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
 
             reCentreImg();
 
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Re-Centring Images");
+
+#endif
+
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Re-Masking Images");
+
+#endif
+
 #ifdef OPTIMISER_MASK_IMG
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
-#ifdef GPU_VERSION
+    #ifdef GPU_VERSION
             reMaskImgG();
 #else
             reMaskImg();
 #endif
+#endif
+
+#ifdef OPTIMISER_SAVE_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Re-Masking Images");
+
 #endif
         }
 

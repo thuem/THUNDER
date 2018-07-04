@@ -94,6 +94,17 @@
 #define ILOG(LEVEL, LOGGER) \
     NT_MASTER CLOG(LEVEL, LOGGER) << "RANK " << _commRank << ": "
 
+#define CHECK_MEMORY_USAGE(msg) \
+    do \
+    { \
+        long memUsageRM = memoryCheckRM(); \
+        long memUsageVM = memoryCheckVM(); \
+        ALOG(INFO, "LOGGER_MEM") << msg << ", Physic Memory Usage: " << memUsageRM / MEGABYTE << "G"; \
+        ALOG(INFO, "LOGGER_MEM") << msg << ", Virtual Memory Usage : " << memUsageVM / MEGABYTE << "G"; \
+        BLOG(INFO, "LOGGER_MEM") << msg << ", Physic Memory Usage : " << memUsageRM / MEGABYTE << "G"; \
+        BLOG(INFO, "LOGGER_MEM") << msg << ", Virtual Memory Usage : " << memUsageVM / MEGABYTE << "G"; \
+    } while (0);
+
 class Parallel: private boost::noncopyable
 {
     protected:
