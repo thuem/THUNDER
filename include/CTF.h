@@ -52,6 +52,17 @@ void CTF(Image& dst,
          const RFLOAT amplitudeContrast,
          const RFLOAT phaseShift);
 
+void CTF(Image& dst,
+         const RFLOAT pixelSize,
+         const RFLOAT voltage,
+         const RFLOAT defocusU,
+         const RFLOAT defocusV,
+         const RFLOAT theta,
+         const RFLOAT Cs,
+         const RFLOAT amplitudeContrast,
+         const RFLOAT phaseShift,
+         const RFLOAT r);
+
 void CTF(RFLOAT* dst,
          const RFLOAT pixelSize,
          const RFLOAT voltage,

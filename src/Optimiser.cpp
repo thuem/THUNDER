@@ -3500,7 +3500,7 @@ void Optimiser::maximization()
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced for Each Group";
 #endif
     }
 #endif
@@ -5685,7 +5685,8 @@ void Optimiser::refreshScale(const bool coord,
                 _ctfAttr[l].defocusTheta,
                 _ctfAttr[l].Cs,
                 _ctfAttr[l].amplitudeContrast,
-                _ctfAttr[l].phaseShift);
+                _ctfAttr[l].phaseShift,
+                CEIL(_rS) + 1);
 #ifdef OPTIMISER_SCALE_MASK
             scaleDataVSPrior(sXA,
                              sAA,
@@ -6064,7 +6065,8 @@ void Optimiser::normCorrection()
                         _ctfAttr[l].defocusTheta,
                         _ctfAttr[l].Cs,
                         _ctfAttr[l].amplitudeContrast,
-                        _ctfAttr[l].phaseShift);
+                        _ctfAttr[l].phaseShift,
+                        CEIL(rNorm) + 1);
 
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(ctf[i]);
@@ -6274,7 +6276,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].defocusTheta,
                     _ctfAttr[l].Cs,
                     _ctfAttr[l].amplitudeContrast,
-                    _ctfAttr[l].phaseShift);
+                    _ctfAttr[l].phaseShift,
+                    CEIL(rSig) + 1);
 
                 FOR_EACH_PIXEL_FT(imgM)
                     imgM[i] *= REAL(ctf[i]);
