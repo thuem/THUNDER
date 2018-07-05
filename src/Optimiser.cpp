@@ -4882,7 +4882,7 @@ void Optimiser::initCTF()
 #endif
     }
 
-#ifdef OPTIMISER_CTF_ON_THE_FLY
+#ifndef OPTIMISER_CTF_ON_THE_FLY
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
