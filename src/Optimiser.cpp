@@ -4877,9 +4877,12 @@ void Optimiser::initCTF()
 
         _ctfAttr.push_back(ctfAttr);
 
+#ifndef OPTIMISER_CTF_ON_THE_FLY
         _ctf.push_back(Image(size(), size(), FT_SPACE));
+#endif
     }
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -4898,6 +4901,7 @@ void Optimiser::initCTF()
             _ctfAttr[l].amplitudeContrast,
             _ctfAttr[l].phaseShift);
     }
+#endif
 }
 
 void Optimiser::correctScale(const bool init,
@@ -5667,6 +5671,35 @@ void Optimiser::refreshScale(const bool coord,
             RFLOAT rL = _rL;
 #endif
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            Image ctf(_para.size, _para.size, FT_SPACE);
+            CTF(ctf,
+                _para.pixelSize, 
+                _ctfAttr[l].voltage,
+                _ctfAttr[l].defocusU,
+                _ctfAttr[l].defocusV,
+                _ctfAttr[l].defocusTheta,
+                _ctfAttr[l].Cs,
+                _ctfAttr[l].amplitudeContrast,
+                _ctfAttr[l].phaseShift);
+#ifdef OPTIMISER_SCALE_MASK
+            scaleDataVSPrior(sXA,
+                             sAA,
+                             _img[l],
+                             img,
+                             ctf,
+                             _rS,
+                             rL);
+#else
+            scaleDataVSPrior(sXA,
+                             sAA,
+                             _imgOri[l],
+                             img,
+                             ctf,
+                             _rS,
+                             rL);
+#endif
+#else
 #ifdef OPTIMISER_SCALE_MASK
             scaleDataVSPrior(sXA,
                              sAA,
@@ -5683,6 +5716,7 @@ void Optimiser::refreshScale(const bool coord,
                              _ctf[l],
                              _rS,
                              rL);
+#endif
 #endif
 
 #ifdef VERBOSE_LEVEL_3
@@ -6016,8 +6050,24 @@ void Optimiser::normCorrection()
 
                 if (_searchType != SEARCH_TYPE_CTF)
                 {
+#ifdef OPIMISER_CTF_ON_THE_FLY
+                    Image ctf(_para.size, _para.size, FT_SPACE);
+                    CTF(ctf,
+                        _para.pixelSize, 
+                        _ctfAttr[l].voltage,
+                        _ctfAttr[l].defocusU,
+                        _ctfAttr[l].defocusV,
+                        _ctfAttr[l].defocusTheta,
+                        _ctfAttr[l].Cs,
+                        _ctfAttr[l].amplitudeContrast,
+                        _ctfAttr[l].phaseShift);
+
+                    FOR_EACH_PIXEL_FT(img)
+                        img[i] *= REAL(ctf[i]);
+#else
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(_ctf[l][i]);
+#endif
                 }
                 else
                 {
@@ -6210,10 +6260,29 @@ void Optimiser::allReduceSigma(const bool mask,
 
             if (_searchType != SEARCH_TYPE_CTF)
             {
+ #ifdef OPIMISER_CTF_ON_THE_FLY
+                Image ctf(_para.size, _para.size, FT_SPACE);
+                CTF(ctf,
+                    _para.pixelSize, 
+                    _ctfAttr[l].voltage,
+                    _ctfAttr[l].defocusU,
+                    _ctfAttr[l].defocusV,
+                    _ctfAttr[l].defocusTheta,
+                    _ctfAttr[l].Cs,
+                    _ctfAttr[l].amplitudeContrast,
+                    _ctfAttr[l].phaseShift);
+
+                FOR_EACH_PIXEL_FT(img)
+                    imgM[i] *= REAL(ctf[i]);
+
+                FOR_EACH_PIXEL_FT(img)
+                    imgN[i] *= REAL(ctf[i]);
+#else
                 FOR_EACH_PIXEL_FT(imgM)
                     imgM[i] *= REAL(_ctf[l][i]);
                 FOR_EACH_PIXEL_FT(imgN)
                     imgN[i] *= REAL(_ctf[l][i]);
+#endif
             }
             else
             {
@@ -7677,16 +7746,50 @@ void Optimiser::allocPreCal(const bool mask,
     {
         _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
+#ifdef OPIMISER_CTF_ON_THE_FLY
+        RFLOAT* poolCTF = (RFLOAT*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(RFLOAT));
+#endif
+
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
+#ifdef OPIMISER_CTF_ON_THE_FLY
+            RFLOAT* ctf = poolCTF + _nPxl * omp_get_thread_num();
+
+            CTF(ctf,
+                _para.pixelSize,
+                _ctfAttr[l].voltage,
+                _ctfAttr[l].defocusU * d,
+                _ctfAttr[l].defocusV * d,
+                _ctfAttr[l].defocusTheta,
+                _ctfAttr[l].Cs,
+                _ctfAttr[l].amplitudeContrast,
+                _ctfAttr[l].phaseShift,
+                _para.size,
+                _para.size,
+                _iCol,
+                _iRow,
+                _nPxl);
+
+            for (int i = 0; i < _nPxl; i++)
+            {
+                _ctfP[pixelMajor
+                    ? (i * _ID.size() + l)
+                    : (_nPxl * l + i)] = REAL(ctf[i]);
+            }
+#else
             for (int i = 0; i < _nPxl; i++)
             {
                 _ctfP[pixelMajor
                     ? (i * _ID.size() + l)
                     : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
             }
+#endif
         }
+
+#ifdef OPIMISER_CTF_ON_THE_FLY
+        TSFFTW_free(ctfPool);
+#endif
     }
     else
     {
@@ -7919,9 +8022,13 @@ void Optimiser::saveBestProjections()
             result.saveRLToBMP(filename);
             fft.fw(result);
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            // TODO
+#else
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(diff)
                 diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
+#endif
 
             sprintf(filename, "%sDiff_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
             fft.bw(diff);
@@ -7966,7 +8073,11 @@ void Optimiser::saveCTFs()
         {
             sprintf(filename, "CTF_%04d.bmp", _ID[l]);
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            // TODO
+#else
             _ctf[l].saveFTToBMP(filename, 0.01);
+#endif
         }
     }
 }
