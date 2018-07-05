@@ -6050,7 +6050,7 @@ void Optimiser::normCorrection()
 
                 if (_searchType != SEARCH_TYPE_CTF)
                 {
-#ifdef OPIMISER_CTF_ON_THE_FLY
+#ifdef OPTIMISER_CTF_ON_THE_FLY
                     Image ctf(_para.size, _para.size, FT_SPACE);
                     CTF(ctf,
                         _para.pixelSize, 
@@ -6260,7 +6260,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
             if (_searchType != SEARCH_TYPE_CTF)
             {
- #ifdef OPIMISER_CTF_ON_THE_FLY
+ #ifdef OPTIMISER_CTF_ON_THE_FLY
                 Image ctf(_para.size, _para.size, FT_SPACE);
                 CTF(ctf,
                     _para.pixelSize, 
@@ -6272,10 +6272,9 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].amplitudeContrast,
                     _ctfAttr[l].phaseShift);
 
-                FOR_EACH_PIXEL_FT(img)
+                FOR_EACH_PIXEL_FT(imgM)
                     imgM[i] *= REAL(ctf[i]);
-
-                FOR_EACH_PIXEL_FT(img)
+                FOR_EACH_PIXEL_FT(imgN)
                     imgN[i] *= REAL(ctf[i]);
 #else
                 FOR_EACH_PIXEL_FT(imgM)
@@ -7746,21 +7745,21 @@ void Optimiser::allocPreCal(const bool mask,
     {
         _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
-#ifdef OPIMISER_CTF_ON_THE_FLY
+#ifdef OPTIMISER_CTF_ON_THE_FLY
         RFLOAT* poolCTF = (RFLOAT*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(RFLOAT));
 #endif
 
         #pragma omp parallel for
         FOR_EACH_2D_IMAGE
         {
-#ifdef OPIMISER_CTF_ON_THE_FLY
+#ifdef OPTIMISER_CTF_ON_THE_FLY
             RFLOAT* ctf = poolCTF + _nPxl * omp_get_thread_num();
 
             CTF(ctf,
                 _para.pixelSize,
                 _ctfAttr[l].voltage,
-                _ctfAttr[l].defocusU * d,
-                _ctfAttr[l].defocusV * d,
+                _ctfAttr[l].defocusU,
+                _ctfAttr[l].defocusV,
                 _ctfAttr[l].defocusTheta,
                 _ctfAttr[l].Cs,
                 _ctfAttr[l].amplitudeContrast,
@@ -7775,7 +7774,7 @@ void Optimiser::allocPreCal(const bool mask,
             {
                 _ctfP[pixelMajor
                     ? (i * _ID.size() + l)
-                    : (_nPxl * l + i)] = REAL(ctf[i]);
+                    : (_nPxl * l + i)] = ctf[i];
             }
 #else
             for (int i = 0; i < _nPxl; i++)
@@ -7787,8 +7786,8 @@ void Optimiser::allocPreCal(const bool mask,
 #endif
         }
 
-#ifdef OPIMISER_CTF_ON_THE_FLY
-        TSFFTW_free(ctfPool);
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+        TSFFTW_free(poolCTF);
 #endif
     }
     else
