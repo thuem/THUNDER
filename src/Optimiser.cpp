@@ -388,9 +388,7 @@ void Optimiser::init()
 #endif
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
-
-       CHECK_MEMORY_USAGE("Before Initialsing 2D Images");
-
+        CHECK_MEMORY_USAGE("Before Initialsing 2D Images");
 #endif
 
         ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
@@ -399,9 +397,7 @@ void Optimiser::init()
         initImg();
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
-
-       CHECK_MEMORY_USAGE("After Initialising 2D Images");
-
+        CHECK_MEMORY_USAGE("After Initialising 2D Images");
 #endif
 
 #ifdef VERBOSE_LEVEL_1
@@ -411,10 +407,18 @@ void Optimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "2D Images Initialised";
 #endif
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+        CHECK_MEMORY_USAGE("Before Initialsing CTFs");
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
         initCTF();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+        CHECK_MEMORY_USAGE("After Initialsing CTFs");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
