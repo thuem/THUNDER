@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "Config.h"
-#include "huabin.h"
+#include "Precision.h"
 
 #include "Mat33.cuh"
 #include "Vec3.cuh"

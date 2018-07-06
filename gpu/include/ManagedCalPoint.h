@@ -10,7 +10,7 @@
 #ifndef MANAGEDCALPOINT_H
 #define MANAGEDCALPOINT_H
 
-#include "huabin.h"
+#include "Precision.h"
 
 class ManagedCalPoint {
 public:
