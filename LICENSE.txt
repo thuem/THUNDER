@@ -1,6 +1,6 @@
 THUNDER Non-Commercial Software License Agreement
 
-This license agreement ("License"), is made by and between you ("Licensee") and Xueming Li Laboratory, School of Life Science, Tsinghua University, Beijing 100084, China (¡°Licensor¡±), concerns certain software known as "THUNDER", a system of software programs for electron cryo-microscopy analysis, and includes executable code, source code, and documentation ("Software"). 
+This license agreement ("License"), is made by and between you ("Licensee") and Xueming Li Laboratory, School of Life Science, Tsinghua University, Beijing 100084, China ("Licensor"), concerns certain software known as "THUNDER", a system of software programs for electron cryo-microscopy analysis, and includes executable code, source code, and documentation ("Software"). 
 
 1. General. A non-exclusive, nontransferable, perpetual license is granted to the Licensee to install and use the Software for academic, non-profit, or government-sponsored research purposes. Use of the Software under this License is restricted to non-commercial purposes. Commercial use of the Software requires a separately executed written license agreement. 
 
