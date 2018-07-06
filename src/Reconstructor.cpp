@@ -81,10 +81,6 @@ void Reconstructor::init(const int mode,
                    1e5);
 
     _maxRadius = (_size / 2 - CEIL(a));
-
-    allocSpace();
-
-    reset();
 }
 
 void Reconstructor::allocSpace()
@@ -138,6 +134,44 @@ void Reconstructor::allocSpace()
 
         abort();
     }
+
+    reset();
+}
+
+void Reconstructor::freeSpace()
+{
+#ifndef GPU_RECONSTRUCT
+    _fft.fwDestroyPlanMT();
+    _fft.bwDestroyPlanMT();
+#endif
+
+    if (_mode == MODE_2D)
+    {
+        ALOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
+        BLOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
+
+        _F2D.clear();
+        _W2D.clear();
+        _C2D.clear();
+        _T2D.clear();
+    }
+    else if (_mode == MODE_3D)
+    {
+        ALOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
+        BLOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
+
+        _F3D.clear();
+        _W3D.clear();
+        _C3D.clear();
+        _T3D.clear();
+
+    }
+    else 
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
 }
 
 void Reconstructor::resizeSpace(const int size)
@@ -148,10 +182,6 @@ void Reconstructor::resizeSpace(const int size)
 #endif
 
     _size = size;
-
-    allocSpace();
-
-    reset();
 }
 
 void Reconstructor::reset()

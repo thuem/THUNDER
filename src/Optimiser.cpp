@@ -3472,35 +3472,16 @@ void Optimiser::maximization()
 #endif
 
 #ifdef OPTIMISER_REFRESH_SIGMA
-    ALOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
-    BLOG(INFO, "LOGGER_ROUND") << "Generate Sigma for the Next Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Generating Sigma for the Next Iteration";
 
     allReduceSigma(_para.groupSig);
 
-    /***
-    if (_para.k == 1)
-    {
-#ifdef OPTIMISER_SIGMA_MASK
-        allReduceSigma(true, _para.groupSig);
-#else
-        // refinement, focus on avoiding over-refinement
-        allReduceSigma(false, _para.groupSig);
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
 #endif
-    }
-    else
-    {
-#ifdef OPTIMISER_SIGMA_MASK
-        allReduceSigma(true, _para.groupSig);
-#else
-#ifdef OPTIMISER_SIGMA_MASK_CLASS
-        // classification, focus on searching for difference
-        allReduceSigma(true, _para.groupSig);
-#else
-        allReduceSigma(false, _para.groupSig);
-#endif
-#endif
-    }
-    ***/
+
 #endif
 
 #ifdef OPTIMISER_CORRECT_SCALE
@@ -3508,19 +3489,106 @@ void Optimiser::maximization()
         (_para.groupScl) &&
         (_iter != 0))
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
-        BLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
 
         correctScale(false, true);
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
+#endif
     }
 #endif
 
     if (!_para.skipR)
     {
-        ALOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
-        BLOG(INFO, "LOGGER_ROUND") << "Reconstruct Reference";
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
+        
+        if (_searchType != SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
+            
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                _img[l].clear(); 
+            }
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
+#endif
+        }
+
+#endif
+#endif
+
+        MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+        
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+                _model.reco(t).allocSpace();
+        }
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+#endif
+
+        MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference(s)";
 
         reconstructRef(true, true, true, false, false);
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
+#endif
+    
+        MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
+
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+                _model.reco(t).freeSpace();
+        }
+
+#ifdef VERBOSE_LEVEL_1
+        MPI_Barrier(MPI_COMM_WORLD);
+
+        MLOG(INFO, "LOGGER_ROUND") << "Space Freed in Reconstructor(s)";
+#endif
+
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+#ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
+        
+        if (_searchType != SEARCH_TYPE_GLOBAL)
+        {
+            MLOG(INFO, "LOGGER_ROUND") << "Allocating Image Stacks";
+
+            #pragma omp parallel for
+            FOR_EACH_2D_IMAGE
+            {
+                _img[l].alloc(_para.size, _para.size, FT_SPACE);
+
+                SET_0_FT(_img[l]);
+            }
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Allocated";
+#endif
+        }
+
+#endif
+#endif
     }
     else
     {
@@ -4000,20 +4068,55 @@ void Optimiser::run()
     }
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
-        reconstructRef(true, false, true, false, true);
-        /***
-#ifdef GPU_VERSION
-        reconstructRefG(true, false, true, false, true);
-        //reconstructRef(true, false, true, false, true);
-#else
-        reconstructRef(true, false, true, false, true);
+
+#ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
+        
+    MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
+            
+    #pragma omp parallel for
+    FOR_EACH_2D_IMAGE
+    {
+        _img[l].clear(); 
+    }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
 #endif
-        ***/
+
+#endif
+
+    MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+        
+    NT_MASTER
+    {
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).allocSpace();
+    }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+#endif
+
+    MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Final Reference(s)";
+
+    reconstructRef(true, false, true, false, true);
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Final Reference(s) Reconstructed";
+#endif
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
+
     saveFSC(true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final .thu File";
+
     saveDatabase(true);
 
     if (_para.subtract)
@@ -7546,17 +7649,17 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 {
     IF_MASTER return;
 
-    _iPxl = new int[_img[0].sizeFT()];
+    _iPxl = new int[_imgOri[0].sizeFT()];
 
-    _iCol = new int[_img[0].sizeFT()];
+    _iCol = new int[_imgOri[0].sizeFT()];
 
-    _iRow = new int[_img[0].sizeFT()];
+    _iRow = new int[_imgOri[0].sizeFT()];
 
-    _iSig = new int[_img[0].sizeFT()];
+    _iSig = new int[_imgOri[0].sizeFT()];
 
-    _iColPad = new int[_img[0].sizeFT()];
+    _iColPad = new int[_imgOri[0].sizeFT()];
 
-    _iRowPad = new int[_img[0].sizeFT()];
+    _iRowPad = new int[_imgOri[0].sizeFT()];
 
     RFLOAT rU2 = TSGSL_pow_2(rU);
     RFLOAT rL2 = TSGSL_pow_2(rL);
@@ -7575,7 +7678,7 @@ void Optimiser::allocPreCalIdx(const RFLOAT rU,
 
             if ((v < rU) && (v >= rL))
             {
-                _iPxl[_nPxl] = _img[0].iFTHalf(i, j);
+                _iPxl[_nPxl] = _imgOri[0].iFTHalf(i, j);
 
                 _iCol[_nPxl] = i;
 
