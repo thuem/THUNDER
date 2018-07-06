@@ -234,10 +234,10 @@ void FFT::fwCreatePlan(const int nCol,
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
     fwPlan = TSFFTW_plan_dft_r2c_2d(nRow,
-                                  nCol,
-                                  _srcR,
-                                  _dstC,
-                                  FFTW_MEASURE);
+                                    nCol,
+                                    _srcR,
+                                    _dstC,
+                                    FFTW_MEASURE);
 
     TSFFTW_free(_srcR);
     TSFFTW_free(_dstC);
@@ -493,7 +493,7 @@ void FFT::fwDestroyPlan()
 {
     if (fwPlan)
     {
-        #pragma omp critical  (line494)
+        #pragma omp critical (line494)
         TSFFTW_destroy_plan(fwPlan);
 
         fwPlan = NULL;
@@ -504,7 +504,7 @@ void FFT::bwDestroyPlan()
 {
     if (bwPlan)
     {
-        #pragma omp critical  (line500)
+        #pragma omp critical (line500)
         TSFFTW_destroy_plan(bwPlan);
 
         bwPlan = NULL;

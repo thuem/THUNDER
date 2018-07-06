@@ -396,10 +396,18 @@ void Optimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "Parameter _N Set";
 #endif
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+        CHECK_MEMORY_USAGE("Before Initialsing 2D Images");
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
         BLOG(INFO, "LOGGER_INIT") << "Initialising 2D Images";
 
         initImg();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+        CHECK_MEMORY_USAGE("After Initialising 2D Images");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
@@ -408,10 +416,18 @@ void Optimiser::init()
         BLOG(INFO, "LOGGER_INIT") << "2D Images Initialised";
 #endif
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+        CHECK_MEMORY_USAGE("Before Initialsing CTFs");
+#endif
+
         ALOG(INFO, "LOGGER_INIT") << "Generating CTFs";
         BLOG(INFO, "LOGGER_INIT") << "Generating CTFs";
 
         initCTF();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+        CHECK_MEMORY_USAGE("After Initialsing CTFs");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
@@ -3496,7 +3512,7 @@ void Optimiser::maximization()
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced fro Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced for Each Group";
 #endif
     }
 #endif
@@ -3509,9 +3525,13 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Freeing Image Stacks in Reconstruction");
+
+#endif
             MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
             
-            #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
                 _img[l].clear(); 
@@ -3521,6 +3541,12 @@ void Optimiser::maximization()
             MPI_Barrier(MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
+#endif
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Freeing Image Stacks in Reconstruction");
+
 #endif
         }
 
@@ -3570,9 +3596,13 @@ void Optimiser::maximization()
         
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Allocating Image Stacks in Reconstruction");
+
+#endif
             MLOG(INFO, "LOGGER_ROUND") << "Allocating Image Stacks";
 
-            #pragma omp parallel for
             FOR_EACH_2D_IMAGE
             {
                 _img[l].alloc(_para.size, _para.size, FT_SPACE);
@@ -3584,6 +3614,12 @@ void Optimiser::maximization()
             MPI_Barrier(MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Allocated";
+#endif
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Allocating Image Stacks in Reconstruction");
+
 #endif
         }
 
@@ -3601,6 +3637,12 @@ void Optimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Initialising Optimiser";
 
     init();
+
+#ifdef OPIMISER_LOG_MEM_USAGE
+
+    CHECK_MEMORY_USAGE("After Initialising Optimiser");
+
+#endif
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
     
@@ -3660,6 +3702,12 @@ void Optimiser::run()
 
         if ((_iter == 0) || (!_para.skipE))
         {
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Performing Expectation");
+
+#endif
+
             MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
 
 #ifdef GPU_VERSION
@@ -3703,6 +3751,12 @@ void Optimiser::run()
             MPI_Barrier(MPI_COMM_WORLD);
 
             MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Performing Expectation");
+
+#endif
         }
 
         MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
@@ -3797,9 +3851,21 @@ void Optimiser::run()
 
         if (!_para.skipM)
         {
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Performing Maximization");
+
+#endif
+
             MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
 
             maximization();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Performing Maximization");
+
+#endif
         }
         else
         {
@@ -3810,17 +3876,40 @@ void Optimiser::run()
 
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Re-Centring Images");
+
+#endif
             MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
 
             reCentreImg();
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Re-Centring Images");
+
+#endif
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("Before Re-Masking Images");
+
+#endif
+
 #ifdef OPTIMISER_MASK_IMG
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
-#ifdef GPU_VERSION
+    #ifdef GPU_VERSION
             reMaskImgG();
 #else
             reMaskImg();
 #endif
+#endif
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+            CHECK_MEMORY_USAGE("After Re-Masking Images");
+
 #endif
         }
 
@@ -4512,6 +4601,12 @@ void Optimiser::initImg()
     int nPer = 0;
     int nImg = 0;
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+
+    CHECK_MEMORY_USAGE("Before Reading 2D Images");
+
+#endif
+
     FOR_EACH_2D_IMAGE
     {
         nImg += 1;
@@ -4563,6 +4658,10 @@ void Optimiser::initImg()
         }
     }
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("After Reading 2D Images");
+#endif
+     
 #ifdef VERBOSE_LEVEL_1
     ILOG(INFO, "LOGGER_INIT") << "Images Read from Disk";
 #endif
@@ -4624,10 +4723,18 @@ void Optimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
 #endif
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("Before Masking on 2D Images");
+#endif
+
     ALOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Masking on 2D Images";
 
     maskImg();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("After Masking on 2D Images");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -4663,7 +4770,15 @@ void Optimiser::initImg()
     ALOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
 
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("Before Performing Fourier Transfrom on 2D Images");
+#endif
+
     fwImg();
+
+#ifdef OPTIMISER_LOG_MEM_USAGE
+    CHECK_MEMORY_USAGE("After Performing Fourier Transfrom on 2D Images");
+#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -4915,9 +5030,12 @@ void Optimiser::initCTF()
 
         _ctfAttr.push_back(ctfAttr);
 
+#ifndef OPTIMISER_CTF_ON_THE_FLY
         _ctf.push_back(Image(size(), size(), FT_SPACE));
+#endif
     }
 
+#ifndef OPTIMISER_CTF_ON_THE_FLY
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
     {
@@ -4936,6 +5054,7 @@ void Optimiser::initCTF()
             _ctfAttr[l].amplitudeContrast,
             _ctfAttr[l].phaseShift);
     }
+#endif
 }
 
 void Optimiser::correctScale(const bool init,
@@ -5710,6 +5829,36 @@ void Optimiser::refreshScale(const bool coord,
             RFLOAT rL = _rL;
 #endif
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            Image ctf(_para.size, _para.size, FT_SPACE);
+            CTF(ctf,
+                _para.pixelSize, 
+                _ctfAttr[l].voltage,
+                _ctfAttr[l].defocusU,
+                _ctfAttr[l].defocusV,
+                _ctfAttr[l].defocusTheta,
+                _ctfAttr[l].Cs,
+                _ctfAttr[l].amplitudeContrast,
+                _ctfAttr[l].phaseShift,
+                CEIL(_rS) + 1);
+#ifdef OPTIMISER_SCALE_MASK
+            scaleDataVSPrior(sXA,
+                             sAA,
+                             _img[l],
+                             img,
+                             ctf,
+                             _rS,
+                             rL);
+#else
+            scaleDataVSPrior(sXA,
+                             sAA,
+                             _imgOri[l],
+                             img,
+                             ctf,
+                             _rS,
+                             rL);
+#endif
+#else
 #ifdef OPTIMISER_SCALE_MASK
             scaleDataVSPrior(sXA,
                              sAA,
@@ -5726,6 +5875,7 @@ void Optimiser::refreshScale(const bool coord,
                              _ctf[l],
                              _rS,
                              rL);
+#endif
 #endif
 
 #ifdef VERBOSE_LEVEL_3
@@ -6059,8 +6209,25 @@ void Optimiser::normCorrection()
 
                 if (_searchType != SEARCH_TYPE_CTF)
                 {
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+                    Image ctf(_para.size, _para.size, FT_SPACE);
+                    CTF(ctf,
+                        _para.pixelSize, 
+                        _ctfAttr[l].voltage,
+                        _ctfAttr[l].defocusU,
+                        _ctfAttr[l].defocusV,
+                        _ctfAttr[l].defocusTheta,
+                        _ctfAttr[l].Cs,
+                        _ctfAttr[l].amplitudeContrast,
+                        _ctfAttr[l].phaseShift,
+                        CEIL(rNorm) + 1);
+
+                    FOR_EACH_PIXEL_FT(img)
+                        img[i] *= REAL(ctf[i]);
+#else
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(_ctf[l][i]);
+#endif
                 }
                 else
                 {
@@ -6253,10 +6420,29 @@ void Optimiser::allReduceSigma(const bool mask,
 
             if (_searchType != SEARCH_TYPE_CTF)
             {
+ #ifdef OPTIMISER_CTF_ON_THE_FLY
+                Image ctf(_para.size, _para.size, FT_SPACE);
+                CTF(ctf,
+                    _para.pixelSize, 
+                    _ctfAttr[l].voltage,
+                    _ctfAttr[l].defocusU,
+                    _ctfAttr[l].defocusV,
+                    _ctfAttr[l].defocusTheta,
+                    _ctfAttr[l].Cs,
+                    _ctfAttr[l].amplitudeContrast,
+                    _ctfAttr[l].phaseShift,
+                    CEIL(rSig) + 1);
+
+                FOR_EACH_PIXEL_FT(imgM)
+                    imgM[i] *= REAL(ctf[i]);
+                FOR_EACH_PIXEL_FT(imgN)
+                    imgN[i] *= REAL(ctf[i]);
+#else
                 FOR_EACH_PIXEL_FT(imgM)
                     imgM[i] *= REAL(_ctf[l][i]);
                 FOR_EACH_PIXEL_FT(imgN)
                     imgN[i] *= REAL(_ctf[l][i]);
+#endif
             }
             else
             {
@@ -6694,11 +6880,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
             else
             {
-                RFLOAT *w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
-                double *offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
-                double *nr = (double*)malloc(_para.mReco * _ID.size() * 4 * sizeof(double));
-                double *nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
-                double *nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
+                RFLOAT* w = (RFLOAT*)malloc(_ID.size() * sizeof(RFLOAT));
+                double* offS = (double*)malloc(_ID.size() * 2 * sizeof(double));
+                double* nr = (double*)malloc(_para.mReco * _ID.size() * 4 * sizeof(double));
+                double* nt = (double*)malloc(_para.mReco * _ID.size() * 2 * sizeof(double));
+                double* nd = (double*)malloc(_para.mReco * _ID.size() * sizeof(double));
                 CTFAttr* ctfaData = (CTFAttr*)malloc(_ID.size() * sizeof(CTFAttr));
                 
                 #pragma omp parallel for
@@ -6753,12 +6939,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        cSearch, _para.pf, _para.mReco, 
                                        _para.size, _ID.size()); 
 
-                delete[]w;
-                delete[]offS;            
-                delete[]nr;            
-                delete[]nt;            
-                delete[]nd;            
-                delete[]ctfaData;            
+                free(w);
+                free(offS);
+                free(nr);
+                free(nt);
+                free(nd);
+                free(ctfaData);
             }
         }
         else
@@ -7704,8 +7890,6 @@ void Optimiser::allocPreCal(const bool mask,
 
     _datP = (Complex*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(Complex));
 
-    _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
-
     _sigP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
     _sigRcpP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
@@ -7719,10 +7903,6 @@ void Optimiser::allocPreCal(const bool mask,
                 ? (i * _ID.size() + l)
                 : (_nPxl * l + i)] = mask ? _img[l].iGetFT(_iPxl[i]) : _imgOri[l].iGetFT(_iPxl[i]);
 
-            _ctfP[pixelMajor
-                ? (i * _ID.size() + l)
-                : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
-
             _sigP[pixelMajor
                 ? (i * _ID.size() + l)
                 : (_nPxl * l + i)] = _sig(_groupID[l] - 1, _iSig[i]);
@@ -7733,15 +7913,68 @@ void Optimiser::allocPreCal(const bool mask,
         }
     }
 
-    if (ctf)
+    if (!ctf)
     {
-        _frequency = new RFLOAT[_nPxl];
+        _ctfP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
 
-        _defocusP = new RFLOAT[_ID.size() * _nPxl];
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+        RFLOAT* poolCTF = (RFLOAT*)TSFFTW_malloc(_nPxl * omp_get_max_threads() * sizeof(RFLOAT));
+#endif
 
-        _K1 = new RFLOAT[_ID.size()];
+        #pragma omp parallel for
+        FOR_EACH_2D_IMAGE
+        {
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            RFLOAT* ctf = poolCTF + _nPxl * omp_get_thread_num();
 
-        _K2 = new RFLOAT[_ID.size()];
+            CTF(ctf,
+                _para.pixelSize,
+                _ctfAttr[l].voltage,
+                _ctfAttr[l].defocusU,
+                _ctfAttr[l].defocusV,
+                _ctfAttr[l].defocusTheta,
+                _ctfAttr[l].Cs,
+                _ctfAttr[l].amplitudeContrast,
+                _ctfAttr[l].phaseShift,
+                _para.size,
+                _para.size,
+                _iCol,
+                _iRow,
+                _nPxl);
+
+            for (int i = 0; i < _nPxl; i++)
+            {
+                _ctfP[pixelMajor
+                    ? (i * _ID.size() + l)
+                    : (_nPxl * l + i)] = ctf[i];
+            }
+#else
+            for (int i = 0; i < _nPxl; i++)
+            {
+                _ctfP[pixelMajor
+                    ? (i * _ID.size() + l)
+                    : (_nPxl * l + i)] = REAL(_ctf[l].iGetFT(_iPxl[i]));
+            }
+#endif
+        }
+
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+        TSFFTW_free(poolCTF);
+#endif
+    }
+    else
+    {
+        _frequency = (RFLOAT*)TSFFTW_malloc(_nPxl * sizeof(RFLOAT));
+        //_frequency = new RFLOAT[_nPxl];
+
+        _defocusP = (RFLOAT*)TSFFTW_malloc(_ID.size() * _nPxl * sizeof(RFLOAT));
+        //_defocusP = new RFLOAT[_ID.size() * _nPxl];
+
+        _K1 = (RFLOAT*)TSFFTW_malloc(_ID.size() * sizeof(RFLOAT));
+        //_K1 = new RFLOAT[_ID.size()];
+
+        _K2 = (RFLOAT*)TSFFTW_malloc(_ID.size() * sizeof(RFLOAT));
+        //_K2 = new RFLOAT[_ID.size()];
 
         for (int i = 0; i < _nPxl; i++)
             _frequency[i] = NORM(_iCol[i],
@@ -7796,7 +8029,6 @@ void Optimiser::freePreCal(const bool ctf)
     IF_MASTER return;
 
     TSFFTW_free(_datP);
-    TSFFTW_free(_ctfP);
     TSFFTW_free(_sigP);
     TSFFTW_free(_sigRcpP);
 
@@ -7806,12 +8038,20 @@ void Optimiser::freePreCal(const bool ctf)
     delete[] _sigRcpP;
     ***/
 
-    if (ctf)
+    if (!ctf)
     {
-        delete[] _frequency;
-        delete[] _defocusP;
-        delete[] _K1;
-        delete[] _K2;
+        TSFFTW_free(_ctfP);
+    }
+    else
+    {
+        TSFFTW_free(_frequency);
+        //delete[] _frequency;
+        TSFFTW_free(_defocusP);
+        //delete[] _defocusP;
+        TSFFTW_free(_K1);
+        TSFFTW_free(_K2);
+        //delete[] _K1;
+        //delete[] _K2;
     }
 }
 
@@ -8049,9 +8289,13 @@ void Optimiser::saveBestProjections()
             result.saveRLToBMP(filename);
             fft.fw(result);
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            // TODO
+#else
             #pragma omp parallel for
             FOR_EACH_PIXEL_FT(diff)
                 diff[i] = _img[l][i] - result[i] * REAL(_ctf[l][i]);
+#endif
 
             sprintf(filename, "%sDiff_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
             fft.bw(diff);
@@ -8094,7 +8338,11 @@ void Optimiser::saveCTFs()
         {
             sprintf(filename, "CTF_%04d.bmp", _ID[l]);
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            // TODO
+#else
             _ctf[l].saveFTToBMP(filename, 0.01);
+#endif
         }
     }
 }

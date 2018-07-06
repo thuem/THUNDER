@@ -63,6 +63,49 @@ void CTF(Image& dst,
     }
 }
 
+void CTF(Image& dst,
+         const RFLOAT pixelSize,
+         const RFLOAT voltage,
+         const RFLOAT defocusU,
+         const RFLOAT defocusV,
+         const RFLOAT theta,
+         const RFLOAT Cs,
+         const RFLOAT amplitudeContrast,
+         const RFLOAT phaseShift,
+         const RFLOAT r)
+{
+    RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
+
+    RFLOAT w1 = TS_SQRT(1 - TSGSL_pow_2(amplitudeContrast));
+    RFLOAT w2 = amplitudeContrast;
+
+    RFLOAT K1 = M_PI * lambda;
+    RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
+
+    RFLOAT r2 = TSGSL_pow_2(r);
+
+    IMAGE_FOR_PIXEL_R_FT(r + 1)
+    {
+        RFLOAT v = QUAD(i, j);
+
+        if (v < r2)
+        {
+            RFLOAT u = NORM(i / (pixelSize * dst.nColRL()),
+                            j / (pixelSize * dst.nRowRL()));
+
+            RFLOAT angle = atan2(j, i) - theta;
+            RFLOAT defocus = -(defocusU + defocusV
+                             + (defocusU - defocusV) * TS_COS(2 * angle)) / 2;
+
+            RFLOAT ki = K1 * defocus * TSGSL_pow_2(u) + K2 * TSGSL_pow_4(u) - phaseShift;
+
+            dst.setFTHalf(COMPLEX(-w1 * TS_SIN(ki) + w2 * TS_COS(ki), 0),
+                          i,
+                          j);
+        }
+    }
+}
+
 void CTF(RFLOAT* dst,
          const RFLOAT pixelSize,
          const RFLOAT voltage,
