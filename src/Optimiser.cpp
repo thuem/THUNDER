@@ -6261,7 +6261,7 @@ void Optimiser::normCorrection()
 
                 IMAGE_FOR_EACH_PIXEL_FT(img)
                 {
-                    if ((QUAD(i, j) >= TSGSL_pow_2(_rL)) ||
+                    if ((QUAD(i, j) >= TSGSL_pow_2(_rL)) &&
                         (QUAD(i, j) < TSGSL_pow_2(rNorm)))
                         norm(_ID[l]) += ABS2(img.getFTHalf(i, j));
                 }
