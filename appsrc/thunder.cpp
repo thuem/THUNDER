@@ -215,7 +215,12 @@ int main(int argc, char* argv[])
 {
     if (argc == 1)
     {
-        cout << "Welcome to THUNDER! You may visit the website http://166.111.30.94/THUNDER for more information."
+        cout << "Welcome to THUNDER "
+             << THUNDER_VERSION_MAJOR
+             << "."
+             << THUNDER_VERSION_MINOR
+             << "."
+             << THUNDER_VERSION_ADDIT
              << endl;
 
         return 0;
