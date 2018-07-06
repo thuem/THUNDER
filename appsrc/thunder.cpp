@@ -221,6 +221,7 @@ int main(int argc, char* argv[])
              << THUNDER_VERSION_MINOR
              << "."
              << THUNDER_VERSION_ADDIT
+             << "!"
              << endl;
 
         return 0;
