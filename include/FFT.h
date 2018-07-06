@@ -66,6 +66,7 @@
 { \
     _Pragma("omp critical (line67)"); \
     TSFFTW_destroy_plan(fwPlan); \
+    fwPlan = NULL; \
     _dstC = NULL; \
     _srcR = NULL; \
 }
@@ -73,22 +74,10 @@
 #define FW_CLEAN_UP_MT \
 { \
     TSFFTW_destroy_plan(fwPlan); \
+    fwPlan = NULL; \
     _dstC = NULL; \
     _srcR = NULL; \
 }
-
-/**
- * This macro destroys the plan for performing multi-thread Fourier transform 
- * and assigns the pointers to NULL.
- */
-/***
-#define FWMT_CLEAN_UP \
-{ \
-    TSFFTW_destroy_plan(fwPlan); \
-    _dstC = NULL; \
-    _srcR = NULL; \
-}
-***/
 
 #define BW_EXTRACT_P(obj) \
 { \
@@ -109,6 +98,7 @@
 { \
     _Pragma("omp critical (line110)"); \
     TSFFTW_destroy_plan(bwPlan); \
+    bwPlan = NULL; \
     _dstR = NULL; \
     _srcC = NULL; \
     obj.clearFT(); \
@@ -117,28 +107,12 @@
 #define BW_CLEAN_UP_MT(obj) \
 { \
     TSFFTW_destroy_plan(bwPlan); \
+    bwPlan = NULL; \
+    _dstR = NULL; \
     _dstR = NULL; \
     _srcC = NULL; \
     obj.clearFT(); \
 }
-
-/**
- * This macro destroys the plan for performing multi-threaded inverse Fourier 
- * transform, assigns the pointers to NULL and clear up the Fourier space of 
- * the image (volume).
- *
- * @param obj the image (volume) performed inverse Fourier transform.
- */
-/***
-#define BWMT_CLEAN_UP(obj) \
-{ \
-    TSFFTW_destroy_plan(bwPlan); \
-    _dstR = NULL; \
-    _srcC = NULL; \
-    obj.clearFT(); \
-}
-***/
-
 
 /**
  * This macro executes a function in real space and performs Fourier transform
