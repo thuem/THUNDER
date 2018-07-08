@@ -8004,10 +8004,16 @@ void CalculateF(int gpuIdx,
     
     Complex *devDst;
     cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
-    cudaCheckErrors("Allocate __device__F data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO ALLOCATE DST IN DEVICE");
+#endif
 
     cudaMemset(devDst, 0.0, dimSizeP * sizeof(Complex));
-    cudaCheckErrors("Memset devDst data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO SET DST TO 0 IN DEVICE");
+#endif
 
     Complex *devPartF[3];
     RFLOAT *devPartW[3];
