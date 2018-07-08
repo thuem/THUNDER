@@ -7985,16 +7985,22 @@ void CalculateF(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSizeP = (pdim / 2 + 1) * pdim * pdim;
-    int dimSizePRL = pdim * pdim * pdim;
-    int dimSizeF = (fdim / 2 + 1) * fdim * fdim;
-    int nImgBatch = 8 * fdim * fdim;
+    size_t dimSizeP = (pdim / 2 + 1) * pdim * pdim;
+    size_t dimSizePRL = pdim * pdim * pdim;
+    size_t dimSizeF = (fdim / 2 + 1) * fdim * fdim;
+    size_t nImgBatch = 8 * fdim * fdim;
 
     cudaHostRegister(F3D, dimSizeF * sizeof(Complex), cudaHostRegisterDefault);
-    cudaCheckErrors("Register F3D data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF F3D");
+#endif
 
     cudaHostRegister(W3D, dimSizeF * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register W3D data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF W3D");
+#endif
     
     Complex *devDst;
     cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
