@@ -5355,8 +5355,11 @@ void InsertFT(Complex *F3D,
     cudaHostRegister(datP, imgSize * sizeof(Complex), cudaHostRegisterDefault);
     cudaCheckErrors("Register datP data.");
 
-    cudaHostRegister(ctfP, imgSize * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register ctfP data.");
+    if (!cSearch)
+    {
+        cudaHostRegister(ctfP, imgSize * sizeof(RFLOAT), cudaHostRegisterDefault);
+        cudaCheckErrors("Register ctfP data.");
+    }
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
     cudaHostRegister(offS, nImg * 2 * sizeof(double), cudaHostRegisterDefault);
@@ -5842,7 +5845,7 @@ void InsertFT(Complex *F3D,
     
     //unregister pglk_memory
     cudaHostUnregister(datP);
-    cudaHostUnregister(ctfP);
+    if (!cSearch) cudaHostUnregister(ctfP);
     cudaHostUnregister(w);
     cudaHostUnregister(nR);
     cudaHostUnregister(nT);
