@@ -8124,18 +8124,20 @@ void CalculateF(int gpuIdx,
     cudaCheckErrors("Free device memory devDst.");
     
     int pnImgBatch = 8 * pdim * pdim;
+    int blockDim = (pdim > 512) ? 512 : pdim;
     smidx = 0;
     for (size_t i = 0; i < dimSizePRL;)
     {
         batch = (i + pnImgBatch > dimSizePRL) ? (dimSizePRL - i) : pnImgBatch;
         
         kernel_NormalizeP<<<pdim, 
-                            pdim, 
+                            blockDim, 
                             0, 
                             stream[smidx]>>>(devDstR,
                                              batch, 
                                              i,
                                              dimSizePRL);
+        cudaCheckErrors("kernel normalizeP launch.");
 
         cudaMemcpyAsync(padDstR + i,
                         devDstR + i,
