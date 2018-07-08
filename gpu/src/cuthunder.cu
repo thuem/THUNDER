@@ -7226,8 +7226,8 @@ void CalculateW(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSize = (dim / 2 + 1) * dim * dim;
-    int dimSizeRL = dim * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSizeRL = dim * dim * dim;
     
     LOG(INFO) << "Step1: InitialW.";
     
@@ -7589,7 +7589,7 @@ void CalculateW(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
     
     cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register T3D data.");
