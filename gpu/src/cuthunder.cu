@@ -8026,15 +8026,21 @@ void CalculateF(int gpuIdx,
         cudaCheckErrors("Allocate devDataW data.");
     }
 
-    cudaStream_t stream[3];
+    cudaStream_t stream[NUM_STREAM_PER_DEVICE];
 
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
+    {
         cudaStreamCreate(&stream[i]);
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO CREATE STREAMS");
+#endif
+    }
     
     LOG(INFO) << "Step1: CalculateFW.";
     
     int batch, smidx = 0;
-    for (int i = 0; i < dimSizeF;)
+    for (size_t i = 0; i < dimSizeF;)
     {
         batch = (i + nImgBatch > dimSizeF) ? (dimSizeF - i) : nImgBatch;
         
@@ -8065,19 +8071,21 @@ void CalculateF(int gpuIdx,
         smidx = (smidx + 1) % 3;
     }
    
-    cudaStreamSynchronize(stream[0]);
-    cudaCheckErrors("CUDA stream0 synchronization.");
-    cudaStreamSynchronize(stream[1]);
-    cudaCheckErrors("CUDA stream1 synchronization.");
-    cudaStreamSynchronize(stream[2]);
-    cudaCheckErrors("CUDA stream1 synchronization.");
+    for(int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
+    {
+        cudaStreamSynchronize(stream[i]);
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO SYNCHRONIZE CUDA STREAM");
+#endif
+    }
 
     for (int i = 0; i < 3; i++)
     {
         cudaFree(devPartW[i]);
         cudaCheckErrors("Free device memory of W");
         cudaFree(devPartF[i]);
-    cudaCheckErrors("Free device memory __device__F.");
+        cudaCheckErrors("Free device memory __device__F.");
     }
     
     cudaHostUnregister(F3D);
@@ -8107,14 +8115,17 @@ void CalculateF(int gpuIdx,
 #endif    
     
     cufftDestroy(planc2r);
-    cudaCheckErrors("DestroyPlan planc2r.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO DESTROY CUDA FFTW PLAN");
+#endif
     
     cudaFree(devDst);
     cudaCheckErrors("Free device memory devDst.");
     
     int pnImgBatch = 8 * pdim * pdim;
     smidx = 0;
-    for (int i = 0; i < dimSizePRL;)
+    for (size_t i = 0; i < dimSizePRL;)
     {
         batch = (i + pnImgBatch > dimSizePRL) ? (dimSizePRL - i) : pnImgBatch;
         
