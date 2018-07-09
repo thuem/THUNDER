@@ -1,0 +1,21 @@
+# - Find NCCL
+# Find the native NCCL includes and library
+#
+#  NCCL_INCLUDES    - where to find fftw3.h
+#  NCCL_LIBRARIES   - List of libraries when using NCCL.
+#  NCCL_FOUND       - True if NCCL found.
+
+IF (NCCL_INCLUDES)
+  # Already in cache, be silent
+  SET (NCCL_FIND_QUIETLY TRUE)
+ENDIF (NCCL_INCLUDES)
+
+FIND_PATH (NCCL_INCLUDES NAMES nccl.h PATHS ${CUDA_TOOLKIT_ROOT_DIR}/include)
+#FIND_LIBRARY (NCCL_LIBRARIES NAMES nccl PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64)
+FIND_LIBRARY (NCCL_LIBRARIES NAMES nccl_static PATHS ${CUDA_TOOLKIT_ROOT_DIR}/lib64)
+
+# handle the QUIETLY and REQUIRED arguments and set NCCL_FOUND to TRUE if
+# all listed variables are TRUE
+INCLUDE (FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS (NCCL DEFAULT_MSG NCCL_INCLUDES NCCL_LIBRARIES)
+MARK_AS_ADVANCED (NCCL_INCLUDES NCCL_LIBRARIES)

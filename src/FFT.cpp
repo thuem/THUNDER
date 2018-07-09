@@ -15,7 +15,9 @@
 FFT::FFT() : _srcR(NULL),
              _srcC(NULL),
              _dstR(NULL),
-             _dstC(NULL) {}
+             _dstC(NULL),
+             fwPlan(NULL),
+             bwPlan(NULL){}
 
 FFT::~FFT() {}
 
@@ -232,10 +234,10 @@ void FFT::fwCreatePlan(const int nCol,
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
     fwPlan = TSFFTW_plan_dft_r2c_2d(nRow,
-                                  nCol,
-                                  _srcR,
-                                  _dstC,
-                                  FFTW_MEASURE);
+                                    nCol,
+                                    _srcR,
+                                    _dstC,
+                                    FFTW_MEASURE);
 
     TSFFTW_free(_srcR);
     TSFFTW_free(_dstC);
@@ -489,22 +491,42 @@ void FFT::bwExecutePlanMT(Volume& vol)
 
 void FFT::fwDestroyPlan()
 {
-    #pragma omp critical  (line494)
-    TSFFTW_destroy_plan(fwPlan);
+    if (fwPlan)
+    {
+        #pragma omp critical (line494)
+        TSFFTW_destroy_plan(fwPlan);
+
+        fwPlan = NULL;
+    }
 }
 
 void FFT::bwDestroyPlan()
 {
-    #pragma omp critical  (line500)
-    TSFFTW_destroy_plan(bwPlan);
+    if (bwPlan)
+    {
+        #pragma omp critical (line500)
+        TSFFTW_destroy_plan(bwPlan);
+
+        bwPlan = NULL;
+    }
 }
 
 void FFT::fwDestroyPlanMT()
 {
-    TSFFTW_destroy_plan(fwPlan);
+    if (fwPlan)
+    {
+        TSFFTW_destroy_plan(fwPlan);
+
+        fwPlan = NULL;
+    }
 }
 
 void FFT::bwDestroyPlanMT()
 {
-    TSFFTW_destroy_plan(bwPlan);
+    if (bwPlan)
+    {
+        TSFFTW_destroy_plan(bwPlan);
+
+        bwPlan = NULL;
+    }
 }

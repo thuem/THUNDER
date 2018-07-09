@@ -40,6 +40,10 @@
 #include "Database.h"
 #include "Model.h"
 
+#ifdef GPU_VERSION
+#include "Interface.h"
+#endif
+
 #define FOR_EACH_2D_IMAGE for (ptrdiff_t l = 0; l < static_cast<ptrdiff_t>(_ID.size()); l++)
 
 #define MIN_M_S 1500
@@ -60,7 +64,7 @@
 
 #define TRANS_Q 0.05
 
-#define MIN_STD_FACTOR 3
+#define MIN_STD_FACTOR 1
 
 #define CLASS_BALANCE_FACTOR 0.05
 
@@ -435,6 +439,14 @@ class Optimiser : public Parallel
 {
     private:
 
+#ifdef GPU_VERSION
+
+        int _nGPU;
+
+        std::vector<int> _iGPU;
+
+#endif
+
         OptimiserPara _para;
 
         /**
@@ -643,6 +655,8 @@ class Optimiser : public Parallel
 
         RFLOAT* _ctfP;
 
+        RFLOAT* _sigP;
+
         RFLOAT* _sigRcpP;
 
         /**
@@ -697,6 +711,12 @@ class Optimiser : public Parallel
             _sigRcpP = NULL;
         }
 
+#ifdef GPU_VERSION
+
+        void setGPUEnv();
+
+#endif
+
         ~Optimiser();
 
         OptimiserPara& para();
@@ -706,6 +726,8 @@ class Optimiser : public Parallel
         void init();
 
         void expectation();
+
+        void expectationG();
 
         void maximization();
 
@@ -865,6 +887,10 @@ class Optimiser : public Parallel
 
         void reMaskImg();
 
+#ifdef GPU_VERSION
+        void reMaskImgG();
+#endif // GPU_VERSION
+
         void normCorrection();
 
         /**
@@ -888,7 +914,7 @@ class Optimiser : public Parallel
                             const bool fscSave,
                             const bool avgSave,
                             const bool finished = false);
-
+        
         /***
          * @param mask           whether mask on the reference is allowed or
          *                       not

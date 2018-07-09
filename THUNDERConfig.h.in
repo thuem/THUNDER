@@ -3,5 +3,6 @@
 #define THUNDER_VERSION_ADDIT @THUNDER_VERSION_ADDIT@
 
 #cmakedefine SINGLE_PRECISION
+#cmakedefine GPU_VERSION
 #cmakedefine ENABLE_SIMD_256
 #cmakedefine ENABLE_SIMD_512

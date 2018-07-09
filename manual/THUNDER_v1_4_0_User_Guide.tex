@@ -5,6 +5,7 @@
 
 \usepackage{booktabs}
 \usepackage{longtable}
+\usepackage{url}
 
 %\usepackage{fontspec}
 
@@ -38,25 +39,35 @@
 
 \begin{document}
 
-    \title{THUNDER v1.3.2 User Guide}
+    \title{THUNDER v1.4.0 User Guide}
     \maketitle
     
     \section{Installation}
     
         \subsection{Requirement of Installation}
         
-            \begin{itemize}
-                \item C/C++ compiler supporting C++98 standard along with MPI wrapper
-                \item \textsf{cmake}
-            \end{itemize}
+            \subsubsection{Basic Requirement}
+        
+                \begin{itemize}
+                    \item C/C++ compiler supporting C++98 standard along with MPI wrapper
+                    \item \textsf{cmake}
+                \end{itemize}
+                
+                We recommend \textsf{gcc} and Intel C/C++ compiler as C/C++ compiler. Moreover, \textsf{gcc42} has been tested as the oldest supporting version of \textsf{gcc}. OpenMPI and MPICH both can be used as MPI standard. In Tsinghua, we use \textsf{openmpi-gcc43} as the C/C++ compiler for compiling THUNDER.
+                
+                \textsf{cmake} is a tool for configuring source code for installation.
+                
+                \textsf{openmpi-gcc43} is open-source software, which can easily installed using \textsf{yum} on CentOS and \textsf{apt-get} on Ubuntu. \textsf{cmake} has been already installed in most Linux operating systems. If not, it can also be conveniently installed by \textsf{yum} on CentOS and \textsf{apt-get} on Ubuntu.
             
-            We recommend \textsf{gcc} and Intel C/C++ compiler as C/C++ compiler. Moreover, \textsf{gcc42} has been tested as the oldest supporting version of \textsf{gcc}. OpenMPI and MPICH both can be used as MPI standard. In Tsinghua, we use \textsf{openmpi-gcc43} as the C/C++ compiler for compiling THUNDER.
+            \subsubsection{Additional Requirement of Installing GPU Version}
             
-            \textsf{cmake} is a tool for configuring source code for installation.
-            
-            \textsf{openmpi-gcc43} is open-source software, which can easily installed using \textsf{yum} on CentOS and \textsf{apt-get} on Ubuntu. \textsf{cmake} has been already installed in most Linux operating systems. If not, it can also be conveniently installed by \textsf{yum} on CentOS and \textsf{apt-get} on Ubuntu.
+            CUDA 8 or higher version of CUDA is required for installing GPU version of THUNDER.
         
         \subsection{Installing from Source Code}
+        
+            \subsubsection{Get Source Code}
+            
+            THUNDER is a open-source software package, source code of which is held on Github. You may download the source code at \url{https://github.com/thuem/THUNDER}.
         
             \subsubsection{Preparation Before Configuring Source Code}
             
@@ -77,6 +88,8 @@ cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
                 You may configure the compilation of THUNDER with several variables.
                 
                 THUNDER can be compiled into single-float precision version or double-float precision version, by \textsf{SINGLE\_PRECISION} variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter \textsf{-DSINGLE\_PRECISION='off'} during configuring using \textsf{cmake}.
+                
+                By default, THUNDER compiles a GPU version. If a GPU version is what you want, please add parameter \textsf{-DGPU\_VERSION='off'} during configuring using \textsf{cmake}.
                 
                 THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by \textsf{ENABLE\_SIMD} variable. The default version is using SIMD instructions. However, you may force it compiling into a non-SIMD version, by adding parameter \textsf{-DENABLE\_SIMD='off'} during configuring using \textsf{cmake}.
                 
@@ -107,13 +120,13 @@ make install
                 For the purpose of convenience, you may stage binaries into environment. For example, you may add the following command into shell configuration file
                 
                 \begin{lstlisting}[language={csh}]
-setenv PATH=install_dir/bin:$PATH
+setenv PATH=install_dir:$PATH
                 \end{lstlisting}
                 
                 when \textsf{csh} or \textsf{tcsh} is used as shell. Meanwhile, you may add the following command into shell configuration file when \textsf{bash}, \textsf{zsh} or \textsf{ksh} is used as shell.
                 
                 \begin{lstlisting}[language={bash}]
-export PATH=install_dir/bin:$PATH
+export PATH=install_dir:$PATH
                 \end{lstlisting}
                 
                 After staging binaries into environment, you may directly access these binaries by typing their filenames in shell.

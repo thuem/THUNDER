@@ -103,7 +103,7 @@ void ImageBase::clearRL()
     if (_dataRL != NULL)
     {
 #ifdef FFTW_PTR_THREAD_SAFETY
-        #pragma omp critical  (line108)
+        #pragma omp critical (line108)
 #endif
         TSFFTW_free(_dataRL);
 
@@ -122,7 +122,7 @@ void ImageBase::clearFT()
     if (_dataFT != NULL)
     {
 #ifdef FFTW_PTR_THREAD_SAFETY
-        #pragma omp critical  (line127)
+        #pragma omp critical (line127)
 #endif
         TSFFTW_free(_dataFT);
 

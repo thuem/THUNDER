@@ -13,6 +13,8 @@
 
 #include <string>
 #include <unistd.h>
+#include <cstdio>
+#include <cstdlib>
 #include "easylogging++.h"
 
 #include "Macro.h"
@@ -31,5 +33,31 @@ namespace el = easyloggingpp;
                                                     << msg;
 
 void loggerInit(int argc, const char* const * argv);
+
+#define FGETS_ERROR_HANDLER(command) \
+    do \
+    { \
+        if (command == NULL) \
+        { \
+            REPORT_ERROR("FAIL TO FGETS"); \
+            abort(); \
+        } \
+    } while (0);
+
+#define GETCWD_ERROR_HANDLER(command) \
+    do \
+    { \
+        if (command == false) \
+        { \
+            REPORT_ERROR("FAIL TO GETCWD"); \
+            abort(); \
+        } \
+    } while (0);
+
+long memoryCheckParseLine(char* line);
+
+long memoryCheckVM();
+
+long memoryCheckRM();
 
 #endif // LOGGING_H

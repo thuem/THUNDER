@@ -116,7 +116,7 @@ void Database::index()
         {
             _offset[i] = ftell(_db);
 
-            fgets(line, FILE_LINE_LENGTH - 1, _db);
+            FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
         }
     }
 
@@ -158,7 +158,7 @@ RFLOAT Database::coordX(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -175,7 +175,7 @@ RFLOAT Database::coordY(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -192,7 +192,7 @@ int Database::groupID(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -209,7 +209,7 @@ string Database::path(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -226,7 +226,7 @@ string Database::micrographPath(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -250,7 +250,7 @@ void Database::ctf(RFLOAT& voltage,
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -301,7 +301,7 @@ int Database::cls(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -318,7 +318,7 @@ dvec4 Database::quat(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -351,7 +351,7 @@ RFLOAT Database::k1(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -368,7 +368,7 @@ RFLOAT Database::k2(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -385,7 +385,7 @@ RFLOAT Database::k3(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -402,7 +402,7 @@ dvec2 Database::tran(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -427,7 +427,7 @@ RFLOAT Database::stdTX(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -444,7 +444,7 @@ RFLOAT Database::stdTY(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -461,7 +461,7 @@ RFLOAT Database::d(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 
@@ -478,7 +478,7 @@ RFLOAT Database::stdD(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, _db));
 
     word = strtok(line, " ");
 

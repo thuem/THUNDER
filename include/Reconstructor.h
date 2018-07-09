@@ -30,12 +30,17 @@
 #include "FFT.h"
 #include "Image.h"
 #include "Volume.h"
+#include "Particle.h"
 #include "ImageFunctions.h"
 #include "Symmetry.h"
 #include "Transformation.h"
 #include "TabFunction.h"
 #include "Spectrum.h"
 #include "Mask.h"
+
+#ifdef GPU_VERSION
+#include "Interface.h"
+#endif
 
 #define PRE_CAL_MODE 0
 
@@ -342,6 +347,8 @@ class Reconstructor : public Parallel
 
         void allocSpace();
 
+        void freeSpace();
+
         void resizeSpace(const int size);
 
         void reset();
@@ -375,11 +382,21 @@ class Reconstructor : public Parallel
 
         void setSig(const vec& sig);
 
+        void setOx(const double ox);
+                         
+        void setOy(const double oy);
+                         
+        void setOz(const double oz);
+
+        void setCounter(const int counter);
+
         double ox() const;
 
         double oy() const;
 
         double oz() const;
+
+        int counter() const;
 
         /**
          * get the max radius that points can affect each other 
@@ -465,6 +482,54 @@ class Reconstructor : public Parallel
                      const RFLOAT w,
                      const vec* sig = NULL);
 
+#ifdef GPU_INSERT
+        void insertI(Complex* datP,
+                     RFLOAT* ctfP,
+                     RFLOAT* sigP,
+                     RFLOAT* w,
+                     double* offS,
+                     double* nr,
+                     double* nt,
+                     double* nd,
+                     int* nc,
+                     CTFAttr* ctfaData, 
+                     RFLOAT pixelSize,
+                     bool cSearch,
+                     int opf,
+                     int mReco,
+                     int idim,
+                     int imgNum);
+
+        void insertI(Complex* datP,
+                     RFLOAT* ctfP,
+                     RFLOAT* sigP,
+                     RFLOAT* w,
+                     double* offS,
+                     double* nr,
+                     double* nt,
+                     double* nd,
+                     CTFAttr* ctfaData, 
+                     RFLOAT pixelSize,
+                     bool cSearch,
+                     int opf,
+                     int mReco,
+                     int idim,
+                     int imgNum);
+
+        int getModelDim();
+        int getModelSize();
+
+        void getF(Complex* modelF);
+
+        void getT(RFLOAT* modelT);
+
+        void resetF(Complex* modelF);
+
+        void resetT(RFLOAT* modelT);
+
+        void prepareTFG(int gpuIdx);
+#endif
+
         void prepareTF();
 
         void reconstruct(Image& dst);
@@ -479,6 +544,11 @@ class Reconstructor : public Parallel
          *            result of reconstruction into.
          */
         void reconstruct(Volume& dst);
+
+#ifdef GPU_RECONSTRUCT
+        void reconstructG(Volume& dst,
+                          int gpuIdx);
+#endif
 
     private:
 
