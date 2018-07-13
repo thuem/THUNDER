@@ -156,8 +156,8 @@ class Constructor
          */
         D_CALLABLE void normalizeTF(Complex *devDataF,
                                     RFLOAT *devDataT, 
-                                    const int dimSize, 
-                                    const int num,
+                                    const size_t dimSize, 
+                                    const size_t num,
                                     const RFLOAT sf);
 
         /**
@@ -207,9 +207,9 @@ class Constructor
                                     int r, 
                                     int numSymMat,
                                     int interp,
-                                    int num,
+                                    size_t num,
                                     int dim,
-                                    int dimSize,
+                                    size_t dimSize,
                                     cudaTextureObject_t texObject);
         
         /**
@@ -224,7 +224,7 @@ class Constructor
                                      int *sumCount, 
                                      int r,
                                      int dim,
-                                     int dimSize,
+                                     size_t dimSize,
                                      int indexDiff,
                                      int blockId);
 
@@ -248,9 +248,9 @@ class Constructor
         D_CALLABLE void calculateFSC(RFLOAT *devFSC,
                                      RFLOAT *devAvg, 
                                      RFLOAT *devDataT,
-                                     int num,
+                                     size_t num,
                                      int dim,
-                                     int dimSize,
+                                     size_t dimSize,
                                      int fscMatsize,
                                      int wiener,
                                      int r,
@@ -276,8 +276,8 @@ class Constructor
          */
         D_CALLABLE void calculateW(RFLOAT *devDataW, 
                                    RFLOAT *devDataT,
-                                   const int length,
-                                   const int num, 
+                                   const size_t length,
+                                   const size_t num, 
                                    const int dim, 
                                    const int r);
         /**
@@ -288,7 +288,7 @@ class Constructor
         D_CALLABLE void initialW(RFLOAT *devDataW,
                                  int initWR,
                                  int dim,
-                                 int dimSize);
+                                 size_t dimSize);
         
         /**
          * @brief ...
@@ -298,7 +298,7 @@ class Constructor
         D_CALLABLE void determiningC(Complex *devDataC,
                                      RFLOAT *devDataT,
                                      RFLOAT *devDataW,
-                                     int length);
+                                     size_t length);
         
         /**
          * @brief 
@@ -310,7 +310,7 @@ class Constructor
                                    RFLOAT nf,
                                    int padSize,
                                    int dim,
-                                   int dimSize);
+                                   size_t dimSize);
         /**
          * @brief ...
          * @param ...
@@ -320,7 +320,7 @@ class Constructor
                                      RFLOAT *devDataW,
                                      int initWR,
                                      int dim,
-                                     int dimSize);
+                                     size_t dimSize);
         
         /**
          * @brief ...
@@ -334,7 +334,7 @@ class Constructor
                                   Complex *devDataC,
                                   int r,
                                   int dim,
-                                  int dimSize,
+                                  size_t dimSize,
                                   int indexDiff,
                                   int blockId);
 
@@ -348,7 +348,7 @@ class Constructor
                                   Complex *devDataC,
                                   int r,
                                   int dim,
-                                  int dimSize,
+                                  size_t dimSize,
                                   int indexDiff,
                                   int blockId);
 
@@ -359,8 +359,8 @@ class Constructor
          * @param ...
          */
         D_CALLABLE void normalizeF(Complex *devDataF, 
-                                   const int dimSize, 
-                                   const int num,
+                                   const size_t dimSize, 
+                                   const size_t num,
                                    const RFLOAT sf);
         
         /**
@@ -399,9 +399,9 @@ class Constructor
                                     int r, 
                                     int numSymMat,
                                     int interp,
-                                    int num,
+                                    size_t num,
                                     int dim,
-                                    int dimSize,
+                                    size_t dimSize,
                                     cudaTextureObject_t texObject);
         
         /**
@@ -413,8 +413,8 @@ class Constructor
         D_CALLABLE void normalizeFW(Complex *devDst,
                                     Complex *devDataF, 
                                     RFLOAT *devDataW, 
-                                    const int dimSize, 
-                                    const int num,
+                                    const size_t dimSize, 
+                                    const size_t num,
                                     const int r,
                                     const int pdim,
                                     const int fdim);
@@ -441,8 +441,8 @@ class Constructor
                                  RFLOAT *devMkb,
                                  RFLOAT nf,
                                  int dim,
-                                 int dimSize,
-                                 int shift); 
+                                 size_t dimSize,
+                                 size_t shift); 
 
         /**
          * @brief 
@@ -452,8 +452,8 @@ class Constructor
         D_CALLABLE void correctF(RFLOAT *devDst,
                                  RFLOAT *devTik,
                                  int dim,
-                                 int dimSize,
-                                 int shift);
+                                 size_t dimSize,
+                                 size_t shift);
 
         /**
          * @brief 
