@@ -1019,6 +1019,10 @@ void Reconstructor::prepareTFG(int gpuIdx)
         delete[]symMat;
     }
     
+    ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
+    BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
+
+    allReduceO();
     IF_MODE_3D
     {
 #ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT

@@ -3293,7 +3293,8 @@ void InsertI2D(Complex *F2D,
         }
     }
 
-    ncclUniqueId commIdF, commIdO; 
+    ncclUniqueId commIdF; 
+    //ncclUniqueId commIdO; 
     ncclComm_t commF[aviDevs];
     ncclComm_t commO[aviDevs];
     
@@ -3322,20 +3323,21 @@ void InsertI2D(Complex *F2D,
     } 
     NCCLCHECK(ncclGroupEnd());
     
-    if (rankO == 0)
-        NCCLCHECK(ncclGetUniqueId(&commIdO));
-    MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
-    
-    NCCLCHECK(ncclGroupStart()); 
-    for (int i = 0; i < aviDevs; i++) 
-    { 
-        cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclCommInitRank(commO + i, 
-                                   sizeO * aviDevs, 
-                                   commIdO, 
-                                   rankO * aviDevs + i)); 
-    } 
-    NCCLCHECK(ncclGroupEnd());
+    NCCLCHECK(ncclCommInitAll(commO, aviDevs, gpus));
+    //if (rankO == 0)
+    //    NCCLCHECK(ncclGetUniqueId(&commIdO));
+    //MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
+    //
+    //NCCLCHECK(ncclGroupStart()); 
+    //for (int i = 0; i < aviDevs; i++) 
+    //{ 
+    //    cudaSetDevice(gpus[i]); 
+    //    NCCLCHECK(ncclCommInitRank(commO + i, 
+    //                               sizeO * aviDevs, 
+    //                               commIdO, 
+    //                               rankO * aviDevs + i)); 
+    //} 
+    //NCCLCHECK(ncclGroupEnd());
     
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
@@ -3992,7 +3994,7 @@ void InsertI2D(Complex *F2D,
     cudaFree(sf); 
     
     MPI_Barrier(hemi);
-    MPI_Barrier(slav);
+    //MPI_Barrier(slav);
     
     NCCLCHECK(ncclGroupStart()); 
     for (int i = 0; i < aviDevs; i++) 
@@ -4044,7 +4046,8 @@ void InsertI2D(Complex *F2D,
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
-    MPI_Barrier(slav);
+    MPI_Barrier(hemi);
+    //MPI_Barrier(slav);
     
     LOG(INFO) << "rank" << rankO << ":Step3: Copy done, free Volume and Nccl object.";
     //printf("rank%d:Step4: Copy done, free Volume and Nccl object.\n", nranks);
@@ -4147,7 +4150,8 @@ void InsertFT(Complex *F3D,
     CLOG(INFO, "LOGGER_GPU") << "Number of Devices for Inserting Images : " << aviDevs;
 #endif
 
-    ncclUniqueId commIdF, commIdO; 
+    ncclUniqueId commIdF; 
+    //ncclUniqueId commIdO; 
     ncclComm_t commF[aviDevs];
     ncclComm_t commO[aviDevs];
     
@@ -4195,22 +4199,23 @@ void InsertFT(Complex *F3D,
 
     // create the NCCL ID the communicator of Volume O
 
-    if (rankO == 0)
-        NCCLCHECK(ncclGetUniqueId(&commIdO));
-    MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
+    NCCLCHECK(ncclCommInitAll(commO, aviDevs, gpus));
+    //if (rankO == 0)
+    //    NCCLCHECK(ncclGetUniqueId(&commIdO));
+    //MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
 
-    // similary to Volume F, create NCCL communicator of Volume O
-    
-    NCCLCHECK(ncclGroupStart()); 
-    for (int i = 0; i < aviDevs; i++) 
-    { 
-        cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclCommInitRank(commO + i, 
-                                   sizeO * aviDevs, 
-                                   commIdO, 
-                                   rankO * aviDevs + i)); 
-    } 
-    NCCLCHECK(ncclGroupEnd());
+    //// similary to Volume F, create NCCL communicator of Volume O
+    //
+    //NCCLCHECK(ncclGroupStart()); 
+    //for (int i = 0; i < aviDevs; i++) 
+    //{ 
+    //    cudaSetDevice(gpus[i]); 
+    //    NCCLCHECK(ncclCommInitRank(commO + i, 
+    //                               sizeO * aviDevs, 
+    //                               commIdO, 
+    //                               rankO * aviDevs + i)); 
+    //} 
+    //NCCLCHECK(ncclGroupEnd());
 
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_GPU") << "NCCL Communicator of Volume O Created";
@@ -5015,7 +5020,7 @@ void InsertFT(Complex *F3D,
     cudaCheckErrors("copy T3D from device to host.");
     
     MPI_Barrier(hemi);
-    MPI_Barrier(slav);
+    //MPI_Barrier(slav);
     
     NCCLCHECK(ncclGroupStart()); 
     for (int i = 0; i < aviDevs; i++) 
@@ -5067,7 +5072,8 @@ void InsertFT(Complex *F3D,
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
-    MPI_Barrier(slav);
+    MPI_Barrier(hemi);
+    //MPI_Barrier(slav);
     
     //MPI_Comm_rank(MPI_COMM_WORLD, &nranks);
     //if (nranks == 2){
@@ -5269,7 +5275,8 @@ void InsertFT(Complex *F3D,
         }
     }
 
-    ncclUniqueId commIdF, commIdO; 
+    ncclUniqueId commIdF; 
+    //ncclUniqueId commIdO; 
     ncclComm_t commF[aviDevs];
     ncclComm_t commO[aviDevs];
     
@@ -5298,20 +5305,21 @@ void InsertFT(Complex *F3D,
     } 
     NCCLCHECK(ncclGroupEnd());
     
-    if (rankO == 0)
-        NCCLCHECK(ncclGetUniqueId(&commIdO));
-    MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
-    
-    NCCLCHECK(ncclGroupStart()); 
-    for (int i = 0; i < aviDevs; i++) 
-    { 
-        cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclCommInitRank(commO + i, 
-                                   sizeO * aviDevs, 
-                                   commIdO, 
-                                   rankO * aviDevs + i)); 
-    } 
-    NCCLCHECK(ncclGroupEnd());
+    NCCLCHECK(ncclCommInitAll(commO, aviDevs, gpus));
+    //if (rankO == 0)
+    //    NCCLCHECK(ncclGetUniqueId(&commIdO));
+    //MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
+    //
+    //NCCLCHECK(ncclGroupStart()); 
+    //for (int i = 0; i < aviDevs; i++) 
+    //{ 
+    //    cudaSetDevice(gpus[i]); 
+    //    NCCLCHECK(ncclCommInitRank(commO + i, 
+    //                               sizeO * aviDevs, 
+    //                               commIdO, 
+    //                               rankO * aviDevs + i)); 
+    //} 
+    //NCCLCHECK(ncclGroupEnd());
     
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
@@ -5938,7 +5946,7 @@ void InsertFT(Complex *F3D,
     cudaCheckErrors("copy T3D from device to host.");
     
     MPI_Barrier(hemi);
-    MPI_Barrier(slav);
+    //MPI_Barrier(slav);
     
     NCCLCHECK(ncclGroupStart()); 
     for (int i = 0; i < aviDevs; i++) 
@@ -5990,6 +5998,7 @@ void InsertFT(Complex *F3D,
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
+    MPI_Barrier(hemi);
     //MPI_Barrier(slav);
     
     //MPI_Comm_rank(MPI_COMM_WORLD, &nranks);

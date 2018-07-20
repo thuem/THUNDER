@@ -82,26 +82,26 @@ void compareWInmHuabin(RFLOAT wOrig, RFLOAT wHuabin, int processRank, int thread
 
 void Optimiser::setGPUEnv()
 {
-    IF_MASTER
-    {
-        _nGPU = 0;
-        _iGPU.clear();
-    }
-    else
-    {
-        bool flag;
-        MPI_Status status;
+    //IF_MASTER
+    //{
+    //    _nGPU = 0;
+    //    _iGPU.clear();
+    //}
+    //else
+    //{
+    //    bool flag;
+    //    MPI_Status status;
 
-        if (_commRank != 1)
-            MPI_Recv(&flag, 1, MPI_C_BOOL, _commRank - 1, 0, MPI_COMM_WORLD, &status);
+    //    if (_commRank != 1)
+    //        MPI_Recv(&flag, 1, MPI_C_BOOL, _commRank - 1, 0, MPI_COMM_WORLD, &status);
 
-        ILOG(INFO, "LOGGER_GPU") << "GPU DEVICE(S) FOR PROCESS RANK " << _commRank;
+    //    ILOG(INFO, "LOGGER_GPU") << "GPU DEVICE(S) FOR PROCESS RANK " << _commRank;
 
-        cuthunder::__host__checkHardware(_nGPU, _iGPU);
+    //    cuthunder::__host__checkHardware(_nGPU, _iGPU);
 
-        if (_commRank != _commSize - 1)
-            MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
-    }
+    //    if (_commRank != _commSize - 1)
+    //        MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
+    //}
 
 }
 
@@ -6752,8 +6752,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
             {
                 _model.reco(t).resetF(modelF + t * modelSize);
                 _model.reco(t).resetT(modelT + t * modelSize);
-                _model.reco(t).setOx(O2D[t * 2] / counter[t]);
-                _model.reco(t).setOy(O2D[t * 2 + 1] / counter[t]);
+                _model.reco(t).setOx(O2D[t * 2]);
+                _model.reco(t).setOy(O2D[t * 2 + 1]);
                 _model.reco(t).setCounter(counter[t]);
             }
             
@@ -7179,7 +7179,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        << t;
 
 #ifdef GPU_VERSION
-            if (_para.mode == MODE_3D) _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
+            _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
 #else
             _model.reco(t).prepareTF();
 #endif
