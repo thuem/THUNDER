@@ -435,8 +435,8 @@ D_CALLABLE void Constructor::expectPrectf(CTFAttr* dev_ctfa,
  */
 D_CALLABLE void Constructor::normalizeTF(Complex *devDataF,
                                          RFLOAT *devDataT, 
-                                         const int length,
-                                         const int num, 
+                                         const size_t length,
+                                         const size_t num, 
                                          const RFLOAT sf)
 {
     int index = _tid;
@@ -549,9 +549,9 @@ D_CALLABLE void Constructor::symmetrizeT(RFLOAT *devDataT,
                                          int r, 
                                          int numSymmat,
                                          int interp,
-                                         int num,
+                                         size_t num,
                                          int dim,
-                                         int dimSize,
+                                         size_t dimSize,
                                          cudaTextureObject_t texObject)
 {
     int i, j, k;
@@ -616,7 +616,7 @@ D_CALLABLE void Constructor::shellAverage(RFLOAT *devAvg2D,
                                           int *sumCount, 
                                           int r,
                                           int dim,
-                                          int dimSize,
+                                          size_t dimSize,
                                           int indexDiff,
                                           int blockId)
 {
@@ -707,9 +707,9 @@ D_CALLABLE void Constructor::calculateAvg(RFLOAT *devAvg2D,
 D_CALLABLE void Constructor::calculateFSC(RFLOAT *devFSC,
                                           RFLOAT *devAvg, 
                                           RFLOAT *devDataT,
-                                          int num,
+                                          size_t num,
                                           int dim,
-                                          int dimSize,
+                                          size_t dimSize,
                                           int fscMatsize,
                                           int wiener,
                                           int r,
@@ -813,8 +813,8 @@ D_CALLABLE void Constructor::wienerConst(RFLOAT *devDataT,
  */
 D_CALLABLE void Constructor::calculateW(RFLOAT *devDataW, 
                                         RFLOAT *devDataT,
-                                        const int length,
-                                        const int num,
+                                        const size_t length,
+                                        const size_t num,
                                         const int dim, 
                                         const int r)
 {
@@ -852,7 +852,7 @@ D_CALLABLE void Constructor::calculateW(RFLOAT *devDataW,
 D_CALLABLE void Constructor::initialW(RFLOAT *devDataW,
                                       int initWR,
                                       int dim,
-                                      int dimSize)
+                                      size_t dimSize)
 {
     int i, j, k;
     int index = _tid;
@@ -888,7 +888,7 @@ D_CALLABLE void Constructor::initialW(RFLOAT *devDataW,
 D_CALLABLE void Constructor::determiningC(Complex *devDataC,
                                           RFLOAT *devDataT,
                                           RFLOAT *devDataW,
-                                          int length)
+                                          size_t length)
 {
     int index = _tid;
     while(index < length)
@@ -909,7 +909,7 @@ D_CALLABLE void Constructor::convoluteC(RFLOAT *devDoubleC,
                                         RFLOAT nf,
                                         int padSize,
                                         int dim,
-                                        int dimSize)
+                                        size_t dimSize)
 {
     int index = _tid;
     int i, j, k;
@@ -941,7 +941,7 @@ D_CALLABLE void Constructor::recalculateW(Complex *devDataC,
                                           RFLOAT *devDataW,
                                           int initWR,
                                           int dim,
-                                          int dimSize)
+                                          size_t dimSize)
 {
     int i, j, k;
     int index = _tid;
@@ -1029,7 +1029,7 @@ D_CALLABLE void Constructor::checkCAVG(RFLOAT *sumDiff,
                                        Complex *devDataC,
                                        int r,
                                        int dim,
-                                       int dimSize,
+                                       size_t dimSize,
                                        int indexDiff,
                                        int blockId)
 {
@@ -1176,7 +1176,7 @@ D_CALLABLE void Constructor::checkCMAX(RFLOAT *singleMax,
                                        Complex *devDataC,
                                        int r,
                                        int dim,
-                                       int dimSize,
+                                       size_t dimSize,
                                        int indexDiff,
                                        int blockId)
 {
@@ -1322,8 +1322,8 @@ D_CALLABLE void Constructor::checkCMAX(RFLOAT *singleMax,
  * @param ...
  */
 D_CALLABLE void Constructor::normalizeF(Complex *devDataF, 
-                                        const int length, 
-                                        const int num, 
+                                        const size_t length, 
+                                        const size_t num, 
                                         const RFLOAT sf)
 {
     int index = _tid;
@@ -1422,9 +1422,9 @@ D_CALLABLE void Constructor::symmetrizeF(Complex *devDataF,
                                          int r, 
                                          int numSymmat,
                                          int interp,
-                                         int num,
+                                         size_t num,
                                          int dim,
-                                         int dimSize,
+                                         size_t dimSize,
                                          cudaTextureObject_t texObject)
 {
     int i, j, k;
@@ -1485,8 +1485,8 @@ D_CALLABLE void Constructor::symmetrizeF(Complex *devDataF,
 D_CALLABLE void Constructor::normalizeFW(Complex *devDst,
                                          Complex *devDataF,
                                          RFLOAT *devDataW,
-                                         const int dimSize, 
-                                         const int num,
+                                         const size_t dimSize, 
+                                         const size_t num,
                                          const int r,
                                          const int pdim,
                                          const int fdim)
@@ -1602,8 +1602,8 @@ D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
                                       RFLOAT *devMkb,
                                       RFLOAT nf,
                                       int dim,
-                                      int dimSize,
-                                      int shift) 
+                                      size_t dimSize,
+                                      size_t shift) 
 {
     int index = _tid;
     int i, j, k, mkbIndex;
@@ -1639,8 +1639,8 @@ D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
 D_CALLABLE void Constructor::correctF(RFLOAT *devDst,
                                       RFLOAT *devTik,
                                       int dim,
-                                      int dimSize,
-                                      int shift)
+                                      size_t dimSize,
+                                      size_t shift)
 {
     int index = _tid;
     int i, j, k, mkbIndex;

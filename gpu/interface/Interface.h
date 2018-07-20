@@ -326,72 +326,161 @@ void PrepareTF(int gpuIdx,
 	           int pf);
 
 void ExposePT2D(int gpuIdx,
-                Image& T2D,
+                RFLOAT* T2D,
 	            int maxRadius,
 	            int pf,
+                int dim,
 	            vec FSC,
 	            bool joinHalf,
                 const int wienerF);
 
 void ExposePT(int gpuIdx,
-              Volume& T3D,
+              RFLOAT* T3D,
 	          int maxRadius,
 	          int pf,
+              int dim,
 	          vec FSC,
 	          bool joinHalf,
               const int wienerF);
 
 void ExposeWT2D(int gpuIdx,
-                Image& T2D,
-                Image& W2D,
+                RFLOAT* T2D,
+                RFLOAT* W2D,
                 TabFunction& kernelRL,
+                RFLOAT nf,
                 int maxRadius,
                 int pf,
-                RFLOAT a,
-                RFLOAT nf,
-                RFLOAT alpha,
+                int dim,
                 int maxIter,
                 int minIter,
                 int size);
 
+void AllocDevicePoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      int streamNum,
+                      int tabSize,
+                      int dim);
+
+void HostDeviceInit(int gpuIdx,
+                    Volume& C3D,
+                    RFLOAT* W3D,
+                    RFLOAT* T3D,
+                    RFLOAT* tab,
+                    RFLOAT* dev_W,
+                    RFLOAT* dev_T,
+                    RFLOAT* dev_tab,
+                    void** stream,
+                    int streamNum,
+                    int tabSize,
+                    int maxRadius,
+                    int pf,
+                    int dim);
+
+void ExposeC(int gpuIdx,
+             Volume& C3D,
+             Complex* dev_C,
+             RFLOAT* dev_T,
+             RFLOAT* dev_W,
+             void** stream,
+             int streamNum,
+             int dim);
+
+void ExposeForConvC(int gpuIdx,
+                    Volume& C3D,
+                    Complex* dev_C,
+                    RFLOAT* dev_tab,
+                    void** stream,
+                    TabFunction& kernelRL,
+                    RFLOAT nf,
+                    int streamNum,
+                    int tabSize,
+                    int pf,
+                    int size);
+
+void ExposeWC(int gpuIdx,
+              Volume& C3D,
+              Complex* dev_C,
+              RFLOAT* diff,
+              RFLOAT* cmax,
+              RFLOAT* dev_W,
+              RFLOAT* devDiff,
+              RFLOAT* devMax,
+              int *devCount,
+              int* counter,
+              void** stream,
+              RFLOAT& diffC,
+              int streamNum, 
+              int maxRadius,
+              int pf);
+
+void FreeDevHostPoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      Volume& C3D,
+                      RFLOAT* volumeW,
+                      RFLOAT* volumeT,
+                      int streamNum,
+                      int dim);
+
 void ExposeWT(int gpuIdx,
-              Volume& T3D,
-              Volume& W3D,
+              RFLOAT* T3D,
+              RFLOAT* W3D,
               TabFunction& kernelRL,
+              RFLOAT nf,
               int maxRadius,
               int pf,
-              RFLOAT a,
-              RFLOAT nf,
-              RFLOAT alpha,
+              int dim,
               int maxIter,
               int minIter,
               int size);
 
 void ExposeWT2D(int gpuIdx,
-                Image& T2D,
-                Image& W2D,
+                RFLOAT* T2D,
+                RFLOAT* W2D,
                 int maxRadius,
-                int pf);
+                int pf,
+                int dim);
 
 void ExposeWT(int gpuIdx,
-              Volume& T3D,
-              Volume& W3D,
+              RFLOAT* T3D,
+              RFLOAT* W3D,
               int maxRadius,
-              int pf);
+              int pf,
+              int dim);
 
 void ExposePF2D(int gpuIdx,
                 Image& padDst,
                 Image& padDstR,
                 Image& F2D,
-                Image& W2D,
+                RFLOAT* W2D,
                 int maxRadius,
                 int pf);
+
+void ExposePFW(int gpuIdx,
+               Volume& padDst,
+               Volume& F3D,
+               RFLOAT* W3D,
+               int maxRadius,
+               int pf);
 
 void ExposePF(int gpuIdx,
               Volume& padDst,
               Volume& padDstR,
               Volume& F3D,
-              Volume& W3D,
+              RFLOAT* W3D,
               int maxRadius,
               int pf);
 
@@ -400,6 +489,11 @@ void ExposeCorrF2D(int gpuIdx,
                    Volume& dst,
                    RFLOAT* mkbRL,
                    RFLOAT nf);
+
+void ExposeCorrF(int gpuIdx,
+                 Volume& dst,
+                 RFLOAT* mkbRL,
+                 RFLOAT nf);
 
 void ExposeCorrF(int gpuIdx,
                  Volume& dstN,

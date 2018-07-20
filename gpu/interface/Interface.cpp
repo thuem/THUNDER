@@ -734,34 +734,24 @@ void PrepareTF(int gpuIdx,
 }
 
 void ExposePT2D(int gpuIdx,
-                Image& T2D,
+                RFLOAT* T2D,
 	            int maxRadius,
 	            int pf,
+                int dim,
 	            vec FSC,
 	            bool joinHalf,
                 const int wienerF)
 {
 	LOG(INFO) << "Step1: Prepare Parameter for T.";
 
-    int dim = T2D.nRowFT(); 
-    int dimSize = dim * (dim / 2 + 1); 
-	Complex *comT2D = &T2D[0];
-    RFLOAT *douT2D = new RFLOAT[dimSize];
-	for(int i = 0; i < dimSize; i++)
-	{
-        douT2D[i] = REAL(comT2D[i]);
-	}
-    
-    LOG(INFO) << "Step2: Prepare Paramete for Calculate FSC.";
-
     int fscMatsize = FSC.size();
     RFLOAT *FSCmat = new RFLOAT[fscMatsize];
     Map<vec>(FSCmat, FSC.rows(), FSC.cols()) = FSC;
     
-    LOG(INFO) << "Step3: Start CalculateT...";
+    LOG(INFO) << "Step2: Start CalculateT...";
 
     cuthunder::CalculateT2D(gpuIdx,
-                            douT2D,
+                            T2D,
                             FSCmat,
                             fscMatsize,
                             joinHalf,
@@ -770,44 +760,28 @@ void ExposePT2D(int gpuIdx,
                             dim,
                             pf);
     
-    for(int i = 0; i < dimSize; i++)
-	{
-        comT2D[i] = COMPLEX(douT2D[i], 0);
-	}
-    
-    delete[]douT2D;
     delete[]FSCmat;
 }
 
 void ExposePT(int gpuIdx,
-              Volume& T3D,
+              RFLOAT* T3D,
 	          int maxRadius,
 	          int pf,
+              int dim,
 	          vec FSC,
 	          bool joinHalf,
               const int wienerF)
 {
 	LOG(INFO) << "Step1: Prepare Parameter for T.";
 
-    int dim = T3D.nSlcFT(); 
-    int dimSize = dim * dim * (dim / 2 + 1); 
-	Complex *comT3D = &T3D[0];
-    RFLOAT *douT3D = new RFLOAT[dimSize];
-	for(int i = 0; i < dimSize; i++)
-	{
-        douT3D[i] = REAL(comT3D[i]);
-	}
-    
-    LOG(INFO) << "Step2: Prepare Paramete for Calculate FSC.";
-
     int fscMatsize = FSC.size();
     RFLOAT *FSCmat = new RFLOAT[fscMatsize];
     Map<vec>(FSCmat, FSC.rows(), FSC.cols()) = FSC;
     
-    LOG(INFO) << "Step3: Start CalculateT...";
+    LOG(INFO) << "Step2: Start CalculateT...";
 
     cuthunder::CalculateT(gpuIdx,
-                          douT3D,
+                          T3D,
                           FSCmat,
                           fscMatsize,
                           joinHalf,
@@ -816,59 +790,33 @@ void ExposePT(int gpuIdx,
                           dim,
                           pf);
     
-    for(int i = 0; i < dimSize; i++)
-	{
-        comT3D[i] = COMPLEX(douT3D[i], 0);
-	}
-    
-    delete[]douT3D;
     delete[]FSCmat;
 }
 
 void ExposeWT2D(int gpuIdx,
-                Image& T2D,
-                Image& W2D,
+                RFLOAT* T2D,
+                RFLOAT* W2D,
                 TabFunction& kernelRL,
+                RFLOAT nf,
                 int maxRadius,
                 int pf,
-                RFLOAT a,
-                RFLOAT nf,
-                RFLOAT alpha,
+                int dim,
                 int maxIter,
                 int minIter,
                 int size)
 {
-    LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
-    
-    int dim = T2D.nRowFT(); 
-    int dimSize = dim * (dim / 2 + 1); 
-    Complex *comW2D = &W2D[0];
-    RFLOAT *comW2DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW2DR[i] = REAL(comW2D[i]);
-    }
-
-    LOG(INFO) << "Step2: Prepare Paramete for Calculate C.";
-
-    int r = (maxRadius * pf) * (maxRadius * pf);
-
-    Complex *comT2D = &T2D[0];
-    RFLOAT *comT2DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comT2DR[i] = REAL(comT2D[i]);
-    }
+    LOG(INFO) << "Step1: Prepare Parameter for WC.";
     
     RFLOAT *tabdata = kernelRL.getData();
     RFLOAT step = kernelRL.getStep();
     int padSize = pf * size; 
+    int r = (maxRadius * pf) * (maxRadius * pf);
     
-    LOG(INFO) << "Step3: Start Calculate C...";
+    LOG(INFO) << "Step2: Start Calculate C...";
       
     cuthunder::CalculateW2D(gpuIdx,
-                            comT2DR,
-                            comW2DR,
+                            T2D,
+                            W2D,
                             tabdata,
                             0,
                             1,
@@ -880,60 +828,217 @@ void ExposeWT2D(int gpuIdx,
                             maxIter,
                             minIter,
                             padSize);
-    
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW2D[i] = COMPLEX(comW2DR[i], 0);
-    }
+}
 
-    delete[]comW2DR;
-    delete[]comT2DR;
+void AllocDevicePoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      int streamNum,
+                      int tabSize,
+                      int dim)
+{
+    cuthunder::allocDevicePoint(gpuIdx,
+                                reinterpret_cast<cuthunder::Complex**>(dev_C),
+                                dev_W,
+                                dev_T,
+                                dev_tab,
+                                devDiff,
+                                devMax,
+                                devCount,
+                                stream,
+                                streamNum,
+                                tabSize,
+                                dim);
+}
+
+void HostDeviceInit(int gpuIdx,
+                    Volume& C3D,
+                    RFLOAT* W3D,
+                    RFLOAT* T3D,
+                    RFLOAT* tab,
+                    RFLOAT* dev_W,
+                    RFLOAT* dev_T,
+                    RFLOAT* dev_tab,
+                    void** stream,
+                    int streamNum,
+                    int tabSize,
+                    int maxRadius,
+                    int pf,
+                    int dim)
+{
+    int r = (maxRadius * pf) * (maxRadius * pf);
+    
+    Complex *comC3D = &C3D[0];
+    
+    cuthunder::hostDeviceInit(gpuIdx,
+                              reinterpret_cast<cuthunder::Complex*>(comC3D),
+                              W3D,
+                              T3D,
+                              tab,
+                              dev_W,
+                              dev_T,
+                              dev_tab,
+                              stream,
+                              streamNum,
+                              tabSize,
+                              r,
+                              dim);
+}
+
+void ExposeC(int gpuIdx,
+             Volume& C3D,
+             Complex* dev_C,
+             RFLOAT* dev_T,
+             RFLOAT* dev_W,
+             void** stream,
+             int streamNum,
+             int dim)
+{
+    Complex *comC3D = &C3D[0];
+    
+    cuthunder::CalculateC(gpuIdx,
+                          reinterpret_cast<cuthunder::Complex*>(comC3D),
+                          reinterpret_cast<cuthunder::Complex*>(dev_C),
+                          dev_T,
+                          dev_W,
+                          stream,
+                          streamNum,
+                          dim);
+}
+
+void ExposeForConvC(int gpuIdx,
+                    Volume& C3D,
+                    Complex* dev_C,
+                    RFLOAT* dev_tab,
+                    void** stream,
+                    TabFunction& kernelRL,
+                    RFLOAT nf,
+                    int streamNum,
+                    int tabSize,
+                    int pf,
+                    int size)
+{
+    int dim = C3D.nSlcRL(); 
+    int padSize = pf * size; 
+    RFLOAT step = kernelRL.getStep();
+    
+    RFLOAT *comC3D = &C3D(0);
+    
+    cuthunder::ConvoluteC(gpuIdx,
+                          comC3D,
+                          reinterpret_cast<RFLOAT*>(dev_C),
+                          dev_tab,
+                          stream,
+                          0,
+                          1,
+                          step,
+                          tabSize,
+                          nf,
+                          streamNum,
+                          padSize,
+                          dim);
+}
+
+void ExposeWC(int gpuIdx,
+              Volume& C3D,
+              Complex* dev_C,
+              RFLOAT* diff,
+              RFLOAT* cmax,
+              RFLOAT* dev_W,
+              RFLOAT* devDiff,
+              RFLOAT* devMax,
+              int *devCount,
+              int* counter,
+              void** stream,
+              RFLOAT& diffC,
+              int streamNum, 
+              int maxRadius,
+              int pf)
+{
+    int dim = C3D.nSlcFT();
+    int r = (maxRadius * pf) * (maxRadius * pf);
+    
+    Complex *comC3D = &C3D[0];
+    cuthunder::UpdateWC(gpuIdx,
+                        reinterpret_cast<cuthunder::Complex*>(comC3D),
+                        reinterpret_cast<cuthunder::Complex*>(dev_C),
+                        diff,
+                        cmax,
+                        dev_W,
+                        devDiff,
+                        devMax,
+                        devCount,
+                        counter,
+                        stream,
+                        diffC,
+                        streamNum,
+                        r,
+                        dim);
+}
+
+void FreeDevHostPoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      Volume& C3D,
+                      RFLOAT* volumeW,
+                      RFLOAT* volumeT,
+                      int streamNum,
+                      int dim)
+{
+    Complex *comC3D = &C3D[0];
+    
+    cuthunder::freeDevHostPoint(gpuIdx,
+                                reinterpret_cast<cuthunder::Complex**>(dev_C),
+                                dev_W,
+                                dev_T,
+                                dev_tab,
+                                devDiff,
+                                devMax,
+                                devCount,
+                                stream,
+                                reinterpret_cast<cuthunder::Complex*>(comC3D),
+                                volumeW,
+                                volumeT,
+                                streamNum,
+                                dim);
 }
 
 void ExposeWT(int gpuIdx,
-              Volume& T3D,
-              Volume& W3D,
+              RFLOAT* T3D,
+              RFLOAT* W3D,
               TabFunction& kernelRL,
+              RFLOAT nf,
               int maxRadius,
               int pf,
-              RFLOAT a,
-              RFLOAT nf,
-              RFLOAT alpha,
+              int dim,
               int maxIter,
               int minIter,
               int size)
 {
     LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
     
-    int dim = T3D.nSlcFT(); 
-    int dimSize = dim * dim * (dim / 2 + 1); 
-    Complex *comW3D = &W3D[0];
-    RFLOAT *comW3DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW3DR[i] = REAL(comW3D[i]);
-    }
-
-    LOG(INFO) << "Step2: Prepare Paramete for Calculate C.";
-
-    int r = (maxRadius * pf) * (maxRadius * pf);
-
-    Complex *comT3D = &T3D[0];
-    RFLOAT *comT3DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comT3DR[i] = REAL(comT3D[i]);
-    }
-    
     RFLOAT *tabdata = kernelRL.getData();
     RFLOAT step = kernelRL.getStep();
     int padSize = pf * size; 
+    int r = (maxRadius * pf) * (maxRadius * pf);
     
-    LOG(INFO) << "Step3: Start Calculate C...";
+    LOG(INFO) << "Step2: Start Calculate C...";
       
     cuthunder::CalculateW(gpuIdx,
-                          comT3DR,
-                          comW3DR,
+                          T3D,
+                          W3D,
                           tabdata,
                           0,
                           1,
@@ -945,107 +1050,53 @@ void ExposeWT(int gpuIdx,
                           maxIter,
                           minIter,
                           padSize);
-    
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW3D[i] = COMPLEX(comW3DR[i], 0);
-    }
-
-    delete[]comW3DR;
-    delete[]comT3DR;
 }
 
 void ExposeWT2D(int gpuIdx,
-                Image& T2D,
-                Image& W2D,
+                RFLOAT* T2D,
+                RFLOAT* W2D,
                 int maxRadius,
-                int pf)
+                int pf,
+                int dim)
 {
     LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
     
     int r = (maxRadius * pf) * (maxRadius * pf);
-
-    int dim = T2D.nRowFT(); 
-    int dimSize = dim * (dim / 2 + 1); 
-    Complex *comW2D = &W2D[0];
-    RFLOAT *comW2DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW2DR[i] = REAL(comW2D[i]);
-    }
-
-    Complex *comT2D = &T2D[0];
-    RFLOAT *comT2DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comT2DR[i] = REAL(comT2D[i]);
-    }
     
     LOG(INFO) << "Step2: Start Calculate W...";
       
     cuthunder::CalculateW2D(gpuIdx,
-                            comT2DR,
-                            comW2DR,
+                            T2D,
+                            W2D,
                             dim,
                             r);
-    
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW2D[i] = COMPLEX(comW2DR[i], 0);
-    }
-
-    delete[]comW2DR;
-    delete[]comT2DR;
 }
 
 void ExposeWT(int gpuIdx,
-              Volume& T3D,
-              Volume& W3D,
+              RFLOAT* T3D,
+              RFLOAT* W3D,
               int maxRadius,
-              int pf)
+              int pf,
+              int dim)
 {
     LOG(INFO) << "Step1: Prepare Parameter for InitialW.";
     
     int r = (maxRadius * pf) * (maxRadius * pf);
-
-    int dim = T3D.nSlcFT(); 
-    int dimSize = dim * dim * (dim / 2 + 1); 
-    Complex *comW3D = &W3D[0];
-    RFLOAT *comW3DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW3DR[i] = REAL(comW3D[i]);
-    }
-
-    Complex *comT3D = &T3D[0];
-    RFLOAT *comT3DR = new RFLOAT[dimSize];
-    for(int i = 0; i < dimSize; i++)
-    {
-        comT3DR[i] = REAL(comT3D[i]);
-    }
     
     LOG(INFO) << "Step2: Start Calculate W...";
       
     cuthunder::CalculateW(gpuIdx,
-                          comT3DR,
-                          comW3DR,
+                          T3D,
+                          W3D,
                           dim,
                           r);
-    
-    for(int i = 0; i < dimSize; i++)
-    {
-        comW3D[i] = COMPLEX(comW3DR[i], 0);
-    }
-
-    delete[]comW3DR;
-    delete[]comT3DR;
 }
 
 void ExposePF2D(int gpuIdx,
                 Image& padDst,
                 Image& padDstR,
                 Image& F2D,
-                Image& W2D,
+                RFLOAT* W2D,
                 int maxRadius,
                 int pf)
 {
@@ -1059,14 +1110,6 @@ void ExposePF2D(int gpuIdx,
 
     int dim = F2D.nRowFT(); 
     int pdim = padDst.nRowFT(); 
-    int dimSize = dim * (dim / 2 + 1); 
-    Complex *comW2D = &W2D[0];
-	RFLOAT *comW2DR = new RFLOAT[dimSize];
-	for(int i = 0; i < dimSize; i++)
-	{
-        comW2DR[i] = REAL(comW2D[i]);
-	}
-	
     int r = (maxRadius * pf) * (maxRadius * pf);
 
     LOG(INFO) << "Step4: Start PrepareF...";
@@ -1075,19 +1118,44 @@ void ExposePF2D(int gpuIdx,
                             reinterpret_cast<cuthunder::Complex*>(comPAD),
                             reinterpret_cast<cuthunder::Complex*>(comF2D),
                             comPADR,
-                            comW2DR,
+                            W2D,
                             r,
                             pdim,
                             dim);
+}
+
+void ExposePFW(int gpuIdx,
+               Volume& padDst,
+               Volume& F3D,
+               RFLOAT* W3D,
+               int maxRadius,
+               int pf)
+{
+    LOG(INFO) << "Step1: Prepare Parameter for pad.";
+
+    int dim = F3D.nSlcFT(); 
+    int pdim = padDst.nSlcFT(); 
+    int r = (maxRadius * pf) * (maxRadius * pf);
     
-    delete[]comW2DR;
+    Complex *comPAD = &padDst[0];
+    Complex *comF3D = &F3D[0];
+
+    LOG(INFO) << "Step2: Start PrepareF...";
+    
+    cuthunder::CalculateFW(gpuIdx,
+                           reinterpret_cast<cuthunder::Complex*>(comPAD),
+                           reinterpret_cast<cuthunder::Complex*>(comF3D),
+                           W3D,
+                           r,
+                           pdim,
+                           dim);
 }
 
 void ExposePF(int gpuIdx,
               Volume& padDst,
               Volume& padDstR,
               Volume& F3D,
-              Volume& W3D,
+              RFLOAT* W3D,
               int maxRadius,
               int pf)
 {
@@ -1101,28 +1169,18 @@ void ExposePF(int gpuIdx,
 
     int dim = F3D.nSlcFT(); 
     int pdim = padDst.nSlcFT(); 
-    int dimSize = dim * dim * (dim / 2 + 1); 
-    Complex *comW3D = &W3D[0];
-	RFLOAT *comW3DR = new RFLOAT[dimSize];
-	for(int i = 0; i < dimSize; i++)
-	{
-        comW3DR[i] = REAL(comW3D[i]);
-	}
-	
     int r = (maxRadius * pf) * (maxRadius * pf);
 
-    LOG(INFO) << "Step4: Start PrepareF...";
+    LOG(INFO) << "Step3: Start PrepareF...";
     
     cuthunder::CalculateF(gpuIdx,
                           reinterpret_cast<cuthunder::Complex*>(comPAD),
                           reinterpret_cast<cuthunder::Complex*>(comF3D),
                           comPADR,
-                          comW3DR,
+                          W3D,
                           r,
                           pdim,
                           dim);
-    
-    delete[]comW3DR;
 }
 
 void ExposeCorrF2D(int gpuIdx,
@@ -1146,6 +1204,26 @@ void ExposeCorrF2D(int gpuIdx,
                                nf,
                                dim);
 
+}
+
+void ExposeCorrF(int gpuIdx,
+                 Volume& dst,
+                 RFLOAT* mkbRL,
+                 RFLOAT nf)
+{
+    LOG(INFO) << "Step1: Prepare Parameter for CorrectingF.";
+
+    RFLOAT *comDst = &dst(0);
+    int dim = dst.nSlcRL();
+    
+    LOG(INFO) << "Step2: Start CorrSoftMaskF...";
+      
+    cuthunder::CorrSoftMaskF(gpuIdx,
+                             comDst,
+                             mkbRL,
+                             nf,
+                             dim);
+   
 }
 
 void ExposeCorrF(int gpuIdx,

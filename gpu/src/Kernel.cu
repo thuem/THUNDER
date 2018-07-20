@@ -3235,8 +3235,8 @@ __global__ void kernel_NormalizeTF2D(Complex *devDataF,
  */
 __global__ void kernel_NormalizeTF(Complex *devDataF,
                                    RFLOAT *devDataT, 
-                                   const int length,
-                                   const int num, 
+                                   const size_t length,
+                                   const size_t num, 
                                    const RFLOAT sf)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
@@ -3287,9 +3287,9 @@ __global__ void kernel_SymmetrizeT(RFLOAT *devDataT,
                                    const int numSymMat, 
                                    const int r, 
                                    const int interp,
-                                   const int num,
+                                   const size_t num,
                                    const int dim,
-                                   const int dimSize,
+                                   const size_t dimSize,
                                    cudaTextureObject_t texObject)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
@@ -3344,9 +3344,9 @@ __global__ void kernel_SymmetrizeF(Complex *devDataF,
                                    const int numSymMat, 
                                    const int r, 
                                    const int interp,
-                                   const int num,
+                                   const size_t num,
                                    const int dim,
-                                   const int dimSize,
+                                   const size_t dimSize,
                                    cudaTextureObject_t texObject)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
@@ -3393,22 +3393,25 @@ __global__ void kernel_ShellAverage2D(RFLOAT *devAvg2D,
     int j = blockIdx.x;
     if(j >= dim / 2) j = j - dim;
     
-    int quad = threadIdx.x * threadIdx.x + j * j;
-    
-    if(quad < r * r)
+    for (int itr = threadIdx.x; itr < r; itr += blockDim.x)
     {
-#ifdef SINGLE_PRECISION
-        int u = (int)rintf(sqrtf((float)quad));
-#else
-        int u = (int)rint(sqrt((double)quad));
-#endif    
-        if (u < r)
+        int quad = itr * itr + j * j;
+        
+        if(quad < r * r)
         {
-            atomicAdd(&sumAvg[u], devDataT[threadIdx.x + blockIdx.x * blockDim.x]);
-            atomicAdd(&sumCount[u], 1);
+#ifdef SINGLE_PRECISION
+            int u = (int)rintf(sqrtf((float)quad));
+#else
+            int u = (int)rint(sqrt((double)quad));
+#endif    
+            if (u < r)
+            {
+                atomicAdd(&sumAvg[u], devDataT[itr + blockIdx.x * blockDim.x]);
+                atomicAdd(&sumCount[u], 1);
+            }
         }
     }
-    
+
     __syncthreads();
 
     for (int itr = threadIdx.x; itr < r; itr += blockDim.x)
@@ -3425,68 +3428,61 @@ __global__ void kernel_ShellAverage2D(RFLOAT *devAvg2D,
  * @param ...
  * @param ...
  */
-__global__ void kernel_ShellAverage(RFLOAT *devAvg, 
-                                    int *devCount, 
+__global__ void kernel_ShellAverage(RFLOAT *devAvg2D, 
+                                    int *devCount2D, 
                                     RFLOAT *devDataT,
                                     int dim, 
                                     int r,
-                                    int dimSize)
+                                    size_t dimSize)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    int i, j, k;
     
     extern __shared__ RFLOAT sum[];
 
     RFLOAT *sumAvg = sum;
-    int *sumCount = (int*)&sumAvg[dim];
+    int *sumCount = (int*)&sumAvg[r];
 
-    Constructor constructor;
-    constructor.init(tid);
+    for (int itr = threadIdx.x; itr < r; itr+= blockDim.x)
+    {
+        sumAvg[itr] = 0;
+        sumCount[itr] = 0;
+    }
 
-    constructor.shellAverage(devAvg, 
-                             devCount,
-                             devDataT,
-                             sumAvg,
-                             sumCount, 
-                             r,
-                             dim,
-                             dimSize,
-                             threadIdx.x,
-                             blockIdx.x);
-}
-
-/**
- * @brief ...
- *
- * @param ...
- * @param ...
- */
-__global__ void kernel_CalculateAvg2D(RFLOAT *devAvg2D,
-                                      int *devCount2D,
-                                      RFLOAT *devAvg,
-                                      int *devCount,
-                                      int dim,
-                                      int r)
-{
-    devAvg[threadIdx.x] = 0;
-    devCount[threadIdx.x] = 0;
-    
     __syncthreads();
 
-    for (int i = 0; i < dim; i++)
+    while(tid < dimSize)
     {
-        if (threadIdx.x < r)
+        i = tid % (dim / 2 + 1);
+        j = (tid / (dim / 2 + 1)) % dim;
+        k = (tid / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+        
+        if(quad < r * r)
         {
-            devAvg[threadIdx.x] += devAvg2D[threadIdx.x + i * r];
-            devCount[threadIdx.x] += devCount2D[threadIdx.x + i * r];
+#ifdef SINGLE_PRECISION
+            int u = (int)rintf(sqrtf((float)quad));
+#else
+            int u = (int)rint(sqrt((double)quad));
+#endif    
+            if (u < r)
+            {
+                atomicAdd(&sumAvg[u], devDataT[tid]);
+                atomicAdd(&sumCount[u], 1);
+            }
         }
+        tid += blockDim.x * gridDim.x;
     }
-    
-    if (threadIdx.x < r)
-        devAvg[threadIdx.x] /= devCount[threadIdx.x];
 
-    if(threadIdx.x == r - 1 ){
-        devAvg[r] = devAvg[r - 1];
-        devAvg[r + 1] = devAvg[r - 1];
+    __syncthreads();
+
+    for (int itr = threadIdx.x; itr < r; itr+= blockDim.x)
+    {
+        devAvg2D[itr + blockIdx.x * r] = sumAvg[itr];
+        devCount2D[itr + blockIdx.x * r] = sumCount[itr];
     }
 }
 
@@ -3503,18 +3499,29 @@ __global__ void kernel_CalculateAvg(RFLOAT *devAvg2D,
                                     int dim,
                                     int r)
 {
-    int tid = threadIdx.x;
+    for (int itr = threadIdx.x; itr < r; itr+= blockDim.x)
+    {
+        devAvg[threadIdx.x] = 0;
+        devCount[threadIdx.x] = 0;
+    }
+    
+    __syncthreads();
 
-    Constructor constructor;
-    constructor.init(tid);
+    for (int itr = threadIdx.x; itr < r; itr+= blockDim.x)
+    {
+        for (int i = 0; i < dim; i++)
+        {
+            devAvg[itr] += devAvg2D[itr + i * r];
+            devCount[itr] += devCount2D[itr + i * r];
+        }
+        
+        devAvg[itr] /= devCount[itr];
 
-    constructor.calculateAvg(devAvg2D, 
-                             devCount2D,
-                             devAvg,
-                             devCount,
-                             dim, 
-                             r);
-
+        if(itr == r - 1){
+            devAvg[r] = devAvg[r - 1];
+            devAvg[r + 1] = devAvg[r - 1];
+        }
+    }
 }
 
 /**
@@ -3534,47 +3541,52 @@ __global__ void kernel_CalculateFSC2D(RFLOAT *devDataT,
                                       int r)
 {
     int j = blockIdx.x;
+    int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
-    int quad = threadIdx.x * threadIdx.x + j * j;
     
-    if(quad >= wiener && quad < r)
+    for (int itr = threadIdx.x; itr < jDim; itr+= blockDim.x)
     {
+        int quad = itr * itr + j * j;
+    
+        if(quad >= wiener && quad < r)
+        {
 #ifdef SINGLE_PRECISION
-        int u = (int)rintf(sqrtf((float)quad));
-        float FSC = (u / pf >= fscMatsize)
-                  ? 0 
-                  : devFSC[u / pf];
-        
-        FSC = fmaxf(1e-3, fminf(1 - 1e-3, FSC));
+            int u = (int)rintf(sqrtf((float)quad));
+            float FSC = (u / pf >= fscMatsize)
+                      ? 0 
+                      : devFSC[u / pf];
+            
+            FSC = fmaxf(1e-3, fminf(1 - 1e-3, FSC));
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
-        FSC = sqrtf(2 * FSC / (1 + FSC));
-#else
-        if (joinHalf) 
             FSC = sqrtf(2 * FSC / (1 + FSC));
+#else
+            if (joinHalf) 
+                FSC = sqrtf(2 * FSC / (1 + FSC));
 #endif
 
 #else
-        int u = (int)rint(sqrt((double)quad));
-        double FSC = (u / pf >= fscMatsize)
-                   ? 0 
-                   : devFSC[u / pf];
-        
-        FSC = fmax(1e-3, fmin(1 - 1e-3, FSC));
+            int u = (int)rint(sqrt((double)quad));
+            double FSC = (u / pf >= fscMatsize)
+                       ? 0 
+                       : devFSC[u / pf];
+            
+            FSC = fmax(1e-3, fmin(1 - 1e-3, FSC));
 #ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
-        FSC = sqrt(2 * FSC / (1 + FSC));
-#else
-        if (joinHalf) 
             FSC = sqrt(2 * FSC / (1 + FSC));
+#else
+            if (joinHalf) 
+                FSC = sqrt(2 * FSC / (1 + FSC));
 #endif
 
 #endif    
             
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
-        devDataT[threadIdx.x + blockIdx.x * blockDim.x] += (1 - FSC) / FSC * devAvg[u];
+            devDataT[itr + blockIdx.x * jDim] += (1 - FSC) / FSC * devAvg[u];
 #else
-        devDataT[threadIdx.x + blockIdx.x * blockDim.x] /= FSC;
+            devDataT[itr + blockIdx.x * jDim] /= FSC;
 #endif
+        }
     }
 }
 
@@ -3592,26 +3604,63 @@ __global__ void kernel_CalculateFSC(RFLOAT *devDataT,
                                     int wiener, 
                                     int r,
                                     int pf,
-                                    int num, 
+                                    size_t num, 
                                     int dim,
-                                    int dimSize)
+                                    size_t dimSize)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
+    int i, j, k;
 
-    Constructor constructor;
-    constructor.init(tid);
+    while(tid < dimSize)
+    {
+        i = (tid + num) % (dim / 2 + 1);
+        j = ((tid + num) / (dim / 2 + 1)) % dim;
+        k = ((tid + num) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+        
+        if(quad >= wiener && quad < r)
+        {
+#ifdef SINGLE_PRECISION
+            int u = (int)rintf(sqrtf((float)quad));
+            float FSC = (u / pf >= fscMatsize)
+                      ? 0 
+                      : devFSC[u / pf];
+            
+            FSC = fmaxf(1e-3, fminf(1 - 1e-3, FSC));
+#ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
+            FSC = sqrtf(2 * FSC / (1 + FSC));
+#else
+            if (joinHalf) 
+                FSC = sqrtf(2 * FSC / (1 + FSC));
+#endif
 
-    constructor.calculateFSC(devFSC, 
-                             devAvg,
-                             devDataT,
-                             num, 
-                             dim,
-                             dimSize,
-                             fscMatsize,
-                             wiener,
-                             r, 
-                             pf, 
-                             joinHalf);
+#else
+            int u = (int)rint(sqrt((double)quad));
+            double FSC = (u / pf >= fscMatsize)
+                       ? 0 
+                       : devFSC[u / pf];
+            
+            FSC = fmax(1e-3, fmin(1 - 1e-3, FSC));
+#ifdef RECONSTRUCTOR_ALWAYS_JOIN_HALF
+            FSC = sqrt(2 * FSC / (1 + FSC));
+#else
+            if (joinHalf) 
+                FSC = sqrt(2 * FSC / (1 + FSC));
+#endif
+
+#endif    
+            
+#ifdef RECONSTRUCTOR_WIENER_FILTER_FSC_FREQ_AVG
+            devDataT[tid + num] += (1 - FSC) / FSC * devAvg[u];
+#else
+            devDataT[tid + num] /= FSC;
+#endif
+        }
+        tid += blockDim.x * gridDim.x;
+    }
 
 }
 
@@ -3654,25 +3703,29 @@ __global__ void kernel_CalculateW2D(RFLOAT *devDataW,
                                     const int r)
 {
     int j = blockIdx.x;
+    int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
-    int quad = threadIdx.x * threadIdx.x + j * j;
-
-    if (quad < r)
+    for (int itr = threadIdx.x; itr < jDim; itr += jDim)
     {
+        int quad = itr * itr + j * j;
+
+        if (quad < r)
+        {
 #ifdef SINGLE_PRECISION
-        devDataW[threadIdx.x 
-                 + blockDim.x 
-                 * blockIdx.x] = 1.0 / fmaxf(fabsf(devDataT[threadIdx.x 
-                                                            + blockDim.x 
-                                                            * blockIdx.x]), 1e-6);
+            devDataW[itr 
+                     + jDim 
+                     * blockIdx.x] = 1.0 / fmaxf(fabsf(devDataT[itr 
+                                                                + jDim 
+                                                                * blockIdx.x]), 1e-6);
 #else
-        devDataW[threadIdx.x 
-                 + blockDim.x 
-                 * blockIdx.x] = 1.0 / fmax(fabs(devDataT[threadIdx.x 
-                                                          + blockDim.x 
-                                                          * blockIdx.x]), 1e-6);
+            devDataW[itr 
+                     + jDim 
+                     * blockIdx.x] = 1.0 / fmax(fabs(devDataT[itr 
+                                                              + jDim 
+                                                              * blockIdx.x]), 1e-6);
 #endif    
+        }
     }
 }
 
@@ -3684,22 +3737,35 @@ __global__ void kernel_CalculateW2D(RFLOAT *devDataW,
  */
 __global__ void kernel_CalculateW(RFLOAT *devDataW,  
                                   RFLOAT *devDataT,  
-                                  const int length,
-                                  const int num,
+                                  const size_t length,
+                                  const size_t num,
                                   const int dim,
                                   const int r)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
 
-    Constructor constructor;
-    constructor.init(tid);
-    
-    constructor.calculateW(devDataW,
-                           devDataT,
-                           length, 
-                           num,
-                           dim,
-                           r); 
+    while(tid < length)
+    {
+        i = (tid + num) % (dim / 2 + 1);
+        j = ((tid + num) / (dim / 2 + 1)) % dim;
+        k = ((tid + num) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < r)
+        {
+#ifdef SINGLE_PRECISION
+            devDataW[tid + num] = 1.0 / fmaxf(fabsf(devDataT[tid + num]), 1e-6);
+#else
+            devDataW[tid + num] = 1.0 / fmax(fabs(devDataT[tid + num]), 1e-6);
+#endif    
+        }
+        
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3713,19 +3779,22 @@ __global__ void kernel_InitialW2D(RFLOAT *devDataW,
                                   int dim)
 {
     int j = blockIdx.x;
+    int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
-    int quad = threadIdx.x * threadIdx.x + j * j;
+    for (int itr = threadIdx.x; itr < jDim; itr += blockDim.x)
+    {
+        int quad = itr * itr + j * j;
 
-    if (quad < initWR)
-    {
-        devDataW[threadIdx.x + blockDim.x * blockIdx.x] = 1;
-    }
-    else
-    {
-        devDataW[threadIdx.x + blockDim.x * blockIdx.x] = 0;
-    }
-        
+        if (quad < initWR)
+        {
+            devDataW[itr + jDim * blockIdx.x] = 1;
+        }
+        else
+        {
+            devDataW[itr + jDim * blockIdx.x] = 0;
+        }
+    }        
 }
 
 /**
@@ -3735,19 +3804,34 @@ __global__ void kernel_InitialW2D(RFLOAT *devDataW,
  * @param ...
  */
 __global__ void kernel_InitialW(RFLOAT *devDataW,  
-                                int initWR, 
+                                int initWR,
                                 int dim,
-                                int dimSize)
+                                size_t dimSize)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
 
-    Constructor constructor;
-    constructor.init(tid);
-    
-    constructor.initialW(devDataW,
-                         initWR,
-                         dim,
-                         dimSize);
+    while(tid < dimSize)
+    {
+        i = (tid) % (dim / 2 + 1);
+        j = ((tid) / (dim / 2 + 1)) % dim;
+        k = ((tid) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < initWR)
+        {
+            devDataW[tid] = 1;
+        }
+        else
+        {
+            devDataW[tid] = 0;
+        }
+        
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3756,12 +3840,36 @@ __global__ void kernel_InitialW(RFLOAT *devDataW,
  * @param ...
  * @param ...
  */
-__global__ void kernel_DeterminingC2D(Complex *devDataC,
-                                      RFLOAT *devDataT, 
-                                      RFLOAT *devDataW)
+__global__ void kernel_InitialW(RFLOAT *devDataW,  
+                                int initWR,
+                                int shift, 
+                                int dim,
+                                size_t dimSize)
 {
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-    devDataC[index].set(devDataT[index] * devDataW[index], 0);
+    int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+
+    while(tid < dimSize)
+    {
+        i = (tid + shift) % (dim / 2 + 1);
+        j = ((tid + shift) / (dim / 2 + 1)) % dim;
+        k = ((tid + shift) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < initWR)
+        {
+            devDataW[tid] = 1;
+        }
+        else
+        {
+            devDataW[tid] = 0;
+        }
+        
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3773,18 +3881,15 @@ __global__ void kernel_DeterminingC2D(Complex *devDataC,
 __global__ void kernel_DeterminingC(Complex *devDataC,
                                     RFLOAT *devDataT, 
                                     RFLOAT *devDataW,
-                                    const int length)
+                                    const size_t length)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
     
-    Constructor constructor;
-    constructor.init(tid);
-
-    constructor.determiningC(devDataC,
-                             devDataT,
-                             devDataW,
-                             length);
-
+    while(tid < length)
+    {
+        devDataC[tid].set(devDataT[tid] * devDataW[tid], 0);
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3800,18 +3905,58 @@ __global__ void kernel_convoluteC2D(RFLOAT *devDoubleC,
                                     int dim,
                                     int dimSize)
 {
-    int i = threadIdx.x;
     int j = blockIdx.x;
-    if(i >= dim / 2) i = i - dim;
+    int index, i;
     if(j >= dim / 2) j = j - dim;
     
-    int index = threadIdx.x + blockDim.x * blockIdx.x;
+    for (int itr = threadIdx.x; itr < dim; itr += blockDim.x)
+    {
+        i = itr;
+        if(i >= dim / 2) i = i - dim;
+        
+        index = itr + dim * blockIdx.x;
 
-    devDoubleC[index] = devDoubleC[index] 
-                      / dimSize
-                      * tabfunc((RFLOAT)(i * i + j * j) 
+        devDoubleC[index] = devDoubleC[index] 
+                          / dimSize
+                          * tabfunc((RFLOAT)(i * i + j * j) 
+                                    / (padSize * padSize))
+                          / nf;
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_ConvoluteC(RFLOAT *devDataC,
+                                  TabFunction tabfunc,
+                                  RFLOAT nf,
+                                  int dim,
+                                  size_t shift,
+                                  int padSize,
+                                  size_t batch)
+{
+    int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+    
+    while(tid < batch)
+    {
+        i = (tid + shift) % dim;
+        j = ((tid + shift) / dim) % dim;
+        k = ((tid + shift) / dim) / dim;
+
+        if(i >= dim / 2) i = i - dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        devDataC[tid] = devDataC[tid] 
+                      * tabfunc((RFLOAT)(i*i + j*j + k*k) 
                                 / (padSize * padSize))
                       / nf;
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3825,19 +3970,27 @@ __global__ void kernel_convoluteC(RFLOAT *devDoubleC,
                                   RFLOAT nf,
                                   int padSize,
                                   int dim,
-                                  int dimSize)
+                                  size_t dimSize)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+    
+    while(tid < dimSize)
+    {
+        i = tid % dim;
+        j = (tid / dim) % dim;
+        k = (tid / dim) / dim;
 
-    Constructor constructor;
-    constructor.init(tid);
-
-    constructor.convoluteC(devDoubleC,
-                           tabfunc, 
-                           nf,
-                           padSize,
-                           dim,
-                           dimSize);
+        if(i >= dim / 2) i = i - dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        devDoubleC[tid] = devDoubleC[tid] 
+                          / dimSize
+                          * tabfunc((RFLOAT)(i*i + j*j + k*k) / (padSize * padSize))
+                          / nf;
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3852,65 +4005,155 @@ __global__ void kernel_RecalculateW2D(RFLOAT *devDataW,
                                       int dim)
 {
     int j = blockIdx.x;
+    int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
     RFLOAT mode = 0.0, u, x, y;
-    int quad = threadIdx.x * threadIdx.x + j * j;
-    int index = threadIdx.x + blockDim.x * blockIdx.x;
-
-    if (quad < initWR)
+    
+    for (int itr = threadIdx.x; itr < jDim; itr += blockDim.x)
     {
+        int quad = itr * itr + j * j;
+        int index = itr + jDim * blockIdx.x;
+
+        if (quad < initWR)
+        {
 #ifdef SINGLE_PRECISION
-        x = fabsf(devDataC[index].real());
-        y = fabsf(devDataC[index].imag());
-        if (x < y)
-        {
-            if (x == 0)
-                mode = y;
+            x = fabsf(devDataC[index].real());
+            y = fabsf(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
             else
             {
-                u = x / y;
-                mode = y * sqrtf(1 + u * u);
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
             }
-        }
-        else
-        {
-            if (y == 0)
-                mode = x;
-            else
-            {
-                u = y / x;
-                mode = x * sqrtf(1 + u * u);
-            }
-        }
 
-        devDataW[index] /= fmaxf(mode, 1e-6);
+            devDataW[index] /= fmaxf(mode, 1e-6);
 #else
-        x = fabs(devDataC[index].real());
-        y = fabs(devDataC[index].imag());
-        if (x < y)
-        {
-            if (x == 0)
-                mode = y;
+            x = fabs(devDataC[index].real());
+            y = fabs(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
             else
             {
-                u = x / y;
-                mode = y * sqrt(1 + u * u);
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
             }
-        }
-        else
-        {
-            if (y == 0)
-                mode = x;
-            else
-            {
-                u = y / x;
-                mode = x * sqrt(1 + u * u);
-            }
-        }
 
-        devDataW[index] /= fmax(mode, 1e-6);
+            devDataW[index] /= fmax(mode, 1e-6);
 #endif    
+        }
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_RecalculateW(Complex *devDataC,
+                                    RFLOAT *devDataW,  
+                                    int initWR, 
+                                    size_t shift, 
+                                    int dim,
+                                    size_t dimSize)
+{
+    int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+
+    RFLOAT mode = 0.0, u, x, y;
+    while(tid < dimSize)
+    {
+        i = (tid + shift) % (dim / 2 + 1);
+        j = ((tid + shift) / (dim / 2 + 1)) % dim;
+        k = ((tid + shift) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < initWR)
+        {
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[tid].real());
+            y = fabsf(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
+
+            devDataW[tid] /= fmaxf(mode, 1e-6);
+#else
+            x = fabs(devDataC[tid].real());
+            y = fabs(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            devDataW[tid] /= fmax(mode, 1e-6);
+#endif    
+        }
+        tid += blockDim.x * gridDim.x;
     }
 }
 
@@ -3924,18 +4167,78 @@ __global__ void kernel_RecalculateW(RFLOAT *devDataW,
                                     Complex *devDataC,  
                                     int initWR, 
                                     int dim,
-                                    int dimSize)
+                                    size_t dimSize)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
 
-    Constructor constructor;
-    constructor.init(tid);
-    
-    constructor.recalculateW(devDataC,
-                             devDataW,
-                             initWR,
-                             dim,
-                             dimSize);
+    RFLOAT mode = 0.0, u, x, y;
+    while(tid < dimSize)
+    {
+        i = (tid) % (dim / 2 + 1);
+        j = ((tid) / (dim / 2 + 1)) % dim;
+        k = ((tid) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < initWR)
+        {
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[tid].real());
+            y = fabsf(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
+
+            devDataW[tid] /= fmaxf(mode, 1e-6);
+#else
+            x = fabs(devDataC[tid].real());
+            y = fabs(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            devDataW[tid] /= fmax(mode, 1e-6);
+#endif    
+        }
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -3955,69 +4258,78 @@ __global__ void kernel_CheckCAVG2D(RFLOAT *diff,
     RFLOAT *sumDiff = sum;
     int *sumCount = (int*)&sumDiff[blockDim.x];
 
+    sumDiff[threadIdx.x] = 0;
+    sumCount[threadIdx.x] = 0;
+
+    __syncthreads();
+
     RFLOAT mode = 0, u, x, y;
     bool flag = true;
     
     int j = blockIdx.x;
+    int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-    int quad = threadIdx.x * threadIdx.x + j * j;
-    
-    if(quad < r)
+    for (int itr = threadIdx.x; itr < jDim; itr += blockDim.x)
     {
+        int index = itr + blockIdx.x * jDim;
+        int quad = itr * itr + j * j;
+        
+        if(quad < r)
+        {
 #ifdef SINGLE_PRECISION
-        x = fabsf(devDataC[index].real());
-        y = fabsf(devDataC[index].imag());
-        if (x < y)
-        {
-            if (x == 0)
-                mode = y;
+            x = fabsf(devDataC[index].real());
+            y = fabsf(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
             else
             {
-                u = x / y;
-                mode = y * sqrtf(1 + u * u);
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
             }
-        }
-        else
-        {
-            if (y == 0)
-                mode = x;
-            else
-            {
-                u = y / x;
-                mode = x * sqrtf(1 + u * u);
-            }
-        }
 
-        sumDiff[threadIdx.x] = fabsf(mode - 1);
+            sumDiff[itr] += fabsf(mode - 1);
 #else
-        x = fabs(devDataC[index].real());
-        y = fabs(devDataC[index].imag());
-        if (x < y)
-        {
-            if (x == 0)
-                mode = y;
+            x = fabs(devDataC[index].real());
+            y = fabs(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
             else
             {
-                u = x / y;
-                mode = y * sqrt(1 + u * u);
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
             }
-        }
-        else
-        {
-            if (y == 0)
-                mode = x;
-            else
-            {
-                u = y / x;
-                mode = x * sqrt(1 + u * u);
-            }
-        }
 
-        sumDiff[threadIdx.x] = fabs(mode - 1);
+            sumDiff[itr] += fabs(mode - 1);
 #endif    
-        sumCount[threadIdx.x] = 1;
+            sumCount[itr] += 1;
+        }
     }
 
     __syncthreads();
@@ -4085,7 +4397,7 @@ __global__ void kernel_CheckCAVG(RFLOAT *diff,
                                  Complex *devDataC,  
                                  int r, 
                                  int dim,
-                                 int dimSize)
+                                 size_t dimSize)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -4094,19 +4406,135 @@ __global__ void kernel_CheckCAVG(RFLOAT *diff,
     RFLOAT *sumDiff = sum;
     int *sumCount = (int*)&sumDiff[dim];
 
-    Constructor constructor;
-    constructor.init(tid);
+    RFLOAT mode = 0, u, x, y;
+    int i, j, k;
+    bool flag = true;
+    
+    sumDiff[threadIdx.x] = 0;
+    sumCount[threadIdx.x] = 0;
 
-    constructor.checkCAVG(sumDiff,
-                          sumCount,
-                          diff, 
-                          counter,
-                          devDataC,
-                          r,
-                          dim,
-                          dimSize, 
-                          threadIdx.x,
-                          blockIdx.x);
+    __syncthreads();
+
+    while(tid < dimSize)
+    {
+        i = tid % (dim / 2 + 1);
+        j = (tid / (dim / 2 + 1)) % dim;
+        k = (tid / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+        
+        if(quad < r)
+        {
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[tid].real());
+            y = fabsf(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
+
+            sumDiff[threadIdx.x] += fabsf(mode - 1);
+#else
+            x = fabs(devDataC[tid].real());
+            y = fabs(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            sumDiff[threadIdx.x] += fabs(mode - 1);
+#endif    
+            sumCount[threadIdx.x] += 1;
+        }
+        tid += blockDim.x * gridDim.x;
+    }
+
+    __syncthreads();
+
+    if (blockDim.x % 2 == 0)
+    {
+        i = blockDim.x / 2;
+        flag = true;
+    }
+    else
+    {
+        i = blockDim.x / 2 + 1;
+        flag = false;
+    }
+    while (i != 0) 
+    {
+        if (flag)
+        {
+            if (threadIdx.x < i)
+            {
+                sumDiff[threadIdx.x] += sumDiff[threadIdx.x + i];
+                sumCount[threadIdx.x] += sumCount[threadIdx.x + i];
+            }
+        
+        }
+        else
+        {
+            if (threadIdx.x < i - 1)
+            {
+                sumDiff[threadIdx.x] += sumDiff[threadIdx.x + i];
+                sumCount[threadIdx.x] += sumCount[threadIdx.x + i];
+            }
+        
+        }
+        
+        __syncthreads();
+        
+        if(i % 2 != 0 && i != 1)
+        {
+            i++;
+            flag = false;
+        }
+        else
+            flag = true;
+        
+        i /= 2; 
+    }
+    
+    if (threadIdx.x == 0) 
+    {
+        diff[blockIdx.x] = sumDiff[0];
+        counter[blockIdx.x] = sumCount[0];
+    }
+  
 }
 
 /**
@@ -4130,64 +4558,68 @@ __global__ void kernel_CheckCMAX2D(RFLOAT *devMax,
     bool flag = true;
     
     int j = blockIdx.x;
+    int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
-    int index = threadIdx.x + blockIdx.x * blockDim.x;
-    int quad = threadIdx.x * threadIdx.x + j * j;
-    
-    if(quad < r)
+    for (int itr = threadIdx.x; itr < jDim; itr += blockDim.x)
     {
+        int index = itr + blockIdx.x * jDim;
+        int quad = itr * itr + j * j;
+        
+        if(quad < r)
+        {
 #ifdef SINGLE_PRECISION
-        x = fabsf(devDataC[index].real());
-        y = fabsf(devDataC[index].imag());
-        if (x < y)
-        {
-            if (x == 0)
-                mode = y;
+            x = fabsf(devDataC[index].real());
+            y = fabsf(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
             else
             {
-                u = x / y;
-                mode = y * sqrtf(1 + u * u);
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
             }
-        }
-        else
-        {
-            if (y == 0)
-                mode = x;
-            else
-            {
-                u = y / x;
-                mode = x * sqrtf(1 + u * u);
-            }
-        }
 
-        singleMax[threadIdx.x] = fabsf(mode - 1);
+            singleMax[itr] = fabsf(mode - 1);
 #else
-        x = fabs(devDataC[index].real());
-        y = fabs(devDataC[index].imag());
-        if (x < y)
-        {
-            if (x == 0)
-                mode = y;
+            x = fabs(devDataC[index].real());
+            y = fabs(devDataC[index].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
             else
             {
-                u = x / y;
-                mode = y * sqrt(1 + u * u);
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
             }
-        }
-        else
-        {
-            if (y == 0)
-                mode = x;
-            else
-            {
-                u = y / x;
-                mode = x * sqrt(1 + u * u);
-            }
-        }
 
-        singleMax[threadIdx.x] = fabs(mode - 1);
+            singleMax[itr] = fabs(mode - 1);
 #endif    
+        }
     }
     
     __syncthreads();
@@ -4256,23 +4688,146 @@ __global__ void kernel_CheckCMAX(RFLOAT *devMax,
                                  Complex *devDataC,  
                                  int r, 
                                  int dim,
-                                 int dimSize)
+                                 size_t dimSize)
 {
     int tid = threadIdx.x + blockIdx.x * blockDim.x;
 
     extern __shared__ RFLOAT singleMax[];
     
-    Constructor constructor;
-    constructor.init(tid);
+    int i, j, k;
+    RFLOAT temp = 0.0, mode = 0.0, u, x, y;
+    bool flag = true;
+    
+    singleMax[threadIdx.x] = 0;
 
-    constructor.checkCMAX(singleMax,
-                          devMax, 
-                          devDataC,
-                          r,
-                          dim,
-                          dimSize, 
-                          threadIdx.x,
-                          blockIdx.x);
+    __syncthreads();
+
+    while(tid < dimSize)
+    {
+        i = tid % (dim / 2 + 1);
+        j = (tid / (dim / 2 + 1)) % dim;
+        k = (tid / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+        
+        if(quad < r)
+        {
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[tid].real());
+            y = fabsf(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
+
+            if (fabsf(mode - 1) >= temp)
+                temp = fabsf(mode - 1);
+#else
+            x = fabs(devDataC[tid].real());
+            y = fabs(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            if (fabs(mode - 1) >= temp)
+                temp = fabs(mode - 1);
+#endif    
+        }
+        tid += blockDim.x * gridDim.x;
+    }
+    
+    singleMax[threadIdx.x] = temp;
+
+    __syncthreads();
+
+    if (blockDim.x % 2 == 0)
+    {
+        i = blockDim.x / 2;
+        flag = true;
+    }
+    else
+    {
+        i = blockDim.x / 2 + 1;
+        flag = false;
+    }
+    
+    while (i != 0) 
+    {
+        if (flag)
+        {
+            if (threadIdx.x < i)
+            {
+                if (singleMax[threadIdx.x] < singleMax[threadIdx.x + i])
+                {
+                    singleMax[threadIdx.x] = singleMax[threadIdx.x + i]; 
+                }
+            }
+                
+        }
+        else
+        {
+            if (threadIdx.x < i - 1)
+            {
+                if (singleMax[threadIdx.x] < singleMax[threadIdx.x + i])
+                {
+                    singleMax[threadIdx.x] = singleMax[threadIdx.x + i]; 
+                }
+            }
+        
+        }
+        
+        __syncthreads();
+        
+        if(i % 2 != 0 && i != 1)
+        {
+            i++;
+            flag = false;
+        }
+        else
+            flag = true;
+        i /= 2;
+    }
+    
+    if (threadIdx.x == 0) 
+    {
+        devMax[blockIdx.x] = singleMax[0];
+    }
+
 }
 
 /**
@@ -4292,6 +4847,7 @@ __global__ void kernel_NormalizeFW2D(Complex *devDst,
     int dIdx;
 
     int j = blockIdx.x;
+    int jDim = fdim / 2 + 1;
     
     if(j >= fdim / 2) 
     {
@@ -4301,15 +4857,18 @@ __global__ void kernel_NormalizeFW2D(Complex *devDst,
     else
         pj = j;
     
-    dIdx = threadIdx.x + pj * (pdim / 2 + 1);
-        
-    int index = threadIdx.x + blockDim.x * blockIdx.x;
-    int quad = threadIdx.x * threadIdx.x + j * j;
-
-    if (quad < r)
+    for (int itr = threadIdx.x; itr < jDim; itr += blockDim.x)
     {
-        devDst[dIdx] = devDataF[index] 
-                     * devDataW[index];
+        dIdx = itr + pj * (pdim / 2 + 1);
+            
+        int index = itr + jDim * blockIdx.x;
+        int quad = itr * itr + j * j;
+
+        if (quad < r)
+        {
+            devDst[dIdx] = devDataF[index] 
+                         * devDataW[index];
+        }
     }
 }
 
@@ -4322,25 +4881,51 @@ __global__ void kernel_NormalizeFW2D(Complex *devDst,
 __global__ void kernel_NormalizeFW(Complex *devDst,
                                    Complex *devDataF, 
                                    RFLOAT *devDataW,
-                                   const int length, 
-                                   const int shift,
+                                   const size_t length, 
+                                   const size_t shift,
                                    const int r,
                                    const int pdim,
                                    const int fdim)
 {
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k, pj, pk, quad;
+    int dIdx;
 
-    Constructor constructor;
-    constructor.init(tid);
+    while(tid < length)
+    {
+        i = (tid + shift) % (fdim / 2 + 1);
+        j = ((tid + shift) / (fdim / 2 + 1)) % fdim;
+        k = ((tid + shift) / (fdim / 2 + 1)) / fdim;
+        
+        if(j >= fdim / 2) 
+        {
+            j = j - fdim;
+            pj = j + pdim;
+        }
+        else
+            pj = j;
+        
+        if(k >= fdim / 2) 
+        {
+            k = k - fdim;
+            pk = k + pdim;
+        }
+        else
+            pk = k;
+        
+        dIdx = i + pj * (pdim / 2 + 1)
+                 + pk * (pdim / 2 + 1) * pdim; 
+        
+        quad = i * i + j * j + k * k;
 
-    constructor.normalizeFW(devDst,
-                            devDataF, 
-                            devDataW, 
-                            length, 
-                            shift,
-                            r,
-                            pdim,
-                            fdim);
+        if (quad < r)
+        {
+            devDst[dIdx] = devDataF[tid] 
+                         * devDataW[tid];
+        }
+
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -4354,7 +4939,11 @@ __global__ void kernel_NormalizeP2D(RFLOAT *devDstR,
                                     int dimSize)
 {
     int index = threadIdx.x + blockDim.x * blockIdx.x;
-    devDstR[index] /= dimSize;
+    while(index < dimSize)
+    {
+        devDstR[index] /= dimSize;
+        index += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -4365,9 +4954,9 @@ __global__ void kernel_NormalizeP2D(RFLOAT *devDstR,
  * @param 
  */
 __global__ void kernel_NormalizeP(RFLOAT *devDstR, 
-                                  int length,
-                                  int shift,
-                                  int dimSize)
+                                  size_t length,
+                                  size_t shift,
+                                  size_t dimSize)
 {
     int index = threadIdx.x + blockDim.x * blockIdx.x;
 
@@ -4415,21 +5004,25 @@ __global__ void kernel_CorrectF2D(RFLOAT *devDstI,
                                   RFLOAT nf,
                                   const int dim) 
 {
-    int i = threadIdx.x;
-    int j = blockIdx.x;
-    if(i >= dim / 2) i = dim - i;
+    int j = blockIdx.x, i, index, mkbIndex;
     if(j >= dim / 2) j = dim - j;
     
-    int index = threadIdx.x + blockDim.x * blockIdx.x;
-    int mkbIndex = mkbIndex = j * (dim / 2 + 1) + i;
+    for (int itr = threadIdx.x; itr < dim; itr += blockDim.x)
+    {
+        i = itr;
+        if(i >= dim / 2) i = dim - i;
+        
+        index = itr + dim * blockIdx.x;
+        mkbIndex = j * (dim / 2 + 1) + i;
 
-    devDstI[index] = devDstI[index] 
-                   / devMkb[mkbIndex]
-                   * nf;
+        devDstI[index] = devDstI[index] 
+                       / devMkb[mkbIndex]
+                       * nf;
 #ifdef RECONSTRUCTOR_REMOVE_NEG
-        if (devDstI[index] < 0)
-            devDstI[index] = 0; 
+            if (devDstI[index] < 0)
+                devDstI[index] = 0; 
 #endif
+    }
 }
 
 /**
@@ -4442,21 +5035,36 @@ __global__ void kernel_CorrectF(RFLOAT *devDst,
                                 RFLOAT *devMkb,
                                 RFLOAT nf,
                                 const int dim, 
-                                const int dimSize, 
-                                const int shift)
+                                const size_t dimSize, 
+                                const size_t shift)
 {
-    //int tid = threadIdx.x;
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k, mkbIndex;
 
-    Constructor constructor;
-    constructor.init(tid);
+    while(tid < dimSize)
+    {
+        i = (tid + shift) % dim;
+        j = ((tid + shift) / dim) % dim;
+        k = ((tid + shift) / dim) / dim;
 
-    constructor.correctF(devDst, 
-                         devMkb,
-                         nf, 
-                         dim, 
-                         dimSize, 
-                         shift);
+        if(i >= dim / 2) i = dim - i;
+        if(j >= dim / 2) j = dim - j;
+        if(k >= dim / 2) k = dim - k;
+        
+        mkbIndex = k * (dim / 2 + 1) 
+                     * (dim / 2 + 1) 
+                 + j * (dim / 2 + 1) 
+                 + i;
+
+        devDst[tid + shift] = devDst[tid + shift] 
+                            / devMkb[mkbIndex]
+                            * nf;
+#ifdef RECONSTRUCTOR_REMOVE_NEG
+        if (devDst[tid + shift] < 0)
+            devDst[tid + shift] = 0; 
+#endif
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -4469,19 +5077,23 @@ __global__ void kernel_CorrectF2D(RFLOAT *devDstI,
                                   RFLOAT *devTik,
                                   const int dim) 
 {
-    int i = threadIdx.x;
-    int j = blockIdx.x;
-    if(i >= dim / 2) i = dim - i;
+    int j = blockIdx.x, i, index, mkbIndex;
     if(j >= dim / 2) j = dim - j;
     
-    int index = threadIdx.x + blockDim.x * blockIdx.x;
-    int mkbIndex = j * (dim / 2 + 1) + i;
+    for (int itr = threadIdx.x; itr < dim; itr += blockDim.x)
+    {
+        i = itr;
+        if(i >= dim / 2) i = dim - i;
+        
+        index = itr + dim * blockIdx.x;
+        mkbIndex = j * (dim / 2 + 1) + i;
 
-    devDstI[index] = devDstI[index] / devTik[mkbIndex];
+        devDstI[index] = devDstI[index] / devTik[mkbIndex];
 #ifdef RECONSTRUCTOR_REMOVE_NEG
-        if (devDstI[index] < 0)
-            devDstI[index] = 0; 
+            if (devDstI[index] < 0)
+                devDstI[index] = 0; 
 #endif
+    }
 }
 
 /**
@@ -4493,20 +5105,36 @@ __global__ void kernel_CorrectF2D(RFLOAT *devDstI,
 __global__ void kernel_CorrectF(RFLOAT *devDst, 
                                 RFLOAT *devTik,
                                 const int dim, 
-                                const int dimSize,
-                                const int shift)
+                                const size_t dimSize,
+                                const size_t shift)
 {
-    //int tid = threadIdx.x;
     int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k, mkbIndex;
+    
+    while(tid < dimSize)
+    {
+        i = (tid + shift) % dim;
+        j = ((tid + shift) / dim) % dim;
+        k = ((tid + shift) / dim) / dim;
 
-    Constructor constructor;
-    constructor.init(tid);
+        if(i >= dim / 2) i = dim - i;
+        if(j >= dim / 2) j = dim - j;
+        if(k >= dim / 2) k = dim - k;
+        
+        mkbIndex = k * (dim / 2 + 1) 
+                     * (dim / 2 + 1) 
+                 + j * (dim / 2 + 1) 
+                 + i;
+        
+        devDst[tid + shift] /= devTik[mkbIndex];
 
-    constructor.correctF(devDst, 
-                         devTik, 
-                         dim, 
-                         dimSize,
-                         shift);
+#ifdef RECONSTRUCTOR_REMOVE_NEG
+        if (devDst[tid + shift] < 0)
+            devDst[tid + shift] = 0; 
+#endif
+
+        tid += blockDim.x * gridDim.x;
+    }
 }
 
 /**
@@ -4522,25 +5150,31 @@ __global__ void kernel_TranslateI2D(Complex* devSrc,
                                     int shift,
                                     int dim) 
 {
-    int i = (threadIdx.x + shift) % (dim / 2 + 1);
-    int j = (threadIdx.x + shift) / (dim / 2 + 1);
-    if(j >= dim / 2) j = j - dim;
-   
-    RFLOAT rCol = ox / dim;
-    RFLOAT rRow = oy / dim;
+    int i, j;
+    RFLOAT rCol;
+    RFLOAT rRow;
     RFLOAT phase;
-
-    Complex imgTemp(0.0, 0.0);
-    int quad = i * i + j * j;
-    if (quad < r * r)
+    for (int itr = threadIdx.x; itr < dim / 2 + 1; itr += blockDim.x)
     {
-        phase = PI_2 * (i * rCol + j * rRow);
+        i = (itr + shift) % (dim / 2 + 1);
+        j = (itr + shift) / (dim / 2 + 1);
+        if(j >= dim / 2) j = j - dim;
+   
+        rCol = ox / dim;
+        rRow = oy / dim;
+
+        Complex imgTemp(0.0, 0.0);
+        int quad = i * i + j * j;
+        if (quad < r * r)
+        {
+            phase = PI_2 * (i * rCol + j * rRow);
 #ifdef SINGLE_PRECISION
-        imgTemp.set(cosf(-phase), sinf(-phase));
+            imgTemp.set(cosf(-phase), sinf(-phase));
 #else
-        imgTemp.set(cos(-phase), sin(-phase));
+            imgTemp.set(cos(-phase), sin(-phase));
 #endif    
-        devSrc[threadIdx.x + shift] *= imgTemp;
+            devSrc[itr + shift] *= imgTemp;
+        }
     } 
 }
 
@@ -4555,9 +5189,9 @@ __global__ void kernel_TranslateI(Complex* devRef,
                                   RFLOAT oy,
                                   RFLOAT oz,
                                   int r,
-                                  int shift,
+                                  size_t shift,
                                   int dim,
-                                  int batch) 
+                                  size_t batch) 
 {
     int i, j, k, quad;
     RFLOAT phase;
@@ -4601,7 +5235,7 @@ __global__ void kernel_SoftMask(RFLOAT *devMask,
                                 RFLOAT r,
                                 RFLOAT ew,
                                 int dim,
-                                int imgSize)
+                                size_t imgSize)
 {
     int index = threadIdx.x + blockDim.x * blockIdx.x;
     int i, j;
@@ -4651,10 +5285,10 @@ __global__ void kernel_MulMask(RFLOAT *dev_image,
                                RFLOAT *devMask,
                                int imgIdx,
                                int dim,
-                               int imgSize)
+                               size_t imgSize)
 {
     int index = threadIdx.x + blockDim.x * blockIdx.x;
-    int shift = index + imgIdx * imgSize;
+    size_t shift = index + imgIdx * imgSize;
     
     while(index < imgSize)
     {

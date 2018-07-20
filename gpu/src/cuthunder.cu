@@ -33,6 +33,9 @@
 #define DIFF_C_DECREASE_THRES 0.95
 #define N_DIFF_C_NO_DECREASE 2
 
+#define THREAD_PER_BLOCK 256
+#define SLICE_PER_BATCH 8
+
 /* Perf */
 //#define PERF_SYNC_STREAM
 //#define PERF_CALLBACK
@@ -532,7 +535,7 @@ void CUDART_CB cbUpdatePGLKImagesBuffer(cudaStream_t stream,
     long long shift = 0;
 
     for (int i = 0; i < args->nImgBatch; i++) {
-        shift = i * args->imageSize;
+        shift = (long long)i * args->imageSize;
         memcpy((void*)(args->pglkptr + shift),
                (void*)(*args->images)[args->basePos + i],
                args->imageSize * sizeof(Complex));
@@ -547,7 +550,7 @@ void CUDART_CB cbUpdateImagesBuffer(cudaStream_t stream,
     long long shift = 0;
 
     for (int i = 0; i < args->nImgBatch; i++) {
-        shift = i * args->imageSize;
+        shift = (long long)i * args->imageSize;
         memcpy((void*)(*args->images)[args->basePos + i],
                (void*)(args->pglkptr + shift),
                args->imageSize * sizeof(Complex));
@@ -6157,9 +6160,10 @@ void PrepareTF(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int nImgBatch = 8 * dim * (dim / 2 + 1);
-    int dimSize = (dim / 2 + 1) * dim * dim;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * (dim / 2 + 1);
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
     int symMatsize = nSymmetryElement * 9;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
 
     cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register T3D data.");
@@ -6191,8 +6195,9 @@ void PrepareTF(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
     
-    int batch, smidx = 0;
-    for (int i = 0; i < dimSize;)
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSize;)
     {
         batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
         
@@ -6212,7 +6217,7 @@ void PrepareTF(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_NORMALISE_T_F
         kernel_NormalizeTF<<<dim, 
-                             dim / 2 + 1, 
+                             threadInBlock, 
                              0, 
                              stream[smidx]>>>(__device__F,
                                               devPartT[smidx], 
@@ -6297,12 +6302,12 @@ void PrepareTF(int gpuIdx,
     LOG(INFO) << "Step2: SymmetrizeF.";
     
     smidx = 0;
-    for (int i = 0; i < dimSize;)
+    for (size_t i = 0; i < dimSize;)
     {
         batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
 
         kernel_SymmetrizeF<<<dim, 
-                             dim / 2 + 1, 
+                             threadInBlock, 
                              0, 
                              stream[smidx]>>>(__device__F,
                                               devSymmat, 
@@ -6377,7 +6382,7 @@ void PrepareTF(int gpuIdx,
     cudaCheckErrors("Allocate __device__F data.");
 
     smidx = 0;
-    for (int i = 0; i < dimSize;)
+    for (size_t i = 0; i < dimSize;)
     {
         batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
 
@@ -6389,7 +6394,7 @@ void PrepareTF(int gpuIdx,
         cudaCheckErrors("for memcpy.");
         
         kernel_SymmetrizeT<<<dim, 
-                             dim / 2 + 1, 
+                             threadInBlock, 
                              0, 
                              stream[smidx]>>>(__device__T,
                                               devSymmat, 
@@ -6507,6 +6512,7 @@ void CalculateT2D(int gpuIdx,
 
     int dimSize = (dim / 2 + 1) * dim;
     int vecSize = maxRadius * pf + 1;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
 
     RFLOAT *__device__T;
     cudaMalloc((void**)&__device__T, dimSize * sizeof(RFLOAT));
@@ -6535,7 +6541,7 @@ void CalculateT2D(int gpuIdx,
     cudaCheckErrors("Allocate __device__count data.");
     
     kernel_ShellAverage2D<<<dim, 
-                            dim / 2 + 1,
+                            threadInBlock,
                             (vecSize - 2) 
                              * (sizeof(RFLOAT) 
                                 + sizeof(int))>>>(devAvg2D, 
@@ -6545,12 +6551,13 @@ void CalculateT2D(int gpuIdx,
                                                   vecSize - 2);
     cudaCheckErrors("Shell for stream default.");
     
-    kernel_CalculateAvg2D<<<1, vecSize - 2>>>(devAvg2D,
-                                              __device__count2D,
-                                              devAvg,
-                                              __device__count,
-                                              dim,
-                                              vecSize - 2);
+    kernel_CalculateAvg<<<1, 
+                          threadInBlock>>>(devAvg2D,
+                                           __device__count2D,
+                                           devAvg,
+                                           __device__count,
+                                           dim,
+                                           vecSize - 2);
     cudaCheckErrors("calAvg for stream default.");
 #endif
 
@@ -6566,15 +6573,15 @@ void CalculateT2D(int gpuIdx,
     int r = pow(maxRadius * pf, 2);
     
     kernel_CalculateFSC2D<<<dim, 
-                            dim / 2 + 1>>>(__device__T, 
-                                           devFSC, 
-                                           devAvg,
-                                           joinHalf,
-                                           fscMatsize,
-                                           wiener,
-                                           dim,
-                                           pf,
-                                           r);
+                            threadInBlock>>>(__device__T, 
+                                             devFSC, 
+                                             devAvg,
+                                             joinHalf,
+                                             fscMatsize,
+                                             wiener,
+                                             dim,
+                                             pf,
+                                             r);
     cudaCheckErrors("calFSC for stream 0.");
 
     cudaMemcpy(T2D,
@@ -6624,8 +6631,9 @@ void CalculateT(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
     int vecSize = maxRadius * pf + 1;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
 
     cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register T3D data.");
@@ -6662,22 +6670,23 @@ void CalculateT(int gpuIdx,
     cudaCheckErrors("Allocate __device__count data.");
     
     kernel_ShellAverage<<<dim, 
-                          dim, 
-                          dim * (sizeof(RFLOAT) 
-                                + sizeof(int))>>>(devAvg2D, 
-                                                  __device__count2D, 
-                                                  __device__T,
-                                                  dim, 
-                                                  vecSize - 2,
-                                                  dimSize);
+                          threadInBlock, 
+                          (vecSize - 2) * (sizeof(RFLOAT) 
+                                        + sizeof(int))>>>(devAvg2D, 
+                                                          __device__count2D, 
+                                                          __device__T,
+                                                          dim, 
+                                                          vecSize - 2,
+                                                          dimSize);
     cudaCheckErrors("Shell for stream default.");
     
-    kernel_CalculateAvg<<<1, vecSize - 2>>>(devAvg2D,
-                                            __device__count2D,
-                                            devAvg,
-                                            __device__count,
-                                            dim,
-                                            vecSize - 2);
+    kernel_CalculateAvg<<<1, 
+                          threadInBlock>>>(devAvg2D,
+                                           __device__count2D,
+                                           devAvg,
+                                           __device__count,
+                                           dim,
+                                           vecSize - 2);
     cudaCheckErrors("calAvg for stream default.");
 #endif
 
@@ -6692,24 +6701,27 @@ void CalculateT(int gpuIdx,
     int wiener = pow(wienerF * pf, 2);
     int r = pow(maxRadius * pf, 2);
     
-    int nImgBatch = 8 * dim * dim;
-    int len = dimSize / nImgBatch;
-    int streamfsc = len / 3;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    size_t len = dimSize / nImgBatch;
+    size_t streamfsc = len / 3;
     
-    for (int i = 0; i < streamfsc; i++)
+    for (size_t i = 0; i < streamfsc; i++)
     {
-        int shift = i * 3 * nImgBatch;
-        kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
-                                                        devFSC, 
-                                                        devAvg,
-                                                        fscMatsize,
-                                                        joinHalf,
-                                                        wiener,
-                                                        r, 
-                                                        pf, 
-                                                        shift,
-                                                        dim,
-                                                        nImgBatch);
+        size_t shift = i * 3 * nImgBatch;
+        kernel_CalculateFSC<<<dim, 
+                              threadInBlock, 
+                              0, 
+                              stream[0]>>>(__device__T, 
+                                           devFSC, 
+                                           devAvg,
+                                           fscMatsize,
+                                           joinHalf,
+                                           wiener,
+                                           r, 
+                                           pf, 
+                                           shift,
+                                           dim,
+                                           nImgBatch);
         cudaCheckErrors("calFSC for stream 0.");
 
         cudaMemcpyAsync(T3D + shift,
@@ -6719,17 +6731,20 @@ void CalculateT(int gpuIdx,
                         stream[0]);
         cudaCheckErrors("out for memcpy 0.");
     
-        kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
-                                                        devFSC, 
-                                                        devAvg,
-                                                        fscMatsize,
-                                                        joinHalf,
-                                                        wiener,
-                                                        r, 
-                                                        pf, 
-                                                        shift + nImgBatch,
-                                                        dim,
-                                                        nImgBatch);
+        kernel_CalculateFSC<<<dim, 
+                              threadInBlock, 
+                              0, 
+                              stream[1]>>>(__device__T, 
+                                           devFSC, 
+                                           devAvg,
+                                           fscMatsize,
+                                           joinHalf,
+                                           wiener,
+                                           r, 
+                                           pf, 
+                                           shift + nImgBatch,
+                                           dim,
+                                           nImgBatch);
         cudaCheckErrors("calFSC for stream 1.");
 
         cudaMemcpyAsync(T3D + shift + nImgBatch,
@@ -6739,17 +6754,20 @@ void CalculateT(int gpuIdx,
                         stream[1]);
         cudaCheckErrors("out for memcpy 1.");
 
-        kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(__device__T, 
-                                                        devFSC, 
-                                                        devAvg,
-                                                        fscMatsize,
-                                                        joinHalf,
-                                                        wiener,
-                                                        r, 
-                                                        pf, 
-                                                        shift + 2 * nImgBatch,
-                                                        dim,
-                                                        nImgBatch);
+        kernel_CalculateFSC<<<dim, 
+                              threadInBlock, 
+                              0, 
+                              stream[2]>>>(__device__T, 
+                                           devFSC, 
+                                           devAvg,
+                                           fscMatsize,
+                                           joinHalf,
+                                           wiener,
+                                           r, 
+                                           pf, 
+                                           shift + 2 * nImgBatch,
+                                           dim,
+                                           nImgBatch);
         cudaCheckErrors("calFSC for stream 2.");
 
         cudaMemcpyAsync(T3D + shift + 2 * nImgBatch,
@@ -6762,18 +6780,21 @@ void CalculateT(int gpuIdx,
    
     if (len % 3 == 2)
     {
-        int shift = (len - 2) * nImgBatch;
-        kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
-                                                        devFSC, 
-                                                        devAvg,
-                                                        fscMatsize,
-                                                        joinHalf,
-                                                        wiener,
-                                                        r, 
-                                                        pf, 
-                                                        shift,
-                                                        dim,
-                                                        nImgBatch);
+        size_t shift = (len - 2) * nImgBatch;
+        kernel_CalculateFSC<<<dim, 
+                              threadInBlock, 
+                              0, 
+                              stream[0]>>>(__device__T, 
+                                           devFSC, 
+                                           devAvg,
+                                           fscMatsize,
+                                           joinHalf,
+                                           wiener,
+                                           r, 
+                                           pf, 
+                                           shift,
+                                           dim,
+                                           nImgBatch);
         cudaCheckErrors("calFSC last for stream 0.");
 
         cudaMemcpyAsync(T3D + shift,
@@ -6783,17 +6804,20 @@ void CalculateT(int gpuIdx,
                         stream[0]);
         cudaCheckErrors("out for memcpy 0.");
 
-        kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
-                                                        devFSC, 
-                                                        devAvg,
-                                                        fscMatsize,
-                                                        joinHalf,
-                                                        wiener,
-                                                        r, 
-                                                        pf, 
-                                                        shift + nImgBatch,
-                                                        dim,
-                                                        nImgBatch);
+        kernel_CalculateFSC<<<dim, 
+                              threadInBlock, 
+                              0, 
+                              stream[1]>>>(__device__T, 
+                                           devFSC, 
+                                           devAvg,
+                                           fscMatsize,
+                                           joinHalf,
+                                           wiener,
+                                           r, 
+                                           pf, 
+                                           shift + nImgBatch,
+                                           dim,
+                                           nImgBatch);
         cudaCheckErrors("calFSC last for stream 1.");
         
         cudaMemcpyAsync(T3D + shift + nImgBatch,
@@ -6805,18 +6829,21 @@ void CalculateT(int gpuIdx,
         
         if (dimSize % nImgBatch != 0)
         {
-            int shift = len * nImgBatch;
-            kernel_CalculateFSC<<<dim, dim, 0, stream[2]>>>(__device__T, 
-                                                            devFSC, 
-                                                            devAvg,
-                                                            fscMatsize,
-                                                            joinHalf,
-                                                            wiener,
-                                                            r, 
-                                                            pf, 
-                                                            shift,
-                                                            dim,
-                                                            dimSize - shift);
+            size_t shift = len * nImgBatch;
+            kernel_CalculateFSC<<<dim, 
+                                  threadInBlock, 
+                                  0, 
+                                  stream[2]>>>(__device__T, 
+                                               devFSC, 
+                                               devAvg,
+                                               fscMatsize,
+                                               joinHalf,
+                                               wiener,
+                                               r, 
+                                               pf, 
+                                               shift,
+                                               dim,
+                                               dimSize - shift);
             cudaCheckErrors("calFSC last for stream 2.");
         
             cudaMemcpyAsync(T3D + shift,
@@ -6833,18 +6860,21 @@ void CalculateT(int gpuIdx,
     {
         if (len % 3 == 1)
         {
-            int shift = (len - 1) * nImgBatch;
-            kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
-                                                            devFSC, 
-                                                            devAvg,
-                                                            fscMatsize,
-                                                            joinHalf,
-                                                            wiener,
-                                                            r, 
-                                                            pf, 
-                                                            shift,
-                                                            dim,
-                                                            nImgBatch);
+            size_t shift = (len - 1) * nImgBatch;
+            kernel_CalculateFSC<<<dim, 
+                                  threadInBlock, 
+                                  0, 
+                                  stream[0]>>>(__device__T, 
+                                               devFSC, 
+                                               devAvg,
+                                               fscMatsize,
+                                               joinHalf,
+                                               wiener,
+                                               r, 
+                                               pf, 
+                                               shift,
+                                               dim,
+                                               nImgBatch);
             cudaCheckErrors("calFSC last for stream 0.");
         
             cudaMemcpyAsync(T3D + shift,
@@ -6856,18 +6886,21 @@ void CalculateT(int gpuIdx,
             
             if (dimSize % nImgBatch != 0)
             {
-                int shift = len * nImgBatch;
-                kernel_CalculateFSC<<<dim, dim, 0, stream[1]>>>(__device__T, 
-                                                                devFSC, 
-                                                                devAvg,
-                                                                fscMatsize,
-                                                                joinHalf,
-                                                                wiener,
-                                                                r, 
-                                                                pf, 
-                                                                shift,
-                                                                dim,
-                                                                dimSize - shift);
+                size_t shift = len * nImgBatch;
+                kernel_CalculateFSC<<<dim, 
+                                      threadInBlock, 
+                                      0, 
+                                      stream[1]>>>(__device__T, 
+                                                   devFSC, 
+                                                   devAvg,
+                                                   fscMatsize,
+                                                   joinHalf,
+                                                   wiener,
+                                                   r, 
+                                                   pf, 
+                                                   shift,
+                                                   dim,
+                                                   dimSize - shift);
                 cudaCheckErrors("calFSC last for stream 1.");
 
                 cudaMemcpyAsync(T3D + shift,
@@ -6883,18 +6916,21 @@ void CalculateT(int gpuIdx,
         {
             if (dimSize % nImgBatch != 0)
             {
-                int shift = len * nImgBatch;
-                kernel_CalculateFSC<<<dim, dim, 0, stream[0]>>>(__device__T, 
-                                                                devFSC, 
-                                                                devAvg,
-                                                                fscMatsize,
-                                                                joinHalf,
-                                                                wiener,
-                                                                r, 
-                                                                pf, 
-                                                                shift,
-                                                                dim,
-                                                                dimSize - shift);
+                size_t shift = len * nImgBatch;
+                kernel_CalculateFSC<<<dim, 
+                                      threadInBlock, 
+                                      0, 
+                                      stream[0]>>>(__device__T, 
+                                                   devFSC, 
+                                                   devAvg,
+                                                   fscMatsize,
+                                                   joinHalf,
+                                                   wiener,
+                                                   r, 
+                                                   pf, 
+                                                   shift,
+                                                   dim,
+                                                   dimSize - shift);
                 cudaCheckErrors("calFSC last for stream 0.");
 
                 cudaMemcpyAsync(T3D + shift,
@@ -6970,6 +7006,7 @@ void CalculateW2D(int gpuIdx,
 
     int dimSize = (dim / 2 + 1) * dim;
     int dimSizeRL = dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     LOG(INFO) << "Step1: InitialW.";
     
@@ -6978,9 +7015,9 @@ void CalculateW2D(int gpuIdx,
     cudaCheckErrors("Allocate devDataW data.");
     
     kernel_InitialW2D<<<dim, 
-                        dim / 2 + 1>>>(devDataW,  
-                                       r, 
-                                       dim);
+                        threadInBlock>>>(devDataW,  
+                                         r, 
+                                         dim);
     
     
     LOG(INFO) << "Step2: Calculate C.";
@@ -7045,13 +7082,13 @@ void CalculateW2D(int gpuIdx,
 #ifdef SINGLE_PRECISION
     diffC = FLT_MAX;
     diffCPrev = FLT_MAX;
-    cufftPlan2d(&planc2r, dim, dim, CUFFT_C2R);
-    cufftPlan2d(&planr2c, dim, dim, CUFFT_R2C);
+    CUFFTCHECK(cufftPlan2d(&planc2r, dim, dim, CUFFT_C2R));
+    CUFFTCHECK(cufftPlan2d(&planr2c, dim, dim, CUFFT_R2C));
 #else
     diffC = DBL_MAX;
     diffCPrev = DBL_MAX;
-    cufftPlan2d(&planc2r, dim, dim, CUFFT_Z2D);
-    cufftPlan2d(&planr2c, dim, dim, CUFFT_D2Z);
+    CUFFTCHECK(cufftPlan2d(&planc2r, dim, dim, CUFFT_Z2D));
+    CUFFTCHECK(cufftPlan2d(&planr2c, dim, dim, CUFFT_D2Z));
 #endif    
     
     int nDiffCNoDecrease = 0;
@@ -7059,10 +7096,11 @@ void CalculateW2D(int gpuIdx,
     for(int m = 0; m < maxIter; m++)
     {
         //LOG(INFO) << "SubStep1: Determining C.";
-        kernel_DeterminingC2D<<<dim, 
-                                dim / 2 + 1>>>((Complex*)devDataC,
+        kernel_DeterminingC<<<dim, 
+                              threadInBlock>>>((Complex*)devDataC,
                                                __device__T, 
-                                               devDataW); 
+                                               devDataW,
+                                               dimSize); 
 
         //LOG(INFO) << "SubStep2: Convoluting C.";
 
@@ -7070,40 +7108,40 @@ void CalculateW2D(int gpuIdx,
         cufftExecC2R(planc2r, devDataC, devDoubleC);
 
         kernel_convoluteC2D<<<dim, 
-                              dim>>>((RFLOAT*)devDoubleC,
-                                     tabfunc,
-                                     nf,
-                                     padSize,
-                                     dim,
-                                     dimSizeRL);
+                              threadInBlock>>>((RFLOAT*)devDoubleC,
+                                               tabfunc,
+                                               nf,
+                                               padSize,
+                                               dim,
+                                               dimSizeRL);
         
         cufftExecR2C(planr2c, devDoubleC, devDataC);
 #else
         cufftExecZ2D(planc2r, devDataC, devDoubleC);
 
         kernel_convoluteC2D<<<dim, 
-                              dim>>>((RFLOAT*)devDoubleC,
-                                     tabfunc,
-                                     nf,
-                                     padSize,
-                                     dim,
-                                     dimSizeRL);
+                              threadInBlock>>>((RFLOAT*)devDoubleC,
+                                               tabfunc,
+                                               nf,
+                                               padSize,
+                                               dim,
+                                               dimSizeRL);
         
         cufftExecD2Z(planr2c, devDoubleC, devDataC);
 #endif    
     
         kernel_RecalculateW2D<<<dim, 
-                                dim / 2 + 1>>>(devDataW,
-                                               (Complex*)devDataC,
-                                               r, 
-                                               dim);
+                                threadInBlock>>>(devDataW,
+                                                 (Complex*)devDataC,
+                                                 r, 
+                                                 dim);
 
         diffCPrev = diffC;
         
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
         kernel_CheckCAVG2D<<<dim, 
-                             dim / 2 + 1, 
-                             (dim / 2 + 1) * (sizeof(RFLOAT) 
+                             threadInBlock, 
+                             threadInBlock * (sizeof(RFLOAT) 
                                            + sizeof(int))>>>(devDiff,
                                                              __device__count,
                                                              (Complex*)devDataC,  
@@ -7128,8 +7166,8 @@ void CalculateW2D(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_CHECK_C_MAX
         kernel_CheckCMAX2D<<<dim, 
-                             dim / 2 + 1, 
-                             (dim / 2 + 1) 
+                             threadInBlock, 
+                             threadInBlock 
                               * sizeof(RFLOAT)>>>(devMax,
                                                   (Complex*)devDataC,  
                                                   r, 
@@ -7209,6 +7247,463 @@ void CalculateW2D(int gpuIdx,
  * @param ..
  * @param ..
  */
+void allocDevicePoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      int streamNum,
+                      int tabSize,
+                      int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    
+    cudaMalloc((void**)dev_C, dimSize * sizeof(Complex));
+    cudaCheckErrors("Allocate devDataC data.");
+
+    cudaMalloc((void**)dev_W, dimSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate devDataW data.");
+
+    cudaMalloc((void**)dev_T, dimSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate devDataT data.");
+
+    cudaMalloc((void**)dev_tab, tabSize * sizeof(RFLOAT));
+    cudaCheckErrors("Alloc device memory for tabfunction.");
+
+#ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
+    cudaMalloc((void**)devDiff, dim * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate device memory for devDiff.");
+    cudaMalloc((void**)devCount, dim * sizeof(int));
+    cudaCheckErrors("Allocate device memory for devcount.");
+#endif
+#ifdef RECONSTRUCTOR_CHECK_C_MAX
+    cudaMalloc((void**)devMax, dim * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate device memory for devMax.");
+#endif
+    
+    for(int i = 0; i < streamNum; i++)
+    {
+        stream[i] = (cudaStream_t*)malloc(sizeof(cudaStream_t));
+        cudaStreamCreate((cudaStream_t*)stream[i]);
+        cudaCheckErrors("stream create.");
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void hostDeviceInit(int gpuIdx,
+                    Complex* C3D,
+                    RFLOAT* W3D,
+                    RFLOAT* T3D,
+                    RFLOAT* tab,
+                    RFLOAT* dev_W,
+                    RFLOAT* dev_T,
+                    RFLOAT* dev_tab,
+                    void** stream,
+                    int streamNum,
+                    int tabSize,
+                    int r,
+                    int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
+    
+    cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaCheckErrors("Register T3D data.");
+
+    cudaHostRegister(W3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaCheckErrors("Register W3D data.");
+    
+    cudaMemcpy(dev_tab,
+               tab,
+               tabSize * sizeof(RFLOAT),
+               cudaMemcpyHostToDevice);
+    cudaCheckErrors("Copy tabfunction to device.");
+    
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSize;)
+    {
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
+        
+        cudaMemcpyAsync(dev_T + i,
+                        T3D + i,
+                        batch * sizeof(RFLOAT),
+                        cudaMemcpyHostToDevice,
+                        *((cudaStream_t*)stream[smidx]));
+        cudaCheckErrors("for memcpy.");
+
+        kernel_InitialW<<<dim, 
+                          threadInBlock,
+                          0,
+                          *((cudaStream_t*)stream[smidx])>>>(dev_W + i,
+                                                             r,
+                                                             i, 
+                                                             dim,
+                                                             batch);
+        cudaCheckErrors("Kernel Init W.");
+    
+        i += batch;
+        smidx = (smidx + 1) % streamNum;
+    }
+   
+    for (int i = 0; i < streamNum; i++)
+    {
+        cudaStreamSynchronize(*((cudaStream_t*)stream[i]));
+        cudaCheckErrors("CUDA stream synchronization.");
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void CalculateC(int gpuIdx,
+                Complex *C3D,
+                Complex *dev_C,
+                RFLOAT *dev_T,
+                RFLOAT *dev_W,
+                void** stream,
+                int streamNum,
+                const int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    
+    cudaHostRegister(C3D, dimSize * sizeof(Complex), cudaHostRegisterDefault);
+    cudaCheckErrors("Register T3D data.");
+
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSize;)
+    {
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
+        
+        kernel_DeterminingC<<<dim, 
+                              threadInBlock,
+                              0,
+                              *((cudaStream_t*)stream[smidx])>>>(dev_C + i,
+                                                                 dev_T + i, 
+                                                                 dev_W + i, 
+                                                                 batch);
+        cudaCheckErrors("kernel DeterminingC error.");
+
+        cudaMemcpyAsync(C3D + i,
+                        dev_C + i,
+                        batch * sizeof(Complex),
+                        cudaMemcpyDeviceToHost,
+                        *((cudaStream_t*)stream[smidx]));
+        cudaCheckErrors("for memcpy.");
+
+        i += batch;
+        smidx = (smidx + 1) % 3;
+    }
+   
+    for (int i = 0; i < streamNum; i++)
+    {
+        cudaStreamSynchronize(*((cudaStream_t*)stream[i]));
+        cudaCheckErrors("CUDA stream synchronization.");
+    }
+    
+    cudaHostUnregister(C3D);
+    cudaCheckErrors("C3D host Unregister.");
+}
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void ConvoluteC(int gpuIdx,
+                RFLOAT *C3D,
+                RFLOAT *dev_C,
+                RFLOAT *dev_tab,
+                void** stream,
+                RFLOAT begin,
+                RFLOAT end,
+                RFLOAT step,
+                int tabsize, 
+                const RFLOAT nf,
+                int streamNum,
+                const int padSize,
+                const int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSizeRL = dim * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    
+    cudaHostRegister(C3D, dimSizeRL * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaCheckErrors("Register C3D data.");
+
+    /* Upload tabfunction to device */
+    TabFunction tabfunc(begin, end, step, NULL, tabsize);
+    tabfunc.devPtr(dev_tab);
+
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSizeRL;)
+    {
+        batch = (i + nImgBatch > dimSizeRL) ? (dimSizeRL - i) : nImgBatch;
+        
+        cudaMemcpyAsync(dev_C + i,
+                        C3D + i,
+                        batch * sizeof(RFLOAT),
+                        cudaMemcpyHostToDevice,
+                        *((cudaStream_t*)stream[smidx]));
+        cudaCheckErrors("for memcpy.");
+
+        kernel_ConvoluteC<<<dim, 
+                            threadInBlock,
+                            0,
+                            *((cudaStream_t*)stream[smidx])>>>(dev_C + i,
+                                                               tabfunc, 
+                                                               nf,
+                                                               dim,
+                                                               i, 
+                                                               padSize,
+                                                               batch);
+        cudaCheckErrors("kernel DeterminingC error.");
+
+        cudaMemcpyAsync(C3D + i,
+                        dev_C + i,
+                        batch * sizeof(RFLOAT),
+                        cudaMemcpyDeviceToHost,
+                        *((cudaStream_t*)stream[smidx]));
+        cudaCheckErrors("for memcpy.");
+
+        i += batch;
+        smidx = (smidx + 1) % 3;
+    }
+   
+    for (int i = 0; i < streamNum; i++)
+    {
+        cudaStreamSynchronize(*((cudaStream_t*)stream[i]));
+        cudaCheckErrors("CUDA stream synchronization.");
+    }
+    
+    cudaHostUnregister(C3D);
+    cudaCheckErrors("C3D host Unregister.");
+}
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void UpdateWC(int gpuIdx,
+              Complex *C3D,
+              Complex *dev_C,
+              RFLOAT *diff,
+              RFLOAT *cmax,
+              RFLOAT *dev_W,
+              RFLOAT *devDiff,
+              RFLOAT *devMax,
+              int *devCount,
+              int *counter,
+              void** stream,
+              RFLOAT &diffC,
+              int streamNum, 
+              const int r,
+              const int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    
+    cudaHostRegister(C3D, dimSize * sizeof(Complex), cudaHostRegisterDefault);
+    cudaCheckErrors("Register T3D data.");
+
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSize;)
+    {
+        batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
+        
+        cudaMemcpyAsync(dev_C + i,
+                        C3D + i,
+                        batch * sizeof(Complex),
+                        cudaMemcpyHostToDevice,
+                        *((cudaStream_t*)stream[smidx]));
+        cudaCheckErrors("for memcpy.");
+
+        kernel_RecalculateW<<<dim, 
+                              threadInBlock,
+                              0,
+                              *((cudaStream_t*)stream[smidx])>>>(dev_C + i,
+                                                                 dev_W + i,  
+                                                                 r,
+                                                                 i, 
+                                                                 dim,
+                                                                 batch);
+        cudaCheckErrors("kernel ReCalculateW error.");
+
+        i += batch;
+        smidx = (smidx + 1) % 3;
+    }
+   
+    for (int i = 0; i < streamNum; i++)
+    {
+        cudaStreamSynchronize(*((cudaStream_t*)stream[i]));
+        cudaCheckErrors("CUDA stream synchronization.");
+    }
+    
+    cudaHostUnregister(C3D);
+    cudaCheckErrors("C3D host Unregister.");
+
+#ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
+    kernel_CheckCAVG<<<dim, 
+                       threadInBlock, 
+                       threadInBlock * (sizeof(RFLOAT) 
+                                        + sizeof(int))>>>(devDiff,
+                                                          devCount,
+                                                          dev_C,  
+                                                          r, 
+                                                          dim,
+                                                          dimSize);
+    
+    cudaMemcpy(diff, 
+               devDiff, 
+               dim * sizeof(RFLOAT), 
+               cudaMemcpyDeviceToHost);
+    cudaCheckErrors("Copy devDiff array to host.");
+    
+    cudaMemcpy(counter, 
+               devCount, 
+               dim * sizeof(int), 
+               cudaMemcpyDeviceToHost);
+    cudaCheckErrors("Copy devcount array to host.");
+    
+    RFLOAT tempD = 0; 
+    int tempC = 0;
+    for(int i = 0; i < dim; i++)
+    {
+        tempD += diff[i];
+        tempC += counter[i];
+    }
+    diffC = tempD / tempC;
+#endif
+
+#ifdef RECONSTRUCTOR_CHECK_C_MAX
+    kernel_CheckCMAX<<<dim, 
+                       threadInBlock, 
+                       threadInBlock * sizeof(RFLOAT)>>>(devMax,
+                                                         dev_C,
+                                                         r, 
+                                                         dim,
+                                                         dimSize);
+    
+    cudaMemcpy(cmax, 
+               devMax, 
+               dim * sizeof(RFLOAT), 
+               cudaMemcpyDeviceToHost);
+    cudaCheckErrors("Copy devMax array to host.");
+    
+    RFLOAT temp = 0;
+    for(int i = 0; i < dim; i++)
+    {
+        if (temp <= cmax[i])
+            temp = cmax[i];
+    }
+    diffC = temp;
+#endif
+}
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void freeDevHostPoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      Complex* C3D,
+                      RFLOAT* volumeW,
+                      RFLOAT* volumeT,
+                      int streamNum,
+                      int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSize = dim * dim * (dim / 2 + 1);
+    cudaMemcpy(volumeW, 
+               *dev_W, 
+               dimSize * sizeof(RFLOAT), 
+               cudaMemcpyDeviceToHost);
+    cudaCheckErrors("Copy dev_W array to host.");
+    
+    for(int i = 0; i < streamNum; i++)
+    {
+        cudaStreamDestroy(*((cudaStream_t*)stream[i]));
+        cudaCheckErrors("Destroy stream.");
+
+    }
+    
+    cudaHostUnregister(volumeW);
+    cudaHostUnregister(volumeT);
+    cudaCheckErrors("host Unregister.");
+
+#ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
+    cudaFree(*devDiff);
+    cudaCheckErrors("Free device memory devDiff.");
+    cudaFree(*devCount);
+    cudaCheckErrors("Free device memory devcount.");
+#endif
+
+#ifdef RECONSTRUCTOR_CHECK_C_MAX        
+    cudaFree(*devMax);
+    cudaCheckErrors("Free device memory devMax.");
+#endif
+
+    cudaFree(*dev_C);
+    cudaCheckErrors("Free device memory devDataC.");
+    
+    cudaFree(*dev_W);
+    cudaCheckErrors("Free device memory devDataW.");
+    
+    cudaFree(*dev_T);
+    cudaCheckErrors("Free device memory __device__T.");
+    
+    cudaFree(*dev_tab);
+    cudaCheckErrors("Free operations.");
+}
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
 void CalculateW(int gpuIdx,
                 RFLOAT *T3D,
                 RFLOAT *W3D,
@@ -7226,8 +7721,9 @@ void CalculateW(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSize = (dim / 2 + 1) * dim * dim;
-    int dimSizeRL = dim * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSizeRL = dim * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     LOG(INFO) << "Step1: InitialW.";
     
@@ -7235,11 +7731,12 @@ void CalculateW(int gpuIdx,
     cudaMalloc((void**)&devDataW, dimSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devDataW data.");
     
-    kernel_InitialW<<<dim, dim>>>(devDataW,  
-                                  r, 
-                                  dim,
-                                  dimSize);
-    
+    kernel_InitialW<<<dim, 
+                      threadInBlock>>>(devDataW,  
+                                       r, 
+                                       dim,
+                                       dimSize);
+    cudaCheckErrors("Kernel InitW.");
     
     LOG(INFO) << "Step2: Calculate C.";
 
@@ -7292,20 +7789,35 @@ void CalculateW(int gpuIdx,
     cudaMalloc((void**)&devMax, dim *sizeof(RFLOAT));
     cudaCheckErrors("Allocate device memory for devMax.");
 #endif
-    
+   
+    //size_t free;
+    //size_t total;
+    //cudaMemGetInfo(&free, &total);
+    //printf("free:%llu, total:%llu\n", free, total);
+
     RFLOAT diffC;
     RFLOAT diffCPrev;
     cufftHandle planc2r, planr2c;
 #ifdef SINGLE_PRECISION
     diffC = FLT_MAX;
     diffCPrev = FLT_MAX;
-    cufftPlan3d(&planc2r, dim, dim, dim, CUFFT_C2R);
-    cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_R2C);
+    CUFFTCHECK(cufftPlan3d(&planc2r, dim, dim, dim, CUFFT_C2R));
+    
+    //cudaMemGetInfo(&free, &total);
+    //printf("After c2r free:%llu, total:%llu, dim:%d\n", free, total, dim);
+
+    cufftResult result = cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_R2C);
+    //printf("r:%d\n", result);
+    ////CUFFTCHECK(cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_R2C));
+    CUFFTCHECK(result);
+    
+    //cudaMemGetInfo(&free, &total);
+    //printf("After r2c free:%llu, total:%llu\n", free, total);
 #else
     diffC = DBL_MAX;
     diffCPrev = DBL_MAX;
-    cufftPlan3d(&planc2r, dim, dim, dim, CUFFT_Z2D);
-    cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_D2Z);
+    CUFFTCHECK(cufftPlan3d(&planc2r, dim, dim, dim, CUFFT_Z2D));
+    CUFFTCHECK(cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_D2Z));
 #endif    
     
     int nDiffCNoDecrease = 0;
@@ -7313,100 +7825,62 @@ void CalculateW(int gpuIdx,
     for(int m = 0; m < maxIter; m++)
     {
         //LOG(INFO) << "SubStep1: Determining C.";
-        kernel_DeterminingC<<<dim, dim>>>((Complex*)devDataC,
-                                          __device__T, 
-                                          devDataW, 
-                                          dimSize);
+        kernel_DeterminingC<<<dim, 
+                              threadInBlock>>>((Complex*)devDataC,
+                                               __device__T, 
+                                               devDataW, 
+                                               dimSize);
+        cudaCheckErrors("kernel DeterminingC error.");
 
         //LOG(INFO) << "SubStep2: Convoluting C.";
-
-    //cudaMemcpy(C3D, devDataC, dimSize * sizeof(Complex), cudaMemcpyDeviceToHost);
-    //cudaCheckErrors("Copy devDataW volume to host.");  
-    //
-    //Complex* dd = new Complex[dimSize];
-    //FILE* pfile;
-    //int t = 0;
-    //pfile = fopen("c3d.dat", "rb");
-    //if (pfile == NULL)
-    //    printf("open c3d error!\n");
-    //if (fread(dd, sizeof(Complex), dimSize, pfile) != dimSize)
-    //    printf("read c3d error!\n");
-    //fclose(pfile);
-    //printf("i:%d,cw:%.7lf,gw:%.7lf\n",0,dd[0].real(),C3D[0].real());
-    //for (t = 0; t < dimSize; t++){
-    //    if (fabs(C3D[t].real() - dd[t].real()) >= 1e-4){
-    //        printf("i:%d,cw:%.7lf,gw:%.7lf\n",t,dd[t].real(),C3D[t].real());
-    //        break;
-    //    }
-    //}
-    //if (t == dimSize)
-    //    printf("successw:%d\n", dimSize);
 
 #ifdef SINGLE_PRECISION
         cufftExecC2R(planc2r, devDataC, devDoubleC);
 
-        kernel_convoluteC<<<dim, dim>>>((RFLOAT*)devDoubleC,
-                                        tabfunc,
-                                        nf,
-                                        padSize,
-                                        dim,
-                                        dimSizeRL);
+        kernel_convoluteC<<<dim, 
+                            threadInBlock>>>((RFLOAT*)devDoubleC,
+                                             tabfunc,
+                                             nf,
+                                             padSize,
+                                             dim,
+                                             dimSizeRL);
+        cudaCheckErrors("kernel ConvoluteC error.");
         
-    //float* c3d = new float[dimSizeRL];
-    //cudaMemcpy(c3d, devDoubleC, dimSizeRL * sizeof(float), cudaMemcpyDeviceToHost);
-    //cudaCheckErrors("Copy devDataW volume to host.");  
-    //
-    //float* dd = new float[dimSizeRL];
-    //FILE* pfile;
-    //int t = 0;
-    //pfile = fopen("c3d.dat", "rb");
-    //if (pfile == NULL)
-    //    printf("open c3d error!\n");
-    //if (fread(dd, sizeof(float), dimSizeRL, pfile) != dimSizeRL)
-    //    printf("read c3d error!\n");
-    //fclose(pfile);
-    //printf("i:%d,cw:%.7lf,gw:%.7lf\n",0,dd[0],c3d[0]);
-    //for (t = 0; t < dimSizeRL; t++){
-    //    if (fabs(c3d[t] - dd[t]) >= 1e-5){
-    //        printf("i:%d,cw:%.7lf,gw:%.7lf\n",t,dd[t],c3d[t]);
-    //        break;
-    //    }
-    //}
-    //if (t == dimSizeRL)
-    //    printf("successC:%d\n", dimSizeRL);
-
         cufftExecR2C(planr2c, devDoubleC, devDataC);
 #else
         cufftExecZ2D(planc2r, devDataC, devDoubleC);
 
-        kernel_convoluteC<<<dim, dim>>>((RFLOAT*)devDoubleC,
-                                        tabfunc,
-                                        nf,
-                                        padSize,
-                                        dim,
-                                        dimSizeRL);
+        kernel_convoluteC<<<dim, 
+                            threadInBlock>>>((RFLOAT*)devDoubleC,
+                                             tabfunc,
+                                             nf,
+                                             padSize,
+                                             dim,
+                                             dimSizeRL);
+        cudaCheckErrors("kernel ConvoluteC error.");
         
         cufftExecD2Z(planr2c, devDoubleC, devDataC);
 #endif    
     
-        kernel_RecalculateW<<<dim, dim>>>(devDataW,
-                                          (Complex*)devDataC,  
-                                          r, 
-                                          dim,
-                                          dimSize);
+        kernel_RecalculateW<<<dim, threadInBlock>>>(devDataW,
+                                                    (Complex*)devDataC,  
+                                                    r, 
+                                                    dim,
+                                                    dimSize);
+        cudaCheckErrors("kernel ReCalculateW error.");
 
         diffCPrev = diffC;
         
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
         kernel_CheckCAVG<<<dim, 
-                           dim, 
-                           dim * (sizeof(RFLOAT) 
-                                  + sizeof(int))>>>(devDiff,
-                                                    __device__count,
-                                                    (Complex*)devDataC,  
-                                                    r, 
-                                                    dim,
-                                                    dimSize);
+                           threadInBlock, 
+                           threadInBlock * (sizeof(RFLOAT) 
+                                            + sizeof(int))>>>(devDiff,
+                                                              __device__count,
+                                                              (Complex*)devDataC,  
+                                                              r, 
+                                                              dim,
+                                                              dimSize);
         
         cudaMemcpy(diff, devDiff, dim *sizeof(RFLOAT), cudaMemcpyDeviceToHost);
         cudaCheckErrors("Copy devDiff array to host.");
@@ -7426,12 +7900,12 @@ void CalculateW(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_CHECK_C_MAX
         kernel_CheckCMAX<<<dim, 
-                           dim, 
-                           dim * sizeof(RFLOAT)>>>(devMax,
-                                                   (Complex*)devDataC,  
-                                                   r, 
-                                                   dim,
-                                                   dimSize);
+                           threadInBlock, 
+                           threadInBlock * sizeof(RFLOAT)>>>(devMax,
+                                                             (Complex*)devDataC,  
+                                                             r, 
+                                                             dim,
+                                                             dimSize);
         
         cudaMemcpy(cmax, devMax, dim * sizeof(RFLOAT), cudaMemcpyDeviceToHost);
         cudaCheckErrors("Copy devMax array to host.");
@@ -7461,25 +7935,6 @@ void CalculateW(int gpuIdx,
     cudaMemcpy(W3D, devDataW, dimSize * sizeof(RFLOAT), cudaMemcpyDeviceToHost);
     cudaCheckErrors("Copy devDataW volume to host.");  
     
-    //Complex* dd = new Complex[dimSize];
-    //FILE* pfile;
-    //int t = 0;
-    //pfile = fopen("w3d.dat", "rb");
-    //if (pfile == NULL)
-    //    printf("open w3d error!\n");
-    //if (fread(dd, sizeof(Complex), dimSize, pfile) != dimSize)
-    //    printf("read w3d error!\n");
-    //fclose(pfile);
-    //printf("i:%d,cw:%.16lf,gw:%.16lf\n",0,dd[0].real(),W3D[0]);
-    //for (t = 0; t < dimSize; t++){
-    //    if (fabs(W3D[t] - dd[t].real()) >= 1e-10){
-    //        printf("i:%d,cw:%.16lf,gw:%.16lf\n",t,dd[t].real(),W3D[t]);
-    //        break;
-    //    }
-    //}
-    //if (t == dimSize)
-    //    printf("successw:%d\n", dimSize);
-
     LOG(INFO) << "Step3: Clean up the streams and memory.";
 
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
@@ -7537,6 +7992,7 @@ void CalculateW2D(int gpuIdx,
     cudaSetDevice(gpuIdx);
 
     int dimSize = (dim / 2 + 1) * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     RFLOAT *devDataW;
     cudaMalloc((void**)&devDataW, dimSize * sizeof(RFLOAT));
@@ -7555,10 +8011,10 @@ void CalculateW2D(int gpuIdx,
     cudaCheckErrors("Copy __device__T volume to device stream0.");
     
     kernel_CalculateW2D<<<dim, 
-                          dim / 2 + 1>>>(devDataW,
-                                         __device__T, 
-                                         dim,
-                                         r);
+                          threadInBlock>>>(devDataW,
+                                           __device__T, 
+                                           dim,
+                                           r);
 
     cudaMemcpy(W2D, 
                devDataW, 
@@ -7589,7 +8045,8 @@ void CalculateW(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register T3D data.");
@@ -7612,13 +8069,13 @@ void CalculateW(int gpuIdx,
     
     LOG(INFO) << "Step1: CalculateW.";
     
-    int nImgBatch = 8 * dim * dim;
-    int len = dimSize / nImgBatch;
-    int streamN = len / 3;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    size_t len = dimSize / nImgBatch;
+    size_t streamN = len / 3;
    
-    for (int i = 0; i < streamN; i++)
+    for (size_t i = 0; i < streamN; i++)
     {
-        int shift = i * 3 * nImgBatch;
+        size_t shift = i * 3 * nImgBatch;
         cudaMemcpyAsync(__device__T + shift, 
                         T3D + shift, 
                         nImgBatch * sizeof(RFLOAT), 
@@ -7626,12 +8083,15 @@ void CalculateW(int gpuIdx,
                         stream[0]);
         cudaCheckErrors("Copy __device__T volume to device stream0.");
         
-        kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                      __device__T, 
-                                                      nImgBatch, 
-                                                      shift,
-                                                      dim,
-                                                      r);
+        kernel_CalculateW<<<dim, 
+                            threadInBlock, 
+                            0, 
+                            stream[0]>>>(devDataW,
+                                         __device__T, 
+                                         nImgBatch, 
+                                         shift,
+                                         dim,
+                                         r);
 
         cudaMemcpyAsync(W3D + shift, 
                         devDataW + shift, 
@@ -7647,12 +8107,15 @@ void CalculateW(int gpuIdx,
                         stream[1]);
         cudaCheckErrors("Copy __device__T volume to device stream1.");
         
-        kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
-                                                      __device__T, 
-                                                      nImgBatch, 
-                                                      shift + nImgBatch,
-                                                      dim,
-                                                      r);
+        kernel_CalculateW<<<dim, 
+                            threadInBlock, 
+                            0, 
+                            stream[1]>>>(devDataW,
+                                         __device__T, 
+                                         nImgBatch, 
+                                         shift + nImgBatch,
+                                         dim,
+                                         r);
 
         cudaMemcpyAsync(W3D + shift + nImgBatch, 
                         devDataW + shift + nImgBatch, 
@@ -7668,12 +8131,15 @@ void CalculateW(int gpuIdx,
                         stream[2]);
         cudaCheckErrors("Copy __device__T volume to device stream2.");
         
-        kernel_CalculateW<<<dim, dim, 0, stream[2]>>>(devDataW,
-                                                      __device__T, 
-                                                      nImgBatch, 
-                                                      shift + 2 * nImgBatch,
-                                                      dim,
-                                                      r);
+        kernel_CalculateW<<<dim, 
+                            threadInBlock, 
+                            0, 
+                            stream[2]>>>(devDataW,
+                                         __device__T, 
+                                         nImgBatch, 
+                                         shift + 2 * nImgBatch,
+                                         dim,
+                                         r);
 
         cudaMemcpyAsync(W3D + shift + 2 * nImgBatch, 
                         devDataW + shift + 2 * nImgBatch, 
@@ -7686,7 +8152,7 @@ void CalculateW(int gpuIdx,
 
     if (len % 3 == 2)
     {
-        int shift = (len - 2) * nImgBatch;
+        size_t shift = (len - 2) * nImgBatch;
         cudaMemcpyAsync(__device__T + shift, 
                         T3D + shift, 
                         nImgBatch * sizeof(RFLOAT), 
@@ -7694,12 +8160,15 @@ void CalculateW(int gpuIdx,
                         stream[0]);
         cudaCheckErrors("Copy __device__T volume to device stream0.");
         
-        kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                      __device__T, 
-                                                      nImgBatch, 
-                                                      shift,
-                                                      dim,
-                                                      r);
+        kernel_CalculateW<<<dim, 
+                            threadInBlock, 
+                            0, 
+                            stream[0]>>>(devDataW,
+                                         __device__T, 
+                                         nImgBatch, 
+                                         shift,
+                                         dim,
+                                         r);
 
         cudaMemcpyAsync(W3D + shift, 
                         devDataW + shift, 
@@ -7715,12 +8184,15 @@ void CalculateW(int gpuIdx,
                         stream[1]);
         cudaCheckErrors("Copy __device__T volume to device stream1.");
         
-        kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
-                                                      __device__T, 
-                                                      nImgBatch, 
-                                                      shift + nImgBatch,
-                                                      dim,
-                                                      r);
+        kernel_CalculateW<<<dim, 
+                            threadInBlock, 
+                            0, 
+                            stream[1]>>>(devDataW,
+                                         __device__T, 
+                                         nImgBatch, 
+                                         shift + nImgBatch,
+                                         dim,
+                                         r);
 
 
         cudaMemcpyAsync(W3D + shift + nImgBatch, 
@@ -7732,7 +8204,7 @@ void CalculateW(int gpuIdx,
     
         if (dimSize % nImgBatch != 0)
         {
-            int shift = len * nImgBatch;
+            size_t shift = len * nImgBatch;
             cudaMemcpyAsync(__device__T + shift, 
                             T3D + shift, 
                             (dimSize - shift) * sizeof(RFLOAT), 
@@ -7740,12 +8212,15 @@ void CalculateW(int gpuIdx,
                             stream[2]);
             cudaCheckErrors("Copy __device__T volume to device stream2.");
             
-            kernel_CalculateW<<<dim, dim, 0, stream[2]>>>(devDataW,
-                                                          __device__T, 
-                                                          dimSize - shift, 
-                                                          shift,
-                                                          dim,
-                                                          r);
+            kernel_CalculateW<<<dim, 
+                                threadInBlock, 
+                                0, 
+                                stream[2]>>>(devDataW,
+                                             __device__T, 
+                                             dimSize - shift, 
+                                             shift,
+                                             dim,
+                                             r);
 
             cudaMemcpyAsync(W3D + shift, 
                             devDataW + shift, 
@@ -7760,7 +8235,7 @@ void CalculateW(int gpuIdx,
         
         if (len % 3 == 1)
         {
-            int shift = (len - 1) * nImgBatch;
+            size_t shift = (len - 1) * nImgBatch;
             cudaMemcpyAsync(__device__T + shift, 
                             T3D + shift, 
                             nImgBatch * sizeof(RFLOAT), 
@@ -7768,12 +8243,15 @@ void CalculateW(int gpuIdx,
                             stream[0]);
             cudaCheckErrors("Copy __device__T volume to device stream0.");
             
-            kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                          __device__T, 
-                                                          nImgBatch, 
-                                                          shift,
-                                                          dim,
-                                                          r);
+            kernel_CalculateW<<<dim, 
+                                threadInBlock, 
+                                0, 
+                                stream[0]>>>(devDataW,
+                                             __device__T, 
+                                             nImgBatch, 
+                                             shift,
+                                             dim,
+                                             r);
 
             cudaMemcpyAsync(W3D + shift, 
                             devDataW + shift, 
@@ -7784,7 +8262,7 @@ void CalculateW(int gpuIdx,
         
             if (dimSize % nImgBatch != 0)
             {
-                int shift = len * nImgBatch;
+                size_t shift = len * nImgBatch;
                 cudaMemcpyAsync(__device__T + shift, 
                                 T3D + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
@@ -7792,12 +8270,15 @@ void CalculateW(int gpuIdx,
                                 stream[1]);
                 cudaCheckErrors("Copy __device__T volume to device stream1.");
                 
-                kernel_CalculateW<<<dim, dim, 0, stream[1]>>>(devDataW,
-                                                              __device__T, 
-                                                              dimSize - shift, 
-                                                              shift,
-                                                              dim,
-                                                              r);
+                kernel_CalculateW<<<dim, 
+                                    threadInBlock, 
+                                    0,
+                                    stream[1]>>>(devDataW,
+                                                 __device__T, 
+                                                 dimSize - shift, 
+                                                 shift,
+                                                 dim,
+                                                 r);
                 cudaMemcpyAsync(W3D + shift, 
                                 devDataW + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
@@ -7810,7 +8291,7 @@ void CalculateW(int gpuIdx,
         {
             if (dimSize % nImgBatch != 0)
             {
-                int shift = len * nImgBatch;
+                size_t shift = len * nImgBatch;
                 cudaMemcpyAsync(__device__T + shift, 
                                 T3D + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
@@ -7818,12 +8299,15 @@ void CalculateW(int gpuIdx,
                                 stream[0]);
                 cudaCheckErrors("Copy __device__T volume to device stream0.");
                 
-                kernel_CalculateW<<<dim, dim, 0, stream[0]>>>(devDataW,
-                                                              __device__T, 
-                                                              dimSize - shift, 
-                                                              shift,
-                                                              dim,
-                                                              r);
+                kernel_CalculateW<<<dim, 
+                                    threadInBlock, 
+                                    0, 
+                                    stream[0]>>>(devDataW,
+                                                 __device__T, 
+                                                 dimSize - shift, 
+                                                 shift,
+                                                 dim,
+                                                 r);
                 cudaMemcpyAsync(W3D + shift, 
                                 devDataW + shift, 
                                 (dimSize - shift) * sizeof(RFLOAT), 
@@ -7880,6 +8364,8 @@ void CalculateF2D(int gpuIdx,
     int dimSizeP = (pdim / 2 + 1) * pdim;
     int dimSizePRL = pdim * pdim;
     int dimSizeF = (fdim / 2 + 1) * fdim;
+    int pthreadInBlock = (pdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : pdim / 2 + 1;
+    int fthreadInBlock = (fdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : fdim / 2 + 1;
 
     Complex *devDst;
     cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
@@ -7911,12 +8397,12 @@ void CalculateF2D(int gpuIdx,
     cudaCheckErrors("for memcpy.");
 
     kernel_NormalizeFW2D<<<fdim, 
-                           fdim / 2 + 1>>>(devDst,
-                                           devF, 
-                                           devW, 
-                                           r,
-                                           pdim,
-                                           fdim);
+                           fthreadInBlock>>>(devDst,
+                                             devF, 
+                                             devW, 
+                                             r,
+                                             pdim,
+                                             fdim);
 
 #ifdef SINGLE_PRECISION
     cufftReal *devDstR;
@@ -7930,9 +8416,9 @@ void CalculateF2D(int gpuIdx,
     
     cufftHandle planc2r;
 #ifdef SINGLE_PRECISION
-    cufftPlan2d(&planc2r, pdim, pdim, CUFFT_C2R);
+    CUFFTCHECK(cufftPlan2d(&planc2r, pdim, pdim, CUFFT_C2R));
 #else
-    cufftPlan2d(&planc2r, pdim, pdim, CUFFT_Z2D);
+    CUFFTCHECK(cufftPlan2d(&planc2r, pdim, pdim, CUFFT_Z2D));
 #endif    
     
 #ifdef SINGLE_PRECISION
@@ -7948,8 +8434,8 @@ void CalculateF2D(int gpuIdx,
     cudaCheckErrors("Free device memory devDst.");
     
     kernel_NormalizeP2D<<<pdim, 
-                          pdim>>>(devDstR,
-                                  dimSizePRL);
+                          pthreadInBlock>>>(devDstR,
+                                            dimSizePRL);
 
     cudaMemcpy(padDstR,
                devDstR,
@@ -7974,21 +8460,20 @@ void CalculateF2D(int gpuIdx,
  * @param
  * @param
  */
-void CalculateF(int gpuIdx,
-                Complex *padDst,
-                Complex *F3D,
-                RFLOAT *padDstR,
-                RFLOAT *W3D,
-                const int r,
-                const int pdim,
-                const int fdim)
+void CalculateFW(int gpuIdx,
+                 Complex *padDst,
+                 Complex *F3D,
+                 RFLOAT *W3D,
+                 const int r,
+                 const int pdim,
+                 const int fdim)
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSizeP = (pdim / 2 + 1) * pdim * pdim;
-    int dimSizePRL = pdim * pdim * pdim;
-    int dimSizeF = (fdim / 2 + 1) * fdim * fdim;
-    int nImgBatch = 8 * fdim * fdim;
+    size_t dimSizeP = (pdim / 2 + 1) * pdim * pdim;
+    size_t dimSizeF = (fdim / 2 + 1) * fdim * fdim;
+    size_t nImgBatch = SLICE_PER_BATCH * fdim * fdim;
+    int fthreadInBlock = (fdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : fdim / 2 + 1;
 
     cudaHostRegister(F3D, dimSizeF * sizeof(Complex), cudaHostRegisterDefault);
     cudaCheckErrors("Register F3D data.");
@@ -8021,8 +8506,9 @@ void CalculateF(int gpuIdx,
     
     LOG(INFO) << "Step1: CalculateFW.";
     
-    int batch, smidx = 0;
-    for (int i = 0; i < dimSizeF;)
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSizeF;)
     {
         batch = (i + nImgBatch > dimSizeF) ? (dimSizeF - i) : nImgBatch;
         
@@ -8040,14 +8526,142 @@ void CalculateF(int gpuIdx,
                         stream[smidx]);
         cudaCheckErrors("for memcpy.");
 
-        kernel_NormalizeFW<<<fdim, fdim, 0, stream[smidx]>>>(devDst,
-                                                             devPartF[smidx], 
-                                                             devPartW[smidx], 
-                                                             batch, 
-                                                             i,
-                                                             r,
-                                                             pdim,
-                                                             fdim);
+        kernel_NormalizeFW<<<fdim, 
+                             fthreadInBlock, 
+                             0, 
+                             stream[smidx]>>>(devDst,
+                                              devPartF[smidx], 
+                                              devPartW[smidx], 
+                                              batch, 
+                                              i,
+                                              r,
+                                              pdim,
+                                              fdim);
+
+        i += batch;
+        smidx = (smidx + 1) % 3;
+    }
+   
+    cudaStreamSynchronize(stream[0]);
+    cudaCheckErrors("CUDA stream0 synchronization.");
+    cudaStreamSynchronize(stream[1]);
+    cudaCheckErrors("CUDA stream1 synchronization.");
+    cudaStreamSynchronize(stream[2]);
+    cudaCheckErrors("CUDA stream1 synchronization.");
+
+    cudaMemcpy(padDst,
+               devDst,
+               dimSizeP * sizeof(Complex),
+               cudaMemcpyDeviceToHost);
+    cudaCheckErrors("for memcpy.");
+
+    for (int i = 0; i < 3; i++)
+    {
+        cudaFree(devPartW[i]);
+        cudaCheckErrors("Free device memory of W");
+        cudaFree(devPartF[i]);
+        cudaCheckErrors("Free device memory __device__F.");
+    }
+    
+    cudaHostUnregister(F3D);
+    cudaHostUnregister(W3D);
+    
+    cudaStreamDestroy(stream[0]);
+    cudaStreamDestroy(stream[1]);
+    cudaStreamDestroy(stream[2]);
+    cudaCheckErrors("Destroy stream.");
+
+    cudaFree(devDst);
+    cudaCheckErrors("Free device memory devDst.");
+}
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void CalculateF(int gpuIdx,
+                Complex *padDst,
+                Complex *F3D,
+                RFLOAT *padDstR,
+                RFLOAT *W3D,
+                const int r,
+                const int pdim,
+                const int fdim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSizeP = (pdim / 2 + 1) * pdim * pdim;
+    size_t dimSizePRL = pdim * pdim * pdim;
+    size_t dimSizeF = (fdim / 2 + 1) * fdim * fdim;
+    size_t nImgBatch = SLICE_PER_BATCH * fdim * fdim;
+    int fthreadInBlock = (fdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : fdim / 2 + 1;
+    int pthreadInBlock = (pdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : pdim / 2 + 1;
+
+    cudaHostRegister(F3D, dimSizeF * sizeof(Complex), cudaHostRegisterDefault);
+    cudaCheckErrors("Register F3D data.");
+
+    cudaHostRegister(W3D, dimSizeF * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaCheckErrors("Register W3D data.");
+    
+    Complex *devDst;
+    cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
+    cudaCheckErrors("Allocate __device__F data.");
+
+    cudaMemset(devDst, 0.0, dimSizeP * sizeof(Complex));
+    cudaCheckErrors("Memset devDst data.");
+
+    Complex *devPartF[3];
+    RFLOAT *devPartW[3];
+    for (int i = 0; i < 3; i++)
+    {
+        cudaMalloc((void**)&devPartF[i], nImgBatch * sizeof(Complex));
+        cudaCheckErrors("Allocate devDataW data.");
+
+        cudaMalloc((void**)&devPartW[i], nImgBatch * sizeof(RFLOAT));
+        cudaCheckErrors("Allocate devDataW data.");
+    }
+
+    cudaStream_t stream[3];
+
+    for(int i = 0; i < 3; i++)
+        cudaStreamCreate(&stream[i]);
+    
+    LOG(INFO) << "Step1: CalculateFW.";
+    
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSizeF;)
+    {
+        batch = (i + nImgBatch > dimSizeF) ? (dimSizeF - i) : nImgBatch;
+        
+        cudaMemcpyAsync(devPartF[smidx],
+                        F3D + i,
+                        batch * sizeof(Complex),
+                        cudaMemcpyHostToDevice,
+                        stream[smidx]);
+        cudaCheckErrors("for memcpy.");
+
+        cudaMemcpyAsync(devPartW[smidx],
+                        W3D + i,
+                        batch * sizeof(RFLOAT),
+                        cudaMemcpyHostToDevice,
+                        stream[smidx]);
+        cudaCheckErrors("for memcpy.");
+
+        kernel_NormalizeFW<<<fdim, 
+                             fthreadInBlock, 
+                             0, 
+                             stream[smidx]>>>(devDst,
+                                              devPartF[smidx], 
+                                              devPartW[smidx], 
+                                              batch, 
+                                              i,
+                                              r,
+                                              pdim,
+                                              fdim);
 
         i += batch;
         smidx = (smidx + 1) % 3;
@@ -8065,7 +8679,7 @@ void CalculateF(int gpuIdx,
         cudaFree(devPartW[i]);
         cudaCheckErrors("Free device memory of W");
         cudaFree(devPartF[i]);
-    cudaCheckErrors("Free device memory __device__F.");
+        cudaCheckErrors("Free device memory __device__F.");
     }
     
     cudaHostUnregister(F3D);
@@ -8083,9 +8697,9 @@ void CalculateF(int gpuIdx,
     
     cufftHandle planc2r;
 #ifdef SINGLE_PRECISION
-    cufftPlan3d(&planc2r, pdim, pdim, pdim, CUFFT_C2R);
+    CUFFTCHECK(cufftPlan3d(&planc2r, pdim, pdim, pdim, CUFFT_C2R));
 #else
-    cufftPlan3d(&planc2r, pdim, pdim, pdim, CUFFT_Z2D);
+    CUFFTCHECK(cufftPlan3d(&planc2r, pdim, pdim, pdim, CUFFT_Z2D));
 #endif    
     
 #ifdef SINGLE_PRECISION
@@ -8100,14 +8714,14 @@ void CalculateF(int gpuIdx,
     cudaFree(devDst);
     cudaCheckErrors("Free device memory devDst.");
     
-    int pnImgBatch = 8 * pdim * pdim;
+    size_t pnImgBatch = SLICE_PER_BATCH * pdim * pdim;
     smidx = 0;
-    for (int i = 0; i < dimSizePRL;)
+    for (size_t i = 0; i < dimSizePRL;)
     {
         batch = (i + pnImgBatch > dimSizePRL) ? (dimSizePRL - i) : pnImgBatch;
         
         kernel_NormalizeP<<<pdim, 
-                            pdim, 
+                            pthreadInBlock, 
                             0, 
                             stream[smidx]>>>(devDstR,
                                              batch, 
@@ -8161,6 +8775,7 @@ void CorrSoftMaskF2D(int gpuIdx,
 
     int dimSize = (dim / 2 + 1) * dim;
     int dimSizeRL = dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     RFLOAT *devDstI;
     cudaMalloc((void**)&devDstI, dimSizeRL * sizeof(RFLOAT));
@@ -8207,24 +8822,24 @@ void CorrSoftMaskF2D(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
     kernel_CorrectF2D<<<dim, 
-                        dim>>>(devDstI, 
-                               devMkb,
-                               nf,
-                               dim);
+                        threadInBlock>>>(devDstI, 
+                                         devMkb,
+                                         nf,
+                                         dim);
 #endif
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
     kernel_CorrectF2D<<<dim, 
-                        dim>>>(devDstI, 
-                               devTik,
-                               dim);
+                        threadInBlock>>>(devDstI, 
+                                         devTik,
+                                         dim);
 #endif
 
     cufftHandle planr2c;
 #ifdef SINGLE_PRECISION
-    cufftPlan2d(&planr2c, dim, dim, CUFFT_R2C);
+    CUFFTCHECK(cufftPlan2d(&planr2c, dim, dim, CUFFT_R2C));
 #else
-    cufftPlan2d(&planr2c, dim, dim, CUFFT_D2Z);
+    CUFFTCHECK(cufftPlan2d(&planr2c, dim, dim, CUFFT_D2Z));
 #endif    
     
 #ifdef SINGLE_PRECISION
@@ -8268,7 +8883,6 @@ void CorrSoftMaskF2D(int gpuIdx,
  * @param
  */
 void CorrSoftMaskF(int gpuIdx,
-                   Complex *dst,
                    RFLOAT *dstN,
                    RFLOAT *mkbRL,
                    RFLOAT nf,
@@ -8276,8 +8890,8 @@ void CorrSoftMaskF(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSizeRL = dim * dim * dim;
-    int dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSizeRL = dim * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
 
     cudaHostRegister(dstN, dimSizeRL * sizeof(RFLOAT), cudaHostRegisterDefault);
     cudaCheckErrors("Register dst data.");
@@ -8290,7 +8904,7 @@ void CorrSoftMaskF(int gpuIdx,
     
 #ifdef RECONSTRUCTOR_MKB_KERNEL
     
-    int mkbSize = (dim / 2 + 1) * (dim / 2 + 1) * (dim / 2 + 1);
+    size_t mkbSize = (dim / 2 + 1) * (dim / 2 + 1) * (dim / 2 + 1);
     RFLOAT *devMkb;
     cudaMalloc((void**)&devMkb, mkbSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devMkb data.");
@@ -8301,7 +8915,7 @@ void CorrSoftMaskF(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
     
-    int mkbSize = (dim / 2 + 1) * (dim / 2 + 1) * (dim / 2 + 1);
+    size_t mkbSize = (dim / 2 + 1) * (dim / 2 + 1) * (dim / 2 + 1);
     RFLOAT *devTik;
     cudaMalloc((void**)&devTik, mkbSize * sizeof(RFLOAT));
     cudaCheckErrors("Allocate devTik data.");
@@ -8314,10 +8928,11 @@ void CorrSoftMaskF(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
 
-    int nImgBatch = 8 * dim * dim;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
     
-    int batch, smidx = 0;
-    for (int i = 0; i < dimSizeRL;)
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSizeRL;)
     {
         batch = (i + nImgBatch > dimSizeRL) ? (dimSizeRL - i) : nImgBatch;
         
@@ -8330,7 +8945,7 @@ void CorrSoftMaskF(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_MKB_KERNEL
         kernel_CorrectF<<<dim, 
-                          dim, 
+                          threadInBlock, 
                           0, 
                           stream[smidx]>>>(devDstN, 
                                            devMkb,
@@ -8342,7 +8957,138 @@ void CorrSoftMaskF(int gpuIdx,
 
 #ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
         kernel_CorrectF<<<dim, 
-                          dim, 
+                          threadInBlock, 
+                          0, 
+                          stream[smidx]>>>(devDstN, 
+                                           devTik,
+                                           dim,
+                                           batch, 
+                                           i);
+#endif
+
+        cudaMemcpyAsync(dstN + i,
+                        devDstN + i,
+                        batch * sizeof(RFLOAT),
+                        cudaMemcpyDeviceToHost,
+                        stream[smidx]);
+        cudaCheckErrors("out for memcpy.");
+
+        i += batch;
+        smidx = (smidx + 1) % 3;
+    }
+   
+    cudaStreamSynchronize(stream[0]);
+    cudaCheckErrors("CUDA stream0 synchronization.");
+    cudaStreamSynchronize(stream[1]);
+    cudaCheckErrors("CUDA stream1 synchronization.");
+    cudaStreamSynchronize(stream[2]);
+    cudaCheckErrors("CUDA stream1 synchronization.");
+    
+    cudaHostUnregister(dstN);
+    
+    cudaStreamDestroy(stream[0]);
+    cudaStreamDestroy(stream[1]);
+    cudaStreamDestroy(stream[2]);
+    cudaCheckErrors("Destroy stream.");
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+    cudaFree(devMkb);
+    cudaCheckErrors("Free device memory devDst.");
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+    cudaFree(devTik);
+    cudaCheckErrors("Free device memory devDst.");
+#endif
+    cudaFree(devDstN);
+    cudaCheckErrors("Free device memory devDst.");
+}
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void CorrSoftMaskF(int gpuIdx,
+                   Complex *dst,
+                   RFLOAT *dstN,
+                   RFLOAT *mkbRL,
+                   RFLOAT nf,
+                   const int dim)
+{
+    cudaSetDevice(gpuIdx);
+
+    size_t dimSizeRL = dim * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
+
+    cudaHostRegister(dstN, dimSizeRL * sizeof(RFLOAT), cudaHostRegisterDefault);
+    cudaCheckErrors("Register dst data.");
+    
+    RFLOAT *devDstN;
+    cudaMalloc((void**)&devDstN, dimSizeRL * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate devDst data.");
+    
+    LOG(INFO) << "Step2: Correcting Convolution Kernel."; 
+    
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+    
+    size_t mkbSize = (dim / 2 + 1) * (dim / 2 + 1) * (dim / 2 + 1);
+    RFLOAT *devMkb;
+    cudaMalloc((void**)&devMkb, mkbSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate devMkb data.");
+    cudaMemcpy(devMkb, mkbRL, mkbSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
+    cudaCheckErrors("Copy devMkb to device.");
+
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+    
+    size_t mkbSize = (dim / 2 + 1) * (dim / 2 + 1) * (dim / 2 + 1);
+    RFLOAT *devTik;
+    cudaMalloc((void**)&devTik, mkbSize * sizeof(RFLOAT));
+    cudaCheckErrors("Allocate devTik data.");
+    cudaMemcpy(devTik, mkbRL, mkbSize * sizeof(RFLOAT), cudaMemcpyHostToDevice);
+    cudaCheckErrors("Copy devTik to device.");
+#endif
+    
+    cudaStream_t stream[3];
+
+    for(int i = 0; i < 3; i++)
+        cudaStreamCreate(&stream[i]);
+
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
+    
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSizeRL;)
+    {
+        batch = (i + nImgBatch > dimSizeRL) ? (dimSizeRL - i) : nImgBatch;
+        
+        cudaMemcpyAsync(devDstN + i,
+                        dstN + i,
+                        batch * sizeof(RFLOAT),
+                        cudaMemcpyHostToDevice,
+                        stream[smidx]);
+        cudaCheckErrors("for memcpy 0.");
+
+#ifdef RECONSTRUCTOR_MKB_KERNEL
+        kernel_CorrectF<<<dim, 
+                          threadInBlock, 
+                          0, 
+                          stream[smidx]>>>(devDstN, 
+                                           devMkb,
+                                           nf,
+                                           dim,
+                                           batch,
+                                           i);
+#endif
+
+#ifdef RECONSTRUCTOR_TRILINEAR_KERNEL
+        kernel_CorrectF<<<dim, 
+                          threadInBlock, 
                           0, 
                           stream[smidx]>>>(devDstN, 
                                            devTik,
@@ -8376,9 +9122,9 @@ void CorrSoftMaskF(int gpuIdx,
     
     cufftHandle planr2c;
 #ifdef SINGLE_PRECISION
-    cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_R2C);
+    CUFFTCHECK(cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_R2C));
 #else
-    cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_D2Z);
+    CUFFTCHECK(cufftPlan3d(&planr2c, dim, dim, dim, CUFFT_D2Z));
 #endif    
     
 #ifdef SINGLE_PRECISION
@@ -8436,6 +9182,7 @@ void TranslateI2D(int gpuIdx,
     cudaSetDevice(gpuIdx);
 
     int dimSize = (dim / 2 + 1) * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
 
     cudaHostRegister(src, dimSize * sizeof(Complex), cudaHostRegisterDefault);
     cudaCheckErrors("Register src data.");
@@ -8464,7 +9211,7 @@ void TranslateI2D(int gpuIdx,
         cudaCheckErrors("for memcpy 0.");
 
         kernel_TranslateI2D<<<1, 
-                              dim / 2 + 1, 
+                              threadInBlock, 
                               0, 
                               stream[smidx]>>>(devSrc, 
                                                ox,
@@ -8519,7 +9266,8 @@ void TranslateI(int gpuIdx,
 {
     cudaSetDevice(gpuIdx);
 
-    int dimSize = (dim / 2 + 1) * dim * dim;
+    size_t dimSize = (dim / 2 + 1) * dim * dim;
+    int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
 
     cudaHostRegister(ref, dimSize * sizeof(Complex), cudaHostRegisterDefault);
     cudaCheckErrors("Register src data.");
@@ -8533,10 +9281,11 @@ void TranslateI(int gpuIdx,
     for(int i = 0; i < 3; i++)
         cudaStreamCreate(&stream[i]);
 
-    int nImgBatch = 8 * dim * dim;
+    size_t nImgBatch = SLICE_PER_BATCH * dim * dim;
     
-    int batch, smidx = 0;
-    for (int i = 0; i < dimSize;)
+    int smidx = 0;
+    size_t batch;
+    for (size_t i = 0; i < dimSize;)
     {
         batch = (i + nImgBatch > dimSize) ? (dimSize - i) : nImgBatch;
         
@@ -8548,7 +9297,7 @@ void TranslateI(int gpuIdx,
         cudaCheckErrors("for memcpy 0.");
 
         kernel_TranslateI<<<dim, 
-                            dim / 2 + 1, 
+                            threadInBlock, 
                             0, 
                             stream[smidx]>>>(devRef, 
                                              ox,
@@ -8621,9 +9370,9 @@ void reMask(vector<Complex*>& imgData,
 
     RFLOAT *devMask[aviDevs];
     RFLOAT r = maskRadius / pixelSize;
-    int imgSize = idim * (idim / 2 + 1);
-    int imgSizeRL = idim * idim;
-    int blockDim = idim > 512 ? 512 : idim;
+    size_t imgSize = idim * (idim / 2 + 1);
+    size_t imgSizeRL = idim * idim;
+    int threadInBlock = (idim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : idim / 2 + 1;
     
     for (int n = 0; n < aviDevs; ++n) 
     {     
@@ -8632,11 +9381,12 @@ void reMask(vector<Complex*>& imgData,
         cudaMalloc((void**)&devMask[n], imgSizeRL * sizeof(RFLOAT));
         cudaCheckErrors("Allocate devMask data.");
         
-        kernel_SoftMask<<<idim, blockDim>>>(devMask[n],
-                                            r,
-                                            ew,
-                                            idim,
-                                            imgSizeRL);
+        kernel_SoftMask<<<idim, 
+                          threadInBlock>>>(devMask[n],
+                                           r,
+                                           ew,
+                                           idim,
+                                           imgSizeRL);
         cudaCheckErrors("kernel SoftMask error.");
     }
 
@@ -8671,11 +9421,11 @@ void reMask(vector<Complex*>& imgData,
             
             cudaStreamCreate(&stream[i + baseS]);
 #ifdef SINGLE_PRECISION
-            cufftPlan2d(&planc2r[i + baseS], idim, idim, CUFFT_C2R);
-            cufftPlan2d(&planr2c[i + baseS], idim, idim, CUFFT_R2C);
+            CUFFTCHECK(cufftPlan2d(&planc2r[i + baseS], idim, idim, CUFFT_C2R));
+            CUFFTCHECK(cufftPlan2d(&planr2c[i + baseS], idim, idim, CUFFT_R2C));
 #else
-            cufftPlan2d(&planc2r[i + baseS], idim, idim, CUFFT_Z2D);
-            cufftPlan2d(&planr2c[i + baseS], idim, idim, CUFFT_D2Z);
+            CUFFTCHECK(cufftPlan2d(&planc2r[i + baseS], idim, idim, CUFFT_Z2D));
+            CUFFTCHECK(cufftPlan2d(&planr2c[i + baseS], idim, idim, CUFFT_D2Z));
 #endif   
             cufftSetStream(planc2r[i + baseS], stream[i + baseS]);
             cufftSetStream(planr2c[i + baseS], stream[i + baseS]);
@@ -8719,18 +9469,21 @@ void reMask(vector<Complex*>& imgData,
             
             for (int r = 0; r < nImgBatch; r++)
             {
+                long long shift = (long long)r * imgSize;
+                long long shiftRL = (long long)r * imgSizeRL;
+
 #ifdef SINGLE_PRECISION
                 cufftExecC2R(planc2r[smidx + baseS], 
-                             (cufftComplex *)dev_image_buf[smidx + baseS] + r * imgSize, 
-                             dev_imageF_buf[smidx + baseS] + r * imgSizeRL);
+                             (cufftComplex *)dev_image_buf[smidx + baseS] + shift, 
+                             dev_imageF_buf[smidx + baseS] + shiftRL);
 #else
                 cufftExecZ2D(planc2r[smidx + baseS], 
-                             (cufftComplex *)dev_image_buf[smidx + baseS] + r * imgSize, 
-                             dev_imageF_buf[smidx + baseS] + r * imgSizeRL);
+                             (cufftComplex *)dev_image_buf[smidx + baseS] + shift, 
+                             dev_imageF_buf[smidx + baseS] + shiftRL);
 #endif    
                
                 kernel_MulMask<<<idim, 
-                                 blockDim, 
+                                 threadInBlock, 
                                  0, 
                                  stream[smidx + baseS]>>>(dev_imageF_buf[smidx + baseS],
                                                           devMask[n],
@@ -8741,12 +9494,12 @@ void reMask(vector<Complex*>& imgData,
 
 #ifdef SINGLE_PRECISION
                 cufftExecR2C(planr2c[smidx + baseS], 
-                             dev_imageF_buf[smidx + baseS] + r * imgSizeRL, 
-                             (cufftComplex *)dev_image_buf[smidx + baseS] + r * imgSize);
+                             dev_imageF_buf[smidx + baseS] + shiftRL, 
+                             (cufftComplex *)dev_image_buf[smidx + baseS] + shift);
 #else
                 cufftExecD2Z(planr2c[smidx + baseS], 
-                             dev_imageF_buf[smidx + baseS] + r * imgSizeRL, 
-                             (cufftComplex *)dev_image_buf[smidx + baseS] + r * imgSize);
+                             dev_imageF_buf[smidx + baseS] + shiftRL,
+                             (cufftComplex *)dev_image_buf[smidx + baseS] + shift);
 #endif    
             }
             

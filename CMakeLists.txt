@@ -286,9 +286,8 @@ if("${GPU_VERSION}")
     TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
     #LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
     #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    #ADD_SUBDIRECTORY(testsrc)
 endif("${GPU_VERSION}")
-
-#ADD_SUBDIRECTORY(testsrc)
 
 # Compile Executables
 
