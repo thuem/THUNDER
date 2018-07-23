@@ -3293,7 +3293,8 @@ void InsertI2D(Complex *F2D,
         }
     }
 
-    ncclUniqueId commIdF, commIdO; 
+    ncclUniqueId commIdF; 
+    //ncclUniqueId commIdO; 
     ncclComm_t commF[aviDevs];
     ncclComm_t commO[aviDevs];
     
@@ -3322,20 +3323,21 @@ void InsertI2D(Complex *F2D,
     } 
     NCCLCHECK(ncclGroupEnd());
     
-    if (rankO == 0)
-        NCCLCHECK(ncclGetUniqueId(&commIdO));
-    MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
-    
-    NCCLCHECK(ncclGroupStart()); 
-    for (int i = 0; i < aviDevs; i++) 
-    { 
-        cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclCommInitRank(commO + i, 
-                                   sizeO * aviDevs, 
-                                   commIdO, 
-                                   rankO * aviDevs + i)); 
-    } 
-    NCCLCHECK(ncclGroupEnd());
+    NCCLCHECK(ncclCommInitAll(commO, aviDevs, gpus));
+    //if (rankO == 0)
+    //    NCCLCHECK(ncclGetUniqueId(&commIdO));
+    //MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
+    //
+    //NCCLCHECK(ncclGroupStart()); 
+    //for (int i = 0; i < aviDevs; i++) 
+    //{ 
+    //    cudaSetDevice(gpus[i]); 
+    //    NCCLCHECK(ncclCommInitRank(commO + i, 
+    //                               sizeO * aviDevs, 
+    //                               commIdO, 
+    //                               rankO * aviDevs + i)); 
+    //} 
+    //NCCLCHECK(ncclGroupEnd());
     
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
@@ -3992,7 +3994,7 @@ void InsertI2D(Complex *F2D,
     cudaFree(sf); 
     
     MPI_Barrier(hemi);
-    MPI_Barrier(slav);
+    //MPI_Barrier(slav);
     
     NCCLCHECK(ncclGroupStart()); 
     for (int i = 0; i < aviDevs; i++) 
@@ -4044,7 +4046,8 @@ void InsertI2D(Complex *F2D,
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
-    MPI_Barrier(slav);
+    MPI_Barrier(hemi);
+    //MPI_Barrier(slav);
     
     LOG(INFO) << "rank" << rankO << ":Step3: Copy done, free Volume and Nccl object.";
     //printf("rank%d:Step4: Copy done, free Volume and Nccl object.\n", nranks);
@@ -4147,7 +4150,8 @@ void InsertFT(Complex *F3D,
     CLOG(INFO, "LOGGER_GPU") << "Number of Devices for Inserting Images : " << aviDevs;
 #endif
 
-    ncclUniqueId commIdF, commIdO; 
+    ncclUniqueId commIdF; 
+    //ncclUniqueId commIdO; 
     ncclComm_t commF[aviDevs];
     ncclComm_t commO[aviDevs];
     
@@ -4195,22 +4199,23 @@ void InsertFT(Complex *F3D,
 
     // create the NCCL ID the communicator of Volume O
 
-    if (rankO == 0)
-        NCCLCHECK(ncclGetUniqueId(&commIdO));
-    MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
+    NCCLCHECK(ncclCommInitAll(commO, aviDevs, gpus));
+    //if (rankO == 0)
+    //    NCCLCHECK(ncclGetUniqueId(&commIdO));
+    //MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
 
-    // similary to Volume F, create NCCL communicator of Volume O
-    
-    NCCLCHECK(ncclGroupStart()); 
-    for (int i = 0; i < aviDevs; i++) 
-    { 
-        cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclCommInitRank(commO + i, 
-                                   sizeO * aviDevs, 
-                                   commIdO, 
-                                   rankO * aviDevs + i)); 
-    } 
-    NCCLCHECK(ncclGroupEnd());
+    //// similary to Volume F, create NCCL communicator of Volume O
+    //
+    //NCCLCHECK(ncclGroupStart()); 
+    //for (int i = 0; i < aviDevs; i++) 
+    //{ 
+    //    cudaSetDevice(gpus[i]); 
+    //    NCCLCHECK(ncclCommInitRank(commO + i, 
+    //                               sizeO * aviDevs, 
+    //                               commIdO, 
+    //                               rankO * aviDevs + i)); 
+    //} 
+    //NCCLCHECK(ncclGroupEnd());
 
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_GPU") << "NCCL Communicator of Volume O Created";
@@ -5015,7 +5020,7 @@ void InsertFT(Complex *F3D,
     cudaCheckErrors("copy T3D from device to host.");
     
     MPI_Barrier(hemi);
-    MPI_Barrier(slav);
+    //MPI_Barrier(slav);
     
     NCCLCHECK(ncclGroupStart()); 
     for (int i = 0; i < aviDevs; i++) 
@@ -5067,7 +5072,8 @@ void InsertFT(Complex *F3D,
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
-    MPI_Barrier(slav);
+    MPI_Barrier(hemi);
+    //MPI_Barrier(slav);
     
     //MPI_Comm_rank(MPI_COMM_WORLD, &nranks);
     //if (nranks == 2){
@@ -5269,7 +5275,8 @@ void InsertFT(Complex *F3D,
         }
     }
 
-    ncclUniqueId commIdF, commIdO; 
+    ncclUniqueId commIdF; 
+    //ncclUniqueId commIdO; 
     ncclComm_t commF[aviDevs];
     ncclComm_t commO[aviDevs];
     
@@ -5298,20 +5305,21 @@ void InsertFT(Complex *F3D,
     } 
     NCCLCHECK(ncclGroupEnd());
     
-    if (rankO == 0)
-        NCCLCHECK(ncclGetUniqueId(&commIdO));
-    MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
-    
-    NCCLCHECK(ncclGroupStart()); 
-    for (int i = 0; i < aviDevs; i++) 
-    { 
-        cudaSetDevice(gpus[i]); 
-        NCCLCHECK(ncclCommInitRank(commO + i, 
-                                   sizeO * aviDevs, 
-                                   commIdO, 
-                                   rankO * aviDevs + i)); 
-    } 
-    NCCLCHECK(ncclGroupEnd());
+    NCCLCHECK(ncclCommInitAll(commO, aviDevs, gpus));
+    //if (rankO == 0)
+    //    NCCLCHECK(ncclGetUniqueId(&commIdO));
+    //MPI_Bcast(&commIdO, NCCL_UNIQUE_ID_BYTES, MPI_CHAR, 0, slav);
+    //
+    //NCCLCHECK(ncclGroupStart()); 
+    //for (int i = 0; i < aviDevs; i++) 
+    //{ 
+    //    cudaSetDevice(gpus[i]); 
+    //    NCCLCHECK(ncclCommInitRank(commO + i, 
+    //                               sizeO * aviDevs, 
+    //                               commIdO, 
+    //                               rankO * aviDevs + i)); 
+    //} 
+    //NCCLCHECK(ncclGroupEnd());
     
     int nStream = aviDevs * NUM_STREAM_PER_DEVICE;
 
@@ -5938,7 +5946,7 @@ void InsertFT(Complex *F3D,
     cudaCheckErrors("copy T3D from device to host.");
     
     MPI_Barrier(hemi);
-    MPI_Barrier(slav);
+    //MPI_Barrier(slav);
     
     NCCLCHECK(ncclGroupStart()); 
     for (int i = 0; i < aviDevs; i++) 
@@ -5990,6 +5998,7 @@ void InsertFT(Complex *F3D,
                cudaMemcpyDeviceToHost);
     cudaCheckErrors("copy O2D from device to host.");
         
+    MPI_Barrier(hemi);
     //MPI_Barrier(slav);
     
     //MPI_Comm_rank(MPI_COMM_WORLD, &nranks);
@@ -7723,6 +7732,7 @@ void CalculateW(int gpuIdx,
 
     size_t dimSize = (dim / 2 + 1) * dim * dim;
     size_t dimSizeRL = dim * dim * dim;
+
     int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     LOG(INFO) << "Step1: InitialW.";
@@ -8047,6 +8057,7 @@ void CalculateW(int gpuIdx,
     cudaSetDevice(gpuIdx);
 
     size_t dimSize = (dim / 2 + 1) * dim * dim;
+
     int threadInBlock = (dim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : dim / 2 + 1;
     
     cudaHostRegister(T3D, dimSize * sizeof(RFLOAT), cudaHostRegisterDefault);
@@ -8597,22 +8608,35 @@ void CalculateF(int gpuIdx,
     size_t dimSizeP = (pdim / 2 + 1) * pdim * pdim;
     size_t dimSizePRL = pdim * pdim * pdim;
     size_t dimSizeF = (fdim / 2 + 1) * fdim * fdim;
+
     size_t nImgBatch = SLICE_PER_BATCH * fdim * fdim;
     int fthreadInBlock = (fdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : fdim / 2 + 1;
     int pthreadInBlock = (pdim / 2 + 1 > THREAD_PER_BLOCK) ? THREAD_PER_BLOCK : pdim / 2 + 1;
 
     cudaHostRegister(F3D, dimSizeF * sizeof(Complex), cudaHostRegisterDefault);
-    cudaCheckErrors("Register F3D data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF F3D");
+#endif
 
     cudaHostRegister(W3D, dimSizeF * sizeof(RFLOAT), cudaHostRegisterDefault);
-    cudaCheckErrors("Register W3D data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO REGISTER PINNED MEMORY OF W3D");
+#endif
     
     Complex *devDst;
     cudaMalloc((void**)&devDst, dimSizeP * sizeof(Complex));
-    cudaCheckErrors("Allocate __device__F data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO ALLOCATE DST IN DEVICE");
+#endif
 
     cudaMemset(devDst, 0.0, dimSizeP * sizeof(Complex));
-    cudaCheckErrors("Memset devDst data.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO SET DST TO 0 IN DEVICE");
+#endif
 
     Complex *devPartF[3];
     RFLOAT *devPartW[3];
@@ -8625,15 +8649,22 @@ void CalculateF(int gpuIdx,
         cudaCheckErrors("Allocate devDataW data.");
     }
 
-    cudaStream_t stream[3];
+    cudaStream_t stream[NUM_STREAM_PER_DEVICE];
 
-    for(int i = 0; i < 3; i++)
+    for(int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
+    {
         cudaStreamCreate(&stream[i]);
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO CREATE STREAMS");
+#endif
+    }
     
     LOG(INFO) << "Step1: CalculateFW.";
     
     int smidx = 0;
     size_t batch;
+
     for (size_t i = 0; i < dimSizeF;)
     {
         batch = (i + nImgBatch > dimSizeF) ? (dimSizeF - i) : nImgBatch;
@@ -8668,12 +8699,14 @@ void CalculateF(int gpuIdx,
         smidx = (smidx + 1) % 3;
     }
    
-    cudaStreamSynchronize(stream[0]);
-    cudaCheckErrors("CUDA stream0 synchronization.");
-    cudaStreamSynchronize(stream[1]);
-    cudaCheckErrors("CUDA stream1 synchronization.");
-    cudaStreamSynchronize(stream[2]);
-    cudaCheckErrors("CUDA stream1 synchronization.");
+    for(int i = 0; i < NUM_STREAM_PER_DEVICE; i++)
+    {
+        cudaStreamSynchronize(stream[i]);
+
+#ifdef GPU_ERROR_CHECK
+        cudaCheckErrors("FAIL TO SYNCHRONIZE CUDA STREAM");
+#endif
+    }
 
     for (int i = 0; i < 3; i++)
     {
@@ -8710,7 +8743,10 @@ void CalculateF(int gpuIdx,
 #endif    
     
     cufftDestroy(planc2r);
-    cudaCheckErrors("DestroyPlan planc2r.");
+
+#ifdef GPU_ERROR_CHECK
+    cudaCheckErrors("FAIL TO DESTROY CUDA FFTW PLAN");
+#endif
     
     cudaFree(devDst);
     cudaCheckErrors("Free device memory devDst.");
@@ -8728,6 +8764,7 @@ void CalculateF(int gpuIdx,
                                              batch, 
                                              i,
                                              dimSizePRL);
+        cudaCheckErrors("kernel normalizeP launch.");
 
         cudaMemcpyAsync(padDstR + i,
                         devDstR + i,
