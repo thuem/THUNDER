@@ -1122,7 +1122,19 @@ __global__ void kernel_InitialW2D(RFLOAT *devDataW,
  * @param ...
  */
 __global__ void kernel_InitialW(RFLOAT *devDataW,  
-                                int initWR, 
+                                int initWR,
+                                int dim,
+                                size_t dimSize);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_InitialW(RFLOAT *devDataW,  
+                                int initWR,
+                                int shift, 
                                 int dim,
                                 size_t dimSize);
 
@@ -1156,6 +1168,20 @@ __global__ void kernel_convoluteC2D(RFLOAT *devDoubleC,
  * @param ...
  * @param ...
  */
+__global__ void kernel_ConvoluteC(RFLOAT *devDataC,
+                                  TabFunction tabfunc,
+                                  RFLOAT nf,
+                                  int dim,
+                                  size_t shift,
+                                  int padSize,
+                                  size_t batch);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
 __global__ void kernel_convoluteC(RFLOAT *devDoubleC,
                                   TabFunction tabfunc,
                                   RFLOAT nf,
@@ -1173,6 +1199,19 @@ __global__ void kernel_RecalculateW2D(RFLOAT *devDataW,
                                       Complex *devDataC,  
                                       int initWR, 
                                       int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_RecalculateW(Complex *devDataC,
+                                    RFLOAT *devDataW,  
+                                    int initWR, 
+                                    size_t shift, 
+                                    int dim,
+                                    size_t dimSize);
 
 /**
  * @brief ...
