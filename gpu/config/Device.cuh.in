@@ -48,6 +48,17 @@
         } \
     } while(0) 
 
+#define CUFFTCHECK(cmd) \
+    do \
+    { \
+        cufftResult r = cmd; \
+        if (r!= CUFFT_SUCCESS) { \
+            fprintf(stderr, "CUFFT error in '%s', line %d\n",__FILE__, __LINE__); \
+        exit(1); \
+        } \
+    } while(0) 
+
+
 #define CU_MAX(a, b) (int)fmax((double)a, (double)b)
 
 #define CU_MIN(a, b) (int)fmin((double)a, (double)b)

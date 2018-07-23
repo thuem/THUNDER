@@ -1,0 +1,325 @@
+\documentclass{article}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{url}
+
+%\usepackage{fontspec}
+
+%\usepackage{fontspec}
+%\newfontfamily\menlo{Menlo}
+
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
+
+\lstset
+{
+    numbers = left, 
+    numberstyle = \tiny, 
+    keywordstyle = \color{blue!70},
+    commentstyle = \color{red!50!green!50!blue!50}, 
+    frame = shadowbox,
+    rulesepcolor = \color{red!20!green!20!blue!20},
+    % escapeinside = ``,
+    % basicstyle=\small\menlo,
+    breaklines = true,
+    showstringspaces = false,
+    showtabs = false,
+    showspaces = false,
+    keepspaces = false,
+    breakatwhitespace = false, 
+    numbersep = 5pt,
+    xleftmargin = 2em,
+    xrightmargin = 2em,
+    aboveskip = 1em,
+    framexleftmargin = 2em
+} 
+
+\begin{document}
+
+    \title{THUNDER v1.4.1 User Guide}
+    \maketitle
+    
+    \section{Installation}
+    
+        \subsection{Requirement of Installation}
+        
+            \subsubsection{Basic Requirement}
+        
+                \begin{itemize}
+                    \item C/C++ compiler supporting C++98 standard along with MPI wrapper
+                    \item \textsf{cmake}
+                \end{itemize}
+                
+                We recommend \textsf{gcc} and Intel C/C++ compiler as C/C++ compiler. Moreover, \textsf{gcc42} has been tested as the oldest supporting version of \textsf{gcc}. OpenMPI and MPICH both can be used as MPI standard. In Tsinghua, we use \textsf{openmpi-gcc43} as the C/C++ compiler for compiling THUNDER.
+                
+                \textsf{cmake} is a tool for configuring source code for installation.
+                
+                \textsf{openmpi-gcc43} is open-source software, which can easily installed using \textsf{yum} on CentOS and \textsf{apt-get} on Ubuntu. \textsf{cmake} has been already installed in most Linux operating systems. If not, it can also be conveniently installed by \textsf{yum} on CentOS and \textsf{apt-get} on Ubuntu.
+            
+            \subsubsection{Additional Requirement of Installing GPU Version}
+            
+            CUDA 8 or higher version of CUDA is required for installing GPU version of THUNDER.
+        
+        \subsection{Installing from Source Code}
+        
+            \subsubsection{Get Source Code}
+            
+            THUNDER is a open-source software package, source code of which is held on Github. You may download the source code at \url{https://github.com/thuem/THUNDER}.
+        
+            \subsubsection{Preparation Before Configuring Source Code}
+            
+                Make sure \textsf{cmake} have been installed and correctly placed in environment. Thus, \textsf{cmake} can correctly set up the environment for compiling THUNDER.
+        
+            \subsubsection{Configure Using \textsf{cmake}}
+            
+                In THUNDER source code directory, please type in the following commands for configuring source code. \textsf{install\_dir} stands for where you want THUNDER to be installed.
+            
+                \begin{lstlisting}[language={sh}]
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
+                \end{lstlisting}
+                
+            \subsubsection{Configuration Variables}
+            
+                You may configure the compilation of THUNDER with several variables.
+                
+                THUNDER can be compiled into single-float precision version or double-float precision version, by \textsf{SINGLE\_PRECISION} variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter \textsf{-DSINGLE\_PRECISION='off'} during configuring using \textsf{cmake}.
+                
+                By default, THUNDER compiles a GPU version. If a GPU version is what you want, please add parameter \textsf{-DGPU\_VERSION='off'} during configuring using \textsf{cmake}.
+                
+                THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by \textsf{ENABLE\_SIMD} variable. The default version is using SIMD instructions. However, you may force it compiling into a non-SIMD version, by adding parameter \textsf{-DENABLE\_SIMD='off'} during configuring using \textsf{cmake}.
+                
+                AVX256 and AVX512 SIMD instructions are currently supported by THUNDER. By default, AVX256 is enabled and AVX512 is disabled. You can manually enable or disable them by the variable \textsf{ENABLE\_AVX256} and \textsf{ENABLE\_AVX512}, respectively, by the same method as described above.
+                
+                It is worth mentioned that you may check whether the CPUs and C/C++ compiler support AVX512 or not, before compiling THUNDER using AVX512. For example, CPUs should be KNL or Xeon newer than Skylake. Meanwhile, if you compile using \textsf{GCC}, please make sure it is newer than version 4.9.3. If you compile with icc, please check up its support on AVX512.
+                
+            \subsubsection{Compile and Stage Binaries into Environment}
+            
+                Please type in the following command for compiling source code using 20 threads. You may change the number after \textsf{-j} to be number of threads you desire for compiling.
+                
+                \begin{lstlisting}[language={sh}]
+make -j20
+make install
+                \end{lstlisting}
+                
+                After compiling and installation, several folders will appear under the directory \textsf{install\_dir}: \textsf{include} containing header files, \textsf{bin} containing executable binaries, \textsf{lib} containing several libraries, \textsf{script} containing scripts needed and \textsf{manual} containing this user guide. The compiled binaries are listed as
+                \begin{itemize}
+                    \item \textsf{thunder}
+                    \item \textsf{thunder\_average}
+                    \item \textsf{thunder\_genmask}
+                    \item \textsf{thunded\_lowpass}
+                    \item \textsf{thunder\_mask}
+                    \item \textsf{thunder\_postprocess}
+                    \item \textsf{thunder\_resize}
+                \end{itemize}.
+                
+                For the purpose of convenience, you may stage binaries into environment. For example, you may add the following command into shell configuration file
+                
+                \begin{lstlisting}[language={csh}]
+setenv PATH=install_dir:$PATH
+                \end{lstlisting}
+                
+                when \textsf{csh} or \textsf{tcsh} is used as shell. Meanwhile, you may add the following command into shell configuration file when \textsf{bash}, \textsf{zsh} or \textsf{ksh} is used as shell.
+                
+                \begin{lstlisting}[language={bash}]
+export PATH=install_dir:$PATH
+                \end{lstlisting}
+                
+                After staging binaries into environment, you may directly access these binaries by typing their filenames in shell.
+                
+    \section{Submit Your Job}
+    
+        \textsf{thunder} is the core program of THUNDER. It executes 3D classification and refinement. It reads in a JSON parameter file. After parsing the JSON parameter, it reads in initial model, a \textsf{.thu} file and particle images. It also reads in mask if necessary.
+              
+        \subsection{Set Up \textsf{.thu} File}
+        
+            THUNDER uses \textsf{.thu} file for storing information of each particle image. \textsf{.thu} file is a space-separate tabular file as each column stands for a specific variable, as listed below.
+            
+            \begin{enumerate}
+                \item Voltage (Volt)
+                \item DefocusU (Angstrom)
+                \item DefocusV (Angstrom)
+                \item DefocusTheta (Radian)
+                \item Cs (Angstrom)
+                \item Amplitude Constrast
+                \item Phase Shift (Radian)
+                \item Path of Particle
+                \item Path of Micrograph
+                \item Coordinate X in Micrograph (Pixel)
+                \item Coordinate Y in Micrograph (Pixel)
+                \item Group ID
+                \item Class ID
+                \item 1st Element of the Unit Quaternion
+                \item 2nd Element of the Unit Quaternion
+                \item 3rd Element of the Unit Quaternion
+                \item 4th Element of the Unit Quaternion
+                \item 1st Standard Deviation of Rotation
+                \item 2nd Standard Deviation of Rotation
+                \item 3rd Standard Deviation of Rotation
+                \item Translation X (Pixel)
+                \item Translation Y (Pixel)
+                \item Standard Deviation of Translation X (Pixel)
+                \item Standard Deviation of Translation Y (Pixel)
+                \item Defocus Factor
+                \item Standard Deviation of Defocus Factor
+                \item Score
+            \end{enumerate}
+            
+            \textsf{.thu} file is generated by \textsf{thunder} at the end of each iteration to save the information of each particle image.
+            
+            \subsubsection{Generate \textsf{.thu} from Relion}
+            
+            \textsf{.thu} file can be converted from STAR file of Relion by script \textsf{STAR\_2\_THU.py} and \textsf{STAR\_2\_THU\_NO\_GROUP.py} by the following commands.
+               
+            \begin{lstlisting}[language={sh}]
+python STAR_2_THU.py filename.star > filename.thu
+            \end{lstlisting}
+            
+            \begin{lstlisting}[language={sh}]
+python STAR_2_THU_NO_GROUP.py filename.star > filename.thu
+            \end{lstlisting}
+            
+            \textsf{STAR\_2\_THU.py} is used for converting STAR files containing group information and \textsf{STAR\_2\_THU\_NO\_GROUP.py} is used for converting those do not. \textbf{You can find these two scripts under directory \textsf{install\_dir/script}.}
+            
+            It is worth noticed that both of two scripting only convert CTF information but not rotation and translation information. Thus, \textsf{.thu} files converted from STAR files can be only used for global search stage of \textsf{thunder}. Meanwhile, \textsf{.thu} files generated by \textsf{thunder} can be used for global search, local search and CTF search. The precise meaning of global search, local search and CTF search will be further discussed in detail in section \ref{sec:JSON}.
+            
+            \subsubsection{Generate \textsf{.thu} from Frealign}
+            
+            The converting script will be provided soon.
+            
+            \subsubsection{Generate \textsf{.thu} from SPIDER}
+            
+            The converting script will be provided soon.
+    
+        \subsection{Configure with JSON Parameter File}\label{sec:JSON}
+        
+            \textsf{thunder} reads in a JSON file which is parsed into parameters of \textsf{thunder}. You may change the values of the keys to fit your purpose. The definition of keys in this JSON parameter file is listed in Table \ref{tab:JSON_key}.
+            
+            \textsf{thunder} divides 3D refinement into three stages: global search, local search and CTF search. During global search, the rotation and translation result of the previous iteration will \textbf{not} inherited into the next iteration. Meanwhile, during local search, the rotation and translation of each particle image will be adjust based on the result of the previous iteration. During CTF search, the CTF parameters will be adjusted for achieving better resolution.
+            
+            Meanwhile, 3D classification of \textsf{thunder} typically only involves global search.
+                        
+            \textbf{You may find a demo version of this JSON parameter file named \textsf{demo.json} under directory \textsf{install\_dir/script}.}
+             
+            \begin{table}[htbp]
+            \centering
+            \begin{tabular}{ll}
+                \toprule
+                Key & Description \\
+                \midrule
+                Number of Threads Per Process & \tabincell{l}{the number of threads used \\in each process} \\
+                2D or 3D Mode & \tabincell{l}{2D/3D classification or \\refinement} \\
+                Global Search & \tabincell{l}{whether to perform global \\search or not} \\
+                Local Search & \tabincell{l}{whether to perform local \\search or not} \\
+                CTF Search & \tabincell{l}{whether to perform CTF \\search or not} \\
+                Number of Classes & \tabincell{l}{the number of density maps, \\aka. \textbf{more than 1 when} \\\textbf{undergoing classification}} \\
+                Size of Image & the size of the images\footnote{For example, if images are $200 \times 200$ in pixel, this value should be set to 200.} \\
+                Pixel Size (Angstrom) & the pixel size of the images \\
+                Radius of Mask on Images (Angstrom) & \tabincell{l}{the \textbf{radius} of mask you want \\to be masked on the images} \\
+                Estimated Translation (Pixel) & \tabincell{l}{the \textbf{standard deviation} of \\translation in pixel which may \\occurred on the input images} \\
+                Initial Resolution (Angstrom) & \tabincell{l}{the resolution the program \\starts its iterations} \\
+                Perform Global Search Under (Angstrom) & \tabincell{l}{the resolution limit for performing \\global search} \\
+                Symmetry & \tabincell{l}{the symmetry of the macromolecular \\to be processed} \\
+                Initial Model & \tabincell{l}{the initial model for \\classification/refinement} \\
+                .thu File Storing Paths and CTFs of Images & \tabincell{l}{the \textsf{.thu} file which stores the \\information of where to read the \\images and the CTF paramters of them} \\
+                Prefix of Particles & \tabincell{l}{the prefix to be added in the path \\of the particle image} \\
+                Prefix of Destination & \tabincell{l}{the prefix (path) to save the \\outcomes} \\
+                Calculate FSC Using Core Region & \tabincell{l}{whether to calculate FSC using core \\region of the reference or not} \\
+                Calculate FSC Using Masked Region & \tabincell{l}{whether to calculate FSC using masked \\region of the reference or not} \\
+                Particle Grading & \tabincell{l}{whether to turn on the particle grading \\optimization or not} \\
+                Perform Reference Mask & \tabincell{l}{whether to mask on the density map \\or not} \\
+                Perform Reference Mask during Global Search & \tabincell{l}{whether to mask on the density map \\during global search or not} \\
+                Provided Mask & \tabincell{l}{the path of the mask if needed} \\
+                \bottomrule
+            \end{tabular}
+            \caption{Key Words of JSON Parameter File}
+            \label{tab:JSON_key}
+            \end{table}
+        
+        \subsection{Processes and Threads}
+        
+            \subsubsection{Processes and Threads When Using CPU Version THUNDER}
+        
+                \textsf{thunder} needs at least 3 processes. It has perfect linear speed-up when number of nodes increases. Thus, please use as many nodes as possible. We high recommend assigning a node with only one process and using multiple cores in each node by threads. For example, if you have 100 nodes and each node has 20 cores, you may use 100 processes for running \textsf{thunder}, and each process should generate 20 threads to achieve maximum usage of computing resource. By changing the value of the key \textsf{Number of Threads Per Process} in the JSON parameter file, you may set the number of threads of each process to which you desire. In this example, this value should be set to 20.
+            
+            \subsubsection{Processes and Threads When Using GPU Version THUNDER}
+        
+                There is two ways of running GPU version THUNDER.
+            
+                The most common way is to run THUNDER on a single workstation with one GPU or multiple GPUs. In this method, please set the number of MPI processes to 3, and \textsf{Number of Threads Per Process} to the number of CPU cores of this workstation.
+            
+                The second way of running THUNDER is to run it on a GPU cluster. Similar to running on a CPU clusters, please use one process per node and using multiple cores in each node by threads.
+            
+            \subsubsection{Master and Slave Processes, and How to Fully Use Computing Resources}
+            
+                \textsf{thunder} divides MPI processes into three parts, a master process (rank 0), slave process(es) in hemisphere A (rank 1, rank 3, rank 5...) , slave process(es) in hemisphere B (rank 2, rank 4, rank 6...). The slave processes carries out most of the computing workload, meanwhile the master process is simply a manager. Thus, when running THUNDER on clusters (either CPU or GPU), the master process should be assigned along with a slave process for fully using computing resources. For example, when \textsf{thunder} should be run on 4 nodes, 5 process should be initialised, where rank 0 and 1 should be assigned to node 0, rank 2 should be assigned to node 1, rank 3 should be assigned to node 2 and rank 4 should be assigned to node 3.
+            
+        \subsection{Submit}
+        
+            Please examine whether you have generated the correct \textsf{.thu} file and configured the JSON parameter file properly, and make sure that the initial model and mask (if necessary) are placed in the right directory. Moreover, please check whether \textbf{the directory of the destination described in the JSON parameter exists} or not. Now, you can submit you job. You may leave it to the cluster job managing software, or you may assign nodes manually by \textsf{mpirun}.
+    
+    \section{Get Your Result}
+    
+        A log file named \textsf{thunder.log} will appear in your submitting directory, recording the state of your job.
+        
+        In the destination directory, the density maps are outputted as \textsf{Reference\_xxx\_A\_Round\_xxx.mrc} and \textsf{Reference\_xxx\_B\_Round\_xxx.mrc}, during 3D refinement or classification. For example, the density map of the 5th reference of round 15 from hemisphere A has the filename \textsf{Reference\_005\_A\_Round\_015.mrc}. On contrast, the 5th reference of round 15 from hemisphere B has the filename \textsf{Reference\_005\_B\_Round\_015.mrc}
+        
+        Meanwhile, during 2D classification, the density maps of each round are stored in a MRC stack. For example, the density maps of round 15 has the filename \textsf{Reference\_Round\_015.mrcs} which contains $N$ slices of images. $N$ stands for the number of classes.
+
+        FSC/FRCs are outputted as \textsf{FSC\_Round\_xxx.txt}. The first column of this file is signal frequency in pixel. The seconds column is signal frequency in Angstrom. From the third column to the rest of columns, the FSC of each reference is listed in order.
+        
+        During classification, the resolution and ratio of images of each class is listed in a file named \textsf{Class\_Info\_Round\_xxx.txt}. Each row of this file stands for a class in order. The first column is the index of each class, the second column is the resolution in Angstrom of each class and the third column is the ratio of image of each class.
+
+        The rotation and translation information of each particle at each iteration is outputted as \textsf{Meta\_Round\_xxx.thu}, which follows the \textsf{.thu} file format. For example, rotation and translation of round 15 has the filename \textsf{Meta\_Round\_015.thu}.
+        
+    \section{Typically Workflow}
+    
+        The typically workflow of cryo-EM single particle analysis includes 3 steps: 2D classification, 3D classification and 3D refinement. 
+        
+        \subsection{2D Classification}
+        
+        The first step of cryo-EM single particle analysis is 2D classification for removing ice and "noisy" particles.
+        
+        \textbf{You can find a demo version of this JSON parameter file for 2D classification named \textsf{demo\_2D.json} under directory \textsf{install\_dir/script}}. There are some options worth noticed in this JSON parameter file. They are listed below.
+        
+        \begin{description}
+            \item[Local Search] Performing local search or not will \textbf{NOT} affect the result of 2D classification. However, it gives you a higher resolution density map for examining the detail of the 2D density map. You may turn it off when the computing resource is limited.
+            \item[Number of Classes] It stands for the number of classes you want the images to be classified into.
+            \item[Initial Resolution (Angstrom)] It is recommended to start from lower resolution for achieving ideal result of classification.
+            \item[Symmetry] Symmetry has \textbf{NO} effect on 2D classification.
+            \item[Initial Model] It is recommended to use a blank initial model in 2D classification. \textbf{Please leave it empty}.
+            \item[Calculate FSC Using Core Region] It is not supported in 2D classification. Please turn it off, otherwise a warning will be raised and \textsf{thunder} will turn it off forcefully.
+            \item[Calculate FSC Using Masked Region] It is not supported in 2D classification. Please turn it off, otherwise a warning will be raised and \textsf{thunder} will turn it off forcefully.
+            \item[Particle Grading] It is not recommended to use particle grading in 2D classification, because the importance of "noisy" particles may be overlooked when particle grading is turned on.
+            \item[Performing Reference Mask] It is \textbf{NOT} supported to use provided mask in 2D classification. If so, a fatal error will occur. Please turn it off.
+        \end{description}
+        
+        \subsection{3D Classification}
+           
+        The next step of cryo-EM single particle analysis is 3D classification for removing particles belong to "wrong" conformation.
+                
+        \textbf{You can find a demo version of this JSON parameter file for 3D classification named \textsf{demo\_3D.json} under directory \textsf{install\_dir/script}.} There are some options worth noticed in this JSON parameter file. They are listed below.
+        
+        \begin{description}
+            \item[Local Search] Performing local search or not will \textbf{NOT} affect the result of 3D classification. However, it gives you a higher resolution density map for examining the detail of the 2D density map. You may turn it off when the computing resource is limited.
+            \item[Number of Classes] It stands for the number of classes you want the images to be classified into.
+            \item[Initial Resolution (Angstrom)] It is recommended to start from lower resolution for achieving ideal result of classification.
+            \item[Particle Grading] It is \textbf{NOT} recommended to use particle grading in 3D classification, because the importance of "noisy" particles may be overlooked when particle grading is turned on.
+        \end{description}
+        
+        \subsection{3D Refinement}
+        
+        The final step of cryo-EM single particle analysis is 3D refinement for achieving high resolution density map. You may turn on \textbf{particle grading} and \textbf{CTF search} for obtaining more information in density map.
+                
+        You can find a demo version of this JSON parameter file for 3D classification named \textsf{demo.json} in this package. There are some options worth noticed in this JSON parameter file. They are listed below.
+        
+        \begin{description}
+            \item[CTF Search] You can refine CTF parameters using CTF search. It may cost some computing resource.
+            \item[Particle Grading] It is recommend to turn on particle grading in refinement.
+        \end{description}
+        
+\end{document}

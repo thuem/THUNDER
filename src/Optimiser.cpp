@@ -6752,8 +6752,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
             {
                 _model.reco(t).resetF(modelF + t * modelSize);
                 _model.reco(t).resetT(modelT + t * modelSize);
-                _model.reco(t).setOx(O2D[t * 2] / counter[t]);
-                _model.reco(t).setOy(O2D[t * 2 + 1] / counter[t]);
+                _model.reco(t).setOx(O2D[t * 2]);
+                _model.reco(t).setOy(O2D[t * 2 + 1]);
                 _model.reco(t).setCounter(counter[t]);
             }
             
@@ -7179,7 +7179,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        << t;
 
 #ifdef GPU_VERSION
-            if (_para.mode == MODE_3D) _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
+            _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
 #else
             _model.reco(t).prepareTF();
 #endif

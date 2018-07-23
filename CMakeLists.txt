@@ -288,8 +288,6 @@ if("${GPU_VERSION}")
     #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
 endif("${GPU_VERSION}")
 
-#ADD_SUBDIRECTORY(testsrc)
-
 # Compile Executables
 
 file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
