@@ -1031,24 +1031,6 @@ void Reconstructor::prepareTFG(int gpuIdx)
         
         delete[]symMat;
     }
-    
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
-
-    allReduceO();
-    IF_MODE_3D
-    {
-#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
-        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
-
-        symmetrizeO();
-#endif
-    }
-
-    _ox /= _counter;
-    _oy /= _counter;
-    _oz /= _counter;
 }
 
 #endif // GPU_INSERT
@@ -1088,6 +1070,22 @@ void Reconstructor::prepareTF()
         symmetrizeF();
 #endif
     }
+}
+
+void Reconstructor::reconstruct(Image& dst)
+{
+    Volume tmp;
+
+    reconstruct(tmp);
+
+    dst.alloc(PAD_SIZE, PAD_SIZE, RL_SPACE);
+
+    SLC_EXTRACT_RL(dst, tmp, 0);
+}
+
+void Reconstructor::prepareO()
+{
+    IF_MASTER return;
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
@@ -1107,17 +1105,6 @@ void Reconstructor::prepareTF()
     _ox /= _counter;
     _oy /= _counter;
     _oz /= _counter;
-}
-
-void Reconstructor::reconstruct(Image& dst)
-{
-    Volume tmp;
-
-    reconstruct(tmp);
-
-    dst.alloc(PAD_SIZE, PAD_SIZE, RL_SPACE);
-
-    SLC_EXTRACT_RL(dst, tmp, 0);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
@@ -2081,7 +2068,7 @@ void Reconstructor::reconstructG(Volume& dst,
                   _pf);
         
         FFT fft;
-        fft.bwMT(padDst);
+        fft.bw(padDst);
         
         //ExposePF(gpuIdx,
         //         padDst,
@@ -2155,7 +2142,7 @@ void Reconstructor::reconstructG(Volume& dst,
 #ifdef RECONSTRUCTOR_REMOVE_NEG
         REMOVE_NEG(dst);
 #endif
-        fft.fwMT(dst);
+        fft.fw(dst);
         
         //ExposeCorrF(gpuIdx,
         //            dstN,
