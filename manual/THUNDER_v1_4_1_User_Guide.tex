@@ -39,7 +39,7 @@
 
 \begin{document}
 
-    \title{THUNDER v1.4.0 User Guide}
+    \title{THUNDER v1.4.1 User Guide}
     \maketitle
     
     \section{Installation}
@@ -242,11 +242,25 @@ python STAR_2_THU_NO_GROUP.py filename.star > filename.thu
         
         \subsection{Processes and Threads}
         
-            \textsf{thunder} needs at least 3 processes. It has perfect linear speed-up when number of nodes increases. Thus, please use as many nodes as possible. We high recommend assigning a node with only one process and using multiple cores in each node by threads. For example, if you have 100 nodes and each node has 20 cores, you may use 100 processes for running \textsf{thunder}, and each process should generate 20 threads to achieve maximum usage of computing resource. By changing the value of the key \textsf{Number of Threads Per Process} in the JSON parameter file, you may set the number of threads of each process to which you desire. In this example, this value should be set to 20.
+            \subsubsection{Processes and Threads When Using CPU Version THUNDER}
+        
+                \textsf{thunder} needs at least 3 processes. It has perfect linear speed-up when number of nodes increases. Thus, please use as many nodes as possible. We high recommend assigning a node with only one process and using multiple cores in each node by threads. For example, if you have 100 nodes and each node has 20 cores, you may use 100 processes for running \textsf{thunder}, and each process should generate 20 threads to achieve maximum usage of computing resource. By changing the value of the key \textsf{Number of Threads Per Process} in the JSON parameter file, you may set the number of threads of each process to which you desire. In this example, this value should be set to 20.
+            
+            \subsubsection{Processes and Threads When Using GPU Version THUNDER}
+        
+                There is two ways of running GPU version THUNDER.
+            
+                The most common way is to run THUNDER on a single workstation with one GPU or multiple GPUs. In this method, please set the number of MPI processes to 3, and \textsf{Number of Threads Per Process} to the number of CPU cores of this workstation.
+            
+                The second way of running THUNDER is to run it on a GPU cluster. Similar to running on a CPU clusters, please use one process per node and using multiple cores in each node by threads.
+            
+            \subsubsection{Master and Slave Processes, and How to Fully Use Computing Resources}
+            
+                \textsf{thunder} divides MPI processes into three parts, a master process (rank 0), slave process(es) in hemisphere A (rank 1, rank 3, rank 5...) , slave process(es) in hemisphere B (rank 2, rank 4, rank 6...). The slave processes carries out most of the computing workload, meanwhile the master process is simply a manager. Thus, when running THUNDER on clusters (either CPU or GPU), the master process should be assigned along with a slave process for fully using computing resources. For example, when \textsf{thunder} should be run on 4 nodes, 5 process should be initialised, where rank 0 and 1 should be assigned to node 0, rank 2 should be assigned to node 1, rank 3 should be assigned to node 2 and rank 4 should be assigned to node 3.
             
         \subsection{Submit}
         
-        Please examine whether you have generated the correct \textsf{.thu} file and configured the JSON parameter file properly, and make sure that the initial model and mask (if necessary) are placed in the right directory. Moreover, please check whether \textbf{the directory of the destination described in the JSON parameter exists} or not. Now, you can submit you job. You may leave it to the cluster job managing software, or you may assign nodes manually by \textsf{mpirun}.
+            Please examine whether you have generated the correct \textsf{.thu} file and configured the JSON parameter file properly, and make sure that the initial model and mask (if necessary) are placed in the right directory. Moreover, please check whether \textbf{the directory of the destination described in the JSON parameter exists} or not. Now, you can submit you job. You may leave it to the cluster job managing software, or you may assign nodes manually by \textsf{mpirun}.
     
     \section{Get Your Result}
     
