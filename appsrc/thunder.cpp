@@ -241,6 +241,27 @@ int main(int argc, char* argv[])
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "THUNDER is Initiallised With "
+                                 << size
+                                 << " Number of Processes";
+
+        if (size <= 2)
+        {
+            CLOG(FATAL, "LOGGER_SYS") << "THUNDER REQUIRES AT LEAST 3 PROCESSES IN MPI";
+
+            abort();
+        }
+        else if (size == 4)
+        {
+            CLOG(WARNING, "LOGGER_SYS") << "2 PROCESSES IN HEMISPHERE A, 1 PROCESS IN HEMISPHERE B, SEVERE INBALANCE";
+        }
+    }
+
     if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "THUNDER v"
                                             << THUNDER_VERSION_MAJOR
                                             << "." 
