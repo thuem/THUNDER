@@ -7177,12 +7177,21 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        << t;
             BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                        << t;
-
 #ifdef GPU_VERSION
             _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
 #else
             _model.reco(t).prepareTF();
 #endif
+        }
+        
+        for (int t = 0; t < _para.k; t++)
+        {
+            ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                       << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                                       << t;
+
+            _model.reco(t).prepareO();
 
             ALOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
                                        << t

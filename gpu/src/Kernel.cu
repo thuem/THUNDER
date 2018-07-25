@@ -3804,7 +3804,7 @@ __global__ void kernel_InitialW2D(RFLOAT *devDataW,
  * @param ...
  */
 __global__ void kernel_InitialW(RFLOAT *devDataW,  
-                                int initWR, 
+                                int initWR,
                                 int dim,
                                 size_t dimSize)
 {
@@ -3816,6 +3816,44 @@ __global__ void kernel_InitialW(RFLOAT *devDataW,
         i = (tid) % (dim / 2 + 1);
         j = ((tid) / (dim / 2 + 1)) % dim;
         k = ((tid) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < initWR)
+        {
+            devDataW[tid] = 1;
+        }
+        else
+        {
+            devDataW[tid] = 0;
+        }
+        
+        tid += blockDim.x * gridDim.x;
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_InitialW(RFLOAT *devDataW,  
+                                int initWR,
+                                int shift, 
+                                int dim,
+                                size_t dimSize)
+{
+    int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+
+    while(tid < dimSize)
+    {
+        i = (tid + shift) % (dim / 2 + 1);
+        j = ((tid + shift) / (dim / 2 + 1)) % dim;
+        k = ((tid + shift) / (dim / 2 + 1)) / dim;
         if(j >= dim / 2) j = j - dim;
         if(k >= dim / 2) k = k - dim;
         
@@ -3877,12 +3915,48 @@ __global__ void kernel_convoluteC2D(RFLOAT *devDoubleC,
         if(i >= dim / 2) i = i - dim;
         
         index = itr + dim * blockIdx.x;
-
+        
         devDoubleC[index] = devDoubleC[index] 
                           / dimSize
                           * tabfunc((RFLOAT)(i * i + j * j) 
                                     / (padSize * padSize))
                           / nf;
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_ConvoluteC(RFLOAT *devDataC,
+                                  TabFunction tabfunc,
+                                  RFLOAT nf,
+                                  int dim,
+                                  size_t shift,
+                                  int padSize,
+                                  size_t batch)
+{
+    int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+    
+    while(tid < batch)
+    {
+        i = (tid + shift) % dim;
+        j = ((tid + shift) / dim) % dim;
+        k = ((tid + shift) / dim) / dim;
+
+        if(i >= dim / 2) i = i - dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        devDataC[tid] = devDataC[tid] 
+                      * tabfunc((RFLOAT)(i*i + j*j + k*k) 
+                                / (padSize * padSize))
+                      / nf;
+        
+        tid += blockDim.x * gridDim.x;
     }
 }
 
@@ -3996,6 +4070,91 @@ __global__ void kernel_RecalculateW2D(RFLOAT *devDataW,
             devDataW[index] /= fmax(mode, 1e-6);
 #endif    
         }
+    }
+}
+
+/**
+ * @brief ...
+ *
+ * @param ...
+ * @param ...
+ */
+__global__ void kernel_RecalculateW(Complex *devDataC,
+                                    RFLOAT *devDataW,  
+                                    int initWR, 
+                                    size_t shift, 
+                                    int dim,
+                                    size_t dimSize)
+{
+    int tid = threadIdx.x + blockDim.x * blockIdx.x;
+    int i, j, k;
+
+    RFLOAT mode = 0.0, u, x, y;
+    while(tid < dimSize)
+    {
+        i = (tid + shift) % (dim / 2 + 1);
+        j = ((tid + shift) / (dim / 2 + 1)) % dim;
+        k = ((tid + shift) / (dim / 2 + 1)) / dim;
+        if(j >= dim / 2) j = j - dim;
+        if(k >= dim / 2) k = k - dim;
+        
+        int quad = i * i + j * j + k * k;
+
+        if (quad < initWR)
+        {
+#ifdef SINGLE_PRECISION
+            x = fabsf(devDataC[tid].real());
+            y = fabsf(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrtf(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrtf(1 + u * u);
+                }
+            }
+
+            devDataW[tid] /= fmaxf(mode, 1e-6);
+#else
+            x = fabs(devDataC[tid].real());
+            y = fabs(devDataC[tid].imag());
+            if (x < y)
+            {
+                if (x == 0)
+                    mode = y;
+                else
+                {
+                    u = x / y;
+                    mode = y * sqrt(1 + u * u);
+                }
+            }
+            else
+            {
+                if (y == 0)
+                    mode = x;
+                else
+                {
+                    u = y / x;
+                    mode = x * sqrt(1 + u * u);
+                }
+            }
+
+            devDataW[tid] /= fmax(mode, 1e-6);
+#endif    
+        }
+        tid += blockDim.x * gridDim.x;
     }
 }
 

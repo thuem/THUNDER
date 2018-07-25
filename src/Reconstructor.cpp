@@ -28,7 +28,13 @@ Reconstructor::Reconstructor(const int mode,
 
 Reconstructor::~Reconstructor()
 {
-#ifndef GPU_RECONSTRUCT
+#ifdef GPU_RECONSTRUCT
+    if (_mode == MODE_3D)
+    {
+        _fft.fwDestroyPlanMT();
+        _fft.bwDestroyPlanMT();
+    }
+#else
     _fft.fwDestroyPlanMT();
     _fft.bwDestroyPlanMT();
 #endif
@@ -111,13 +117,11 @@ void Reconstructor::allocSpace()
         // Create Fourier Plans First, Then Allocate Space
         // For Save Memory Space
 
-#ifndef GPU_RECONSTRUCT
         ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
         BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
         _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
         _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
-#endif
 
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
@@ -140,15 +144,15 @@ void Reconstructor::allocSpace()
 
 void Reconstructor::freeSpace()
 {
-#ifndef GPU_RECONSTRUCT
-    _fft.fwDestroyPlanMT();
-    _fft.bwDestroyPlanMT();
-#endif
-
     if (_mode == MODE_2D)
     {
         ALOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
+
+#ifndef GPU_RECONSTRUCT
+        _fft.fwDestroyPlanMT();
+        _fft.bwDestroyPlanMT();
+#endif
 
         _F2D.clear();
         _W2D.clear();
@@ -160,6 +164,9 @@ void Reconstructor::freeSpace()
         ALOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
 
+        _fft.fwDestroyPlanMT();
+        _fft.bwDestroyPlanMT();
+        
         _F3D.clear();
         _W3D.clear();
         _C3D.clear();
@@ -176,7 +183,13 @@ void Reconstructor::freeSpace()
 
 void Reconstructor::resizeSpace(const int size)
 {
-#ifndef GPU_RECONSTRUCT
+#ifdef GPU_RECONSTRUCT
+    if (_mode == MODE_3D)
+    {
+        _fft.fwDestroyPlanMT();
+        _fft.bwDestroyPlanMT();
+    }
+#else
     _fft.fwDestroyPlanMT();
     _fft.bwDestroyPlanMT();
 #endif
@@ -1018,24 +1031,6 @@ void Reconstructor::prepareTFG(int gpuIdx)
         
         delete[]symMat;
     }
-    
-    ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
-    BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
-
-    allReduceO();
-    IF_MODE_3D
-    {
-#ifdef RECONSTRUCTOR_SYMMETRIZE_DURING_RECONSTRUCT
-        ALOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
-        BLOG(INFO, "LOGGER_RECO") << "Symmetrizing O";
-
-        symmetrizeO();
-#endif
-    }
-
-    _ox /= _counter;
-    _oy /= _counter;
-    _oz /= _counter;
 }
 
 #endif // GPU_INSERT
@@ -1075,6 +1070,22 @@ void Reconstructor::prepareTF()
         symmetrizeF();
 #endif
     }
+}
+
+void Reconstructor::reconstruct(Image& dst)
+{
+    Volume tmp;
+
+    reconstruct(tmp);
+
+    dst.alloc(PAD_SIZE, PAD_SIZE, RL_SPACE);
+
+    SLC_EXTRACT_RL(dst, tmp, 0);
+}
+
+void Reconstructor::prepareO()
+{
+    IF_MASTER return;
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing O";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing O";
@@ -1094,17 +1105,6 @@ void Reconstructor::prepareTF()
     _ox /= _counter;
     _oy /= _counter;
     _oz /= _counter;
-}
-
-void Reconstructor::reconstruct(Image& dst)
-{
-    Volume tmp;
-
-    reconstruct(tmp);
-
-    dst.alloc(PAD_SIZE, PAD_SIZE, RL_SPACE);
-
-    SLC_EXTRACT_RL(dst, tmp, 0);
 }
 
 void Reconstructor::reconstruct(Volume& dst)
@@ -1678,6 +1678,40 @@ void Reconstructor::reconstructG(Volume& dst,
     }
 #endif
     
+    RFLOAT* volumeT;
+    RFLOAT* volumeW;
+
+    if (_mode == MODE_2D)
+    {
+        size_t dimSize = _T2D.sizeFT();
+        volumeT = (RFLOAT*)malloc(dimSize * sizeof(RFLOAT));
+        volumeW = (RFLOAT*)malloc(dimSize * sizeof(RFLOAT));
+	    
+        for(size_t i = 0; i < dimSize; i++)
+	    {
+            volumeT[i] = REAL(_T2D[i]);
+            volumeW[i] = REAL(_W2D[i]);
+	    }
+    }
+    else if (_mode == MODE_3D)
+    {
+        size_t dimSize = _T3D.sizeFT();
+        volumeT = (RFLOAT*)malloc(dimSize * sizeof(RFLOAT));
+        volumeW = (RFLOAT*)malloc(dimSize * sizeof(RFLOAT));
+	    
+        for(size_t i = 0; i < dimSize; i++)
+	    {
+            volumeT[i] = REAL(_T3D[i]);
+            volumeW[i] = REAL(_W3D[i]);
+	    }
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
     // only in 3D mode, the MAP method is appropriate
     if (_MAP)
@@ -1685,9 +1719,10 @@ void Reconstructor::reconstructG(Volume& dst,
         if (_mode == MODE_2D)
         {
             ExposePT2D(gpuIdx,
-                       _T2D,
+                       volumeT,
                        _maxRadius,
                        _pf,
+                       _T2D.nRowFT(),
                        _FSC,
                        _joinHalf,
                        WIENER_FACTOR_MIN_R);
@@ -1695,9 +1730,10 @@ void Reconstructor::reconstructG(Volume& dst,
         else if (_mode == MODE_3D)
         {
             ExposePT(gpuIdx,
-                     _T3D,
+                     volumeT,
                      _maxRadius,
                      _pf,
+                     _T3D.nSlcFT(),
                      _FSC,
                      _joinHalf,
                      WIENER_FACTOR_MIN_R);
@@ -1711,27 +1747,21 @@ void Reconstructor::reconstructG(Volume& dst,
     }
 #endif
  
-    //if (_commRank == HEMI_B_LEAD){
-    //Complex* t3d = new Complex[_T3D.sizeFT()];
-    //FILE* pfile;
-    //int t = 0;
-    //pfile = fopen("t3d.dat", "rb");
-    //if (pfile == NULL)
-    //    printf("open t3d error!\n");
-    //if (fread(t3d, sizeof(Complex), _T3D.sizeFT(), pfile) != _T3D.sizeFT())
-    //    printf("read t3d error!\n");
-    //fclose(pfile);
-    //printf("i:%d,t3d:%.7lf,T3D:%.7lf\n",0,t3d[0].dat[0],_T3D[0].dat[0]);
-    //for (t = 0; t < _T3D.sizeFT(); t++){
-    //    if (fabs(_T3D[t].dat[0] - t3d[t].dat[0]) >= 1e-4){
-    //        printf("i:%d,t3d:%.7lf,T3D:%.7lf\n",t,t3d[t].dat[0],_T3D[t].dat[0]);
-    //        break;
-    //    }
-    //}
-    //if (t == _T3D.sizeFT())
-    //    printf("successT3D:%d\n", _T3D.sizeFT()); 
-    //}
-
+    if (_mode == MODE_2D)
+    {
+        for (size_t i = 0; i < _T2D.sizeFT(); i++)
+	    {
+            _T2D[i] = COMPLEX(volumeT[i], 0);
+	    }
+    }
+    else if (_mode == MODE_3D)
+    {
+        for (size_t i = 0; i < _T3D.sizeFT(); i++)
+	    {
+            _T3D[i] = COMPLEX(volumeT[i], 0);
+	    }
+    }
+    
     if (_gridCorr)
     {
 #ifdef RECONSTRUCTOR_KERNEL_PADDING
@@ -1742,33 +1772,169 @@ void Reconstructor::reconstructG(Volume& dst,
         if (_mode == MODE_2D)
         {
             ExposeWT2D(gpuIdx,
-                       _T2D,
-                       _W2D,
+                       volumeT,
+                       volumeW,
                        _kernelRL,
+                       nf,
                        _maxRadius,
                        _pf,
-                       _a,
-                       nf,
-                       _alpha,
+                       _T2D.nRowFT(),
                        MAX_N_ITER_BALANCE,
                        MIN_N_ITER_BALANCE,
                        _N);
         }
         else if (_mode == MODE_3D)
         {
-            ExposeWT(gpuIdx,
-                     _T3D,
-                     _W3D,
-                     _kernelRL,
-                     _maxRadius,
-                     _pf,
-                     _a,
-                     nf,
-                     _alpha,
-                     MAX_N_ITER_BALANCE,
-                     MIN_N_ITER_BALANCE,
-                     _N);
+            int tabSize = 1e5;
+            int streamNum = 3;
+            RFLOAT *diff;
+            RFLOAT *cmax;
+            int *counter;
+            
+            Complex *dev_C;
+            RFLOAT *dev_W;
+            RFLOAT *dev_T;
+            RFLOAT *dev_tab;
+            void *stream[streamNum];
+            RFLOAT *devDiff;
+            RFLOAT *devMax;
+            int *devCount;
+#ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
+            diff = new RFLOAT[_C3D.nSlcFT()];
+            counter = new int[_C3D.nSlcFT()];
+#endif
+
+#ifdef RECONSTRUCTOR_CHECK_C_MAX
+            cmax = new RFLOAT[_C3D.nSlcFT()];
+#endif
+
+            AllocDevicePoint(gpuIdx,
+                             &dev_C,
+                             &dev_W,
+                             &dev_T,
+                             &dev_tab,
+                             &devDiff,
+                             &devMax,
+                             &devCount,
+                             stream,
+                             streamNum,
+                             tabSize,
+                             _C3D.nSlcFT());
+            
+            HostDeviceInit(gpuIdx,
+                           _C3D,
+                           volumeW,
+                           volumeT,
+                           _kernelRL.getData(),
+                           dev_W,
+                           dev_T,
+                           dev_tab,
+                           stream,
+                           streamNum,
+                           tabSize,
+                           _maxRadius,
+                           _pf,
+                           _C3D.nSlcFT());
+            
+            RFLOAT diffC = TS_MAX_RFLOAT_VALUE;
+            RFLOAT diffCPrev = TS_MAX_RFLOAT_VALUE;
+
+            int m = 0;
+            int nDiffCNoDecrease = 0;
+
+            for (m = 0; m < MAX_N_ITER_BALANCE; m++)
+            {
+                ExposeC(gpuIdx,
+                        _C3D,
+                        dev_C,
+                        dev_T,
+                        dev_W,
+                        stream,
+                        streamNum,
+                        _C3D.nSlcFT());
+                
+                _fft.bwExecutePlanMT(_C3D);
+                
+                ExposeForConvC(gpuIdx,
+                               _C3D,
+                               dev_C,
+                               dev_tab,
+                               stream,
+                               _kernelRL,
+                               nf,
+                               streamNum,
+                               tabSize,
+                               _pf,
+                               _N);
+                
+                _fft.fwExecutePlanMT(_C3D);
+                
+                diffCPrev = diffC;
+                
+                ExposeWC(gpuIdx,
+                         _C3D,
+                         dev_C,
+                         diff,
+                         cmax,
+                         dev_W,
+                         devDiff,
+                         devMax,
+                         devCount,
+                         counter,
+                         stream,
+                         diffC,
+                         streamNum,
+                         _maxRadius,
+                         _pf);
+ 
+                if (diffC > diffCPrev * DIFF_C_DECREASE_THRES)
+                    nDiffCNoDecrease += 1;
+                else
+                    nDiffCNoDecrease = 0;
+
+                if ((diffC < DIFF_C_THRES) ||
+                    ((m >= MIN_N_ITER_BALANCE) &&
+                    (nDiffCNoDecrease == N_DIFF_C_NO_DECREASE))) break;
+            }
+            
+            FreeDevHostPoint(gpuIdx,
+                             &dev_C,
+                             &dev_W,
+                             &dev_T,
+                             &dev_tab,
+                             &devDiff,
+                             &devMax,
+                             &devCount,
+                             stream,
+                             _C3D,
+                             volumeW,
+                             volumeT,
+                             streamNum,
+                             _C3D.nSlcFT());
+            
+#ifdef RECONSTRUCTOR_CHECK_C_AVERAGE        
+            delete[] diff;
+            delete[] counter;
+#endif
+
+#ifdef RECONSTRUCTOR_CHECK_C_MAX
+            delete[] cmax;
+#endif
         }
+        //else if (_mode == MODE_3D)
+        //{
+        //    ExposeWT(gpuIdx,
+        //             volumeT,
+        //             volumeW,
+        //             _kernelRL,
+        //             _maxRadius,
+        //             _pf,
+        //             _T3D.nSlcFT(),
+        //             nf,
+        //             MAX_N_ITER_BALANCE,
+        //             MIN_N_ITER_BALANCE,
+        //             _N);
+        //}
         else
         {
             REPORT_ERROR("INEXISTENT MODE");
@@ -1781,18 +1947,20 @@ void Reconstructor::reconstructG(Volume& dst,
         if (_mode == MODE_2D)
         {
             ExposeWT2D(gpuIdx,
-                       _T2D,
-                       _W2D,
+                       volumeT,
+                       volumeW,
                        _maxRadius,
-                       _pf);
+                       _pf,
+                       _T2D.nRowFT());
         }
         else if (_mode == MODE_3D)
         {
             ExposeWT(gpuIdx,
-                     _T3D,
-                     _W3D,
+                     volumeT,
+                     volumeW,
                      _maxRadius,
-                     _pf);
+                     _pf,
+                     _T3D.nSlcFT());
         }
         else
         {
@@ -1802,30 +1970,28 @@ void Reconstructor::reconstructG(Volume& dst,
         }
     }
 
+    free(volumeT);
+    
     if (_mode == MODE_2D)
     {
 #ifdef VERBOSE_LEVEL_2
-
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
         BLOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
-
 #endif
 
         Image padDst(_N * _pf, _N * _pf, FT_SPACE);
         Image padDstR(_N * _pf, _N * _pf, RL_SPACE);
 
 #ifdef VERBOSE_LEVEL_2
-
         ALOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
         BLOG(INFO, "LOGGER_RECO") << "Placing F into Padded Destination Volume";
-
 #endif
 
         ExposePF2D(gpuIdx,
                    padDst,
                    padDstR,
                    _F2D,
-                   _W2D,
+                   volumeW,
                    _maxRadius,
                    _pf);
 
@@ -1892,33 +2058,53 @@ void Reconstructor::reconstructG(Volume& dst,
 #endif
 
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
-        Volume padDstR(_N * _pf, _N * _pf, _N * _pf, RL_SPACE);
+        //Volume padDstR(_N * _pf, _N * _pf, _N * _pf, RL_SPACE);
 
-        ExposePF(gpuIdx,
-                 padDst,
-                 padDstR,
-                 _F3D,
-                 _W3D,
-                 _maxRadius,
-                 _pf);
+        ExposePFW(gpuIdx,
+                  padDst,
+                  _F3D,
+                  volumeW,
+                  _maxRadius,
+                  _pf);
         
-        padDst.clearFT();
-
-        dst.alloc(AROUND((1.0 / _pf) * padDstR.nColRL()), 
-                  AROUND((1.0 / _pf) * padDstR.nRowRL()), 
-                  AROUND((1.0 / _pf) * padDstR.nSlcRL()), 
-                  FT_SPACE);
-
-        Volume dstN;
-        dstN.alloc(AROUND((1.0 / _pf) * padDstR.nColRL()), 
-                   AROUND((1.0 / _pf) * padDstR.nRowRL()), 
-                   AROUND((1.0 / _pf) * padDstR.nSlcRL()), 
-                   RL_SPACE);
+        FFT fft;
+        fft.bw(padDst);
         
-        VOLUME_FOR_EACH_PIXEL_RL(dstN) 
-            dstN.setRL(padDstR.getRL(i, j, k), i, j, k);
+        //ExposePF(gpuIdx,
+        //         padDst,
+        //         padDstR,
+        //         _F3D,
+        //         volumeW,
+        //         _maxRadius,
+        //         _pf);
+        
+        //padDst.clearFT();
 
-        padDstR.clearRL();
+        //dst.alloc(AROUND((1.0 / _pf) * padDstR.nColRL()), 
+        //          AROUND((1.0 / _pf) * padDstR.nRowRL()), 
+        //          AROUND((1.0 / _pf) * padDstR.nSlcRL()), 
+        //          FT_SPACE);
+
+        //Volume dstN;
+        //dstN.alloc(AROUND((1.0 / _pf) * padDstR.nColRL()), 
+        //           AROUND((1.0 / _pf) * padDstR.nRowRL()), 
+        //           AROUND((1.0 / _pf) * padDstR.nSlcRL()), 
+        //           RL_SPACE);
+        //
+        //VOLUME_FOR_EACH_PIXEL_RL(dstN) 
+        //    dstN.setRL(padDstR.getRL(i, j, k), i, j, k);
+
+        //padDstR.clearRL();
+        
+        dst.alloc(AROUND((1.0 / _pf) * padDst.nColRL()), 
+                  AROUND((1.0 / _pf) * padDst.nRowRL()), 
+                  AROUND((1.0 / _pf) * padDst.nSlcRL()), 
+                  RL_SPACE);
+
+        VOLUME_FOR_EACH_PIXEL_RL(dst) 
+            dst.setRL(padDst.getRL(i, j, k), i, j, k);
+        
+        padDst.clearRL();
 
         RFLOAT nf = 0;
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -1926,7 +2112,8 @@ void Reconstructor::reconstructG(Volume& dst,
 #endif
 
         int padSize = _pf * _N;
-        int dim = dstN.nSlcRL();
+        //int dim = dstN.nSlcRL();
+        int dim = dst.nSlcRL();
         int slcSize = (dim / 2 + 1) * (dim / 2 + 1);
         RFLOAT *mkbRL = new RFLOAT[slcSize * (dim / 2 + 1)];
         
@@ -1948,13 +2135,24 @@ void Reconstructor::reconstructG(Volume& dst,
                 }
     
         ExposeCorrF(gpuIdx,
-                    dstN,
                     dst,
                     mkbRL,
                     nf);
+       
+#ifdef RECONSTRUCTOR_REMOVE_NEG
+        REMOVE_NEG(dst);
+#endif
+        fft.fw(dst);
+        
+        //ExposeCorrF(gpuIdx,
+        //            dstN,
+        //            dst,
+        //            mkbRL,
+        //            nf);
         
         delete[] mkbRL;
-        dstN.clearRL();
+        //dstN.clearRL();
+        dst.clearRL();
     }
     else
     {
@@ -1962,6 +2160,8 @@ void Reconstructor::reconstructG(Volume& dst,
 
         abort();
     }
+
+    free(volumeW);
 
 #ifdef VERBOSE_LEVEL_2
     ALOG(INFO, "LOGGER_RECO") << "Convolution Kernel Corrected";

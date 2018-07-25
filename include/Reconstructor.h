@@ -532,6 +532,8 @@ class Reconstructor : public Parallel
 
         void prepareTF();
 
+        void prepareO();
+
         void reconstruct(Image& dst);
 
         /**
