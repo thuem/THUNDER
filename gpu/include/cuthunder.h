@@ -573,6 +573,123 @@ void CalculateW(int gpuIdx,
  * @param ..
  * @param ..
  */
+void allocDevicePoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      int streamNum,
+                      int tabSize,
+                      int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void hostDeviceInit(int gpuIdx,
+                    Complex* C3D,
+                    RFLOAT* W3D,
+                    RFLOAT* T3D,
+                    RFLOAT* tab,
+                    RFLOAT* dev_W,
+                    RFLOAT* dev_T,
+                    RFLOAT* dev_tab,
+                    void** stream,
+                    int streamNum,
+                    int tabSize,
+                    int r,
+                    int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void CalculateC(int gpuIdx,
+                Complex *C3D,
+                Complex *dev_C,
+                RFLOAT *dev_T,
+                RFLOAT *dev_W,
+                void** stream,
+                int streamNum,
+                const int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void ConvoluteC(int gpuIdx,
+                RFLOAT *C3D,
+                RFLOAT* dev_C,
+                RFLOAT* dev_tab,
+                void** stream,
+                RFLOAT begin,
+                RFLOAT end,
+                RFLOAT step,
+                int tabsize, 
+                const RFLOAT nf,
+                int streamNum,
+                const int padSize,
+                const int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void UpdateWC(int gpuIdx,
+              Complex *C3D,
+              Complex *dev_C,
+              RFLOAT *diff,
+              RFLOAT *cmax,
+              RFLOAT *dev_W,
+              RFLOAT *devDiff,
+              RFLOAT *devMax,
+              int *devCount,
+              int *counter,
+              void** stream,
+              RFLOAT &diffC, 
+              int streamNum, 
+              const int r,
+              const int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
+void freeDevHostPoint(int gpuIdx,
+                      Complex** dev_C,
+                      RFLOAT** dev_W,
+                      RFLOAT** dev_T,
+                      RFLOAT** dev_tab,
+                      RFLOAT** devDiff,
+                      RFLOAT** devMax,
+                      int** devCount,
+                      void** stream,
+                      Complex* C3D,
+                      RFLOAT* volumeW,
+                      RFLOAT* volumeT,
+                      int streamNum,
+                      int dim);
+
+/**
+ * @brief ...
+ *
+ * @param ..
+ * @param ..
+ */
 void CalculateW2D(int gpuIdx,
                   RFLOAT *T2D,
                   RFLOAT *W2D,
@@ -628,6 +745,21 @@ void CalculateF2D(int gpuIdx,
 /**
  * @brief
  *
+ * @param 
+ * @param
+ * @param
+ */
+void CalculateFW(int gpuIdx,
+                 Complex *padDst,
+                 Complex *F3D,
+                 RFLOAT *W3D,
+                 const int r,
+                 const int pdim,
+                 const int fdim);
+
+/**
+ * @brief
+ *
  * @param
  * @param
  * @param
@@ -654,6 +786,19 @@ void CorrSoftMaskF2D(int gpuIdx,
                      RFLOAT *mkbRL,
                      RFLOAT nf,
                      const int dim);
+
+/**
+ * @brief
+ *
+ * @param 
+ * @param
+ * @param
+ */
+void CorrSoftMaskF(int gpuIdx,
+                   RFLOAT *dstN,
+                   RFLOAT *mkbRL,
+                   RFLOAT nf,
+                   const int dim);
 
 /**
  * @brief
