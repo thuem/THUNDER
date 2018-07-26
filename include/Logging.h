@@ -62,7 +62,9 @@ long memoryCheckRM();
 
 #ifndef NAN_NO_CHECK
 
-#define POINT_NAN_CHECK(x) \
+#define POINT_NAN_CHECK(x) POINT_NAN_CHECK_RFLOAT(x)
+
+#define POINT_NAN_CHECK_RFLOAT(x) \
     do \
     { \
         if (TSGSL_isnan(x)) \
@@ -72,17 +74,41 @@ long memoryCheckRM();
         } \
     } while(0);
 
-#define SEGMENT_NAN_CHECK(x, size) \
+#define POINT_NAN_CHECK_COMPLEX(x) \
+    do \
+    { \
+        if ((TSGSL_isnan(REAL(x))) || (TSGSL_isnan(IMAG(x)))) \
+        { \
+            REPORT_ERROR("NAN DETECTED"); \
+            abort(); \
+        } \
+    } while(0);
+
+#define SEGMENT_NAN_CHECK(x, size)
+
+#define SEGMENT_NAN_CHECK_RFLOAT(x, size) \
     do \
     { \
         for (size_t i = 0; i < size; i++) \
-            if (TSGSL_isnan(x[i])) \
+            if (TSGSL_isnan((x)[i])) \
             { \
                 REPORT_ERROR("NAN DETECTED"); \
                 abort(); \
             } \
     } while(0);
 
+#define SEGMENT_NAN_CHECK_COMPLEX(x, size) \
+    do \
+    { \
+        for (size_t i = 0; i < size; i++) \
+        { \
+            if (TSGSL_isnan(REAL((x)[i])) || TSGSL_isnan(IMAG((x)[i]))) \
+            { \
+                REPORT_ERROR("NAN DETECTED"); \
+                abort(); \
+            } \
+        } \
+    } while(0);
 
 //void NAN_CHECK(RFLOAT* x, const size_t size);
 

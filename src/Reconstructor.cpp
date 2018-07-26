@@ -2180,17 +2180,40 @@ void Reconstructor::allReduceF()
     MPI_Barrier(_hemi);
 
     if (_mode == MODE_2D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F2D[0], _F2D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_F2D[0],
                             _F2D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F2D[0], _F2D.sizeFT());
+#endif
+
+    }
     else if (_mode == MODE_3D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F3D[0], _F3D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_F3D[0],
                             _F3D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F3D[0], _F3D.sizeFT());
+#endif
+    }
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
@@ -2208,18 +2231,42 @@ void Reconstructor::allReduceT()
 
     MPI_Barrier(_hemi);
 
+
     if (_mode == MODE_2D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T2D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_T2D[0],
                             _T2D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T2D.sizeFT());
+#endif
+
+    }
     else if (_mode == MODE_3D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T3D[0], _T3D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_T3D[0],
                             _T3D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T3D.sizeFT());
+#endif
+    }
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
