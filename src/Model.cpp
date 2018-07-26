@@ -1460,22 +1460,30 @@ int Model::searchType()
         // If it is global search now, make sure the change of rotations
         // beteween iterations still gets room for improvement.
         IF_MASTER
-            if ((_r == _rGlobal) && _increaseR)
+            if (_increaseR)
             {
-                if (_lSearch)
+                if (_r == _rGlobal)
                 {
-                    _searchType = SEARCH_TYPE_LOCAL;
+                    if (_lSearch)
+                    {
+                        _searchType = SEARCH_TYPE_LOCAL;
 
-                    _nTopResNoImprove = 0;
+                        _nTopResNoImprove = 0;
 
-                    resetTVari();
-                    resetRChange();
-                    resetFSCArea();
-                    setNRChangeNoDecrease(0);
-                    setIncreaseR(false);
+                        resetTVari();
+                        resetRChange();
+                        resetFSCArea();
+                        setNRChangeNoDecrease(0);
+                        setIncreaseR(false);
+                    }
+                    else
+                        _searchType = SEARCH_TYPE_STOP;
                 }
                 else
-                    _searchType = SEARCH_TYPE_STOP;
+                {
+                    if (_r <= _rT)
+                        _searchType = SEARCH_TYPE_STOP;
+                }
             }
     }
 
