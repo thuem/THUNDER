@@ -1673,6 +1673,9 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
 #ifndef NAN_NO_CHECK
+    ALOG(INFO, "LOGGER_RECO") << "Checking NAN Values From Reconstructed Result";
+    BLOG(INFO, "LOGGER_RECO") << "Checking NAN Values From Reconstructed Result";
+
     SEGMENT_NAN_CHECK(&dst(0), dst.sizeRL());
 #endif
 }
