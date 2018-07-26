@@ -89,7 +89,7 @@ cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
                 
                 THUNDER can be compiled into single-float precision version or double-float precision version, by \textsf{SINGLE\_PRECISION} variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter \textsf{-DSINGLE\_PRECISION='off'} during configuring using \textsf{cmake}.
                 
-                By default, THUNDER compiles a GPU version. If a GPU version is what you want, please add parameter \textsf{-DGPU\_VERSION='off'} during configuring using \textsf{cmake}.
+                By default, THUNDER compiles a GPU version. If a CPU version is what you want, please add parameter \textsf{-DGPU\_VERSION='off'} during configuring using \textsf{cmake}.
                 
                 THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by \textsf{ENABLE\_SIMD} variable. The default version is using SIMD instructions. However, you may force it compiling into a non-SIMD version, by adding parameter \textsf{-DENABLE\_SIMD='off'} during configuring using \textsf{cmake}.
                 
