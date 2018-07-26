@@ -629,9 +629,19 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     if (_mode == MODE_2D)
                     {
-                        MLOG(FATAL, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT GOLDEN STANDARD AVERAGING";
+                        // MLOG(FATAL, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT GOLDEN STANDARD AVERAGING";
 
-                        abort();
+                        // abort();
+                        IMAGE_FOR_EACH_PIXEL_FT(A)
+                            if (QUAD(i, j) < TSGSL_pow_2(r))
+                            {
+                                Complex avg = (A.getFTHalf(i, j, 0)
+                                             + B.getFTHalf(i, j, 0))
+                                             / 2;
+                               
+                                A.setFTHalf(avg, i, j, 0);
+                                B.setFTHalf(avg, i, j, 0);
+                            }
                     }
                     else if (_mode == MODE_3D)
                     {
