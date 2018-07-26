@@ -1671,6 +1671,10 @@ void Reconstructor::reconstruct(Volume& dst)
     #pragma omp parallel for
     REMOVE_NEG(dst);
 #endif
+
+#ifndef NAN_NO_CHECK
+    SEGMENT_NAN_CHECK(&dst(0), dst.sizeRL());
+#endif
 }
 
 #ifdef GPU_RECONSTRUCT
