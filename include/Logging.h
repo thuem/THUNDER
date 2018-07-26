@@ -110,6 +110,34 @@ long memoryCheckRM();
         } \
     } while(0);
 
+#define NAN_CHECK_MAT33(x) \
+    do \
+    { \
+        const double* ptr = x.data(); \
+        for (int i = 0; i < 9; i++) \
+        { \
+            if (gsl_isnan(ptr[i])) \
+            { \
+                REPORT_ERROR("NAN DETECTED"); \
+                abort(); \
+            } \
+        } \
+    } while(0);
+
+#define NAN_CHECK_MAT22(x) \
+    do \
+    { \
+        const double* ptr = x.data(); \
+        for (int i = 0; i < 4; i++) \
+        { \
+            if (gsl_isnan(ptr[i])) \
+            { \
+                REPORT_ERROR("NAN DETECTED"); \
+                abort(); \
+            } \
+        } \
+    } while(0);
+
 //void NAN_CHECK(RFLOAT* x, const size_t size);
 
 #endif
