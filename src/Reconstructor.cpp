@@ -721,6 +721,14 @@ void Reconstructor::insertP(const Complex* src,
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 #endif
 
+#ifndef NAN_NO_CHECK
+    
+    SEGMENT_NAN_CHECK_COMPLEX(src, (size_t)_nPxl);
+    SEGMENT_NAN_CHECK(ctf, (size_t)_nPxl);
+    POINT_NAN_CHECK(w);
+
+#endif
+
         for (int i = 0; i < _nPxl; i++)
         {
             dvec2 newCor((double)(_iCol[i]), (double)(_iRow[i]));
@@ -784,6 +792,14 @@ void Reconstructor::insertP(const Complex* src,
 
     if (_calMode != PRE_CAL_MODE)
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+#endif
+
+#ifndef NAN_NO_CHECK
+    
+    SEGMENT_NAN_CHECK_COMPLEX(src, (size_t)_nPxl);
+    SEGMENT_NAN_CHECK(ctf, (size_t)_nPxl);
+    POINT_NAN_CHECK(w);
+
 #endif
 
     for (int i = 0; i < _nPxl; i++)
