@@ -60,4 +60,32 @@ long memoryCheckVM();
 
 long memoryCheckRM();
 
+#ifndef NAN_NO_CHECK
+
+#define POINT_NAN_CHECK(x) \
+    do \
+    { \
+        if (TSGSL_isnan(x)) \
+        { \
+            REPORT_ERROR("NAN DETECTED"); \
+            abort(); \
+        } \
+    } while(0);
+
+#define SEGMENT_NAN_CHECK(x, size) \
+    do \
+    { \
+        for (size_t i = 0; i < size; i++) \
+            if (TSGSL_isnan(x[i])) \
+            { \
+                REPORT_ERROR("NAN DETECTED"); \
+                abort(); \
+            } \
+    } while(0);
+
+
+//void NAN_CHECK(RFLOAT* x, const size_t size);
+
+#endif
+
 #endif // LOGGING_H
