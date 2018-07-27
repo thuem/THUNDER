@@ -1312,13 +1312,13 @@ void Reconstructor::reconstruct(Volume& dst)
     {
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(_T2D)
-            _T2D[i].dat[0] = TSGSL_MAX_RFLOAT(_T2D[i].dat[0], 1e-6);
+            _T2D[i].dat[0] = TSGSL_MAX_RFLOAT(_T2D[i].dat[0], 1e-25);
     }
     else if (_mode == MODE_3D)
     {
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(_T3D)
-            _T3D[i].dat[1] = TSGSL_MAX_RFLOAT(_T3D[i].dat[1], 1e-6);
+            _T3D[i].dat[0] = TSGSL_MAX_RFLOAT(_T3D[i].dat[0], 1e-25);
     }
     else
     {
