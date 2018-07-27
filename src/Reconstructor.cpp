@@ -1414,11 +1414,23 @@ void Reconstructor::reconstruct(Volume& dst)
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                    {
+                        if (IS_NAN(ABS(_C2D.getFTHalf(i, j))))
+                        {
+                            CLOG(FATAL, "LOGGER") << "_C2D : "
+                                                  << REAL(_C2D.getFTHalf(i, j))
+                                                  << ", "
+                                                  << IMAG(_C2D.getFTHalf(i, j));
+
+                            abort();
+                        }
+
                         _W2D.setFTHalf(_W2D.getFTHalf(i, j)
                                      / TSGSL_MAX_RFLOAT(ABS(_C2D.getFTHalf(i, j)),
-                                                   1e-6),
+                                                        1e-6),
                                        i,
                                        j);
+                    }
 
 #ifndef NAN_NO_CHECK
                 SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
