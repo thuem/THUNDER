@@ -1411,16 +1411,16 @@ void Reconstructor::reconstruct(Volume& dst)
                 SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
 #endif
 
-                //#pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                     {
                         if (IS_NAN(ABS(_C2D.getFTHalf(i, j))))
                         {
-                            CLOG(FATAL, "LOGGER") << "_C2D : "
-                                                  << REAL(_C2D.getFTHalf(i, j))
-                                                  << ", "
-                                                  << IMAG(_C2D.getFTHalf(i, j));
+                            CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
+                                                       << REAL(_C2D.getFTHalf(i, j))
+                                                       << ", "
+                                                       << IMAG(_C2D.getFTHalf(i, j));
 
                             abort();
                         }
@@ -1434,10 +1434,10 @@ void Reconstructor::reconstruct(Volume& dst)
                         if (IS_NAN(REAL(_W2D.getFTHalf(i, j)))
                          || IS_NAN(IMAG(_W2D.getFTHalf(i, j))))
                         {
-                            CLOG(FATAL, "LOGGER") << "_C2D : "
-                                                  << REAL(_C2D.getFTHalf(i, j))
-                                                  << ", "
-                                                  << IMAG(_C2D.getFTHalf(i, j));
+                            CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
+                                                       << REAL(_C2D.getFTHalf(i, j))
+                                                       << ", "
+                                                       << IMAG(_C2D.getFTHalf(i, j));
 
                             abort();
                         }
