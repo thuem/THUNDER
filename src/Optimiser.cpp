@@ -7217,6 +7217,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #else
                 _model.reco(t).reconstruct(ref);
 
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK(ref.dataRL(), ref.sizeRL());
+#endif
+
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
