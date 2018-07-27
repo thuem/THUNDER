@@ -7227,7 +7227,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
 #ifdef NAN_NO_CHECK
-                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
@@ -7273,7 +7273,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 }
 
 #ifdef NAN_NO_CHECK
-                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
                 #pragma omp parallel for
