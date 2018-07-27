@@ -7280,6 +7280,16 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
+#ifndef NAN_NO_CHECK
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+            }
+        }
+#endif
+
         if (fscSave && (_para.saveRefEachIter || finished))
         {
             MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
