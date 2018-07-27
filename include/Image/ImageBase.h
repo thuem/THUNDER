@@ -257,6 +257,16 @@ class ImageBase
 
         void swap(ImageBase& that);
 
+        inline const RFLOAT* dataRL() const
+        {
+            return _dataRL;
+        };
+
+        inline const Complex* dataFT() const
+        {
+            return _dataFT;
+        };
+
         /**
          * return a const pointer which points to the i-th element in real space
          * @param i index of the element
