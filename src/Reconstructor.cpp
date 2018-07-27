@@ -1511,11 +1511,15 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
 #ifndef NAN_NO_CHECK
-        SEGMENT_NAN_CHECK(padDst.dataFT(), padDst.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(padDst.dataFT(), padDst.sizeFT());
 #endif
 
         FFT fft;
         fft.bwMT(padDst);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(padDst.dataRL(), padDst.dataRL());
+#endif
 
         Image imgDst;
 
@@ -1528,7 +1532,7 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(imgDst.getRL(i, j), i, j, 0);
 
 #ifndef NAN_NO_CHECK
-        SEGMENT_NAN_CHECK(dst.dataFT(), dst.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(dst.dataFT(), dst.sizeFT());
 #endif
     }
     else if (_mode == MODE_3D)
