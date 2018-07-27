@@ -1307,6 +1307,29 @@ void Reconstructor::reconstruct(Volume& dst)
         abort();
     }
 
+#ifndef NAN_NO_CHECK
+    if (_mode == MODE_2D)
+    {
+        SEGMENT_NAN_CHECK_COMPLEX(_F2D.dataFT(), _F2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_T2D.dataFT(), _T2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+    }
+    else if (_mode == MODE_3D)
+    {
+        SEGMENT_NAN_CHECK_COMPLEX(_F3D.dataFT(), _F3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_T3D.dataFT(), _T3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+#endif
+
     if (_gridCorr)
     {
         RFLOAT diffC = TS_MAX_RFLOAT_VALUE;
@@ -1501,6 +1524,7 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
             {
+                /***
                 Complex result = _F2D.getFTHalf(i, j) * _W2D.getFTHalf(i, j);
                 if ((TSGSL_isnan(REAL(result))) || (TSGSL_isnan(IMAG(result))))
                 {
@@ -1508,6 +1532,7 @@ void Reconstructor::reconstruct(Volume& dst)
                     CLOG(FATAL, "LOGGER_RECO") << "_W2D : " << REAL(_W2D.getFTHalf(i, j)) << ", " << IMAG(_W2D.getFTHalf(i, j));
                     CLOG(FATAL, "LOGGER_RECO") << "_F2D * W2D : " << REAL(result) << ", " << IMAG(result);
                 }
+                ***/
 
                 padDst.setFTHalf(_F2D.getFTHalf(i, j)
                                * _W2D.getFTHalf(i, j),
