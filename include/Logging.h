@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include "easylogging++.h"
 
 #include "Macro.h"
@@ -64,7 +65,7 @@ long memoryCheckRM();
 
 inline int IS_NAN(const RFLOAT x)
 {
-    if (TSGSL_isnan(x) || (TSGSL_isinf(x) == -1) || (TSGSL_isinf(x) == -1))
+    if (TSGSL_isnan(x) || isinf(x))
         return 1;
     else
         return 0;
@@ -72,7 +73,7 @@ inline int IS_NAN(const RFLOAT x)
 
 inline int IS_NAN(const double x)
 {
-    if (TSGSL_isnan(x) || (TSGSL_isinf(x) == -1) || (TSGSL_isinf(x) == -1))
+    if (TSGSL_isnan(x) || isinf(x))
         return 1;
     else
         return 0;
