@@ -725,6 +725,10 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                                              << IMAG(_ref[l][0]);
 #endif
 
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_ref[l].dataFT(), _ref[l].sizeFT());
+#endif
+
                 MPI_Ssend_Large(&_ref[l][0],
                                 _ref[l].sizeFT(),
                                 TS_MPI_DOUBLE_COMPLEX,
