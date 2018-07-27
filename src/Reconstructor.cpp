@@ -1435,6 +1435,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                     {
+                        /***
                         if (IS_NAN(ABS(_C2D.getFTHalf(i, j))))
                         {
                             CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
@@ -1444,6 +1445,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
                             abort();
                         }
+                        ***/
 
                         _W2D.setFTHalf(_W2D.getFTHalf(i, j)
                                      / TSGSL_MAX_RFLOAT(ABS(_C2D.getFTHalf(i, j)),
@@ -1451,6 +1453,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                        i,
                                        j);
 
+                        /***
                         if (IS_NAN(REAL(_W2D.getFTHalf(i, j)))
                          || IS_NAN(IMAG(_W2D.getFTHalf(i, j))))
                         {
@@ -1468,6 +1471,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
                             abort();
                         }
+                        ***/
                     }
 
 #ifndef NAN_NO_CHECK
