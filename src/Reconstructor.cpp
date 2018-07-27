@@ -1472,6 +1472,11 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_F2D.dataFT(), _F2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+#endif
+
 #ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
