@@ -1526,6 +1526,10 @@ void Reconstructor::reconstruct(Volume& dst)
         #pragma omp parallel
         IMAGE_FOR_EACH_PIXEL_RL(imgDst)
             dst.setRL(imgDst.getRL(i, j), i, j, 0);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(dst.dataFT(), dst.sizeFT());
+#endif
     }
     else if (_mode == MODE_3D)
     {
@@ -1676,7 +1680,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
-#endif
+#endif // RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
 #ifdef RECONSTRUCTOR_REMOVE_NEG
     ALOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
@@ -1684,7 +1688,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
     #pragma omp parallel for
     REMOVE_NEG(dst);
-#endif
+#endif // RECONSTRUCT_REMOVE_NEG
 
 #ifndef NAN_NO_CHECK
     SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
