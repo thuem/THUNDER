@@ -1931,7 +1931,27 @@ void Reconstructor::reconstructG(Volume& dst,
             _T3D[i] = COMPLEX(volumeT[i], 0);
 	    }
     }
-    
+ 
+    // make sure there is a minimum value for T
+    if (_mode == MODE_2D)
+    {
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(_T2D)
+            _T2D[i].dat[0] = TSGSL_MAX_RFLOAT(_T2D[i].dat[0], 1e-25);
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(_T3D)
+            _T3D[i].dat[0] = TSGSL_MAX_RFLOAT(_T3D[i].dat[0], 1e-25);
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+   
     if (_gridCorr)
     {
 #ifdef RECONSTRUCTOR_KERNEL_PADDING
