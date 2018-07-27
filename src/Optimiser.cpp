@@ -7349,6 +7349,16 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
+#ifndef NAN_NO_CHECK
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+            }
+        }
+#endif
+
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
         _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
 #else
