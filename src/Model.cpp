@@ -387,6 +387,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                            l,
                            MPI_COMM_WORLD);
 
+#ifndef NAN_NO_CHECK
+            SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+            SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
+
 #ifdef VERBOSE_LEVEL_2
             MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
                                          << REAL(A[0])
@@ -512,57 +517,6 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     _FSC.col(l) = fsc;
                 }
-                /***
-                else if (_coreFSC && (_mode == MODE_3D))
-                {
-                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Core Region of Reference " << l;
-
-                    FFT fft;
-                    fft.bwMT(A);
-                    fft.bwMT(B);
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Core Region is "
-                                                 << (2 * _coreR)
-                                                 << " x "
-                                                 << (2 * _coreR)
-                                                 << " x "
-                                                 << (2 * _coreR);
-
-                    RFLOAT ef = (2.0 * _coreR) / _size;
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Core Region Extract Factor: " << ef;
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Extracing Core Region from Reference " << l;
-
-                    Volume coreA, coreB;
-                    VOL_EXTRACT_RL(coreA, A, ef);
-                    VOL_EXTRACT_RL(coreB, B, ef);
-
-                    fft.fwMT(coreA);
-                    fft.fwMT(coreB);
-
-                    coreA.clearRL();
-                    coreB.clearRL();
-
-                    int coreRU = FLOOR(_rU * ef);
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Determining Core Region FSC of Reference " << l;
-
-                    vec coreFSC(coreRU);
-                    FSC(coreFSC, coreA, coreB);
-
-                    for (int i = 0; i < _rU; i++)
-                        fsc(i) = coreFSC(GSL_MIN_INT(AROUND(i * ef), coreRU - 1));
-
-                    fft.fwMT(A);
-                    fft.fwMT(B);
-
-                    A.clearRL();
-                    B.clearRL();
-
-                    _FSC.col(l) = fsc;
-                }
-                ***/
                 else
                 {
                     if (_mode == MODE_2D)
@@ -587,6 +541,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     else if (_mode == MODE_3D)
                     {
                         MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+
+#ifndef NAN_NO_CHECK
+                        SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+                        SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
 
                         FSC(fsc, A, B);
 
