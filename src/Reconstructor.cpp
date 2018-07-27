@@ -1406,6 +1406,11 @@ void Reconstructor::reconstruct(Volume& dst)
 
             if (_mode == MODE_2D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
+
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
@@ -1421,6 +1426,11 @@ void Reconstructor::reconstruct(Volume& dst)
             }
             else if (_mode == MODE_3D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
+
                 #pragma omp parallel for schedule(dynamic)
                 VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                     if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
