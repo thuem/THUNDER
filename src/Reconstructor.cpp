@@ -1437,7 +1437,9 @@ void Reconstructor::reconstruct(Volume& dst)
                             CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
                                                        << REAL(_C2D.getFTHalf(i, j))
                                                        << ", "
-                                                       << IMAG(_C2D.getFTHalf(i, j));
+                                                       << IMAG(_C2D.getFTHalf(i, j))
+                                                       << ", ABS = "
+                                                       << ABS(_C2D.getFTHalf(i, j));
 
                             abort();
                         }
