@@ -62,12 +62,28 @@ long memoryCheckRM();
 
 #ifndef NAN_NO_CHECK
 
+inline int IS_NAN(const RFLOAT x)
+{
+    if (TSGSL_isnan(x) || (TSGSL_isinf(x) == -1) || (TSGSL_isinf(x) == -1))
+        return 1;
+    else
+        return 0;
+};
+
+inline int IS_NAN(const double x)
+{
+    if (TSGSL_isnan(x) || (TSGSL_isinf(x) == -1) || (TSGSL_isinf(x) == -1))
+        return 1;
+    else
+        return 0;
+}
+
 #define POINT_NAN_CHECK(x) POINT_NAN_CHECK_RFLOAT(x)
 
 #define POINT_NAN_CHECK_RFLOAT(x) \
     do \
     { \
-        if (TSGSL_isnan(x)) \
+        if (IS_NAN(x)) \
         { \
             REPORT_ERROR("NAN DETECTED"); \
             abort(); \
@@ -77,7 +93,7 @@ long memoryCheckRM();
 #define POINT_NAN_CHECK_COMPLEX(x) \
     do \
     { \
-        if ((TSGSL_isnan(REAL(x))) || (TSGSL_isnan(IMAG(x)))) \
+        if ((IS_NAN(REAL(x))) || (IS_NAN(IMAG(x)))) \
         { \
             REPORT_ERROR("NAN DETECTED"); \
             abort(); \
@@ -90,7 +106,7 @@ long memoryCheckRM();
     do \
     { \
         for (size_t i = 0; i < size; i++) \
-            if (TSGSL_isnan((x)[i])) \
+            if (IS_NAN((x)[i])) \
             { \
                 REPORT_ERROR("NAN DETECTED"); \
                 abort(); \
@@ -102,7 +118,7 @@ long memoryCheckRM();
     { \
         for (size_t i = 0; i < size; i++) \
         { \
-            if (TSGSL_isnan(REAL((x)[i])) || TSGSL_isnan(IMAG((x)[i]))) \
+            if (IS_NAN(REAL((x)[i])) || IS_NAN(IMAG((x)[i]))) \
             { \
                 REPORT_ERROR("NAN DETECTED"); \
                 abort(); \
@@ -110,13 +126,13 @@ long memoryCheckRM();
         } \
     } while(0);
 
-#define NAN_CHECK_MAT33(x) \
+#define NAN_CHECK_DMAT33(x) \
     do \
     { \
         const double* ptr = x.data(); \
         for (int i = 0; i < 9; i++) \
         { \
-            if (gsl_isnan(ptr[i])) \
+            if (IS_NAN(ptr[i])) \
             { \
                 REPORT_ERROR("NAN DETECTED"); \
                 abort(); \
@@ -124,13 +140,13 @@ long memoryCheckRM();
         } \
     } while(0);
 
-#define NAN_CHECK_MAT22(x) \
+#define NAN_CHECK_DMAT22(x) \
     do \
     { \
         const double* ptr = x.data(); \
         for (int i = 0; i < 4; i++) \
         { \
-            if (gsl_isnan(ptr[i])) \
+            if (IS_NAN(ptr[i])) \
             { \
                 REPORT_ERROR("NAN DETECTED"); \
                 abort(); \

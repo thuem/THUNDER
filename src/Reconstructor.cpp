@@ -725,7 +725,7 @@ void Reconstructor::insertP(const Complex* src,
     
     SEGMENT_NAN_CHECK_COMPLEX(src, (size_t)_nPxl);
     SEGMENT_NAN_CHECK(ctf, (size_t)_nPxl);
-    NAN_CHECK_MAT22(rot);
+    NAN_CHECK_DMAT22(rot);
     POINT_NAN_CHECK(w);
 
 #endif
@@ -799,7 +799,7 @@ void Reconstructor::insertP(const Complex* src,
     
     SEGMENT_NAN_CHECK_COMPLEX(src, (size_t)_nPxl);
     SEGMENT_NAN_CHECK(ctf, (size_t)_nPxl);
-    NAN_CHECK_MAT33(rot);
+    NAN_CHECK_DMAT33(rot);
     POINT_NAN_CHECK(w);
 
 #endif
