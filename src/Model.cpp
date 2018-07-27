@@ -575,6 +575,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                         MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
 
+#ifndef NAN_NO_CHECK
+                        SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+                        SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
+
                         FRC(fsc, A, B, 0);
 
                         _FSC.col(l) = fsc;
