@@ -7226,6 +7226,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
+#ifdef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+#endif
+
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
 
@@ -7267,6 +7271,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 {
                     REPORT_ERROR("INEXISTENT MODE");
                 }
+
+#ifdef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+#endif
 
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
