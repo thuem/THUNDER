@@ -1307,6 +1307,20 @@ void Reconstructor::reconstruct(Volume& dst)
         abort();
     }
 
+    // make sure there is a minimum value for T
+    if (_mode == MODE_2D)
+    {
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(_T2D)
+            _T2D[i] = TSGSL_MAX_RFLOAT(_T2D[i], 1e-6);
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(_T3D)
+            _T3D[i] = TSGSL_MAX_RFLOAT(_T3D[i], 1e-6);
+    }
+
 #ifndef NAN_NO_CHECK
     if (_mode == MODE_2D)
     {
@@ -1434,6 +1448,11 @@ void Reconstructor::reconstruct(Volume& dst)
                         if (IS_NAN(REAL(_W2D.getFTHalf(i, j)))
                          || IS_NAN(IMAG(_W2D.getFTHalf(i, j))))
                         {
+                            CLOG(FATAL, "LOGGER_RECO") << "_W2D : "
+                                                       << REAL(_W2D.getFTHalf(i, j))
+                                                       << ", "
+                                                       << IMAG(_W2D.getFTHalf(i, j));
+
                             CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
                                                        << REAL(_C2D.getFTHalf(i, j))
                                                        << ", "
