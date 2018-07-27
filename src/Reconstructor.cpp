@@ -1510,6 +1510,10 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(padDst.dataFT(), padDst.sizeFT());
+#endif
+
         FFT fft;
         fft.bwMT(padDst);
 
@@ -1564,6 +1568,10 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(padDst.dataFT(), padDst.sizeFT());
+#endif
+
         FFT fft;
         fft.bwMT(padDst);
         
@@ -1584,6 +1592,10 @@ void Reconstructor::reconstruct(Volume& dst)
     }
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
+
+#ifndef NAN_NO_CHECK
+    SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
+#endif
 
 #ifdef VERBOSE_LEVEL_2
 
@@ -1675,10 +1687,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
 #ifndef NAN_NO_CHECK
-    ALOG(INFO, "LOGGER_RECO") << "Checking NAN Values From Reconstructed Result";
-    BLOG(INFO, "LOGGER_RECO") << "Checking NAN Values From Reconstructed Result";
-
-    SEGMENT_NAN_CHECK(&dst(0), dst.sizeRL());
+    SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
 #endif
 }
 
