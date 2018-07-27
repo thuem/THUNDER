@@ -7250,7 +7250,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                  -_model.reco(t).oy(),
                                  _model.rU());
 #else
-                    //translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+                    translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
 #endif
 
                     SLC_REPLACE_FT(ref, img, 0);
