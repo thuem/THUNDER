@@ -1431,6 +1431,7 @@ void Reconstructor::reconstruct(Volume& dst)
                                        i,
                                        j);
 
+                        /***
                         if (IS_NAN(REAL(_W2D.getFTHalf(i, j)))
                          || IS_NAN(IMAG(_W2D.getFTHalf(i, j))))
                         {
@@ -1441,6 +1442,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
                             abort();
                         }
+                        ***/
                     }
 
 #ifndef NAN_NO_CHECK
