@@ -2506,7 +2506,15 @@ void Reconstructor::convoluteC()
 
     if (_mode == MODE_2D)
     {
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
+
         _fft.bwExecutePlanMT(_C2D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C2D.dataRL(), _C2D.sizeRL());
+#endif
 
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
@@ -2516,13 +2524,29 @@ void Reconstructor::convoluteC()
                        i,
                        j);
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C2D.dataRL(), _C2D.sizeRL());
+#endif
+
         _fft.fwExecutePlanMT(_C2D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
 
         _C2D.clearRL();
     }
     else if (_mode == MODE_3D)
     {
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
+
         _fft.bwExecutePlanMT(_C3D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C3D.dataRL(), _C3D.sizeRL());
+#endif
 
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
@@ -2533,7 +2557,15 @@ void Reconstructor::convoluteC()
                        j,
                        k);
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C3D.dataRL(), _C3D.sizeRL());
+#endif
+
         _fft.fwExecutePlanMT(_C3D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
 
         _C3D.clearRL();
     }
