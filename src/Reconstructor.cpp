@@ -1532,7 +1532,7 @@ void Reconstructor::reconstruct(Volume& dst)
             dst.setRL(imgDst.getRL(i, j), i, j, 0);
 
 #ifndef NAN_NO_CHECK
-        SEGMENT_NAN_CHECK_COMPLEX(dst.dataFT(), dst.sizeFT());
+        SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
 #endif
     }
     else if (_mode == MODE_3D)
