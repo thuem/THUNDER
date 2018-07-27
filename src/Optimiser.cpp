@@ -7226,7 +7226,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-#ifdef NAN_NO_CHECK
+#ifndef NAN_NO_CHECK
                 SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
@@ -7272,7 +7272,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                     REPORT_ERROR("INEXISTENT MODE");
                 }
 
-#ifdef NAN_NO_CHECK
+#ifndef NAN_NO_CHECK
                 SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
