@@ -1430,6 +1430,17 @@ void Reconstructor::reconstruct(Volume& dst)
                                                         1e-6),
                                        i,
                                        j);
+
+                        if (IS_NAN(REAL(_W2D.getFTHalf(i, j)))
+                         || IS_NAN(IMAG(_W2D.getFTHalf(i, j))))
+                        {
+                            CLOG(FATAL, "LOGGER") << "_C2D : "
+                                                  << REAL(_C2D.getFTHalf(i, j))
+                                                  << ", "
+                                                  << IMAG(_C2D.getFTHalf(i, j));
+
+                            abort();
+                        }
                     }
 
 #ifndef NAN_NO_CHECK
