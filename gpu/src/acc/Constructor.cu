@@ -599,7 +599,12 @@ D_CALLABLE void Constructor::symmetrizeT(RFLOAT *devDataT,
                 devDataT[index + num] += inc;
             }
 #endif    
-        }        
+        } 
+#ifdef SINGLE_PRECISION
+        devDataT[index + num] = fmaxf(devDataT[index + num], 1e-25);
+#else
+        devDataT[index + num] = fmax(devDataT[index + num], 1e-25);
+#endif    
         index += blockDim.x * gridDim.x;
     }
 }

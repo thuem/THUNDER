@@ -3224,6 +3224,11 @@ __global__ void kernel_NormalizeTF2D(Complex *devDataF,
 
     devDataF[index] *= sf[kIdx];
     devDataT[index] *= sf[kIdx];
+#ifdef SINGLE_PRECISION
+    devDataT[index] = fmaxf(devDataT[index], 1e-25);
+#else
+    devDataT[index] = fmax(devDataT[index], 1e-25);
+#endif    
 }
 
 /**
@@ -3544,8 +3549,7 @@ __global__ void kernel_CalculateFSC2D(RFLOAT *devDataT,
     int jDim = dim / 2 + 1;
     if(j >= dim / 2) j = j - dim;
     
-    
-    for (int itr = threadIdx.x; itr < jDim; itr+= blockDim.x)
+    for (int itr = threadIdx.x; itr < jDim; itr += blockDim.x)
     {
         int quad = itr * itr + j * j;
     
@@ -3587,6 +3591,11 @@ __global__ void kernel_CalculateFSC2D(RFLOAT *devDataT,
             devDataT[itr + blockIdx.x * jDim] /= FSC;
 #endif
         }
+#ifdef SINGLE_PRECISION
+        devDataT[itr + blockIdx.x * jDim] = fmaxf(devDataT[itr + blockIdx.x * jDim], 1e-25);
+#else
+        devDataT[itr + blockIdx.x * jDim] = fmax(devDataT[itr + blockIdx.x * jDim], 1e-25);
+#endif    
     }
 }
 
@@ -3659,6 +3668,11 @@ __global__ void kernel_CalculateFSC(RFLOAT *devDataT,
             devDataT[tid + num] /= FSC;
 #endif
         }
+#ifdef SINGLE_PRECISION
+        devDataT[tid + num] = fmaxf(devDataT[tid + num], 1e-25);
+#else
+        devDataT[tid + num] = fmax(devDataT[tid + num], 1e-25);
+#endif    
         tid += blockDim.x * gridDim.x;
     }
 
