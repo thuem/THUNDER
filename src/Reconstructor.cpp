@@ -1353,15 +1353,33 @@ void Reconstructor::reconstruct(Volume& dst)
         
             if (_mode == MODE_2D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_T2D.dataFT(), _T2D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+#endif
+
                 #pragma omp parallel for
                 FOR_EACH_PIXEL_FT(_C2D)
                     _C2D[i] = _T2D[i] * REAL(_W2D[i]);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
             }
             else if (_mode == MODE_3D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_T3D.dataFT(), _T3D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+#endif
+
                 #pragma omp parallel for
                 FOR_EACH_PIXEL_FT(_C3D)
                     _C3D[i] = _T3D[i] * REAL(_W3D[i]);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
             }
             else
             {
@@ -1396,6 +1414,10 @@ void Reconstructor::reconstruct(Volume& dst)
                                                    1e-6),
                                        i,
                                        j);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+#endif
             }
             else if (_mode == MODE_3D)
             {
@@ -1408,6 +1430,10 @@ void Reconstructor::reconstruct(Volume& dst)
                                        i,
                                        j,
                                        k);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+#endif
             }
             else
             {
