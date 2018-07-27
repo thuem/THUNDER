@@ -1501,6 +1501,14 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
             {
+                Complex result = _F2D.getFTHalf(i, j) * _W2D.getFTHalf(i, j);
+                if ((TSGSL_isnan(REAL(result))) || (TSGSL_isnan(IMAG(result))))
+                {
+                    CLOG(FATAL, "LOGGER_RECO") << "_F2D : " << REAL(_F2D.getFTHalf(i, j)) << ", " << IMAG(_F2D.getFTHalf(i, j));
+                    CLOG(FATAL, "LOGGER_RECO") << "_W2D : " << REAL(_W2D.getFTHalf(i, j)) << ", " << IMAG(_W2D.getFTHalf(i, j));
+                    CLOG(FATAL, "LOGGER_RECO") << "_F2D * W2D : " << REAL(result) << ", " << IMAG(result);
+                }
+
                 padDst.setFTHalf(_F2D.getFTHalf(i, j)
                                * _W2D.getFTHalf(i, j),
                                  i,
