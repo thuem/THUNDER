@@ -68,7 +68,7 @@
 
 #define CLASS_BALANCE_FACTOR 0.05
 
-#define MIN_N_IMAGES_PER_CLASS 30
+#define MIN_N_IMAGES_PER_CLASS 3
 
 struct OptimiserPara
 {
