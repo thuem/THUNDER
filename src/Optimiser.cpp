@@ -847,13 +847,7 @@ void Optimiser::expectation()
 
 #ifndef NAN_NO_CHECK
 
-                    FOR_EACH_2D_IMAGE
-                        if (TSGSL_isnan(dvp[l]))
-                        {
-                            REPORT_ERROR("DVP CONTAINS NAN");
-
-                            abort();
-                        }
+           SEGMENT_NAN_CHECK(dvp, _ID.size());
 
 #endif
 
@@ -1605,26 +1599,8 @@ void Optimiser::expectation()
 #ifdef OPTIMISER_COMPRESS_CRITERIA
 
 #ifndef NAN_NO_CHECK
-                if (TSGSL_isnan(_par[l].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                if (TSGSL_isnan(_par[l].compressT()))
-                {
-                    CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[l].s0();
-                    CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[l].s1();
-                    CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[l].rho();
-
-                    char filename[FILE_NAME_LENGTH];
-
-                    snprintf(filename,
-                             sizeof(filename),
-                             "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
-                             _ID[l],
-                             _iter,
-                             phase);
-                    save(filename, _par[l], PAR_T, true);
-
-                    REPORT_ERROR("NAN DETECTED");
-                    abort();
-                }
+                POINT_NAN_CHECK(_par[l].compressR());
+                POINT_NAN_CHECK(_par[l].compressT());
 #endif
 
                 if (variRCur < variR) variR = variRCur;
@@ -2758,29 +2734,6 @@ void Optimiser::expectationG()
 
 #ifdef OPTIMISER_COMPRESS_CRITERIA
 
-#ifndef NAN_NO_CHECK
-                        if (TSGSL_isnan(_par[vecImg[itr][l]].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                        if (TSGSL_isnan(_par[vecImg[itr][l]].compressT()))
-                        {
-                            CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[vecImg[itr][l]].s0();
-                            CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[vecImg[itr][l]].s1();
-                            CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[vecImg[itr][l]].rho();
-
-                            char filename[FILE_NAME_LENGTH];
-
-                            snprintf(filename,
-                                     sizeof(filename),
-                                     "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
-                                     _ID[vecImg[itr][l]],
-                                     _iter,
-                                     phase);
-                            save(filename, _par[vecImg[itr][l]], PAR_T, true);
-
-                            REPORT_ERROR("NAN DETECTED");
-                            abort();
-                        }
-#endif
-
                         if (variRCur < variR) variR = variRCur;
                         if (variTCur < variT) variT = variTCur;
                         if (variDCur < variD) variD = variDCur;
@@ -3296,26 +3249,8 @@ void Optimiser::expectationG()
 #ifdef OPTIMISER_COMPRESS_CRITERIA
 
 #ifndef NAN_NO_CHECK
-                    if (TSGSL_isnan(_par[l].compressR())) { REPORT_ERROR("NAN DETECTED"); abort(); };
-                    if (TSGSL_isnan(_par[l].compressT()))
-                    {
-                        CLOG(INFO, "LOGGER_SYS") << "s0 = " << _par[l].s0();
-                        CLOG(INFO, "LOGGER_SYS") << "s1 = " << _par[l].s1();
-                        CLOG(INFO, "LOGGER_SYS") << "rho = " << _par[l].rho();
-
-                        char filename[FILE_NAME_LENGTH];
-
-                        snprintf(filename,
-                                 sizeof(filename),
-                                 "DEBUG_T_Particle_%04d_Round_%03d_%03d.par",
-                                 _ID[l],
-                                 _iter,
-                                 phase);
-                        save(filename, _par[l], PAR_T, true);
-
-                        REPORT_ERROR("NAN DETECTED");
-                        abort();
-                    }
+                    POINT_NAN_CHECK(_par[l].compressR());
+                    POINT_NAN_CHECK(_par[l].compressT());
 #endif
 
                     if (variRCur < variR) variR = variRCur;
@@ -7282,6 +7217,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #else
                 _model.reco(t).reconstruct(ref);
 
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK(ref.dataRL(), ref.sizeRL());
+#endif
+
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
@@ -7289,6 +7228,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 fft.fwMT(ref);
 
+#endif
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
                 ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
@@ -7333,6 +7276,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
                     REPORT_ERROR("INEXISTENT MODE");
                 }
 
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
+#endif
+
                 #pragma omp parallel for
                 SET_0_FT(_model.ref(t));
 
@@ -7344,6 +7291,16 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
             }
         }
+
+#ifndef NAN_NO_CHECK
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+            }
+        }
+#endif
 
         if (fscSave && (_para.saveRefEachIter || finished))
         {
@@ -7380,6 +7337,16 @@ void Optimiser::reconstructRef(const bool fscFlag,
             }
         }
 
+#ifndef NAN_NO_CHECK
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+            }
+        }
+#endif
+
         MPI_Barrier(MPI_COMM_WORLD);
 
 #ifdef OPTIMISER_BALANCE_CLASS
@@ -7412,6 +7379,16 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
         }
 
+#endif
+
+#ifndef NAN_NO_CHECK
+        NT_MASTER
+        {
+            for (int t = 0; t < _para.k; t++)
+            {
+                SEGMENT_NAN_CHECK_COMPLEX(_model.ref(t).dataFT(), _model.ref(t).sizeFT());
+            }
+        }
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC

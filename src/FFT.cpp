@@ -176,17 +176,17 @@ void FFT::fwMT(Volume& vol)
 
     if (vol.nSlcRL() == 1)
         fwPlan = TSFFTW_plan_dft_r2c_2d(vol.nRowRL(),
-                                      vol.nColRL(),
-                                      _srcR,
-                                      _dstC,
-                                      FFTW_ESTIMATE);
+                                        vol.nColRL(),
+                                        _srcR,
+                                        _dstC,
+                                        FFTW_ESTIMATE);
     else
         fwPlan = TSFFTW_plan_dft_r2c_3d(vol.nRowRL(),
-                                      vol.nColRL(),
-                                      vol.nSlcRL(),
-                                      _srcR,
-                                      _dstC,
-                                      FFTW_ESTIMATE);
+                                        vol.nColRL(),
+                                        vol.nSlcRL(),
+                                        _srcR,
+                                        _dstC,
+                                        FFTW_ESTIMATE);
 
     TSFFTW_plan_with_nthreads(1);
 

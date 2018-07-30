@@ -217,6 +217,11 @@ void FRC(vec& dst,
          const Image& A,
          const Image& B)
 {
+#ifndef NAN_NO_CHECK
+    SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+    SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
+
     vec vecS = vec::Zero(dst.size());
     vec vecA = vec::Zero(dst.size());
     vec vecB = vec::Zero(dst.size());
@@ -247,12 +252,20 @@ void FRC(vec& dst,
          const Volume& B,
          const int k)
 {
+#ifndef NAN_NO_CHECK
+    SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+    SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
+
     vec vecS = vec::Zero(dst.size());
     vec vecA = vec::Zero(dst.size());
     vec vecB = vec::Zero(dst.size());
 
+    /***
     for (int j = -A.nRowRL() / 2; j < A.nRowRL() / 2; j++)
         for (int i = 0; i <= A.nColRL() / 2; i++)
+    ***/
+    IMAGE_FOR_EACH_PIXEL_FT(A)
         {
             int u = AROUND(NORM(i, j));
             if (u < dst.size())

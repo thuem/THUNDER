@@ -721,6 +721,15 @@ void Reconstructor::insertP(const Complex* src,
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
 #endif
 
+#ifndef NAN_NO_CHECK
+    
+    SEGMENT_NAN_CHECK_COMPLEX(src, (size_t)_nPxl);
+    SEGMENT_NAN_CHECK(ctf, (size_t)_nPxl);
+    NAN_CHECK_DMAT22(rot);
+    POINT_NAN_CHECK(w);
+
+#endif
+
         for (int i = 0; i < _nPxl; i++)
         {
             dvec2 newCor((double)(_iCol[i]), (double)(_iRow[i]));
@@ -784,6 +793,15 @@ void Reconstructor::insertP(const Complex* src,
 
     if (_calMode != PRE_CAL_MODE)
         REPORT_ERROR("WRONG PRE(POST) CALCULATION MODE IN RECONSTRUCTOR");
+#endif
+
+#ifndef NAN_NO_CHECK
+    
+    SEGMENT_NAN_CHECK_COMPLEX(src, (size_t)_nPxl);
+    SEGMENT_NAN_CHECK(ctf, (size_t)_nPxl);
+    NAN_CHECK_DMAT33(rot);
+    POINT_NAN_CHECK(w);
+
 #endif
 
     for (int i = 0; i < _nPxl; i++)
@@ -1289,6 +1307,49 @@ void Reconstructor::reconstruct(Volume& dst)
         abort();
     }
 
+    // make sure there is a minimum value for T
+    if (_mode == MODE_2D)
+    {
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(_T2D)
+            _T2D[i].dat[0] = TSGSL_MAX_RFLOAT(_T2D[i].dat[0], 1e-25);
+    }
+    else if (_mode == MODE_3D)
+    {
+        #pragma omp parallel for
+        FOR_EACH_PIXEL_FT(_T3D)
+            _T3D[i].dat[0] = TSGSL_MAX_RFLOAT(_T3D[i].dat[0], 1e-25);
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+
+#ifndef NAN_NO_CHECK
+    if (_mode == MODE_2D)
+    {
+        SEGMENT_NAN_CHECK_COMPLEX(_F2D.dataFT(), _F2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_T2D.dataFT(), _T2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+    }
+    else if (_mode == MODE_3D)
+    {
+        SEGMENT_NAN_CHECK_COMPLEX(_F3D.dataFT(), _F3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_T3D.dataFT(), _T3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+    }
+    else
+    {
+        REPORT_ERROR("INEXISTENT MODE");
+
+        abort();
+    }
+#endif
+
     if (_gridCorr)
     {
         RFLOAT diffC = TS_MAX_RFLOAT_VALUE;
@@ -1312,15 +1373,33 @@ void Reconstructor::reconstruct(Volume& dst)
         
             if (_mode == MODE_2D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_T2D.dataFT(), _T2D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+#endif
+
                 #pragma omp parallel for
                 FOR_EACH_PIXEL_FT(_C2D)
                     _C2D[i] = _T2D[i] * REAL(_W2D[i]);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
             }
             else if (_mode == MODE_3D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_T3D.dataFT(), _T3D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+#endif
+
                 #pragma omp parallel for
                 FOR_EACH_PIXEL_FT(_C3D)
                     _C3D[i] = _T3D[i] * REAL(_W3D[i]);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
             }
             else
             {
@@ -1347,17 +1426,65 @@ void Reconstructor::reconstruct(Volume& dst)
 
             if (_mode == MODE_2D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
+
                 #pragma omp parallel for schedule(dynamic)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
+                    {
+                        /***
+                        if (IS_NAN(ABS(_C2D.getFTHalf(i, j))))
+                        {
+                            CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
+                                                       << REAL(_C2D.getFTHalf(i, j))
+                                                       << ", "
+                                                       << IMAG(_C2D.getFTHalf(i, j));
+
+                            abort();
+                        }
+                        ***/
+
                         _W2D.setFTHalf(_W2D.getFTHalf(i, j)
                                      / TSGSL_MAX_RFLOAT(ABS(_C2D.getFTHalf(i, j)),
-                                                   1e-6),
+                                                        1e-6),
                                        i,
                                        j);
+
+                        /***
+                        if (IS_NAN(REAL(_W2D.getFTHalf(i, j)))
+                         || IS_NAN(IMAG(_W2D.getFTHalf(i, j))))
+                        {
+                            CLOG(FATAL, "LOGGER_RECO") << "_W2D : "
+                                                       << REAL(_W2D.getFTHalf(i, j))
+                                                       << ", "
+                                                       << IMAG(_W2D.getFTHalf(i, j));
+
+                            CLOG(FATAL, "LOGGER_RECO") << "_C2D : "
+                                                       << REAL(_C2D.getFTHalf(i, j))
+                                                       << ", "
+                                                       << IMAG(_C2D.getFTHalf(i, j))
+                                                       << ", ABS = "
+                                                       << ABS(_C2D.getFTHalf(i, j));
+
+                            abort();
+                        }
+                        ***/
+                    }
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+#endif
             }
             else if (_mode == MODE_3D)
             {
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+                SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
+
                 #pragma omp parallel for schedule(dynamic)
                 VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                     if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
@@ -1367,6 +1494,10 @@ void Reconstructor::reconstruct(Volume& dst)
                                        i,
                                        j,
                                        k);
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
+#endif
             }
             else
             {
@@ -1454,6 +1585,11 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_F2D.dataFT(), _F2D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
+#endif
+
 #ifdef VERBOSE_LEVEL_2
 
         ALOG(INFO, "LOGGER_RECO") << "Setting Up Padded Destination Image";
@@ -1478,6 +1614,16 @@ void Reconstructor::reconstruct(Volume& dst)
         {
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
             {
+                /***
+                Complex result = _F2D.getFTHalf(i, j) * _W2D.getFTHalf(i, j);
+                if ((TSGSL_isnan(REAL(result))) || (TSGSL_isnan(IMAG(result))))
+                {
+                    CLOG(FATAL, "LOGGER_RECO") << "_F2D : " << REAL(_F2D.getFTHalf(i, j)) << ", " << IMAG(_F2D.getFTHalf(i, j));
+                    CLOG(FATAL, "LOGGER_RECO") << "_W2D : " << REAL(_W2D.getFTHalf(i, j)) << ", " << IMAG(_W2D.getFTHalf(i, j));
+                    CLOG(FATAL, "LOGGER_RECO") << "_F2D * W2D : " << REAL(result) << ", " << IMAG(result);
+                }
+                ***/
+
                 padDst.setFTHalf(_F2D.getFTHalf(i, j)
                                * _W2D.getFTHalf(i, j),
                                  i,
@@ -1492,8 +1638,16 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(padDst.dataFT(), padDst.sizeFT());
+#endif
+
         FFT fft;
         fft.bwMT(padDst);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(padDst.dataRL(), padDst.dataRL());
+#endif
 
         Image imgDst;
 
@@ -1504,6 +1658,10 @@ void Reconstructor::reconstruct(Volume& dst)
         #pragma omp parallel
         IMAGE_FOR_EACH_PIXEL_RL(imgDst)
             dst.setRL(imgDst.getRL(i, j), i, j, 0);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
+#endif
     }
     else if (_mode == MODE_3D)
     {
@@ -1546,6 +1704,10 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(padDst.dataFT(), padDst.sizeFT());
+#endif
+
         FFT fft;
         fft.bwMT(padDst);
         
@@ -1566,6 +1728,10 @@ void Reconstructor::reconstruct(Volume& dst)
     }
 
 #ifdef RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
+
+#ifndef NAN_NO_CHECK
+    SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
+#endif
 
 #ifdef VERBOSE_LEVEL_2
 
@@ -1646,7 +1812,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
-#endif
+#endif // RECONSTRUCTOR_CORRECT_CONVOLUTION_KERNEL
 
 #ifdef RECONSTRUCTOR_REMOVE_NEG
     ALOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
@@ -1654,6 +1820,10 @@ void Reconstructor::reconstruct(Volume& dst)
 
     #pragma omp parallel for
     REMOVE_NEG(dst);
+#endif // RECONSTRUCT_REMOVE_NEG
+
+#ifndef NAN_NO_CHECK
+    SEGMENT_NAN_CHECK(dst.dataRL(), dst.sizeRL());
 #endif
 }
 
@@ -1761,7 +1931,7 @@ void Reconstructor::reconstructG(Volume& dst,
             _T3D[i] = COMPLEX(volumeT[i], 0);
 	    }
     }
-    
+ 
     if (_gridCorr)
     {
 #ifdef RECONSTRUCTOR_KERNEL_PADDING
@@ -2180,17 +2350,40 @@ void Reconstructor::allReduceF()
     MPI_Barrier(_hemi);
 
     if (_mode == MODE_2D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F2D[0], _F2D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_F2D[0],
                             _F2D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F2D[0], _F2D.sizeFT());
+#endif
+
+    }
     else if (_mode == MODE_3D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F3D[0], _F3D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_F3D[0],
                             _F3D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_F3D[0], _F3D.sizeFT());
+#endif
+    }
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
@@ -2208,18 +2401,42 @@ void Reconstructor::allReduceT()
 
     MPI_Barrier(_hemi);
 
+
     if (_mode == MODE_2D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T2D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_T2D[0],
                             _T2D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T2D.sizeFT());
+#endif
+
+    }
     else if (_mode == MODE_3D)
+    {
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T3D[0], _T3D.sizeFT());
+#endif
+
         MPI_Allreduce_Large(&_T3D[0],
                             _T3D.sizeFT(),
                             TS_MPI_DOUBLE_COMPLEX,
                             MPI_SUM,
                             _hemi);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T3D.sizeFT());
+#endif
+    }
     else
     {
         REPORT_ERROR("INEXISTENT MODE");
@@ -2379,7 +2596,15 @@ void Reconstructor::convoluteC()
 
     if (_mode == MODE_2D)
     {
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
+
         _fft.bwExecutePlanMT(_C2D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C2D.dataRL(), _C2D.sizeRL());
+#endif
 
         #pragma omp parallel for
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
@@ -2389,13 +2614,29 @@ void Reconstructor::convoluteC()
                        i,
                        j);
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C2D.dataRL(), _C2D.sizeRL());
+#endif
+
         _fft.fwExecutePlanMT(_C2D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
+#endif
 
         _C2D.clearRL();
     }
     else if (_mode == MODE_3D)
     {
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
+
         _fft.bwExecutePlanMT(_C3D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C3D.dataRL(), _C3D.sizeRL());
+#endif
 
         #pragma omp parallel for
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
@@ -2406,7 +2647,15 @@ void Reconstructor::convoluteC()
                        j,
                        k);
 
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK(_C3D.dataRL(), _C3D.sizeRL());
+#endif
+
         _fft.fwExecutePlanMT(_C3D);
+
+#ifndef NAN_NO_CHECK
+        SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
+#endif
 
         _C3D.clearRL();
     }

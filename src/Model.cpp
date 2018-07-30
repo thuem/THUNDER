@@ -387,6 +387,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                            l,
                            MPI_COMM_WORLD);
 
+#ifndef NAN_NO_CHECK
+            SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+            SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
+
 #ifdef VERBOSE_LEVEL_2
             MLOG(INFO, "LOGGER_COMPARE") << "Zero, REAL = "
                                          << REAL(A[0])
@@ -512,57 +517,6 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     _FSC.col(l) = fsc;
                 }
-                /***
-                else if (_coreFSC && (_mode == MODE_3D))
-                {
-                    MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Core Region of Reference " << l;
-
-                    FFT fft;
-                    fft.bwMT(A);
-                    fft.bwMT(B);
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Core Region is "
-                                                 << (2 * _coreR)
-                                                 << " x "
-                                                 << (2 * _coreR)
-                                                 << " x "
-                                                 << (2 * _coreR);
-
-                    RFLOAT ef = (2.0 * _coreR) / _size;
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Core Region Extract Factor: " << ef;
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Extracing Core Region from Reference " << l;
-
-                    Volume coreA, coreB;
-                    VOL_EXTRACT_RL(coreA, A, ef);
-                    VOL_EXTRACT_RL(coreB, B, ef);
-
-                    fft.fwMT(coreA);
-                    fft.fwMT(coreB);
-
-                    coreA.clearRL();
-                    coreB.clearRL();
-
-                    int coreRU = FLOOR(_rU * ef);
-
-                    MLOG(INFO, "LOGGER_COMPARE") << "Determining Core Region FSC of Reference " << l;
-
-                    vec coreFSC(coreRU);
-                    FSC(coreFSC, coreA, coreB);
-
-                    for (int i = 0; i < _rU; i++)
-                        fsc(i) = coreFSC(GSL_MIN_INT(AROUND(i * ef), coreRU - 1));
-
-                    fft.fwMT(A);
-                    fft.fwMT(B);
-
-                    A.clearRL();
-                    B.clearRL();
-
-                    _FSC.col(l) = fsc;
-                }
-                ***/
                 else
                 {
                     if (_mode == MODE_2D)
@@ -575,6 +529,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                         MLOG(INFO, "LOGGER_COMPARE") << "Calculating FRC of Reference " << l;
 
+#ifndef NAN_NO_CHECK
+                        SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+                        SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
+
                         FRC(fsc, A, B, 0);
 
                         _FSC.col(l) = fsc;
@@ -582,6 +541,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     else if (_mode == MODE_3D)
                     {
                         MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Reference " << l;
+
+#ifndef NAN_NO_CHECK
+                        SEGMENT_NAN_CHECK_COMPLEX(A.dataFT(), A.sizeFT());
+                        SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
+#endif
 
                         FSC(fsc, A, B);
 
@@ -629,9 +593,19 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     if (_mode == MODE_2D)
                     {
-                        MLOG(FATAL, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT GOLDEN STANDARD AVERAGING";
+                        // MLOG(FATAL, "LOGGER_COMPARE") << "2D MODE DOES NOT SUPPORT GOLDEN STANDARD AVERAGING";
 
-                        abort();
+                        // abort();
+                        IMAGE_FOR_EACH_PIXEL_FT(A)
+                            if (QUAD(i, j) < TSGSL_pow_2(r))
+                            {
+                                Complex avg = (A.getFTHalf(i, j, 0)
+                                             + B.getFTHalf(i, j, 0))
+                                             / 2;
+                               
+                                A.setFTHalf(avg, i, j, 0);
+                                B.setFTHalf(avg, i, j, 0);
+                            }
                     }
                     else if (_mode == MODE_3D)
                     {
@@ -749,6 +723,10 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                                              << REAL(_ref[l][0])
                                              << ", IMAG = "
                                              << IMAG(_ref[l][0]);
+#endif
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(_ref[l].dataFT(), _ref[l].sizeFT());
 #endif
 
                 MPI_Ssend_Large(&_ref[l][0],
@@ -1450,22 +1428,30 @@ int Model::searchType()
         // If it is global search now, make sure the change of rotations
         // beteween iterations still gets room for improvement.
         IF_MASTER
-            if ((_r == _rGlobal) && _increaseR)
+            if (_increaseR)
             {
-                if (_lSearch)
+                if (_r == _rGlobal)
                 {
-                    _searchType = SEARCH_TYPE_LOCAL;
+                    if (_lSearch)
+                    {
+                        _searchType = SEARCH_TYPE_LOCAL;
 
-                    _nTopResNoImprove = 0;
+                        _nTopResNoImprove = 0;
 
-                    resetTVari();
-                    resetRChange();
-                    resetFSCArea();
-                    setNRChangeNoDecrease(0);
-                    setIncreaseR(false);
+                        resetTVari();
+                        resetRChange();
+                        resetFSCArea();
+                        setNRChangeNoDecrease(0);
+                        setIncreaseR(false);
+                    }
+                    else
+                        _searchType = SEARCH_TYPE_STOP;
                 }
                 else
-                    _searchType = SEARCH_TYPE_STOP;
+                {
+                    if (_r <= _rT)
+                        _searchType = SEARCH_TYPE_STOP;
+                }
             }
     }
 
