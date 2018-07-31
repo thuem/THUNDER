@@ -1,6 +1,13 @@
 # THUNDER
 A particle-filter framework for robust cryoEM 3D reconstruction
 
+## Release Note
+
+* Version 1.4.3: This release increases the stability of 2D classification.
+* Version 1.4.2: This release enables THUNDER to run on single workstation with one or multiple GPUs.
+* Version 1.4.1: This release fixes minor bugs.
+* Version 1.4.0: This release enables THUNDER to run on GPU clusters.
+
 ## Quick Start
 
 ### Installation from Source
