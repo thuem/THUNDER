@@ -1,6 +1,14 @@
 # THUNDER
 A particle-filter framework for robust cryoEM 3D reconstruction
 
+## Release Note
+
+* Version 1.4.4: This release elevates the support of NVIDIA V100.
+* Version 1.4.3: This release increases the stability of 2D classification.
+* Version 1.4.2: This release enables THUNDER to run on single workstation with one or multiple GPUs.
+* Version 1.4.1: This release fixes minor bugs.
+* Version 1.4.0: This release enables THUNDER to run on GPU clusters.
+
 ## Quick Start
 
 ### Installation from Source
@@ -8,7 +16,7 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 Installation from source requires CMake and a C/C++ compiler with MPI wrapper.
 
 ```bash
-git clone git@github.com:thuem/THUNDER.git .
+git clone git@github.com:thuem/THUNDER.git THUNDER
 cd THUNDER
 mkdir build
 cd build
@@ -17,7 +25,13 @@ make
 make install
 ```
 
-Installation of specified version of THUNDER, such as double-precision and designed SIMD version, is described in the manual in `manual` folder.
+Installation of specified version of THUNDER, such as double-precision, designed SIMD version or GPU version, is described in the manual in `manual` folder.
+
+### Dependency of GPU Version
+
+CUDA 8.0 or above and NCCL2 are required. You may download CUDA from https://developer.nvidia.com/cuda-toolkit and NCCL2 from https://developer.nvidia.com/nccl.
+
+Please make sure that the proper version of NCCL2 is installed, as it depends on the version of CUDA, operating system and computer architecture.
 
 ### Running THUNDER
 
