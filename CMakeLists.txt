@@ -13,7 +13,7 @@ project(THUNDER)
 
 set(THUNDER_VERSION_MAJOR 1)
 set(THUNDER_VERSION_MINOR 4)
-set(THUNDER_VERSION_ADDIT 3)
+set(THUNDER_VERSION_ADDIT 4)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}.${THUNDER_VERSION_ADDIT}!")
 
@@ -213,13 +213,14 @@ if("${GPU_VERSION}")
 
     # THE GPU ARCHITETURE SPECIFIC BINARY
 
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_30,code=sm_30")
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_35,code=sm_35")
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_50,code=sm_50")
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
+    #list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_30,code=sm_30")
+    #list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_35,code=sm_35")
+    #list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_50,code=sm_50")
+    #list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
+    #list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
+    #list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
     list(APPEND CUDA_NVCC_FLAGS "-std=c++11")
+    list(APPEND CUDA_NVCC_FLAGS "-Wno-deprecated-gpu-targets")
 
     # LINK THE CUDA LIBRARIES
 
