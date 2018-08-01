@@ -7234,46 +7234,49 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
-                ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-
-                if (_para.mode == MODE_2D)
+                if (_mask.isEmptyRL())
                 {
-                    Image img(_para.size, _para.size, FT_SPACE);
+                    ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                    BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
 
-                    SLC_EXTRACT_FT(img, ref, 0);
-
-#ifdef GPU_RECONSTRUCT
-                    TranslateI2D(gpus[omp_get_thread_num()],
-                                 img,
-                                 -_model.reco(t).ox(),
-                                 -_model.reco(t).oy(),
-                                 _model.rU());
-#else
-                    translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
-#endif
-
-                    SLC_REPLACE_FT(ref, img, 0);
-                }
-                else if (_para.mode == MODE_3D)
-                {
-                    if (_sym.pgGroup() == PG_CN)
+                    if (_para.mode == MODE_2D)
                     {
+                        Image img(_para.size, _para.size, FT_SPACE);
+
+                        SLC_EXTRACT_FT(img, ref, 0);
+
 #ifdef GPU_RECONSTRUCT
-                        TranslateI(gpus[omp_get_thread_num()],
-                                   ref,
-                                   -_model.reco(t).ox(),
-                                   -_model.reco(t).oy(),
-                                   -_model.reco(t).oz(),
-                                   _model.rU());
+                        TranslateI2D(gpus[omp_get_thread_num()],
+                                     img,
+                                     -_model.reco(t).ox(),
+                                     -_model.reco(t).oy(),
+                                      _model.rU());
 #else
-                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                        translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
 #endif
+
+                        SLC_REPLACE_FT(ref, img, 0);
                     }
-                }
-                else
-                {
-                    REPORT_ERROR("INEXISTENT MODE");
+                    else if (_para.mode == MODE_3D)
+                    {
+                        if (_sym.pgGroup() == PG_CN)
+                        {
+#ifdef GPU_RECONSTRUCT
+                            TranslateI(gpus[omp_get_thread_num()],
+                                       ref,
+                                       -_model.reco(t).ox(),
+                                       -_model.reco(t).oy(),
+                                       -_model.reco(t).oz(),
+                                       _model.rU());
+#else
+                            translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+#endif
+                        }
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+                    }
                 }
 
 #ifndef NAN_NO_CHECK
@@ -7471,46 +7474,49 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-                ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-
-                if (_para.mode == MODE_2D)
+                if (_mask.isEmptyRL())
                 {
-                    Image img(_para.size, _para.size, FT_SPACE);
+                    ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                    BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
 
-                    SLC_EXTRACT_FT(img, ref, 0);
-
-#ifdef GPU_RECONSTRUCT
-                    TranslateI2D(gpus[omp_get_thread_num()],
-                                 img,
-                                 -_model.reco(t).ox(),
-                                 -_model.reco(t).oy(),
-                                 _model.rU());
-#else
-                    translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
-#endif
-
-                    SLC_REPLACE_FT(ref, img, 0);
-                }
-                else if (_para.mode == MODE_3D)
-                {
-                    if (_sym.pgGroup() == PG_CN)
+                    if (_para.mode == MODE_2D)
                     {
+                        Image img(_para.size, _para.size, FT_SPACE);
+
+                        SLC_EXTRACT_FT(img, ref, 0);
+
 #ifdef GPU_RECONSTRUCT
-                        TranslateI(gpus[omp_get_thread_num()],
-                                   ref,
-                                   -_model.reco(t).ox(),
-                                   -_model.reco(t).oy(),
-                                   -_model.reco(t).oz(),
-                                   _model.rU());
+                        TranslateI2D(gpus[omp_get_thread_num()],
+                                     img,
+                                     -_model.reco(t).ox(),
+                                     -_model.reco(t).oy(),
+                                     _model.rU());
 #else
-                        translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                        translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
 #endif
+
+                        SLC_REPLACE_FT(ref, img, 0);
                     }
-                }
-                else
-                {
-                    REPORT_ERROR("INEXISTENT MODE");
+                    else if (_para.mode == MODE_3D)
+                    {
+                        if (_sym.pgGroup() == PG_CN)
+                        {
+#ifdef GPU_RECONSTRUCT
+                            TranslateI(gpus[omp_get_thread_num()],
+                                       ref,
+                                       -_model.reco(t).ox(),
+                                       -_model.reco(t).oy(),
+                                       -_model.reco(t).oz(),
+                                       _model.rU());
+#else
+                            translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+#endif
+                        }
+                    }
+                    else
+                    {
+                        REPORT_ERROR("INEXISTENT MODE");
+                    }
                 }
 
                 #pragma omp parallel for
