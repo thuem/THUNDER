@@ -299,11 +299,11 @@ void Optimiser::init()
         MLOG(INFO, "LOGGER_INIT") << "Seting Frequency Upper Boudary during Global Search";
 
         RFLOAT globalSearchRes = GSL_MIN_DBL(_para.globalSearchRes,
-                                             _para.maskRadius / pow(1 + _sym.nSymmetryElement(), 1.0 / 3));
+                                             R_GLOBAL_FACTOR * _para.maskRadius / pow(1 + _sym.nSymmetryElement(), 1.0 / 3));
 
         _model.setRGlobal(AROUND(resA2P(globalSearchRes,
-                                 _para.size,
-                                 _para.pixelSize)) + 1);
+                                        _para.size,
+                                        _para.pixelSize)) + 1);
 
         MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
                                   << globalSearchRes
