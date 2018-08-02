@@ -301,7 +301,7 @@ void Optimiser::init()
         RFLOAT globalSearchRes = GSL_MIN_DBL(_para.globalSearchRes,
                                              R_GLOBAL_FACTOR * _para.maskRadius / pow(1 + _sym.nSymmetryElement(), 1.0 / 3));
 
-        _model.setRGlobal(AROUND(resA2P(globalSearchRes,
+        _model.setRGlobal(AROUND(resA2P(1.0 / globalSearchRes,
                                         _para.size,
                                         _para.pixelSize)) + 1);
 
