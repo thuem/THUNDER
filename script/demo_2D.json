@@ -43,7 +43,7 @@
        "MKB Kernel Radius" : 1.9,
        "MKB Kernel Smooth Factor" : 15,
        "Number of Sampling Points for Scanning in Global Search (3D)" : 10000,
-       "Number of Sampling Points for Scanning in Global Search (2D)" : 100,
+       "Number of Sampling Points for Scanning in Global Search (2D)" : 25,
        "Number of Sampling Points of Rotation in Local Search (3D)" : 125,
        "Number of Sampling Points of Rotation in Local Search (2D)" : 9,
        "Number of Sampling Points of Translation in Local Search" : 9,
