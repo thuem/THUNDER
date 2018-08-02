@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
     {
         CLOG(INFO, "LOGGER_SYS") << "THUNDER is Initiallised With "
                                  << size
-                                 << " Number of Processes";
+                                 << " Processes";
 
         if (size <= 2)
         {
