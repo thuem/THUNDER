@@ -7744,7 +7744,6 @@ void Optimiser::solventFlatten(const bool mask)
             }
             else if (_para.mode == MODE_3D)
             {
-                /***
 #ifdef OPTIMISER_SOLVENT_FLATTEN_LOW_PASS_MASK
 
                 fft.fwMT(_mask);
@@ -7774,7 +7773,6 @@ void Optimiser::solventFlatten(const bool mask)
 #endif
 
 #endif
-                ***/
             }
             else
             {
