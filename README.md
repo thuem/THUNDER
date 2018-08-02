@@ -1,9 +1,17 @@
 # THUNDER
 A particle-filter framework for robust cryoEM 3D reconstruction
 
+## Literature
+
+[bioRvix](https://www.biorxiv.org/content/early/2018/05/23/329169), A particle-filter framework for robust cryoEM 3D reconstruction
+
+### Citation
+
+[Bai R, Wan R, Yan C, et al. Structures of the fully assembled Saccharomyces cerevisiae spliceosome before activation\[J\]. Science, 2018:eaau0325.](http://science.sciencemag.org/content/360/6396/1423)
+
 ## Release Note
 
-* Version 1.4.5: This release fixes a bug which appears when 8 or more GPUs are used in a single workstation. This releasae also fixes some minor bugs.
+* Version 1.4.5: This release fixes a bug which appears when 8 or more GPUs are used in a single workstation. This release also fixes some minor bugs.
 * Version 1.4.4: This release elevates the support of NVIDIA V100.
 * Version 1.4.3: This release increases the stability of 2D classification.
 * Version 1.4.2: This release enables THUNDER to run on single workstation with one or multiple GPUs.
