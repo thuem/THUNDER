@@ -517,6 +517,13 @@ void Optimiser::init()
 #endif
         ***/
 
+        MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+
+        if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
+            solventFlatten(_para.performMask);
+        else
+            solventFlatten(false);
+
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
         BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
 
