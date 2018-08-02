@@ -2341,7 +2341,9 @@ void Optimiser::expectationG()
     for (int i = 0; i < omp_get_max_threads(); i++)
     {
         int gpuIdx;
-        if (i / cpyNum == deviceNum)
+        if (i / cpyNum > deviceNum)
+            gpuIdx = i - deviceNum;   
+        else if (i / cpyNum == deviceNum)
             gpuIdx = i % cpyNum;
         else
             gpuIdx = i / cpyNum;
@@ -2383,7 +2385,9 @@ void Optimiser::expectationG()
             {
                 int threadId = omp_get_thread_num();
                 int gpuIdx;
-                if (threadId / cpyNum == deviceNum)
+                if (threadId / cpyNum > deviceNum)
+                    gpuIdx = threadId - deviceNum;   
+                else if (threadId / cpyNum == deviceNum)
                     gpuIdx = threadId % cpyNum;
                 else
                     gpuIdx = threadId / cpyNum;
@@ -2835,7 +2839,9 @@ void Optimiser::expectationG()
         {
             int threadId = omp_get_thread_num();
             int gpuIdx;
-            if (threadId / cpyNum == deviceNum)
+            if (threadId / cpyNum > deviceNum)
+                gpuIdx = threadId - deviceNum;   
+            else if (threadId / cpyNum == deviceNum)
                 gpuIdx = threadId % cpyNum;
             else
                 gpuIdx = threadId / cpyNum;
@@ -3341,7 +3347,9 @@ void Optimiser::expectationG()
     for (int i = 0; i < omp_get_max_threads(); i++)
     {
         int gpuIdx;
-        if (i / cpyNum == deviceNum)
+        if (i / cpyNum > deviceNum)
+            gpuIdx = i - deviceNum;   
+        else if (i / cpyNum == deviceNum)
             gpuIdx = i % cpyNum;
         else
             gpuIdx = i / cpyNum;
