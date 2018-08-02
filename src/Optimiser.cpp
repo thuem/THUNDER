@@ -6355,7 +6355,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
             if (_searchType != SEARCH_TYPE_CTF)
             {
- #ifdef OPTIMISER_CTF_ON_THE_FLY
+#ifdef OPTIMISER_CTF_ON_THE_FLY
                 Image ctf(_para.size, _para.size, FT_SPACE);
                 CTF(ctf,
                     _para.pixelSize, 
