@@ -11,6 +11,8 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 
 ## Release Note
 
+* Version 1.4.7: This release fixes minor bugs.
+* Version 1.4.6: This release fixes a bug occurring during applying mask on the reference.
 * Version 1.4.5: This release fixes a bug which appears when 8 or more GPUs are used in a single workstation. This release also fixes some minor bugs.
 * Version 1.4.4: This release elevates the support of NVIDIA V100.
 * Version 1.4.3: This release increases the stability of 2D classification.

@@ -2345,7 +2345,7 @@ void Optimiser::expectationG()
     {
         int gpuIdx;
         if (i / cpyNum > deviceNum)
-            gpuIdx = i - deviceNum;   
+            gpuIdx = i - deviceNum * cpyNum;   
         else if (i / cpyNum == deviceNum)
             gpuIdx = i % cpyNum;
         else
@@ -2389,7 +2389,7 @@ void Optimiser::expectationG()
                 int threadId = omp_get_thread_num();
                 int gpuIdx;
                 if (threadId / cpyNum > deviceNum)
-                    gpuIdx = threadId - deviceNum;   
+                    gpuIdx = threadId - deviceNum * cpyNum;   
                 else if (threadId / cpyNum == deviceNum)
                     gpuIdx = threadId % cpyNum;
                 else
@@ -2843,7 +2843,7 @@ void Optimiser::expectationG()
             int threadId = omp_get_thread_num();
             int gpuIdx;
             if (threadId / cpyNum > deviceNum)
-                gpuIdx = threadId - deviceNum;   
+                gpuIdx = threadId - deviceNum * cpyNum;   
             else if (threadId / cpyNum == deviceNum)
                 gpuIdx = threadId % cpyNum;
             else
@@ -3351,7 +3351,7 @@ void Optimiser::expectationG()
     {
         int gpuIdx;
         if (i / cpyNum > deviceNum)
-            gpuIdx = i - deviceNum;   
+            gpuIdx = i - deviceNum * cpyNum;   
         else if (i / cpyNum == deviceNum)
             gpuIdx = i % cpyNum;
         else
@@ -7413,9 +7413,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
-        _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+        _model.compareTwoHemispheres(true, false, AVERAGE_TWO_HEMISPHERE_THRES);
 #else
-        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
+        _model.compareTwoHemispheres(true, true, AVERAGE_TWO_HEMISPHERE_THRES);
 #endif
     }
 
@@ -7609,8 +7609,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-        // _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
-        _model.compareTwoHemispheres(false, true, _para.thresSclCorFSC);
+        _model.compareTwoHemispheres(false, true, AVERAGE_TWO_HEMISPHERE_THRES);
     }
 
 #endif
