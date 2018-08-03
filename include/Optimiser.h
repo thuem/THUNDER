@@ -72,7 +72,7 @@
 
 #define MIN_N_IMAGES_PER_CLASS 3
 
-#define AVERAGE_TWO_HEMISPHRE_THRES 0.95
+#define AVERAGE_TWO_HEMISPHERE_THRES 0.95
 
 struct OptimiserPara
 {
