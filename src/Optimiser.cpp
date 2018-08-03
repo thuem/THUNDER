@@ -7413,9 +7413,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
-        _model.compareTwoHemispheres(true, false, _para.thresReportFSC);
+        _model.compareTwoHemispheres(true, false, AVERAGE_TWO_HEMISPHERE_THRES);
 #else
-        _model.compareTwoHemispheres(true, true, _para.thresReportFSC);
+        _model.compareTwoHemispheres(true, true, AVERAGE_TWO_HEMISPHERE_THRES);
 #endif
     }
 
@@ -7609,8 +7609,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-        // _model.compareTwoHemispheres(false, true, _para.thresReportFSC);
-        _model.compareTwoHemispheres(false, true, _para.thresSclCorFSC);
+        _model.compareTwoHemispheres(false, true, AVERAGE_TWO_HEMISPHERE_THRES);
     }
 
 #endif
