@@ -219,9 +219,13 @@ if("${GPU_VERSION}")
     list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_52,code=sm_52")
     list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_53,code=sm_53")
     list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_60,code=sm_60")
-    list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_70,code=sm_70")
+    if(("${CUDA_VERSION}" STRGREATER "9.0") OR ("${CUDA_VERSION}" STREQUAL "9.0"))
+        list(APPEND CUDA_NVCC_FLAGS "-gencode=arch=compute_70,code=sm_70")
+    endif(("${CUDA_VERSION}" STRGREATER "9.0") OR ("${CUDA_VERSION}" STREQUAL "9.0"))
     list(APPEND CUDA_NVCC_FLAGS "-std=c++11")
     list(APPEND CUDA_NVCC_FLAGS "-Wno-deprecated-gpu-targets")
+
+    message(STATUS "CUDA_NVCC_FLAGS : " ${CUDA_NVCC_FLAGS})
 
     # LINK THE CUDA LIBRARIES
 
