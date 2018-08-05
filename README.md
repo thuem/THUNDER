@@ -11,6 +11,7 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 
 ## Release Note
 
+* Version 1.4.9: Graphic User Inference (GUI) `thunder_stackview` is released. It is used for viewing the result of 2D classification and selecting desired particles.
 * Version 1.4.8: This release elevates the support of NVIDIA GeForce GTX 1080/1080Ti.
 * Version 1.4.7: This release fixes minor bugs.
 * Version 1.4.6: This release fixes a bug occurring during applying mask on the reference.
@@ -48,6 +49,25 @@ Please make sure that the proper version of NCCL2 is installed, as it depends on
 ### Running THUNDER
 
 Please view the manual in `manual` folder.
+
+### GUI Installation
+
+Installation of GUI requires Qt5. You may download an open source version Qt5 from https://www1.qt.io/download-open-source-access/. You may also install Qt5 with `yum` or `apt-get`.
+
+```bash
+cd THUNDER/gui/thunder_stackview
+mkdir build
+cd build
+qmake ..
+make
+make install
+```
+
+### Viewing Result of 2D Classification and Selecting Desired Particles
+
+You may type `thunder_stackview` to get help.
+
+If you want simply view result of 2D classification, you may type `thunder_stackview Reference_Round_XXX.mrcs` or `thunder_stackview Reference_Final.mrcs`. Moreover, if you want to select desired particles, please type `thunder_stackview Reference_Round_XXX.mrcs -thu Meta_Round_XXX.thu` or `thunder_stackview Reference_Final.mrcs -thu Meta_Final.thu`. After selecting the classes you desired, please use the `Save thu` button to save the selection.
 
 ## Authors
 
