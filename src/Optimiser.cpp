@@ -5668,6 +5668,10 @@ void Optimiser::refreshScale(const bool coord,
         _rS = _r;
     }
 
+#ifdef OPTIMISER_REFRESH_SCALE_ZERO_FREQ_NO_COORD
+    if (!coord) _rS = 1;
+#endif
+
     MLOG(INFO, "LOGGER_SYS") << "Upper Boundary Frequency for Scale Correction: "
                              << _rS;
 
@@ -5776,8 +5780,8 @@ void Optimiser::refreshScale(const bool coord,
             BLOG(INFO, "LOGGER_SYS") << "Calculating Intensity Scale for Image " << l;
 #endif
 
-#ifdef OPTIMISER_REFRESH_SCALE_RL_ZERO
-            RFLOAT rL = 0;
+#ifdef OPTIMISER_REFRESH_SCALE_ZERO_FREQ_NO_COORD
+            RFLOAT rL = coord ? _rL : 0;
 #else
             RFLOAT rL = _rL;
 #endif
@@ -5905,12 +5909,6 @@ void Optimiser::refreshScale(const bool coord,
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = sum / count;
 #else
-        /***
-        MLOG(INFO, "LOGGER_SYS") << mAA(0, 0)
-                                 << ", "
-                                 << mAA(0, 1);
-        ***/
-
         for (int i = 0; i < _nGroup; i++)
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
 #endif
