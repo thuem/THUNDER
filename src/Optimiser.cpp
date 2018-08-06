@@ -5782,6 +5782,9 @@ void Optimiser::refreshScale(const bool coord,
             RFLOAT rL = _rL;
 #endif
 
+            rL = 0;
+            _rS = 1;
+
 #ifdef OPTIMISER_CTF_ON_THE_FLY
             Image ctf(_para.size, _para.size, FT_SPACE);
             CTF(ctf,
