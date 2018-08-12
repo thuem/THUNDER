@@ -7755,6 +7755,8 @@ void Optimiser::solventFlatten(const bool mask)
 
                 fft.bwMT(lowPassMask);
 
+                fft.bwMT(_mask);
+
 #ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
                 softMask(_model.ref(t), _model.ref(t), lowPassMask, 0);
 #else
