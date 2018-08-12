@@ -6533,9 +6533,8 @@ void Optimiser::allReduceSigma(const bool mask,
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < _sig.cols() - 1; j++)
         {
-            _sig(i, j) = gsl_pow_2(alpha) * sigN(i, j);
+            // _sig(i, j) = gsl_pow_2(alpha) * sigN(i, j);
 
-            /***
             RFLOAT ratio = GSL_MIN_DBL(1, _svd(i, j));
 
 #ifdef OPTIMISER_SIGMA_MASK
@@ -6543,7 +6542,6 @@ void Optimiser::allReduceSigma(const bool mask,
 #else
             _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * alpha * sigN(i, j);
 #endif
-            ***/
         }
 
     #pragma omp parallel for
