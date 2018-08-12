@@ -7602,7 +7602,7 @@ void Optimiser::solventFlatten(const bool mask)
 {
     if ((_searchType == SEARCH_TYPE_GLOBAL) && mask)
     {
-        MLOG(WARN, "LOGGER_ROUND") << "PERFORM REFERENCE MASKING DURING GLOBAL SEARCH. NOT RECOMMMENDED."
+        MLOG(WARNING, "LOGGER_ROUND") << "PERFORM REFERENCE MASKING DURING GLOBAL SEARCH. NOT RECOMMMENDED."
     }
 
     IF_MASTER return;
