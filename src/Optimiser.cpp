@@ -6527,12 +6527,15 @@ void Optimiser::allReduceSigma(const bool mask,
 
     RFLOAT alpha = sqrt(M_PI * gsl_pow_2(_para.maskRadius / (_para.size * _para.pixelSize)));
     
-    // ALOG(INFO, "LOGGER_SYS") << "alpha = " << alpha;
+    ALOG(INFO, "LOGGER_SYS") << "alpha = " << alpha;
 
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
         for (int j = 0; j < _sig.cols() - 1; j++)
         {
+            _sig(i, j) = gsl_pow_2(alpha) * sigN(i, j);
+
+            /***
             RFLOAT ratio = GSL_MIN_DBL(1, _svd(i, j));
 
 #ifdef OPTIMISER_SIGMA_MASK
@@ -6540,19 +6543,8 @@ void Optimiser::allReduceSigma(const bool mask,
 #else
             _sig(i, j) = ratio * sigM(i, j) + (1 - ratio) * alpha * sigN(i, j);
 #endif
-            // _sig(i, j) = (ratio * gsl_pow_2(alpha) + (1 - ratio) * alpha) * sigN(i, j);
+            ***/
         }
-
-    /***
-    if (!mask)
-    {
-#ifdef OPTIMISER_SIGMA_CORE
-        RFLOAT ratio = M_PI * gsl_pow_2(_para.maskRadius / _para.pixelSize) / gsl_pow_2(_para.size);
-
-        _sig.array() *= gsl_pow_2(ratio);
-#endif
-    }
-    ***/
 
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
