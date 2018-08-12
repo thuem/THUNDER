@@ -591,26 +591,6 @@ void Optimiser::init()
             BLOG(INFO, "LOGGER_INIT") << "Estimating Initial Sigma Using Given Projections";
 
             allReduceSigma(false);
-            /***
-            if (_para.k == 1)
-            {
-#ifdef OPTIMISER_SIGMA_MASK
-                allReduceSigma(true, false);
-#else
-                // refinement, focus on avoiding over-refinement
-                allReduceSigma(false, false);
-#endif
-            }
-            else
-            {
-#ifdef OPTIMISER_SIGMA_MASK_CLASS
-                // classification, focus on searching for difference
-                allReduceSigma(true, false);
-#else
-                allReduceSigma(false, false);
-#endif
-            }
-            ***/
         }
     }
 
