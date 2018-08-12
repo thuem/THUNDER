@@ -6527,7 +6527,7 @@ void Optimiser::allReduceSigma(const bool mask,
 
     RFLOAT alpha = sqrt(M_PI * gsl_pow_2(_para.maskRadius / (_para.size * _para.pixelSize)));
     
-    ALOG(INFO, "LOGGER_SYS") << "alpha = " << alpha;
+    // ALOG(INFO, "LOGGER_SYS") << "alpha = " << alpha;
 
     #pragma omp parallel for
     for (int i = 0; i < _nGroup; i++)
