@@ -86,3 +86,7 @@ acs-*.bib
 *.nav
 *.snm
 *.vrb
+
+*.ilg
+*.ind
+*.idx

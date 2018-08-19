@@ -1,12 +1,8 @@
-/*******************************************************************************
- * Author: Mingxu Hu
- * Dependency:
- * Test:
- * Execution:
- * Description:
+/** @file
+ *  @brief some description about Euler.h
  *
- * Manual:
- * ****************************************************************************/
+ *  Details about Euler.h
+ */
 
 #ifndef EULER_H
 #define EULER_H
@@ -23,14 +19,10 @@
 
 /**
  * Multiplication between two quaterions.
- *
- * @param dst result
- * @param a   left multiplier
- * @param b   right multiplier
  */
-void quaternion_mul(dvec4& dst,
-                    const dvec4& a,
-                    const dvec4& b);
+void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
+                    const dvec4& a /**< [in] left multiplier, quaternion */,
+                    const dvec4& b /**< [in] right multiplier, quaternion */);
 
 dvec4 quaternion_conj(const dvec4& quat);
 

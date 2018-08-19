@@ -1,0 +1,420 @@
+\hypertarget{_euler_8h}{}\section{include/\+Geometry/\+Euler.h File Reference}
+\label{_euler_8h}\index{include/\+Geometry/\+Euler.\+h@{include/\+Geometry/\+Euler.\+h}}
+
+
+some description about \mbox{\hyperlink{_euler_8h}{Euler.\+h}}  
+
+
+{\ttfamily \#include $<$cmath$>$}\newline
+{\ttfamily \#include $<$gsl/gsl\+\_\+math.\+h$>$}\newline
+{\ttfamily \#include \char`\"{}Macro.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Typedef.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Precision.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Random.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Functions.\+h\char`\"{}}\newline
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}{quaternion\+\_\+mul}} (dvec4 \&dst, const dvec4 \&a, const dvec4 \&b)
+\item 
+\mbox{\Hypertarget{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}\label{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}} 
+dvec4 {\bfseries quaternion\+\_\+conj} (const dvec4 \&quat)
+\item 
+void \mbox{\hyperlink{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}{angle}} (double \&phi, double \&theta, const dvec3 \&src)
+\item 
+void \mbox{\hyperlink{_euler_8h_aad6410e015036c1bb325d58864a2279c}{angle}} (double \&phi, double \&theta, double \&psi, const dmat33 \&src)
+\item 
+void \mbox{\hyperlink{_euler_8h_a453f5b413761ccb116d6712e3076f881}{angle}} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
+\item 
+void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} (dvec4 \&dst, const double phi, const double theta, const double psi)
+\item 
+void \mbox{\hyperlink{_euler_8h_ab8dd11079fd3ad479ede14842e037709}{quaternion}} (dvec4 \&dst, const double phi, const dvec3 \&axis)
+\item 
+\mbox{\Hypertarget{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}\label{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}} 
+void {\bfseries quaternion} (dvec4 \&dst, const dmat33 \&src)
+\item 
+void \mbox{\hyperlink{_euler_8h_a6520800d9d5146bce8adf9a27603802b}{rotate2D}} (dmat22 \&dst, const dvec2 \&vec)
+\item 
+void \mbox{\hyperlink{_euler_8h_ae467d8e4595df053b525f154649e62b2}{rotate2D}} (dmat22 \&dst, const double phi)
+\item 
+void \mbox{\hyperlink{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}{direction}} (dvec3 \&dst, const double phi, const double theta)
+\item 
+void \mbox{\hyperlink{_euler_8h_a372ec5e85038afdc27942484f8d99769}{rotate3D}} (dmat33 \&dst, const double phi, const double theta, const double psi)
+\item 
+void \mbox{\hyperlink{_euler_8h_a607c668617376a4422bf836d8af42b7c}{rotate3D}} (dmat33 \&dst, const dvec4 \&src)
+\item 
+void \mbox{\hyperlink{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}{rotate3\+DX}} (dmat33 \&dst, const double phi)
+\item 
+void \mbox{\hyperlink{_euler_8h_a04a63d03f90af34ebf48520360a1de41}{rotate3\+DY}} (dmat33 \&dst, const double phi)
+\item 
+void \mbox{\hyperlink{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}{rotate3\+DZ}} (dmat33 \&dst, const double phi)
+\item 
+void \mbox{\hyperlink{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}{alignZ}} (dmat33 \&dst, const dvec3 \&vec)
+\item 
+void \mbox{\hyperlink{_euler_8h_a978046f2585f8afb100730bf77f19ef7}{rotate3D}} (dmat33 \&dst, const double phi, const char axis)
+\item 
+void \mbox{\hyperlink{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}{rotate3D}} (dmat33 \&dst, const double phi, const dvec3 \&axis)
+\item 
+void \mbox{\hyperlink{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}{reflect3D}} (dmat33 \&dst, const dvec3 \&plane)
+\item 
+void \mbox{\hyperlink{_euler_8h_a0c9d5bf85c15b066b594f807499fabec}{translate3D}} (mat44 \&dst, const dvec3 \&vec)
+\item 
+void \mbox{\hyperlink{_euler_8h_a996781bcc83fa1118642323727667a03}{scale3D}} (dmat33 \&dst, const dvec3 \&vec)
+\item 
+\mbox{\Hypertarget{_euler_8h_acb675e048696920d8d2642bd59602aa2}\label{_euler_8h_acb675e048696920d8d2642bd59602aa2}} 
+void {\bfseries swing\+Twist} (dvec4 \&swing, dvec4 \&twist, const dvec4 \&src, const dvec3 \&vec)
+\item 
+\mbox{\Hypertarget{_euler_8h_a44480f9eafb7343ed41b401f19facb2d}\label{_euler_8h_a44480f9eafb7343ed41b401f19facb2d}} 
+void {\bfseries rand\+Direction} (dvec2 \&dir)
+\item 
+void \mbox{\hyperlink{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}{rand\+Rotate2D}} (dmat22 \&rot)
+\item 
+\mbox{\Hypertarget{_euler_8h_a06fc1c8ab1bdca4452687cd84f2deaf7}\label{_euler_8h_a06fc1c8ab1bdca4452687cd84f2deaf7}} 
+void {\bfseries rand\+Quaternion} (dvec4 \&quat)
+\item 
+void \mbox{\hyperlink{_euler_8h_aed04b2f23287a7b8041248e055f63938}{rand\+Rotate3D}} (dmat33 \&rot)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+some description about \mbox{\hyperlink{_euler_8h}{Euler.\+h}} 
+
+Details about \mbox{\hyperlink{_euler_8h}{Euler.\+h}} 
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}\label{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}} 
+\index{Euler.\+h@{Euler.\+h}!alignZ@{alignZ}}
+\index{alignZ@{alignZ}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{align\+Z()}{alignZ()}}
+{\footnotesize\ttfamily void alignZ (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix for aligning a direction vector to Z-\/axis.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em vec} & the direction vector \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}\label{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}} 
+\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
+\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{const dvec3 \&}]{src }\end{DoxyParamCaption})}
+
+This function calculates phi and theta given a certain direction indicated by a 3-\/vector.
+
+
+\begin{DoxyParams}{Parameters}
+{\em phi} & phi \\
+\hline
+{\em theta} & theta \\
+\hline
+{\em src} & 3-\/vector indicating the direction \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aad6410e015036c1bb325d58864a2279c}\label{_euler_8h_aad6410e015036c1bb325d58864a2279c}} 
+\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
+\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dmat33 \&}]{src }\end{DoxyParamCaption})}
+
+This function calculates phi, theta and psi given the rotation matrix.
+
+
+\begin{DoxyParams}{Parameters}
+{\em phi} & phi \\
+\hline
+{\em theta} & theta \\
+\hline
+{\em psi} & psi \\
+\hline
+{\em src} & the rotation matrix \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a453f5b413761ccb116d6712e3076f881}\label{_euler_8h_a453f5b413761ccb116d6712e3076f881}} 
+\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
+\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dvec4 \&}]{src }\end{DoxyParamCaption})}
+
+This function calculates phi, theta and psi given the quaternion indicated by a 4-\/vector.
+
+
+\begin{DoxyParams}{Parameters}
+{\em phi} & phi \\
+\hline
+{\em theta} & theta \\
+\hline
+{\em psi} & psi \\
+\hline
+{\em src} & the quaternion \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}\label{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}} 
+\index{Euler.\+h@{Euler.\+h}!direction@{direction}}
+\index{direction@{direction}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{direction()}{direction()}}
+{\footnotesize\ttfamily void direction (\begin{DoxyParamCaption}\item[{dvec3 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta }\end{DoxyParamCaption})}
+
+This function calculates the direction vector given phi and theta. The 2-\/norm of this direction vector is 1.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the direction vector \\
+\hline
+{\em phi} & phi \\
+\hline
+{\em theta} & theta \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}\label{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}} 
+\index{Euler.\+h@{Euler.\+h}!quaternion@{quaternion}}
+\index{quaternion@{quaternion}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void quaternion (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta,  }\item[{const double}]{psi }\end{DoxyParamCaption})}
+
+This function calculate the quaternion given phi, theta and psi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the quaternion to be calculated \\
+\hline
+{\em phi} & phi \\
+\hline
+{\em theta} & theta \\
+\hline
+{\em psi} & psi \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_ab8dd11079fd3ad479ede14842e037709}\label{_euler_8h_ab8dd11079fd3ad479ede14842e037709}} 
+\index{Euler.\+h@{Euler.\+h}!quaternion@{quaternion}}
+\index{quaternion@{quaternion}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void quaternion (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const dvec3 \&}]{axis }\end{DoxyParamCaption})}
+
+This function calculates the quaternion given rotation angle and rotation axis.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the quaternion to be calculated \\
+\hline
+{\em phi} & the rotation angle \\
+\hline
+{\em axis} & the rotation axis (unit vector) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}\label{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}} 
+\index{Euler.\+h@{Euler.\+h}!quaternion\+\_\+mul@{quaternion\+\_\+mul}}
+\index{quaternion\+\_\+mul@{quaternion\+\_\+mul}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{quaternion\+\_\+mul()}{quaternion\_mul()}}
+{\footnotesize\ttfamily void quaternion\+\_\+mul (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const dvec4 \&}]{a,  }\item[{const dvec4 \&}]{b }\end{DoxyParamCaption})}
+
+Multiplication between two quaterions. 
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & result \\
+\hline
+\mbox{\tt in}  & {\em a} & left multiplier \\
+\hline
+\mbox{\tt in}  & {\em b} & right multiplier \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}\label{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}} 
+\index{Euler.\+h@{Euler.\+h}!rand\+Rotate2D@{rand\+Rotate2D}}
+\index{rand\+Rotate2D@{rand\+Rotate2D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rand\+Rotate2\+D()}{randRotate2D()}}
+{\footnotesize\ttfamily void rand\+Rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{rot }\end{DoxyParamCaption})}
+
+This function generates a random unit quaternion. \mbox{\Hypertarget{_euler_8h_aed04b2f23287a7b8041248e055f63938}\label{_euler_8h_aed04b2f23287a7b8041248e055f63938}} 
+\index{Euler.\+h@{Euler.\+h}!rand\+Rotate3D@{rand\+Rotate3D}}
+\index{rand\+Rotate3D@{rand\+Rotate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rand\+Rotate3\+D()}{randRotate3D()}}
+{\footnotesize\ttfamily void rand\+Rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{rot }\end{DoxyParamCaption})}
+
+This function generates a random 3D rotation matrix. \mbox{\Hypertarget{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}\label{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}} 
+\index{Euler.\+h@{Euler.\+h}!reflect3D@{reflect3D}}
+\index{reflect3D@{reflect3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{reflect3\+D()}{reflect3D()}}
+{\footnotesize\ttfamily void reflect3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec3 \&}]{plane }\end{DoxyParamCaption})}
+
+This function calculates the transformation matrix of reflection against a certain plane given by its normal vector.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em plane} & the normal vector the reflection plane \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a6520800d9d5146bce8adf9a27603802b}\label{_euler_8h_a6520800d9d5146bce8adf9a27603802b}} 
+\index{Euler.\+h@{Euler.\+h}!rotate2D@{rotate2D}}
+\index{rotate2D@{rotate2D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate2\+D()}{rotate2D()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily void rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{dst,  }\item[{const dvec2 \&}]{vec }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix given the a unit vector.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em vec} & the unit vector \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_ae467d8e4595df053b525f154649e62b2}\label{_euler_8h_ae467d8e4595df053b525f154649e62b2}} 
+\index{Euler.\+h@{Euler.\+h}!rotate2D@{rotate2D}}
+\index{rotate2D@{rotate2D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate2\+D()}{rotate2D()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily void rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix given phi in 2D.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em phi} & phi \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a372ec5e85038afdc27942484f8d99769}\label{_euler_8h_a372ec5e85038afdc27942484f8d99769}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
+\index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta,  }\item[{const double}]{psi }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix given phi, theta and psi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em phi} & phi \\
+\hline
+{\em theta} & theta \\
+\hline
+{\em psi} & psi \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a607c668617376a4422bf836d8af42b7c}\label{_euler_8h_a607c668617376a4422bf836d8af42b7c}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
+\index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec4 \&}]{src }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix given a quaternion.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em src} & the quaternion \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a978046f2585f8afb100730bf77f19ef7}\label{_euler_8h_a978046f2585f8afb100730bf77f19ef7}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
+\index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const char}]{axis }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix of rotation along a certain axis (X, Y or Z) of phi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em axis} & a character indicating which axis the rotation is along \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}\label{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
+\index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const dvec3 \&}]{axis }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix of rotation along a certain axis given by a direction vector of phi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em phi} & phi \\
+\hline
+{\em axis} & the direction vector indicating the axis \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}\label{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3\+DX@{rotate3\+DX}}
+\index{rotate3\+DX@{rotate3\+DX}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D\+X()}{rotate3DX()}}
+{\footnotesize\ttfamily void rotate3\+DX (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix of rotation along X-\/axis of phi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em phi} & phi \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a04a63d03f90af34ebf48520360a1de41}\label{_euler_8h_a04a63d03f90af34ebf48520360a1de41}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3\+DY@{rotate3\+DY}}
+\index{rotate3\+DY@{rotate3\+DY}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D\+Y()}{rotate3DY()}}
+{\footnotesize\ttfamily void rotate3\+DY (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix of rotation along Y-\/axis of phi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em phi} & phi \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}\label{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}} 
+\index{Euler.\+h@{Euler.\+h}!rotate3\+DZ@{rotate3\+DZ}}
+\index{rotate3\+DZ@{rotate3\+DZ}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rotate3\+D\+Z()}{rotate3DZ()}}
+{\footnotesize\ttfamily void rotate3\+DZ (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
+
+This function calculates the rotation matrix of rotation along Z-\/axis of phi.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the rotation matrix \\
+\hline
+{\em phi} & phi \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a996781bcc83fa1118642323727667a03}\label{_euler_8h_a996781bcc83fa1118642323727667a03}} 
+\index{Euler.\+h@{Euler.\+h}!scale3D@{scale3D}}
+\index{scale3D@{scale3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{scale3\+D()}{scale3D()}}
+{\footnotesize\ttfamily void scale3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
+
+This function calculates the transformation matrix of scaling.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the transformation matrix \\
+\hline
+{\em vec} & a 3-\/vector of which vec\mbox{[}0\mbox{]} indicates the scale factor along X axis, vec\mbox{[}1\mbox{]} indicates the scale factor along Y axis and vec\mbox{[}2\mbox{]} indicates the scale factor along Z axis \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a0c9d5bf85c15b066b594f807499fabec}\label{_euler_8h_a0c9d5bf85c15b066b594f807499fabec}} 
+\index{Euler.\+h@{Euler.\+h}!translate3D@{translate3D}}
+\index{translate3D@{translate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{translate3\+D()}{translate3D()}}
+{\footnotesize\ttfamily void translate3D (\begin{DoxyParamCaption}\item[{mat44 \&}]{dst,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
+
+This function calculates the singular matrix of translation of a certain vector.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dst} & the singular matrix \\
+\hline
+{\em vec} & the translation vector \\
+\hline
+\end{DoxyParams}
