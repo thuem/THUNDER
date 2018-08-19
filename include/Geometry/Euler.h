@@ -24,7 +24,12 @@ void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
                     const dvec4& a /**< [in] left multiplier, quaternion */,
                     const dvec4& b /**< [in] right multiplier, quaternion */);
 
-dvec4 quaternion_conj(const dvec4& quat);
+/**
+ * @brief Calculate the conjugate quaternion of a quaternion.
+ *
+ * @return the conjugate quaternion
+ */
+dvec4 quaternion_conj(const dvec4& quat /**< [in] a quaternion */);
 
 /**
  * @brief Calculate @f$\phi@f$ and @f$\theta@f$ given a certain direction @f$\mathbf{v}@f$.
@@ -36,23 +41,18 @@ void angle(double& phi /**< [out] @f$\phi@f$ */,
 /**
  * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the rotation matrix @f$\mathbf{R}@f$.
  */
-void angle(double& phi,
-           double& theta,
-           double& psi,
-           const dmat33& src);
+void angle(double& phi /**< [out] @f$\phi@f$ */,
+           double& theta /**< [out] @f$\theta@f$ */,
+           double& psi /**< [out] @f$\psi@f$ */,
+           const dmat33& src /**< [in] @f$\mathbf{R}@f$ */);
 
-/*
+/**
  * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the quaternion @f$\mathbf{q}@f$.
- *
- * @param phi   @f$\phi$@f$
- * @param theta @f$\theta@f$
- * @param psi   @f$\psi$@f$
- * @param src   @f$\mathbf{q}@f$
  */
-void angle(double& phi,
-           double& theta,
-           double& psi,
-           const dvec4& src);
+void angle(double& phi /**< [out] @f$\phi@f$ */,
+           double& theta /**< [out] @f$\theta@f$ */,
+           double& psi /**< [out] @f$\psi@f$ */,
+           const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
 
 /**
  * This function calculate the quaternion given phi, theta and psi.

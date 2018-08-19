@@ -17,17 +17,14 @@ some description about \mbox{\hyperlink{_euler_8h}{Euler.\+h}}
 \item 
 void \mbox{\hyperlink{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}{quaternion\+\_\+mul}} (dvec4 \&dst, const dvec4 \&a, const dvec4 \&b)
 \begin{DoxyCompactList}\small\item\em Calculate the product of two quaternions. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}\label{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}} 
-dvec4 {\bfseries quaternion\+\_\+conj} (const dvec4 \&quat)
-\item 
+dvec4 \mbox{\hyperlink{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}{quaternion\+\_\+conj}} (const dvec4 \&quat)
+\begin{DoxyCompactList}\small\item\em Calculate the conjugate quaternion of a quaternion. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}{angle}} (double \&phi, double \&theta, const dvec3 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate $\phi$ and $\theta$ given a certain direction $\mathbf{v}$. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{_euler_8h_aad6410e015036c1bb325d58864a2279c}\label{_euler_8h_aad6410e015036c1bb325d58864a2279c}} 
 void \mbox{\hyperlink{_euler_8h_aad6410e015036c1bb325d58864a2279c}{angle}} (double \&phi, double \&theta, double \&psi, const dmat33 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the rotation matrix $\mathbf{R}$. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{_euler_8h_a453f5b413761ccb116d6712e3076f881}\label{_euler_8h_a453f5b413761ccb116d6712e3076f881}} 
-void {\bfseries angle} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
-\item 
+void \mbox{\hyperlink{_euler_8h_a453f5b413761ccb116d6712e3076f881}{angle}} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
+\begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the quaternion $\mathbf{q}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} (dvec4 \&dst, const double phi, const double theta, const double psi)
 \item 
 void \mbox{\hyperlink{_euler_8h_ab8dd11079fd3ad479ede14842e037709}{quaternion}} (dvec4 \&dst, const double phi, const dvec3 \&axis)
@@ -102,7 +99,7 @@ This function calculates the rotation matrix for aligning a direction vector to 
 \mbox{\Hypertarget{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}\label{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}} 
 \index{Euler.\+h@{Euler.\+h}!angle@{angle}}
 \index{angle@{angle}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{angle()}{angle()}}
+\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
 {\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{const dvec3 \&}]{src }\end{DoxyParamCaption})}
 
 
@@ -116,6 +113,48 @@ Calculate $\phi$ and $\theta$ given a certain direction $\mathbf{v}$.
 \mbox{\tt out}  & {\em theta} & $\theta$ \\
 \hline
 \mbox{\tt in}  & {\em src} & $\mathbf{v}$ \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aad6410e015036c1bb325d58864a2279c}\label{_euler_8h_aad6410e015036c1bb325d58864a2279c}} 
+\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
+\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dmat33 \&}]{src }\end{DoxyParamCaption})}
+
+
+
+Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the rotation matrix $\mathbf{R}$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em phi} & $\phi$ \\
+\hline
+\mbox{\tt out}  & {\em theta} & $\theta$ \\
+\hline
+\mbox{\tt out}  & {\em psi} & $\psi$ \\
+\hline
+\mbox{\tt in}  & {\em src} & $\mathbf{R}$ \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_a453f5b413761ccb116d6712e3076f881}\label{_euler_8h_a453f5b413761ccb116d6712e3076f881}} 
+\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
+\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dvec4 \&}]{src }\end{DoxyParamCaption})}
+
+
+
+Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the quaternion $\mathbf{q}$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em phi} & $\phi$ \\
+\hline
+\mbox{\tt out}  & {\em theta} & $\theta$ \\
+\hline
+\mbox{\tt out}  & {\em psi} & $\psi$ \\
+\hline
+\mbox{\tt in}  & {\em src} & $\mathbf{q}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}\label{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}} 
@@ -169,6 +208,24 @@ This function calculates the quaternion given rotation angle and rotation axis.
 {\em phi} & the rotation angle \\
 \hline
 {\em axis} & the rotation axis (unit vector) \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}\label{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}} 
+\index{Euler.\+h@{Euler.\+h}!quaternion\+\_\+conj@{quaternion\+\_\+conj}}
+\index{quaternion\+\_\+conj@{quaternion\+\_\+conj}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{quaternion\+\_\+conj()}{quaternion\_conj()}}
+{\footnotesize\ttfamily dvec4 quaternion\+\_\+conj (\begin{DoxyParamCaption}\item[{const dvec4 \&}]{quat }\end{DoxyParamCaption})}
+
+
+
+Calculate the conjugate quaternion of a quaternion. 
+
+\begin{DoxyReturn}{Returns}
+the conjugate quaternion 
+\end{DoxyReturn}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt in}  & {\em quat} & a quaternion \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}\label{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}} 
