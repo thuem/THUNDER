@@ -16,15 +16,17 @@ some description about \mbox{\hyperlink{_euler_8h}{Euler.\+h}}
 \begin{DoxyCompactItemize}
 \item 
 void \mbox{\hyperlink{_euler_8h_a3a92f469f3ceb472d6abc6b1991f3e17}{quaternion\+\_\+mul}} (dvec4 \&dst, const dvec4 \&a, const dvec4 \&b)
-\begin{DoxyCompactList}\small\item\em Calucate the product of two quaternions. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Calculate the product of two quaternions. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}\label{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}} 
 dvec4 {\bfseries quaternion\+\_\+conj} (const dvec4 \&quat)
 \item 
 void \mbox{\hyperlink{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}{angle}} (double \&phi, double \&theta, const dvec3 \&src)
-\begin{DoxyCompactList}\small\item\em Calculate $\phi$ and $\theta$ given a certain direction $\vec{v}$. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Calculate $\phi$ and $\theta$ given a certain direction $\mathbf{v}$. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{_euler_8h_aad6410e015036c1bb325d58864a2279c}\label{_euler_8h_aad6410e015036c1bb325d58864a2279c}} 
 void \mbox{\hyperlink{_euler_8h_aad6410e015036c1bb325d58864a2279c}{angle}} (double \&phi, double \&theta, double \&psi, const dmat33 \&src)
-\begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ given the rotation matrix $R$. \end{DoxyCompactList}\item 
-void \mbox{\hyperlink{_euler_8h_a453f5b413761ccb116d6712e3076f881}{angle}} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
+\begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the rotation matrix $\mathbf{R}$. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{_euler_8h_a453f5b413761ccb116d6712e3076f881}\label{_euler_8h_a453f5b413761ccb116d6712e3076f881}} 
+void {\bfseries angle} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
 \item 
 void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} (dvec4 \&dst, const double phi, const double theta, const double psi)
 \item 
@@ -100,12 +102,12 @@ This function calculates the rotation matrix for aligning a direction vector to 
 \mbox{\Hypertarget{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}\label{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}} 
 \index{Euler.\+h@{Euler.\+h}!angle@{angle}}
 \index{angle@{angle}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+\subsubsection{\texorpdfstring{angle()}{angle()}}
 {\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{const dvec3 \&}]{src }\end{DoxyParamCaption})}
 
 
 
-Calculate $\phi$ and $\theta$ given a certain direction $\vec{v}$. 
+Calculate $\phi$ and $\theta$ given a certain direction $\mathbf{v}$. 
 
 
 \begin{DoxyParams}[1]{Parameters}
@@ -113,47 +115,7 @@ Calculate $\phi$ and $\theta$ given a certain direction $\vec{v}$.
 \hline
 \mbox{\tt out}  & {\em theta} & $\theta$ \\
 \hline
-\mbox{\tt in}  & {\em src} & $\vec{v}$ \\
-\hline
-\end{DoxyParams}
-\mbox{\Hypertarget{_euler_8h_aad6410e015036c1bb325d58864a2279c}\label{_euler_8h_aad6410e015036c1bb325d58864a2279c}} 
-\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
-\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
-{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dmat33 \&}]{src }\end{DoxyParamCaption})}
-
-
-
-Calculate $\phi$, $\theta$ and $\psi$ given the rotation matrix $R$. 
-
-
-\begin{DoxyParams}{Parameters}
-{\em phi} & phi \\
-\hline
-{\em theta} & theta \\
-\hline
-{\em psi} & psi \\
-\hline
-{\em src} & the rotation matrix \\
-\hline
-\end{DoxyParams}
-\mbox{\Hypertarget{_euler_8h_a453f5b413761ccb116d6712e3076f881}\label{_euler_8h_a453f5b413761ccb116d6712e3076f881}} 
-\index{Euler.\+h@{Euler.\+h}!angle@{angle}}
-\index{angle@{angle}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
-{\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dvec4 \&}]{src }\end{DoxyParamCaption})}
-
-This function calculates phi, theta and psi given the quaternion indicated by a 4-\/vector.
-
-
-\begin{DoxyParams}{Parameters}
-{\em phi} & phi \\
-\hline
-{\em theta} & theta \\
-\hline
-{\em psi} & psi \\
-\hline
-{\em src} & the quaternion \\
+\mbox{\tt in}  & {\em src} & $\mathbf{v}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}\label{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}} 
@@ -217,7 +179,7 @@ This function calculates the quaternion given rotation angle and rotation axis.
 
 
 
-Calucate the product of two quaternions. 
+Calculate the product of two quaternions. 
 
 
 \begin{DoxyParams}[1]{Parameters}

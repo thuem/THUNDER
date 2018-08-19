@@ -18,7 +18,7 @@
 #include "Functions.h"
 
 /**
- * @brief Calucate the product of two quaternions.
+ * @brief Calculate the product of two quaternions.
  */
 void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
                     const dvec4& a /**< [in] left multiplier, quaternion */,
@@ -27,33 +27,27 @@ void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
 dvec4 quaternion_conj(const dvec4& quat);
 
 /**
- * @brief Calculate @f$\phi@f$ and @f$\theta@f$ given a certain direction @f$\vec{v}@f$.
+ * @brief Calculate @f$\phi@f$ and @f$\theta@f$ given a certain direction @f$\mathbf{v}@f$.
  */
 void angle(double& phi /**< [out] @f$\phi@f$ */,
            double& theta /**< [out] @f$\theta@f$ */,
-           const dvec3& src /**< [in] @f$\vec{v}@f$ */);
+           const dvec3& src /**< [in] @f$\mathbf{v}@f$ */);
 
 /**
- * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ given the rotation matrix @f$R@f$.
- *
- * @param phi   phi
- * @param theta theta
- * @param psi   psi
- * @param src   the rotation matrix
+ * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the rotation matrix @f$\mathbf{R}@f$.
  */
 void angle(double& phi,
            double& theta,
            double& psi,
            const dmat33& src);
 
-/**
- * This function calculates phi, theta and psi given the quaternion indicated
- * by a 4-vector.
+/*
+ * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the quaternion @f$\mathbf{q}@f$.
  *
- * @param phi   phi
- * @param theta theta
- * @param psi   psi
- * @param src   the quaternion
+ * @param phi   @f$\phi$@f$
+ * @param theta @f$\theta@f$
+ * @param psi   @f$\psi$@f$
+ * @param src   @f$\mathbf{q}@f$
  */
 void angle(double& phi,
            double& theta,
