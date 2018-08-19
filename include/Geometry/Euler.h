@@ -34,7 +34,7 @@ void angle(double& phi /**< [out] @f$\phi@f$ */,
            const dvec3& src /**< [in] @f$\vec{v}@f$ */);
 
 /**
- * This function calculates phi, theta and psi given the rotation matrix.
+ * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ given the rotation matrix @f$R@f$.
  *
  * @param phi   phi
  * @param theta theta

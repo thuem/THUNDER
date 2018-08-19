@@ -23,7 +23,7 @@ dvec4 {\bfseries quaternion\+\_\+conj} (const dvec4 \&quat)
 void \mbox{\hyperlink{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}{angle}} (double \&phi, double \&theta, const dvec3 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate $\phi$ and $\theta$ given a certain direction $\vec{v}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_aad6410e015036c1bb325d58864a2279c}{angle}} (double \&phi, double \&theta, double \&psi, const dmat33 \&src)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ given the rotation matrix $R$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a453f5b413761ccb116d6712e3076f881}{angle}} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
 \item 
 void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} (dvec4 \&dst, const double phi, const double theta, const double psi)
@@ -122,7 +122,9 @@ Calculate $\phi$ and $\theta$ given a certain direction $\vec{v}$.
 \subsubsection{\texorpdfstring{angle()}{angle()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
 {\footnotesize\ttfamily void angle (\begin{DoxyParamCaption}\item[{double \&}]{phi,  }\item[{double \&}]{theta,  }\item[{double \&}]{psi,  }\item[{const dmat33 \&}]{src }\end{DoxyParamCaption})}
 
-This function calculates phi, theta and psi given the rotation matrix.
+
+
+Calculate $\phi$, $\theta$ and $\psi$ given the rotation matrix $R$. 
 
 
 \begin{DoxyParams}{Parameters}
