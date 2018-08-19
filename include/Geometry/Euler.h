@@ -55,7 +55,7 @@ void angle(double& phi /**< [out] @f$\phi@f$ */,
            const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
 
 /**
- * This function calculate the quaternion given phi, theta and psi.
+ * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representation the rotation, given 3 Euler angles @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
  *
  * @param dst   the quaternion to be calculated
  * @param phi   phi

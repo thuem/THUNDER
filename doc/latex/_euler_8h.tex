@@ -26,7 +26,7 @@ void \mbox{\hyperlink{_euler_8h_aad6410e015036c1bb325d58864a2279c}{angle}} (doub
 void \mbox{\hyperlink{_euler_8h_a453f5b413761ccb116d6712e3076f881}{angle}} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the quaternion $\mathbf{q}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} (dvec4 \&dst, const double phi, const double theta, const double psi)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representation the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ab8dd11079fd3ad479ede14842e037709}{quaternion}} (dvec4 \&dst, const double phi, const dvec3 \&axis)
 \item 
 \mbox{\Hypertarget{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}\label{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}} 
@@ -180,7 +180,9 @@ This function calculates the direction vector given phi and theta. The 2-\/norm 
 \subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
 {\footnotesize\ttfamily void quaternion (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta,  }\item[{const double}]{psi }\end{DoxyParamCaption})}
 
-This function calculate the quaternion given phi, theta and psi.
+
+
+Calculate the quaternion $\mathbf{q}$ for representation the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. 
 
 
 \begin{DoxyParams}{Parameters}
