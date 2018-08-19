@@ -18,7 +18,7 @@
 #include "Functions.h"
 
 /**
- * Multiplication between two quaterions.
+ * @brief Calucate the product of two quaternions.
  */
 void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
                     const dvec4& a /**< [in] left multiplier, quaternion */,
@@ -27,16 +27,11 @@ void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
 dvec4 quaternion_conj(const dvec4& quat);
 
 /**
- * This function calculates phi and theta given a certain direction indicated by
- * a 3-vector.
- *
- * @param phi   phi
- * @param theta theta
- * @param src   3-vector indicating the direction
+ * @brief Calculate @f$\phi@f$ and @f$\theta@f$ given a certain direction @f$\vec{v}@f$.
  */
-void angle(double& phi,
-           double& theta,
-           const dvec3& src);
+void angle(double& phi /**< [out] @f$\phi@f$ */,
+           double& theta /**< [out] @f$\theta@f$ */,
+           const dvec3& src /**< [in] @f$\vec{v}@f$ */);
 
 /**
  * This function calculates phi, theta and psi given the rotation matrix.
