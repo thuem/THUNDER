@@ -55,7 +55,7 @@ void angle(double& phi /**< [out] @f$\phi@f$ */,
            const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
 
 /**
- * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representation the rotation, given 3 Euler angles @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
+ * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given 3 Euler angles @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
  */
 void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
                 const double phi /**< [in] @f$\phi@f$ */,
@@ -63,7 +63,7 @@ void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
                 const double psi /**< [in] @f$\psi@f$ */);
 
 /**
- * This function calculates the quaternion given rotation angle and rotation axis.
+ * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
  *
  * @param dst  the quaternion to be calculated
  * @param phi  the rotation angle
