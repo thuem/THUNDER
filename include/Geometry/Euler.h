@@ -85,37 +85,25 @@ void rotate2D(dmat22& dst /**< [out] @f$\mathbf{R}@f$ */,
               const dvec2& vec /**< [in] @f$\mathbf{v}@f$ */);
 
 /**
- * This function calculates the rotation matrix given phi in 2D.
- *
- * @param dst the rotation matrix
- * @param phi phi
+ * @brief Calculate the rotation matrix (2D) @f$\mathbf{R}@f$, given the rotation angle @f$\phi@f$.
  */
-void rotate2D(dmat22& dst, const double phi);
+void rotate2D(dmat22& dst /**< [out] @f$\mathbf{R}@f$ */,
+              const double phi /**< [in] @f$\phi@f$ */);
 
 /**
- * This function calculates the direction vector given phi and theta. The 2-norm
- * of this direction vector is 1.
- *
- * @param dst   the direction vector
- * @param phi   phi
- * @param theta theta
+ * @brief Caclulate the unit direction vector @f$\mathbf{v}@f$, given the rotation angle @f$\phi@f$ and @f$\theta@f$.
  */
-void direction(dvec3& dst,
-               const double phi,
-               const double theta);
+void direction(dvec3& dst /**< [out] @f$\mathbf{v}@f$ */,
+               const double phi /**< [in] @f$\phi@f$ */,
+               const double theta /**< [in] @f$\theta@f$ */);
 
 /**
- * This function calculates the rotation matrix given phi, theta and psi.
- *
- * @param dst   the rotation matrix
- * @param phi   phi
- * @param theta theta
- * @param psi   psi
+ * @brief Caclulate the rotation matrix @f$\mathbf{R}@f$, given the rotation angle @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
  */
-void rotate3D(dmat33& dst,
-              const double phi,
-              const double theta,
-              const double psi);
+void rotate3D(dmat33& dst /**< [out] @f$\mathbf{R}@f$ */,
+              const double phi /**< [in] @f$\phi@f$ */,
+              const double theta /**< [in] @f$\theta@f$ */,
+              const double psi /**< [in] @f$\psi@f$ */);
 
 /**
  * This function calculates the rotation matrix given a quaternion.

@@ -34,11 +34,11 @@ void \mbox{\hyperlink{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}{quaternion}} 
 void \mbox{\hyperlink{_euler_8h_a6520800d9d5146bce8adf9a27603802b}{rotate2D}} (dmat22 \&dst, const dvec2 \&vec)
 \begin{DoxyCompactList}\small\item\em Calculate the rotation matrix (2D) $\mathbf{R}$, which rotates the unit vector $\mathbf{v_0} = \left\{1, 0\right\}$ to the given unit vector $\mathbf{v}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ae467d8e4595df053b525f154649e62b2}{rotate2D}} (dmat22 \&dst, const double phi)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix (2D) $\mathbf{R}$, given the rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}{direction}} (dvec3 \&dst, const double phi, const double theta)
-\item 
+\begin{DoxyCompactList}\small\item\em Caclulate the unit direction vector $\mathbf{v}$, given the rotation angle $\phi$ and $\theta$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a372ec5e85038afdc27942484f8d99769}{rotate3D}} (dmat33 \&dst, const double phi, const double theta, const double psi)
-\item 
+\begin{DoxyCompactList}\small\item\em Caclulate the rotation matrix $\mathbf{R}$, given the rotation angle $\phi$, $\theta$ and $\psi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a607c668617376a4422bf836d8af42b7c}{rotate3D}} (dmat33 \&dst, const dvec4 \&src)
 \item 
 void \mbox{\hyperlink{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}{rotate3\+DX}} (dmat33 \&dst, const double phi)
@@ -162,15 +162,17 @@ Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the quatern
 \subsubsection{\texorpdfstring{direction()}{direction()}}
 {\footnotesize\ttfamily void direction (\begin{DoxyParamCaption}\item[{dvec3 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta }\end{DoxyParamCaption})}
 
-This function calculates the direction vector given phi and theta. The 2-\/norm of this direction vector is 1.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the direction vector \\
+Caclulate the unit direction vector $\mathbf{v}$, given the rotation angle $\phi$ and $\theta$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{v}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
-{\em theta} & theta \\
+\mbox{\tt in}  & {\em theta} & $\theta$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}\label{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}} 
@@ -324,13 +326,15 @@ Calculate the rotation matrix (2D) $\mathbf{R}$, which rotates the unit vector $
 \subsubsection{\texorpdfstring{rotate2\+D()}{rotate2D()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
 {\footnotesize\ttfamily void rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix given phi in 2D.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix (2D) $\mathbf{R}$, given the rotation angle $\phi$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a372ec5e85038afdc27942484f8d99769}\label{_euler_8h_a372ec5e85038afdc27942484f8d99769}} 
@@ -339,17 +343,19 @@ This function calculates the rotation matrix given phi in 2D.
 \subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
 {\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta,  }\item[{const double}]{psi }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix given phi, theta and psi.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Caclulate the rotation matrix $\mathbf{R}$, given the rotation angle $\phi$, $\theta$ and $\psi$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
-{\em theta} & theta \\
+\mbox{\tt in}  & {\em theta} & $\theta$ \\
 \hline
-{\em psi} & psi \\
+\mbox{\tt in}  & {\em psi} & $\psi$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a607c668617376a4422bf836d8af42b7c}\label{_euler_8h_a607c668617376a4422bf836d8af42b7c}} 
