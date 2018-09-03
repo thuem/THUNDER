@@ -32,7 +32,7 @@ void \mbox{\hyperlink{_euler_8h_ab8dd11079fd3ad479ede14842e037709}{quaternion}} 
 void \mbox{\hyperlink{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}{quaternion}} (dvec4 \&dst, const dmat33 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a6520800d9d5146bce8adf9a27603802b}{rotate2D}} (dmat22 \&dst, const dvec2 \&vec)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix (2D) $\mathbf{R}$, which rotates the unit vector $\mathbf{v_0} = \left\{1, 0\right\}$ to the given unit vector $\mathbf{v}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ae467d8e4595df053b525f154649e62b2}{rotate2D}} (dmat22 \&dst, const double phi)
 \item 
 void \mbox{\hyperlink{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}{direction}} (dvec3 \&dst, const double phi, const double theta)
@@ -300,13 +300,22 @@ This function calculates the transformation matrix of reflection against a certa
 \subsubsection{\texorpdfstring{rotate2\+D()}{rotate2D()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
 {\footnotesize\ttfamily void rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{dst,  }\item[{const dvec2 \&}]{vec }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix given the a unit vector.
+
+
+Calculate the rotation matrix (2D) $\mathbf{R}$, which rotates the unit vector $\mathbf{v_0} = \left\{1, 0\right\}$ to the given unit vector $\mathbf{v}$. 
 
 
 \begin{DoxyParams}{Parameters}
 {\em dst} & the rotation matrix \\
 \hline
 {\em vec} & the unit vector \\
+\hline
+\end{DoxyParams}
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
+\hline
+\mbox{\tt in}  & {\em vec} & $\mathbf{v}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_ae467d8e4595df053b525f154649e62b2}\label{_euler_8h_ae467d8e4595df053b525f154649e62b2}} 

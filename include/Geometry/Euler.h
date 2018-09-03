@@ -76,12 +76,13 @@ void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
                 const dmat33& src /**< [in] @f$\mathbf{R}@f$ */);
 
 /**
- * This function calculates the rotation matrix given the a unit vector.
+ * @brief Calculate the rotation matrix (2D) @f$\mathbf{R}@f$, which rotates the unit vector @f$\mathbf{v_0} = \left\{1, 0\right\}@f$ to the given unit vector @f$\mathbf{v}@f$.
  *
  * @param dst the rotation matrix
  * @param vec the unit vector
  */
-void rotate2D(dmat22& dst, const dvec2& vec);
+void rotate2D(dmat22& dst /**< [out] @f$\mathbf{R}@f$ */,
+              const dvec2& vec /**< [in] @f$\mathbf{v}@f$ */);
 
 /**
  * This function calculates the rotation matrix given phi in 2D.
