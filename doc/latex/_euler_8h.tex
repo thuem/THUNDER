@@ -42,22 +42,16 @@ void \mbox{\hyperlink{_euler_8h_a372ec5e85038afdc27942484f8d99769}{rotate3D}} (d
 void \mbox{\hyperlink{_euler_8h_a607c668617376a4422bf836d8af42b7c}{rotate3D}} (dmat33 \&dst, const dvec4 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$, given the unit quaternion $\mathbf{q}$ which represents this rotation. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}{rotate3\+DX}} (dmat33 \&dst, const double phi)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along X-\/axis with rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a04a63d03f90af34ebf48520360a1de41}{rotate3\+DY}} (dmat33 \&dst, const double phi)
 \item 
 void \mbox{\hyperlink{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}{rotate3\+DZ}} (dmat33 \&dst, const double phi)
 \item 
 void \mbox{\hyperlink{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}{alignZ}} (dmat33 \&dst, const dvec3 \&vec)
 \item 
-void \mbox{\hyperlink{_euler_8h_a978046f2585f8afb100730bf77f19ef7}{rotate3D}} (dmat33 \&dst, const double phi, const char axis)
-\item 
 void \mbox{\hyperlink{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}{rotate3D}} (dmat33 \&dst, const double phi, const dvec3 \&axis)
 \item 
 void \mbox{\hyperlink{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}{reflect3D}} (dmat33 \&dst, const dvec3 \&plane)
-\item 
-void \mbox{\hyperlink{_euler_8h_a0c9d5bf85c15b066b594f807499fabec}{translate3D}} (mat44 \&dst, const dvec3 \&vec)
-\item 
-void \mbox{\hyperlink{_euler_8h_a996781bcc83fa1118642323727667a03}{scale3D}} (dmat33 \&dst, const dvec3 \&vec)
 \item 
 \mbox{\Hypertarget{_euler_8h_acb675e048696920d8d2642bd59602aa2}\label{_euler_8h_acb675e048696920d8d2642bd59602aa2}} 
 void {\bfseries swing\+Twist} (dvec4 \&swing, dvec4 \&twist, const dvec4 \&src, const dvec3 \&vec)
@@ -340,7 +334,7 @@ Calculate the rotation matrix (2D) $\mathbf{R}$, given the rotation angle $\phi$
 \mbox{\Hypertarget{_euler_8h_a372ec5e85038afdc27942484f8d99769}\label{_euler_8h_a372ec5e85038afdc27942484f8d99769}} 
 \index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
 \index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
 {\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta,  }\item[{const double}]{psi }\end{DoxyParamCaption})}
 
 
@@ -361,7 +355,7 @@ Caclulate the rotation matrix $\mathbf{R}$, given the rotation angle $\phi$, $\t
 \mbox{\Hypertarget{_euler_8h_a607c668617376a4422bf836d8af42b7c}\label{_euler_8h_a607c668617376a4422bf836d8af42b7c}} 
 \index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
 \index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
 {\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec4 \&}]{src }\end{DoxyParamCaption})}
 
 
@@ -375,25 +369,10 @@ Calculate the rotation matrix $\mathbf{R}$, given the unit quaternion $\mathbf{q
 \mbox{\tt in}  & {\em src} & $\mathbf{q}$ \\
 \hline
 \end{DoxyParams}
-\mbox{\Hypertarget{_euler_8h_a978046f2585f8afb100730bf77f19ef7}\label{_euler_8h_a978046f2585f8afb100730bf77f19ef7}} 
-\index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
-\index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
-{\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const char}]{axis }\end{DoxyParamCaption})}
-
-This function calculates the rotation matrix of rotation along a certain axis (X, Y or Z) of phi.
-
-
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
-\hline
-{\em axis} & a character indicating which axis the rotation is along \\
-\hline
-\end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}\label{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}} 
 \index{Euler.\+h@{Euler.\+h}!rotate3D@{rotate3D}}
 \index{rotate3D@{rotate3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+\subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
 {\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const dvec3 \&}]{axis }\end{DoxyParamCaption})}
 
 This function calculates the rotation matrix of rotation along a certain axis given by a direction vector of phi.
@@ -413,13 +392,15 @@ This function calculates the rotation matrix of rotation along a certain axis gi
 \subsubsection{\texorpdfstring{rotate3\+D\+X()}{rotate3DX()}}
 {\footnotesize\ttfamily void rotate3\+DX (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix of rotation along X-\/axis of phi.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along X-\/axis with rotation angle $\phi$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a04a63d03f90af34ebf48520360a1de41}\label{_euler_8h_a04a63d03f90af34ebf48520360a1de41}} 
@@ -450,35 +431,5 @@ This function calculates the rotation matrix of rotation along Z-\/axis of phi.
 {\em dst} & the rotation matrix \\
 \hline
 {\em phi} & phi \\
-\hline
-\end{DoxyParams}
-\mbox{\Hypertarget{_euler_8h_a996781bcc83fa1118642323727667a03}\label{_euler_8h_a996781bcc83fa1118642323727667a03}} 
-\index{Euler.\+h@{Euler.\+h}!scale3D@{scale3D}}
-\index{scale3D@{scale3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{scale3\+D()}{scale3D()}}
-{\footnotesize\ttfamily void scale3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
-
-This function calculates the transformation matrix of scaling.
-
-
-\begin{DoxyParams}{Parameters}
-{\em dst} & the transformation matrix \\
-\hline
-{\em vec} & a 3-\/vector of which vec\mbox{[}0\mbox{]} indicates the scale factor along X axis, vec\mbox{[}1\mbox{]} indicates the scale factor along Y axis and vec\mbox{[}2\mbox{]} indicates the scale factor along Z axis \\
-\hline
-\end{DoxyParams}
-\mbox{\Hypertarget{_euler_8h_a0c9d5bf85c15b066b594f807499fabec}\label{_euler_8h_a0c9d5bf85c15b066b594f807499fabec}} 
-\index{Euler.\+h@{Euler.\+h}!translate3D@{translate3D}}
-\index{translate3D@{translate3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{translate3\+D()}{translate3D()}}
-{\footnotesize\ttfamily void translate3D (\begin{DoxyParamCaption}\item[{mat44 \&}]{dst,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
-
-This function calculates the singular matrix of translation of a certain vector.
-
-
-\begin{DoxyParams}{Parameters}
-{\em dst} & the singular matrix \\
-\hline
-{\em vec} & the translation vector \\
 \hline
 \end{DoxyParams}

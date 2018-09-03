@@ -112,12 +112,10 @@ void rotate3D(dmat33& dst /**< [out] @f$\mathbf{R}@f$ */,
               const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
 
 /**
- * This function calculates the rotation matrix of rotation along X-axis of phi.
- *
- * @param dst the rotation matrix
- * @param phi phi
+ * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which represents the rotation along X-axis with rotation angle @f$\phi@f$.
  */
-void rotate3DX(dmat33& dst, const double phi);
+void rotate3DX(dmat33& dst /** [out] @f$\mathbf{R}@f$ */,
+               const double phi /** [in] @f$\phi@f$ */);
 
 /**
  * This function calculates the rotation matrix of rotation along Y-axis of phi.
