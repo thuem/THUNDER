@@ -29,9 +29,8 @@ void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} 
 \begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ab8dd11079fd3ad479ede14842e037709}{quaternion}} (dvec4 \&dst, const double phi, const dvec3 \&axis)
 \begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}\label{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}} 
-void {\bfseries quaternion} (dvec4 \&dst, const dmat33 \&src)
-\item 
+void \mbox{\hyperlink{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}{quaternion}} (dvec4 \&dst, const dmat33 \&src)
+\begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a6520800d9d5146bce8adf9a27603802b}{rotate2D}} (dmat22 \&dst, const dvec2 \&vec)
 \item 
 void \mbox{\hyperlink{_euler_8h_ae467d8e4595df053b525f154649e62b2}{rotate2D}} (dmat22 \&dst, const double phi)
@@ -177,7 +176,7 @@ This function calculates the direction vector given phi and theta. The 2-\/norm 
 \mbox{\Hypertarget{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}\label{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}} 
 \index{Euler.\+h@{Euler.\+h}!quaternion@{quaternion}}
 \index{quaternion@{quaternion}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
 {\footnotesize\ttfamily void quaternion (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const double}]{theta,  }\item[{const double}]{psi }\end{DoxyParamCaption})}
 
 
@@ -198,7 +197,7 @@ Calculate the quaternion $\mathbf{q}$ for representing the rotation, given 3 Eul
 \mbox{\Hypertarget{_euler_8h_ab8dd11079fd3ad479ede14842e037709}\label{_euler_8h_ab8dd11079fd3ad479ede14842e037709}} 
 \index{Euler.\+h@{Euler.\+h}!quaternion@{quaternion}}
 \index{quaternion@{quaternion}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
 {\footnotesize\ttfamily void quaternion (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const dvec3 \&}]{axis }\end{DoxyParamCaption})}
 
 
@@ -206,12 +205,29 @@ Calculate the quaternion $\mathbf{q}$ for representing the rotation, given 3 Eul
 Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. 
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the quaternion to be calculated \\
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{q}$ \\
 \hline
-{\em phi} & the rotation angle \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
-{\em axis} & the rotation axis (unit vector) \\
+\mbox{\tt in}  & {\em axis} & $\mathbf{r}$ \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}\label{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}} 
+\index{Euler.\+h@{Euler.\+h}!quaternion@{quaternion}}
+\index{quaternion@{quaternion}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{quaternion()}{quaternion()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily void quaternion (\begin{DoxyParamCaption}\item[{dvec4 \&}]{dst,  }\item[{const dmat33 \&}]{src }\end{DoxyParamCaption})}
+
+
+
+Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{q}$ \\
+\hline
+\mbox{\tt in}  & {\em src} & $\mathbf{R}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}\label{_euler_8h_aaea280abd6572dbb83a7d36dc67ddf61}} 

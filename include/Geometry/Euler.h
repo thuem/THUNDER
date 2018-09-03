@@ -64,17 +64,16 @@ void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
 
 /**
  * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
- *
- * @param dst  the quaternion to be calculated
- * @param phi  the rotation angle
- * @param axis the rotation axis (unit vector)
  */
-void quaternion(dvec4& dst,
-                const double phi,
-                const dvec3& axis);
+void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
+                const double phi /**< [in] @f$\phi@f$ */,
+                const dvec3& axis /**< [in] @f$\mathbf{r}@f$ */);
 
-void quaternion(dvec4& dst,
-                const dmat33& src);
+/**
+ * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation matrix @f$\mathbf{R}@f$.
+ */
+void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
+                const dmat33& src /**< [in] @f$\mathbf{R}@f$ */);
 
 /**
  * This function calculates the rotation matrix given the a unit vector.
