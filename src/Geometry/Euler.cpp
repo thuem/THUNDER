@@ -269,23 +269,6 @@ void alignZ(dmat33& dst,
 
 void rotate3D(dmat33& dst,
               const double phi,
-              const char axis)
-{
-    switch (axis)
-    {
-        case 'X':
-            rotate3DX(dst, phi); break;
-        
-        case 'Y':
-            rotate3DY(dst, phi); break;
-        
-        case 'Z':
-            rotate3DZ(dst, phi); break;
-    }
-}
-
-void rotate3D(dmat33& dst,
-              const double phi,
               const dvec3& axis)
 {
     dvec4 quat;
@@ -306,22 +289,6 @@ void reflect3D(dmat33& dst,
     M(2, 2) = -1;
 
     dst = A.transpose() * M * A;
-}
-
-void translate3D(dmat44& dst,
-                 const dvec3& vec)
-{
-    dst.setIdentity();
-    dst.col(3).head<3>() = vec;
-}
-
-void scale3D(dmat33& dst,
-             const dvec3& vec)
-{
-    dst.setZero();
-    dst(0, 0) = vec(0);
-    dst(1, 1) = vec(1);
-    dst(2, 2) = vec(2);
 }
 
 void swingTwist(dvec4& swing,

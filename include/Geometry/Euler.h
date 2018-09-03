@@ -147,17 +147,6 @@ void alignZ(dmat33& dst,
 
 /**
  * This function calculates the rotation matrix of rotation along a certain axis
- * (X, Y or Z) of phi.
- *
- * @param dst  the rotation matrix
- * @param axis a character indicating which axis the rotation is along
- */
-void rotate3D(dmat33& dst,
-              const double phi,
-              const char axis);
-
-/**
- * This function calculates the rotation matrix of rotation along a certain axis
  * given by a direction vector of phi.
  *
  * @param dst  the rotation matrix
@@ -177,27 +166,6 @@ void rotate3D(dmat33& dst,
  */
 void reflect3D(dmat33& dst,
                const dvec3& plane);
-
-/**
- * This function calculates the singular matrix of translation of a certain
- * vector.
- *
- * @param dst the singular matrix
- * @param vec the translation vector
- */
-void translate3D(mat44& dst,
-                 const dvec3& vec);
-
-/**
- * This function calculates the transformation matrix of scaling.
- *
- * @param dst the transformation matrix
- * @param vec a 3-vector of which vec[0] indicates the scale factor along X
- *            axis, vec[1] indicates the scale factor along Y axis and vec[2]
- *            indicates the scale factor along Z axis
- */
-void scale3D(dmat33& dst,
-             const dvec3& vec);
 
 void swingTwist(dvec4& swing,
                 dvec4& twist,
