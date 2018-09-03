@@ -40,7 +40,7 @@ void \mbox{\hyperlink{_euler_8h_a22d4b2099eab22e59e77710d190bf33a}{direction}} (
 void \mbox{\hyperlink{_euler_8h_a372ec5e85038afdc27942484f8d99769}{rotate3D}} (dmat33 \&dst, const double phi, const double theta, const double psi)
 \begin{DoxyCompactList}\small\item\em Caclulate the rotation matrix $\mathbf{R}$, given the rotation angle $\phi$, $\theta$ and $\psi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a607c668617376a4422bf836d8af42b7c}{rotate3D}} (dmat33 \&dst, const dvec4 \&src)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$, given the unit quaternion $\mathbf{q}$ which represents this rotation. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}{rotate3\+DX}} (dmat33 \&dst, const double phi)
 \item 
 void \mbox{\hyperlink{_euler_8h_a04a63d03f90af34ebf48520360a1de41}{rotate3\+DY}} (dmat33 \&dst, const double phi)
@@ -364,13 +364,15 @@ Caclulate the rotation matrix $\mathbf{R}$, given the rotation angle $\phi$, $\t
 \subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
 {\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec4 \&}]{src }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix given a quaternion.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix $\mathbf{R}$, given the unit quaternion $\mathbf{q}$ which represents this rotation. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em src} & the quaternion \\
+\mbox{\tt in}  & {\em src} & $\mathbf{q}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a978046f2585f8afb100730bf77f19ef7}\label{_euler_8h_a978046f2585f8afb100730bf77f19ef7}} 

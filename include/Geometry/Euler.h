@@ -106,13 +106,10 @@ void rotate3D(dmat33& dst /**< [out] @f$\mathbf{R}@f$ */,
               const double psi /**< [in] @f$\psi@f$ */);
 
 /**
- * This function calculates the rotation matrix given a quaternion.
- *
- * @param dst the rotation matrix
- * @param src the quaternion
+ * @brief Calculate the rotation matrix @f$\mathbf{R}@f$, given the unit quaternion @f$\mathbf{q}@f$ which represents this rotation.
  */
-void rotate3D(dmat33& dst,
-              const dvec4& src);
+void rotate3D(dmat33& dst /**< [out] @f$\mathbf{R}@f$ */,
+              const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
 
 /**
  * This function calculates the rotation matrix of rotation along X-axis of phi.
