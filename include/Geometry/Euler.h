@@ -20,11 +20,35 @@
 #include "Functions.h"
 
 /**
- * @brief Calculate the product of two quaternions.
+ * @brief Calculate the product of two quaternions @f$\mathbf{q_1}@f$ and @f$\mathbf{q_2}@f$.
+ *
+ * Assuming that @f$\mathbf{q_1} = \left(w_1, x_1, y_1, z_1\right)@f$ and @f$\mathbf{q_2} = \left(w_2, x_2, y_2, z_2\right)@f$, the product can be calculated as
+ * \f[
+ *   \begin{pmatrix}
+ *       w_1 \\
+ *       x_1 \\
+ *       y_1 \\
+ *       z_1
+ *   \end{pmatrix}
+ *   \times
+ *   \begin{pmatrix}
+ *       w_2 \\
+ *       x_2 \\
+ *       y_2 \\
+ *       z_2
+ *   \end{pmatrix}
+ *   =
+ *   \begin{pmatrix}
+ *       w_{1}w_{2} - x_{1}x_{2} - y_{1}y_{2} - z_{1}z_{2} \\
+ *       w_{1}x_{2} + x_{1}w_{2} + y_{1}z_{2} - z_{1}y_{2} \\
+ *       w_{1}y_{2} - x_{1}z_{2} + y_{1}w_{2} + z_{1}x_{2} \\
+ *       w_{1}z_{2} + x_{1}y_{2} - y_{1}x_{2} + z_{1}w_{2}
+ *   \end{pmatrix}
+ * \f]
  */
 void quaternion_mul(dvec4& dst,      /**< [out] product, a quaternion */
-                    const dvec4& a,  /**< [in]  left multiplier, quaternion */
-                    const dvec4& b   /**< [in]  right multiplier, quaternion */
+                    const dvec4& a,  /**< [in]  left multiplier, @f$\mathbf{q_1}@f$ */
+                    const dvec4& b   /**< [in]  right multiplier, @f$\mathbf{q_2}@f$ */
                    );
 /**
  * @brief Calculate the conjugate quaternion of a quaternion.
