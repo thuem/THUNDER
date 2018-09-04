@@ -52,7 +52,13 @@ void \mbox{\hyperlink{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}{alignZ}} (dma
 void \mbox{\hyperlink{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}{rotate3D}} (dmat33 \&dst, const double phi, const dvec3 \&axis)
 \begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along the axis $\mathbf{v}$ with rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}{reflect3D}} (dmat33 \&dst, const dvec3 \&plane)
-\begin{DoxyCompactList}\small\item\em Calculate the transformation matrix $\mathbbf{M}$ of reflection against a certian plane, which is represented by its normal vector $\mathbf{n}$. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Calculate the transformation matrix $\mathbf{M}$ of reflection against a certian plane, which is represented by its normal vector $\mathbf{n}$. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{_euler_8h_acb675e048696920d8d2642bd59602aa2}{swing\+Twist}} (dvec4 \&swing, dvec4 \&twist, const dvec4 \&src, const dvec3 \&vec)
+\begin{DoxyCompactList}\small\item\em Calculate the two quaternions $\mathbf{q_s}$ and $\mathbf{q_t}$, which represent swing and twist along axis $\mathbf{v}$ respectively, representing the rotation represented by quaternion $\mathbf{q}$. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}{rand\+Rotate2D}} (dmat22 \&rot)
+\begin{DoxyCompactList}\small\item\em Sample a 2D rotation matrix $\mathbf{R}$ from even distribution. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{_euler_8h_aed04b2f23287a7b8041248e055f63938}{rand\+Rotate3D}} (dmat33 \&rot)
+\begin{DoxyCompactList}\small\item\em Sample a 3D rotation matrix $\mathbf{R}$ from even distribution. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -252,6 +258,36 @@ Calculate the product of two quaternions.
 \mbox{\tt in}  & {\em b} & right multiplier, quaternion \\
 \hline
 \end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}\label{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}} 
+\index{Euler.\+h@{Euler.\+h}!rand\+Rotate2D@{rand\+Rotate2D}}
+\index{rand\+Rotate2D@{rand\+Rotate2D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rand\+Rotate2\+D()}{randRotate2D()}}
+{\footnotesize\ttfamily void rand\+Rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{rot }\end{DoxyParamCaption})}
+
+
+
+Sample a 2D rotation matrix $\mathbf{R}$ from even distribution. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em rot} & $\mathbf{R}$ \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_aed04b2f23287a7b8041248e055f63938}\label{_euler_8h_aed04b2f23287a7b8041248e055f63938}} 
+\index{Euler.\+h@{Euler.\+h}!rand\+Rotate3D@{rand\+Rotate3D}}
+\index{rand\+Rotate3D@{rand\+Rotate3D}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{rand\+Rotate3\+D()}{randRotate3D()}}
+{\footnotesize\ttfamily void rand\+Rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{rot }\end{DoxyParamCaption})}
+
+
+
+Sample a 3D rotation matrix $\mathbf{R}$ from even distribution. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em rot} & $\mathbf{R}$ \\
+\hline
+\end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}\label{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}} 
 \index{Euler.\+h@{Euler.\+h}!reflect3D@{reflect3D}}
 \index{reflect3D@{reflect3D}!Euler.\+h@{Euler.\+h}}
@@ -260,7 +296,7 @@ Calculate the product of two quaternions.
 
 
 
-Calculate the transformation matrix $\mathbbf{M}$ of reflection against a certian plane, which is represented by its normal vector $\mathbf{n}$. 
+Calculate the transformation matrix $\mathbf{M}$ of reflection against a certian plane, which is represented by its normal vector $\mathbf{n}$. 
 
 
 \begin{DoxyParams}[1]{Parameters}
@@ -409,5 +445,26 @@ Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along Z
 \mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
 \mbox{\tt in}  & {\em phi} & $\phi$ \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{_euler_8h_acb675e048696920d8d2642bd59602aa2}\label{_euler_8h_acb675e048696920d8d2642bd59602aa2}} 
+\index{Euler.\+h@{Euler.\+h}!swing\+Twist@{swing\+Twist}}
+\index{swing\+Twist@{swing\+Twist}!Euler.\+h@{Euler.\+h}}
+\subsubsection{\texorpdfstring{swing\+Twist()}{swingTwist()}}
+{\footnotesize\ttfamily void swing\+Twist (\begin{DoxyParamCaption}\item[{dvec4 \&}]{swing,  }\item[{dvec4 \&}]{twist,  }\item[{const dvec4 \&}]{src,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
+
+
+
+Calculate the two quaternions $\mathbf{q_s}$ and $\mathbf{q_t}$, which represent swing and twist along axis $\mathbf{v}$ respectively, representing the rotation represented by quaternion $\mathbf{q}$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em swing} & $\mathbf{q_s}$ \\
+\hline
+\mbox{\tt out}  & {\em twist} & $\mathbf{q_t}$ \\
+\hline
+\mbox{\tt in}  & {\em src} & $\mathbf{q}$ \\
+\hline
+\mbox{\tt in}  & {\em vec} & $\mathbf{v}$ \\
 \hline
 \end{DoxyParams}

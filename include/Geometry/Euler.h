@@ -157,7 +157,7 @@ void rotate3D(dmat33& dst,      /**< [out] @f$\mathbf{R}@f$ */
              );
 
 /**
- * @brief Calculate the transformation matrix @f$\mathbbf{M}@f$ of reflection against a certian plane, which is represented by its normal vector @f$\mathbf{n}@f$.
+ * @brief Calculate the transformation matrix @f$\mathbf{M}@f$ of reflection against a certian plane, which is represented by its normal vector @f$\mathbf{n}@f$.
  */
 void reflect3D(dmat33& dst,       /**< [out] @f$\mathbf{M}@f$ */
                const dvec3& plane /**< [in]  @f$\mathbf{n}@f$ */
