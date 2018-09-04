@@ -2,7 +2,7 @@
 \label{_euler_8h}\index{include/\+Geometry/\+Euler.\+h@{include/\+Geometry/\+Euler.\+h}}
 
 
-some description about \mbox{\hyperlink{_euler_8h}{Euler.\+h}}  
+\mbox{\hyperlink{_euler_8h}{Euler.\+h}} contains several functions, for operations of quaternions, converting between Euler angles, rotation matrices and unit quaternions and sampling rotation matrices from even distribution.  
 
 
 {\ttfamily \#include $<$cmath$>$}\newline
@@ -26,11 +26,11 @@ void \mbox{\hyperlink{_euler_8h_aad6410e015036c1bb325d58864a2279c}{angle}} (doub
 void \mbox{\hyperlink{_euler_8h_a453f5b413761ccb116d6712e3076f881}{angle}} (double \&phi, double \&theta, double \&psi, const dvec4 \&src)
 \begin{DoxyCompactList}\small\item\em Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the quaternion $\mathbf{q}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a5dfddabd1d36987821c58a305a9e9133}{quaternion}} (dvec4 \&dst, const double phi, const double theta, const double psi)
-\begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ab8dd11079fd3ad479ede14842e037709}{quaternion}} (dvec4 \&dst, const double phi, const dvec3 \&axis)
-\begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_aa688991e346bb13f0cb659bb58f75be3}{quaternion}} (dvec4 \&dst, const dmat33 \&src)
-\begin{DoxyCompactList}\small\item\em Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a6520800d9d5146bce8adf9a27603802b}{rotate2D}} (dmat22 \&dst, const dvec2 \&vec)
 \begin{DoxyCompactList}\small\item\em Calculate the rotation matrix (2D) $\mathbf{R}$, which rotates the unit vector $\mathbf{v_0} = \left\{1, 0\right\}$ to the given unit vector $\mathbf{v}$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ae467d8e4595df053b525f154649e62b2}{rotate2D}} (dmat22 \&dst, const double phi)
@@ -62,9 +62,11 @@ void \mbox{\hyperlink{_euler_8h_aed04b2f23287a7b8041248e055f63938}{rand\+Rotate3
 
 
 \subsection{Detailed Description}
-some description about \mbox{\hyperlink{_euler_8h}{Euler.\+h}} 
+\mbox{\hyperlink{_euler_8h}{Euler.\+h}} contains several functions, for operations of quaternions, converting between Euler angles, rotation matrices and unit quaternions and sampling rotation matrices from even distribution. 
 
-Details about \mbox{\hyperlink{_euler_8h}{Euler.\+h}} 
+Quaternions are a number system that extends the complex numbers. Unit quaternions provide a convenient mathematical notation for representing rotations of objects in 3D. Compared to Euler angles, they are simpler to compose and aovid the problem of glimbal lock. Compared to rotation matrices, they are more compact and more efficient. Moroever, unlike Euler angles, unit quaternions do not rely on the choosing and order of the rotation axes.
+
+To be noticed, Euler angles in this file follow the standard of Z\+XZ Euler system. In other words, Euler angle set $\left\{\phi, \theta, \psi\right\}$ stands for rotating along Z axis with $\phi$, followed by rotating along X axis with $\theta$, and followed by rotating along Z axis with $\psi$. 
 
 \subsection{Function Documentation}
 \mbox{\Hypertarget{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}\label{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}} 
@@ -172,7 +174,7 @@ Caclulate the unit direction vector $\mathbf{v}$, given the rotation angle $\phi
 
 
 
-Calculate the quaternion $\mathbf{q}$ for representing the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. 
+Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given 3 Euler angles $\phi$, $\theta$ and $\psi$. 
 
 
 \begin{DoxyParams}[1]{Parameters}
@@ -193,7 +195,7 @@ Calculate the quaternion $\mathbf{q}$ for representing the rotation, given 3 Eul
 
 
 
-Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. 
+Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. 
 
 
 \begin{DoxyParams}[1]{Parameters}
@@ -212,7 +214,7 @@ Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the r
 
 
 
-Calculate the quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. 
+Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given the rotation matrix $\mathbf{R}$. 
 
 
 \begin{DoxyParams}[1]{Parameters}

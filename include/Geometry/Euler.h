@@ -1,7 +1,9 @@
 /** @file
- *  @brief some description about Euler.h
+ *  @brief Euler.h contains several functions, for operations of quaternions, converting between Euler angles, rotation matrices and unit quaternions and sampling rotation matrices from even distribution.
  *
- *  Details about Euler.h
+ *  Quaternions are a number system that extends the complex numbers. Unit quaternions provide a convenient mathematical notation for representing rotations of objects in 3D. Compared to Euler angles, they are simpler to compose and aovid the problem of glimbal lock. Compared to rotation matrices, they are more compact and more efficient. Moroever, unlike Euler angles, unit quaternions do not rely on the choosing and order of the rotation axes.
+ *
+ *  To be noticed, Euler angles in this file follow the standard of ZXZ Euler system. In other words, Euler angle set @f$\left\{\phi, \theta, \psi\right\}@f$ stands for rotating along Z axis with @f$\phi@f$, followed by rotating along X axis with @f$\theta@f$, and followed by rotating along Z axis with @f$\psi@f$.
  */
 
 #ifndef EULER_H
@@ -59,7 +61,7 @@ void angle(double& phi,     /**< [out] @f$\phi@f$ */
           );
 
 /**
- * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given 3 Euler angles @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
+ * @brief Calculate the unit quaternion @f$\mathbf{q}@f$ for representing the rotation, given 3 Euler angles @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
  */
 void quaternion(dvec4& dst,         /**< [out] @f$\mathbf{q}@f$ */
                 const double phi,   /**< [in]  @f$\phi@f$ */
@@ -68,7 +70,7 @@ void quaternion(dvec4& dst,         /**< [out] @f$\mathbf{q}@f$ */
                );
 
 /**
- * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
+ * @brief Calculate the unit quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
  */
 void quaternion(dvec4& dst,        /**< [out] @f$\mathbf{q}@f$ */
                 const double phi,  /**< [in]  @f$\phi@f$ */
@@ -76,7 +78,7 @@ void quaternion(dvec4& dst,        /**< [out] @f$\mathbf{q}@f$ */
                );
 
 /**
- * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation matrix @f$\mathbf{R}@f$.
+ * @brief Calculate the unit quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation matrix @f$\mathbf{R}@f$.
  */
 void quaternion(dvec4& dst,       /**< [out] @f$\mathbf{q}@f$ */
                 const dmat33& src /**< [in]  @f$\mathbf{R}@f$ */
