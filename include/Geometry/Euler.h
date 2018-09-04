@@ -171,8 +171,14 @@ void swingTwist(dvec4& swing,
                 const dvec4& src,
                 const dvec3& vec);
 
+/**
+ * @brief Sample a 2D rotation matrix from even distribution.
+ */
 void randRotate2D(dmat22& rot);
 
+/**
+ * @brief Sample a 3D rotation matrix from even distribution.
+ */
 void randRotate3D(dmat33& rot);
 
 #endif // EULER_H 
