@@ -123,76 +123,56 @@ void rotate3D(dmat33& dst,     /**< [out] @f$\mathbf{R}@f$ */
 /**
  * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which represents the rotation along X-axis with rotation angle @f$\phi@f$.
  */
-void rotate3DX(dmat33& dst /** [out] @f$\mathbf{R}@f$ */,
-               const double phi /** [in] @f$\phi@f$ */);
+void rotate3DX(dmat33& dst,     /**< [out] @f$\mathbf{R}@f$ */
+               const double phi /**< [in]  @f$\phi@f$ */
+              );
 
 /**
- * This function calculates the rotation matrix of rotation along Y-axis of phi.
- *
- * @param dst the rotation matrix
- * @param phi phi
+ * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which represents the rotation along Y-axis with rotation angle @f$\phi@f$.
  */
-void rotate3DY(dmat33& dst, const double phi);
+void rotate3DY(dmat33& dst,     /**< [out] @f$\mathbf{R}@f$ */
+               const double phi /**< [in]  @f$\phi@f$ */
+              );
 
 /**
- * This function calculates the rotation matrix of rotation along Z-axis of phi.
- *
- * @param dst the rotation matrix
- * @param phi phi
+ * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which represents the rotation along Z-axis with rotation angle @f$\phi@f$.
  */
-void rotate3DZ(dmat33& dst, const double phi);
+void rotate3DZ(dmat33& dst,     /**< [out] @f$\mathbf{R}@f$ */
+               const double phi /**< [in]  @f$\phi@f$ */
+              );
 
 /**
- * This function calculates the rotation matrix for aligning a direction vector
- * to Z-axis.
- *
- * @param dst the rotation matrix
- * @param vec the direction vector
+ * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which aligns a direction vector @f$\mathbf{v}@f$ to Z-axis.
  */
-void alignZ(dmat33& dst,
-            const dvec3& vec);
+void alignZ(dmat33& dst,     /**< [out] @f$\mathbf{R}@f$ */
+            const dvec3& vec /**< [in]  @f$\mathbf{v}@f$ */
+           );
 
 /**
- * This function calculates the rotation matrix of rotation along a certain axis
- * given by a direction vector of phi.
- *
- * @param dst  the rotation matrix
- * @param phi  phi
- * @param axis the direction vector indicating the axis
+ * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which represents the rotation along the axis @f$\mathbf{v}@f$ with rotation angle @f$\phi@f$.
  */
-void rotate3D(dmat33& dst,
-              const double phi,
-              const dvec3& axis);
+void rotate3D(dmat33& dst,      /**< [out] @f$\mathbf{R}@f$ */
+              const double phi, /**< [in]  @f$\phi@f$ */
+              const dvec3& axis /**< [in]  @f$\mathbf{v}@f$ */
+             );
 
 /**
- * This function calculates the transformation matrix of reflection against a
- * certain plane given by its normal vector.
- *
- * @param dst   the rotation matrix
- * @param plane the normal vector the reflection plane
+ * @brief Calculate the transformation matrix @f$\mathbbf{M}@f$ of reflection against a certian plane, which is represented by its normal vector @f$\mathbf{n}@f$.
  */
-void reflect3D(dmat33& dst,
-               const dvec3& plane);
+void reflect3D(dmat33& dst,       /**< [out] @f$\mathbf{M}@f$ */
+               const dvec3& plane /**< [in]  @f$\mathbf{n}@f$ */
+              );
 
+/**
+ * @brief Calculate the two quaternions @f$\mathbf{q_s}@f$ and @f$\mathbf{q_t}@f$, which represent swing and twist along axis @f$\mathbf{v}@f$ respectively, representing the rotation represented by quaternion @f$\mathbf{q}@f$.
+ */
 void swingTwist(dvec4& swing,
                 dvec4& twist,
                 const dvec4& src,
                 const dvec3& vec);
 
-void randDirection(dvec2& dir);
-
-/**
- * This function generates a random unit quaternion.
- */
-//void randQuaternion(dvec4& quat);
-
 void randRotate2D(dmat22& rot);
 
-void randQuaternion(dvec4& quat);
-
-/**
- * This function generates a random 3D rotation matrix.
- */
 void randRotate3D(dmat33& rot);
 
 #endif // EULER_H 

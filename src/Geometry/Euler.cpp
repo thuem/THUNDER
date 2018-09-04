@@ -305,27 +305,25 @@ void swingTwist(dvec4& swing,
     quaternion_mul(swing, src, quaternion_conj(twist));
 }
 
-void randDirection(dvec2& dir)
+void randRotate2D(dmat22& rot)
 {
     gsl_rng* engine = get_random_engine();
+
+    dvec2 dir;
 
     dir(0) = gsl_ran_gaussian(engine, 1);
     dir(1) = gsl_ran_gaussian(engine, 1);
 
     dir /= dir.norm();
-}
 
-void randRotate2D(dmat22& rot)
-{
-    dvec2 dir;
-    randDirection(dir);
-    
     rotate2D(rot, dir);
 }
 
-void randQuaternion(dvec4& quat)
+void randRotate3D(dmat33& rot)
 {
     gsl_rng* engine = get_random_engine();
+
+    dvec4 quat;
 
     quat(0) = gsl_ran_gaussian(engine, 1);
     quat(1) = gsl_ran_gaussian(engine, 1);
@@ -333,13 +331,6 @@ void randQuaternion(dvec4& quat)
     quat(3) = gsl_ran_gaussian(engine, 1);
 
     quat /= quat.norm();
-}
-
-void randRotate3D(dmat33& rot)
-{
-    dvec4 quat;
-
-    randQuaternion(quat);
 
     rotate3D(rot, quat);
 }

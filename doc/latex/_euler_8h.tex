@@ -301,13 +301,6 @@ This function calculates the transformation matrix of reflection against a certa
 Calculate the rotation matrix (2D) $\mathbf{R}$, which rotates the unit vector $\mathbf{v_0} = \left\{1, 0\right\}$ to the given unit vector $\mathbf{v}$. 
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
-\hline
-{\em vec} & the unit vector \\
-\hline
-\end{DoxyParams}
-
 \begin{DoxyParams}[1]{Parameters}
 \mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
@@ -398,9 +391,7 @@ Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along X
 
 
 \begin{DoxyParams}[1]{Parameters}
-\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
-\hline
-\mbox{\tt in}  & {\em phi} & $\phi$ \\
+\mbox{\tt out}  & {\em phi} & $\mathbf{R}$ \mbox{[}in\mbox{]} $\phi$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a04a63d03f90af34ebf48520360a1de41}\label{_euler_8h_a04a63d03f90af34ebf48520360a1de41}} 
