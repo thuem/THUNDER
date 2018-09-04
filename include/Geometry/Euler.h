@@ -166,19 +166,22 @@ void reflect3D(dmat33& dst,       /**< [out] @f$\mathbf{M}@f$ */
 /**
  * @brief Calculate the two quaternions @f$\mathbf{q_s}@f$ and @f$\mathbf{q_t}@f$, which represent swing and twist along axis @f$\mathbf{v}@f$ respectively, representing the rotation represented by quaternion @f$\mathbf{q}@f$.
  */
-void swingTwist(dvec4& swing,
-                dvec4& twist,
-                const dvec4& src,
-                const dvec3& vec);
+void swingTwist(dvec4& swing,     /**< [out] @f$\mathbf{q_s}@f$ */
+                dvec4& twist,     /**< [out] @f$\mathbf{q_t}@f$ */
+                const dvec4& src, /**< [in]  @f$\mathbf{q}@f$ */
+                const dvec3& vec  /**< [in]  @f$\mathbf{v}@f$ */
+               );
 
 /**
- * @brief Sample a 2D rotation matrix from even distribution.
+ * @brief Sample a 2D rotation matrix @f$\mathbf{R}@f$ from even distribution.
  */
-void randRotate2D(dmat22& rot);
+void randRotate2D(dmat22& rot /**< [out] @f$\mathbf{R}@f$ */
+                 );
 
 /**
- * @brief Sample a 3D rotation matrix from even distribution.
+ * @brief Sample a 3D rotation matrix @f$\mathbf{R}@f$ from even distribution.
  */
-void randRotate3D(dmat33& rot);
+void randRotate3D(dmat33& rot /**< [out] @f$\mathbf{R}@f$ */
+                 );
 
 #endif // EULER_H 

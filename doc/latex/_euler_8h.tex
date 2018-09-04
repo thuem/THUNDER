@@ -44,28 +44,15 @@ void \mbox{\hyperlink{_euler_8h_a607c668617376a4422bf836d8af42b7c}{rotate3D}} (d
 void \mbox{\hyperlink{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}{rotate3\+DX}} (dmat33 \&dst, const double phi)
 \begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along X-\/axis with rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a04a63d03f90af34ebf48520360a1de41}{rotate3\+DY}} (dmat33 \&dst, const double phi)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along Y-\/axis with rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}{rotate3\+DZ}} (dmat33 \&dst, const double phi)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along Z-\/axis with rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_ada6894ec7b8ea070a83996c5f7c2df8c}{alignZ}} (dmat33 \&dst, const dvec3 \&vec)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which aligns a direction vector $\mathbf{v}$ to Z-\/axis. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_adbd2683f7064085f4b6d81bf67024f51}{rotate3D}} (dmat33 \&dst, const double phi, const dvec3 \&axis)
-\item 
+\begin{DoxyCompactList}\small\item\em Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along the axis $\mathbf{v}$ with rotation angle $\phi$. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}{reflect3D}} (dmat33 \&dst, const dvec3 \&plane)
-\item 
-\mbox{\Hypertarget{_euler_8h_acb675e048696920d8d2642bd59602aa2}\label{_euler_8h_acb675e048696920d8d2642bd59602aa2}} 
-void {\bfseries swing\+Twist} (dvec4 \&swing, dvec4 \&twist, const dvec4 \&src, const dvec3 \&vec)
-\item 
-\mbox{\Hypertarget{_euler_8h_a44480f9eafb7343ed41b401f19facb2d}\label{_euler_8h_a44480f9eafb7343ed41b401f19facb2d}} 
-void {\bfseries rand\+Direction} (dvec2 \&dir)
-\item 
-void \mbox{\hyperlink{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}{rand\+Rotate2D}} (dmat22 \&rot)
-\item 
-\mbox{\Hypertarget{_euler_8h_a06fc1c8ab1bdca4452687cd84f2deaf7}\label{_euler_8h_a06fc1c8ab1bdca4452687cd84f2deaf7}} 
-void {\bfseries rand\+Quaternion} (dvec4 \&quat)
-\item 
-void \mbox{\hyperlink{_euler_8h_aed04b2f23287a7b8041248e055f63938}{rand\+Rotate3D}} (dmat33 \&rot)
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Calculate the transformation matrix $\mathbbf{M}$ of reflection against a certian plane, which is represented by its normal vector $\mathbf{n}$. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -80,13 +67,15 @@ Details about \mbox{\hyperlink{_euler_8h}{Euler.\+h}}
 \subsubsection{\texorpdfstring{align\+Z()}{alignZ()}}
 {\footnotesize\ttfamily void alignZ (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec3 \&}]{vec }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix for aligning a direction vector to Z-\/axis.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix $\mathbf{R}$ which aligns a direction vector $\mathbf{v}$ to Z-\/axis. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em vec} & the direction vector \\
+\mbox{\tt in}  & {\em vec} & $\mathbf{v}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}\label{_euler_8h_a234ad04a50a1b7afc09d30cbabfdc10c}} 
@@ -263,31 +252,21 @@ Calculate the product of two quaternions.
 \mbox{\tt in}  & {\em b} & right multiplier, quaternion \\
 \hline
 \end{DoxyParams}
-\mbox{\Hypertarget{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}\label{_euler_8h_aeb9b304c99be4a6285877b67cdd5c7e4}} 
-\index{Euler.\+h@{Euler.\+h}!rand\+Rotate2D@{rand\+Rotate2D}}
-\index{rand\+Rotate2D@{rand\+Rotate2D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{rand\+Rotate2\+D()}{randRotate2D()}}
-{\footnotesize\ttfamily void rand\+Rotate2D (\begin{DoxyParamCaption}\item[{dmat22 \&}]{rot }\end{DoxyParamCaption})}
-
-This function generates a random unit quaternion. \mbox{\Hypertarget{_euler_8h_aed04b2f23287a7b8041248e055f63938}\label{_euler_8h_aed04b2f23287a7b8041248e055f63938}} 
-\index{Euler.\+h@{Euler.\+h}!rand\+Rotate3D@{rand\+Rotate3D}}
-\index{rand\+Rotate3D@{rand\+Rotate3D}!Euler.\+h@{Euler.\+h}}
-\subsubsection{\texorpdfstring{rand\+Rotate3\+D()}{randRotate3D()}}
-{\footnotesize\ttfamily void rand\+Rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{rot }\end{DoxyParamCaption})}
-
-This function generates a random 3D rotation matrix. \mbox{\Hypertarget{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}\label{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}} 
+\mbox{\Hypertarget{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}\label{_euler_8h_a739a558999ab8c42fc95508cbd99ee16}} 
 \index{Euler.\+h@{Euler.\+h}!reflect3D@{reflect3D}}
 \index{reflect3D@{reflect3D}!Euler.\+h@{Euler.\+h}}
 \subsubsection{\texorpdfstring{reflect3\+D()}{reflect3D()}}
 {\footnotesize\ttfamily void reflect3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const dvec3 \&}]{plane }\end{DoxyParamCaption})}
 
-This function calculates the transformation matrix of reflection against a certain plane given by its normal vector.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the transformation matrix $\mathbbf{M}$ of reflection against a certian plane, which is represented by its normal vector $\mathbf{n}$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{M}$ \\
 \hline
-{\em plane} & the normal vector the reflection plane \\
+\mbox{\tt in}  & {\em plane} & $\mathbf{n}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a6520800d9d5146bce8adf9a27603802b}\label{_euler_8h_a6520800d9d5146bce8adf9a27603802b}} 
@@ -368,15 +347,17 @@ Calculate the rotation matrix $\mathbf{R}$, given the unit quaternion $\mathbf{q
 \subsubsection{\texorpdfstring{rotate3\+D()}{rotate3D()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
 {\footnotesize\ttfamily void rotate3D (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi,  }\item[{const dvec3 \&}]{axis }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix of rotation along a certain axis given by a direction vector of phi.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along the axis $\mathbf{v}$ with rotation angle $\phi$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
-{\em axis} & the direction vector indicating the axis \\
+\mbox{\tt in}  & {\em axis} & $\mathbf{v}$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}\label{_euler_8h_a2d57c8fd158dfdc8da6609a1fe9982b2}} 
@@ -391,7 +372,9 @@ Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along X
 
 
 \begin{DoxyParams}[1]{Parameters}
-\mbox{\tt out}  & {\em phi} & $\mathbf{R}$ \mbox{[}in\mbox{]} $\phi$ \\
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
+\hline
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a04a63d03f90af34ebf48520360a1de41}\label{_euler_8h_a04a63d03f90af34ebf48520360a1de41}} 
@@ -400,13 +383,15 @@ Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along X
 \subsubsection{\texorpdfstring{rotate3\+D\+Y()}{rotate3DY()}}
 {\footnotesize\ttfamily void rotate3\+DY (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix of rotation along Y-\/axis of phi.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along Y-\/axis with rotation angle $\phi$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}\label{_euler_8h_a91a2ad02b5d93fa1bde8be994cbe50d1}} 
@@ -415,12 +400,14 @@ This function calculates the rotation matrix of rotation along Y-\/axis of phi.
 \subsubsection{\texorpdfstring{rotate3\+D\+Z()}{rotate3DZ()}}
 {\footnotesize\ttfamily void rotate3\+DZ (\begin{DoxyParamCaption}\item[{dmat33 \&}]{dst,  }\item[{const double}]{phi }\end{DoxyParamCaption})}
 
-This function calculates the rotation matrix of rotation along Z-\/axis of phi.
 
 
-\begin{DoxyParams}{Parameters}
-{\em dst} & the rotation matrix \\
+Calculate the rotation matrix $\mathbf{R}$ which represents the rotation along Z-\/axis with rotation angle $\phi$. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\tt out}  & {\em dst} & $\mathbf{R}$ \\
 \hline
-{\em phi} & phi \\
+\mbox{\tt in}  & {\em phi} & $\phi$ \\
 \hline
 \end{DoxyParams}
