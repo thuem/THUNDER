@@ -20,96 +20,105 @@
 /**
  * @brief Calculate the product of two quaternions.
  */
-void quaternion_mul(dvec4& dst /**< [out] product, a quaternion */,
-                    const dvec4& a /**< [in] left multiplier, quaternion */,
-                    const dvec4& b /**< [in] right multiplier, quaternion */);
-
+void quaternion_mul(dvec4& dst,      /**< [out] product, a quaternion */
+                    const dvec4& a,  /**< [in]  left multiplier, quaternion */
+                    const dvec4& b   /**< [in]  right multiplier, quaternion */
+                   );
 /**
  * @brief Calculate the conjugate quaternion of a quaternion.
  *
  * @return the conjugate quaternion
  */
-dvec4 quaternion_conj(const dvec4& quat /**< [in] a quaternion */);
+dvec4 quaternion_conj(const dvec4& quat /**< [in] a quaternion */
+                     );
 
 /**
  * @brief Calculate @f$\phi@f$ and @f$\theta@f$ given a certain direction @f$\mathbf{v}@f$.
  */
-void angle(double& phi /**< [out] @f$\phi@f$ */,
-           double& theta /**< [out] @f$\theta@f$ */,
-           const dvec3& src /**< [in] @f$\mathbf{v}@f$ */);
+void angle(double& phi,     /**< [out] @f$\phi@f$ */
+           double& theta,   /**< [out] @f$\theta@f$ */
+           const dvec3& src /**< [in]  @f$\mathbf{v}@f$ */
+          );
 
 /**
  * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the rotation matrix @f$\mathbf{R}@f$.
  */
-void angle(double& phi /**< [out] @f$\phi@f$ */,
-           double& theta /**< [out] @f$\theta@f$ */,
-           double& psi /**< [out] @f$\psi@f$ */,
-           const dmat33& src /**< [in] @f$\mathbf{R}@f$ */);
+void angle(double& phi,      /**< [out] @f$\phi@f$ */
+           double& theta,    /**< [out] @f$\theta@f$ */
+           double& psi,      /**< [out] @f$\psi@f$ */
+           const dmat33& src /**< [in]  @f$\mathbf{R}@f$ */
+          );
 
 /**
  * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the quaternion @f$\mathbf{q}@f$.
  */
-void angle(double& phi /**< [out] @f$\phi@f$ */,
-           double& theta /**< [out] @f$\theta@f$ */,
-           double& psi /**< [out] @f$\psi@f$ */,
-           const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
+void angle(double& phi,     /**< [out] @f$\phi@f$ */
+           double& theta,   /**< [out] @f$\theta@f$ */
+           double& psi,     /**< [out] @f$\psi@f$ */
+           const dvec4& src /**< [in]  @f$\mathbf{q}@f$ */
+          );
 
 /**
  * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given 3 Euler angles @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
  */
-void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
-                const double phi /**< [in] @f$\phi@f$ */,
-                const double theta /**< [in] @f$\theta@f$ */,
-                const double psi /**< [in] @f$\psi@f$ */);
+void quaternion(dvec4& dst,         /**< [out] @f$\mathbf{q}@f$ */
+                const double phi,   /**< [in]  @f$\phi@f$ */
+                const double theta, /**< [in]  @f$\theta@f$ */
+                const double psi    /**< [in]  @f$\psi@f$ */
+               );
 
 /**
  * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
  */
-void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
-                const double phi /**< [in] @f$\phi@f$ */,
-                const dvec3& axis /**< [in] @f$\mathbf{r}@f$ */);
+void quaternion(dvec4& dst,        /**< [out] @f$\mathbf{q}@f$ */
+                const double phi,  /**< [in]  @f$\phi@f$ */
+                const dvec3& axis  /**< [in]  @f$\mathbf{r}@f$ */
+               );
 
 /**
  * @brief Calculate the quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation matrix @f$\mathbf{R}@f$.
  */
-void quaternion(dvec4& dst /**< [out] @f$\mathbf{q}@f$ */,
-                const dmat33& src /**< [in] @f$\mathbf{R}@f$ */);
+void quaternion(dvec4& dst,       /**< [out] @f$\mathbf{q}@f$ */
+                const dmat33& src /**< [in]  @f$\mathbf{R}@f$ */
+               );
 
 /**
  * @brief Calculate the rotation matrix (2D) @f$\mathbf{R}@f$, which rotates the unit vector @f$\mathbf{v_0} = \left\{1, 0\right\}@f$ to the given unit vector @f$\mathbf{v}@f$.
- *
- * @param dst the rotation matrix
- * @param vec the unit vector
  */
-void rotate2D(dmat22& dst /**< [out] @f$\mathbf{R}@f$ */,
-              const dvec2& vec /**< [in] @f$\mathbf{v}@f$ */);
+void rotate2D(dmat22& dst,     /**< [out] @f$\mathbf{R}@f$ */
+              const dvec2& vec /**< [in]  @f$\mathbf{v}@f$ */
+             );
 
 /**
  * @brief Calculate the rotation matrix (2D) @f$\mathbf{R}@f$, given the rotation angle @f$\phi@f$.
  */
-void rotate2D(dmat22& dst /**< [out] @f$\mathbf{R}@f$ */,
-              const double phi /**< [in] @f$\phi@f$ */);
+void rotate2D(dmat22& dst,     /**< [out] @f$\mathbf{R}@f$ */
+              const double phi /**< [in]  @f$\phi@f$ */
+             );
 
 /**
  * @brief Caclulate the unit direction vector @f$\mathbf{v}@f$, given the rotation angle @f$\phi@f$ and @f$\theta@f$.
  */
-void direction(dvec3& dst /**< [out] @f$\mathbf{v}@f$ */,
-               const double phi /**< [in] @f$\phi@f$ */,
-               const double theta /**< [in] @f$\theta@f$ */);
+void direction(dvec3& dst,        /**< [out] @f$\mathbf{v}@f$ */
+               const double phi,  /**< [in]  @f$\phi@f$ */
+               const double theta /**< [in]  @f$\theta@f$ */
+              );
 
 /**
  * @brief Caclulate the rotation matrix @f$\mathbf{R}@f$, given the rotation angle @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$.
  */
-void rotate3D(dmat33& dst /**< [out] @f$\mathbf{R}@f$ */,
-              const double phi /**< [in] @f$\phi@f$ */,
-              const double theta /**< [in] @f$\theta@f$ */,
-              const double psi /**< [in] @f$\psi@f$ */);
+void rotate3D(dmat33& dst,        /**< [out] @f$\mathbf{R}@f$ */
+              const double phi,   /**< [in]  @f$\phi@f$ */
+              const double theta, /**< [in]  @f$\theta@f$ */
+              const double psi    /**< [in]  @f$\psi@f$ */
+             );
 
 /**
  * @brief Calculate the rotation matrix @f$\mathbf{R}@f$, given the unit quaternion @f$\mathbf{q}@f$ which represents this rotation.
  */
-void rotate3D(dmat33& dst /**< [out] @f$\mathbf{R}@f$ */,
-              const dvec4& src /**< [in] @f$\mathbf{q}@f$ */);
+void rotate3D(dmat33& dst,     /**< [out] @f$\mathbf{R}@f$ */
+              const dvec4& src /**< [in]  @f$\mathbf{q}@f$ */
+             );
 
 /**
  * @brief Calculate the rotation matrix @f$\mathbf{R}@f$ which represents the rotation along X-axis with rotation angle @f$\phi@f$.
