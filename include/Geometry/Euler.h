@@ -60,6 +60,8 @@ dvec4 quaternion_conj(const dvec4& quat /**< [in] a quaternion */
 
 /**
  * @brief Calculate @f$\phi@f$ and @f$\theta@f$ given a certain direction @f$\mathbf{v}@f$.
+ *
+ * @f$\mathbf{v}@f$ must be a unit vector. Output value @f$\phi@f$ ranges @f$[0, 2\pi)@f$, and @f$\theta@f$ ranges @f$[0, \pi]@f$.
  */
 void angle(double& phi,     /**< [out] @f$\phi@f$ */
            double& theta,   /**< [out] @f$\theta@f$ */

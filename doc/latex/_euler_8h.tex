@@ -96,7 +96,7 @@ Calculate the rotation matrix $\mathbf{R}$ which aligns a direction vector $\mat
 
 Calculate $\phi$ and $\theta$ given a certain direction $\mathbf{v}$. 
 
-
+$\mathbf{v}$ must be a unit vector. Output value $\phi$ ranges $[0, 2\pi)$, and $\theta$ ranges $[0, \pi]$. 
 \begin{DoxyParams}[1]{Parameters}
 \mbox{\tt out}  & {\em phi} & $\phi$ \\
 \hline
@@ -251,7 +251,7 @@ the conjugate quaternion
 
 Calculate the product of two quaternions $\mathbf{q_1}$ and $\mathbf{q_2}$. 
 
-Assuming that $\mathbf{q_1} = \left(w_1, x_1, y_1, z_1\right)$ and $\mathbf{q_2} = \left(w_2, x_2, y_2, z_2\right)$, the product can be calculated as \[ \begin{pmatrix} w_1 \\ x_1 \\ y_1 \\ z_1 \end{pmatrix} \times \begin{pmatrix} w_2 \\ x_2 \\ y_2 \\ z_2 \end{pmatrix} = \begin{pmatrix} w_{1}w_{2} - x_{1}x_{2} - y_{1}y_{2} - z_{1}z_{2}\\ w_{1}x_{2} + x_{1}w_{2} + y_{1}z_{2} - z_{1}y_{2} \\ w_{1}y_{2} - x_{1}z_{2} + y_{1}w_{2} + z_{1}x_{2} \\ w_{1}z_{2} + x_{1}y_{2} - y_{1}x_{2} + z_{1}w_{2} \end{pmatrix} \] 
+Assuming that $\mathbf{q_1} = \left(w_1, x_1, y_1, z_1\right)$ and $\mathbf{q_2} = \left(w_2, x_2, y_2, z_2\right)$, the product can be calculated as \[ \begin{pmatrix} w_1 \\ x_1 \\ y_1 \\ z_1 \end{pmatrix} \times \begin{pmatrix} w_2 \\ x_2 \\ y_2 \\ z_2 \end{pmatrix} = \begin{pmatrix} w_{1}w_{2} - x_{1}x_{2} - y_{1}y_{2} - z_{1}z_{2} \\ w_{1}x_{2} + x_{1}w_{2} + y_{1}z_{2} - z_{1}y_{2} \\ w_{1}y_{2} - x_{1}z_{2} + y_{1}w_{2} + z_{1}x_{2} \\ w_{1}z_{2} + x_{1}y_{2} - y_{1}x_{2} + z_{1}w_{2} \end{pmatrix} \] 
 \begin{DoxyParams}[1]{Parameters}
 \mbox{\tt out}  & {\em dst} & product, a quaternion \\
 \hline

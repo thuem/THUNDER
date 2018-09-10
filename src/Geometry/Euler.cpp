@@ -45,7 +45,9 @@ void angle(double& phi,
     phi = acos(src(0) / sin(theta));
 
     if (src(1) / sin(theta) <= 0)
-        (phi = 2 * M_PI - phi);
+    {
+        phi = 2 * M_PI - phi;
+    }
 }
 
 void angle(double& phi,
