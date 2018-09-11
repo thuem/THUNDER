@@ -115,7 +115,7 @@ $\mathbf{v}$ must be a unit vector. Output value $\phi$ ranges $[0, 2\pi)$, and 
 
 Calculate $\phi$, $\theta$ and $\psi$ of the rotation represented by the rotation matrix $\mathbf{R}$. 
 
-
+$\mathbf{R}$ must be an orthogonal matirx and determinant of which equals to 1. In other words, $R{R}^{T} = I$ and $\det A = 1$. Output value $\phi$ ranges $[0, 2\pi)$, $\theta$ ranges $[0, \pi]$, and $\psi$ ranges $[0, 2\pi)$. 
 \begin{DoxyParams}[1]{Parameters}
 \mbox{\tt out}  & {\em phi} & $\phi$ \\
 \hline
@@ -197,7 +197,7 @@ Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given 
 
 Calculate the unit quaternion $\mathbf{q}$ for representing the rotation, given the rotation axis $\mathbf{r}$ and the rotation angle around this axis $\phi$. 
 
-This rotation axis $\mathbf{r}$ must be a unit vector, while the rotation angle $\phi$ ranges $(-\inf, +\inf)$. 
+This rotation axis $\mathbf{r}$ must be a unit vector, while the rotation angle $\phi$ ranges $(-\infty, +\infty)$. 
 \begin{DoxyParams}[1]{Parameters}
 \mbox{\tt out}  & {\em dst} & $\mathbf{q}$ \\
 \hline

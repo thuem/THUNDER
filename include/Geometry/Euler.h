@@ -70,6 +70,9 @@ void angle(double& phi,     /**< [out] @f$\phi@f$ */
 
 /**
  * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the rotation matrix @f$\mathbf{R}@f$.
+ *
+ * @f$\mathbf{R}@f$ must be an orthogonal matirx and determinant of which equals to 1. In other words, @f$R{R}^{T} = I@f$ and @f$\det A = 1@f$.
+ * Output value @f$\phi@f$ ranges @f$[0, 2\pi)@f$, @f$\theta@f$ ranges @f$[0, \pi]@f$, and @f$\psi@f$ ranges @f$[0, 2\pi)@f$.
  */
 void angle(double& phi,      /**< [out] @f$\phi@f$ */
            double& theta,    /**< [out] @f$\theta@f$ */
@@ -78,7 +81,7 @@ void angle(double& phi,      /**< [out] @f$\phi@f$ */
           );
 
 /**
- * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the quaternion @f$\mathbf{q}@f$.
+ * @brief Calculate @f$\phi@f$, @f$\theta@f$ and @f$\psi@f$ of the rotation represented by the unit quaternion @f$\mathbf{q}@f$.
  */
 void angle(double& phi,     /**< [out] @f$\phi@f$ */
            double& theta,   /**< [out] @f$\theta@f$ */
@@ -98,7 +101,7 @@ void quaternion(dvec4& dst,         /**< [out] @f$\mathbf{q}@f$ */
 /**
  * @brief Calculate the unit quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
  *
- * This rotation axis @f$\mathbf{r}@f$ must be a unit vector, while the rotation angle @f$\phi@f$ ranges @f$(-\inf, +\inf)@f$.
+ * This rotation axis @f$\mathbf{r}@f$ must be a unit vector, while the rotation angle @f$\phi@f$ ranges @f$(-\infty, +\infty)@f$.
  */
 void quaternion(dvec4& dst,        /**< [out] @f$\mathbf{q}@f$ */
                 const double phi,  /**< [in]  @f$\phi@f$ */
