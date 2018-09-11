@@ -97,6 +97,8 @@ void quaternion(dvec4& dst,         /**< [out] @f$\mathbf{q}@f$ */
 
 /**
  * @brief Calculate the unit quaternion @f$\mathbf{q}@f$ for representing the rotation, given the rotation axis @f$\mathbf{r}@f$ and the rotation angle around this axis @f$\phi@f$.
+ *
+ * This rotation axis @f$\mathbf{r}@f$ must be a unit vector, while the rotation angle @f$\phi@f$ ranges @f$(-\inf, +\inf)@f$.
  */
 void quaternion(dvec4& dst,        /**< [out] @f$\mathbf{q}@f$ */
                 const double phi,  /**< [in]  @f$\phi@f$ */
