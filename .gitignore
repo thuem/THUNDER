@@ -16,6 +16,7 @@ manual/.texpadtmp/
 *~
 
 cmcuda.sh
+
 *.thubox
 
 *bak
@@ -93,3 +94,6 @@ acs-*.bib
 
 ## All the generated files in doc/latex/
 doc/latex/*
+!doc/latex/refman.pdf
+
+gendoc.sh

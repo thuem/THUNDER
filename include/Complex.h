@@ -13,7 +13,12 @@
 #include "Typedef.h"
 
 
-inline Complex COMPLEX_POLAR(const RFLOAT phi)
+/**
+ *  @brief Get the polar representation based on angle value @f$\phi@f$.
+ *
+ *  @return Complex polar representation.
+ */
+inline Complex COMPLEX_POLAR(const RFLOAT phi /**< [in] Angle value @f$\phi@f$ */)
 {
     Complex z;
 
@@ -25,7 +30,12 @@ inline Complex COMPLEX_POLAR(const RFLOAT phi)
 
 
 
-inline Complex CONJUGATE(const Complex &a)
+/**
+ * @brief Get the conjugate result based on value a
+ *
+ * @return Conjugate of a. 
+ */
+inline Complex CONJUGATE(const Complex &a /**< [in] Complex number whose conjuate value needs to be returned */)
 {
     Complex z;
     z.dat[0] = a.dat[0];
@@ -65,12 +75,18 @@ static RFLOAT ts_hypot(const RFLOAT x,
     RFLOAT u = min / max;
 
     return max * TS_SQRT(1 + u * u);
-};
+}
 
-inline RFLOAT ABS(const Complex& a)
+
+/**
+ *  @brief Calculate the |a| of complex number a.
+ *
+ *  @return The |a| of complex number a.
+ */
+inline RFLOAT ABS(const Complex& a /**< [in]  The number whose |a| needs to be calculated*/)
 {
     return ts_hypot(a.dat[0], a.dat[1]);
-};
+}
 
 inline RFLOAT ABS2(const Complex &a)
 {
