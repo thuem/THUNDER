@@ -210,7 +210,7 @@ inline Complex operator/(const Complex &a, /**< [in] First operand used to perfo
  */
 inline void operator+=(Complex &a,       /**< [in] First operand used to perform += operation between two complex numbers */
                        const Complex &b /**< [in] Second operand used to perform += operation between two complex numbers */
-                        )
+                      )
 {
     a = a + b;
 }
@@ -222,7 +222,7 @@ inline void operator+=(Complex &a,       /**< [in] First operand used to perform
  */
 inline void operator-=(Complex &a,       /**< [in] First operand used to perform -= operation between two complex numbers */
                        const Complex &b /**< [in] Second operand used to perform -= operation between two complex numbers */
-                        )
+                      )
 {
     a = a - b;
 }
@@ -234,7 +234,7 @@ inline void operator-=(Complex &a,       /**< [in] First operand used to perform
  */
 inline void operator*=(Complex &a,       /**< [in] First operand used to perform *= operation between two complex numbers */
                        const Complex &b /**< [in] Second operand used to perform *= operation between two complex numbers */
-                        )
+                      )
 {
     a = a * b;
 }
@@ -246,12 +246,19 @@ inline void operator*=(Complex &a,       /**< [in] First operand used to perform
  */
 inline void operator/=(Complex &a,       /**< [in] First operand used to perform /= operation between two complex numbers */
                        const Complex &b /**< [in] Second operand used to perform /= operation between two complex numbers */
-                        )
+                      )
 {
     a = a / b;
 }
 
-inline Complex operator*(const Complex a, const RFLOAT x)
+/**
+ *  @brief Implement the mul operation between a  complex number and a RFLOAT number, e.g. c = a + b, where a is a complex number and b is a RFLOAT number.
+ *
+ *  @return the result of c = a * b.
+ */
+inline Complex operator*(const Complex a, /**< [in] First operand with type of complex used to perform mul operation.*/
+                         const RFLOAT x   /**< [in] Second operand with type of RFLOAT used to perform mul operation. */
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] * x;
