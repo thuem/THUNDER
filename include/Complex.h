@@ -203,22 +203,50 @@ inline Complex operator/(const Complex &a, /**< [in] First operand used to perfo
     return result;
 }
 
-inline void operator+=(Complex &a, const Complex b)
+/**
+ *  @brief Implement the += operation between two complex numbers, e.g. a += b, where a and b are complex numbers.
+ *
+ *  @return the result of a += b.
+ */
+inline void operator+=(Complex &a,       /**< [in] First operand used to perform += operation between two complex numbers */
+                       const Complex &b /**< [in] Second operand used to perform += operation between two complex numbers */
+                        )
 {
     a = a + b;
 }
 
-inline void operator-=(Complex &a, const Complex b)
+/**
+ *  @brief Implement the -= operation between two complex numbers, e.g. a -= b, where a and b are complex numbers.
+ *
+ *  @return the result of a -= b.
+ */
+inline void operator-=(Complex &a,       /**< [in] First operand used to perform -= operation between two complex numbers */
+                       const Complex &b /**< [in] Second operand used to perform -= operation between two complex numbers */
+                        )
 {
     a = a - b;
 }
 
-inline void operator*=(Complex &a, const Complex b)
+/**
+ *  @brief Implement the *= operation between two complex numbers, e.g. a *= b, where a and b are complex numbers.
+ *
+ *  @return the result of a *= b.
+ */
+inline void operator*=(Complex &a,       /**< [in] First operand used to perform *= operation between two complex numbers */
+                       const Complex &b /**< [in] Second operand used to perform *= operation between two complex numbers */
+                        )
 {
     a = a * b;
 }
 
-inline void operator/=(Complex &a, const Complex b)
+/**
+ *  @brief Implement the /= operation between two complex numbers, e.g. a /= b, where a and b are complex numbers.
+ *
+ *  @return the result of a /= b.
+ */
+inline void operator/=(Complex &a,       /**< [in] First operand used to perform /= operation between two complex numbers */
+                       const Complex &b /**< [in] Second operand used to perform /= operation between two complex numbers */
+                        )
 {
     a = a / b;
 }
