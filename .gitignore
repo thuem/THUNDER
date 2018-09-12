@@ -90,3 +90,6 @@ acs-*.bib
 *.ilg
 *.ind
 *.idx
+
+## All the generated files in doc/latex/
+doc/latex/*

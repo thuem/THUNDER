@@ -1,11 +1,6 @@
-/*******************************************************************************
- * Author: Mingxu Hu
- * Dependecy:
- * Test:
- * Execution:
- * Description:
- * ****************************************************************************/
-
+/** @file
+ *  @brief Complex.h defines complex number related operations like +,-,*,/,|a|,@f$|a|^2@f$ and so on.
+ */
 #ifndef COMPLEX_H
 #define COMPLEX_H
 
@@ -17,22 +12,6 @@
 #include "Precision.h"
 #include "Typedef.h"
 
-/*
- *#define CONJUGATE(a) gsl_complex_conjugate(a)
- *
- *#define ABS(a) gsl_complex_abs(a)
- *
- *#define ABS2(a) gsl_complex_abs2(a)
- *
- *#define COMPLEX_POLAR(phi) gsl_complex_polar(1, phi)
- *
- *#define COMPLEX(a, b) gsl_complex_rect(a, b)
- *
- *#define REAL(a) GSL_REAL(a)
- *
- *#define IMAG(a) GSL_IMAG(a)
- *
- */
 
 inline Complex COMPLEX_POLAR(const RFLOAT phi)
 {
@@ -42,17 +21,9 @@ inline Complex COMPLEX_POLAR(const RFLOAT phi)
     z.dat[1] = TS_SIN(phi);
 
     return z;
-};
-
-inline Complex ts_complex_polar(const RFLOAT r,
-                                const RFLOAT phi)
-{
-    Complex z;
-    z.dat[0] = r * TS_COS(phi);
-    z.dat[1] = r * TS_SIN(phi);
-
-    return z;
 }
+
+
 
 inline Complex CONJUGATE(const Complex &a)
 {
