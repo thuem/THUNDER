@@ -140,15 +140,14 @@ inline RFLOAT gsl_real_imag_sum(const Complex &a /**< [in] Complex number to be 
     return a.dat[0] + a.dat[1];
 }
 
-inline Complex operator-(const Complex &a)
-{
-    Complex newa;
-    newa.dat[0] = -a.dat[0];
-    newa.dat[1] = -a.dat[1];
-    return newa;
-}
-
-inline Complex operator+(const Complex &a, const Complex &b)
+/**
+ *  @brief Implement the add operation between two complex numbers, e.g. c = a + b, where a and b are complex numbers.
+ *
+ *  @return the result of c = a + b.
+ */
+inline Complex operator+(const Complex &a, /**< [in] First operand used to perform add operation between two complex numbers */
+                         const Complex &b  /**< [in] Second operand used to perform add operation between two complex numbers */
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] + b.dat[0];
@@ -156,7 +155,14 @@ inline Complex operator+(const Complex &a, const Complex &b)
     return result;
 }
 
-inline Complex operator-(const Complex &a, const Complex &b)
+/**
+ *  @brief Implement the sub operation between two complex numbers, e.g. c = a - b, where a and b are complex numbers.
+ *
+ *  @return the result of c = a - b.
+ */
+inline Complex operator-(const Complex &a, /**< [in] First operand used to perform sub operation between two complex numbers */
+                         const Complex &b  /**< [in] Second operand used to perform sub operation between two complex numbers */
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] - b.dat[0];
@@ -164,7 +170,14 @@ inline Complex operator-(const Complex &a, const Complex &b)
     return result;
 }
 
-inline Complex operator*(const Complex &a, const Complex &b)
+/**
+ *  @brief Implement the mul operation between two complex numbers, e.g. c = a * b, where a and b are complex numbers.
+ *
+ *  @return the result of c = a * b.
+ */
+inline Complex operator*(const Complex &a, /**< [in] First operand used to perform sub operation between two complex numbers */
+                         const Complex &b  /**< [in] Second operand used to perform sub operation between two complex numbers */
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] * b.dat[0] - a.dat[1] * b.dat[1];
@@ -172,7 +185,14 @@ inline Complex operator*(const Complex &a, const Complex &b)
     return result;
 }
 
-inline Complex operator/(const Complex &a, const Complex &b)
+/**
+ *  @brief Implement the div operation between two complex numbers, e.g. c = a / b, where a and b are complex numbers.
+ *
+ *  @return the result of c = a / b.
+ */
+inline Complex operator/(const Complex &a, /**< [in] First operand used to perform div operation between two complex numbers */
+                         const Complex &b  /**< [in] Second operand used to perform div operation between two complex numbers */
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] * b.dat[0] + a.dat[1] * b.dat[1];
