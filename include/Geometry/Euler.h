@@ -1,4 +1,15 @@
 /** @file
+ *  @author Mingxu Hu
+ *  @author Hongkun Yu
+ *  @version 1.4.11.080913
+ *  @copyright THUNDER Non-Commercial Software License Agreement
+ *
+ *  ChangeLog
+ *  AUTHOR    | TIME       | VERSION       | DESCRIPTION
+ *  ------    | ----       | -------       | -----------
+ *  Mingxu Hu | 2015/03/23 | 0.0.1.050323  | new file
+ *  Mingxu Hu | 2018/09/13 | 1.4.11.080913 | add more header
+ *
  *  @brief Euler.h contains several functions, for operations of quaternions, converting between Euler angles, rotation matrices and unit quaternions and sampling rotation matrices from even distribution.
  *
  *  Quaternions are a number system that extends the complex numbers. Unit quaternions provide a convenient mathematical notation for representing rotations of objects in 3D. Compared to Euler angles, they are simpler to compose and aovid the problem of glimbal lock. Compared to rotation matrices, they are more compact and more efficient. Moroever, unlike Euler angles, unit quaternions do not rely on the choosing and order of the rotation axes.

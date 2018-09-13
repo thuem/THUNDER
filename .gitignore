@@ -92,8 +92,5 @@ acs-*.bib
 *.ind
 *.idx
 
-## All the generated files in doc/latex/
-doc/latex/*
+doc/latex/
 !doc/latex/refman.pdf
-
-gendoc.sh
