@@ -24,11 +24,16 @@
  *
  * The main header is limited to 1024 bytes, but includes unassigned space in anticipation of future extensions.
  */
+<<<<<<< Updated upstream
 struct MRCHeader:
+=======
+struct MRCHeader
+>>>>>>> Stashed changes
 {
     int nx;            /**< number of columns (fastest changing in map) */
     int ny;            /**< number of rows */
     int nz;            /**< number of sections (slowest changing in map) */
+<<<<<<< Updated upstream
     int mode;          /**< data type: 
                         *   0 - image->signed 8-bit bytes range -128 to 127; 
                         *   1 - image->16-bit halfwords; 
@@ -36,6 +41,15 @@ struct MRCHeader:
                         *   3 - transform->complex 16-bit integers; 
                         *   6 - image->unsigned 16-bit range 0 to 65535
                         **/   
+=======
+    int mode;          /**< MODE     data type :
+                        *   0       image : signed 8-bit bytes range -128 to 127
+                        *   1       image : 16-bit halfwords
+                        *   2       image : 32-bit reals
+                        *   3       transform : complex 16-bit integers
+                        *   6       image : unsigned 16-bit range 0 to 65535
+                        */   
+>>>>>>> Stashed changes
     int nxstart;       /**< number of first column in map (Default = 0) */
     int nystart;       /**< number of first row in map */
     int nzstart;       /**< number of first section in map */
@@ -58,6 +72,7 @@ struct MRCHeader:
     int machst;        /**< machine stamp */
     float rms;         /**< rms deviation of map from mean density */
     int nlabels;       /**< number of labels being used */
+<<<<<<< Updated upstream
     char label[10][80];/**< ten 80-character text labels 
                         *   Symmetry records follow - if any - stored as text 
                         *   as in International Tables, operators separated 
@@ -67,6 +82,17 @@ struct MRCHeader:
                         *   terminate in a *). 
                         *   Data records follow. 
                         **/
+=======
+    char label[10][80];/**< ten 80-character text labels
+                        *   Symmetry records follow - if any - stored as text
+                        *   as in International Tables, operators separated
+                        *   by * and grouped into 'lines' of 80 characters
+                        *   (ie. symmetry operators do not cross the ends of
+                        *   the 80-character 'lines' and the 'lines' do not
+                        *   terminate in a *).
+                        *   Data records follow. 
+                        */
+>>>>>>> Stashed changes
 };
 
 #endif // MRC_HEADER_H
