@@ -25,7 +25,6 @@
  * The main header is limited to 1024 bytes, but includes unassigned space in anticipation of future extensions.
  */
 struct MRCHeader:
-=======
 {
     int nx;            /**< number of columns (fastest changing in map) */
     int ny;            /**< number of rows */
@@ -68,8 +67,6 @@ struct MRCHeader:
                         *   terminate in a *). 
                         *   Data records follow. 
                         **/
->>>>>>> longxiao_doc
 };
 
 #endif // MRC_HEADER_H
-
