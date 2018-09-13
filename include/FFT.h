@@ -251,118 +251,138 @@ class FFT
     public:
 
         /**
-         * default contructor
+         * @brief default contructor.
          */
         FFT();
 
         /**
-         * default reconstructor
+         * @brief default reconstructor.
          */
         ~FFT();
 
         /**
-         * This function performs Fourier transform on an image.
+         * @brief This function performs Fourier transform on an image.
          *
          * @param img the image to be transformed
          */
-        void fw(Image& img);
+        void fw(Image& img      /**< [in] */
+               );
 
         /**
-         * This function performs inverse Fourier transform on an image.
+         * @brief This function performs inverse Fourier transform on an image.
          *
          * @param img the image to be transformed
          */
-        void bw(Image& img);
+        void bw(Image& img      /**< [in] */
+               );
 
         /**
-         * This function performs Fourier transform on a volume.
+         * @brief This function performs Fourier transform on a volume.
          *
          * @param vol the volume to be transformed
          */
-        void fw(Volume& vol);
+        void fw(Volume& vol      /**< [in] */
+               );
 
         /**
-         * This function performs inverse Fourier transform on a volume.
+         * @brief This function performs inverse Fourier transform on a volume.
          *
          * @param vol the volume to be transformed
          */
-        void bw(Volume& vol);
+        void bw(Volume& vol      /**< [in] */
+               );
 
         /**
-         * This function performs Fourier transform on an image using multiple
-         * threads.
+         * @brief This function performs Fourier transform on an image using multiple threads.
          *
          * @param img the image to be transformed
          */
-        void fwMT(Image& img);
+        void fwMT(Image& img      /**< [in] */
+                 );
 
         /**
-         * This function performs inverse Fourier transform on an image using 
-         * multiple threads.
+         * @brief This function performs inverse Fourier transform on an image using multiple threads.
          *
          * @param img the image to be transformed
          */
-        void bwMT(Image& img);
+        void bwMT(Image& img      /**< [in] */
+                 );
 
         /**
-         * This function performs Fourier transform on a volume using multiple
-         * threads.
+         * @brief This function performs Fourier transform on a volume using multiple threads.
          *
          * @param vol the volume to be transformed
          */
-        void fwMT(Volume& vol);
+        void fwMT(Volume& vol      /**< [in] */
+                 );
 
         /**
-         * This function performs inverse Fourier transform on a volume using
-         * multiple threads.
+         * @brief This function performs inverse Fourier transform on a volume using multiple threads.
          *
          * @param vol the volume to be transformed
          */
-        void bwMT(Volume& vol);
+        void bwMT(Volume& vol      /**< [in] */
+                 );
 
-        void fwCreatePlan(const int nCol,
-                          const int nRow);
+        void fwCreatePlan(const int nCol,          /**< [in] */
+                          const int nRow           /**< [in] */
+                         );
 
-        void fwCreatePlan(const int nCol,
-                          const int nRow,
-                          const int nSlc);
+        void fwCreatePlan(const int nCol,          /**< [in] */
+                          const int nRow,          /**< [in] */
+                          const int nSlc           /**< [in] */
+                         );
 
-        void bwCreatePlan(const int nCol,
-                          const int nRow);
+        void bwCreatePlan(const int nCol,          /**< [in] */
+                          const int nRow           /**< [in] */
+                         );
 
-        void bwCreatePlan(const int nCol,
-                          const int nRow,
-                          const int nSlc);
+        void bwCreatePlan(const int nCol,          /**< [in] */
+                          const int nRow,          /**< [in] */
+                          const int nSlc           /**< [in] */
+                         );
 
-        void fwCreatePlanMT(const int nCol,
-                            const int nRow);
+        void fwCreatePlanMT(const int nCol,        /**< [in] */
+                            const int nRow         /**< [in] */
+                           );
 
-        void fwCreatePlanMT(const int nCol,
-                            const int nRow,
-                            const int nSlc);
+        void fwCreatePlanMT(const int nCol,        /**< [in] */
+                            const int nRow,        /**< [in] */
+                            const int nSlc         /**< [in] */
+                           );
 
-        void bwCreatePlanMT(const int nCol,
-                            const int nRow);
+        void bwCreatePlanMT(const int nCol,        /**< [in] */
+                            const int nRow         /**< [in] */
+                           );
 
-        void bwCreatePlanMT(const int nCol,
-                            const int nRow,
-                            const int nSlc);
+        void bwCreatePlanMT(const int nCol,        /**< [in] */
+                            const int nRow,        /**< [in] */
+                            const int nSlc         /**< [in] */
+                           );
 
-        void fwExecutePlan(Image& img);
+        void fwExecutePlan(Image& img              /**< [in] */
+                          );
 
-        void fwExecutePlan(Volume& vol);
+        void fwExecutePlan(Volume& vol             /**< [in] */
+                          );
 
-        void bwExecutePlan(Image& img);
+        void bwExecutePlan(Image& img              /**< [in] */
+                          );
 
-        void bwExecutePlan(Volume& vol);
+        void bwExecutePlan(Volume& vol             /**< [in] */
+                          );
 
-        void fwExecutePlanMT(Image& img);
+        void fwExecutePlanMT(Image& img            /**< [in] */
+                            );
 
-        void fwExecutePlanMT(Volume& vol);
+        void fwExecutePlanMT(Volume& vol           /**< [in] */
+                            );
 
-        void bwExecutePlanMT(Image& img);
+        void bwExecutePlanMT(Image& img            /**< [in] */
+                            );
 
-        void bwExecutePlanMT(Volume& vol);
+        void bwExecutePlanMT(Volume& vol           /**< [in] */
+                            );
 
         void fwDestroyPlan();
 

@@ -107,7 +107,7 @@ void CTF(Image& dst,
 }
 
 void CTF(RFLOAT* dst,
-         const RFLOAT pixelSize,
+         const RFLOAT pixelSize,                   
          const RFLOAT voltage,
          const RFLOAT defocusU,
          const RFLOAT defocusV,
@@ -119,7 +119,7 @@ void CTF(RFLOAT* dst,
          const int nRow,
          const int* iCol,
          const int* iRow,
-         const int _nPxl)
+         const int nPxl)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
@@ -129,7 +129,7 @@ void CTF(RFLOAT* dst,
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
 
-    for (int i = 0; i < _nPxl; i++)
+    for (int i = 0; i < nPxl; i++)
     {
         RFLOAT u = NORM(iCol[i] / (pixelSize * nCol),
                         iRow[i] / (pixelSize * nRow));
