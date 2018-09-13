@@ -14,11 +14,10 @@
 
 
 /**
- *  @brief Get the polar representation based on angle value @f$\phi@f$.
- *
+ *  Get the complex number representation @f$\mathbf{c}@f$, given the angle @f$\phi@f$ in polar coordinate.
  *  @return Complex polar representation.
  */
-inline Complex COMPLEX_POLAR(const RFLOAT phi /**< [in] Angle value @f$\phi@f$ */)
+inline Complex COMPLEX_POLAR(const RFLOAT phi /**< [in] @f$\phi@f$ - Angle value @f$\phi@f$ to be converted */)
 {
     Complex z;
     z.dat[0] = TS_COS(phi);
