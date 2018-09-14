@@ -92,3 +92,4 @@ acs-*.bib
 *.idx
 
 doc/latex
+*.app
