@@ -61,6 +61,61 @@
     }Complex;
 #endif
 
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, RFLOAT sigma_x, RFLOAT sigma_y, RFLOAT rho, RFLOAT *x, RFLOAT *y);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, const size_t ystride, const size_t n, RFLOAT * c0, RFLOAT * c1, RFLOAT * cov00, RFLOAT * cov01, RFLOAT * cov11, RFLOAT * sumsq);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+void TSGSL_ran_dir_2d (const gsl_rng * r, RFLOAT * x, RFLOAT * y);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_ran_flat (const gsl_rng * r, const RFLOAT a, const RFLOAT b);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_ran_gaussian (const gsl_rng * r, const RFLOAT sigma);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_sf_bessel_I0(const RFLOAT x);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_sf_bessel_In(const int n, const RFLOAT x);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_sf_bessel_Inu(RFLOAT nu, RFLOAT x);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_sf_bessel_j0(const RFLOAT x);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_sf_bessel_Jnu(const RFLOAT nu, const RFLOAT x);
+/**
+ *  @brief  Doctor Hu, please add the description for this function 
+ */
+RFLOAT TSGSL_sf_sinc(const RFLOAT x);
+
+
+
 inline RFLOAT TS_SIN(const RFLOAT x)
 {
 #ifdef SINGLE_PRECISION
@@ -70,7 +125,13 @@ inline RFLOAT TS_SIN(const RFLOAT x)
 #endif
 }
 
-inline RFLOAT TS_COS(const RFLOAT x)
+
+/**
+ *  @brief Returns the trigonometric cosine of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
+ *  
+ *  @return The cosine of the argument
+ */
+inline RFLOAT TS_COS(const RFLOAT x /**< [IN] The argument whose cosine value is to be determined */)
 {
 #ifdef SINGLE_PRECISION
     return cosf(x);
@@ -79,7 +140,14 @@ inline RFLOAT TS_COS(const RFLOAT x)
 #endif
 }
 
-inline RFLOAT TS_SQRT(const RFLOAT x)
+
+/**
+ *  @brief Returns the correctly rounded positive square root of x, with type of RFLOAT, which is either single precision or double precision determined at compilied time.
+ *  
+ *  @return The positive square root of x
+ */
+inline RFLOAT TS_SQRT(const RFLOAT x /**< [IN] The argument whose positive square root value is to be detemined */)
+
 {
 #ifdef SINGLE_PRECISION
     return sqrtf(x);
@@ -88,44 +156,118 @@ inline RFLOAT TS_SQRT(const RFLOAT x)
 #endif
 }
 
-inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a,
-                               const RFLOAT b)
+
+/**
+ *  @brief Returns the greater of two RFLOAT values. The type of RFLOAT is either float or double, determined at compilied time. 
+ *
+ *  @return the larger of a and b.
+ */
+inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [IN] an argument */
+                               const RFLOAT b  /**< [IN] another argument */
+                              )
 {
     return a > b ? a : b;
 }
 
-inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a,
-                               const RFLOAT b)
+/**
+ *  @brief Returns the smaller of two RFLOAT values. The type of RFLOAT is either float or double, determined at compilied time. 
+ *
+ *  @return the smaller of a and b.
+ */
+inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [IN] an argument */
+                               const RFLOAT b  /**< [IN] another argument */
+                              )
 {
     return a < b ? a : b;
 }
 
-RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
-RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
-RFLOAT TSGSL_complex_abs2 (Complex z);  /* return |z|^2 */
-int TSGSL_isinf (const RFLOAT x);
-int TSGSL_isnan (const RFLOAT x);
-RFLOAT TSGSL_pow_2(const RFLOAT x);
-RFLOAT TSGSL_pow_3(const RFLOAT x);
-RFLOAT TSGSL_pow_4(const RFLOAT x);
-void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, RFLOAT sigma_x, RFLOAT sigma_y, RFLOAT rho, RFLOAT *x, RFLOAT *y);
-int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, const size_t ystride, const size_t n, RFLOAT * c0, RFLOAT * c1, RFLOAT * cov00, RFLOAT * cov01, RFLOAT * cov11, RFLOAT * sumsq);
-void TSGSL_ran_dir_2d (const gsl_rng * r, RFLOAT * x, RFLOAT * y);
-RFLOAT TSGSL_ran_flat (const gsl_rng * r, const RFLOAT a, const RFLOAT b);
-RFLOAT TSGSL_ran_gaussian (const gsl_rng * r, const RFLOAT sigma);
-void TSGSL_ran_shuffle (const gsl_rng * r, void * base, size_t nmembm, size_t size);
-gsl_rng *TSGSL_rng_alloc (const gsl_rng_type * T);
-void TSGSL_rng_free (gsl_rng * r);
-size_t TSGSL_rng_get (const gsl_rng * r);
-void TSGSL_rng_set (const gsl_rng * r, size_t seed);
+/**
+ *  @brief Returns the square of complex modulus length 
+ *
+ *  @return the square of modulus length of z
+ */
+RFLOAT TSGSL_complex_abs2 (Complex z /**< [IN] The argument whose square of modulus length is determined*/);
+
+
+/**
+ *  @brief Determines whether x is infinity
+ *
+ *  @return 1 if x is positive infinity, -1 if x is negative infinity and 0 otherwise
+
+ */
+int TSGSL_isinf (const RFLOAT x /**< [IN] The argment used to determined whether it is infinity */);
+
+/**
+ *  @brief Determines whether x is a number
+ *
+ *  @return 1 if x is not-a-number and 0 otherwise
+ */
+int TSGSL_isnan (const RFLOAT x /**< [IN] The argment used to determined whether it is a number */);
+;
+
+/**
+ *  @brief Calculates the value of @f$x^2@f$
+ *
+ *  @return The result @f$x^2@f$
+ */
+RFLOAT TSGSL_pow_2(const RFLOAT x /**< [IN] The argument whose @f$x^2@f$ is calculated */);
+
+/**
+ *  @brief Calculates the value of @f$x^3@f$
+ *
+ *  @return The result of @f$x^3@f$
+ */
+RFLOAT TSGSL_pow_3(const RFLOAT x /**< [IN] The argument whose @f$x^3@f$ is calculated */);
+
+/**
+ *  @brief Calculates the value of @f$x^4@f$
+ *
+ *  @return The result of @f$x^4@f$
+ */
+RFLOAT TSGSL_pow_4(const RFLOAT x /**< [IN] The argument whose @f$x^4@f$ is calculated */);
+
+
+
+/**
+ *  @brief Shuffles the data items in buffer base randomly.
+ *
+ *  @return The shuffled data items saved in buffer base.
+ */
+void TSGSL_ran_shuffle (const gsl_rng *r, /**< [IN] Randon engine used for randomness */
+                        void *base,       /**< [IN] Data buffer to be shuffled */
+                        size_t nmembm,    /**< [IN] Number of data items to be shuffled */
+                        size_t size       /**< [IN] Size of each data items */
+                       );
+
+
+/**
+ *  @brief Creates an instance of a random nunber generator
+ *  
+ *  @return A pointer to a newly-created instance of a random number generator of type T
+ */
+gsl_rng *TSGSL_rng_alloc (const gsl_rng_type *T /**< [IN] Type of random number generator*/);
+
+/**
+ *  @brief Frees all the memory associated with the generator r
+ *
+ */
+void TSGSL_rng_free (gsl_rng *r /**< [IN] Generator to be freed*/);
+
+/**
+ *  @brief Gets a random integer from the generator r. The minimum and maximum values depend on the algorithm used, but all integers in the range [min, max] are equally likely. The values of min and max can be determined using the auxiliary functions gsl_rng_max() and gsl_rng_min()
+ *
+ *  @return A random integer from the generator r.
+ */
+size_t TSGSL_rng_get (const gsl_rng *r /**< [IN] A random generator */);
+
+/**
+ *  @brief Initializes (or “seeds”) the random number generator
+ */
+void TSGSL_rng_set (const gsl_rng *r /**< [IN] Random number generator*/,
+                    size_t seed      /**< [IN] Seed used for random number generator */
+                   );
 RFLOAT TSGSL_rng_uniform (const gsl_rng * r);
 size_t TSGSL_rng_uniform_int (const gsl_rng * r, size_t n);
-RFLOAT TSGSL_sf_bessel_I0(const RFLOAT x);
-RFLOAT TSGSL_sf_bessel_In(const int n, const RFLOAT x);
-RFLOAT TSGSL_sf_bessel_Inu(RFLOAT nu, RFLOAT x);
-RFLOAT TSGSL_sf_bessel_j0(const RFLOAT x);
-RFLOAT TSGSL_sf_bessel_Jnu(const RFLOAT nu, const RFLOAT x);
-RFLOAT TSGSL_sf_sinc(const RFLOAT x);
 void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n);
 int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n);
 void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const size_t n);
@@ -142,8 +284,8 @@ int TSFFTW_init_threads(void);
 void TSFFTW_cleanup_threads(void);
 void TSFFTW_destroy_plan(TSFFTW_PLAN plan);
 void TSFFTW_execute(const TSFFTW_PLAN plan);
-void TSFFTW_execute_dft_r2c( const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *out);
-void TSFFTW_execute_dft_c2r( const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *out); 
+void TSFFTW_execute_dft_r2c(const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *out);
+void TSFFTW_execute_dft_c2r(const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *out); 
 void *TSFFTW_malloc(size_t n);
 void TSFFTW_free(void *p);
 
