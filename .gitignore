@@ -92,5 +92,4 @@ acs-*.bib
 *.ind
 *.idx
 
-doc/latex/
-!doc/latex/refman.pdf
+doc/latex
