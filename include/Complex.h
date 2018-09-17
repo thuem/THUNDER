@@ -1,6 +1,18 @@
 /** @file
- *  @brief Complex.h defines complex number related operations like +,-,*,/,|a|,@f$|a|^2@f$ and so on.
- */
+ *  @author Huabin Ruan 
+ *  @author Mingxu Hu 
+ *  @version 1.4.11.080913
+ *  @copyright THUNDER Non-Commercial Software License Agreement
+ *
+ *  ChangeLog
+ *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
+ *  ------      | ----       | -------       | -----------
+ *  Huabin Ruan | 2018/09/13 | 1.4.11.080913 | add header for file and functions
+ *
+ *  @brief Complex.h contains functions used for complex number related operations, like +, -, *, /, |c|.
+  */
+
+
 #ifndef COMPLEX_H
 #define COMPLEX_H
 
@@ -243,7 +255,7 @@ inline void operator*=(Complex &a,       /**< [in] First operand used to perform
  *
  *  @return the result of a /= b.
  */
-inline void operator/=(Complex &a,       /**< [in] First operand used to perform /= operation between two complex numbers */
+inline void operator/=(Complex &a,      /**< [in] First operand used to perform /= operation between two complex numbers */
                        const Complex &b /**< [in] Second operand used to perform /= operation between two complex numbers */
                       )
 {
@@ -251,9 +263,9 @@ inline void operator/=(Complex &a,       /**< [in] First operand used to perform
 }
 
 /**
- *  @brief Implement the mul operation between a  complex number and a RFLOAT number, e.g. c = a + b, where a is a complex number and b is a RFLOAT number.
+ *  @brief Implement the mul operation between a  complex number and a RFLOAT number, e.g. c = a * x, where a is a complex number and x is a RFLOAT number.
  *
- *  @return the result of c = a * b.
+ *  @return the result of c = a * x.
  */
 inline Complex operator*(const Complex a, /**< [in] First operand with type of complex used to perform mul operation.*/
                          const RFLOAT x   /**< [in] Second operand with type of RFLOAT used to perform mul operation. */
@@ -265,7 +277,14 @@ inline Complex operator*(const Complex a, /**< [in] First operand with type of c
     return result;
 }
 
-inline Complex operator*(const RFLOAT x, const Complex a)
+/**
+ *  @brief Implement the mul operation between a  RFLOAT number and a Complex number, e.g. c = x * a, where x is a RFLOAT number and x is a complex number.
+ *
+ *  @return the result of c = x * a.
+ */
+inline Complex operator*(const RFLOAT x, /**< [in] First operand with type of RFLOAT used to perform mul operation.*/
+                         const Complex a /**< [in] Second operand with type of complex used to perform mul operation.*/
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] * x;
@@ -273,13 +292,27 @@ inline Complex operator*(const RFLOAT x, const Complex a)
     return result;
 }
 
-inline void operator*=(Complex &a, const RFLOAT x)
+/**
+ *  @brief Implement the mul operation between a  complex number and a RFLOAT number, e.g. a *=  x, where a is a complex number and x is a RFLOAT number.
+ *
+ *  @return the result of a *= x.
+ */
+inline void operator*=(Complex& a,    /**< [in] First operand with type of complex used to perform *= operation.*/
+                       const RFLOAT x /**< [in] Second operand with type of RFLOAT used to perform *= operation. */
+                      )
 {
     a.dat[0] = a.dat[0] * x;
     a.dat[1] = a.dat[1] * x;
 }
 
-inline Complex operator/(const Complex a, const RFLOAT x)
+/**
+ *  @brief Implement the div operation between a  complex number and a RFLOAT number, e.g. c = a / x, where a is a complex number and x is a RFLOAT number.
+ *
+ *  @return the result of c = a / x.
+ */
+inline Complex operator/(const Complex a, /**< [in] First operand with type of complex used to perform div operation.*/
+                         const RFLOAT x   /**< [in] Second operand with type of RFLOAT used to perform div operation. */
+                        )
 {
     Complex result;
     result.dat[0] = a.dat[0] / x;
@@ -287,7 +320,14 @@ inline Complex operator/(const Complex a, const RFLOAT x)
     return result;
 }
 
-inline void operator/=(Complex &a, const RFLOAT x)
+/**
+ *  @brief Implement the /= operation between a  complex number and a RFLOAT number, e.g. a /=  x, where a is a complex number and x is a RFLOAT number.
+ *
+ *  @return the result of a /= x.
+ */
+inline void operator/=(Complex& a,    /**< [in] First operand with type of complex used to perform /= operation.*/
+                       const RFLOAT x /**< [in] Second operand with type of RFLOAT used to perform /= operation. */
+                      )
 {
     a.dat[0] = a.dat[0] / x;
     a.dat[1] = a.dat[1] / x;
