@@ -121,7 +121,7 @@ RFLOAT TSGSL_sf_sinc(const RFLOAT x);
  *  
  *  @return The sin of the argument
  */
-inline RFLOAT TS_SIN(const RFLOAT x /**< [IN] The argument whose sin value is to be determined */)
+inline RFLOAT TS_SIN(const RFLOAT x /**< [in] The argument whose sin value is to be determined */)
 {
 #ifdef SINGLE_PRECISION
     return sinf(x);
@@ -136,7 +136,7 @@ inline RFLOAT TS_SIN(const RFLOAT x /**< [IN] The argument whose sin value is to
  *  
  *  @return The cosine of the argument
  */
-inline RFLOAT TS_COS(const RFLOAT x /**< [IN] The argument whose cosine value is to be determined */)
+inline RFLOAT TS_COS(const RFLOAT x /**< [in] The argument whose cosine value is to be determined */)
 {
 #ifdef SINGLE_PRECISION
     return cosf(x);
@@ -151,7 +151,7 @@ inline RFLOAT TS_COS(const RFLOAT x /**< [IN] The argument whose cosine value is
  *  
  *  @return The positive square root of x
  */
-inline RFLOAT TS_SQRT(const RFLOAT x /**< [IN] The argument whose positive square root value is to be detemined */)
+inline RFLOAT TS_SQRT(const RFLOAT x /**< [in] The argument whose positive square root value is to be detemined */)
 
 {
 #ifdef SINGLE_PRECISION
@@ -167,8 +167,8 @@ inline RFLOAT TS_SQRT(const RFLOAT x /**< [IN] The argument whose positive squar
  *
  *  @return the larger of a and b.
  */
-inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [IN] an argument */
-                               const RFLOAT b  /**< [IN] another argument */
+inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [in] an argument */
+                               const RFLOAT b  /**< [in] another argument */
                               )
 {
     return a > b ? a : b;
@@ -179,8 +179,8 @@ inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [IN] an argument */
  *
  *  @return the smaller of a and b.
  */
-inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [IN] an argument */
-                               const RFLOAT b  /**< [IN] another argument */
+inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [in] an argument */
+                               const RFLOAT b  /**< [in] another argument */
                               )
 {
     return a < b ? a : b;
@@ -191,7 +191,7 @@ inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [IN] an argument */
  *
  *  @return the square of modulus length of z
  */
-RFLOAT TSGSL_complex_abs2 (Complex z /**< [IN] The argument whose square of modulus length is determined*/);
+RFLOAT TSGSL_complex_abs2 (Complex z /**< [in] The argument whose square of modulus length is determined*/);
 
 
 /**
@@ -200,14 +200,14 @@ RFLOAT TSGSL_complex_abs2 (Complex z /**< [IN] The argument whose square of modu
  *  @return 1 if x is positive infinity, -1 if x is negative infinity and 0 otherwise
 
  */
-int TSGSL_isinf (const RFLOAT x /**< [IN] The argment used to determined whether it is infinity */);
+int TSGSL_isinf (const RFLOAT x /**< [in] The argment used to determined whether it is infinity */);
 
 /**
  *  @brief Determines whether x is a number
  *
  *  @return 1 if x is not-a-number and 0 otherwise
  */
-int TSGSL_isnan (const RFLOAT x /**< [IN] The argment used to determined whether it is a number */);
+int TSGSL_isnan (const RFLOAT x /**< [in] The argment used to determined whether it is a number */);
 ;
 
 /**
@@ -215,33 +215,31 @@ int TSGSL_isnan (const RFLOAT x /**< [IN] The argment used to determined whether
  *
  *  @return The result @f$x^2@f$
  */
-RFLOAT TSGSL_pow_2(const RFLOAT x /**< [IN] The argument whose @f$x^2@f$ is calculated */);
+RFLOAT TSGSL_pow_2(const RFLOAT x /**< [in] The argument whose @f$x^2@f$ is calculated */);
 
 /**
  *  @brief Calculates the value of @f$x^3@f$
  *
  *  @return The result of @f$x^3@f$
  */
-RFLOAT TSGSL_pow_3(const RFLOAT x /**< [IN] The argument whose @f$x^3@f$ is calculated */);
+RFLOAT TSGSL_pow_3(const RFLOAT x /**< [in] The argument whose @f$x^3@f$ is calculated */);
 
 /**
  *  @brief Calculates the value of @f$x^4@f$
  *
  *  @return The result of @f$x^4@f$
  */
-RFLOAT TSGSL_pow_4(const RFLOAT x /**< [IN] The argument whose @f$x^4@f$ is calculated */);
+RFLOAT TSGSL_pow_4(const RFLOAT x /**< [in] The argument whose @f$x^4@f$ is calculated */);
 
 
 
 /**
  *  @brief Shuffles the data items in buffer base randomly.
- *
- *  @return The shuffled data items saved in buffer base.
  */
-void TSGSL_ran_shuffle (const gsl_rng *r, /**< [IN] Randon engine used for randomness */
-                        void *base,       /**< [IN] Data buffer to be shuffled */
-                        size_t nmembm,    /**< [IN] Number of data items to be shuffled */
-                        size_t size       /**< [IN] Size of each data items */
+void TSGSL_ran_shuffle (const gsl_rng *r, /**< [in] Randon engine used for randomness */
+                        void *base,       /**< [in,out] Data elements to be shuffled */
+                        size_t nmembm,    /**< [in] Number of data items to be shuffled */
+                        size_t size       /**< [in] Size of each data items */
                        );
 
 
@@ -250,26 +248,26 @@ void TSGSL_ran_shuffle (const gsl_rng *r, /**< [IN] Randon engine used for rando
  *  
  *  @return A pointer to a newly-created instance of a random number generator of type T
  */
-gsl_rng *TSGSL_rng_alloc (const gsl_rng_type *T /**< [IN] Type of random number generator*/);
+gsl_rng *TSGSL_rng_alloc (const gsl_rng_type *T /**< [in] Type of random number generator*/);
 
 /**
  *  @brief Frees all the memory associated with the generator r
  *
  */
-void TSGSL_rng_free (gsl_rng *r /**< [IN] Generator to be freed*/);
+void TSGSL_rng_free (gsl_rng *r /**< [in] Generator to be freed*/);
 
 /**
  *  @brief Gets a random integer from the generator r. The minimum and maximum values depend on the algorithm used, but all integers in the range [min, max] are equally likely. The values of min and max can be determined using the auxiliary functions gsl_rng_max() and gsl_rng_min()
  *
  *  @return A random integer from the generator r.
  */
-size_t TSGSL_rng_get (const gsl_rng *r /**< [IN] A random generator */);
+size_t TSGSL_rng_get (const gsl_rng *r /**< [in] A random generator */);
 
 /**
  *  @brief Initializes (or “seeds”) the random number generator
  */
-void TSGSL_rng_set (const gsl_rng *r /**< [IN] Random number generator*/,
-                    size_t seed      /**< [IN] Seed used for random number generator */
+void TSGSL_rng_set (const gsl_rng *r /**< [in] Random number generator*/,
+                    size_t seed      /**< [in] Seed used for random number generator */
                    );
 
 
@@ -288,9 +286,39 @@ RFLOAT TSGSL_rng_uniform (const gsl_rng * r /**< [in] A random engine used to ge
 size_t TSGSL_rng_uniform_int (const gsl_rng * r, /**< [in] A random engine used to generate the number */
                               size_t n           /**< [in] The upper bound*/
                              );
-void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n);
-int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n);
-void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const size_t n);
+
+
+/**
+ * @brief Sorts the @f$n@f$ elements of the array data with stride @f$stride@f$ into ascending numerical order 
+ */
+void TSGSL_sort(RFLOAT * data,/**< [in,out] Data elements to be sorted */
+                 const size_t stride /**< [in] Stride argument */,
+                 const size_t n      /**< [in] The number of elements to be sorted*/
+                );
+
+/**
+ * @brief Copies the @f$k@f$ largest elements of the array @f$src@f$, of size @f$n@f$ and stride @f$stride@f$, in descending numerical order into the array @f$dest@f$. @f$k@f$ must be less than or equal to @f$n@f$. The data @f$src@f$ is not modified by this operation.
+ *
+ * @return 1 if copy success, or 0 if copy failed 
+ */
+int TSGSL_sort_largest(RFLOAT * dst,        /**< [out] Destination buffer */
+                       const size_t k,      /**< [in]  Number of elements to be copied */
+                       const RFLOAT * src,  /**< [in]  Source buffer */
+                       const size_t stride, /**< [in]  Stride argument */
+                       const size_t n       /**< [in]  Total number of source elements */
+                      );
+
+
+/**
+ *  @brief Sorts the @f$n@f$ elements of the array @f$src@f$ with stride @f$stride@f$ into ascending order, storing the resulting permutation in @f$dst@f$. The elements of @f$dst@f$ give the index of the vector element. 
+ */
+void TSGSL_sort_index(size_t * dst,        /**< [out] Destination buffer */
+                      const RFLOAT * src,  /**< [in]  Source buffer */
+                      const size_t stride, /**< [in]  Stride argument */
+                      const size_t n       /**< [in]  Total number of source elements */
+                     );
+
+        
 void TSGSL_sort_smallest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
 void TSGSL_sort_largest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
 RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n);
