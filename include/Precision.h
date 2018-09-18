@@ -116,7 +116,12 @@ RFLOAT TSGSL_sf_sinc(const RFLOAT x);
 
 
 
-inline RFLOAT TS_SIN(const RFLOAT x)
+/**
+ *  @brief Returns the trigonometric sin of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
+ *  
+ *  @return The sin of the argument
+ */
+inline RFLOAT TS_SIN(const RFLOAT x /**< [IN] The argument whose sin value is to be determined */)
 {
 #ifdef SINGLE_PRECISION
     return sinf(x);
@@ -266,8 +271,23 @@ size_t TSGSL_rng_get (const gsl_rng *r /**< [IN] A random generator */);
 void TSGSL_rng_set (const gsl_rng *r /**< [IN] Random number generator*/,
                     size_t seed      /**< [IN] Seed used for random number generator */
                    );
-RFLOAT TSGSL_rng_uniform (const gsl_rng * r);
-size_t TSGSL_rng_uniform_int (const gsl_rng * r, size_t n);
+
+
+/**
+ *  @brief Gets a float point number with type of RFLOAT uniformly distributed in the range [0,1)
+ *
+ *  @return A floating point number with type of RFLOAT uniformly distributed in the range [0,1)
+ */
+RFLOAT TSGSL_rng_uniform (const gsl_rng * r /**< [in] A random engine used to generate the number */);
+
+/**
+ *  @brief Gets a random integer from 0 to @f$n-1@f$ inclusive by scaling down and/or discarding samples from the generator @f$r@f$.
+ *
+ *  @return A random integer in the range [0, n)
+ */
+size_t TSGSL_rng_uniform_int (const gsl_rng * r, /**< [in] A random engine used to generate the number */
+                              size_t n           /**< [in] The upper bound*/
+                             );
 void TSGSL_sort (RFLOAT * data, const size_t stride, const size_t n);
 int TSGSL_sort_largest (RFLOAT * dst, const size_t k, const RFLOAT * src, const size_t stride, const size_t n);
 void TSGSL_sort_index(size_t* dst, const RFLOAT* src, const size_t stride, const size_t n);
