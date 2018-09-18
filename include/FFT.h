@@ -1,12 +1,19 @@
-/*******************************************************************************
- * Author: Mingxu Hu, Hongkun Yu
- * Dependency:
- * Test:
- * Execution:
- * Description:
+/** @file
+ *  @author Mingxu Hu
+ *  @author Shouqing Li
+ *  @version 1.4.11.080914
+ *  @copyright THUNDER Non-Commercial Software License Agreement
  *
- * Manual:
- * ****************************************************************************/
+ *  ChangeLog
+ *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
+ *  ------      | ----       | -------       | -----------
+ *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
+ *  Shouqing Li | 2018/09/14 | 1.4.11.080914 | add documentation 
+ *  
+ *  @brief FFT.h contains several functions to carry out the Fast Fourier Transformation calculations for various conditions.   
+ *
+ *  The functions can be divided into four parts. The **CreatePlan** part carries out the function to create plans for Fast Fourier Transformation. The **ExecutePlan** one helps to execute plans created by the first part. The **DestroyPlan** can destroy the plans. The remain is the part to realize function. The prefix "fw" and "bw" are the abbreviation of "forward" and "backward" respectively, which represent Fourier transform and inverse Fourier transform. The suffix "MT" is used to describe whether the multiple threads function are on.
+ */
 
 #ifndef FFT_H
 #define FFT_H
@@ -251,145 +258,172 @@ class FFT
     public:
 
         /**
-         * @brief default contructor.
+         * @brief default constructor.
          */
         FFT();
 
         /**
-         * @brief default reconstructor.
+         * @brief default destructor.
          */
         ~FFT();
 
         /**
          * @brief This function performs Fourier transform on an image.
-         *
-         * @param img the image to be transformed
          */
-        void fw(Image& img      /**< [in] */
-               );
+        void fw(Image& img    /**< [in] the image to be Fourier transformed */);
 
         /**
          * @brief This function performs inverse Fourier transform on an image.
-         *
-         * @param img the image to be transformed
          */
-        void bw(Image& img      /**< [in] */
-               );
+        void bw(Image& img    /**< [in] the image to be inverse Fourier transformed */);
 
         /**
          * @brief This function performs Fourier transform on a volume.
-         *
-         * @param vol the volume to be transformed
          */
-        void fw(Volume& vol      /**< [in] */
-               );
+        void fw(Volume& vol   /**< [in] the volume to be Fourier transformed */);
 
         /**
          * @brief This function performs inverse Fourier transform on a volume.
-         *
-         * @param vol the volume to be transformed
          */
-        void bw(Volume& vol      /**< [in] */
-               );
+        void bw(Volume& vol   /**< [in] the volume to be inverse Fourier transformed */);
 
         /**
          * @brief This function performs Fourier transform on an image using multiple threads.
-         *
-         * @param img the image to be transformed
          */
-        void fwMT(Image& img      /**< [in] */
-                 );
+        void fwMT(Image& img  /**< [in] the image to be transformed */);
 
         /**
          * @brief This function performs inverse Fourier transform on an image using multiple threads.
-         *
-         * @param img the image to be transformed
          */
-        void bwMT(Image& img      /**< [in] */
-                 );
+        void bwMT(Image& img  /**< [in] the image to be transformed */);
 
         /**
          * @brief This function performs Fourier transform on a volume using multiple threads.
-         *
-         * @param vol the volume to be transformed
          */
-        void fwMT(Volume& vol      /**< [in] */
-                 );
-
+        void fwMT(Volume& vol /**< [in] the volume to be transformed */);
         /**
          * @brief This function performs inverse Fourier transform on a volume using multiple threads.
-         *
-         * @param vol the volume to be transformed
          */
-        void bwMT(Volume& vol      /**< [in] */
-                 );
+        void bwMT(Volume& vol /**< [in] the volume to be transformed */);
 
-        void fwCreatePlan(const int nCol,          /**< [in] */
-                          const int nRow           /**< [in] */
+        /**
+         * @brief This function creates a plan to perform Fourier transform on an image.
+         */
+        void fwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
+                          const int nRow           /**< [in] number of rows of the image */
                          );
 
-        void fwCreatePlan(const int nCol,          /**< [in] */
-                          const int nRow,          /**< [in] */
-                          const int nSlc           /**< [in] */
+        /**
+         * @brief This function creates a plan to perform Fourier transform on a volume. 
+         */
+        void fwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
+                          const int nRow,          /**< [in] number of rows of the image */
+                          const int nSlc           /**< [in] number of slices of the image */
                          );
 
-        void bwCreatePlan(const int nCol,          /**< [in] */
-                          const int nRow           /**< [in] */
+        /**
+         * @brief This function creates a plan to perform inverse Fourier transform on an image.
+         */
+        void bwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
+                          const int nRow           /**< [in] number of rows of the image */
                          );
 
-        void bwCreatePlan(const int nCol,          /**< [in] */
-                          const int nRow,          /**< [in] */
-                          const int nSlc           /**< [in] */
+        /**
+         * @brief This function creates a plan to perform inverse Fourier transform on a volume.
+         */
+        void bwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
+                          const int nRow,          /**< [in] number of rows of the image */
+                          const int nSlc           /**< [in] number of slices of the image */
                          );
 
-        void fwCreatePlanMT(const int nCol,        /**< [in] */
-                            const int nRow         /**< [in] */
+        /**
+         * @brief This function creates a plan to perform Fourier transform on an image using multiple threads.
+         */
+        void fwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
+                            const int nRow         /**< [in] number of rows of the image */
                            );
 
-        void fwCreatePlanMT(const int nCol,        /**< [in] */
-                            const int nRow,        /**< [in] */
-                            const int nSlc         /**< [in] */
+        /**
+         * @brief This function creates a plan to perform Fourier transform on a volume using multiple threads.
+         */
+        void fwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
+                            const int nRow,        /**< [in] number of rows of the image */
+                            const int nSlc         /**< [in] number of slices of the image */
                            );
 
-        void bwCreatePlanMT(const int nCol,        /**< [in] */
-                            const int nRow         /**< [in] */
+        /**
+         * @brief This function creates a plan to perform inverse Fourier transform on an image using multiple threads.
+         */
+        void bwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
+                            const int nRow         /**< [in] number of rows of the image */
                            );
 
-        void bwCreatePlanMT(const int nCol,        /**< [in] */
-                            const int nRow,        /**< [in] */
-                            const int nSlc         /**< [in] */
+        /**
+         * @brief This function creates a plan to perform inverse Fourier transform on a volume using multiple threads.
+         */
+        void bwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
+                            const int nRow,        /**< [in] number of rows of the image */
+                            const int nSlc         /**< [in] number of slices of the image */
                            );
 
-        void fwExecutePlan(Image& img              /**< [in] */
-                          );
+        /**
+         * @brief This function executes the created plan that performs Fourier transform on an image.
+         */
+        void fwExecutePlan(Image& img    /**< [in] the image to be Fourier transformed */);
 
-        void fwExecutePlan(Volume& vol             /**< [in] */
-                          );
+        /**
+         * @brief This function executes the created plan that performs Fourier transform on a volume.
+         */
+        void fwExecutePlan(Volume& vol   /**< [in] the volume to be Fourier transformed */);
 
-        void bwExecutePlan(Image& img              /**< [in] */
-                          );
+        /**
+         * @brief This function executes the created plan that performs inverse Fourier transform on an image.
+         */
+        void bwExecutePlan(Image& img    /**< [in] the image to be inverse Fourier transformed */);
 
-        void bwExecutePlan(Volume& vol             /**< [in] */
-                          );
+        /**
+         * @brief This function executes the created plan that performs inverse Fourier transform on a volume.
+         */
+        void bwExecutePlan(Volume& vol   /**< [in] the volume to be inverse Fourier transformed */);
 
-        void fwExecutePlanMT(Image& img            /**< [in] */
-                            );
+        /**
+         * @brief This function executes the created plan that performs Fourier transform on an image using multiple threads.
+         */
+        void fwExecutePlanMT(Image& img  /**< [in] the image to be Fourier transformed */);
 
-        void fwExecutePlanMT(Volume& vol           /**< [in] */
-                            );
+        /**
+         * @brief This function executes the created plan that performs Fourier transform on a volume using multiple threads.
+         */
+        void fwExecutePlanMT(Volume& vol /**< [in] the volume to be Fourier transformed */);
 
-        void bwExecutePlanMT(Image& img            /**< [in] */
-                            );
+        /**
+         * @brief This function executes the created plan that performs inverse Fourier transform on an image using multiple threads.
+         */
+        void bwExecutePlanMT(Image& img  /**< [in] the image to be inverse Fourier transformed */);
 
-        void bwExecutePlanMT(Volume& vol           /**< [in] */
-                            );
+        /**
+         * @brief This function executes the created plan that performs inverse Fourier transform on a volume using multiple threads.
+         */
+        void bwExecutePlanMT(Volume& vol /**< [in] the volume to be inverse Fourier transformed */);
 
+        /**
+         * @brief This function destroys the created plan that performs Fourier transform on an image or volume.
+         */
         void fwDestroyPlan();
 
+        /**
+         * @brief This function destroys the created plan that performs inverse Fourier transform on an image or volume.
+         */
         void bwDestroyPlan();
 
+        /**
+         * @brief This function destroys the created plan that performs Fourier transform on an image or volume using multiple threads.
+         */
         void fwDestroyPlanMT();
 
+        /**
+         * @brief This function destroys the created plan that performs inverse Fourier transform on an image or volume using multiple threads.
+         */
         void bwDestroyPlanMT();
 };
 

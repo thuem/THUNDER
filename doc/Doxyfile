@@ -794,6 +794,10 @@ WARN_LOGFILE           =
 INPUT                  = ../include/Geometry/Euler.h \
                          ../include/Complex.h \
                          ../include/Precision.h \
+                         ../include/Geometry/Transformation.h \
+                         ../include/CTF.h \
+                         ../include/FFT.h \
+                         ../include/Image/MRCHeader.h
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1713,7 +1717,8 @@ PAPER_TYPE             = a4
 # If left blank no extra packages will be included.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
-EXTRA_PACKAGES         = {amsmath}
+EXTRA_PACKAGES         = {amsmath} \
+                         {siunitx}
 
 # The LATEX_HEADER tag can be used to specify a personal LaTeX header for the
 # generated LaTeX document. The header should contain everything until the first
