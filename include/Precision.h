@@ -370,127 +370,131 @@ RFLOAT TSGSL_stats_mean(const RFLOAT data[], /**< [in] source data buffer. */
 
 
 /**
- *  @brief
+ *  @brief Gets a quantile value of @f$sorted_data@f$, a double-precision array of length @f$n@f$ with stride @f$stride@f$. The elements of the array must be in ascending numerical order. The quantile is determined by the @f$f@f$, a fraction between 0 and 1.
+ *
+ *  @return a quantile value.
  */
-RFLOAT TSGSL_stats_quantile_from_sorted_data(const RFLOAT sorted_data[], 
-                                             const size_t stride, 
-                                             const size_t n, 
-                                             const RFLOAT f
+RFLOAT TSGSL_stats_quantile_from_sorted_data(const RFLOAT sorted_data[], /**< [in] sorted data buffer to be searched. */ 
+                                             const size_t stride,        /**< [in] stride argument. */
+                                             const size_t n,             /**< [in] the length of the sorted data buffer. */ 
+                                             const RFLOAT f              /**< [in] the argument determines the quantile. */
                                             );
 
 /**
- *  @brief
+ *  @brief Gets the standard deviation with stride @f$stride@f$.
  */
-RFLOAT TSGSL_stats_sd(const RFLOAT data[],
-                      const size_t stride,
-                      const size_t n
+RFLOAT TSGSL_stats_sd(const RFLOAT data[], /**< [in] data elements buffer to be used. */
+                      const size_t stride, /**< [in] the argument stride. */
+                      const size_t n       /**< [in] the length of data elements buffer. */
                      );
 
 /**
- *  @brief
+ *  @brief Get the standard mean deviation with stride @f$stride@f$.
  */
-RFLOAT TSGSL_stats_sd_m(const RFLOAT data[],
-                        const size_t stride,
-                        const size_t n,
-                        const RFLOAT mean
+RFLOAT TSGSL_stats_sd_m(const RFLOAT data[], /**< [in] data elements buffer to be used. */
+                        const size_t stride, /**< [in] the argument stride. */
+                        const size_t n,      /**< [in] the length of data elements buffer. */
+                        const RFLOAT mean    /**< [in] the mean value to be used. */
                        );
 
 /**
- *  @brief
+ *  @brief Call FFTW interfaces in multi-threaded manner.
  */
 int TSFFTW_init_threads();
 
 /**
- *  @brief
+ *  @brief Free all memory and other resources allocated internally by FFTW.
  */
 void TSFFTW_cleanup_threads();
 
 /**
- *  @brief
+ *  @brief Deallocate FFTW plan.
  */
-void TSFFTW_destroy_plan(TSFFTW_PLAN plan);
+void TSFFTW_destroy_plan(TSFFTW_PLAN plan /**< [in] plan to be destroyed. */);
 
 /**
- *  @brief
+ *  @brief Execute FFTW plan.
  */
-void TSFFTW_execute(const TSFFTW_PLAN plan);
+void TSFFTW_execute(const TSFFTW_PLAN plan /**< [in] plan to be executed. */);
 
 /**
- *  @brief
+ *  @brief Execute FFTW plan to compute the transform from real space to Fourier space. 
  */
-void TSFFTW_execute_dft_r2c(const TSFFTW_PLAN p,
-                            RFLOAT *in, 
-                            TSFFTW_COMPLEX *out
+void TSFFTW_execute_dft_r2c(const TSFFTW_PLAN p, /**< [in]  plan to be used. */
+                            RFLOAT *in,          /**< [in]  data elements in real space to be transformed. */
+                            TSFFTW_COMPLEX *out  /**< [out] result of transformation in Fourier space. */
                            );
 
 /**
- *  @brief
+ *  @brief Execute FFTW plan to compute the transform from Fourier space to real space. 
  */
-void TSFFTW_execute_dft_c2r(const TSFFTW_PLAN p,
-                            TSFFTW_COMPLEX *in,
-                            RFLOAT *out
+void TSFFTW_execute_dft_c2r(const TSFFTW_PLAN p, /**< [in]  plan to be used. */
+                            TSFFTW_COMPLEX *in,  /**< [in]  data elements in Fourier space to be transformed. */
+                            RFLOAT *out         /**<  [out] result of transformation in real space. */
                            ); 
 
 /**
- *  @brief
+ *  @brief Allocate n bytes aligned memory. 
+ *
+ *  @return a pointer points to new allocated memory.
  */
-void *TSFFTW_malloc(size_t n);
+void *TSFFTW_malloc(size_t n /**< [in] bytes of memory to be allocated. */);
 
 /**
- *  @brief
+ *  @brief Free memory pointer @f$p@f$ points to. 
  */
-void TSFFTW_free(void *p);
+void TSFFTW_free(void *p /**< [in] a pointer pointed to a memory which will be freed. */);
 
 /**
- *  @brief
+ *  @brief Create a 2D fftw plan used for transformation from real space to fourier space.
  */
-TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0,
-                                   int n1,
-                                   RFLOAT *in,
-                                   TSFFTW_COMPLEX *out,
-                                   unsigned flags
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0,              /**< [in] length of first dimension. */
+                                   int n1,              /**< [in] length of second dimension. */
+                                   RFLOAT *in,          /**< [in] data elements in real space. */
+                                   TSFFTW_COMPLEX *out, /**< [out] data elements in fourier space. */
+                                   unsigned flags       /**< [in] flags used for control transformation. */
                                   );
 
 /**
- *  @brief
+ *  @brief Create a 3D fftw plan used for transformation from real space to fourier space.
  */
-TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0,
-                                   int n1,
-                                   int n2,
-                                   RFLOAT *in,
-                                   TSFFTW_COMPLEX *out,
-                                   unsigned flags
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0,              /**< [in] length of first dimension. */
+                                   int n1,              /**< [in] length of second dimension. */
+                                   int n2,              /**< [in] length of third dimension. */
+                                   RFLOAT *in,          /**< [in] data elements in real space. */
+                                   TSFFTW_COMPLEX *out, /**< [out] data elements in fourier space. */
+                                   unsigned flags       /**< [in] flags used for control transformation. */
                                   );
 
 /**
- *  @brief
+ *  @brief Create a 2D fftw plan used for transformation from fourier space to real space.
  */
-TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0,
-                                   int n1,
-                                   TSFFTW_COMPLEX *in,
-                                   RFLOAT *out,
-                                   unsigned flags
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0,              /**< [in] length of first dimension. */
+                                   int n1,              /**< [in] length of second dimension. */
+                                   TSFFTW_COMPLEX *in,  /**< [in] data elements in fourier space. */
+                                   RFLOAT *out,        /**< [out] data elements in real space. */
+                                   unsigned flags       /**< [in] flags used for control transformation. */
                                   );
 
 /**
- *  @brief
+ *  @brief Create a 3D fftw plan used for transformation from fourier space to real space.
  */
-TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0,
-                                   int n1,
-                                   int n2,
-                                   TSFFTW_COMPLEX *in,
-                                   RFLOAT *out,
-                                   unsigned flags
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0,             /**< [in] length of first dimension. */
+                                   int n1,             /**< [in] length of second dimension. */
+                                   int n2,             /**< [in] length of third dimension. */
+                                   TSFFTW_COMPLEX *in, /**< [in] data elements in fourier space. */
+                                   RFLOAT *out,        /**< [out] data elements in real space. */
+                                   unsigned flags      /**< [in] flags used for control transformation. */
                                   );
 
 /**
- *  @brief
+ *  @brief Initialized thread number used for planner routines.
  */
-void TSFFTW_plan_with_nthreads(int nthreads);
+void TSFFTW_plan_with_nthreads(int nthreads /**< [in] thread number used for planner routines. */);
 
 /**
- *  @brief
+ *  @brief Use for instructs FFTW to spend at most @f$seconds@f$ seconds (approximately) in the planner.
  */
-void TSFFTW_set_timelimit(RFLOAT seconds);
+void TSFFTW_set_timelimit(RFLOAT seconds /**< [in] max seconds to spend. */);
 
 #endif // PRECISION_H
