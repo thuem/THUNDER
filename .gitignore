@@ -93,3 +93,5 @@ acs-*.bib
 *.idx
 
 doc/latex
+*.swo
+*.swn
