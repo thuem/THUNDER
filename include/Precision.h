@@ -6,7 +6,7 @@
  *  ChangeLog
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
- *  Huabin Ruan | 2018/09/13 | 1.4.11.080913 | add header for file and functions
+ *  Huabin Ruan | 2018/09/13 | 1.4.11.080913 | Add header for file and functions
  *
  *  @brief Precision.h encapsulates the header files/MACRO/data structures/functions of the single-precision version and the double-precision version
   */
@@ -119,9 +119,9 @@ RFLOAT TSGSL_sf_sinc(const RFLOAT x);
 /**
  *  @brief Returns the trigonometric sin of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
  *  
- *  @return The sin of the argument
+ *  @return the sin of the argument
  */
-inline RFLOAT TS_SIN(const RFLOAT x /**< [in] The argument whose sin value is to be determined */)
+inline RFLOAT TS_SIN(const RFLOAT x /**< [in] the argument whose sin value is to be determined. */)
 {
 #ifdef SINGLE_PRECISION
     return sinf(x);
@@ -134,9 +134,9 @@ inline RFLOAT TS_SIN(const RFLOAT x /**< [in] The argument whose sin value is to
 /**
  *  @brief Returns the trigonometric cosine of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
  *  
- *  @return The cosine of the argument
+ *  @return the cosine of the argument
  */
-inline RFLOAT TS_COS(const RFLOAT x /**< [in] The argument whose cosine value is to be determined */)
+inline RFLOAT TS_COS(const RFLOAT x /**< [in] the argument whose cosine value is to be determined */)
 {
 #ifdef SINGLE_PRECISION
     return cosf(x);
@@ -149,9 +149,9 @@ inline RFLOAT TS_COS(const RFLOAT x /**< [in] The argument whose cosine value is
 /**
  *  @brief Returns the correctly rounded positive square root of x, with type of RFLOAT, which is either single precision or double precision determined at compilied time.
  *  
- *  @return The positive square root of x
+ *  @return the positive square root of x
  */
-inline RFLOAT TS_SQRT(const RFLOAT x /**< [in] The argument whose positive square root value is to be detemined */)
+inline RFLOAT TS_SQRT(const RFLOAT x /**< [in] the argument whose positive square root value is to be detemined. */)
 
 {
 #ifdef SINGLE_PRECISION
@@ -167,8 +167,8 @@ inline RFLOAT TS_SQRT(const RFLOAT x /**< [in] The argument whose positive squar
  *
  *  @return the larger of a and b.
  */
-inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [in] an argument */
-                               const RFLOAT b  /**< [in] another argument */
+inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [in] an argument. */
+                               const RFLOAT b  /**< [in] another argument. */
                               )
 {
     return a > b ? a : b;
@@ -179,8 +179,8 @@ inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [in] an argument */
  *
  *  @return the smaller of a and b.
  */
-inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [in] an argument */
-                               const RFLOAT b  /**< [in] another argument */
+inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [in] an argument. */
+                               const RFLOAT b  /**< [in] another argument. */
                               )
 {
     return a < b ? a : b;
@@ -191,7 +191,7 @@ inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [in] an argument */
  *
  *  @return the square of modulus length of z
  */
-RFLOAT TSGSL_complex_abs2 (Complex z /**< [in] The argument whose square of modulus length is determined*/);
+RFLOAT TSGSL_complex_abs2 (Complex z /**< [in] the argument whose square of modulus length is determined*/);
 
 
 /**
@@ -200,14 +200,14 @@ RFLOAT TSGSL_complex_abs2 (Complex z /**< [in] The argument whose square of modu
  *  @return 1 if x is positive infinity, -1 if x is negative infinity and 0 otherwise
 
  */
-int TSGSL_isinf (const RFLOAT x /**< [in] The argment used to determined whether it is infinity */);
+int TSGSL_isinf (const RFLOAT x /**< [in] the argment used to determined whether it is infinity. */);
 
 /**
  *  @brief Determines whether x is a number
  *
  *  @return 1 if x is not-a-number and 0 otherwise
  */
-int TSGSL_isnan (const RFLOAT x /**< [in] The argment used to determined whether it is a number */);
+int TSGSL_isnan (const RFLOAT x /**< [in] the argment used to determined whether it is a number. */);
 ;
 
 /**
@@ -215,85 +215,85 @@ int TSGSL_isnan (const RFLOAT x /**< [in] The argment used to determined whether
  *
  *  @return The result @f$x^2@f$
  */
-RFLOAT TSGSL_pow_2(const RFLOAT x /**< [in] The argument whose @f$x^2@f$ is calculated */);
+RFLOAT TSGSL_pow_2(const RFLOAT x /**< [in] the argument whose @f$x^2@f$ is calculated. */);
 
 /**
  *  @brief Calculates the value of @f$x^3@f$
  *
  *  @return The result of @f$x^3@f$
  */
-RFLOAT TSGSL_pow_3(const RFLOAT x /**< [in] The argument whose @f$x^3@f$ is calculated */);
+RFLOAT TSGSL_pow_3(const RFLOAT x /**< [in] the argument whose @f$x^3@f$ is calculated. */);
 
 /**
  *  @brief Calculates the value of @f$x^4@f$
  *
  *  @return The result of @f$x^4@f$
  */
-RFLOAT TSGSL_pow_4(const RFLOAT x /**< [in] The argument whose @f$x^4@f$ is calculated */);
+RFLOAT TSGSL_pow_4(const RFLOAT x /**< [in] the argument whose @f$x^4@f$ is calculated. */);
 
 
 
 /**
  *  @brief Shuffles the data items in buffer base randomly.
  */
-void TSGSL_ran_shuffle (const gsl_rng *r, /**< [in] Randon engine used for randomness */
-                        void *base,       /**< [in,out] Data elements to be shuffled */
-                        size_t nmembm,    /**< [in] Number of data items to be shuffled */
-                        size_t size       /**< [in] Size of each data items */
+void TSGSL_ran_shuffle (const gsl_rng *r, /**< [in] randon engine used for randomness. */
+                        void *base,       /**< [in,out] data elements to be shuffled. */
+                        size_t nmembm,    /**< [in] number of data items to be shuffled. */
+                        size_t size       /**< [in] size of each data items. */
                        );
 
 
 /**
  *  @brief Creates an instance of a random nunber generator
  *  
- *  @return A pointer to a newly-created instance of a random number generator of type T
+ *  @return a pointer to a newly-created instance of a random number generator of type T
  */
-gsl_rng *TSGSL_rng_alloc (const gsl_rng_type *T /**< [in] Type of random number generator*/);
+gsl_rng *TSGSL_rng_alloc (const gsl_rng_type *T /**< [in] type of random number generator*/);
 
 /**
  *  @brief Frees all the memory associated with the generator r
  *
  */
-void TSGSL_rng_free (gsl_rng *r /**< [in] Generator to be freed*/);
+void TSGSL_rng_free (gsl_rng *r /**< [in] generator to be freed*/);
 
 /**
  *  @brief Gets a random integer from the generator r. The minimum and maximum values depend on the algorithm used, but all integers in the range [min, max] are equally likely. The values of min and max can be determined using the auxiliary functions gsl_rng_max() and gsl_rng_min()
  *
- *  @return A random integer from the generator r.
+ *  @return a random integer from the generator r.
  */
-size_t TSGSL_rng_get (const gsl_rng *r /**< [in] A random generator */);
+size_t TSGSL_rng_get (const gsl_rng *r /**< [in] a random generator. */);
 
 /**
  *  @brief Initializes (or “seeds”) the random number generator
  */
-void TSGSL_rng_set (const gsl_rng *r /**< [in] Random number generator*/,
-                    size_t seed      /**< [in] Seed used for random number generator */
+void TSGSL_rng_set (const gsl_rng *r /**< [in] random number generator*/,
+                    size_t seed      /**< [in] seed used for random number generator. */
                    );
 
 
 /**
  *  @brief Gets a float point number with type of RFLOAT uniformly distributed in the range [0,1)
  *
- *  @return A floating point number with type of RFLOAT uniformly distributed in the range [0,1)
+ *  @return a floating point number with type of RFLOAT uniformly distributed in the range [0,1)
  */
-RFLOAT TSGSL_rng_uniform (const gsl_rng * r /**< [in] A random engine used to generate the number */);
+RFLOAT TSGSL_rng_uniform (const gsl_rng * r /**< [in] a random engine used to generate the number. */);
 
 /**
  *  @brief Gets a random integer from 0 to @f$n-1@f$ inclusive by scaling down and/or discarding samples from the generator @f$r@f$.
  *
  *  @return A random integer in the range [0, n)
  */
-size_t TSGSL_rng_uniform_int (const gsl_rng * r, /**< [in] A random engine used to generate the number */
-                              size_t n           /**< [in] The upper bound*/
+size_t TSGSL_rng_uniform_int (const gsl_rng * r, /**< [in] a random engine used to generate the number. */
+                              size_t n           /**< [in] the upper bound*/
                              );
 
 
 /**
  * @brief Sorts the @f$n@f$ elements of the array data with stride @f$stride@f$ into ascending numerical order 
  */
-void TSGSL_sort(RFLOAT * data,/**< [in,out] Data elements to be sorted */
-                 const size_t stride /**< [in] Stride argument */,
-                 const size_t n      /**< [in] The number of elements to be sorted*/
+void TSGSL_sort(RFLOAT * data,/**< [in,out] data elements to be sorted. */
+                 const size_t stride /**< [in] stride argument */,
+                 const size_t n      /**< [in] the number of elements to be sorted*/
                 );
 
 /**
@@ -301,50 +301,196 @@ void TSGSL_sort(RFLOAT * data,/**< [in,out] Data elements to be sorted */
  *
  * @return 1 if copy success, or 0 if copy failed 
  */
-int TSGSL_sort_largest(RFLOAT * dst,        /**< [out] Destination buffer */
-                       const size_t k,      /**< [in]  Number of elements to be copied */
-                       const RFLOAT * src,  /**< [in]  Source buffer */
-                       const size_t stride, /**< [in]  Stride argument */
-                       const size_t n       /**< [in]  Total number of source elements */
+int TSGSL_sort_largest(RFLOAT * dst,        /**< [out] destination buffer. */
+                       const size_t k,      /**< [in]  number of elements to be copied. */
+                       const RFLOAT * src,  /**< [in]  source buffer. */
+                       const size_t stride, /**< [in]  stride argument. */
+                       const size_t n       /**< [in]  total number of source elements. */
                       );
 
 
 /**
  *  @brief Sorts the @f$n@f$ elements of the array @f$src@f$ with stride @f$stride@f$ into ascending order, storing the resulting permutation in @f$dst@f$. The elements of @f$dst@f$ give the index of the vector element. 
  */
-void TSGSL_sort_index(size_t * dst,        /**< [out] Destination buffer */
-                      const RFLOAT * src,  /**< [in]  Source buffer */
-                      const size_t stride, /**< [in]  Stride argument */
-                      const size_t n       /**< [in]  Total number of source elements */
+void TSGSL_sort_index(size_t * dst,        /**< [out] destination buffer. */
+                      const RFLOAT * src,  /**< [in]  source buffer. */
+                      const size_t stride, /**< [in]  stride argument. */
+                      const size_t n       /**< [in]  total number of source elements. */
                      );
 
         
-void TSGSL_sort_smallest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
-void TSGSL_sort_largest_index(size_t* dst, const size_t k, const RFLOAT* src, const size_t stride, const size_t n);
-RFLOAT TSGSL_stats_max (const RFLOAT data[], const size_t stride, const size_t n);
-RFLOAT TSGSL_stats_mean (const RFLOAT data[], const size_t stride, const size_t n);
-RFLOAT TSGSL_stats_min (const RFLOAT data[], const size_t stride, const size_t n);
-RFLOAT TSGSL_stats_quantile_from_sorted_data (const RFLOAT sorted_data[], const size_t stride, const size_t n, const RFLOAT f) ;
-RFLOAT TSGSL_stats_sd (const RFLOAT data[], const size_t stride, const size_t n);
-RFLOAT TSGSL_stats_sd_m (const RFLOAT data[], const size_t stride, const size_t n, const RFLOAT mean);
+/**
+ *  @brief Stores the indices of the @f$k@f$ smallest elements of the array @f$src@f$, of size @f$n@f$ and stride @f$stride@f$, in the array @f$p@f$.
+ */
+void TSGSL_sort_smallest_index(size_t* dst,         /**< [out] destination buffer. */               
+                               const size_t k,      /**< [in]  number of elements to be choosed. */
+                               const RFLOAT* src,   /**< [in]  source buffer. */
+                               const size_t stride, /**< [in]  stride argument. */
+                               const size_t n       /**< [in]  total number of source elements. */
+                              );
 
-int TSFFTW_init_threads(void);
-void TSFFTW_cleanup_threads(void);
+/**
+ *  @brief Stores the indices of the @f$k@f$ largest elements of the array @f$src@f$, of size @f$n@f$ and stride @f$stride@f$, in the array @f$p@f$.
+ */
+void TSGSL_sort_largest_index(size_t* dst,          /**< [out] destination buffer. */               
+                               const size_t k,      /**< [in]  number of elements to be choosed. */
+                               const RFLOAT* src,   /**< [in]  source buffer. */
+                               const size_t stride, /**< [in]  stride argument. */
+                               const size_t n       /**< [in]  total number of source elements. */
+                              );
+
+
+/**
+ *  @brief Gets the maximum value in @f$data@f$, a dataset of length @f$n@f$ with stride @f$stride@f$.
+ *
+ *  @return the maximum value with stride @f$stride@f$.
+ */
+RFLOAT TSGSL_stats_max(const RFLOAT data[], /**< [in] source data buffer. */
+                       const size_t stride, /**< [in] stride argument. */
+                       const size_t n       /**< [in] total number of source elements. */
+                      );
+/**
+ *  @brief Gets the minimum value in @f$data@f$, a dataset of length @f$n@f$ with stride @f$stride@f$.
+ *
+ *  @return the minimum value with stride @f$stride@f$.
+ */
+RFLOAT TSGSL_stats_min(const RFLOAT data[],  /**< [in] source data buffer. */
+                        const size_t stride, /**< [in] stride argument. */
+                        const size_t n       /**< [in] total number of source elements. */
+                      );
+/**
+ *  @brief Gets the mean value in @f$data@f$, a dataset of length @f$n@f$ with stride @f$stride@f$.
+ *
+ *  @return the mean value with stride @f$stride@f$.
+ */
+RFLOAT TSGSL_stats_mean(const RFLOAT data[], /**< [in] source data buffer. */
+                       const size_t stride,  /**< [in] stride argument. */
+                       const size_t n        /**< [in] total number of source elements. */
+                      );
+
+
+/**
+ *  @brief
+ */
+RFLOAT TSGSL_stats_quantile_from_sorted_data(const RFLOAT sorted_data[], 
+                                             const size_t stride, 
+                                             const size_t n, 
+                                             const RFLOAT f
+                                            );
+
+/**
+ *  @brief
+ */
+RFLOAT TSGSL_stats_sd(const RFLOAT data[],
+                      const size_t stride,
+                      const size_t n
+                     );
+
+/**
+ *  @brief
+ */
+RFLOAT TSGSL_stats_sd_m(const RFLOAT data[],
+                        const size_t stride,
+                        const size_t n,
+                        const RFLOAT mean
+                       );
+
+/**
+ *  @brief
+ */
+int TSFFTW_init_threads();
+
+/**
+ *  @brief
+ */
+void TSFFTW_cleanup_threads();
+
+/**
+ *  @brief
+ */
 void TSFFTW_destroy_plan(TSFFTW_PLAN plan);
+
+/**
+ *  @brief
+ */
 void TSFFTW_execute(const TSFFTW_PLAN plan);
-void TSFFTW_execute_dft_r2c(const TSFFTW_PLAN p, RFLOAT *in, TSFFTW_COMPLEX *out);
-void TSFFTW_execute_dft_c2r(const TSFFTW_PLAN p, TSFFTW_COMPLEX *in, RFLOAT *out); 
+
+/**
+ *  @brief
+ */
+void TSFFTW_execute_dft_r2c(const TSFFTW_PLAN p,
+                            RFLOAT *in, 
+                            TSFFTW_COMPLEX *out
+                           );
+
+/**
+ *  @brief
+ */
+void TSFFTW_execute_dft_c2r(const TSFFTW_PLAN p,
+                            TSFFTW_COMPLEX *in,
+                            RFLOAT *out
+                           ); 
+
+/**
+ *  @brief
+ */
 void *TSFFTW_malloc(size_t n);
+
+/**
+ *  @brief
+ */
 void TSFFTW_free(void *p);
 
-TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0, int n1, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags);
-TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0, int n1, int n2, RFLOAT *in, TSFFTW_COMPLEX *out, unsigned flags);
+/**
+ *  @brief
+ */
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_2d(int n0,
+                                   int n1,
+                                   RFLOAT *in,
+                                   TSFFTW_COMPLEX *out,
+                                   unsigned flags
+                                  );
 
-TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0, int n1, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags);
-TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0, int n1, int n2, TSFFTW_COMPLEX *in, RFLOAT *out, unsigned flags);
+/**
+ *  @brief
+ */
+TSFFTW_PLAN TSFFTW_plan_dft_r2c_3d(int n0,
+                                   int n1,
+                                   int n2,
+                                   RFLOAT *in,
+                                   TSFFTW_COMPLEX *out,
+                                   unsigned flags
+                                  );
 
+/**
+ *  @brief
+ */
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_2d(int n0,
+                                   int n1,
+                                   TSFFTW_COMPLEX *in,
+                                   RFLOAT *out,
+                                   unsigned flags
+                                  );
+
+/**
+ *  @brief
+ */
+TSFFTW_PLAN TSFFTW_plan_dft_c2r_3d(int n0,
+                                   int n1,
+                                   int n2,
+                                   TSFFTW_COMPLEX *in,
+                                   RFLOAT *out,
+                                   unsigned flags
+                                  );
+
+/**
+ *  @brief
+ */
 void TSFFTW_plan_with_nthreads(int nthreads);
 
+/**
+ *  @brief
+ */
 void TSFFTW_set_timelimit(RFLOAT seconds);
 
 #endif // PRECISION_H
