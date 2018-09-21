@@ -13,7 +13,7 @@
  *
  *  @brief MRCHeader.h contains the MRC main header constitution according to the MRC2014 format.
  *
- *  MRC is a file format that has become industry standard in cryo-electron microscopy (cryoEM) and electron tomography (ET), where the result of the technique is a three-dimensional grid of voxels each with a value corresponding to electron density or electric potential. It was developed by the MRC (Medical Research Council, UK) Laboratory of Molecular Biology in 1982 and standarlised in 2014.
+ *  MRC is a file format that has become industry standard in cryo-electron microscopy (cryo-EM) and cryo-electron tomography (cryo-ET), where the result of this technique is a three-dimensional grid of voxels each with a value corresponding to electron density or electric potential. It was developed by the MRC (Medical Research Council, UK) Laboratory of Molecular Biology in 1982 and standardized in 2014.
  *
  *  The MRC2014 format describes a binary file consisting of three parts. The first part, the main header, contains fixed format values for metadata about the images/volumes. The second part is a variable length extended header, originally designed to include symmetry operators for crystallographic applications, but now used by different software to hold various additional metadata instead. Finally, the third part contains the actual image/volume data, with grid values represented as one of a range of possible data types, according to the "mode" of the map.
  *
@@ -25,16 +25,16 @@
 #define MRC_HEADER_H
 
 /**
- * @brief The detailed specification of MRC main header according to the MRC2014 format.
+ * @brief Struct MRCHeader specifies the MRC main header according to the MRC2014 format.
  *
- * The length of main header is 1024 bytes, organized as 56 4-byte words followed by space for 10 80-byte text labels, including unassigned space in anticipation of future extensions.
+ * The length of main header is 1024 bytes, organized as 56 4-byte words followed by space for ten 80-byte text labels, including unassigned space in anticipation of future extensions.
  */
 struct MRCHeader
 {
     int nx;              /**< number of columns in 3D data array (fast axis) */
     int ny;              /**< number of rows in 3D data array (medium axis) */
     int nz;              /**< number of sections in 3D data array (slow axis) */
-    int mode;            /**< data type: 0 -> 8-bit signed integer (range -128 to 127); 1 -> 16-bit signed integer; 2 -> 32-bit signed real; 3 -> transform : complex 16-bit integers; 4 -> transform : complex 32-bit reals; 6 -> 16-bit unsigned integer */   
+    int mode;            /**< data type:@f$\\@f$ 0 -> 8-bit signed integer (range -128 to 127);@f$\\@f$ 1 -> 16-bit signed integer;@f$\\@f$ 2 -> 32-bit signed real;@f$\\@f$ 3 -> transform : complex 16-bit integers;@f$\\@f$ 4 -> transform : complex 32-bit reals;@f$\\@f$ 6 -> 16-bit unsigned integer */   
     int nxstart;         /**< location of first column in unit cell */
     int nystart;         /**< location of first row in unit cell */
     int nzstart;         /**< location of first section in unit cell */
@@ -43,9 +43,9 @@ struct MRCHeader
     int mz;              /**< sampling along Z axis of unit cell */
     float cella[3];      /**< cell dimensions in angstroms */
     float cellb[3];      /**< cell angles in degrees */
-    int mapc;            /**< axis corresp to cols (1,2,3 for X,Y,Z) */
-    int mapr;            /**< axis corresp to rows (1,2,3 for X,Y,Z) */
-    int maps;            /**< axis corresp to sections (1,2,3 for X,Y,Z) */
+    int mapc;            /**< axis correspond to cols (1,2,3 for X,Y,Z) */
+    int mapr;            /**< axis correspond to rows (1,2,3 for X,Y,Z) */
+    int maps;            /**< axis correspond to sections (1,2,3 for X,Y,Z) */
     float dmin;          /**< minimum density value */
     float dmax;          /**< maximum density value */
     float dmean;         /**< mean density value */

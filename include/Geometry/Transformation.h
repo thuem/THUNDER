@@ -37,7 +37,7 @@
 #include "Symmetry.h"
 
 /**
- * @brief Transfrom a volume @f$V@f$, given the by transformation matrix @f$\mathbf{M}@f$, in real space by interpolation, and ouput the transformed volume @f$V'@f$.
+ * @brief Transfrom a volume @f$V@f$, given the transformation matrix @f$\mathbf{M}@f$, in real space by interpolation, and output the transformed volume @f$V'@f$.
  *
  * For each voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ of volume @f$V@f$ in real space, it will be transformed to
  * \f[
@@ -53,12 +53,13 @@
  *       z \\
  *   \end{pmatrix}
  * \f]
+ * i.e. the value of transformed volume @f$V'@f$ voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ in real space is obtained by interpolation of original volume @f$V@f$ voxel @f$\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}@f$ in real space.
  */
 inline void VOL_TRANSFORM_MAT_RL(Volume& dst,        /**< [out] the transformed volume @f$V'@f$ */
                                  const Volume& src,  /**< [in]  the original volume @f$V@f$ */
                                  const dmat33& mat,  /**< [in]  the transformation matrix @f$M@f$ */
                                  const double r,     /**< [in]  the radius in real spcae, restricts the transformed volume's range */
-                                 const int interp    /**< [in]  the type of interpolation */
+                                 const int interp    /**< [in]  the interpolation type */
                                 )
 {
     #pragma omp parallel for
@@ -82,9 +83,9 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,        /**< [out] the transformed 
 }
 
 /**
- * @brief Transfrom a volume @f$V@f$, given the by transformation matrix @f$\mathbf{M}@f$, in Fourier space by interpolation, and ouput the transformed volume @f$V'@f$.
+ * @brief Transfrom a volume @f$V@f$, given the transformation matrix @f$\mathbf{M}@f$, in Fourier space by interpolation, and output the transformed volume @f$V'@f$.
  *
- * For each voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ of volume @f$V@f$ in real space, it will be transformed to
+ * For each voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ of volume @f$V@f$ in Fourier space, it will be transformed to
  * \f[
  *   \begin{pmatrix} 
  *       x' \\
@@ -98,12 +99,13 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,        /**< [out] the transformed 
  *       z \\
  *   \end{pmatrix}
  * \f]
+ * i.e. the value of transformed volume @f$V'@f$ voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ in Fourier space is obtained by interpolation of original volume @f$V@f$ voxel @f$\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}@f$ in Fourier space.
  */
 inline void VOL_TRANSFORM_MAT_FT(Volume& dst,        /**< [out] the transformed volume @f$V'@f$ */
                                  const Volume& src,  /**< [in]  the original volume @f$V@f$ */
                                  const dmat33& mat,  /**< [in]  the transformation matrix @f$M@f$ */
                                  const double r,     /**< [in]  the radius in Fourier spcae, restricts the transformed volume's range */
-                                 const int interp    /**< [in]  the type of interpolation */
+                                 const int interp    /**< [in]  the interpolation type */
                                 )
 {
     #pragma omp parallel for
@@ -127,7 +129,7 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,        /**< [out] the transformed 
 }
 
 /**
- * @brief Symmetrize volume @f$V@f$ in real space, given the symmetry elements @f$\mathbf{S} = \left\{\mathbf{s_0}, \mathbf{s_1}, \dots, \mathbf{s_{N - 1}}\right\}@f$, and putput the symmetrized volume @f$V'@f$.
+ * @brief Symmetrize volume @f$V@f$ in real space, given the symmetry elements @f$\mathbf{S} = \left\{\mathbf{s_0}, \mathbf{s_1}, \dots, \mathbf{s_{N - 1}}\right\}@f$, and output the symmetrized volume @f$V'@f$.
  * 
  * For volume @f$V@f$ in real space, transform @f$\mathbf{V}@f$ by rotation matrix @f$s_i, 0 \leq i \leq N - 1@f$, respectively. Then sum the transformed matrices up.
  */
@@ -135,7 +137,7 @@ inline void SYMMETRIZE_RL(Volume& dst,          /**< [out] the symmetrized volum
                           const Volume& src,    /**< [in]  the original volume @f$V@f$ */
                           const Symmetry& sym,  /**< [in]  symmetry @f$\mathbf{S}@f$ */
                           const double r,       /**< [in]  the radius in real space, restricts the transformed volume's range */
-                          const int interp      /**< [in]  the type of interpolation */
+                          const int interp      /**< [in]  the interpolation type */
                          )
 {
     Volume result = src.copyVolume();
@@ -157,15 +159,15 @@ inline void SYMMETRIZE_RL(Volume& dst,          /**< [out] the symmetrized volum
 }
 
 /**
- * @brief Symmetrize volume @f$V@f$ in Fourier space, given the symmetry elements @f$\mathbf{S} = \left\{\mathbf{s_0}, \mathbf{s_1}, \dots, \mathbf{s_{N - 1}}\right\}@f$, and putput the symmetrized volume @f$V'@f$.
+ * @brief Symmetrize volume @f$V@f$ in Fourier space, given the symmetry elements @f$\mathbf{S} = \left\{\mathbf{s_0}, \mathbf{s_1}, \dots, \mathbf{s_{N - 1}}\right\}@f$, and output the symmetrized volume @f$V'@f$.
  * 
- * For volume @f$V@f$ in real space, transform @f$\mathbf{V}@f$ by rotation matrix @f$s_i, 0 \leq i \leq N - 1@f$, respectively. Then sum the transformed matrices up.
+ * For volume @f$V@f$ in Fourier space, transform @f$\mathbf{V}@f$ by rotation matrix @f$s_i, 0 \leq i \leq N - 1@f$, respectively. Then sum the transformed matrices up.
  */
 inline void SYMMETRIZE_FT(Volume& dst,          /**< [out] the symmetrized volume @f$V'@f$ */
                           const Volume& src,    /**< [in]  the original volume @f$V@f$ */
                           const Symmetry& sym,  /**< [in]  symmetry @f$\mathbf{S}@f$ */
-                          const double r,       /**< [in]  the radius in real space, restricts the transformed volume's range */
-                          const int interp      /**< [in]  the type of interpolation */
+                          const double r,       /**< [in]  the radius in Fourier space, restricts the transformed volume's range */
+                          const int interp      /**< [in]  the interpolation type */
                          )
 {
     Volume result = src.copyVolume();
