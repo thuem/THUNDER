@@ -799,6 +799,7 @@ INPUT                  = ../include/Geometry/Euler.h \
                          ../include/FFT.h \
                          ../include/Parallel.h \
                          ../include/Image/MRCHeader.h \
+                         ../include/Image/Volume.h \
                          ../include/Geometry/Transformation.h \
                          ../include/Projector.h
 
