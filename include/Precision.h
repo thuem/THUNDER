@@ -117,7 +117,7 @@ RFLOAT TSGSL_sf_sinc(const RFLOAT x);
 
 
 /**
- *  @brief Returns the trigonometric sin of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
+ *  @brief Calculate the trigonometric sin of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
  *  
  *  @return the sin of the argument
  */
@@ -132,7 +132,7 @@ inline RFLOAT TS_SIN(const RFLOAT x /**< [in] the argument whose sin value is to
 
 
 /**
- *  @brief Returns the trigonometric cosine of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
+ *  @brief Calculate the trigonometric cosine of an angle x with type RFLOAT, which is either of single precision or double precision, determined at compiled time.
  *  
  *  @return the cosine of the argument
  */
@@ -145,9 +145,8 @@ inline RFLOAT TS_COS(const RFLOAT x /**< [in] the argument whose cosine value is
 #endif
 }
 
-
 /**
- *  @brief Returns the correctly rounded positive square root of x, with type of RFLOAT, which is either single precision or double precision determined at compilied time.
+ *  @brief Calculate the correctly rounded positive square root of x, with type of RFLOAT, which is either single precision or double precision determined at compilied time.
  *  
  *  @return the positive square root of x
  */
@@ -163,7 +162,7 @@ inline RFLOAT TS_SQRT(const RFLOAT x /**< [in] the argument whose positive squar
 
 
 /**
- *  @brief Returns the greater of two RFLOAT values. The type of RFLOAT is either float or double, determined at compilied time. 
+ *  @brief Get the greater of two RFLOAT values. The type of RFLOAT is either float or double, determined at compilied time. 
  *
  *  @return the larger of a and b.
  */
@@ -175,7 +174,7 @@ inline RFLOAT TSGSL_MAX_RFLOAT(const RFLOAT a, /**< [in] an argument. */
 }
 
 /**
- *  @brief Returns the smaller of two RFLOAT values. The type of RFLOAT is either float or double, determined at compilied time. 
+ *  @brief Get the smaller of two RFLOAT values. The type of RFLOAT is either float or double, determined at compilied time. 
  *
  *  @return the smaller of a and b.
  */
@@ -187,7 +186,7 @@ inline RFLOAT TSGSL_MIN_RFLOAT(const RFLOAT a, /**< [in] an argument. */
 }
 
 /**
- *  @brief Returns the square of complex modulus length 
+ *  @brief Calculate the square of complex modulus length 
  *
  *  @return the square of modulus length of z
  */
@@ -195,7 +194,7 @@ RFLOAT TSGSL_complex_abs2 (Complex z /**< [in] the argument whose square of modu
 
 
 /**
- *  @brief Determines whether x is infinity
+ *  @brief Determine whether x is infinity
  *
  *  @return 1 if x is positive infinity, -1 if x is negative infinity and 0 otherwise
 
@@ -203,7 +202,7 @@ RFLOAT TSGSL_complex_abs2 (Complex z /**< [in] the argument whose square of modu
 int TSGSL_isinf (const RFLOAT x /**< [in] the argment used to determined whether it is infinity. */);
 
 /**
- *  @brief Determines whether x is a number
+ *  @brief Determine whether x is a number
  *
  *  @return 1 if x is not-a-number and 0 otherwise
  */
@@ -211,30 +210,28 @@ int TSGSL_isnan (const RFLOAT x /**< [in] the argment used to determined whether
 ;
 
 /**
- *  @brief Calculates the value of @f$x^2@f$
+ *  @brief Calculate the value of @f$x^2@f$
  *
  *  @return The result @f$x^2@f$
  */
 RFLOAT TSGSL_pow_2(const RFLOAT x /**< [in] the argument whose @f$x^2@f$ is calculated. */);
 
 /**
- *  @brief Calculates the value of @f$x^3@f$
+ *  @brief Calculate the value of @f$x^3@f$
  *
  *  @return The result of @f$x^3@f$
  */
 RFLOAT TSGSL_pow_3(const RFLOAT x /**< [in] the argument whose @f$x^3@f$ is calculated. */);
 
 /**
- *  @brief Calculates the value of @f$x^4@f$
+ *  @brief Calculate the value of @f$x^4@f$
  *
  *  @return The result of @f$x^4@f$
  */
 RFLOAT TSGSL_pow_4(const RFLOAT x /**< [in] the argument whose @f$x^4@f$ is calculated. */);
 
-
-
 /**
- *  @brief Shuffles the data items in buffer base randomly.
+ *  @brief Shuffle the data items in buffer base randomly.
  */
 void TSGSL_ran_shuffle (const gsl_rng *r, /**< [in] randon engine used for randomness. */
                         void *base,       /**< [in,out] data elements to be shuffled. */
@@ -244,27 +241,27 @@ void TSGSL_ran_shuffle (const gsl_rng *r, /**< [in] randon engine used for rando
 
 
 /**
- *  @brief Creates an instance of a random nunber generator
+ *  @brief Create an instance of a random nunber generator
  *  
  *  @return a pointer to a newly-created instance of a random number generator of type T
  */
 gsl_rng *TSGSL_rng_alloc (const gsl_rng_type *T /**< [in] type of random number generator*/);
 
 /**
- *  @brief Frees all the memory associated with the generator r
+ *  @brief Free all the memory associated with the generator r
  *
  */
 void TSGSL_rng_free (gsl_rng *r /**< [in] generator to be freed*/);
 
 /**
- *  @brief Gets a random integer from the generator r. The minimum and maximum values depend on the algorithm used, but all integers in the range [min, max] are equally likely. The values of min and max can be determined using the auxiliary functions gsl_rng_max() and gsl_rng_min()
+ *  @brief Get a random integer from the generator r. The minimum and maximum values depend on the algorithm used, but all integers in the range [min, max] are equally likely. The values of min and max can be determined using the auxiliary functions gsl_rng_max() and gsl_rng_min()
  *
  *  @return a random integer from the generator r.
  */
 size_t TSGSL_rng_get (const gsl_rng *r /**< [in] a random generator. */);
 
 /**
- *  @brief Initializes (or “seeds”) the random number generator
+ *  @brief Initialize (or “seeds”) the random number generator
  */
 void TSGSL_rng_set (const gsl_rng *r /**< [in] random number generator*/,
                     size_t seed      /**< [in] seed used for random number generator. */
@@ -272,14 +269,14 @@ void TSGSL_rng_set (const gsl_rng *r /**< [in] random number generator*/,
 
 
 /**
- *  @brief Gets a float point number with type of RFLOAT uniformly distributed in the range [0,1)
+ *  @brief Get a float point number with type of RFLOAT uniformly distributed in the range [0,1)
  *
  *  @return a floating point number with type of RFLOAT uniformly distributed in the range [0,1)
  */
 RFLOAT TSGSL_rng_uniform (const gsl_rng * r /**< [in] a random engine used to generate the number. */);
 
 /**
- *  @brief Gets a random integer from 0 to @f$n-1@f$ inclusive by scaling down and/or discarding samples from the generator @f$r@f$.
+ *  @brief Get a random integer from 0 to @f$n-1@f$ inclusive by scaling down and/or discarding samples from the generator @f$r@f$.
  *
  *  @return A random integer in the range [0, n)
  */
@@ -289,7 +286,7 @@ size_t TSGSL_rng_uniform_int (const gsl_rng * r, /**< [in] a random engine used 
 
 
 /**
- * @brief Sorts the @f$n@f$ elements of the array data with stride @f$stride@f$ into ascending numerical order 
+ * @brief Sort the @f$n@f$ elements of the array data with stride stride into ascending numerical order 
  */
 void TSGSL_sort(RFLOAT * data,/**< [in,out] data elements to be sorted. */
                  const size_t stride /**< [in] stride argument */,
@@ -297,7 +294,7 @@ void TSGSL_sort(RFLOAT * data,/**< [in,out] data elements to be sorted. */
                 );
 
 /**
- * @brief Copies the @f$k@f$ largest elements of the array @f$src@f$, of size @f$n@f$ and stride @f$stride@f$, in descending numerical order into the array @f$dest@f$. @f$k@f$ must be less than or equal to @f$n@f$. The data @f$src@f$ is not modified by this operation.
+ * @brief Copy the @f$k@f$ largest elements of the array @f$src@f$, of size @f$n@f$ and stride stride, in descending numerical order into the array @f$dest@f$. @f$k@f$ must be less than or equal to @f$n@f$. The data @f$src@f$ is not modified by this operation.
  *
  * @return 1 if copy success, or 0 if copy failed 
  */
@@ -310,7 +307,7 @@ int TSGSL_sort_largest(RFLOAT * dst,        /**< [out] destination buffer. */
 
 
 /**
- *  @brief Sorts the @f$n@f$ elements of the array @f$src@f$ with stride @f$stride@f$ into ascending order, storing the resulting permutation in @f$dst@f$. The elements of @f$dst@f$ give the index of the vector element. 
+ *  @brief Sort the @f$n@f$ elements of the array @f$src@f$ with stride stride into ascending order, storing the resulting permutation in @f$dst@f$. The elements of @f$dst@f$ give the index of the vector element. 
  */
 void TSGSL_sort_index(size_t * dst,        /**< [out] destination buffer. */
                       const RFLOAT * src,  /**< [in]  source buffer. */
@@ -320,7 +317,7 @@ void TSGSL_sort_index(size_t * dst,        /**< [out] destination buffer. */
 
         
 /**
- *  @brief Stores the indices of the @f$k@f$ smallest elements of the array @f$src@f$, of size @f$n@f$ and stride @f$stride@f$, in the array @f$p@f$.
+ *  @brief Store the indices of the @f$k@f$ smallest elements of the array @f$src@f$, of size @f$n@f$ and stride stride, in the array @f$p@f$.
  */
 void TSGSL_sort_smallest_index(size_t* dst,         /**< [out] destination buffer. */               
                                const size_t k,      /**< [in]  number of elements to be choosed. */
@@ -330,7 +327,7 @@ void TSGSL_sort_smallest_index(size_t* dst,         /**< [out] destination buffe
                               );
 
 /**
- *  @brief Stores the indices of the @f$k@f$ largest elements of the array @f$src@f$, of size @f$n@f$ and stride @f$stride@f$, in the array @f$p@f$.
+ *  @brief Store the indices of the @f$k@f$ largest elements of the array @f$src@f$, of size @f$n@f$ and stride stride, in the array @f$p@f$.
  */
 void TSGSL_sort_largest_index(size_t* dst,          /**< [out] destination buffer. */               
                                const size_t k,      /**< [in]  number of elements to be choosed. */
@@ -341,27 +338,27 @@ void TSGSL_sort_largest_index(size_t* dst,          /**< [out] destination buffe
 
 
 /**
- *  @brief Gets the maximum value in @f$data@f$, a dataset of length @f$n@f$ with stride @f$stride@f$.
+ *  @brief Get the maximum value in @f$data@f$, a dataset of length @f$n@f$ with stride stride.
  *
- *  @return the maximum value with stride @f$stride@f$.
+ *  @return the maximum value with stride stride.
  */
 RFLOAT TSGSL_stats_max(const RFLOAT data[], /**< [in] source data buffer. */
                        const size_t stride, /**< [in] stride argument. */
                        const size_t n       /**< [in] total number of source elements. */
                       );
 /**
- *  @brief Gets the minimum value in @f$data@f$, a dataset of length @f$n@f$ with stride @f$stride@f$.
+ *  @brief Get the minimum value in @f$data@f$, a dataset of length @f$n@f$ with stride stride.
  *
- *  @return the minimum value with stride @f$stride@f$.
+ *  @return the minimum value with stride stride.
  */
 RFLOAT TSGSL_stats_min(const RFLOAT data[],  /**< [in] source data buffer. */
                         const size_t stride, /**< [in] stride argument. */
                         const size_t n       /**< [in] total number of source elements. */
                       );
 /**
- *  @brief Gets the mean value in @f$data@f$, a dataset of length @f$n@f$ with stride @f$stride@f$.
+ *  @brief Get the mean value in @f$data@f$, a dataset of length @f$n@f$ with stride stride.
  *
- *  @return the mean value with stride @f$stride@f$.
+ *  @return the mean value with stride stride.
  */
 RFLOAT TSGSL_stats_mean(const RFLOAT data[], /**< [in] source data buffer. */
                        const size_t stride,  /**< [in] stride argument. */
@@ -370,7 +367,7 @@ RFLOAT TSGSL_stats_mean(const RFLOAT data[], /**< [in] source data buffer. */
 
 
 /**
- *  @brief Gets a quantile value of @f$sorted_data@f$, a double-precision array of length @f$n@f$ with stride @f$stride@f$. The elements of the array must be in ascending numerical order. The quantile is determined by the @f$f@f$, a fraction between 0 and 1.
+ *  @brief Get a quantile value of @f$sorted_data@f$, a double-precision array of length @f$n@f$ with stride stride. The elements of the array must be in ascending numerical order. The quantile is determined by the @f$f@f$, a fraction between 0 and 1.
  *
  *  @return a quantile value.
  */
@@ -381,7 +378,7 @@ RFLOAT TSGSL_stats_quantile_from_sorted_data(const RFLOAT sorted_data[], /**< [i
                                             );
 
 /**
- *  @brief Gets the standard deviation with stride @f$stride@f$.
+ *  @brief Get the standard deviation with stride stride.
  */
 RFLOAT TSGSL_stats_sd(const RFLOAT data[], /**< [in] data elements buffer to be used. */
                       const size_t stride, /**< [in] the argument stride. */
@@ -389,7 +386,7 @@ RFLOAT TSGSL_stats_sd(const RFLOAT data[], /**< [in] data elements buffer to be 
                      );
 
 /**
- *  @brief Get the standard mean deviation with stride @f$stride@f$.
+ *  @brief Get the standard mean deviation with stride stride.
  */
 RFLOAT TSGSL_stats_sd_m(const RFLOAT data[], /**< [in] data elements buffer to be used. */
                         const size_t stride, /**< [in] the argument stride. */

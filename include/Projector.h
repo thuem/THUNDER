@@ -299,7 +299,7 @@ class Projector
          * @brief Project a volume using multiple threads, given the rotation matrix.
          */
         void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat33& mat,  /**<[in]  the 3D rotation matrix */
+                       const dmat33& mat   /**<[in]  the 3D rotation matrix */
                        ) const;
 
         /**
@@ -377,7 +377,7 @@ class Projector
          */
         void project(Image& dst,         /**<[out] the projected image */
                      const dmat33& rot,  /**<[in]  the 3D rotation matrix */
-                     const dvec2& t      /**<[in]  the translation vector */
+                     const dvec2& t,     /**<[in]  the translation vector */
                      const int* iCol,    /**<[in]  the index of column */
                      const int* iRow,    /**<[in]  the index of row */
                      const int* iPxl,    /**<[in]  the pixel index*/
@@ -389,7 +389,7 @@ class Projector
          */
         void project(Complex* dst,       /**<[out] the projected image, stored by Complex type */
                      const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                     const dvec2& t      /**<[in]  the translation vector */
+                     const dvec2& t,     /**<[in]  the translation vector */
                      const int nCol,     /**<[in]  the number of columns */
                      const int nRow,     /**<[in]  the number of rows */
                      const int* iCol,    /**<[in]  the index of column */
