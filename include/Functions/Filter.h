@@ -27,7 +27,8 @@
  */
 void bFactorFilter(Image& dst,
                    const Image& src,
-                   const RFLOAT bFactor);
+                   const RFLOAT bFactor,
+                   const unsigned int nThread);
 
 /**
  * This function performs a B-factor filtering on a volume.
@@ -38,7 +39,8 @@ void bFactorFilter(Image& dst,
  */
 void bFactorFilter(Volume& dst,
                    const Volume& src,
-                   const RFLOAT bFactor);
+                   const RFLOAT bFactor,
+                   const unsigned int nThread);
 
 /**
  * This function performs a low pass filtering on an image.
@@ -51,7 +53,8 @@ void bFactorFilter(Volume& dst,
 void lowPassFilter(Image& dst,
                    const Image& src,
                    const RFLOAT thres,
-                   const RFLOAT ew);
+                   const RFLOAT ew,
+                   const unsigned int nThread);
 
 /**
  * This function performs a low pass filtering on a volume.
@@ -64,7 +67,8 @@ void lowPassFilter(Image& dst,
 void lowPassFilter(Volume& dst,
                    const Volume& src,
                    const RFLOAT thres,
-                   const RFLOAT ew);
+                   const RFLOAT ew,
+                   const unsigned int nThread);
 
 /**
  * This function performs a high pass filtering on an image.
@@ -77,7 +81,8 @@ void lowPassFilter(Volume& dst,
 void highPassFilter(Image& dst,
                     const Image& src,
                     const RFLOAT thres,
-                    const RFLOAT ew);
+                    const RFLOAT ew,
+                    const unsigned int nThread);
 
 /**
  * This function performs a high pass filtering on a volume.
@@ -90,7 +95,8 @@ void highPassFilter(Image& dst,
 void highPassFilter(Volume& dst,
                     const Volume& src,
                     const RFLOAT thres,
-                    const RFLOAT ew);
+                    const RFLOAT ew,
+                    const unsigned int nThread);
 
 /**
  * This functions performs a weighting filtering on a volume based on FSC.
@@ -102,6 +108,7 @@ void highPassFilter(Volume& dst,
  */
 void fscWeightingFilter(Volume& dst,
                         const Volume& src,
-                        const vec& fsc);
+                        const vec& fsc,
+                        const unsigned int nThread);
 
 #endif // FILTER_H

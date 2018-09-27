@@ -70,18 +70,19 @@ class Postprocess
                     const char maskFilename[],
                     const RFLOAT pixelSize);
 
-        void run();
+        void run(const unsigned int nThread);
 
     private:
 
         /**
          * perform masking on reference A and reference B
          */
-        void maskAB();
+        void maskAB(const unsigned int nThread);
 
-        void maskABRF();
+        void maskABRF(const unsigned int nThread);
 
-        void randomPhaseAB(const int randomPhaseThres);
+        void randomPhaseAB(const int randomPhaseThres,
+                           const unsigned int nThread);
 
         void mergeAB();
 

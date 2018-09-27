@@ -31,12 +31,12 @@ Reconstructor::~Reconstructor()
 #ifdef GPU_RECONSTRUCT
     if (_mode == MODE_3D)
     {
-        _fft.fwDestroyPlanMT();
-        _fft.bwDestroyPlanMT();
+        _fft.fwDestroyPlan();
+        _fft.bwDestroyPlan();
     }
 #else
-    _fft.fwDestroyPlanMT();
-    _fft.bwDestroyPlanMT();
+    _fft.fwDestroyPlan();
+    _fft.bwDestroyPlan();
 #endif
 }
 
@@ -57,7 +57,7 @@ void Reconstructor::init(const int mode,
     _a = a;
     _alpha = alpha;
 
-    // initialise the interpolation kernel
+    // initialize the interpolation kernel
     
     ALOG(INFO, "LOGGER_RECO") << "Initialising Kernels";
     BLOG(INFO, "LOGGER_RECO") << "Initialising Kernels";
@@ -89,7 +89,7 @@ void Reconstructor::init(const int mode,
     _maxRadius = (_size / 2 - CEIL(a));
 }
 
-void Reconstructor::allocSpace()
+void Reconstructor::allocSpace(const unsigned int nThread)
 {
     if (_mode == MODE_2D)
     {
@@ -100,8 +100,8 @@ void Reconstructor::allocSpace()
         ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
         BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
-        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE);
-        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE);
+        _fft.fwCreatePlan(PAD_SIZE, PAD_SIZE, nThread);
+        _fft.bwCreatePlan(PAD_SIZE, PAD_SIZE, nThread);
 #endif
 
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
@@ -120,8 +120,8 @@ void Reconstructor::allocSpace()
         ALOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
         BLOG(INFO, "LOGGER_RECO") << "Creating Fourier Transform Plans";
 
-        _fft.fwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
-        _fft.bwCreatePlanMT(PAD_SIZE, PAD_SIZE, PAD_SIZE);
+        _fft.fwCreatePlan(PAD_SIZE, PAD_SIZE, PAD_SIZE, nThread);
+        _fft.bwCreatePlan(PAD_SIZE, PAD_SIZE, PAD_SIZE, nThread);
 
         ALOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Allocating Spaces";
@@ -139,7 +139,7 @@ void Reconstructor::allocSpace()
         abort();
     }
 
-    reset();
+    reset(nThread);
 }
 
 void Reconstructor::freeSpace()
@@ -150,8 +150,8 @@ void Reconstructor::freeSpace()
         BLOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
 
 #ifndef GPU_RECONSTRUCT
-        _fft.fwDestroyPlanMT();
-        _fft.bwDestroyPlanMT();
+        _fft.fwDestroyPlan();
+        _fft.bwDestroyPlan();
 #endif
 
         _F2D.clear();
@@ -164,8 +164,8 @@ void Reconstructor::freeSpace()
         ALOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
         BLOG(INFO, "LOGGER_RECO") << "Freeing Spaces";
 
-        _fft.fwDestroyPlanMT();
-        _fft.bwDestroyPlanMT();
+        _fft.fwDestroyPlan();
+        _fft.bwDestroyPlan();
         
         _F3D.clear();
         _W3D.clear();
@@ -186,18 +186,18 @@ void Reconstructor::resizeSpace(const int size)
 #ifdef GPU_RECONSTRUCT
     if (_mode == MODE_3D)
     {
-        _fft.fwDestroyPlanMT();
-        _fft.bwDestroyPlanMT();
+        _fft.fwDestroyPlan();
+        _fft.bwDestroyPlan();
     }
 #else
-    _fft.fwDestroyPlanMT();
-    _fft.bwDestroyPlanMT();
+    _fft.fwDestroyPlan();
+    _fft.bwDestroyPlan();
 #endif
 
     _size = size;
 }
 
-void Reconstructor::reset()
+void Reconstructor::reset(const unsigned int nThread)
 {
     _iCol = NULL;
     _iRow = NULL;
@@ -214,30 +214,30 @@ void Reconstructor::reset()
 
     if (_mode == MODE_2D)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_0_FT(_F2D);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_1_FT(_W2D);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_0_FT(_C2D);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_0_FT(_T2D);
     }
     else if (_mode == MODE_3D)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_0_FT(_F3D);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_1_FT(_W3D);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_0_FT(_C3D);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SET_0_FT(_T3D);
     }
     else
@@ -1053,14 +1053,14 @@ void Reconstructor::prepareTFG(int gpuIdx)
 
 #endif // GPU_INSERT
 
-void Reconstructor::prepareTF()
+void Reconstructor::prepareTF(const unsigned int nThread)
 {
     IF_MASTER return;
 
     ALOG(INFO, "LOGGER_RECO") << "Allreducing T";
     BLOG(INFO, "LOGGER_RECO") << "Allreducing T";
 
-    allReduceT();
+    allReduceT(nThread);
 
     // only in 3D mode, symmetry should be considered
     IF_MODE_3D
@@ -1069,7 +1069,7 @@ void Reconstructor::prepareTF()
         ALOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
         BLOG(INFO, "LOGGER_RECO") << "Symmetrizing T";
 
-        symmetrizeT();
+        symmetrizeT(nThread);
 #endif
     }
 
@@ -1085,16 +1085,17 @@ void Reconstructor::prepareTF()
         ALOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
         BLOG(INFO, "LOGGER_RECO") << "Symmetrizing F";
 
-        symmetrizeF();
+        symmetrizeF(nThread);
 #endif
     }
 }
 
-void Reconstructor::reconstruct(Image& dst)
+void Reconstructor::reconstruct(Image& dst,
+                                const unsigned int nThread)
 {
     Volume tmp;
 
-    reconstruct(tmp);
+    reconstruct(tmp, nThread);
 
     dst.alloc(PAD_SIZE, PAD_SIZE, RL_SPACE);
 
@@ -1125,7 +1126,8 @@ void Reconstructor::prepareO()
     _oz /= _counter;
 }
 
-void Reconstructor::reconstruct(Volume& dst)
+void Reconstructor::reconstruct(Volume& dst,
+                                const unsigned int nThread)
 {
     IF_MASTER return;
 
@@ -1168,7 +1170,8 @@ void Reconstructor::reconstruct(Volume& dst)
             shellAverage(avg,
                          _T3D,
                          gsl_real,
-                         _maxRadius * _pf - 1);
+                         _maxRadius * _pf - 1,
+                         nThread);
         }
         else
         {
@@ -1205,7 +1208,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
         if (_mode == MODE_2D)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             IMAGE_FOR_EACH_PIXEL_FT(_T2D)
                 if ((QUAD(i, j) >= TSGSL_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
                     (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf)))
@@ -1236,7 +1239,7 @@ void Reconstructor::reconstruct(Volume& dst)
         }
         else if (_mode == MODE_3D)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             VOLUME_FOR_EACH_PIXEL_FT(_T3D)
                 if ((QUAD_3(i, j, k) >= TSGSL_pow_2(WIENER_FACTOR_MIN_R * _pf)) &&
                     (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf)))
@@ -1284,7 +1287,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
     if (_mode == MODE_2D)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_FT(_W2D)
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                 _W2D.setFTHalf(COMPLEX(1, 0), i, j);
@@ -1293,7 +1296,7 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_FT(_W3D)
             if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                 _W3D.setFTHalf(COMPLEX(1, 0), i, j, k);
@@ -1310,13 +1313,13 @@ void Reconstructor::reconstruct(Volume& dst)
     // make sure there is a minimum value for T
     if (_mode == MODE_2D)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         FOR_EACH_PIXEL_FT(_T2D)
             _T2D[i].dat[0] = TSGSL_MAX_RFLOAT(_T2D[i].dat[0], 1e-25);
     }
     else if (_mode == MODE_3D)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         FOR_EACH_PIXEL_FT(_T3D)
             _T3D[i].dat[0] = TSGSL_MAX_RFLOAT(_T3D[i].dat[0], 1e-25);
     }
@@ -1378,7 +1381,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 SEGMENT_NAN_CHECK_COMPLEX(_W2D.dataFT(), _W2D.sizeFT());
 #endif
 
-                #pragma omp parallel for
+                #pragma omp parallel for num_threads(nThread)
                 FOR_EACH_PIXEL_FT(_C2D)
                     _C2D[i] = _T2D[i] * REAL(_W2D[i]);
 
@@ -1393,7 +1396,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 SEGMENT_NAN_CHECK_COMPLEX(_W3D.dataFT(), _W3D.sizeFT());
 #endif
 
-                #pragma omp parallel for
+                #pragma omp parallel for num_threads(nThread)
                 FOR_EACH_PIXEL_FT(_C3D)
                     _C3D[i] = _T3D[i] * REAL(_W3D[i]);
 
@@ -1415,7 +1418,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
-            convoluteC();
+            convoluteC(nThread);
 
 #ifdef VERBOSE_LEVEL_2
 
@@ -1431,7 +1434,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
 #endif
 
-                #pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for schedule(dynamic) num_threads(nThread)
                 IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                     if (QUAD(i, j) < gsl_pow_2(_maxRadius * _pf))
                     {
@@ -1485,7 +1488,7 @@ void Reconstructor::reconstruct(Volume& dst)
                 SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
 #endif
 
-                #pragma omp parallel for schedule(dynamic)
+                #pragma omp parallel for schedule(dynamic) num_threads(nThread)
                 VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                     if (QUAD_3(i, j, k) < gsl_pow_2(_maxRadius * _pf))
                         _W3D.setFTHalf(_W3D.getFTHalf(i, j, k)
@@ -1515,7 +1518,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
             diffCPrev = diffC;
 
-            diffC = checkC();
+            diffC = checkC(nThread);
  
 #ifdef VERBOSE_LEVEL_2
 
@@ -1552,7 +1555,7 @@ void Reconstructor::reconstruct(Volume& dst)
         // no grid correction
         if (_mode == MODE_2D)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             IMAGE_FOR_EACH_PIXEL_FT(_W2D)
                 if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                     _W2D.setFTHalf(COMPLEX(1.0
@@ -1564,7 +1567,7 @@ void Reconstructor::reconstruct(Volume& dst)
         }
         else if (_mode == MODE_3D)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             VOLUME_FOR_EACH_PIXEL_FT(_W3D)
                 if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                     _W3D.setFTHalf(COMPLEX(1.0
@@ -1599,7 +1602,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
         Image padDst(_N * _pf, _N * _pf, FT_SPACE);
 
-        #pragma omp parallel
+        #pragma omp parallel num_threads(nThread)
         SET_0_FT(padDst);
 
 #ifdef VERBOSE_LEVEL_2
@@ -1609,7 +1612,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_FT(_F2D)
         {
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
@@ -1643,7 +1646,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
         FFT fft;
-        fft.bwMT(padDst);
+        fft.bw(padDst, nThread);
 
 #ifndef NAN_NO_CHECK
         SEGMENT_NAN_CHECK(padDst.dataRL(), padDst.dataRL());
@@ -1651,11 +1654,11 @@ void Reconstructor::reconstruct(Volume& dst)
 
         Image imgDst;
 
-        IMG_EXTRACT_RL(imgDst, padDst, 1.0 / _pf);
+        IMG_EXTRACT_RL(imgDst, padDst, 1.0 / _pf, nThread);
 
         dst.alloc(_N, _N, 1, RL_SPACE);
 
-        #pragma omp parallel
+        #pragma omp parallel num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_RL(imgDst)
             dst.setRL(imgDst.getRL(i, j), i, j, 0);
 
@@ -1674,7 +1677,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
         Volume padDst(_N * _pf, _N * _pf, _N * _pf, FT_SPACE);
 
-        #pragma omp parallel
+        #pragma omp parallel num_threads(nThread)
         SET_0_FT(padDst);
 
 #ifdef VERBOSE_LEVEL_2
@@ -1684,7 +1687,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_FT(_F3D)
         {
             if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
@@ -1709,7 +1712,7 @@ void Reconstructor::reconstruct(Volume& dst)
 #endif
 
         FFT fft;
-        fft.bwMT(padDst);
+        fft.bw(padDst, nThread);
         
 #ifdef VERBOSE_LEVEL_2
 
@@ -1718,7 +1721,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
 #endif
 
-        VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf);
+        VOL_EXTRACT_RL(dst, padDst, 1.0 / _pf, nThread);
     }
     else
     {
@@ -1750,7 +1753,7 @@ void Reconstructor::reconstruct(Volume& dst)
 
         SLC_EXTRACT_RL(imgDst, dst, 0);
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_RL(imgDst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -1775,7 +1778,7 @@ void Reconstructor::reconstruct(Volume& dst)
     }
     else if (_mode == MODE_3D)
     {
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_RL(dst)
         {
 #ifdef RECONSTRUCTOR_MKB_KERNEL
@@ -1818,7 +1821,7 @@ void Reconstructor::reconstruct(Volume& dst)
     ALOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
     BLOG(INFO, "LOGGER_RECO") << "Removing Negative Values";
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     REMOVE_NEG(dst);
 #endif // RECONSTRUCT_REMOVE_NEG
 
@@ -1830,7 +1833,8 @@ void Reconstructor::reconstruct(Volume& dst)
 #ifdef GPU_RECONSTRUCT
 
 void Reconstructor::reconstructG(Volume& dst,
-                                 int gpuIdx)
+                                 int gpuIdx,
+                                 const unsigned int nThread)//LSQ:GPU 
 {
     IF_MASTER return;
 
@@ -2023,7 +2027,7 @@ void Reconstructor::reconstructG(Volume& dst,
                         streamNum,
                         _C3D.nSlcFT());
                 
-                _fft.bwExecutePlanMT(_C3D);
+                _fft.bwExecutePlan(_C3D, nThread);
                 
                 ExposeForConvC(gpuIdx,
                                _C3D,
@@ -2037,7 +2041,7 @@ void Reconstructor::reconstructG(Volume& dst,
                                _pf,
                                _N);
                 
-                _fft.fwExecutePlanMT(_C3D);
+                _fft.fwExecutePlan(_C3D);
                 
                 diffCPrev = diffC;
                 
@@ -2168,7 +2172,7 @@ void Reconstructor::reconstructG(Volume& dst,
         padDst.clearFT();
 
         Image img;
-        IMG_EXTRACT_RL(img, padDstR, 1.0 / _pf);
+        IMG_EXTRACT_RL(img, padDstR, 1.0 / _pf, nThread);//LSQ:pay attention.
         
         Volume dstT(_N, _N, 1, RL_SPACE);
         
@@ -2238,7 +2242,7 @@ void Reconstructor::reconstructG(Volume& dst,
                   _pf);
         
         FFT fft;
-        fft.bw(padDst);
+        fft.bw(padDst, nThread);//LSQ: the parameter maybe mistake for it's bw originally instead of bwMT
         
         //ExposePF(gpuIdx,
         //         padDst,
@@ -2312,7 +2316,7 @@ void Reconstructor::reconstructG(Volume& dst,
 #ifdef RECONSTRUCTOR_REMOVE_NEG
         REMOVE_NEG(dst);
 #endif
-        fft.fw(dst);
+        fft.fw(dst, nThread);//LSQ: the parameter maybe mistake for it's fw originally instead of fwMT.
         
         //ExposeCorrF(gpuIdx,
         //            dstN,
@@ -2394,7 +2398,7 @@ void Reconstructor::allReduceF()
     MPI_Barrier(_hemi);
 }
 
-void Reconstructor::allReduceT()
+void Reconstructor::allReduceT(const unsigned int nThread)
 {
     ALOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere A";
     BLOG(INFO, "LOGGER_RECO") << "Waiting for Synchronizing all Processes in Hemisphere B";
@@ -2454,18 +2458,18 @@ void Reconstructor::allReduceT()
     {
         RFLOAT sf = 1.0 / REAL(_T2D[0]);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SCALE_FT(_T2D, sf);
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SCALE_FT(_F2D, sf);
     }
     else if (_mode == MODE_3D)
     {
         RFLOAT sf = 1.0 / REAL(_T3D[0]);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SCALE_FT(_T3D, sf);
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         SCALE_FT(_F3D, sf);
     }
     else
@@ -2513,7 +2517,7 @@ void Reconstructor::allReduceO()
                   _slav);
 }
 
-RFLOAT Reconstructor::checkC() const
+RFLOAT Reconstructor::checkC(const unsigned int nThread) const
 {
 #ifdef RECONSTRUCTOR_CHECK_C_AVERAGE
     RFLOAT diff = 0;
@@ -2522,7 +2526,7 @@ RFLOAT Reconstructor::checkC() const
 
     if (_mode == MODE_2D)
     {
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_FT(_C2D)
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
             {
@@ -2534,7 +2538,7 @@ RFLOAT Reconstructor::checkC() const
     }
     else if (_mode == MODE_3D)
     {
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
             if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
             {
@@ -2559,7 +2563,7 @@ RFLOAT Reconstructor::checkC() const
     {
         vector<RFLOAT> diff(_C2D.sizeFT(), 0);
         
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_FT(_C2D)
             if (QUAD(i, j) < TSGSL_pow_2(_maxRadius * _pf))
                 diff[_C2D.iFTHalf(i, j)] = fabs(ABS(_C2D.getFTHalf(i, j)) - 1);
@@ -2570,7 +2574,7 @@ RFLOAT Reconstructor::checkC() const
     {
         vector<RFLOAT> diff(_C3D.sizeFT(), 0);
 
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_FT(_C3D)
             if (QUAD_3(i, j, k) < TSGSL_pow_2(_maxRadius * _pf))
                 diff[_C3D.iFTHalf(i, j, k)] = fabs(ABS(_C3D.getFTHalf(i, j, k)) - 1);
@@ -2586,7 +2590,7 @@ RFLOAT Reconstructor::checkC() const
 #endif
 }
 
-void Reconstructor::convoluteC()
+void Reconstructor::convoluteC(const unsigned int nThread)
 {
 #ifdef RECONSTRUCTOR_KERNEL_PADDING
     RFLOAT nf = MKB_RL(0, _a * _pf, _alpha);
@@ -2600,13 +2604,13 @@ void Reconstructor::convoluteC()
         SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
 #endif
 
-        _fft.bwExecutePlanMT(_C2D);
+        _fft.bwExecutePlan(_C2D,nThread);
 
 #ifndef NAN_NO_CHECK
         SEGMENT_NAN_CHECK(_C2D.dataRL(), _C2D.sizeRL());
 #endif
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         IMAGE_FOR_EACH_PIXEL_RL(_C2D)
             _C2D.setRL(_C2D.getRL(i, j)
                      * _kernelRL(QUAD(i, j) / TSGSL_pow_2(_N * _pf))
@@ -2618,7 +2622,7 @@ void Reconstructor::convoluteC()
         SEGMENT_NAN_CHECK(_C2D.dataRL(), _C2D.sizeRL());
 #endif
 
-        _fft.fwExecutePlanMT(_C2D);
+        _fft.fwExecutePlan(_C2D);
 
 #ifndef NAN_NO_CHECK
         SEGMENT_NAN_CHECK_COMPLEX(_C2D.dataFT(), _C2D.sizeFT());
@@ -2632,13 +2636,13 @@ void Reconstructor::convoluteC()
         SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
 #endif
 
-        _fft.bwExecutePlanMT(_C3D);
+        _fft.bwExecutePlan(_C3D, nThread);
 
 #ifndef NAN_NO_CHECK
         SEGMENT_NAN_CHECK(_C3D.dataRL(), _C3D.sizeRL());
 #endif
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_RL(_C3D)
             _C3D.setRL(_C3D.getRL(i, j, k)
                      * _kernelRL(QUAD_3(i, j, k) / TSGSL_pow_2(_N * _pf))
@@ -2651,7 +2655,7 @@ void Reconstructor::convoluteC()
         SEGMENT_NAN_CHECK(_C3D.dataRL(), _C3D.sizeRL());
 #endif
 
-        _fft.fwExecutePlanMT(_C3D);
+        _fft.fwExecutePlan(_C3D);
 
 #ifndef NAN_NO_CHECK
         SEGMENT_NAN_CHECK_COMPLEX(_C3D.dataFT(), _C3D.sizeFT());
@@ -2667,18 +2671,18 @@ void Reconstructor::convoluteC()
     }
 }
 
-void Reconstructor::symmetrizeF()
+void Reconstructor::symmetrizeF(const unsigned int nThread)
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
+        SYMMETRIZE_FT(_F3D, _F3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP, nThread);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
 
-void Reconstructor::symmetrizeT()
+void Reconstructor::symmetrizeT(const unsigned int nThread)
 {
     if (_sym != NULL)
-        SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP);
+        SYMMETRIZE_FT(_T3D, _T3D, *_sym, _maxRadius * _pf + 1, LINEAR_INTERP, nThread);
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }

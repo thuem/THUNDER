@@ -13,7 +13,7 @@
  *
  *  @brief Transformation.h contains several functions, for transforming volumes.
  *  
- *  This file contains severl functions for transformationg volumes, in both real space and Fourier space.
+ *  This file contains several functions for transformation volumes, in both real space and Fourier space.
  */
 
 #ifndef TRANSFORMATION_H
@@ -55,17 +55,18 @@
  * \f]
  * i.e. the value of transformed volume @f$V'@f$ voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ in real space is obtained by interpolation of original volume @f$V@f$ voxel @f$\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}@f$ in real space.
  */
-inline void VOL_TRANSFORM_MAT_RL(Volume& dst,        /**< [out] the transformed volume @f$V'@f$ */
-                                 const Volume& src,  /**< [in]  the original volume @f$V@f$ */
-                                 const dmat33& mat,  /**< [in]  the transformation matrix @f$M@f$ */
-                                 const double r,     /**< [in]  the radius in real spcae, restricts the transformed volume's range */
-                                 const int interp    /**< [in]  the interpolation type */
+inline void VOL_TRANSFORM_MAT_RL(Volume& dst,                 /**< [out] the transformed volume @f$V'@f$ */
+                                 const Volume& src,           /**< [in]  the original volume @f$V@f$ */
+                                 const dmat33& mat,           /**< [in]  the transformation matrix @f$M@f$ */
+                                 const double r,              /**< [in]  the radius in real space, restricts the transformed volume's range */
+                                 const int interp,            /**< [in]  the interpolation type */
+                                 const unsigned int nThread   /**< [in]  the number of threads to be used */
                                 )
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     SET_0_RL(dst);
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(dst)
     {
         dvec3 newCor((double)i, (double)j, (double)k);
@@ -101,17 +102,18 @@ inline void VOL_TRANSFORM_MAT_RL(Volume& dst,        /**< [out] the transformed 
  * \f]
  * i.e. the value of transformed volume @f$V'@f$ voxel @f$\begin{pmatrix} x \\ y \\ z \end{pmatrix}@f$ in Fourier space is obtained by interpolation of original volume @f$V@f$ voxel @f$\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix}@f$ in Fourier space.
  */
-inline void VOL_TRANSFORM_MAT_FT(Volume& dst,        /**< [out] the transformed volume @f$V'@f$ */
-                                 const Volume& src,  /**< [in]  the original volume @f$V@f$ */
-                                 const dmat33& mat,  /**< [in]  the transformation matrix @f$M@f$ */
-                                 const double r,     /**< [in]  the radius in Fourier spcae, restricts the transformed volume's range */
-                                 const int interp    /**< [in]  the interpolation type */
+inline void VOL_TRANSFORM_MAT_FT(Volume& dst,                 /**< [out] the transformed volume @f$V'@f$ */
+                                 const Volume& src,           /**< [in]  the original volume @f$V@f$ */
+                                 const dmat33& mat,           /**< [in]  the transformation matrix @f$M@f$ */
+                                 const double r,              /**< [in]  the radius in Fourier space, restricts the transformed volume's range */
+                                 const int interp,            /**< [in]  the interpolation type */
+                                 const unsigned int nThread   /**< [in]  the number of threads to be used */
                                 )
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     SET_0_FT(dst);
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(dst)
     {
         dvec3 newCor((double)i, (double)j, (double)k);
@@ -129,15 +131,17 @@ inline void VOL_TRANSFORM_MAT_FT(Volume& dst,        /**< [out] the transformed 
 }
 
 /**
+
  * @brief Symmetrize volume @f$V@f$ in real space, given the symmetry elements @f$\mathbf{S} = \left\{\mathbf{s_0}, \mathbf{s_1}, \dots, \mathbf{s_{N - 1}}\right\}@f$, and output the symmetrized volume @f$V'@f$.
  * 
  * For volume @f$V@f$ in real space, transform @f$\mathbf{V}@f$ by rotation matrix @f$s_i, 0 \leq i \leq N - 1@f$, respectively. Then sum the transformed matrices up.
  */
-inline void SYMMETRIZE_RL(Volume& dst,          /**< [out] the symmetrized volume @f$V'@f$ */
-                          const Volume& src,    /**< [in]  the original volume @f$V@f$ */
-                          const Symmetry& sym,  /**< [in]  symmetry @f$\mathbf{S}@f$ */
-                          const double r,       /**< [in]  the radius in real space, restricts the transformed volume's range */
-                          const int interp      /**< [in]  the interpolation type */
+inline void SYMMETRIZE_RL(Volume& dst,                   /**< [out] the symmetric volume @f$V'@f$ */
+                          const Volume& src,             /**< [in]  the original volume @f$V@f$ */
+                          const Symmetry& sym,           /**< [in]  symmetry @f$\mathbf{S}@f$ */
+                          const double r,                /**< [in]  the radius in real space, restricts the transformed volume's range */
+                          const int interp,              /**< [in]  the interpolation type */
+                          const unsigned int nThread     /**< [in]  the number of threads to be used */
                          )
 {
     Volume result = src.copyVolume();
@@ -149,9 +153,9 @@ inline void SYMMETRIZE_RL(Volume& dst,          /**< [out] the symmetrized volum
     {
         sym.get(L, R, i);
 
-        VOL_TRANSFORM_MAT_RL(se, src, R, r, interp);
+        VOL_TRANSFORM_MAT_RL(se, src, R, r, interp, nThread);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         ADD_RL(result, se);
     }
 
@@ -163,11 +167,12 @@ inline void SYMMETRIZE_RL(Volume& dst,          /**< [out] the symmetrized volum
  * 
  * For volume @f$V@f$ in Fourier space, transform @f$\mathbf{V}@f$ by rotation matrix @f$s_i, 0 \leq i \leq N - 1@f$, respectively. Then sum the transformed matrices up.
  */
-inline void SYMMETRIZE_FT(Volume& dst,          /**< [out] the symmetrized volume @f$V'@f$ */
-                          const Volume& src,    /**< [in]  the original volume @f$V@f$ */
-                          const Symmetry& sym,  /**< [in]  symmetry @f$\mathbf{S}@f$ */
-                          const double r,       /**< [in]  the radius in Fourier space, restricts the transformed volume's range */
-                          const int interp      /**< [in]  the interpolation type */
+inline void SYMMETRIZE_FT(Volume& dst,                  /**< [out] the symmetrized volume @f$V'@f$ */
+                          const Volume& src,            /**< [in]  the original volume @f$V@f$ */
+                          const Symmetry& sym,          /**< [in]  symmetry @f$\mathbf{S}@f$ */
+                          const double r,               /**< [in]  the radius in Fourier space, restricts the transformed volume's range */
+                          const int interp,             /**< [in]  the interpolation type */
+                          const unsigned int nThread    /**< [in]  the number of threads to be used */
                          )
 {
     Volume result = src.copyVolume();
@@ -179,9 +184,9 @@ inline void SYMMETRIZE_FT(Volume& dst,          /**< [out] the symmetrized volum
     {
         sym.get(L, R, i);
 
-        VOL_TRANSFORM_MAT_FT(se, src, R, r, interp);
+        VOL_TRANSFORM_MAT_FT(se, src, R, r, interp, nThread);
 
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(nThread)
         ADD_FT(result, se);
     }
 

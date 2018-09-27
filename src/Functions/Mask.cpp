@@ -50,18 +50,23 @@ RFLOAT nVoxel(const RFLOAT r,
 }
 
 RFLOAT regionMean(const Image& img,
-                  const int r)
+                  const int r,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
         int u = AROUND(NORM(i, j));
 
         if (u == r)
         {
+            #pragma omp atomic        
             weightSum += 1;
+
+            #pragma omp atomic
             sum += img.getRL(i, j);
         }
     }
@@ -70,12 +75,13 @@ RFLOAT regionMean(const Image& img,
 }
 
 RFLOAT regionMean(const Volume& vol,
-                  const int r)
+                  const int r,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         int u = AROUND(NORM_3(i, j, k));
@@ -95,11 +101,13 @@ RFLOAT regionMean(const Volume& vol,
 
 RFLOAT regionMean(const Image& img,
                   const RFLOAT rU,
-                  const RFLOAT rL)
+                  const RFLOAT rL,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
         RFLOAT u = NORM(i, j);
@@ -107,7 +115,10 @@ RFLOAT regionMean(const Image& img,
         if ((u < rU) &&
             (u >= rL))
         {
+            #pragma omp atomic
             weightSum += 1;
+
+            #pragma omp atomic            
             sum += img.getRL(i, j);
         }
     }
@@ -117,12 +128,13 @@ RFLOAT regionMean(const Image& img,
 
 RFLOAT regionMean(const Volume& vol,
                   const RFLOAT rU,
-                  const RFLOAT rL)
+                  const RFLOAT rL,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         RFLOAT u = NORM_3(i, j, k);
@@ -143,24 +155,32 @@ RFLOAT regionMean(const Volume& vol,
 
 RFLOAT background(const Image& img,
                   const RFLOAT r,
-                  const RFLOAT ew)
+                  const RFLOAT ew,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
         RFLOAT u = NORM(i, j);
 
         if (u > r + ew)
         {
+            #pragma omp atomic
             weightSum += 1;
+
+            #pragma omp atomic
             sum += img.getRL(i, j);
         }
         else if (u >= r)
         {
             RFLOAT w = 0.5 - 0.5 * cos((u - r) / ew * M_PI); // portion of background
+            #pragma omp atomic            
             weightSum += w;
+
+            #pragma omp atomic            
             sum += img.getRL(i, j) * w;
         }
     }
@@ -169,15 +189,21 @@ RFLOAT background(const Image& img,
 }
 
 RFLOAT background(const Image& img,
-                  const Image& alpha)
+                  const Image& alpha,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
         RFLOAT w = 1 - alpha.getRL(i, j); // portion of background
+        
+        #pragma omp atomic
         weightSum += w;
+
+        #pragma omp atomic
         sum += img.getRL(i, j) * w;
     }
 
@@ -186,12 +212,13 @@ RFLOAT background(const Image& img,
 
 RFLOAT background(const Volume& vol,
                   const RFLOAT r,
-                  const RFLOAT ew)
+                  const RFLOAT ew,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
     
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         RFLOAT u = NORM_3(i, j, k);
@@ -220,12 +247,13 @@ RFLOAT background(const Volume& vol,
 }
 
 RFLOAT background(const Volume& vol,
-                  const Volume& alpha)
+                  const Volume& alpha,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         RFLOAT w = 1 - alpha.getRL(i, j, k); // portion of background
@@ -243,12 +271,13 @@ RFLOAT background(const Volume& vol,
 RFLOAT background(const Volume& vol,
                   const RFLOAT rU,
                   const RFLOAT rL,
-                  const RFLOAT ew)
+                  const RFLOAT ew,
+                  const unsigned int nThread)
 {
     RFLOAT weightSum = 0;
     RFLOAT sum = 0;
     
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         RFLOAT u = NORM_3(i, j, k);
@@ -303,8 +332,10 @@ void directSoftMask(Image& dst,
 
 void softMask(Image& mask,
               const RFLOAT r,
-              const RFLOAT ew)
+              const RFLOAT ew,
+              const unsigned int nThread)
 {
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(mask)
     {
         RFLOAT u = NORM(i, j);
@@ -321,19 +352,22 @@ void softMask(Image& mask,
 void softMask(Image& dst,
               const Image& src,
               const RFLOAT r,
-              const RFLOAT ew)
+              const RFLOAT ew,
+              const unsigned int nThread)
 {
-    RFLOAT bg = background(src, r, ew);
+    RFLOAT bg = background(src, r, ew, nThread);
 
-    softMask(dst, src, r, ew, bg);
+    softMask(dst, src, r, ew, bg, nThread);
 }
 
 void softMask(Image& dst,
               const Image& src,
               const RFLOAT r,
               const RFLOAT ew,
-              const RFLOAT bg)
+              const RFLOAT bg,
+              const unsigned int nThread)
 {
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         RFLOAT u = NORM(i, j);
@@ -355,10 +389,12 @@ void softMask(Image& dst,
               const RFLOAT r,
               const RFLOAT ew,
               const RFLOAT bgMean,
-              const RFLOAT bgStd)
+              const RFLOAT bgStd,
+              const unsigned int nThread)
 {
     gsl_rng* engine = get_random_engine();
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         RFLOAT u = NORM(i, j);
@@ -382,18 +418,21 @@ void softMask(Image& dst,
 
 void softMask(Image& dst,
               const Image& src,
-              const Image& alpha)
+              const Image& alpha,
+              const unsigned int nThread)
 {
-    RFLOAT bg = background(src, alpha);
+    RFLOAT bg = background(src, alpha, nThread);
 
-    softMask(dst, src, alpha, bg);
+    softMask(dst, src, alpha, bg, nThread);
 }
 
 void softMask(Image& dst,
               const Image& src,
               const Image& alpha,
-              const RFLOAT bg)
+              const RFLOAT bg,
+              const unsigned int nThread)
 {
+    #pragma omp parallel for num_threads(nThread)
     FOR_EACH_PIXEL_RL(src)
     {
         RFLOAT w = 1 - alpha.iGetRL(i);
@@ -412,10 +451,12 @@ void softMask(Image& dst,
               const Image& src,
               const Image& alpha,
               const RFLOAT bgMean,
-              const RFLOAT bgStd)
+              const RFLOAT bgStd,
+              const unsigned int nThread)
 {
     gsl_rng* engine = get_random_engine();
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_RL(src)
     {
         RFLOAT w = 1 - alpha.getRL(i, j); // portion of background
@@ -428,9 +469,10 @@ void softMask(Image& dst,
 
 void softMask(Volume& mask,
               const RFLOAT r,
-              const RFLOAT ew)
+              const RFLOAT ew,
+              const unsigned int nThread)
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(mask)
     {
         RFLOAT u = NORM_3(i, j, k);
@@ -446,20 +488,22 @@ void softMask(Volume& mask,
 void softMask(Volume& dst,
               const Volume& src,
               const RFLOAT r,
-              const RFLOAT ew)
+              const RFLOAT ew,
+              const unsigned int nThread)
 {
-    RFLOAT bg = background(src, r, ew);
+    RFLOAT bg = background(src, r, ew, nThread);
 
-    softMask(dst, src, r, ew, bg);
+    softMask(dst, src, r, ew, bg, nThread);
 }
 
 void softMask(Volume& dst,
               const Volume& src,
               const RFLOAT r,
               const RFLOAT ew,
-              const RFLOAT bg)
+              const RFLOAT bg,
+              const unsigned int nThread)
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(src)
     {
         RFLOAT u = NORM_3(i, j, k);
@@ -478,19 +522,21 @@ void softMask(Volume& dst,
 
 void softMask(Volume& dst,
               const Volume& src,
-              const Volume& alpha)
+              const Volume& alpha,
+              const unsigned int nThread)
 {
-    RFLOAT bg = background(src, alpha);
+    RFLOAT bg = background(src, alpha, nThread);
 
-    softMask(dst, src, alpha, bg);
+    softMask(dst, src, alpha, bg, nThread);
 }
 
 void softMask(Volume& dst,
               const Volume& src,
               const Volume& alpha,
-              const RFLOAT bg)
+              const RFLOAT bg,
+              const unsigned int nThread)
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     FOR_EACH_PIXEL_RL(src)
     {
         RFLOAT w = 1 - alpha.iGetRL(i); // portion of background
@@ -511,11 +557,12 @@ void regionBgSoftMask(Image& dst,
                       const RFLOAT r,
                       const RFLOAT ew,
                       const RFLOAT rU,
-                      const RFLOAT rL)
+                      const RFLOAT rL,
+                      const unsigned int nThread)
 {
-    RFLOAT bg = regionMean(src, rU, rL);
+    RFLOAT bg = regionMean(src, rU, rL, nThread);
 
-    softMask(dst, src, r, ew, bg);
+    softMask(dst, src, r, ew, bg, nThread);
 }
 
 void regionBgSoftMask(Volume& dst,
@@ -523,18 +570,20 @@ void regionBgSoftMask(Volume& dst,
                       const RFLOAT r,
                       const RFLOAT ew,
                       const RFLOAT rU,
-                      const RFLOAT rL)
+                      const RFLOAT rL,
+                      const unsigned int nThread)
 {
-    RFLOAT bg = regionMean(src, rU, rL);
+    RFLOAT bg = regionMean(src, rU, rL, nThread);
 
-    softMask(dst, src, r, ew, bg);
+    softMask(dst, src, r, ew, bg, nThread);
 }
 
-void removeIsolatedPoint(Volume& vol)
+void removeIsolatedPoint(Volume& vol,
+                         const unsigned int nThread)
 {
     Volume volTmp = vol.copyVolume();
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
         if (vol.getRL(i, j, k) == 1)
         {
@@ -561,7 +610,8 @@ void removeIsolatedPoint(Volume& vol)
 }
 
 void extMask(Volume& vol,
-             const RFLOAT ext)
+             const RFLOAT ext,
+             const unsigned int nThread)
 {
     Volume volTmp = vol.copyVolume();
 
@@ -569,7 +619,7 @@ void extMask(Volume& vol,
 
     if (ext > 0)
     {
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_RL(vol)
             if (vol.getRL(i, j, k) == 1)
                 VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
@@ -578,7 +628,7 @@ void extMask(Volume& vol,
     }
     else if (ext < 0)
     {
-        #pragma omp parallel for schedule(dynamic)
+        #pragma omp parallel for schedule(dynamic) num_threads(nThread)
         VOLUME_FOR_EACH_PIXEL_RL(vol)
             if (vol.getRL(i, j, k) == 0)
                 VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
@@ -590,7 +640,8 @@ void extMask(Volume& vol,
 }
 
 void softEdge(Volume& vol,
-              const RFLOAT ew)
+              const RFLOAT ew,
+              const unsigned int nThread)
 {
     int a = CEIL(ew);
 
@@ -599,17 +650,17 @@ void softEdge(Volume& vol,
                     vol.nSlcRL(),
                     RL_SPACE);
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     FOR_EACH_PIXEL_RL(distance)
         distance(i) = FLT_MAX;
 
     omp_lock_t* mtx = new omp_lock_t[vol.sizeRL()];
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < (int)vol.sizeRL(); i++)
         omp_init_lock(&mtx[i]);
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
         if (vol.getRL(i, j, k) == 1)
             VOLUME_FOR_EACH_PIXEL_IN_GRID(a)
@@ -625,13 +676,13 @@ void softEdge(Volume& vol,
                 }
             }
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < (int)vol.sizeRL(); i++)
         omp_destroy_lock(&mtx[i]);
 
     delete[] mtx;
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     FOR_EACH_PIXEL_RL(vol)
     {
         RFLOAT d = distance(i);
@@ -642,9 +693,10 @@ void softEdge(Volume& vol,
 
 void genMask(Volume& dst,
              const Volume& src,
-             const RFLOAT thres)
+             const RFLOAT thres,
+             const unsigned int nThread)
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(src)
         if (src.getRL(i, j, k) > thres)
             dst.setRL(1, i, j, k);
@@ -652,33 +704,36 @@ void genMask(Volume& dst,
             dst.setRL(0, i, j, k);
 
     // remove isolated point
-    removeIsolatedPoint(dst);
-}
-
-void genMask(Volume& dst,
-             const Volume& src,
-             const RFLOAT thres,
-             const RFLOAT ext)
-{
-    genMask(dst, src, thres);
-
-    extMask(dst, ext);
+    removeIsolatedPoint(dst, nThread);
 }
 
 void genMask(Volume& dst,
              const Volume& src,
              const RFLOAT thres,
              const RFLOAT ext,
-             const RFLOAT ew)
+             const unsigned int nThread)
 {
-    genMask(dst, src, thres, ext);
+    genMask(dst, src, thres, nThread);
 
-    softEdge(dst, ew);
+    extMask(dst, ext, nThread);
+}
+
+void genMask(Volume& dst,
+             const Volume& src,
+             const RFLOAT thres,
+             const RFLOAT ext,
+             const RFLOAT ew,
+             const unsigned int nThread)
+{
+    genMask(dst, src, thres, ext, nThread);
+
+    softEdge(dst, ew, nThread);
 }
 
 void autoMask(Volume& dst,
               const Volume& src,
-              const RFLOAT r)
+              const RFLOAT r,
+              const unsigned int nThread)
 {
     vector<RFLOAT> data;
     VOLUME_FOR_EACH_PIXEL_RL(src)
@@ -732,26 +787,28 @@ void autoMask(Volume& dst,
         }
     }
 
-    genMask(dst, src, thres);
+    genMask(dst, src, thres, nThread);
 }
 
 void autoMask(Volume& dst,
               const Volume& src,
               const RFLOAT ext,
-              const RFLOAT r)
+              const RFLOAT r,
+              const unsigned int nThread)
 {
-    autoMask(dst, src, r);
+    autoMask(dst, src, r, nThread);
 
-    extMask(dst, ext);
+    extMask(dst, ext, nThread);
 }
 
 void autoMask(Volume& dst,
               const Volume& src,
               const RFLOAT ext,
               const RFLOAT ew,
-              const RFLOAT r)
+              const RFLOAT r,
+              const unsigned int nThread)
 {
-    autoMask(dst, src, ext, r);
+    autoMask(dst, src, ext, r, nThread);
 
-    softEdge(dst, ew);
+    softEdge(dst, ew, nThread);
 }

@@ -134,7 +134,7 @@ class Reconstructor : public Parallel
          * weights value of each grid point stored in @ref_W to get balanced.
          * Then an allreduce operation will be done to get the final sum of
          * _F volumes of all nodes, which the 3D Fourier transform of the 
-         * model is obtained. This volume is initialised to be all zero.
+         * model is obtained. This volume is initialized to be all zero.
          */
         Volume _F3D;
         
@@ -144,11 +144,11 @@ class Reconstructor : public Parallel
          * in computation, the volume is a 3D grid. Every inserting operation
          * will accumulate weights of associated points get by interpolation
          * of this volume into the grid point of accumulated weights volume 
-         * @ref_C also by interpolation. After multiple rounds of divion by
+         * @ref_C also by interpolation. After multiple rounds of division by
          * relative accumulated weights value of each grid points in volume _C
          * that has been allreduced within all nodes, the weights are balanced
          * and normalized, with which can be multiply with volume @ref_F to 
-         * get the 3D Fourier transform of the model. This volume initialised
+         * get the 3D Fourier transform of the model. This volume initialized
          * to be all one.
          */
         Volume _W3D;
@@ -162,8 +162,8 @@ class Reconstructor : public Parallel
          * grid point of this volume also by interpolation. An allreduce 
          * operation will be done to get the sum of accumulated weights value 
          * of each grid points of all nodes before balancing and normalization
-         * by the divion of _W and _C, with which _C can be approximately equal
-         * to 1. This volume initialised to be all zero.
+         * by the division of _W and _C, with which _C can be approximately equal
+         * to 1. This volume initialized to be all zero.
          */
         Volume _C3D;
 
@@ -171,7 +171,7 @@ class Reconstructor : public Parallel
 
         /**
          * The vector to save the rotate matrixs of each insertion with image 
-         * and associated 5D coordinate. Since each 2D Fourier transformsof 
+         * and associated 5D coordinate. Since each 2D Fourier transforms of 
          * images is a slice in the 3D Fourier transforms in a particular 
          * direction, matrixs to rotate the image 2D coordinate(x,y) associated
          * the 3rd coordinate z(always 0) to its real location in the 3D space 
@@ -204,7 +204,7 @@ class Reconstructor : public Parallel
         
         /**
          * The vector to save the weight values of each insertion with image, 
-         * associated 5D coordinate and weight. Since there are serveral 
+         * associated 5D coordinate and weight. Since there are several 
          * different 5D coordinates that have the similar possibility for a 
          * single image, multiple 5D coordinates and weights of a single image
          * can be inserted. Every inserting operation will also insert the
@@ -322,7 +322,7 @@ class Reconstructor : public Parallel
                       const RFLOAT alpha = 15);
 
         /**
-         * default deconstructor
+         * default destructor
          */
         ~Reconstructor();
 
@@ -345,13 +345,13 @@ class Reconstructor : public Parallel
                   const RFLOAT a = 1.9,
                   const RFLOAT alpha = 15);
 
-        void allocSpace();
+        void allocSpace(const unsigned int nThread);
 
         void freeSpace();
 
         void resizeSpace(const int size);
 
-        void reset();
+        void reset(const unsigned int nThread);
 
         int mode() const;
 
@@ -530,11 +530,12 @@ class Reconstructor : public Parallel
         void prepareTFG(int gpuIdx);
 #endif
 
-        void prepareTF();
+        void prepareTF(const unsigned int nThread);
 
         void prepareO();
 
-        void reconstruct(Image& dst);
+        void reconstruct(Image& dst,
+                         const unsigned int nThread);
 
         /**
          * reconstruct a 3D model and save it into a volume.
@@ -545,11 +546,13 @@ class Reconstructor : public Parallel
          * @param dst The destination volume that reconstructor object saves the
          *            result of reconstruction into.
          */
-        void reconstruct(Volume& dst);
+        void reconstruct(Volume& dst,
+                         const unsigned int nThread);
 
 #ifdef GPU_RECONSTRUCT
         void reconstructG(Volume& dst,
-                          int gpuIdx);
+                          int gpuIdx,
+                          const unsigned int nThread);
 #endif
 
     private:
@@ -560,17 +563,17 @@ class Reconstructor : public Parallel
          */
         void allReduceF();
 
-        void allReduceT();
+        void allReduceT(const unsigned int nThread);
 
         void allReduceO();
 
-        RFLOAT checkC() const;
+        RFLOAT checkC(const unsigned int nThread) const;
 
-        void convoluteC();
+        void convoluteC(const unsigned int nThread);
 
-        void symmetrizeF();
+        void symmetrizeF(const unsigned int nThread);
 
-        void symmetrizeT();
+        void symmetrizeT(const unsigned int nThread);
 
         void symmetrizeO();
 };

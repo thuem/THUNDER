@@ -100,7 +100,7 @@ void Model::setRefine(const bool refine)
 }
 ***/
 
-void Model::initProjReco()
+void Model::initProjReco(const unsigned int nThread)
 {
     ALOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
     BLOG(INFO, "LOGGER_INIT") << "Appending Projectors and Reconstructors";
@@ -141,7 +141,7 @@ void Model::initProjReco()
     ALOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
     BLOG(INFO, "LOGGER_INIT") << "Refreshing Projectors";
 
-    refreshProj();
+    refreshProj(nThread);
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
@@ -306,7 +306,8 @@ Reconstructor& Model::reco(const int i)
 
 void Model::compareTwoHemispheres(const bool fscFlag,
                                   const bool avgFlag,
-                                  const RFLOAT thres)
+                                  const RFLOAT thres,
+                                  const unsigned int nThread)
 {
     if (fscFlag)
     {
@@ -431,11 +432,11 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Random Phase on Unmask Reference";
 
-                    randomPhase(randomPhaseA, A, randomPhaseThres);
-                    randomPhase(randomPhaseB, B, randomPhaseThres);
+                    randomPhase(randomPhaseA, A, randomPhaseThres, nThread);
+                    randomPhase(randomPhaseB, B, randomPhaseThres, nThread);
 
-                    fft.bwMT(randomPhaseA);
-                    fft.bwMT(randomPhaseB);
+                    fft.bw(randomPhaseA, nThread);
+                    fft.bw(randomPhaseB, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
 
@@ -443,21 +444,21 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     if (_maskFSC)
                     {
-                        softMask(randomPhaseA, randomPhaseA, *_mask, 0);
-                        softMask(randomPhaseB, randomPhaseB, *_mask, 0);
+                        softMask(randomPhaseA, randomPhaseA, *_mask, 0, nThread);
+                        softMask(randomPhaseB, randomPhaseB, *_mask, 0, nThread);
                     }
                     else if (_coreFSC)
                     {
                         mask.alloc(_size, _size, _size, RL_SPACE);
 
-                        softMask(mask, _coreR, EDGE_WIDTH_RL);
+                        softMask(mask, _coreR, EDGE_WIDTH_RL, nThread);
 
-                        softMask(randomPhaseA, randomPhaseA, mask, 0);
-                        softMask(randomPhaseB, randomPhaseB, mask, 0);
+                        softMask(randomPhaseA, randomPhaseA, mask, 0, nThread);
+                        softMask(randomPhaseB, randomPhaseB, mask, 0, nThread);
                     }
 
-                    fft.fwMT(randomPhaseA);
-                    fft.fwMT(randomPhaseB);
+                    fft.fw(randomPhaseA, nThread);
+                    fft.fw(randomPhaseB, nThread);
 
                     randomPhaseA.clearRL();
                     randomPhaseB.clearRL();
@@ -471,33 +472,33 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference";
 
-                    fft.bwMT(A);
-                    fft.bwMT(B);
+                    fft.bw(A, nThread);
+                    fft.bw(B, nThread);
 
                     Volume maskA(_size, _size, _size, RL_SPACE);
                     Volume maskB(_size, _size, _size, RL_SPACE);
 
                     if (_maskFSC)
                     {
-                        softMask(maskA, A, *_mask, 0);
-                        softMask(maskB, B, *_mask, 0);
+                        softMask(maskA, A, *_mask, 0, nThread);
+                        softMask(maskB, B, *_mask, 0, nThread);
                     }
                     else if (_coreFSC)
                     {
-                        softMask(maskA, A, mask, 0);
-                        softMask(maskB, B, mask, 0);
+                        softMask(maskA, A, mask, 0, nThread);
+                        softMask(maskB, B, mask, 0, nThread);
 
                         mask.clearRL();
                     }
 
-                    fft.fwMT(maskA);
-                    fft.fwMT(maskB);
+                    fft.fw(maskA, nThread);
+                    fft.fw(maskB, nThread);
 
                     maskA.clearRL();
                     maskB.clearRL();
 
-                    fft.fwMT(A);
-                    fft.fwMT(B);
+                    fft.fw(A, nThread);
+                    fft.fw(B, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Masked Reference ";
 
@@ -570,7 +571,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     // When refining only one reference, use gold standard FSC.
 
 #ifdef MODEL_AVERAGE_TWO_HEMISPHERE
-                    #pragma omp parallel for
+                    #pragma omp parallel for num_threads(nThread)
                     FOR_EACH_PIXEL_FT(A)
                     {
                         Complex avg = (A[i] + B[i]) / 2;
@@ -609,7 +610,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     }
                     else if (_mode == MODE_3D)
                     {
-                        #pragma omp parallel for
+                        #pragma omp parallel for num_threads(nThread)
                         VOLUME_FOR_EACH_PIXEL_FT(A)
                             if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
                             {
@@ -632,7 +633,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 {
                     // When refining more than 1 references, directly average two half maps.
 
-                    #pragma omp parallel for
+                    #pragma omp parallel for num_threads(nThread)
                     FOR_EACH_PIXEL_FT(A)
                     {
                         Complex avg = (A[i] + B[i]) / 2;
@@ -803,7 +804,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 }
 
 void Model::lowPassRef(const RFLOAT thres,
-                         const RFLOAT ew)
+                       const RFLOAT ew,
+                       const unsigned int nThread)
 {
     FOR_EACH_CLASS
     {
@@ -812,7 +814,7 @@ void Model::lowPassRef(const RFLOAT thres,
             //TODO
         }
         else if (_mode == MODE_3D)
-            lowPassFilter(_ref[l], _ref[l], thres, ew);
+            lowPassFilter(_ref[l], _ref[l], thres, ew, nThread);
         else
             REPORT_ERROR("INEXISTENT MODE");
     }
@@ -961,7 +963,7 @@ void Model::setProjMaxRadius(const int maxRadius)
         _proj[l].setMaxRadius(maxRadius);
 }
 
-void Model::refreshProj()
+void Model::refreshProj(const unsigned int nThread)
 {
     FOR_EACH_CLASS
     {
@@ -979,13 +981,13 @@ void Model::refreshProj()
             Image tmp(_size, _size, FT_SPACE);
             SLC_EXTRACT_FT(tmp, _ref[l], 0);
 
-            _proj[l].setProjectee(tmp.copyImage());
+            _proj[l].setProjectee(tmp.copyImage(), nThread);
         }
         else if (_mode == MODE_3D)
         {
             _proj[l].setMode(MODE_3D);
 
-            _proj[l].setProjectee(_ref[l].copyVolume());
+            _proj[l].setProjectee(_ref[l].copyVolume(), nThread);
         }
         else
             REPORT_ERROR("INEXISTENT MODE");

@@ -114,12 +114,12 @@ class Projector
          * 
          * Construct a new Projector class object, by assigning all class data members from the source object to the constructed object.
          */
-        Projector(BOOST_RV_REF(Projector) that  /**<[in] the source Projector */)
+        Projector(BOOST_RV_REF(Projector) that  /**< [in] the source Projector */)
         {
             swap(that);
         }
 
-        /**
+	/**
          * @brief Default destructor.
          */
         ~Projector();
@@ -127,7 +127,7 @@ class Projector
         /**
          * @brief Swap all Projector class data members from the source object to another.
          */
-        void swap(Projector& that  /**<[in] the source Projector */);
+        void swap(Projector& that  /**< [in] the source Projector */);
 
         /**
          * @brief Move assignment operator.
@@ -136,7 +136,7 @@ class Projector
          *
          * @return the assigned Projector object
          */
-        inline Projector& operator=(BOOST_RV_REF(Projector) that  /**<[in] the source Projector */)
+        inline Projector& operator=(BOOST_RV_REF(Projector) that  /**< [in] the source Projector */)
         {
             if (this != &that) swap(that);
             return *this;
@@ -166,7 +166,7 @@ class Projector
         /**
          * @brief Set the mode.
          */
-        void setMode(const int mode  /**<[in] the mode to be set */);
+        void setMode(const int mode  /**< [in] the mode to be set */);
 
         /**
          * @brief Return the max radius for processing signal in Fourier transform (in pixel).
@@ -178,7 +178,7 @@ class Projector
         /**
          * @brief Set the max radius for processing signal in Fourier transform (in pixel).
          */
-        void setMaxRadius(const int maxRadius  /**<[in] the max radius to be set */);
+        void setMaxRadius(const int maxRadius  /**< [in] the max radius to be set */);
 
         /**
          * @brief Return the interpolation type for this projection.
@@ -190,7 +190,7 @@ class Projector
         /**
          * @brief Set the interpolation type for this projection.
          */
-        void setInterp(const int interp  /**<[in] the interpolation type to be set */);
+        void setInterp(const int interp  /**< [in] the interpolation type to be set */);
 
         /**
          * @brief Return the padding factor.
@@ -202,7 +202,7 @@ class Projector
         /**
          * @brief Set the padding factor.
          */
-        void setPf(const int pf  /**<[in] the padding factor to be set*/);
+        void setPf(const int pf  /**< [in] the padding factor to be set*/);
 
         /**
          * @brief Return a constant reference to the 2D projectee, i.e. the image to be projected.
@@ -223,265 +223,159 @@ class Projector
          *
          * Moreover, it automatically sets the max radius of processing signal.
          */
-        void setProjectee(Image src  /**<[in] the source image to be set */);
+        void setProjectee(Image src,                  /**< [in] the source image to be set */
+                          const unsigned int nThread  /**< [in] the number of threads to be used */
+			  );
 
         /**
          * @brief Set the source volume as the 3D projectee to be projected.
          *
          * Moreover, it automatically sets the max radius of processing signal.
          */
-        void setProjectee(Volume src  /**<[in] the source volume to be set */);
-
-        /**
-         * @brief Project an image, given the rotation matrix.
-         */
-        void project(Image& dst,        /**<[out] the projected image */
-                     const dmat22& mat  /**<[in]  the 2D rotation matrix */
-                     ) const;
-
-        /**
-         * @brief Project a volume, given the rotation matrix.
-         */
-        void project(Image& dst,        /**<[out] the projected image */
-                     const dmat33& mat  /**<[in]  the 3D rotation matrix */
-                     ) const;
-
-        /**
-         * @brief Project an image, given the rotation matrix and the pre-determined pixel indices.
-         */
-        void project(Image& dst,         /**<[out] the projected image */
-                     const dmat22& mat,  /**<[in]  the 2D rotation matrix */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int* iPxl,    /**<[in]  the pixel index */
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
-
-        /**
-         * @brief Project a volume, given the rotation matrix and the pre-determined pixel indices.
-         */
-        void project(Image& dst,         /**<[out] the projected image */
-                     const dmat33& mat,  /**<[in]  the 3D rotation matrix */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int* iPxl,    /**<[in]  the pixel index */
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
-
-        /**
-         * @brief Project an image, given the rotation matrix and the pre-determined pixel indices, while the projected image stored by Complex type.
-         */
-        void project(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                     const dmat22& mat,  /**<[in]  the 2D rotation matrix */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
-
-        /**
-         * @brief Project a volume, given the rotation matrix and the pre-determined pixel indices, while the projected image stored by Complex type.
-         */
-        void project(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                     const dmat33& mat,  /**<[in]  the 3D rotation matrix */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
+        void setProjectee(Volume src,                   /**< [in] the source volume to be set */
+                          const unsigned int nThread    /**< [in] the number of threads to be used */
+                          );
 
         /**
          * @brief Project an image using multiple threads, given the rotation matrix.
          */
-        void projectMT(Image& dst,        /**<[out] the projected image */
-                       const dmat22& mat  /**<[in]  the 2D rotation matrix */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat22& mat,                 /**< [in]  the 2D rotation matrix */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project a volume using multiple threads, given the rotation matrix.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat33& mat   /**<[in]  the 3D rotation matrix */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat33& mat,                 /**< [in]  the 3D rotation matrix */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief 2D Project using multiple threads, given the rotation matrix and the pre-determined pixel indices.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat22& mat,  /**<[in]  the 2D rotation matrix */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int* iPxl,    /**<[in]  the pixel index */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat22& mat,                 /**< [in]  the 2D rotation matrix */
+                     const int* iCol,                   /**< [in]  the index of column */
+                     const int* iRow,                   /**< [in]  the index of row */
+                     const int* iPxl,                   /**< [in]  the pixel index */
+                     const int nPxl,                    /**< [in]  the number of pixels */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project a volume using multiple threads, given the rotation matrix and the pre-determined pixel indices.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat33& mat,  /**<[in]  the 3D rotation matrix */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int* iPxl,    /**<[in]  the pixel index */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat33& mat,                 /**< [in]  the 3D rotation matrix */
+                     const int* iCol,                   /**< [in]  the index of column */
+                     const int* iRow,                   /**< [in]  the index of row */
+                     const int* iPxl,                   /**< [in]  the pixel index */
+                     const int nPxl,                    /**< [in]  the number of pixels */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project an image using multiple threads, given the rotation matrix and the pre-determined pixel indices, while the projected image stored by Complex type.
          */
-        void projectMT(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                       const dmat22& mat,  /**<[in]  the 2D rotation matrix */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Complex* dst,                      /**< [out] the projected image, stored by Complex type */
+                     const dmat22& mat,                 /**< [in]  the 2D rotation matrix */
+                     const int* iCol,                   /**< [in]  the index of column */
+                     const int* iRow,                   /**< [in]  the index of row */
+                     const int nPxl,                    /**< [in]  the number of pixels */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project a volume using multiple threads, given the rotation matrix and the pre-determined pixel indices, while the projected image stored by Complex type.
          */
-        void projectMT(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                       const dmat33& mat,  /**<[in]  the 3D rotation matrix */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
-
-        /**
-         * @brief Project an image, given the rotation matrix and the translation vector.
-         */
-        void project(Image& dst,         /**<[out] the projected image */
-                     const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                     const dvec2& t      /**<[in]  the translation vector */
-                     ) const;
-
-        /**
-         * @brief Project a volume, given the rotation matrix and the translation vector.
-         */
-        void project(Image& dst,         /**<[out] the projected image */
-                     const dmat33& mat,  /**<[in]  the 3D rotation matrix */
-                     const dvec2& t      /**<[in]  the translation vector */
-                     ) const;
-
-        /**
-         * @brief Project an image, given the rotation matrix, the pre-determined pixel indices and the translation vector.
-         */
-        void project(Image& dst,         /**<[out] the projected image */
-                     const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                     const dvec2& t,     /**<[in]  the translation vector */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int* iPxl,    /**<[in]  the pixel index */
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
-
-        /**
-         * @brief Project a volume, given the rotation matrix, the pre-determined pixel indices and the translation vector.
-         */
-        void project(Image& dst,         /**<[out] the projected image */
-                     const dmat33& rot,  /**<[in]  the 3D rotation matrix */
-                     const dvec2& t,     /**<[in]  the translation vector */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int* iPxl,    /**<[in]  the pixel index*/
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
-
-        /**
-         * @brief Project an image, given the rotation matrix, the pre-determined pixel indices and the translation vector, while the projected image stored by Complex type.
-         */
-        void project(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                     const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                     const dvec2& t,     /**<[in]  the translation vector */
-                     const int nCol,     /**<[in]  the number of columns */
-                     const int nRow,     /**<[in]  the number of rows */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int nPxl      /**<[in]  the number of pixels */
-                     ) const;
-
-        /**
-         * @brief Project a volume, given the rotation matrix, the pre-determined pixel indices and the translation vector, while the projected image stored by Complex type.
-         */
-        void project(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                     const dmat33& rot,  /**<[in]  the 3D rotation matrix */
-                     const dvec2& t,     /**<[in]  the translation vector */
-                     const int nCol,     /**<[in]  the number of columns */
-                     const int nRow,     /**<[in]  the number of rows */
-                     const int* iCol,    /**<[in]  the index of column */
-                     const int* iRow,    /**<[in]  the index of row */
-                     const int nPxl      /**<[in]  the number of pixels */
+        void project(Complex* dst,                      /**< [out] the projected image, stored by Complex type */
+                     const dmat33& mat,                 /**< [in]  the 3D rotation matrix */
+                     const int* iCol,                   /**< [in]  the index of column */
+                     const int* iRow,                   /**< [in]  the index of row */
+                     const int nPxl,                    /**< [in]  the number of pixels */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
                      ) const;
 
         /**
          * @brief Project an image using multiple threads, given the rotation matrix and the translation vector.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                       const dvec2& t      /**<[in]  the translation vector */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat22& rot,                 /**< [in]  the 2D rotation matrix */
+                     const dvec2& t,                    /**< [in]  the translation vector */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project a volume using multiple threads, given the rotation matrix and the translation vector.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat33& rot,  /**<[in]  the 3D rotation matrix */
-                       const dvec2& t      /**<[in]  the translation vector */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat33& rot,                 /**< [in]  the 3D rotation matrix */
+                     const dvec2& t,                    /**< [in]  the translation vector */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project an image using multiple threads, given the rotation matrix, the pre-determined pixel indices and the translation vector.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                       const dvec2& t,     /**<[in]  the translation vector */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int* iPxl,    /**<[in]  the pixel index */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat22& rot,                 /**< [in]  the 2D rotation matrix */
+                     const dvec2& t,                    /**< [in]  the translation vector */
+                     const int* iCol,                   /**< [in]  the index of column */
+                     const int* iRow,                   /**< [in]  the index of row */
+                     const int* iPxl,                   /**< [in]  the pixel index */
+                     const int nPxl,                    /**< [in]  the number of pixels */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project a volume using multiple threads, given the rotation matrix, the pre-determined pixel indices and the translation vector.
          */
-        void projectMT(Image& dst,         /**<[out] the projected image */
-                       const dmat33& rot,  /**<[in]  the 3D rotation matrix */
-                       const dvec2& t,     /**<[in]  the translation vector */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int* iPxl,    /**<[in]  the pixel index */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Image& dst,                        /**< [out] the projected image */
+                     const dmat33& rot,                 /**< [in]  the 3D rotation matrix */
+                     const dvec2& t,                    /**< [in]  the translation vector */
+                     const int* iCol,                   /**< [in]  the index of column */
+                     const int* iRow,                   /**< [in]  the index of row */
+                     const int* iPxl,                   /**< [in]  the pixel index */
+                     const int nPxl,                    /**< [in]  the number of pixels */
+                     const unsigned int nThread         /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project an image using multiple threads, given the rotation matrix, the pre-determined pixel indices and the translation vector, while the projected image stored by Complex type.
          */
-        void projectMT(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                       const dmat22& rot,  /**<[in]  the 2D rotation matrix */
-                       const dvec2& t,     /**<[in]  the translation vector */
-                       const int nCol,     /**<[in]  the number of columns */
-                       const int nRow,     /**<[in]  the number of rows */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Complex* dst,                     /**< [out] the projected image, stored by Complex type */
+                     const dmat22& rot,                /**< [in]  the 2D rotation matrix */
+                     const dvec2& t,                   /**< [in]  the translation vector */
+                     const int nCol,                   /**< [in]  the number of columns */
+                     const int nRow,                   /**< [in]  the number of rows */
+                     const int* iCol,                  /**< [in]  the index of column */
+                     const int* iRow,                  /**< [in]  the index of row */
+                     const int nPxl,                   /**< [in]  the number of pixels */
+                     const unsigned int nThread        /**< [in]  the number of threads to be used */
+                     ) const;
 
         /**
          * @brief Project a volume using multiple threads, given the rotation matrix, the pre-determined pixel indices and the translation vector, while the projected image stored by Complex type.
          */
-        void projectMT(Complex* dst,       /**<[out] the projected image, stored by Complex type */
-                       const dmat33& rot,  /**<[in]  the 3D rotation matrix */  
-                       const dvec2& t,     /**<[in]  the translation vector */
-                       const int nCol,     /**<[in]  the number of columns */
-                       const int nRow,     /**<[in]  the number of rows */
-                       const int* iCol,    /**<[in]  the index of column */
-                       const int* iRow,    /**<[in]  the index of row */
-                       const int nPxl      /**<[in]  the number of pixels */
-                       ) const;
+        void project(Complex* dst,                    /**< [out] the projected image, stored by Complex type */
+                     const dmat33& rot,               /**< [in]  the 3D rotation matrix */
+                     const dvec2& t,                  /**< [in]  the translation vector */
+                     const int nCol,                  /**< [in]  the number of columns */
+                     const int nRow,                  /**< [in]  the number of rows */
+                     const int* iCol,                 /**< [in]  the index of column */
+                     const int* iRow,                 /**< [in]  the index of row */
+                     const int nPxl,                  /**< [in]  the number of pixels */
+                     const unsigned int nThread       /**< [in]  the number of threads to be used */
+                     ) const;
 
     private:
 
         /**
-         * @brief Perform gridding correction on projectee.
+         * @brief Perform griding correction on projectee.
          */
-        void gridCorrection();
+        void gridCorrection(const unsigned int nThread);
 };
 
 #endif // PROJECTOR_H

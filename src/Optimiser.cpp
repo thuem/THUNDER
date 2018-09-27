@@ -111,8 +111,8 @@ Optimiser::~Optimiser()
 {
     clear();
 
-    _fftImg.fwDestroyPlanMT();
-    _fftImg.bwDestroyPlanMT();
+    _fftImg.fwDestroyPlan();
+    _fftImg.bwDestroyPlan();
 }
 
 OptimiserPara& Optimiser::para()
@@ -161,8 +161,8 @@ void Optimiser::init()
 
     MLOG(INFO, "LOGGER_INIT") << "Initialising FFTW Plan";
 
-    _fftImg.fwCreatePlanMT(_para.size, _para.size);
-    _fftImg.bwCreatePlanMT(_para.size, _para.size);
+    _fftImg.fwCreatePlan(_para.size, _para.size, _para.nThreadsPerProcess);
+    _fftImg.bwCreatePlan(_para.size, _para.size, _para.nThreadsPerProcess);
 
     MLOG(INFO, "LOGGER_INIT") << "Initialising Class Distribution";
     _cDistr.resize(_para.k);
@@ -530,7 +530,7 @@ void Optimiser::init()
         ALOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
         BLOG(INFO, "LOGGER_INIT") << "Setting Up Projectors and Reconstructors of _model";
 
-        _model.initProjReco();
+        _model.initProjReco(_para.nThreadsPerProcess);
     }
 
 #ifdef VERBOSE_LEVEL_1
@@ -561,7 +561,7 @@ void Optimiser::init()
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
 
-            _model.refreshProj();
+            _model.refreshProj(_para.nThreadsPerProcess);
         }
 
 #ifdef VERBOSE_LEVEL_1
@@ -730,7 +730,8 @@ void Optimiser::expectation()
                       _para.size,
                       _iCol,
                       _iRow,
-                      _nPxl);
+                      _nPxl,
+                      _para.nThreadsPerProcess);
         }
 
         mat wC = mat::Zero(_ID.size(), _para.k);
@@ -782,13 +783,13 @@ void Optimiser::expectation()
                 {
                     par.rot(rot2D, m);
 
-                    _model.proj(t).project(priRotP, rot2D, _iCol, _iRow, _nPxl);
+                    _model.proj(t).project(priRotP, rot2D, _iCol, _iRow, _nPxl, _para.nThreadsPerProcess);
                 }
                 else if (_para.mode == MODE_3D)
                 {
                     par.rot(rot3D, m);
 
-                    _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl);
+                    _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl, _para.nThreadsPerProcess);
                 }
                 else
                 {
@@ -1249,7 +1250,8 @@ void Optimiser::expectation()
                               _para.size,
                               _iCol,
                               _iRow,
-                              _nPxl);
+                              _nPxl,
+                              _para.nThreadsPerProcess);
                 }
 
                 RFLOAT* ctfP;
@@ -1304,7 +1306,8 @@ void Optimiser::expectation()
                                                rot2D,
                                                _iCol,
                                                _iRow,
-                                               _nPxl);
+                                               _nPxl,
+                                               _para.nThreadsPerProcess);
                     }
                     else if (_para.mode == MODE_3D)
                     {
@@ -1312,7 +1315,8 @@ void Optimiser::expectation()
                                                rot3D,
                                                _iCol,
                                                _iRow,
-                                               _nPxl);
+                                               _nPxl,
+                                               _para.nThreadsPerProcess);
                     }
                     else
                     {
@@ -3491,7 +3495,7 @@ void Optimiser::maximization()
         NT_MASTER
         {
             for (int t = 0; t < _para.k; t++)
-                _model.reco(t).allocSpace();
+                _model.reco(t).allocSpace(_para.nThreadsPerProcess);
         }
 
 #ifdef VERBOSE_LEVEL_1
@@ -4059,7 +4063,7 @@ void Optimiser::run()
             ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
             BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
 
-            _model.refreshProj();
+            _model.refreshProj(_para.nThreadsPerProcess);
 
             /***
             if (_searchType == SEARCH_TYPE_CTF)
@@ -4114,7 +4118,7 @@ void Optimiser::run()
     NT_MASTER
     {
         for (int t = 0; t < _para.k; t++)
-            _model.reco(t).allocSpace();
+            _model.reco(t).allocSpace(_para.nThreadsPerProcess);
     }
 
 #ifdef VERBOSE_LEVEL_1
@@ -4153,7 +4157,7 @@ void Optimiser::run()
             imf.readVolume(cr);
 
             MLOG(INFO, "LOGGER_ROUND") << "Recording Region Centre";
-            _regionCentre = centroid(cr);
+            _regionCentre = centroid(cr, _para.nThreadsPerProcess);
 
             /***
             MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
@@ -4215,7 +4219,7 @@ void Optimiser::run()
                 ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
                 BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
 
-                _model.refreshProj();
+                _model.refreshProj(_para.nThreadsPerProcess);
 
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(_hemi);
@@ -4419,7 +4423,7 @@ void Optimiser::initRef()
                 abort();
             }
 
-            fft.fwMT(_model.ref(t));
+            fft.fw(_model.ref(t), _para.nThreadsPerProcess);
             _model.ref(t).clearRL();
         }
     }
@@ -4460,7 +4464,7 @@ void Optimiser::initRef()
             {
                 _model.appendRef(volRef.copyVolume());
 
-                fft.fwMT(_model.ref(t));
+                fft.fw(_model.ref(t), _para.nThreadsPerProcess);
                 _model.ref(t).clearRL();
             }
         }
@@ -4491,7 +4495,7 @@ void Optimiser::initRef()
             {
                 _model.appendRef(ref.copyVolume());
 
-                fft.fwMT(_model.ref(t));
+                fft.fw(_model.ref(t), _para.nThreadsPerProcess);
                 _model.ref(t).clearRL();
             }
 
@@ -4755,12 +4759,14 @@ void Optimiser::statImg()
         #pragma omp atomic
         _mean += regionMean(_img[l],
                             _para.maskRadius / _para.pixelSize,
-                            0);
+                            0,
+                            _para.nThreadsPerProcess);
 #else
         #pragma omp atomic
         _mean += regionMean(_img[l],
                             _para.size / 2,
-                            0);
+                            0,
+                            _para.nThreadsPerProcess);
 #endif
 
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
@@ -4892,7 +4898,8 @@ void Optimiser::maskImg()
                      _img[l],
                      _para.maskRadius / _para.pixelSize,
                      EDGE_WIDTH_RL,
-                     0);
+                     0,
+                     _para.nThreadsPerProcess);
     }
     else
     {
@@ -4903,7 +4910,8 @@ void Optimiser::maskImg()
                      _para.maskRadius / _para.pixelSize,
                      EDGE_WIDTH_RL,
                      0,
-                     _stdN);
+                     _stdN,
+                     _para.nThreadsPerProcess);
     }
 #endif
 }
@@ -4928,10 +4936,10 @@ void Optimiser::fwImg()
 {
     FOR_EACH_2D_IMAGE
     {
-        _fftImg.fwExecutePlanMT(_img[l]);
+        _fftImg.fwExecutePlan(_img[l]);
         _img[l].clearRL();
 
-        _fftImg.fwExecutePlanMT(_imgOri[l]);
+        _fftImg.fwExecutePlan(_imgOri[l]);
         _imgOri[l].clearRL();
     }
 }
@@ -4940,10 +4948,10 @@ void Optimiser::bwImg()
 {
     FOR_EACH_2D_IMAGE
     {
-        _fftImg.bwExecutePlanMT(_img[l]);
+        _fftImg.bwExecutePlan(_img[l], _para.nThreadsPerProcess);
         _img[l].clearFT();
 
-        _fftImg.bwExecutePlanMT(_imgOri[l]);
+        _fftImg.bwExecutePlan(_imgOri[l], _para.nThreadsPerProcess);
         _imgOri[l].clearFT();
     }
 }
@@ -5082,9 +5090,9 @@ void Optimiser::initSigma()
         // powerSpectrum(ps, _imgOri[l], maxR());
 
 #ifdef OPTIMISER_SIGMA_MASK
-        powerSpectrum(ps, _img[l], maxR());
+        powerSpectrum(ps, _img[l], maxR(), _para.nThreadsPerProcess);
 #else
-        powerSpectrum(ps, _imgOri[l], maxR());
+        powerSpectrum(ps, _imgOri[l], maxR(), _para.nThreadsPerProcess);
 #endif
 
         #pragma omp critical  (line2742)
@@ -5701,11 +5709,11 @@ void Optimiser::refreshScale(const bool coord,
 
                 if (_para.mode == MODE_2D)
                 {
-                    _model.proj(0).projectMT(img, rot2D);
+                    _model.proj(0).project(img, rot2D, _para.nThreadsPerProcess);
                 }
                 else if (_para.mode == MODE_3D)
                 {
-                    _model.proj(0).projectMT(img, rot3D);
+                    _model.proj(0).project(img, rot3D, _para.nThreadsPerProcess);
                 }
                 else
                     REPORT_ERROR("INEXISTENT MODE");
@@ -5727,24 +5735,24 @@ void Optimiser::refreshScale(const bool coord,
                 {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SCALE_MASK
-                    _model.proj(cls).projectMT(img, rot2D, tran);
+                    _model.proj(cls).project(img, rot2D, tran, _para.nThreadsPerProcess);
 #else
-                    _model.proj(cls).projectMT(img, rot2D, tran - _offset[l]);
+                    _model.proj(cls).project(img, rot2D, tran - _offset[l], _para.nThreadsPerProcess);
 #endif
 #else
-                    _model.proj(cls).projectMT(img, rot2D, tran);
+                    _model.proj(cls).project(img, rot2D, tran, _para.nThreadsPerProcess);
 #endif
                 }
                 else if (_para.mode == MODE_3D)
                 {
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_SCALE_MASK
-                    _model.proj(cls).projectMT(img, rot3D, tran);
+                    _model.proj(cls).project(img, rot3D, tran, _para.nThreadsPerProcess);
 #else
-                    _model.proj(cls).projectMT(img, rot3D, tran - _offset[l]);
+                    _model.proj(cls).project(img, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
 #endif
 #else
-                    _model.proj(cls).projectMT(img, rot3D, tran);
+                    _model.proj(cls).project(img, rot3D, tran, _para.nThreadsPerProcess);
 #endif
                 }
                 else
@@ -5963,7 +5971,8 @@ void Optimiser::reCentreImg()
         translate(_img[l],
                   _imgOri[l],
                   _offset[l](0),
-                  _offset[l](1));
+                  _offset[l](1),
+                  _para.nThreadsPerProcess);
 
         _par[l].setT(_par[l].t().rowwise() - tran.transpose());
 
@@ -6009,16 +6018,17 @@ void Optimiser::reMaskImg()
 
         softMask(mask,
                  _para.maskRadius / _para.pixelSize,
-                 EDGE_WIDTH_RL);
+                 EDGE_WIDTH_RL,
+                 _para.nThreadsPerProcess);
 
         FOR_EACH_2D_IMAGE
         {
-            _fftImg.bwExecutePlanMT(_img[l]);
+            _fftImg.bwExecutePlan(_img[l], _para.nThreadsPerProcess);
 
             #pragma omp parallel for
             MUL_RL(_img[l], mask);
 
-            _fftImg.fwExecutePlanMT(_img[l]);
+            _fftImg.fwExecutePlan(_img[l]);
 
             _img[l].clearRL();
         }
@@ -6114,12 +6124,12 @@ void Optimiser::normCorrection()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
-                    _model.proj(cls).project(img, rot2D, tran);
+                    _model.proj(cls).project(img, rot2D, tran, _para.nThreadsPerProcess);
 #else
-                    _model.proj(cls).project(img, rot2D, tran - _offset[l]);
+                    _model.proj(cls).project(img, rot2D, tran - _offset[l], _para.nThreadsPerProcess);
 #endif
 #else
-                    _model.proj(cls).project(img, rot2D, tran);
+                    _model.proj(cls).project(img, rot2D, tran, _para.nThreadsPerProcess);
 #endif
                 }
                 else if (_para.mode == MODE_3D)
@@ -6129,12 +6139,12 @@ void Optimiser::normCorrection()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
-                    _model.proj(cls).project(img, rot3D, tran);
+                    _model.proj(cls).project(img, rot3D, tran, _para.nThreadsPerProcess);
 #else
-                    _model.proj(cls).project(img, rot3D, tran - _offset[l]);
+                    _model.proj(cls).project(img, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
 #endif
 #else
-                    _model.proj(cls).project(img, rot3D, tran);
+                    _model.proj(cls).project(img, rot3D, tran, _para.nThreadsPerProcess);
 #endif
                 }
 
@@ -6325,11 +6335,11 @@ void Optimiser::allReduceSigma(const bool mask,
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                 _model.proj(cls).project(imgM, rot2D, tran);
-                 _model.proj(cls).project(imgN, rot2D, tran - _offset[l]);
+                 _model.proj(cls).project(imgM, rot2D, tran, _para.nThreadsPerProcess);
+                 _model.proj(cls).project(imgN, rot2D, tran - _offset[l], _para.nThreadsPerProcess);
 #else
-                 _model.proj(cls).project(imgM, rot2D, tran);
-                 _model.proj(cls).project(imgN, rot2D, tran);
+                 _model.proj(cls).project(imgM, rot2D, tran, _para.nThreadsPerProcess);
+                 _model.proj(cls).project(imgN, rot2D, tran, _para.nThreadsPerProcess);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -6341,11 +6351,11 @@ void Optimiser::allReduceSigma(const bool mask,
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                _model.proj(cls).project(imgM, rot3D, tran);
-                _model.proj(cls).project(imgN, rot3D, tran - _offset[l]);
+                _model.proj(cls).project(imgM, rot3D, tran, _para.nThreadsPerProcess);
+                _model.proj(cls).project(imgN, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
 #else
-                _model.proj(cls).project(imgM, rot3D, tran);
-                _model.proj(cls).project(imgN, rot3D, tran);
+                _model.proj(cls).project(imgM, rot3D, tran, _para.nThreadsPerProcess);
+                _model.proj(cls).project(imgN, rot3D, tran, _para.nThreadsPerProcess);
 #endif
             }
 
@@ -6394,8 +6404,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     imgN[i] *= REAL(ctf[i]);
             }
 
-            powerSpectrum(sSVD, imgM, rSig);
-            powerSpectrum(dSVD, _img[l], rSig);
+            powerSpectrum(sSVD, imgM, rSig, _para.nThreadsPerProcess);
+            powerSpectrum(dSVD, _img[l], rSig, _para.nThreadsPerProcess);
 
             NEG_FT(imgM);
             NEG_FT(imgN);
@@ -6403,8 +6413,8 @@ void Optimiser::allReduceSigma(const bool mask,
             ADD_FT(imgM, _img[l]);
             ADD_FT(imgN, _imgOri[l]);
 
-            powerSpectrum(vSigM, imgM, rSig);
-            powerSpectrum(vSigN, imgN, rSig);
+            powerSpectrum(vSigM, imgM, rSig, _para.nThreadsPerProcess);
+            powerSpectrum(vSigN, imgN, rSig, _para.nThreadsPerProcess);
 
             if (group)
             {
@@ -6925,7 +6935,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _para.size,
                               _iCol,
                               _iRow,
-                              _nPxl);
+                              _nPxl,
+                              _para.nThreadsPerProcess);
 #else
                     translate(transImgP,
                               orignImgP,
@@ -6935,7 +6946,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _para.size,
                               _iCol,
                               _iRow,
-                              _nPxl);
+                              _nPxl,
+                              _para.nThreadsPerProcess);
 #endif
 
                     if (cSearch)
@@ -7004,7 +7016,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _para.size,
                               _iCol,
                               _iRow,
-                              _nPxl);
+                              _nPxl,
+                              _para.nThreadsPerProcess);
 #else
                     translate(transImgP,
                               orignImgP,
@@ -7014,7 +7027,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _para.size,
                               _iCol,
                               _iRow,
-                              _nPxl);
+                              _nPxl,
+                              _para.nThreadsPerProcess);
 #endif
 
                     if (cSearch)
@@ -7101,7 +7115,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #ifdef GPU_VERSION
             _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
 #else
-            _model.reco(t).prepareTF();
+            _model.reco(t).prepareTF(_para.nThreadsPerProcess);
 #endif
         }
         
@@ -7199,9 +7213,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 Volume ref;
 
 #ifdef GPU_RECONSTRUCT
-                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()]);
+                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()], _para.nThreadsPerProcess);
 #else
-                _model.reco(t).reconstruct(ref);
+                _model.reco(t).reconstruct(ref, _para.nThreadsPerProcess);
 
 #ifndef NAN_NO_CHECK
                 SEGMENT_NAN_CHECK(ref.dataRL(), ref.sizeRL());
@@ -7212,7 +7226,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
 
-                fft.fwMT(ref);
+                fft.fw(ref, _para.nThreadsPerProcess);
 
 #endif
 
@@ -7238,7 +7252,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                      -_model.reco(t).oy(),
                                       _model.rU());
 #else
-                        translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+                        translate(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), _para.nThreadsPerProcess);
 #endif
 
                         SLC_REPLACE_FT(ref, img, 0);
@@ -7255,7 +7269,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        -_model.reco(t).oz(),
                                        _model.rU());
 #else
-                            translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                            translate(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz(), _para.nThreadsPerProcess);
 #endif
                         }
                     }
@@ -7381,9 +7395,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
 #ifdef RECONSTRUCTOR_WIENER_FILTER_FSC
-        _model.compareTwoHemispheres(true, false, AVERAGE_TWO_HEMISPHERE_THRES);
+        _model.compareTwoHemispheres(true, false, AVERAGE_TWO_HEMISPHERE_THRES, _para.nThreadsPerProcess);
 #else
-        _model.compareTwoHemispheres(true, true, AVERAGE_TWO_HEMISPHERE_THRES);
+        _model.compareTwoHemispheres(true, true, AVERAGE_TWO_HEMISPHERE_THRES, _para.nThreadsPerProcess);
 #endif
     }
 
@@ -7447,16 +7461,16 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 Volume ref;
 
 #ifdef GPU_RECONSTRUCT
-                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()]);
+                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()], _para.nThreadsPerProcess);
 #else
-                _model.reco(t).reconstruct(ref);
+                _model.reco(t).reconstruct(ref, _para.nThreadsPerProcess);
 
 #ifdef VERBOSE_LEVEL_2
                 ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
                 BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 #endif
 
-                fft.fwMT(ref);
+                fft.fw(ref, _para.nThreadsPerProcess);
 
 #endif
 
@@ -7478,7 +7492,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                      -_model.reco(t).oy(),
                                      _model.rU());
 #else
-                        translateMT(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy());
+                        translate(img, img, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), _para.nThreadsPerProcess);
 #endif
 
                         SLC_REPLACE_FT(ref, img, 0);
@@ -7495,7 +7509,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                        -_model.reco(t).oz(),
                                        _model.rU());
 #else
-                            translateMT(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz());
+                            translate(ref, ref, _model.rU(), -_model.reco(t).ox(), -_model.reco(t).oy(), -_model.reco(t).oz(), _para.nThreadsPerProcess);
 #endif
                         }
                     }
@@ -7577,7 +7591,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-        _model.compareTwoHemispheres(false, true, AVERAGE_TWO_HEMISPHERE_THRES);
+        _model.compareTwoHemispheres(false, true, AVERAGE_TWO_HEMISPHERE_THRES, _para.nThreadsPerProcess);
     }
 
 #endif
@@ -7616,14 +7630,15 @@ void Optimiser::solventFlatten(const bool mask)
         lowPassFilter(_model.ref(t),
                       _model.ref(t),
                       (RFLOAT)_r  / _para.size,
-                      (RFLOAT)EDGE_WIDTH_FT / _para.size);
+                      (RFLOAT)EDGE_WIDTH_FT / _para.size,
+                      _para.nThreadsPerProcess);
 #endif
 
         ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
 
         FFT fft;
-        fft.bwMT(_model.ref(t));
+        fft.bw(_model.ref(t), _para.nThreadsPerProcess);
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_STAT_REMOVE_BG
 
@@ -7679,7 +7694,8 @@ void Optimiser::solventFlatten(const bool mask)
         BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
 
         RFLOAT bg = regionMean(_model.ref(t),
-                               _para.maskRadius / _para.pixelSize + EDGE_WIDTH_RL);
+                               _para.maskRadius / _para.pixelSize + EDGE_WIDTH_RL,
+                               _para.nThreadsPerProcess);
 
         ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
                                    << t
@@ -7718,7 +7734,7 @@ void Optimiser::solventFlatten(const bool mask)
             {
 #ifdef OPTIMISER_SOLVENT_FLATTEN_LOW_PASS_MASK
 
-                fft.fwMT(_mask);
+                fft.fw(_mask, _para.nThreadsPerProcess);
                 _mask.clearRL();
 
                 Volume lowPassMask(_para.size, _para.size, _para.size, FT_SPACE);
@@ -7726,24 +7742,25 @@ void Optimiser::solventFlatten(const bool mask)
                 lowPassFilter(lowPassMask,
                               _mask,
                               (RFLOAT)_r / _para.size,
-                              (RFLOAT)EDGE_WIDTH_FT / _para.size);
+                              (RFLOAT)EDGE_WIDTH_FT / _para.size,
+                              _para.nThreadsPerProcess);
 
-                fft.bwMT(lowPassMask);
+                fft.bw(lowPassMask, _para.nThreadsPerProcess);
 
-                fft.bwMT(_mask);
+                fft.bw(_mask, _para.nThreadsPerProcess);
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
-                softMask(_model.ref(t), _model.ref(t), lowPassMask, 0);
+                softMask(_model.ref(t), _model.ref(t), lowPassMask, 0, _para.nThreadsPerProcess);
 #else
-                softMask(_model.ref(t), _model.ref(t), lowPassMask);
+                softMask(_model.ref(t), _model.ref(t), lowPassMask, _para.nThreadsPerProcess);
 #endif
 
 #else
                 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_MASK_ZERO
-                softMask(_model.ref(t), _model.ref(t), _mask, 0);
+                softMask(_model.ref(t), _model.ref(t), _mask, 0, _para.nThreadsPerProcess);
 #else
-                softMask(_model.ref(t), _model.ref(t), _mask);
+                softMask(_model.ref(t), _model.ref(t), _mask, _para.nThreadsPerProcess);
 #endif
 
 #endif
@@ -7773,12 +7790,14 @@ void Optimiser::solventFlatten(const bool mask)
                          ref, 
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
-                         0);
+                         0,
+                         _para.nThreadsPerProcess);
 #else
                 softMask(ref,
                          ref, 
                          _para.maskRadius / _para.pixelSize,
-                         EDGE_WIDTH_RL);
+                         EDGE_WIDTH_RL,
+                         _para.nThreadsPerProcess);
 #endif
 
                 COPY_RL(_model.ref(t), ref);
@@ -7790,12 +7809,14 @@ void Optimiser::solventFlatten(const bool mask)
                          _model.ref(t),
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
-                         0);
+                         0,
+                         _para.nThreadsPerProcess);
 #else
                 softMask(_model.ref(t),
                          _model.ref(t),
                          _para.maskRadius / _para.pixelSize,
-                         EDGE_WIDTH_RL);
+                         EDGE_WIDTH_RL,
+                         _para.nThreadsPerProcess);
 #endif
             }
             else
@@ -7809,7 +7830,7 @@ void Optimiser::solventFlatten(const bool mask)
         ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
         BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
 
-        fft.fwMT(_model.ref(t));
+        fft.fw(_model.ref(t), _para.nThreadsPerProcess);
         _model.ref(t).clearRL();
     }
 }
@@ -8187,7 +8208,7 @@ void Optimiser::saveSubtract()
         {
             _par[l].rank1st(cls, rot3D, tran, d);
 
-            _model.proj(cls).projectMT(result, rot3D, tran - _offset[l]);
+            _model.proj(cls).project(result, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
         }
         else
         {
@@ -8209,18 +8230,18 @@ void Optimiser::saveSubtract()
 
         dvec2 tran = dvec2(regionTrans(0), regionTrans(1));
 
-        translateMT(diff, diff, -tran(0), -tran(1));
+        translate(diff, diff, -tran(0), -tran(1), _para.nThreadsPerProcess);
 
         _par[l].setT(_par[l].t().rowwise() - tran.transpose());
 
         _par[l].setTopT(_par[l].topT() - tran);
         _par[l].setTopTPrev(_par[l].topTPrev() - tran);
 
-        _fftImg.bwExecutePlanMT(diff);
+        _fftImg.bwExecutePlan(diff, _para.nThreadsPerProcess);
 
         imf.writeStack(diff, l);
 
-        _fftImg.fwExecutePlanMT(diff);
+        _fftImg.fwExecutePlan(diff);
     }
 
     imf.closeStack();
@@ -8256,22 +8277,22 @@ void Optimiser::saveBestProjections()
             {
                 _par[l].rank1st(cls, rot2D, tran, d);
 
-                _model.proj(cls).projectMT(result, rot2D, tran);
+                _model.proj(cls).project(result, rot2D, tran, _para.nThreadsPerProcess);
             }
             else if (_para.mode == MODE_3D)
             {
                 _par[l].rank1st(cls, rot3D, tran, d);
 
-                _model.proj(cls).projectMT(result, rot3D, tran);
+                _model.proj(cls).project(result, rot3D, tran, _para.nThreadsPerProcess);
             }
             else
                 REPORT_ERROR("INEXISTENT MODE");
 
             sprintf(filename, "%sResult_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
 
-            fft.bw(result);
+            fft.bw(result, _para.nThreadsPerProcess);
             result.saveRLToBMP(filename);
-            fft.fw(result);
+            fft.fw(result, _para.nThreadsPerProcess);
 
 #ifdef OPTIMISER_CTF_ON_THE_FLY
             // TODO
@@ -8282,9 +8303,9 @@ void Optimiser::saveBestProjections()
 #endif
 
             sprintf(filename, "%sDiff_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
-            fft.bw(diff);
+            fft.bw(diff, _para.nThreadsPerProcess);
             diff.saveRLToBMP(filename);
-            fft.fw(diff);
+            fft.fw(diff, _para.nThreadsPerProcess);
         }
     }
 }
@@ -8304,9 +8325,9 @@ void Optimiser::saveImages()
 
             sprintf(filename, "Image_%04d.bmp", _ID[l]);
 
-            _fftImg.bwExecutePlanMT(_imgOri[l]);
+            _fftImg.bwExecutePlan(_imgOri[l], _para.nThreadsPerProcess);
             _imgOri[l].saveRLToBMP(filename);
-            _fftImg.fwExecutePlanMT(_imgOri[l]);
+            _fftImg.fwExecutePlan(_imgOri[l]);
         }
     }
 }
@@ -8365,13 +8386,14 @@ void Optimiser::saveMapHalf(const bool finished)
                 ref.saveFTToBMP(filename, 0.001);
                 ***/
 
-                fft.bwMT(ref);
+                fft.bw(ref, _para.nThreadsPerProcess);
 
                 softMask(ref,
                          ref,
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
-                         0);
+                         0,
+                         _para.nThreadsPerProcess);
 
                 if (finished)
                     sprintf(filename, "%sReference_%03d_A_Final.bmp", _para.dstPrefix, t);
@@ -8399,13 +8421,14 @@ void Optimiser::saveMapHalf(const bool finished)
                 ref.saveFTToBMP(filename, 0.001);
                 ***/
 
-                fft.bwMT(ref);
+                fft.bw(ref, _para.nThreadsPerProcess);
 
                 softMask(ref,
                          ref,
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
-                         0);
+                         0,
+                         _para.nThreadsPerProcess);
 
                 if (finished)
                     sprintf(filename, "%sReference_%03d_B_Final.bmp", _para.dstPrefix, t);
@@ -8426,7 +8449,7 @@ void Optimiser::saveMapHalf(const bool finished)
             {
                 lowPass = _model.ref(t).copyVolume();
 
-                fft.bwMT(lowPass);
+                fft.bw(lowPass, _para.nThreadsPerProcess);
             }
             else
             {
@@ -8434,12 +8457,13 @@ void Optimiser::saveMapHalf(const bool finished)
                 lowPassFilter(lowPass,
                               _model.ref(t),
                               (RFLOAT)_resReport / _para.size,
-                              (RFLOAT)EDGE_WIDTH_FT / _para.size);
+                              (RFLOAT)EDGE_WIDTH_FT / _para.size,
+                              _para.nThreadsPerProcess);
 #else
                 lowPass = _model.ref(t).copyVolume();
 #endif
 
-                fft.bwMT(lowPass);
+                fft.bw(lowPass, _para.nThreadsPerProcess);
             }
 
             if (_commRank == HEMI_A_LEAD)
@@ -8530,13 +8554,14 @@ void Optimiser::saveMapJoin(const bool finished)
                 FOR_EACH_PIXEL_FT(ref)
                     ref[i] = (A[i] + B[i]) / 2;
 
-                fft.bwMT(ref);
+                fft.bw(ref, _para.nThreadsPerProcess);
 
                 softMask(ref,
                          ref,
                          _para.maskRadius / _para.pixelSize,
                          EDGE_WIDTH_RL,
-                         0);
+                         0,
+                         _para.nThreadsPerProcess);
 
                 imf.writeStack(ref, l);
             }
@@ -8598,7 +8623,7 @@ void Optimiser::saveMapJoin(const bool finished)
                 FOR_EACH_PIXEL_FT(ref)
                     ref[i] = (A[i] + B[i]) / 2;
 
-                fft.bwMT(ref);
+                fft.bw(ref, _para.nThreadsPerProcess);
 
                 if (finished)
                     sprintf(filename, "%sReference_%03d_Final.mrc", _para.dstPrefix, l);
