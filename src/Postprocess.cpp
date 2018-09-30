@@ -47,7 +47,7 @@ Postprocess::Postprocess(const char mapAFilename[],
         CLOG(FATAL, "LOGGER_SYS") << "Invalid Input Half Maps in Postprocessing";
 }
 
-void Postprocess::run()
+void Postprocess::run(const unsigned int nThread)
 {
     FFT fft;
 
@@ -58,7 +58,7 @@ void Postprocess::run()
     _mapAMasked.alloc(_size, _size, _size, RL_SPACE);
     _mapBMasked.alloc(_size, _size, _size, RL_SPACE);
 
-    maskAB();
+    maskAB(nThread);
 
     imf.readMetaData(_mapAMasked);
     imf.writeVolume("Reference_A_Masked.mrc", _mapA);
@@ -67,11 +67,11 @@ void Postprocess::run()
 
     CLOG(INFO, "LOGGER_SYS") << "Performing Fourier Transform";
 
-    fft.fwMT(_mapA);
-    fft.fwMT(_mapB);
+    fft.fw(_mapA, nThread);
+    fft.fw(_mapB, nThread);
 
-    fft.fwMT(_mapAMasked);
-    fft.fwMT(_mapBMasked);
+    fft.fw(_mapAMasked, nThread);
+    fft.fw(_mapBMasked, nThread);
 
     CLOG(INFO, "LOGGER_SYS") << "Determining FSCUnmask & FSCMask";
 
@@ -90,17 +90,17 @@ void Postprocess::run()
                                              _size,
                                              _pixelSize);
 
-    randomPhaseAB(randomPhaseThres);
+    randomPhaseAB(randomPhaseThres, nThread);
 
     CLOG(INFO, "LOGGER_SYS") << "Determing FSCRFMask";
 
-    fft.bwMT(_mapARFMask);
-    fft.bwMT(_mapBRFMask);
+    fft.bw(_mapARFMask, nThread);
+    fft.bw(_mapBRFMask, nThread);
 
-    maskABRF();
+    maskABRF(nThread);
 
-    fft.fwMT(_mapARFMask);
-    fft.fwMT(_mapBRFMask);
+    fft.fw(_mapARFMask, nThread);
+    fft.fw(_mapBRFMask, nThread);
 
     _FSCRFMask.resize(maxR());
 
@@ -133,16 +133,16 @@ void Postprocess::run()
     
     mergeAB();
 
-    fft.bw(_mapI);
+    fft.bw(_mapI, nThread);
 
     imf.readMetaData(_mapI);
     imf.writeVolume("Reference_Average.mrc", _mapI, _pixelSize);
 
-    fft.fw(_mapI);
+    fft.fw(_mapI, nThread);
 
     CLOG(INFO, "LOGGER_SYS") << "Applying FSC Weighting";
 
-    fscWeightingFilter(_mapI, _mapI, _FSC);
+    fscWeightingFilter(_mapI, _mapI, _FSC, nThread);
 
     CLOG(INFO, "LOGGER_SYS") << "Estimating B-Factor";
 
@@ -163,7 +163,8 @@ void Postprocess::run()
             _mapI,
             (RFLOAT)_res / _size,
             (RFLOAT)EDGE_WIDTH_FT / _size,
-            bFactor);
+            bFactor,
+            nThread);
 
     //CLOG(INFO, "LOGGER_SYS") << "Compensating B-Factor Filtering";
 
@@ -171,9 +172,9 @@ void Postprocess::run()
 
     CLOG(INFO, "LOGGER_SYS") << "Saving Result";
 
-    fft.bw(_mapI);
+    fft.bw(_mapI, nThread);
 
-    softMask(_mapI, _mapI, _mask, 0);
+    softMask(_mapI, _mapI, _mask, 0, nThread);
 
     //REMOVE_NEG(_mapI);
 
@@ -181,25 +182,26 @@ void Postprocess::run()
     imf.writeVolume("Reference_Sharp.mrc", _mapI, _pixelSize);
 }
 
-void Postprocess::maskAB()
+void Postprocess::maskAB(const unsigned int nThread)
 {
-    softMask(_mapAMasked, _mapA, _mask, 0);
-    softMask(_mapBMasked, _mapB, _mask, 0);
+    softMask(_mapAMasked, _mapA, _mask, 0, nThread);
+    softMask(_mapBMasked, _mapB, _mask, 0, nThread);
 }
 
-void Postprocess::maskABRF()
+void Postprocess::maskABRF(const unsigned int nThread)
 {
-    softMask(_mapARFMask, _mapARFMask, _mask, 0);
-    softMask(_mapBRFMask, _mapBRFMask, _mask, 0);
+    softMask(_mapARFMask, _mapARFMask, _mask, 0, nThread);
+    softMask(_mapBRFMask, _mapBRFMask, _mask, 0, nThread);
 }
 
-void Postprocess::randomPhaseAB(const int randomPhaseThres)
+void Postprocess::randomPhaseAB(const int randomPhaseThres,
+                                const unsigned int nThread)
 {
     _mapARFMask.alloc(_size, _size, _size, FT_SPACE);
     _mapBRFMask.alloc(_size, _size, _size, FT_SPACE);
 
-    randomPhase(_mapARFMask, _mapA, randomPhaseThres);
-    randomPhase(_mapBRFMask, _mapB, randomPhaseThres);
+    randomPhase(_mapARFMask, _mapA, randomPhaseThres, nThread);
+    randomPhase(_mapBRFMask, _mapB, randomPhaseThres, nThread);
 }
 
 void Postprocess::mergeAB()

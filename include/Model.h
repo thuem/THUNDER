@@ -422,9 +422,9 @@ class Model : public Parallel
         ***/
 
         /**
-         * This function initialises projectors and reconstructors.
+         * This function initializes projectors and reconstructors.
          */
-        void initProjReco();
+        void initProjReco(const unsigned int nThread);
 
         /**
          * This function returns a reference of the i-th reference.
@@ -554,7 +554,8 @@ class Model : public Parallel
          */
         void compareTwoHemispheres(const bool fscFlag,
                                    const bool avgFlag,
-                                   const RFLOAT thres);
+                                   const RFLOAT thres,
+                                   const unsigned int nThread);
 
         /**
          * This function performs a low pass filter on each reference.
@@ -563,7 +564,8 @@ class Model : public Parallel
          * @param ew    edge width of spatial frequency of low pass filter
          */
         void lowPassRef(const RFLOAT thres,
-                        const RFLOAT ew);
+                        const RFLOAT ew,
+                        const unsigned int nThread);
 
         /**
          * This function returns the FSCs as each column stands for the FSC of a
@@ -672,7 +674,7 @@ class Model : public Parallel
          * This function refreshs the projectors by resetting the projectee, the
          * frequency threshold and padding factor, respectively.
          */
-        void refreshProj();
+        void refreshProj(const unsigned int nThread);
 
         /**
          * This function refreshs the reconstructors by resetting the size,

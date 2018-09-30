@@ -107,15 +107,19 @@ void ringAverage(vec& dst,
 
 RFLOAT shellAverage(const int resP,
                     const Volume& vol,
-                    const function<RFLOAT(const Complex)> func)
+                    const function<RFLOAT(const Complex)> func,
+                    const unsigned int nThread)
 {
     RFLOAT result = 0;
     int counter = 0;
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(vol)
         if (AROUND(NORM_3(i, j, k)) == resP)
         {
+            #pragma omp atomic
             result += func(vol.getFT(i, j, k));
+            #pragma omp atomic
             counter++;
         }
 
@@ -125,13 +129,14 @@ RFLOAT shellAverage(const int resP,
 void shellAverage(vec& dst,
                   const Volume& src,
                   const function<RFLOAT(const Complex)> func,
-                  const int r)
+                  const int r,
+                  const unsigned int nThread)
 {
     dst.setZero();
 
     uvec counter = uvec::Zero(dst.size());
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
@@ -148,20 +153,21 @@ void shellAverage(vec& dst,
         }
     }
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < r; i++)
         dst(i) /= counter(i);
 }
 
 void powerSpectrum(vec& dst,
                    const Image& src,
-                   const int r)
+                   const int r,
+                   const unsigned int nThread)
 {
     dst.setZero();
 
     uvec counter = uvec::Zero(dst.size());
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         if (QUAD(i, j) < TSGSL_pow_2(r))
@@ -178,20 +184,21 @@ void powerSpectrum(vec& dst,
         }
     }
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < r; i++)
         dst(i) /= counter(i);
 }
 
 void powerSpectrum(vec& dst,
                    const Volume& src,
-                   const int r)
+                   const int r,
+                   const unsigned int nThread)
 {
     dst.setZero();
 
     uvec counter = uvec::Zero(dst.size());
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
@@ -208,7 +215,7 @@ void powerSpectrum(vec& dst,
         }
     }
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < r; i++)
         dst(i) /= counter(i);
 }
@@ -349,11 +356,12 @@ int resP(const vec& fsc,
 
 void randomPhase(Volume& dst,
                  const Volume& src,
-                 const int r)
+                 const int r,
+                 const unsigned int nThread)
 {
     gsl_rng* engine = get_random_engine();
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(dst)
     {
         int u = AROUND(NORM_3(i, j, k));
@@ -374,23 +382,25 @@ void sharpen(Volume& dst,
              const RFLOAT thres,
              const RFLOAT ew,
              const int rU,
-             const int rL)
+             const int rL,
+             const unsigned int nThread)
 {
     RFLOAT bFactor;
     bFactorEst(bFactor, src, rU, rL);
 
-    sharpen(dst, src, thres, ew, bFactor);
+    sharpen(dst, src, thres, ew, bFactor, nThread);
 }
 
 void sharpen(Volume& dst,
              const Volume& src,
              const RFLOAT thres,
              const RFLOAT ew,
-             const RFLOAT bFactor)
+             const RFLOAT bFactor,
+             const unsigned int nThread)
 {
-    bFactorFilter(dst, src, bFactor);
+    bFactorFilter(dst, src, bFactor, nThread);
 
-    lowPassFilter(dst, dst, thres, ew);
+    lowPassFilter(dst, dst, thres, ew, nThread);
 }
 
 void bFactorEst(RFLOAT& bFactor,

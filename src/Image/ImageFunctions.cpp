@@ -10,28 +10,37 @@
 
 #include "ImageFunctions.h"
 
-vec2 centroid(const Image& img)
+vec2 centroid(const Image& img,
+              const unsigned int nThread)
 {
     vec2 c = vec2::Zero();
     RFLOAT w = 0;
-    
+
+    #pragma omp parallel for num_threads(nThread)    
     IMAGE_FOR_EACH_PIXEL_RL(img)
     {
         RFLOAT u = img.getRL(i, j);
 
-        c += vec2(i, j) * u;
+        #pragma omp atomic
+        c(0) += i * u;
+
+        #pragma omp atomic
+        c(1) += j * u;
+
+        #pragma omp atomic
         w += u;
     }
 
     return c / w;
 }
 
-vec3 centroid(const Volume& vol)
+vec3 centroid(const Volume& vol,
+              const unsigned int nThread)
 {
     vec3 c = vec3::Zero();
     RFLOAT w = 0;
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(vol)
     {
         RFLOAT u = vol.getRL(i, j, k);
@@ -82,13 +91,29 @@ void mul(Image& dst,
     }
 }
 
+//void translate(Image& dst,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow)
+//{
+//    RFLOAT rCol = nTransCol / dst.nColRL();
+//    RFLOAT rRow = nTransRow / dst.nRowRL();
+//
+//    IMAGE_FOR_EACH_PIXEL_FT(dst)
+//    {
+//        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
+//        dst.setFT(COMPLEX_POLAR(-phase), i, j);
+//    }
+//}
+
 void translate(Image& dst,
                const RFLOAT nTransCol,
-               const RFLOAT nTransRow)
+               const RFLOAT nTransRow,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / dst.nColRL();
     RFLOAT rRow = nTransRow / dst.nRowRL();
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
         RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
@@ -96,31 +121,17 @@ void translate(Image& dst,
     }
 }
 
-void translateMT(Image& dst,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow)
-{
-    RFLOAT rCol = nTransCol / dst.nColRL();
-    RFLOAT rRow = nTransRow / dst.nRowRL();
-
-    #pragma omp parallel for
-    IMAGE_FOR_EACH_PIXEL_FT(dst)
-    {
-        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
-        dst.setFT(COMPLEX_POLAR(-phase), i, j);
-    }
-}
-
-void translateMT(Volume& dst,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const RFLOAT nTransSlc)
+void translate(Volume& dst,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
+               const RFLOAT nTransSlc,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / dst.nColRL();
     RFLOAT rRow = nTransRow / dst.nRowRL();
     RFLOAT rSlc = nTransSlc / dst.nSlcRL();
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(dst)
     {
         RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
@@ -128,31 +139,32 @@ void translateMT(Volume& dst,
     }
 }
 
+//void translate(Image& dst,
+//               const RFLOAT r,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow)
+//{
+//    RFLOAT rCol = nTransCol / dst.nColRL();
+//    RFLOAT rRow = nTransRow / dst.nRowRL();
+//
+//    IMAGE_FOR_PIXEL_R_FT(r)
+//        if (QUAD(i, j) < TSGSL_pow_2(r))
+//        {
+//            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
+//            dst.setFT(COMPLEX_POLAR(-phase), i, j);
+//        }
+//}
+
 void translate(Image& dst,
                const RFLOAT r,
                const RFLOAT nTransCol,
-               const RFLOAT nTransRow)
+               const RFLOAT nTransRow,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / dst.nColRL();
     RFLOAT rRow = nTransRow / dst.nRowRL();
 
-    IMAGE_FOR_PIXEL_R_FT(r)
-        if (QUAD(i, j) < TSGSL_pow_2(r))
-        {
-            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
-            dst.setFT(COMPLEX_POLAR(-phase), i, j);
-        }
-}
-
-void translateMT(Image& dst,
-                 const RFLOAT r,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow)
-{
-    RFLOAT rCol = nTransCol / dst.nColRL();
-    RFLOAT rRow = nTransRow / dst.nRowRL();
-
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(dst)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
@@ -161,17 +173,37 @@ void translateMT(Image& dst,
         }
 }
 
+//void translate(Image& dst,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow,
+//               const int* iCol,
+//               const int* iRow,
+//               const int* iPxl,
+//               const int nPxl)
+//{
+//    RFLOAT rCol = nTransCol / dst.nColRL();
+//    RFLOAT rRow = nTransRow / dst.nRowRL();
+//
+//    for (int i = 0; i < nPxl; i++)
+//    {
+//        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
+//        dst[iPxl[i]] = COMPLEX_POLAR(-phase);
+//    }
+//}
+
 void translate(Image& dst,
                const RFLOAT nTransCol,
                const RFLOAT nTransRow,
                const int* iCol,
                const int* iRow,
                const int* iPxl,
-               const int nPxl)
+               const int nPxl,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / dst.nColRL();
     RFLOAT rRow = nTransRow / dst.nRowRL();
 
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
@@ -179,24 +211,24 @@ void translate(Image& dst,
     }
 }
 
-void translateMT(Image& dst,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const int* iCol,
-                 const int* iRow,
-                 const int* iPxl,
-                 const int nPxl)
-{
-    RFLOAT rCol = nTransCol / dst.nColRL();
-    RFLOAT rRow = nTransRow / dst.nRowRL();
-
-    #pragma omp parallel for
-    for (int i = 0; i < nPxl; i++)
-    {
-        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
-        dst[iPxl[i]] = COMPLEX_POLAR(-phase);
-    }
-}
+//void translate(Complex* dst,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow,
+//               const int nCol,
+//               const int nRow,
+//               const int* iCol,
+//               const int* iRow,
+//               const int nPxl)
+//{
+//    RFLOAT rCol = nTransCol / nCol;
+//    RFLOAT rRow = nTransRow / nRow;
+//
+//    for (int i = 0; i < nPxl; i++)
+//    {
+//        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
+//        dst[i] = COMPLEX_POLAR(-phase);
+//    }
+//}
 
 void translate(Complex* dst,
                const RFLOAT nTransCol,
@@ -205,11 +237,13 @@ void translate(Complex* dst,
                const int nRow,
                const int* iCol,
                const int* iRow,
-               const int nPxl)
+               const int nPxl,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / nCol;
     RFLOAT rRow = nTransRow / nRow;
 
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
@@ -217,34 +251,31 @@ void translate(Complex* dst,
     }
 }
 
-void translateMT(Complex* dst,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const int nCol,
-                 const int nRow,
-                 const int* iCol,
-                 const int* iRow,
-                 const int nPxl)
-{
-    RFLOAT rCol = nTransCol / nCol;
-    RFLOAT rRow = nTransRow / nRow;
-
-    #pragma omp parallel for
-    for (int i = 0; i < nPxl; i++)
-    {
-        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
-        dst[i] = COMPLEX_POLAR(-phase);
-    }
-}
+//void translate(Image& dst,
+//               const Image& src,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow)
+//{
+//    RFLOAT rCol = nTransCol / src.nColRL();
+//    RFLOAT rRow = nTransRow / src.nRowRL();
+//
+//    IMAGE_FOR_EACH_PIXEL_FT(src)
+//    {
+//        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
+//        dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
+//    }
+//}
 
 void translate(Image& dst,
                const Image& src,
                const RFLOAT nTransCol,
-               const RFLOAT nTransRow)
+               const RFLOAT nTransRow,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / src.nColRL();
     RFLOAT rRow = nTransRow / src.nRowRL();
 
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
@@ -252,33 +283,18 @@ void translate(Image& dst,
     }
 }
 
-void translateMT(Image& dst,
-                 const Image& src,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow)
-{
-    RFLOAT rCol = nTransCol / src.nColRL();
-    RFLOAT rRow = nTransRow / src.nRowRL();
-
-    #pragma omp parallel for
-    IMAGE_FOR_EACH_PIXEL_FT(src)
-    {
-        RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
-        dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
-    }
-}
-
-void translateMT(Volume& dst,
-                 const Volume& src,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const RFLOAT nTransSlc)
+void translate(Volume& dst,
+               const Volume& src,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
+               const RFLOAT nTransSlc,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / src.nColRL();
     RFLOAT rRow = nTransRow / src.nRowRL();
     RFLOAT rSlc = nTransSlc / src.nSlcRL();
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT phase = M_2X_PI * (i * rCol + j * rRow + k * rSlc);
@@ -286,33 +302,34 @@ void translateMT(Volume& dst,
     }
 }
 
+//void translate(Image& dst,
+//               const Image& src,
+//               const RFLOAT r,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow)
+//{
+//    RFLOAT rCol = nTransCol / src.nColRL();
+//    RFLOAT rRow = nTransRow / src.nRowRL();
+//
+//    IMAGE_FOR_PIXEL_R_FT(r)
+//        if (QUAD(i, j) < TSGSL_pow_2(r))
+//        {
+//            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
+//            dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
+//        }
+//}
+
 void translate(Image& dst,
                const Image& src,
                const RFLOAT r,
                const RFLOAT nTransCol,
-               const RFLOAT nTransRow)
+               const RFLOAT nTransRow,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / src.nColRL();
     RFLOAT rRow = nTransRow / src.nRowRL();
 
-    IMAGE_FOR_PIXEL_R_FT(r)
-        if (QUAD(i, j) < TSGSL_pow_2(r))
-        {
-            RFLOAT phase = M_2X_PI * (i * rCol + j * rRow);
-            dst.setFT(src.getFT(i, j) * COMPLEX_POLAR(-phase), i, j);
-        }
-}
-
-void translateMT(Image& dst,
-                 const Image& src,
-                 const RFLOAT r,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow)
-{
-    RFLOAT rCol = nTransCol / src.nColRL();
-    RFLOAT rRow = nTransRow / src.nRowRL();
-
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(src)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
@@ -321,18 +338,19 @@ void translateMT(Image& dst,
         }
 }
 
-void translateMT(const int ip,
-                 Image& img,
-                 const RFLOAT r,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow)
+void translate(const int ip,
+               Image& img,
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
+               const unsigned int nThread)
 {
     if (ip != THUNDER_IN_PLACE) { REPORT_ERROR("THUNDER_IN_PLACE REQUIRED"); }
 
     RFLOAT rCol = nTransCol / img.nColRL();
     RFLOAT rRow = nTransRow / img.nRowRL();
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(img)
         if (QUAD(i, j) < TSGSL_pow_2(r))
         {
@@ -342,18 +360,19 @@ void translateMT(const int ip,
         }
 }
 
-void translateMT(Volume& dst,
-                 const Volume& src,
-                 const RFLOAT r,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const RFLOAT nTransSlc)
+void translate(Volume& dst,
+               const Volume& src,
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
+               const RFLOAT nTransSlc,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / src.nColRL();
     RFLOAT rRow = nTransRow / src.nRowRL();
     RFLOAT rSlc = nTransSlc / src.nSlcRL();
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
         if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
         {
@@ -362,12 +381,13 @@ void translateMT(Volume& dst,
         }
 }
 
-void translateMT(const int ip,
-                 Volume& vol,
-                 const RFLOAT r,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const RFLOAT nTransSlc)
+void translate(const int ip,
+               Volume& vol,
+               const RFLOAT r,
+               const RFLOAT nTransCol,
+               const RFLOAT nTransRow,
+               const RFLOAT nTransSlc,
+               const unsigned int nThread)
 {
     if (ip != THUNDER_IN_PLACE) { REPORT_ERROR("THUNDER_IN_PLACE REQUIRED"); }
 
@@ -375,7 +395,7 @@ void translateMT(const int ip,
     RFLOAT rRow = nTransRow / vol.nRowRL();
     RFLOAT rSlc = nTransSlc / vol.nSlcRL();
 
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(vol)
         if (QUAD_3(i, j, k) < TSGSL_pow_2(r))
         {
@@ -385,6 +405,26 @@ void translateMT(const int ip,
         }
 }
 
+//void translate(Image& dst,
+//               const Image& src,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow,
+//               const int* iCol,
+//               const int* iRow,
+//               const int* iPxl,
+//               const int nPxl)
+//{
+//    RFLOAT rCol = nTransCol / src.nColRL();
+//    RFLOAT rRow = nTransRow / src.nRowRL();
+//
+//    for (int i = 0; i < nPxl; i++)
+//    {
+//        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
+//
+//        dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
+//    }
+//}
+
 void translate(Image& dst,
                const Image& src,
                const RFLOAT nTransCol,
@@ -392,11 +432,13 @@ void translate(Image& dst,
                const int* iCol,
                const int* iRow,
                const int* iPxl,
-               const int nPxl)
+               const int nPxl,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / src.nColRL();
     RFLOAT rRow = nTransRow / src.nRowRL();
 
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
@@ -405,26 +447,26 @@ void translate(Image& dst,
     }
 }
 
-void translateMT(Image& dst,
-                 const Image& src,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const int* iCol,
-                 const int* iRow,
-                 const int* iPxl,
-                 const int nPxl)
-{
-    RFLOAT rCol = nTransCol / src.nColRL();
-    RFLOAT rRow = nTransRow / src.nRowRL();
-
-    #pragma omp parallel for
-    for (int i = 0; i < nPxl; i++)
-    {
-        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
-
-        dst[iPxl[i]] = src.iGetFT(iPxl[i]) * COMPLEX_POLAR(-phase);
-    }
-}
+//void translate(Complex* dst,
+//               const Complex* src,
+//               const RFLOAT nTransCol,
+//               const RFLOAT nTransRow,
+//               const int nCol,
+//               const int nRow,
+//               const int* iCol,
+//               const int* iRow,
+//               const int nPxl)
+//{
+//    RFLOAT rCol = nTransCol / nCol;
+//    RFLOAT rRow = nTransRow / nRow;
+//
+//    for (int i = 0; i < nPxl; i++)
+//    {
+//        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
+//
+//        dst[i] = src[i] * COMPLEX_POLAR(-phase);
+//    }
+//}
 
 void translate(Complex* dst,
                const Complex* src,
@@ -434,33 +476,13 @@ void translate(Complex* dst,
                const int nRow,
                const int* iCol,
                const int* iRow,
-               const int nPxl)
+               const int nPxl,
+               const unsigned int nThread)
 {
     RFLOAT rCol = nTransCol / nCol;
     RFLOAT rRow = nTransRow / nRow;
 
-    for (int i = 0; i < nPxl; i++)
-    {
-        RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
-
-        dst[i] = src[i] * COMPLEX_POLAR(-phase);
-    }
-}
-
-void translateMT(Complex* dst,
-                 const Complex* src,
-                 const RFLOAT nTransCol,
-                 const RFLOAT nTransRow,
-                 const int nCol,
-                 const int nRow,
-                 const int* iCol,
-                 const int* iRow,
-                 const int nPxl)
-{
-    RFLOAT rCol = nTransCol / nCol;
-    RFLOAT rRow = nTransRow / nRow;
-
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         RFLOAT phase = M_2X_PI * (iCol[i] * rCol + iRow[i] * rRow);
@@ -485,7 +507,8 @@ void translate(int& nTransCol,
                const Image& b,
                const RFLOAT r,
                const int maxX,
-               const int maxY)
+               const int maxY,
+               const unsigned int nThread)
 {
     Image cc(a.nColRL(),
              a.nRowRL(),
@@ -498,7 +521,7 @@ void translate(int& nTransCol,
 
     FFT fft;
 
-    fft.bw(cc);
+    fft.bw(cc, nThread);
 
     RFLOAT max = 0;
 

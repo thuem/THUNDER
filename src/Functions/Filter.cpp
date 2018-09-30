@@ -12,8 +12,10 @@
 
 void bFactorFilter(Image& dst,
                    const Image& src,
-                   const RFLOAT bFactor)
+                   const RFLOAT bFactor,
+                   const unsigned int nThread)
 {
+    #pragma omp parallel for num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = TSGSL_pow_2(RFLOAT(i) / src.nColRL())
@@ -26,9 +28,10 @@ void bFactorFilter(Image& dst,
 
 void bFactorFilter(Volume& dst,
                    const Volume& src,
-                   const RFLOAT bFactor)
+                   const RFLOAT bFactor,
+                   const unsigned int nThread)
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = TSGSL_pow_2(RFLOAT(i) / src.nColRL())
@@ -43,8 +46,10 @@ void bFactorFilter(Volume& dst,
 void lowPassFilter(Image& dst,
                    const Image& src,
                    const RFLOAT thres,
-                   const RFLOAT ew)
+                   const RFLOAT ew,
+                   const unsigned int nThread)
 {
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = NORM(RFLOAT(i) / src.nColRL(),
@@ -64,9 +69,10 @@ void lowPassFilter(Image& dst,
 void lowPassFilter(Volume& dst,
                    const Volume& src,
                    const RFLOAT thres,
-                   const RFLOAT ew)
+                   const RFLOAT ew,
+                   const unsigned int nThread)
 {
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = NORM_3(RFLOAT(i) / src.nColRL(),
@@ -88,8 +94,10 @@ void lowPassFilter(Volume& dst,
 void highPassFilter(Image& dst,
                     const Image& src,
                     const RFLOAT thres,
-                    const RFLOAT ew)
+                    const RFLOAT ew,
+                    const unsigned int nThread)
 {
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = NORM(RFLOAT(i) / src.nColRL(),
@@ -110,9 +118,10 @@ void highPassFilter(Image& dst,
 void highPassFilter(Volume& dst,
                     const Volume& src,
                     const RFLOAT thres,
-                    const RFLOAT ew)
+                    const RFLOAT ew,
+                    const unsigned int nThread)
 {
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = NORM_3(RFLOAT(i) / src.nColRL(),
@@ -134,9 +143,10 @@ void highPassFilter(Volume& dst,
 
 void fscWeightingFilter(Volume& dst,
                         const Volume& src,
-                        const vec& fsc)
+                        const vec& fsc,
+                        const unsigned int nThread)
 {
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(src)
     {
         RFLOAT f = NORM_3(RFLOAT(i) / src.nColRL(),

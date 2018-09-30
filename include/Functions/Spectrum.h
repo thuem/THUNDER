@@ -115,12 +115,14 @@ void ringAverage(vec& dst,
  */
 RFLOAT shellAverage(const int resP,
                     const Volume& vol,
-                    const function<RFLOAT(const Complex)> func);
+                    const function<RFLOAT(const Complex)> func,
+                    const unsigned int nThread);
 
 void shellAverage(vec& dst,
                   const Volume& src,
                   const function<RFLOAT(const Complex)> func,
-                  const int r);
+                  const int r,
+                  const unsigned int nThread);
 
 /**
  * This function calculates the power spectrum of a certain image within a
@@ -132,7 +134,8 @@ void shellAverage(vec& dst,
  */
 void powerSpectrum(vec& dst,
                    const Image& src,
-                   const int r);
+                   const int r,
+                   const unsigned int nThread);
 
 /**
  * This function calculates the power spectrum of a certain volume within a
@@ -144,7 +147,8 @@ void powerSpectrum(vec& dst,
  */
 void powerSpectrum(vec& dst,
                    const Volume& src,
-                   const int r);
+                   const int r,
+                   const unsigned int nThread);
 
 /**
  * This functions calculates the FRC (Fourier Ring Coefficient) between two
@@ -202,7 +206,8 @@ int resP(const vec& fsc,
  */
 void randomPhase(Volume& dst,
                  const Volume& src,
-                 const int r);
+                 const int r,
+                 const unsigned int nThread);
 
 /**
  * This function sharpens up a volume by three steps: estimating B-factor,
@@ -220,7 +225,8 @@ void sharpen(Volume& dst,
              const RFLOAT thres,
              const RFLOAT ew,
              const int rU,
-             const int rL);
+             const int rL,
+             const unsigned int nThread);
 
 /**
  * This function sharpens up a volume by two steps: performing B-factor
@@ -236,7 +242,8 @@ void sharpen(Volume& dst,
              const Volume& src,
              const RFLOAT thres,
              const RFLOAT ew,
-             const RFLOAT bFactor);
+             const RFLOAT bFactor,
+             const unsigned int nThread);
 
 /**
  * This function estimates B-factor by least-square regression method.

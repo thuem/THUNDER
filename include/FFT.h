@@ -267,144 +267,88 @@ class FFT
          */
         ~FFT();
 
-        /**
-         * @brief This function performs Fourier transform on an image.
-         */
-        void fw(Image& img    /**< [in] the image to be Fourier transformed */);
-
-        /**
-         * @brief This function performs inverse Fourier transform on an image.
-         */
-        void bw(Image& img    /**< [in] the image to be inverse Fourier transformed */);
-
-        /**
-         * @brief This function performs Fourier transform on a volume.
-         */
-        void fw(Volume& vol   /**< [in] the volume to be Fourier transformed */);
-
-        /**
-         * @brief This function performs inverse Fourier transform on a volume.
-         */
-        void bw(Volume& vol   /**< [in] the volume to be inverse Fourier transformed */);
 
         /**
          * @brief This function performs Fourier transform on an image using multiple threads.
          */
-        void fwMT(Image& img  /**< [in] the image to be transformed */);
+        void fw(Image& img,                   /**< [in] the image to be transformed */
+                const unsigned int nThread    /**< [in] the number of threads to be used */
+                );
 
         /**
          * @brief This function performs inverse Fourier transform on an image using multiple threads.
          */
-        void bwMT(Image& img  /**< [in] the image to be transformed */);
+        void bw(Image& img,                   /**< [in] the image to be transformed */
+                const unsigned int nThread    /**< [in] the number of threads to be used */
+                );
 
         /**
          * @brief This function performs Fourier transform on a volume using multiple threads.
          */
-        void fwMT(Volume& vol /**< [in] the volume to be transformed */);
+        void fw(Volume& vol,                 /**< [in] the volume to be transformed */
+                const unsigned int nThread   /**< [in] the number of threads to be used */
+                );
+
         /**
          * @brief This function performs inverse Fourier transform on a volume using multiple threads.
          */
-        void bwMT(Volume& vol /**< [in] the volume to be transformed */);
-
-        /**
-         * @brief This function creates a plan to perform Fourier transform on an image.
-         */
-        void fwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
-                          const int nRow           /**< [in] number of rows of the image */
-                         );
-
-        /**
-         * @brief This function creates a plan to perform Fourier transform on a volume. 
-         */
-        void fwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
-                          const int nRow,          /**< [in] number of rows of the image */
-                          const int nSlc           /**< [in] number of slices of the image */
-                         );
-
-        /**
-         * @brief This function creates a plan to perform inverse Fourier transform on an image.
-         */
-        void bwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
-                          const int nRow           /**< [in] number of rows of the image */
-                         );
-
-        /**
-         * @brief This function creates a plan to perform inverse Fourier transform on a volume.
-         */
-        void bwCreatePlan(const int nCol,          /**< [in] number of columns of the image */
-                          const int nRow,          /**< [in] number of rows of the image */
-                          const int nSlc           /**< [in] number of slices of the image */
-                         );
+        void bw(Volume& vol,                 /**< [in] the volume to be transformed */
+                const unsigned int nThread   /**< [in] the number of threads to be used */
+                );
 
         /**
          * @brief This function creates a plan to perform Fourier transform on an image using multiple threads.
          */
-        void fwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
-                            const int nRow         /**< [in] number of rows of the image */
-                           );
-
+        void fwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
+                          const int nRow,              /**< [in] number of rows of the image */
+                          const unsigned int nThread   /**< [in] the number of threads to be used */
+                          );
         /**
          * @brief This function creates a plan to perform Fourier transform on a volume using multiple threads.
          */
-        void fwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
-                            const int nRow,        /**< [in] number of rows of the image */
-                            const int nSlc         /**< [in] number of slices of the image */
-                           );
-
+        void fwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
+                          const int nRow,              /**< [in] number of rows of the image */
+                          const int nSlc,              /**< [in] number of slices of the image */
+                          const unsigned int nThread   /**< [in] the number of threads to be used */
+                          );
         /**
          * @brief This function creates a plan to perform inverse Fourier transform on an image using multiple threads.
          */
-        void bwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
-                            const int nRow         /**< [in] number of rows of the image */
-                           );
-
+        void bwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
+                          const int nRow,              /**< [in] number of rows of the image */
+                          const unsigned int nThread   /**< [in] the number of threads to be used */
+                          );
         /**
          * @brief This function creates a plan to perform inverse Fourier transform on a volume using multiple threads.
          */
-        void bwCreatePlanMT(const int nCol,        /**< [in] number of columns of the image */
-                            const int nRow,        /**< [in] number of rows of the image */
-                            const int nSlc         /**< [in] number of slices of the image */
-                           );
-
-        /**
-         * @brief This function executes the created plan that performs Fourier transform on an image.
-         */
-        void fwExecutePlan(Image& img    /**< [in] the image to be Fourier transformed */);
-
-        /**
-         * @brief This function executes the created plan that performs Fourier transform on a volume.
-         */
-        void fwExecutePlan(Volume& vol   /**< [in] the volume to be Fourier transformed */);
-
-        /**
-         * @brief This function executes the created plan that performs inverse Fourier transform on an image.
-         */
-        void bwExecutePlan(Image& img    /**< [in] the image to be inverse Fourier transformed */);
-
-        /**
-         * @brief This function executes the created plan that performs inverse Fourier transform on a volume.
-         */
-        void bwExecutePlan(Volume& vol   /**< [in] the volume to be inverse Fourier transformed */);
-
+        void bwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
+                          const int nRow,              /**< [in] number of rows of the image */
+                          const int nSlc,              /**< [in] number of slices of the image */
+                          const unsigned int nThread   /**< [in] the number of threads to be used */
+                          );
         /**
          * @brief This function executes the created plan that performs Fourier transform on an image using multiple threads.
          */
-        void fwExecutePlanMT(Image& img  /**< [in] the image to be Fourier transformed */);
-
+        void fwExecutePlan(Image& img                  /**< [in] the image to be Fourier transformed */);
+        
         /**
          * @brief This function executes the created plan that performs Fourier transform on a volume using multiple threads.
-         */
-        void fwExecutePlanMT(Volume& vol /**< [in] the volume to be Fourier transformed */);
-
+         */        
+        void fwExecutePlan(Volume& vol                 /**< [in] the volume to be Fourier transformed */); 
+        
         /**
          * @brief This function executes the created plan that performs inverse Fourier transform on an image using multiple threads.
          */
-        void bwExecutePlanMT(Image& img  /**< [in] the image to be inverse Fourier transformed */);
+        void bwExecutePlan(Image& img,                  /**< [in] the image to be inverse Fourier transformed */
+                           const unsigned int nThread   /**< [in] the number of threads to be used */
+                           );
 
         /**
          * @brief This function executes the created plan that performs inverse Fourier transform on a volume using multiple threads.
          */
-        void bwExecutePlanMT(Volume& vol /**< [in] the volume to be inverse Fourier transformed */);
+        void bwExecutePlan(Volume& vol,                 /**< [in] the volume to be inverse Fourier transformed */
+                           const unsigned int nThread   /**< [in] the number of threads to be used */
+                           );
 
         /**
          * @brief This function destroys the created plan that performs Fourier transform on an image or volume.
@@ -415,16 +359,6 @@ class FFT
          * @brief This function destroys the created plan that performs inverse Fourier transform on an image or volume.
          */
         void bwDestroyPlan();
-
-        /**
-         * @brief This function destroys the created plan that performs Fourier transform on an image or volume using multiple threads.
-         */
-        void fwDestroyPlanMT();
-
-        /**
-         * @brief This function destroys the created plan that performs inverse Fourier transform on an image or volume using multiple threads.
-         */
-        void bwDestroyPlanMT();
 };
 
 #endif // FFT_H 

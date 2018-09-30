@@ -21,7 +21,7 @@ FFT::FFT() : _srcR(NULL),
 
 FFT::~FFT() {}
 
-void FFT::fw(Image& img)
+/*void FFT::fw(Image& img)
 {
     FW_EXTRACT_P(img);
     
@@ -113,9 +113,10 @@ void FFT::bw(Volume& vol)
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);
-}
+}*/
 
-void FFT::fwMT(Image& img)
+void FFT::fw(Image& img,
+             const unsigned int nThread)
 {
     /***
     img.alloc(FT_SPACE);
@@ -125,7 +126,7 @@ void FFT::fwMT(Image& img)
     ***/
     FW_EXTRACT_P(img);
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     fwPlan = TSFFTW_plan_dft_r2c_2d(img.nRowRL(),
                                   img.nColRL(),
@@ -140,7 +141,8 @@ void FFT::fwMT(Image& img)
     FW_CLEAN_UP_MT;
 }
 
-void FFT::bwMT(Image& img)
+void FFT::bw(Image& img,
+             const unsigned int nThread)
 {
     /***
     img.alloc(RL_SPACE);
@@ -150,7 +152,7 @@ void FFT::bwMT(Image& img)
     ***/
     BW_EXTRACT_P(img);
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     bwPlan = TSFFTW_plan_dft_c2r_2d(img.nRowRL(),
                                   img.nColRL(),
@@ -162,17 +164,18 @@ void FFT::bwMT(Image& img)
 
     TSFFTW_execute(bwPlan);
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread) 
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     BW_CLEAN_UP_MT(img);
 }
 
-void FFT::fwMT(Volume& vol)
+void FFT::fw(Volume& vol,
+             const unsigned int nThread)
 {
     FW_EXTRACT_P(vol);
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     if (vol.nSlcRL() == 1)
         fwPlan = TSFFTW_plan_dft_r2c_2d(vol.nRowRL(),
@@ -195,11 +198,12 @@ void FFT::fwMT(Volume& vol)
     FW_CLEAN_UP_MT;
 }
 
-void FFT::bwMT(Volume& vol)
+void FFT::bw(Volume& vol,
+             const unsigned int nThread)
 {
     BW_EXTRACT_P(vol);
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     if (vol.nSlcRL() == 1)
         bwPlan = TSFFTW_plan_dft_c2r_2d(vol.nRowRL(),
@@ -219,13 +223,13 @@ void FFT::bwMT(Volume& vol)
 
     TSFFTW_execute(bwPlan);
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread) 
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP_MT(vol);
 }
 
-void FFT::fwCreatePlan(const int nCol,
+/*void FFT::fwCreatePlan(const int nCol,
                        const int nRow)
 {
     //fwCreatePlan(nCol, nRow, 1);
@@ -297,17 +301,18 @@ void FFT::bwCreatePlan(const int nCol,
 
     TSFFTW_free(_srcC);
     TSFFTW_free(_dstR);
-}
+}*/
 
-void FFT::fwCreatePlanMT(const int nCol,
-                         const int nRow)
+void FFT::fwCreatePlan(const int nCol,
+                       const int nRow,
+                       const unsigned int nThread)
 {
     //fwCreatePlanMT(nCol, nRow, 1);
 
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     fwPlan = TSFFTW_plan_dft_r2c_2d(nRow,
                                   nCol,
@@ -321,14 +326,15 @@ void FFT::fwCreatePlanMT(const int nCol,
     TSFFTW_free(_dstC);
 }
 
-void FFT::fwCreatePlanMT(const int nCol,
-                         const int nRow,
-                         const int nSlc)
+void FFT::fwCreatePlan(const int nCol,
+                       const int nRow,
+                       const int nSlc,
+                       const unsigned int nThread)
 {
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     fwPlan = TSFFTW_plan_dft_r2c_3d(nRow,
                                   nCol,
@@ -343,15 +349,16 @@ void FFT::fwCreatePlanMT(const int nCol,
     TSFFTW_free(_dstC);
 }
 
-void FFT::bwCreatePlanMT(const int nCol,
-                         const int nRow)
+void FFT::bwCreatePlan(const int nCol,
+                       const int nRow,
+                       const unsigned int nThread)
 {
     //bwCreatePlanMT(nCol, nRow, 1);
 
     _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
  
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     bwPlan = TSFFTW_plan_dft_c2r_2d(nRow,
                                   nCol,
@@ -365,14 +372,15 @@ void FFT::bwCreatePlanMT(const int nCol,
     TSFFTW_free(_dstR);
 }
 
-void FFT::bwCreatePlanMT(const int nCol,
-                         const int nRow,
-                         const int nSlc)
+void FFT::bwCreatePlan(const int nCol,
+                       const int nRow,
+                       const int nSlc,
+                       const unsigned int nThread)
 {
     _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
 
-    TSFFTW_plan_with_nthreads(omp_get_max_threads());
+    TSFFTW_plan_with_nthreads(nThread);
 
     bwPlan = TSFFTW_plan_dft_c2r_3d(nRow,
                                   nCol,
@@ -439,7 +447,7 @@ void FFT::bwCreatePlanMT(const int nCol,
  *}
  *
  */
-void FFT::fwExecutePlanMT(Image& img)
+void FFT::fwExecutePlan(Image& img)
 {
     FW_EXTRACT_P(img);
 
@@ -449,7 +457,7 @@ void FFT::fwExecutePlanMT(Image& img)
     _dstC = NULL;
 }
 
-void FFT::fwExecutePlanMT(Volume& vol)
+void FFT::fwExecutePlan(Volume& vol)
 {
     FW_EXTRACT_P(vol);
 
@@ -459,13 +467,14 @@ void FFT::fwExecutePlanMT(Volume& vol)
     _dstC = NULL;
 }
 
-void FFT::bwExecutePlanMT(Image& img)
+void FFT::bwExecutePlan(Image& img,
+                        const unsigned int nThread)
 {
     BW_EXTRACT_P(img);
 
     TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     SCALE_RL(img, 1.0 / img.sizeRL());
 
     _srcC = NULL;
@@ -474,13 +483,14 @@ void FFT::bwExecutePlanMT(Image& img)
     img.clearFT();
 }
 
-void FFT::bwExecutePlanMT(Volume& vol)
+void FFT::bwExecutePlan(Volume& vol,
+                        const unsigned int nThread)
 {
     BW_EXTRACT_P(vol);
 
     TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
 
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     _srcC = NULL;
@@ -489,7 +499,7 @@ void FFT::bwExecutePlanMT(Volume& vol)
     vol.clearFT();
 }
 
-void FFT::fwDestroyPlan()
+/*void FFT::fwDestroyPlan()
 {
     if (fwPlan)
     {
@@ -509,9 +519,9 @@ void FFT::bwDestroyPlan()
 
         bwPlan = NULL;
     }
-}
+}*/
 
-void FFT::fwDestroyPlanMT()
+void FFT::fwDestroyPlan()
 {
     if (fwPlan)
     {
@@ -521,7 +531,7 @@ void FFT::fwDestroyPlanMT()
     }
 }
 
-void FFT::bwDestroyPlanMT()
+void FFT::bwDestroyPlan()
 {
     if (bwPlan)
     {

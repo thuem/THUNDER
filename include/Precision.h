@@ -7,12 +7,36 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Huabin Ruan | 2018/09/13 | 1.4.11.080913 | Add header for file and functions
+ *  Mingxu Hu   | 2018/09/28 | 1.4.11.080928 | Add mathmatical background of some scientific functions
  *
- *  @brief Precision.h encapsulates the header files/MACRO/data structures/functions of the single-precision version and the double-precision version
-  */
+ *  @brief Precision.h encapsulates the header files/MACRO/data structures/functions of the single-precision version and the double-precision version.
+ *
+ *  Random Number Distributions
+ *  ===========================
+ *
+ * Continuous random number distributions are defined by a probability density function, @f$p(x)@f$, such that the probability of @f$x@f$ occurring in the infinitesimal range @f$x@f$ to @f$x + \mathrm{d}x@f$ is @f$p\mathrm{d}x@f$.
+ *
+ * The cumulative distribution function for the lower tail @f$P(x)@f$ is defined by the integral,
+ * \f[
+ *   P(x) = \int_{-\infty}^{x}\mathrm{d}x'p(x')
+ * \f]
+ * and gives the probability of a variate taking a value less than @f$x@f$.
+ *
+ * The cumulative distribution function for the uppper tail @f$Q(x)@f$ is defined by the integral,
+ * \f[
+ *   Q(x) = \int_{x}^{\infty}\mathrm{d}x'p(x')
+ * \f]
+ * and gives the probability of a variate taking a value greater than @f$x@f$.
+ *
+ * The upper and lower cumulative distribution functions are related by @f$P(x) + Q(x) = 1@f$, and satisfy @f$0 \leq P(x) \leq 1@f$, @f$0 \leq Q(x) \leq 1@f$.
+ *
+ * The inverse cumulative distributions, @f$x = P^{-1}(P)@f$ and @f$x = Q^{-1}(Q)@f$ give the values of @f$x@f$ which correspond to a specific value of @f$P@f$ or @f$Q@f$. They can be used to find confidence limits from probability function.
+ */
 
 #ifndef  PRECISION_H
 #define  PRECISION_H
+
+#include <immintrin.h>
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_cdf.h>
@@ -26,57 +50,97 @@
 #include <gsl/gsl_sf_trig.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
-#include <immintrin.h>
+
+#ifdef SINGLE_PRECISION
+    #include <fftw3.h>
+#else
+    #include <fftw3.h>
+#endif
+
 #include "THUNDERConfig.h"
 #include "Config.h"
 
 #ifdef SINGLE_PRECISION
-    #include <fftw3.h>
-#else
-    #include <fftw3.h>
-#endif
 
-
-#ifdef SINGLE_PRECISION
     typedef float RFLOAT;
+
     #define TSFFTW_COMPLEX fftwf_complex
+
     #define TSFFTW_PLAN fftwf_plan
+
     #define TS_MPI_DOUBLE MPI_FLOAT
+
     #define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
+
     #define TS_MAX_RFLOAT_VALUE FLT_MAX
+
     typedef struct _complex_float_t
     {
         float dat[2];
-    }Complex;
+    } Complex;
+
 #else
+
     typedef double RFLOAT;
+
     #define TSFFTW_COMPLEX fftw_complex
+
     #define TSFFTW_PLAN fftw_plan
+
     #define TS_MPI_DOUBLE MPI_DOUBLE
+
     #define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
+
     #define TS_MAX_RFLOAT_VALUE DBL_MAX
+
     typedef struct _complex_float_t
     {
         double dat[2];
-    }Complex;
+    } Complex;
+
 #endif
 
 /**
- *  @brief  Doctor Hu, please add the description for this function 
+ * @brief Calculate @f$x = Q^{-1}(Q)@f$, where the upper tail cumulative function @f$Q(x)@f$ of chi-squared distribution with degrees of freedom @f$\nu@f$ equals to @f$Q@f$ at @f$x@f$.
+ *
+ * @return @f$x@f$ where @f$Q(x) = Q@f$
  */
-RFLOAT TSGSL_cdf_chisq_Qinv (const RFLOAT Q, const RFLOAT nu);
+RFLOAT TSGSL_cdf_chisq_Qinv(const RFLOAT Q, /**< [in] uppper tail cumulative function value @f$Q@f$ */
+                            const RFLOAT nu /**< [in] degree of freedom @f$\nu@f$ of chi-squared distribution */
+                           );
+/**
+ * @brief Calculate @f$x = Q^{-1}(Q)@f$, where the upper tail cumulative function @f$Q(x)@f$ of Gaussian distribution with standard deviation @f$\sigma@f$ equals to @f$Q@f$ at @f$x@f$.
+ *
+ * @return @f$x@f$ where @f$Q(x) = Q@f$
+ */
+RFLOAT TSGSL_cdf_gaussian_Qinv(const RFLOAT Q,    /**< [in] upper tail cumulative function value @f$Q@f$ */
+                               const RFLOAT sigma /**< [in] standard deviation @f$\sigma@f$ of Gaussian distribution */
+                              );
 /**
  *  @brief  Doctor Hu, please add the description for this function 
  */
-RFLOAT TSGSL_cdf_gaussian_Qinv (const RFLOAT Q, const RFLOAT sigma);
+void TSGSL_ran_bivariate_gaussian(const gsl_rng *r, /**< [in] */
+                                  RFLOAT sigma_x,   /**< [in] */
+                                  RFLOAT sigma_y,   /**< [in] */
+                                  RFLOAT rho,       /**< [in] */
+                                  RFLOAT *x,        /**< [out] */
+                                  RFLOAT *y         /**< [out] */
+                                 );
 /**
  *  @brief  Doctor Hu, please add the description for this function 
  */
-void TSGSL_ran_bivariate_gaussian (const gsl_rng * r, RFLOAT sigma_x, RFLOAT sigma_y, RFLOAT rho, RFLOAT *x, RFLOAT *y);
-/**
- *  @brief  Doctor Hu, please add the description for this function 
- */
-int TSGSL_fit_linear (const RFLOAT * x, const size_t xstride, const RFLOAT * y, const size_t ystride, const size_t n, RFLOAT * c0, RFLOAT * c1, RFLOAT * cov00, RFLOAT * cov01, RFLOAT * cov11, RFLOAT * sumsq);
+int TSGSL_fit_linear(const RFLOAT *x,      /**< [in] */
+                     const size_t xstride, /**< [in] */
+                     const RFLOAT *y,      /**< [in] */
+                     const size_t ystride, /**< [in] */
+                     const size_t n,       /**< [in] */
+                     RFLOAT *c0,           /**< [out] */
+                     RFLOAT *c1,           /**< [out] */
+                     RFLOAT *cov00,        /**< [out] */
+                     RFLOAT *cov01,        /**< [out] */
+                     RFLOAT *cov11,        /**< [out] */
+                     RFLOAT *sumsq         /**< [out] */
+                    );
 /**
  *  @brief  Doctor Hu, please add the description for this function 
  */

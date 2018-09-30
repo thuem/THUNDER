@@ -94,12 +94,12 @@ const Volume& Projector::projectee3D() const
     return _projectee3D;
 }
 
-void Projector::setProjectee(Image src)
+void Projector::setProjectee(Image src, const unsigned int nThread)
 {
     FFT fft;
-    fft.bwMT(src);
+    fft.bw(src, nThread);
 
-    IMG_PAD_RL(_projectee2D, src, _pf);
+    IMG_PAD_RL(_projectee2D, src, _pf, nThread);
 
     if (_projectee2D.isEmptyRL()) REPORT_ERROR("REAL SPACE EMPTY");
 
@@ -112,20 +112,20 @@ void Projector::setProjectee(Image src)
 
 #ifdef PROJECTOR_CORRECT_CONVOLUTION_KERNEL
 
-    gridCorrection();
+    gridCorrection(nThread);
 
 #endif
 
-    fft.fwMT(_projectee2D);
+    fft.fw(_projectee2D, nThread);
     _projectee2D.clearRL();
 }
 
-void Projector::setProjectee(Volume src)
+void Projector::setProjectee(Volume src, const unsigned int nThread)
 {
     FFT fft;
-    fft.bwMT(src);
+    fft.bw(src, nThread);
 
-    VOL_PAD_RL(_projectee3D, src, _pf);
+    VOL_PAD_RL(_projectee3D, src, _pf, nThread);
 
     if (_projectee3D.isEmptyRL()) REPORT_ERROR("RL SPACE EMPTY");
 
@@ -139,15 +139,15 @@ void Projector::setProjectee(Volume src)
 
 #ifdef PROJECTOR_CORRECT_CONVOLUTION_KERNEL
 
-    gridCorrection();
+    gridCorrection(nThread);
 
 #endif
 
-    fft.fwMT(_projectee3D);
+    fft.fw(_projectee3D, nThread);
     _projectee3D.clearRL();
 }
 
-void Projector::project(Image& dst,
+/*void Projector::project(Image& dst,
                         const dmat22& mat) const
 {
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
@@ -252,12 +252,13 @@ void Projector::project(Complex* dst,
                                                    oldCor(2),
                                                    _interp);
     }
-}
+}*/
 
-void Projector::projectMT(Image& dst,
-                          const dmat22& mat) const
+void Projector::project(Image& dst,
+                        const dmat22& mat,
+                        const unsigned int nThread) const
 {
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
@@ -272,10 +273,11 @@ void Projector::projectMT(Image& dst,
         }
 }
 
-void Projector::projectMT(Image& dst,
-                          const dmat33& mat) const
+void Projector::project(Image& dst,
+                        const dmat33& mat,
+                        const unsigned int nThread) const
 {
-    #pragma omp parallel for schedule(dynamic)
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_PIXEL_R_FT(_maxRadius)
         if (QUAD(i, j) < gsl_pow_2(_maxRadius))
         {
@@ -291,14 +293,15 @@ void Projector::projectMT(Image& dst,
         }
 }
 
-void Projector::projectMT(Image& dst,
-                          const dmat22& mat,
-                          const int* iCol,
-                          const int* iRow,
-                          const int* iPxl,
-                          const int nPxl) const
+void Projector::project(Image& dst,
+                        const dmat22& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int* iPxl,
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         dvec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
@@ -310,14 +313,15 @@ void Projector::projectMT(Image& dst,
     }
 }
 
-void Projector::projectMT(Image& dst,
-                          const dmat33& mat,
-                          const int* iCol,
-                          const int* iRow,
-                          const int* iPxl,
-                          const int nPxl) const
+void Projector::project(Image& dst,
+                        const dmat33& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int* iPxl,
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         dvec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
@@ -330,13 +334,14 @@ void Projector::projectMT(Image& dst,
     }
 }
 
-void Projector::projectMT(Complex* dst,
-                          const dmat22& mat,
-                          const int* iCol,
-                          const int* iRow,
-                          const int nPxl) const
+void Projector::project(Complex* dst,
+                        const dmat22& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         dvec2 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf));
@@ -348,13 +353,14 @@ void Projector::projectMT(Complex* dst,
     }
 }
 
-void Projector::projectMT(Complex* dst,
-                          const dmat33& mat,
-                          const int* iCol,
-                          const int* iRow,
-                          const int nPxl) const
+void Projector::project(Complex* dst,
+                        const dmat33& mat,
+                        const int* iCol,
+                        const int* iRow,
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    #pragma omp parallel for
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         dvec3 newCor((double)(iCol[i] * _pf), (double)(iRow[i] * _pf), 0);
@@ -367,20 +373,94 @@ void Projector::projectMT(Complex* dst,
     }
 }
 
+//void Projector::project(Image& dst,
+//                        const dmat22& rot,
+//                        const dvec2& t) const
+//{
+//    project(dst, rot);
+//    translate(dst, dst, _maxRadius, t(0), t(1));
+//}
+//
+//void Projector::project(Image& dst,
+//                        const dmat33& rot,
+//                        const dvec2& t) const
+//{
+//    project(dst, rot);
+//    translate(dst, dst, _maxRadius, t(0), t(1));
+//}
+//
+//void Projector::project(Image& dst,
+//                        const dmat22& rot,
+//                        const dvec2& t,
+//                        const int* iCol,
+//                        const int* iRow,
+//                        const int* iPxl,
+//                        const int nPxl) const
+//{
+//    project(dst, rot, iCol, iRow, iPxl, nPxl);
+//
+//    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
+//}
+//
+//void Projector::project(Image& dst,
+//                        const dmat33& rot,
+//                        const dvec2& t,
+//                        const int* iCol,
+//                        const int* iRow,
+//                        const int* iPxl,
+//                        const int nPxl) const
+//{
+//    project(dst, rot, iCol, iRow, iPxl, nPxl);
+//
+//    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
+//}
+//
+//void Projector::project(Complex* dst,
+//                        const dmat22& rot,
+//                        const dvec2& t,
+//                        const int nCol,
+//                        const int nRow,
+//                        const int* iCol,
+//                        const int* iRow,
+//                        const int nPxl) const
+//{
+//    project(dst, rot, iCol, iRow, nPxl);
+//
+//    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
+//}
+//
+//void Projector::project(Complex* dst,
+//                        const dmat33& rot,
+//                        const dvec2& t,
+//                        const int nCol,
+//                        const int nRow,
+//                        const int* iCol,
+//                        const int* iRow,
+//                        const int nPxl) const
+//{
+//    project(dst, rot, iCol, iRow, nPxl);
+//
+//    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
+//}
+
 void Projector::project(Image& dst,
                         const dmat22& rot,
-                        const dvec2& t) const
+                        const dvec2& t,
+                        const unsigned int nThread) const
 {
-    project(dst, rot);
-    translate(dst, dst, _maxRadius, t(0), t(1));
+    project(dst, rot, nThread);
+
+    translate(dst, dst, _maxRadius, t(0), t(1), nThread);
 }
 
 void Projector::project(Image& dst,
                         const dmat33& rot,
-                        const dvec2& t) const
+                        const dvec2& t,
+                        const unsigned int nThread) const
 {
-    project(dst, rot);
-    translate(dst, dst, _maxRadius, t(0), t(1));
+    project(dst, rot, nThread);
+
+    translate(dst, dst, _maxRadius, t(0), t(1), nThread);
 }
 
 void Projector::project(Image& dst,
@@ -389,11 +469,12 @@ void Projector::project(Image& dst,
                         const int* iCol,
                         const int* iRow,
                         const int* iPxl,
-                        const int nPxl) const
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    project(dst, rot, iCol, iRow, iPxl, nPxl);
+    project(dst, rot, iCol, iRow, iPxl, nPxl, nThread);
 
-    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
+    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl, nThread);
 }
 
 void Projector::project(Image& dst,
@@ -402,11 +483,12 @@ void Projector::project(Image& dst,
                         const int* iCol,
                         const int* iRow,
                         const int* iPxl,
-                        const int nPxl) const
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    project(dst, rot, iCol, iRow, iPxl, nPxl);
+    project(dst, rot, iCol, iRow, iPxl, nPxl, nThread);
 
-    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
+    translate(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl, nThread);
 }
 
 void Projector::project(Complex* dst,
@@ -416,11 +498,12 @@ void Projector::project(Complex* dst,
                         const int nRow,
                         const int* iCol,
                         const int* iRow,
-                        const int nPxl) const
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    project(dst, rot, iCol, iRow, nPxl);
+    project(dst, rot, iCol, iRow, nPxl, nThread);
 
-    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
+    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl, nThread);
 }
 
 void Projector::project(Complex* dst,
@@ -430,86 +513,15 @@ void Projector::project(Complex* dst,
                         const int nRow,
                         const int* iCol,
                         const int* iRow,
-                        const int nPxl) const
+                        const int nPxl,
+                        const unsigned int nThread) const
 {
-    project(dst, rot, iCol, iRow, nPxl);
+    project(dst, rot, iCol, iRow, nPxl, nThread);
 
-    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
+    translate(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl, nThread);
 }
 
-void Projector::projectMT(Image& dst,
-                          const dmat22& rot,
-                          const dvec2& t) const
-{
-    projectMT(dst, rot);
-
-    translateMT(dst, dst, _maxRadius, t(0), t(1));
-}
-
-void Projector::projectMT(Image& dst,
-                          const dmat33& rot,
-                          const dvec2& t) const
-{
-    projectMT(dst, rot);
-
-    translateMT(dst, dst, _maxRadius, t(0), t(1));
-}
-
-void Projector::projectMT(Image& dst,
-                          const dmat22& rot,
-                          const dvec2& t,
-                          const int* iCol,
-                          const int* iRow,
-                          const int* iPxl,
-                          const int nPxl) const
-{
-    projectMT(dst, rot, iCol, iRow, iPxl, nPxl);
-
-    translateMT(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
-}
-
-void Projector::projectMT(Image& dst,
-                          const dmat33& rot,
-                          const dvec2& t,
-                          const int* iCol,
-                          const int* iRow,
-                          const int* iPxl,
-                          const int nPxl) const
-{
-    projectMT(dst, rot, iCol, iRow, iPxl, nPxl);
-
-    translateMT(dst, dst, t(0), t(1), iCol, iRow, iPxl, nPxl);
-}
-
-void Projector::projectMT(Complex* dst,
-                          const dmat22& rot,
-                          const dvec2& t,
-                          const int nCol,
-                          const int nRow,
-                          const int* iCol,
-                          const int* iRow,
-                          const int nPxl) const
-{
-    projectMT(dst, rot, iCol, iRow, nPxl);
-
-    translateMT(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
-}
-
-void Projector::projectMT(Complex* dst,
-                          const dmat33& rot,
-                          const dvec2& t,
-                          const int nCol,
-                          const int nRow,
-                          const int* iCol,
-                          const int* iRow,
-                          const int nPxl) const
-{
-    projectMT(dst, rot, iCol, iRow, nPxl);
-
-    translateMT(dst, dst, t(0), t(1), nCol, nRow, iCol, iRow, nPxl);
-}
-
-void Projector::gridCorrection()
+void Projector::gridCorrection(const unsigned int nThread)
 {
         if (_mode == MODE_2D)
         {
@@ -518,13 +530,13 @@ void Projector::gridCorrection()
 #endif
 
 #ifdef PROJECTOR_REMOVE_NEG
-            #pragma omp parallel for
+            #pragma omp parallel for num_threads(nThread)
             REMOVE_NEG(_projectee2D);
 #endif
 
         if (_interp == LINEAR_INTERP)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
                 _projectee2D.setRL(_projectee2D.getRL(i, j)
                                  / TIK_RL(NORM(i, j)
@@ -534,7 +546,7 @@ void Projector::gridCorrection()
         }
         else if (_interp == NEAREST_INTERP)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             IMAGE_FOR_EACH_PIXEL_RL(_projectee2D)
                 _projectee2D.setRL(_projectee2D.getRL(i, j)
                                  / NIK_RL(NORM(i, j)
@@ -554,13 +566,13 @@ void Projector::gridCorrection()
 #endif
 
 #ifdef PROJECTOR_REMOVE_NEG
-            #pragma omp parallel for
+            #pragma omp parallel for num_threads(nThread)
             REMOVE_NEG(_projectee3D);
 #endif
 
         if (_interp == LINEAR_INTERP)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
                 _projectee3D.setRL(_projectee3D.getRL(i, j, k)
                                  / TIK_RL(NORM_3(i, j, k)
@@ -571,7 +583,7 @@ void Projector::gridCorrection()
         }
         else if (_interp == NEAREST_INTERP)
         {
-            #pragma omp parallel for schedule(dynamic)
+            #pragma omp parallel for schedule(dynamic) num_threads(nThread)
             VOLUME_FOR_EACH_PIXEL_RL(_projectee3D)
                 _projectee3D.setRL(_projectee3D.getRL(i, j, k)
                                  / NIK_RL(NORM_3(i, j, k)
