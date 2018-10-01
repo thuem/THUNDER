@@ -797,6 +797,9 @@ INPUT                  = ../include/Geometry/Euler.h \
                          ../include/Geometry/Transformation.h \
                          ../include/CTF.h \
                          ../include/FFT.h \
+                         ../include/Image/Image.h \
+                         ../include/Typedef.h \
+                         ../include/Functions/Interpolation.h \
                          ../include/Parallel.h \
                          ../include/Image/MRCHeader.h \
                          ../include/Image/Volume.h \
