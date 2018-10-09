@@ -302,6 +302,7 @@ void Image::addFTHalf(const RFLOAT value,
     _dataFT[iFTHalf(iCol, iRow)].dat[0] += value;
 }
 
+/*
 RFLOAT Image::getBiLinearRL(const RFLOAT iCol,
                             const RFLOAT iRow) const
 {
@@ -339,6 +340,7 @@ Complex Image::getBiLinearFT(const RFLOAT iCol,
     FOR_CELL_DIM_2 result += w[j][i] * getFT(x0[0] + i , x0[1] + j);
     return result;
 }
+*/
 
 Complex Image::getByInterpolationFT(RFLOAT iCol,
                                     RFLOAT iRow,

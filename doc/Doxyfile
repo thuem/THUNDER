@@ -795,12 +795,15 @@ INPUT                  = ../include/Geometry/Euler.h \
                          ../include/Complex.h \
                          ../include/Precision.h \
                          ../include/Geometry/Transformation.h \
+                         ../include/Geometry/DirectionalStat.h \
                          ../include/CTF.h \
                          ../include/FFT.h \
+                         ../include/Image/Image.h \
+                         ../include/Typedef.h \
+                         ../include/Functions/Interpolation.h \
                          ../include/Parallel.h \
                          ../include/Image/MRCHeader.h \
                          ../include/Image/Volume.h \
-                         ../include/Geometry/Transformation.h \
                          ../include/Projector.h
 
 # This tag can be used to specify the character encoding of the source files
