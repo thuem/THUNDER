@@ -3836,7 +3836,7 @@ void Optimiser::run()
 
 #ifdef OPTIMISER_MASK_IMG
             MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
-    #ifdef GPU_VERSION
+#ifdef GPU_VERSION
             reMaskImgG();
 #else
             reMaskImg();
@@ -4130,6 +4130,20 @@ void Optimiser::run()
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Final Reference(s)";
 
     reconstructRef(true, false, true, false, true);
+ 
+    MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
+
+    NT_MASTER
+    {
+        for (int t = 0; t < _para.k; t++)
+            _model.reco(t).freeSpace();
+    }
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    MLOG(INFO, "LOGGER_ROUND") << "Space Freed in Reconstructor(s)";
+#endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
@@ -4147,6 +4161,21 @@ void Optimiser::run()
 
     if (_para.subtract)
     {
+        MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+
+        _img.clear();
+        FOR_EACH_2D_IMAGE
+            _img.push_back(_imgOri[l].copyImage());
+
+#ifdef OPTIMISER_MASK_IMG
+        MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+#ifdef GPU_VERSION
+        reMaskImgG();
+#else
+        reMaskImg();
+#endif
+#endif
+
         if (strcmp(_para.regionCentre, "") != 0)
         {
             ImageFile imf(_para.regionCentre, "rb");
@@ -4189,6 +4218,7 @@ void Optimiser::run()
 
         for (int pass = 0; pass < 2; pass++)
         {
+            MLOG(INFO, "LOGGER_ROUND") << "Entering Pass " << pass << " of Subtraction";
 
             MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
             _model.avgHemi();
@@ -4229,24 +4259,72 @@ void Optimiser::run()
 #endif
             }
 
-#ifdef OPTIMISER_NORM_CORRECTION
             if (pass == 0)
             {
+#ifdef OPTIMISER_NORM_CORRECTION
                 MLOG(INFO, "LOGGER_ROUND") << "Normalising Noise";
 
                 normCorrection();
 
+#ifdef VERBOSE_LEVEL_1
+                MPI_Barrier(MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Noise Normalised";
+#endif
+
+#endif
+
                 MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+
                 NT_MASTER
                 {
                     _model.resetReco(_para.thresReportFSC);
                 }
 
+#ifdef VERBOSE_LEVEL_1
+                MPI_Barrier(MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Reconstructors Refreshed";
+#endif
+
+                MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+        
+                NT_MASTER
+                {
+                    for (int t = 0; t < _para.k; t++)
+                    _model.reco(t).allocSpace(_para.nThreadsPerProcess);
+                }
+
+#ifdef VERBOSE_LEVEL_1
+                MPI_Barrier(MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+#endif
+
                 MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
 
                 reconstructRef(true, false, false, false, true);
-                // reconstructRef(false, true, false, false, true);
+
+                MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
+
+                NT_MASTER
+                {
+                    for (int t = 0; t < _para.k; t++)
+                    _model.reco(t).freeSpace();
+                }
+
+
+#ifdef VERBOSE_LEVEL_1
+                MPI_Barrier(MPI_COMM_WORLD);
+
+                MLOG(INFO, "LOGGER_ROUND") << "References(s) at Nyquist After Normalising Noise Reconstructed";
+#endif
             }
+
+#ifdef VERBOSE_LEVEL_1
+            MPI_Barrier(MPI_COMM_WORLD);
+
+            MLOG(INFO, "LOGGER_ROUND") << "Finishing Pass " << pass << " of Subtraction";
 #endif
         }
 
@@ -4264,6 +4342,7 @@ void Optimiser::run()
 #endif
 
         MLOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
+
         saveSubtract();
 
 #ifdef VERBOSE_LEVEL_1
@@ -6110,13 +6189,22 @@ void Optimiser::normCorrection()
         #pragma omp parallel for private(cls, rot2D, rot3D, tran, d)
         FOR_EACH_2D_IMAGE
         {
+
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Calculating Power Spectrum of Remains of Image " << _ID[l];
+
+            BLOG(INFO, "LOGGER_SYS") << "Calculating Power Spectrum of Remains of Image " << _ID[l];
+#endif
+
             Image img(size(), size(), FT_SPACE);
 
             SET_0_FT(img);
 
-            //for (int m = 0; m < _para.mReco; m++)
-            for (int m = 0; m < 1; m++)
-            {
+#ifdef VERBOSE_LEVEL_3
+            ALOG(INFO, "LOGGER_SYS") << "Projecting Reference for Image " << _ID[l];
+            BLOG(INFO, "LOGGER_SYS") << "Projecting Reference for Image " << _ID[l];
+#endif
+
                 if (_para.mode == MODE_2D)
                 {
                     //_par[l].rand(cls, rot2D, tran, d);
@@ -6124,12 +6212,12 @@ void Optimiser::normCorrection()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
-                    _model.proj(cls).project(img, rot2D, tran, _para.nThreadsPerProcess);
+                    _model.proj(cls).project(img, rot2D, tran, 1);
 #else
-                    _model.proj(cls).project(img, rot2D, tran - _offset[l], _para.nThreadsPerProcess);
+                    _model.proj(cls).project(img, rot2D, tran - _offset[l], 1);
 #endif
 #else
-                    _model.proj(cls).project(img, rot2D, tran, _para.nThreadsPerProcess);
+                    _model.proj(cls).project(img, rot2D, tran, 1);
 #endif
                 }
                 else if (_para.mode == MODE_3D)
@@ -6139,19 +6227,31 @@ void Optimiser::normCorrection()
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
 #ifdef OPTIMISER_NORM_MASK
-                    _model.proj(cls).project(img, rot3D, tran, _para.nThreadsPerProcess);
+                    _model.proj(cls).project(img, rot3D, tran, 1);
 #else
-                    _model.proj(cls).project(img, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
+                    _model.proj(cls).project(img, rot3D, tran - _offset[l], 1);
 #endif
 #else
-                    _model.proj(cls).project(img, rot3D, tran, _para.nThreadsPerProcess);
+                    _model.proj(cls).project(img, rot3D, tran, 1);
 #endif
                 }
+
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(img.dataFT(), img.sizeFT());
+#endif
+
+#ifdef VERBOSE_LEVEL_3
+                ALOG(INFO, "LOGGER_SYS") << "Applying CTF on Projection of Reference for Image " << _ID[l];
+                BLOG(INFO, "LOGGER_SYS") << "Applying CTF on Projection of Reference for Image " << _ID[l];
+#endif
 
                 if (_searchType != SEARCH_TYPE_CTF)
                 {
 #ifdef OPTIMISER_CTF_ON_THE_FLY
                     Image ctf(_para.size, _para.size, FT_SPACE);
+
+                    SET_0_FT(ctf);
+
                     CTF(ctf,
                         _para.pixelSize, 
                         _ctfAttr[l].voltage,
@@ -6173,6 +6273,9 @@ void Optimiser::normCorrection()
                 else
                 {
                     Image ctf(_para.size, _para.size, FT_SPACE);
+
+                    SET_0_FT(ctf);
+
                     CTF(ctf,
                         _para.pixelSize, 
                         _ctfAttr[l].voltage,
@@ -6187,9 +6290,18 @@ void Optimiser::normCorrection()
                         img[i] *= REAL(ctf[i]);
                 }
 
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(img.dataFT(), img.sizeFT());
+#endif
+
 #ifdef OPTIMISER_ADJUST_2D_IMAGE_NOISE_ZERO_MEAN
                 _img[l][0] = img[0];
                 _imgOri[l][0] = img[0];
+#endif
+
+#ifdef VERBOSE_LEVEL_3
+                ALOG(INFO, "LOGGER_SYS") << "Determining Remain of Image " << _ID[l];
+                BLOG(INFO, "LOGGER_SYS") << "Determining Remain of Image " << _ID[l];
 #endif
 
                 NEG_FT(img);
@@ -6200,13 +6312,16 @@ void Optimiser::normCorrection()
                 ADD_FT(img, _imgOri[l]);
 #endif
 
+#ifndef NAN_NO_CHECK
+                SEGMENT_NAN_CHECK_COMPLEX(img.dataFT(), img.sizeFT());
+#endif
+
                 IMAGE_FOR_EACH_PIXEL_FT(img)
                 {
                     if ((QUAD(i, j) >= TSGSL_pow_2(_rL)) &&
                         (QUAD(i, j) < TSGSL_pow_2(rNorm)))
                         norm(_ID[l]) += ABS2(img.getFTHalf(i, j));
                 }
-            }
         }
     }
 
@@ -8167,6 +8282,9 @@ void Optimiser::saveSubtract()
 {
     IF_MASTER return;
 
+    ALOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
+    BLOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
+
     char filename[FILE_NAME_LENGTH];
 
     sprintf(filename, "%sSubtract_Rank_%06d.mrcs", _para.dstPrefix, _commRank);
@@ -8217,11 +8335,27 @@ void Optimiser::saveSubtract()
             abort();
         }
 
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+        Image ctf(_para.size, _para.size, FT_SPACE);
+        CTF(ctf,
+            _para.pixelSize, 
+            _ctfAttr[l].voltage,
+            _ctfAttr[l].defocusU,
+            _ctfAttr[l].defocusV,
+            _ctfAttr[l].defocusTheta,
+            _ctfAttr[l].Cs,
+            _ctfAttr[l].amplitudeContrast,
+            _ctfAttr[l].phaseShift);
+#endif
+
         #pragma omp parallel for
         FOR_EACH_PIXEL_FT(diff)
         {
+#ifdef OPTIMISER_CTF_ON_THE_FLY
+            diff[i] = _imgOri[l][i] - result[i] * REAL(ctf[i]);
+#else
             diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
-            //diff[i] = _imgOri[l][i];
+#endif
         }
 
         dvec3 regionTrans = rot3D.transpose() * dvec3(_regionCentre(0),
@@ -8245,6 +8379,13 @@ void Optimiser::saveSubtract()
     }
 
     imf.closeStack();
+
+#ifdef VERBOSE_LEVEL_1
+    MPI_Barrier(_hemi);
+
+    ALOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
+    BLOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
+#endif
 }
 
 void Optimiser::saveBestProjections()
