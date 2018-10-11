@@ -367,7 +367,7 @@ class Reconstructor : public Parallel
         /**
          * @brief Create Fourier transform plan and then allocate space for _F3D(_F2D), _W3D(_W2D), _C3D(_C2D), _T3D(_T2D).
          */
-        void allocSpace();
+        void allocSpace(const unsigned int nThread     /**< [in] the number of threads */);
 
         /**
          * @brief Free the space created by allocSpace().
@@ -382,7 +382,7 @@ class Reconstructor : public Parallel
         /**
          * @brief Reset all parameters.
          */
-        void reset();
+        void reset(const unsigned int nThread     /**< [in] the number of threads */);
 
         /**
          * @brief Return the operation mode, MODE_2D or MODE_3D.
@@ -700,7 +700,7 @@ class Reconstructor : public Parallel
         /**
          * @brief Prepare parameters for symmetrizing _T and _F by CPU.
          */
-        void prepareTF();
+        void prepareTF(const unsigned int nThread      /**< [in] the number of threads */);
 
         /**
          * @brief Estimate X-offset, Y-offset and Z-offset of reference by averaging offsets summation, which is calculated by former allreduction operation.
@@ -710,19 +710,24 @@ class Reconstructor : public Parallel
         /**
          * @brief Reconstruct a 2D model by CPU and save it into a volume.
          */
-        void reconstruct(Image& dst   /**< [in] the destination volume that reconstructor object saves the result of reconstruction into */);
+        void reconstruct(Image& dst,                 /**< [in] the destination volume that reconstructor object saves the result of reconstruction into */
+                         const unsigned int nThread  /**< [in] the number of threads */
+                        );
 
         /**
          * @brief Reconstruct a 3D model by CPU and save it into a volume.
          */
-        void reconstruct(Volume& dst   /**< [in] the destination volume that reconstructor object saves the result of reconstruction into */);
+        void reconstruct(Volume& dst,                /**< [in] the destination volume that reconstructor object saves the result of reconstruction into */
+                         const unsigned int nThread  /**< [in] the number of threads */
+                        );
 
 #ifdef GPU_RECONSTRUCT
         /**
          * @brief Reconstruct a 3D model and save it into a volume by GPU.
          */
-        void reconstructG(Volume& dst, /**< [in] the destination volume where the reconstructor object saves the result of reconstruction */
-                          int gpuIdx   /**< [in] the gpu index */
+        void reconstructG(Volume& dst,               /**< [in] the destination volume where the reconstructor object saves the result of reconstruction */
+                          int gpuIdx,                /**< [in] the gpu index */
+                          const unsigned int nThread /**< [in] the number of threads */
                          );
 #endif
 
@@ -736,7 +741,7 @@ class Reconstructor : public Parallel
         /**
          * @brief The allreduce operation gets the summation of _T volumes. Get the summation of accumulated weights value of each grid points of all processes before balancing and normalization by the divion of _W and _C, with which _C can be approximately equal to 1.
          */
-        void allReduceT();
+        void allReduceT(const unsigned int nThread   /**< [in] the number of threads */);
 
         /**
          * @brief The allreduce operation gets the summation of X-offset, Y-offset, Z-offset of reference and the counter.
@@ -748,22 +753,22 @@ class Reconstructor : public Parallel
          *
          * @return the distance to total balanced
          */
-        RFLOAT checkC() const;
+        RFLOAT checkC(const unsigned int nThread      /**< [in] the number of threads */) const;
 
         /**
          * @brief Convolute _C.
          */
-        void convoluteC();
+        void convoluteC(const unsigned int nThread    /**< [in] the number of threads */);
 
         /**
          * @brief Symmetrize _F.
          */
-        void symmetrizeF();
+        void symmetrizeF(const unsigned int nThread   /**< [in] the number of threads */);
 
         /**
          * @brief Symmetrize _T.
          */
-        void symmetrizeT();
+        void symmetrizeT(const unsigned int nThread  /**< [in] the number of threads */);
 
         /**
          * @brief Symmetrize X-offset, Y-offset and Z-offset of reference.
