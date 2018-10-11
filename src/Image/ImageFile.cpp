@@ -202,6 +202,8 @@ void ImageFile::fillMRCHeader(MRCHeader& header) const
     header.maps = 3;
 
     header.ispg = 1;
+
+    memcpy(header.map, "MAP ", 4 * sizeof(char));
 }
 
 void ImageFile::readMetaDataMRC()
