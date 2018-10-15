@@ -80,13 +80,13 @@ static inline void copy_string(char (&array)[N], const std::string& source)
 void readPara(OptimiserPara& dst,
               const Json::Value src)
 {
-    dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src[KEY_N_THREADS_PER_PROCESS]).asInt();
+    dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_N_THREADS_PER_PROCESS]).asInt();
 
-    if (JSONCPP_READ_ERROR_HANDLER(src[KEY_MODE]).asString() == "2D")
+    if (JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MODE]).asString() == "2D")
     {
         dst.mode = MODE_2D;
     }
-    else if (JSONCPP_READ_ERROR_HANDLER(src[KEY_MODE]).asString() == "3D")
+    else if (JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MODE]).asString() == "3D")
     {
         dst.mode = MODE_3D;
     }
@@ -97,25 +97,25 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
-    dst.gSearch = JSONCPP_READ_ERROR_HANDLER(src[KEY_G_SEARCH]).asBool();
-    dst.lSearch = JSONCPP_READ_ERROR_HANDLER(src[KEY_L_SEARCH]).asBool();
-    dst.cSearch = JSONCPP_READ_ERROR_HANDLER(src[KEY_C_SEARCH]).asBool();
+    dst.gSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_G_SEARCH]).asBool();
+    dst.lSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_L_SEARCH]).asBool();
+    dst.cSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_C_SEARCH]).asBool();
 
-    dst.k = JSONCPP_READ_ERROR_HANDLER(src[KEY_K]).asInt();
-    dst.size = JSONCPP_READ_ERROR_HANDLER(src[KEY_SIZE]).asInt();
-    dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src[KEY_PIXEL_SIZE]).asFloat();
-    dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src[KEY_MASK_RADIUS]).asFloat();
-    dst.transS = JSONCPP_READ_ERROR_HANDLER(src[KEY_TRANS_S]).asFloat();
-    dst.initRes = JSONCPP_READ_ERROR_HANDLER(src[KEY_INIT_RES]).asFloat();
-    dst.globalSearchRes = JSONCPP_READ_ERROR_HANDLER(src[KEY_GLOBAL_SEARCH_RES]).asFloat();
-    copy_string(dst.sym, JSONCPP_READ_ERROR_HANDLER(src[KEY_SYM]).asString());
-    copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src[KEY_INIT_MODEL]).asString());
-    copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src[KEY_DB]).asString());
-    copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src[KEY_PAR_PREFIX]).asString());
-    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src[KEY_DST_PREFIX]).asString());
-    dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src[KEY_CORE_FSC]).asBool();
-    dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src[KEY_MASK_FSC]).asBool();
-    dst.parGra = JSONCPP_READ_ERROR_HANDLER(src[KEY_PAR_GRA]).asBool();
+    dst.k = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_K]).asInt();
+    dst.size = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_SIZE]).asInt();
+    dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PIXEL_SIZE]).asFloat();
+    dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MASK_RADIUS]).asFloat();
+    dst.transS = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_TRANS_S]).asFloat();
+    dst.initRes = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_INIT_RES]).asFloat();
+    dst.globalSearchRes = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_GLOBAL_SEARCH_RES]).asFloat();
+    copy_string(dst.sym, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_SYM]).asString());
+    copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_INIT_MODEL]).asString());
+    copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_DB]).asString());
+    copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PAR_PREFIX]).asString());
+    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_DST_PREFIX]).asString());
+    dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_CORE_FSC]).asBool();
+    dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MASK_FSC]).asBool();
+    dst.parGra = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PAR_GRA]).asBool();
 
     dst.performMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_PERFORM_MASK]).asBool();
     dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_GLOBAL_MASK]).asBool();
