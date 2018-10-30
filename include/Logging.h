@@ -48,7 +48,7 @@ void loggerInit(int argc, const char* const * argv);
 #define GETCWD_ERROR_HANDLER(command) \
     do \
     { \
-        if (command == false) \
+        if (strcmp(command, "FALSE") == 0) \
         { \
             REPORT_ERROR("FAIL TO GETCWD"); \
             abort(); \

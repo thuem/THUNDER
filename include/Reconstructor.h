@@ -170,7 +170,7 @@ class Reconstructor : public Parallel
         Volume _T3D;
 
         /**
-         * the vector to save the rotation matrices of each insertion with image and associated 5D coordinates. 
+         * @brief the vector to save the rotation matrices of each insertion with image and associated 5D coordinates. 
          * Since 2D Fourier transform of each image is a slice extracted from a particular direction in the 3D Fourier transform domain, rotation matrices that project the image's 2D coordinate(x,y), associated the third coordinate z always being 0, onto its real location in the 3D space can be obtained by the 5D coordinates of the image. Every inserting operation will also insert the rotation matrix into this vector. 
          * Note that matrix can be the same because of the multiple possibility of 5D coordinates in a single image. 
          */
