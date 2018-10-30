@@ -7,8 +7,9 @@
  *  ChangeLog
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
- *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
- *  Shouqing Li | 2018/20/25 | 1.4.11.081025 | add test for directory 
+ *  Mingxu Hu   | 2015/03/23 | 0.0.1.050323  | new file
+ *  Shouqing Li | 2018/10/25 | 1.4.11.081025 | add test for directory 
+ *  Mingxu Hu   | 2018/10/30 | 1.4.11.081030 | solve conflict during merging
  *  
  *  @brief thunder.cpp initiates the MPI, following the completion of reading and logging the json files. And according to the set parameters, thunder.cpp will carry out computation chosen from three models,namely 2D classification, 3D classification and 3D refinement. In the final, the results will be exported to the file wrote in json. 
  *
