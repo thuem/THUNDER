@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
         if (rank == 0)
         {
             DIR * dir;
-            string dstSet = root[KEY_DST_PREFIX].asString();
+            string dstSet = para.dstPrefix;
             
             if((dir = opendir(dstSet.c_str())) == NULL)
             {
@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
                 {
                     index = dstSet.find_first_of('/',post);
 
-                    if(index == -1)
+                    if(index == string::npo)
                     {
                         break;
                     }
