@@ -352,7 +352,7 @@ int main(int argc, char* argv[])
                 {
                     index = dstSet.find_first_of('/',post);
 
-                    if(index == string::npo)
+                    if(index == string::npos)
                     {
                         break;
                     }
