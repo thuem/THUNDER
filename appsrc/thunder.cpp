@@ -17,8 +17,10 @@
 
 #include <fstream>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <json/json.h>
 
@@ -338,15 +340,40 @@ int main(int argc, char* argv[])
             
             if((dir = opendir(dstSet.c_str())) == NULL)
             {
+                
                 CLOG(WARNING, "LOGGER_SYS") << "DIRECTORY TO SAVE THE RESULT DOES NOT EXIST, MAKING THIS DIRECTORY.";
 
-                size_t index = dstSet.find_last_of('/');
-                string dstSetMake = dstSet.substr(0, index + 1);
-                string s = "mkdir -p ";
-                s.append(dstSetMake);
-                const char* command = s.c_str();
-                
-                system(command);
+                size_t index;
+                string dstSetMake;
+                int post = 0;
+                int flag;
+
+                while(1)
+                {
+                    index = dstSet.find_first_of('/',post);
+
+                    if(index == -1)
+                    {
+                        break;
+                    }
+
+                    dstSetMake = dstSet.substr(0, index + 1);
+                    
+                    if((dir = opendir(dstSetMake.c_str())) == NULL)
+                    {
+                        const char* command = dstSetMake.c_str();
+                        CLOG(INFO, "LOGGER_SYS") << "Building " << dstSetMake;
+                        flag = mkdir(command, 00755);
+                        
+                        if(flag == -1)
+                        {
+                            REPORT_ERROR(strerror(errno));
+                            abort();
+                        }
+                    }
+
+                    post = index + 1; 
+                }                
             }
         }
     }
