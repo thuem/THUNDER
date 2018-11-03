@@ -34,8 +34,6 @@ do \
     } \
 while(0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -48,13 +46,11 @@ void usage (int status)
 
         fputs("Post-process the input image-file.\n", stdout);
 
-        fputs("-j    set the thread-number to carry out work.\n", stdout);
-        fputs("--mask    set the directory of mask file.\n", stdout);
-        fputs("--inputA    set the directory of input file A.\n", stdout);
-        fputs("--inputB    set the directory of input file B.\n", stdout);
+        fputs("-j             set the thread-number to carry out work.\n", stdout);
+        fputs("--mask         set the directory of mask file.\n", stdout);
+        fputs("--inputA       set the directory of input file A.\n", stdout);
+        fputs("--inputB       set the directory of input file B.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
-
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
 
         fputs("Note: all parameters are indispensable.\n", stdout);
 

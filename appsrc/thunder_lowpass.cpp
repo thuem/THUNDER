@@ -37,8 +37,6 @@ do \
     } \
 while(0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage(int status)
 {
     if (status != EXIT_SUCCESS)
@@ -51,13 +49,11 @@ void usage(int status)
 
         fputs("Apply low-pass filter to the input image-file.\n", stdout);
 
-        fputs("-o    set the directory of output file.\n", stdout);
-        fputs("-j    set the thread-number to carry out work.\n", stdout);
-        fputs("--freq    set the spatial frequency.\n", stdout);
-        fputs("--input    set the directory of input file.\n", stdout);
+        fputs("-j             set the thread-number to carry out work.\n", stdout);
+        fputs("--freq         set the spatial frequency.\n", stdout);
+        fputs("-i  --input    set the directory of input file.\n", stdout);
+        fputs("-o  --output   set the directory of output file.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
-
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
 
         fputs("Note: all parameters are indispensable.\n", stdout);
 
@@ -68,6 +64,7 @@ void usage(int status)
 static const struct option long_options[] = 
 {
     {"input", required_argument, NULL, 'i'},
+    {"output", required_argument, NULL, 'o'},
     {"freq", required_argument, NULL, 'f'},
     {"pixelsize", required_argument, NULL, 'p'},
     {"help", no_argument, NULL, 'h'},
@@ -90,7 +87,7 @@ int main(int argc, char* argv[])
         usage(EXIT_FAILURE);
     }
 
-    while((opt = getopt_long(argc, argv, "o:j:", long_options, &option_index)) != -1)
+    while((opt = getopt_long(argc, argv, "i:o:j:", long_options, &option_index)) != -1)
     {
         switch(opt)
         {
