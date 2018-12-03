@@ -253,8 +253,8 @@ class BMP
          */
         void MinMax(short* buf,  /**< [in] the data of bit map */
                     int size,    /**< [in] the size of data, that is m_binfo.biSize */
-                    float& min,  /**< [out] the minimum value in short type array buf */
-                    float& max   /**< [out] the maximal value in short type array buf */
+                    short& min,  /**< [out] the minimum value in short type array buf */
+                    short& max   /**< [out] the maximal value in short type array buf */
                    );
         
         /**
