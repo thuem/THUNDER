@@ -17,8 +17,10 @@
 
 #include <fstream>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <json/json.h>
 
@@ -35,11 +37,15 @@
 
 using namespace std;
 
-inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src)
+inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src, const std::string missingKey)
 {
     if (src == Json::nullValue)
     {
-        REPORT_ERROR("INVALID JSON PARAMETER FILE KEY");
+        //REPORT_ERROR("INVALID JSON PARAMETER FILE KEY");
+        CLOG(FATAL, "LOGGER_SYS") << "Json parameter file KEY \""
+                                  << missingKey 
+                                  << "\" is not exit. Please make sure of it. ";
+
         abort();
     }
     else
@@ -92,13 +98,13 @@ static inline void copy_string(char (&array)[N], const std::string& source)
 void readPara(OptimiserPara& dst,
               const Json::Value src)
 {
-    dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_N_THREADS_PER_PROCESS]).asInt();
+    dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_N_THREADS_PER_PROCESS], KEY_N_THREADS_PER_PROCESS).asInt();
 
-    if (JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MODE]).asString() == "2D")
+    if (JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MODE], KEY_MODE).asString() == "2D")
     {
         dst.mode = MODE_2D;
     }
-    else if (JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MODE]).asString() == "3D")
+    else if (JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MODE], KEY_MODE).asString() == "3D")
     {
         dst.mode = MODE_3D;
     }
@@ -109,50 +115,51 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
-    dst.gSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_G_SEARCH]).asBool();
-    dst.lSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_L_SEARCH]).asBool();
-    dst.cSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_C_SEARCH]).asBool();
+    dst.gSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_G_SEARCH], KEY_G_SEARCH).asBool();
+    dst.lSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_L_SEARCH], KEY_L_SEARCH).asBool();
+    dst.cSearch = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_C_SEARCH], KEY_C_SEARCH).asBool();
 
-    dst.k = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_K]).asInt();
-    dst.size = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_SIZE]).asInt();
-    dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PIXEL_SIZE]).asFloat();
-    dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MASK_RADIUS]).asFloat();
-    dst.transS = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_TRANS_S]).asFloat();
-    dst.initRes = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_INIT_RES]).asFloat();
-    dst.globalSearchRes = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_GLOBAL_SEARCH_RES]).asFloat();
-    copy_string(dst.sym, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_SYM]).asString());
-    copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_INIT_MODEL]).asString());
-    copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_DB]).asString());
-    copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PAR_PREFIX]).asString());
-    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_DST_PREFIX]).asString());
-    dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_CORE_FSC]).asBool();
-    dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MASK_FSC]).asBool();
-    dst.parGra = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PAR_GRA]).asBool();
+    dst.k = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_K], KEY_K).asInt();
+    dst.size = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_SIZE], KEY_SIZE).asInt();
+    dst.pixelSize = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PIXEL_SIZE], KEY_PIXEL_SIZE).asFloat();
+    dst.maskRadius = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MASK_RADIUS], KEY_MASK_RADIUS).asFloat();
+    dst.transS = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_TRANS_S], KEY_TRANS_S).asFloat();
+    dst.initRes = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_INIT_RES], KEY_INIT_RES).asFloat();
+    dst.globalSearchRes = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_GLOBAL_SEARCH_RES], KEY_GLOBAL_SEARCH_RES).asFloat();
+    copy_string(dst.sym, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_SYM], KEY_SYM).asString());
+    copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_INIT_MODEL], KEY_INIT_MODEL).asString());
+    copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_DB], KEY_DB).asString());
+    copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PAR_PREFIX], KEY_PAR_PREFIX).asString());
+    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_DST_PREFIX], KEY_DST_PREFIX).asString());
+    dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_CORE_FSC], KEY_CORE_FSC).asBool();
+    dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_MASK_FSC], KEY_MASK_FSC).asBool();
+    dst.parGra = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_PAR_GRA], KEY_PAR_GRA).asBool();
+    dst.refAutoRecentre = JSONCPP_READ_ERROR_HANDLER(src["Basic"][KEY_REF_AUTO_RECENTRE], KEY_REF_AUTO_RECENTRE).asBool();
 
-    dst.performMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_PERFORM_MASK]).asBool();
-    dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_GLOBAL_MASK]).asBool();
-    copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_MASK]).asString());
+    dst.performMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_PERFORM_MASK], KEY_PERFORM_MASK).asBool();
+    dst.globalMask = JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_GLOBAL_MASK], KEY_GLOBAL_MASK).asBool();
+    copy_string(dst.mask, JSONCPP_READ_ERROR_HANDLER(src["Reference Mask"][KEY_MASK], KEY_MASK).asString());
 
-    dst.subtract = JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_SUBTRACT]).asBool();
-    copy_string(dst.regionCentre, JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_REGION_CENTRE]).asString());
+    dst.subtract = JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_SUBTRACT], KEY_SUBTRACT).asBool();
+    copy_string(dst.regionCentre, JSONCPP_READ_ERROR_HANDLER(src["Subtract"][KEY_REGION_CENTRE], KEY_REGION_CENTRE).asString());
 
-    dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ITER_MAX]).asInt();
-    dst.goldenStandard = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GOLDEN_STANDARD]).asBool();
-    dst.pf = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_PF]).asInt();
-    dst.a = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_A]).asFloat();
-    dst.alpha = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ALPHA]).asFloat();
+    dst.iterMax = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ITER_MAX], KEY_ITER_MAX).asInt();
+    dst.goldenStandard = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GOLDEN_STANDARD], KEY_GOLDEN_STANDARD).asBool();
+    dst.pf = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_PF], KEY_PF).asInt();
+    dst.a = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_A], KEY_A).asFloat();
+    dst.alpha = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ALPHA], KEY_ALPHA).asFloat();
 
     if (dst.mode == MODE_2D)
     {
-        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_S_2D]).asInt();
+        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_S_2D], KEY_M_S_2D).asInt();
 
-        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_R_2D]).asInt();
+        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_R_2D], KEY_M_L_R_2D).asInt();
     }
     else if (dst.mode == MODE_3D)
     {
-        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_S_3D]).asInt();
+        dst.mS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_S_3D], KEY_M_S_3D).asInt();
 
-        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_R_3D]).asInt();
+        dst.mLR = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_R_3D], KEY_M_L_R_3D).asInt();
     }
     else
     {
@@ -161,30 +168,29 @@ void readPara(OptimiserPara& dst,
         abort();
     }
 
-    dst.saveRefEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_REF_EACH_ITER]).asBool();
-    dst.saveTHUEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_THU_EACH_ITER]).asBool();
-    dst.mLT = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_T]).asInt();
-    dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_D]).asInt();
-    dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_RECO]).asInt();
-    dst.ignoreRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_IGNORE_RES]).asFloat();
-    dst.sclCorRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SCL_COR_RES]).asFloat();
-    dst.thresCutoffFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_CUTOFF_FSC]).asFloat();
-    dst.thresReportFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_REPORT_FSC]).asFloat();
-    dst.thresSclCorFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_SCL_COR_FSC]).asFloat();
-    dst.groupSig = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GROUP_SIG]).asBool();
-    dst.groupScl = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GROUP_SCL]).asBool();
-    dst.zeroMask = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ZERO_MASK]).asBool();
-    dst.ctfRefineS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_CTF_REFINE_S]).asFloat();
+    dst.saveRefEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_REF_EACH_ITER], KEY_SAVE_REF_EACH_ITER).asBool();
+    dst.saveTHUEachIter = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SAVE_THU_EACH_ITER], KEY_SAVE_THU_EACH_ITER).asBool();
+    dst.mLT = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_T], KEY_M_L_T).asInt();
+    dst.mLD = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_L_D], KEY_M_L_D).asInt();
+    dst.mReco = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_M_RECO], KEY_M_RECO).asInt();
+    dst.ignoreRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_IGNORE_RES], KEY_IGNORE_RES).asFloat();
+    dst.sclCorRes = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_SCL_COR_RES], KEY_SCL_COR_RES).asFloat();
+    dst.thresCutoffFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_CUTOFF_FSC], KEY_THRES_CUTOFF_FSC).asFloat();
+    dst.thresReportFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_REPORT_FSC], KEY_THRES_REPORT_FSC).asFloat();
+    dst.thresSclCorFSC = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_THRES_SCL_COR_FSC], KEY_THRES_SCL_COR_FSC).asFloat();
+    dst.groupSig = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GROUP_SIG], KEY_GROUP_SIG).asBool();
+    dst.groupScl = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_GROUP_SCL], KEY_GROUP_SCL).asBool();
+    dst.zeroMask = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_ZERO_MASK], KEY_ZERO_MASK).asBool();
+    dst.ctfRefineS = JSONCPP_READ_ERROR_HANDLER(src["Advanced"][KEY_CTF_REFINE_S], KEY_CTF_REFINE_S).asFloat();
 
-    dst.transSearchFactor = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_TRANS_SEARCH_FACTOR]).asFloat();
-    dst.perturbFactorL = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_L]).asFloat();
-    dst.perturbFactorSGlobal = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_GLOBAL]).asFloat();
-    dst.perturbFactorSLocal = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_LOCAL]).asFloat();
-    dst.perturbFactorSCTF = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_CTF]).asFloat();
-    dst.skipE = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_E]).asBool();
-    dst.skipM = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_M]).asBool();
-    dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R]).asBool();
-    dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R]).asBool();
+    dst.transSearchFactor = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_TRANS_SEARCH_FACTOR], KEY_TRANS_SEARCH_FACTOR).asFloat();
+    dst.perturbFactorL = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_L], KEY_PERTURB_FACTOR_L).asFloat();
+    dst.perturbFactorSGlobal = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_GLOBAL], KEY_PERTURB_FACTOR_S_GLOBAL).asFloat();
+    dst.perturbFactorSLocal = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_LOCAL], KEY_PERTURB_FACTOR_S_LOCAL).asFloat();
+    dst.perturbFactorSCTF = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_PERTURB_FACTOR_S_CTF], KEY_PERTURB_FACTOR_S_CTF).asFloat();
+    dst.skipE = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_E], KEY_SKIP_E).asBool();
+    dst.skipM = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_M], KEY_SKIP_M).asBool();
+    dst.skipR = JSONCPP_READ_ERROR_HANDLER(src["Professional"][KEY_SKIP_R], KEY_SKIP_R).asBool();
 }
 
 void logPara(const Json::Value src)
@@ -331,23 +337,45 @@ int main(int argc, char* argv[])
 
         logPara(root);
 
-        if (rank == 0)
+        DIR * dir;
+        string dstSet = para.dstPrefix;
+        
+        if((dir = opendir(dstSet.c_str())) == NULL)
         {
-            DIR * dir;
-            string dstSet = root[KEY_DST_PREFIX].asString();
             
-            if((dir = opendir(dstSet.c_str())) == NULL)
-            {
-                CLOG(WARNING, "LOGGER_SYS") << "DIRECTORY TO SAVE THE RESULT DOES NOT EXIST, MAKING THIS DIRECTORY.";
+            CLOG(WARNING, "LOGGER_SYS") << "DIRECTORY TO SAVE THE RESULT DOES NOT EXIST, MAKING THIS DIRECTORY.";
 
-                size_t index = dstSet.find_last_of('/');
-                string dstSetMake = dstSet.substr(0, index + 1);
-                string s = "mkdir -p ";
-                s.append(dstSetMake);
-                const char* command = s.c_str();
-                
-                system(command);
-            }
+            size_t index;
+            string dstSetMake;
+            int post = 0;
+            int flag;
+
+            while(1)
+            {
+                index = dstSet.find_first_of('/',post);
+
+                if(index == string::npos)
+                {
+                    break;
+                }
+
+                dstSetMake = dstSet.substr(0, index + 1);
+                    
+                if((dir = opendir(dstSetMake.c_str())) == NULL)
+                {
+                    const char* command = dstSetMake.c_str();
+                    CLOG(INFO, "LOGGER_SYS") << "Building " << dstSetMake;
+                    flag = mkdir(command, 00755);
+                        
+                    if(flag == -1)
+                    {
+                        REPORT_ERROR(strerror(errno));
+                        abort();
+                    }
+                }
+
+                post = index + 1; 
+            }                
         }
     }
 

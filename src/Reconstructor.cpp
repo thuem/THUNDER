@@ -2095,20 +2095,20 @@ void Reconstructor::reconstructG(Volume& dst,
             delete[] cmax;
 #endif
         }
-        //else if (_mode == MODE_3D)
-        //{
-        //    ExposeWT(gpuIdx,
-        //             volumeT,
-        //             volumeW,
-        //             _kernelRL,
-        //             _maxRadius,
-        //             _pf,
-        //             _T3D.nSlcFT(),
-        //             nf,
-        //             MAX_N_ITER_BALANCE,
-        //             MIN_N_ITER_BALANCE,
-        //             _N);
-        //}
+        else if (_mode == MODE_3D)
+        {
+            ExposeWT(gpuIdx,
+                     volumeT,
+                     volumeW,
+                     _kernelRL,
+                     _maxRadius,
+                     _pf,
+                     _T3D.nSlcFT(),
+                     nf,
+                     MAX_N_ITER_BALANCE,
+                     MIN_N_ITER_BALANCE,
+                     _N);
+        }
         else
         {
             REPORT_ERROR("INEXISTENT MODE");
@@ -2242,7 +2242,8 @@ void Reconstructor::reconstructG(Volume& dst,
                   _pf);
         
         FFT fft;
-        fft.bw(padDst, nThread);//LSQ: the parameter maybe mistake for it's bw originally instead of bwMT
+        //fft.bw(padDst, nThread);//LSQ: the parameter maybe mistake for it's bw originally instead of bwMT
+        fft.bw(padDst);//LSQ: the parameter maybe mistake for it's bw originally instead of bwMT
         
         //ExposePF(gpuIdx,
         //         padDst,
@@ -2316,7 +2317,8 @@ void Reconstructor::reconstructG(Volume& dst,
 #ifdef RECONSTRUCTOR_REMOVE_NEG
         REMOVE_NEG(dst);
 #endif
-        fft.fw(dst, nThread);//LSQ: the parameter maybe mistake for it's fw originally instead of fwMT.
+        //fft.fw(dst, nThread);//LSQ: the parameter maybe mistake for it's fw originally instead of fwMT.
+        fft.fw(dst);//LSQ: the parameter maybe mistake for it's fw originally instead of fwMT.
         
         //ExposeCorrF(gpuIdx,
         //            dstN,

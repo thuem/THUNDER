@@ -54,7 +54,7 @@ void FFT::bw(Image& img)
 
     BW_CLEAN_UP(img);
 }
-
+*/
 void FFT::fw(Volume& vol)
 {
     FW_EXTRACT_P(vol);
@@ -113,7 +113,7 @@ void FFT::bw(Volume& vol)
     SCALE_RL(vol, 1.0 / vol.sizeRL());
 
     BW_CLEAN_UP(vol);
-}*/
+}
 
 void FFT::fw(Image& img,
              const unsigned int nThread)

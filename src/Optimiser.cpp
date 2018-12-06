@@ -4129,7 +4129,14 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Final Reference(s)";
 
-    reconstructRef(true, false, true, false, true);
+    if (_para.subtract)
+    {
+        reconstructRef(true, false, false, false, true);
+    }
+    else
+    {
+        reconstructRef(true, false, true, false, true);
+    }
  
     MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
 
@@ -4150,6 +4157,10 @@ void Optimiser::run()
 
     MLOG(INFO, "LOGGER_ROUND") << "Final Reference(s) Reconstructed";
 #endif
+
+    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Class Information";
+
+    saveClassInfo(true);
 
     MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
 
@@ -4303,7 +4314,7 @@ void Optimiser::run()
 
                 MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
 
-                reconstructRef(true, false, false, false, true);
+                reconstructRef(true, false, true, false, true);
 
                 MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
 
@@ -4612,8 +4623,6 @@ void Optimiser::initImg()
     _img.clear();
     _img.resize(_ID.size());
 
-    string imgName;
-
     int nPer = 0;
     int nImg = 0;
 
@@ -4623,10 +4632,14 @@ void Optimiser::initImg()
 
 #endif
 
+    string imgName;
+
+    #pragma omp parallel for private(imgName)
     FOR_EACH_2D_IMAGE
     {
         nImg += 1;
 
+        #pragma omp critical
         if (nImg >= (int)_ID.size() / 10)
         {
             nPer += 1;
@@ -4637,11 +4650,11 @@ void Optimiser::initImg()
             nImg = 0;
         }
 
+        #pragma omp critical
         imgName = _db.path(_ID[l]);
 
         if (imgName.find('@') == string::npos)
         {
-            //ImageFile imf(imgName.c_str(), "rb");
             ImageFile imf((string(_para.parPrefix) + imgName).c_str(), "rb");
             imf.readMetaData();
             imf.readImage(_img[l]);
@@ -4703,16 +4716,16 @@ void Optimiser::initImg()
 #endif
 #endif
 
-    ALOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
-    BLOG(INFO, "LOGGER_INIT") << "Substructing Mean of Noise, Making the Noise Have Zero Mean";
+    ALOG(INFO, "LOGGER_INIT") << "Subtracting Mean of Noise, Making the Noise Have Zero Mean";
+    BLOG(INFO, "LOGGER_INIT") << "Subtracting Mean of Noise, Making the Noise Have Zero Mean";
 
     substractBgImg();
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise Substructed";
-    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise Substructed";
+    ALOG(INFO, "LOGGER_INIT") << "Mean of Noise Subtracted";
+    BLOG(INFO, "LOGGER_INIT") << "Mean of Noise Subtracted";
 #endif
 
     ALOG(INFO, "LOGGER_INIT") << "Performing Statistics of 2D Images";
@@ -4735,8 +4748,8 @@ void Optimiser::initImg()
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
-    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Bofore Normalising Displayed";
+    ALOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Before Normalising Displayed";
+    BLOG(INFO, "LOGGER_INIT") << "Statistics of 2D Images Before Normalising Displayed";
 #endif
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
@@ -4787,13 +4800,13 @@ void Optimiser::initImg()
     BLOG(INFO, "LOGGER_INIT") << "Performing Fourier Transform on 2D Images";
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
-    CHECK_MEMORY_USAGE("Before Performing Fourier Transfrom on 2D Images");
+    CHECK_MEMORY_USAGE("Before Performing Fourier Transform on 2D Images");
 #endif
 
     fwImg();
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
-    CHECK_MEMORY_USAGE("After Performing Fourier Transfrom on 2D Images");
+    CHECK_MEMORY_USAGE("After Performing Fourier Transform on 2D Images");
 #endif
 
 #ifdef VERBOSE_LEVEL_1
@@ -4912,7 +4925,7 @@ void Optimiser::displayStatImg()
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
     ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
 
-    ALOG(INFO, "LOGGER_INIT") << "Standard Devation of Standard Deviation of Noise : "
+    ALOG(INFO, "LOGGER_INIT") << "Standard Deviation of Standard Deviation of Noise : "
                               << _stdStdN;
 
     BLOG(INFO, "LOGGER_INIT") << "Mean of Centre : " << _mean;
@@ -4921,7 +4934,7 @@ void Optimiser::displayStatImg()
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Data   : " << _stdD;
     BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Signal : " << _stdS;
 
-    BLOG(INFO, "LOGGER_INIT") << "Standard Devation of Standard Deviation of Noise : "
+    BLOG(INFO, "LOGGER_INIT") << "Standard Deviation of Standard Deviation of Noise : "
                               << _stdStdN;
 }
 
@@ -5941,6 +5954,7 @@ void Optimiser::refreshScale(const bool coord,
                   TS_MPI_DOUBLE,
                   MPI_SUM,
                   MPI_COMM_WORLD);
+
     if (group)
     {
         for (int i = 0; i < _nGroup; i++)
@@ -5980,6 +5994,10 @@ void Optimiser::refreshScale(const bool coord,
             _scale(i) = mXA.row(0).sum() / mAA.row(0).sum();
 #endif
     }
+
+#ifdef OPTIMISER_REFRESH_SCALE_ABSOLUTE
+    _scale = _scale.array().abs();
+#endif
 
     RFLOAT medianScale = median(_scale, _scale.size());
 
@@ -6683,8 +6701,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 {
     FFT fft;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
-    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Reconstruction";
+    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calculation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calculation in Reconstruction";
     
     allocPreCalIdx(_model.rU(), 0);
 
@@ -7234,33 +7252,36 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
         }
         
-        for (int t = 0; t < _para.k; t++)
+        if (_para.refAutoRecentre)
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+            for (int t = 0; t < _para.k; t++)
+            {
+                ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                        << t;
-            BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
                                        << t;
 
-            _model.reco(t).prepareO();
+                _model.reco(t).prepareO();
 
-            ALOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
-                                       << t
-                                       << ": "
-                                       << _model.reco(t).ox()
-                                       << ", "
-                                       << _model.reco(t).oy()
-                                       << ", "
-                                       << _model.reco(t).oz()
-                                       << " (Pixel)";
-            BLOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
-                                       << t
-                                       << ": "
-                                       << _model.reco(t).ox()
-                                       << ", "
-                                       << _model.reco(t).oy()
-                                       << ", "
-                                       << _model.reco(t).oz()
-                                       << " (Pixel)";
+                ALOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
+                                           << t
+                                           << ": "
+                                           << _model.reco(t).ox()
+                                           << ", "
+                                           << _model.reco(t).oy()
+                                           << ", "
+                                           << _model.reco(t).oz()
+                                           << " (Pixel)";
+                BLOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
+                                           << t
+                                           << ": "
+                                           << _model.reco(t).ox()
+                                           << ", "
+                                           << _model.reco(t).oy()
+                                           << ", "
+                                           << _model.reco(t).oz()
+                                           << " (Pixel)";
+            }
         }
     }
 
@@ -7328,7 +7349,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 Volume ref;
 
 #ifdef GPU_RECONSTRUCT
-                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()], _para.nThreadsPerProcess);
+                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()], 1);
 #else
                 _model.reco(t).reconstruct(ref, _para.nThreadsPerProcess);
 
@@ -7349,7 +7370,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 SEGMENT_NAN_CHECK_COMPLEX(ref.dataFT(), ref.sizeFT());
 #endif
 
-                if (_mask.isEmptyRL())
+                if (_mask.isEmptyRL() && _para.refAutoRecentre)
                 {
                     ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                     BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
@@ -7576,7 +7597,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 Volume ref;
 
 #ifdef GPU_RECONSTRUCT
-                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()], _para.nThreadsPerProcess);
+                _model.reco(t).reconstructG(ref, gpus[omp_get_thread_num()], 1);
 #else
                 _model.reco(t).reconstruct(ref, _para.nThreadsPerProcess);
 
@@ -7589,7 +7610,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #endif
 
-                if (_mask.isEmptyRL())
+                if (_mask.isEmptyRL() && _para.refAutoRecentre)
                 {
                     ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
                     BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
@@ -8208,68 +8229,130 @@ void Optimiser::saveDatabase(const bool finished,
 
     char subtractPath[FILE_WORD_LENGTH];
 
+    dmat33 rotB; // rot for base left closet
+    dmat33 rotC; // rot for every left closet
+
     FOR_EACH_2D_IMAGE
     {
         _par[l].rank1st(cls, quat, tran, df);
 
-        //_par[l].vari(rVari, s0, s1, s);
         _par[l].vari(k1, k2, k3, s0, s1, s);
 
-        /***
-        rVari = 0;
-        s0 = 0;
-        s1 = 0;
-        s = 0;
-        ***/
+        rotate3D(rotB, quat);
 
         if (subtract)
-            snprintf(subtractPath,
-                     sizeof(subtractPath),
-                     "%012ld@Subtract_Rank_%06d.mrcs",
-                     l + 1,
-                     _commRank);
+        {
+            for (int i = -1; i < _sym.nSymmetryElement(); i++)
+            {
+                if (i == -1)
+                {
+                    rotC = rotB;
+                }
+                else
+                {
+                    dmat33 L, R;
 
-        fprintf(file,
-                "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
-                 %s %s %18.9lf %18.9lf \
-                 %6d %6lu \
-                 %18.9lf %18.9lf %18.9lf %18.9lf \
-                 %18.9lf %18.9lf %18.9lf \
-                 %18.9lf %18.9lf %18.9lf %18.9lf \
-                 %18.9lf %18.9lf \
-                 %18.9lf\n",
-                 _ctfAttr[l].voltage,
-                 _ctfAttr[l].defocusU,
-                 _ctfAttr[l].defocusV,
-                 _ctfAttr[l].defocusTheta,
-                 _ctfAttr[l].Cs,
-                 _ctfAttr[l].amplitudeContrast,
-                 _ctfAttr[l].phaseShift,
-                 subtract ? subtractPath : _db.path(_ID[l]).c_str(),
-                 _db.micrographPath(_ID[l]).c_str(),
-                 _db.coordX(_ID[l]),
-                 _db.coordY(_ID[l]),
-                 _groupID[l],
-                 cls,
-                 quat(0),
-                 quat(1),
-                 quat(2),
-                 quat(3),
-                 k1,
-                 k2,
-                 k3,
+                    _sym.get(L, R, i);
+                    rotC = R.transpose() * rotB;
+                }
+
+                quaternion(quat, rotC);
+
+                snprintf(subtractPath,
+                         sizeof(subtractPath),
+                         "%012ld@Subtract_Rank_%06d.mrcs",
+                         l + _ID.size() * (i + 1) + 1,
+                         _commRank);
+
+                fprintf(file,
+                        "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
+                         %s %s %18.9lf %18.9lf \
+                         %6d %6lu \
+                         %18.9lf %18.9lf %18.9lf %18.9lf \
+                         %18.9lf %18.9lf %18.9lf \
+                         %18.9lf %18.9lf %18.9lf %18.9lf \
+                         %18.9lf %18.9lf \
+                         %18.9lf\n",
+                         _ctfAttr[l].voltage,
+                         _ctfAttr[l].defocusU,
+                         _ctfAttr[l].defocusV,
+                         _ctfAttr[l].defocusTheta,
+                         _ctfAttr[l].Cs,
+                         _ctfAttr[l].amplitudeContrast,
+                         _ctfAttr[l].phaseShift,
+                         subtractPath,
+                         _db.micrographPath(_ID[l]).c_str(),
+                         _db.coordX(_ID[l]),
+                         _db.coordY(_ID[l]),
+                         _groupID[l],
+                         cls,
+                         quat(0),
+                         quat(1),
+                         quat(2),
+                         quat(3),
+                         k1,
+                         k2,
+                         k3,
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                 tran(0) - _offset[l](0),
-                 tran(1) - _offset[l](1),
+                         tran(0) - _offset[l](0),
+                         tran(1) - _offset[l](1),
 #else
-                 tran(0),
-                 tran(1),
+                         tran(0),
+                         tran(1),
 #endif
-                 s0,
-                 s1,
-                 df,
-                 s,
-                 _par[l].compressR());
+                         s0,
+                         s1,
+                         df,
+                         s,
+                         _par[l].compressR());                
+            }
+
+        }
+        else
+        {
+            fprintf(file,
+                    "%18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf %18.9lf \
+                     %s %s %18.9lf %18.9lf \
+                     %6d %6lu \
+                     %18.9lf %18.9lf %18.9lf %18.9lf \
+                     %18.9lf %18.9lf %18.9lf \
+                     %18.9lf %18.9lf %18.9lf %18.9lf \
+                     %18.9lf %18.9lf \
+                     %18.9lf\n",
+                     _ctfAttr[l].voltage,
+                     _ctfAttr[l].defocusU,
+                     _ctfAttr[l].defocusV,
+                     _ctfAttr[l].defocusTheta,
+                     _ctfAttr[l].Cs,
+                     _ctfAttr[l].amplitudeContrast,
+                     _ctfAttr[l].phaseShift,
+                     _db.path(_ID[l]).c_str(),
+                     _db.micrographPath(_ID[l]).c_str(),
+                     _db.coordX(_ID[l]),
+                     _db.coordY(_ID[l]),
+                     _groupID[l],
+                     cls,
+                     quat(0),
+                     quat(1),
+                     quat(2),
+                     quat(3),
+                     k1,
+                     k2,
+                     k3,
+#ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
+                     tran(0) - _offset[l](0),
+                     tran(1) - _offset[l](1),
+#else
+                     tran(0),
+                     tran(1),
+#endif
+                     s0,
+                     s1,
+                     df,
+                     s,
+                     _par[l].compressR());            
+        }
+
     }
 
     fclose(file);
@@ -8291,91 +8374,98 @@ void Optimiser::saveSubtract()
 
     ImageFile imf;
 
-    imf.openStack(filename, _para.size, _ID.size(), _para.pixelSize);
+    imf.openStack(filename, _para.size, _ID.size() * (1 + _sym.nSymmetryElement()), _para.pixelSize);
 
     Image result(_para.size, _para.size, FT_SPACE);
     Image diff(_para.size, _para.size, FT_SPACE);
 
     size_t cls;
-    dmat22 rot2D;
-    dmat33 rot3D;
+    dmat33 rotB; // rot for base left closet
+    dmat33 rotC; // rot for every left closet
     dvec2 tran;
     double d;
 
     FOR_EACH_2D_IMAGE
     {
-        #pragma omp parallel for
-        SET_0_FT(result);
-
-        #pragma omp parallel for
-        SET_0_FT(diff);
-
         if (_para.mode == MODE_2D)
         {
             ALOG(FATAL, "LOGGER_ROUND") << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
             BLOG(FATAL, "LOGGER_ROUND") << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
 
             abort();
-            /***
-            _par[l].rank1st(cls, rot2D, tran, d);
-
-            _model.proj(cls).projectMT(result, rot2D, tran - _offset[l]);
-            ***/
         }
-        else if (_para.mode == MODE_3D)
-        {
-            _par[l].rank1st(cls, rot3D, tran, d);
 
-            _model.proj(cls).project(result, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
-        }
-        else
-        {
-            REPORT_ERROR("INEXISTENT MODE");
-
-            abort();
-        }
+        _par[l].rank1st(cls, rotB, tran, d);
 
 #ifdef OPTIMISER_CTF_ON_THE_FLY
-        Image ctf(_para.size, _para.size, FT_SPACE);
-        CTF(ctf,
-            _para.pixelSize, 
-            _ctfAttr[l].voltage,
-            _ctfAttr[l].defocusU,
-            _ctfAttr[l].defocusV,
-            _ctfAttr[l].defocusTheta,
-            _ctfAttr[l].Cs,
-            _ctfAttr[l].amplitudeContrast,
-            _ctfAttr[l].phaseShift);
+         Image ctf(_para.size, _para.size, FT_SPACE);
+         CTF(ctf,
+             _para.pixelSize, 
+             _ctfAttr[l].voltage,
+             _ctfAttr[l].defocusU,
+             _ctfAttr[l].defocusV,
+             _ctfAttr[l].defocusTheta,
+             _ctfAttr[l].Cs,
+             _ctfAttr[l].amplitudeContrast,
+             _ctfAttr[l].phaseShift);
 #endif
 
-        #pragma omp parallel for
-        FOR_EACH_PIXEL_FT(diff)
+        for (int i = -1; i < _sym.nSymmetryElement(); i++)
+        // for (int i = -1; i < 0; i++)
         {
+            #pragma omp parallel for
+            SET_0_FT(result);
+
+            #pragma omp parallel for
+            SET_0_FT(diff);
+
+            if (i == -1)
+            {
+                rotC = rotB;
+            }
+            else
+            {
+                dmat33 L, R;
+
+                _sym.get(L, R, i);
+                rotC = R.transpose() * rotB;
+            }
+
+            _model.proj(cls).project(result, rotC, tran - _offset[l], _para.nThreadsPerProcess);
+
+            #pragma omp parallel for
+            FOR_EACH_PIXEL_FT(diff)
+            {
 #ifdef OPTIMISER_CTF_ON_THE_FLY
-            diff[i] = _imgOri[l][i] - result[i] * REAL(ctf[i]);
+                diff[i] = _imgOri[l][i] - result[i] * REAL(ctf[i]);
 #else
-            diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
+                diff[i] = _imgOri[l][i] - result[i] * REAL(_ctf[l][i]);
 #endif
+            }
+
+            dvec3 regionTrans = rotC.transpose() * dvec3(_regionCentre(0),
+                                                         _regionCentre(1),
+                                                         _regionCentre(2));
+
+            translate(diff,
+                      diff,
+                      -tran(0) + _offset[l](0) - regionTrans(0),
+                      -tran(1) + _offset[l](1) - regionTrans(1),
+                      _para.nThreadsPerProcess);
+
+            if (i == -1)
+            {
+                _par[l].setT(_par[l].t().rowwise() - (tran - _offset[l]).transpose());
+                _par[l].setTopT(_par[l].topT() - tran + _offset[l]);
+                _par[l].setTopTPrev(_par[l].topTPrev() - tran + _offset[l]);
+            }
+
+            _fftImg.bwExecutePlan(diff, _para.nThreadsPerProcess);
+
+            imf.writeStack(diff, l + _ID.size() * (i + 1));
+
+            _fftImg.fwExecutePlan(diff);
         }
-
-        dvec3 regionTrans = rot3D.transpose() * dvec3(_regionCentre(0),
-                                                      _regionCentre(1),
-                                                      _regionCentre(2));
-
-        dvec2 tran = dvec2(regionTrans(0), regionTrans(1));
-
-        translate(diff, diff, -tran(0), -tran(1), _para.nThreadsPerProcess);
-
-        _par[l].setT(_par[l].t().rowwise() - tran.transpose());
-
-        _par[l].setTopT(_par[l].topT() - tran);
-        _par[l].setTopTPrev(_par[l].topTPrev() - tran);
-
-        _fftImg.bwExecutePlan(diff, _para.nThreadsPerProcess);
-
-        imf.writeStack(diff, l);
-
-        _fftImg.fwExecutePlan(diff);
     }
 
     imf.closeStack();

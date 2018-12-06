@@ -288,12 +288,16 @@ class FFT
         void fw(Volume& vol,                 /**< [in] the volume to be transformed */
                 const unsigned int nThread   /**< [in] the number of threads to be used */
                 );
+        void fw(Volume& vol                 /**< [in] the volume to be transformed */
+                );
 
         /**
          * @brief This function performs inverse Fourier transform on a volume using multiple threads.
          */
         void bw(Volume& vol,                 /**< [in] the volume to be transformed */
                 const unsigned int nThread   /**< [in] the number of threads to be used */
+                );
+        void bw(Volume& vol                 /**< [in] the volume to be transformed */
                 );
 
         /**
