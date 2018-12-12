@@ -499,7 +499,7 @@ void Optimiser::init()
         }
     }
 
-    MLOG(INFO, "LOGGER_INIT") << "Broadacasting Information of Groups";
+    MLOG(INFO, "LOGGER_INIT") << "Broadcasting Information of Groups";
 
     bcastGroupInfo();
 
@@ -731,7 +731,7 @@ void Optimiser::expectation()
                       _iCol,
                       _iRow,
                       _nPxl,
-                      _para.nThreadsPerProcess);
+                      1);
         }
 
         mat wC = mat::Zero(_ID.size(), _para.k);
@@ -783,13 +783,13 @@ void Optimiser::expectation()
                 {
                     par.rot(rot2D, m);
 
-                    _model.proj(t).project(priRotP, rot2D, _iCol, _iRow, _nPxl, _para.nThreadsPerProcess);
+                    _model.proj(t).project(priRotP, rot2D, _iCol, _iRow, _nPxl, 1);
                 }
                 else if (_para.mode == MODE_3D)
                 {
                     par.rot(rot3D, m);
 
-                    _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl, _para.nThreadsPerProcess);
+                    _model.proj(t).project(priRotP, rot3D, _iCol, _iRow, _nPxl, 1);
                 }
                 else
                 {
@@ -1251,7 +1251,7 @@ void Optimiser::expectation()
                               _iCol,
                               _iRow,
                               _nPxl,
-                              _para.nThreadsPerProcess);
+                              1);
                 }
 
                 RFLOAT* ctfP;
@@ -1307,7 +1307,7 @@ void Optimiser::expectation()
                                                _iCol,
                                                _iRow,
                                                _nPxl,
-                                               _para.nThreadsPerProcess);
+                                               1);
                     }
                     else if (_para.mode == MODE_3D)
                     {
@@ -1316,7 +1316,7 @@ void Optimiser::expectation()
                                                _iCol,
                                                _iRow,
                                                _nPxl,
-                                               _para.nThreadsPerProcess);
+                                               1);
                     }
                     else
                     {
@@ -4852,13 +4852,13 @@ void Optimiser::statImg()
         _mean += regionMean(_img[l],
                             _para.maskRadius / _para.pixelSize,
                             0,
-                            _para.nThreadsPerProcess);
+                            1);
 #else
         #pragma omp atomic
         _mean += regionMean(_img[l],
                             _para.size / 2,
                             0,
-                            _para.nThreadsPerProcess);
+                            1);
 #endif
 
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
@@ -4991,7 +4991,7 @@ void Optimiser::maskImg()
                      _para.maskRadius / _para.pixelSize,
                      EDGE_WIDTH_RL,
                      0,
-                     _para.nThreadsPerProcess);
+                     1);
     }
     else
     {
@@ -5003,7 +5003,7 @@ void Optimiser::maskImg()
                      EDGE_WIDTH_RL,
                      0,
                      _stdN,
-                     _para.nThreadsPerProcess);
+                     1);
     }
 #endif
 }
@@ -5085,7 +5085,8 @@ void Optimiser::initCTF()
             _ctfAttr[l].defocusTheta,
             _ctfAttr[l].Cs,
             _ctfAttr[l].amplitudeContrast,
-            _ctfAttr[l].phaseShift);
+            _ctfAttr[l].phaseShift,
+            1);
     }
 #endif
 }
@@ -5182,9 +5183,9 @@ void Optimiser::initSigma()
         // powerSpectrum(ps, _imgOri[l], maxR());
 
 #ifdef OPTIMISER_SIGMA_MASK
-        powerSpectrum(ps, _img[l], maxR(), _para.nThreadsPerProcess);
+        powerSpectrum(ps, _img[l], maxR(), 1);
 #else
-        powerSpectrum(ps, _imgOri[l], maxR(), _para.nThreadsPerProcess);
+        powerSpectrum(ps, _imgOri[l], maxR(), 1);
 #endif
 
         #pragma omp critical  (line2742)
@@ -5877,7 +5878,8 @@ void Optimiser::refreshScale(const bool coord,
                 _ctfAttr[l].Cs,
                 _ctfAttr[l].amplitudeContrast,
                 _ctfAttr[l].phaseShift,
-                CEIL(_rS) + 1);
+                CEIL(_rS) + 1,
+                _para.nThreadsPerProcess);
 #ifdef OPTIMISER_SCALE_MASK
             scaleDataVSPrior(sXA,
                              sAA,
@@ -6069,7 +6071,7 @@ void Optimiser::reCentreImg()
                   _imgOri[l],
                   _offset[l](0),
                   _offset[l](1),
-                  _para.nThreadsPerProcess);
+                  1);
 
         _par[l].setT(_par[l].t().rowwise() - tran.transpose());
 
@@ -6279,7 +6281,8 @@ void Optimiser::normCorrection()
                         _ctfAttr[l].Cs,
                         _ctfAttr[l].amplitudeContrast,
                         _ctfAttr[l].phaseShift,
-                        CEIL(rNorm) + 1);
+                        CEIL(rNorm) + 1,
+                        1);
 
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(ctf[i]);
@@ -6302,7 +6305,8 @@ void Optimiser::normCorrection()
                         _ctfAttr[l].defocusTheta,
                         _ctfAttr[l].Cs,
                         _ctfAttr[l].amplitudeContrast,
-                        _ctfAttr[l].phaseShift);
+                        _ctfAttr[l].phaseShift,
+                        1);
 
                     FOR_EACH_PIXEL_FT(img)
                         img[i] *= REAL(ctf[i]);
@@ -6468,11 +6472,11 @@ void Optimiser::allReduceSigma(const bool mask,
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                 _model.proj(cls).project(imgM, rot2D, tran, _para.nThreadsPerProcess);
-                 _model.proj(cls).project(imgN, rot2D, tran - _offset[l], _para.nThreadsPerProcess);
+                 _model.proj(cls).project(imgM, rot2D, tran, 1);
+                 _model.proj(cls).project(imgN, rot2D, tran - _offset[l], 1);
 #else
-                 _model.proj(cls).project(imgM, rot2D, tran, _para.nThreadsPerProcess);
-                 _model.proj(cls).project(imgN, rot2D, tran, _para.nThreadsPerProcess);
+                 _model.proj(cls).project(imgM, rot2D, tran, 1);
+                 _model.proj(cls).project(imgN, rot2D, tran, 1);
 #endif
             }
             else if (_para.mode == MODE_3D)
@@ -6484,11 +6488,11 @@ void Optimiser::allReduceSigma(const bool mask,
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
-                _model.proj(cls).project(imgM, rot3D, tran, _para.nThreadsPerProcess);
-                _model.proj(cls).project(imgN, rot3D, tran - _offset[l], _para.nThreadsPerProcess);
+                _model.proj(cls).project(imgM, rot3D, tran, 1);
+                _model.proj(cls).project(imgN, rot3D, tran - _offset[l], 1);
 #else
-                _model.proj(cls).project(imgM, rot3D, tran, _para.nThreadsPerProcess);
-                _model.proj(cls).project(imgN, rot3D, tran, _para.nThreadsPerProcess);
+                _model.proj(cls).project(imgM, rot3D, tran, 1);
+                _model.proj(cls).project(imgN, rot3D, tran, 1);
 #endif
             }
 
@@ -6505,7 +6509,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].Cs,
                     _ctfAttr[l].amplitudeContrast,
                     _ctfAttr[l].phaseShift,
-                    CEIL(rSig) + 1);
+                    CEIL(rSig) + 1,
+                    1);
 
                 FOR_EACH_PIXEL_FT(imgM)
                     imgM[i] *= REAL(ctf[i]);
@@ -6529,7 +6534,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     _ctfAttr[l].defocusTheta,
                     _ctfAttr[l].Cs,
                     _ctfAttr[l].amplitudeContrast,
-                    _ctfAttr[l].phaseShift);
+                    _ctfAttr[l].phaseShift,
+                    1);
 
                 FOR_EACH_PIXEL_FT(imgM)
                     imgM[i] *= REAL(ctf[i]);
@@ -6537,8 +6543,8 @@ void Optimiser::allReduceSigma(const bool mask,
                     imgN[i] *= REAL(ctf[i]);
             }
 
-            powerSpectrum(sSVD, imgM, rSig, _para.nThreadsPerProcess);
-            powerSpectrum(dSVD, _img[l], rSig, _para.nThreadsPerProcess);
+            powerSpectrum(sSVD, imgM, rSig, 1);
+            powerSpectrum(dSVD, _img[l], rSig, 1);
 
             NEG_FT(imgM);
             NEG_FT(imgN);
@@ -6546,8 +6552,8 @@ void Optimiser::allReduceSigma(const bool mask,
             ADD_FT(imgM, _img[l]);
             ADD_FT(imgN, _imgOri[l]);
 
-            powerSpectrum(vSigM, imgM, rSig, _para.nThreadsPerProcess);
-            powerSpectrum(vSigN, imgN, rSig, _para.nThreadsPerProcess);
+            powerSpectrum(vSigM, imgM, rSig, 1);
+            powerSpectrum(vSigN, imgN, rSig, 1);
 
             if (group)
             {
@@ -7069,7 +7075,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl,
-                              _para.nThreadsPerProcess);
+                              1);
 #else
                     translate(transImgP,
                               orignImgP,
@@ -7080,7 +7086,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl,
-                              _para.nThreadsPerProcess);
+                              1);
 #endif
 
                     if (cSearch)
@@ -7100,7 +7106,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _para.size,
                             _iCol,
                             _iRow,
-                            _nPxl);
+                            _nPxl,
+                            1);
                     }
                     else
                     {
@@ -7150,7 +7157,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl,
-                              _para.nThreadsPerProcess);
+                              1);
 #else
                     translate(transImgP,
                               orignImgP,
@@ -7161,7 +7168,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                               _iCol,
                               _iRow,
                               _nPxl,
-                              _para.nThreadsPerProcess);
+                              1);
 #endif
 
                     if (cSearch)
@@ -7181,7 +7188,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                             _para.size,
                             _iCol,
                             _iRow,
-                            _nPxl);
+                            _nPxl,
+                            1);
                     }
                     else
                     {
@@ -7737,8 +7745,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
     else
         freePreCal(true);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
-    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Reconstruction";
+    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calculation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calculation in Reconstruction";
 
     freePreCalIdx();
 
@@ -8081,7 +8089,8 @@ void Optimiser::allocPreCal(const bool mask,
                 _para.size,
                 _iCol,
                 _iRow,
-                _nPxl);
+                _nPxl,
+                1);
 
             for (int i = 0; i < _nPxl; i++)
             {
@@ -8398,16 +8407,19 @@ void Optimiser::saveSubtract()
         _par[l].rank1st(cls, rotB, tran, d);
 
 #ifdef OPTIMISER_CTF_ON_THE_FLY
-         Image ctf(_para.size, _para.size, FT_SPACE);
-         CTF(ctf,
-             _para.pixelSize, 
-             _ctfAttr[l].voltage,
-             _ctfAttr[l].defocusU,
-             _ctfAttr[l].defocusV,
-             _ctfAttr[l].defocusTheta,
-             _ctfAttr[l].Cs,
-             _ctfAttr[l].amplitudeContrast,
-             _ctfAttr[l].phaseShift);
+
+        Image ctf(_para.size, _para.size, FT_SPACE);
+        CTF(ctf,
+            _para.pixelSize, 
+            _ctfAttr[l].voltage,
+            _ctfAttr[l].defocusU,
+            _ctfAttr[l].defocusV,
+            _ctfAttr[l].defocusTheta,
+            _ctfAttr[l].Cs,
+            _ctfAttr[l].amplitudeContrast,
+            _ctfAttr[l].phaseShift,
+            _para.nThreadsPerProcess);
+
 #endif
 
         for (int i = -1; i < _sym.nSymmetryElement(); i++)
