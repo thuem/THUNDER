@@ -1,7 +1,7 @@
 /** @file
  *  @author Mingxu Hu
  *  @author Shouqing Li
- *  @version 1.4.11.080928
+ *  @version 1.4.11.081105
  *  @copyright THUNDER Non-Commercial Software License Agreement
  *
  *  ChangeLog
@@ -9,25 +9,21 @@
  *  ------      | ----       | -------       | -----------
  *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
  *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options 
- *  
- *  @brief thunder_bfactor.cpp applies bfactor-filter to the input image-file and outputs. The parameters provided by users are the b-factor, the directory of input and output files, the number of threads to work and the pixelsize.
- *
+ *  Mingxu   Hu | 2018/11/05 | 1.4.11.081105 | change this file to minus reference
  */
 
 #include <fstream>
+#include <iostream>
 #include <unistd.h>
 #include <getopt.h>
 #include <stdio.h>
-#include <iostream>
 
 #include "ImageFile.h"
 #include "Volume.h"
-#include "Filter.h"
-#include "FFT.h"
 
 INITIALIZE_EASYLOGGINGPP
 
-#define PROGRAM_NAME "thunder_bfactor"
+#define PROGRAM_NAME "thunder_minus"
 
 #define emit_try_help() \
 do \
@@ -39,20 +35,21 @@ while (0)
 
 #define HELP_OPTION_DESCRIPTION "--help     display this help\n"
 
-void usage (int status)
+void usage(int status)
 {
     if (status != EXIT_SUCCESS)
+    {
         emit_try_help ();
+    }
     else
     {
         printf("Usage: %s [OPTION]...\n", PROGRAM_NAME);
 
-        fputs("Apply bfactor-filter to the input image-file.\n", stdout);
+        fputs("Read two input image-files and output the diff file of their pixels' value.\n", stdout);
 
-        fputs("-j             set the thread-number to carry out work.\n", stdout);
-        fputs("-i  --input    set the directory of input file.\n", stdout);
-        fputs("-o  --output   set the directory of output file.\n", stdout);
-        fputs("--bFactor      set the bFactor.\n", stdout);
+        fputs("-o    set the directory of output file.\n", stdout);
+        fputs("--inputA    set the directory of input file A.\n", stdout);
+        fputs("--inputB    set the directory of input file B.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
 
         fputs(HELP_OPTION_DESCRIPTION, stdout);
@@ -65,9 +62,8 @@ void usage (int status)
 
 static const struct option long_options[] = 
 {
-    {"input", required_argument, NULL, 'i'},
-    {"output", required_argument, NULL, 'o'},
-    {"bfactor", required_argument, NULL, 'b'},
+    {"inputA", required_argument, NULL, 'a'},
+    {"inputB", required_argument, NULL, 'b'},
     {"pixelsize", required_argument, NULL, 'p'},
     {"help", no_argument, NULL, 'h'},
     {NULL, 0, NULL, 0}
@@ -78,35 +74,32 @@ int main(int argc, char* argv[])
     
     int opt;
     char* output;
-    char* input;
-    double bfactor, pixelsize;
-    int nThread;
+    char* inputA;
+    char* inputB;
+    double pixelsize;
 
     int option_index = 0;
 
-    if (optind == argc)
+    if(optind == argc)
     {
         usage(EXIT_FAILURE);
     }
 
-    while((opt = getopt_long(argc, argv, "i:o:j:", long_options, &option_index)) != -1)
+    while((opt = getopt_long(argc, argv, "o:", long_options, &option_index)) != -1)
     {
         switch(opt)
         {
             case('o'):
                 output = optarg;
                 break;
-            case('i'):
-                input = optarg;
+            case('a'):
+                inputA = optarg;
                 break;
             case('b'):
-                bfactor = atof(optarg);
+                inputB = optarg;
                 break;
             case('p'):
                 pixelsize = atof(optarg);
-                break;
-            case('j'):
-                nThread = atoi(optarg);
                 break;
             case('h'):
                 usage(EXIT_SUCCESS);
@@ -114,34 +107,32 @@ int main(int argc, char* argv[])
             default:
                 usage(EXIT_FAILURE);
         }
-
     }
 
     loggerInit(argc, argv);
 
-    TSFFTW_init_threads();
+    CLOG(INFO, "LOGGER_SYS") << "Reading Map";
 
-    ImageFile imf(input, "rb");
-    imf.readMetaData();
+    ImageFile imfA(inputA, "rb");
+    imfA.readMetaData();
 
-    Volume ref;
-    imf.readVolume(ref);
+    Volume refA;
+    imfA.readVolume(refA);
 
-    FFT fft;
-    fft.fw(ref, nThread);
+    ImageFile imfB(inputB, "rb");
+    imfB.readMetaData();
 
-    bFactorFilter(ref,
-                  ref,
-                  bfactor,
-                  nThread);
+    Volume refB;
+    imfB.readVolume(refB);
 
-    fft.bw(ref, nThread);
+    FOR_EACH_PIXEL_RL(refA)
+    {
+        refA(i) -= refB(i);
+    }
 
-    imf.readMetaData(ref);
-
-    imf.writeVolume(output, ref, pixelsize);
-
-    TSFFTW_cleanup_threads();
+    ImageFile imf;
+    imf.readMetaData(refA);
+    imf.writeVolume(output, refA, pixelsize);
 
     return 0;
 }

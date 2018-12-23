@@ -17,6 +17,7 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Huabin Ruan | 2018/09/13 | 1.4.11.080913 | Add header for file and functions
+ *  Mingxu Hu   | 2018/12/22 | 1.4.11.081222 | Add some emendation in the documentation
  *
  *  @brief Parallel.h encapsulates MPI related functions used for process partitioning, sending and receiving large size data, and so on.
   */
@@ -110,9 +111,15 @@
         BLOG(INFO, "LOGGER_MEM") << msg << ", Physic Memory Usage : " << memUsageRM / MEGABYTE << "G"; \
     } while (0);
 
+/**
+ * @brief The Parallel class generates, stores and exchanges MPI information.
+ *
+ * This class generates, stores and exhanges MPI information as the number of process in MPI_COMM_WORLD, the rank ID of the current process in MPI_COMM_WORLD and the MPI communications such as hemispere A , hemisphere B and all slave processes.
+ */
 class Parallel: private boost::noncopyable
 {
-protected:
+
+    protected:
 
     /**
      * @brief number of processes in MPI_COMM_WORLD
@@ -129,9 +136,12 @@ protected:
      */
     MPI_Comm _hemi;
 
+    /**
+     * @brief communicator of all slave processes
+     */
     MPI_Comm _slav;
 
-public:
+    public:
 
     /**
      * default constructor

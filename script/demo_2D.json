@@ -20,7 +20,8 @@
         "Prefix of Destination" : "./destination/",
         "Calculate FSC Using Core Region" : false,
         "Calculate FSC Using Masked Region" : false,
-        "Particle Grading" : false
+        "Particle Grading" : false,
+        "Auto-Recentre Reference" : true
     },
 
     "Reference Mask" :

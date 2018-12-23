@@ -36,6 +36,8 @@ do \
     } \
 while (0)
 
+#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
+
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -55,6 +57,8 @@ void usage (int status)
         fputs("--threshold    set the threshold value.\n", stdout);
         fputs("--edgewidth    set the edge width of the sphere.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
+
+        fputs(HELP_OPTION_DESCRIPTION, stdout);
 
         fputs("Note: all parameters are indispensable.\n", stdout);
     }

@@ -55,9 +55,14 @@ def main():
             print "Please input a proper thu file."
             exit()
         for num, line in enumerate(fin):
+
+            if (line[0] == '#'):
+                continue
+
             sline = line.strip()
             if not sline or (' ' not in sline):
                 continue
+
             match = re.match(r'_rln(\w+)\s+#(\d+)', sline)
             if match:
                 header_dict[match.group(1).lower()] = int(match.group(2)) - 1

@@ -54,7 +54,9 @@ void FFT::bw(Image& img)
 
     BW_CLEAN_UP(img);
 }
+*/
 
+/**
 void FFT::fw(Volume& vol)
 {
     FW_EXTRACT_P(vol);

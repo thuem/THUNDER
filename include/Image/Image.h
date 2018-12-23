@@ -103,6 +103,11 @@ inline bool conjHalf(RFLOAT& iCol,   /**< [in] index of the column (irregular vo
     return true;
 }
 
+/**
+ * @brief The Image class stores the content of an image (capable of both real space and Fourier space), and the meta information of this image.
+ *
+ * This Image class stores the content of an image in an integrated memory array, and the meta information of this image, such as the number of columns and rows. Moreover, this class provides functions for changing and accessing the contents and the meta information.
+ */
 class Image : public ImageBase
 {
     BOOST_MOVABLE_BUT_NOT_COPYABLE(Image)

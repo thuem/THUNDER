@@ -36,7 +36,8 @@ void CTF(Image& dst,
          const RFLOAT theta,
          const RFLOAT Cs,
          const RFLOAT amplitudeContrast,
-         const RFLOAT phaseShift)
+         const RFLOAT phaseShift,
+         const unsigned int nThread)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
@@ -46,6 +47,7 @@ void CTF(Image& dst,
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_EACH_PIXEL_FT(dst)
     {
         RFLOAT u = NORM(i / (pixelSize * dst.nColRL()),
@@ -72,7 +74,8 @@ void CTF(Image& dst,
          const RFLOAT Cs,
          const RFLOAT amplitudeContrast,
          const RFLOAT phaseShift,
-         const RFLOAT r)
+         const int r,
+         const unsigned int nThread)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
@@ -84,6 +87,7 @@ void CTF(Image& dst,
 
     RFLOAT r2 = TSGSL_pow_2(r);
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     IMAGE_FOR_PIXEL_R_FT(r + 1)
     {
         RFLOAT v = QUAD(i, j);
@@ -119,7 +123,8 @@ void CTF(RFLOAT* dst,
          const int nRow,
          const int* iCol,
          const int* iRow,
-         const int nPxl)
+         const int nPxl,
+         const unsigned int nThread)
 {
     RFLOAT lambda = 12.2643247 / sqrt(voltage * (1 + voltage * 0.978466e-6));
 
@@ -129,6 +134,7 @@ void CTF(RFLOAT* dst,
     RFLOAT K1 = M_PI * lambda;
     RFLOAT K2 = M_PI_2 * Cs * TSGSL_pow_3(lambda);
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     for (int i = 0; i < nPxl; i++)
     {
         RFLOAT u = NORM(iCol[i] / (pixelSize * nCol),

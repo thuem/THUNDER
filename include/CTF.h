@@ -49,7 +49,8 @@ void CTF(Image& dst,                        /**< [out, in] @f$I@f$ */
          const RFLOAT theta,                /**< [in] @f$\alpha{_{\alpha st}}@f$ */
          const RFLOAT Cs,                   /**< [in] @f$C_S@f$ */
          const RFLOAT amplitudeContrast,    /**< [in] @f$A@f$ */
-         const RFLOAT phaseShift            /**< [in] @f$\Delta\varphi@f$ */
+         const RFLOAT phaseShift,           /**< [in] @f$\Delta\varphi@f$ */
+         const unsigned int nThread         /**< [in] the number of threads to be used */
          );
 
 /**
@@ -64,7 +65,8 @@ void CTF(Image& dst,                        /**< [out, in] @f$I@f$ */
          const RFLOAT Cs,                   /**< [in] @f$C_S@f$ */
          const RFLOAT amplitudeContrast,    /**< [in] @f$A@f$ */
          const RFLOAT phaseShift,           /**< [in] @f$\Delta\varphi@f$ */
-         const RFLOAT r                     /**< [in] @f$r@f$ */
+         const int r,                       /**< [in] @f$r@f$ */
+         const unsigned int nThread         /**< [in] the number of threads to be used */         
          );
 
 /**
@@ -85,7 +87,8 @@ void CTF(RFLOAT* dst,                       /**< [out] @f$I@f$ */
          const int nRow,                    /**< [in] @f$Y@f$ */
          const int* iCol,                   /**< [in] @f$x_i@f$ */
          const int* iRow,                   /**< [in] @f$y_i@f$ */
-         const int nPxl                     /**< [in] @f$N@f$ */
+         const int nPxl,                    /**< [in] @f$N@f$ */
+         const unsigned int nThread         /**< [in] the number of threads to be used */
          );
 
 #endif // CTF_H

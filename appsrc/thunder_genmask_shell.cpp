@@ -36,6 +36,8 @@ do \
     } \
 while(0)
 
+#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
+
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -55,6 +57,8 @@ void usage (int status)
         fputs("--pixelsize       set the pixelsize.\n", stdout);
         fputs("--inner_radius    set the length of inner_radius.\n", stdout);
         fputs("--outer_radius    set the length of outer_radius.\n", stdout);
+
+        fputs(HELP_OPTION_DESCRIPTION, stdout);
 
         fputs("Note: all parameters are indispensable.\n", stdout);
 

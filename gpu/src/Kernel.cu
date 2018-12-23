@@ -4316,7 +4316,7 @@ __global__ void kernel_CheckCAVG2D(RFLOAT *diff,
                 }
             }
 
-            sumDiff[itr] += fabsf(mode - 1);
+            sumDiff[threadIdx.x] += fabsf(mode - 1);
 #else
             x = fabs(devDataC[index].real());
             y = fabs(devDataC[index].imag());
@@ -4341,9 +4341,9 @@ __global__ void kernel_CheckCAVG2D(RFLOAT *diff,
                 }
             }
 
-            sumDiff[itr] += fabs(mode - 1);
+            sumDiff[threadIdx.x] += fabs(mode - 1);
 #endif    
-            sumCount[itr] += 1;
+            sumCount[threadIdx.x] += 1;
         }
     }
 
@@ -4569,7 +4569,7 @@ __global__ void kernel_CheckCMAX2D(RFLOAT *devMax,
     
     __syncthreads();
 
-    RFLOAT mode = 0.0, u, x, y;
+    RFLOAT temp = 0.0, mode = 0.0, u, x, y;
     bool flag = true;
     
     int j = blockIdx.x;
@@ -4607,7 +4607,8 @@ __global__ void kernel_CheckCMAX2D(RFLOAT *devMax,
                 }
             }
 
-            singleMax[itr] = fabsf(mode - 1);
+            if (fabsf(mode - 1) >= temp)
+                temp = fabsf(mode - 1);
 #else
             x = fabs(devDataC[index].real());
             y = fabs(devDataC[index].imag());
@@ -4632,10 +4633,12 @@ __global__ void kernel_CheckCMAX2D(RFLOAT *devMax,
                 }
             }
 
-            singleMax[itr] = fabs(mode - 1);
+            if (fabs(mode - 1) >= temp)
+                temp = fabs(mode - 1);
 #endif    
         }
     }
+    singleMax[threadIdx.x] = temp;
     
     __syncthreads();
 

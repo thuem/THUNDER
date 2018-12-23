@@ -202,6 +202,10 @@ struct OptimiserPara
 
     bool parGra;
 
+#define KEY_REF_AUTO_RECENTRE "Auto-Recentre Reference"
+
+    bool refAutoRecentre;
+
 #define KEY_PERFORM_MASK "Perform Reference Mask"
 
     /**

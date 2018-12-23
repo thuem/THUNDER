@@ -7104,12 +7104,13 @@ void CalculateW2D(int gpuIdx,
 
     for(int m = 0; m < maxIter; m++)
     {
-        //LOG(INFO) << "SubStep1: Determining C.";
+        //LOG(INFO) << "SubStep m:" << m;
         kernel_DeterminingC<<<dim, 
                               threadInBlock>>>((Complex*)devDataC,
                                                __device__T, 
                                                devDataW,
                                                dimSize); 
+        cudaCheckErrors("kernel determining C.");
 
         //LOG(INFO) << "SubStep2: Convoluting C.";
 
@@ -7123,6 +7124,7 @@ void CalculateW2D(int gpuIdx,
                                                padSize,
                                                dim,
                                                dimSizeRL);
+        cudaCheckErrors("kernel convoluteC.");
         
         cufftExecR2C(planr2c, devDoubleC, devDataC);
 #else
@@ -7144,6 +7146,7 @@ void CalculateW2D(int gpuIdx,
                                                  (Complex*)devDataC,
                                                  r, 
                                                  dim);
+        cudaCheckErrors("kernel recalculateW.");
 
         diffCPrev = diffC;
         
@@ -7156,6 +7159,7 @@ void CalculateW2D(int gpuIdx,
                                                              (Complex*)devDataC,  
                                                              r, 
                                                              dim);
+        cudaCheckErrors("kernel checkCAVG.");
         
         cudaMemcpy(diff, devDiff, dim *sizeof(RFLOAT), cudaMemcpyDeviceToHost);
         cudaCheckErrors("Copy devDiff array to host.");
@@ -7181,6 +7185,7 @@ void CalculateW2D(int gpuIdx,
                                                   (Complex*)devDataC,  
                                                   r, 
                                                   dim);
+        cudaCheckErrors("kernel checkCMAX.");
         
         cudaMemcpy(cmax, devMax, dim * sizeof(RFLOAT), cudaMemcpyDeviceToHost);
         cudaCheckErrors("Copy devMax array to host.");
@@ -8549,6 +8554,7 @@ void CalculateFW(int gpuIdx,
                                               r,
                                               pdim,
                                               fdim);
+        cudaCheckErrors("kernel NormalizFW error.");
 
         i += batch;
         smidx = (smidx + 1) % 3;
