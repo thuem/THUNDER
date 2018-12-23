@@ -54,10 +54,11 @@ void usage (int status)
 
         fputs("Resize the input image-file according to the value of boxsize.\n", stdout);
 
-        fputs("-o    set the directory of output file\n", stdout);
-        fputs("-j    set the thread-number to carry out work\n", stdout);
-        fputs("--input    set the directory of input file\n", stdout);
-        fputs("--boxsize    set the target boxsize to resize\n", stdout);
+
+        fputs("-j             set the thread-number to carry out work\n", stdout);
+        fputs("-i  --input    set the directory of input file\n", stdout);
+        fputs("-o  --output   set the directory of output file\n", stdout);
+        fputs("--boxsize      set the target boxsize to resize\n", stdout);
         fputs("--pixelsize    set the pixelsize\n", stdout);
 
         fputs(HELP_OPTION_DESCRIPTION, stdout);
@@ -71,6 +72,7 @@ void usage (int status)
 static const struct option long_options[] = 
 {
     {"input", required_argument, NULL, 'i'},
+    {"output", required_argument, NULL, 'o'},
     {"boxsize", required_argument, NULL, 'b'},
     {"pixelsize", required_argument, NULL, 'p'},
     {"help", no_argument, NULL, 'h'},
@@ -93,7 +95,7 @@ int main(int argc, char* argv[])
         usage(EXIT_FAILURE);
     }
 
-    while((opt = getopt_long(argc, argv, "o:j:", long_options, &option_index)) != -1)
+    while((opt = getopt_long(argc, argv, "i:o:j:", long_options, &option_index)) != -1)
     {
         switch(opt)
         {

@@ -150,6 +150,11 @@ inline bool conjHalf(RFLOAT& iCol, /**< [in] column index of the irregular voxel
     return true;
 }
 
+/**
+ * @brief The Volume class stores the content of a volume (capable of both real space and Fourier space), and the meta information of this image.
+ *
+ * This Volume class stores the content of a volume in an integrated memory array, and the meta information of this volume, such as the number of columns, rows and slices. Moreover, this class provides functions for changing and accessing the contents and the meta information.
+ */
 class Volume : public ImageBase
 {
     BOOST_MOVABLE_BUT_NOT_COPYABLE(Volume)

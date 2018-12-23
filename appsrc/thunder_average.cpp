@@ -49,9 +49,9 @@ void usage(int status)
 
         fputs("Read two input image-files and output the average file of their pixels' value.\n", stdout);
 
-        fputs("-o    set the directory of output file.\n", stdout);
-        fputs("--inputA    set the directory of input file A.\n", stdout);
-        fputs("--inputB    set the directory of input file B.\n", stdout);
+        fputs("-o  --output   set the directory of output file.\n", stdout);
+        fputs("--inputA       set the directory of input file A.\n", stdout);
+        fputs("--inputB       set the directory of input file B.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
 
         fputs(HELP_OPTION_DESCRIPTION, stdout);
@@ -66,6 +66,7 @@ static const struct option long_options[] =
 {
     {"inputA", required_argument, NULL, 'a'},
     {"inputB", required_argument, NULL, 'b'},
+    {"output", required_argument, NULL, 'o'},
     {"pixelsize", required_argument, NULL, 'p'},
     {"help", no_argument, NULL, 'h'},
     {NULL, 0, NULL, 0}

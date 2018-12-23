@@ -8423,7 +8423,6 @@ void Optimiser::saveSubtract()
 #endif
 
         for (int i = -1; i < _sym.nSymmetryElement(); i++)
-        // for (int i = -1; i < 0; i++)
         {
             #pragma omp parallel for
             SET_0_FT(result);

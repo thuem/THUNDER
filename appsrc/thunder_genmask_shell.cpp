@@ -50,13 +50,13 @@ void usage (int status)
 
         fputs("Generate a shell-shape mask on the input volume.\n", stdout);
 
-        fputs("-o    set the directory of output file.\n", stdout);
-        fputs("-j    set the thread-number to carry out work.\n", stdout);
+        fputs("-j                set the thread-number to carry out work.\n", stdout);
+        fputs("-o  --output      set the directory of output file.\n", stdout);
+        fputs("--boxsize         set the boxsize value.\n", stdout);
+        fputs("--edgewidth       set the edge width of the sphere.\n", stdout);
+        fputs("--pixelsize       set the pixelsize.\n", stdout);
         fputs("--inner_radius    set the length of inner_radius.\n", stdout);
         fputs("--outer_radius    set the length of outer_radius.\n", stdout);
-        fputs("--boxsize    set the boxsize value.\n", stdout);
-        fputs("--edgewidth    set the edge width of the sphere.\n", stdout);
-        fputs("--pixelsize    set the pixelsize.\n", stdout);
 
         fputs(HELP_OPTION_DESCRIPTION, stdout);
 
@@ -69,6 +69,7 @@ void usage (int status)
 static const struct option long_options[] = 
 {
     {"boxsize", required_argument, NULL, 'b'},
+    {"output", required_argument, NULL, 'o'},
     {"inner_radius", required_argument, NULL, 'n'},
     {"outer_radius", required_argument, NULL, 't'},
     {"edgewidth", required_argument, NULL, 'e'},

@@ -7,8 +7,9 @@
  *  ChangeLog
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
- *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
+ *  Mingxu Hu   | 2015/03/23 | 0.0.1.050323  | new file
  *  Shouqing Li | 2018/09/14 | 1.4.11.080914 | add documentation 
+ *  Mingxu Hu   | 2018/12/22 | 1.4.11.081222 | add some emendation in the documentation
  *  
  *  @brief FFT.h contains several functions to carry out the Fast Fourier Transformation calculations for various conditions.   
  *
@@ -37,13 +38,11 @@
 #include "ImageFunctions.h"
 
 /**
- * This macro checks whether the source and destination of Fourier transform are
- * both repaired.
- *
- * @param dst the destination of Fourier transform
- * @param src the source of Fourier transform
+ * @brief This macro checks whether the source and destination of Fourier transform are both repaired.
  */
-#define CHECK_SPACE_VALID(dst, src) \
+#define CHECK_SPACE_VALID(dst, /**< [in] the destination of Fourier transform */ \
+                          src  /**< [in[ the source of Fourier transform */ \
+                          ) \
 { \
     if (src == NULL) \
     { \
@@ -57,7 +56,11 @@
     } \
 }
 
-#define FW_EXTRACT_P(obj) \
+/**
+ * @brief This macro extracts the pointers of the real and Fourier space memory array from image/volume for performing Fourier transform.
+ */
+#define FW_EXTRACT_P(obj /**< [in, out] the //TODO */ \
+                     ) \
 { \
     obj.alloc(FT_SPACE); \
     _dstC = (TSFFTW_COMPLEX*)&obj[0]; \
@@ -66,18 +69,8 @@
 }
 
 /**
- * This macro destroys the plan for performing Fourier transform and assigns
- * the pointers to NULL.
+ * @brief This macro destorys the plan for performing Fourier transform and assigns the pointers to NULL.
  */
-#define FW_CLEAN_UP \
-{ \
-    _Pragma("omp critical (line67)"); \
-    TSFFTW_destroy_plan(fwPlan); \
-    fwPlan = NULL; \
-    _dstC = NULL; \
-    _srcR = NULL; \
-}
-
 #define FW_CLEAN_UP_MT \
 { \
     TSFFTW_destroy_plan(fwPlan); \
@@ -86,7 +79,11 @@
     _srcR = NULL; \
 }
 
-#define BW_EXTRACT_P(obj) \
+/**
+ * @brief This macro extracts the pointers of the real and Fourier space memory array from image/volume for performing inverse Fourier transform.
+ */
+#define BW_EXTRACT_P(obj /**< [in, out] the //TODO */ \
+                     ) \
 { \
     obj.alloc(RL_SPACE); \
     _dstR = &obj(0); \
@@ -95,22 +92,8 @@
 }
 
 /**
- * This macro destroys the plan for performing inverse Fourier transform,
- * assigns the pointers to NULL and clear up the Fourier space of the image
- * (volume).
- *
- * @param obj the image (volume) performed inverse Fourier transform.
+ * @brief This macro destorys the plan for performing inverse Fourier transform and assigns the pointers to NULL.
  */
-#define BW_CLEAN_UP(obj) \
-{ \
-    _Pragma("omp critical (line110)"); \
-    TSFFTW_destroy_plan(bwPlan); \
-    bwPlan = NULL; \
-    _dstR = NULL; \
-    _srcC = NULL; \
-    obj.clearFT(); \
-}
-
 #define BW_CLEAN_UP_MT(obj) \
 { \
     TSFFTW_destroy_plan(bwPlan); \
@@ -122,8 +105,7 @@
 }
 
 /**
- * This macro executes a function in real space and performs Fourier transform
- * on the destination image (volume).
+ * This macro executes a function in real space and performs Fourier transform on the destination image/volume.
  *
  * @param dst the destination image (volume)
  * @param src the source image (volume)
@@ -288,16 +270,12 @@ class FFT
         void fw(Volume& vol,                 /**< [in] the volume to be transformed */
                 const unsigned int nThread   /**< [in] the number of threads to be used */
                 );
-        void fw(Volume& vol                 /**< [in] the volume to be transformed */
-                );
 
         /**
          * @brief This function performs inverse Fourier transform on a volume using multiple threads.
          */
         void bw(Volume& vol,                 /**< [in] the volume to be transformed */
                 const unsigned int nThread   /**< [in] the number of threads to be used */
-                );
-        void bw(Volume& vol                 /**< [in] the volume to be transformed */
                 );
 
         /**

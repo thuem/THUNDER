@@ -56,12 +56,12 @@ void usage (int status)
     
         fputs("Align the directory vector of a input file to Z-axis.\n",stdout);
     
-        fputs("-o    set the directory of output file.\n", stdout);
-        fputs("-x    set the coordinate of X.\n", stdout);
-        fputs("-y    set the coordinate of Y.\n", stdout);
-        fputs("-z    set the coordinate of Z.\n", stdout);
-        fputs("-j    set the thread-number to carry out work.\n", stdout);
-        fputs("--input    set the directory of input file.\n", stdout);
+        fputs("-x             set the coordinate of X.\n", stdout);
+        fputs("-y             set the coordinate of Y.\n", stdout);
+        fputs("-z             set the coordinate of Z.\n", stdout);
+        fputs("-j             set the thread-number to carry out work.\n", stdout);
+        fputs("-i  --input    set the directory of input file.\n", stdout);
+        fputs("-o  --output   set the directory of output file.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
 
         fputs(HELP_OPTION_DESCRIPTION, stdout);
@@ -75,6 +75,7 @@ void usage (int status)
 static const struct option long_options[] = 
 {
     {"input", required_argument, NULL, 'i'},
+    {"output", required_argument, NULL, 'o'},
     {"pixelsize", required_argument, NULL, 'p'},
     {"help", no_argument, NULL, 'h'},
     {NULL, 0, NULL, 0}
@@ -83,52 +84,52 @@ static const struct option long_options[] =
 int main(int argc, char* argv[])
 {
 
-	int opt;
-	char* output;
-	char* input;
-	double x, y, z, pixelsize;
-	int nThread;
+    int opt;
+    char* output;
+    char* input;
+    double x, y, z, pixelsize;
+    int nThread;
 
-	int option_index = 0;
-
+    int option_index = 0;
+    
     if(optind == argc)
     {
         usage(EXIT_FAILURE);
     }
 
-    while((opt = getopt_long(argc, argv, "o:x:y:z:j:", long_options, &option_index)) != -1)
-	{
-		switch(opt)
-		{
-			case('o'):
-				output = optarg;
-				break;
-			case('i'):
-				input = optarg;
-				break;
-			case('x'):
-				x = atof(optarg);
-				break;
-			case('y'):
-				y = atof(optarg);
-				break;
-			case('z'):
-				z = atof(optarg);
-				break;
-			case('p'):
-				pixelsize = atof(optarg);
-				break;
-			case('j'):
-				nThread = atoi(optarg);
-				break;
+    while((opt = getopt_long(argc, argv, "i:o:x:y:z:j:", long_options, &option_index)) != -1)
+    {
+        switch(opt)
+        {
+            case('o'):
+                output = optarg;
+                break;
+            case('i'):
+                input = optarg;
+                break;
+            case('x'):
+                x = atof(optarg);
+                break;
+            case('y'):
+                y = atof(optarg);
+                break;
+            case('z'):
+                z = atof(optarg);
+                break;
+            case('p'):
+                pixelsize = atof(optarg);
+                break;
+            case('j'):
+                nThread = atoi(optarg);
+                break;
             case('h'):
                 usage(EXIT_SUCCESS);
                 break;
             default:
                 usage(EXIT_FAILURE);
-		}
+        }
 
-	}
+    }
 
     loggerInit(argc, argv);
 

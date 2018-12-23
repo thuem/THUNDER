@@ -8,6 +8,7 @@
  *  ------      | ----       | -------       | -----------
  *  Huabin Ruan | 2018/09/13 | 1.4.11.080913 | Add header for file and functions
  *  Mingxu Hu   | 2018/09/28 | 1.4.11.080928 | Add mathmatical background of some scientific functions
+ *  Mingxu Hu   | 2018/12/22 | 1.4.11.081222 | Add some emendation in the documentation
  *
  *  @brief Precision.h encapsulates the header files/MACRO/data structures/functions of the single-precision version and the double-precision version.
  *
@@ -74,8 +75,14 @@
 
     #define TS_MAX_RFLOAT_VALUE FLT_MAX
 
+    /**
+     * @brief a Complex object contains 2 single precision floats
+     */
     typedef struct _complex_float_t
     {
+        /**
+         * @brief two single precision floats as the content of a Complex object
+         */
         float dat[2];
     } Complex;
 
@@ -93,8 +100,14 @@
 
     #define TS_MAX_RFLOAT_VALUE DBL_MAX
 
+    /**
+     * @brief a Complex object contains 2 double precision floats
+     */
     typedef struct _complex_float_t
     {
+        /**
+         * @brief two double precision floats as the content of a Complex object
+         */
         double dat[2];
     } Complex;
 
