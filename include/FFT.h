@@ -94,7 +94,7 @@
 /**
  * @brief This macro destorys the plan for performing inverse Fourier transform and assigns the pointers to NULL.
  */
-#define BW_CLEAN_UP_MT(obj) \
+#define BW_CLEAN_UP_MT(obj /**< [in, out] the //TODO */) \
 { \
     TSFFTW_destroy_plan(bwPlan); \
     bwPlan = NULL; \
@@ -111,7 +111,10 @@
  * @param src the source image (volume)
  * @param function the function to be executed
  */
-#define R2C_RL(dst, src, function) \
+#define R2C_RL(dst, /**< [out] the destination image/volume */ \
+               src, /**< [in] the source image/volume */ \
+               function /**< [in] the function to be executed */ \
+              ) \
     do \
     { \
         function; \
