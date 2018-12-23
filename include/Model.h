@@ -474,8 +474,7 @@ class Model : public Parallel
         void setRInit(const int rInit);
 
         /**
-         * This function returns the frequency for reconstruction and
-         * calculating FSC, SNR.
+         * This function returns the frequency for reconstruction and calculating FSC, SNR.
          */
         int rU() const;
 
@@ -485,8 +484,7 @@ class Model : public Parallel
         void setMaxRU();
 
         /**
-         * This function returns the frequency before padding (in pixel) of the
-         * previous iteration.
+         * This function returns the frequency before padding (in pixel) of the previous iteration.
          */
         int rPrev() const;
 

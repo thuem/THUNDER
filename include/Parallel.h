@@ -160,15 +160,11 @@ class Parallel: private boost::noncopyable
 
     /**
      * @brief This function inherits the MPI information by parameters.
-     *
-     * @param commSize the numbber of process in MPI_COMM_WORLD
-     * @param commRank the rank ID of the current process in MPI_COMM_WORLD
-     * @param hemi     the hemisphere of the current process
      */
     void setMPIEnv(const int commSize,  /**< [in] the number of process in MPI_COMM_WORLD. */
-                  const int commRank,   /**< [in] the process ID of the current process in MPI_COMM_WORLD. */
-                  const MPI_Comm &hemi, /**< [in] the hemisphere of the current process. */
-                  const MPI_Comm &slav  /**< [in] the slave communitor. */
+                   const int commRank,   /**< [in] the process ID of the current process in MPI_COMM_WORLD. */
+                   const MPI_Comm &hemi, /**< [in] the hemisphere of the current process. */
+                   const MPI_Comm &slav  /**< [in] the slave communitor. */
                   );
 
     /**

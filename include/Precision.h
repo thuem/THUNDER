@@ -63,16 +63,34 @@
 
 #ifdef SINGLE_PRECISION
 
+    /**
+     * @brief single precision float
+     */
     typedef float RFLOAT;
 
+    /**
+     * @brief complex in FFTW of single precision
+     */
     #define TSFFTW_COMPLEX fftwf_complex
 
+    /**
+     * @brief plan in FFTW of single precision
+     */
     #define TSFFTW_PLAN fftwf_plan
 
+    /**
+     * @brief number of bytes of single precision float in MPI
+     */
     #define TS_MPI_DOUBLE MPI_FLOAT
 
+    /**
+     * @brief number of bytes of single precision complex in MPI
+     */
     #define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
 
+    /**
+     * @brief maximum possible value of single precision float
+     */
     #define TS_MAX_RFLOAT_VALUE FLT_MAX
 
     /**
@@ -88,16 +106,34 @@
 
 #else
 
+    /**
+     * @brief double precision float
+     */
     typedef double RFLOAT;
 
+    /**
+     * @brief complex in FFTW of double precision
+     */
     #define TSFFTW_COMPLEX fftw_complex
 
+    /**
+     * @brief plan in FFTW of double precision
+     */
     #define TSFFTW_PLAN fftw_plan
 
+    /**
+     * @brief number of bytes of double precision float in MPI
+     */
     #define TS_MPI_DOUBLE MPI_DOUBLE
 
+    /**
+     * @brief number of bytes of double precision complex in MPI
+     */
     #define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
 
+    /**
+     * @brief maximum possible value of double precision float
+     */
     #define TS_MAX_RFLOAT_VALUE DBL_MAX
 
     /**

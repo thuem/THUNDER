@@ -37,20 +37,11 @@
 #include "TabFunction.h"
 #include "Coordinate5D.h"
 
-/***
-#define VOLUME_SUB_SPHERE_FT(a) \
-    for (int k = MAX(-_nSlc / 2, floor(iSlc - a)); \
-             k <= MIN(_nSlc / 2 - 1, ceil(iSlc + a)); \
-             k++) \
-        for (int j = MAX(-_nRow / 2, floor(iRow - a)); \
-                 j <= MIN(_nRow / 2 - 1, ceil(iRow + a)); \
-                 j++) \
-            for (int i = MAX(-_nCol / 2, floor(iCol - a)); \
-                     i <= MIN(_nCol / 2, ceil(iCol + a)); \
-                     i++)
-***/
-
-#define VOLUME_SUB_SPHERE_FT(a) \
+/**
+ * @brief This macro loops over each pixel within a sphere of which origin is a voxel in Fourier space.
+ */
+#define VOLUME_SUB_SPHERE_FT(a /**< [in] the radius of this sphere */ \
+                            ) \
     for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
              k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
              k++) \
@@ -61,7 +52,11 @@
                      i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + a)); \
                      i++)
 
-#define VOLUME_SUB_SPHERE_RL(a) \
+/**
+ * @brief This macro loops over each pixel within a sphere of which origin is a voxel in real space.
+ */
+#define VOLUME_SUB_SPHERE_RL(a /**< [in] the radius of this sphere */ \
+                            ) \
     for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
              k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
              k++) \
