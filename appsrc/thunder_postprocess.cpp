@@ -48,7 +48,6 @@ void usage (int status)
 
         fputs("Post-process the input image-file.\n", stdout);
 
-
         fputs("-j             set the thread-number to carry out work.\n", stdout);
         fputs("--mask         set the directory of mask file.\n", stdout);
         fputs("--inputA       set the directory of input file A.\n", stdout);

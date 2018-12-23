@@ -51,7 +51,6 @@ void usage(int status)
 
         fputs("Apply low-pass filter to the input image-file.\n", stdout);
 
-
         fputs("-j             set the thread-number to carry out work.\n", stdout);
         fputs("--freq         set the spatial frequency.\n", stdout);
         fputs("-i  --input    set the directory of input file.\n", stdout);

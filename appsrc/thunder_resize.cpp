@@ -54,7 +54,6 @@ void usage (int status)
 
         fputs("Resize the input image-file according to the value of boxsize.\n", stdout);
 
-
         fputs("-j             set the thread-number to carry out work\n", stdout);
         fputs("-i  --input    set the directory of input file\n", stdout);
         fputs("-o  --output   set the directory of output file\n", stdout);
