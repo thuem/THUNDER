@@ -5160,8 +5160,8 @@ void Optimiser::initSigma()
 
     MPI_Allreduce(MPI_IN_PLACE,
                   &avg[0],
-                  avg.sizeFT(),
-                  TS_MPI_DOUBLE_COMPLEX,
+                  2 * avg.sizeFT(),
+                  TS_MPI_DOUBLE,
                   MPI_SUM,
                   _hemi);
 
@@ -8777,8 +8777,8 @@ void Optimiser::saveMapJoin(const bool finished)
                 MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere A";
 
                 MPI_Recv_Large(&A[0],
-                               A.sizeFT(),
-                               TS_MPI_DOUBLE_COMPLEX,
+                               2 * A.sizeFT(),
+                               TS_MPI_DOUBLE,
                                HEMI_A_LEAD,
                                l,
                                MPI_COMM_WORLD);
@@ -8786,8 +8786,8 @@ void Optimiser::saveMapJoin(const bool finished)
                 MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere B";
 
                 MPI_Recv_Large(&B[0],
-                               B.sizeFT(),
-                               TS_MPI_DOUBLE_COMPLEX,
+                               2 * B.sizeFT(),
+                               TS_MPI_DOUBLE,
                                HEMI_B_LEAD,
                                l,
                                MPI_COMM_WORLD);
@@ -8821,8 +8821,8 @@ void Optimiser::saveMapJoin(const bool finished)
                                                  << " from Hemisphere B";
 
                     MPI_Ssend_Large(&_model.ref(l)[0],
-                                    _model.ref(l).sizeFT(),
-                                    TS_MPI_DOUBLE_COMPLEX,
+                                    2 * _model.ref(l).sizeFT(),
+                                    TS_MPI_DOUBLE,
                                     MASTER_ID,
                                     l,
                                     MPI_COMM_WORLD);
@@ -8846,8 +8846,8 @@ void Optimiser::saveMapJoin(const bool finished)
                 MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere A";
 
                 MPI_Recv_Large(&A[0],
-                               A.sizeFT(),
-                               TS_MPI_DOUBLE_COMPLEX,
+                               2 * A.sizeFT(),
+                               TS_MPI_DOUBLE,
                                HEMI_A_LEAD,
                                l,
                                MPI_COMM_WORLD);
@@ -8855,8 +8855,8 @@ void Optimiser::saveMapJoin(const bool finished)
                 MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere B";
 
                 MPI_Recv_Large(&B[0],
-                               B.sizeFT(),
-                               TS_MPI_DOUBLE_COMPLEX,
+                               2 * B.sizeFT(),
+                               TS_MPI_DOUBLE,
                                HEMI_B_LEAD,
                                l,
                                MPI_COMM_WORLD);
@@ -8889,8 +8889,8 @@ void Optimiser::saveMapJoin(const bool finished)
                                                  << " from Hemisphere B";
 
                     MPI_Ssend_Large(&_model.ref(l)[0],
-                                    _model.ref(l).sizeFT(),
-                                    TS_MPI_DOUBLE_COMPLEX,
+                                    2 * _model.ref(l).sizeFT(),
+                                    TS_MPI_DOUBLE,
                                     MASTER_ID,
                                     l,
                                     MPI_COMM_WORLD);

@@ -86,7 +86,8 @@
     /**
      * @brief number of bytes of single precision complex in MPI
      */
-    #define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
+    // #define TS_MPI_DOUBLE_COMPLEX MPI_COMPLEX
+    // Some MPI environment do not support MPI_COMPLEX. It may appear fine during compilation, but go crash during execution.
 
     /**
      * @brief maximum possible value of single precision float
@@ -129,7 +130,8 @@
     /**
      * @brief number of bytes of double precision complex in MPI
      */
-    #define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
+    // #define TS_MPI_DOUBLE_COMPLEX MPI_DOUBLE_COMPLEX
+    // Some MPI environment do not support MPI_DOUBLE_COMPLEX. It may appear fine during compilation, but go crash during execution.
 
     /**
      * @brief maximum possible value of double precision float

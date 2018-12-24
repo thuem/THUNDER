@@ -2363,8 +2363,8 @@ void Reconstructor::allReduceF()
 #endif
 
         MPI_Allreduce_Large(&_F2D[0],
-                            _F2D.sizeFT(),
-                            TS_MPI_DOUBLE_COMPLEX,
+                            2 * _F2D.sizeFT(),
+                            TS_MPI_DOUBLE,
                             MPI_SUM,
                             _hemi);
 
@@ -2381,8 +2381,8 @@ void Reconstructor::allReduceF()
 #endif
 
         MPI_Allreduce_Large(&_F3D[0],
-                            _F3D.sizeFT(),
-                            TS_MPI_DOUBLE_COMPLEX,
+                            2 * _F3D.sizeFT(),
+                            TS_MPI_DOUBLE,
                             MPI_SUM,
                             _hemi);
 
@@ -2416,8 +2416,8 @@ void Reconstructor::allReduceT(const unsigned int nThread)
 #endif
 
         MPI_Allreduce_Large(&_T2D[0],
-                            _T2D.sizeFT(),
-                            TS_MPI_DOUBLE_COMPLEX,
+                            2 * _T2D.sizeFT(),
+                            MPI_DOUBLE,
                             MPI_SUM,
                             _hemi);
 
@@ -2434,8 +2434,8 @@ void Reconstructor::allReduceT(const unsigned int nThread)
 #endif
 
         MPI_Allreduce_Large(&_T3D[0],
-                            _T3D.sizeFT(),
-                            TS_MPI_DOUBLE_COMPLEX,
+                            2 * _T3D.sizeFT(),
+                            TS_MPI_DOUBLE,
                             MPI_SUM,
                             _hemi);
 

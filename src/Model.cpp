@@ -373,8 +373,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
 
             MPI_Recv_Large(&A[0],
-                           A.sizeFT(),
-                           TS_MPI_DOUBLE_COMPLEX,
+                           2 * A.sizeFT(),
+                           TS_MPI_DOUBLE,
                            HEMI_A_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -382,8 +382,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere B";
 
             MPI_Recv_Large(&B[0],
-                           B.sizeFT(),
-                           TS_MPI_DOUBLE_COMPLEX,
+                           2 * B.sizeFT(),
+                           TS_MPI_DOUBLE,
                            HEMI_B_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -648,15 +648,15 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             
 #ifdef MODEL_SWAP_HEMISPHERE
                 MPI_Ssend_Large(&B[0],
-                                A.sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * A.sizeFT(),
+                                TS_MPI_DOUBLE,
                                 HEMI_A_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
 #else
                 MPI_Ssend_Large(&A[0],
-                                A.sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * A.sizeFT(),
+                                TS_MPI_DOUBLE,
                                 HEMI_A_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
@@ -672,15 +672,15 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
 #ifdef MODEL_SWAP_HEMISPHERE
                 MPI_Ssend_Large(&A[0],
-                                B.sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * B.sizeFT(),
+                                TS_MPI_DOUBLE,
                                 HEMI_B_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
 #else
                 MPI_Ssend_Large(&B[0],
-                                B.sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * B.sizeFT(),
+                                TS_MPI_DOUBLE,
                                 HEMI_B_LEAD,
                                 l,
                                 MPI_COMM_WORLD);
@@ -731,8 +731,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 #endif
 
                 MPI_Ssend_Large(&_ref[l][0],
-                                _ref[l].sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * _ref[l].sizeFT(),
+                                TS_MPI_DOUBLE,
                                 MASTER_ID,
                                 l,
                                 MPI_COMM_WORLD);
@@ -744,8 +744,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     BLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from MASTER";
 
                     MPI_Recv_Large(&_ref[l][0],
-                                   _ref[l].sizeFT(),
-                                   TS_MPI_DOUBLE_COMPLEX,
+                                   2 * _ref[l].sizeFT(),
+                                   TS_MPI_DOUBLE,
                                    MASTER_ID,
                                    l,
                                    MPI_COMM_WORLD);
@@ -762,8 +762,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             {
                 ALOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from A_LEAD";
                 MPI_Bcast_Large(&_ref[l][0],
-                                _ref[l].sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * _ref[l].sizeFT(),
+                                TS_MPI_DOUBLE,
                                 0,
                                 _hemi);
             }
@@ -772,8 +772,8 @@ void Model::compareTwoHemispheres(const bool fscFlag,
             {
                 BLOG(INFO, "LOGGER_COMPARE") << "Broadcasting Reference " << l << " from B_LEAD";
                 MPI_Bcast_Large(&_ref[l][0],
-                                _ref[l].sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * _ref[l].sizeFT(),
+                                TS_MPI_DOUBLE,
                                 0,
                                 _hemi);
             }
@@ -1722,8 +1722,8 @@ void Model::avgHemi()
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere A";
 
             MPI_Recv_Large(&A[0],
-                           A.sizeFT(),
-                           TS_MPI_DOUBLE_COMPLEX,
+                           2 * A.sizeFT(),
+                           TS_MPI_DOUBLE,
                            HEMI_A_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -1731,8 +1731,8 @@ void Model::avgHemi()
             MLOG(INFO, "LOGGER_COMPARE") << "Receiving Reference " << l << " from Hemisphere B";
 
             MPI_Recv_Large(&B[0],
-                           B.sizeFT(),
-                           TS_MPI_DOUBLE_COMPLEX,
+                           2 * B.sizeFT(),
+                           TS_MPI_DOUBLE,
                            HEMI_B_LEAD,
                            l,
                            MPI_COMM_WORLD);
@@ -1755,8 +1755,8 @@ void Model::avgHemi()
                                              << " from Hemisphere B";
 
                 MPI_Ssend_Large(&_ref[l][0],
-                                _ref[l].sizeFT(),
-                                TS_MPI_DOUBLE_COMPLEX,
+                                2 * _ref[l].sizeFT(),
+                                TS_MPI_DOUBLE,
                                 MASTER_ID,
                                 l,
                                 MPI_COMM_WORLD);
