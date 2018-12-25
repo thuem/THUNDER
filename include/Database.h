@@ -56,7 +56,7 @@
 #define THU_DEFOCUS_THETA_FORMAT %12.6f
 
 /**
- * @brief index of the key standing for //TODO
+ * @brief index of the key standing for TODO
  */
 #define THU_CS 4
 
@@ -297,23 +297,50 @@
 #include "Utils.h"
 #include "Random.h"
 
+/**
+ * @brief CTF attributes
+ */
 struct CTFAttr
 {
+    /**
+     * @brief acceleration voltage of the micrography
+     */
     RFLOAT voltage;
 
+    /**
+     * @brief defocus U
+     */
     RFLOAT defocusU;
 
+    /**
+     * @brief defocus V
+     */
     RFLOAT defocusV;
 
+    /**
+     * @brief defocus angle
+     */
     RFLOAT defocusTheta;
 
+    /**
+     * @brief TODO
+     */
     RFLOAT Cs;
 
+    /**
+     * @brief amplitude contrast
+     */
     RFLOAT amplitudeContrast;
 
+    /**
+     * @brief phase shift
+     */
     RFLOAT phaseShift;
 };
 
+/**
+ * @brief This class manages .thu file, including reading, writing and shuffling information.
+ */
 class Database : public Parallel
 {
     private:
@@ -374,93 +401,183 @@ class Database : public Parallel
                          );
 
         /**
-         * @brief //TODO
+         * @brief TODO
          */
         int start() const { return _start; };
 
         /**
-         * @biref //TODO
+         * @brief TODO
          */
         int end() const { return _end; };
 
         /**
-         * @brief total number of particles //TODO
+         * @brief total number of particles
          */
         int nParticle() const;
 
         /**
-         * total number of groups
+         * @brief total number of groups
          */
         int nGroup() const;
 
         /**
-         * number of particles assigned to this process
+         * @brief number of particles assigned to this process
          */
         int nParticleRank();
 
         /**
-         * assign particles to each process
+         * @brief assign particles to each process
          */
         void assign();
 
         /**
-         * record the shift of each line, prepare for later use
+         * @brief record the shift of each line, prepare for later use
          */
         void index();
 
+        /**
+         * @brief shuffle particles
+         */
         void shuffle();
 
-        long offset(const int i) const;
+        /**
+         * @brief TODO
+         *
+         * @return TODO
+         */
+        long offset(const int i /**< [in] index of particle */) const;
 
-        RFLOAT coordX(const int i) const;
+        /**
+         * @brief This function returns X coordinate of the i-th particle image in the micrograph.
+         *
+         * @return X coordinate of the i-th particle image in the micrograph
+         */
+        RFLOAT coordX(const int i /**< [in] index of particle */) const;
 
-        RFLOAT coordY(const int i) const;
+        /**
+         * @brief This function returns Y coordinate of the i-th particle image in the micrograph.
+         *
+         * @return Y coordinate of the i-th particle image in the micrograph
+         */
+        RFLOAT coordY(const int i /**< [in] index of particle */) const;
         
-        int groupID(const int i) const;
+        /**
+         * @brief This function returns group ID of the i-th particle image in the micrograph.
+         *
+         * @return group ID of the i-th particle image in the micrograph
+         */
+        int groupID(const int i /**< [in] index of particle */) const;
 
-        string path(const int i) const;
+        /**
+         * @brief This function returns directory path of the i-th particle image in the micrograph.
+         *
+         * @return directory path of the i-th particle image in the micrograph
+         */
+        string path(const int i /**< [in] index of particle */) const;
 
-        string micrographPath(const int i) const;
+        /**
+         * @brief This function returns directory path of micrograph which the i-th particle image belongs to.
+         *
+         * @return directory path of micrograph which the i-th particle image belongs to
+         */
+        string micrographPath(const int i /**< [in] index of particle */) const;
         
-        void ctf(RFLOAT& voltage,
-                 RFLOAT& defocusU,
-                 RFLOAT& defocusV,
-                 RFLOAT& defocusTheta,
-                 RFLOAT& Cs,
-                 RFLOAT& amplitudeConstrast,
-                 RFLOAT& phaseShift,
-                 const int i) const;
+        /**
+         * @brief TODO
+         */
+        void ctf(RFLOAT& voltage,            /**< [out] acceleration voltage of microscopy */
+                 RFLOAT& defocusU,           /**< [out] TODO */
+                 RFLOAT& defocusV,           /**< [out] TODO */
+                 RFLOAT& defocusTheta,       /**< [out] TODO */
+                 RFLOAT& Cs,                 /**< [out] TODO */
+                 RFLOAT& amplitudeConstrast, /**< [out] TODO */
+                 RFLOAT& phaseShift,         /**< [out] TODO */
+                 const int i                 /**< [in] index of particle */
+                ) const;
 
-        void ctf(CTFAttr& dst,
-                 const int i) const;
+        /**
+         * @brief TODO
+         */
+        void ctf(CTFAttr& dst, /**< [out] TODO */
+                 const int i   /**< [in] index of particle */
+                ) const;
 
-        int cls(const int i) const;
+        /**
+         * @brief This function returns the class ID of the i-th particle.
+         *
+         * @return the classID of the i-th particle
+         */
+        int cls(const int i /**< [in] index of particle */) const;
 
-        dvec4 quat(const int i) const;
+        /**
+         * @brief This function returns the unit quaternion of the i-th particle.
+         *
+         * @return the unit quaternion of the i-th particle
+         */
+        dvec4 quat(const int i /**< [in] index of particle */) const;
 
-        RFLOAT k1(const int i) const;
+        /**
+         * @brief This function returns the 1st concentration parameter of the parameter matrix of ACG distribution.
+         *
+         * @return the-1st concentration parameter of the parameter matrix of ACG distribution
+         */
+        RFLOAT k1(const int i /**< [in] index of particle */) const;
 
-        RFLOAT k2(const int i) const;
+        /**
+         * @brief This function returns the 2nd concentration parameter of the parameter matrix of ACG distribution.
+         *
+         * @return the 2nd concentration parameter of the parameter matrix of ACG distribution
+         */
+        RFLOAT k2(const int i /**< [in] index of particle */) const;
 
-        RFLOAT k3(const int i) const;
+        /**
+         * @brief This function returns the 3rd concentration parameter of the parameter matrix of ACG distribution.
+         *
+         * @return the 3rd concentration parameter of the parameter matrix of ACG distribution
+         */
+        RFLOAT k3(const int i /**< [in] index of particle */) const;
 
-        dvec2 tran(const int i) const;
+        /**
+         * @brief TODO
+         */
+        dvec2 tran(const int i /**< [in] index of particle */) const;
 
-        RFLOAT stdTX(const int i) const;
+        /**
+         * @brief TODO
+         */
+        RFLOAT stdTX(const int i /**< [in] index of particle */) const;
 
-        RFLOAT stdTY(const int i) const;
+        /**
+         * @brief TODO
+         */
+        RFLOAT stdTY(const int i /**< [in] index of particle */) const;
 
+        /**
+         * @brief TODO
+         */
         RFLOAT d(const int i) const;
 
+        /**
+         * @brief TODO
+         */
         RFLOAT stdD(const int i) const;
 
-        RFLOAT score(const int i) const;
+        /**
+         * @brief This function returns the quality score of each particle.
+         *
+         * @return the quality of each particle
+         */
+        RFLOAT score(const int i /**< [in] particle index */) const;
 
     private:
 
-        void split(int& start,
-                   int& end,
-                   int commRank);
+        /**
+         * @brief This function calculates the ID of the first and the last particle assigned to this process.
+         */
+        void split(int& start,        /**< [out] the ID of the first particle assigned to this process */
+                   int& end,          /**< [out] the ID of the last particle assigned to this process */
+                   const int commRank /**< [in] the rank of this process */
+                  );
 };
 
 #endif // DATABASE_H
