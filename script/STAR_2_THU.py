@@ -54,6 +54,7 @@ def main():
         except:
             print "Please input a proper thu file."
             exit()
+
         for num, line in enumerate(fin):
 
             if (line[0] == '#'):

@@ -75,7 +75,6 @@ static const struct option long_options[] =
 
 int main(int argc, char* argv[])
 {
-
     int opt;
     char* output;
     char* input;

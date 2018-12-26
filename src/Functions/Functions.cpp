@@ -85,6 +85,7 @@ int periodic(RFLOAT& x,
     x -= n * p;
     return n;
 }
+
 RFLOAT MKB_FT(const RFLOAT r,
               const RFLOAT a,
               const RFLOAT alpha)
@@ -138,7 +139,8 @@ RFLOAT MKB_RL(const RFLOAT r,
     RFLOAT w = pow(2 * M_PI, 1.5)
              * TSGSL_pow_3(a)
              * TSGSL_pow_2(alpha)
-             / TSGSL_sf_bessel_In(2, alpha)
+             // / TSGSL_sf_bessel_In(2, alpha)
+             / TSGSL_sf_bessel_I0(alpha)
              / pow(v, 3.5);
 
     if (u <= alpha)
@@ -174,7 +176,8 @@ RFLOAT MKB_RL_R2(const RFLOAT r2,
     RFLOAT w = pow(2 * M_PI, 1.5)
              * TSGSL_pow_3(a)
              * TSGSL_pow_2(alpha)
-             / TSGSL_sf_bessel_In(2, alpha)
+             // / TSGSL_sf_bessel_In(2, alpha)
+             / TSGSL_sf_bessel_I0(alpha)
              / pow(v, 3.5);
 
     if (u2 <= TSGSL_pow_2(alpha))
