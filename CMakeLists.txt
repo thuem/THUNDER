@@ -27,9 +27,11 @@ else("${SINGLE_PRECISION}")
     message(STATUS "Build THUNDER in double-float precision.")
 endif("${SINGLE_PRECISION}")
 
-# WHETHER GPU VERSION OR CPU VERSION
+# DECIDE THE VERSION AND TOOLS
 
 option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
+option(CPU_VERSION "Whether to use cpu version in caculation?" ON)
+option(TOOLS_BUILD  "Whether to build tools?" ON)
 
 if("${GPU_VERSION}")
     message(STATUS "Build THUNDER in GPU version.")
@@ -288,21 +290,59 @@ TARGET_include_directories(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTE
 #include_directories(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
 #include_directories(PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
 
-if("${GPU_VERSION}")
-    TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
-    #LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
-    #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
-endif("${GPU_VERSION}")
 
 # Compile Executables
 
 file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
 
-foreach(BINSRC ${BIN_SOURCES})
-    get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
-    add_executable(${BINNAME} ${BINSRC})
-    install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
-endforeach()
+if("${CPU_VERSION}")
+    foreach(BINSRC ${BIN_SOURCES})
+    
+        get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
+        if("${BINNAME}" STREQUAL "thunder")
+            set(BINNAME "${BINNAME}_cpu")
+        endif()
+        
+        if(("${BINNAME}" STREQUAL "thunder_cpu") OR ("${TOOLS_BUILD}"))
+            add_executable(${BINNAME} ${BINSRC})
+            install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
+        endif()
+    
+    endforeach()
+    
+    # BUILD TOOL ONLY ONCE
+    if("${TOOLS_BUILD}")
+        set(TOOLS_BUILD OFF)
+    endif("${TOOLS_BUILD}")
+    
+endif("${CPU_VERSION}")
+
+
+file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
+
+
+if("${GPU_VERSION}")
+    message(STATUS "${GPU_VERSION}") 
+    TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    #LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+
+    foreach(BINSRC ${BIN_SOURCES})
+
+        get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
+        if("${BINNAME}" STREQUAL "thunder")
+            set(BINNAME "${BINNAME}_gpu")
+        endif()
+        
+        if(("${BINNAME}" STREQUAL "thunder_gpu") OR ("${TOOLS_BUILD}"))
+            add_executable(${BINNAME} ${BINSRC})
+            install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
+        endif()
+
+    endforeach()
+
+endif("${GPU_VERSION}")
+
 
 # Copy Scripts
 
