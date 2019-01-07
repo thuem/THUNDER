@@ -23,13 +23,114 @@ Database::~Database()
     fclose(_db);
 }
 
+
+void Database::reGenDatabase(char *newDatabase, const char *outputDir, const char *database, const int rank)
+{
+    char buffer[FILE_LINE_MAX_LENGTH];
+    char newDatabaseName[FILE_NAME_LENGTH];
+    /**
+     *  set new database name same with the original database name, but was set as a hidden file
+     */
+    string str(database);
+    size_t pos = str.find_last_of('/');
+    if(pos == string::npos)
+    {
+        pos = 0;
+    }
+    else
+    {
+        pos = pos + 1;
+    }
+    string baseName = str.substr(pos);
+    sprintf(newDatabaseName, "%s.%s", outputDir, baseName.c_str());
+    strcpy(newDatabase, newDatabaseName);
+
+    if(rank == 0)
+    {
+        FILE *_dbFromInput = fopen(database, "r");
+        FILE *_db = fopen(newDatabaseName, "w");
+        while(fgets(buffer, FILE_LINE_MAX_LENGTH, _dbFromInput) != NULL)
+        {
+           size_t len = strlen(buffer);
+           if( len == 1 && buffer[0] == '\n' )
+           {
+                continue;
+           }
+
+           int isCommentLine = 0;
+           size_t spaceNum = 0; 
+           for(size_t i = 0; i < len; i ++)
+           {
+                if(buffer[i] == ' ' || buffer[i] == '\t' || buffer[i] == '\n')
+                {
+                    spaceNum ++;
+                    continue;
+                }
+                else if(buffer[i] == '#')
+                {
+                    isCommentLine = 1;
+                    break;
+                }
+           }
+
+
+           /**
+            *  Ignore comment lines and lines only with spaces
+            */
+           if(isCommentLine || spaceNum == len)
+           {
+               isCommentLine = 0; 
+               spaceNum = 0;
+           }
+           else
+           {
+               
+               /**
+                *  Write real particle data into new file
+                */
+               fprintf(_db, "%s", buffer);
+                
+           }
+        
+        }
+
+       fclose(_dbFromInput);
+       fclose(_db);
+    }
+   
+}
+
 void Database::openDatabase(const char database[])
 {
     _db = fopen(database, "r");
 
-    if (_db == NULL) REPORT_ERROR("FAIL TO OPEN DATABASE");
+    if (_db == NULL)
+    {
+        REPORT_ERROR("FAIL TO OPEN DATABASE");
+    }
+
 }
 
+void Database::openDatabase(const char *database, const char *outputPath,  const int rank)
+{
+    char newDatabase[FILE_NAME_LENGTH];
+    memset(newDatabase, '\0', sizeof(newDatabase));
+    reGenDatabase(newDatabase, outputPath, database, rank);
+    MPI_Barrier(MPI_COMM_WORLD);
+    _db = fopen(newDatabase, "r");
+    if(_db == NULL)
+    {
+        char errorMsg[MSG_MAX_LEN];
+        sprintf(errorMsg, "FAIL TO OPEN DATABASE: %s", database);
+        REPORT_ERROR(errorMsg);
+    }
+
+    if(rank == 0)
+    {
+        MLOG(INFO, "LOGGER_INIT") << "Actual database file name: " << newDatabase;
+    }
+
+}
 void Database::saveDatabase(const char database[])
 {
     // TODO

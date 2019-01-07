@@ -8,10 +8,10 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Mingxu Hu   | 2015/03/23 | 0.0.1.050323  | new file
- *  Shouqing Li | 2018/10/25 | 1.4.11.081025 | add test for directory 
+ *  Shouqing Li | 2018/10/25 | 1.4.11.081025 | add test for directory
  *  Mingxu Hu   | 2018/10/30 | 1.4.11.081030 | solve conflict during merging
- *  
- *  @brief thunder.cpp initiates the MPI, following the completion of reading and logging the json files. And according to the set parameters, thunder.cpp will carry out computation chosen from three models,namely 2D classification, 3D classification and 3D refinement. In the final, the results will be exported to the file wrote in json. 
+ *
+ *  @brief thunder.cpp initiates the MPI, following the completion of reading and logging the json files. And according to the set parameters, thunder.cpp will carry out computation chosen from three models,namely 2D classification, 3D classification and 3D refinement. In the final, the results will be exported to the file wrote in json.
  *
  */
 
@@ -49,7 +49,6 @@ inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src, const std::
     }
     else if (src[basicClass][optionKey] == Json::nullValue)
     {
-        //REPORT_ERROR("INVALID JSON PARAMETER FILE KEY");
         CLOG(FATAL, "LOGGER_SYS") << "Json parameter file KEY \""
                                   << optionKey
                                   << "\" in BASIC CLASS \""
@@ -97,16 +96,14 @@ static inline void copy_string(char (&array)[N], const std::string& source)
                                   << N
                                   << ", while source length is "
                                   << source.size() + 1;
-
         abort();
-                                  
         return;
     }
+
     memcpy(array, source.c_str(), source.size() + 1);
 }
 
-void readPara(OptimiserPara& dst,
-              const Json::Value src)
+void readPara(OptimiserPara &dst, const Json::Value src)
 {
     dst.nThreadsPerProcess = JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_N_THREADS_PER_PROCESS).asInt();
 
@@ -118,10 +115,11 @@ void readPara(OptimiserPara& dst,
     {
         dst.mode = MODE_3D;
     }
+
     else
     {
-        REPORT_ERROR("INEXISTENT MODE");
-
+        //cout<<__FILE__<<" , " << __LINE__ <<", " << __FUNCTION__ << ": " << "INEXISTENT NODE" <<endl;
+        fprintf(stderr, "%s, %d, %s: INEXISTENT MODE\n", __FILE__, __LINE__, __FUNCTION__);
         abort();
     }
 
@@ -140,7 +138,9 @@ void readPara(OptimiserPara& dst,
     copy_string(dst.initModel, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_INIT_MODEL).asString());
     copy_string(dst.db, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_DB).asString());
     copy_string(dst.parPrefix, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_PAR_PREFIX).asString());
-    copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_DST_PREFIX).asString());
+    //copy_string(dst.dstPrefix, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_DST_PREFIX).asString());
+    copy_string(dst.outputDirectory, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_OUTPUT_DIRECTORY).asString());
+    copy_string(dst.outputFilePrefix, JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_OUTPUT_FILE_PREFIX).asString());
     dst.coreFSC = JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_CORE_FSC).asBool();
     dst.maskFSC = JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_MASK_FSC).asBool();
     dst.parGra = JSONCPP_READ_ERROR_HANDLER(src, "Basic", KEY_PAR_GRA).asBool();
@@ -165,16 +165,17 @@ void readPara(OptimiserPara& dst,
 
         dst.mLR = JSONCPP_READ_ERROR_HANDLER(src, "Advanced", KEY_M_L_R_2D).asInt();
     }
+
     else if (dst.mode == MODE_3D)
     {
         dst.mS = JSONCPP_READ_ERROR_HANDLER(src, "Advanced", KEY_M_S_3D).asInt();
 
         dst.mLR = JSONCPP_READ_ERROR_HANDLER(src, "Advanced", KEY_M_L_R_3D).asInt();
     }
+
     else
     {
-        REPORT_ERROR("INEXISTENT MODE");
-
+        fprintf(stderr, "INEXISTENT MODE");
         abort();
     }
 
@@ -216,20 +217,26 @@ void logPara(const Json::Value src)
         else if (src[mem[i]].type() == Json::arrayValue)
         {
             for (int j = 0; j < (int)src[mem[i]].size(); j++)
+            {
                 logPara(src[mem[i]][j]);
+            }
         }
+
         else if (src[mem[i]].type() == Json::stringValue)
         {
             CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asString();
         }
+
         else if (src[mem[i]].type() == Json::realValue)
         {
             CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asFloat();
         }
+
         else if (src[mem[i]].type() == Json::uintValue)
         {
             CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asUInt();
         }
+
         else
         {
             CLOG(INFO, "LOGGER_SYS") << "[JSON PARAMTER] " << mem[i] << " : " << src[mem[i]].asInt();
@@ -239,7 +246,89 @@ void logPara(const Json::Value src)
 
 INITIALIZE_EASYLOGGINGPP
 
-int main(int argc, char* argv[])
+
+void initGlobalPara(char *logFileFullName, Json::Reader &jsonReader, Json::Value &jsonRoot, OptimiserPara &thunderPara, const char *jsonFileName)
+{
+    ifstream jsonFile(jsonFileName, ios::binary);
+
+    if (!jsonFile.is_open())
+    {
+        fprintf(stderr, "FAIL TO OPEN JSON [%s] PARAMETER FILE\n", jsonFileName);
+        abort();
+    }
+
+    if (jsonReader.parse(jsonFile, jsonRoot))
+    {
+        readPara(thunderPara, jsonRoot);
+    }
+
+    jsonFile.close();
+    char currWorkDir[FILE_NAME_LENGTH];
+    GETCWD_ERROR_HANDLER(getcwd(currWorkDir, sizeof(currWorkDir)));
+    char *outputDir = thunderPara.outputDirectory;
+
+    if (strlen(outputDir) == 0)
+    {
+        strcpy(outputDir, "./");
+    }
+
+    size_t len = strlen(outputDir);
+
+    /**
+     *  Append '/' to the end of output if it is not end with '/'
+     */
+    if (outputDir[len - 1] != '/')
+    {
+        strcat(outputDir, "/");
+    }
+
+    char finalOutputDir[FILE_NAME_LENGTH];
+
+    if (outputDir[0] != '/')
+    {
+        strcpy(finalOutputDir, currWorkDir);
+        strcat(finalOutputDir, "/");
+        /**
+         *  Charactors "./" should not appear in the path
+         */
+        if (outputDir[0] == '.' && outputDir[1] == '/')
+        {
+            int k = 2;
+            for (int i = strlen(finalOutputDir); outputDir[k] != '\0'; i ++)
+            {
+                finalOutputDir[i] = outputDir[k];
+                k++;
+            }
+        }
+        else
+        {
+            strcat(finalOutputDir, outputDir);
+        }
+    }
+
+    else
+    {
+        strcpy(finalOutputDir, outputDir);
+    }
+
+    strcpy(logFileFullName, finalOutputDir);
+    strcat(logFileFullName, "thunder.log");
+
+    /**
+     *  Construct value for dstPrefix 
+     */
+   strcpy(thunderPara.dstPrefix, finalOutputDir);
+   strcat(thunderPara.dstPrefix, thunderPara.outputFilePrefix);
+   len = strlen(thunderPara.outputFilePrefix);
+   if(len > 0 && thunderPara.outputFilePrefix[len - 1] != '_')
+   {
+        strcat(thunderPara.dstPrefix, "_");
+   }
+
+   strcpy(thunderPara.outputDirFullPath, finalOutputDir);
+}
+
+int main(int argc, char *argv[])
 {
     if (argc == 1)
     {
@@ -251,27 +340,35 @@ int main(int argc, char* argv[])
              << THUNDER_VERSION_ADDIT
              << "!"
              << endl;
-
         return 0;
     }
     else if (argc != 2)
     {
         cout << "Wrong Number of Parameters Input!"
              << endl;
-
         return -1;
     }
 
-    loggerInit(argc, argv);
-
     MPI_Init(&argc, &argv);
-
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+
+    Json::Reader jsonReader;
+    Json::Value jsonRoot;
+    OptimiserPara thunderPara;
+    char logFileFullName[FILE_NAME_LENGTH];
+    memset(logFileFullName, '\0', sizeof(logFileFullName));
+
+    /**
+     *  Init some global parameters based on json file provided in argument argv[1]
+     */
+    initGlobalPara(logFileFullName, jsonReader, jsonRoot, thunderPara, argv[1]);
+    initLogger(logFileFullName, rank);
+
+    
     if (rank == 0)
     {
         CLOG(INFO, "LOGGER_SYS") << "THUNDER is Initiallised With "
@@ -281,7 +378,6 @@ int main(int argc, char* argv[])
         if (size <= 2)
         {
             CLOG(FATAL, "LOGGER_SYS") << "THUNDER REQUIRES AT LEAST 3 PROCESSES IN MPI";
-
             abort();
         }
         else if (size == 4)
@@ -291,158 +387,78 @@ int main(int argc, char* argv[])
     }
 
     if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "THUNDER v"
-                                            << THUNDER_VERSION_MAJOR
-                                            << "." 
-                                            << THUNDER_VERSION_MINOR
-                                            << "."
-                                            << THUNDER_VERSION_ADDIT;
+                                                << THUNDER_VERSION_MAJOR
+                                                << "."
+                                                << THUNDER_VERSION_MINOR
+                                                << "."
+                                                << THUNDER_VERSION_ADDIT;
 
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_SYS") << "Initialising Processes";
 #endif
-
-    /***
-    RFLOAT sTime = 0.0;
-    RFLOAT eTime = 0.0;
-
-    if (rank == 0) sTime = MPI_Wtime();
-    ***/
-
 #ifdef VERBOSE_LEVEL_1
     CLOG(INFO, "LOGGER_SYS") << "Process " << rank << " Initialised";
 #endif
-
-    Json::Reader reader;
-    Json::Value root;
-
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
-
-    ifstream in(argv[1], ios::binary);
-
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Openning Parameter File";
-
-    if (!in.is_open())
-    {
-        if (rank == 0) CLOG(FATAL, "LOGGER_SYS") << "Fail to Open Parameter File";
-
-        abort();
-    }
-
-    OptimiserPara para;
-
-    if (reader.parse(in, root))
-    {
-        readPara(para, root);
-    }
-    else
-    {
-        if (rank == 0) CLOG(FATAL, "LOGGER_SYS") << "Fail to Parse Parameter File";
-
-        abort();
-    }
-
     if (rank == 0)
     {
-        CLOG(INFO, "LOGGER_SYS") << "Logging JSON Parameters";
-
-        logPara(root);
-
-        DIR * dir;
-        string dstSet = para.dstPrefix;
-        
-        if((dir = opendir(dstSet.c_str())) == NULL)
-        {
-            
-            CLOG(WARNING, "LOGGER_SYS") << "DIRECTORY TO SAVE THE RESULT DOES NOT EXIST, MAKING THIS DIRECTORY.";
-
-            size_t index;
-            string dstSetMake;
-            int post = 0;
-            int flag;
-
-            while(1)
-            {
-                index = dstSet.find_first_of('/',post);
-
-                if(index == string::npos)
-                {
-                    break;
-                }
-
-                dstSetMake = dstSet.substr(0, index + 1);
-                    
-                if((dir = opendir(dstSetMake.c_str())) == NULL)
-                {
-                    const char* command = dstSetMake.c_str();
-                    CLOG(INFO, "LOGGER_SYS") << "Building " << dstSetMake;
-                    flag = mkdir(command, 00755);
-                        
-                    if(flag == -1)
-                    {
-                        REPORT_ERROR(strerror(errno));
-                        abort();
-                    }
-                }
-
-                post = index + 1; 
-            }                
-        }
+       CLOG(INFO, "LOGGER_SYS") << "Logging JSON Parameters";
+       logPara(jsonRoot);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Setting Maximum Number of Threads Per Process";
+    }
 
-    omp_set_num_threads(para.nThreadsPerProcess);
+    omp_set_num_threads(thunderPara.nThreadsPerProcess);
 
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Maximum Number of Threads in a Process is " << omp_get_max_threads();
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Maximum Number of Threads in a Process is " << omp_get_max_threads();
+    }
 
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Initialising Threads Setting in FFTW";
+    }
 
     if (TSFFTW_init_threads() == 0)
     {
         REPORT_ERROR("ERROR IN INITIALISING FFTW THREADS");
-
         abort();
     }
 
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Setting Time Limit for Creating FFTW Plan";
+    }
 
     TSFFTW_set_timelimit(60);
 
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
-    
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Setting Parameters";
+    }
+
     Optimiser opt;
+    opt.setPara(thunderPara);
 
-    opt.setPara(para);
-
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment";
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Setting MPI Environment";
+    }
 
     opt.setMPIEnv();
 
-    if (rank == 0) CLOG(INFO, "LOGGER_SYS") << "Running";
-
-    opt.run();
-
-    /***
     if (rank == 0)
     {
-        eTime = MPI_Wtime();
-
-        int totalSeconds = (int)(eTime - sTime);
-
-        char timeBuffer[512];
-
-        memset(timeBuffer, '\0', sizeof(timeBuffer));
-
-        fmt_time(totalSeconds, timeBuffer);
-
-        fprintf(stderr, "Elapse Time: %s\n", timeBuffer);
+        CLOG(INFO, "LOGGER_SYS") << "Running";
     }
-    ***/
 
+    opt.run();
     MPI_Finalize();
-
     TSFFTW_cleanup_threads();
 
     return 0;

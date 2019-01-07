@@ -182,13 +182,22 @@ struct OptimiserPara
      */
     char db[FILE_NAME_LENGTH];
 
-#define KEY_PAR_PREFIX "Prefix of Particles"
+#define KEY_PAR_PREFIX "Path of Particles"
 
     char parPrefix[FILE_NAME_LENGTH];
 
 #define KEY_DST_PREFIX "Prefix of Destination"
 
     char dstPrefix[FILE_NAME_LENGTH];
+
+#define KEY_OUTPUT_DIRECTORY "Path of Output"
+
+    char outputDirectory[FILE_NAME_LENGTH];
+
+#define KEY_OUTPUT_FILE_PREFIX "Prefix of Output"
+
+    char outputFilePrefix[PREFIX_MAX_LEN];
+
 
 #define KEY_CORE_FSC "Calculate FSC Using Core Region"
 
@@ -406,6 +415,8 @@ struct OptimiserPara
 #define KEY_REGION_CENTRE "Region Need to Be Centred"
 
     char regionCentre[FILE_NAME_LENGTH];
+
+    char outputDirFullPath[FILE_NAME_LENGTH];
 
     OptimiserPara()
     {
@@ -981,6 +992,9 @@ class Optimiser : public Parallel
         void saveSig() const;
 
         void saveTau() const;
+
+    private:
+        void writeDescInfo(FILE *file) const;
 };
 
 /***

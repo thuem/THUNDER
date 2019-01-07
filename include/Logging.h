@@ -34,7 +34,7 @@ namespace el = easyloggingpp;
                                                     << msg;
 
 void loggerInit(int argc, const char* const * argv);
-
+void initLogger(const char *logFileFullName, int rank);
 #define FGETS_ERROR_HANDLER(command) \
     do \
     { \

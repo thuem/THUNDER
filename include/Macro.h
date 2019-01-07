@@ -59,6 +59,23 @@
  */
 #define FILE_NAME_LENGTH 1024
 
+
+/**
+ *  maximum length of the msg buffer
+ */
+#define MSG_MAX_LEN 512
+
+
+
+/**
+ *  Maximum number of charactors in a thu file line
+ */
+#define FILE_LINE_MAX_LENGTH 3072
+/**
+ *  maximum length of prefix string
+ */
+#define PREFIX_MAX_LEN 1024
+
 /**
  * maximum length of SQL command
  */

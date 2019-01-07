@@ -3,6 +3,29 @@
 
 static el::Configurations conf;
 
+void initLogger(const char *logFileFullName, int rank)
+{
+    if(rank == 0)
+    {
+        std::cout << "Log File will be Put: " << logFileFullName << std::endl;
+    }
+
+    conf.setToDefault();
+    conf.set(el::Level::All, el::ConfigurationType::Filename, logFileFullName);
+    conf.set(el::Level::Info, el::ConfigurationType::ToFile, "true");
+    conf.set(el::Level::Info, el::ConfigurationType::ToStandardOutput, "false");
+    el::Loggers::setDefaultConfigurations(conf, true);
+
+    const char* loggerNames[] = {"LOGGER_SYS","LOGGER_INIT","LOGGER_ROUND","LOGGER_COMPARE",
+                                 "LOGGER_RECO","LOGGER_MPI","LOGGER_FFT", "LOGGER_GPU", "LOGGER_MEM"};
+    for (size_t i = 0; i < sizeof(loggerNames) / sizeof(*loggerNames); ++i)
+    {
+        el::Loggers::getLogger(loggerNames[i]); // Force creation of loggers
+    }
+
+
+}
+
 void loggerInit(int argc, const char* const * argv)
 {
     using std::string;

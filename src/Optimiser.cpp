@@ -326,7 +326,8 @@ void Optimiser::init()
     _db.setMPIEnv(_commSize, _commRank, _hemi, _slav);
 
     MLOG(INFO, "LOGGER_INIT") << "Openning Database File";
-    _db.openDatabase(_para.db);
+    //_db.openDatabase(newDatabaseName);
+    _db.openDatabase(_para.db, _para.outputDirFullPath,  _commRank);
 
     MLOG(INFO, "LOGGER_INIT") << "Shuffling Particles";
     _db.shuffle();
@@ -482,7 +483,7 @@ void Optimiser::init()
 
 #ifdef OPTIMISER_MASK_IMG
 
-            MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Masking Images";
 #ifdef GPU_VERSION
             reMaskImgG();
 #else
@@ -513,14 +514,14 @@ void Optimiser::init()
     {
         /***
 #ifdef OPTIMISER_SOLVENT_FLATTEN
-        ALOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
-        BLOG(INFO, "LOGGER_ROUND") << "Applying Solvent Flatten on Reference(s)";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Applying Solvent Flatten on Reference(s)";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Applying Solvent Flatten on Reference(s)";
 
         solventFlatten(_para.performMask);
 #endif
         ***/
 
-        MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Solvent Flattening";
 
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
             solventFlatten(_para.performMask);
@@ -558,8 +559,8 @@ void Optimiser::init()
 
         NT_MASTER
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
-            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors After Intensity Scale Correction";
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Projectors After Intensity Scale Correction";
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Projectors After Intensity Scale Correction";
 
             _model.refreshProj(_para.nThreadsPerProcess);
         }
@@ -636,8 +637,8 @@ void Optimiser::expectation()
 
     int nPer = 0;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calcuation in Expectation";
 
     allocPreCalIdx(_r, _rL);
 
@@ -648,8 +649,8 @@ void Optimiser::expectation()
         else
             allocPreCal(true, true, true);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
-        BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calcuation in Expectation Allocated";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calcuation in Expectation Allocated";
 
         // initialse a particle filter
 
@@ -695,9 +696,9 @@ void Optimiser::expectation()
                            / TSGSL_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Minimum Standard Deviation of Rotation in Scanning Phase: "
                                    << scanMinStdR;
-        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Translation in Scanning Phase: "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Minimum Standard Deviation of Translation in Scanning Phase: "
                                    << scanMinStdT;
 
         Particle par = _par[0].copy();
@@ -915,9 +916,9 @@ void Optimiser::expectation()
 
                     nPer += 1;
 
-                    ALOG(INFO, "LOGGER_ROUND") << nPer * 10
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10
                                                << "\% Initial Phase of Global Search Performed";
-                    BLOG(INFO, "LOGGER_ROUND") << nPer * 10
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10
                                                << "\% Initial Phase of Global Search Performed";
                 }
             }
@@ -1128,14 +1129,14 @@ void Optimiser::expectation()
 #endif
         }
 
-        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
-        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search Performed.";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search Performed.";
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
-        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search in Hemisphere A Performed";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
         TSFFTW_free(traP);
@@ -1633,8 +1634,8 @@ void Optimiser::expectation()
 
             nPer += 1;
 
-            ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
-            BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10 << "\% Expectation Performed";
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10 << "\% Expectation Performed";
         }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
@@ -1678,8 +1679,8 @@ void Optimiser::expectation()
     if (_searchType == SEARCH_TYPE_CTF)
         TSFFTW_free(poolCtfP);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
 
     if (_searchType != SEARCH_TYPE_CTF)
         freePreCal(false);
@@ -1698,8 +1699,8 @@ void Optimiser::expectationG()
 
     int nPer = 0;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calcuation in Expectation";
 
     allocPreCalIdx(_r, _rL);
 
@@ -1728,8 +1729,8 @@ void Optimiser::expectationG()
         else
             allocPreCal(true, false, true);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
-        BLOG(INFO, "LOGGER_ROUND") << "Space for Pre-calcuation in Expectation Allocated";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calcuation in Expectation Allocated";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calcuation in Expectation Allocated";
 
         // initialse a particle filter
 
@@ -1775,9 +1776,9 @@ void Optimiser::expectationG()
                            / TSGSL_cdf_chisq_Qinv(INIT_OUTSIDE_CONFIDENCE_AREA, 2)
                            / sqrt(_para.transSearchFactor * M_PI);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Rotation in Scanning Phase: "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Minimum Standard Deviation of Rotation in Scanning Phase: "
                                    << scanMinStdR;
-        ALOG(INFO, "LOGGER_ROUND") << "Minimum Standard Deviation of Translation in Scanning Phase: "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Minimum Standard Deviation of Translation in Scanning Phase: "
                                    << scanMinStdT;
 
         Particle par = _par[0].copy();
@@ -2141,14 +2142,14 @@ void Optimiser::expectationG()
 #endif
         }
 
-        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
-        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search Performed.";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search Performed.";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search Performed.";
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(_hemi);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere A Performed";
-        BLOG(INFO, "LOGGER_ROUND") << "Initial Phase of Global Search in Hemisphere B Performed";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search in Hemisphere A Performed";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initial Phase of Global Search in Hemisphere B Performed";
 #endif
 
         delete[] weightC;
@@ -2195,8 +2196,8 @@ void Optimiser::expectationG()
         }
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Local Search PreImg & frequency done.";
-    BLOG(INFO, "LOGGER_ROUND") << "Local Search PreImg & frequency done.";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search PreImg & frequency done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search PreImg & frequency done.";
 
     _nP.resize(_ID.size(), 0);
 
@@ -2246,8 +2247,8 @@ void Optimiser::expectationG()
         }
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Local Search texture object done.";
-    BLOG(INFO, "LOGGER_ROUND") << "Local Search texture object done.";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search texture object done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search texture object done.";
 
     vector<vector<int> > vecImg(_para.k);
 
@@ -2282,8 +2283,8 @@ void Optimiser::expectationG()
                       _searchType);
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Local Search GPU Image alloc done.";
-    BLOG(INFO, "LOGGER_ROUND") << "Local Search GPU Image alloc done.";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search GPU Image alloc done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search GPU Image alloc done.";
 
     ManagedCalPoint *mcp[buffNum];
 
@@ -2303,8 +2304,8 @@ void Optimiser::expectationG()
         }
     }
     
-    ALOG(INFO, "LOGGER_ROUND") << "Local Search GPU Calculate buffer alloc done.";
-    BLOG(INFO, "LOGGER_ROUND") << "Local Search GPU Calculate buffer alloc done.";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search GPU Calculate buffer alloc done.";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Local Search GPU Calculate buffer alloc done.";
 
     RFLOAT* wC[omp_get_max_threads()];
     RFLOAT* wR[omp_get_max_threads()];
@@ -2768,8 +2769,8 @@ void Optimiser::expectationG()
 
                     nPer += 1;
 
-                    ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
-                    BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10 << "\% Expectation Performed";
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10 << "\% Expectation Performed";
                 }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
@@ -3289,8 +3290,8 @@ void Optimiser::expectationG()
 
                 nPer += 1;
 
-                ALOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
-                BLOG(INFO, "LOGGER_ROUND") << nPer * 10 << "\% Expectation Performed";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10 << "\% Expectation Performed";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << nPer * 10 << "\% Expectation Performed";
             }
 
 #ifdef OPTIMISER_SAVE_PARTICLES
@@ -3328,8 +3329,8 @@ void Optimiser::expectationG()
 
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
 
     for (int i = 0; i < omp_get_max_threads(); i++)
     {
@@ -3387,8 +3388,8 @@ void Optimiser::expectationG()
     else
         freePreCal(true);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space in Expectation GPU";
-    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Expectation GPU";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space in Expectation GPU";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space in Expectation GPU";
 
     //gettimeofday(&end, NULL);
     //time_use=(end.tv_sec-start.tv_sec) + (end.tv_usec-start.tv_usec) / 1000000;
@@ -3406,8 +3407,8 @@ void Optimiser::expectationG()
                       &deviRow[i]);
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space GPU iCol & iRow";
-    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space GPU iCol & iRow";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space GPU iCol & iRow";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space GPU iCol & iRow";
 
     freePreCalIdx();
 }
@@ -3418,21 +3419,21 @@ void Optimiser::maximization()
 #ifdef OPTIMISER_NORM_CORRECTION
     if ((_iter != 0) && (_searchType != SEARCH_TYPE_GLOBAL))
     {
-        MLOG(INFO, "LOGGER_ROUND") << "Normalisation Noise";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Normalisation Noise";
 
         normCorrection();
     }
 #endif
 
 #ifdef OPTIMISER_REFRESH_SIGMA
-    MLOG(INFO, "LOGGER_ROUND") << "Generating Sigma for the Next Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Generating Sigma for the Next Iteration";
 
     allReduceSigma(_para.groupSig);
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Sigma Generated for the Next Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Sigma Generated for the Next Iteration";
 #endif
 
 #endif
@@ -3442,14 +3443,14 @@ void Optimiser::maximization()
         (_para.groupScl) &&
         (_iter != 0))
     {
-        MLOG(INFO, "LOGGER_ROUND") << "Re-balancing Intensity Scale for Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-balancing Intensity Scale for Each Group";
 
         correctScale(false, true);
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Intensity Scale Re-balanced for Each Group";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Intensity Scale Re-balanced for Each Group";
 #endif
     }
 #endif
@@ -3467,7 +3468,7 @@ void Optimiser::maximization()
             CHECK_MEMORY_USAGE("Before Freeing Image Stacks in Reconstruction");
 
 #endif
-            MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Image Stacks";
             
             FOR_EACH_2D_IMAGE
             {
@@ -3477,7 +3478,7 @@ void Optimiser::maximization()
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Image Stacks Freed";
 #endif
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
@@ -3490,7 +3491,7 @@ void Optimiser::maximization()
 #endif
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space in Reconstructor(s)";
         
         NT_MASTER
         {
@@ -3501,20 +3502,20 @@ void Optimiser::maximization()
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space Allocated in Reconstructor(s)";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing Reference(s)";
 
         reconstructRef(true, true, true, false, false);
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference(s) Reconstructed";
 #endif
     
-        MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space in Reconstructor(s)";
 
         NT_MASTER
         {
@@ -3525,7 +3526,7 @@ void Optimiser::maximization()
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Space Freed in Reconstructor(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space Freed in Reconstructor(s)";
 #endif
 
 #ifdef OPTIMISER_RECENTRE_IMAGE_EACH_ITERATION
@@ -3538,7 +3539,7 @@ void Optimiser::maximization()
             CHECK_MEMORY_USAGE("Before Allocating Image Stacks in Reconstruction");
 
 #endif
-            MLOG(INFO, "LOGGER_ROUND") << "Allocating Image Stacks";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Image Stacks";
 
             FOR_EACH_2D_IMAGE
             {
@@ -3550,7 +3551,7 @@ void Optimiser::maximization()
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Allocated";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Image Stacks Allocated";
 #endif
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
@@ -3571,7 +3572,7 @@ void Optimiser::maximization()
 
 void Optimiser::run()
 {
-    MLOG(INFO, "LOGGER_ROUND") << "Initialising Optimiser";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initialising Optimiser";
 
     init();
 
@@ -3581,7 +3582,7 @@ void Optimiser::run()
 
 #endif
 
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Some Data";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Some Data";
     
 #ifdef OPTIMISER_SAVE_IMAGES
 
@@ -3601,36 +3602,36 @@ void Optimiser::run()
     saveSig();
 #endif
 
-    MLOG(INFO, "LOGGER_ROUND") << "Entering Iteration";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Entering Iteration";
     for (_iter = 0; _iter < _para.iterMax; _iter++)
     {
-        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter;
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Round " << _iter;
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Search Type ( Round "
                                        << _iter
                                        << " ) : Global Search";
         }
         else if (_searchType == SEARCH_TYPE_LOCAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Search Type ( Round "
                                        << _iter
                                        << " ) : Local Search";
         }
         else if (_searchType == SEARCH_TYPE_CTF)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Search Type ( Round "
                                        << _iter
                                        << " ) : CTF Search";
         }
         else
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Search Type ( Round "
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Search Type ( Round "
                                        << _iter
                                        << " ) : Stop Search";
 
-            MLOG(INFO, "LOGGER_ROUND") << "Exitting Searching";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Exitting Searching";
 
             break;
         }
@@ -3645,7 +3646,7 @@ void Optimiser::run()
 
 #endif
 
-            MLOG(INFO, "LOGGER_ROUND") << "Performing Expectation";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Expectation";
 
 #ifdef GPU_VERSION
             //float time_use = 0;
@@ -3675,10 +3676,10 @@ void Optimiser::run()
             //    printf("itr:%d, ExpectationB time_use:%lf\n", _iter, time_use);
 #endif
 
-            MLOG(INFO, "LOGGER_ROUND") << "Waiting for All Processes Finishing Expectation";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Waiting for All Processes Finishing Expectation";
 
 #ifdef VERBOSE_LEVEL_1
-            ILOG(INFO, "LOGGER_ROUND") << "Expectation Accomplished, with Filtering "
+            ILOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Expectation Accomplished, with Filtering "
                                        << _nF
                                        << " Times over "
                                        << _ID.size()
@@ -3687,7 +3688,7 @@ void Optimiser::run()
 
             MPI_Barrier(MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_ROUND") << "All Processes Finishing Expectation";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "All Processes Finishing Expectation";
 
 #ifdef OPTIMISER_LOG_MEM_USAGE
 
@@ -3696,24 +3697,24 @@ void Optimiser::run()
 #endif
         }
 
-        MLOG(INFO, "LOGGER_ROUND") << "Determining Percentage of Images Belonging to Each Class";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Determining Percentage of Images Belonging to Each Class";
 
         refreshClassDistr();
 
         for (int t = 0; t < _para.k; t++)
-            MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << _cDistr(t) * 100
                                        << "\% Percentage of Images Belonging to Class "
                                        << t;
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class Determined";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Percentage of Images Belonging to Each Class Determined";
 #endif
 
 #ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Best Projections";
         saveBestProjections();
 
 #endif
@@ -3721,48 +3722,48 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Best Projections Saved";
 #endif
 
         if (_para.saveTHUEachIter)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Saving Database";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Database";
  
             saveDatabase();
 
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Database Saved";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Database Saved";
 #endif
         }
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating Variance of Rotation and Translation";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Calculating Variance of Rotation and Translation";
 
         refreshVariance();
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Variance of Rotation and Translation Calculated";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Variance of Rotation and Translation Calculated";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Rotation Variance ( Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Rotation Variance ( Round "
                                    << _iter
                                    << " ) : "
                                    << _model.rVari();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Translation Variance ( Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Translation Variance ( Round "
                                    << _iter
                                    << " ) : "
                                    << _model.tVariS0()
                                    << ", "
                                    << _model.tVariS1();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Variance : "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Standard Deviation of Rotation Variance : "
                                    << _model.stdRVari();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Translation Variance : "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Standard Deviation of Translation Variance : "
                                    << _model.stdTVariS0()
                                    << ", "
                                    << _model.stdTVariS1();
@@ -3770,20 +3771,20 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Variance of Rotation and Translation Calculated";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Variance of Rotation and Translation Calculated";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating Changes of Rotation Between Iterations";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Calculating Changes of Rotation Between Iterations";
         refreshRotationChange();
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Changes of Rotation Between Iterations Calculated";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Changes of Rotation Between Iterations Calculated";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Average Rotation Change : " << _model.rChange();
-        MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Rotation Change : "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Average Rotation Change : " << _model.rChange();
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Standard Deviation of Rotation Change : "
                                    << _model.stdRChange();
 
         if (!_para.skipM)
@@ -3794,7 +3795,7 @@ void Optimiser::run()
 
 #endif
 
-            MLOG(INFO, "LOGGER_ROUND") << "Performing Maximization";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Maximization";
 
             maximization();
 
@@ -3818,7 +3819,7 @@ void Optimiser::run()
             CHECK_MEMORY_USAGE("Before Re-Centring Images");
 
 #endif
-            MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Centring Images";
 
             reCentreImg();
 
@@ -3835,7 +3836,7 @@ void Optimiser::run()
 #endif
 
 #ifdef OPTIMISER_MASK_IMG
-            MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Masking Images";
 #ifdef GPU_VERSION
             reMaskImgG();
 #else
@@ -3857,13 +3858,13 @@ void Optimiser::run()
 
         if (_searchType != SEARCH_TYPE_GLOBAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Re-Centring Images";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Centring Images";
 
             reCentreImg();
         }
         else
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Loading Images from Original Images";
 
             _img.clear();
             FOR_EACH_2D_IMAGE
@@ -3872,7 +3873,7 @@ void Optimiser::run()
 
 #else
 
-        MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Loading Images from Original Images";
 
         _img.clear();
         FOR_EACH_2D_IMAGE
@@ -3881,31 +3882,31 @@ void Optimiser::run()
 #endif
 
 #ifdef OPTIMISER_MASK_IMG
-        MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Masking Images";
         reMaskImg();
 #endif
         ***/
 
 #ifdef OPTIMISER_SAVE_SIGMA
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Sigma";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Sigma";
         saveSig();
 #endif
 
         MPI_Barrier(MPI_COMM_WORLD);
-        MLOG(INFO, "LOGGER_ROUND") << "Maximization Performed";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Maximization Performed";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating SNR(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Calculating SNR(s)";
         _model.refreshSNR();
 
 #ifdef OPTIMISER_SAVE_FSC
-        MLOG(INFO, "LOGGER_ROUND") << "Saving FSC(s)";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving FSC(s)";
         saveFSC();
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Class Information";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Class Information";
         saveClassInfo();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Current Cutoff Frequency: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Current Cutoff Frequency: "
                                    << _r - 1
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_r - 1,
@@ -3913,14 +3914,14 @@ void Optimiser::run()
                                                    _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "FSC Area Below Cutoff Frequency: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "FSC Area Below Cutoff Frequency: "
                                    << _model.fscArea();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Recording Current Resolution";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Recording Current Resolution";
 
         _resReport = _model.resolutionP(_para.thresReportFSC, false);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution for Report, ( Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Current Resolution for Report, ( Round "
                                    << _iter
                                    << " ) : "
                                    << _resReport
@@ -3932,7 +3933,7 @@ void Optimiser::run()
 
         _resCutoff = _model.resolutionP(_para.thresCutoffFSC, false);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Current Resolution for Cutoff, ( Round "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Current Resolution for Cutoff, ( Round "
                                    << _iter
                                    << " ) : "
                                    << _resCutoff
@@ -3940,16 +3941,16 @@ void Optimiser::run()
                                    << 1.0 / resP2A(_resCutoff, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Calculating FSC Area";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Calculating FSC Area";
 
         _model.setFSCArea(_model.fsc().topRows(_resCutoff).sum());
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency in Model";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Updating Cutoff Frequency in Model";
 
         _model.updateR(_para.thresCutoffFSC);
 
 #ifdef MODEL_DETERMINE_INCREASE_R_R_CHANGE
-        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
                                    << ", as the Rotation Change is "
                                    << _model.rChange()
@@ -3958,7 +3959,7 @@ void Optimiser::run()
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_R_T_VARI
-        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
                                    << ", as the Translation Variance is "
                                    << _model.tVariS0()
@@ -3971,7 +3972,7 @@ void Optimiser::run()
 #endif
 
 #ifdef MODEL_DETERMINE_INCREASE_FSC
-        MLOG(INFO, "LOGGER_ROUND") << "Increasing Cutoff Frequency or Not: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Increasing Cutoff Frequency or Not: "
                                    << _model.increaseR()
                                    << ", as the FSC Area is "
                                    << _model.fscArea()
@@ -3989,7 +3990,7 @@ void Optimiser::run()
 
         if (_model.r() > _model.rT())
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Resetting Parameters Determining Increase Frequency";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Resetting Parameters Determining Increase Frequency";
 
             //_model.resetTVari();
             //_model.resetFSCArea();
@@ -4000,7 +4001,7 @@ void Optimiser::run()
             _model.setNTopResNoImprove(0);
             _model.setIncreaseR(false);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Recording Current Highest Frequency";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Recording Current Highest Frequency";
 
             _model.setRT(_model.r());
         }
@@ -4010,13 +4011,13 @@ void Optimiser::run()
         /***
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Solvent Flattening";
 
             solventFlatten(_para.performMask);
         }
         ***/
 
-        MLOG(INFO, "LOGGER_ROUND") << "Solvent Flattening";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Solvent Flattening";
 
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
             solventFlatten(_para.performMask);
@@ -4025,7 +4026,7 @@ void Optimiser::run()
 
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Determining the Search Type of the Next Iteration";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Determining the Search Type of the Next Iteration";
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
             _searchType = _model.searchType();
@@ -4034,7 +4035,7 @@ void Optimiser::run()
                 _para.autoMask &&
                 (_searchType == SEARCH_TYPE_LOCAL))
             {
-                MLOG(INFO, "LOGGER_ROUND") << "A Mask Should be Generated";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "A Mask Should be Generated";
 
                 _genMask = true;
             }
@@ -4042,62 +4043,62 @@ void Optimiser::run()
         else
             _searchType = _model.searchType();
 
-        MLOG(INFO, "LOGGER_ROUND") << "Recording Top Resolution";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Recording Top Resolution";
         if (_resReport > _model.resT())
             _model.setResT(_resReport);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Cutoff Frequency";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Updating Cutoff Frequency";
         _r = _model.r();
 
-        MLOG(INFO, "LOGGER_ROUND") << "New Cutoff Frequency: "
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "New Cutoff Frequency: "
                                    << _r - 1
                                    << " (Spatial), "
                                    << 1.0 / resP2A(_r - 1, _para.size, _para.pixelSize)
                                    << " (Angstrom)";
 
-        MLOG(INFO, "LOGGER_ROUND") << "Updating Frequency Boundary of Reconstructor";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Updating Frequency Boundary of Reconstructor";
         _model.updateRU();
 
         NT_MASTER
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
-            BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Projectors";
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Projectors";
 
             _model.refreshProj(_para.nThreadsPerProcess);
 
             /***
             if (_searchType == SEARCH_TYPE_CTF)
             {
-                ALOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit in CTF Refine";
-                BLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit in CTF Refine";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Resetting to Nyquist Limit in CTF Refine";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Resetting to Nyquist Limit in CTF Refine";
 
                 _model.setRU(maxR());
             }
             ***/
 
-            ALOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
-            BLOG(INFO, "LOGGER_ROUND") << "Resetting Reconstructors";
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Resetting Reconstructors";
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Resetting Reconstructors";
 
             _model.resetReco(_para.thresReportFSC);
         }
     }
 
-    MLOG(INFO, "LOGGER_ROUND") << "Preparing to Reconstruct Reference(s) at Nyquist";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Preparing to Reconstruct Reference(s) at Nyquist";
 
-    MLOG(INFO, "LOGGER_ROUND") << "Resetting to Nyquist Limit";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Resetting to Nyquist Limit";
     _model.setMaxRU();
 
-    MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Reconstructors";
     NT_MASTER
     {
         _model.resetReco(_para.thresReportFSC);
     }
 
-    MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing References(s) at Nyquist";
 
 #ifdef OPTIMISER_RECONSTRUCT_FREE_IMG_STACK_TO_SAVE_MEM
         
-    MLOG(INFO, "LOGGER_ROUND") << "Freeing Image Stacks";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Image Stacks";
             
     #pragma omp parallel for
     FOR_EACH_2D_IMAGE
@@ -4108,12 +4109,12 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Image Stacks Freed";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Image Stacks Freed";
 #endif
 
 #endif
 
-    MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space in Reconstructor(s)";
         
     NT_MASTER
     {
@@ -4124,10 +4125,10 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space Allocated in Reconstructor(s)";
 #endif
 
-    MLOG(INFO, "LOGGER_ROUND") << "Reconstructing Final Reference(s)";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing Final Reference(s)";
 
     if (_para.subtract)
     {
@@ -4138,7 +4139,7 @@ void Optimiser::run()
         reconstructRef(true, false, true, false, true);
     }
  
-    MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space in Reconstructor(s)";
 
     NT_MASTER
     {
@@ -4149,37 +4150,37 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Space Freed in Reconstructor(s)";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space Freed in Reconstructor(s)";
 #endif
 
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Final Reference(s) Reconstructed";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Final Reference(s) Reconstructed";
 #endif
 
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Final Class Information";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Final Class Information";
 
     saveClassInfo(true);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Final FSC(s)";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Final FSC(s)";
 
     saveFSC(true);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Saving Final .thu File";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Final .thu File";
 
     saveDatabase(true);
 
     if (_para.subtract)
     {
-        MLOG(INFO, "LOGGER_ROUND") << "Re-Loading Images from Original Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Loading Images from Original Images";
 
         _img.clear();
         FOR_EACH_2D_IMAGE
             _img.push_back(_imgOri[l].copyImage());
 
 #ifdef OPTIMISER_MASK_IMG
-        MLOG(INFO, "LOGGER_ROUND") << "Re-Masking Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Re-Masking Images";
 #ifdef GPU_VERSION
         reMaskImgG();
 #else
@@ -4196,11 +4197,11 @@ void Optimiser::run()
 
             imf.readVolume(cr);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Recording Region Centre";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Recording Region Centre";
             _regionCentre = centroid(cr, _para.nThreadsPerProcess);
 
             /***
-            MLOG(INFO, "LOGGER_ROUND") << "Inversing Mask for Subtraction";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Inversing Mask for Subtraction";
 
             Volume tmp(_para.size, _para.size, _para.size, RL_SPACE);
 
@@ -4221,7 +4222,7 @@ void Optimiser::run()
         }
 
 
-        MLOG(INFO, "LOGGER_ROUND") << "Subtracting Masked Region Reference From Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Subtracting Masked Region Reference From Images";
 
         _r = maxR();
 
@@ -4229,21 +4230,21 @@ void Optimiser::run()
 
         for (int pass = 0; pass < 2; pass++)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Entering Pass " << pass << " of Subtraction";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Entering Pass " << pass << " of Subtraction";
 
-            MLOG(INFO, "LOGGER_ROUND") << "Averaging Reference(s) From Two Hemispheres";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Averaging Reference(s) From Two Hemispheres";
             _model.avgHemi();
 
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Reference(s) From Two Hemispheres Averaged";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference(s) From Two Hemispheres Averaged";
 #endif
 
             NT_MASTER
             {
-                ALOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
-                BLOG(INFO, "LOGGER_ROUND") << "Masking Reference(s)";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Masking Reference(s)";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Masking Reference(s)";
 
                 if (pass == 0)
                     solventFlatten(false);
@@ -4253,39 +4254,39 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(_hemi);
 
-                ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
-                BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Masked";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference(s) Masked";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference(s) Masked";
 #endif
 
-                ALOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
-                BLOG(INFO, "LOGGER_ROUND") << "Refreshing Projectors";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Projectors";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Projectors";
 
                 _model.refreshProj(_para.nThreadsPerProcess);
 
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(_hemi);
 
-                ALOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
-                BLOG(INFO, "LOGGER_ROUND") << "Projectors Refreshed";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Projectors Refreshed";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Projectors Refreshed";
 #endif
             }
 
             if (pass == 0)
             {
 #ifdef OPTIMISER_NORM_CORRECTION
-                MLOG(INFO, "LOGGER_ROUND") << "Normalising Noise";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Normalising Noise";
 
                 normCorrection();
 
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Noise Normalised";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Noise Normalised";
 #endif
 
 #endif
 
-                MLOG(INFO, "LOGGER_ROUND") << "Refreshing Reconstructors";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Refreshing Reconstructors";
 
                 NT_MASTER
                 {
@@ -4295,10 +4296,10 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Reconstructors Refreshed";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructors Refreshed";
 #endif
 
-                MLOG(INFO, "LOGGER_ROUND") << "Allocating Space in Reconstructor(s)";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space in Reconstructor(s)";
         
                 NT_MASTER
                 {
@@ -4309,14 +4310,14 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Space Allocated in Reconstructor(s)";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space Allocated in Reconstructor(s)";
 #endif
 
-                MLOG(INFO, "LOGGER_ROUND") << "Reconstructing References(s) at Nyquist After Normalising Noise";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing References(s) at Nyquist After Normalising Noise";
 
                 reconstructRef(true, false, true, false, true);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Freeing Space in Reconstructor(s)";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space in Reconstructor(s)";
 
                 NT_MASTER
                 {
@@ -4328,47 +4329,47 @@ void Optimiser::run()
 #ifdef VERBOSE_LEVEL_1
                 MPI_Barrier(MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "References(s) at Nyquist After Normalising Noise Reconstructed";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "References(s) at Nyquist After Normalising Noise Reconstructed";
 #endif
             }
 
 #ifdef VERBOSE_LEVEL_1
             MPI_Barrier(MPI_COMM_WORLD);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Finishing Pass " << pass << " of Subtraction";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Finishing Pass " << pass << " of Subtraction";
 #endif
         }
 
 #ifdef OPTIMISER_SAVE_BEST_PROJECTIONS
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Best Projections";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Best Projections";
         saveBestProjections();
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Best Projections Saved";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Best Projections Saved";
 #endif
 
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Masked Region Reference Subtracted Images";
 
         saveSubtract();
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Masked Region Reference Subtracted Images Saved";
 #endif
 
-        MLOG(INFO, "LOGGER_ROUND") << "Saving Database of Masked Region Reference Subtracted Images";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Database of Masked Region Reference Subtracted Images";
         saveDatabase(false, true);
 
 #ifdef VERBOSE_LEVEL_1
         MPI_Barrier(MPI_COMM_WORLD);
 
-        MLOG(INFO, "LOGGER_ROUND") << "Database of Masked Region Reference Subtracted Images Saved";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Database of Masked Region Reference Subtracted Images Saved";
 #endif
     }
 }
@@ -4890,7 +4891,7 @@ void Optimiser::statImg()
     }
 
 #ifdef VERBOSE_LEVEL_1
-    ILOG(INFO, "LOGGER_ROUND") << "Performing Statistics on Images Accomplished";
+    ILOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Statistics on Images Accomplished";
 #endif
 
     MPI_Barrier(_hemi);
@@ -5941,7 +5942,7 @@ void Optimiser::refreshScale(const bool coord,
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    MLOG(INFO, "LOGGER_ROUND") << "Accumulating Intensity Scale Information from All Processes";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Accumulating Intensity Scale Information from All Processes";
 
     MPI_Allreduce(MPI_IN_PLACE,
                   mXA.data(),
@@ -6003,9 +6004,9 @@ void Optimiser::refreshScale(const bool coord,
 
     RFLOAT medianScale = median(_scale, _scale.size());
 
-    MLOG(INFO, "LOGGER_ROUND") << "Median Intensity Scale: " << medianScale;
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Median Intensity Scale: " << medianScale;
 
-    MLOG(INFO, "LOGGER_ROUND") << "Removing Extreme Values from Intensity Scale";
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Removing Extreme Values from Intensity Scale";
 
     for (int i = 0; i < _nGroup; i++)
     {
@@ -6017,7 +6018,7 @@ void Optimiser::refreshScale(const bool coord,
 
     RFLOAT meanScale = _scale.mean();
     
-    MLOG(INFO, "LOGGER_ROUND") << "Average Intensity Scale: " << meanScale;
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Average Intensity Scale: " << meanScale;
 
     if (meanScale < 0)
     {
@@ -6030,13 +6031,13 @@ void Optimiser::refreshScale(const bool coord,
         CLOG(FATAL, "LOGGER_SYS") << "Median and Mean of Intensity Scale Should Have the Same Sign";
     ***/
 
-    MLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Intensity Scale: "
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Standard Deviation of Intensity Scale: "
                                << TSGSL_stats_sd(_scale.data(), 1, _scale.size());
 
     /***
     if (!init)
     {
-        MLOG(INFO, "LOGGER_ROUND") << "Making Average Intensity Scale be 1";
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Making Average Intensity Scale be 1";
 
         for (int i = 0; i < _nGroup; i++)
             _scale(i) /= fabs(meanScale);
@@ -6047,7 +6048,7 @@ void Optimiser::refreshScale(const bool coord,
     {
 #ifdef VERBOSE_LEVEL_2
         for (int i = 0; i < _nGroup; i++)
-            MLOG(INFO, "LOGGER_ROUND") << "Scale of Group " << i << " is " << _scale(i);
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Scale of Group " << i << " is " << _scale(i);
 #endif
     }
 }
@@ -6397,8 +6398,8 @@ void Optimiser::allReduceSigma(const bool mask,
     int rSig = _r;
 #endif
 
-    ALOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
-    BLOG(INFO, "LOGGER_ROUND") << "Clearing Up Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Clearing Up Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Clearing Up Sigma";
 
     // set re-calculating part to zero
     _sig.leftCols(rSig).setZero();
@@ -6413,8 +6414,8 @@ void Optimiser::allReduceSigma(const bool mask,
     _svd.leftCols(rSig).setZero();
     _svd.rightCols(1).setZero();
 
-    ALOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
-    BLOG(INFO, "LOGGER_ROUND") << "Recalculating Sigma";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Recalculating Sigma";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Recalculating Sigma";
 
     size_t cls;
 
@@ -6594,8 +6595,8 @@ void Optimiser::allReduceSigma(const bool mask,
 
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
-    BLOG(INFO, "LOGGER_ROUND") << "Averaging Sigma of Images Belonging to the Same Group";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Averaging Sigma of Images Belonging to the Same Group";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Averaging Sigma of Images Belonging to the Same Group";
 
     MPI_Allreduce(MPI_IN_PLACE,
                   sigM.data(),
@@ -6707,8 +6708,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 {
     FFT fft;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calculation in Reconstruction";
-    BLOG(INFO, "LOGGER_ROUND") << "Allocating Space for Pre-calculation in Reconstruction";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calculation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calculation in Reconstruction";
     
     allocPreCalIdx(_model.rU(), 0);
 
@@ -6721,12 +6722,12 @@ void Optimiser::reconstructRef(const bool fscFlag,
     {
         if ((_para.parGra) && (_para.k != 1))
         {
-            ALOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
-            BLOG(WARNING, "LOGGER_ROUND") << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+            ALOG(WARNING, "LOGGER_ROUND") << "Round " << _iter << ", " << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
+            BLOG(WARNING, "LOGGER_ROUND") << "Round " << _iter << ", " << "PATTICLE GRADING IS ONLY RECOMMENDED IN REFINEMENT, NOT CLASSIFICATION";
         }
 
-        ALOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
-        BLOG(INFO, "LOGGER_ROUND") << "Inserting High Probability 2D Images into Reconstructor";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Inserting High Probability 2D Images into Reconstructor";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Inserting High Probability 2D Images into Reconstructor";
 
         for (int t = 0; t < _para.k; t++)
             _model.reco(t).setPreCal(_nPxl, _iColPad, _iRowPad, _iPxl, _iSig);
@@ -7233,7 +7234,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
 #ifdef VERBOSE_LEVEL_2
-        ILOG(INFO, "LOGGER_ROUND") << "Inserting Images Into Reconstructor(s) Accomplished";
+        ILOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Inserting Images Into Reconstructor(s) Accomplished";
 #endif
 
         MPI_Barrier(_hemi);
@@ -7249,9 +7250,9 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
         for (int t = 0; t < _para.k; t++)
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Preparing Content in Reconstructor of Reference "
                                        << t;
-            BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Preparing Content in Reconstructor of Reference "
                                        << t;
 #ifdef GPU_VERSION
             _model.reco(t).prepareTFG(gpus[omp_get_thread_num()]);
@@ -7264,14 +7265,14 @@ void Optimiser::reconstructRef(const bool fscFlag,
         {
             for (int t = 0; t < _para.k; t++)
             {
-                ALOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Preparing Content in Reconstructor of Reference "
                                        << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Preparing Content in Reconstructor of Reference "
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Preparing Content in Reconstructor of Reference "
                                        << t;
 
                 _model.reco(t).prepareO();
 
-                ALOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
                                            << t
                                            << ": "
                                            << _model.reco(t).ox()
@@ -7280,7 +7281,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
                                            << ", "
                                            << _model.reco(t).oz()
                                            << " (Pixel)";
-                BLOG(INFO, "LOGGER_ROUND") << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Estimated X-Offset, Y-Offset and Z-Offset of Reference "
                                            << t
                                            << ": "
                                            << _model.reco(t).ox()
@@ -7347,10 +7348,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
                     abort();
                 }
 
-                ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing Reference "
                                            << t
                                            << " for Determining FSC";
-                BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing Reference "
                                            << t
                                            << " for Determining FSC";
 
@@ -7366,8 +7367,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 #endif
 
 #ifdef VERBOSE_LEVEL_2
-                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
 #endif
 
                 fft.fw(ref, _para.nThreadsPerProcess);
@@ -7380,8 +7381,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 if (_mask.isEmptyRL() && _para.refAutoRecentre)
                 {
-                    ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-                    BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Centring Reference " << t;
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Centring Reference " << t;
 
                     if (_para.mode == MODE_2D)
                     {
@@ -7433,8 +7434,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 COPY_FT(_model.ref(t), ref);
 
 #ifdef VERBOSE_LEVEL_2
-                ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-                BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference " << t << "Fourier Transformed";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference " << t << "Fourier Transformed";
 #endif
             }
         }
@@ -7451,7 +7452,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         if (fscSave && (_para.saveRefEachIter || finished))
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference(s)";
 
             if (_para.mode == MODE_2D)
             {
@@ -7500,11 +7501,11 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Determining How to Balancing Class(es)";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Determining How to Balancing Class(es)";
 
             determineBalanceClass(bm, CLASS_BALANCE_FACTOR);
 
-            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Balancing Class(es)";
 
             balanceClass(bm);
             /***
@@ -7517,10 +7518,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
 #ifdef VERBOSE_LEVEL_1
 
-            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Percentage of Images Belonging to Each Class After Balancing";
 
             for (int t = 0; t < _para.k; t++)
-                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << _cDistr(t) * 100
                                            << "\% Percentage of Images Belonging to Class "
                                            << t;
 #endif
@@ -7595,10 +7596,10 @@ void Optimiser::reconstructRef(const bool fscFlag,
                     abort();
                 }
 
-                ALOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing Reference "
                                            << t
                                            << " for Next Iteration";
-                BLOG(INFO, "LOGGER_ROUND") << "Reconstructing Reference "
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reconstructing Reference "
                                            << t
                                            << " for Next Iteration";
 
@@ -7610,8 +7611,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 _model.reco(t).reconstruct(ref, _para.nThreadsPerProcess);
 
 #ifdef VERBOSE_LEVEL_2
-                ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-                BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
 #endif
 
                 fft.fw(ref, _para.nThreadsPerProcess);
@@ -7620,8 +7621,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
                 if (_mask.isEmptyRL() && _para.refAutoRecentre)
                 {
-                    ALOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
-                    BLOG(INFO, "LOGGER_ROUND") << "Centring Reference " << t;
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Centring Reference " << t;
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Centring Reference " << t;
 
                     if (_para.mode == MODE_2D)
                     {
@@ -7669,8 +7670,8 @@ void Optimiser::reconstructRef(const bool fscFlag,
                 COPY_FT(_model.ref(t), ref);
 
 #ifdef VERBOSE_LEVEL_2
-                ALOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
-                BLOG(INFO, "LOGGER_ROUND") << "Reference " << t << "Fourier Transformed";
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference " << t << "Fourier Transformed";
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference " << t << "Fourier Transformed";
 #endif
             }
         }
@@ -7678,7 +7679,7 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         if (avgSave && (_para.saveRefEachIter || finished))
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Saving Reference(s)";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference(s)";
 
             if (_para.mode == MODE_2D)
             {
@@ -7717,17 +7718,17 @@ void Optimiser::reconstructRef(const bool fscFlag,
 
         if (_searchType == SEARCH_TYPE_GLOBAL)
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Balancing Class(es)";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Balancing Class(es)";
 
             //balanceClass(CLASS_BALANCE_FACTOR, true);
             balanceClass(bm);
 
 #ifdef VERBOSE_LEVEL_1
 
-            MLOG(INFO, "LOGGER_ROUND") << "Percentage of Images Belonging to Each Class After Balancing";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Percentage of Images Belonging to Each Class After Balancing";
 
             for (int t = 0; t < _para.k; t++)
-                MLOG(INFO, "LOGGER_ROUND") << _cDistr(t) * 100
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << _cDistr(t) * 100
                                            << "\% Percentage of Images Belonging to Class "
                                            << t;
 #endif
@@ -7745,22 +7746,22 @@ void Optimiser::reconstructRef(const bool fscFlag,
     else
         freePreCal(true);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calculation in Reconstruction";
-    BLOG(INFO, "LOGGER_ROUND") << "Freeing Space for Pre-calculation in Reconstruction";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Reconstruction";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Reconstruction";
 
     freePreCalIdx();
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
-    BLOG(INFO, "LOGGER_ROUND") << "Reference(s) Reconstructed";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference(s) Reconstructed";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Reference(s) Reconstructed";
 }
 
 void Optimiser::solventFlatten(const bool mask)
 {
     if ((_searchType == SEARCH_TYPE_GLOBAL) && mask)
     {
-        MLOG(WARNING, "LOGGER_ROUND") << "PERFORM REFERENCE MASKING DURING GLOBAL SEARCH. NOT RECOMMMENDED.";
+        MLOG(WARNING, "LOGGER_ROUND") << "Round " << _iter << ", " << "PERFORM REFERENCE MASKING DURING GLOBAL SEARCH. NOT RECOMMMENDED.";
     }
 
     IF_MASTER return;
@@ -7768,8 +7769,8 @@ void Optimiser::solventFlatten(const bool mask)
     for (int t = 0; t < _para.k; t++)
     {
 #ifdef OPTIMISER_SOLVENT_FLATTEN_LOW_PASS
-        ALOG(INFO, "LOGGER_ROUND") << "Low Pass Filter on Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Low Pass Filter on Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Low Pass Filter on Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Low Pass Filter on Reference " << t;
 
         lowPassFilter(_model.ref(t),
                       _model.ref(t),
@@ -7778,8 +7779,8 @@ void Optimiser::solventFlatten(const bool mask)
                       _para.nThreadsPerProcess);
 #endif
 
-        ALOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Inverse Fourier Transforming Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Inverse Fourier Transforming Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Inverse Fourier Transforming Reference " << t;
 
         FFT fft;
         fft.bw(_model.ref(t), _para.nThreadsPerProcess);
@@ -7794,19 +7795,19 @@ void Optimiser::solventFlatten(const bool mask)
                      _para.size / 2,
                      _para.maskRadius / _para.pixelSize);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Mean of Background Noise of Reference "
                                    << t
                                    << ": "
                                    << bgMean;
-        BLOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Mean of Background Noise of Reference "
                                    << t
                                    << ": "
                                    << bgMean;
-        ALOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Background Noise of Reference "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Standard Deviation of Background Noise of Reference "
                                    << t
                                    << ": "
                                    << bgStddev;
-        BLOG(INFO, "LOGGER_ROUND") << "Standard Deviation of Background Noise of Reference "
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Standard Deviation of Background Noise of Reference "
                                    << t
                                    << ": "
                                    << bgStddev;
@@ -7814,11 +7815,11 @@ void Optimiser::solventFlatten(const bool mask)
         //RFLOAT bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(0.01, 1);
         RFLOAT bgThres = bgMean + bgStddev * TSGSL_cdf_gaussian_Qinv(1e-3, 1);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Threshold for Removing Background of Reference "
                                    << t
                                    << ": "
                                    << bgThres;
-        BLOG(INFO, "LOGGER_ROUND") << "Threshold for Removing Background of Reference "
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Threshold for Removing Background of Reference "
                                    << t
                                    << ": "
                                    << bgThres;
@@ -7834,18 +7835,18 @@ void Optimiser::solventFlatten(const bool mask)
 #endif
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_SUBTRACT_BG
-        ALOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Subtracting Background from Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Subtracting Background from Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Subtracting Background from Reference " << t;
 
         RFLOAT bg = regionMean(_model.ref(t),
                                _para.maskRadius / _para.pixelSize + EDGE_WIDTH_RL,
                                _para.nThreadsPerProcess);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Mean of Background Noise of Reference "
                                    << t
                                    << ": "
                                    << bg;
-        BLOG(INFO, "LOGGER_ROUND") << "Mean of Background Noise of Reference "
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Mean of Background Noise of Reference "
                                    << t
                                    << ": "
                                    << bg;
@@ -7856,8 +7857,8 @@ void Optimiser::solventFlatten(const bool mask)
 #endif
 
 #ifdef OPTIMISER_SOLVENT_FLATTEN_REMOVE_NEG
-        ALOG(INFO, "LOGGER_ROUND") << "Removing Negative Values from Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Removing Negative Values from Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Removing Negative Values from Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Removing Negative Values from Reference " << t;
 
         #pragma omp parallel for
         REMOVE_NEG(_model.ref(t));
@@ -7865,8 +7866,8 @@ void Optimiser::solventFlatten(const bool mask)
 
         if (mask && !_mask.isEmptyRL())
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
-            BLOG(INFO, "LOGGER_ROUND") << "Performing Reference Masking";
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Reference Masking";
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Reference Masking";
 
             if (_para.mode == MODE_2D)
             {
@@ -7918,8 +7919,8 @@ void Optimiser::solventFlatten(const bool mask)
         }
         else
         {
-            ALOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten of Reference " << t;
-            BLOG(INFO, "LOGGER_ROUND") << "Performing Solvent Flatten of Reference " << t;
+            ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Solvent Flatten of Reference " << t;
+            BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Solvent Flatten of Reference " << t;
 
             if (_para.mode == MODE_2D)
             {
@@ -7971,8 +7972,8 @@ void Optimiser::solventFlatten(const bool mask)
             }
         }
 
-        ALOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
-        BLOG(INFO, "LOGGER_ROUND") << "Fourier Transforming Reference " << t;
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
 
         fft.fw(_model.ref(t), _para.nThreadsPerProcess);
         _model.ref(t).clearRL();
@@ -8205,8 +8206,40 @@ void Optimiser::freePreCal(const bool ctf)
     }
 }
 
-void Optimiser::saveDatabase(const bool finished,
-                             const bool subtract) const
+void Optimiser::writeDescInfo(FILE *file) const
+{
+
+    fprintf(file, "#0:VOLTAGE\tFLOAT\t18.9f\n");
+    fprintf(file, "#1:DEFOCUS_U\tFLOAT\t18.9f\n");
+    fprintf(file, "#2:DEFOCUS_V\tFLOAT\t18.9f\n");
+    fprintf(file, "#3:DEFOCUS_THETA\tFLOAT\t18.9f\n");
+    fprintf(file, "#4:CS\tFLOAT\t18.9f\n");
+    fprintf(file, "#5:AMPLITUTDE_CONTRAST\tFLOAT\t18.9f\n");
+    fprintf(file, "#6:PHASE_SHIFT\tFLOAT\t18.9f\n");
+    fprintf(file, "#7:PARTICLE_PATH\tSTRING\n");
+    fprintf(file, "#8:MICROGRAPH_PATH\tSTRING\n");
+    fprintf(file, "#9:COORDINATE_X\tFLOAT\t18.9f\n");
+    fprintf(file, "#10:COORDINATE_Y\tFLOAT\t18.9f\n");
+    fprintf(file, "#11:GROUP_ID\tINT\t6d\n");
+    fprintf(file, "#12:CLASS_ID\tINT\t6d\n");
+    fprintf(file, "#13QUATERNION_0\tFLOAT\t18.9f\n");
+    fprintf(file, "#14:QUATERNION_1\tFLOAT\t18.9f\n");
+    fprintf(file, "#15:QUATERNION_2\tFLOAT\t18.9f\n");
+    fprintf(file, "#16:QUATERNION_3\tFLOAT\t18.9f\n");
+    fprintf(file, "#17:K1\tFLOAT\t18.9f\n");
+    fprintf(file, "#18:K2\tFLOAT\t18.9f\n");
+    fprintf(file, "#19:K3\tFLOAT\t18.9f\n");
+    fprintf(file, "#20:TRANSLATION_X\tFLOAT\t18.9f\n");
+    fprintf(file, "#21:TRANSLATION_Y\tFLOAT\t18.9f\n");
+    fprintf(file, "#22:STD_TRANSLATION_X\tFLOAT\t18.9f\n");
+    fprintf(file, "#23:STD_TRANSLATION_Y\tFLOAT\t18.9f\n");
+    fprintf(file, "#24:DEFOCUS_FACTOR\tFLOAT\t18.9f\n");
+    fprintf(file, "#25:STD_DEFOCUS_FACTOR\tFLOAT\t18.9f\n");
+    fprintf(file, "#26:SCORE\tFLOAT\t18.9f\n\n");
+
+}
+
+void Optimiser::saveDatabase(const bool finished, const bool subtract) const
 {
     IF_MASTER return;
 
@@ -8240,6 +8273,8 @@ void Optimiser::saveDatabase(const bool finished,
 
     dmat33 rotB; // rot for base left closet
     dmat33 rotC; // rot for every left closet
+
+    writeDescInfo(file);
 
     FOR_EACH_2D_IMAGE
     {
@@ -8366,6 +8401,8 @@ void Optimiser::saveDatabase(const bool finished,
 
     fclose(file);
 
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving .thu File To Path: " << filename;
+
     if (_commRank != _commSize - 1)
         MPI_Send(&flag, 1, MPI_C_BOOL, _commRank + 1, 0, MPI_COMM_WORLD);
 }
@@ -8374,8 +8411,8 @@ void Optimiser::saveSubtract()
 {
     IF_MASTER return;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
-    BLOG(INFO, "LOGGER_ROUND") << "Saving Masked Region Reference Subtracted Images";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Masked Region Reference Subtracted Images";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Masked Region Reference Subtracted Images";
 
     char filename[FILE_NAME_LENGTH];
 
@@ -8398,8 +8435,8 @@ void Optimiser::saveSubtract()
     {
         if (_para.mode == MODE_2D)
         {
-            ALOG(FATAL, "LOGGER_ROUND") << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
-            BLOG(FATAL, "LOGGER_ROUND") << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
+            ALOG(FATAL, "LOGGER_ROUND") << "Round " << _iter << ", " << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
+            BLOG(FATAL, "LOGGER_ROUND") << "Round " << _iter << ", " << "SAVE SUBTRACT DOES NOT SUPPORT 2D MODE";
 
             abort();
         }
@@ -8484,9 +8521,11 @@ void Optimiser::saveSubtract()
 #ifdef VERBOSE_LEVEL_1
     MPI_Barrier(_hemi);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
-    BLOG(INFO, "LOGGER_ROUND") << "Masked Region Reference Subtracted Images Saved";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Masked Region Reference Subtracted Images Saved";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Masked Region Reference Subtracted Images Saved";
 #endif
+
+    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Masked Region Reference Subtracted Image File To Path: " << filename;
 }
 
 void Optimiser::saveBestProjections()
@@ -8534,6 +8573,7 @@ void Optimiser::saveBestProjections()
 
             fft.bw(result, _para.nThreadsPerProcess);
             result.saveRLToBMP(filename);
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Result Round BMP File To Path: " << filename;
             fft.fw(result, _para.nThreadsPerProcess);
 
 #ifdef OPTIMISER_CTF_ON_THE_FLY
@@ -8547,9 +8587,11 @@ void Optimiser::saveBestProjections()
             sprintf(filename, "%sDiff_%04d_Round_%03d.bmp", _para.dstPrefix, _ID[l], _iter);
             fft.bw(diff, _para.nThreadsPerProcess);
             diff.saveRLToBMP(filename);
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Diff Round BMP File To Path: " << filename;
             fft.fw(diff, _para.nThreadsPerProcess);
         }
     }
+
 }
 
 void Optimiser::saveImages()
@@ -8611,7 +8653,7 @@ void Optimiser::saveMapHalf(const bool finished)
         {
             if (_commRank == HEMI_A_LEAD)
             {
-                ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference " << t;
 
                 Image ref(_para.size,
                           _para.size,
@@ -8643,10 +8685,11 @@ void Optimiser::saveMapHalf(const bool finished)
                     sprintf(filename, "%sReference_%03d_A_Round_%03d.bmp", _para.dstPrefix, t, _iter);
 
                 ref.saveRLToBMP(filename);
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference File To Path:  " << filename;
             }
             else if (_commRank == HEMI_B_LEAD)
             {
-                BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference " << t;
 
                 Image ref(_para.size,
                           _para.size,
@@ -8678,6 +8721,7 @@ void Optimiser::saveMapHalf(const bool finished)
                     sprintf(filename, "%sReference_%03d_B_Round_%03d.bmp", _para.dstPrefix, t, _iter);
 
                 ref.saveRLToBMP(filename);
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference File To Path:  " << filename;
             }
         }
         else if (_para.mode == MODE_3D)
@@ -8710,7 +8754,7 @@ void Optimiser::saveMapHalf(const bool finished)
 
             if (_commRank == HEMI_A_LEAD)
             {
-                ALOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+                ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference " << t;
 
                 if (finished)
                 {
@@ -8723,10 +8767,19 @@ void Optimiser::saveMapHalf(const bool finished)
 
                 imf.readMetaData(lowPass);
                 imf.writeVolume(filename, lowPass, _para.pixelSize);
+
+                if(finished)
+                {
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << " Saving Final Reference File To Path:" << filename;
+                }
+                else
+                {
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << " Saving Round Reference File To Path:" << filename;
+                }
             }
             else if (_commRank == HEMI_B_LEAD)
             {
-                BLOG(INFO, "LOGGER_ROUND") << "Saving Reference " << t;
+                BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Reference " << t;
 
                 if (finished)
                 {
@@ -8739,7 +8792,15 @@ void Optimiser::saveMapHalf(const bool finished)
 
                 imf.readMetaData(lowPass);
                 imf.writeVolume(filename, lowPass, _para.pixelSize);
-            }
+                if(finished)
+                {
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << " Saving Final Reference File To Path:" << filename;
+                }
+                else
+                {
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << " Saving Round Reference File To Path:" << filename;
+                }
+}
         }
     }
 }
@@ -8755,7 +8816,7 @@ void Optimiser::saveMapJoin(const bool finished)
     {
         IF_MASTER
         {
-            MLOG(INFO, "LOGGER_ROUND") << "Saving Stack of Reference(s)";
+            MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Stack of Reference(s)";
 
             if (finished)
                 sprintf(filename, "%sReference_Final.mrcs", _para.dstPrefix);
@@ -8774,7 +8835,7 @@ void Optimiser::saveMapJoin(const bool finished)
                 Image A(_para.size, _para.size, FT_SPACE);
                 Image B(_para.size, _para.size, FT_SPACE);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere A";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Receiving Reference " << l << " from Hemisphere A";
 
                 MPI_Recv_Large(&A[0],
                                2 * A.sizeFT(),
@@ -8783,7 +8844,7 @@ void Optimiser::saveMapJoin(const bool finished)
                                l,
                                MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere B";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Receiving Reference " << l << " from Hemisphere B";
 
                 MPI_Recv_Large(&B[0],
                                2 * B.sizeFT(),
@@ -8792,7 +8853,7 @@ void Optimiser::saveMapJoin(const bool finished)
                                l,
                                MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Averaging Two Hemispheres";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Averaging Two Hemispheres";
                 FOR_EACH_PIXEL_FT(ref)
                     ref[i] = (A[i] + B[i]) / 2;
 
@@ -8806,17 +8867,25 @@ void Optimiser::saveMapJoin(const bool finished)
                          _para.nThreadsPerProcess);
 
                 imf.writeStack(ref, l);
+                if(finished)
+                {
+                    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Stack of Final Reference File To Path: " << filename;
+                }
+                else
+                {
+                    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Stack of Round Reference File To Path: " << filename;
+                }
             }
             else
             {
                 if ((_commRank == HEMI_A_LEAD) ||
                     (_commRank == HEMI_B_LEAD))
                 {
-                    ALOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Sending Reference "
                                                  << l
                                                  << " from Hemisphere A";
 
-                    BLOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Sending Reference "
                                                  << l
                                                  << " from Hemisphere B";
 
@@ -8843,7 +8912,7 @@ void Optimiser::saveMapJoin(const bool finished)
                 Volume A(_para.size, _para.size, _para.size, FT_SPACE);
                 Volume B(_para.size, _para.size, _para.size, FT_SPACE);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere A";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Receiving Reference " << l << " from Hemisphere A";
 
                 MPI_Recv_Large(&A[0],
                                2 * A.sizeFT(),
@@ -8852,7 +8921,7 @@ void Optimiser::saveMapJoin(const bool finished)
                                l,
                                MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Receiving Reference " << l << " from Hemisphere B";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Receiving Reference " << l << " from Hemisphere B";
 
                 MPI_Recv_Large(&B[0],
                                2 * B.sizeFT(),
@@ -8861,7 +8930,7 @@ void Optimiser::saveMapJoin(const bool finished)
                                l,
                                MPI_COMM_WORLD);
 
-                MLOG(INFO, "LOGGER_ROUND") << "Averaging Two Hemispheres";
+                MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Averaging Two Hemispheres";
                 FOR_EACH_PIXEL_FT(ref)
                     ref[i] = (A[i] + B[i]) / 2;
 
@@ -8874,17 +8943,25 @@ void Optimiser::saveMapJoin(const bool finished)
 
                 imf.readMetaData(ref);
                 imf.writeVolume(filename, ref, _para.pixelSize);
+                if(finished)
+                {
+                    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Final Reference File To Path :" << filename;
+                }
+                else
+                {
+                    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Round Reference File To Path :" << filename;
+                }
             }
             else
             {
                 if ((_commRank == HEMI_A_LEAD) ||
                     (_commRank == HEMI_B_LEAD))
                 {
-                    ALOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Sending Reference "
                                                  << l
                                                  << " from Hemisphere A";
 
-                    BLOG(INFO, "LOGGER_ROUND") << "Sending Reference "
+                    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Sending Reference "
                                                  << l
                                                  << " from Hemisphere B";
 
@@ -8933,6 +9010,17 @@ void Optimiser::saveFSC(const bool finished) const
     }
     
     fclose(file);
+
+
+    if(finished)
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Final FSC File To Path: " << filename;
+    }
+    else
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Round FSC File To Path: " << filename;
+    }
+
 }
 
 void Optimiser::saveClassInfo(const bool finished) const
@@ -8958,6 +9046,14 @@ void Optimiser::saveClassInfo(const bool finished) const
     }
 
     fclose(file);
+    if(finished)
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Class Information Final File To Path: " << filename;
+    }
+    else
+    {
+        MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Class Information Round File To Path: " << filename;
+    }
 }
 
 void Optimiser::saveSig() const
@@ -8983,7 +9079,15 @@ void Optimiser::saveSig() const
                 _sig(_groupID[0] - 1, i));
 
     fclose(file);
-
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Sig A Round File To Path: " << filename;
+    }
+    else
+    {
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Sig B Round File To Path: " << filename;
+    }
+        
     if (_commRank == HEMI_A_LEAD)
         sprintf(filename, "%sSVD_A_Round_%03d.txt", _para.dstPrefix, _iter);
     else
@@ -8999,6 +9103,15 @@ void Optimiser::saveSig() const
                 _svd(_groupID[0] - 1, i));
 
     fclose(file);
+
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving SVD A Round File To Path: " << filename;
+    }
+    else
+    {
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving SVD B Round File To Path: " << filename;
+    }
 }
 
 void Optimiser::saveTau() const
@@ -9024,7 +9137,15 @@ void Optimiser::saveTau() const
                 _model.tau(0)(i));
 
     fclose(file);
-}
+
+    if (_commRank == HEMI_A_LEAD)
+    {
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Tau A Round File To Path: " << filename;
+    }
+    else
+    {
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Saving Tau B Round File To Path: " << filename;
+    }}
 
 
 /**
