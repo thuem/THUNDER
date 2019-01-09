@@ -2713,3 +2713,33 @@ void Reconstructor::symmetrizeO()
     else
         CLOG(WARNING, "LOGGER_SYS") << "Symmetry Information Not Assigned in Reconstructor";
 }
+/*
+void Reconstructor::getF3D(Volume& dst)
+{
+   dst.swap(_F3D);
+}
+
+ void Reconstructor::getT3D(Volume& dst)
+{
+   dst.swap(_T3D);
+}
+
+void Reconstructor::setF3D(Volume& src)
+{
+   _F3D.swap(src);
+}
+
+ void Reconstructor::setT3D(Volume& src)
+{
+   _T3D.swap(src);
+} 
+*/
+Volume& Reconstructor::getF3D()
+{
+   return _F3D;
+}
+
+Volume& Reconstructor::getT3D()
+{
+   return _T3D;
+}

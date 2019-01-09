@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 
         rotate3D(mat, quat.row(m).transpose());
 
-        randRotate3D(mat);
+        // randRotate3D(mat);
 
         Image img(N, N, FT_SPACE);
 
@@ -221,6 +221,8 @@ int main(int argc, char* argv[])
                  quat(m, 2),
                  quat(m, 3));
     }
+
+    fclose(file);
 
     if (rank != size - 1)
         MPI_Send(&flag, 1, MPI_C_BOOL, rank + 1, 0, MPI_COMM_WORLD);
