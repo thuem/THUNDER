@@ -5,10 +5,11 @@
  *  @copyright THUNDER Non-Commercial Software License Agreement
  *
  *  ChangeLog
- *  AUTHOR    | TIME       | VERSION       | DESCRIPTION
- *  ------    | ----       | -------       | -----------
- *  Mingxu Hu | 2015/03/23 | 0.0.1.050323  | new file
- *  Mingxu Hu | 2018/12/21 | 1.4.11.081221 | add documentation
+ *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
+ *  ------      | ----       | -------       | -----------
+ *  Mingxu Hu   | 2015/03/23 | 0.0.1.050323  | new file
+ *  Mingxu Hu   | 2018/12/21 | 1.4.11.081221 | add documentation
+ *  Huabin Ruan | 2018/12/25 | 1.4.11.081225 | add support for adding description info in the thu file
  *
  * ****************************************************************************/
 
@@ -288,11 +289,9 @@
 #include <cstring>
 #include <cstdio>
 #include <iostream>
-
 #include "Typedef.h"
 #include "Macro.h"
 #include "Precision.h"
-
 #include "Parallel.h"
 #include "Utils.h"
 #include "Random.h"
@@ -393,6 +392,9 @@ class Database : public Parallel
          */
         void openDatabase(const char database[] /**< [in] the filename of the .thu file */
                          );
+
+
+        void openDatabase(const char *database, const char *outputPath,  const int rank);
 
         /**
          * @brief save information to a .thu file
@@ -578,6 +580,16 @@ class Database : public Parallel
                    int& end,          /**< [out] the ID of the last particle assigned to this process */
                    const int commRank /**< [in] the rank of this process */
                   );
+
+        /**
+         *  @brief This function generates a new thu database withou containing comments lines
+         */
+
+        void reGenDatabase(char *newDatabase,    /**< [out] Full name of the new database */
+                           const char *outputDir,/**< [in] Directory used to save new database */
+                           const char *database, /**< [in] Original database name */ 
+                           const int rank        /**< [in] the rank of current process */
+                          );
 };
 
 #endif // DATABASE_H
