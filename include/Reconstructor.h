@@ -731,6 +731,10 @@ class Reconstructor : public Parallel
                          );
 #endif
 
+        Volume& getF3D();
+
+        Volume& getT3D(); 
+
     private:
 
         /**
@@ -773,7 +777,7 @@ class Reconstructor : public Parallel
         /**
          * @brief Symmetrize X-offset, Y-offset and Z-offset of reference.
          */
-        void symmetrizeO();
+        void symmetrizeO();      
 };
 
-#endif //RECONSTRUCTOR_H
+#endif //RECONSTRUCTOR_H:
