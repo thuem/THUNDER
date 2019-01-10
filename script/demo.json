@@ -17,7 +17,7 @@
         "Initial Model" : "init_model.mrc",
         ".thu File Storing Paths and CTFs of Images" : "particles.thu",
         "Path of Particles" : "../Data/",
-        "Path of Output" : "./output",
+        "Path of Output" : "./output/",
         "Prefix of Output" : "",
         "Calculate FSC Using Core Region" : true,
         "Calculate FSC Using Masked Region" : false,
