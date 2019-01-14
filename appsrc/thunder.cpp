@@ -37,24 +37,37 @@
 
 using namespace std;
 
-inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src, const std::string basicClass, const std::string optionKey)
+
+inline Json::Value JSONCPP_READ_ERROR_HANDLER(const Json::Value src,
+                                              const std::string basicClass,
+                                              const std::string optionKey
+                                             )
 {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (src[basicClass] == Json::nullValue)
     {
-        CLOG(FATAL, "LOGGER_SYS") << "Json parameter file BASIC CLASS \""
-                                  << basicClass
-                                  << "\" is not exit. Please make sure of it. ";
 
+        //CLOG(FATAL, "LOGGER_SYS") << "Json parameter file BASIC CLASS \""
+        //                          << basicClass
+        //                          << "\" is not exit. Please make sure of it. ";
+
+        /**
+         *  Note: This function is called before initLogger, so we should not use aboved log function in advanced.
+         */
+        if(rank == 0)
+        {
+            fprintf(stderr, "\n  ERROR: Json parameter file BASIC CLASS \"%s\" does not exist, please check it.\n", basicClass.c_str());
+        }
         abort();
     }
     else if (src[basicClass][optionKey] == Json::nullValue)
     {
-        CLOG(FATAL, "LOGGER_SYS") << "Json parameter file KEY \""
-                                  << optionKey
-                                  << "\" in BASIC CLASS \""
-                                  << basicClass
-                                  << "\" is not exit. Please make sure of it. ";
-
+        
+        if(rank == 0)
+        {
+            fprintf(stderr, "\n  ERROR: Json parameter file KEY \"%s\" in BASIC CLASS \"%s\" does not exist, please check it\n", optionKey.c_str(), basicClass.c_str());
+        }
         abort();
     }
     else
@@ -264,6 +277,7 @@ void initGlobalPara(char *logFileFullName, Json::Reader &jsonReader, Json::Value
 
     jsonFile.close();
     char currWorkDir[FILE_NAME_LENGTH];
+    memset(currWorkDir, '\0', sizeof(currWorkDir));
     GETCWD_ERROR_HANDLER(getcwd(currWorkDir, sizeof(currWorkDir)));
     char *outputDir = thunderPara.outputDirectory;
 
@@ -283,6 +297,7 @@ void initGlobalPara(char *logFileFullName, Json::Reader &jsonReader, Json::Value
     }
 
     char finalOutputDir[FILE_NAME_LENGTH];
+    memset(finalOutputDir, '\0', sizeof(finalOutputDir));
 
     if (outputDir[0] != '/')
     {
