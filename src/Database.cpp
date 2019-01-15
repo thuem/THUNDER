@@ -48,6 +48,12 @@ void Database::reGenDatabase(char *newDatabase, const char *outputDir, const cha
     if(rank == 0)
     {
         FILE *_dbFromInput = fopen(database, "r");
+        if(_dbFromInput == NULL)
+        {
+            char errorMsg[MSG_MAX_LEN];
+            sprintf(errorMsg, "FAIL TO OPEN DATABASE: %s", database);
+            REPORT_ERROR(errorMsg);
+        }
         FILE *_db = fopen(newDatabaseName, "w");
         while(fgets(buffer, FILE_LINE_MAX_LENGTH, _dbFromInput) != NULL)
         {
@@ -121,7 +127,7 @@ void Database::openDatabase(const char *database, const char *outputPath,  const
     if(_db == NULL)
     {
         char errorMsg[MSG_MAX_LEN];
-        sprintf(errorMsg, "FAIL TO OPEN DATABASE: %s", database);
+        sprintf(errorMsg, "FAIL TO OPEN NEW DATABASE: %s", newDatabase);
         REPORT_ERROR(errorMsg);
     }
 
