@@ -602,7 +602,13 @@ RFLOAT Database::score(const int i) const
     char line[FILE_LINE_LENGTH];
     char* word;
 
-    fgets(line, FILE_LINE_LENGTH - 1, _db);
+    char *result = fgets(line, FILE_LINE_LENGTH - 1, _db);
+    if(result == NULL)
+    {
+        char errorMsg[MSG_MAX_LEN];
+        sprintf(errorMsg, "READ DATABASE ERROR");
+        REPORT_ERROR(errorMsg);
+    }
 
     word = strtok(line, " ");
 
