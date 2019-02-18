@@ -8,8 +8,9 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
- *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options 
- *  
+ *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options
+ *  Shouqing Li | 2018/01/07 | 1.4.11.090107 | output error information of missing options
+ *
  *  @brief thunder_postprocess.cpp helps users to post-process the input image-file. The parameters provided by users are the directory of two parts input files, radius of mask, number of threads and pixelsize.
  *
  */
@@ -21,6 +22,9 @@
 #include <iostream>
 
 #include "Postprocess.h"
+#include "Utils.h"
+
+using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -34,8 +38,6 @@ do \
     } \
 while(0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -46,23 +48,21 @@ void usage (int status)
     {
         printf("Usage: %s [OPTION]...\n", PROGRAM_NAME);
 
-        fputs("Post-process the input image-file.\n", stdout);
+        fputs("\nPost-process the input image-file.\n\n", stdout);
 
-        fputs("-j             set the thread-number to carry out work.\n", stdout);
-        fputs("--mask         set the directory of mask file.\n", stdout);
-        fputs("--inputA       set the directory of input file A.\n", stdout);
-        fputs("--inputB       set the directory of input file B.\n", stdout);
+        fputs("--inputA       set the filename of input file A.\n", stdout);
+        fputs("--inputB       set the filename of input file B.\n", stdout);
+        fputs("--mask         set the filename of mask file.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
+        fputs("-j             set the number of threads to carry out work.\n", stdout);
 
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
-
+        fputs("\n--help         display this help\n", stdout);
         fputs("Note: all parameters are indispensable.\n", stdout);
-
     }
     exit(status);
 }
 
-static const struct option long_options[] = 
+static const struct option long_options[] =
 {
     {"inputA", required_argument, NULL, 'a'},
     {"inputB", required_argument, NULL, 'b'},
@@ -82,11 +82,13 @@ int main(int argc, char* argv[])
     double pixelsize;
     int nThread;
 
+    char option[5] = {'m', 'a', 'b', 'p', 'j'};
+
     int option_index = 0;
 
     if(optind == argc)
     {
-        usage(EXIT_FAILURE);
+        usage(EXIT_SUCCESS);
     }
 
     while((opt = getopt_long(argc, argv, "j:", long_options, &option_index)) != -1)
@@ -95,18 +97,23 @@ int main(int argc, char* argv[])
         {
             case('m'):
                 mask = optarg;
+                option[0] = '\0';
                 break;
             case('a'):
                 inputA = optarg;
+                option[1] = '\0';
                 break;
             case('b'):
                 inputB = optarg;
+                option[2] = '\0';
                 break;
             case('p'):
                 pixelsize = atof(optarg);
+                option[3] = '\0';
                 break;
             case('j'):
                 nThread = atoi(optarg);
+                option[4] = '\0';
                 break;
             case('h'):
                 usage(EXIT_SUCCESS);
@@ -116,9 +123,13 @@ int main(int argc, char* argv[])
         }
     }
 
+    optionCheck(option, sizeof(option) / sizeof(*option), long_options);
+
     loggerInit(argc, argv);
 
     TSFFTW_init_threads();
+
+    omp_set_nested(false);
 
     Postprocess pp(inputA,
                    inputB,

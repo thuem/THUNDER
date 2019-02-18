@@ -111,6 +111,10 @@ def main():
                          dest = "output_star", \
                          help = "Output RELION data.star file.")
     (options, args) = optParser.parse_args()
+
+    if len(sys.argv) == 1:
+        print usage
+        print "    For more detail, see '-h' or '--help'."
     
     if options.output_star:
         fout = open(options.output_star, "w")

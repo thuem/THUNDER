@@ -61,3 +61,31 @@ const char* getTempDirectory(void)
     mkdir(tmp, 0755);
     return tmp;
 }
+
+void optionCheck(char option[], int size, const struct option long_options[])
+{
+    int len = sizeof(long_options) / sizeof(*long_options);
+
+    for (int i = 0; i < size; i++)
+    {
+        if (option[i] != '\0')
+        {
+            int flag = 0;
+
+            for (int j = 0; j < len; j++)
+            {
+                if (option[i] == long_options[j].val)
+                {
+                    cout << "Option --" << long_options[j].name << " does not exist." << endl;
+                    flag = 1;
+                    break;
+                }
+            }
+            if (flag == 0)
+            {
+                cout << "Option -" << option[i] << " does not exist." << endl;
+            }
+            exit(1);
+        }
+    }
+}

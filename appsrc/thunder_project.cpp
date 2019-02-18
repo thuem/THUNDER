@@ -7,7 +7,8 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Mingxu Hu   | 2018/12/26 | 1.4.11.081226 | new file
- *  
+ *  Shouqing Li | 2018/01/07 | 1.4.11.090107 | output error information of missing options
+ *
  */
 
 #include <fstream>
@@ -28,6 +29,7 @@
 #include "ImageFile.h"
 #include "Particle.h"
 #include "Optimiser.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -43,8 +45,6 @@ do \
     } \
 while(0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -55,23 +55,22 @@ void usage (int status)
     {
         printf("Usage: %s [OPTION]...\n", PROGRAM_NAME);
 
-        fputs("Generate .\n", stdout);
+        fputs("\nCalculate a model's projections according to the parameters number.\n\n", stdout);
 
-        fputs("-j               set the thread-number per process to carry out work.\n", stdout);
-        fputs("-i  --input      set the directory of input reference.\n", stdout);
-        fputs("-o  --output     set the directory of output stack.\n", stdout);
-        fputs("--metadata       set the directory of outputing metadata.\n", stdout);
+        fputs("-i  --input      set the filename of input reference.\n", stdout);
+        fputs("-o  --output     set the filename of output stack.\n", stdout);
+        fputs("--metadata       set the filename of outputting metadata.\n", stdout);
         fputs("-n               set the number of projections.\n", stdout);
         fputs("--pixelsize      set the pixel size.\n", stdout);
+        fputs("-j               set the number of threads per process to carry out work.\n", stdout);
 
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
-
+        fputs("\n--help           display this help\n", stdout);
         fputs("Note: all parameters are indispensable.\n", stdout);
     }
     exit(status);
 }
 
-static const struct option long_options[] = 
+static const struct option long_options[] =
 {
     {"input", required_argument, NULL, 'i'},
     {"output", required_argument, NULL, 'o'},
@@ -91,11 +90,13 @@ int main(int argc, char* argv[])
     double pixelsize;
     int nThread;
 
+    char option[6] = {'o', 'i', 'n', 'm', 'p', 'j'};
+
     int option_index = 0;
 
     if(optind == argc)
     {
-        usage(EXIT_FAILURE);
+        usage(EXIT_SUCCESS);
     }
 
     while((opt = getopt_long(argc, argv, "i:o:j:n:", long_options, &option_index)) != -1)
@@ -104,20 +105,27 @@ int main(int argc, char* argv[])
         {
             case('o'):
                 output = optarg;
+                option[0] = '\0';
                 break;
             case('i'):
                 input = optarg;
+                option[1] = '\0';
                 break;
             case('n'):
                 n = atoi(optarg);
+                option[2] = '\0';
                 break;
             case('p'):
                 pixelsize = atof(optarg);
+                option[3] = '\0';
                 break;
             case('m'):
                 metadata = optarg;
+                option[4] = '\0';
+                break;
             case('j'):
                 nThread = atoi(optarg);
+                option[5] = '\0';
                 break;
             case('h'):
                 usage(EXIT_SUCCESS);
@@ -127,7 +135,11 @@ int main(int argc, char* argv[])
         }
     }
 
+    optionCheck(option, sizeof(option) / sizeof(*option), long_options);
+
     loggerInit(argc, argv);
+
+    omp_set_nested(false);
 
     // rotations
     dmat4 quat(n, 4);

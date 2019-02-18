@@ -8,8 +8,9 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
- *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options 
+ *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options
  *  Mingxu   Hu | 2018/11/05 | 1.4.11.081105 | change this file to minus reference
+ *  Shouqing Li | 2018/01/07 | 1.4.11.090107 | output error information of missing options
  */
 
 #include <fstream>
@@ -20,6 +21,9 @@
 
 #include "ImageFile.h"
 #include "Volume.h"
+#include "Utils.h"
+
+using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -33,8 +37,6 @@ do \
     } \
 while (0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage(int status)
 {
     if (status != EXIT_SUCCESS)
@@ -45,22 +47,20 @@ void usage(int status)
     {
         printf("Usage: %s [OPTION]...\n", PROGRAM_NAME);
 
-        fputs("Read two input image-files and output the diff file of their pixels' value.\n", stdout);
+        fputs("\nRead two input image-files and output the diff file of their pixels' value.\n\n", stdout);
 
-        fputs("-o    set the directory of output file.\n", stdout);
-        fputs("--inputA    set the directory of input file A.\n", stdout);
-        fputs("--inputB    set the directory of input file B.\n", stdout);
+        fputs("--inputA       set the filename of input file A.\n", stdout);
+        fputs("--inputB       set the filename of input file B.\n", stdout);
+        fputs("-o             set the filename of output file.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
 
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
-
+        fputs("\n--help         display this help\n", stdout);
         fputs("Note: all parameters are indispensable.\n", stdout);
-
     }
     exit(status);
 }
 
-static const struct option long_options[] = 
+static const struct option long_options[] =
 {
     {"inputA", required_argument, NULL, 'a'},
     {"inputB", required_argument, NULL, 'b'},
@@ -71,18 +71,20 @@ static const struct option long_options[] =
 
 int main(int argc, char* argv[])
 {
-    
+
     int opt;
     char* output;
     char* inputA;
     char* inputB;
     double pixelsize;
 
+    char option[4] = {'o', 'a', 'b', 'p'};
+
     int option_index = 0;
 
     if(optind == argc)
     {
-        usage(EXIT_FAILURE);
+        usage(EXIT_SUCCESS);
     }
 
     while((opt = getopt_long(argc, argv, "o:", long_options, &option_index)) != -1)
@@ -91,15 +93,19 @@ int main(int argc, char* argv[])
         {
             case('o'):
                 output = optarg;
+                option[0] = '\0';
                 break;
             case('a'):
                 inputA = optarg;
+                option[1] = '\0';
                 break;
             case('b'):
                 inputB = optarg;
+                option[2] = '\0';
                 break;
             case('p'):
                 pixelsize = atof(optarg);
+                option[3] = '\0';
                 break;
             case('h'):
                 usage(EXIT_SUCCESS);
@@ -108,6 +114,8 @@ int main(int argc, char* argv[])
                 usage(EXIT_FAILURE);
         }
     }
+
+    optionCheck(option, sizeof(option) / sizeof(*option), long_options);
 
     loggerInit(argc, argv);
 

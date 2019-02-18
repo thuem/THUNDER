@@ -46,6 +46,10 @@ def main():
 
     header_dict = {}
 
+    if len(sys.argv) == 1:
+      print usage
+      print "    For more detail, see '-h' or '--help'."
+
     if options.output_thu:
         fout = open(options.output_thu, "w")
 

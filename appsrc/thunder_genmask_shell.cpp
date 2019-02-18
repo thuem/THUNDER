@@ -8,8 +8,9 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Mingxu   Hu | 2015/03/23 | 0.0.1.050323  | new file
- *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options 
- *  
+ *  Shouqing Li | 2018/09/28 | 1.4.11.080928 | add options
+ *  Shouqing Li | 2018/01/07 | 1.4.11.090107 | output error information of missing options
+ *
  *  @brief thunder_genmask_shell.cpp generates a shell-shape mask on the input volume and outputs. The parameters provided by users are directory of output file, the inner-radius and outer-radius, edgewidth of sphere, boxsize and pixelsize.
  *
  */
@@ -23,6 +24,9 @@
 #include "ImageFile.h"
 #include "Volume.h"
 #include "Mask.h"
+#include "Utils.h"
+
+using namespace std;
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -36,8 +40,6 @@ do \
     } \
 while(0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -48,25 +50,23 @@ void usage (int status)
     {
         printf("Usage: %s [OPTION]...\n", PROGRAM_NAME);
 
-        fputs("Generate a shell-shape mask on the input volume.\n", stdout);
+        fputs("\nGenerate a shell-shape mask on the input volume.\n\n", stdout);
 
-        fputs("-j                set the thread-number to carry out work.\n", stdout);
-        fputs("-o  --output      set the directory of output file.\n", stdout);
+        fputs("-o  --output      set the filename of output file.\n", stdout);
+        fputs("--inner_radius    set the length of inner_radius.\n", stdout);
+        fputs("--outer_radius    set the length of outer_radius.\n", stdout);
         fputs("--boxsize         set the boxsize value.\n", stdout);
         fputs("--edgewidth       set the edge width of the sphere.\n", stdout);
         fputs("--pixelsize       set the pixelsize.\n", stdout);
-        fputs("--inner_radius    set the length of inner_radius.\n", stdout);
-        fputs("--outer_radius    set the length of outer_radius.\n", stdout);
+        fputs("-j                set the number of threads to carry out work.\n", stdout);
 
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
-
+        fputs("\n--help            display this help\n", stdout);
         fputs("Note: all parameters are indispensable.\n", stdout);
-
     }
     exit(status);
 }
 
-static const struct option long_options[] = 
+static const struct option long_options[] =
 {
     {"boxsize", required_argument, NULL, 'b'},
     {"output", required_argument, NULL, 'o'},
@@ -86,11 +86,13 @@ int main(int argc, char* argv[])
     double inner_radius, outer_radius, edgewidth, pixelsize;
     int boxsize, nThread;
 
+    char option[7] = {'o', 'n', 't', 'b', 'e', 'p', 'j'};
+
     int option_index = 0;
 
     if(optind == argc)
     {
-        usage(EXIT_FAILURE);
+        usage(EXIT_SUCCESS);
     }
 
     while((opt = getopt_long(argc, argv, "o:j:", long_options, &option_index)) != -1)
@@ -99,24 +101,31 @@ int main(int argc, char* argv[])
         {
             case('o'):
                 output = optarg;
+                option[0] = '\0';
                 break;
             case('n'):
                 inner_radius = atof(optarg);
+                option[1] = '\0';
                 break;
             case('t'):
                 outer_radius = atof(optarg);
+                option[2] = '\0';
                 break;
             case('b'):
                 boxsize = atoi(optarg);
+                option[3] = '\0';
                 break;
             case('e'):
                 edgewidth = atof(optarg);
-                break;                
+                option[4] = '\0';
+                break;
             case('p'):
                 pixelsize = atof(optarg);
+                option[5] = '\0';
                 break;
             case('j'):
                 nThread = atoi(optarg);
+                option[6] = '\0';
                 break;
             case('h'):
                 usage(EXIT_SUCCESS);
@@ -126,6 +135,8 @@ int main(int argc, char* argv[])
         }
 
     }
+
+    optionCheck(option, sizeof(option) / sizeof(*option), long_options);
 
     loggerInit(argc, argv);
 
@@ -156,6 +167,8 @@ int main(int argc, char* argv[])
                 RL_SPACE);
 
     RFLOAT ew = edgewidth;
+
+    omp_set_nested(false);
 
     #pragma omp parallel for num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_RL(mask)

@@ -1,3 +1,16 @@
+/** @file
+ *  @author Shouqing Li
+ *  @version 1.4.11.081228
+ *  @copyright THUNDER Non-Commercial Software License Agreement
+ *
+ *  ChangeLog
+ *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
+ *  ------      | ----       | -------       | -----------
+ *  Shouqing Li | 2018/12/28 | 1.4.11.081228 | new file
+ *  Mingxu   Hu | 2018/1/7   | 1.4.11.080107 | modified mistakes
+ *  Shouqing Li | 2018/01/07 | 1.4.11.090107 | output error information of missing options
+ */
+
 #include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -13,6 +26,7 @@
 #include "Logging.h"
 #include "Config.h"
 #include "Macro.h"
+#include "Utils.h"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -26,8 +40,6 @@ do \
     } \
 while(0)
 
-#define HELP_OPTION_DESCRIPTION "--help     display this help\n"
-
 void usage (int status)
 {
     if (status != EXIT_SUCCESS)
@@ -38,23 +50,23 @@ void usage (int status)
     {
         printf("Usage: %s [OPTION]...\n", PROGRAM_NAME);
 
-        fputs("Generate .\n", stdout);
+        fputs("\nReconstruct the model from given projections.\n\n", stdout);
 
-        fputs("-j               set the thread-number per process to carry out work.\n", stdout);
-        fputs("-i  --input      set the directory of input metadata file.\n", stdout);
-        fputs("-o  --output     set the directory of output mrc.\n", stdout);
+
+        fputs("-i  --input      set the filename of input metadata file.\n", stdout);
+        fputs("-o  --output     set the filename of output mrc.\n", stdout);
         fputs("--symmetry       set the symmetry.\n", stdout);
         fputs("--boxsize        set the boxsize of input image.\n", stdout);
         fputs("--pixelsize      set the pixel size.\n", stdout);
+        fputs("-j               set the number of threads per process to carry out work.\n", stdout);
 
-        fputs(HELP_OPTION_DESCRIPTION, stdout);
-
+        fputs("\n--help           display this help\n", stdout);
         fputs("Note: all parameters are indispensable.\n", stdout);
     }
     exit(status);
 }
 
-static const struct option long_options[] = 
+static const struct option long_options[] =
 {
     {"input", required_argument, NULL, 'i'},
     {"output", required_argument, NULL, 'o'},
@@ -75,11 +87,13 @@ int main(int argc, char* argv[])
     double pixelsize;
     int boxsize, nThread;
 
+    char option[6] = {'o', 'i', 's', 'b', 'p', 'j'};
+
     int option_index = 0;
 
     if(optind == argc)
     {
-        usage(EXIT_FAILURE);
+        usage(EXIT_SUCCESS);
     }
 
     while((opt = getopt_long(argc, argv, "i:o:j:", long_options, &option_index)) != -1)
@@ -88,21 +102,27 @@ int main(int argc, char* argv[])
         {
             case('o'):
                 output = optarg;
+                option[0] = '\0';
                 break;
             case('i'):
                 input = optarg;
+                option[1] = '\0';
                 break;
             case('s'):
                 symmetry = optarg;
+                option[2] = '\0';
                 break;
             case('b'):
                 boxsize = atoi(optarg);
+                option[3] = '\0';
                 break;
             case('p'):
                 pixelsize = atof(optarg);
+                option[4] = '\0';
                 break;
             case('j'):
                 nThread = atoi(optarg);
+                option[5] = '\0';
                 break;
             case('h'):
                 usage(EXIT_SUCCESS);
@@ -112,7 +132,11 @@ int main(int argc, char* argv[])
         }
     }
 
+    optionCheck(option, sizeof(option) / sizeof(*option), long_options);
+
     loggerInit(argc, argv);
+
+    omp_set_nested(false);
 
     //get particle number and offset
 
@@ -135,7 +159,7 @@ int main(int argc, char* argv[])
         offset[i] = ftell(file);
 
         FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, file));
-    }    
+    }
 
     CLOG(INFO, "LOGGER_SYS") << "Initialising MPI Environment";
 
@@ -174,7 +198,7 @@ int main(int argc, char* argv[])
     recon.setMaxRadius(maxRadius);
 
     Volume tarVol;
-    
+
     CLOG(INFO, "LOGGER_SYS") << "Reading Particle Information";
 
     if (rank != 0)
@@ -186,12 +210,12 @@ int main(int argc, char* argv[])
         for (int l = 0; l < nImgPerProcess; l++)
         {
             fseek(dataBase, offset[(rank - 1) * nImgPerProcess + l], SEEK_SET);
-        
+
             FGETS_ERROR_HANDLER(fgets(line, FILE_LINE_LENGTH - 1, dataBase));
 
             word = strtok(line, " ");
             path = string(word);
-            
+
             word = strtok(NULL, " ");
             quat(0) = atof(word);
 
@@ -201,7 +225,7 @@ int main(int argc, char* argv[])
             word = strtok(NULL, " ");
             quat(2) = atof(word);
 
-            word = strtok(NULL, " ");    
+            word = strtok(NULL, " ");
             quat(3) = atof(word);
 
             int nslc = atoi(path.substr(0, path.find('@')).c_str());
@@ -215,7 +239,7 @@ int main(int argc, char* argv[])
 
             // CLOG(INFO, "LOGGER_SYS") << "inserting"  <<" THIS IS RANK"<< rank;
             recon.insert(img, ctf, rot, 1);
-            
+
             fft.bw(img, nThread);
         }
     }
