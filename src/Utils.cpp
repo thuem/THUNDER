@@ -64,7 +64,9 @@ const char* getTempDirectory(void)
 
 void optionCheck(char option[], int size, const struct option long_options[])
 {
-    int len = sizeof(long_options) / sizeof(*long_options);
+    int len = 0;
+
+    while (long_options[len].name != NULL) len++;
 
     for (int i = 0; i < size; i++)
     {

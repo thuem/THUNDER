@@ -495,7 +495,7 @@ void InsertFT(Complex *F3D,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -512,7 +512,7 @@ void PrepareTF(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -529,7 +529,7 @@ void CalculateT2D(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -635,7 +635,7 @@ void ConvoluteC(int gpuIdx,
                 RFLOAT begin,
                 RFLOAT end,
                 RFLOAT step,
-                int tabsize, 
+                int tabsize,
                 const RFLOAT nf,
                 int streamNum,
                 const int padSize,
@@ -658,8 +658,8 @@ void UpdateWC(int gpuIdx,
               int *devCount,
               int *counter,
               void** stream,
-              RFLOAT &diffC, 
-              int streamNum, 
+              RFLOAT &diffC,
+              int streamNum,
               const int r,
               const int dim);
 
@@ -697,7 +697,7 @@ void CalculateW2D(int gpuIdx,
                   RFLOAT begin,
                   RFLOAT end,
                   RFLOAT step,
-                  int tabsize, 
+                  int tabsize,
                   const int dim,
                   const int r,
                   const RFLOAT nf,
@@ -729,7 +729,7 @@ void CalculateW(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -745,7 +745,7 @@ void CalculateF2D(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -776,7 +776,7 @@ void CalculateF(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -790,7 +790,7 @@ void CorrSoftMaskF2D(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -803,7 +803,7 @@ void CorrSoftMaskF(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -817,7 +817,7 @@ void CorrSoftMaskF(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -831,7 +831,7 @@ void TranslateI2D(int gpuIdx,
 /**
  * @brief
  *
- * @param 
+ * @param
  * @param
  * @param
  */
@@ -859,7 +859,20 @@ void reMask(vector<Complex*>& imgData,
 /**
  * @brief
  *
- * @param 
+ * @param
+ * @param
+ * @param
+ */
+void GCTF(vector<Complex*>& imgData,
+          vector<CTFAttr*>& ctfaData,
+          RFLOAT pixelSize,
+          int ndim,
+          int nImg);
+
+/**
+ * @brief
+ *
+ * @param
  * @param
  * @param
  */
