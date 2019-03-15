@@ -33,12 +33,19 @@ option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
 option(CPU_VERSION "Whether to use cpu version in caculation?" ON)
 option(TOOLS_BUILD  "Whether to build tools?" ON)
 
-if("${GPU_VERSION}")
-    message(STATUS "Build THUNDER in GPU version.")
-else("${GPU_VERSION}")
-    message(STATUS "Build THUNDER in CPU version.")
-endif("${GPU_VERSION}")
+if("${GPU_VERSION}" AND "${CPU_VERSION}")
 
+    message(STATUS "Try to build THUNDER in CPU & GPU version.")
+
+else("${GPU_VERSION}" AND "${CPU_VERSION}")
+
+    if("${GPU_VERSION}")
+        message(STATUS "Try to build THUNDER in GPU version.")
+    else("${GPU_VERSION}")
+        message(STATUS "Try to build THUNDER in CPU version.")
+    endif("${GPU_VERSION}")
+
+endif("${GPU_VERSION}" AND "${CPU_VERSION}")
 # COMMON FLAGS
 
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
@@ -132,14 +139,6 @@ message(STATUS "MPI_CXX_LIBRARIES : ${MPI_CXX_LIBRARIES}")
 set(CMAKE_C_COMPILER ${MPI_COMPILER})
 set(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
-# CONFIG
-
-configure_file("${PROJECT_SOURCE_DIR}/THUNDERConfig.h.in"
-               "${PROJECT_BINARY_DIR}/THUNDERConfig.h")
-
-install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
-
-include_directories(${PROJECT_BINARY_DIR})
 
 # CMAKE MODULE FILE LOCATION
 
@@ -192,13 +191,109 @@ list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Functions)
 list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Geometry)
 list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Image)
 
+
 # CUDA & NCCL FOR GPU VERSION
+
+find_package(CUDA 8.0 QUIET)
+if(NOT ${CUDA_FOUND})
+    if("${GPU_VERSION}")
+        message(STATUS "WARNING: CUDA is not found, skip the compilation in GPU version.")
+    endif("${GPU_VERSION}")
+    set(GPU_VERSION off)
+endif(NOT ${CUDA_FOUND})
+
+
+find_package(NCCL 8.0 QUIET)
+if(NOT ${NCCL_FOUND})
+    if("${GPU_VERSION}")
+        message(STATUS "WARNING: NCCL is not found, skip the compilation in GPU version.")
+    endif("${GPU_VERSION}")
+    set(GPU_VERSION off)
+endif(NOT ${NCCL_FOUND})
+
+# Add Header of THUNDER core_CPU and core_GPU
+
+include_directories(${PROJECT_SOURCE_DIR}/include
+                    ${PROJECT_SOURCE_DIR}/include/Functions
+                    ${PROJECT_SOURCE_DIR}/include/Geometry
+                    ${PROJECT_SOURCE_DIR}/include/Image)
+# CONFIG
+
+if("${CPU_VERSION}")
+
+    set(CONFIG_CPU_DIR "${PROJECT_BINARY_DIR}/Config_CPU")
+    
+    # If CPU_VERSION and GPU_VERSION is set ON in the meantime
+    if("${GPU_VERSION}")
+        set(GPU_VERSION off)
+
+        configure_file("${PROJECT_SOURCE_DIR}/THUNDERConfig.h.in"
+                   "${CONFIG_CPU_DIR}/THUNDERConfig.h")
+    
+        #install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
+    
+        set(GPU_VERSION on)
+    
+    else("${GPU_VERSION}")
+
+        configure_file("${PROJECT_SOURCE_DIR}/THUNDERConfig.h.in"
+                   "${CONFIG_CPU_DIR}/THUNDERConfig.h")
+    
+        #install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
+        
+    endif("${GPU_VERSION}")    
+
+    # Compile Binary of THUNDER core_CPU
+    
+    file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+    
+    add_library(core_CPU STATIC ${SOURCES})
+    
+    # Make Sure FFTW and GSL is Built Before Linking
+    
+    add_dependencies(core_CPU FFTW)
+    add_dependencies(core_CPU GSL)
+    
+    # Link Libraries
+    
+    target_link_libraries(core_CPU ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
+    
+    target_include_directories(core_CPU PUBLIC ${CUR_INCLUDE} ${CONFIG_CPU_DIR})
+
+endif("${CPU_VERSION}")
+
+if("${GPU_VERSION}")
+
+    set(CONFIG_GPU_DIR ${PROJECT_BINARY_DIR}/Config_GPU)
+    
+    configure_file("${PROJECT_SOURCE_DIR}/THUNDERConfig.h.in"
+               "${CONFIG_GPU_DIR}/THUNDERConfig.h")
+
+    #install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
+
+    
+    # Compile Binary of THUNDER core_GPU
+    
+    file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+    
+    add_library(core_GPU STATIC ${SOURCES})
+    
+    # Make Sure FFTW and GSL is Built Before Linking
+    
+    add_dependencies(core_GPU FFTW)
+    add_dependencies(core_GPU GSL)
+    
+    # Link Libraries
+    
+    target_link_libraries(core_GPU ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
+    
+    target_include_directories(core_GPU PUBLIC ${CUR_INCLUDE} ${CONFIG_GPU_DIR})
+    
+endif("${GPU_VERSION}")
 
 if("${GPU_VERSION}")
 
     # CUDA
-
-    find_package(CUDA 8.0 REQUIRED)
 
     message(STATUS "CUDA_VERSION : " ${CUDA_VERSION})
     message(STATUS "CUDA_TOOLKIT_ROOT_DIR : " ${CUDA_TOOLKIT_ROOT_DIR})
@@ -210,7 +305,7 @@ if("${GPU_VERSION}")
 
     # LINK THE CUDA HEADER
 
-    include_directories(SYSTEM ${CUDA_INCLUDE_DIRS})
+    target_include_directories(core_GPU PUBLIC SYSTEM ${CUDA_INCLUDE_DIRS})
     set(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
     # THE GPU ARCHITETURE SPECIFIC BINARY
@@ -237,14 +332,12 @@ if("${GPU_VERSION}")
 
     # NCCL
 
-    find_package(NCCL REQUIRED)
-
     message(STATUS "NCCL_INCLUDES : " ${NCCL_INCLUDES})
     message(STATUS "NCCL_LIBRARIES : " ${NCCL_LIBRARIES})
 
     # LINK THE NCCL HEADER
 
-    include_directories(SYSTEM ${NCCL_INCLUDES})
+    target_include_directories(core_GPU PUBLIC SYSTEM ${NCCL_INCLUDES})
 
     # LINK THE NCLL LIBRARIES
 
@@ -264,33 +357,6 @@ endif("${GPU_VERSION}")
 install(DIRECTORY ${PROJECT_BINARY_DIR}/external/fftw/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
 install(DIRECTORY ${PROJECT_BINARY_DIR}/external/gsl/lib/ DESTINATION lib FILES_MATCHING PATTERN "*")
 
-# Add Header of THUNDER core
-
-include_directories(${PROJECT_SOURCE_DIR}/include
-                    ${PROJECT_SOURCE_DIR}/include/Functions
-                    ${PROJECT_SOURCE_DIR}/include/Geometry
-                    ${PROJECT_SOURCE_DIR}/include/Image)
-
-# Compile Binary of THUNDER core
-
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
-
-add_library(core STATIC ${SOURCES})
-
-# Make Sure FFTW and GSL is Built Before Linking
-
-add_dependencies(core FFTW)
-add_dependencies(core GSL)
-
-# Link Libraries
-
-link_libraries(core ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
-
-TARGET_include_directories(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
-#include_directories(core PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
-#include_directories(PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
-
-
 # Compile Executables
 
 file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
@@ -301,12 +367,14 @@ if("${CPU_VERSION}")
         get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
         if("${BINNAME}" STREQUAL "thunder")
             set(BINNAME "${BINNAME}_cpu")
-        endif()
+        endif("${BINNAME}" STREQUAL "thunder")
         
         if(("${BINNAME}" STREQUAL "thunder_cpu") OR ("${TOOLS_BUILD}"))
             add_executable(${BINNAME} ${BINSRC})
+            target_link_libraries(${BINNAME} core_CPU)
+            target_include_directories(${BINNAME} PUBLIC ${CONFIG_CPU_DIR} ${CUR_INCLUDE})
             install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
-        endif()
+        endif(("${BINNAME}" STREQUAL "thunder_cpu") OR ("${TOOLS_BUILD}"))
     
     endforeach()
     
@@ -317,32 +385,40 @@ if("${CPU_VERSION}")
     
 endif("${CPU_VERSION}")
 
-
 file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
 
-
 if("${GPU_VERSION}")
+    
     message(STATUS "${GPU_VERSION}") 
-    TARGET_LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
+    
+    target_link_libraries(core_GPU ${FFTW_LIBRARIES} ${GSL_LIBRARIES} jsoncpp)
+    
+    target_include_directories(core_GPU PUBLIC ${CUR_INCLUDE} ${EXTERNAL_INCLUDE} ${INTERFACE_INCLUDE})
+    
+    TARGET_LINK_LIBRARIES(core_GPU cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
     #LINK_LIBRARIES(core cuthuem ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
     #TARGET_LINK_LIBRARIES(core ${EXTERNAL_LIBS} ${CMAKE_DL_LIBS})
 
     foreach(BINSRC ${BIN_SOURCES})
 
         get_filename_component(BINNAME ${BINSRC} NAME_WE) # file name without directories or longest extension
+
         if("${BINNAME}" STREQUAL "thunder")
             set(BINNAME "${BINNAME}_gpu")
-        endif()
+        endif("${BINNAME}" STREQUAL "thunder")
         
         if(("${BINNAME}" STREQUAL "thunder_gpu") OR ("${TOOLS_BUILD}"))
             add_executable(${BINNAME} ${BINSRC})
+            if("${BINNAME}" STREQUAL "thunder_gpu")
+                target_link_libraries(${BINNAME} core_GPU)
+                target_include_directories(${BINNAME} PUBLIC SYSTEM ${NCCL_INCLUDE} ${CUDA_INCLUDE_DIR})
+            endif("${BINNAME}" STREQUAL "thunder_gpu")
             install(TARGETS ${BINNAME} RUNTIME DESTINATION bin)
-        endif()
+        endif(("${BINNAME}" STREQUAL "thunder_gpu") OR ("${TOOLS_BUILD}"))
 
     endforeach()
 
 endif("${GPU_VERSION}")
-
 
 # Copy Scripts
 
