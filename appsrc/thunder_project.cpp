@@ -192,8 +192,6 @@ int main(int argc, char* argv[])
 
         rotate3D(mat, quat.row(m).transpose());
 
-        // randRotate3D(mat);
-
         Image img(N, N, FT_SPACE);
 
         SET_0_FT(img);
