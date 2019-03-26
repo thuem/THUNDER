@@ -512,15 +512,6 @@ void Optimiser::init()
 
     NT_MASTER
     {
-        /***
-#ifdef OPTIMISER_SOLVENT_FLATTEN
-        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Applying Solvent Flatten on Reference(s)";
-        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Applying Solvent Flatten on Reference(s)";
-
-        solventFlatten(_para.performMask);
-#endif
-        ***/
-
         MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Solvent Flattening";
 
         if ((_para.globalMask) || (_searchType != SEARCH_TYPE_GLOBAL))
