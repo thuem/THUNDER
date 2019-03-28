@@ -65,10 +65,15 @@ const char* getTempDirectory(void)
 void optionCheck(char option[], int size, const struct option long_options[])
 {
     int len = 0;
+    int i = 0;
+    int existFlag = 0;
 
-    while (long_options[len].name != NULL) len++;
+    while (long_options[len].name != NULL)
+    {
+        len++;
+    }
 
-    for (int i = 0; i < size; i++)
+    while (i < size)
     {
         if (option[i] != '\0')
         {
@@ -80,14 +85,21 @@ void optionCheck(char option[], int size, const struct option long_options[])
                 {
                     cout << "Option --" << long_options[j].name << " does not exist." << endl;
                     flag = 1;
+                    existFlag += 1;
                     break;
                 }
             }
             if (flag == 0)
             {
                 cout << "Option -" << option[i] << " does not exist." << endl;
+                existFlag += 1;
             }
-            exit(1);
         }
+        i++;
+    }
+
+    if (existFlag)
+    {
+        exit(1);
     }
 }

@@ -971,9 +971,9 @@ __global__ void kernel_SymmetrizeT(RFLOAT *devDataT,
  * @param sf : the coefficient to Normalize F
  **/
 __global__ void kernel_NormalizeF(Complex *devDataF,
-	                              const int dimSize,
+                                  const int dimSize,
                                   const int num,
-	                              const RFLOAT sf);
+                                  const RFLOAT sf);
 
 /**
  * @brief Symmetrize F3D
