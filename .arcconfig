@@ -1,3 +1,4 @@
 {
-    "phabricator.uri" : "http://124.65.131.150:11111/"
+    "phabricator.uri" : "http://124.65.131.150:11111/",
+    "arc.land.onto.default" : "@dev@"
 }
