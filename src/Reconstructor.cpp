@@ -2417,7 +2417,7 @@ void Reconstructor::allReduceT(const unsigned int nThread)
 
         MPI_Allreduce_Large(&_T2D[0],
                             2 * _T2D.sizeFT(),
-                            MPI_DOUBLE,
+                            TS_MPI_DOUBLE,
                             MPI_SUM,
                             _hemi);
 
