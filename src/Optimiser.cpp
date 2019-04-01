@@ -3563,7 +3563,8 @@ void Optimiser::maximization()
 
 void Optimiser::run()
 {
-    MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initialising Optimiser";
+    //MLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Initialising Optimiser";
+    MLOG(INFO, "LOGGER_ROUND") << "Initialising Optimiser";
 
     init();
 
