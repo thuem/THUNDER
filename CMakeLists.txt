@@ -1,3 +1,14 @@
+# @file
+# @author  
+# @author Fande Yu 
+# @version 1.4.11.090325
+# @copyright THUNDER Non-Commercial Software License Agreement
+#
+# ChangeLog
+# AUTHOR      | TIME       | VERSION       | DESCRIPTION
+# ------      | ----       | -------       | -----------
+# Fande Yu    | 2019/03/25 | 1.4.11.090325 | separate build version in CPU & GPU
+
 # CMAKE REQUIREMENT
 
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR) 
@@ -194,7 +205,7 @@ list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Image)
 
 # CUDA & NCCL FOR GPU VERSION
 
-find_package(CUDA 8.0 QUIET)
+find_package(CUDA 8.0)
 if(NOT ${CUDA_FOUND})
     if("${GPU_VERSION}")
         message(STATUS "WARNING: CUDA is not found, skip the compilation in GPU version.")
@@ -203,7 +214,7 @@ if(NOT ${CUDA_FOUND})
 endif(NOT ${CUDA_FOUND})
 
 
-find_package(NCCL 8.0 QUIET)
+find_package(NCCL)
 if(NOT ${NCCL_FOUND})
     if("${GPU_VERSION}")
         message(STATUS "WARNING: NCCL is not found, skip the compilation in GPU version.")
