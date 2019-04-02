@@ -53,7 +53,7 @@ void usage (int status)
 
         fputs("-i  --input    set the filename of input file.\n", stdout);
         fputs("-o  --output   set the filename of output file.\n", stdout);
-        fputs("--bFactor      set the bFactor.\n", stdout);
+        fputs("--bfactor      set the bFactor.\n", stdout);
         fputs("--pixelsize    set the pixelsize.\n", stdout);
         fputs("-j             set the number of threads to carry out work.\n", stdout);
 
