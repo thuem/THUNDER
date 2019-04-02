@@ -57,8 +57,8 @@
  * @param r the radius
  */
 #define IMAGE_FOR_PIXEL_R_RL(r) \
-    for (int j = -r; j < r; j++) \
-        for (int i = -r; i < r; i++)
+    for (int j = -(r); j < (r); j++) \
+        for (int i = -(r); i < (r); i++)
 
 /**
  * @brief This macro loops over the pixels of an image in a certain radius (@f$j@f$ represents the index of row, @f$i@f$ represents the index of column) in positive half range Fourier space.
@@ -66,8 +66,8 @@
  * @param r the radius
  */
 #define IMAGE_FOR_PIXEL_R_FT(r) \
-    for (int j = -r; j < r; j++) \
-        for (int i = 0; i <= r; i++)
+    for (int j = -(r); j < (r); j++) \
+        for (int i = 0; i <= (r); i++)
 
 /**
  * @brief Compute the indicator of whether the regular pixel is in the conjugate part of volume or not.

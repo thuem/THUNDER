@@ -42,14 +42,14 @@
  */
 #define VOLUME_SUB_SPHERE_FT(a /**< [in] the radius of this sphere */ \
                             ) \
-    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
-             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
+    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - (a))); \
+             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + (a))); \
              k++) \
-        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - a)); \
-                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + a)); \
+        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - (a))); \
+                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + (a))); \
                  j++) \
-            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - a)); \
-                     i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + a)); \
+            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - (a))); \
+                     i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + (a))); \
                      i++)
 
 /**
@@ -57,14 +57,14 @@
  */
 #define VOLUME_SUB_SPHERE_RL(a /**< [in] the radius of this sphere */ \
                             ) \
-    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - a)); \
-             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + a)); \
+    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - (a))); \
+             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + (a))); \
              k++) \
-        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - a)); \
-                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + a)); \
+        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - (a))); \
+                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + (a))); \
                  j++) \
-            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - a)); \
-                     i <= GSL_MIN_INT(_nCol / 2 - 1, CEIL(iCol + a)); \
+            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - (a))); \
+                     i <= GSL_MIN_INT(_nCol / 2 - 1, CEIL(iCol + (a))); \
                      i++)
 
 /**
@@ -93,9 +93,9 @@
  * @param r the radius
  */
 #define VOLUME_FOR_PIXEL_R_RL(r) \
-    for (int k = -r; k < r; k++) \
-        for (int j = -r; j < r; j++) \
-            for (int i = -r; i < r; i++)
+    for (int k = -(r); k < (r); k++) \
+        for (int j = -(r); j < (r); j++) \
+            for (int i = -(r); i < (r); i++)
 
 /**
  * @brief This macro loops over each pixel of a volume in a certain radius in Fourier space.
@@ -103,9 +103,9 @@
  * @param r the radius
  */
 #define VOLUME_FOR_PIXEL_R_FT(r) \
-    for (int k = -r; k < r; k++) \
-        for (int j = -r; j < r; j++) \
-            for (int i = 0; i <= r; i++)
+    for (int k = -(r); k < (r); k++) \
+        for (int j = -(r); j < (r); j++) \
+            for (int i = 0; i <= (r); i++)
 
 /**
  * @brief Compute the indicator of whether the regular pixel is in the conjugate part of volume or not.
