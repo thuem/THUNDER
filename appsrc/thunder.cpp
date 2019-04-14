@@ -354,6 +354,9 @@ int main(int argc, char *argv[])
              << "."
              << THUNDER_VERSION_ADDIT
              << "!"
+             << endl
+             << "Git Commit Version: "
+             << COMMIT_VERSION_QUOTE
              << endl;
         return 0;
     }
@@ -383,7 +386,14 @@ int main(int argc, char *argv[])
     initGlobalPara(logFileFullName, jsonReader, jsonRoot, thunderPara, argv[1]);
     initLogger(logFileFullName, rank);
 
-    
+    if (rank == 0)
+    {
+        CLOG(INFO, "LOGGER_SYS") << "Git Commit Version: "
+                                 << COMMIT_VERSION_QUOTE;
+                                  
+    }
+
+ 
     if (rank == 0)
     {
         CLOG(INFO, "LOGGER_SYS") << "THUNDER is Initiallised With "
