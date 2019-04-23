@@ -1670,8 +1670,8 @@ void Optimiser::expectation()
     if (_searchType == SEARCH_TYPE_CTF)
         TSFFTW_free(poolCtfP);
 
-    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calculation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calculation in Expectation";
 
     if (_searchType != SEARCH_TYPE_CTF)
         freePreCal(false);
@@ -1690,8 +1690,8 @@ void Optimiser::expectationG()
 
     int nPer = 0;
 
-    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calculation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Allocating Space for Pre-calculation in Expectation";
 
     allocPreCalIdx(_r, _rL);
 
@@ -1720,8 +1720,8 @@ void Optimiser::expectationG()
         else
             allocPreCal(true, false, true);
 
-        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calcuation in Expectation Allocated";
-        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calcuation in Expectation Allocated";
+        ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calculation in Expectation Allocated";
+        BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Space for Pre-calculation in Expectation Allocated";
 
         // initialse a particle filter
 
@@ -3320,8 +3320,8 @@ void Optimiser::expectationG()
 
     }
 
-    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
-    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calcuation in Expectation";
+    ALOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calculation in Expectation";
+    BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Freeing Space for Pre-calculation in Expectation";
 
     for (int i = 0; i < omp_get_max_threads(); i++)
     {

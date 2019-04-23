@@ -107,7 +107,7 @@ void Particle::reset()
         // rotation, MODE_3D, sample from Angular Central Gaussian Distribution
         // with identity matrix
         case MODE_3D:
-            
+
             sampleACG(_r, 1, 1, 1, _nR);
 
             break;
@@ -447,11 +447,11 @@ void Particle::load(const int nR,
     _k1 = k1;
     _k2 = k2;
     _k3 = k3;
-    
+
     // _k0 = 1;
-    
+
     // _k1 = gsl_pow_2(stdR);
-    
+
     _topRPrev = q;
     _topR = q;
 
@@ -532,7 +532,7 @@ void Particle::load(const int nR,
     // load the defocus factor
 
     _s = s;
-    
+
     _topDPrev = d;
     _topD = d;
 
@@ -876,7 +876,7 @@ void Particle::quaternion(dvec4& dst,
 }
 
 void Particle::setQuaternion(const dvec4& src,
-                             const int i) 
+                             const int i)
 {
     _r.row(i) = src.transpose();
 }
@@ -987,16 +987,16 @@ void Particle::calClassDistr()
 
 void Particle::calRank1st(const ParticleType pt)
 {
-    uvec rank = iSort(pt);
+    int maxIdx = iMax(pt);
 
     if (pt == PAR_C)
-        c(_topC, rank(0));
+        c(_topC, maxIdx);
     else if (pt == PAR_R)
-        quaternion(_topR, rank(0));
+        quaternion(_topR, maxIdx);
     else if (pt == PAR_T)
-        t(_topT, rank(0));
+        t(_topT, maxIdx);
     else if (pt == PAR_D)
-        d(_topD, rank(0));
+        d(_topD, maxIdx);
 }
 
 void Particle::calVari(const ParticleType pt)
@@ -1197,7 +1197,7 @@ void Particle::perturb(const double pf,
             }
 
             dvec4 pert;
-           
+
             for (int i = 0; i < _nR; i++)
             {
                 quat = _r.row(i).transpose();
@@ -1281,9 +1281,9 @@ void Particle::resample(const int n,
     {
         shuffle(pt);
 
-        uvec rank = iSort(pt);
+        int maxIdx = iMax(pt);
 
-        c(_topC, rank(0));
+        c(_topC, maxIdx);
 
         for (int i = 0; i < _nC; i++)
             _wC(i) *= _uC(i);
@@ -1291,7 +1291,7 @@ void Particle::resample(const int n,
         _wC /= _wC.sum();
 
         dvec cdf = d_cumsum(_wC);
-        
+
         cdf /= cdf(_nC - 1);
 
         _nC = n;
@@ -1299,7 +1299,7 @@ void Particle::resample(const int n,
 
         uvec c(_nC);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nC);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nC);
 
         int i = 0;
         for (int j = 0; j < _nC; j++)
@@ -1326,9 +1326,9 @@ void Particle::resample(const int n,
     {
         shuffle(pt);
 
-        uvec rank = iSort(pt);
+        int maxIdx = iMax(pt);
 
-        quaternion(_topR, rank(0));
+        quaternion(_topR, maxIdx);
 
         for (int i = 0; i < _nR; i++)
             _wR(i) *= _uR(i);
@@ -1344,7 +1344,7 @@ void Particle::resample(const int n,
 
         dmat4 r(_nR, 4);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nR);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nR);
 
         int i = 0;
         for (int j = 0; j < _nR; j++)
@@ -1353,7 +1353,7 @@ void Particle::resample(const int n,
 
             while (uj > cdf[i])
                 i++;
-        
+
             r.row(j) = _r.row(i);
 
 #ifdef PARTICLE_PRIOR_ONE
@@ -1371,9 +1371,9 @@ void Particle::resample(const int n,
     {
         shuffle(pt);
 
-        uvec rank = iSort(pt);
+        int maxIdx = iMax(pt);
 
-        t(_topT, rank(0));
+        t(_topT, maxIdx);
 
         for (int i = 0; i < _nT; i++)
             _wT(i) *= _uT(i);
@@ -1389,7 +1389,7 @@ void Particle::resample(const int n,
 
         dmat2 t(_nT, 2);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nT);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nT);
 
         int i = 0;
         for (int j = 0; j < _nT; j++)
@@ -1398,7 +1398,7 @@ void Particle::resample(const int n,
 
             while (uj > cdf[i])
                 i++;
-        
+
             t.row(j) = _t.row(i);
 
 #ifdef PARTICLE_PRIOR_ONE
@@ -1416,9 +1416,9 @@ void Particle::resample(const int n,
     {
         shuffle(pt);
 
-        uvec rank = iSort(pt);
+        int maxIdx = iMax(pt);
 
-        d(_topD, rank(0));
+        d(_topD, maxIdx);
 
         for (int i = 0; i < _nD; i++)
             _wD(i) *= _uD(i);
@@ -1434,7 +1434,7 @@ void Particle::resample(const int n,
 
         dvec d(_nD);
 
-        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nD);  
+        double u0 = gsl_ran_flat(engine, 0, 1.0 / _nD);
 
         int i = 0;
         for (int j = 0; j < _nD; j++)
@@ -1533,7 +1533,7 @@ void Particle::resample(const int n,
     dmat4 r(n, 4);
     dmat2 t(n, 2);
     dvec d(n);
-    
+
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points";
 #endif
@@ -1569,7 +1569,7 @@ void Particle::resample(const int n,
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Generating Global Sampling Points for Translation";
 #endif
-    
+
     for (int i = 0; i < nG; i++)
     {
         gsl_ran_bivariate_gaussian(engine,
@@ -1578,7 +1578,7 @@ void Particle::resample(const int n,
                                    0,
                                    &t(i, 0),
                                    &t(i, 1));
-                
+
     }
 
 #ifdef VERBOSE_LEVEL_4
@@ -1599,7 +1599,7 @@ void Particle::resample(const int n,
     CLOG(INFO, "LOGGER_SYS") << "Generating Local Sampling Points";
 #endif
 
-    double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);  
+    double u0 = gsl_ran_flat(engine, 0, 1.0 / nL);
 
     int i = 0;
     for (int j = 0; j < nL; j++)
@@ -1608,7 +1608,7 @@ void Particle::resample(const int n,
 
         while (uj > cdf[i])
             i++;
-        
+
         c(nG + j) = _c(i);
 
         r.row(nG + j) = _r.row(i);
@@ -1639,7 +1639,7 @@ void Particle::resample(const int n,
 #ifdef VERBOSE_LEVEL_4
     CLOG(INFO, "LOGGER_SYS") << "Symmetrizing";
 #endif
-    
+
     if (_mode == MODE_3D) symmetrise();
 }
 ***/
@@ -1759,7 +1759,7 @@ void Particle::sort(const int n,
         }
 
         _nC = n;
-        
+
         _c = c;
         _wC = wC;
         _uC = uC;
@@ -1781,7 +1781,7 @@ void Particle::sort(const int n,
         }
 
         _nR = n;
-        
+
         _r = r;
         _wR = wR;
         _uR = uR;
@@ -1803,7 +1803,7 @@ void Particle::sort(const int n,
         }
 
         _nT = n;
-        
+
         _t = t;
         _wT = wT;
         _uT = uT;
@@ -1825,7 +1825,7 @@ void Particle::sort(const int n,
         }
 
         _nD = n;
-        
+
         _d = d;
         _wD = wD;
         _uD = uD;
@@ -1858,6 +1858,19 @@ uvec Particle::iSort(const ParticleType pt) const
         return d_index_sort_descend(_uT);
     else if (pt == PAR_D)
         return d_index_sort_descend(_uD);
+    else abort();
+}
+
+int Particle::iMax(const ParticleType pt) const
+{
+    if (pt == PAR_C)
+        return d_value_max_index(_uC);
+    else if (pt == PAR_R)
+        return d_value_max_index(_uR);
+    else if (pt == PAR_T)
+        return d_value_max_index(_uT);
+    else if (pt == PAR_D)
+        return d_value_max_index(_uD);
     else abort();
 }
 
@@ -1934,11 +1947,11 @@ void Particle::resetPeakFactor()
 
 void Particle::keepHalfHeightPeak(const ParticleType pt)
 {
-    uvec order = iSort(pt);
+    int maxIdx = iMax(pt);
 
     if (pt == PAR_C)
     {
-        double hh = _uC(order(0)) * _peakFactorC;
+        double hh = _uC(maxIdx) * _peakFactorC;
 
         for (int i = 0; i < _nC; i++)
             //if (_uC(i) < hh) _uC(i) = 0;
@@ -1947,7 +1960,7 @@ void Particle::keepHalfHeightPeak(const ParticleType pt)
     }
     else if (pt == PAR_R)
     {
-        double hh = _uR(order(0)) * _peakFactorR;
+        double hh = _uR(maxIdx) * _peakFactorR;
 
         for (int i = 0; i < _nR; i++)
             //if (_uR(i) < hh) _uR(i) = 0;
@@ -1956,7 +1969,7 @@ void Particle::keepHalfHeightPeak(const ParticleType pt)
     }
     else if (pt == PAR_T)
     {
-        double hh = _uT(order(0)) * _peakFactorT;
+        double hh = _uT(maxIdx) * _peakFactorT;
 
         for (int i = 0; i < _nT; i++)
             //if (_uR(i) < hh) _uR(i) = 0;
@@ -1964,7 +1977,7 @@ void Particle::keepHalfHeightPeak(const ParticleType pt)
     }
     else if (pt == PAR_D)
     {
-        double hh = _uD(order(0)) * _peakFactorD;
+        double hh = _uD(maxIdx) * _peakFactorD;
 
         for (int i = 0; i < _nD; i++)
             //if (_uD(i) < hh) _uD(i) = 0;
@@ -2527,7 +2540,7 @@ void save(const char filename[],
     else if (pt == PAR_R)
     {
         dvec4 q;
- 
+
         FOR_EACH_R(par)
         {
             par.quaternion(q, iR);

@@ -109,6 +109,13 @@ uvec index_sort_descend(const vec& v);
 uvec d_index_sort_descend(const dvec& v);
 
 /**
+ * This function returns the index of the largest one in a vector.
+ *
+ * @param v the vector to be sorted
+ */
+int d_value_max_index(const dvec& v);
+
+/**
  * If x is peroidic and has a period of p, change x to the counterpart in [0, p)
  * and return how many periods there are between x and the counterpart in [0,
  * p).

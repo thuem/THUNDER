@@ -78,6 +78,22 @@ uvec d_index_sort_descend(const dvec& v)
     return idx;
 }
 
+int d_value_max_index(const dvec& v)
+{
+    RFLOAT maxVal = v(0);
+    int maxIdx = 0;
+
+    for (int i = 1; i < v.size(); i++)
+    {
+        if (maxVal < v(i))
+        {
+            maxVal = v(i);
+            maxIdx = i;
+        }
+    }
+    return maxIdx;
+}
+
 int periodic(RFLOAT& x,
              const RFLOAT p)
 {

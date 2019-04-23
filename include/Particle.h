@@ -1,11 +1,19 @@
-/*******************************************************************************
- * Author: Hongkun Yu, Mingxu Hu, Kunpeng Wang
- * Dependecy:
- * Test:
- * Execution:
- * Description:
+/** @file
+ *  @author Mingxu Hu
+ *  @author Hongkun Yu
+ *  @author Kunpeng Wang
+ *  @author Shouqing Li
+ *  @version 1.4.11.081221
+ *  @copyright THUNDER Non-Commercial Software License Agreement
+ *
+ *  ChangeLog
+ *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
+ *  ------      | ----       | -------       | -----------
+ *  Mingxu Hu   | 2015/03/23 | 0.0.1.050323  | new file
+ *  Shouqing Li | 2019/04/22 | 1.4.11.090422 | add documentation
+ *  Shouqing Li | 2019/04/22 | 1.4.11.090422 | replace iSort() with iMax()
+ *
  * ****************************************************************************/
-
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
@@ -69,7 +77,7 @@ class Particle
 
         /**
          * @brief the working mode of this particle filter
-         * 
+         *
          * MODE_2D: the reference is a 2D image, and the perturbation in rotation is in 2D; MODE_3D: the reference is a 3D volume, and the perturbation in rotation is in 2D
          */
         int _mode;
@@ -101,35 +109,35 @@ class Particle
 
         /**
          * @brief the re-center threshold of translation
-         * 
+         *
          * For example, assuming _transQ = 0.01, if a translation lies beyond the confidence area of 99%, this translation will be re-centre to the original point.
          */
         double _transQ;
 
         /**
          * @brief the ratio of the greatest and the smallest probability of the spport points of the class subspace
-         * 
+         *
          * It's used to set the probability of the support points with small probability to zero. Set the lower limit as the greatest probabilities multiplies this factor, those greater than lower limit will be substracted by lower limit, and those smaller will be set to 0.
          */
         double _peakFactorC;
 
         /**
          * @brief the ratio of the greatest and the smallest probability of the spport points of the rotation subspace
-         * 
+         *
          * It's used to set the probability of the support points with small probability to zero. Set the lower limit as the greatest probabilities multiplies this factor, those greater than lower limit will be substracted by lower limit, and those smaller will be set to 0.
          */
         double _peakFactorR;
 
         /**
          * @brief the ratio of the greatest and the smallest probability of the spport points of the translation subspace
-         * 
+         *
          * It's used to set the probability of the support points with small probability to zero. Set the lower limit as the greatest probabilities multiplies this factor, those greater than lower limit will be substracted by lower limit, and those smaller will be set to 0.
          */
         double _peakFactorT;
-        
+
         /**
          * @brief the ratio of the greatest and the smallest probability of the spport points of the defocus subspace
-         * 
+         *
          * It's used to set the probability of the support points with small probability to zero. Set the lower limit as the greatest probabilities multiplies this factor, those greater than lower limit will be substracted by lower limit, and those smaller will be set to 0.
          */
         double _peakFactorD;
@@ -140,8 +148,8 @@ class Particle
         uvec _c;
 
         /**
-         * @brief a table storing the rotation information 
-         * 
+         * @brief a table storing the rotation information
+         *
          * MODE_2D: a table storing the rotation information as the first and second elements stand for a unit dvector in circle and the other two elements are zero; MODE_3D: a table storing the rotation information with each row storing a quaternion
          */
         dmat4 _r;
@@ -195,7 +203,7 @@ class Particle
          * @brief a dvector storing the likelihood of each support point of the defocus subspace
          */
         dvec _uD;
-        
+
         /**
          * @brief a pointer points to a Symmetry object which indicates the symmetry
          */
@@ -203,7 +211,7 @@ class Particle
 
         /**
          * @brief concentration parameter of Angular Central Gaussian distribution of rotation
-         * 
+         *
          * MODE_2D: Suppose the support points of rotation subspace obeyed the VMS distribution.
          * MODE_3D: Suppose the support points of rotation subspace obeyed the ACG distribution.
          */
@@ -253,14 +261,14 @@ class Particle
 
         /**
          * @brief the previous most likely rotation
-         * 
+         *
          * MODE_2D: the first element stands for the previous most likely rotation; MODE_3D: quaternion of the previous most likely rotation
          */
         dvec4 _topRPrev;
 
         /**
          * @brief the most likely rotation
-         * 
+         *
          * MODE_2D: the first element stands for the most likely rotation; MODE_3D: quaternion of the most likely rotation
          */
         dvec4 _topR;
@@ -369,7 +377,7 @@ class Particle
 
         /**
          * @brief This function resets the support points in this particle filter to a default distribution.
-         * 
+         *
          * Reset the support points of class subspace and the support points of defocus space to uniform distribution. Reset the support points of translation space to Gaussian distribution. Reset the support points of rotation to a VMS distribution and ACG distribution in MODE_2D and MODE_3D, respectively.
          */
         void reset();
@@ -387,7 +395,7 @@ class Particle
 
         /**
          * @brief This function resets the support points in this particle filter to a default distribution with given numbers of particls.
-         * 
+         *
          * Reset the support points of class subspace and the support points of defocus space to uniform distribution with nC, nT and nD support points, respectively.Reset the support points of translation space to Gaussian distribution with nT support points. Reset the support points of rotation to a VMS distribution and ACG distribution with nR support points in MODE_2D and MODE_3D, respectively.
          */
         void reset(const int nC, /**< [in] number of support points of the class subspacess */
@@ -403,10 +411,10 @@ class Particle
                    const double sD = 0.05 /**< [in] the standard deviation of defocus factor */
                   );
 
-        
+
         /**
          * @brief This functions returns the mode of this particle fitler.
-         * 
+         *
          * @return the mode of this particle filter.
          */
         int mode() const;
@@ -419,7 +427,7 @@ class Particle
 
         /**
          * @brief This functions returns the number of support points of the class subspaces in this particle fitler.
-         * 
+         *
          * @return the number of support points of the class subspaces
          */
         int nC() const;
@@ -432,7 +440,7 @@ class Particle
 
         /**
          * @brief This functions returns the number of support points of the rotation subspace in this particle fitler.
-         * 
+         *
          * @return the number of support points of the rotation subspace
          */
         int nR() const;
@@ -445,7 +453,7 @@ class Particle
 
         /**
          * @brief This functions returns the number of support points about traslation parameters in this particle fitler.
-         * 
+         *
          * @return the number of support points of the translation subspace
          */
         int nT() const;
@@ -458,7 +466,7 @@ class Particle
 
         /**
          * @brief This functions returns the number of support points of the defocus subspace in this particle fitler.
-         * 
+         *
          * @return the number of support points of the defocus subspace
          */
         int nD() const;
@@ -471,7 +479,7 @@ class Particle
 
         /**
          * @brief This function returns the standard deviation of translation, assuming the translation follows a 2D Gaussian distribution.
-         * 
+         *
          * @return the standard deviation of translation
          */
         double transS() const;
@@ -484,7 +492,7 @@ class Particle
 
         /**
          * @brief This function returns the re-center threshold of translation.
-         * 
+         *
          * @return the re-center threshold of translation
          */
         double transQ() const;
@@ -497,7 +505,7 @@ class Particle
 
         /**
          * @brief This function returns the array sotring the class information with each element storing an index.
-         * 
+         *
          * @return the array storing the class information with each element storing an index
          */
         uvec c() const;
@@ -510,7 +518,7 @@ class Particle
 
         /**
          * @brief This function returns the table storing the rotation information with each row storing a quaternion.
-         * 
+         *
          * @return the table storing the rotation information with each row storing a quaternion
          */
         dmat4 r() const;
@@ -523,7 +531,7 @@ class Particle
 
         /**
          * @brief This function returns the table storing the translation information with each row storing a 2-dvector with x and y respectively.
-         * 
+         *
          * @return the table storing the translation information with each row storing a 2-dvector with x and y respectively
          */
         dmat2 t() const;
@@ -536,7 +544,7 @@ class Particle
 
         /**
          * @brief This function returns the array storing the translation information with each element storing defocus parameter.
-         * 
+         *
          * @return the array storing the translation information with each element storing defocus parameter
          */
         dvec d() const;
@@ -549,7 +557,7 @@ class Particle
 
         /**
          * @brief This function returns the array of weight of number of support points of the class subspace.
-         * 
+         *
          * @return the array of weight of number of support points of the class subspace
          */
         dvec wC() const;
@@ -562,7 +570,7 @@ class Particle
 
         /**
          * @brief This function returns the array of weight of number of support points of the rotation subspace.
-         * 
+         *
          * @return the array of weight of number of support points of the rotation subspace
          */
         dvec wR() const;
@@ -575,7 +583,7 @@ class Particle
 
         /**
          * @brief This function returns the array of weight of number of support points of the translation subspace.
-         * 
+         *
          * @return the array of weight of number of support points of the translation subspace
          */
         dvec wT() const;
@@ -588,7 +596,7 @@ class Particle
 
         /**
          * @brief This function returns the array of weight of number of support points of the defocus subspace.
-         * 
+         *
          * @return the array of weight of number of support points of the defocus subspace
          */
         dvec wD() const;
@@ -601,7 +609,7 @@ class Particle
 
         /**
          * @brief This function returns the array storing the likelihood of each support point.
-         * 
+         *
          * @return the array storing the likelihood of each support point
          */
         dvec uC() const;
@@ -614,7 +622,7 @@ class Particle
 
         /**
          * @brief This function returns the array storing the likelihood of each support point.
-         * 
+         *
          * @return the array storing the likelihood of each support point
          */
         dvec uR() const;
@@ -627,7 +635,7 @@ class Particle
 
         /**
          * @brief This function returns the array storing the likelihood of each support point.
-         * 
+         *
          * @return the array storing the likelihood of each support point
          */
         dvec uT() const;
@@ -640,7 +648,7 @@ class Particle
 
         /**
          * @brief This function returns the array storing the likelihood of each support point.
-         * 
+         *
          * @return the array storing the likelihood of each support point
          */
         dvec uD() const;
@@ -653,7 +661,7 @@ class Particle
 
         /**
          * @brief This function returns the translation parameter with greatest weight.
-         * 
+         *
          * @return the translation parameter with greatest weight
          */
         dvec2 topT() const;
@@ -666,7 +674,7 @@ class Particle
 
         /**
          * @brief This function returns the translation parameter with greatest weight in the previous iteration.
-         * 
+         *
          * @return the translation parameter with greatest weight in the previous iteration
          */
         dvec2 topTPrev() const;
@@ -679,7 +687,7 @@ class Particle
 
         /**
          * @brief This function returns the symmetry.
-         * 
+         *
          * @return a pointer points to the Symmetry object
          */
         const Symmetry* symmetry() const;
@@ -692,7 +700,7 @@ class Particle
 
         /**
          * @brief This function generates the support points by loading relevant parameters.
-         * 
+         *
          * This function generates the support points by loading the number of support points of rotation, translation and defocus subspace, the quaternion of translation, standard devaation of rotation, translation dvector, two sigmas of 2D Gaussian distribution of the translation, defocus factor and standard deviation of defocus factor.
          */
         void load(const int nR,      /**< [in] the number of support points of the rotation subspace */
@@ -732,56 +740,56 @@ class Particle
 
         /**
          * @brief This function returns the concentration parameter of the rotation
-         * 
+         *
          * @return the concentration parameter of the rotation
          */
         double variR() const;
 
         /**
          * @brief This function returns the concentration parameter of the translation
-         * 
+         *
          * @return the concentration parameter of the translation
          */
         double variT() const;
 
         /**
          * @brief This function returns the concentration parameter of the defocus
-         * 
+         *
          * @return the concentration parameter of the defocus
          */
         double variD() const;
 
         /**
          * @brief This function returns the compression grade of the number of support points of the rotation subspace, The higher results usually means the higher deviation.
-         * 
+         *
          * @return the compression grade of the number of support points of the rotation subspace
          */
         double compressR() const;
 
         /**
          * @brief This function returns the compression grade of the number of support points of the translation subspace, The higher results usually means the higher deviation.
-         * 
+         *
          * @return the compression grade of the number of support points of the translation subspace
          */
         double compressT() const;
 
         /**
          * @brief This function returns the compression grade of the number of support points of the defocus subspace, The higher results usually means the higher deviation.
-         * 
+         *
          * @return the compression grade of the number of support points of the defocus subspace
          */
         double compressD() const;
 
         /**
          * @brief This function returns the score of these support points, the particle filter with higher score will have greater weight in reconstruction process.
-         * 
+         *
          * @return the score of these support points
          */
         double score() const;
 
         /**
          * @brief This function returns the weight of i-th support points of the class subspace.
-         * 
+         *
          * @return the weight of i-th support points of the class subspace
          */
         double wC(const int i /**< [in] index of support point */
@@ -803,7 +811,7 @@ class Particle
 
         /**
          * @brief This function returns the weight of i-th support points of the rotation subspace.
-         * 
+         *
          * @return the weight of i-th support points of the rotation subspace
          */
         double wR(const int i /**< [in] index of support point */
@@ -825,7 +833,7 @@ class Particle
 
         /**
          * @brief This function returns the weight of i-th support points of the translation subspace.
-         * 
+         *
          * @return the weight of i-th support points of the translation subspace
          */
         double wT(const int i /**< [in] index of support point */
@@ -847,7 +855,7 @@ class Particle
 
         /**
          * @brief This function returns the weight of i-th support points of the defocus subspace.
-         * 
+         *
          * @return the weight of i-th support points of the defocus subspace
          */
         double wD(const int i /**< [in] index of support point */
@@ -869,7 +877,7 @@ class Particle
 
         /**
          * @brief This function returns the likelihood of i-th support points of the class subspace.
-         * 
+         *
          * @return the likelihood of i-th support points of the class subspace
          */
         double uC(const int i /**< [in] index of support point */
@@ -883,7 +891,7 @@ class Particle
 
         /**
          * @brief This function returns the likelihood of i-th support points of the rotation subspace.
-         * 
+         *
          * @return the likelihood of i-th support points of the rotation subspace
          */
         double uR(const int i /**< [in] index of support point */
@@ -898,7 +906,7 @@ class Particle
 
         /**
          * @brief This function returns the likelihood of i-th support points of the translation subspace.
-         * 
+         *
          * @return the likelihood of i-th support points of the translation subspace
          */
         double uT(const int i /**< [in] index of support point */
@@ -913,7 +921,7 @@ class Particle
 
         /**
          * @brief This function returns the likelihood of i-th support points of the defocus subspace.
-         * 
+         *
          * @return the likelihood of i-th support points of the defocus subspace
          */
         double uD(const int i /**< [in] index of support point */
@@ -1002,7 +1010,7 @@ class Particle
 
         /**
          * @brief This function returns the first concnetration paramter of von Mises distribution of rotation.
-         * 
+         *
          * @return the first concnetration paramter of von Mises distribution of rotation
          */
         double k1() const;
@@ -1015,7 +1023,7 @@ class Particle
 
         /**
          * @brief This function returns the second concnetration paramter of von Mises distribution of rotation.
-         * 
+         *
          * @return the second concnetration paramter of von Mises distribution of rotation
          */
         double k2() const;
@@ -1028,7 +1036,7 @@ class Particle
 
         /**
          * @brief This function returns the third concnetration paramter of von Mises distribution of rotation.
-         * 
+         *
          * @return the third concnetration paramter of von Mises distribution of rotation
          */
         double k3() const;
@@ -1041,7 +1049,7 @@ class Particle
 
         /**
          * @brief This function returns the sigma0 of 2D Gaussian distribution of the translation.
-         * 
+         *
          * @return the sigma0 of 2D Gaussian distribution of the translation
          */
         double s0() const;
@@ -1054,7 +1062,7 @@ class Particle
 
         /**
          * @brief This function returns the sigma1 of 2D Gaussian distribution of the translation.
-         * 
+         *
          * @return the sigma1 of 2D Gaussian distribution of the translation
          */
         double s1() const;
@@ -1067,7 +1075,7 @@ class Particle
 
         /**
          * @brief This function returns the rho of 2D Gaussian distribution of translation.
-         * 
+         *
          * @return the rho of 2D Gaussian distribution of translation
          */
         double rho() const;
@@ -1080,7 +1088,7 @@ class Particle
 
         /**
          * @brief This function returns the sigma of 1D Gaussian distribution of defocus factor.
-         * 
+         *
          * @return the sigma of 1D Gaussian distribution of defocus factor
          */
         double s() const;
@@ -1090,7 +1098,7 @@ class Particle
          */
         void setS(const double s /**< [in] the sigma of 1D Gaussian distribution of defocus factor */
                  );
-        
+
         /**
          * @brief This function calculates the parameters with greatest weight.
          */
@@ -1112,7 +1120,7 @@ class Particle
         /**
          * @brief This function performs a perturbation on the support points in this particle filter.
          */
-        void perturb(const double pf,      /**< [in] the perturbation factor which stands for the portion of 
+        void perturb(const double pf,      /**< [in] the perturbation factor which stands for the portion of
                                                      confidence area of perturbation of the confidence area
                                                      of the sampling points */
                      const ParticleType pt /**< [in] the support point type of this particle filter */
@@ -1204,18 +1212,23 @@ class Particle
 
         /**
          * @brief This function returns the index of sorting of the support points' weight in a descending order.
-         * 
+         *
          * @return the index of sorting of the support points' weight in a descending order.
          */
         uvec iSort(const ParticleType pt /**< [in] the support point type of this particle filter */
                   ) const;
 
         /**
+         * @brief This function returns the index of the support points with largest weight.
+         */
+        int iMax(const ParticleType pt) const; /**< [in] the support point type of this particle filter */
+
+        /**
          * @brief This function calculates the peak factor of this particle filter.
          */
         void setPeakFactor(const ParticleType pt /**< [in] the support point type of this particle filter */
                           );
-        
+
         /**
          * @brief This function set the peak factor of this particle filter as default.
          */
@@ -1229,28 +1242,28 @@ class Particle
 
         /**
          * @brief This function update the most likely class, and returns whether the most likely class changed.
-         * 
+         *
          * @return whether the most likely class changed.
          */
         bool diffTopC();
 
         /**
          * @brief This function returns the difference between the most likely rotations between two iterations. This function also resets the most likely rotatation.
-         * 
+         *
          * @return the difference between the most likely rotations between two iterations
          */
         double diffTopR();
 
         /**
          * @brief This function returns the difference between the most likely translations between two iterations. This function also resets the most likely translation.
-         * 
+         *
          * @return the difference between the most likely translations between two iterations
          */
         double diffTopT();
 
         /**
          * @brief This function returns the difference between the most likely defocus factor between two iterations. This function also resets the most likely defocus factor.
-         * 
+         *
          * @return the most likely defocus factor between two iterations
          */
         double diffTopD();
@@ -1260,7 +1273,7 @@ class Particle
          */
         void rank1st(size_t& cls /**< [out] the most likely class */
                     ) const;
-        
+
         /**
          * @brief This function gives the most likely quaternion of rotation.
          */
@@ -1407,7 +1420,7 @@ class Particle
          * @brief This function will copy the content to another Particle object.
          */
         Particle copy() const;
-    
+
     private:
 
         /**
