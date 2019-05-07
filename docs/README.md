@@ -54,7 +54,9 @@ cmake ..
 
 <summary>installation directory</summary>
 
-You may assign installation directory using `-DCMAKE_INSTALL_PREFIX="install_dir"` during configuration, where `install_dir` stands for where you want THUNDER to be installed.
+<p>
+You may assign installation directory using <code>-DCMAKE_INSTALL_PREFIX="install_dir"</code> during configuration, where <code>install_dir</code> stands for where you want THUNDER to be installed.
+</p>
 
 </details>
 
