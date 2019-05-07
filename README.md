@@ -15,22 +15,6 @@ of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-014
 * [Seneca Valley virus attachment and uncoating mediated by its receptor anthrax toxin receptor 1\[J\]. PNAS.](https://www.pnas.org/content/115/51/13087)
 * [Structures of the fully assembled Saccharomyces cerevisiae spliceosome before activation\[J\]. Science.](http://science.sciencemag.org/content/360/6396/1423)
 
-## Release Note
-
-* Version 1.4.12: This releaes fixes a plenty of bugs and adds several new features.
-* Version 1.4.11: This release fixes a bug which occurs during the initialisation step of a few datasets.
-* Version 1.4.10: This release fixes a compilation bug which occurs when CUDA version is below 9.0.
-* Version 1.4.9: Graphic User Inference (GUI) `thunder_stackview` is released. It is used for viewing the result of 2D classification and selecting desired particles.
-* Version 1.4.8: This release elevates the support of NVIDIA GeForce GTX 1080/1080Ti.
-* Version 1.4.7: This release fixes minor bugs.
-* Version 1.4.6: This release fixes a bug occurring during applying mask on the reference.
-* Version 1.4.5: This release fixes a bug which appears when 8 or more GPUs are used in a single workstation. This release also fixes some minor bugs.
-* Version 1.4.4: This release elevates the support of NVIDIA V100.
-* Version 1.4.3: This release increases the stability of 2D classification.
-* Version 1.4.2: This release enables THUNDER to run on single workstation with one or multiple GPUs.
-* Version 1.4.1: This release fixes minor bugs.
-* Version 1.4.0: This release enables THUNDER to run on GPU clusters.
-
 ## Quick Start
 
 ### Installation from Source
@@ -57,7 +41,7 @@ Please make sure that the proper version of NCCL2 is installed, as it depends on
 
 ### Running THUNDER
 
-Please view the manual in `manual` folder.
+Please view the [manual](https://thuem.github.io/THUNDER/)
 
 ### GUI Installation
 
@@ -85,6 +69,22 @@ See [AUTHORS.txt](AUTHORS.txt) file.
 ## License
 
 See [LICENSE.txt](LICENSE.txt) file for details.
+
+## Release Note
+
+* Version 1.4.12: This releaes fixes a plenty of bugs and adds several new features.
+* Version 1.4.11: This release fixes a bug which occurs during the initialisation step of a few datasets.
+* Version 1.4.10: This release fixes a compilation bug which occurs when CUDA version is below 9.0.
+* Version 1.4.9: Graphic User Inference (GUI) `thunder_stackview` is released. It is used for viewing the result of 2D classification and selecting desired particles.
+* Version 1.4.8: This release elevates the support of NVIDIA GeForce GTX 1080/1080Ti.
+* Version 1.4.7: This release fixes minor bugs.
+* Version 1.4.6: This release fixes a bug occurring during applying mask on the reference.
+* Version 1.4.5: This release fixes a bug which appears when 8 or more GPUs are used in a single workstation. This release also fixes some minor bugs.
+* Version 1.4.4: This release elevates the support of NVIDIA V100.
+* Version 1.4.3: This release increases the stability of 2D classification.
+* Version 1.4.2: This release enables THUNDER to run on single workstation with one or multiple GPUs.
+* Version 1.4.1: This release fixes minor bugs.
+* Version 1.4.0: This release enables THUNDER to run on GPU clusters.
 
 ## Acknowledgements
 
