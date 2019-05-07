@@ -49,24 +49,24 @@ cd build
 cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
 ```
 
-### Configuration Variables of **CMake**
+### Configuration Variables of **CMake** (Advanced)
 
-You may configure the compilation of THUNDER with several variables.
+<details>
 
-THUNDER can be compiled into single-float precision version or
-double-float precision version, by ``SINGLE_PRECISION`` variable. The
-default version is single-float precision. However, you may force it
-compiling into double-float precision version, by adding parameter
-`-DSINGLE_PRECISION='off'` during configuring using **cmake**.
+<summary>single and double precision</summary>
+
+THUNDER can be compiled into single-float precision version or double-float precision version, by ``SINGLE_PRECISION`` variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter `-DSINGLE_PRECISION='off'` during configuring using **cmake**.
+
+</details>
 
 By default, THUNDER will try to compile a CPU version and a GPU version, into **thunder_cpu** and **thunder_gpu**, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter `-DGPU_VERSION='off'`.
 
-THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by `ENABLE\_SIMD` variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter `-DENABLE_SIMD='off'`during configuring using **cmake**.
+THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by `ENABLE_SIMD` variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter `-DENABLE_SIMD='off'`during configuring using **cmake**.
 
 AVX256 and AVX512 SIMD instructions are currently supported by THUNDER.
 By default, AVX256 is enabled and AVX512 is disabled. You can manually
-enable or disable them by the variable **ENABLE\_AVX256** and
-**ENABLE\_AVX512**, respectively, by the same method as described above.
+enable or disable them by the variable **ENABLE_AVX256** and
+**ENABLE_AVX512**, respectively, by the same method as described above.
 
 It is worth mentioned that you may check whether the CPUs and C/C++
 compiler support AVX512 or not, before compiling THUNDER using AVX512.
