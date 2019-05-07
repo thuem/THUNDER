@@ -2,7 +2,7 @@
 
 A particle-filter framework for robust cryoEM 3D reconstruction
 
-## Literature
+## Publication
 
 [Nature Methods](https://www.nature.com/articles/s41592-018-0223-8), A particle-filter framework for robust cryo-EM 3D reconstruction
 
@@ -31,7 +31,7 @@ make
 make install
 ```
 
-Installation of specified version of THUNDER, such as double-precision, designed SIMD version or GPU version, is described in the manual in `manual` folder.
+Installation of specified version of THUNDER, such as double-precision, designed SIMD version or GPU version, is described in the [manual](https://thuem.github.io/THUNDER/).
 
 ### Dependency of GPU Version
 
@@ -41,7 +41,7 @@ Please make sure that the proper version of NCCL2 is installed, as it depends on
 
 ### Running THUNDER
 
-Please view the [manual](https://thuem.github.io/THUNDER/)
+Please find the [manual](https://thuem.github.io/THUNDER/).
 
 ### GUI Installation
 
