@@ -17,30 +17,6 @@ of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-014
 
 ## Quick Start
 
-### Installation from Source
-
-Installation from source requires CMake and a C/C++ compiler with MPI wrapper.
-
-```bash
-git clone git@github.com:thuem/THUNDER.git THUNDER
-cd THUNDER
-mkdir build
-cd build
-cmake ..
-make
-make install
-```
-
-Installation of specified version of THUNDER, such as double-precision, designed SIMD version or GPU version, is described in the [manual](https://thuem.github.io/THUNDER/).
-
-### Dependency of GPU Version
-
-CUDA 8.0 or above and NCCL2 are required. You may download CUDA from https://developer.nvidia.com/cuda-toolkit and NCCL2 from https://developer.nvidia.com/nccl.
-
-Please make sure that the proper version of NCCL2 is installed, as it depends on the version of CUDA, operating system and computer architecture.
-
-### Running THUNDER
-
 Please find the [manual](https://thuem.github.io/THUNDER/).
 
 ### GUI Installation

@@ -5,24 +5,27 @@
 ### Basic Requirement
 
 1. C/C++ compiler supporting C++98 standard along with MPI wrapper
-2. **cmake**
+2. **CMake**
 
-We recommend **gcc** and Intel C/C++ compiler as C/C++ compiler.
+We recommend **gcc** and **Intel C/C++ compiler** as C/C++ compiler.
 Moreover, **gcc42** has been tested as the oldest supporting version of
-**gcc**. OpenMPI and MPICH both can be used as MPI standard. In
+**gcc**. **OpenMPI** and **MPICH** both can be used as MPI standard. In
 Tsinghua, we use **openmpi-gcc43** as the C/C++ compiler for compiling
 THUNDER.
 
-**cmake** is a tool for configuring source code for installation.
+**CMake** is a tool for configuring source code for installation.
 
 **openmpi-gcc43** is open-source software, which can easily installed
-using **yum** on CentOS and **apt-get** on Ubuntu. **cmake** has been
+using **yum** on CentOS and **apt-get** on Ubuntu. **CMake** has been
 already installed in most Linux operating systems. If not, it can also
 be conveniently installed by **yum** on CentOS and **apt-get** on
 Ubuntu.
 
 ### Additional Requirement of Installing GPU Version
 
+CUDA 8.0 or above and NCCL2 are required. You may download CUDA from https://developer.nvidia.com/cuda-toolkit and NCCL2 from https://developer.nvidia.com/nccl.
+
+Please make sure that the proper version of NCCL2 is installed, as it depends on the version of CUDA, operating system and computer architecture.
 CUDA 8 or higher version of CUDA is required for installing GPU version
 of THUNDER.
 
@@ -32,44 +35,33 @@ of THUNDER.
 
 THUNDER is a open-source software package, source code of which is held
 on Github. You may download the source code at
-<https://github.com/thuem/THUNDER>.
+<https://github.com/thuem/THUNDER> or execute `git clone git@github.com:thuem/THUNDER.git` in CLI.
 
-### Preparation Before Configuring Source Code
-
-Make sure **cmake** have been installed and correctly placed in
-environment. Thus, **cmake** can correctly set up the environment for
-compiling THUNDER.
-
-### Configure Using **cmake**
+### Configure Using **CMake**
 
 In THUNDER source code directory, please type in the following commands
-for configuring source code. **install\_dir** stands for where you want
+for configuring source code. `install_dir` stands for where you want
 THUNDER to be installed.
 
-    mkdir build
-    cd build
-    cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
-                    
+```
+mkdir build
+cd build
+cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
+```
 
-### Configuration Variables
+### Configuration Variables of **CMake**
 
 You may configure the compilation of THUNDER with several variables.
 
 THUNDER can be compiled into single-float precision version or
-double-float precision version, by **SINGLE\_PRECISION** variable. The
+double-float precision version, by ``SINGLE_PRECISION`` variable. The
 default version is single-float precision. However, you may force it
 compiling into double-float precision version, by adding parameter
-**-DSINGLE\_PRECISION=’off’** during configuring using **cmake**.
+`-DSINGLE_PRECISION='off'` during configuring using **cmake**.
 
-By default, THUNDER compiles a GPU version. If a CPU version is what you
-want, please add parameter **-DGPU\_VERSION=’off’** during configuring
-using **cmake**.
+By default, THUNDER will try to compile a CPU version and a GPU version, into **thunder_cpu** and **thunder_gpu**, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter `-DGPU_VERSION='off'`.
 
-THUNDER uses SIMD instructions for accelerating. When you compile
-THUNDER, SIMD acceleration can be turned on or off by **ENABLE\_SIMD**
-variable. The default version is using SIMD instructions. However, you
-may force it compiling into a non-SIMD version, by adding parameter
-**-DENABLE\_SIMD=’off’** during configuring using **cmake**.
+THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by `ENABLE\_SIMD` variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter `-DENABLE_SIMD='off'`during configuring using **cmake**.
 
 AVX256 and AVX512 SIMD instructions are currently supported by THUNDER.
 By default, AVX256 is enabled and AVX512 is disabled. You can manually
