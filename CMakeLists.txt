@@ -1,7 +1,7 @@
 # @file
 # @author  
 # @author Fande Yu 
-# @version 1.4.11.090325
+# @version 1.4.12.090507
 # @copyright THUNDER Non-Commercial Software License Agreement
 #
 # ChangeLog
@@ -35,7 +35,7 @@ project(THUNDER)
 
 set(THUNDER_VERSION_MAJOR 1)
 set(THUNDER_VERSION_MINOR 4)
-set(THUNDER_VERSION_ADDIT 11)
+set(THUNDER_VERSION_ADDIT 12)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}.${THUNDER_VERSION_ADDIT}!")
 
