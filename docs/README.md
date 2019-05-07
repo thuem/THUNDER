@@ -40,26 +40,39 @@ on Github. You may download the source code at
 ### Configure Using **CMake**
 
 In THUNDER source code directory, please type in the following commands
-for configuring source code. `install_dir` stands for where you want
-THUNDER to be installed.
+for configuring source code.
 
 ```
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX="install_dir" ..
+cmake ..
 ```
 
 ### Configuration Variables of **CMake** (Advanced)
 
 <details>
 
-<summary>single and double precision</summary>
+<summary>installation directory</summary>
 
-THUNDER can be compiled into single-float precision version or double-float precision version, by ``SINGLE_PRECISION`` variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter `-DSINGLE_PRECISION='off'` during configuring using **cmake**.
+You may assign installation directory using `-DCMAKE_INSTALL_PREFIX="install_dir"` during configuration, where `install_dir` stands for where you want THUNDER to be installed.
 
 </details>
 
+<details>
+
+<summary>single and double precision</summary>
+
+THUNDER can be compiled into single-float precision version or double-float precision version, by `SINGLE_PRECISION` variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter `-DSINGLE_PRECISION="off"` during configuring using **cmake**.
+
+</details>
+
+<details>
+
+<summary>CPU and GPU version</summary>
+
 By default, THUNDER will try to compile a CPU version and a GPU version, into **thunder_cpu** and **thunder_gpu**, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter `-DGPU_VERSION='off'`.
+
+</details>
 
 THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by `ENABLE_SIMD` variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter `-DENABLE_SIMD='off'`during configuring using **cmake**.
 
