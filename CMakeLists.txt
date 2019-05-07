@@ -8,6 +8,7 @@
 # AUTHOR      | TIME       | VERSION       | DESCRIPTION
 # ------      | ----       | -------       | -----------
 # Fande Yu    | 2019/03/25 | 1.4.11.090325 | separate build version in CPU & GPU
+# Mingxu      | 2019/05/07 | 1.4.12.090507 | prepare of 1.4.12 release
 
 # CMAKE REQUIREMENT
 

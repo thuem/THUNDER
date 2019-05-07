@@ -1,16 +1,24 @@
 # THUNDER
+
 A particle-filter framework for robust cryoEM 3D reconstruction
 
 ## Literature
 
-[bioRvix](https://www.biorxiv.org/content/early/2018/05/23/329169), A particle-filter framework for robust cryoEM 3D reconstruction
+[Nature Methods](https://www.nature.com/articles/s41592-018-0223-8), A particle-filter framework for robust cryo-EM 3D reconstruction
 
-### Citation
+## Citation
 
-[Bai R, Wan R, Yan C, et al. Structures of the fully assembled Saccharomyces cerevisiae spliceosome before activation\[J\]. Science, 2018:eaau0325.](http://science.sciencemag.org/content/360/6396/1423)
+* [Adeno-associated virus 2 bound to its cellular receptor AAVR\[J\]. Nature Microbiology.](https://doi.org/10.1038/s41564-018-0356-7)
+* [Mechanism of DNA translocation underlying chromatin remodelling by Snf2\[J\]. Nature.](https://doi.org/10.1038/s41586-019-1029-2)
+* [Structures of the human spliceosomes before and after release
+of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-0143-x)
+* [Seneca Valley virus attachment and uncoating mediated by its receptor anthrax toxin receptor 1\[J\]. PNAS.](https://www.pnas.org/content/115/51/13087)
+* [Structures of the fully assembled Saccharomyces cerevisiae spliceosome before activation\[J\]. Science.](http://science.sciencemag.org/content/360/6396/1423)
 
 ## Release Note
 
+* Version 1.4.12: This releaes fixes a plenty of bugs and adds several new features.
+* Version 1.4.11: This release fixes a bug which occurs during the initialisation step of a few datasets.
 * Version 1.4.10: This release fixes a compilation bug which occurs when CUDA version is below 9.0.
 * Version 1.4.9: Graphic User Inference (GUI) `thunder_stackview` is released. It is used for viewing the result of 2D classification and selecting desired particles.
 * Version 1.4.8: This release elevates the support of NVIDIA GeForce GTX 1080/1080Ti.
