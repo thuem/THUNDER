@@ -42,11 +42,11 @@ on Github. You may download the source code at
 In THUNDER source code directory, please type in the following commands
 for configuring source code.
 
-<kdb>
+```bash
 mkdir build
 cd build
 cmake ..
-</kdb>
+```
 
 ### Configuration Variables of **CMake** (Advanced)
 
@@ -64,7 +64,11 @@ You may assign installation directory using <code>-DCMAKE_INSTALL_PREFIX="instal
 
 <summary>single and double precision</summary>
 
-THUNDER can be compiled into single-float precision version or double-float precision version, by `SINGLE_PRECISION` variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter `-DSINGLE_PRECISION="off"` during configuring using **cmake**.
+<p>
+
+THUNDER can be compiled into single-float precision version or double-float precision version, by <code>SINGLE_PRECISION</code> variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter <code>-DSINGLE_PRECISION="off"</code> during configuring using **cmake**.
+
+</p>
 
 </details>
 
@@ -72,22 +76,29 @@ THUNDER can be compiled into single-float precision version or double-float prec
 
 <summary>CPU and GPU version</summary>
 
-By default, THUNDER will try to compile a CPU version and a GPU version, into **thunder_cpu** and **thunder_gpu**, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter `-DGPU_VERSION='off'`.
+<p>
+
+By default, THUNDER will try to compile a CPU version and a GPU version, into **thunder_cpu** and **thunder_gpu**, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter <code>-DGPU_VERSION='off'</code>.
+
+</p>
 
 </details>
 
+<details>
+
+<summary>SIMD</summary>
+
+<p>
+
 THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by `ENABLE_SIMD` variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter `-DENABLE_SIMD='off'`during configuring using **cmake**.
 
-AVX256 and AVX512 SIMD instructions are currently supported by THUNDER.
-By default, AVX256 is enabled and AVX512 is disabled. You can manually
-enable or disable them by the variable **ENABLE_AVX256** and
-**ENABLE_AVX512**, respectively, by the same method as described above.
+AVX256 and AVX512 SIMD instructions are currently supported by THUNDER. By default, AVX256 is enabled and AVX512 is disabled. You can manually enable or disable them by the variable **ENABLE_AVX256** and **ENABLE_AVX512**, respectively, by the same method as described above.
 
-It is worth mentioned that you may check whether the CPUs and C/C++
-compiler support AVX512 or not, before compiling THUNDER using AVX512.
-For example, CPUs should be KNL or Xeon newer than Skylake. Meanwhile,
-if you compile using **GCC**, please make sure it is newer than version
-4.9.3. If you compile with icc, please check up its support on AVX512.
+It is worth mentioned that you may check whether the CPUs and C/C++ compiler support AVX512 or not, before compiling THUNDER using AVX512. For example, CPUs should be KNL or Xeon newer than Skylake. Meanwhile, if you compile using **GCC**, please make sure it is newer than version 4.9.3. If you compile with **Intel C/C++ compiler**, please check up its support on AVX512.
+
+</p>
+
+</details>
 
 ### Compile and Stage Binaries into Environment
 
@@ -97,7 +108,6 @@ you desire for compiling.
 
     make -j20
     make install
-                    
 
 After compiling and installation, several folders will appear under the
 directory **install\_dir**: **include** containing header files, **bin**
