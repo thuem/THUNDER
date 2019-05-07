@@ -23,7 +23,7 @@ Ubuntu.
 
 ### Additional Requirement of Installing GPU Version
 
-CUDA 8.0 or above and NCCL2 are required. You may download CUDA from https://developer.nvidia.com/cuda-toolkit and NCCL2 from https://developer.nvidia.com/nccl.
+CUDA 8.0 or above and NCCL2 are required. You may download CUDA from <https://developer.nvidia.com/cuda-toolkit> and NCCL2 from <https://developer.nvidia.com/nccl>.
 
 Please make sure that the proper version of NCCL2 is installed, as it depends on the version of CUDA, operating system and computer architecture.
 CUDA 8 or higher version of CUDA is required for installing GPU version
@@ -66,7 +66,7 @@ You may assign installation directory using <code>-DCMAKE_INSTALL_PREFIX="instal
 
 <p>
 
-THUNDER can be compiled into single-float precision version or double-float precision version, by <code>SINGLE_PRECISION</code> variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter <code>-DSINGLE_PRECISION="off"</code> during configuring using **cmake**.
+THUNDER can be compiled into single-float precision version or double-float precision version, by <code>SINGLE_PRECISION</code> variable. The default version is single-float precision. However, you may force it compiling into double-float precision version, by adding parameter <code>-DSINGLE_PRECISION="off"</code> during configuring using <b>cmake</b>.
 
 </p>
 
@@ -78,7 +78,7 @@ THUNDER can be compiled into single-float precision version or double-float prec
 
 <p>
 
-By default, THUNDER will try to compile a CPU version and a GPU version, into **thunder_cpu** and **thunder_gpu**, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter <code>-DGPU_VERSION='off'</code>.
+By default, THUNDER will try to compile a CPU version and a GPU version, into <b>thunder_cpu</b> and <b>thunder_gpu</b>, respectively. If it can not find essentail GPU components in the environment, it will omit the CPU version compilation. You may force it not compiling GPU version, by adding parameter <code>-DGPU_VERSION='off'</code>.
 
 </p>
 
@@ -90,11 +90,11 @@ By default, THUNDER will try to compile a CPU version and a GPU version, into **
 
 <p>
 
-THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by `ENABLE_SIMD` variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter `-DENABLE_SIMD='off'`during configuring using **cmake**.
+THUNDER uses SIMD instructions for accelerating. When you compile THUNDER, SIMD acceleration can be turned on or off by <code>ENABLE_SIMD</code> variable. The default version is with SIMD acceleration on. However, you may force it compiling into a non-SIMD version, by adding parameter <code>-DENABLE_SIMD="off"</code> during configuring using <b>cmake</b>.
 
-AVX256 and AVX512 SIMD instructions are currently supported by THUNDER. By default, AVX256 is enabled and AVX512 is disabled. You can manually enable or disable them by the variable **ENABLE_AVX256** and **ENABLE_AVX512**, respectively, by the same method as described above.
+AVX256 and AVX512 SIMD instructions are currently supported by THUNDER. By default, AVX256 is enabled and AVX512 is disabled. You can manually enable or disable them by the variable <code>ENABLE_AVX256</code> and <code>ENABLE_AVX512</code>, respectively, by the same method as described above.
 
-It is worth mentioned that you may check whether the CPUs and C/C++ compiler support AVX512 or not, before compiling THUNDER using AVX512. For example, CPUs should be KNL or Xeon newer than Skylake. Meanwhile, if you compile using **GCC**, please make sure it is newer than version 4.9.3. If you compile with **Intel C/C++ compiler**, please check up its support on AVX512.
+It is worth mentioned that you may check whether the CPUs and C/C++ compiler support AVX512 or not, before compiling THUNDER using AVX512. For example, CPUs should be KNL or Xeon newer than Skylake. Meanwhile, if you compile using <b>GCC</b>, please make sure it is newer than version 4.9.3. If you compile with <b>Intel C/C++ compiler</b>, please check up its support on AVX512.
 
 </p>
 
@@ -102,32 +102,24 @@ It is worth mentioned that you may check whether the CPUs and C/C++ compiler sup
 
 ### Compile and Stage Binaries into Environment
 
-Please type in the following command for compiling source code using 20
-threads. You may change the number after **-j** to be number of threads
+Please type in the following command to compile source code using 20
+threads and stage binaries into installation diectory. You may change the number after `-j` to be number of threads
 you desire for compiling.
 
-    make -j20
-    make install
+```bash
+make -j20
+make install
+```
 
-After compiling and installation, several folders will appear under the
-directory **install\_dir**: **include** containing header files, **bin**
-containing executable binaries, **lib** containing several libraries,
-**script** containing scripts needed and **manual** containing this user
-guide. The compiled binaries are listed as
+After compiling and installation, several folders will appear under the installation directory. **include** containing header files, **bin** containing executable binaries, **lib** containing several libraries, **script** containing scripts needed. The compiled binaries are listed as
 
--   **thunder**
-
--   **thunder\_average**
-
--   **thunder\_genmask**
-
--   **thunded\_lowpass**
-
--   **thunder\_mask**
-
--   **thunder\_postprocess**
-
--   **thunder\_resize**
+* **thunder**
+* **thunder\_average**
+* **thunder\_genmask**
+* **thunded\_lowpass**
+* **thunder\_mask**
+* **thunder\_postprocess**
+* **thunder\_resize**
 
 .
 
@@ -135,15 +127,17 @@ For the purpose of convenience, you may stage binaries into environment.
 For example, you may add the following command into shell configuration
 file
 
-    setenv PATH=install_dir:$PATH
-                    
+```bash
+setenv PATH=install_dir:$PATH
+```
 
 when **csh** or **tcsh** is used as shell. Meanwhile, you may add the
 following command into shell configuration file when **bash**, **zsh**
 or **ksh** is used as shell.
 
-    export PATH=install_dir:$PATH
-                    
+```bash
+export PATH=install_dir:$PATH
+```
 
 After staging binaries into environment, you may directly access these
 binaries by typing their filenames in shell.
