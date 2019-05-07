@@ -42,11 +42,11 @@ on Github. You may download the source code at
 In THUNDER source code directory, please type in the following commands
 for configuring source code.
 
-```
+<kdb>
 mkdir build
 cd build
 cmake ..
-```
+</kdb>
 
 ### Configuration Variables of **CMake** (Advanced)
 
