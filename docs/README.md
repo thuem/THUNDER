@@ -113,7 +113,7 @@ make install
 
 After compiling and installation, several folders will appear under the installation directory. **include** containing header files, **bin** containing executable binaries, **lib** containing several libraries, **script** containing scripts needed. The compiled binaries are listed as
 
-<select id = "thunder_binary">
+<select id = "thunder_binary" onchange="thunder_binary_explanation();">
     <option value = "">--Please choose an option--</option>
     <option value = "thunder_cpu">thunder_cpu</option>
     <option value = "thunder_gpu">thunder_gpu</option>
@@ -123,6 +123,15 @@ After compiling and installation, several folders will appear under the installa
     <option value = "thunder_lowpass">thunder_lowpass</option>
     <option value = "thunder_resize">thunder_resize</option>
 </select>
+
+<script>
+    function thunder_binary_explanation()
+    {
+        var val = $(".thunder_binary option:selected").text();
+        
+        var index = $(".thunder_binary").get(0).selectedIndex;
+    }
+</script>
 
 For the purpose of convenience, you may stage binaries into environment.
 For example, you may add the following command into shell configuration
@@ -210,21 +219,11 @@ It is worth noticed that both of two scripting only convert CTF information but 
 
 ## Configure with JSON Parameter File {#sec:JSON}
 
-**thunder** reads in a JSON file which is parsed into parameters of
-**thunder**. You may change the values of the keys to fit your purpose.
-The definition of keys in this JSON parameter file is listed in Table
-[tab:JSON~k~ey].
+**thunder_cpu** and **thunder_gpu** reads in a JSON file as parameter. You may change the values of the keys to fit your purpose. The definition of keys in this JSON parameter file is listed in Table.
 
-**thunder** divides 3D refinement into three stages: global search,
-local search and CTF search. During global search, the rotation and
-translation result of the previous iteration will **not** inherited into
-the next iteration. Meanwhile, during local search, the rotation and
-translation of each particle image will be adjust based on the result of
-the previous iteration. During CTF search, the CTF parameters will be
-adjusted for achieving better resolution.
+**thunder_cpu** and **thunder_gpu** divides 3D refinement into three stages: global search, local search and CTF search. During global search, the rotation and translation result of the previous iteration will **not** inherited into the next iteration. Meanwhile, during local search, the rotation and translation of each particle image will be adjust based on the result of the previous iteration. During CTF search, the CTF parameters will be adjusted for achieving better resolution.
 
-Meanwhile, 3D classification of **thunder** typically only involves
-global search.
+Meanwhile, 2D and 3D classification of **thunder_cpu** and **thunder_gpu** typically only involve global search.
 
 **You may find a demo version of this JSON parameter file named
 **demo.json** under directory **install\_dir/script**.**
