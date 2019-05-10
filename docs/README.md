@@ -113,15 +113,16 @@ make install
 
 After compiling and installation, several folders will appear under the installation directory. **include** containing header files, **bin** containing executable binaries, **lib** containing several libraries, **script** containing scripts needed. The compiled binaries are listed as
 
-* **thunder**
-* **thunder\_average**
-* **thunder\_genmask**
-* **thunded\_lowpass**
-* **thunder\_mask**
-* **thunder\_postprocess**
-* **thunder\_resize**
-
-.
+<select id = "thunder_binary">
+    <option value = "">--Please choose an option--</option>
+    <option value = "thunder_cpu">thunder_cpu</option>
+    <option value = "thunder_gpu">thunder_gpu</option>
+    <option value = "thunder_average">thunder_average</option>
+    <option value = "thunder_genmask">thunder_genmask</option>
+    <option value = "thunder_postprocess">thunder_postprocess</option>
+    <option value = "thunder_lowpass">thunder_lowpass</option>
+    <option value = "thunder_resize">thunder_resize</option>
+</select>
 
 For the purpose of convenience, you may stage binaries into environment.
 For example, you may add the following command into shell configuration
