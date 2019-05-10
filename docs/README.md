@@ -156,19 +156,16 @@ THUNDER uses **.thu** file for storing information of each particle
 image. **.thu** file is a space-separate tabular file as each column
 stands for a specific variable, as listed below.
 
-1.  Voltage (Volt)
-
-2.  DefocusU (Angstrom)
-
-3.  DefocusV (Angstrom)
-
-4.  DefocusTheta (Radian)
-
-5.  Cs (Angstrom)
-
-6.  Amplitude Constrast
-
-7.  Phase Shift (Radian)
+<select id = "thu_def">
+    <option value = "">--Please choose an option--</option>
+    <option value = "Voltage">Voltage</option>
+    <option value = "DefocusU">DefocusU</option>
+    <option value = "DefocusV">DefocusV</option>
+    <option value = "DefocusTheta">DefocusTheta</option>
+    <option value = "Cs">Cs</option>
+    <option value = "Amplitude">Amplitude</option>
+    <option value = "Phase Shift">Phase Shift</option>
+</select>
 
 8.  Path of Particle
 
