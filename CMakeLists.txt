@@ -1,13 +1,14 @@
 # @file
 # @author  
 # @author Fande Yu 
-# @version 1.4.11.090325
+# @version 1.4.12.090507
 # @copyright THUNDER Non-Commercial Software License Agreement
 #
 # ChangeLog
 # AUTHOR      | TIME       | VERSION       | DESCRIPTION
 # ------      | ----       | -------       | -----------
 # Fande Yu    | 2019/03/25 | 1.4.11.090325 | separate build version in CPU & GPU
+# Mingxu      | 2019/05/07 | 1.4.12.090507 | prepare of 1.4.12 release
 
 # CMAKE REQUIREMENT
 
@@ -34,7 +35,7 @@ project(THUNDER)
 
 set(THUNDER_VERSION_MAJOR 1)
 set(THUNDER_VERSION_MINOR 4)
-set(THUNDER_VERSION_ADDIT 11)
+set(THUNDER_VERSION_ADDIT 12)
 
 message(STATUS "Welcome to THUNDER ${THUNDER_VERSION_MAJOR}.${THUNDER_VERSION_MINOR}.${THUNDER_VERSION_ADDIT}!")
 
@@ -452,4 +453,4 @@ install(FILES "${PROJECT_SOURCE_DIR}/script/demo_3D.json" DESTINATION script)
 
 # Copy Manual
 
-install(FILES "${PROJECT_SOURCE_DIR}/manual/THUNDER_v${THUNDER_VERSION_MAJOR}_${THUNDER_VERSION_MINOR}_${THUNDER_VERSION_ADDIT}_User_Guide.pdf" DESTINATION manual)
+# install(FILES "${PROJECT_SOURCE_DIR}/manual/THUNDER_v${THUNDER_VERSION_MAJOR}_${THUNDER_VERSION_MINOR}_${THUNDER_VERSION_ADDIT}_User_Guide.pdf" DESTINATION manual)

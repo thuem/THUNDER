@@ -375,18 +375,18 @@ class ImageFile
 
 
 #define IMAGE_INDEX(i, j, nCol) \
-    j * (nCol) + i
+    (j) * (nCol) + (i)
 
 #define VOLUME_INDEX(i, j, k, nCol, nRow) \
-    k * (nCol) * (nRow) + j * (nCol) + i
+    (k) * (nCol) * (nRow) + (j) * (nCol) + (i)
 
 #define MESH_IMAGE_INDEX(i, j, nCol, nRow) \
-    (j + (nRow) / 2) % (nRow) * (nCol) + (i + (nCol) / 2) % (nCol)
+    ((j) + (nRow) / 2) % (nRow) * (nCol) + ((i) + (nCol) / 2) % (nCol)
 
 #define MESH_VOLUME_INDEX(i, j, k, nCol, nRow, nSlc) \
-    (k + (nSlc) / 2) % (nSlc) * (nRow) * (nCol) \
-  + (j + (nRow) / 2) % (nRow) * (nCol) \
-  + (i + (nCol) / 2) % (nCol)
+    ((k) + (nSlc) / 2) % (nSlc) * (nRow) * (nCol) \
+  + ((j) + (nRow) / 2) % (nRow) * (nCol) \
+  + ((i) + (nCol) / 2) % (nCol)
 
 
 
@@ -466,9 +466,9 @@ template <typename T> inline void  VOLUME_READ_CAST(FILE *imFile,  /**< [in] fil
         T* unCast = new T[dst.sizeRL() ]; 
         if (fread(unCast, sizeof(T), dst.sizeRL() , imFile) == 0) 
             REPORT_ERROR("Fail to read in an image."); 
-        for (int k = 0; k < dst.nSlcRL(); k++) 
-            for (int j = 0; j < dst.nRowRL(); j++) 
-                for (int i = 0; i < dst.nColRL(); i++) 
+        for (size_t k = 0; k < dst.nSlcRL(); k++) 
+            for (size_t j = 0; j < dst.nRowRL(); j++) 
+                for (size_t i = 0; i < dst.nColRL(); i++) 
                     dst(VOLUME_INDEX(i, j, k, dst.nColRL(), dst.nRowRL())) 
                   = (RFLOAT)unCast[MESH_VOLUME_INDEX(i, 
                                                      j, 
@@ -556,16 +556,18 @@ template <typename T>  inline void VOLUME_WRITE_CAST(FILE *imFile,       /**< [o
                                                     )    
 {
         T* cast = new T[src.sizeRL()]; 
-        for (int k = 0; k < src.nSlcRL(); k++) 
-            for (int j = 0; j < src.nRowRL(); j++) 
-                for (int i = 0; i < src.nColRL(); i++) 
+        for (size_t k = 0; k < src.nSlcRL(); k++) 
+            for (size_t j = 0; j < src.nRowRL(); j++) 
+                for (size_t i = 0; i < src.nColRL(); i++) 
+                {
                     cast[VOLUME_INDEX(i, j, k, src.nColRL(), src.nSlcRL())] 
                   = (T)src.iGetRL(MESH_VOLUME_INDEX(i, 
-                                                       j, 
-                                                       k, 
-                                                       src.nColRL(), 
-                                                       src.nRowRL(), 
-                                                       src.nSlcRL())); 
+                                                    j, 
+                                                    k, 
+                                                    src.nColRL(), 
+                                                    src.nRowRL(), 
+                                                    src.nSlcRL())); 
+                }
         if (fwrite(cast, sizeof(T) , src.sizeRL() , imFile) == 0) 
             REPORT_ERROR("Fail to write in an image."); 
         delete[] cast; 

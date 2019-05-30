@@ -72,8 +72,8 @@ void Volume::alloc(const int nCol,
     {
         clearRL();
 
-        _sizeRL = nCol * nRow * nSlc;
-        _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
+        _sizeRL = (size_t)nCol * (size_t)nRow * (size_t)nSlc;
+        _sizeFT = ((size_t)nCol / 2 + 1) * (size_t)nRow * (size_t)nSlc;
 
 #ifdef CXX11_PTR
         _dataRL.reset(new RFLOAT[_sizeRL]);
@@ -97,8 +97,8 @@ void Volume::alloc(const int nCol,
     {
         clearFT();
 
-        _sizeRL = nCol * nRow * nSlc;
-        _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
+        _sizeRL = (size_t)nCol * (size_t)nRow * (size_t)nSlc;
+        _sizeFT = (nCol / 2 + 1) * (size_t)nRow * (size_t)nSlc;
 
 #ifdef CXX11_PTR
         _dataFT.reset(new Complex[_sizeFT]);

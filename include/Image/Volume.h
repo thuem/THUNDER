@@ -112,9 +112,9 @@
  *
  * @return indicator of whether the regular pixel is in the conjugate part of volume or not.
  */
-inline bool conjHalf(int& iCol, /**< [in] column index of the regular voxel in real space */
-                     int& iRow, /**< [in] row index of the regular voxel in real space */
-                     int& iSlc  /**< [in] slice index of the regular voxel in real space */
+inline bool conjHalf(long& iCol, /**< [in] column index of the regular voxel in real space */
+                     long& iRow, /**< [in] row index of the regular voxel in real space */
+                     long& iSlc  /**< [in] slice index of the regular voxel in real space */
                     )
 {
     if (iCol >= 0) return false;
@@ -516,9 +516,9 @@ class Volume : public ImageBase
          *
          * @return real-space index of the regular voxel.
          */
-        inline size_t iRL(const int i, /**< [in] column index of the regular voxel in real space */
-                          const int j, /**< [in] row index of the regular voxel in real space */
-                          const int k  /**< [in] slice index of the regular voxel in real space */
+        inline size_t iRL(const long i, /**< [in] column index of the regular voxel in real space */
+                          const long j, /**< [in] row index of the regular voxel in real space */
+                          const long k  /**< [in] slice index of the regular voxel in real space */
                          ) const
         {
             return (k >= 0 ? k : k + _nSlc) * _nCol * _nRow
@@ -531,9 +531,9 @@ class Volume : public ImageBase
          *
          * @return Fourier-space index of the regular voxel.
          */
-        inline size_t iFT(int i, /**< [in] column index of the regular voxel in Fourier space */
-                          int j, /**< [in] row index of the regular voxel in Fourier space */
-                          int k  /**< [in] slice index of the regular voxel in Fourier space */
+        inline size_t iFT(long i, /**< [in] column index of the regular voxel in Fourier space */
+                          long j, /**< [in] row index of the regular voxel in Fourier space */
+                          long k  /**< [in] slice index of the regular voxel in Fourier space */
                          ) const
         {
             if (i >= 0)
@@ -548,9 +548,9 @@ class Volume : public ImageBase
          * @return Fourier-space index of the regular voxel in the whole space, including the positive half part and the conjugate part.
          */
         inline size_t iFT(bool& conj, /**< [out] indicator of whether the regular voxel locates in the conjugate part or not */
-                          int i,      /**< [in] column index of the regular voxel in Fourier space */
-                          int j,      /**< [in] row index of the regular voxel in Fourier space */
-                          int k       /**< [in] slice index of the regular voxel in Fourier space */
+                          long i,      /**< [in] column index of the regular voxel in Fourier space */
+                          long j,      /**< [in] row index of the regular voxel in Fourier space */
+                          long k       /**< [in] slice index of the regular voxel in Fourier space */
                          ) const
         {
             conj = conjHalf(i, j, k);
@@ -563,9 +563,9 @@ class Volume : public ImageBase
          *
          * @return Fourier-space index of the regular voxel in the positive half space.
          */
-        inline size_t iFTHalf(const int i, /**< [in] column index of the regular voxel in Fourier space */
-                              const int j, /**< [in] row index of the regular voxel in Fourier space */
-                              const int k  /**< [in] slice index of the regular voxel in Fourier space */
+        inline size_t iFTHalf(const long i, /**< [in] column index of the regular voxel in Fourier space */
+                              const long j, /**< [in] row index of the regular voxel in Fourier space */
+                              const long k  /**< [in] slice index of the regular voxel in Fourier space */
                               ) const
         {
             return (k >= 0 ? k : k + _nSlc) * _nColFT * _nRow
