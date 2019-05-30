@@ -466,9 +466,9 @@ template <typename T> inline void  VOLUME_READ_CAST(FILE *imFile,  /**< [in] fil
         T* unCast = new T[dst.sizeRL() ]; 
         if (fread(unCast, sizeof(T), dst.sizeRL() , imFile) == 0) 
             REPORT_ERROR("Fail to read in an image."); 
-        for (int k = 0; k < dst.nSlcRL(); k++) 
-            for (int j = 0; j < dst.nRowRL(); j++) 
-                for (int i = 0; i < dst.nColRL(); i++) 
+        for (size_t k = 0; k < dst.nSlcRL(); k++) 
+            for (size_t j = 0; j < dst.nRowRL(); j++) 
+                for (size_t i = 0; i < dst.nColRL(); i++) 
                     dst(VOLUME_INDEX(i, j, k, dst.nColRL(), dst.nRowRL())) 
                   = (RFLOAT)unCast[MESH_VOLUME_INDEX(i, 
                                                      j, 
