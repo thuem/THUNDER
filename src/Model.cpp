@@ -418,7 +418,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     vec fscUnmask(_rU);
 
-                    FSC(fscUnmask, A, B);
+                    FSC(fscUnmask, A, B, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Determining Random Phase Resolution";
                     
@@ -465,7 +465,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     
                     vec fscRFMask(_rU);
 
-                    FSC(fscRFMask, randomPhaseA, randomPhaseB);
+                    FSC(fscRFMask, randomPhaseA, randomPhaseB, nThread);
 
                     // randomPhaseA.clearFT();
                     // randomPhaseB.clearFT();
@@ -504,7 +504,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     vec fscMask(_rU);
 
-                    FSC(fscMask, maskA, maskB);
+                    FSC(fscMask, maskA, maskB, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating True FSC";
 
@@ -548,7 +548,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                         SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
 #endif
 
-                        FSC(fsc, A, B);
+                        FSC(fsc, A, B, nThread);
 
                         _FSC.col(l) = fsc;
                     }

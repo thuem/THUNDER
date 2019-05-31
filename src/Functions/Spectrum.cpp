@@ -301,26 +301,34 @@ void FRC(vec& dst,
 
 void FSC(vec& dst,
          const Volume& A,
-         const Volume& B)
+         const Volume& B,
+         const unsigned int nThread)
 {
     vec vecS = vec::Zero(dst.size());
     vec vecA = vec::Zero(dst.size());
     vec vecB = vec::Zero(dst.size());
 
+    #pragma omp parallel for schedule(dynamic) num_threads(nThread)
     VOLUME_FOR_EACH_PIXEL_FT(A)
     {
         int u = AROUND(NORM_3(i, j, k));
+
         if (u < dst.size())
         {
-            vecS[u] += REAL(A.getFT(i, j, k) * CONJUGATE(B.getFT(i, j, k)));
-            vecA[u] += ABS2(A.getFT(i, j, k));
-            vecB[u] += ABS2(B.getFT(i, j, k));
+            #pragma omp atomic
+            vecS[u] += REAL(A.getFTHalf(i, j, k) * CONJUGATE(B.getFTHalf(i, j, k)));
+            #pragma omp atomic
+            vecA[u] += ABS2(A.getFTHalf(i, j, k));
+            #pragma omp atomic
+            vecB[u] += ABS2(B.getFTHalf(i, j, k));
         }
     }
 
+    #pragma omp parallel for num_threads(nThread)
     for (int i = 0; i < dst.size(); i++)
     {
         RFLOAT AB = sqrt(vecA(i) * vecB(i));
+
         if (AB == 0)
             dst(i) = 0;
         else
@@ -367,13 +375,13 @@ void randomPhase(Volume& dst,
         int u = AROUND(NORM_3(i, j, k));
 
         if (u > r)
-            dst.setFT(src.getFT(i, j, k)
-                    * COMPLEX_POLAR(TSGSL_ran_flat(engine, 0, 2 * M_PI)),
-                      i,
-                      j,
-                      k);
+            dst.setFTHalf(src.getFTHalf(i, j, k)
+                        * COMPLEX_POLAR(TSGSL_ran_flat(engine, 0, 2 * M_PI)),
+                        i,
+                        j,
+                        k);
         else
-            dst.setFT(src.getFT(i, j, k), i, j, k);
+            dst.setFTHalf(src.getFTHalf(i, j, k), i, j, k);
     }
 }
 
