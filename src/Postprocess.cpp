@@ -79,9 +79,9 @@ void Postprocess::run(const unsigned int nThread)
 
     _FSCMask.resize(maxR());
 
-    FSC(_FSCUnmask, _mapA, _mapB);
+    FSC(_FSCUnmask, _mapA, _mapB, nThread);
 
-    FSC(_FSCMask, _mapAMasked, _mapBMasked);
+    FSC(_FSCMask, _mapAMasked, _mapBMasked, nThread);
 
     int randomPhaseThres = resP(_FSCUnmask, 0.8, 1, 1, false);
 
@@ -104,7 +104,7 @@ void Postprocess::run(const unsigned int nThread)
 
     _FSCRFMask.resize(maxR());
 
-    FSC(_FSCRFMask, _mapARFMask, _mapBRFMask);
+    FSC(_FSCRFMask, _mapARFMask, _mapBRFMask, nThread);
 
     CLOG(INFO, "LOGGER_SYS") << "Calculating True FSC";
 
