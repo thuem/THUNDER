@@ -179,7 +179,8 @@ void FRC(vec& dst,
  */
 void FSC(vec& dst,
          const Volume& A,
-         const Volume& B);
+         const Volume& B,
+         const unsigned int nThread);
 
 /**
  * This function determines the resolution based on FSC given.

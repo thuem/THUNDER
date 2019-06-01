@@ -412,13 +412,16 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 {
                     FFT fft;
 
+                    // fft.fwCreatePlan(_size, _size, _size, nThread);
+                    // fft.bwCreatePlan(_size, _size, _size, nThread);
+
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Mask Region of Reference " << l;
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Unmasked Reference";
 
                     vec fscUnmask(_rU);
 
-                    FSC(fscUnmask, A, B);
+                    FSC(fscUnmask, A, B, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Determining Random Phase Resolution";
                     
@@ -437,6 +440,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     fft.bw(randomPhaseA, nThread);
                     fft.bw(randomPhaseB, nThread);
+
+                    // fft.bwExecutePlan(randomPhaseA, nThread);
+                    // fft.bwExecutePlan(randomPhaseB, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
 
@@ -460,20 +466,23 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     fft.fw(randomPhaseA, nThread);
                     fft.fw(randomPhaseB, nThread);
 
+                    // fft.fwExecutePlan(randomPhaseA);
+                    // fft.fwExecutePlan(randomPhaseB);
+
                     randomPhaseA.clearRL();
                     randomPhaseB.clearRL();
                     
                     vec fscRFMask(_rU);
 
-                    FSC(fscRFMask, randomPhaseA, randomPhaseB);
-
-                    // randomPhaseA.clearFT();
-                    // randomPhaseB.clearFT();
+                    FSC(fscRFMask, randomPhaseA, randomPhaseB, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference";
 
                     fft.bw(A, nThread);
                     fft.bw(B, nThread);
+
+                    // fft.bwExecutePlan(A, nThread);
+                    // fft.bwExecutePlan(B, nThread);
 
                     Volume maskA(_size, _size, _size, RL_SPACE);
                     Volume maskB(_size, _size, _size, RL_SPACE);
@@ -494,17 +503,23 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     fft.fw(maskA, nThread);
                     fft.fw(maskB, nThread);
 
+                    // fft.fwExecutePlan(maskA);
+                    // fft.fwExecutePlan(maskB);
+
                     maskA.clearRL();
                     maskB.clearRL();
 
                     fft.fw(A, nThread);
                     fft.fw(B, nThread);
 
+                    // fft.fwExecutePlan(A);
+                    // fft.fwExecutePlan(B);
+
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Masked Reference ";
 
                     vec fscMask(_rU);
 
-                    FSC(fscMask, maskA, maskB);
+                    FSC(fscMask, maskA, maskB, nThread);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating True FSC";
 
@@ -517,6 +532,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     }
                     
                     _FSC.col(l) = fsc;
+
+                    // fft.fwDestroyPlan();
+                    // fft.bwDestroyPlan();
                 }
                 else
                 {
@@ -548,7 +566,7 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                         SEGMENT_NAN_CHECK_COMPLEX(B.dataFT(), B.sizeFT());
 #endif
 
-                        FSC(fsc, A, B);
+                        FSC(fsc, A, B, nThread);
 
                         _FSC.col(l) = fsc;
                     }
