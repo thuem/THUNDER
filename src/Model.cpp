@@ -412,6 +412,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                 {
                     FFT fft;
 
+                    // fft.fwCreatePlan(_size, _size, _size, nThread);
+                    // fft.bwCreatePlan(_size, _size, _size, nThread);
+
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Mask Region of Reference " << l;
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Unmasked Reference";
@@ -438,6 +441,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     fft.bw(randomPhaseA, nThread);
                     fft.bw(randomPhaseB, nThread);
 
+                    // fft.bwExecutePlan(randomPhaseA, nThread);
+                    // fft.bwExecutePlan(randomPhaseB, nThread);
+
                     MLOG(INFO, "LOGGER_COMPARE") << "Performing Mask on Random Phase Reference";
 
                     Volume mask;
@@ -460,6 +466,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     fft.fw(randomPhaseA, nThread);
                     fft.fw(randomPhaseB, nThread);
 
+                    // fft.fwExecutePlan(randomPhaseA);
+                    // fft.fwExecutePlan(randomPhaseB);
+
                     randomPhaseA.clearRL();
                     randomPhaseB.clearRL();
                     
@@ -474,6 +483,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     fft.bw(A, nThread);
                     fft.bw(B, nThread);
+
+                    // fft.bwExecutePlan(A, nThread);
+                    // fft.bwExecutePlan(B, nThread);
 
                     Volume maskA(_size, _size, _size, RL_SPACE);
                     Volume maskB(_size, _size, _size, RL_SPACE);
@@ -494,11 +506,17 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     fft.fw(maskA, nThread);
                     fft.fw(maskB, nThread);
 
+                    // fft.fwExecutePlan(maskA);
+                    // fft.fwExecutePlan(maskB);
+
                     maskA.clearRL();
                     maskB.clearRL();
 
                     fft.fw(A, nThread);
                     fft.fw(B, nThread);
+
+                    // fft.fwExecutePlan(A);
+                    // fft.fwExecutePlan(B);
 
                     MLOG(INFO, "LOGGER_COMPARE") << "Calculating FSC of Masked Reference ";
 
@@ -517,6 +535,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
                     }
                     
                     _FSC.col(l) = fsc;
+
+                    // fft.fwDestroyPlan();
+                    // fft.bwDestroyPlan();
                 }
                 else
                 {
