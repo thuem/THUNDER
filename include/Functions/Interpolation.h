@@ -9,6 +9,7 @@
  *  AUTHOR     | TIME       | VERSION       | DESCRIPTION
  *  ------     | ----       | -------       | -----------
  *  Liang Qiao | 2018/09/30 | 1.4.11.180930 | add document
+ *  Mingxu Hu  | 2019/05/31 | 1.4.12.190531 | fixing large volume overflow issue
  *
  *  @brief Interpolation.h contains the method and calculates the parameters for 1D, 2D, 3D linear interpolation .
  *
@@ -40,25 +41,16 @@
  * @brief This macro loops over a 2D cell.
  */
 #define FOR_CELL_DIM_2 \
-    for (int j = 0; j < 2; j++) \
-        for (int i = 0; i < 2; i++)
-/***
-    for (int i = 0; i < 2; i++) \
-        for (int j = 0; j < 2; j++)
-        ***/
+    for (long j = 0; j < 2; j++) \
+        for (long i = 0; i < 2; i++)
 
 /**
  * @brief This macro loops over a 3D cell.
  */
 #define FOR_CELL_DIM_3 \
-    for (int k = 0; k < 2; k++) \
-        for (int j = 0; j < 2; j++) \
-            for (int i = 0; i < 2; i++)
-    /***
-    for (int i = 0; i < 2; i++) \
-        for (int j = 0; j < 2; j++) \
-            for (int k = 0; k < 2; k++)
-            ***/
+    for (long k = 0; k < 2; k++) \
+        for (long j = 0; j < 2; j++) \
+            for (long i = 0; i < 2; i++)
 
 /**
  * @brief This macro calculates the 1D linear interpolation result given values of two sampling points and the distance between the interpolation point and the first sampling point.
@@ -103,7 +95,7 @@ inline void W_INTERP_LINEAR(RFLOAT w[2],        /**< [out] weights for 1D linear
  * @brief This function gets the floor of the index of irregular voxel and the weights for 1D linear interpolation.
  */
 inline void WG_INTERP_LINEAR(RFLOAT w[2],      /**< [out] weights for 1D linear interpolation */
-                             int& x0,          /**< [out] floor of the index of the 1D irregular voxel */
+                             long& x0,          /**< [out] floor of the index of the 1D irregular voxel */
                              const RFLOAT x    /**< [in] index of the 1D irregular voxel */
 			    )
 {   
@@ -119,7 +111,7 @@ inline void W_BI_INTERP_LINEAR(RFLOAT w[2][2],        /**< [out] weights for 2D 
 			      )
 {
     RFLOAT v[2][2];
-    for (int i = 0; i < 2; i++) 
+    for (long i = 0; i < 2; i++) 
         W_INTERP_LINEAR(v[i], xd[i]);
 
 #ifndef INTERP_CELL_UNFOLD
@@ -143,12 +135,12 @@ inline void W_BI_INTERP_LINEAR(RFLOAT w[2][2],        /**< [out] weights for 2D 
  * @brief This function gets the floor of the index of irregular voxel and the weights for 2D linear interpolation.
  */
 inline void WG_BI_INTERP_LINEAR(RFLOAT w[2][2],      /**< [out] weights for 2D linear interpolation */
-                                int x0[2],           /**< [out] floor of the index of the 2D irregular voxel */
+                                long x0[2],           /**< [out] floor of the index of the 2D irregular voxel */
                                 const RFLOAT x[2]    /**< [in] index of the 2D irregular voxel */
 			       )
 {
     RFLOAT xd[2];
-    for (int i = 0; i < 2; i++) 
+    for (long i = 0; i < 2; i++) 
     {
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];
@@ -165,7 +157,7 @@ inline void W_TRI_INTERP_LINEAR(RFLOAT w[2][2][2],     /**< [out] weights for 3D
 			       )
 {
     RFLOAT v[3][2];
-    for (int i = 0; i < 3; i++) 
+    for (long i = 0; i < 3; i++) 
         W_INTERP_LINEAR(v[i], xd[i]);
 
 #ifndef INTERP_CELL_UNFOLD
@@ -193,12 +185,12 @@ inline void W_TRI_INTERP_LINEAR(RFLOAT w[2][2][2],     /**< [out] weights for 3D
  * @brief This function gets the floor of the index of irregular voxel and the weights for 3D linear interpolation.
  */
 inline void WG_TRI_INTERP_LINEAR(RFLOAT w[2][2][2],    /**< [out] weights for 3D linear interpolation */
-                                 int x0[3],            /**< [out] floor of the index of the 3D irregular voxel */
+                                 long x0[3],            /**< [out] floor of the index of the 3D irregular voxel */
                                  const RFLOAT x[3]     /**< [in] index of the 3D irregular voxel */
 			        )
 {
     RFLOAT xd[3];
-    for (int i = 0; i < 3; i++)
+    for (long i = 0; i < 3; i++)
     {
         x0[i] = floor(x[i]);
         xd[i] = x[i] - x0[i];

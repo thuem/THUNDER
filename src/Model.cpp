@@ -476,6 +476,9 @@ void Model::compareTwoHemispheres(const bool fscFlag,
 
                     FSC(fscRFMask, randomPhaseA, randomPhaseB, nThread);
 
+                    // randomPhaseA.clearFT();
+                    // randomPhaseB.clearFT();
+
                     MLOG(INFO, "LOGGER_COMPARE") << "Masking Reference";
 
                     fft.bw(A, nThread);

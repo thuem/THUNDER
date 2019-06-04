@@ -12,8 +12,8 @@
 
 Image::Image() : _nCol(0), _nRow(0) {}
 
-Image::Image(const int nCol,
-             const int nRow,
+Image::Image(const long nCol,
+             const long nRow,
              const int space)
 {
     alloc(nCol, nRow, space);
@@ -56,8 +56,8 @@ void Image::alloc(const int space)
     alloc(_nCol, _nRow, space);
 }
 
-void Image::alloc(const int nCol,
-                  const int nRow,
+void Image::alloc(const long nCol,
+                  const long nRow,
                   const int space)
 {
     _nCol = nCol;
@@ -105,8 +105,8 @@ void Image::alloc(const int nCol,
 
 void Image::saveRLToBMP(const char* filename) const
 {
-    int nRowBMP = _nRow / 4 * 4;
-    int nColBMP = _nCol / 4 * 4;
+    size_t nRowBMP = _nRow / 4 * 4;
+    size_t nColBMP = _nCol / 4 * 4;
 
     float* image = new float[nRowBMP * nColBMP];
 
@@ -114,8 +114,8 @@ void Image::saveRLToBMP(const char* filename) const
     CLOG(INFO, "LOGGER_SYS") << "Calculating Values in RL_BMP";
 #endif
 
-    for (int i = -nRowBMP / 2; i < nRowBMP / 2; i++)
-        for (int j = -nColBMP / 2; j < nColBMP / 2; j++)
+    for (long i = -nRowBMP / 2; i < nRowBMP / 2; i++)
+        for (long j = -nColBMP / 2; j < nColBMP / 2; j++)
             image[(i + nRowBMP / 2)
                 * nColBMP
                 + (j + nColBMP / 2)] = _dataRL[(i >= 0 ? i : i + _nRow)
@@ -137,8 +137,8 @@ void Image::saveRLToBMP(const char* filename) const
 
 void Image::saveFTToBMP(const char* filename, RFLOAT c) const
 {
-    int nRowBMP = _nRow / 4 * 4;
-    int nColBMP = _nCol / 4 * 4;
+    size_t nRowBMP = _nRow / 4 * 4;
+    size_t nColBMP = _nCol / 4 * 4;
 
     float* image = new float[nRowBMP * nColBMP];
 
@@ -146,14 +146,14 @@ void Image::saveFTToBMP(const char* filename, RFLOAT c) const
     CLOG(INFO, "LOGGER_SYS") << "Calculating Values in FT_BMP";
 #endif
 
-    for (int i = 0; i < nRowBMP; i++)
-        for (int j = 0; j <= nColBMP / 2; j++)
+    for (long i = 0; i < nRowBMP; i++)
+        for (long j = 0; j <= nColBMP / 2; j++)
         {
             RFLOAT value = TSGSL_complex_abs2(_dataFT[(_nCol / 2 + 1) * i + j]);
             value = log(1 + value * c);
 
-            int iImage = (i + nRowBMP / 2) % nRowBMP;
-            int jImage = (j + nColBMP / 2) % nColBMP;
+            long iImage = (i + nRowBMP / 2) % nRowBMP;
+            long jImage = (j + nColBMP / 2) % nColBMP;
             image[nColBMP * iImage + jImage] = value;
         }
 
@@ -161,8 +161,8 @@ void Image::saveFTToBMP(const char* filename, RFLOAT c) const
     CLOG(INFO, "LOGGER_SYS") << "Performing Hermite Symmetry";
 #endif
 
-    for (int i = 1; i < nRowBMP; i++)
-        for (int j = 1; j < nColBMP / 2; j++)
+    for (long i = 1; i < nRowBMP; i++)
+        for (long j = 1; j < nColBMP / 2; j++)
         {
             size_t iDst = i * nColBMP + j;
             size_t iSrc = (nRowBMP - i + 1) * nColBMP - j;
@@ -173,10 +173,10 @@ void Image::saveFTToBMP(const char* filename, RFLOAT c) const
     CLOG(INFO, "LOGGER_SYS") << "Fixing Up the Missing Part";
 #endif
 
-    for (int j = 1; j < nColBMP / 2; j++)
+    for (long j = 1; j < nColBMP / 2; j++)
     {
-        int iDst = j;
-        int iSrc = nColBMP - j;
+        long iDst = j;
+        long iSrc = nColBMP - j;
         image[iDst] = image[iSrc];
     }
 
@@ -192,8 +192,8 @@ void Image::saveFTToBMP(const char* filename, RFLOAT c) const
     delete[] image;
 }
 
-RFLOAT Image::getRL(const int iCol,
-                    const int iRow) const
+RFLOAT Image::getRL(const long iCol,
+                    const long iRow) const
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryRL(iCol, iRow);
@@ -203,8 +203,8 @@ RFLOAT Image::getRL(const int iCol,
 }
 
 void Image::setRL(const RFLOAT value,
-                  const int iCol,
-                  const int iRow)
+                  const long iCol,
+                  const long iRow)
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryRL(iCol, iRow);
@@ -213,21 +213,21 @@ void Image::setRL(const RFLOAT value,
     _dataRL[iRL(iCol, iRow)] = value;
 }
 
-Complex Image::getFT(int iCol,
-                     int iRow) const
+Complex Image::getFT(long iCol,
+                     long iRow) const
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(iCol, iRow);
 #endif
     
     bool conj;
-    int index = iFT(conj, iCol, iRow);
+    long index = iFT(conj, iCol, iRow);
 
     return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
-Complex Image::getFTHalf(const int iCol,
-                         const int iRow) const
+Complex Image::getFTHalf(const long iCol,
+                         const long iRow) const
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(iCol, iRow);
@@ -237,22 +237,22 @@ Complex Image::getFTHalf(const int iCol,
 }
 
 void Image::setFT(const Complex value,
-                  int iCol,
-                  int iRow)
+                  long iCol,
+                  long iRow)
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(iCol, iRow);
 #endif
 
     bool conj;
-    int index = iFT(conj, iCol, iRow);
+    size_t index = iFT(conj, iCol, iRow);
 
     _dataFT[index] = conj ? CONJUGATE(value) : value;
 }
 
 void Image::setFTHalf(const Complex value,
-                      const int iCol,
-                      const int iRow)
+                      const long iCol,
+                      const long iRow)
 {
 #ifndef IMG_VOL_BOUNDARY_NO_CHECK
     coordinatesInBoundaryFT(iCol, iRow);
@@ -262,11 +262,11 @@ void Image::setFTHalf(const Complex value,
 }
 
 void Image::addFT(const Complex value,
-                  int iCol,
-                  int iRow)
+                  long iCol,
+                  long iRow)
 {
     bool conj;
-    int index = iFT(conj, iCol, iRow);
+    size_t index = iFT(conj, iCol, iRow);
 
     Complex val = conj ? CONJUGATE(value) : value;
 
@@ -277,8 +277,8 @@ void Image::addFT(const Complex value,
 }
 
 void Image::addFTHalf(const Complex value,
-                      const int iCol,
-                      const int iRow)
+                      const long iCol,
+                      const long iRow)
 {
     #pragma omp atomic
     _dataFT[iFTHalf(iCol, iRow)].dat[0] += value.dat[0];
@@ -287,16 +287,16 @@ void Image::addFTHalf(const Complex value,
 }
 
 void Image::addFT(const RFLOAT value,
-                  int iCol,
-                  int iRow)
+                  long iCol,
+                  long iRow)
 {
     #pragma omp atomic
     _dataFT[iFT(iCol, iRow)].dat[0] += value;
 }
 
 void Image::addFTHalf(const RFLOAT value,
-                      const int iCol,
-                      const int iRow)
+                      const long iCol,
+                      const long iRow)
 {
     #pragma omp atomic
     _dataFT[iFTHalf(iCol, iRow)].dat[0] += value;
@@ -356,7 +356,7 @@ Complex Image::getByInterpolationFT(RFLOAT iCol,
     }
 
     RFLOAT w[2][2];
-    int x0[2];
+    long x0[2];
     RFLOAT x[2] = {iCol, iRow};
 
     //WG_BI_INTERP(w, x0, x, interp);
@@ -374,7 +374,7 @@ void Image::addFT(const Complex value,
     bool conj = conjHalf(iCol, iRow);
 
     RFLOAT w[2][2];
-    int x0[2];
+    long x0[2];
     RFLOAT x[2] = {iCol, iRow};
 
     //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
@@ -392,7 +392,7 @@ void Image::addFT(const RFLOAT value,
     conjHalf(iCol, iRow);
 
     RFLOAT w[2][2];
-    int x0[2];
+    long x0[2];
     RFLOAT x[2] = {iCol, iRow};
 
     //WG_BI_INTERP(w, x0, x, LINEAR_INTERP);
@@ -419,8 +419,8 @@ void Image::initBox()
         _box[j][i] = j * _nColFT + i;
 }
 
-void Image::coordinatesInBoundaryRL(const int iCol,
-                                    const int iRow) const
+void Image::coordinatesInBoundaryRL(const long iCol,
+                                    const long iRow) const
 {
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
@@ -430,8 +430,8 @@ void Image::coordinatesInBoundaryRL(const int iCol,
     }
 }
 
-void Image::coordinatesInBoundaryFT(const int iCol,
-                                    const int iRow) const
+void Image::coordinatesInBoundaryFT(const long iCol,
+                                    const long iRow) const
 {
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2))
@@ -442,7 +442,7 @@ void Image::coordinatesInBoundaryFT(const int iCol,
 }
 
 Complex Image::getFTHalf(const RFLOAT w[2][2],
-                         const int x0[2]) const
+                         const long x0[2]) const
 {
     Complex result = COMPLEX(0, 0);
 
@@ -496,7 +496,7 @@ Complex Image::getFTHalf(const RFLOAT w[2][2],
 
 void Image::addFTHalf(const Complex value,
                       const RFLOAT w[2][2],
-                      const int x0[2])
+                      const long x0[2])
 {
     if (x0[1] != -1)
     {
@@ -504,7 +504,7 @@ void Image::addFTHalf(const Complex value,
 
         size_t index0 = iFTHalf(x0[0], x0[1]);
 
-        for (int i = 0; i < 4; i++)
+        for (long i = 0; i < 4; i++)
         {
             size_t index = index0 + ((size_t*)_box)[i];
 
@@ -554,14 +554,14 @@ void Image::addFTHalf(const Complex value,
 
 void Image::addFTHalf(const RFLOAT value,
                       const RFLOAT w[2][2],
-                      const int x0[2])
+                      const long x0[2])
 {
     if (x0[1] != -1)
     {
 #ifdef IMG_VOL_BOX_UNFOLD
         size_t index0 = iFTHalf(x0[0], x0[1]);
 
-        for (int i = 0; i < 4; i++)
+        for (long i = 0; i < 4; i++)
         {
             size_t index = index0 + ((size_t*)_box)[i];
 
