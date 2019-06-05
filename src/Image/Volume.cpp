@@ -12,9 +12,9 @@
 
 Volume::Volume() : _nCol(0), _nRow(0), _nSlc(0) {}
 
-Volume::Volume(const int nCol,
-               const int nRow,
-               const int nSlc,
+Volume::Volume(const long nCol,
+               const long nRow,
+               const long nSlc,
                const int space)
 {
     alloc(nCol, nRow, nSlc, space);
@@ -59,9 +59,9 @@ void Volume::alloc(int space)
     alloc(_nCol, _nRow, _nSlc, space);
 }
 
-void Volume::alloc(const int nCol,
-                   const int nRow,
-                   const int nSlc,
+void Volume::alloc(const long nCol,
+                   const long nRow,
+                   const long nSlc,
                    const int space)
 {
     _nCol = nCol;
@@ -71,6 +71,9 @@ void Volume::alloc(const int nCol,
     if (space == RL_SPACE)
     {
         clearRL();
+
+        // _sizeRL = (size_t)nCol * (size_t)nRow * (size_t)nSlc;
+        // _sizeFT = ((size_t)nCol / 2 + 1) * (size_t)nRow * (size_t)nSlc;
 
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
@@ -97,6 +100,9 @@ void Volume::alloc(const int nCol,
     {
         clearFT();
 
+        // _sizeRL = (size_t)nCol * (size_t)nRow * (size_t)nSlc;
+        // _sizeFT = (nCol / 2 + 1) * (size_t)nRow * (size_t)nSlc;
+
         _sizeRL = nCol * nRow * nSlc;
         _sizeFT = (nCol / 2 + 1) * nRow * nSlc;
 
@@ -122,9 +128,9 @@ void Volume::alloc(const int nCol,
     initBox();
 }
 
-RFLOAT Volume::getRL(const int iCol,
-                     const int iRow,
-                     const int iSlc) const
+RFLOAT Volume::getRL(const long iCol,
+                     const long iRow,
+                     const long iSlc) const
 {
     size_t index = iRL(iCol, iRow, iSlc);
 
@@ -136,9 +142,9 @@ RFLOAT Volume::getRL(const int iCol,
 }
 
 void Volume::setRL(const RFLOAT value,
-                   const int iCol,
-                   const int iRow,
-                   const int iSlc)
+                   const long iCol,
+                   const long iRow,
+                   const long iSlc)
 {
     size_t index = iRL(iCol, iRow, iSlc);
 
@@ -150,9 +156,9 @@ void Volume::setRL(const RFLOAT value,
 }
 
 void Volume::addRL(const RFLOAT value,
-                   const int iCol,
-                   const int iRow,
-                   const int iSlc)
+                   const long iCol,
+                   const long iRow,
+                   const long iSlc)
 {
     size_t index = iRL(iCol, iRow, iSlc);
 
@@ -164,9 +170,9 @@ void Volume::addRL(const RFLOAT value,
     _dataRL[index] += value;
 }
 
-Complex Volume::getFT(int iCol,
-                      int iRow,
-                      int iSlc) const
+Complex Volume::getFT(long iCol,
+                      long iRow,
+                      long iSlc) const
 {
     bool conj;
     size_t index = iFT(conj, iCol, iRow, iSlc);
@@ -178,9 +184,9 @@ Complex Volume::getFT(int iCol,
     return conj ? CONJUGATE(_dataFT[index]) : _dataFT[index];
 }
 
-Complex Volume::getFTHalf(const int iCol,
-                          const int iRow,
-                          const int iSlc) const
+Complex Volume::getFTHalf(const long iCol,
+                          const long iRow,
+                          const long iSlc) const
 {
     size_t index = iFTHalf(iCol, iRow, iSlc);
 
@@ -192,9 +198,9 @@ Complex Volume::getFTHalf(const int iCol,
 }
 
 void Volume::setFT(const Complex value,
-                   int iCol,
-                   int iRow,
-                   int iSlc)
+                   long iCol,
+                   long iRow,
+                   long iSlc)
 {
     bool conj;
     size_t index = iFT(conj, iCol, iRow, iSlc);
@@ -207,9 +213,9 @@ void Volume::setFT(const Complex value,
 }
 
 void Volume::setFTHalf(const Complex value,
-                       const int iCol,
-                       const int iRow,
-                       const int iSlc)
+                       const long iCol,
+                       const long iRow,
+                       const long iSlc)
 {
     size_t index = iFTHalf(iCol, iRow, iSlc);
 
@@ -221,9 +227,9 @@ void Volume::setFTHalf(const Complex value,
 }
 
 void Volume::addFT(const Complex value,
-                   int iCol,
-                   int iRow,
-                   int iSlc)
+                   long iCol,
+                   long iRow,
+                   long iSlc)
 {
     bool conj;
     size_t index = iFT(conj, iCol, iRow, iSlc);
@@ -241,9 +247,9 @@ void Volume::addFT(const Complex value,
 }
 
 void Volume::addFTHalf(const Complex value,
-                       const int iCol,
-                       const int iRow,
-                       const int iSlc)
+                       const long iCol,
+                       const long iRow,
+                       const long iSlc)
 {
     size_t index = iFTHalf(iCol, iRow, iSlc);
 
@@ -258,9 +264,9 @@ void Volume::addFTHalf(const Complex value,
 }
 
 void Volume::addFT(const RFLOAT value,
-                   int iCol,
-                   int iRow,
-                   int iSlc)
+                   long iCol,
+                   long iRow,
+                   long iSlc)
 {
     size_t index = iFT(iCol, iRow, iSlc);
 
@@ -273,9 +279,9 @@ void Volume::addFT(const RFLOAT value,
 }
 
 void Volume::addFTHalf(const RFLOAT value,
-                       const int iCol,
-                       const int iRow,
-                       const int iSlc)
+                       const long iCol,
+                       const long iRow,
+                       const long iSlc)
 {
     size_t index = iFTHalf(iCol, iRow, iSlc);
 
@@ -296,7 +302,7 @@ RFLOAT Volume::getByInterpolationRL(const RFLOAT iCol,
         return getRL(AROUND(iCol), AROUND(iRow), AROUND(iSlc));
 
     RFLOAT w[2][2][2];
-    int x0[3];
+    long x0[3];
     RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, interp);
@@ -320,7 +326,7 @@ Complex Volume::getByInterpolationFT(RFLOAT iCol,
     }
 
     RFLOAT w[2][2][2];
-    int x0[3];
+    long x0[3];
     RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, interp);
@@ -339,7 +345,7 @@ void Volume::addFT(const Complex value,
     bool conj = conjHalf(iCol, iRow, iSlc);
 
     RFLOAT w[2][2][2];
-    int x0[3];
+    long x0[3];
     RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
@@ -359,7 +365,7 @@ void Volume::addFT(const RFLOAT value,
     conjHalf(iCol, iRow, iSlc);
 
     RFLOAT w[2][2][2];
-    int x0[3];
+    long x0[3];
     RFLOAT x[3] = {iCol, iRow, iSlc};
 
     //WG_TRI_INTERP(w, x0, x, LINEAR_INTERP);
@@ -449,28 +455,32 @@ void Volume::initBox()
                       + i;
 }
 
-void Volume::coordinatesInBoundaryRL(const int iCol,
-                                     const int iRow,
-                                     const int iSlc) const
+void Volume::coordinatesInBoundaryRL(const long iCol,
+                                     const long iRow,
+                                     const long iSlc) const
 {
     if ((iCol < -_nCol / 2) || (iCol >= _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
+    {
         REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
+    }
 }
 
-void Volume::coordinatesInBoundaryFT(const int iCol,
-                                     const int iRow,
-                                     const int iSlc) const
+void Volume::coordinatesInBoundaryFT(const long iCol,
+                                     const long iRow,
+                                     const long iSlc) const
 {
     if ((iCol < -_nCol / 2) || (iCol > _nCol / 2) ||
         (iRow < -_nRow / 2) || (iRow >= _nRow / 2) ||
         (iSlc < -_nSlc / 2) || (iSlc >= _nSlc / 2))
+    {
         REPORT_ERROR("ACCESSING VALUE OUT OF BOUNDARY");
+    }
 }
 
 RFLOAT Volume::getRL(const RFLOAT w[2][2][2],
-                     const int x0[3]) const
+                     const long x0[3]) const
 {
     RFLOAT result = 0;
     FOR_CELL_DIM_3 result += getRL(x0[0] + i, x0[1] + j, x0[2] + k)
@@ -479,7 +489,7 @@ RFLOAT Volume::getRL(const RFLOAT w[2][2][2],
 }
 
 Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
-                          const int x0[3]) const
+                          const long x0[3]) const
 {
     Complex result = COMPLEX(0, 0);
 
@@ -490,7 +500,7 @@ Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
 
         size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
-        for (int i = 0; i < 8; i++)
+        for (long i = 0; i < 8; i++)
         {
             size_t index = index0 + ((size_t*)_box)[i];
 
@@ -554,7 +564,7 @@ Complex Volume::getFTHalf(const RFLOAT w[2][2][2],
 
 void Volume::addFTHalf(const Complex value,
                        const RFLOAT w[2][2][2],
-                       const int x0[3])
+                       const long x0[3])
 {
     if ((x0[1] != -1) &&
         (x0[2] != -1))
@@ -563,7 +573,7 @@ void Volume::addFTHalf(const Complex value,
 
         size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
-        for (int i = 0; i < 8; i++)
+        for (long i = 0; i < 8; i++)
         {
             size_t index = index0 + ((size_t*)_box)[i];
 
@@ -646,7 +656,7 @@ void Volume::addFTHalf(const Complex value,
 
 void Volume::addFTHalf(const RFLOAT value,
                        const RFLOAT w[2][2][2],
-                       const int x0[3])
+                       const long x0[3])
 {
     if ((x0[1] != -1) &&
         (x0[2] != -1))
@@ -655,7 +665,7 @@ void Volume::addFTHalf(const RFLOAT value,
 
         size_t index0 = iFTHalf(x0[0], x0[1], x0[2]);
 
-        for (int i = 0; i < 8; i++)
+        for (long i = 0; i < 8; i++)
         {
             size_t index = index0 + ((size_t*)_box)[i];
 

@@ -39,8 +39,8 @@
  * @param that the image
  */
 #define IMAGE_FOR_EACH_PIXEL_RL(that) \
-    for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-        for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++)
+    for (long j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+        for (long i = -that.nColRL() / 2; i < that.nColRL() / 2; i++)
 
 /**
  * @brief This macro loops over each pixel of an image (@f$j@f$ represents the index of row, @f$i@f$ represents the index of column) in positive half range Fourier space.
@@ -48,8 +48,8 @@
  * @param that the image
  */
 #define IMAGE_FOR_EACH_PIXEL_FT(that) \
-    for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-        for (int i = 0; i <= that.nColRL() / 2; i++)
+    for (long j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+        for (long i = 0; i <= that.nColRL() / 2; i++)
 
 /**
  * @brief This macro loops over the pixels of an image in a certain radius (@f$j@f$ represents the index of row, @f$i@f$ represents the index of column) in real space.
@@ -57,8 +57,8 @@
  * @param r the radius
  */
 #define IMAGE_FOR_PIXEL_R_RL(r) \
-    for (int j = -(r); j < (r); j++) \
-        for (int i = -(r); i < (r); i++)
+    for (long j = -(r); j < (r); j++) \
+        for (long i = -(r); i < (r); i++)
 
 /**
  * @brief This macro loops over the pixels of an image in a certain radius (@f$j@f$ represents the index of row, @f$i@f$ represents the index of column) in positive half range Fourier space.
@@ -66,16 +66,16 @@
  * @param r the radius
  */
 #define IMAGE_FOR_PIXEL_R_FT(r) \
-    for (int j = -(r); j < (r); j++) \
-        for (int i = 0; i <= (r); i++)
+    for (long j = -(r); j < (r); j++) \
+        for (long i = 0; i <= (r); i++)
 
 /**
  * @brief Compute the indicator of whether the regular pixel is in the conjugate part of volume or not.
  *
  * @return indicator of whether the regular pixel is in the conjugate part of volume or not
  */
-inline bool conjHalf(int& iCol,    /**< [in] index of the column (regular voxel) */
-                     int& iRow     /**< [in] index of the row (regular voxel) */
+inline bool conjHalf(long& iCol,    /**< [in] index of the column (regular voxel) */
+                     long& iRow     /**< [in] index of the row (regular voxel) */
                     )
 {
     if (iCol >= 0) return false;
@@ -117,17 +117,17 @@ class Image : public ImageBase
         /**
          * @brief number of columns of the image
          */
-        int _nCol;
+        long _nCol;
 
         /**
          * @brief number of rows of the the image
          */
-        int _nRow;
+        long _nRow;
 	
         /**
          * @brief number of columns of the image in Fourier space
          */ 
-        int _nColFT;
+        long  _nColFT;
 
         /**
          * @brief the distances between the irregular voxel and four adjacent regular voxel, helpful for the interpolation in addFT operation
@@ -146,8 +146,8 @@ class Image : public ImageBase
          * 
          * It constructs an Image object with the given number of columns and number of rows in the certain space.
          */
-        Image(const int nCol,    /**< [in] number of columns of image*/
-              const int nRow,    /**< [in] number of rows of image*/ 
+        Image(const long nCol,    /**< [in] number of columns of image*/
+              const long nRow,    /**< [in] number of rows of image*/ 
               const int space    /**< [in] image mode: RL_SPACE(real space) or FT_SPACE(Fourier space) */
              );
 
@@ -207,8 +207,8 @@ class Image : public ImageBase
         /**
          * @brief This function allocates memory space in a certain space with given number of columns and number of rows.
          */
-        void alloc(const int nCol,    /**< [in] number of columns of image */
-                   const int nRow,    /**< [in] number of rows of image */
+        void alloc(const long nCol,    /**< [in] number of columns of image */
+                   const long nRow,    /**< [in] number of rows of image */
                    const int space    /**< [in] image mode: RL_SPACE(real space) or FT_SPACE(Fourier space) */
                   );
 
@@ -217,28 +217,28 @@ class Image : public ImageBase
          *
          * @return number of columns of this image in real space
          */
-        inline int nColRL() const { return _nCol; };
+        inline long nColRL() const { return _nCol; };
 
         /**
          * @brief This function returns the number of rows of this image in real space.
          *
          * @return number of rows of this image in real space
          */
-        inline int nRowRL() const { return _nRow; };
+        inline long nRowRL() const { return _nRow; };
 
         /**
          * @brief This function returns the number of columns of this image in Fourier space.
          *
          * @return number of columns of this image in Fourier space
          */
-        inline int nColFT() const { return _nColFT; };
+        inline long nColFT() const { return _nColFT; };
 
         /**
          * @brief This function returns the number of rows of this image in Fourier space.
          *
          * @return number of rows of this image in Fourier space
          */
-        inline int nRowFT() const { return _nRow; };
+        inline long nRowFT() const { return _nRow; };
 
         /**
          * @brief This function saves the real space image to a BMP image. 
@@ -261,16 +261,16 @@ class Image : public ImageBase
          *
          * @return value of the pixel
          */
-        RFLOAT getRL(const int iCol,    /**< [in] index of the column (regular voxel) of this image in real space */
-                     const int iRow     /**< [in] index of the row (regular voxel) of this image in real space */
+        RFLOAT getRL(const long iCol,    /**< [in] index of the column (regular voxel) of this image in real space */
+                     const long iRow     /**< [in] index of the row (regular voxel) of this image in real space */
                     ) const;
 
         /**
          * @brief This function sets the value of the pixel at the certain column and row in real space.
          */
         void setRL(const RFLOAT value,    /**< [in] value of the pixel to set */
-                   const int iCol,        /**< [in] index of the column (regular voxel) of this image in real space */
-                   const int iRow         /**< [in] index of the row (regular voxel) of this image in real space */ 
+                   const long iCol,        /**< [in] index of the column (regular voxel) of this image in real space */
+                   const long iRow         /**< [in] index of the row (regular voxel) of this image in real space */ 
                   );
 
         /**
@@ -278,8 +278,8 @@ class Image : public ImageBase
          *
          * @return complex value of the pixel at certain column and row in Fourier space
          */
-        Complex getFT(int iCol,    /**< [in] index of the column (regular voxel) of this image in Fourier space */
-                      int iRow     /**< [in] index of the rows (regular voxel) of this image in Fourier space */
+        Complex getFT(long iCol,    /**< [in] index of the column (regular voxel) of this image in Fourier space */
+                      long iRow     /**< [in] index of the rows (regular voxel) of this image in Fourier space */
                      ) const;
 
         /**
@@ -287,56 +287,56 @@ class Image : public ImageBase
          *
          * @return complex value of the pixel at certain column and row in positive half range Fourier space
          */
-        Complex getFTHalf(const int iCol,  /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
-                          const int iRow   /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
+        Complex getFTHalf(const long iCol,  /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
+                          const long iRow   /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
                          ) const;
 
         /**
          * @brief This function sets the complex value of the pixel at the certain column and row in Fourier space.
          */
         void setFT(const Complex value,    /**< [in] value of the pixel to set in Fourier space */
-                   int iCol,               /**< [in] index of the column (regular voxel) of this image in Fourier space */
-                   int iRow                /**< [in] index of the row (regular voxel) of this image in Fourier space */ 
+                   long iCol,               /**< [in] index of the column (regular voxel) of this image in Fourier space */
+                   long iRow                /**< [in] index of the row (regular voxel) of this image in Fourier space */ 
                   );
 
         /**
          * @brief This function sets the complex value of the pixel at the certain column and row in positive half range Fourier space.
          */
         void setFTHalf(const Complex value,    /**< [in] value of the pixel to set in positive half range Fourier space */
-                       int iCol,               /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
-                       int iRow                /**< [in] index of the row (regular voxel) of this image in positive half range Fourier space */ 
+                       long iCol,               /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
+                       long iRow                /**< [in] index of the row (regular voxel) of this image in positive half range Fourier space */ 
                       );
 
         /**
          * @brief This function adds the complex value of the pixel at the certain column and row in Fourier space.
          */
         void addFT(const Complex value,   /**< [in] the complex value to add in Fourier space */
-                   const int iCol,        /**< [in] index of the column (regular voxel) of this image in Fourier space */
-                   const int iRow         /**< [in] index of the row (regular voxel) of this image in Fourier space */
+                   const long iCol,        /**< [in] index of the column (regular voxel) of this image in Fourier space */
+                   const long iRow         /**< [in] index of the row (regular voxel) of this image in Fourier space */
                   );
 
         /**
          * @brief This function adds the complex value of the pixel at the certain column and row in positive half range Fourier space.
          */
         void addFTHalf(const Complex value,   /**< [in] the complex value to add in positive half range Fourier space */
-                       const int iCol,        /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
-                       const int iRow         /**< [in] index of the row (regular voxel) of this image in positive half range Fourier space */
+                       const long iCol,        /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
+                       const long iRow         /**< [in] index of the row (regular voxel) of this image in positive half range Fourier space */
                       );
 
         /**
          * @brief This function adds the real-part value of the pixel at the certain column and row in Fourier space.
          */
         void addFT(const RFLOAT value,    /**< [in] the real-part value to add in Fourier space */
-                   const int iCol,        /**< [in] index of the column (regular voxel) of this image in Fourier space */
-                   const int iRow         /**< [in] index of the row (regular voxel) of this image in Fourier space */
+                   const long iCol,        /**< [in] index of the column (regular voxel) of this image in Fourier space */
+                   const long iRow         /**< [in] index of the row (regular voxel) of this image in Fourier space */
                   );
 
         /**
          * @brief This function adds the real-part value of the pixel at the certain column and row in positive half range Fourier space.
          */
         void addFTHalf(const RFLOAT value,    /**< [in] the real-part value to add in positive half range Fourier space */
-                       const int iCol,        /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
-                       const int iRow         /**< [in] index of the row (regular voxel) of this image in positive half range Fourier space */
+                       const long iCol,        /**< [in] index of the column (regular voxel) of this image in positive half range Fourier space */
+                       const long iRow         /**< [in] index of the row (regular voxel) of this image in positive half range Fourier space */
                       );
 
         /*
@@ -385,9 +385,9 @@ class Image : public ImageBase
          *
          * @return index of the regular voxel
          */ 
-        inline int iRL(const int i,    /**< [in] column index  of the regular voxel of this image */
-                       const int j     /**< [in] row index of the regular voxel of this image */
-                      ) const
+        inline size_t iRL(const long i,    /**< [in] column index  of the regular voxel of this image */
+                          const long j     /**< [in] row index of the regular voxel of this image */
+                         ) const
         {
             return (j >= 0 ? j : j + _nRow) * _nCol
                  + (i >= 0 ? i : i + _nCol);
@@ -398,9 +398,9 @@ class Image : public ImageBase
          *
          * @return index of the regular voxel
          */
-        inline int iFT(int i,    /**< [in] column index of the regular voxel of this image */
-                       int j     /**< [in] row index of the regular voxel of this image */
-                      ) const
+        inline size_t iFT(long i,    /**< [in] column index of the regular voxel of this image */
+                          long j     /**< [in] row index of the regular voxel of this image */
+                         ) const
         {
             if (i >= 0)
                 return iFTHalf(i, j);
@@ -413,9 +413,9 @@ class Image : public ImageBase
 	 *
 	 * @return index of the regular voxel
 	 */
-        inline int iFT(bool& conj,     /**< [out] indicator of whether the regular voxel locates in the conjugate part or not */
-                       int i,          /**< [in] column index of the regular voxel of this image */
-                       int j           /**< [in] row index of the regular voxel of this image */
+        inline size_t iFT(bool& conj,     /**< [out] indicator of whether the regular voxel locates in the conjugate part or not */
+                          long i,          /**< [in] column index of the regular voxel of this image */
+                          long j           /**< [in] row index of the regular voxel of this image */
 		      ) const
         {
             conj = conjHalf(i, j);
@@ -428,9 +428,9 @@ class Image : public ImageBase
          *
          * @return index of the regular voxel
          */
-        inline int iFTHalf(const int i,    /**< [in] column index of the regular voxel of this image*/
-                           const int j     /**< [in] row index of the regular voxel of this image */
-                          ) const
+        inline size_t iFTHalf(const long i,    /**< [in] column index of the regular voxel of this image*/
+                              const long j     /**< [in] row index of the regular voxel of this image */
+                             ) const
         {
             return (j >= 0 ? j : j + _nRow) * _nColFT + i;
             //return 0;
@@ -447,8 +447,8 @@ class Image : public ImageBase
          *
          * If not, it will crash the process and record a fatal log.
          */
-        void coordinatesInBoundaryRL(const int iCol,    /**< [in] index of the column(grid point) of the image in real space */
-                                     const int iRow     /**< [in] index of the row(grid point) of the image in real space */
+        void coordinatesInBoundaryRL(const long iCol,    /**< [in] index of the column(grid point) of the image in real space */
+                                     const long iRow     /**< [in] index of the row(grid point) of the image in real space */
                                     ) const;
 
         /**
@@ -456,8 +456,8 @@ class Image : public ImageBase
          *
          * If not, it will crash the process and record a fatal log.
          */
-        void coordinatesInBoundaryFT(const int iCol,    /**< [in] index of the column(grid point) of the image in Fourier space */
-                                     const int iRow     /**< [in] index of the row(grid point) of the image in Fourier space */
+        void coordinatesInBoundaryFT(const long iCol,    /**< [in] index of the column(grid point) of the image in Fourier space */
+                                     const long iRow     /**< [in] index of the row(grid point) of the image in Fourier space */
                                     ) const;
 
         /**
@@ -466,7 +466,7 @@ class Image : public ImageBase
          * @return complex value of the regular voxel in positive half range Fourier space
          */
         Complex getFTHalf(const RFLOAT w[2][2],    /**< [in] weights of adjacent four voxels */
-                          const int x0[2]          /**< [in] index of the core voxel in positive half range Fourier space */
+                          const long x0[2]          /**< [in] index of the core voxel in positive half range Fourier space */
                          ) const;
 
         /**
@@ -474,7 +474,7 @@ class Image : public ImageBase
          */
         void addFTHalf(const Complex value,     /**< [in] complex value to be added */
                        const RFLOAT w[2][2],    /**< [in] weights for value to add */
-                       const int x0[2]          /**< [in] index of the core voxel in positive half range Fourier space */
+                       const long x0[2]          /**< [in] index of the core voxel in positive half range Fourier space */
                       );
 
         /**
@@ -482,7 +482,7 @@ class Image : public ImageBase
          */
         void addFTHalf(const RFLOAT value,     /**< [in] real-part value to be added */
                        const RFLOAT w[2][2],   /**< [in] weights for value to add */
-                       const int x0[2]         /**< [in] index of the regular voxel in positive half range Fourier space */
+                       const long x0[2]         /**< [in] index of the regular voxel in positive half range Fourier space */
                       );
 };
 

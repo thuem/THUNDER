@@ -8,7 +8,8 @@
 # AUTHOR      | TIME       | VERSION       | DESCRIPTION
 # ------      | ----       | -------       | -----------
 # Fande Yu    | 2019/03/25 | 1.4.11.090325 | separate build version in CPU & GPU
-# Mingxu      | 2019/05/07 | 1.4.12.090507 | prepare of 1.4.12 release
+# Mingxu Hu   | 2019/05/07 | 1.4.12.090507 | prepare of 1.4.12 release
+# Mingxu Hu   | 2019/05/31 | 1.4.12.090531 | -Wno-sign-compare
 
 # CMAKE REQUIREMENT
 
@@ -72,7 +73,8 @@ else("${GPU_VERSION}" AND "${CPU_VERSION}")
 endif("${GPU_VERSION}" AND "${CPU_VERSION}")
 # COMMON FLAGS
 
-set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wsign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
+set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wno-sign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
+# set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 
 # BUILD TYPES
 
