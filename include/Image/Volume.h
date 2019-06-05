@@ -9,6 +9,7 @@
  *  ------    | ----       | -------       | -----------
  *  Mingxu Hu | 2015/03/23 | 0.0.1.050323  | new file
  *  He Zhao   | 2018/09/13 | 1.4.11.180913 | add notes & header
+ *  Mingxu Hu | 2019/05/31 | 1.4.12.190531 | change data type to fix large volume overflow issue
  *
  *  @brief Volume.h contains several macros that loop over each voxel in real or Fourier space, definitions of class members, functions of allocating or freeing space, returning index, getting voxel value, adding voxel value, clearing up space, reseting the volume. 
  */
@@ -42,30 +43,30 @@
  */
 #define VOLUME_SUB_SPHERE_FT(a /**< [in] the radius of this sphere */ \
                             ) \
-    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - (a))); \
-             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + (a))); \
-             k++) \
-        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - (a))); \
-                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + (a))); \
-                 j++) \
-            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - (a))); \
-                     i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + (a))); \
-                     i++)
+    for (long k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - (a))); \
+              k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + (a))); \
+              k++) \
+        for (long j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - (a))); \
+                  j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + (a))); \
+                  j++) \
+            for (long i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - (a))); \
+                      i <= GSL_MIN_INT(_nCol / 2, CEIL(iCol + (a))); \
+                      i++)
 
 /**
  * @brief This macro loops over each pixel within a sphere of which origin is a voxel in real space.
  */
 #define VOLUME_SUB_SPHERE_RL(a /**< [in] the radius of this sphere */ \
                             ) \
-    for (int k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - (a))); \
-             k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + (a))); \
-             k++) \
-        for (int j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - (a))); \
-                 j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + (a))); \
-                 j++) \
-            for (int i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - (a))); \
-                     i <= GSL_MIN_INT(_nCol / 2 - 1, CEIL(iCol + (a))); \
-                     i++)
+    for (long k = GSL_MAX_INT(-_nSlc / 2, FLOOR(iSlc - (a))); \
+              k <= GSL_MIN_INT(_nSlc / 2 - 1, CEIL(iSlc + (a))); \
+              k++) \
+        for (long j = GSL_MAX_INT(-_nRow / 2, FLOOR(iRow - (a))); \
+                  j <= GSL_MIN_INT(_nRow / 2 - 1, CEIL(iRow + (a))); \
+                  j++) \
+            for (long i = GSL_MAX_INT(-_nCol / 2, FLOOR(iCol - (a))); \
+                      i <= GSL_MIN_INT(_nCol / 2 - 1, CEIL(iCol + (a))); \
+                      i++)
 
 /**
  * @brief This macro loops over each pixel of a volume in real space.
@@ -73,9 +74,9 @@
  * @param that the volume
  */
 #define VOLUME_FOR_EACH_PIXEL_RL(that) \
-    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
-        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-            for (int i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
+    for (long k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
+        for (long j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+            for (long i = -that.nColRL() / 2; i < that.nColRL() / 2; i++) \
 
 /**
  * @brief This macro loops over each pixel of a volume in Fourier space.
@@ -83,9 +84,9 @@
  * @param that the volume
  */
 #define VOLUME_FOR_EACH_PIXEL_FT(that) \
-    for (int k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
-        for (int j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
-            for (int i = 0; i <= that.nColRL() / 2; i++)
+    for (long k = -that.nSlcRL() / 2; k < that.nSlcRL() / 2; k++) \
+        for (long j = -that.nRowRL() / 2; j < that.nRowRL() / 2; j++) \
+            for (long i = 0; i <= that.nColRL() / 2; i++)
 
 /**
  * @brief This macro loops over each pixel of a volume in a certain radius in real space.
@@ -93,9 +94,9 @@
  * @param r the radius
  */
 #define VOLUME_FOR_PIXEL_R_RL(r) \
-    for (int k = -(r); k < (r); k++) \
-        for (int j = -(r); j < (r); j++) \
-            for (int i = -(r); i < (r); i++)
+    for (long k = -(r); k < (r); k++) \
+        for (long j = -(r); j < (r); j++) \
+            for (long i = -(r); i < (r); i++)
 
 /**
  * @brief This macro loops over each pixel of a volume in a certain radius in Fourier space.
@@ -103,9 +104,9 @@
  * @param r the radius
  */
 #define VOLUME_FOR_PIXEL_R_FT(r) \
-    for (int k = -(r); k < (r); k++) \
-        for (int j = -(r); j < (r); j++) \
-            for (int i = 0; i <= (r); i++)
+    for (long k = -(r); k < (r); k++) \
+        for (long j = -(r); j < (r); j++) \
+            for (long i = 0; i <= (r); i++)
 
 /**
  * @brief Compute the indicator of whether the regular pixel is in the conjugate part of volume or not.
@@ -159,22 +160,22 @@ class Volume : public ImageBase
         /**
          * number of columns of the volume
          */
-        int _nCol;
+        long _nCol;
 
         /**
          * number of rows of the volume
          */
-        int _nRow;
+        long _nRow;
 
         /**
          * number of slices of the volume
          */
-        int _nSlc;
+        long _nSlc;
 
         /**
          * number of columns of the volume in Fourier space
          */
-        int _nColFT;
+        long _nColFT;
 
         /**
          * the distances between the irregular(non-grid) voxel and eight adjacent regular voxels, helpful for the interpolation in addFT operation
@@ -191,9 +192,9 @@ class Volume : public ImageBase
         /**
          * @brief Create designated-size volume.
          */
-        Volume(const int nCol, /**< [in] number of columns of this volume */
-               const int nRow, /**< [in] number of rows of this volume */
-               const int nSlc, /**< [in] number of slices of this volume */
+        Volume(const long nCol, /**< [in] number of columns of this volume */
+               const long nRow, /**< [in] number of rows of this volume */
+               const long nSlc, /**< [in] number of slices of this volume */
                const int space /**< [in] the space this volume allocating in, where RL_SPACE stands for the real space and FT_SPACE stands for the Fourier space */
               );
 
@@ -254,9 +255,9 @@ class Volume : public ImageBase
         /**
 	 * @brief Allocate a block of memory in designated space.
          */
-        void alloc(const int nCol, /**< [in] number of columns of this volume */
-                   const int nRow, /**< [in] number of rows of this volume */
-                   const int nSlc, /**< [in] number of slices of this volume */
+        void alloc(const long nCol, /**< [in] number of columns of this volume */
+                   const long nRow, /**< [in] number of rows of this volume */
+                   const long nSlc, /**< [in] number of slices of this volume */
                    const int space /**< [in] the space this volume allocating, where RL_SPACE stands for the real space and FT_SPACE stands for the Fourier space */
                   );
 
@@ -265,7 +266,7 @@ class Volume : public ImageBase
          *
          * @return the number of columns of this volume in real space.
          */
-        inline int nColRL() const 
+        inline long nColRL() const 
         { 
             return _nCol; 
         };
@@ -275,7 +276,7 @@ class Volume : public ImageBase
          *
          * @return the number of rows of this volume in real space.
          */
-        inline int nRowRL() const 
+        inline long nRowRL() const 
         { 
             return _nRow; 
         };
@@ -285,7 +286,7 @@ class Volume : public ImageBase
          *
          * @return the number of rows of this volume in real space.
          */
-        inline int nSlcRL() const 
+        inline long nSlcRL() const 
         { 
             return _nSlc; 
         };
@@ -295,7 +296,7 @@ class Volume : public ImageBase
          *
          * @return the number of columns of this volume in Fourier space.
          */
-        inline int nColFT() const 
+        inline long nColFT() const 
         { 
             return _nColFT; 
         };
@@ -305,7 +306,7 @@ class Volume : public ImageBase
          *
          * @return the number of rows of this volume in Fourier space.
          */
-        inline int nRowFT() const 
+        inline long nRowFT() const 
         { 
             return _nRow; 
         };
@@ -315,7 +316,7 @@ class Volume : public ImageBase
          *
          * @return the number of slices of this volume in Fourier space.
          */
-        inline int nSlcFT() const 
+        inline long nSlcFT() const 
         { 
             return _nSlc; 
         };
@@ -325,27 +326,27 @@ class Volume : public ImageBase
          *
          * @return the value of the voxel in real space at given cooridnates.
          */
-        RFLOAT getRL(const int iCol, /**< [in] column index of the voxel in real space */
-                     const int iRow, /**< [in] row index of the voxel in real space */
-                     const int iSlc  /**< [in] slice index of the voxel in real space */
+        RFLOAT getRL(const long iCol, /**< [in] column index of the voxel in real space */
+                     const long iRow, /**< [in] row index of the voxel in real space */
+                     const long iSlc  /**< [in] slice index of the voxel in real space */
                     ) const;
 
         /**
          * @brief Set the value of the voxel in real space at given coordinates.
          */
         void setRL(const RFLOAT value, /**< [in] the value of the voxel in real space */
-                   const int iCol,     /**< [in] column index of the voxel in real space */
-                   const int iRow,     /**< [in] row index of the voxel in real space */
-                   const int iSlc      /**< [in] slice index of the voxel in real space */
+                   const long iCol,     /**< [in] column index of the voxel in real space */
+                   const long iRow,     /**< [in] row index of the voxel in real space */
+                   const long iSlc      /**< [in] slice index of the voxel in real space */
                   );
 
         /**
          * @brief Add a certain value on the voxel in real space at given coordinates.
          */
         void addRL(const RFLOAT value, /**< [in] the value of the voxel in real space */
-                   const int iCol,     /**< [in] column index of the voxel in real space */
-                   const int iRow,     /**< [in] row index of the voxel in real space */
-                   const int iSlc      /**< [in] slice index of the voxel in real space */
+                   const long iCol,     /**< [in] column index of the voxel in real space */
+                   const long iRow,     /**< [in] row index of the voxel in real space */
+                   const long iSlc      /**< [in] slice index of the voxel in real space */
                   );
 
         /**
@@ -353,9 +354,9 @@ class Volume : public ImageBase
          *
          * @return the value of the voxel in Fourier space at given cooridnates.
          */
-        Complex getFT(int iCol, /**< [in] column index of the voxel in Fourier space */
-                      int iRow, /**< [in] row index of the voxel in Fourier space */
-                      int iSlc  /**< [in] slice index of the voxel in Fourier space */
+        Complex getFT(long iCol, /**< [in] column index of the voxel in Fourier space */
+                      long iRow, /**< [in] row index of the voxel in Fourier space */
+                      long iSlc  /**< [in] slice index of the voxel in Fourier space */
                      ) const;
 
         /**
@@ -363,63 +364,63 @@ class Volume : public ImageBase
          *
          * @return the value of the voxel in the positive half of Fourier space at given cooridnates.
          */
-        Complex getFTHalf(const int iCol, /**< [in] column index of the voxel in Fourier space */
-                          const int iRow, /**< [in] row index of the voxel in Fourier space */
-                          const int iSlc  /**< [in] slice index of the voxel in Fourier space */
+        Complex getFTHalf(const long iCol, /**< [in] column index of the voxel in Fourier space */
+                          const long iRow, /**< [in] row index of the voxel in Fourier space */
+                          const long iSlc  /**< [in] slice index of the voxel in Fourier space */
                          ) const;
 
         /**
          * @brief Set the value of the regular voxel in the whole Fourier space at given coordinateS.
          */
         void setFT(const Complex value, /**< [in] the value of regular voxel in Fourier space */
-                   int iCol,            /**< [in] column index of the regular voxel in Fourier space */
-                   int iRow,            /**< [in] row index of the regular voxel in Fourier space */
-                   int iSlc             /**< [in] slice index of the regular voxel in real space */
+                   long iCol,            /**< [in] column index of the regular voxel in Fourier space */
+                   long iRow,            /**< [in] row index of the regular voxel in Fourier space */
+                   long iSlc             /**< [in] slice index of the regular voxel in real space */
                   );
 
         /**
          * @brief Set the value of the regular voxel in the positive half of Fourier space at given coordinates.
          */
         void setFTHalf(const Complex value, /**< [in] the value of the regular voxel in Fourier space */
-                       const int iCol,      /**< [in] column index of the regular voxel in Fourier space */
-                       const int iRow,      /**< [in] row index of the regular voxel in Fourier space */
-                       const int iSlc       /**< [in] slice index of the regular voxel in Fourier space */
+                       const long iCol,      /**< [in] column index of the regular voxel in Fourier space */
+                       const long iRow,      /**< [in] row index of the regular voxel in Fourier space */
+                       const long iSlc       /**< [in] slice index of the regular voxel in Fourier space */
                       );
         
         /**
          * @brief Add a certain value on a regular voxel in Fourier space at given coordinate.
          */
         void addFT(const Complex value, /**< [in] the value of the regular voxel */
-                   int iCol,            /**< [in] column index of the regular voxel in Fourier space */
-                   int iRow,            /**< [in] row index of the regular voxel in Fourier space */
-                   int iSlc             /**< [in] slice index of the regular voxel in real space */
+                   long iCol,            /**< [in] column index of the regular voxel in Fourier space */
+                   long iRow,            /**< [in] row index of the regular voxel in Fourier space */
+                   long iSlc             /**< [in] slice index of the regular voxel in real space */
                   );
 
         /**
          * @brief Add a certain value on a regular voxel in Fourier space at given coordiantes.
          */
         void addFTHalf(const Complex value, /**< [in] the value of the regular voxel */
-                       const int iCol,      /**< [in] column index of the regular voxel in Fourier space */
-                       const int iRow,      /**< [in] row index of the regular voxel in Fourier space */
-                       const int iSlc       /**< [in] slice index of the regular voxel in real space */
+                       const long iCol,      /**< [in] column index of the regular voxel in Fourier space */
+                       const long iRow,      /**< [in] row index of the regular voxel in Fourier space */
+                       const long iSlc       /**< [in] slice index of the regular voxel in real space */
                       );
 
         /**
          * @brief Add the real part on a regular voxel in Fourier space at given coordinates.
          */
         void addFT(const RFLOAT value, /**< [in] the real part of the regular voxel */
-                   int iCol,           /**< [in] column index of the regular voxel in Fourier space */
-                   int iRow,           /**< [in] row index of the regular voxel in Fourier space */
-                   int iSlc            /**< [in] slice index of the regular voxel in real space */
+                   long iCol,           /**< [in] column index of the regular voxel in Fourier space */
+                   long iRow,           /**< [in] row index of the regular voxel in Fourier space */
+                   long iSlc            /**< [in] slice index of the regular voxel in real space */
                   );
 
         /**
          * @brief Add the real part on a regular voxel in Fourier space at given coordinates.
          */
         void addFTHalf(const RFLOAT value, /**< [in] the real part of the regular voxel */
-                       const int iCol,     /**< [in] column index of the regular voxel in Fourier space */
-                       const int iRow,     /**< [in] row index of the regular voxel in Fourier space */
-                       const int iSlc      /**< [in] slice index of the regular voxel in real space */
+                       const long iCol,     /**< [in] column index of the regular voxel in Fourier space */
+                       const long iRow,     /**< [in] row index of the regular voxel in Fourier space */
+                       const long iSlc      /**< [in] slice index of the regular voxel in real space */
                       );
 
         /**
@@ -583,17 +584,17 @@ class Volume : public ImageBase
         /**
          * @brief Check whether the given coordinates is within the boundary of the volume in real space or not. If not, it will crash the process and record a fatal log.
          */
-        void coordinatesInBoundaryRL(const int iCol, /**< [in] column index of the voxel in real space */
-                                     const int iRow, /**< [in] row index of the voxel in real space */
-                                     const int iSlc  /**< [in] slice index of the voxel in real space */
+        void coordinatesInBoundaryRL(const long iCol, /**< [in] column index of the voxel in real space */
+                                     const long iRow, /**< [in] row index of the voxel in real space */
+                                     const long iSlc  /**< [in] slice index of the voxel in real space */
                                     ) const;
 
         /**
          * @brief Check whether the given coordinates is within the boundary of the volume in Fourier space or not. If not, it will crash the process and record a fatal log.
          */
-        void coordinatesInBoundaryFT(const int iCol, /**< [in] column index of the voxel in Fourier space */
-                                     const int iRow, /**< [in] row index of the voxel in Fourier space */
-                                     const int iSlc  /**< [in] slice index of the voxel in Fourier space */
+        void coordinatesInBoundaryFT(const long iCol, /**< [in] column index of the voxel in Fourier space */
+                                     const long iRow, /**< [in] row index of the voxel in Fourier space */
+                                     const long iSlc  /**< [in] slice index of the voxel in Fourier space */
                                      ) const;
 
         /**
@@ -602,7 +603,7 @@ class Volume : public ImageBase
          * @return the value of the voxel in real space at given coordinates.
          */
         RFLOAT getRL(const RFLOAT w[2][2][2], /**< [in] weights of adjacent eight voxels */
-                     const int x0[3]          /**< [in] index of the core voxel in real space */
+                     const long x0[3]          /**< [in] index of the core voxel in real space */
                     ) const;
 
         /**
@@ -611,7 +612,7 @@ class Volume : public ImageBase
          * @return the value of the voxel in the positive part of Fourier space at given coordinates.
          */
         Complex getFTHalf(const RFLOAT w[2][2][2], /**< [in] weights of adjacent eight voxels */
-                          const int x0[3]          /**< [in] index of the core voxel in Fourier space */
+                          const long x0[3]          /**< [in] index of the core voxel in Fourier space */
                          ) const;
 
         /**
@@ -619,7 +620,7 @@ class Volume : public ImageBase
          */
         void addFTHalf(const Complex value,     /**< [in] value to be added */
                        const RFLOAT w[2][2][2], /**< [in] weights of adjacent eight voxels */
-                       const int x0[3]          /**< [in] index of the core voxel in Fourier space */
+                       const long x0[3]          /**< [in] index of the core voxel in Fourier space */
                       );
 
         /**
@@ -627,7 +628,7 @@ class Volume : public ImageBase
          */
         void addFTHalf(const RFLOAT value,      /**< [in] value to be added */
                        const RFLOAT w[2][2][2], /**< [in] weights of adjacent eight voxels */
-                       const int x0[3]          /**< [in] index of the core voxel in Fourier space */
+                       const long x0[3]          /**< [in] index of the core voxel in Fourier space */
                       );
 };
 
