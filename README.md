@@ -48,7 +48,8 @@ See [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Release Note
 
-* Version 1.4.12: This releaes fixes a plenty of bugs and adds several new features.
+* Version 1.4.13: This release fixes the segment fault which occurs when boxsize is very large, e.g., over 1000.
+* Version 1.4.12: This release fixes a plenty of bugs and adds several new features.
 * Version 1.4.11: This release fixes a bug which occurs during the initialisation step of a few datasets.
 * Version 1.4.10: This release fixes a compilation bug which occurs when CUDA version is below 9.0.
 * Version 1.4.9: Graphic User Inference (GUI) `thunder_stackview` is released. It is used for viewing the result of 2D classification and selecting desired particles.
