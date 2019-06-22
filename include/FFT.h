@@ -8,8 +8,9 @@
  *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
  *  ------      | ----       | -------       | -----------
  *  Mingxu Hu   | 2015/03/23 | 0.0.1.050323  | new file
- *  Shouqing Li | 2018/09/14 | 1.4.11.080914 | add documentation 
- *  Mingxu Hu   | 2018/12/22 | 1.4.11.081222 | add some emendation in the documentation
+ *  Shouqing Li | 2018/09/14 | 1.4.11.180914 | add documentation 
+ *  Mingxu Hu   | 2018/12/22 | 1.4.11.181222 | add some emendation in the documentation
+ *  Mingxu Hu   | 2019/06/22 | 1.4.13.190622 | change int to long to fix overflow issue
  *  
  *  @brief FFT.h contains several functions to carry out the Fast Fourier Transformation calculations for various conditions.   
  *
@@ -271,31 +272,31 @@ class FFT
         /**
          * @brief This function creates a plan to perform Fourier transform on an image using multiple threads.
          */
-        void fwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
-                          const int nRow,              /**< [in] number of rows of the image */
+        void fwCreatePlan(const long nCol,              /**< [in] number of columns of the image */
+                          const long nRow,              /**< [in] number of rows of the image */
                           const unsigned int nThread   /**< [in] the number of threads to be used */
                           );
         /**
          * @brief This function creates a plan to perform Fourier transform on a volume using multiple threads.
          */
-        void fwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
-                          const int nRow,              /**< [in] number of rows of the image */
-                          const int nSlc,              /**< [in] number of slices of the image */
+        void fwCreatePlan(const long nCol,              /**< [in] number of columns of the image */
+                          const long nRow,              /**< [in] number of rows of the image */
+                          const long nSlc,              /**< [in] number of slices of the image */
                           const unsigned int nThread   /**< [in] the number of threads to be used */
                           );
         /**
          * @brief This function creates a plan to perform inverse Fourier transform on an image using multiple threads.
          */
-        void bwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
-                          const int nRow,              /**< [in] number of rows of the image */
+        void bwCreatePlan(const long nCol,              /**< [in] number of columns of the image */
+                          const long nRow,              /**< [in] number of rows of the image */
                           const unsigned int nThread   /**< [in] the number of threads to be used */
                           );
         /**
          * @brief This function creates a plan to perform inverse Fourier transform on a volume using multiple threads.
          */
-        void bwCreatePlan(const int nCol,              /**< [in] number of columns of the image */
-                          const int nRow,              /**< [in] number of rows of the image */
-                          const int nSlc,              /**< [in] number of slices of the image */
+        void bwCreatePlan(const long nCol,              /**< [in] number of columns of the image */
+                          const long nRow,              /**< [in] number of rows of the image */
+                          const long nSlc,              /**< [in] number of slices of the image */
                           const unsigned int nThread   /**< [in] the number of threads to be used */
                           );
         /**
