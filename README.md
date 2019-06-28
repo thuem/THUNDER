@@ -12,8 +12,7 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 * [Molecular Basis for Ligand Modulation of a Mammalian Voltage-Gated Ca2+ Channel\[J\]. Cell](https://doi.org/10.1016/j.cell.2019.04.043)
 * [Adeno-associated virus 2 bound to its cellular receptor AAVR\[J\]. Nature Microbiology.](https://doi.org/10.1038/s41564-018-0356-7)
 * [Mechanism of DNA translocation underlying chromatin remodelling by Snf2\[J\]. Nature.](https://doi.org/10.1038/s41586-019-1029-2)
-* [Structures of the human spliceosomes before and after release
-of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-0143-x)
+* [Structures of the human spliceosomes before and after release of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-0143-x)
 * [Seneca Valley virus attachment and uncoating mediated by its receptor anthrax toxin receptor 1\[J\]. PNAS.](https://www.pnas.org/content/115/51/13087)
 * [Structures of the fully assembled Saccharomyces cerevisiae spliceosome before activation\[J\]. Science.](http://science.sciencemag.org/content/360/6396/1423)
 

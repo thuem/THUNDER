@@ -33,6 +33,7 @@ app/
 build/
 build*/
 tags
+.vscode/
 
 *.dSYM/
 

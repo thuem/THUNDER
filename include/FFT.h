@@ -100,7 +100,6 @@
     TSFFTW_destroy_plan(bwPlan); \
     bwPlan = NULL; \
     _dstR = NULL; \
-    _dstR = NULL; \
     _srcC = NULL; \
     obj.clearFT(); \
 }

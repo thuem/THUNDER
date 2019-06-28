@@ -8681,7 +8681,11 @@ void Optimiser::saveMapHalf(const bool finished)
                 ref.saveFTToBMP(filename, 0.001);
                 ***/
 
+#ifdef GPU_RECONSTRUCT
+                fft.bw(ref, 1);
+#else
                 fft.bw(ref, _para.nThreadsPerProcess);
+#endif
 
                 softMask(ref,
                          ref,
@@ -8717,7 +8721,11 @@ void Optimiser::saveMapHalf(const bool finished)
                 ref.saveFTToBMP(filename, 0.001);
                 ***/
 
+#ifdef GPU_RECONSTRUCT
+                fft.bw(ref, 1);
+#else
                 fft.bw(ref, _para.nThreadsPerProcess);
+#endif
 
                 softMask(ref,
                          ref,
@@ -8746,7 +8754,11 @@ void Optimiser::saveMapHalf(const bool finished)
             {
                 lowPass = _model.ref(t).copyVolume();
 
+#ifdef GPU_RECONSTRUCT
+                fft.bw(lowPass, 1);
+#else
                 fft.bw(lowPass, _para.nThreadsPerProcess);
+#endif
             }
             else
             {
@@ -8760,7 +8772,11 @@ void Optimiser::saveMapHalf(const bool finished)
                 lowPass = _model.ref(t).copyVolume();
 #endif
 
+#ifdef GPU_RECONSTRUCT
+                fft.bw(lowPass, 1);
+#else
                 fft.bw(lowPass, _para.nThreadsPerProcess);
+#endif
             }
 
             if (_commRank == HEMI_A_LEAD)
@@ -8868,7 +8884,11 @@ void Optimiser::saveMapJoin(const bool finished)
                 FOR_EACH_PIXEL_FT(ref)
                     ref[i] = (A[i] + B[i]) / 2;
 
+#ifdef GPU_RECONSTRUCT
+                fft.bw(ref, 1);
+#else
                 fft.bw(ref, _para.nThreadsPerProcess);
+#endif
 
                 softMask(ref,
                          ref,
@@ -8945,7 +8965,11 @@ void Optimiser::saveMapJoin(const bool finished)
                 FOR_EACH_PIXEL_FT(ref)
                     ref[i] = (A[i] + B[i]) / 2;
 
+#ifdef GPU_RECONSTRUCT
+                fft.bw(ref, 1);
+#else
                 fft.bw(ref, _para.nThreadsPerProcess);
+#endif
 
                 if (finished)
                     sprintf(filename, "%sReference_%03d_Final.mrc", _para.dstPrefix, l);

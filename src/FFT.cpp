@@ -221,7 +221,6 @@ void FFT::bw(Volume& vol,
                                       _srcC,
                                       _dstR,
                                       FFTW_ESTIMATE);
-
     TSFFTW_plan_with_nthreads(1);
 
     TSFFTW_execute(bwPlan);
