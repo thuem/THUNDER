@@ -8,8 +8,8 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 
 ## Citation
 
-* [Single particle cryo-EM reconstruction of 52 kDa streptavidin at 3.2 Angstrom resolution\[J\]. Nature Communications](https://doi.org/10.1038/s41467-019-10368-w)
-* [Molecular Basis for Ligand Modulation of a Mammalian Voltage-Gated Ca2+ Channel\[J\]. Cell](https://doi.org/10.1016/j.cell.2019.04.043)
+* [Single particle cryo-EM reconstruction of 52 kDa streptavidin at 3.2 Angstrom resolution\[J\]. Nature Communications.](https://doi.org/10.1038/s41467-019-10368-w)
+* [Molecular Basis for Ligand Modulation of a Mammalian Voltage-Gated Ca2+ Channel\[J\]. Cell.](https://doi.org/10.1016/j.cell.2019.04.043)
 * [Adeno-associated virus 2 bound to its cellular receptor AAVR\[J\]. Nature Microbiology.](https://doi.org/10.1038/s41564-018-0356-7)
 * [Mechanism of DNA translocation underlying chromatin remodelling by Snf2\[J\]. Nature.](https://doi.org/10.1038/s41586-019-1029-2)
 * [Structures of the human spliceosomes before and after release of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-0143-x)
