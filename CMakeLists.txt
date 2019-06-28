@@ -454,7 +454,3 @@ install(FILES "${PROJECT_SOURCE_DIR}/script/STAR_2_THU.py" DESTINATION script)
 install(FILES "${PROJECT_SOURCE_DIR}/script/demo.json" DESTINATION script)
 install(FILES "${PROJECT_SOURCE_DIR}/script/demo_2D.json" DESTINATION script)
 install(FILES "${PROJECT_SOURCE_DIR}/script/demo_3D.json" DESTINATION script)
-
-# Copy Manual
-
-# install(FILES "${PROJECT_SOURCE_DIR}/manual/THUNDER_v${THUNDER_VERSION_MAJOR}_${THUNDER_VERSION_MINOR}_${THUNDER_VERSION_ADDIT}_User_Guide.pdf" DESTINATION manual)
