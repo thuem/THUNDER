@@ -12,6 +12,7 @@ Shizhen Xu (3, 6)
 Guangwen Yang (3, 6)
 Yuan Shen (2)
 Xueming Li (1, 4, 5)
+Shouqing Li (1, 4, 5)
 
 1. MOE Key Laboratory of Protein Science, School of Life Sciences, Tsinghua University, Beijing 100084, China
 2. Department of Electronic Engineering, Tsinghua University, Beijing 100084, China
