@@ -8,6 +8,8 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 
 ## Citation
 
+* [Single particle cryo-EM reconstruction of 52 kDa streptavidin at 3.2 Angstrom resolution](https://doi.org/10.1038/s41467-019-10368-w)
+* [Molecular Basis for Ligand Modulation of a Mammalian Voltage-Gated Ca2+ Channel](https://doi.org/10.1016/j.cell.2019.04.043)
 * [Adeno-associated virus 2 bound to its cellular receptor AAVR\[J\]. Nature Microbiology.](https://doi.org/10.1038/s41564-018-0356-7)
 * [Mechanism of DNA translocation underlying chromatin remodelling by Snf2\[J\]. Nature.](https://doi.org/10.1038/s41586-019-1029-2)
 * [Structures of the human spliceosomes before and after release
@@ -48,6 +50,7 @@ See [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Release Note
 
+* Version 1.4.14: This release fixes a bug in 2D, 3D classification and a bug of FFT trasnformation occuring when box size is very large.
 * Version 1.4.13: This release fixes the segment fault which occurs when boxsize is very large, e.g., over 1000.
 * Version 1.4.12: This release fixes a plenty of bugs and adds several new features.
 * Version 1.4.11: This release fixes a bug which occurs during the initialisation step of a few datasets.
