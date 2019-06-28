@@ -4812,18 +4812,16 @@ void Optimiser::initImg()
 
 void Optimiser::statImg()
 {
-    _mean = 0;
-
-    _stdN = 0;
-    _stdD = 0;
-    _stdS = 0;
-
-    _stdStdN = 0;
-
     int nPer = 0;
     int nImg = 0;
 
-    #pragma omp parallel for
+    RFLOAT mean = 0;
+    RFLOAT stdN = 0;
+    RFLOAT stdD = 0;
+    RFLOAT stdS = 0;
+    RFLOAT stdStdN = 0;
+
+    #pragma omp parallel for reduction(+:mean, stdN, stdD, stdS, stdStdN)
     FOR_EACH_2D_IMAGE
     {
         #pragma omp atomic
@@ -4841,46 +4839,45 @@ void Optimiser::statImg()
         }
 
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
-        #pragma omp atomic
-        _mean += regionMean(_img[l],
-                            _para.maskRadius / _para.pixelSize,
-                            0,
-                            1);
+        mean += regionMean(_img[l],
+                           _para.maskRadius / _para.pixelSize,
+                           0,
+                           1);
 #else
-        #pragma omp atomic
-        _mean += regionMean(_img[l],
-                            _para.size / 2,
-                            0,
-                            1);
+        mean += regionMean(_img[l],
+                           _para.size / 2,
+                           0,
+                           1);
 #endif
 
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
-        #pragma omp atomic
-        _stdN += bgStddev(0,
-                          _img[l],
-                          _para.maskRadius / _para.pixelSize);
+        stdN += bgStddev(0,
+                         _img[l],
+                         _para.maskRadius / _para.pixelSize);
 #else
-        #pragma omp atomic
-        _stdN += bgStddev(0,
-                          _img[l],
-                          _para.size / 2);
+        stdN += bgStddev(0,
+                         _img[l],
+                         _para.size / 2);
 #endif
 
-        #pragma omp atomic
-        _stdD += stddev(0, _img[l]);
+        stdD += stddev(0, _img[l]);
 
 #ifdef OPTIMISER_INIT_IMG_NORMALISE_OUT_MASK_REGION
-        #pragma omp atomic
-        _stdStdN += gsl_pow_2(bgStddev(0,
-                                       _img[l],
-                                       _para.maskRadius / _para.pixelSize));
+        stdStdN += gsl_pow_2(bgStddev(0,
+                                      _img[l],
+                                      _para.maskRadius / _para.pixelSize));
 #else
-        #pragma omp atomic
-        _stdStdN += gsl_pow_2(bgStddev(0,
-                                       _img[l],
-                                       _para.size / 2));
+        stdStdN += gsl_pow_2(bgStddev(0,
+                                      _img[l],
+                                      _para.size / 2));
 #endif
     }
+
+    _mean = mean;
+    _stdN = stdN;
+    _stdD = stdD;
+    _stdS = stdS;
+    _stdStdN = stdStdN;
 
 #ifdef VERBOSE_LEVEL_1
     ILOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Performing Statistics on Images Accomplished";
@@ -10282,6 +10279,7 @@ void scaleDataVSPrior(vec& sXA,
         sAA(i) = 0;
     }
 
+    // #pragma omp parallel for reduction(+:sXA) reduction(+:sAA) schedule(dynamic)
     #pragma omp parallel for schedule(dynamic)
     IMAGE_FOR_PIXEL_R_FT(CEIL(rU) + 1)
     {
@@ -10295,15 +10293,19 @@ void scaleDataVSPrior(vec& sXA,
             {
                 int index = dat.iFTHalf(i, j);
 
+                RFLOAT XA = REAL(dat.iGetFT(index)
+                               * pri.iGetFT(index)
+                               * REAL(ctf.iGetFT(index)));
+
+                RFLOAT AA = REAL(pri.iGetFT(index)
+                               * pri.iGetFT(index)
+                               * TSGSL_pow_2(REAL(ctf.iGetFT(index))));
+                
                 #pragma omp atomic
-                sXA(v) += REAL(dat.iGetFT(index)
-                             * pri.iGetFT(index)
-                             * REAL(ctf.iGetFT(index)));
+                sXA(v) += XA;
 
                 #pragma omp atomic
-                sAA(v) += REAL(pri.iGetFT(index)
-                             * pri.iGetFT(index)
-                             * TSGSL_pow_2(REAL(ctf.iGetFT(index))));
+                sAA(v) += AA;
             }
         }
     }

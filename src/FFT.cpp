@@ -1,12 +1,13 @@
-/*******************************************************************************
- * Author: Mingxu Hu, Hongkun Yu
- * Dependency:
- * Test:
- * Execution:
- * Description:
+/** @file
+ *  @author Mingxu Hu
+ *  @version 1.4.13.190622
+ *  @copyright THUNDER Non-Commercial Software License Agreement
  *
- * Manual:
- * ****************************************************************************/
+ *  ChangeLog
+ *  AUTHOR      | TIME       | VERSION       | DESCRIPTION
+ *  ------      | ----       | -------       | -----------
+ *  Mingxu Hu   | 2019/06/22 | 1.4.13.190622 | change int to long to fix overflow issue
+ */
 
 #include "FFT.h"
 
@@ -231,86 +232,10 @@ void FFT::bw(Volume& vol,
     BW_CLEAN_UP_MT(vol);
 }
 
-/*void FFT::fwCreatePlan(const int nCol,
-                       const int nRow)
-{
-    //fwCreatePlan(nCol, nRow, 1);
-
-    _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
-    _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
-
-    fwPlan = TSFFTW_plan_dft_r2c_2d(nRow,
-                                    nCol,
-                                    _srcR,
-                                    _dstC,
-                                    FFTW_MEASURE);
-
-    TSFFTW_free(_srcR);
-    TSFFTW_free(_dstC);
-}
-
-void FFT::fwCreatePlan(const int nCol,
-                       const int nRow,
-                       const int nSlc)
-{
-    _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
-    _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
-
-    fwPlan = TSFFTW_plan_dft_r2c_3d(nRow,
-                                  nCol,
-                                  nSlc,
-                                  _srcR,
-                                  _dstC,
-                                  FFTW_MEASURE);
-
-    TSFFTW_free(_srcR);
-    TSFFTW_free(_dstC);
-}
-
-void FFT::bwCreatePlan(const int nCol,
-                       const int nRow)
-{
-    // bwCreatePlan(nCol, nRow, 1);
-
-    _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
-    _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
-
-    #pragma omp critical  (line272)
-    bwPlan = TSFFTW_plan_dft_c2r_2d(nRow,
-                                  nCol,
-                                  _srcC,
-                                  _dstR,
-                                  FFTW_MEASURE);
-
-    TSFFTW_free(_srcC);
-    TSFFTW_free(_dstR);
-}
-
-void FFT::bwCreatePlan(const int nCol,
-                       const int nRow,
-                       const int nSlc)
-{
-    _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
-    _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
-
-    #pragma omp critical  (line290)
-    bwPlan = TSFFTW_plan_dft_c2r_3d(nRow,
-                                  nCol,
-                                  nSlc,
-                                  _srcC,
-                                  _dstR,
-                                  FFTW_MEASURE);
-
-    TSFFTW_free(_srcC);
-    TSFFTW_free(_dstR);
-}*/
-
-void FFT::fwCreatePlan(const int nCol,
-                       const int nRow,
+void FFT::fwCreatePlan(const long nCol,
+                       const long nRow,
                        const unsigned int nThread)
 {
-    //fwCreatePlanMT(nCol, nRow, 1);
-
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
     _dstC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
 
@@ -328,9 +253,9 @@ void FFT::fwCreatePlan(const int nCol,
     TSFFTW_free(_dstC);
 }
 
-void FFT::fwCreatePlan(const int nCol,
-                       const int nRow,
-                       const int nSlc,
+void FFT::fwCreatePlan(const long nCol,
+                       const long nRow,
+                       const long nSlc,
                        const unsigned int nThread)
 {
     _srcR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * nSlc * sizeof(RFLOAT));
@@ -351,12 +276,10 @@ void FFT::fwCreatePlan(const int nCol,
     TSFFTW_free(_dstC);
 }
 
-void FFT::bwCreatePlan(const int nCol,
-                       const int nRow,
+void FFT::bwCreatePlan(const long nCol,
+                       const long nRow,
                        const unsigned int nThread)
 {
-    //bwCreatePlanMT(nCol, nRow, 1);
-
     _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * sizeof(Complex));
     _dstR = (RFLOAT*)TSFFTW_malloc(nCol * nRow * sizeof(RFLOAT));
  
@@ -374,9 +297,9 @@ void FFT::bwCreatePlan(const int nCol,
     TSFFTW_free(_dstR);
 }
 
-void FFT::bwCreatePlan(const int nCol,
-                       const int nRow,
-                       const int nSlc,
+void FFT::bwCreatePlan(const long nCol,
+                       const long nRow,
+                       const long nSlc,
                        const unsigned int nThread)
 {
     _srcC = (TSFFTW_COMPLEX*)TSFFTW_malloc((nCol / 2 + 1) * nRow * nSlc * sizeof(Complex));
@@ -397,58 +320,6 @@ void FFT::bwCreatePlan(const int nCol,
     TSFFTW_free(_dstR);
 }
 
-/*
- *void FFT::fwExecutePlan(Image& img)
- *{
- *    FW_EXTRACT_P(img);
- *
- *    TSFFTW_execute_dft_r2c(fwPlan, _srcR, _dstC);
- *
- *    _srcR = NULL;
- *    _dstC = NULL;
- *}
- *
- *void FFT::fwExecutePlan(Volume& vol)
- *{
- *    FW_EXTRACT_P(vol);
- *
- *    TSFFTW_execute_dft_r2c(fwPlan, _srcR, _dstC);
- *
- *    _srcR = NULL;
- *    _dstC = NULL;
- *}
- *
- */
-/*
- *void FFT::bwExecutePlan(Image& img)
- *{
- *    BW_EXTRACT_P(img);
- *
- *    TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
- *
- *    SCALE_RL(img, 1.0 / img.sizeRL());
- *
- *    _srcC = NULL;
- *    _dstR = NULL;
- *
- *    img.clearFT();
- *}
- *
- *void FFT::bwExecutePlan(Volume& vol)
- *{
- *    BW_EXTRACT_P(vol);
- *
- *    TSFFTW_execute_dft_c2r(bwPlan, _srcC, _dstR);
- *
- *    SCALE_RL(vol, 1.0 / vol.sizeRL());
- *
- *    _srcC = NULL;
- *    _dstR = NULL;
- *
- *    vol.clearFT();
- *}
- *
- */
 void FFT::fwExecutePlan(Image& img)
 {
     FW_EXTRACT_P(img);
@@ -500,28 +371,6 @@ void FFT::bwExecutePlan(Volume& vol,
 
     vol.clearFT();
 }
-
-/*void FFT::fwDestroyPlan()
-{
-    if (fwPlan)
-    {
-        #pragma omp critical (line494)
-        TSFFTW_destroy_plan(fwPlan);
-
-        fwPlan = NULL;
-    }
-}
-
-void FFT::bwDestroyPlan()
-{
-    if (bwPlan)
-    {
-        #pragma omp critical (line500)
-        TSFFTW_destroy_plan(bwPlan);
-
-        bwPlan = NULL;
-    }
-}*/
 
 void FFT::fwDestroyPlan()
 {
