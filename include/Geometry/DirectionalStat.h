@@ -35,6 +35,13 @@
 #include "Functions.h"
 
 /**
+ * @brief Calculate the projective arithmetic mean of a set of rotations in unit quaternions.
+ */
+void mean(dvec4& dst              /**< [out] the mean */,
+          const dmat4& src       /**< [in]  a set of rotations in unit quaternions */
+          );
+
+/**
  * @brief Calculate the probability density function of angular central Gaussian distribution.
  */
 double pdfACG(const dvec4& x,       /**< [in] a quaternion */

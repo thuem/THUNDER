@@ -10,6 +10,12 @@
 
 #include "DirectionalStat.h"
 
+void mean(dvec4& dst,
+          const dmat4& src)
+{
+}
+
+
 double pdfACG(const dvec4& x,
               const dmat44& sig)
 {

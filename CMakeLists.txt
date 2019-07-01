@@ -12,6 +12,7 @@
 # Mingxu Hu   | 2019/05/07 | 1.4.12.090507 | prepare of 1.4.12 release
 # Mingxu Hu   | 2019/05/31 | 1.4.12.090531 | -Wno-sign-compare
 # Mingxu Hu   | 2019/06/28 | 1.4.14.090628 | v1.4.14
+# Mingxu Hu   | 2019/06/29 | 1.4.14.090629 | googletest added
 
 # CMAKE REQUIREMENT
 
@@ -25,7 +26,6 @@ execute_process(
 )
 
 set(COMMIT_VERSION_QUOTE "\"${COMMIT_VERSION}\"")
-
 
 set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "")
 set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "")
@@ -59,6 +59,7 @@ endif("${SINGLE_PRECISION}")
 option(GPU_VERSION "Whether to use gpu version in caculation?" ON)
 option(CPU_VERSION "Whether to use cpu version in caculation?" ON)
 option(TOOLS_BUILD "Whether to build tools?" ON)
+option(UNITTEST_BUILD "Whether to build unittests?" OFF)
 
 if("${GPU_VERSION}" AND "${CPU_VERSION}")
 
@@ -75,6 +76,7 @@ else("${GPU_VERSION}" AND "${CPU_VERSION}")
 endif("${GPU_VERSION}" AND "${CPU_VERSION}")
 # COMMON FLAGS
 
+# set(COMMON_FLAGS "-std=c++11 ${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wno-sign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wno-sign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 # set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 
@@ -186,6 +188,12 @@ message(STATUS "Getting ready for building GSL")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
 
+message(STATUS "Getting ready for building googletest")
+
+# BUILD googletest
+
+include(${PROJECT_SOURCE_DIR}/cmake/BuildGTest.cmake)
+
 # ADD HEADER OF GSL
 
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/gsl/include)
@@ -219,7 +227,6 @@ list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Functions)
 list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Geometry)
 list(APPEND CUR_INCLUDE ${INCLUDE_BASE}/Image)
 
-
 # CUDA & NCCL FOR GPU VERSION
 
 find_package(CUDA 8.0)
@@ -229,7 +236,6 @@ if(NOT ${CUDA_FOUND})
     endif("${GPU_VERSION}")
     set(GPU_VERSION off)
 endif(NOT ${CUDA_FOUND})
-
 
 find_package(NCCL)
 if(NOT ${NCCL_FOUND})
@@ -410,7 +416,46 @@ if("${CPU_VERSION}")
     if("${TOOLS_BUILD}")
         set(TOOLS_BUILD OFF)
     endif("${TOOLS_BUILD}")
+
+    # BUILD UNIT TEST
     
+    if(${UNITTEST_BUILD})
+
+        enable_testing()
+
+        # find_package(GTest REQUIRED)
+
+        # message(STATUS "GTEST_INCLUDE_DIRS : " ${GTEST_INCLUDE_DIRS})
+        # message(STATUS "GTEST_BOTH_LIBRARIES : " ${GTEST_BOTH_LIBRARIES})
+        # message(STATUS "GTEST_LIBRARIES : " ${GTEST_LIBRARIES})
+        # message(STATUS "GTEST_MAIN_LIBRARIES : " ${GTEST_MAIN_LIBRARIES})
+
+        # include_directories("${GTEST_PATH}/include")
+
+        # target_link_libraries(core_CPU ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+
+        file(GLOB UNIT_SOURCES ${PROJECT_SOURCE_DIR}/unitsrc/*.cpp)
+
+        foreach(UNITSRC ${UNIT_SOURCES})
+
+            message(STATUS "UNITSRC : " ${UNITSRC})
+
+            get_filename_component(UNITNAME ${UNITSRC} NAME_WE) # file name without directories or longest extension
+
+            add_executable(${UNITNAME} ${UNITSRC})
+
+            # target_link_libraries(${UNITNAME} core_CPU ${GTEST_BOTH_LIBRARIES})
+            # target_link_libraries(${UNITNAME} core_CPU ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+            target_link_libraries(${UNITNAME} core_CPU ${GTEST_LIBRARIES})
+
+            target_include_directories(${UNITNAME} PUBLIC ${CONFIG_CPU_DIR} ${CUR_INCLUDE})
+
+            # add_test(AllTests ${UNITNAME})
+
+            install(TARGETS ${UNITNAME} RUNTIME DESTINATION bin)
+        endforeach()
+    endif(${UNITTEST_BUILD})
+
 endif("${CPU_VERSION}")
 
 file(GLOB BIN_SOURCES ${PROJECT_SOURCE_DIR}/appsrc/*.cpp)
@@ -447,7 +492,6 @@ if("${GPU_VERSION}")
     endforeach()
 
 endif("${GPU_VERSION}")
-
 # Copy Scripts
 
 install(FILES "${PROJECT_SOURCE_DIR}/script/STAR_2_THU.py" DESTINATION script)
