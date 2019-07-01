@@ -294,23 +294,20 @@ void Optimiser::init()
                                    << " (Pixel) will be Used for Performing Intensity Scale Correction";
     }
 
-    if (_para.gSearch)
-    {
-        MLOG(INFO, "LOGGER_INIT") << "Setting Frequency Upper Boundary during Global Search";
+    MLOG(INFO, "LOGGER_INIT") << "Setting Frequency Upper Boundary during Global Search";
 
-        RFLOAT globalSearchRes = GSL_MIN_DBL(_para.globalSearchRes,
+    RFLOAT globalSearchRes = GSL_MIN_DBL(_para.globalSearchRes,
                                              R_GLOBAL_FACTOR * _para.maskRadius / pow(1 + _sym.nSymmetryElement(), 1.0 / 3));
 
-        _model.setRGlobal(AROUND(resA2P(1.0 / globalSearchRes,
+    _model.setRGlobal(AROUND(resA2P(1.0 / globalSearchRes,
                                         _para.size,
                                         _para.pixelSize)) + 1);
 
-        MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
+    MLOG(INFO, "LOGGER_INIT") << "Global Search Resolution Limit : "
                                   << globalSearchRes
                                   << " (Angstrom), "
                                   << _model.rGlobal()
                                   << " (Pixel)";
-    }
 
     MLOG(INFO, "LOGGER_INIT") << "Setting Parameters: _r, _iter";
 

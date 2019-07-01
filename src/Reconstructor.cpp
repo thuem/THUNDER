@@ -2440,7 +2440,7 @@ void Reconstructor::allReduceT(const unsigned int nThread)
                             _hemi);
 
 #ifndef NAN_NO_CHECK
-        SEGMENT_NAN_CHECK_COMPLEX(&_T2D[0], _T3D.sizeFT());
+        SEGMENT_NAN_CHECK_COMPLEX(&_T3D[0], _T3D.sizeFT());
 #endif
     }
     else

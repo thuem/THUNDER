@@ -551,6 +551,8 @@ void Particle::load(const int nR,
     calVari(PAR_D);
 
     _score = score;
+
+    resetPeakFactor();
 }
 
 void Particle::vari(double& k1,
@@ -1118,9 +1120,23 @@ void Particle::calVari(const ParticleType pt)
     else if (pt == PAR_D)
     {
 #ifdef PARTICLE_CAL_VARI_DEFOCUS_ZERO_MEAN
-        _s = gsl_stats_sd_m(_d.data(), 1, _d.size(), 0);
+        if (_d.size() == 1)
+        {
+            _s = gsl_stats_sd_with_fixed_mean(_d.data(), 1, _d.size(), 0);
+        }
+        else
+        {
+            _s = gsl_stats_sd_m(_d.data(), 1, _d.size(), 0);
+        }
 #else
-        _s = gsl_stats_sd(_d.data(), 1, _d.size());
+        if (_d.size() == 1)
+        {
+            _s = 0;
+        }
+        else
+        {
+            _s = gsl_stats_sd(_d.data(), 1, _d.size());
+        }
 #endif
     }
 }
@@ -2365,11 +2381,28 @@ void Particle::balanceWeight(const ParticleType pt)
         m = gsl_stats_mean(_d.data(), 1, _d.size());
 #endif
 
-        s = gsl_stats_sd_m(_d.data(), 1, _d.size(), m);
-
-        for (int i = 0; i < _nD; i++)
+        if (_d.size() == 1)
         {
-            _wD(i) = 1.0 / gsl_ran_gaussian_pdf(_d(i) - m, s);
+            s = 0;
+        }
+        else
+        {
+            s = gsl_stats_sd_m(_d.data(), 1, _d.size(), m);
+        }
+        
+        if (s == 0)
+        {
+            for (int i = 0; i < _nD; i++)
+            {
+                _wD(i) = 1.0;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < _nD; i++)
+            {
+                _wD(i) = 1.0 / gsl_ran_gaussian_pdf(_d(i) - m, s);
+            }
         }
     }
 
