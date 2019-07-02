@@ -390,10 +390,8 @@ int main(int argc, char *argv[])
     {
         CLOG(INFO, "LOGGER_SYS") << "Git Commit Version: "
                                  << COMMIT_VERSION_QUOTE;
-                                  
     }
 
- 
     if (rank == 0)
     {
         CLOG(INFO, "LOGGER_SYS") << "THUNDER is Initiallised With "

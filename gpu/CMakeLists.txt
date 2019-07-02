@@ -7,6 +7,7 @@ SET(CUDA_BASE ${PROJECT_SOURCE_DIR}/gpu)
 configure_file(${CUDA_BASE}/config/Device.cuh.in
                ${PROJECT_BINARY_DIR}/gpu/include/Device.cuh)
 
+include_directories(${CONFIG_GPU_DIR})
 include_directories(${PROJECT_BINARY_DIR}/gpu/include)
 
 ADD_SUBDIRECTORY(include)

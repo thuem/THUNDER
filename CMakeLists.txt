@@ -11,6 +11,7 @@
 # Fande Yu    | 2019/03/25 | 1.4.11.090325 | separate build version in CPU & GPU
 # Mingxu Hu   | 2019/05/07 | 1.4.12.090507 | prepare of 1.4.12 release
 # Mingxu Hu   | 2019/05/31 | 1.4.12.090531 | -Wno-sign-compare
+# Fande Yu    | 2019/06/26 | 1.4.12.090626 | fix compilation problem with cmake below version3.7
 # Mingxu Hu   | 2019/06/28 | 1.4.14.090628 | v1.4.14
 # Mingxu Hu   | 2019/06/29 | 1.4.14.090629 | googletest added
 
@@ -363,6 +364,14 @@ if("${GPU_VERSION}")
     list(APPEND EXTERNAL_LIBS ${CUDA_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES})
     list(APPEND EXTERNAL_LIBS ${CUDA_CUFFT_LIBRARIES})
     list(APPEND EXTERNAL_LIBS ${CUDA_curand_LIBRARY})
+    
+    if(("${CMAKE_MINOR_VERSION}" STRLESS "7") OR ("${CMAKE_MINOR_VERSION}" STREQUAL "7"))
+        find_library(CUDA_cudadevrt_LIBRARY libcudadevrt.a PATHS ${CUDA_TOOLKIT_ROOT_DIR})
+        list(APPEND EXTERNAL_LIBS ${CUDA_cudadevrt_LIBRARY})
+        #message(STATUS "CUDA_cudadevrt_LIBRARY:${CUDA_cudadevrt_LIBRARY}")
+    endif(("${CMAKE_MINOR_VERSION}" STRLESS "7") OR ("${CMAKE_MINOR_VERSION}" STREQUAL "7"))
+
+        
 
     # NCCL
 
