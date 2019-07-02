@@ -141,7 +141,7 @@ void FFT::fw(Image& img,
 
     TSFFTW_execute(fwPlan);
 
-    FW_CLEAN_UP_MT;
+    FW_CLEAN_UP_MT(img);
 }
 
 void FFT::bw(Image& img,
@@ -198,7 +198,7 @@ void FFT::fw(Volume& vol,
 
     TSFFTW_execute(fwPlan);
 
-    FW_CLEAN_UP_MT;
+    FW_CLEAN_UP_MT(vol);
 }
 
 void FFT::bw(Volume& vol,
@@ -327,6 +327,8 @@ void FFT::fwExecutePlan(Image& img)
 
     _srcR = NULL;
     _dstC = NULL;
+
+    img.clearRL();
 }
 
 void FFT::fwExecutePlan(Volume& vol)
@@ -337,6 +339,8 @@ void FFT::fwExecutePlan(Volume& vol)
 
     _srcR = NULL;
     _dstC = NULL;
+
+    vol.clearRL();
 }
 
 void FFT::bwExecutePlan(Image& img,

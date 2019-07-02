@@ -72,12 +72,14 @@
 /**
  * @brief This macro destorys the plan for performing Fourier transform and assigns the pointers to NULL.
  */
-#define FW_CLEAN_UP_MT \
+#define FW_CLEAN_UP_MT(obj /**< [in, out] the // TODO */ \
+                       ) \
 { \
     TSFFTW_destroy_plan(fwPlan); \
     fwPlan = NULL; \
     _dstC = NULL; \
     _srcR = NULL; \
+    obj.clearRL(); \
 }
 
 /**

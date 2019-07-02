@@ -4504,7 +4504,7 @@ void Optimiser::initRef()
             }
 
             fft.fw(_model.ref(t), _para.nThreadsPerProcess);
-            _model.ref(t).clearRL();
+            // _model.ref(t).clearRL();
         }
     }
     else
@@ -4545,7 +4545,7 @@ void Optimiser::initRef()
                 _model.appendRef(volRef.copyVolume());
 
                 fft.fw(_model.ref(t), _para.nThreadsPerProcess);
-                _model.ref(t).clearRL();
+                // _model.ref(t).clearRL();
             }
         }
         else if (_para.mode == MODE_3D)
@@ -4576,7 +4576,7 @@ void Optimiser::initRef()
                 _model.appendRef(ref.copyVolume());
 
                 fft.fw(_model.ref(t), _para.nThreadsPerProcess);
-                _model.ref(t).clearRL();
+                // _model.ref(t).clearRL();
             }
 
         }
@@ -5016,10 +5016,10 @@ void Optimiser::fwImg()
     FOR_EACH_2D_IMAGE
     {
         _fftImg.fwExecutePlan(_img[l]);
-        _img[l].clearRL();
+        // _img[l].clearRL();
 
         _fftImg.fwExecutePlan(_imgOri[l]);
-        _imgOri[l].clearRL();
+        // _imgOri[l].clearRL();
     }
 }
 
@@ -6138,7 +6138,7 @@ void Optimiser::reMaskImg()
 
             _fftImg.fwExecutePlan(_img[l]);
 
-            _img[l].clearRL();
+            // _img[l].clearRL();
         }
     }
     else
@@ -7888,7 +7888,7 @@ void Optimiser::solventFlatten(const bool mask)
 #ifdef OPTIMISER_SOLVENT_FLATTEN_LOW_PASS_MASK
 
                 fft.fw(_mask, _para.nThreadsPerProcess);
-                _mask.clearRL();
+                // _mask.clearRL();
 
                 Volume lowPassMask(_para.size, _para.size, _para.size, FT_SPACE);
 
@@ -7984,7 +7984,7 @@ void Optimiser::solventFlatten(const bool mask)
         BLOG(INFO, "LOGGER_ROUND") << "Round " << _iter << ", " << "Fourier Transforming Reference " << t;
 
         fft.fw(_model.ref(t), _para.nThreadsPerProcess);
-        _model.ref(t).clearRL();
+        // _model.ref(t).clearRL();
     }
 }
 
