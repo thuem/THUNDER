@@ -81,6 +81,10 @@ endif("${GPU_VERSION}" AND "${CPU_VERSION}")
 set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -Wno-sign-compare -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 # set(COMMON_FLAGS "${COMMON_FLAGS} -Wall -Wno-uninitialized -Wno-deprecated-declarations -pthread -fopenmp ${ADDITIONAL_FLAGS}")
 
+if("${UNITTEST_BUILD}")
+    set(COMMON_FLAGS "-std=c++11 ${COMMON_FLAGS}")
+endif("${UNITTEST_BUILD}")
+
 # BUILD TYPES
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
@@ -189,15 +193,23 @@ message(STATUS "Getting ready for building GSL")
 
 include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
 
-message(STATUS "Getting ready for building googletest")
-
-# BUILD googletest
-
-include(${PROJECT_SOURCE_DIR}/cmake/BuildGTest.cmake)
-
 # ADD HEADER OF GSL
 
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/gsl/include)
+
+if("${UNITTEST_BUILD}")
+
+    message(STATUS "Getting ready for building googletest")
+
+    # BUILD GOOGLETEST
+
+    include(${PROJECT_SOURCE_DIR}/cmake/BuildGTest.cmake)
+
+    # ADD HEADER OF GOOGLETEST
+
+    include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/googletest/include)
+
+endif("${UNITTEST_BUILD}")
 
 # ADD HEADER OF EIGEN3
 

@@ -56,6 +56,14 @@ TEST_F(DirectionalStatTest, MeanOfStillRotations)
     // EXPECT_EQ(mean, dvec4(1, 0, 0, 0));
 }
 
+class DirectionalStatTestP : public :: testing:: TestWithParam<int>
+{
+};
+
+TEST_P(DirectionalStatTestP, TEST)
+{
+}
+
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
