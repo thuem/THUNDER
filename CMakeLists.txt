@@ -197,6 +197,14 @@ include(${PROJECT_SOURCE_DIR}/cmake/BuildGSL.cmake)
 
 include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/gsl/include)
 
+# BUILD BOOST
+
+include(${PROJECT_SOURCE_DIR}/cmake/BuildBoost.cmake)
+
+# ADD HEADER OF BOOST
+
+include_directories(BEFORE ${PROJECT_BINARY_DIR}/external/boost)
+
 if("${UNITTEST_BUILD}")
 
     message(STATUS "Getting ready for building googletest")
@@ -224,10 +232,6 @@ include_directories(${PROJECT_SOURCE_DIR}/external/jsoncpp)
 message(STATUS "Getting ready for building jsoncpp")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/jsoncpp)
-
-# ADD HEADER OF BOOST
-
-include_directories(${PROJECT_SOURCE_DIR}/external/boost)
 
 # ADD HEADER OF EASYLOGGING
 
@@ -317,7 +321,6 @@ if("${GPU_VERSION}")
                "${CONFIG_GPU_DIR}/THUNDERConfig.h")
 
     #install(FILES "${PROJECT_BINARY_DIR}/THUNDERConfig.h" DESTINATION include)
-
     
     # Compile Binary of THUNDER core_GPU
     
@@ -382,8 +385,6 @@ if("${GPU_VERSION}")
         list(APPEND EXTERNAL_LIBS ${CUDA_cudadevrt_LIBRARY})
         #message(STATUS "CUDA_cudadevrt_LIBRARY:${CUDA_cudadevrt_LIBRARY}")
     endif(("${CMAKE_MINOR_VERSION}" STRLESS "7") OR ("${CMAKE_MINOR_VERSION}" STREQUAL "7"))
-
-        
 
     # NCCL
 
