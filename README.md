@@ -6,6 +6,10 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 
 [Nature Methods](https://www.nature.com/articles/s41592-018-0223-8), A particle-filter framework for robust cryo-EM 3D reconstruction
 
+## Download
+
+[Stable Release](https://github.com/thuem/THUNDER.git)
+
 ## Citation
 
 * [Single particle cryo-EM reconstruction of 52 kDa streptavidin at 3.2 Angstrom resolution\[J\]. Nature Communications.](https://doi.org/10.1038/s41467-019-10368-w)
