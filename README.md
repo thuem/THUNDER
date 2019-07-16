@@ -8,7 +8,7 @@ A particle-filter framework for robust cryoEM 3D reconstruction
 
 ## Download
 
-Click [here](https://github.com/thuem/THUNDER.git) to donwload THUNDER v1.4.14 (stable release).
+Click [here](https://github.com/thuem/THUNDER/archive/master.zip) to donwload THUNDER v1.4.14 (stable release).
 
 ## Citation
 
