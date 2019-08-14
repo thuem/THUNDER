@@ -19,6 +19,7 @@ Click [here](https://github.com/thuem/THUNDER/archive/master.zip) to download TH
 * [Structures of the human spliceosomes before and after release of the ligated exon\[J\]. Cell Research.](https://doi.org/10.1038/s41422-019-0143-x)
 * [Seneca Valley virus attachment and uncoating mediated by its receptor anthrax toxin receptor 1\[J\]. PNAS.](https://www.pnas.org/content/115/51/13087)
 * [Structures of the fully assembled Saccharomyces cerevisiae spliceosome before activation\[J\]. Science.](http://science.sciencemag.org/content/360/6396/1423)
+* [Modulation of cardiac ryanodine receptor 2 by calmodulin\[J\]. Nature.](https://www.nature.com/articles/s41586-019-1377-y)
 
 ## Quick Start
 
