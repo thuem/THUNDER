@@ -35,7 +35,7 @@ of THUNDER.
 
 THUNDER is a open-source software package, source code of which is held
 on Github. You may download the source code at
-<https://github.com/thuem/THUNDER> or execute `git clone git@github.com:thuem/THUNDER.git` in CLI.
+<https://github.com/thuem/THUNDER> or execute `https://github.com/thuem/THUNDER.git` in CLI.
 
 ### Configure Using **CMake**
 
