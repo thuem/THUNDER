@@ -114,11 +114,11 @@ make install
 After compiling and installation, several folders will appear under the installation directory. **include** containing header files, **bin** containing executable binaries, **lib** containing several libraries, **script** containing scripts needed. The compiled binaries are listed as
 
 <select id = "thunder_binarys" onchange="thunder_binary_explanation();">
-    <option value = "Default">--Please choose an option--</option>
-    <option value = "thunder_cpu">thunder_cpu</option>
-    <option value = "thunder_gpu">thunder_gpu</option>
-    <option value = "thunder_average">thunder_average</option>
-    <option value = "thunder_genmask">thunder_genmask</option>
+    <option value = "">--Please choose an option--</option>
+    <option value = "the main executable for 2D/3D classification and refinement, CPU version">thunder_cpu</option>
+    <option value = "the main executable for 2D/3D classification and refinement, GPU version">thunder_gpu</option>
+    <option value = "average two volumes">thunder_average</option>
+    <option value = "generate mask based on a volume, the value of the threshold and the value of edgewidth">thunder_genmask</option>
     <option value = "thunder_postprocess">thunder_postprocess</option>
     <option value = "thunder_lowpass">thunder_lowpass</option>
     <option value = "thunder_resize">thunder_resize</option>
