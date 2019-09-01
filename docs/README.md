@@ -113,8 +113,8 @@ make install
 
 After compiling and installation, several folders will appear under the installation directory. **include** containing header files, **bin** containing executable binaries, **lib** containing several libraries, **script** containing scripts needed. The compiled binaries are listed as
 
-<select id = "thunder_binary" onchange="thunder_binary_explanation();">
-    <option value = "">--Please choose an option--</option>
+<select id = "thunder_binarys" onchange="thunder_binary_explanation();">
+    <option value = "Default">--Please choose an option--</option>
     <option value = "thunder_cpu">thunder_cpu</option>
     <option value = "thunder_gpu">thunder_gpu</option>
     <option value = "thunder_average">thunder_average</option>
@@ -123,13 +123,16 @@ After compiling and installation, several folders will appear under the installa
     <option value = "thunder_lowpass">thunder_lowpass</option>
     <option value = "thunder_resize">thunder_resize</option>
 </select>
+<input type = "text" id = "thunder_binary" value = "">
 
 <script>
     function thunder_binary_explanation()
     {
-        var val = $(".thunder_binary option:selected").text();
-        
-        var index = $(".thunder_binary").get(0).selectedIndex;
+        var _sel = document.getElementById("thunder_binarys");
+        var index = _sel.selectedIndex;
+        var _val = _sel.options[index].value;
+        var input = document.getElementById("thunder_binary");
+        input.value = _val;
     }
 </script>
 
