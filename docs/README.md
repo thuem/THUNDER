@@ -160,20 +160,20 @@ THUNDER uses **.thu** file for storing information of each particle image. **.th
     <option value = "Coordinate Y in Micrograph">[11] Coordinate Y in Micrograph</option>
     <option value = "Group ID">[12] Group ID</option>
     <option value = "Class ID">[13] Class ID</option>
-    <option value = "the 1st Element of the Unit Quaternion">the 1st Element of the Unit Quaternion</option>
-    <option value = "the 2nd Element of the Unit Quaternion">the 2nd Element of the Unit Quaternion</option>
-    <option value = "the 3rd Element of the Unit Quaternion">the 3rd Element of the Unit Quaternion</option>
-    <option value = "the 4th Element of the Unit Quaternion">the 4th Element of the Unit Quaternion</option>
-    <option value = "the 1st Standard Deviation of Rotation">the 1st Standard Deviation of Rotation</option>
-    <option value = "the 2nd Standard Deviation of Rotation">the 2nd Standard Deviation of Rotation</option>
-    <option value = "the 3rd Standard Deviation of Rotation">the 3rd Standard Deviation of Rotation</option>
-    <option value = "Translation X">Translation X</option>
-    <option value = "Translation Y">Translation Y</option>
-    <option value = "Standard Deviation of Translation X">Standard Deviationof Translation X</option>
-    <option value = "Standard Deviation of Translation Y">Standard Deviationof Translation Y</option>
-    <option value = "Defocus Factor">Defocus Factor</option>
-    <option value = "Standard Deviation of Defocus Factor">Standard Deviation of Defocus Factor</option>
-    <option value = "Score">Score</option>
+    <option value = "the 1st Element of the Unit Quaternion">[14] the 1st Element of the Unit Quaternion</option>
+    <option value = "the 2nd Element of the Unit Quaternion">[15] the 2nd Element of the Unit Quaternion</option>
+    <option value = "the 3rd Element of the Unit Quaternion">[16] the 3rd Element of the Unit Quaternion</option>
+    <option value = "the 4th Element of the Unit Quaternion">[17] the 4th Element of the Unit Quaternion</option>
+    <option value = "the 1st Standard Deviation of Rotation">[18] the 1st Standard Deviation of Rotation</option>
+    <option value = "the 2nd Standard Deviation of Rotation">[19] the 2nd Standard Deviation of Rotation</option>
+    <option value = "the 3rd Standard Deviation of Rotation">[20] the 3rd Standard Deviation of Rotation</option>
+    <option value = "Translation X">[21] Translation X</option>
+    <option value = "Translation Y">[22] Translation Y</option>
+    <option value = "Standard Deviation of Translation X">[23] Standard Deviationof Translation X</option>
+    <option value = "Standard Deviation of Translation Y">[24] Standard Deviationof Translation Y</option>
+    <option value = "Defocus Factor">[25] Defocus Factor</option>
+    <option value = "Standard Deviation of Defocus Factor">[26] Standard Deviation of Defocus Factor</option>
+    <option value = "Score">[27] Score</option>
 </select>
 
 <p>
@@ -218,7 +218,7 @@ It is worth noticed that both of two scripting only convert CTF information but 
 
 Meanwhile, 2D and 3D classification of **thunder_cpu** and **thunder_gpu** typically only involve global search.
 
-**You may find a demo version of this JSON parameter file named **demo.json** under directory **install\_dir/script**.**
+You may find a demo version of this JSON parameter file named **demo.json** under directory **install\_dir/script**.
 
 ### Processes and Threads
 
