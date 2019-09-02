@@ -112,7 +112,7 @@ After compiling and installation, several folders will appear under the installa
 
 <br>
 
-<input type = "text" readonly = "readonly" style = "width: 200px;" id = "thunder_binary" value = "">
+<input type = "text" readonly = "readonly" style = "width: 100%;" id = "thunder_binary" value = "">
 
 <script>
     function thunder_binary_explanation()
