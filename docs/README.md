@@ -101,15 +101,16 @@ After compiling and installation, several folders will appear under the installa
 
 <select id = "thunder_binarys" onchange="thunder_binary_explanation();">
     <option value = "">--Please choose an option--</option>
-    <option value = "<b>thunder_cpu</b>: the main executable for 2D/3D classification and refinement, CPU version">thunder_cpu</option>
-    <option value = "<b>thunder_gpu</b>: the main executable for 2D/3D classification and refinement, GPU version">thunder_gpu</option>
-    <option value = "<b>thunder_average</b>: average two volumes">thunder_average</option>
+    <option value = "thunder_cpu: the main executable for 2D/3D classification and refinement, CPU version">thunder_cpu</option>
+    <option value = "thunder_gpu: the main executable for 2D/3D classification and refinement, GPU version">thunder_gpu</option>
+    <option value = "thunder_average: average two volumes">thunder_average</option>
     <option value = "thunder_genmask: generate mask based on a volume, the value of the threshold and the value of edgewidth">thunder_genmask</option>
-    <option value = "post-process based on two half maps">thunder_postprocess</option>
-    <option value = "perform low-pass filtering on a volume">thunder_lowpass</option>
-    <option value = "resize a volume">thunder_resize</option>
+    <option value = "thunder_postprocess: post-process based on two half maps">thunder_postprocess</option>
+    <option value = "thunder_lowpass: perform low-pass filtering on a volume">thunder_lowpass</option>
+    <option value = "thunder_resize: resize a volume">thunder_resize</option>
 </select>
 <p>
+<textarea style = "width: 100%;" id = "thunder_binary" value = "">
 <input type = "text" readonly = "readonly" style = "width: 100%;" id = "thunder_binary" value = "">
 </p>
 
