@@ -110,9 +110,9 @@ After compiling and installation, several folders will appear under the installa
     <option value = "resize a volume">thunder_resize</option>
 </select>
 
-<p>
-<input type = "text" id = "thunder_binary" value = "">
-</p>
+<br>
+
+<input type = "text" readonly = "readonly" style = "width: 200px;" id = "thunder_binary" value = "">
 
 <script>
     function thunder_binary_explanation()
