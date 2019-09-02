@@ -147,19 +147,19 @@ THUNDER uses **.thu** file for storing information of each particle image. **.th
 
 <select id = "thu_defs" onchange="thu_def_explanation();">
     <option value = "">--Please choose an option--</option>
-    <option value = "Voltage">Voltage</option>
-    <option value = "DefocusU">DefocusU</option>
-    <option value = "DefocusV">DefocusV</option>
-    <option value = "DefocusTheta">DefocusTheta</option>
-    <option value = "Cs">Cs</option>
-    <option value = "Amplitude">Amplitude</option>
-    <option value = "Phase Shift">Phase Shift</option>
-    <option value = "Path of Particle">Particle of Particle</option>
-    <option value = "Path of Micrograph">Particle of Micrograph</option>
-    <option value = "Coordinate X in Micrograph">Coordinate X in Micrograph</option>
-    <option value = "Coordinate Y in Micrograph">Coordinate Y in Micrograph</option>
-    <option value = "Group ID">Group ID</option>
-    <option value = "Class ID">Class ID</option>
+    <option value = "Acceleration voltage of electron in the microscope. The measuring unit is Voltage.">[1] Voltage</option>
+    <option value = "Defocus on the first axle of the defocus ellipsoid. Please refer to CTFFIND3 for more detail. The measuring unit is Angstrom.">[2] DefocusU</option>
+    <option value = "Defocus on the second axle of the defocus ellipsoid. Please refer to CTFIND3 for more detail. The measuring unit is Angstrom.">[3] DefocusV</option>
+    <option value = "Rotation angle of the defocus ellipsoid. Please refer to CTFFIND3 for more detail. The measuring unit is radius.">[4] DefocusTheta</option>
+    <option value = "Spherical aberration. The measuring unit is Angstrom.">[5] Cs</option>
+    <option value = "Amplitude. Please refer to CTFFIND3 fore more detail.">[6] Amplitude</option>
+    <option value = "Phase shift. The measuring unit is radius.">[7] Phase Shift</option>
+    <option value = "Directory path of each single particle image. If it is in a stack, the index of this image in the stack is before @ symbol.">[8] Particle of Particle</option>
+    <option value = "Path of Micrograph">[9] Particle of Micrograph</option>
+    <option value = "Coordinate X in Micrograph">[10] Coordinate X in Micrograph</option>
+    <option value = "Coordinate Y in Micrograph">[11] Coordinate Y in Micrograph</option>
+    <option value = "Group ID">[12] Group ID</option>
+    <option value = "Class ID">[13] Class ID</option>
     <option value = "the 1st Element of the Unit Quaternion">the 1st Element of the Unit Quaternion</option>
     <option value = "the 2nd Element of the Unit Quaternion">the 2nd Element of the Unit Quaternion</option>
     <option value = "the 3rd Element of the Unit Quaternion">the 3rd Element of the Unit Quaternion</option>
