@@ -110,7 +110,7 @@ After compiling and installation, several folders will appear under the installa
     <option value = "thunder_resize: resize a volume">thunder_resize</option>
 </select>
 <p>
-<textarea style = "width: 100%;" id = "thunder_binary" value = "">
+<textarea style = "width: 100%;" id = "thunder_binary" value = ""></textarea>
 <input type = "text" readonly = "readonly" style = "width: 100%;" id = "thunder_binary" value = "">
 </p>
 
