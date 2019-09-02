@@ -90,8 +90,7 @@ It is worth mentioned that you may check whether the CPUs and C/C++ compiler sup
 ### Compile and Stage Binaries into Environment
 
 Please type in the following command to compile source code using 20
-threads and stage binaries into installation diectory. You may change the number after `-j` to be number of threads
-you desire for compiling.
+threads and stage binaries into installation diectory. You may change the number after `-j` to be number of threads you desire for compiling.
 
 ```bash
 make -j20
@@ -110,7 +109,10 @@ After compiling and installation, several folders will appear under the installa
     <option value = "perform low-pass filtering on a volume">thunder_lowpass</option>
     <option value = "resize a volume">thunder_resize</option>
 </select>
+
+<p>
 <input type = "text" id = "thunder_binary" value = "">
+</p>
 
 <script>
     function thunder_binary_explanation()
