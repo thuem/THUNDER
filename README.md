@@ -12,6 +12,8 @@ Click [here](https://github.com/thuem/THUNDER/archive/master.zip) to download TH
 
 ## Citation
 
+* [Capsid Structure of a Freshwater Cyanophage Siphoviridae Mic1\[J\]. Structure.](https://10.1016/j.str.2019.07.003)
+* [Divergent engagements between adeno-associated viruses with their cellular receptor AAVR\[J\]. Nature Communications.](10.1038/s41467-019-11668-x)
 * [Single particle cryo-EM reconstruction of 52 kDa streptavidin at 3.2 Angstrom resolution\[J\]. Nature Communications.](https://doi.org/10.1038/s41467-019-10368-w)
 * [Molecular Basis for Ligand Modulation of a Mammalian Voltage-Gated Ca2+ Channel\[J\]. Cell.](https://doi.org/10.1016/j.cell.2019.04.043)
 * [Adeno-associated virus 2 bound to its cellular receptor AAVR\[J\]. Nature Microbiology.](https://doi.org/10.1038/s41564-018-0356-7)
