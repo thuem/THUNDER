@@ -304,6 +304,7 @@ if("${CPU_VERSION}")
     
     add_dependencies(core_CPU FFTW)
     add_dependencies(core_CPU GSL)
+    add_dependencies(core_CPU BOOST)
     
     # Link Libraries
     
@@ -332,6 +333,7 @@ if("${GPU_VERSION}")
     
     add_dependencies(core_GPU FFTW)
     add_dependencies(core_GPU GSL)
+    add_dependencies(core_GPU BOOST)
     
     # Link Libraries
     
